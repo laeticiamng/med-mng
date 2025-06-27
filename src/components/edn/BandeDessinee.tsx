@@ -2,18 +2,25 @@
 import { ComicHeader } from './comic/ComicHeader';
 import { ComicPanel } from './comic/ComicPanel';
 import { ComicFooter } from './comic/ComicFooter';
+import { ValeursProfessionnellesBD } from './ValeursProfessionnellesBD';
 
 interface BandeDessineeProps {
   itemData: {
     title: string;
     subtitle: string;
+    slug?: string;
     tableau_rang_a?: any;
     tableau_rang_b?: any;
   };
 }
 
 export const BandeDessinee = ({ itemData }: BandeDessineeProps) => {
-  // Données des vignettes de la bande dessinée avec images plus réalistes
+  // Si c'est l'item sur les valeurs professionnelles, utiliser le composant spécialisé
+  if (itemData.slug === 'valeurs-professionnelles-medecin') {
+    return <ValeursProfessionnellesBD itemData={itemData} />;
+  }
+
+  // Données des vignettes par défaut (relation médecin-malade)
   const panelsData = [
     {
       id: 1,

@@ -150,7 +150,7 @@ const EdnItemImmersive = () => {
       case 4:
         return <ParolesMusicales paroles={item.paroles_musicales} />;
       case 5:
-        return <BandeDessinee itemData={item} />;
+        return <BandeDessinee itemData={{ ...item, slug: item.slug }} />;
       case 6:
         return <InteractionDragDrop config={item.interaction_config} />;
       case 7:
