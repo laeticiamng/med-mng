@@ -162,7 +162,7 @@ export const ParolesMusicales = ({ paroles }: ParolesMusicalesProps) => {
 
       <MusicCard
         rang="A"
-        title="Chanson Rang A - "Colloque Singulier" (4 minutes)"
+        title="Chanson Rang A - Colloque Singulier (4 minutes)"
         paroles={paroles[0]}
         selectedStyle={selectedStyle}
         isGenerating={isGenerating.rangA}
@@ -183,7 +183,7 @@ export const ParolesMusicales = ({ paroles }: ParolesMusicalesProps) => {
 
       <MusicCard
         rang="B"
-        title="Chanson Rang B - "Outils Pratiques" (4 minutes)"
+        title="Chanson Rang B - Outils Pratiques (4 minutes)"
         paroles={paroles[1]}
         selectedStyle={selectedStyle}
         isGenerating={isGenerating.rangB}
