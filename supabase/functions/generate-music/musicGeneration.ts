@@ -64,11 +64,11 @@ export class MusicGenerator {
     return this.client.get<MusicStatus>('/api/v1/generate/record-info', { taskId });
   }
 
-  async waitForCompletion(taskId: string, maxAttempts: number = 120): Promise<MusicStatus> {
+  async waitForCompletion(taskId: string, maxAttempts: number = 180): Promise<MusicStatus> {
     let attempts = 0;
     let musicData: MusicStatus;
 
-    console.log(`🔄 Polling du statut pour taskId: ${taskId}`);
+    console.log(`🔄 Polling du statut pour taskId: ${taskId} (max ${maxAttempts} tentatives)`);
 
     do {
       await new Promise(resolve => setTimeout(resolve, 10000)); // Attendre 10 secondes entre chaque vérification
@@ -77,22 +77,81 @@ export class MusicGenerator {
       try {
         musicData = await this.getMusicStatus(taskId);
         console.log(`🔍 Tentative ${attempts}/${maxAttempts}: Status=${musicData.status}`);
+        
+        // Debug: afficher la structure complète des données reçues
+        if (musicData.data) {
+          console.log(`📊 Structure data reçue:`, JSON.stringify(musicData.data, null, 2));
+          console.log(`📊 Nombre d'audios: ${musicData.data.audio?.length || 0}`);
+          if (musicData.data.audio?.length > 0) {
+            console.log(`📊 Premier audio:`, JSON.stringify(musicData.data.audio[0], null, 2));
+          }
+        } else {
+          console.log(`📊 Aucune data dans la réponse`);
+        }
 
-        // Vérifier si on a une URL audio disponible même avant SUCCESS
-        if (musicData.data?.audio?.length && musicData.data.audio[0].audio_url) {
-          console.log(`✅ URL audio trouvée au statut ${musicData.status}`);
+        // Vérifier différentes structures possibles de réponse
+        let audioUrl = null;
+        
+        // Structure 1: data.audio[0].audio_url
+        if (musicData.data?.audio?.[0]?.audio_url) {
+          audioUrl = musicData.data.audio[0].audio_url;
+          console.log(`✅ URL audio trouvée (structure 1): ${audioUrl}`);
+        }
+        // Structure 2: data.audio_url directement
+        else if (musicData.data?.audio_url) {
+          audioUrl = musicData.data.audio_url;
+          console.log(`✅ URL audio trouvée (structure 2): ${audioUrl}`);
+        }
+        // Structure 3: audio_url au niveau racine
+        else if (musicData.audio_url) {
+          audioUrl = musicData.audio_url;
+          console.log(`✅ URL audio trouvée (structure 3): ${audioUrl}`);
+        }
+
+        // Si on a trouvé une URL audio, on peut retourner
+        if (audioUrl) {
+          console.log(`🎉 URL audio récupérée avec succès au statut ${musicData.status}`);
+          // Assurer que la structure est correcte pour le retour
+          if (!musicData.data?.audio?.[0]?.audio_url) {
+            if (!musicData.data) musicData.data = { audio: [] };
+            if (!musicData.data.audio) musicData.data.audio = [];
+            if (!musicData.data.audio[0]) {
+              musicData.data.audio[0] = {
+                id: taskId,
+                audio_url: audioUrl,
+                image_url: '',
+                duration: 240,
+                title: 'Generated Music',
+                lyric: '',
+                created_at: new Date().toISOString(),
+                model_name: 'V3_5',
+                type: 'generated'
+              };
+            } else {
+              musicData.data.audio[0].audio_url = audioUrl;
+            }
+          }
           return musicData;
         }
 
         // Statuts d'erreur définitifs
         if (['CREATE_TASK_FAILED', 'GENERATE_AUDIO_FAILED', 'CALLBACK_EXCEPTION', 'SENSITIVE_WORD_ERROR'].includes(musicData.status)) {
+          console.error(`❌ Statut d'erreur définitif: ${musicData.status}`);
           throw new Error(`La génération musicale a échoué: ${musicData.status}`);
         }
 
-        // Continuer le polling pour les autres statuts
-        if (musicData.status === 'SUCCESS') {
-          break;
+        // Pour SUCCESS, on doit avoir une URL audio
+        if (musicData.status === 'SUCCESS' && !audioUrl) {
+          console.error(`❌ Statut SUCCESS mais aucune URL audio trouvée`);
+          console.error(`📊 Réponse complète:`, JSON.stringify(musicData, null, 2));
+          // On continue le polling quelques fois de plus au cas où
+          if (attempts >= maxAttempts - 10) {
+            throw new Error('Statut SUCCESS atteint mais aucune URL audio disponible');
+          }
         }
+
+        // Continuer le polling pour les autres statuts
+        console.log(`⏳ Statut ${musicData.status}, continue le polling...`);
 
       } catch (error) {
         console.error(`❌ Erreur lors de la vérification du statut (tentative ${attempts}):`, error);
@@ -100,22 +159,16 @@ export class MusicGenerator {
           throw error;
         }
         // Continuer le polling même en cas d'erreur ponctuelle
+        console.log(`🔄 Continue le polling malgré l'erreur...`);
       }
 
     } while (attempts < maxAttempts);
 
     // Vérification finale
-    if (attempts >= maxAttempts) {
-      console.error(`⏰ Timeout après ${maxAttempts} tentatives (${maxAttempts * 10} secondes)`);
-      throw new Error(`Timeout: La génération musicale prend trop de temps (${Math.floor(maxAttempts * 10 / 60)} minutes)`);
-    }
-
-    if (!musicData.data?.audio?.length || !musicData.data.audio[0].audio_url) {
-      console.error('❌ Aucune URL audio dans la réponse finale:', musicData);
-      throw new Error('Aucune URL audio générée par Suno');
-    }
-
-    return musicData;
+    console.error(`⏰ Timeout après ${maxAttempts} tentatives (${Math.floor(maxAttempts * 10 / 60)} minutes)`);
+    console.error(`📊 Dernier statut:`, musicData?.status);
+    console.error(`📊 Dernière réponse:`, JSON.stringify(musicData || {}, null, 2));
+    throw new Error(`Timeout: La génération musicale prend trop de temps (${Math.floor(maxAttempts * 10 / 60)} minutes)`);
   }
 
   private validatePayload(payload: GenerateMusicPayload) {
