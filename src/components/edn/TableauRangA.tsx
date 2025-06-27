@@ -13,39 +13,13 @@ interface TableauRangAProps {
 export const TableauRangA = ({ data }: TableauRangAProps) => {
   console.log('TableauRangA component - Received data:', data);
   
-  // Vérifications de sécurité renforcées
-  if (!data) {
-    console.error('TableauRangA: No data provided');
+  // Vérifications de sécurité
+  if (!data || !data.colonnes || !data.lignes) {
+    console.error('TableauRangA: Invalid data structure', data);
     return (
       <div className="text-center space-y-6">
         <h2 className="text-3xl font-serif text-amber-900">Tableau Rang A</h2>
-        <p className="text-amber-700">Aucune donnée disponible</p>
-      </div>
-    );
-  }
-
-  if (!data.colonnes || !Array.isArray(data.colonnes) || data.colonnes.length === 0) {
-    console.error('TableauRangA: Invalid or empty colonnes data', data.colonnes);
-    return (
-      <div className="text-center space-y-6">
-        <h2 className="text-3xl font-serif text-amber-900">Tableau Rang A</h2>
-        <p className="text-amber-700">Format des colonnes invalide ou vide</p>
-        <pre className="text-xs text-gray-500 bg-gray-100 p-4 rounded">
-          Colonnes: {JSON.stringify(data.colonnes, null, 2)}
-        </pre>
-      </div>
-    );
-  }
-
-  if (!data.lignes || !Array.isArray(data.lignes) || data.lignes.length === 0) {
-    console.error('TableauRangA: Invalid or empty lignes data', data.lignes);
-    return (
-      <div className="text-center space-y-6">
-        <h2 className="text-3xl font-serif text-amber-900">Tableau Rang A</h2>
-        <p className="text-amber-700">Format des lignes invalide ou vide</p>
-        <pre className="text-xs text-gray-500 bg-gray-100 p-4 rounded">
-          Lignes: {JSON.stringify(data.lignes, null, 2)}
-        </pre>
+        <p className="text-amber-700">Structure de données invalide</p>
       </div>
     );
   }
@@ -66,7 +40,7 @@ export const TableauRangA = ({ data }: TableauRangAProps) => {
       <div className="overflow-x-auto">
         <div className="min-w-full">
           {/* En-têtes de colonnes */}
-          <div className={`grid gap-2 mb-2`} style={{ gridTemplateColumns: `repeat(${colCount}, minmax(0, 1fr))` }}>
+          <div className="grid gap-2 mb-2" style={{ gridTemplateColumns: `repeat(${colCount}, minmax(200px, 1fr))` }}>
             {data.colonnes.map((colonne, index) => (
               <div
                 key={index}
@@ -81,13 +55,13 @@ export const TableauRangA = ({ data }: TableauRangAProps) => {
           {data.lignes.map((ligne, ligneIndex) => {
             console.log('TableauRangA: Rendering row', ligneIndex, 'with', ligne.length, 'cells');
             return (
-              <div key={ligneIndex} className={`grid gap-2 mb-2`} style={{ gridTemplateColumns: `repeat(${colCount}, minmax(0, 1fr))` }}>
+              <div key={ligneIndex} className="grid gap-2 mb-2" style={{ gridTemplateColumns: `repeat(${colCount}, minmax(200px, 1fr))` }}>
                 {ligne.map((cellule, celluleIndex) => (
                   <Card
                     key={celluleIndex}
-                    className="p-4 bg-white/80 border-amber-200 hover:bg-amber-50 transition-colors min-h-[80px] flex items-center"
+                    className="p-4 bg-white/80 border-amber-200 hover:bg-amber-50 transition-colors min-h-[100px] flex items-center"
                   >
-                    <div className="text-sm text-amber-800 leading-relaxed text-center w-full">
+                    <div className="text-sm text-amber-800 leading-relaxed w-full">
                       {cellule || 'Vide'}
                     </div>
                   </Card>

@@ -58,6 +58,38 @@ const parseJSONSafely = (data: any, defaultValue: any = null) => {
   return defaultValue;
 };
 
+// Fonction pour transformer les données brutes en format tableau
+const transformToTableauFormat = (rawData: any, rangType: 'A' | 'B') => {
+  if (!rawData) return null;
+  
+  // Si c'est déjà au bon format
+  if (rawData.colonnes && rawData.lignes) {
+    return rawData;
+  }
+  
+  // Si c'est un objet avec des sections
+  if (rawData.sections && Array.isArray(rawData.sections)) {
+    const colonnes = ['Titre', 'Contenu'];
+    const lignes = rawData.sections.map((section: any) => [
+      section.title || 'Sans titre',
+      section.content || 'Sans contenu'
+    ]);
+    
+    return {
+      theme: rawData.title || `Tableau Rang ${rangType}`,
+      colonnes,
+      lignes
+    };
+  }
+  
+  // Format par défaut si les données ne correspondent à aucun format connu
+  return {
+    theme: `Tableau Rang ${rangType}`,
+    colonnes: ['Information'],
+    lignes: [['Données en cours de traitement...']]
+  };
+};
+
 export const ImmersiveContent = ({ currentSection, item }: ImmersiveContentProps) => {
   console.log('ImmersiveContent - currentSection:', currentSection);
   console.log('ImmersiveContent - item data:', item);
@@ -82,20 +114,19 @@ export const ImmersiveContent = ({ currentSection, item }: ImmersiveContentProps
         const tableauRangAData = parseJSONSafely(item.tableau_rang_a);
         console.log('Rendering TableauRangA - Parsed data:', tableauRangAData);
         
-        if (!tableauRangAData || !tableauRangAData.colonnes || !tableauRangAData.lignes) {
-          console.error('TableauRangA: Invalid data structure:', tableauRangAData);
+        const transformedRangA = transformToTableauFormat(tableauRangAData, 'A');
+        console.log('Rendering TableauRangA - Transformed data:', transformedRangA);
+        
+        if (!transformedRangA) {
           return (
             <div className="text-center space-y-6">
               <h2 className="text-3xl font-serif text-amber-900">Tableau Rang A</h2>
-              <p className="text-amber-700">Données du tableau non disponibles ou invalides</p>
-              <pre className="text-xs text-gray-500 bg-gray-100 p-4 rounded">
-                Raw data: {JSON.stringify(item.tableau_rang_a, null, 2)}
-              </pre>
+              <p className="text-amber-700">Données du tableau non disponibles</p>
             </div>
           );
         }
         
-        return <TableauRangA data={tableauRangAData} />;
+        return <TableauRangA data={transformedRangA} />;
         
       case 3:
         console.log('Rendering TableauRangB - Raw data:', item.tableau_rang_b);
@@ -104,29 +135,89 @@ export const ImmersiveContent = ({ currentSection, item }: ImmersiveContentProps
         const tableauRangBData = parseJSONSafely(item.tableau_rang_b);
         console.log('Rendering TableauRangB - Parsed data:', tableauRangBData);
         
-        if (!tableauRangBData || !tableauRangBData.colonnes || !tableauRangBData.lignes) {
-          console.error('TableauRangB: Invalid data structure:', tableauRangBData);
+        const transformedRangB = transformToTableauFormat(tableauRangBData, 'B');
+        console.log('Rendering TableauRangB - Transformed data:', transformedRangB);
+        
+        if (!transformedRangB) {
           return (
             <div className="text-center space-y-6">
               <h2 className="text-3xl font-serif text-amber-900">Tableau Rang B</h2>
-              <p className="text-amber-700">Données du tableau non disponibles ou invalides</p>
-              <pre className="text-xs text-gray-500 bg-gray-100 p-4 rounded">
-                Raw data: {JSON.stringify(item.tableau_rang_b, null, 2)}
-              </pre>
+              <p className="text-amber-700">Données du tableau non disponibles</p>
             </div>
           );
         }
         
-        return <TableauRangB data={tableauRangBData} />;
+        return <TableauRangB data={transformedRangB} />;
         
       case 4:
-        return <ParolesMusicales paroles={item.paroles_musicales} />;
+        console.log('Rendering ParolesMusicales - Raw data:', item.paroles_musicales);
+        
+        // Vérifier si les paroles existent et les traiter
+        let parolesData = item.paroles_musicales;
+        if (!parolesData || !Array.isArray(parolesData) || parolesData.length === 0) {
+          // Données par défaut si manquantes
+          parolesData = [
+            `[Couplet 1]
+Dans les couloirs de l'hôpital, résonne l'écho des pas
+Médecin, ton cœur se bat, pour chaque vie qui est là
+L'éthique guide tes choix, dans chaque diagnostic
+Colloque singulier, c'est toi et lui, face à face, authentique
+
+[Refrain]
+Écoute, comprends, soigne avec respect
+Chaque patient a son histoire, ses craintes à protéger
+Dans le silence de la consultation
+Naît la confiance, base de la guérison`,
+            `[Couplet 1]
+Chaque professionnel porte en lui les valeurs sacrées
+Responsabilité, compassion, dans chaque geste posé
+Organisation des soins, régulation des pratiques
+Pour que l'humain reste au centre, de toute notre clinique
+
+[Refrain]
+Outils pratiques, dimensions complexes
+Médecine fondée sur les preuves
+Déontologie, notre code, nos règles
+Pour protéger la vie, c'est notre œuvre`
+          ];
+        }
+        
+        return <ParolesMusicales paroles={parolesData} />;
+        
       case 5:
         return <BandeDessinee itemData={{ ...item, slug: item.slug }} />;
       case 6:
-        return <InteractionDragDrop config={item.interaction_config} />;
+        console.log('Rendering InteractionDragDrop - Raw data:', item.interaction_config);
+        const interactionData = parseJSONSafely(item.interaction_config);
+        console.log('Rendering InteractionDragDrop - Parsed data:', interactionData);
+        
+        if (!interactionData) {
+          return (
+            <div className="text-center space-y-6">
+              <h2 className="text-3xl font-serif text-amber-900">Interaction</h2>
+              <p className="text-amber-700">Configuration d'interaction non disponible</p>
+            </div>
+          );
+        }
+        
+        return <InteractionDragDrop config={interactionData} />;
       case 7:
-        return <QuizFinal questions={item.quiz_questions} rewards={item.reward_messages} />;
+        console.log('Rendering QuizFinal - Questions:', item.quiz_questions);
+        console.log('Rendering QuizFinal - Rewards:', item.reward_messages);
+        
+        const quizData = parseJSONSafely(item.quiz_questions);
+        const rewardsData = parseJSONSafely(item.reward_messages);
+        
+        if (!quizData) {
+          return (
+            <div className="text-center space-y-6">
+              <h2 className="text-3xl font-serif text-amber-900">Quiz Final</h2>
+              <p className="text-amber-700">Questions du quiz non disponibles</p>
+            </div>
+          );
+        }
+        
+        return <QuizFinal questions={quizData} rewards={rewardsData} />;
       default:
         return (
           <div className="text-center space-y-6">

@@ -11,8 +11,21 @@ interface TableauRangBProps {
 }
 
 export const TableauRangB = ({ data }: TableauRangBProps) => {
+  console.log('TableauRangB component - Received data:', data);
+  
+  // Vérifications de sécurité
+  if (!data || !data.colonnes || !data.lignes) {
+    console.error('TableauRangB: Invalid data structure', data);
+    return (
+      <div className="text-center space-y-6">
+        <h2 className="text-3xl font-serif text-amber-900">Tableau Rang B</h2>
+        <p className="text-amber-700">Structure de données invalide</p>
+      </div>
+    );
+  }
+
   const colCount = data.colonnes.length;
-  const gridCols = `grid-cols-${colCount}`;
+  console.log('TableauRangB: Rendering table with', colCount, 'columns and', data.lignes.length, 'rows');
   
   return (
     <div className="space-y-6">
@@ -20,13 +33,13 @@ export const TableauRangB = ({ data }: TableauRangBProps) => {
         <Badge variant="secondary" className="bg-blue-100 text-blue-800 mb-4">
           Rang B - Approfondissement
         </Badge>
-        <h2 className="text-2xl font-serif text-amber-900 mb-2">{data.theme}</h2>
+        <h2 className="text-2xl font-serif text-amber-900 mb-2">{data.theme || 'Tableau Rang B'}</h2>
         <p className="text-amber-700">Outils pratiques et dimensions complexes</p>
       </div>
 
       <div className="overflow-x-auto">
         <div className="min-w-full">
-          <div className={`grid ${gridCols} gap-2 mb-2`} style={{ gridTemplateColumns: `repeat(${colCount}, minmax(0, 1fr))` }}>
+          <div className="grid gap-2 mb-2" style={{ gridTemplateColumns: `repeat(${colCount}, minmax(200px, 1fr))` }}>
             {data.colonnes.map((colonne, index) => (
               <div
                 key={index}
@@ -38,14 +51,14 @@ export const TableauRangB = ({ data }: TableauRangBProps) => {
           </div>
           
           {data.lignes.map((ligne, ligneIndex) => (
-            <div key={ligneIndex} className={`grid ${gridCols} gap-2 mb-2`} style={{ gridTemplateColumns: `repeat(${colCount}, minmax(0, 1fr))` }}>
+            <div key={ligneIndex} className="grid gap-2 mb-2" style={{ gridTemplateColumns: `repeat(${colCount}, minmax(200px, 1fr))` }}>
               {ligne.map((cellule, celluleIndex) => (
                 <Card
                   key={celluleIndex}
-                  className="p-4 bg-white/80 border-blue-200 hover:bg-blue-50 transition-colors min-h-[80px] flex items-center"
+                  className="p-4 bg-white/80 border-blue-200 hover:bg-blue-50 transition-colors min-h-[100px] flex items-center"
                 >
-                  <div className="text-sm text-blue-800 leading-relaxed text-center w-full">
-                    {cellule}
+                  <div className="text-sm text-blue-800 leading-relaxed w-full">
+                    {cellule || 'Vide'}
                   </div>
                 </Card>
               ))}
