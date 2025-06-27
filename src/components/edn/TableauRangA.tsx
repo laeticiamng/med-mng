@@ -5,8 +5,10 @@ import { TableauRangAHeader } from './tableau/TableauRangAHeader';
 import { TableauRangAGrid } from './tableau/TableauRangAGrid';
 import { TableauRangAFooter } from './tableau/TableauRangAFooter';
 import { TableauRangAFooterIC1 } from './tableau/TableauRangAFooterIC1';
+import { TableauRangAFooterIC2 } from './tableau/TableauRangAFooterIC2';
 import { TableauRangAFooterIC4 } from './tableau/TableauRangAFooterIC4';
 import { processTableauRangAIC1, isIC1Item } from './tableau/TableauRangAUtilsIC1Integration';
+import { processTableauRangAIC2, isIC2Item } from './tableau/TableauRangAUtilsIC2Integration';
 import { processTableauRangAIC4, isIC4Item } from './tableau/TableauRangAUtilsIC4Integration';
 import { determinerColonnesUtiles, generateLignesRangAIntelligent } from './tableau/TableauRangAUtils';
 
@@ -44,6 +46,12 @@ export const TableauRangA = ({ data }: TableauRangAProps) => {
     colonnesUtiles = processed.colonnesUtiles;
     theme = processed.theme;
     footerComponent = <TableauRangAFooterIC1 />;
+  } else if (isIC2Item(data)) {
+    const processed = processTableauRangAIC2(data);
+    lignesEnrichies = processed.lignesEnrichies;
+    colonnesUtiles = processed.colonnesUtiles;
+    theme = processed.theme;
+    footerComponent = <TableauRangAFooterIC2 colonnesCount={colonnesUtiles.length} lignesCount={lignesEnrichies.length} />;
   } else if (isIC4Item(data)) {
     const processed = processTableauRangAIC4(data);
     lignesEnrichies = processed.lignesEnrichies;
