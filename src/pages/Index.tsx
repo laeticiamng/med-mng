@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Brain, Stethoscope, Volume2, VolumeX, Sparkles } from 'lucide-react';
@@ -87,10 +86,13 @@ const Index = () => {
             <div className="inline-flex items-center gap-3 mb-4">
               <Sparkles className="h-8 w-8 text-purple-400 animate-pulse" />
               <h1 className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-purple-400 via-blue-400 to-emerald-400 bg-clip-text text-transparent">
-                DocFlemme
+                MED MNG
               </h1>
               <Sparkles className="h-8 w-8 text-blue-400 animate-pulse" />
             </div>
+            <p className="text-lg md:text-xl text-white/80 font-light">
+              par EmotionsCare
+            </p>
           </div>
 
           {/* Main tagline */}
