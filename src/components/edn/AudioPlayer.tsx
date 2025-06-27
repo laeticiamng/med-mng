@@ -2,35 +2,66 @@
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
-import { Play, Pause, Volume2, Download, SkipBack, SkipForward } from 'lucide-react';
-import { useAudioPlayer } from '@/hooks/useAudioPlayer';
+import { Play, Pause, Volume2, VolumeX, Download, SkipBack, SkipForward, Stop } from 'lucide-react';
 
 interface AudioPlayerProps {
   audioUrl: string;
   title: string;
+  isPlaying: boolean;
+  currentTime: number;
+  duration: number;
+  volume: number;
+  onPlayPause: () => void;
+  onSeek: (time: number) => void;
+  onVolumeChange: (volume: number) => void;
+  onStop: () => void;
   onClose?: () => void;
 }
 
-export const AudioPlayer = ({ audioUrl, title, onClose }: AudioPlayerProps) => {
-  const { isPlaying, currentTime, duration, play, pause, seek } = useAudioPlayer();
-  const [volume, setVolume] = useState(0.8);
+export const AudioPlayer = ({ 
+  audioUrl, 
+  title, 
+  isPlaying, 
+  currentTime, 
+  duration, 
+  volume,
+  onPlayPause,
+  onSeek,
+  onVolumeChange,
+  onStop,
+  onClose 
+}: AudioPlayerProps) => {
+  const [isMuted, setIsMuted] = useState(false);
+  const [previousVolume, setPreviousVolume] = useState(volume);
 
   const formatTime = (time: number) => {
+    if (isNaN(time)) return '0:00';
     const minutes = Math.floor(time / 60);
     const seconds = Math.floor(time % 60);
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
-  const handlePlayPause = () => {
-    if (isPlaying) {
-      pause();
-    } else {
-      play(audioUrl);
+  const handleSeek = (value: number[]) => {
+    onSeek(value[0]);
+  };
+
+  const handleVolumeChange = (value: number[]) => {
+    const newVolume = value[0] / 100;
+    onVolumeChange(newVolume);
+    if (newVolume > 0) {
+      setIsMuted(false);
     }
   };
 
-  const handleSeek = (value: number[]) => {
-    seek(value[0]);
+  const toggleMute = () => {
+    if (isMuted) {
+      onVolumeChange(previousVolume);
+      setIsMuted(false);
+    } else {
+      setPreviousVolume(volume);
+      onVolumeChange(0);
+      setIsMuted(true);
+    }
   };
 
   const handleDownload = () => {
@@ -40,6 +71,14 @@ export const AudioPlayer = ({ audioUrl, title, onClose }: AudioPlayerProps) => {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  const skipForward = () => {
+    onSeek(Math.min(duration, currentTime + 10));
+  };
+
+  const skipBackward = () => {
+    onSeek(Math.max(0, currentTime - 10));
   };
 
   return (
@@ -75,10 +114,10 @@ export const AudioPlayer = ({ audioUrl, title, onClose }: AudioPlayerProps) => {
         </div>
       </div>
 
-      {/* Contrôles */}
+      {/* Contrôles principaux */}
       <div className="flex items-center justify-center gap-4 mb-4">
         <Button
-          onClick={() => seek(Math.max(0, currentTime - 10))}
+          onClick={skipBackward}
           variant="outline"
           size="sm"
           className="border-amber-300 text-amber-600 hover:bg-amber-50"
@@ -87,14 +126,23 @@ export const AudioPlayer = ({ audioUrl, title, onClose }: AudioPlayerProps) => {
         </Button>
 
         <Button
-          onClick={handlePlayPause}
+          onClick={onPlayPause}
           className="bg-amber-600 hover:bg-amber-700 text-white w-12 h-12 rounded-full"
         >
           {isPlaying ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6" />}
         </Button>
 
         <Button
-          onClick={() => seek(Math.min(duration, currentTime + 10))}
+          onClick={onStop}
+          variant="outline"
+          size="sm"
+          className="border-amber-300 text-amber-600 hover:bg-amber-50"
+        >
+          <Stop className="h-4 w-4" />
+        </Button>
+
+        <Button
+          onClick={skipForward}
           variant="outline"
           size="sm"
           className="border-amber-300 text-amber-600 hover:bg-amber-50"
@@ -106,14 +154,22 @@ export const AudioPlayer = ({ audioUrl, title, onClose }: AudioPlayerProps) => {
       {/* Volume et téléchargement */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 flex-1">
-          <Volume2 className="h-4 w-4 text-amber-600" />
+          <Button
+            onClick={toggleMute}
+            variant="ghost"
+            size="sm"
+            className="text-amber-600 hover:bg-amber-50"
+          >
+            {isMuted || volume === 0 ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+          </Button>
           <Slider
             value={[volume * 100]}
             max={100}
             step={1}
-            onValueChange={(value) => setVolume(value[0] / 100)}
-            className="w-20"
+            onValueChange={handleVolumeChange}
+            className="w-24"
           />
+          <span className="text-xs text-amber-600 w-8">{Math.round(volume * 100)}%</span>
         </div>
 
         <Button

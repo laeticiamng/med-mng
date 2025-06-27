@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
@@ -12,6 +11,7 @@ import { SceneImmersive } from '@/components/edn/SceneImmersive';
 import { InteractionDragDrop } from '@/components/edn/InteractionDragDrop';
 import { QuizFinal } from '@/components/edn/QuizFinal';
 import { ParolesMusicales } from '@/components/edn/ParolesMusicales';
+import { BandeDessinee } from '@/components/edn/BandeDessinee';
 import { ArrowLeft, Volume2, VolumeX } from 'lucide-react';
 
 interface EdnItemImmersive {
@@ -46,6 +46,7 @@ const EdnItemImmersive = () => {
     'Tableau Rang A',
     'Tableau Rang B',
     'Paroles musicales',
+    'Bande dessinée',
     'Interaction',
     'Quiz final'
   ];
@@ -149,8 +150,10 @@ const EdnItemImmersive = () => {
       case 4:
         return <ParolesMusicales paroles={item.paroles_musicales} />;
       case 5:
-        return <InteractionDragDrop config={item.interaction_config} />;
+        return <BandeDessinee itemData={item} />;
       case 6:
+        return <InteractionDragDrop config={item.interaction_config} />;
+      case 7:
         return <QuizFinal questions={item.quiz_questions} rewards={item.reward_messages} />;
       default:
         return null;

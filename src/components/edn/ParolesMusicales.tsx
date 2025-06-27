@@ -3,9 +3,11 @@ import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Play, Pause, Music, Download, Settings } from 'lucide-react';
+import { Music, Settings } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useAudioPlayer } from '@/hooks/useAudioPlayer';
+import { AudioPlayer } from './AudioPlayer';
 
 interface ParolesMusicalesProps {
   paroles: string[];
@@ -15,8 +17,22 @@ export const ParolesMusicales = ({ paroles }: ParolesMusicalesProps) => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [selectedStyle, setSelectedStyle] = useState('');
   const [generatedAudio, setGeneratedAudio] = useState<{ rangA?: string; rangB?: string }>({});
-  const [currentlyPlaying, setCurrentlyPlaying] = useState<'rangA' | 'rangB' | null>(null);
+  const [currentPlaying, setCurrentPlaying] = useState<'rangA' | 'rangB' | null>(null);
   const { toast } = useToast();
+  
+  const {
+    isPlaying,
+    currentTime,
+    duration,
+    volume,
+    currentTrack,
+    play,
+    pause,
+    resume,
+    stop,
+    seek,
+    changeVolume
+  } = useAudioPlayer();
 
   const musicStyles = [
     { value: 'lofi-piano', label: 'Lo-fi Piano Doux' },
@@ -83,16 +99,25 @@ export const ParolesMusicales = ({ paroles }: ParolesMusicalesProps) => {
     }
   };
 
-  const playAudio = (rang: 'rangA' | 'rangB') => {
+  const handlePlayPause = (rang: 'rangA' | 'rangB') => {
     const audioUrl = generatedAudio[rang];
     if (!audioUrl) return;
 
-    if (currentlyPlaying === rang) {
-      setCurrentlyPlaying(null);
+    if (currentPlaying === rang && currentTrack === audioUrl) {
+      if (isPlaying) {
+        pause();
+      } else {
+        resume();
+      }
     } else {
-      setCurrentlyPlaying(rang);
-      // Ici, vous pourriez implémenter la logique de lecture audio
+      setCurrentPlaying(rang);
+      play(audioUrl);
     }
+  };
+
+  const handleStop = () => {
+    stop();
+    setCurrentPlaying(null);
   };
 
   return (
@@ -103,7 +128,6 @@ export const ParolesMusicales = ({ paroles }: ParolesMusicalesProps) => {
           Assonances et rythmes pour une mémorisation optimale
         </p>
         
-        {/* Sélecteur de style musical */}
         <div className="max-w-md mx-auto mb-8">
           <div className="flex items-center gap-3 mb-3">
             <Settings className="h-5 w-5 text-amber-600" />
@@ -159,34 +183,30 @@ export const ParolesMusicales = ({ paroles }: ParolesMusicalesProps) => {
           })}
         </div>
 
-        <div className="flex justify-center gap-4">
-          <Button
-            onClick={() => generateMusic('A')}
-            disabled={isGenerating || !selectedStyle}
-            className="bg-amber-600 hover:bg-amber-700 text-white px-6 py-3"
-          >
-            {isGenerating ? 'Génération...' : 'Générer Musique Rang A'}
-          </Button>
+        <div className="space-y-4">
+          <div className="flex justify-center">
+            <Button
+              onClick={() => generateMusic('A')}
+              disabled={isGenerating || !selectedStyle}
+              className="bg-amber-600 hover:bg-amber-700 text-white px-6 py-3"
+            >
+              {isGenerating ? 'Génération...' : 'Générer Musique Rang A'}
+            </Button>
+          </div>
           
           {generatedAudio.rangA && (
-            <>
-              <Button
-                onClick={() => playAudio('rangA')}
-                variant="outline"
-                className="border-amber-600 text-amber-600 hover:bg-amber-50"
-              >
-                {currentlyPlaying === 'rangA' ? <Pause className="h-4 w-4 mr-2" /> : <Play className="h-4 w-4 mr-2" />}
-                {currentlyPlaying === 'rangA' ? 'Pause' : 'Écouter'}
-              </Button>
-              <Button
-                onClick={() => window.open(generatedAudio.rangA, '_blank')}
-                variant="outline"
-                className="border-amber-600 text-amber-600 hover:bg-amber-50"
-              >
-                <Download className="h-4 w-4 mr-2" />
-                Télécharger
-              </Button>
-            </>
+            <AudioPlayer
+              audioUrl={generatedAudio.rangA}
+              title="Chanson Rang A - Colloque Singulier"
+              isPlaying={isPlaying && currentPlaying === 'rangA'}
+              currentTime={currentPlaying === 'rangA' ? currentTime : 0}
+              duration={currentPlaying === 'rangA' ? duration : 0}
+              volume={volume}
+              onPlayPause={() => handlePlayPause('rangA')}
+              onSeek={seek}
+              onVolumeChange={changeVolume}
+              onStop={handleStop}
+            />
           )}
         </div>
       </Card>
@@ -226,34 +246,30 @@ export const ParolesMusicales = ({ paroles }: ParolesMusicalesProps) => {
           })}
         </div>
 
-        <div className="flex justify-center gap-4">
-          <Button
-            onClick={() => generateMusic('B')}
-            disabled={isGenerating || !selectedStyle}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3"
-          >
-            {isGenerating ? 'Génération...' : 'Générer Musique Rang B'}
-          </Button>
+        <div className="space-y-4">
+          <div className="flex justify-center">
+            <Button
+              onClick={() => generateMusic('B')}
+              disabled={isGenerating || !selectedStyle}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3"
+            >
+              {isGenerating ? 'Génération...' : 'Générer Musique Rang B'}
+            </Button>
+          </div>
           
           {generatedAudio.rangB && (
-            <>
-              <Button
-                onClick={() => playAudio('rangB')}
-                variant="outline"
-                className="border-blue-600 text-blue-600 hover:bg-blue-50"
-              >
-                {currentlyPlaying === 'rangB' ? <Pause className="h-4 w-4 mr-2" /> : <Play className="h-4 w-4 mr-2" />}
-                {currentlyPlaying === 'rangB' ? 'Pause' : 'Écouter'}
-              </Button>
-              <Button
-                onClick={() => window.open(generatedAudio.rangB, '_blank')}
-                variant="outline"
-                className="border-blue-600 text-blue-600 hover:bg-blue-50"
-              >
-                <Download className="h-4 w-4 mr-2" />
-                Télécharger
-              </Button>
-            </>
+            <AudioPlayer
+              audioUrl={generatedAudio.rangB}
+              title="Chanson Rang B - Outils Pratiques"
+              isPlaying={isPlaying && currentPlaying === 'rangB'}
+              currentTime={currentPlaying === 'rangB' ? currentTime : 0}
+              duration={currentPlaying === 'rangB' ? duration : 0}
+              volume={volume}
+              onPlayPause={() => handlePlayPause('rangB')}
+              onSeek={seek}
+              onVolumeChange={changeVolume}
+              onStop={handleStop}
+            />
           )}
         </div>
       </Card>

@@ -5,6 +5,7 @@ export const useAudioPlayer = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [volume, setVolume] = useState(0.8);
   const [currentTrack, setCurrentTrack] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
@@ -16,6 +17,7 @@ export const useAudioPlayer = () => {
     const audio = new Audio(audioUrl);
     audioRef.current = audio;
     setCurrentTrack(audioUrl);
+    audio.volume = volume;
 
     audio.addEventListener('loadedmetadata', () => {
       setDuration(audio.duration);
@@ -28,7 +30,6 @@ export const useAudioPlayer = () => {
     audio.addEventListener('ended', () => {
       setIsPlaying(false);
       setCurrentTime(0);
-      setCurrentTrack(null);
     });
 
     audio.addEventListener('error', (e) => {
@@ -52,6 +53,17 @@ export const useAudioPlayer = () => {
     }
   };
 
+  const resume = () => {
+    if (audioRef.current) {
+      audioRef.current.play().then(() => {
+        setIsPlaying(true);
+      }).catch((error) => {
+        console.error('Erreur reprise audio:', error);
+        setIsPlaying(false);
+      });
+    }
+  };
+
   const stop = () => {
     if (audioRef.current) {
       audioRef.current.pause();
@@ -69,6 +81,13 @@ export const useAudioPlayer = () => {
     }
   };
 
+  const changeVolume = (newVolume: number) => {
+    setVolume(newVolume);
+    if (audioRef.current) {
+      audioRef.current.volume = newVolume;
+    }
+  };
+
   useEffect(() => {
     return () => {
       if (audioRef.current) {
@@ -81,10 +100,13 @@ export const useAudioPlayer = () => {
     isPlaying,
     currentTime,
     duration,
+    volume,
     currentTrack,
     play,
     pause,
+    resume,
     stop,
-    seek
+    seek,
+    changeVolume
   };
 };
