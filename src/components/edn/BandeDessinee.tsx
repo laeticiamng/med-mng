@@ -111,6 +111,11 @@ export const BandeDessinee = ({ itemData }: BandeDessineeProps) => {
     setIsGenerating(false);
   };
 
+  // Générer automatiquement les images au chargement
+  useEffect(() => {
+    generateAllImages();
+  }, [itemData.title]);
+
   return (
     <div className="space-y-8">
       <div className="text-center">
@@ -118,6 +123,13 @@ export const BandeDessinee = ({ itemData }: BandeDessineeProps) => {
         <p className="text-lg text-amber-700 mb-6">
           Découvrez "{itemData.title}" à travers une histoire illustrée captivante
         </p>
+        
+        {isGenerating && (
+          <div className="flex items-center justify-center gap-2 mb-6">
+            <Loader2 className="h-4 w-4 animate-spin text-amber-600" />
+            <span className="text-amber-700">Génération automatique des images en cours...</span>
+          </div>
+        )}
         
         <Button 
           onClick={generateAllImages}
@@ -132,7 +144,7 @@ export const BandeDessinee = ({ itemData }: BandeDessineeProps) => {
           ) : (
             <>
               <RefreshCw className="h-4 w-4 mr-2" />
-              Générer la bande dessinée
+              Régénérer la bande dessinée
             </>
           )}
         </Button>

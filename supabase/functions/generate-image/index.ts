@@ -58,8 +58,7 @@ serve(async (req) => {
         prompt: enhancedPrompt,
         n: 1,
         size: '1024x1024',
-        quality: 'high',
-        output_format: 'png'
+        quality: 'high'
       })
     })
 
@@ -75,6 +74,8 @@ serve(async (req) => {
         errorMessage = 'Limite de requêtes API OpenAI atteinte. Réessayez dans quelques minutes.'
       } else if (response.status === 400) {
         errorMessage = 'Prompt invalide pour la génération d\'image.'
+      } else if (response.status === 403) {
+        errorMessage = 'Votre organisation OpenAI doit être vérifiée pour utiliser gpt-image-1. Visitez https://platform.openai.com/settings/organization/general'
       }
       
       throw new Error(errorMessage)
