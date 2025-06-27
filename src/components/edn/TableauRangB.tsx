@@ -1,7 +1,7 @@
 
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { AlertTriangle, Lightbulb, Eye, Target, BookOpen, Zap, Shield, CheckCircle, Star, Crown } from 'lucide-react';
+import { AlertTriangle, Lightbulb, Eye, Target, BookOpen, Zap, Shield, CheckCircle, Star, Crown, Trophy, Award } from 'lucide-react';
 
 interface TableauRangBProps {
   data: {
@@ -113,16 +113,52 @@ export const TableauRangB = ({ data }: TableauRangBProps) => {
         ))}
       </div>
 
-      <div className="text-center bg-blue-50 p-6 rounded-lg border border-blue-200">
-        <div className="flex items-center justify-center space-x-2 mb-2">
-          <Crown className="h-6 w-6 text-blue-600" />
-          <p className="text-lg text-blue-700 font-bold">
-            Tableau Rang B expert optimisé : {colonnesUtiles.length} colonnes × {lignesExpertes.length} lignes
+      {/* Footer enrichi pour le Rang B */}
+      <div className="space-y-4">
+        {/* Résumé des expertises acquises */}
+        <div className="bg-gradient-to-r from-blue-50 via-purple-50 to-indigo-50 p-6 rounded-lg border border-blue-200">
+          <div className="flex items-center justify-center space-x-2 mb-3">
+            <Trophy className="h-5 w-5 text-blue-600" />
+            <h4 className="text-lg font-bold text-blue-800">Expertises développées</h4>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
+            <div className="text-center">
+              <div className="font-semibold text-blue-700">Concepts experts</div>
+              <div className="text-2xl font-bold text-blue-800">{lignesExpertes.length}</div>
+            </div>
+            <div className="text-center">
+              <div className="font-semibold text-purple-700">Dimensions maîtrisées</div>
+              <div className="text-2xl font-bold text-purple-800">{colonnesUtiles.length}</div>
+            </div>
+            <div className="text-center">
+              <div className="font-semibold text-teal-700">Niveau atteint</div>
+              <div className="text-2xl font-bold text-teal-800">Expert</div>
+            </div>
+            <div className="text-center">
+              <div className="font-semibold text-amber-700">Différenciation</div>
+              <div className="text-2xl font-bold text-amber-800">★★★</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Statut de completion expert */}
+        <div className="text-center bg-blue-50 p-6 rounded-lg border border-blue-200">
+          <div className="flex items-center justify-center space-x-2 mb-2">
+            <Crown className="h-6 w-6 text-blue-600" />
+            <p className="text-lg text-blue-700 font-bold">
+              Tableau Rang B expert optimisé : {colonnesUtiles.length} colonnes × {lignesExpertes.length} concepts
+            </p>
+          </div>
+          <div className="flex items-center justify-center space-x-2 mb-2">
+            <Award className="h-5 w-5 text-blue-600" />
+            <p className="text-sm text-blue-600 font-medium">
+              🎯 Structure adaptative experte pour l'excellence et la différenciation maximale
+            </p>
+          </div>
+          <p className="text-xs text-blue-500 italic">
+            ⭐ Maîtrise experte complète - Prêt pour l'excellence et la distinction
           </p>
         </div>
-        <p className="text-sm text-blue-600">
-          🎯 Structure adaptative experte pour l'excellence et la différenciation maximale
-        </p>
       </div>
     </div>
   );
