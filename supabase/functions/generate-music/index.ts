@@ -49,10 +49,14 @@ serve(async (req) => {
     const musicStyle = styleDescriptions[style] || styleDescriptions['lofi-piano'];
     const title = `Rang ${rang} - ${style === 'lofi-piano' ? 'Colloque Singulier' : 'Outils Pratiques'}`;
 
+    // Générer une URL de callback unique (pas utilisée mais requise par l'API)
+    const callBackUrl = `https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/generate-music/callback?taskId=${crypto.randomUUID()}`;
+
     console.log(`🎤 Génération Suno - Rang ${rang}`);
     console.log(`📝 Style: ${style} | Durée: ${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')}`);
     console.log(`🎵 Description: ${musicStyle}`);
     console.log(`📖 Paroles (${lyrics.length} caractères):`, lyrics.substring(0, 200) + '...');
+    console.log(`🔗 CallbackUrl: ${callBackUrl}`);
 
     // Initialiser le générateur de musique
     const generator = new MusicGenerator(SUNO_API_KEY);
@@ -65,7 +69,8 @@ serve(async (req) => {
       customMode: true,
       instrumental: false,
       model: "V3_5",
-      negativeTags: undefined
+      negativeTags: undefined,
+      callBackUrl: callBackUrl
     });
 
     console.log('✅ Génération Suno lancée:', generateData);
@@ -107,7 +112,8 @@ serve(async (req) => {
         generation_info: {
           api_used: 'Suno AI',
           model_version: 'V3_5',
-          base_url: 'https://apibox.erweima.ai'
+          base_url: 'https://apibox.erweima.ai',
+          callback_url: callBackUrl
         }
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

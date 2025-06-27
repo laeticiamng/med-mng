@@ -11,6 +11,7 @@ export interface GenerateMusicPayload {
   instrumental: boolean;
   model: Model;
   negativeTags?: string;
+  callBackUrl: string; // Obligatoire pour l'API Suno
 }
 
 export interface GenerateMusicResponse {
@@ -51,7 +52,8 @@ export class MusicGenerator {
       model: payload.model,
       hasPrompt: !!payload.prompt,
       hasStyle: !!payload.style,
-      hasTitle: !!payload.title
+      hasTitle: !!payload.title,
+      hasCallBackUrl: !!payload.callBackUrl
     });
 
     return this.client.post<GenerateMusicResponse>('/api/v1/generate', payload);
@@ -97,6 +99,11 @@ export class MusicGenerator {
   }
 
   private validatePayload(payload: GenerateMusicPayload) {
+    // Vérifier le callBackUrl obligatoire
+    if (!payload.callBackUrl) {
+      throw new Error('callBackUrl est obligatoire pour l\'API Suno');
+    }
+
     if (payload.customMode) {
       if (!payload.style || !payload.title) {
         throw new Error('Style et titre requis en mode personnalisé');
