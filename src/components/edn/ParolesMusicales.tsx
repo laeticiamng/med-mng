@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { MusicHeader } from './music/MusicHeader';
 import { MusicStyleSelector } from './music/MusicStyleSelector';
+import { MusicDurationSelector } from './music/MusicDurationSelector';
 import { MusicErrorDisplay } from './music/MusicErrorDisplay';
 import { MusicCardsSection } from './music/MusicCardsSection';
 import { MusicStyleIndicator } from './music/MusicStyleIndicator';
@@ -14,6 +15,7 @@ interface ParolesMusicalesProps {
 
 export const ParolesMusicales = ({ paroles }: ParolesMusicalesProps) => {
   const [selectedStyle, setSelectedStyle] = useState('');
+  const [musicDuration, setMusicDuration] = useState(240); // 4 minutes par défaut
   
   const { isGenerating, generatedAudio, lastError, generateMusic } = useMusicGeneration();
   
@@ -41,7 +43,7 @@ export const ParolesMusicales = ({ paroles }: ParolesMusicalesProps) => {
   ];
 
   const handleGenerateMusic = async (rang: 'A' | 'B') => {
-    await generateMusic(rang, paroles, selectedStyle);
+    await generateMusic(rang, paroles, selectedStyle, musicDuration);
   };
 
   const handlePlayPauseWrapper = (rang: 'rangA' | 'rangB') => {
@@ -60,17 +62,26 @@ export const ParolesMusicales = ({ paroles }: ParolesMusicalesProps) => {
     <div className="space-y-8">
       <MusicHeader />
       
-      <MusicStyleSelector 
-        selectedStyle={selectedStyle}
-        onStyleChange={setSelectedStyle}
-        musicStyles={musicStyles}
-      />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <MusicStyleSelector 
+          selectedStyle={selectedStyle}
+          onStyleChange={setSelectedStyle}
+          musicStyles={musicStyles}
+        />
+        
+        <MusicDurationSelector
+          duration={musicDuration}
+          onDurationChange={setMusicDuration}
+          disabled={isGenerating.rangA || isGenerating.rangB}
+        />
+      </div>
 
       {lastError && <MusicErrorDisplay error={lastError} />}
 
       <MusicCardsSection
         paroles={paroles}
         selectedStyle={selectedStyle}
+        musicDuration={musicDuration}
         isGenerating={isGenerating}
         generatedAudio={generatedAudio}
         onGenerateMusic={handleGenerateMusic}

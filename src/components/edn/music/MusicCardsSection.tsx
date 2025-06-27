@@ -4,6 +4,7 @@ import { MusicCard } from './MusicCard';
 interface MusicCardsSectionProps {
   paroles: string[];
   selectedStyle: string;
+  musicDuration: number;
   isGenerating: { rangA: boolean; rangB: boolean };
   generatedAudio: { rangA?: string; rangB?: string };
   onGenerateMusic: (rang: 'A' | 'B') => void;
@@ -23,6 +24,7 @@ interface MusicCardsSectionProps {
 export const MusicCardsSection = ({
   paroles,
   selectedStyle,
+  musicDuration,
   isGenerating,
   generatedAudio,
   onGenerateMusic,
@@ -38,13 +40,20 @@ export const MusicCardsSection = ({
   onStop,
   onMinimize
 }: MusicCardsSectionProps) => {
+  const formatDuration = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+  };
+
   return (
-    <>
+    <div className="space-y-8">
       <MusicCard
         rang="A"
-        title="Chanson Rang A - Colloque Singulier (4 minutes)"
-        paroles={paroles[0]}
+        title={`Chanson Rang A - Colloque Singulier (${formatDuration(musicDuration)})`}
+        paroles={paroles[0] || 'Aucune parole disponible pour le Rang A'}
         selectedStyle={selectedStyle}
+        musicDuration={musicDuration}
         isGenerating={isGenerating.rangA}
         generatedAudio={generatedAudio.rangA}
         isPlaying={isCurrentTrackPlaying('rangA')}
@@ -63,9 +72,10 @@ export const MusicCardsSection = ({
 
       <MusicCard
         rang="B"
-        title="Chanson Rang B - Outils Pratiques (4 minutes)"
-        paroles={paroles[1]}
+        title={`Chanson Rang B - Outils Pratiques (${formatDuration(musicDuration)})`}
+        paroles={paroles[1] || 'Aucune parole disponible pour le Rang B'}
         selectedStyle={selectedStyle}
+        musicDuration={musicDuration}
         isGenerating={isGenerating.rangB}
         generatedAudio={generatedAudio.rangB}
         isPlaying={isCurrentTrackPlaying('rangB')}
@@ -81,6 +91,6 @@ export const MusicCardsSection = ({
         onStop={onStop}
         onMinimize={onMinimize}
       />
-    </>
+    </div>
   );
 };

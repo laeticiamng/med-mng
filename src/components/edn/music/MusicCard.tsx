@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Music, Minimize2, Loader2 } from 'lucide-react';
+import { Music, Minimize2, Loader2, AlertTriangle } from 'lucide-react';
 import { AudioPlayer } from '../AudioPlayer';
 
 interface MusicCardProps {
@@ -10,6 +10,7 @@ interface MusicCardProps {
   title: string;
   paroles: string;
   selectedStyle: string;
+  musicDuration: number;
   isGenerating: boolean;
   generatedAudio?: string;
   isPlaying: boolean;
@@ -31,6 +32,7 @@ export const MusicCard = ({
   title,
   paroles,
   selectedStyle,
+  musicDuration,
   isGenerating,
   generatedAudio,
   isPlaying,
@@ -47,12 +49,22 @@ export const MusicCard = ({
   onMinimize
 }: MusicCardProps) => {
   const formatParoles = (text: string) => {
+    if (!text || text === 'Aucune parole disponible pour le Rang A' || text === 'Aucune parole disponible pour le Rang B') {
+      return ['Aucune parole disponible pour ce rang.'];
+    }
+    
     return text
       .replace(/\\n/g, '\n')
       .replace(/\n\n+/g, '\n\n')
       .split('\n')
       .map(line => line.trim())
       .filter(line => line.length > 0);
+  };
+
+  const formatDuration = (seconds: number) => {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
   const cardColor = rang === 'A' ? 'amber' : 'blue';
@@ -62,6 +74,9 @@ export const MusicCard = ({
   const textColor = rang === 'A' ? 'text-amber-900' : 'text-blue-900';
   const iconColor = rang === 'A' ? 'text-amber-600' : 'text-blue-600';
   const buttonColor = rang === 'A' ? 'bg-amber-600 hover:bg-amber-700' : 'bg-blue-600 hover:bg-blue-700';
+
+  const parolesArray = formatParoles(paroles);
+  const hasValidParoles = parolesArray.length > 0 && parolesArray[0] !== 'Aucune parole disponible pour ce rang.';
 
   return (
     <Card className={`p-8 bg-gradient-to-br ${gradientFrom} ${gradientTo} ${borderColor} shadow-xl`}>
@@ -74,8 +89,18 @@ export const MusicCard = ({
         </div>
       </div>
       
+      {!hasValidParoles && (
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6 flex items-center">
+          <AlertTriangle className="h-5 w-5 text-yellow-600 mr-3 flex-shrink-0" />
+          <div className="text-yellow-800">
+            <p className="font-medium">Paroles manquantes</p>
+            <p className="text-sm">Les paroles pour ce rang ne sont pas encore disponibles dans la base de données.</p>
+          </div>
+        </div>
+      )}
+      
       <div className={`prose prose-lg max-w-none ${textColor} mb-8`}>
-        {formatParoles(paroles).map((ligne, index) => {
+        {parolesArray.map((ligne, index) => {
           if (ligne.startsWith('[') && ligne.endsWith(']')) {
             return (
               <div key={index} className={`text-xl font-bold ${rang === 'A' ? 'text-amber-800' : 'text-blue-800'} my-4 text-center`}>
@@ -102,19 +127,25 @@ export const MusicCard = ({
         <div className="flex justify-center">
           <Button
             onClick={onGenerateMusic}
-            disabled={isGenerating || !selectedStyle}
+            disabled={isGenerating || !selectedStyle || !hasValidParoles}
             className={`${buttonColor} text-white px-6 py-3`}
           >
             {isGenerating ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Génération 4 min en cours...
+                Génération {formatDuration(musicDuration)} en cours...
               </>
             ) : (
-              `Générer Musique Rang ${rang} (4 min)`
+              `Générer Musique Rang ${rang} (${formatDuration(musicDuration)})`
             )}
           </Button>
         </div>
+        
+        {!hasValidParoles && (
+          <p className="text-center text-sm text-gray-600">
+            La génération nécessite des paroles valides depuis la base de données Supabase.
+          </p>
+        )}
         
         {generatedAudio && !isMinimized && (
           <AudioPlayer
@@ -122,7 +153,7 @@ export const MusicCard = ({
             title={title}
             isPlaying={isPlaying}
             currentTime={isCurrentTrack ? currentTime : 0}
-            duration={isCurrentTrack ? duration : 240}
+            duration={isCurrentTrack ? duration : musicDuration}
             volume={volume}
             onPlayPause={onPlayPause}
             onSeek={onSeek}

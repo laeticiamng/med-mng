@@ -17,11 +17,20 @@ export const useMusicGeneration = () => {
   const [lastError, setLastError] = useState<string>('');
   const { toast } = useToast();
 
-  const generateMusic = async (rang: 'A' | 'B', paroles: string[], selectedStyle: string) => {
+  const generateMusic = async (rang: 'A' | 'B', paroles: string[], selectedStyle: string, duration: number = 240) => {
     if (!selectedStyle) {
       toast({
         title: "Style musical requis",
         description: "Veuillez sélectionner un style musical avant de générer la musique.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!paroles || paroles.length === 0) {
+      toast({
+        title: "Paroles manquantes",
+        description: "Aucune parole disponible pour générer la musique.",
         variant: "destructive"
       });
       return;
@@ -32,14 +41,31 @@ export const useMusicGeneration = () => {
     const parolesIndex = rang === 'A' ? 0 : 1;
     const parolesText = paroles[parolesIndex];
 
+    if (!parolesText || parolesText.trim() === '') {
+      setLastError(`Aucune parole disponible pour le Rang ${rang}`);
+      toast({
+        title: "Paroles manquantes",
+        description: `Aucune parole n'est disponible pour le Rang ${rang}.`,
+        variant: "destructive"
+      });
+      setIsGenerating(prev => ({ ...prev, [rang === 'A' ? 'rangA' : 'rangB']: false }));
+      return;
+    }
+
     try {
-      console.log(`Génération musique Rang ${rang} avec style ${selectedStyle} - Durée: 4 minutes`);
+      const minutes = Math.floor(duration / 60);
+      const seconds = duration % 60;
+      const durationText = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+      
+      console.log(`Génération musique Rang ${rang} avec style ${selectedStyle} - Durée: ${durationText}`);
+      console.log(`Paroles à intégrer (${parolesText.length} caractères):`, parolesText.substring(0, 200) + '...');
       
       const { data, error } = await supabase.functions.invoke('generate-music', {
         body: {
           lyrics: parolesText,
           style: selectedStyle,
-          rang: rang
+          rang: rang,
+          duration: duration
         }
       });
 
@@ -61,10 +87,14 @@ export const useMusicGeneration = () => {
 
       toast({
         title: `Musique Rang ${rang} générée`,
-        description: "Chanson de 4 minutes générée avec succès !",
+        description: `Chanson de ${durationText} avec paroles chantées générée avec succès !`,
       });
 
-      console.log(`Musique 4 minutes générée avec succès:`, data.audioUrl);
+      console.log(`Musique ${durationText} avec paroles générée:`, {
+        audioUrl: data.audioUrl,
+        lyricsIntegrated: data.lyrics_integrated,
+        vocalsIncluded: data.vocals_included
+      });
     } catch (error) {
       console.error('Erreur génération musique:', error);
       setLastError(error.message);
