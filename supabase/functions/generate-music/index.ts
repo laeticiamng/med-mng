@@ -135,10 +135,43 @@ serve(async (req) => {
 
   } catch (error) {
     console.error('❌ Erreur génération chanson Suno:', error);
+    
+    // Analyser le type d'erreur pour donner une réponse plus précise
+    let userMessage = 'Erreur inconnue lors de la génération';
+    let httpStatus = 500;
+    
+    if (error.message?.includes('429') || error.code === 429) {
+      userMessage = 'Crédits Suno insuffisants. Veuillez recharger votre compte Suno AI.';
+      httpStatus = 429;
+      console.error('💳 Crédits Suno épuisés - L\'utilisateur doit recharger son compte');
+    } else if (error.message?.includes('401') || error.code === 401) {
+      userMessage = 'Clé API Suno invalide ou expirée. Vérifiez votre configuration.';
+      httpStatus = 401;
+      console.error('🔑 Problème d\'authentification Suno API');
+    } else if (error.message?.includes('timeout') || error.message?.includes('Timeout')) {
+      userMessage = 'La génération prend trop de temps. Réessayez avec des paroles plus courtes.';
+      httpStatus = 408;
+      console.error('⏰ Timeout de génération Suno');
+    } else if (error.message?.includes('sensitive') || error.message?.includes('SENSITIVE_WORD_ERROR')) {
+      userMessage = 'Les paroles contiennent du contenu non autorisé par Suno AI.';
+      httpStatus = 400;
+      console.error('🚫 Contenu sensible détecté par Suno');
+    } else if (error.message?.includes('Paramètres manquants')) {
+      userMessage = error.message;
+      httpStatus = 400;
+    } else if (error.message?.includes('Aucune parole valide')) {
+      userMessage = error.message;
+      httpStatus = 400;
+    } else if (error.message?.includes('Clé API Suno non configurée')) {
+      userMessage = 'Configuration manquante : Clé API Suno requise.';
+      httpStatus = 500;
+    }
+    
     return new Response(
       JSON.stringify({ 
-        error: error.message || 'Erreur inconnue lors de la génération',
+        error: userMessage,
         status: 'error',
+        error_code: error.code || httpStatus,
         details: '🎤 Problème avec la génération Suno AI de chanson avec paroles chantées',
         debug: {
           error_type: error.name,
@@ -146,12 +179,13 @@ serve(async (req) => {
           timestamp: new Date().toISOString(),
           api_used: 'Suno AI',
           base_url: 'https://apibox.erweima.ai',
-          timeout_info: 'Timeout configuré à 30 minutes (180 tentatives × 10s)'
+          timeout_info: 'Timeout configuré à 30 minutes (180 tentatives × 10s)',
+          suggestion: httpStatus === 429 ? 'Rechargez vos crédits Suno AI sur https://apibox.erweima.ai' : 'Vérifiez la configuration de l\'API'
         }
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        status: 500
+        status: httpStatus
       }
     );
   }

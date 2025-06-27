@@ -93,7 +93,19 @@ export const useMusicGeneration = () => {
       }
 
       if (data.error || data.status === 'error') {
-        const errorMessage = data.error || data.message || 'Erreur inconnue lors de la génération';
+        let errorMessage = data.error || data.message || 'Erreur inconnue lors de la génération';
+        
+        // Messages d'erreur spécifiques selon le code d'erreur
+        if (data.error_code === 429) {
+          errorMessage = '💳 Crédits Suno épuisés. Rechargez votre compte sur https://apibox.erweima.ai';
+        } else if (data.error_code === 401) {
+          errorMessage = '🔑 Clé API Suno invalide. Vérifiez votre configuration dans Supabase.';
+        } else if (data.error_code === 408) {
+          errorMessage = '⏰ Génération trop longue. Réessayez avec des paroles plus courtes.';
+        } else if (data.error_code === 400 && data.error?.includes('sensitive')) {
+          errorMessage = '🚫 Paroles non autorisées par Suno AI. Modifiez le contenu.';
+        }
+        
         console.error('Erreur API Suno:', errorMessage);
         setLastError(errorMessage);
         throw new Error(errorMessage);
