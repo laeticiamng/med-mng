@@ -31,11 +31,36 @@ interface ImmersiveContentProps {
   item: EdnItemImmersive;
 }
 
+// Fonction utilitaire pour parser les données JSON de manière sécurisée
+const parseJSONSafely = (data: any, defaultValue: any = null) => {
+  if (!data) {
+    console.log('parseJSONSafely: No data provided');
+    return defaultValue;
+  }
+  
+  if (typeof data === 'string') {
+    try {
+      const parsed = JSON.parse(data);
+      console.log('parseJSONSafely: Successfully parsed JSON string:', parsed);
+      return parsed;
+    } catch (error) {
+      console.error('parseJSONSafely: Error parsing JSON string:', error);
+      return defaultValue;
+    }
+  }
+  
+  if (typeof data === 'object') {
+    console.log('parseJSONSafely: Data is already an object:', data);
+    return data;
+  }
+  
+  console.log('parseJSONSafely: Unknown data type:', typeof data, data);
+  return defaultValue;
+};
+
 export const ImmersiveContent = ({ currentSection, item }: ImmersiveContentProps) => {
   console.log('ImmersiveContent - currentSection:', currentSection);
   console.log('ImmersiveContent - item data:', item);
-  console.log('ImmersiveContent - tableau_rang_a data:', item.tableau_rang_a);
-  console.log('ImmersiveContent - tableau_rang_a type:', typeof item.tableau_rang_a);
 
   const renderCurrentSection = () => {
     switch (currentSection) {
@@ -51,50 +76,49 @@ export const ImmersiveContent = ({ currentSection, item }: ImmersiveContentProps
       case 1:
         return <SceneImmersive data={item.scene_immersive} />;
       case 2:
-        console.log('Rendering TableauRangA with data:', item.tableau_rang_a);
+        console.log('Rendering TableauRangA - Raw data:', item.tableau_rang_a);
+        console.log('Rendering TableauRangA - Data type:', typeof item.tableau_rang_a);
         
-        // Vérifier si tableau_rang_a existe
-        if (!item.tableau_rang_a) {
-          console.log('tableau_rang_a is null or undefined');
+        const tableauRangAData = parseJSONSafely(item.tableau_rang_a);
+        console.log('Rendering TableauRangA - Parsed data:', tableauRangAData);
+        
+        if (!tableauRangAData || !tableauRangAData.colonnes || !tableauRangAData.lignes) {
+          console.error('TableauRangA: Invalid data structure:', tableauRangAData);
           return (
             <div className="text-center space-y-6">
               <h2 className="text-3xl font-serif text-amber-900">Tableau Rang A</h2>
-              <p className="text-amber-700">Contenu en cours de préparation...</p>
+              <p className="text-amber-700">Données du tableau non disponibles ou invalides</p>
+              <pre className="text-xs text-gray-500 bg-gray-100 p-4 rounded">
+                Raw data: {JSON.stringify(item.tableau_rang_a, null, 2)}
+              </pre>
             </div>
           );
         }
-
-        // Parser le JSON si c'est une string
-        let tableauData = item.tableau_rang_a;
-        if (typeof item.tableau_rang_a === 'string') {
-          try {
-            tableauData = JSON.parse(item.tableau_rang_a);
-            console.log('Parsed tableau_rang_a:', tableauData);
-          } catch (error) {
-            console.error('Error parsing tableau_rang_a JSON:', error);
-            return (
-              <div className="text-center space-y-6">
-                <h2 className="text-3xl font-serif text-amber-900">Tableau Rang A</h2>
-                <p className="text-amber-700">Erreur dans le format des données...</p>
-              </div>
-            );
-          }
-        }
-
-        // Vérifier que les données parsées ont la bonne structure
-        if (!tableauData || !tableauData.colonnes || !tableauData.lignes) {
-          console.log('tableau_rang_a missing required properties:', tableauData);
-          return (
-            <div className="text-center space-y-6">
-              <h2 className="text-3xl font-serif text-amber-900">Tableau Rang A</h2>
-              <p className="text-amber-700">Structure de données incomplète...</p>
-            </div>
-          );
-        }
-
-        return <TableauRangA data={tableauData} />;
+        
+        return <TableauRangA data={tableauRangAData} />;
+        
       case 3:
-        return <TableauRangB data={item.tableau_rang_b} />;
+        console.log('Rendering TableauRangB - Raw data:', item.tableau_rang_b);
+        console.log('Rendering TableauRangB - Data type:', typeof item.tableau_rang_b);
+        
+        const tableauRangBData = parseJSONSafely(item.tableau_rang_b);
+        console.log('Rendering TableauRangB - Parsed data:', tableauRangBData);
+        
+        if (!tableauRangBData || !tableauRangBData.colonnes || !tableauRangBData.lignes) {
+          console.error('TableauRangB: Invalid data structure:', tableauRangBData);
+          return (
+            <div className="text-center space-y-6">
+              <h2 className="text-3xl font-serif text-amber-900">Tableau Rang B</h2>
+              <p className="text-amber-700">Données du tableau non disponibles ou invalides</p>
+              <pre className="text-xs text-gray-500 bg-gray-100 p-4 rounded">
+                Raw data: {JSON.stringify(item.tableau_rang_b, null, 2)}
+              </pre>
+            </div>
+          );
+        }
+        
+        return <TableauRangB data={tableauRangBData} />;
+        
       case 4:
         return <ParolesMusicales paroles={item.paroles_musicales} />;
       case 5:
