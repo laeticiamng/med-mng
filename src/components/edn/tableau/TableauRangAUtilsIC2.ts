@@ -2,11 +2,11 @@
 import { conceptsRangAIC2, conceptsRangBIC2, colonnesConfigIC2 } from './TableauRangADataIC2';
 
 export const generateLignesRangAIntelligentIC2 = (data: any): string[][] => {
-  console.log('Génération IC-2 : 7 connaissances Rang A exactement');
+  console.log('IC-2 Génération Rang A : 7 connaissances selon E-LiSA exactement');
   
   const lignes: string[][] = [];
   
-  // Utiliser uniquement les 7 concepts Rang A attendus
+  // Utiliser uniquement les 7 concepts Rang A définis selon E-LiSA
   conceptsRangAIC2.forEach(concept => {
     const ligne = [
       concept.concept,
@@ -21,16 +21,16 @@ export const generateLignesRangAIntelligentIC2 = (data: any): string[][] => {
     lignes.push(ligne);
   });
 
-  console.log(`IC-2 Rang A: ${lignes.length} lignes générées (attendu: 7)`);
+  console.log(`IC-2 Rang A: ${lignes.length}/7 connaissances E-LiSA générées`);
   return lignes;
 };
 
 export const generateLignesRangBIntelligentIC2 = (data: any): string[][] => {
-  console.log('Génération IC-2 : 2 connaissances Rang B exactement');
+  console.log('IC-2 Génération Rang B : 2 connaissances selon E-LiSA exactement');
   
   const lignes: string[][] = [];
   
-  // Utiliser uniquement les 2 concepts Rang B attendus
+  // Utiliser uniquement les 2 concepts Rang B définis selon E-LiSA
   conceptsRangBIC2.forEach(concept => {
     const ligne = [
       concept.concept,
@@ -45,33 +45,33 @@ export const generateLignesRangBIntelligentIC2 = (data: any): string[][] => {
     lignes.push(ligne);
   });
 
-  console.log(`IC-2 Rang B: ${lignes.length} lignes générées (attendu: 2)`);
+  console.log(`IC-2 Rang B: ${lignes.length}/2 connaissances E-LiSA générées`);
   return lignes;
 };
 
 export const determinerColonnesUtilesIC2 = (lignes: string[][]): any[] => {
-  console.log('IC-2: Colonnes optimisées pour les 9 connaissances attendues');
+  console.log('IC-2: Configuration colonnes optimisée pour les 9 connaissances E-LiSA');
   
-  // Toutes les colonnes sont pertinentes pour ces concepts précis
+  // Toutes les colonnes sont pertinentes selon le format E-LiSA
   return colonnesConfigIC2;
 };
 
-// Fonction pour enrichir les données IC-2 avec contenu pédagogique ciblé
+// Fonction pour enrichir les données IC-2 selon E-LiSA officielle
 export const enrichirDonneesIC2 = (data: any) => {
   return {
     ...data,
-    theme: "Valeurs professionnelles - 9 connaissances essentielles",
+    theme: "IC-2 : Les valeurs professionnelles du médecin et des autres professions de santé",
     objectifs: [
-      "Maîtriser les 7 connaissances fondamentales du rang A",
-      "Approfondir les 2 connaissances spécialisées du rang B",
-      "Intégrer valeurs et normes dans la pratique",
-      "Comprendre l'évolution de la régulation médicale"
+      "Maîtriser les 7 connaissances fondamentales du rang A selon E-LiSA",
+      "Approfondir les 2 connaissances spécialisées du rang B selon E-LiSA", 
+      "Intégrer valeurs et normes dans la pratique professionnelle",
+      "Comprendre l'organisation et la régulation des professions de santé"
     ],
     competences: [
-      "Identifier les professionnels de santé et leurs rôles",
-      "Définir précisément la pratique médicale",
-      "Appliquer l'éthique médicale au quotidien",
-      "Respecter valeurs et normes professionnelles"
+      "Identifier tous les professionnels de santé et leurs rôles spécifiques",
+      "Définir précisément pratique médicale et éthique professionnelle",
+      "Distinguer valeurs, normes et déontologie dans l'exercice",
+      "Maîtriser l'organisation statutaire et ordinale des professions"
     ]
   };
 };
