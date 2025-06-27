@@ -1,12 +1,14 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Brain, Search, BookOpen, Sparkles } from 'lucide-react';
+import { Brain, Search, BookOpen, Sparkles, Play } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { supabase } from '@/integrations/supabase/client';
 
 const EdnIndex = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [immersiveItems, setImmersiveItems] = useState<any[]>([]);
 
   // Sample EDN items - in real app, this would come from API
   const ednItems = [
@@ -17,6 +19,27 @@ const EdnIndex = () => {
     { id: '267', title: 'Convulsions chez le nourrisson', category: 'Pédiatrie', difficulty: 'Difficile' },
     { id: '312', title: 'Syndrome néphrotique', category: 'Néphrologie', difficulty: 'Modéré' },
   ];
+
+  useEffect(() => {
+    const fetchImmersiveItems = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('edn_items_immersive')
+          .select('*');
+
+        if (error) {
+          console.error('Error fetching immersive items:', error);
+          return;
+        }
+
+        setImmersiveItems(data || []);
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    };
+
+    fetchImmersiveItems();
+  }, []);
 
   const filteredItems = ednItems.filter(item =>
     item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -88,6 +111,50 @@ const EdnIndex = () => {
               Explorez les 367 items de l'Examen National Dématérialisé dans une expérience immersive unique
             </p>
           </div>
+
+          {/* Expériences immersives */}
+          {immersiveItems.length > 0 && (
+            <div className="mb-16">
+              <h2 className="text-3xl font-bold text-white mb-8 text-center">
+                🎭 Expériences Immersives
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {immersiveItems.map((item, index) => (
+                  <Link
+                    key={item.id}
+                    to={`/edn/immersive/${item.slug}`}
+                    className="group"
+                  >
+                    <div className="bg-gradient-to-br from-amber-100 to-blue-100 rounded-2xl p-6 border-2 border-amber-200 hover:border-amber-400 transition-all duration-300 hover:scale-105 hover:shadow-2xl animate-fade-in"
+                         style={{ animationDelay: `${index * 0.1}s` }}>
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-amber-500 to-blue-600 flex items-center justify-center text-white font-bold">
+                            <Play className="h-6 w-6" />
+                          </div>
+                          <div>
+                            <h3 className="text-amber-900 font-semibold text-lg group-hover:text-amber-700 transition-colors">
+                              {item.title}
+                            </h3>
+                            <p className="text-amber-700 text-sm">{item.subtitle}</p>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center justify-between">
+                        <span className="px-3 py-1 rounded-full text-xs font-medium bg-amber-200 text-amber-800">
+                          {item.item_code}
+                        </span>
+                        <span className="text-amber-600 text-sm font-medium">
+                          Expérience immersive 🎯
+                        </span>
+                      </div>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Items grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
