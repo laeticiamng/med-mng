@@ -69,14 +69,39 @@ export const useMusicGeneration = () => {
         }
       });
 
+      // Gestion des erreurs Supabase
       if (error) {
-        console.error('Erreur Supabase:', error);
-        throw new Error(error.message || 'Erreur lors de l\'appel à la fonction');
+        console.error('Erreur Supabase Functions:', error);
+        let errorMessage = 'Erreur lors de la génération musicale';
+        
+        // Vérifier si c'est une erreur d'API Key
+        if (error.message?.includes('x-api-key need') || error.message?.includes('401')) {
+          errorMessage = 'Clé API TopMediAI manquante ou invalide. Veuillez vérifier la configuration.';
+        } else if (error.message?.includes('timeout')) {
+          errorMessage = 'Timeout: La génération prend trop de temps. Veuillez réessayer.';
+        } else {
+          errorMessage = error.message || errorMessage;
+        }
+        
+        setLastError(errorMessage);
+        throw new Error(errorMessage);
       }
 
-      if (data.status === 'error') {
-        setLastError(data.error);
-        throw new Error(data.error);
+      // Vérifier si la réponse contient une erreur
+      if (!data) {
+        throw new Error('Aucune donnée reçue de l\'API');
+      }
+
+      if (data.error || data.status === 'error') {
+        const errorMessage = data.error || data.message || 'Erreur inconnue lors de la génération';
+        console.error('Erreur API TopMediAI:', errorMessage);
+        setLastError(errorMessage);
+        throw new Error(errorMessage);
+      }
+
+      // Vérifier si on a bien reçu une URL audio
+      if (!data.audioUrl) {
+        throw new Error('Aucune URL audio générée par l\'API');
       }
 
       const audioKey = rang === 'A' ? 'rangA' : 'rangB';
@@ -95,12 +120,14 @@ export const useMusicGeneration = () => {
         lyricsIntegrated: data.lyrics_integrated,
         vocalsIncluded: data.vocals_included
       });
+      
     } catch (error) {
       console.error('Erreur génération musique:', error);
-      setLastError(error.message);
+      const errorMessage = error.message || "Impossible de générer la musique. Veuillez réessayer.";
+      setLastError(errorMessage);
       toast({
         title: "Erreur de génération",
-        description: error.message || "Impossible de générer la musique. Veuillez réessayer.",
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {
