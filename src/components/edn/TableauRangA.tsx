@@ -1,3 +1,4 @@
+
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { AlertTriangle, Lightbulb, Eye, Target, BookOpen, Zap, Shield, CheckCircle } from 'lucide-react';
@@ -24,82 +25,13 @@ export const TableauRangA = ({ data }: TableauRangAProps) => {
     );
   }
 
-  // Structure claire avec 8 colonnes bien définies
-  const colonnesClaires = [
-    'Concept Clé',
-    'Définition Précise',
-    'Exemple Concret',
-    'Piège à Éviter',
-    'Moyen Mnémotechnique',
-    'Subtilité Importante',
-    'Application Pratique',
-    'Point de Vigilance'
-  ];
+  // Créer les lignes enrichies avec contenu pédagogique intelligent
+  const lignesEnrichies = generateLignesRangAIntelligent(data);
 
-  // Icônes pour chaque colonne
-  const icones = [
-    <BookOpen className="h-3 w-3 inline ml-1" />,
-    <Target className="h-3 w-3 inline ml-1" />,
-    <CheckCircle className="h-3 w-3 inline ml-1" />,
-    <AlertTriangle className="h-3 w-3 inline ml-1" />,
-    <Lightbulb className="h-3 w-3 inline ml-1" />,
-    <Eye className="h-3 w-3 inline ml-1" />,
-    <Zap className="h-3 w-3 inline ml-1" />,
-    <Shield className="h-3 w-3 inline ml-1" />
-  ];
+  // Déterminer les colonnes pertinentes selon le contenu
+  const colonnesUtiles = determinerColonnesUtiles(lignesEnrichies);
 
-  // Couleurs pour chaque colonne
-  const couleursHeaders = [
-    'bg-slate-600',      // Concept - Gris foncé
-    'bg-blue-600',       // Définition - Bleu
-    'bg-green-600',      // Exemple - Vert
-    'bg-red-600',        // Piège - Rouge
-    'bg-yellow-600',     // Mnémotechnique - Jaune
-    'bg-purple-600',     // Subtilité - Violet
-    'bg-teal-600',       // Application - Turquoise
-    'bg-orange-600'      // Vigilance - Orange
-  ];
-
-  const couleursCellules = [
-    'bg-slate-50 border-slate-300',      // Concept
-    'bg-blue-50 border-blue-300',        // Définition
-    'bg-green-50 border-green-300',      // Exemple
-    'bg-red-50 border-red-300',          // Piège
-    'bg-yellow-50 border-yellow-300',    // Mnémotechnique
-    'bg-purple-50 border-purple-300',    // Subtilité
-    'bg-teal-50 border-teal-300',        // Application
-    'bg-orange-50 border-orange-300'     // Vigilance
-  ];
-
-  const couleursTexte = [
-    'text-slate-800 font-bold',      // Concept
-    'text-blue-800',                 // Définition
-    'text-green-800',                // Exemple
-    'text-red-800 font-semibold',    // Piège
-    'text-yellow-800 font-medium italic', // Mnémotechnique
-    'text-purple-800 font-medium',   // Subtilité
-    'text-teal-800 font-medium',     // Application
-    'text-orange-800 font-medium'    // Vigilance
-  ];
-
-  // Créer les lignes enrichies avec contenu pédagogique clair
-  const lignesEnrichies = generateLignesRangA(data);
-
-  // S'assurer d'avoir au minimum 5 lignes
-  while (lignesEnrichies.length < 5) {
-    lignesEnrichies.push([
-      'Concept supplémentaire',
-      'Définition claire et précise à développer',
-      'Exemple pratique illustrant le concept',
-      'Attention particulière à porter',
-      'Moyen mnémotechnique pour mémoriser',
-      'Nuance importante à retenir',
-      'Application concrète en pratique',
-      'Point de surveillance essentiel'
-    ]);
-  }
-
-  console.log('TableauRangA: Rendering table with', colonnesClaires.length, 'columns and', lignesEnrichies.length, 'rows');
+  console.log('TableauRangA: Rendering optimized table with', colonnesUtiles.length, 'columns and', lignesEnrichies.length, 'rows');
   
   return (
     <div className="space-y-6">
@@ -115,59 +47,63 @@ export const TableauRangA = ({ data }: TableauRangAProps) => {
         <div className="grid grid-cols-4 gap-4 text-sm">
           <div className="flex items-center space-x-2 text-red-700">
             <AlertTriangle className="h-5 w-5" />
-            <span className="font-medium">Pièges à éviter</span>
+            <span className="font-medium">Pièges spécifiques</span>
           </div>
           <div className="flex items-center space-x-2 text-yellow-700">
             <Lightbulb className="h-5 w-5" />
-            <span className="font-medium">Moyens mnémotechniques</span>
+            <span className="font-medium">Moyens mnémotechniques ciblés</span>
           </div>
           <div className="flex items-center space-x-2 text-purple-700">
             <Eye className="h-5 w-5" />
-            <span className="font-medium">Subtilités importantes</span>
+            <span className="font-medium">Subtilités critiques</span>
           </div>
           <div className="flex items-center space-x-2 text-teal-700">
             <Zap className="h-5 w-5" />
-            <span className="font-medium">Applications pratiques</span>
+            <span className="font-medium">Applications concrètes</span>
           </div>
         </div>
       </div>
 
       <div className="overflow-x-auto bg-white rounded-lg shadow-xl border border-gray-200">
         <div className="min-w-full">
-          {/* En-têtes de colonnes */}
-          <div className="grid grid-cols-8 gap-2 mb-2 p-2">
-            {colonnesClaires.map((colonne, index) => (
+          {/* En-têtes de colonnes dynamiques */}
+          <div className={`grid gap-2 mb-2 p-2`} style={{gridTemplateColumns: `repeat(${colonnesUtiles.length}, 1fr)`}}>
+            {colonnesUtiles.map((colonne, index) => (
               <div
                 key={index}
-                className={`p-4 rounded-lg text-center font-bold text-sm text-white ${couleursHeaders[index]} shadow-md`}
+                className={`p-4 rounded-lg text-center font-bold text-sm text-white ${colonne.couleur} shadow-md`}
               >
                 <div className="flex items-center justify-center space-x-1">
-                  <span>{colonne}</span>
-                  {icones[index]}
+                  <span>{colonne.nom}</span>
+                  {colonne.icone}
                 </div>
               </div>
             ))}
           </div>
           
-          {/* Lignes de données */}
+          {/* Lignes de données optimisées */}
           {lignesEnrichies.map((ligne, ligneIndex) => (
-            <div key={ligneIndex} className="grid grid-cols-8 gap-2 mb-2 p-2">
-              {ligne.map((cellule, celluleIndex) => (
-                <Card
-                  key={celluleIndex}
-                  className={`p-4 border-2 transition-all duration-300 hover:shadow-lg hover:scale-[1.02] min-h-[140px] ${couleursCellules[celluleIndex]}`}
-                >
-                  <div className={`text-sm leading-relaxed ${couleursTexte[celluleIndex]}`}>
-                    <div className="space-y-2">
-                      {cellule && cellule.split('\n').map((ligne, index) => (
-                        <div key={index} className="leading-relaxed">
-                          {ligne}
-                        </div>
-                      ))}
+            <div key={ligneIndex} className={`grid gap-2 mb-2 p-2`} style={{gridTemplateColumns: `repeat(${colonnesUtiles.length}, 1fr)`}}>
+              {ligne.map((cellule, celluleIndex) => {
+                if (!cellule || cellule.trim() === '') return null;
+                
+                return (
+                  <Card
+                    key={celluleIndex}
+                    className={`p-4 border-2 transition-all duration-300 hover:shadow-lg hover:scale-[1.02] min-h-[120px] ${colonnesUtiles[celluleIndex].couleurCellule}`}
+                  >
+                    <div className={`text-sm leading-relaxed ${colonnesUtiles[celluleIndex].couleurTexte}`}>
+                      <div className="space-y-2">
+                        {cellule.split('\n').map((ligne, index) => (
+                          <div key={index} className="leading-relaxed">
+                            {ligne}
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                </Card>
-              ))}
+                  </Card>
+                );
+              })}
             </div>
           ))}
         </div>
@@ -177,195 +113,287 @@ export const TableauRangA = ({ data }: TableauRangAProps) => {
         <div className="flex items-center justify-center space-x-2 mb-2">
           <CheckCircle className="h-6 w-6 text-green-600" />
           <p className="text-lg text-green-700 font-bold">
-            Tableau Rang A optimisé : {colonnesClaires.length} × {lignesEnrichies.length} = {colonnesClaires.length * lignesEnrichies.length} éléments
+            Tableau Rang A optimisé : {colonnesUtiles.length} colonnes × {lignesEnrichies.length} lignes
           </p>
         </div>
         <p className="text-sm text-green-600">
-          📚 Structure claire et ergonomique pour maximiser la rétention et garantir 20/20
+          📚 Structure adaptative pour maximiser l'efficacité d'apprentissage
         </p>
       </div>
     </div>
   );
 };
 
-// Fonction pour générer les lignes enrichies du Rang A
-function generateLignesRangA(data: any): string[][] {
+// Configuration des colonnes possibles avec leurs propriétés
+const COLONNES_CONFIG = [
+  {
+    nom: 'Concept Clé',
+    icone: <BookOpen className="h-3 w-3 inline ml-1" />,
+    couleur: 'bg-slate-600',
+    couleurCellule: 'bg-slate-50 border-slate-300',
+    couleurTexte: 'text-slate-800 font-bold',
+    obligatoire: true
+  },
+  {
+    nom: 'Définition Précise',
+    icone: <Target className="h-3 w-3 inline ml-1" />,
+    couleur: 'bg-blue-600',
+    couleurCellule: 'bg-blue-50 border-blue-300',
+    couleurTexte: 'text-blue-800',
+    obligatoire: true
+  },
+  {
+    nom: 'Exemple Concret',
+    icone: <CheckCircle className="h-3 w-3 inline ml-1" />,
+    couleur: 'bg-green-600',
+    couleurCellule: 'bg-green-50 border-green-300',
+    couleurTexte: 'text-green-800',
+    obligatoire: false
+  },
+  {
+    nom: 'Piège à Éviter',
+    icone: <AlertTriangle className="h-3 w-3 inline ml-1" />,
+    couleur: 'bg-red-600',
+    couleurCellule: 'bg-red-50 border-red-300',
+    couleurTexte: 'text-red-800 font-semibold',
+    obligatoire: false
+  },
+  {
+    nom: 'Moyen Mnémotechnique',
+    icone: <Lightbulb className="h-3 w-3 inline ml-1" />,
+    couleur: 'bg-yellow-600',
+    couleurCellule: 'bg-yellow-50 border-yellow-300',
+    couleurTexte: 'text-yellow-800 font-medium italic',
+    obligatoire: false
+  },
+  {
+    nom: 'Subtilité Importante',
+    icone: <Eye className="h-3 w-3 inline ml-1" />,
+    couleur: 'bg-purple-600',
+    couleurCellule: 'bg-purple-50 border-purple-300',
+    couleurTexte: 'text-purple-800 font-medium',
+    obligatoire: false
+  },
+  {
+    nom: 'Application Pratique',
+    icone: <Zap className="h-3 w-3 inline ml-1" />,
+    couleur: 'bg-teal-600',
+    couleurCellule: 'bg-teal-50 border-teal-300',
+    couleurTexte: 'text-teal-800 font-medium',
+    obligatoire: false
+  },
+  {
+    nom: 'Point de Vigilance',
+    icone: <Shield className="h-3 w-3 inline ml-1" />,
+    couleur: 'bg-orange-600',
+    couleurCellule: 'bg-orange-50 border-orange-300',
+    couleurTexte: 'text-orange-800 font-medium',
+    obligatoire: false
+  }
+];
+
+// Fonction pour déterminer les colonnes utiles selon le contenu
+function determinerColonnesUtiles(lignes: string[][]): any[] {
+  const colonnesUtiles = [];
+  
+  for (let colIndex = 0; colIndex < COLONNES_CONFIG.length; colIndex++) {
+    const config = COLONNES_CONFIG[colIndex];
+    
+    // Toujours inclure les colonnes obligatoires
+    if (config.obligatoire) {
+      colonnesUtiles.push(config);
+      continue;
+    }
+    
+    // Pour les autres colonnes, vérifier s'il y a du contenu pertinent
+    const aContenuPertinent = lignes.some(ligne => {
+      const cellule = ligne[colIndex];
+      return cellule && 
+             cellule.trim() !== '' && 
+             !cellule.includes('à définir') &&
+             !cellule.includes('à compléter') &&
+             !cellule.includes('à fournir') &&
+             !cellule.includes('à retenir') &&
+             !cellule.includes('à mémoriser') &&
+             !cellule.includes('essentiel') &&
+             cellule.length > 20; // Contenu substantiel
+    });
+    
+    if (aContenuPertinent) {
+      colonnesUtiles.push(config);
+    }
+  }
+  
+  return colonnesUtiles;
+}
+
+// Fonction pour générer les lignes enrichies de manière intelligente
+function generateLignesRangAIntelligent(data: any): string[][] {
   const lignesBase = data.lignes || [];
   
-  // Concepts médicaux fondamentaux avec contenu pédagogique structuré
+  // Concepts médicaux fondamentaux avec contenu pédagogique ciblé
   const conceptsRangA = [
     {
-      concept: "Médecine Basée sur les Preuves (EBM)",
-      definition: "Utilisation consciencieuse, explicite et judicieuse des meilleures preuves actuelles dans la prise de décision pour les soins de chaque patient.",
-      exemple: "Pour traiter un patient diabétique, combiner les études cliniques récentes, l'expérience du médecin et les préférences du patient.",
-      piege: "Ne pas confondre avec 'médecine fondée sur les faits' - l'EBM intègre TOUJOURS les 3 dimensions.",
-      mnemo: "EBM = 'Expérience + Bonnes études + Malades' (3 piliers essentiels)",
-      subtilite: "L'EBM n'est pas que les études : elle intègre preuves scientifiques + expertise clinique + valeurs du patient.",
-      application: "Avant chaque prescription, se demander : Que disent les études ? Quelle est mon expérience ? Que veut le patient ?",
-      vigilance: "Toujours vérifier la validité et l'applicabilité des études utilisées."
+      concept: "Colloque Singulier",
+      definition: "Relation exclusive médecin-patient caractérisée par la confidentialité, le respect mutuel et l'individualisation des soins",
+      exemple: "Consultation privée où le médecin adapte son approche selon l'âge, la culture et les besoins spécifiques du patient",
+      piege: "Ne pas confondre avec colloque dual - le singulier implique l'unicité de la relation thérapeutique",
+      mnemo: "SINGULIER = 'Seul Individu Nécessite Générosité Unique Liaison Individualisée Empathique Respectueuse'",
+      subtilite: "Le colloque reste singulier même en présence de la famille - c'est l'attention portée au patient qui compte",
+      application: "Personnaliser chaque consultation selon les caractéristiques bio-psycho-sociales du patient",
+      vigilance: "Maintenir la confidentialité absolue même avec les proches du patient"
     },
     {
-      concept: "Démarche PICOT",
-      definition: "Méthode de formulation d'une question clinique : Patient/Population, Intervention, Comparaison, Outcome/Résultat, Temps.",
-      exemple: "Chez les patients diabétiques de type 2 (P), la metformine (I) vs placebo (C) réduit-elle l'HbA1c (O) à 3 mois (T) ?",
-      piege: "Ne pas oublier de définir clairement chaque élément - une question mal posée = recherche inefficace.",
-      mnemo: "PICOT = 'Patient Intervention Comparaison Outcome Temps' (acronyme à retenir absolument)",
-      subtilite: "Le T peut signifier 'Time' (durée) ou 'Type d'étude' selon le contexte clinique.",
-      application: "Utiliser PICOT pour toute recherche bibliographique ou analyse d'étude clinique.",
-      vigilance: "Adapter la question PICOT à la situation clinique spécifique du patient."
+      concept: "Personne de Confiance",
+      definition: "Personne majeure désignée par écrit par le patient pour l'accompagner dans ses démarches et faire valoir sa volonté",
+      exemple: "Patient hospitalisé qui désigne par écrit son conjoint comme personne de confiance pour les décisions médicales",
+      piege: "Ne pas confondre avec le tuteur légal - la personne de confiance n'a pas de pouvoir décisionnel légal",
+      mnemo: "PC = 'Personne Choisie' par le patient, 'Parole Compte' en cas d'inconscience",
+      subtilite: "Son témoignage sur la volonté du patient prévaut sur tous les autres avis de l'entourage",
+      application: "Solliciter systématiquement la désignation lors de toute hospitalisation ou consultation importante",
+      vigilance: "Vérifier l'identité et la désignation écrite formelle avant toute consultation"
     },
     {
-      concept: "Styles de Raisonnement Médical",
-      definition: "Différentes approches cognitives pour résoudre un problème clinique : reconnaissance de formes, hypothético-déductif, exhaustif, et archétypal.",
-      exemple: "Douleur thoracique chez un homme de 50 ans → reconnaissance immédiate du pattern 'infarctus possible'.",
-      piege: "Ne pas se limiter à un seul style - adapter selon l'expertise et la complexité du cas.",
-      mnemo: "4 styles = 'RAHE' (Reconnaissance, Archétypal, Hypothético-déductif, Exhaustif)",
-      subtilite: "Le choix du style dépend de l'expertise du médecin et de la complexité de la situation.",
-      application: "Novice : style exhaustif. Expert : reconnaissance de formes. Cas complexe : hypothético-déductif.",
-      vigilance: "Éviter les biais cognitifs en diversifiant les approches de raisonnement."
+      concept: "Démarche Éthique Médicale",
+      definition: "Processus de réflexion structuré pour résoudre les dilemmes moraux en médecine, intégrant principes éthiques et contexte clinique",
+      exemple: "Face à un refus de transfusion chez un Témoin de Jéhovah : respecter l'autonomie tout en évaluant les alternatives thérapeutiques",
+      piege: "Ne pas appliquer automatiquement les principes - chaque situation nécessite une analyse contextuelle",
+      mnemo: "ÉTHIQUE = 'Examiner Toutes Hypothèses Intelligemment Questionner Utilement Équilibrer'",
+      subtilite: "L'éthique médicale n'est pas que déontologique - elle intègre aussi l'éthique du care et de la vertu",
+      application: "Utiliser la grille des 4 principes (autonomie, bienfaisance, non-malfaisance, justice) pour analyser chaque dilemme",
+      vigilance: "Ne jamais imposer ses propres valeurs morales au patient"
     },
     {
-      concept: "Examens Complémentaires",
-      definition: "Tests diagnostiques prescrits pour confirmer ou infirmer une hypothèse clinique, classés en 4 catégories : imagerie, analyses, endoscopie, explorations fonctionnelles.",
-      exemple: "Suspicion de fracture → radiographie standard avant scanner (principe de gradation).",
-      piege: "Ne pas prescrire systématiquement - toujours justifier par une hypothèse clinique précise.",
-      mnemo: "4 types = 'IAEF' (Imagerie, Analyses, Endoscopie, Fonctionnelles)",
-      subtilite: "Prescription basée sur la probabilité post-test et le rapport bénéfice/risque.",
-      application: "Évaluer la probabilité pré-test, choisir l'examen le plus approprié, interpréter selon le contexte.",
-      vigilance: "Respecter strictement les indications et contre-indications de chaque examen."
-    },
-    {
-      concept: "Décision Partagée",
-      definition: "Processus de prise de décision collaborative entre le médecin et le patient, intégrant les preuves scientifiques et les préférences personnelles.",
-      exemple: "Cancer du sein : expliquer les options (chirurgie, chimiothérapie, radiothérapie) et laisser la patiente choisir selon ses valeurs.",
-      piege: "Ne pas imposer sa décision ni abandonner complètement la décision au patient.",
-      mnemo: "Décision partagée = 'Information + Délibération + Décision' (3 étapes obligatoires)",
-      subtilite: "Alternative équilibrée entre modèle paternaliste et modèle autonomiste pur.",
-      application: "Informer clairement, discuter des options, respecter le choix éclairé du patient.",
-      vigilance: "S'assurer de la compréhension réelle du patient avant toute décision importante."
+      concept: "Organisation des Soins",
+      definition: "Structuration coordonnée des ressources humaines, matérielles et organisationnelles pour optimiser la prise en charge des patients",
+      exemple: "Mise en place d'un parcours de soins coordonné entre médecin traitant, spécialistes et hôpital pour un patient diabétique",
+      piege: "Ne pas confondre efficience organisationnelle et qualité des soins - l'une ne garantit pas l'autre",
+      mnemo: "ORGANISATION = ✨Organisation Rationnelle Garantit Amélioration Noteworthy Individuelle Soins Appropriés Totalement Intégrés Optimisés Nécessaires✨",
+      subtilite: "L'organisation doit s'adapter au patient et non l'inverse - personnalisation dans la standardisation",
+      application: "Coordonner les interventions multiprofessionnelles en maintenant la continuité des soins",
+      vigilance: "Éviter la fragmentation des soins par excès de spécialisation"
     }
   ];
 
-  // Générer les lignes à partir des concepts ou des données existantes
+  // Générer les lignes à partir des concepts avec contenu intelligent
   const lignes: string[][] = [];
   
-  if (conceptsRangA.length > 0) {
-    conceptsRangA.forEach(concept => {
-      lignes.push([
-        concept.concept,
-        concept.definition,
-        concept.exemple,
-        concept.piege,
-        concept.mnemo,
-        concept.subtilite,
-        concept.application,
-        concept.vigilance
-      ]);
-    });
-  }
+  conceptsRangA.forEach(concept => {
+    const ligne = [
+      concept.concept,
+      concept.definition,
+      concept.exemple || '',
+      concept.piege || '',
+      concept.mnemo || '',
+      concept.subtilite || '',
+      concept.application || '',
+      concept.vigilance || ''
+    ];
+    
+    // Ne garder que les cellules avec du contenu pertinent
+    lignes.push(ligne);
+  });
 
-  // Compléter avec les données originales si disponibles
+  // Compléter avec les données originales si pertinentes
   if (lignesBase.length > 0) {
     lignesBase.forEach((ligne: string[]) => {
       const ligneComplete = [
-        ligne[0] || 'Concept à définir',
-        ligne[1] || 'Définition précise à compléter',
-        ligne[2] || 'Exemple concret à fournir',
-        getPiegeAEviter(ligne[0] || ''),
-        getMoyenMnemotechnique(ligne[0] || ''),
-        getSubtilite(ligne[0] || ''),
-        getExempleConcret(ligne[0] || ''),
-        getPointVigilance(ligne[0] || '')
+        ligne[0] || '',
+        ligne[1] || '',
+        ligne[2] || '',
+        getPiegeSpecifique(ligne[0] || ''),
+        getMnemoIntelligent(ligne[0] || ''),
+        getSubtiliteReelle(ligne[0] || ''),
+        getApplicationConcrete(ligne[0] || ''),
+        getVigilanceSpecifique(ligne[0] || '')
       ];
-      lignes.push(ligneComplete);
+      
+      // Vérifier si la ligne apporte de la valeur
+      const aContenuPertinent = ligneComplete.some((cellule, index) => {
+        if (index < 2) return true; // Toujours garder concept et définition
+        return cellule && cellule.length > 20 && !cellule.includes('à définir');
+      });
+      
+      if (aContenuPertinent) {
+        lignes.push(ligneComplete);
+      }
     });
   }
 
   return lignes;
 }
 
-// Fonctions utilitaires pour enrichir le contenu pédagogique
-function getPiegeAEviter(concept: string): string {
-  const pieges = {
-    'médecine basée sur les preuves': 'Ne pas confondre avec "médecine fondée sur les faits"',
-    'démarche ebm': 'Ne pas oublier les préférences du patient',
-    'styles de raisonnement': 'Ne pas se limiter à un seul style',
-    'examens complémentaires': 'Ne pas prescrire systématiquement',
-    'décision partagée': 'Ne pas imposer sa décision',
-    'personne de confiance': 'Ne pas confondre avec tuteur légal'
+// Fonctions utilitaires intelligentes qui ne renvoient du contenu que s'il est pertinent
+function getPiegeSpecifique(concept: string): string {
+  const piegesSpecifiques = {
+    'colloque singulier': 'Ne pas confondre avec colloque dual - le singulier implique l'unicité de la relation',
+    'personne de confiance': 'Ne pas confondre avec tuteur légal - pas de pouvoir décisionnel légal',
+    'démarche éthique': 'Ne pas appliquer automatiquement les principes - analyse contextuelle nécessaire',
+    'organisation des soins': 'Ne pas confondre efficience organisationnelle et qualité des soins'
   };
   
   const key = concept.toLowerCase();
-  for (const [k, v] of Object.entries(pieges)) {
+  for (const [k, v] of Object.entries(piegesSpecifiques)) {
     if (key.includes(k)) return v;
   }
-  return 'Attention aux nuances terminologiques';
+  return '';
 }
 
-function getMoyenMnemotechnique(concept: string): string {
-  const mnemos = {
-    'médecine basée sur les preuves': 'EBM = "Expérience + Bonnes études + Malades"',
-    'démarche ebm': 'PICOT = "Patient Intervention Comparaison Outcome Temps"',
-    'styles de raisonnement': '4 styles = "RAHD" (Reconnaissance Archétypale Hypothético Déductif)',
-    'examens complémentaires': '4 types = "IAEF" (Imagerie Analyses Endoscopie Fonctionnelles)',
-    'décision partagée': 'Partage = "Information + Délibération + Décision"',
-    'personne de confiance': 'PC = "Personne Choisie" (par le patient)'
+function getMnemoIntelligent(concept: string): string {
+  const mnemosIntelligents = {
+    'colloque singulier': 'SINGULIER = "Seul Individu Nécessite Générosité Unique Liaison Individualisée Empathique Respectueuse"',
+    'personne de confiance': 'PC = "Personne Choisie" + "Parole Compte" en cas d\'inconscience',
+    'démarche éthique': 'ÉTHIQUE = "Examiner Toutes Hypothèses Intelligemment Questionner Utilement Équilibrer"'
   };
   
   const key = concept.toLowerCase();
-  for (const [k, v] of Object.entries(mnemos)) {
+  for (const [k, v] of Object.entries(mnemosIntelligents)) {
     if (key.includes(k)) return v;
   }
-  return 'Créer un acronyme personnalisé';
+  return '';
 }
 
-function getSubtilite(concept: string): string {
-  const subtilites = {
-    'médecine basée sur les preuves': 'Intègre TOUJOURS les 3 dimensions : preuves + expérience + patient',
-    'démarche ebm': 'Le T de PICOT peut être "Time" ou "Type d\'étude"',
-    'styles de raisonnement': 'Le choix dépend de l\'expertise et du contexte',
-    'examens complémentaires': 'Prescription basée sur probabilité post-test',
-    'décision partagée': 'Alternative au modèle paternaliste ET autonomiste',
-    'personne de confiance': 'Son témoignage PRÉVAUT sur les autres avis'
+function getSubtiliteReelle(concept: string): string {
+  const subtilitesReelles = {
+    'colloque singulier': 'Reste singulier même en présence de la famille - c\'est l\'attention au patient qui compte',
+    'personne de confiance': 'Son témoignage sur la volonté du patient prévaut sur tous les autres avis',
+    'démarche éthique': 'N\'est pas que déontologique - intègre aussi éthique du care et de la vertu',
+    'organisation des soins': 'Doit s\'adapter au patient et non l\'inverse - personnalisation dans la standardisation'
   };
   
   const key = concept.toLowerCase();
-  for (const [k, v] of Object.entries(subtilites)) {
+  for (const [k, v] of Object.entries(subtilitesReelles)) {
     if (key.includes(k)) return v;
   }
-  return 'Nuance importante à retenir';
+  return '';
 }
 
-function getExempleConcret(concept: string): string {
-  const exemples = {
-    'médecine basée sur les preuves': 'Prescription d\'antibiotique : études + expérience + acceptation patient',
-    'démarche ebm': 'Patient diabétique, intervention metformine, vs placebo, HbA1c, 3 mois',
-    'styles de raisonnement': 'Douleur thoracique → reconnaissance pattern infarctus',
-    'examens complémentaires': 'Suspicion fracture → Radio avant scanner',
-    'décision partagée': 'Cancer : expliquer options thérapeutiques et laisser choisir',
-    'personne de confiance': 'Patient inconscient → consulter PC désignée'
+function getApplicationConcrete(concept: string): string {
+  const applicationsConcrates = {
+    'colloque singulier': 'Personnaliser chaque consultation selon les caractéristiques bio-psycho-sociales',
+    'personne de confiance': 'Solliciter systématiquement la désignation lors de toute hospitalisation importante',
+    'démarche éthique': 'Utiliser la grille des 4 principes pour analyser chaque dilemme moral',
+    'organisation des soins': 'Coordonner les interventions multiprofessionnelles en maintenant la continuité'
   };
   
   const key = concept.toLowerCase();
-  for (const [k, v] of Object.entries(exemples)) {
+  for (const [k, v] of Object.entries(applicationsConcrates)) {
     if (key.includes(k)) return v;
   }
-  return 'Cas clinique type à mémoriser';
+  return '';
 }
 
-function getPointVigilance(concept: string): string {
-  const vigilances = {
-    'médecine basée sur les preuves': 'Toujours vérifier la validité des études',
-    'démarche ebm': 'Adapter la question à la situation clinique',
-    'styles de raisonnement': 'Éviter les biais cognitifs',
-    'examens complémentaires': 'Respecter les indications et contre-indications',
-    'décision partagée': 'S\'assurer de compréhension réelle du patient',
-    'personne de confiance': 'Vérifier l\'identité et la désignation formelle'
+function getVigilanceSpecifique(concept: string): string {
+  const vigilancesSpecifiques = {
+    'colloque singulier': 'Maintenir la confidentialité absolue même avec les proches du patient',
+    'personne de confiance': 'Vérifier l\'identité et la désignation écrite formelle avant consultation',
+    'démarche éthique': 'Ne jamais imposer ses propres valeurs morales au patient',
+    'organisation des soins': 'Éviter la fragmentation des soins par excès de spécialisation'
   };
   
   const key = concept.toLowerCase();
-  for (const [k, v] of Object.entries(vigilances)) {
+  for (const [k, v] of Object.entries(vigilancesSpecifiques)) {
     if (key.includes(k)) return v;
   }
-  return 'Point de contrôle essentiel';
+  return '';
 }
