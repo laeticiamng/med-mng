@@ -64,34 +64,54 @@ export class MusicGenerator {
     return this.client.get<MusicStatus>('/api/v1/generate/record-info', { taskId });
   }
 
-  async waitForCompletion(taskId: string, maxAttempts: number = 60): Promise<MusicStatus> {
+  async waitForCompletion(taskId: string, maxAttempts: number = 120): Promise<MusicStatus> {
     let attempts = 0;
     let musicData: MusicStatus;
 
     console.log(`🔄 Polling du statut pour taskId: ${taskId}`);
 
     do {
-      await new Promise(resolve => setTimeout(resolve, 5000)); // Attendre 5 secondes
+      await new Promise(resolve => setTimeout(resolve, 10000)); // Attendre 10 secondes entre chaque vérification
       attempts++;
 
-      musicData = await this.getMusicStatus(taskId);
-      console.log(`🔍 Tentative ${attempts}: Status=${musicData.status}`);
+      try {
+        musicData = await this.getMusicStatus(taskId);
+        console.log(`🔍 Tentative ${attempts}/${maxAttempts}: Status=${musicData.status}`);
 
-      if (musicData.status === 'SUCCESS' && musicData.data?.audio?.length) {
-        break;
+        // Vérifier si on a une URL audio disponible même avant SUCCESS
+        if (musicData.data?.audio?.length && musicData.data.audio[0].audio_url) {
+          console.log(`✅ URL audio trouvée au statut ${musicData.status}`);
+          return musicData;
+        }
+
+        // Statuts d'erreur définitifs
+        if (['CREATE_TASK_FAILED', 'GENERATE_AUDIO_FAILED', 'CALLBACK_EXCEPTION', 'SENSITIVE_WORD_ERROR'].includes(musicData.status)) {
+          throw new Error(`La génération musicale a échoué: ${musicData.status}`);
+        }
+
+        // Continuer le polling pour les autres statuts
+        if (musicData.status === 'SUCCESS') {
+          break;
+        }
+
+      } catch (error) {
+        console.error(`❌ Erreur lors de la vérification du statut (tentative ${attempts}):`, error);
+        if (attempts >= maxAttempts) {
+          throw error;
+        }
+        // Continuer le polling même en cas d'erreur ponctuelle
       }
 
-      if (['CREATE_TASK_FAILED', 'GENERATE_AUDIO_FAILED', 'CALLBACK_EXCEPTION', 'SENSITIVE_WORD_ERROR'].includes(musicData.status)) {
-        throw new Error(`La génération musicale a échoué: ${musicData.status}`);
-      }
+    } while (attempts < maxAttempts);
 
-    } while (attempts < maxAttempts && musicData.status !== 'SUCCESS');
-
+    // Vérification finale
     if (attempts >= maxAttempts) {
-      throw new Error('Timeout: La génération musicale prend trop de temps');
+      console.error(`⏰ Timeout après ${maxAttempts} tentatives (${maxAttempts * 10} secondes)`);
+      throw new Error(`Timeout: La génération musicale prend trop de temps (${Math.floor(maxAttempts * 10 / 60)} minutes)`);
     }
 
     if (!musicData.data?.audio?.length || !musicData.data.audio[0].audio_url) {
+      console.error('❌ Aucune URL audio dans la réponse finale:', musicData);
       throw new Error('Aucune URL audio générée par Suno');
     }
 

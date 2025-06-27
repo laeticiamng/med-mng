@@ -62,6 +62,7 @@ serve(async (req) => {
     const generator = new MusicGenerator(SUNO_API_KEY);
 
     // Étape 1: Générer la chanson avec Suno
+    console.log('🚀 Lancement de la génération musicale...');
     const generateData = await generator.generateMusic({
       prompt: lyrics,
       style: musicStyle,
@@ -79,11 +80,13 @@ serve(async (req) => {
       throw new Error('Aucun ID de tâche retourné par Suno');
     }
 
-    // Étape 2: Attendre que la génération soit terminée
-    const musicData = await generator.waitForCompletion(generateData.taskId);
+    // Étape 2: Attendre que la génération soit terminée (timeout 20 minutes)
+    console.log('⏳ Attente de la génération musicale...');
+    const musicData = await generator.waitForCompletion(generateData.taskId, 120);
 
     const audioUrl = musicData.data?.audio?.[0]?.audio_url;
     if (!audioUrl) {
+      console.error('❌ Réponse Suno sans URL audio:', musicData);
       throw new Error('Aucune URL audio dans la réponse de Suno');
     }
 
@@ -105,6 +108,7 @@ serve(async (req) => {
         vocals_included: true,
         lyrics_length: lyrics.length,
         task_id: generateData.taskId,
+        final_status: musicData.status,
         note: '🎵 Génération réelle avec Suno AI - Paroles chantées intégrées',
         vocal_style: 'Voix IA haute qualité avec articulation claire',
         music_elements: `Style ${style} avec accompagnement musical professionnel et voix lead`,
@@ -113,7 +117,8 @@ serve(async (req) => {
           api_used: 'Suno AI',
           model_version: 'V3_5',
           base_url: 'https://apibox.erweima.ai',
-          callback_url: callBackUrl
+          callback_url: callBackUrl,
+          polling_duration: `${Math.floor(120 * 10 / 60)} minutes max`
         }
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -131,7 +136,8 @@ serve(async (req) => {
           error_message: error.message,
           timestamp: new Date().toISOString(),
           api_used: 'Suno AI',
-          base_url: 'https://apibox.erweima.ai'
+          base_url: 'https://apibox.erweima.ai',
+          timeout_info: 'Timeout configuré à 20 minutes (120 tentatives × 10s)'
         }
       }),
       { 
