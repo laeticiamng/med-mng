@@ -49,13 +49,13 @@ export const TableauRangA = ({ data }: TableauRangAProps) => {
     lignesEnrichies = processed.lignesEnrichies;
     colonnesUtiles = processed.colonnesUtiles;
     theme = processed.theme;
-    footerComponent = <TableauRangAFooterIC4 />;
+    footerComponent = <TableauRangAFooterIC4 colonnesCount={colonnesUtiles.length} lignesCount={lignesEnrichies.length} />;
   } else {
     // Traitement générique pour les autres items
     lignesEnrichies = generateLignesRangAIntelligent(data);
     colonnesUtiles = determinerColonnesUtiles(lignesEnrichies);
     theme = data.theme || data.title || 'Tableau Rang A';
-    footerComponent = <TableauRangAFooter />;
+    footerComponent = <TableauRangAFooter colonnesCount={colonnesUtiles.length} lignesCount={lignesEnrichies.length} />;
   }
 
   console.log('TableauRangA - Processed data:', {

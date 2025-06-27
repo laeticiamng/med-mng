@@ -2,11 +2,11 @@
 import { CheckCircle, Target, BookOpen } from 'lucide-react';
 
 interface TableauRangAFooterProps {
-  colonnesCount: number;
-  lignesCount: number;
+  colonnesCount?: number;
+  lignesCount?: number;
 }
 
-export const TableauRangAFooter = ({ colonnesCount, lignesCount }: TableauRangAFooterProps) => {
+export const TableauRangAFooter = ({ colonnesCount = 0, lignesCount = 0 }: TableauRangAFooterProps) => {
   return (
     <div className="space-y-4">
       {/* Résumé des apprentissages */}

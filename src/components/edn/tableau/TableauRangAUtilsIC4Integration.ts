@@ -10,6 +10,23 @@ export const isIC4Item = (data: any): boolean => {
   return theme.includes('qualité') && theme.includes('sécurité') && theme.includes('soins');
 };
 
+// Fonction principale pour traiter les données IC-4 - AJOUT DE L'EXPORT MANQUANT
+export function processTableauRangAIC4(data: any) {
+  console.log('Processing IC-4 data:', data);
+  
+  // Générer les lignes enrichies spécifiquement pour IC-4
+  const lignesEnrichies = generateLignesRangAIntelligentIC4(data);
+  
+  // Déterminer les colonnes utiles
+  const colonnesUtiles = determinerColonnesUtilesIC4(lignesEnrichies);
+  
+  return {
+    lignesEnrichies,
+    colonnesUtiles,
+    theme: data?.theme || 'Qualité et sécurité des soins - Concepts fondamentaux'
+  };
+}
+
 // Fonction pour générer les lignes IC-4 optimisées
 export const generateLignesRangAWithIC4 = (data: any): string[][] => {
   if (isIC4Item(data)) {

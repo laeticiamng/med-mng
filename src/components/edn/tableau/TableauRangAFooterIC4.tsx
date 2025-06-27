@@ -2,11 +2,11 @@
 import { CheckCircle, Target, BookOpen, Award, Shield } from 'lucide-react';
 
 interface TableauRangAFooterIC4Props {
-  colonnesCount: number;
-  lignesCount: number;
+  colonnesCount?: number;
+  lignesCount?: number;
 }
 
-export const TableauRangAFooterIC4 = ({ colonnesCount, lignesCount }: TableauRangAFooterIC4Props) => {
+export const TableauRangAFooterIC4 = ({ colonnesCount = 0, lignesCount = 0 }: TableauRangAFooterIC4Props) => {
   return (
     <div className="space-y-4">
       {/* Résumé spécifique IC-4 */}
