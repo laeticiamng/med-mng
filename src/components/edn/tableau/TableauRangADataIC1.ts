@@ -1,108 +1,171 @@
 
+// Données spécifiques pour l'item IC-1 : La relation médecin-malade
+// Basé sur la fiche E-LiSA officielle - 15 connaissances exactement (toutes Rang A)
+
+// RANG A : 15 connaissances attendues exactement selon E-LiSA
 export const conceptsRangAIC1 = [
   {
-    concept: "Relation médecin-malade",
-    definition: "Relation asymétrique où le médecin détient les connaissances et le malade est diminué par sa maladie. Fondement de la pratique médicale moderne.",
-    exemple: "Consultation où le médecin utilise son expertise pour diagnostiquer et traiter, tout en respectant l'autonomie du patient",
-    piege: "Ne pas confondre relation asymétrique avec relation paternaliste - l'asymétrie est factuelle, le paternalisme est un choix",
+    concept: "Connaître la définition de la relation médecin-malade",
+    definition: "Relation interpersonnelle asymétrique entre médecin et patient, caractérisée par un déséquilibre de connaissances et une vulnérabilité du patient",
+    exemple: "Consultation médicale où le médecin détient l'expertise technique tandis que le patient est en situation de vulnérabilité",
+    piege: "Ne pas confondre asymétrie factuelle avec paternalisme - l'asymétrie est structurelle",
     mnemo: "RELATION = Respect + Écoute + Loyauté + Adaptation + Transparence + Information + Objectivité + Neutralité",
-    subtilite: "La relation oscille entre modèle paternaliste (urgences) et modèle autonomiste (maladies chroniques) selon le contexte",
-    application: "Adapter son approche selon la situation : directive en urgence, collaborative en chronique",
-    vigilance: "Éviter le paternalisme systématique tout en gardant l'expertise médicale nécessaire"
+    subtilite: "L'asymétrie est inhérente à la relation mais ne justifie pas le paternalisme",
+    application: "Reconnaître et gérer cette asymétrie dans toute interaction thérapeutique",
+    vigilance: "Éviter d'exploiter cette asymétrie au détriment du patient"
   },
   {
-    concept: "Modèle paternaliste",
-    definition: "Le médecin décide de tout pour le patient. Utile dans les situations d'urgence, à éviter pour les maladies chroniques.",
-    exemple: "Réanimation d'urgence où les décisions doivent être prises rapidement sans consultation prolongée",
-    piege: "Ne pas généraliser - utile en urgence mais inadapté pour le suivi chronique",
-    mnemo: "PATERNALISME = Père + Autorité + Temps limité + Expertise + Responsabilité + Nécessité + Adaptation + Limites + Intervention + Sécurité + Médical + Exceptionnel",
-    subtilite: "Modèle encore nécessaire dans certaines situations d'urgence vitale",
-    application: "Réserver aux urgences vitales où le temps manque pour la concertation",
-    vigilance: "Ne pas maintenir ce modèle une fois l'urgence passée"
+    concept: "Connaître les principaux déterminants de la relation médecin-malade",
+    definition: "Facteurs influençant la qualité de la relation : communication, confiance, compétence, disponibilité, empathie",
+    exemple: "Temps accordé, qualité d'écoute, clarté des explications, respect des valeurs du patient",
+    piege: "Négliger l'importance des facteurs non-techniques dans la relation",
+    mnemo: "DÉTERMINANTS = Disponibilité + Écoute + Transparence + Empathie + Respect + Médical + Information + Neutralité + Adaptation + Nuances + Temps + Soutien",
+    subtilite: "Les déterminants techniques et relationnels sont interdépendants",
+    application: "Travailler consciemment sur chaque déterminant lors des consultations",
+    vigilance: "Ne pas sous-estimer l'impact des facteurs relationnels sur l'efficacité thérapeutique"
   },
   {
-    concept: "Modèle autonomiste",
-    definition: "Discussion des possibilités entre patient et médecin, décision prise conjointement avec participation du patient dans le projet de soins.",
-    exemple: "Choix thérapeutique en oncologie où patient et médecin discutent des options de traitement",
-    piege: "Ne pas abandonner l'expertise médicale - l'autonomie ne signifie pas absence de conseil médical",
-    mnemo: "AUTONOMIE = Autonomie + Utilité + Temps + Objectifs + Négociation + Options + Médecin + Information + Écoute",
-    subtilite: "Deux types : décision médicale partagée et modèle informatif selon le degré d'implication souhaité",
-    application: "Privilégier pour les maladies chroniques et les choix thérapeutiques complexes",
-    vigilance: "S'assurer que le patient souhaite réellement cette autonomie - certains préfèrent déléguer"
+    concept: "Connaître les principaux corrélats cliniques de la relation médecin-malade",
+    definition: "Liens entre qualité de la relation et résultats cliniques : adhésion thérapeutique, satisfaction, guérison",
+    exemple: "Meilleure adhésion au traitement quand la relation est de qualité, diminution de l'anxiété du patient",
+    piege: "Penser que seule la technique médicale influence les résultats cliniques",
+    mnemo: "CORRÉLATS = Compliance + Outcomes + Résultats + Réduction + Évaluation + Liens + Adhésion + Thérapeutique + Satisfaction",
+    subtilite: "La qualité relationnelle a un impact mesurable sur les résultats de santé",
+    application: "Investir dans la relation comme composante thérapeutique à part entière",
+    vigilance: "Évaluer régulièrement la qualité de la relation et son impact"
   },
   {
-    concept: "Annonce diagnostique",
-    definition: "Information loyale, claire et appropriée de l'état de santé. Processus en 3 phases : avant, pendant, après.",
-    exemple: "Annonce d'un cancer : préparation du cadre, information progressive, vérification de la compréhension",
-    piege: "Ne pas tout dire d'un coup - l'information doit être dosée et adaptée à la capacité de réception",
-    mnemo: "ANNONCE = Avant + Nécessité + Neutralité + Objectivité + Nuances + Compréhension + Empathie",
-    subtilite: "Communication en 3 phases : avant (préparation), pendant (information), après (vérification)",
-    application: "Préparer le cadre, informer progressivement, vérifier la compréhension et proposer un suivi",
-    vigilance: "Éviter les mécanismes de défense contre-productifs (mensonge, projection, rationalisation)"
+    concept: "Connaître les principes de « l'approche centrée sur le patient »",
+    definition: "Approche plaçant le patient au centre des décisions, respectant ses valeurs, préférences et besoins spécifiques",
+    exemple: "Adaptation du plan de soins aux priorités du patient, prise en compte de son contexte de vie",
+    piege: "Confondre approche centrée patient avec abandon de l'expertise médicale",
+    mnemo: "PATIENT-CENTRÉ = Préférences + Adaptation + Transparence + Information + Écoute + Nuances + Temps + Coordination + Empathie + Neutralité + Respect + Émotions",
+    subtilite: "Équilibre entre expertise médicale et autonomie du patient",
+    application: "Intégrer systématiquement la perspective du patient dans les décisions",
+    vigilance: "Maintenir l'expertise médicale tout en respectant l'autonomie du patient"
   },
   {
-    concept: "Éducation thérapeutique",
-    definition: "Processus individuel, continu et intégré visant à délivrer informations, connaissances et soutien psychologique.",
-    exemple: "Programme d'éducation pour diabétique : formation sur la maladie, l'auto-surveillance, l'adaptation du mode de vie",
-    piege: "Ne pas confondre avec simple information - c'est un processus structuré en 4 étapes",
-    mnemo: "ETP = Évaluer + Établir + Éduquer + Évaluer (les 4 étapes du processus)",
-    subtilite: "Particulièrement utile dans les maladies chroniques pour gagner en autonomie",
-    application: "Structurer en 4 étapes : diagnostic éducatif, programme personnalisé, séances ETP, évaluation",
-    vigilance: "Adapter le programme aux capacités d'apprentissage et aux priorités du patient"
+    concept: "Connaître la notion de représentation de la maladie",
+    definition: "Perception subjective que le patient a de sa maladie, influençant ses comportements et son vécu",
+    exemple: "Patient diabétique considérant sa maladie comme une fatalité versus celui la percevant comme contrôlable",
+    piege: "Ignorer les représentations du patient et imposer une vision purement médicale",
+    mnemo: "REPRÉSENTATION = Réalité + Émotions + Perceptions + Réactions + Évaluation + Significations + Explications + Nuances + Théories + Adaptation + Transformation + Interprétation + Opinions + Notions",
+    subtilite: "Les représentations influencent directement l'adhésion et l'évolution",
+    application: "Explorer systématiquement les représentations du patient sur sa maladie",
+    vigilance: "Ne pas juger les représentations mais les comprendre et les travailler"
   },
   {
-    concept: "Processus de changement",
-    definition: "Modèle de Prochaska et DiClemente en 6 stades pour accompagner le changement de comportement de santé.",
-    exemple: "Sevrage tabagique : identifier le stade du patient pour adapter l'intervention thérapeutique",
-    piege: "Ne pas forcer le passage d'un stade à l'autre - respecter le rythme du patient",
+    concept: "Connaître les facteurs influençant l'information délivrée au patient",
+    definition: "Éléments déterminant le contenu, la forme et le moment de l'information : contexte, capacités, désir de savoir",
+    exemple: "Adaptation de l'information selon l'âge, le niveau culturel, l'état émotionnel du patient",
+    piege: "Délivrer une information standardisée sans adaptation au patient",
+    mnemo: "INFORMATION = Individualisation + Nuances + Facteurs + Objectifs + Respect + Médical + Adaptation + Transparence + Intelligibilité + Occasion + Neutralité",
+    subtilite: "L'information doit être personnalisée et progressive",
+    application: "Évaluer les facteurs avant de délivrer l'information médicale",
+    vigilance: "Vérifier la compréhension et adapter en continu"
+  },
+  {
+    concept: "Connaître la notion d'ajustement au stress",
+    definition: "Processus d'adaptation psychologique face à la maladie et aux traitements, mobilisant des stratégies de coping",
+    exemple: "Patient développant des stratégies d'adaptation face au diagnostic de cancer",
+    piege: "Négliger l'impact psychologique de la maladie sur l'ajustement du patient",
+    mnemo: "AJUSTEMENT = Adaptation + Jonction + Utilisation + Stratégies + Thérapeutique + Émotions + Médical + Équilibre + Nuances + Temps",
+    subtilite: "L'ajustement est un processus dynamique et individuel",
+    application: "Identifier et soutenir les stratégies d'ajustement positives",
+    vigilance: "Repérer les signes de mauvais ajustement nécessitant un soutien"
+  },
+  {
+    concept: "Connaître les principaux mécanismes de défense observés chez les patients / leurs proches / les professionnels de santé dans le cadre de l'annonce d'une mauvaise nouvelle en santé",
+    definition: "Mécanismes psychologiques inconscients mobilisés face à l'annonce : déni, projection, rationalisation, régression",
+    exemple: "Déni initial du diagnostic, colère dirigée vers l'équipe soignante, négociation pour retarder les soins",
+    piege: "Interpréter les mécanismes de défense comme de la résistance ou de l'opposition",
+    mnemo: "DÉFENSE = Déni + Émotions + Fuite + Évitement + Négociation + Silence + Explications",
+    subtilite: "Les mécanismes de défense sont normaux et transitoires",
+    application: "Identifier et respecter les mécanismes de défense sans les forcer",
+    vigilance: "Distinguer mécanismes adaptatifs et pathologiques"
+  },
+  {
+    concept: "Connaître la notion d'empathie clinique",
+    definition: "Capacité à comprendre et ressentir les émotions du patient tout en gardant une distance professionnelle",
+    exemple: "Comprendre la souffrance du patient sans être submergé par ses propres émotions",
+    piege: "Confondre empathie et sympathie, ou empathie et identification",
+    mnemo: "EMPATHIE = Émotions + Médical + Perception + Adaptation + Thérapeutique + Humanité + Intelligence + Équilibre",
+    subtilite: "L'empathie clinique nécessite proximité émotionnelle et distance professionnelle",
+    application: "Développer une empathie mesurée et thérapeutique",
+    vigilance: "Éviter le burn-out par excès d'empathie ou la froideur par manque d'empathie"
+  },
+  {
+    concept: "Connaître la notion d'alliance thérapeutique",
+    definition: "Collaboration active entre patient et soignant autour d'objectifs partagés de soins",
+    exemple: "Patient et médecin s'accordent sur les objectifs thérapeutiques et les moyens d'y parvenir",
+    piege: "Croire que l'alliance se crée automatiquement ou qu'elle est définitive",
+    mnemo: "ALLIANCE = Accord + Loyauté + Liens + Intérêts + Adaptation + Nuances + Collaboration + Empathie",
+    subtilite: "L'alliance thérapeutique se construit et se maintient activement",
+    application: "Travailler consciemment à établir et maintenir cette alliance",
+    vigilance: "Surveiller les signes de rupture d'alliance et les réparer"
+  },
+  {
+    concept: "Connaître les principales étapes du processus de changement",
+    definition: "Modèle de Prochaska et DiClemente : pré-contemplation, contemplation, détermination, action, maintien, rechute",
+    exemple: "Sevrage tabagique : identifier le stade du patient pour adapter l'intervention",
+    piege: "Vouloir faire passer rapidement le patient d'un stade à l'autre",
     mnemo: "CHANGEMENT = Contemplation + Hésitation + Action + Nouveauté + Gestion + Évolution + Maintien + Éviter + Nouveau + Temps",
-    subtilite: "6 stades : pré-contemplation, contemplation, détermination, action, maintien, rechute (normale)",
-    application: "Identifier le stade du patient pour adapter l'intervention motivationnelle",
-    vigilance: "La rechute fait partie du processus normal - ne pas la considérer comme un échec"
+    subtilite: "Chaque stade nécessite une approche spécifique",
+    application: "Identifier le stade du patient et adapter l'intervention motivationnelle",
+    vigilance: "Respecter le rythme du patient et accepter les rechutes"
+  },
+  {
+    concept: "Connaître les indications et principes de l'entretien motivationnel",
+    definition: "Technique d'entretien visant à renforcer la motivation au changement en explorant l'ambivalence",
+    exemple: "Aider un patient diabétique à trouver ses propres raisons de modifier son alimentation",
+    piege: "Utiliser l'entretien motivationnel comme technique de persuasion",
+    mnemo: "MOTIVATIONNEL = Motivation + Objectifs + Techniques + Intrinsèque + Valeurs + Adaptation + Thérapeutique + Information + Occasionnel + Nuances + Neutralité + Empathie + Loyauté",
+    subtilite: "L'efficacité repose sur l'émergence de la motivation intrinsèque",
+    application: "Utiliser les techniques d'entretien motivationnel pour les changements de comportement",
+    vigilance: "Éviter de manipuler ou de forcer la motivation du patient"
+  },
+  {
+    concept: "Savoir comment se montrer empathique à l'égard du patient",
+    definition: "Techniques pratiques pour exprimer l'empathie : écoute active, reformulation, validation émotionnelle",
+    exemple: "Reformuler les émotions du patient : 'Je comprends que cette annonce vous inquiète beaucoup'",
+    piege: "Confondre empathie et conseils ou solutions immédiates",
+    mnemo: "EMPATHIQUE = Écoute + Médical + Patience + Adaptation + Thérapeutique + Humanité + Intelligence + Questionnement + Utilité + Émotions",
+    subtilite: "L'empathie s'exprime autant par les gestes que par les mots",
+    application: "Utiliser les techniques d'expression empathique dans chaque interaction",
+    vigilance: "Maintenir l'authenticité de l'empathie sans la théâtraliser"
+  },
+  {
+    concept: "Connaître les principes d'une communication adaptée, verbale et non verbale, avec le patient et son entourage",
+    definition: "Techniques de communication tenant compte du verbal (mots, ton) et non-verbal (gestes, posture, regard)",
+    exemple: "Adapter sa posture (assis, penché vers le patient), maintenir le contact visuel, utiliser un vocabulaire accessible",
+    piege: "Négliger l'importance de la communication non-verbale",
+    mnemo: "COMMUNICATION = Cohérence + Objectifs + Médical + Mots + Uniformité + Nuances + Intelligence + Clarté + Adaptation + Thérapeutique + Information + Occasionnel + Neutralité",
+    subtilite: "La cohérence entre verbal et non-verbal est cruciale",
+    application: "Travailler consciemment sur tous les aspects de la communication",
+    vigilance: "Surveiller ses propres signaux non-verbaux et leur impact"
+  },
+  {
+    concept: "Connaître les enjeux et les modalités de l'annonce d'une mauvaise nouvelle en santé",
+    definition: "Processus structuré d'annonce diagnostique incluant préparation, information progressive, soutien et suivi",
+    exemple: "Annonce de cancer selon protocole SPIKES : Setting, Perception, Invitation, Knowledge, Emotions, Strategy",
+    piege: "Délivrer l'information d'un seul coup sans préparation ni soutien",
+    mnemo: "ANNONCE = Avant + Nécessité + Neutralité + Objectifs + Nuances + Compréhension + Empathie",
+    subtilite: "L'annonce est un processus en plusieurs étapes, pas un événement unique",
+    application: "Structurer toute annonce difficile selon les étapes validées",
+    vigilance: "Adapter le rythme et le contenu aux réactions du patient"
   }
 ];
 
-export const piegesSpecifiquesIC1 = {
-  'relation médecin-malade': 'Ne pas confondre relation asymétrique avec relation paternaliste - l\'asymétrie est factuelle',
-  'modèle paternaliste': 'Ne pas généraliser - utile en urgence mais inadapté pour le suivi chronique',
-  'modèle autonomiste': 'Ne pas abandonner l\'expertise médicale - l\'autonomie ne signifie pas absence de conseil',
-  'annonce diagnostique': 'Ne pas tout dire d\'un coup - l\'information doit être dosée et adaptée',
-  'éducation thérapeutique': 'Ne pas confondre avec simple information - c\'est un processus structuré',
-  'processus de changement': 'Ne pas forcer le passage d\'un stade à l\'autre - respecter le rythme'
-};
+// Pas de concepts Rang B pour l'item IC-1 selon E-LiSA
+export const conceptsRangBIC1: any[] = [];
 
-export const mnemosIntellignetsIC1 = {
-  'relation médecin-malade': 'RELATION = Respect + Écoute + Loyauté + Adaptation + Transparence + Information + Objectivité + Neutralité',
-  'modèle paternaliste': 'PATERNALISME = Père + Autorité + Temps limité + Expertise + Responsabilité + Nécessité',
-  'modèle autonomiste': 'AUTONOMIE = Autonomie + Utilité + Temps + Objectifs + Négociation + Options + Médecin + Information',
-  'annonce diagnostique': 'ANNONCE = Avant + Nécessité + Neutralité + Objectivité + Nuances + Compréhension + Empathie',
-  'éducation thérapeutique': 'ETP = Évaluer + Établir + Éduquer + Évaluer (les 4 étapes)',
-  'processus de changement': 'CHANGEMENT = Contemplation + Hésitation + Action + Nouveauté + Gestion + Évolution + Maintien'
-};
-
-export const subtilitesReellesIC1 = {
-  'relation médecin-malade': 'La relation oscille entre modèle paternaliste et autonomiste selon le contexte',
-  'modèle paternaliste': 'Modèle encore nécessaire dans certaines situations d\'urgence vitale',
-  'modèle autonomiste': 'Deux types : décision médicale partagée et modèle informatif selon le degré d\'implication',
-  'annonce diagnostique': 'Communication en 3 phases : avant (préparation), pendant (information), après (vérification)',
-  'éducation thérapeutique': 'Particulièrement utile dans les maladies chroniques pour gagner en autonomie',
-  'processus de changement': '6 stades : pré-contemplation, contemplation, détermination, action, maintien, rechute'
-};
-
-export const applicationsConcratesIC1 = {
-  'relation médecin-malade': 'Adapter son approche selon la situation : directive en urgence, collaborative en chronique',
-  'modèle paternaliste': 'Réserver aux urgences vitales où le temps manque pour la concertation',
-  'modèle autonomiste': 'Privilégier pour les maladies chroniques et les choix thérapeutiques complexes',
-  'annonce diagnostique': 'Préparer le cadre, informer progressivement, vérifier la compréhension et proposer un suivi',
-  'éducation thérapeutique': 'Structurer en 4 étapes : diagnostic éducatif, programme personnalisé, séances ETP, évaluation',
-  'processus de changement': 'Identifier le stade du patient pour adapter l\'intervention motivationnelle'
-};
-
-export const vigilancesSpecifiquesIC1 = {
-  'relation médecin-malade': 'Éviter le paternalisme systématique tout en gardant l\'expertise médicale nécessaire',
-  'modèle paternaliste': 'Ne pas maintenir ce modèle une fois l\'urgence passée',
-  'modèle autonomiste': 'S\'assurer que le patient souhaite réellement cette autonomie - certains préfèrent déléguer',
-  'annonce diagnostique': 'Éviter les mécanismes de défense contre-productifs (mensonge, projection, rationalisation)',
-  'éducation thérapeutique': 'Adapter le programme aux capacités d\'apprentissage et aux priorités du patient',
-  'processus de changement': 'La rechute fait partie du processus normal - ne pas la considérer comme un échec'
-};
+export const colonnesConfigIC1 = [
+  { nom: 'Connaissance Fondamentale', couleur: 'bg-blue-700', couleurCellule: 'bg-blue-50', couleurTexte: 'text-blue-900 font-bold' },
+  { nom: 'Définition Officielle E-LiSA', couleur: 'bg-green-700', couleurCellule: 'bg-green-50', couleurTexte: 'text-green-800' },
+  { nom: 'Exemple Concret Précis', couleur: 'bg-purple-600', couleurCellule: 'bg-purple-50', couleurTexte: 'text-purple-800' },
+  { nom: 'Piège Fréquent À Éviter', couleur: 'bg-red-600', couleurCellule: 'bg-red-50', couleurTexte: 'text-red-800 font-semibold' },
+  { nom: 'Moyen Mnémotechnique', couleur: 'bg-yellow-600', couleurCellule: 'bg-yellow-50', couleurTexte: 'text-yellow-800 italic' },
+  { nom: 'Subtilité Importante', couleur: 'bg-indigo-600', couleurCellule: 'bg-indigo-50', couleurTexte: 'text-indigo-800 font-medium' },
+  { nom: 'Application Pratique', couleur: 'bg-teal-600', couleurCellule: 'bg-teal-50', couleurTexte: 'text-teal-800' },
+  { nom: 'Point de Vigilance', couleur: 'bg-orange-600', couleurCellule: 'bg-orange-50', couleurTexte: 'text-orange-800 font-medium' }
+];
