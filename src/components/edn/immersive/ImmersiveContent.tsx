@@ -32,6 +32,10 @@ interface ImmersiveContentProps {
 }
 
 export const ImmersiveContent = ({ currentSection, item }: ImmersiveContentProps) => {
+  console.log('ImmersiveContent - currentSection:', currentSection);
+  console.log('ImmersiveContent - item data:', item);
+  console.log('ImmersiveContent - tableau_rang_a data:', item.tableau_rang_a);
+
   const renderCurrentSection = () => {
     switch (currentSection) {
       case 0:
@@ -46,6 +50,16 @@ export const ImmersiveContent = ({ currentSection, item }: ImmersiveContentProps
       case 1:
         return <SceneImmersive data={item.scene_immersive} />;
       case 2:
+        console.log('Rendering TableauRangA with data:', item.tableau_rang_a);
+        // Si tableau_rang_a est null ou vide, on affiche un contenu par défaut
+        if (!item.tableau_rang_a) {
+          return (
+            <div className="text-center space-y-6">
+              <h2 className="text-3xl font-serif text-amber-900">Tableau Rang A</h2>
+              <p className="text-amber-700">Contenu en cours de préparation...</p>
+            </div>
+          );
+        }
         return <TableauRangA data={item.tableau_rang_a} />;
       case 3:
         return <TableauRangB data={item.tableau_rang_b} />;
@@ -58,7 +72,12 @@ export const ImmersiveContent = ({ currentSection, item }: ImmersiveContentProps
       case 7:
         return <QuizFinal questions={item.quiz_questions} rewards={item.reward_messages} />;
       default:
-        return null;
+        return (
+          <div className="text-center space-y-6">
+            <h2 className="text-3xl font-serif text-amber-900">Section non trouvée</h2>
+            <p className="text-amber-700">Cette section n'existe pas encore.</p>
+          </div>
+        );
     }
   };
 
