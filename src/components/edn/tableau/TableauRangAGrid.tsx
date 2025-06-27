@@ -1,5 +1,6 @@
 
 import { Card } from '@/components/ui/card';
+import { getColumnIcon } from './TableauRangAIcons';
 
 interface TableauRangAGridProps {
   colonnesUtiles: any[];
@@ -19,7 +20,7 @@ export const TableauRangAGrid = ({ colonnesUtiles, lignesEnrichies }: TableauRan
             >
               <div className="flex items-center justify-center space-x-1">
                 <span>{colonne.nom}</span>
-                {colonne.icone}
+                {getColumnIcon(colonne.nom)}
               </div>
             </div>
           ))}

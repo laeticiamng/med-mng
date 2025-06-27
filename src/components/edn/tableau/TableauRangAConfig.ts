@@ -1,10 +1,7 @@
 
-import { AlertTriangle, Lightbulb, Eye, Target, BookOpen, Zap, Shield, CheckCircle } from 'lucide-react';
-
 export const COLONNES_CONFIG = [
   {
     nom: 'Concept Clé',
-    icone: <BookOpen className="h-3 w-3 inline ml-1" />,
     couleur: 'bg-slate-600',
     couleurCellule: 'bg-slate-50 border-slate-300',
     couleurTexte: 'text-slate-800 font-bold',
@@ -12,7 +9,6 @@ export const COLONNES_CONFIG = [
   },
   {
     nom: 'Définition Précise',
-    icone: <Target className="h-3 w-3 inline ml-1" />,
     couleur: 'bg-blue-600',
     couleurCellule: 'bg-blue-50 border-blue-300',
     couleurTexte: 'text-blue-800',
@@ -20,7 +16,6 @@ export const COLONNES_CONFIG = [
   },
   {
     nom: 'Exemple Concret',
-    icone: <CheckCircle className="h-3 w-3 inline ml-1" />,
     couleur: 'bg-green-600',
     couleurCellule: 'bg-green-50 border-green-300',
     couleurTexte: 'text-green-800',
@@ -28,7 +23,6 @@ export const COLONNES_CONFIG = [
   },
   {
     nom: 'Piège à Éviter',
-    icone: <AlertTriangle className="h-3 w-3 inline ml-1" />,
     couleur: 'bg-red-600',
     couleurCellule: 'bg-red-50 border-red-300',
     couleurTexte: 'text-red-800 font-semibold',
@@ -36,7 +30,6 @@ export const COLONNES_CONFIG = [
   },
   {
     nom: 'Moyen Mnémotechnique',
-    icone: <Lightbulb className="h-3 w-3 inline ml-1" />,
     couleur: 'bg-yellow-600',
     couleurCellule: 'bg-yellow-50 border-yellow-300',
     couleurTexte: 'text-yellow-800 font-medium italic',
@@ -44,7 +37,6 @@ export const COLONNES_CONFIG = [
   },
   {
     nom: 'Subtilité Importante',
-    icone: <Eye className="h-3 w-3 inline ml-1" />,
     couleur: 'bg-purple-600',
     couleurCellule: 'bg-purple-50 border-purple-300',
     couleurTexte: 'text-purple-800 font-medium',
@@ -52,7 +44,6 @@ export const COLONNES_CONFIG = [
   },
   {
     nom: 'Application Pratique',
-    icone: <Zap className="h-3 w-3 inline ml-1" />,
     couleur: 'bg-teal-600',
     couleurCellule: 'bg-teal-50 border-teal-300',
     couleurTexte: 'text-teal-800 font-medium',
@@ -60,7 +51,6 @@ export const COLONNES_CONFIG = [
   },
   {
     nom: 'Point de Vigilance',
-    icone: <Shield className="h-3 w-3 inline ml-1" />,
     couleur: 'bg-orange-600',
     couleurCellule: 'bg-orange-50 border-orange-300',
     couleurTexte: 'text-orange-800 font-medium',

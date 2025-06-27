@@ -43,7 +43,7 @@ export const conceptsRangA = [
 ];
 
 export const piegesSpecifiques = {
-  'colloque singulier': 'Ne pas confondre avec colloque dual - le singulier implique l'unicité de la relation',
+  'colloque singulier': 'Ne pas confondre avec colloque dual - le singulier implique l\'unicité de la relation',
   'personne de confiance': 'Ne pas confondre avec tuteur légal - pas de pouvoir décisionnel légal',
   'démarche éthique': 'Ne pas appliquer automatiquement les principes - analyse contextuelle nécessaire',
   'organisation des soins': 'Ne pas confondre efficience organisationnelle et qualité des soins'
