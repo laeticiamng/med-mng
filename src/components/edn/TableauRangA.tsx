@@ -11,8 +11,40 @@ interface TableauRangAProps {
 }
 
 export const TableauRangA = ({ data }: TableauRangAProps) => {
+  console.log('TableauRangA received data:', data);
+  
+  // Vérifications de sécurité
+  if (!data) {
+    console.error('TableauRangA: No data provided');
+    return (
+      <div className="text-center space-y-6">
+        <h2 className="text-3xl font-serif text-amber-900">Tableau Rang A</h2>
+        <p className="text-amber-700">Aucune donnée disponible</p>
+      </div>
+    );
+  }
+
+  if (!data.colonnes || !Array.isArray(data.colonnes)) {
+    console.error('TableauRangA: Invalid colonnes data', data.colonnes);
+    return (
+      <div className="text-center space-y-6">
+        <h2 className="text-3xl font-serif text-amber-900">Tableau Rang A</h2>
+        <p className="text-amber-700">Format des colonnes invalide</p>
+      </div>
+    );
+  }
+
+  if (!data.lignes || !Array.isArray(data.lignes)) {
+    console.error('TableauRangA: Invalid lignes data', data.lignes);
+    return (
+      <div className="text-center space-y-6">
+        <h2 className="text-3xl font-serif text-amber-900">Tableau Rang A</h2>
+        <p className="text-amber-700">Format des lignes invalide</p>
+      </div>
+    );
+  }
+
   const colCount = data.colonnes.length;
-  const gridCols = `grid-cols-${colCount}`;
   
   return (
     <div className="space-y-6">
@@ -20,13 +52,13 @@ export const TableauRangA = ({ data }: TableauRangAProps) => {
         <Badge variant="secondary" className="bg-green-100 text-green-800 mb-4">
           Rang A - Fondamentaux
         </Badge>
-        <h2 className="text-2xl font-serif text-amber-900 mb-2">{data.theme}</h2>
+        <h2 className="text-2xl font-serif text-amber-900 mb-2">{data.theme || 'Tableau Rang A'}</h2>
         <p className="text-amber-700">Connaissances essentielles pour l'EDN</p>
       </div>
 
       <div className="overflow-x-auto">
         <div className="min-w-full">
-          <div className={`grid ${gridCols} gap-2 mb-2`} style={{ gridTemplateColumns: `repeat(${colCount}, minmax(0, 1fr))` }}>
+          <div className={`grid gap-2 mb-2`} style={{ gridTemplateColumns: `repeat(${colCount}, minmax(0, 1fr))` }}>
             {data.colonnes.map((colonne, index) => (
               <div
                 key={index}
@@ -38,7 +70,7 @@ export const TableauRangA = ({ data }: TableauRangAProps) => {
           </div>
           
           {data.lignes.map((ligne, ligneIndex) => (
-            <div key={ligneIndex} className={`grid ${gridCols} gap-2 mb-2`} style={{ gridTemplateColumns: `repeat(${colCount}, minmax(0, 1fr))` }}>
+            <div key={ligneIndex} className={`grid gap-2 mb-2`} style={{ gridTemplateColumns: `repeat(${colCount}, minmax(0, 1fr))` }}>
               {ligne.map((cellule, celluleIndex) => (
                 <Card
                   key={celluleIndex}

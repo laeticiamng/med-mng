@@ -35,6 +35,7 @@ export const ImmersiveContent = ({ currentSection, item }: ImmersiveContentProps
   console.log('ImmersiveContent - currentSection:', currentSection);
   console.log('ImmersiveContent - item data:', item);
   console.log('ImmersiveContent - tableau_rang_a data:', item.tableau_rang_a);
+  console.log('ImmersiveContent - tableau_rang_a type:', typeof item.tableau_rang_a);
 
   const renderCurrentSection = () => {
     switch (currentSection) {
@@ -51,8 +52,10 @@ export const ImmersiveContent = ({ currentSection, item }: ImmersiveContentProps
         return <SceneImmersive data={item.scene_immersive} />;
       case 2:
         console.log('Rendering TableauRangA with data:', item.tableau_rang_a);
-        // Si tableau_rang_a est null ou vide, on affiche un contenu par défaut
+        
+        // Vérifier si tableau_rang_a existe
         if (!item.tableau_rang_a) {
+          console.log('tableau_rang_a is null or undefined');
           return (
             <div className="text-center space-y-6">
               <h2 className="text-3xl font-serif text-amber-900">Tableau Rang A</h2>
@@ -60,7 +63,36 @@ export const ImmersiveContent = ({ currentSection, item }: ImmersiveContentProps
             </div>
           );
         }
-        return <TableauRangA data={item.tableau_rang_a} />;
+
+        // Parser le JSON si c'est une string
+        let tableauData = item.tableau_rang_a;
+        if (typeof item.tableau_rang_a === 'string') {
+          try {
+            tableauData = JSON.parse(item.tableau_rang_a);
+            console.log('Parsed tableau_rang_a:', tableauData);
+          } catch (error) {
+            console.error('Error parsing tableau_rang_a JSON:', error);
+            return (
+              <div className="text-center space-y-6">
+                <h2 className="text-3xl font-serif text-amber-900">Tableau Rang A</h2>
+                <p className="text-amber-700">Erreur dans le format des données...</p>
+              </div>
+            );
+          }
+        }
+
+        // Vérifier que les données parsées ont la bonne structure
+        if (!tableauData || !tableauData.colonnes || !tableauData.lignes) {
+          console.log('tableau_rang_a missing required properties:', tableauData);
+          return (
+            <div className="text-center space-y-6">
+              <h2 className="text-3xl font-serif text-amber-900">Tableau Rang A</h2>
+              <p className="text-amber-700">Structure de données incomplète...</p>
+            </div>
+          );
+        }
+
+        return <TableauRangA data={tableauData} />;
       case 3:
         return <TableauRangB data={item.tableau_rang_b} />;
       case 4:
