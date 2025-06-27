@@ -32,10 +32,10 @@ export const TableauRangA = ({ data }: TableauRangAProps) => {
   // Déterminer les colonnes pertinentes selon le contenu
   const colonnesUtiles = determinerColonnesUtiles(lignesEnrichies);
 
-  console.log('TableauRangA: Rendering optimized table with', colonnesUtiles.length, 'columns and', lignesEnrichies.length, 'rows');
+  console.log('TableauRangA: Rendering card-based layout with', colonnesUtiles.length, 'columns and', lignesEnrichies.length, 'concepts');
   
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 bg-gradient-to-br from-amber-50 to-orange-50 p-6 rounded-lg">
       <TableauRangAHeader theme={data.theme} />
       <TableauRangAGrid colonnesUtiles={colonnesUtiles} lignesEnrichies={lignesEnrichies} />
       <TableauRangAFooter colonnesCount={colonnesUtiles.length} lignesCount={lignesEnrichies.length} />
