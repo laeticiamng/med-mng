@@ -3,10 +3,10 @@ import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Music, Settings } from 'lucide-react';
+import { Music, Settings, Minimize2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { useAudioPlayer } from '@/hooks/useAudioPlayer';
+import { useGlobalAudio } from '@/contexts/GlobalAudioContext';
 import { AudioPlayer } from './AudioPlayer';
 
 interface ParolesMusicalesProps {
@@ -17,22 +17,23 @@ export const ParolesMusicales = ({ paroles }: ParolesMusicalesProps) => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [selectedStyle, setSelectedStyle] = useState('');
   const [generatedAudio, setGeneratedAudio] = useState<{ rangA?: string; rangB?: string }>({});
-  const [currentPlaying, setCurrentPlaying] = useState<'rangA' | 'rangB' | null>(null);
   const { toast } = useToast();
   
   const {
+    currentTrack,
     isPlaying,
     currentTime,
     duration,
     volume,
-    currentTrack,
+    isMinimized,
     play,
     pause,
     resume,
     stop,
     seek,
-    changeVolume
-  } = useAudioPlayer();
+    changeVolume,
+    minimize,
+  } = useGlobalAudio();
 
   const musicStyles = [
     { value: 'lofi-piano', label: 'Lo-fi Piano Doux' },
@@ -103,21 +104,39 @@ export const ParolesMusicales = ({ paroles }: ParolesMusicalesProps) => {
     const audioUrl = generatedAudio[rang];
     if (!audioUrl) return;
 
-    if (currentPlaying === rang && currentTrack === audioUrl) {
+    const trackTitle = rang === 'rangA' 
+      ? 'Chanson Rang A - Colloque Singulier'
+      : 'Chanson Rang B - Outils Pratiques';
+
+    const track = {
+      url: audioUrl,
+      title: trackTitle,
+      rang: rang === 'rangA' ? 'A' as const : 'B' as const
+    };
+
+    if (currentTrack?.url === audioUrl) {
       if (isPlaying) {
         pause();
       } else {
         resume();
       }
     } else {
-      setCurrentPlaying(rang);
-      play(audioUrl);
+      play(track);
     }
   };
 
   const handleStop = () => {
     stop();
-    setCurrentPlaying(null);
+  };
+
+  const isCurrentTrackPlaying = (rang: 'rangA' | 'rangB') => {
+    const audioUrl = generatedAudio[rang];
+    return currentTrack?.url === audioUrl && isPlaying;
+  };
+
+  const isCurrentTrack = (rang: 'rangA' | 'rangB') => {
+    const audioUrl = generatedAudio[rang];
+    return currentTrack?.url === audioUrl;
   };
 
   return (
@@ -194,19 +213,33 @@ export const ParolesMusicales = ({ paroles }: ParolesMusicalesProps) => {
             </Button>
           </div>
           
-          {generatedAudio.rangA && (
+          {generatedAudio.rangA && !isMinimized && (
             <AudioPlayer
               audioUrl={generatedAudio.rangA}
               title="Chanson Rang A - Colloque Singulier"
-              isPlaying={isPlaying && currentPlaying === 'rangA'}
-              currentTime={currentPlaying === 'rangA' ? currentTime : 0}
-              duration={currentPlaying === 'rangA' ? duration : 0}
+              isPlaying={isCurrentTrackPlaying('rangA')}
+              currentTime={isCurrentTrack('rangA') ? currentTime : 0}
+              duration={isCurrentTrack('rangA') ? duration : 0}
               volume={volume}
               onPlayPause={() => handlePlayPause('rangA')}
               onSeek={seek}
               onVolumeChange={changeVolume}
               onStop={handleStop}
+              onClose={minimize}
             />
+          )}
+
+          {generatedAudio.rangA && isMinimized && isCurrentTrack('rangA') && (
+            <div className="text-center">
+              <Button
+                onClick={minimize}
+                variant="outline"
+                className="border-amber-300 text-amber-600 hover:bg-amber-50"
+              >
+                <Minimize2 className="h-4 w-4 mr-2" />
+                Lecteur minimisé - Continuer l'écoute
+              </Button>
+            </div>
           )}
         </div>
       </Card>
@@ -257,19 +290,33 @@ export const ParolesMusicales = ({ paroles }: ParolesMusicalesProps) => {
             </Button>
           </div>
           
-          {generatedAudio.rangB && (
+          {generatedAudio.rangB && !isMinimized && (
             <AudioPlayer
               audioUrl={generatedAudio.rangB}
               title="Chanson Rang B - Outils Pratiques"
-              isPlaying={isPlaying && currentPlaying === 'rangB'}
-              currentTime={currentPlaying === 'rangB' ? currentTime : 0}
-              duration={currentPlaying === 'rangB' ? duration : 0}
+              isPlaying={isCurrentTrackPlaying('rangB')}
+              currentTime={isCurrentTrack('rangB') ? currentTime : 0}
+              duration={isCurrentTrack('rangB') ? duration : 0}
               volume={volume}
               onPlayPause={() => handlePlayPause('rangB')}
               onSeek={seek}
               onVolumeChange={changeVolume}
               onStop={handleStop}
+              onClose={minimize}
             />
+          )}
+
+          {generatedAudio.rangB && isMinimized && isCurrentTrack('rangB') && (
+            <div className="text-center">
+              <Button
+                onClick={minimize}
+                variant="outline"
+                className="border-blue-300 text-blue-600 hover:bg-blue-50"
+              >
+                <Minimize2 className="h-4 w-4 mr-2" />
+                Lecteur minimisé - Continuer l'écoute
+              </Button>
+            </div>
           )}
         </div>
       </Card>

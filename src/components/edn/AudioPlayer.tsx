@@ -1,7 +1,8 @@
+
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
-import { Play, Pause, Volume2, VolumeX, Download, SkipBack, SkipForward, Square } from 'lucide-react';
+import { Play, Pause, Volume2, VolumeX, SkipBack, SkipForward, Square } from 'lucide-react';
 
 interface AudioPlayerProps {
   audioUrl: string;
@@ -61,15 +62,6 @@ export const AudioPlayer = ({
       onVolumeChange(0);
       setIsMuted(true);
     }
-  };
-
-  const handleDownload = () => {
-    const link = document.createElement('a');
-    link.href = audioUrl;
-    link.download = `${title}.mp3`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
   };
 
   const skipForward = () => {
@@ -150,9 +142,9 @@ export const AudioPlayer = ({
         </Button>
       </div>
 
-      {/* Volume et téléchargement */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2 flex-1">
+      {/* Volume uniquement */}
+      <div className="flex items-center justify-center">
+        <div className="flex items-center gap-2">
           <Button
             onClick={toggleMute}
             variant="ghost"
@@ -166,20 +158,10 @@ export const AudioPlayer = ({
             max={100}
             step={1}
             onValueChange={handleVolumeChange}
-            className="w-24"
+            className="w-32"
           />
           <span className="text-xs text-amber-600 w-8">{Math.round(volume * 100)}%</span>
         </div>
-
-        <Button
-          onClick={handleDownload}
-          variant="outline"
-          size="sm"
-          className="border-amber-300 text-amber-600 hover:bg-amber-50"
-        >
-          <Download className="h-4 w-4 mr-2" />
-          Télécharger
-        </Button>
       </div>
     </div>
   );
