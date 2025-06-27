@@ -1,29 +1,40 @@
 
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Brain, Search, Sparkles, Play } from 'lucide-react';
+import { Brain, Search, Sparkles, Play, AlertCircle } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
 
 const EdnIndex = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [immersiveItems, setImmersiveItems] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchImmersiveItems = async () => {
       try {
+        setLoading(true);
+        console.log('Fetching immersive items...');
+        
         const { data, error } = await supabase
           .from('edn_items_immersive')
-          .select('*');
+          .select('*')
+          .order('created_at', { ascending: true });
 
         if (error) {
           console.error('Error fetching immersive items:', error);
+          setError('Erreur lors du chargement des items');
           return;
         }
 
+        console.log('Fetched items:', data);
         setImmersiveItems(data || []);
       } catch (error) {
         console.error('Error:', error);
+        setError('Erreur de connexion');
+      } finally {
+        setLoading(false);
       }
     };
 
@@ -32,7 +43,8 @@ const EdnIndex = () => {
 
   const filteredItems = immersiveItems.filter(item =>
     item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.subtitle.toLowerCase().includes(searchTerm.toLowerCase())
+    item.subtitle.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.item_code.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -92,49 +104,78 @@ const EdnIndex = () => {
             </p>
           </div>
 
+          {/* Loading state */}
+          {loading && (
+            <div className="text-center py-16">
+              <div className="animate-pulse text-xl text-white/60 mb-2">Chargement des items EDN...</div>
+              <p className="text-white/40">Préparation de l'expérience immersive</p>
+            </div>
+          )}
+
+          {/* Error state */}
+          {error && (
+            <div className="text-center py-16">
+              <AlertCircle className="h-16 w-16 text-red-400 mx-auto mb-4" />
+              <h3 className="text-xl text-red-400 mb-2">Erreur de chargement</h3>
+              <p className="text-white/60">{error}</p>
+            </div>
+          )}
+
           {/* Expériences immersives */}
-          {filteredItems.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredItems.map((item, index) => (
-                <Link
-                  key={item.id}
-                  to={`/edn/immersive/${item.slug}`}
-                  className="group"
-                >
-                  <div className="bg-gradient-to-br from-amber-100 to-blue-100 rounded-2xl p-6 border-2 border-amber-200 hover:border-amber-400 transition-all duration-300 hover:scale-105 hover:shadow-2xl animate-fade-in"
-                       style={{ animationDelay: `${index * 0.1}s` }}>
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-amber-500 to-blue-600 flex items-center justify-center text-white font-bold">
-                          <Play className="h-6 w-6" />
+          {!loading && !error && (
+            <>
+              {filteredItems.length > 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {filteredItems.map((item, index) => (
+                    <Link
+                      key={item.id}
+                      to={`/edn/immersive/${item.slug}`}
+                      className="group"
+                    >
+                      <div className="bg-gradient-to-br from-amber-100 to-blue-100 rounded-2xl p-6 border-2 border-amber-200 hover:border-amber-400 transition-all duration-300 hover:scale-105 hover:shadow-2xl animate-fade-in"
+                           style={{ animationDelay: `${index * 0.1}s` }}>
+                        <div className="flex items-start justify-between mb-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-amber-500 to-blue-600 flex items-center justify-center text-white font-bold">
+                              <Play className="h-6 w-6" />
+                            </div>
+                            <div>
+                              <h3 className="text-amber-900 font-semibold text-lg group-hover:text-amber-700 transition-colors">
+                                {item.title}
+                              </h3>
+                              <p className="text-amber-700 text-sm">{item.subtitle}</p>
+                            </div>
+                          </div>
                         </div>
-                        <div>
-                          <h3 className="text-amber-900 font-semibold text-lg group-hover:text-amber-700 transition-colors">
-                            {item.title}
-                          </h3>
-                          <p className="text-amber-700 text-sm">{item.subtitle}</p>
+                        
+                        <div className="flex items-center justify-between">
+                          <span className="px-3 py-1 rounded-full text-xs font-medium bg-amber-200 text-amber-800">
+                            {item.item_code}
+                          </span>
+                          <span className="text-amber-600 text-sm font-medium">
+                            Expérience immersive 🎯
+                          </span>
                         </div>
                       </div>
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <span className="px-3 py-1 rounded-full text-xs font-medium bg-amber-200 text-amber-800">
-                        {item.item_code}
-                      </span>
-                      <span className="text-amber-600 text-sm font-medium">
-                        Expérience immersive 🎯
-                      </span>
-                    </div>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          ) : (
-            <div className="text-center py-16">
-              <Search className="h-16 w-16 text-white/20 mx-auto mb-4" />
-              <h3 className="text-xl text-white/60 mb-2">Aucun item trouvé</h3>
-              <p className="text-white/40">Essayez de modifier votre recherche</p>
-            </div>
+                    </Link>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-16">
+                  <Search className="h-16 w-16 text-white/20 mx-auto mb-4" />
+                  <h3 className="text-xl text-white/60 mb-2">Aucun item trouvé</h3>
+                  <p className="text-white/40">Essayez de modifier votre recherche</p>
+                </div>
+              )}
+
+              {/* Debug info */}
+              {!loading && (
+                <div className="text-center mt-8 text-white/40 text-sm">
+                  {immersiveItems.length} item(s) disponible(s)
+                  {searchTerm && ` • ${filteredItems.length} résultat(s) pour "${searchTerm}"`}
+                </div>
+              )}
+            </>
           )}
         </div>
       </div>
