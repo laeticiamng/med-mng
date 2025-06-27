@@ -1,31 +1,38 @@
 
 import { SunoApiClient } from './sunoClient.ts';
 
-type Model = "chirp-v3-5" | "chirp-v4";
+type Model = "V3_5" | "V4" | "V4_5";
 
 export interface GenerateMusicPayload {
-  title: string;
-  tags: string;
-  prompt: string;
-  mv: Model;
-  continue_clip_id?: string | null;
-  continue_at?: number | null;
+  prompt?: string;
+  style?: string;
+  title?: string;
+  customMode: boolean;
+  instrumental: boolean;
+  model: Model;
+  negativeTags?: string;
 }
 
 export interface GenerateMusicResponse {
-  id: string;
-  title: string;
-  image_url?: string;
-  lyric: string;
-  audio_url?: string;
-  video_url?: string;
-  created_at: string;
-  model_name: string;
-  status: string;
-  gpt_description_prompt?: string;
-  prompt?: string;
-  type: string;
-  tags?: string;
+  taskId: string;
+}
+
+export interface MusicStatus {
+  status: "PENDING" | "TEXT_SUCCESS" | "FIRST_SUCCESS" | "SUCCESS" | "CREATE_TASK_FAILED" | "GENERATE_AUDIO_FAILED" | "CALLBACK_EXCEPTION" | "SENSITIVE_WORD_ERROR";
+  data?: {
+    audio: Array<{
+      id: string;
+      audio_url: string;
+      image_url: string;
+      duration: number;
+      title: string;
+      lyric: string;
+      created_at: string;
+      model_name: string;
+      type: string;
+      tags?: string;
+    }>;
+  };
 }
 
 export class MusicGenerator {
@@ -39,69 +46,83 @@ export class MusicGenerator {
     this.validatePayload(payload);
     
     console.log('🎵 Génération Suno avec payload:', {
-      title: payload.title,
-      tags: payload.tags,
-      promptLength: payload.prompt.length,
-      model: payload.mv
+      customMode: payload.customMode,
+      instrumental: payload.instrumental,
+      model: payload.model,
+      hasPrompt: !!payload.prompt,
+      hasStyle: !!payload.style,
+      hasTitle: !!payload.title
     });
 
-    return this.client.post<GenerateMusicResponse>('/v1/songs/generate', payload);
+    return this.client.post<GenerateMusicResponse>('/api/v1/generate', payload);
   }
 
-  async getMusicStatus(songId: string): Promise<GenerateMusicResponse> {
-    console.log(`🔍 Récupération du statut pour song_id: ${songId}`);
-    return this.client.get<GenerateMusicResponse>(`/v1/songs/${songId}`);
+  async getMusicStatus(taskId: string): Promise<MusicStatus> {
+    console.log(`🔍 Récupération du statut pour taskId: ${taskId}`);
+    return this.client.get<MusicStatus>('/api/v1/generate/record-info', { taskId });
   }
 
-  async waitForCompletion(songId: string, maxAttempts: number = 60): Promise<GenerateMusicResponse> {
+  async waitForCompletion(taskId: string, maxAttempts: number = 60): Promise<MusicStatus> {
     let attempts = 0;
-    let songData: GenerateMusicResponse;
+    let musicData: MusicStatus;
 
-    console.log(`🔄 Polling du statut pour song_id: ${songId}`);
+    console.log(`🔄 Polling du statut pour taskId: ${taskId}`);
 
     do {
       await new Promise(resolve => setTimeout(resolve, 5000)); // Attendre 5 secondes
       attempts++;
 
-      songData = await this.getMusicStatus(songId);
-      console.log(`🔍 Tentative ${attempts}: Status=${songData.status}`);
+      musicData = await this.getMusicStatus(taskId);
+      console.log(`🔍 Tentative ${attempts}: Status=${musicData.status}`);
 
-      if (songData.status === 'complete' && songData.audio_url) {
+      if (musicData.status === 'SUCCESS' && musicData.data?.audio?.length) {
         break;
       }
 
-      if (songData.status === 'error') {
-        throw new Error('La génération musicale a échoué sur Suno');
+      if (['CREATE_TASK_FAILED', 'GENERATE_AUDIO_FAILED', 'CALLBACK_EXCEPTION', 'SENSITIVE_WORD_ERROR'].includes(musicData.status)) {
+        throw new Error(`La génération musicale a échoué: ${musicData.status}`);
       }
 
-    } while (attempts < maxAttempts && songData.status !== 'complete');
+    } while (attempts < maxAttempts && musicData.status !== 'SUCCESS');
 
     if (attempts >= maxAttempts) {
       throw new Error('Timeout: La génération musicale prend trop de temps');
     }
 
-    if (!songData.audio_url) {
+    if (!musicData.data?.audio?.length || !musicData.data.audio[0].audio_url) {
       throw new Error('Aucune URL audio générée par Suno');
     }
 
-    return songData;
+    return musicData;
   }
 
   private validatePayload(payload: GenerateMusicPayload) {
-    if (!payload.title || payload.title.length > 80) {
-      throw new Error('Titre requis et doit faire moins de 80 caractères');
+    if (payload.customMode) {
+      if (!payload.style || !payload.title) {
+        throw new Error('Style et titre requis en mode personnalisé');
+      }
+      if (!payload.instrumental && !payload.prompt) {
+        throw new Error('Prompt requis si instrumental=false en mode personnalisé');
+      }
+    } else {
+      if (!payload.prompt) {
+        throw new Error('Prompt requis en mode non-personnalisé');
+      }
     }
 
-    if (!payload.tags || payload.tags.length > 1000) {
-      throw new Error('Tags requis et doivent faire moins de 1000 caractères');
+    // Limites selon le modèle
+    const len = (s?: string) => s?.length ?? 0;
+    switch (payload.model) {
+      case "V3_5":
+      case "V4":
+        if (len(payload.prompt) > 3000) throw new Error("Prompt trop long (max 3000 caractères)");
+        if (len(payload.style) > 200) throw new Error("Style trop long (max 200 caractères)");
+        break;
+      case "V4_5":
+        if (len(payload.prompt) > 5000) throw new Error("Prompt trop long (max 5000 caractères)");
+        if (len(payload.style) > 1000) throw new Error("Style trop long (max 1000 caractères)");
+        break;
     }
-
-    if (!payload.prompt || payload.prompt.length > 5000) {
-      throw new Error('Prompt requis et doit faire moins de 5000 caractères');
-    }
-
-    if (!payload.mv) {
-      throw new Error('Modèle requis');
-    }
+    if (len(payload.title) > 80) throw new Error("Titre trop long (max 80 caractères)");
   }
 }

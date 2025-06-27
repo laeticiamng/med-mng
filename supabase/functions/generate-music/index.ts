@@ -59,34 +59,37 @@ serve(async (req) => {
 
     // Étape 1: Générer la chanson avec Suno
     const generateData = await generator.generateMusic({
+      prompt: lyrics,
+      style: musicStyle,
       title: title,
-      tags: musicStyle,
-      prompt: `${lyrics}
-
-Style musical: ${musicStyle}
-Durée souhaitée: ${Math.floor(duration / 60)} minutes`,
-      mv: "chirp-v3-5",
-      continue_clip_id: null,
-      continue_at: null
+      customMode: true,
+      instrumental: false,
+      model: "V3_5",
+      negativeTags: undefined
     });
 
     console.log('✅ Génération Suno lancée:', generateData);
 
-    if (!generateData?.id) {
-      throw new Error('Aucun ID de génération retourné par Suno');
+    if (!generateData?.taskId) {
+      throw new Error('Aucun ID de tâche retourné par Suno');
     }
 
     // Étape 2: Attendre que la génération soit terminée
-    const songData = await generator.waitForCompletion(generateData.id);
+    const musicData = await generator.waitForCompletion(generateData.taskId);
+
+    const audioUrl = musicData.data?.audio?.[0]?.audio_url;
+    if (!audioUrl) {
+      throw new Error('Aucune URL audio dans la réponse de Suno');
+    }
 
     const durationFormatted = `${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')}`;
 
     console.log(`✅ Chanson avec PAROLES CHANTÉES générée avec succès - Rang ${rang} (${durationFormatted})`);
-    console.log(`🎧 URL audio: ${songData.audio_url}`);
+    console.log(`🎧 URL audio: ${audioUrl}`);
 
     return new Response(
       JSON.stringify({ 
-        audioUrl: songData.audio_url,
+        audioUrl: audioUrl,
         rang,
         style,
         duration: duration,
@@ -96,14 +99,15 @@ Durée souhaitée: ${Math.floor(duration / 60)} minutes`,
         lyrics_integrated: true,
         vocals_included: true,
         lyrics_length: lyrics.length,
-        song_id: songData.id,
+        task_id: generateData.taskId,
         note: '🎵 Génération réelle avec Suno AI - Paroles chantées intégrées',
         vocal_style: 'Voix IA haute qualité avec articulation claire',
         music_elements: `Style ${style} avec accompagnement musical professionnel et voix lead`,
         technical_specs: `Audio haute qualité Suno AI avec mix vocal/instrumental - Durée: ${durationFormatted}`,
         generation_info: {
           api_used: 'Suno AI',
-          model_version: 'chirp-v3-5'
+          model_version: 'V3_5',
+          base_url: 'https://apibox.erweima.ai'
         }
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -120,7 +124,8 @@ Durée souhaitée: ${Math.floor(duration / 60)} minutes`,
           error_type: error.name,
           error_message: error.message,
           timestamp: new Date().toISOString(),
-          api_used: 'Suno AI'
+          api_used: 'Suno AI',
+          base_url: 'https://apibox.erweima.ai'
         }
       }),
       { 

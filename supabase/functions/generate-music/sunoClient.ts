@@ -7,7 +7,7 @@ export interface SunoError {
 
 export class SunoApiClient {
   private readonly maxRetries = 3;
-  private readonly baseURL = "https://api.suno.ai";
+  private readonly baseURL = "https://apibox.erweima.ai";
   private readonly apiKey: string;
 
   constructor(apiKey: string) {
@@ -47,12 +47,23 @@ export class SunoApiClient {
 
         if (!response.ok) {
           const errorText = await response.text();
+          console.error(`Suno API Error ${response.status}:`, errorText);
           throw new SunoRequestError(response.status, errorText);
         }
 
         const result = await response.json();
+        
+        // Vérifier le format de réponse Suno avec code/data/msg
+        if (result.code !== undefined) {
+          if (result.code !== 200) {
+            throw new SunoRequestError(result.code, result.msg || 'Unknown Suno API error');
+          }
+          return result.data as T;
+        }
+        
         return result as T;
       } catch (err) {
+        console.error(`Attempt ${attempt + 1}/${this.maxRetries + 1} failed:`, err);
         if (attempt === this.maxRetries) throw this.normalizeError(err);
         // Exponential backoff (2^n * 500 ms)
         await new Promise(r => setTimeout(r, 500 * Math.pow(2, attempt)));
