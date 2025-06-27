@@ -248,7 +248,7 @@ const EcosScenario = () => {
                       size="lg"
                       className="bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white px-8 py-4 text-lg"
                     >
-                      {currentStep < scenarioData.steps.length - 1 ? 'Étape suivante' : 'Terminer la station'} {'>'}
+                      {currentStep < scenarioData.steps.length - 1 ? 'Étape suivante' : 'Terminer la station'}
                     </Button>
                   </div>
                 </div>
