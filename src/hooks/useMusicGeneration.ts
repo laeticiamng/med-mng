@@ -75,8 +75,8 @@ export const useMusicGeneration = () => {
         let errorMessage = 'Erreur lors de la génération musicale';
         
         // Vérifier si c'est une erreur d'API Key
-        if (error.message?.includes('x-api-key need') || error.message?.includes('401')) {
-          errorMessage = 'Clé API TopMediAI manquante ou invalide. Veuillez vérifier la configuration.';
+        if (error.message?.includes('Authorization') || error.message?.includes('401')) {
+          errorMessage = 'Clé API Suno manquante ou invalide. Veuillez vérifier la configuration.';
         } else if (error.message?.includes('timeout')) {
           errorMessage = 'Timeout: La génération prend trop de temps. Veuillez réessayer.';
         } else {
@@ -94,7 +94,7 @@ export const useMusicGeneration = () => {
 
       if (data.error || data.status === 'error') {
         const errorMessage = data.error || data.message || 'Erreur inconnue lors de la génération';
-        console.error('Erreur API TopMediAI:', errorMessage);
+        console.error('Erreur API Suno:', errorMessage);
         setLastError(errorMessage);
         throw new Error(errorMessage);
       }

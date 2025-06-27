@@ -14,7 +14,7 @@ export const MusicErrorDisplay = ({ error }: MusicErrorDisplayProps) => {
       </div>
       <p className="text-red-700 mt-2 text-sm">{error}</p>
       <p className="text-red-600 mt-2 text-xs">
-        Veuillez vérifier la configuration de l'API TopMediAI dans les paramètres Supabase.
+        Veuillez vérifier la configuration de l'API Suno dans les paramètres Supabase.
       </p>
     </div>
   );

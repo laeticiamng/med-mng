@@ -6,22 +6,20 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-interface TopMediAISubmitResponse {
-  code: number;
-  message: string;
-  data?: {
-    chanson_id: string;
-  };
-}
-
-interface TopMediAIQueryResponse {
-  code: number;
-  message: string;
-  data?: {
-    status: string;
-    audio_url?: string;
-    progress?: number;
-  };
+interface SunoGenerateResponse {
+  id: string;
+  title: string;
+  image_url?: string;
+  lyric: string;
+  audio_url?: string;
+  video_url?: string;
+  created_at: string;
+  model_name: string;
+  status: string;
+  gpt_description_prompt?: string;
+  prompt?: string;
+  type: string;
+  tags?: string;
 }
 
 serve(async (req) => {
@@ -32,7 +30,7 @@ serve(async (req) => {
   try {
     const { lyrics, style, rang, duration = 240 } = await req.json()
 
-    console.log('🎵 Requête génération musique TopMediAI reçue:', { 
+    console.log('🎵 Requête génération musique Suno reçue:', { 
       lyricsLength: lyrics?.length || 0, 
       style, 
       rang, 
@@ -48,115 +46,117 @@ serve(async (req) => {
       throw new Error(`Aucune parole valide fournie pour le Rang ${rang}`)
     }
 
-    const TOPMEDIAI_API_KEY = Deno.env.get('TOPMEDIAI_API_KEY')
-    if (!TOPMEDIAI_API_KEY) {
-      throw new Error('Clé API TopMediAI non configurée')
+    const SUNO_API_KEY = Deno.env.get('SUNO_API_KEY')
+    if (!SUNO_API_KEY) {
+      throw new Error('Clé API Suno non configurée')
     }
 
-    // Mapping des styles vers des prompts musicaux
-    const stylePrompts = {
-      'lofi-piano': 'Relaxing lo-fi piano with soft beats and ambient sounds',
-      'afrobeat': 'Energetic afrobeat with drums, bass and traditional African instruments',
-      'jazz-moderne': 'Modern jazz with saxophone, piano and smooth rhythms',
-      'hip-hop-conscient': 'Conscious hip-hop with meaningful lyrics and urban beats',
-      'soul-rnb': 'Soulful R&B with emotional vocals and groove',
-      'electro-chill': 'Chill electronic with synthesizers and ambient textures'
+    // Mapping des styles vers des descriptions musicales pour Suno
+    const styleDescriptions = {
+      'lofi-piano': 'relaxing lo-fi piano with soft beats, chill, ambient, mellow',
+      'afrobeat': 'energetic afrobeat with drums, bass, traditional African instruments, upbeat',
+      'jazz-moderne': 'modern jazz with saxophone, piano, smooth rhythms, sophisticated',
+      'hip-hop-conscient': 'conscious hip-hop with meaningful lyrics, urban beats, thoughtful',
+      'soul-rnb': 'soulful R&B with emotional vocals, groove, heartfelt',
+      'electro-chill': 'chill electronic with synthesizers, ambient textures, downtempo'
     }
 
-    const prompt = stylePrompts[style] || stylePrompts['lofi-piano']
-    const title = `Chanson Rang ${rang} - ${style === 'lofi-piano' ? 'Colloque Singulier' : 'Outils Pratiques'}`
+    const musicStyle = styleDescriptions[style] || styleDescriptions['lofi-piano']
+    const title = `Rang ${rang} - ${style === 'lofi-piano' ? 'Colloque Singulier' : 'Outils Pratiques'}`
 
-    console.log(`🎤 Soumission à TopMediAI - Rang ${rang}`)
+    console.log(`🎤 Génération Suno - Rang ${rang}`)
     console.log(`📝 Style: ${style} | Durée: ${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')}`)
-    console.log(`🎵 Prompt: ${prompt}`)
+    console.log(`🎵 Description: ${musicStyle}`)
     console.log(`📖 Paroles (${lyrics.length} caractères):`, lyrics.substring(0, 200) + '...')
 
-    // Étape 1: Soumettre la tâche de génération musicale
-    const submitResponse = await fetch('https://api.topmediai.com/v2/submit', {
+    // Étape 1: Générer la chanson avec Suno
+    const generateResponse = await fetch('https://api.suno.ai/v1/songs/generate', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${TOPMEDIAI_API_KEY}`,
+        'Authorization': `Bearer ${SUNO_API_KEY}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        is_auto: 1,
-        prompt: prompt,
-        lyrics: lyrics,
         title: title,
-        instrumental: 0, // 0 = avec paroles chantées
-        model_version: "v3.5",
-        continue_at: 0
+        tags: musicStyle,
+        prompt: `${lyrics}
+
+Style musical: ${musicStyle}
+Durée souhaitée: ${Math.floor(duration / 60)} minutes`,
+        mv: "chirp-v3-5",
+        continue_clip_id: null,
+        continue_at: null
       }),
     })
 
-    if (!submitResponse.ok) {
-      const errorText = await submitResponse.text()
-      console.error('❌ Erreur soumission TopMediAI:', errorText)
-      throw new Error(`Erreur API TopMediAI (${submitResponse.status}): ${errorText}`)
+    if (!generateResponse.ok) {
+      const errorText = await generateResponse.text()
+      console.error('❌ Erreur génération Suno:', errorText)
+      throw new Error(`Erreur API Suno (${generateResponse.status}): ${errorText}`)
     }
 
-    const submitData: TopMediAISubmitResponse = await submitResponse.json()
-    console.log('✅ Tâche soumise:', submitData)
+    const generateData = await generateResponse.json()
+    console.log('✅ Génération Suno lancée:', generateData)
 
-    if (submitData.code !== 200 || !submitData.data?.chanson_id) {
-      throw new Error(`Erreur soumission: ${submitData.message}`)
+    if (!generateData || !generateData.id) {
+      throw new Error('Aucun ID de génération retourné par Suno')
     }
 
-    const chanson_id = submitData.data.chanson_id
+    const songId = generateData.id
 
     // Étape 2: Attendre que la génération soit terminée (polling)
     let attempts = 0
     const maxAttempts = 60 // 5 minutes max
-    let queryData: TopMediAIQueryResponse
+    let songData: SunoGenerateResponse
 
-    console.log(`🔄 Polling du statut pour chanson_id: ${chanson_id}`)
+    console.log(`🔄 Polling du statut pour song_id: ${songId}`)
 
     do {
       await new Promise(resolve => setTimeout(resolve, 5000)) // Attendre 5 secondes
       attempts++
 
-      const queryResponse = await fetch(`https://api.topmediai.com/v2/query?chanson_id=${chanson_id}`, {
+      const statusResponse = await fetch(`https://api.suno.ai/v1/songs/${songId}`, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${TOPMEDIAI_API_KEY}`,
+          'Authorization': `Bearer ${SUNO_API_KEY}`,
         },
       })
 
-      if (!queryResponse.ok) {
-        const errorText = await queryResponse.text()
-        console.error('❌ Erreur query TopMediAI:', errorText)
-        throw new Error(`Erreur query API: ${errorText}`)
+      if (!statusResponse.ok) {
+        const errorText = await statusResponse.text()
+        console.error('❌ Erreur status Suno:', errorText)
+        throw new Error(`Erreur status API: ${errorText}`)
       }
 
-      queryData = await queryResponse.json()
-      console.log(`🔍 Tentative ${attempts}: Status=${queryData.data?.status}, Progress=${queryData.data?.progress}%`)
+      songData = await statusResponse.json()
+      console.log(`🔍 Tentative ${attempts}: Status=${songData.status}`)
 
-      if (queryData.data?.status === 'completed' && queryData.data?.audio_url) {
+      if (songData.status === 'complete' && songData.audio_url) {
         break
       }
 
-      if (queryData.data?.status === 'failed') {
-        throw new Error('La génération musicale a échoué')
+      if (songData.status === 'error') {
+        throw new Error('La génération musicale a échoué sur Suno')
       }
 
-    } while (attempts < maxAttempts && queryData.data?.status !== 'completed')
+    } while (attempts < maxAttempts && songData.status !== 'complete')
 
     if (attempts >= maxAttempts) {
       throw new Error('Timeout: La génération musicale prend trop de temps')
     }
 
-    if (!queryData.data?.audio_url) {
-      throw new Error('Aucune URL audio générée')
+    if (!songData.audio_url) {
+      throw new Error('Aucune URL audio générée par Suno')
     }
 
     const durationFormatted = `${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')}`
 
     console.log(`✅ Chanson avec PAROLES CHANTÉES générée avec succès - Rang ${rang} (${durationFormatted})`)
-    console.log(`🎧 URL audio: ${queryData.data.audio_url}`)
+    console.log(`🎧 URL audio: ${songData.audio_url}`)
 
     return new Response(
       JSON.stringify({ 
-        audioUrl: queryData.data.audio_url,
+        audioUrl: songData.audio_url,
         rang,
         style,
         duration: duration,
@@ -166,33 +166,33 @@ serve(async (req) => {
         lyrics_integrated: true,
         vocals_included: true,
         lyrics_length: lyrics.length,
-        chanson_id: chanson_id,
-        note: '🎵 Génération réelle avec TopMediAI - Paroles chantées intégrées',
-        vocal_style: 'Voix IA avec articulation claire des termes médicaux',
+        song_id: songId,
+        note: '🎵 Génération réelle avec Suno AI - Paroles chantées intégrées',
+        vocal_style: 'Voix IA haute qualité avec articulation claire',
         music_elements: `Style ${style} avec accompagnement musical professionnel et voix lead`,
-        technical_specs: `Audio haute qualité TopMediAI avec mix vocal/instrumental - Durée: ${durationFormatted}`,
+        technical_specs: `Audio haute qualité Suno AI avec mix vocal/instrumental - Durée: ${durationFormatted}`,
         generation_info: {
-          api_used: 'TopMediAI v3.5',
+          api_used: 'Suno AI',
           attempts: attempts,
           total_generation_time: `${attempts * 5} secondes`,
-          model_version: 'v3.5'
+          model_version: 'chirp-v3-5'
         }
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
 
   } catch (error) {
-    console.error('❌ Erreur génération chanson TopMediAI:', error)
+    console.error('❌ Erreur génération chanson Suno:', error)
     return new Response(
       JSON.stringify({ 
         error: error.message || 'Erreur inconnue lors de la génération',
         status: 'error',
-        details: '🎤 Problème avec la génération TopMediAI de chanson avec paroles chantées',
+        details: '🎤 Problème avec la génération Suno AI de chanson avec paroles chantées',
         debug: {
           error_type: error.name,
           error_message: error.message,
           timestamp: new Date().toISOString(),
-          api_used: 'TopMediAI'
+          api_used: 'Suno AI'
         }
       }),
       { 
