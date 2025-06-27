@@ -27,8 +27,9 @@ serve(async (req) => {
       console.error('REPLICATE_API_TOKEN non configuré')
       return new Response(
         JSON.stringify({ 
-          error: 'Configuration manquante: REPLICATE_API_TOKEN requis dans les secrets Supabase',
-          status: 'error'
+          error: 'Configuration manquante: REPLICATE_API_TOKEN requis dans les secrets Supabase. Veuillez configurer cette clé API dans les paramètres Supabase.',
+          status: 'error',
+          details: 'Allez dans Supabase Dashboard > Settings > Edge Functions > Environment Variables et ajoutez REPLICATE_API_TOKEN'
         }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -37,14 +38,14 @@ serve(async (req) => {
       )
     }
 
-    // Configuration des prompts MusicGen selon le style
+    // Configuration des prompts MusicGen selon le style pour 4 minutes de musique
     const stylePrompts = {
-      'lofi-piano': 'lo-fi piano, soft jazz, relaxing, mellow, educational music',
-      'afrobeat': 'afrobeat, energetic drums, bass guitar, rhythmic, educational music',
-      'jazz-moderne': 'modern jazz, smooth saxophone, piano, sophisticated, educational music',
-      'hip-hop-conscient': 'conscious hip-hop, deep bass, clear beats, educational, storytelling',
-      'soul-rnb': 'soul r&b, smooth vocals, emotional, educational, inspirational',
-      'electro-chill': 'electronic chill, ambient, synth pads, atmospheric, educational music'
+      'lofi-piano': 'lo-fi piano, soft jazz, relaxing, mellow, educational music, long composition, extended melody',
+      'afrobeat': 'afrobeat, energetic drums, bass guitar, rhythmic, educational music, full song structure, extended composition',
+      'jazz-moderne': 'modern jazz, smooth saxophone, piano, sophisticated, educational music, complete song, extended arrangement',
+      'hip-hop-conscient': 'conscious hip-hop, deep bass, clear beats, educational, storytelling, full track, extended verses',
+      'soul-rnb': 'soul r&b, smooth vocals, emotional, educational, inspirational, complete song, extended composition',
+      'electro-chill': 'electronic chill, ambient, synth pads, atmospheric, educational music, long form, extended ambient track'
     }
 
     // Nettoyage et préparation des paroles
@@ -58,12 +59,12 @@ serve(async (req) => {
     console.log(`Génération musique - Rang ${rang}, Style: ${style}`)
     console.log('Paroles nettoyées:', cleanLyrics.substring(0, 200) + '...')
 
-    // Prompt optimisé pour MusicGen
-    const musicPrompt = `${stylePrompts[style] || 'educational music'}, instrumental, ${rang === 'A' ? 'contemplative' : 'practical'}, clear melody`
+    // Prompt optimisé pour MusicGen avec composition étendue
+    const musicPrompt = `${stylePrompts[style] || 'educational music'}, instrumental, ${rang === 'A' ? 'contemplative and deep' : 'practical and engaging'}, clear melody, full composition, extended track`
 
     console.log('Prompt musical:', musicPrompt)
 
-    // Appel à l'API MusicGen (Replicate)
+    // Appel à l'API MusicGen (Replicate) avec durée de 4 minutes
     const musicGenResponse = await fetch('https://api.replicate.com/v1/predictions', {
       method: 'POST',
       headers: {
@@ -75,27 +76,38 @@ serve(async (req) => {
         input: {
           model_version: "stereo-large",
           prompt: musicPrompt,
-          duration: rang === 'A' ? 60 : 45, // Durée réduite pour des tests plus rapides
-          temperature: 0.7,
+          duration: 240, // 4 minutes = 240 secondes
+          temperature: 0.8,
           top_k: 250,
           top_p: 0.0,
-          classifier_free_guidance: 6.0
+          classifier_free_guidance: 7.0
         }
       })
     })
 
     if (!musicGenResponse.ok) {
       const errorText = await musicGenResponse.text()
-      console.error('Erreur Replicate API:', errorText)
-      throw new Error(`API Replicate: ${musicGenResponse.status} - ${errorText}`)
+      console.error('Erreur Replicate API:', musicGenResponse.status, errorText)
+      
+      let errorMessage = `API Replicate: ${musicGenResponse.status}`
+      
+      if (musicGenResponse.status === 401) {
+        errorMessage = 'Clé API Replicate invalide ou manquante. Vérifiez la configuration de REPLICATE_API_TOKEN dans Supabase.'
+      } else if (musicGenResponse.status === 429) {
+        errorMessage = 'Limite de requêtes API Replicate atteinte. Veuillez réessayer dans quelques minutes.'
+      } else if (musicGenResponse.status === 400) {
+        errorMessage = 'Paramètres de génération invalides. Veuillez réessayer avec un autre style.'
+      }
+      
+      throw new Error(errorMessage)
     }
 
     const musicGenData = await musicGenResponse.json()
     console.log('Réponse initiale Replicate:', musicGenData.id, musicGenData.status)
     
-    // Polling pour attendre la génération avec timeout optimisé
+    // Polling pour attendre la génération avec timeout étendu pour 4 minutes
     let attempts = 0
-    const maxAttempts = 30 // 2.5 minutes maximum
+    const maxAttempts = 60 // 5 minutes maximum pour générer 4 minutes de musique
     let finalResult = musicGenData
 
     while (finalResult.status !== 'succeeded' && finalResult.status !== 'failed' && attempts < maxAttempts) {
@@ -116,17 +128,17 @@ serve(async (req) => {
       }
       
       finalResult = await statusResponse.json()
-      console.log(`Tentative ${attempts + 1}: Status = ${finalResult.status}`)
+      console.log(`Tentative ${attempts + 1}/${maxAttempts}: Status = ${finalResult.status}`)
       attempts++
     }
 
     if (finalResult.status === 'failed') {
       console.error('Génération échouée:', finalResult.error)
-      throw new Error(`Génération échouée: ${finalResult.error || 'Erreur inconnue'}`)
+      throw new Error(`Génération échouée: ${finalResult.error || 'Erreur inconnue lors de la génération musicale'}`)
     }
 
     if (finalResult.status !== 'succeeded') {
-      throw new Error('Timeout: la génération musicale a pris trop de temps')
+      throw new Error('Timeout: la génération musicale a pris trop de temps. Veuillez réessayer.')
     }
 
     // Récupération de l'URL audio générée
@@ -134,7 +146,7 @@ serve(async (req) => {
 
     if (!audioUrl) {
       console.error('Pas de sortie audio:', finalResult)
-      throw new Error('Aucune URL audio générée')
+      throw new Error('Aucune URL audio générée. Veuillez réessayer.')
     }
 
     console.log(`Musique générée avec succès - Rang ${rang}, Style: ${style}`)
@@ -145,9 +157,10 @@ serve(async (req) => {
         audioUrl,
         rang,
         style,
-        duration: rang === 'A' ? 60 : 45,
+        duration: 240, // 4 minutes
         status: 'success',
-        prompt: musicPrompt
+        prompt: musicPrompt,
+        message: `Chanson de 4 minutes générée avec succès pour le Rang ${rang}`
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
@@ -157,7 +170,8 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ 
         error: error.message || 'Erreur inconnue lors de la génération',
-        status: 'error'
+        status: 'error',
+        details: 'Vérifiez que REPLICATE_API_TOKEN est correctement configuré dans Supabase'
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },

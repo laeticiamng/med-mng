@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Music, Settings, Minimize2, Loader2 } from 'lucide-react';
+import { Music, Settings, Minimize2, Loader2, AlertCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useGlobalAudio } from '@/contexts/GlobalAudioContext';
@@ -20,6 +20,7 @@ export const ParolesMusicales = ({ paroles }: ParolesMusicalesProps) => {
   });
   const [selectedStyle, setSelectedStyle] = useState('');
   const [generatedAudio, setGeneratedAudio] = useState<{ rangA?: string; rangB?: string }>({});
+  const [lastError, setLastError] = useState<string>('');
   const { toast } = useToast();
   
   const {
@@ -67,11 +68,12 @@ export const ParolesMusicales = ({ paroles }: ParolesMusicalesProps) => {
     }
 
     setIsGenerating(prev => ({ ...prev, [rang === 'A' ? 'rangA' : 'rangB']: true }));
+    setLastError('');
     const parolesIndex = rang === 'A' ? 0 : 1;
     const parolesText = paroles[parolesIndex];
 
     try {
-      console.log(`Génération musique Rang ${rang} avec style ${selectedStyle}`);
+      console.log(`Génération musique Rang ${rang} avec style ${selectedStyle} - Durée: 4 minutes`);
       
       const { data, error } = await supabase.functions.invoke('generate-music', {
         body: {
@@ -87,6 +89,7 @@ export const ParolesMusicales = ({ paroles }: ParolesMusicalesProps) => {
       }
 
       if (data.status === 'error') {
+        setLastError(data.error);
         throw new Error(data.error);
       }
 
@@ -98,12 +101,13 @@ export const ParolesMusicales = ({ paroles }: ParolesMusicalesProps) => {
 
       toast({
         title: `Musique Rang ${rang} générée`,
-        description: "La musique a été générée avec succès !",
+        description: "Chanson de 4 minutes générée avec succès !",
       });
 
-      console.log(`Musique générée avec succès:`, data.audioUrl);
+      console.log(`Musique 4 minutes générée avec succès:`, data.audioUrl);
     } catch (error) {
       console.error('Erreur génération musique:', error);
+      setLastError(error.message);
       toast({
         title: "Erreur de génération",
         description: error.message || "Impossible de générer la musique. Veuillez réessayer.",
@@ -119,8 +123,8 @@ export const ParolesMusicales = ({ paroles }: ParolesMusicalesProps) => {
     if (!audioUrl) return;
 
     const trackTitle = rang === 'rangA' 
-      ? 'Chanson Rang A - Colloque Singulier'
-      : 'Chanson Rang B - Outils Pratiques';
+      ? 'Chanson Rang A - Colloque Singulier (4 min)'
+      : 'Chanson Rang B - Outils Pratiques (4 min)';
 
     const track = {
       url: audioUrl,
@@ -179,6 +183,19 @@ export const ParolesMusicales = ({ paroles }: ParolesMusicalesProps) => {
             </SelectContent>
           </Select>
         </div>
+
+        {lastError && (
+          <div className="max-w-2xl mx-auto mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <div className="flex items-center gap-2 text-red-800">
+              <AlertCircle className="h-5 w-5" />
+              <span className="font-medium">Erreur de configuration</span>
+            </div>
+            <p className="text-red-700 mt-2 text-sm">{lastError}</p>
+            <p className="text-red-600 mt-2 text-xs">
+              Veuillez configurer REPLICATE_API_TOKEN dans les paramètres Supabase.
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Chanson Rang A */}
@@ -187,7 +204,7 @@ export const ParolesMusicales = ({ paroles }: ParolesMusicalesProps) => {
           <div className="flex items-center justify-center mb-4">
             <Music className="h-6 w-6 text-amber-600 mr-3" />
             <h3 className="text-2xl font-serif text-amber-900 font-bold">
-              Chanson Rang A - "Colloque Singulier"
+              Chanson Rang A - "Colloque Singulier" (4 minutes)
             </h3>
           </div>
         </div>
@@ -226,10 +243,10 @@ export const ParolesMusicales = ({ paroles }: ParolesMusicalesProps) => {
               {isGenerating.rangA ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Génération en cours...
+                  Génération 4 min en cours...
                 </>
               ) : (
-                'Générer Musique Rang A'
+                'Générer Musique Rang A (4 min)'
               )}
             </Button>
           </div>
@@ -237,10 +254,10 @@ export const ParolesMusicales = ({ paroles }: ParolesMusicalesProps) => {
           {generatedAudio.rangA && !isMinimized && (
             <AudioPlayer
               audioUrl={generatedAudio.rangA}
-              title="Chanson Rang A - Colloque Singulier"
+              title="Chanson Rang A - Colloque Singulier (4 min)"
               isPlaying={isCurrentTrackPlaying('rangA')}
               currentTime={isCurrentTrack('rangA') ? currentTime : 0}
-              duration={isCurrentTrack('rangA') ? duration : 0}
+              duration={isCurrentTrack('rangA') ? duration : 240}
               volume={volume}
               onPlayPause={() => handlePlayPause('rangA')}
               onSeek={seek}
@@ -271,7 +288,7 @@ export const ParolesMusicales = ({ paroles }: ParolesMusicalesProps) => {
           <div className="flex items-center justify-center mb-4">
             <Music className="h-6 w-6 text-blue-600 mr-3" />
             <h3 className="text-2xl font-serif text-blue-900 font-bold">
-              Chanson Rang B - "Outils Pratiques"
+              Chanson Rang B - "Outils Pratiques" (4 minutes)
             </h3>
           </div>
         </div>
@@ -310,10 +327,10 @@ export const ParolesMusicales = ({ paroles }: ParolesMusicalesProps) => {
               {isGenerating.rangB ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Génération en cours...
+                  Génération 4 min en cours...
                 </>
               ) : (
-                'Générer Musique Rang B'
+                'Générer Musique Rang B (4 min)'
               )}
             </Button>
           </div>
@@ -321,10 +338,10 @@ export const ParolesMusicales = ({ paroles }: ParolesMusicalesProps) => {
           {generatedAudio.rangB && !isMinimized && (
             <AudioPlayer
               audioUrl={generatedAudio.rangB}
-              title="Chanson Rang B - Outils Pratiques"
+              title="Chanson Rang B - Outils Pratiques (4 min)"
               isPlaying={isCurrentTrackPlaying('rangB')}
               currentTime={isCurrentTrack('rangB') ? currentTime : 0}
-              duration={isCurrentTrack('rangB') ? duration : 0}
+              duration={isCurrentTrack('rangB') ? duration : 240}
               volume={volume}
               onPlayPause={() => handlePlayPause('rangB')}
               onSeek={seek}
@@ -354,7 +371,7 @@ export const ParolesMusicales = ({ paroles }: ParolesMusicalesProps) => {
           <div className="inline-flex items-center gap-2 px-4 py-2 bg-amber-100 text-amber-800 rounded-full">
             <Music className="h-4 w-4" />
             <span className="font-medium">
-              Style sélectionné : {musicStyles.find(s => s.value === selectedStyle)?.label}
+              Style sélectionné : {musicStyles.find(s => s.value === selectedStyle)?.label} - Durée: 4 minutes
             </span>
           </div>
         </div>
