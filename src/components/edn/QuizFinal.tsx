@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,44 +7,135 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { CheckCircle, XCircle, Trophy, RotateCcw } from 'lucide-react';
 
+interface QuizQuestion {
+  question: string;
+  options?: string[];
+  correct?: number;
+  reponse?: string;
+  points_cles?: string[];
+  affirmation?: string;
+  justification?: string;
+}
+
 interface QuizFinalProps {
   questions: {
-    qcm: Array<{
-      question: string;
-      options: string[];
-      correct: number;
-    }>;
-    qru: Array<{
-      question: string;
-      reponse: string;
-    }>;
-    qroc: Array<{
-      question: string;
-      points_cles: string[];
-    }>;
-    zap: Array<{
-      affirmation: string;
-      correct: boolean;
-      justification: string;
+    qcm?: QuizQuestion[];
+    qru?: QuizQuestion[];
+    qroc?: QuizQuestion[];
+    zap?: QuizQuestion[];
+    type?: string;
+    title?: string;
+    categories?: Array<{
+      name: string;
+      items: string[];
     }>;
   };
-  rewards: {
+  rewards?: {
     [key: string]: string;
+    completion?: string;
+    badge?: string;
+    message?: string;
   };
 }
 
 export const QuizFinal = ({ questions, rewards }: QuizFinalProps) => {
+  console.log('QuizFinal - questions received:', questions);
+  console.log('QuizFinal - rewards received:', rewards);
+
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<{ [key: number]: any }>({});
   const [showResults, setShowResults] = useState(false);
   const [score, setScore] = useState(0);
 
-  const allQuestions = [
-    ...questions.qcm.map((q, i) => ({ ...q, type: 'qcm', id: i })),
-    ...questions.qru.map((q, i) => ({ ...q, type: 'qru', id: i + questions.qcm.length })),
-    ...questions.qroc.map((q, i) => ({ ...q, type: 'qroc', id: i + questions.qcm.length + questions.qru.length })),
-    ...questions.zap.map((q, i) => ({ ...q, type: 'zap', id: i + questions.qcm.length + questions.qru.length + questions.qroc.length }))
-  ];
+  // Gestion du cas où les questions sont dans un format différent
+  if (!questions) {
+    return (
+      <div className="space-y-8">
+        <div className="text-center">
+          <h2 className="text-3xl font-serif text-amber-900 mb-4">Quiz Final EDN</h2>
+          <p className="text-amber-700">Questions non disponibles</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Si c'est un quiz de classification
+  if (questions.type === 'classification' && questions.categories) {
+    return (
+      <div className="space-y-8">
+        <div className="text-center">
+          <h2 className="text-3xl font-serif text-amber-900 mb-4">
+            {questions.title || 'Quiz de Classification'}
+          </h2>
+          <p className="text-amber-700 mb-6">
+            Associez chaque élément à la bonne catégorie
+          </p>
+        </div>
+
+        <div className="grid gap-6">
+          {questions.categories.map((category, categoryIndex) => (
+            <Card key={categoryIndex} className="p-6 bg-gradient-to-r from-amber-50 to-blue-50 border-amber-300">
+              <h3 className="text-xl font-bold text-amber-900 mb-4 text-center">
+                {category.name}
+              </h3>
+              <div className="grid gap-3 md:grid-cols-2">
+                {category.items.map((item, itemIndex) => (
+                  <div
+                    key={itemIndex}
+                    className="bg-white p-3 rounded-lg border border-amber-200 text-center text-amber-800 font-medium"
+                  >
+                    {item}
+                  </div>
+                ))}
+              </div>
+            </Card>
+          ))}
+        </div>
+
+        <div className="text-center">
+          <Card className="p-6 bg-green-50 border-green-300">
+            <Trophy className="h-12 w-12 text-green-600 mx-auto mb-4" />
+            <p className="text-xl text-green-800 font-bold">
+              {rewards?.completion || 'Concepts maîtrisés !'}
+            </p>
+            <p className="text-green-700 mt-2">
+              {rewards?.message || 'Vous avez acquis les connaissances essentielles.'}
+            </p>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  // Questions traditionnelles QCM/QRU/etc.
+  const allQuestions = [];
+  
+  if (questions.qcm) {
+    allQuestions.push(...questions.qcm.map((q, i) => ({ ...q, type: 'qcm', id: i })));
+  }
+  if (questions.qru) {
+    const startId = questions.qcm?.length || 0;
+    allQuestions.push(...questions.qru.map((q, i) => ({ ...q, type: 'qru', id: i + startId })));
+  }
+  if (questions.qroc) {
+    const startId = (questions.qcm?.length || 0) + (questions.qru?.length || 0);
+    allQuestions.push(...questions.qroc.map((q, i) => ({ ...q, type: 'qroc', id: i + startId })));
+  }
+  if (questions.zap) {
+    const startId = (questions.qcm?.length || 0) + (questions.qru?.length || 0) + (questions.qroc?.length || 0);
+    allQuestions.push(...questions.zap.map((q, i) => ({ ...q, type: 'zap', id: i + startId })));
+  }
+
+  if (allQuestions.length === 0) {
+    return (
+      <div className="space-y-8">
+        <div className="text-center">
+          <h2 className="text-3xl font-serif text-amber-900 mb-4">Quiz Final EDN</h2>
+          <p className="text-amber-700">Aucune question disponible pour le moment</p>
+        </div>
+      </div>
+    );
+  }
 
   const handleAnswer = (questionId: number, answer: any) => {
     setAnswers(prev => ({
@@ -58,32 +148,45 @@ export const QuizFinal = ({ questions, rewards }: QuizFinalProps) => {
     let totalScore = 0;
     
     // QCM scoring
-    questions.qcm.forEach((q, i) => {
-      if (answers[i] === q.correct) totalScore++;
-    });
+    if (questions.qcm) {
+      questions.qcm.forEach((q, i) => {
+        if (answers[i] === q.correct) totalScore++;
+      });
+    }
 
     // QRU scoring
-    questions.qru.forEach((q, i) => {
-      const id = i + questions.qcm.length;
-      const userAnswer = answers[id]?.toLowerCase() || '';
-      if (userAnswer.includes(q.reponse.toLowerCase())) totalScore++;
-    });
+    if (questions.qru) {
+      const startId = questions.qcm?.length || 0;
+      questions.qru.forEach((q, i) => {
+        const id = i + startId;
+        const userAnswer = answers[id]?.toLowerCase() || '';
+        if (q.reponse && userAnswer.includes(q.reponse.toLowerCase())) totalScore++;
+      });
+    }
 
     // QROC scoring
-    questions.qroc.forEach((q, i) => {
-      const id = i + questions.qcm.length + questions.qru.length;
-      const userAnswer = answers[id]?.toLowerCase() || '';
-      const matchedPoints = q.points_cles.filter(point => 
-        userAnswer.includes(point.toLowerCase())
-      );
-      if (matchedPoints.length >= 2) totalScore++;
-    });
+    if (questions.qroc) {
+      const startId = (questions.qcm?.length || 0) + (questions.qru?.length || 0);
+      questions.qroc.forEach((q, i) => {
+        const id = i + startId;
+        const userAnswer = answers[id]?.toLowerCase() || '';
+        if (q.points_cles) {
+          const matchedPoints = q.points_cles.filter(point => 
+            userAnswer.includes(point.toLowerCase())
+          );
+          if (matchedPoints.length >= 2) totalScore++;
+        }
+      });
+    }
 
     // ZAP scoring
-    questions.zap.forEach((q, i) => {
-      const id = i + questions.qcm.length + questions.qru.length + questions.qroc.length;
-      if (answers[id] === q.correct) totalScore++;
-    });
+    if (questions.zap) {
+      const startId = (questions.qcm?.length || 0) + (questions.qru?.length || 0) + (questions.qroc?.length || 0);
+      questions.zap.forEach((q, i) => {
+        const id = i + startId;
+        if (answers[id] === q.correct) totalScore++;
+      });
+    }
 
     return totalScore;
   };
@@ -102,10 +205,13 @@ export const QuizFinal = ({ questions, rewards }: QuizFinalProps) => {
   };
 
   const getRewardMessage = () => {
+    if (!rewards) return "Quiz terminé !";
+    
     const percentage = (score / allQuestions.length) * 10;
-    if (percentage === 10) return rewards['10'];
-    if (percentage >= 8) return rewards['8-9'];
-    return rewards['< 8'];
+    if (rewards['10'] && percentage === 10) return rewards['10'];
+    if (rewards['8-9'] && percentage >= 8) return rewards['8-9'];
+    if (rewards['< 8']) return rewards['< 8'];
+    return rewards.completion || "Félicitations !";
   };
 
   const renderQuestion = (question: any) => {
@@ -118,7 +224,7 @@ export const QuizFinal = ({ questions, rewards }: QuizFinalProps) => {
               value={answers[question.id]?.toString()}
               onValueChange={(value) => handleAnswer(question.id, parseInt(value))}
             >
-              {question.options.map((option: string, index: number) => (
+              {question.options?.map((option: string, index: number) => (
                 <div key={index} className="flex items-center space-x-2">
                   <RadioGroupItem value={index.toString()} id={`option-${index}`} />
                   <Label htmlFor={`option-${index}`} className="text-amber-800">
@@ -153,9 +259,11 @@ export const QuizFinal = ({ questions, rewards }: QuizFinalProps) => {
               onChange={(e) => handleAnswer(question.id, e.target.value)}
               className="border-amber-300 focus:border-amber-500"
             />
-            <p className="text-sm text-amber-600">
-              Points clés attendus : {question.points_cles.join(', ')}
-            </p>
+            {question.points_cles && (
+              <p className="text-sm text-amber-600">
+                Points clés attendus : {question.points_cles.join(', ')}
+              </p>
+            )}
           </div>
         );
 
@@ -176,7 +284,7 @@ export const QuizFinal = ({ questions, rewards }: QuizFinalProps) => {
                 <Label htmlFor="faux" className="text-amber-800">Faux</Label>
               </div>
             </RadioGroup>
-            {showResults && (
+            {showResults && question.justification && (
               <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded">
                 <p className="text-sm text-blue-800">
                   <strong>Justification :</strong> {question.justification}
