@@ -45,7 +45,7 @@ export const TableauRangA = ({ data }: TableauRangAProps) => {
     lignesEnrichies = processed.lignesEnrichies;
     colonnesUtiles = processed.colonnesUtiles;
     theme = processed.theme;
-    footerComponent = <TableauRangAFooterIC1 />;
+    footerComponent = <TableauRangAFooterIC1 colonnesCount={colonnesUtiles.length} lignesCount={lignesEnrichies.length} />;
   } else if (isIC2Item(data)) {
     const processed = processTableauRangAIC2(data);
     lignesEnrichies = processed.lignesEnrichies;
@@ -78,7 +78,7 @@ export const TableauRangA = ({ data }: TableauRangAProps) => {
 
   return (
     <div className="space-y-8 bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 p-6 rounded-xl">
-      <TableauRangAHeader theme={theme} />
+      <TableauRangAHeader theme={theme} itemCode="IC-X" totalCompetences={lignesEnrichies.length} />
       
       {lignesEnrichies.length > 0 ? (
         <>

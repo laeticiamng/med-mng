@@ -1,12 +1,12 @@
 
-import { PitchIntro } from './PitchIntro';
+import { PitchIntroSection } from './PitchIntroSection';
 import { SceneImmersive } from '../SceneImmersive';
 import { TableauRangA } from '../tableau/TableauRangA';
 import { TableauRangB } from '../tableau/TableauRangB';
-import { ParolesMusicales } from './ParolesMusicales';
-import { BandeDessinee } from './BandeDessinee';
-import { InteractionQuiz } from './InteractionQuiz';
-import { QuizFinal } from './QuizFinal';
+import { ParolesMusicales } from '../ParolesMusicales';
+import { BandeDessinee } from '../BandeDessinee';
+import { InteractionDragDrop } from '../InteractionDragDrop';
+import { QuizFinal } from '../QuizFinal';
 
 interface ImmersiveContentProps {
   currentSection: number;
@@ -32,11 +32,11 @@ export const ImmersiveContent = ({ currentSection, item }: ImmersiveContentProps
     switch (currentSection) {
       case 0: // Pitch d'introduction
         return (
-          <PitchIntro 
+          <PitchIntroSection
             title={item.title}
-            subtitle={item.subtitle}
-            intro={item.pitch_intro}
             itemCode={item.item_code}
+            subtitle={item.subtitle || ''}
+            pitchIntro={item.pitch_intro || ''}
           />
         );
 
@@ -87,7 +87,7 @@ export const ImmersiveContent = ({ currentSection, item }: ImmersiveContentProps
 
       case 6: // Interaction
         return (
-          <InteractionQuiz 
+          <InteractionDragDrop 
             config={item.interaction_config}
             theme={item.title}
           />
