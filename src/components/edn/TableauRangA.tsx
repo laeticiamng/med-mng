@@ -11,6 +11,9 @@ interface TableauRangAProps {
 }
 
 export const TableauRangA = ({ data }: TableauRangAProps) => {
+  const colCount = data.colonnes.length;
+  const gridCols = `grid-cols-${colCount}`;
+  
   return (
     <div className="space-y-6">
       <div className="text-center">
@@ -23,11 +26,11 @@ export const TableauRangA = ({ data }: TableauRangAProps) => {
 
       <div className="overflow-x-auto">
         <div className="min-w-full">
-          <div className="grid grid-cols-8 gap-2 mb-2">
+          <div className={`grid ${gridCols} gap-2 mb-2`} style={{ gridTemplateColumns: `repeat(${colCount}, minmax(0, 1fr))` }}>
             {data.colonnes.map((colonne, index) => (
               <div
                 key={index}
-                className="bg-amber-600 text-white p-3 rounded-lg text-center font-semibold text-sm"
+                className="bg-amber-600 text-white p-4 rounded-lg text-center font-semibold text-sm"
               >
                 {colonne}
               </div>
@@ -35,13 +38,13 @@ export const TableauRangA = ({ data }: TableauRangAProps) => {
           </div>
           
           {data.lignes.map((ligne, ligneIndex) => (
-            <div key={ligneIndex} className="grid grid-cols-8 gap-2 mb-2">
+            <div key={ligneIndex} className={`grid ${gridCols} gap-2 mb-2`} style={{ gridTemplateColumns: `repeat(${colCount}, minmax(0, 1fr))` }}>
               {ligne.map((cellule, celluleIndex) => (
                 <Card
                   key={celluleIndex}
-                  className="p-3 bg-white/80 border-amber-200 hover:bg-amber-50 transition-colors"
+                  className="p-4 bg-white/80 border-amber-200 hover:bg-amber-50 transition-colors min-h-[80px] flex items-center"
                 >
-                  <div className="text-xs text-amber-800 leading-relaxed">
+                  <div className="text-sm text-amber-800 leading-relaxed text-center w-full">
                     {cellule}
                   </div>
                 </Card>
@@ -53,7 +56,7 @@ export const TableauRangA = ({ data }: TableauRangAProps) => {
 
       <div className="text-center">
         <p className="text-sm text-amber-600 italic">
-          ✅ Tableau complet 8×5 = 40 éléments de connaissance rang A
+          ✅ Tableau complet {colCount}×{data.lignes.length} = {colCount * data.lignes.length} éléments de connaissance rang A
         </p>
       </div>
     </div>
