@@ -1,8 +1,7 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
-import { Play, Pause, Volume2, VolumeX, Download, SkipBack, SkipForward, Stop } from 'lucide-react';
+import { Play, Pause, Volume2, VolumeX, Download, SkipBack, SkipForward, Square } from 'lucide-react';
 
 interface AudioPlayerProps {
   audioUrl: string;
@@ -138,7 +137,7 @@ export const AudioPlayer = ({
           size="sm"
           className="border-amber-300 text-amber-600 hover:bg-amber-50"
         >
-          <Stop className="h-4 w-4" />
+          <Square className="h-4 w-4" />
         </Button>
 
         <Button
