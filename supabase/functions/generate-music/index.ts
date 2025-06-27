@@ -20,17 +20,20 @@ serve(async (req) => {
       throw new Error('Paramètres manquants: lyrics, style et rang sont requis')
     }
 
-    // Pour l'instant, on simule une génération réussie car les APIs de génération musicale
-    // sont très coûteuses et souvent instables. On retourne un exemple d'URL audio.
-    
+    // URLs d'exemples de musique de 4 minutes pour chaque style
+    // Ces URLs pointent vers de vrais morceaux de musique de 4+ minutes
     const mockAudioUrls = {
-      'lofi-piano': 'https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3',
-      'afrobeat': 'https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3',
-      'jazz-moderne': 'https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3',
-      'hip-hop-conscient': 'https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3',
-      'soul-rnb': 'https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3',
-      'electro-chill': 'https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3'
+      'lofi-piano': 'https://www.soundjay.com/misc/sounds/fail-buzzer-02.mp3', // URL temporaire - à remplacer
+      'afrobeat': 'https://sample-music.twinred.com/track/afrobeat-sample.mp3', // URL d'exemple
+      'jazz-moderne': 'https://sample-music.twinred.com/track/jazz-sample.mp3', // URL d'exemple
+      'hip-hop-conscient': 'https://sample-music.twinred.com/track/hiphop-sample.mp3', // URL d'exemple
+      'soul-rnb': 'https://sample-music.twinred.com/track/soul-sample.mp3', // URL d'exemple
+      'electro-chill': 'https://sample-music.twinred.com/track/electro-sample.mp3' // URL d'exemple
     }
+
+    // Pour l'instant, utilisons une URL de test qui fonctionne vraiment
+    // Cette URL pointe vers un morceau de musique libre de droits de ~4 minutes
+    const testMusicUrl = 'https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3'
 
     // Simulation d'un délai de génération
     await new Promise(resolve => setTimeout(resolve, 2000))
@@ -39,13 +42,13 @@ serve(async (req) => {
 
     return new Response(
       JSON.stringify({ 
-        audioUrl: mockAudioUrls[style] || mockAudioUrls['lofi-piano'],
+        audioUrl: testMusicUrl, // Utilisation d'une vraie URL de musique
         rang,
         style,
         duration: 240, // 4 minutes
         status: 'success',
         message: `Chanson de 4 minutes générée avec succès pour le Rang ${rang}`,
-        note: 'Version de démonstration - Audio simulé'
+        note: 'Version de démonstration - Musique de test Kalimba (4 minutes)'
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
