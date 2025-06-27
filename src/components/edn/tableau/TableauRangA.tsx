@@ -147,9 +147,8 @@ export const TableauRangA = ({ data }: TableauRangAProps) => {
       </div>
 
       <TableauRangAFooter 
-        totalLignes={lignes.length}
-        itemCode={data.item_code || ''}
-        theme={theme}
+        colonnesCount={colonnes.length}
+        lignesCount={lignes.length}
       />
     </div>
   );

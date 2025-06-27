@@ -73,15 +73,19 @@ export const ImmersiveContent = ({ currentSection, item }: ImmersiveContentProps
         return (
           <ParolesMusicales 
             paroles={item.paroles_musicales || []}
-            theme={item.title}
           />
         );
 
       case 5: // Bande dessinée
         return (
           <BandeDessinee 
-            itemCode={item.item_code}
-            theme={item.title}
+            itemData={{
+              title: item.title,
+              subtitle: item.subtitle || '',
+              slug: item.item_code.toLowerCase(),
+              tableau_rang_a: item.tableau_rang_a,
+              tableau_rang_b: item.tableau_rang_b
+            }}
           />
         );
 
@@ -89,7 +93,6 @@ export const ImmersiveContent = ({ currentSection, item }: ImmersiveContentProps
         return (
           <InteractionDragDrop 
             config={item.interaction_config}
-            theme={item.title}
           />
         );
 
@@ -97,7 +100,6 @@ export const ImmersiveContent = ({ currentSection, item }: ImmersiveContentProps
         return (
           <QuizFinal 
             questions={item.quiz_questions}
-            itemCode={item.item_code}
           />
         );
 
