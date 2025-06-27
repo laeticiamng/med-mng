@@ -51,7 +51,11 @@ export const TableauRangA = ({ data }: TableauRangAProps) => {
     lignesEnrichies = processed.lignesEnrichies;
     colonnesUtiles = processed.colonnesUtiles;
     theme = processed.theme;
-    footerComponent = <TableauRangAFooterIC2 colonnesCount={colonnesUtiles.length} lignesCount={lignesEnrichies.length} />;
+    footerComponent = <TableauRangAFooterIC2 
+      colonnesCount={colonnesUtiles.length} 
+      lignesCount={lignesEnrichies.length}
+      isRangB={processed.isRangB}
+    />;
   } else if (isIC4Item(data)) {
     const processed = processTableauRangAIC4(data);
     lignesEnrichies = processed.lignesEnrichies;
