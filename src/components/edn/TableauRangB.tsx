@@ -64,35 +64,39 @@ export const TableauRangB = ({ data }: TableauRangBProps) => {
         </div>
       </div>
 
-      <div className="overflow-x-auto bg-white rounded-lg shadow-xl border border-gray-200">
-        <div className="min-w-full">
-          {/* En-têtes de colonnes expertes dynamiques */}
-          <div className={`grid gap-2 mb-2 p-2`} style={{gridTemplateColumns: `repeat(${colonnesUtiles.length}, 1fr)`}}>
-            {colonnesUtiles.map((colonne, index) => (
-              <div
-                key={index}
-                className={`p-4 rounded-lg text-center font-bold text-sm text-white ${colonne.couleur} shadow-md`}
-              >
-                <div className="flex items-center justify-center space-x-1">
-                  <span>{colonne.nom}</span>
-                  {colonne.icone}
-                </div>
-              </div>
-            ))}
-          </div>
-          
-          {/* Lignes de données expertes optimisées */}
-          {lignesExpertes.map((ligne, ligneIndex) => (
-            <div key={ligneIndex} className={`grid gap-2 mb-2 p-2`} style={{gridTemplateColumns: `repeat(${colonnesUtiles.length}, 1fr)`}}>
-              {ligne.map((cellule, celluleIndex) => {
+      <div className="space-y-8">
+        {lignesExpertes.map((ligne, ligneIndex) => (
+          <div key={ligneIndex} className="space-y-4">
+            {/* Titre principal du concept */}
+            <div className="text-center">
+              <h3 className="text-2xl font-bold text-blue-900 mb-2">{ligne[0]}</h3>
+              <p className="text-lg text-blue-700 bg-blue-50 p-4 rounded-lg border border-blue-200">
+                {ligne[1]}
+              </p>
+            </div>
+            
+            {/* Grille de cartes pour les autres informations */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {ligne.slice(2).map((cellule, celluleIndex) => {
                 if (!cellule || cellule.trim() === '') return null;
+                
+                const colonneIndex = celluleIndex + 2;
+                const colonne = colonnesUtiles[colonneIndex];
+                
+                if (!colonne) return null;
                 
                 return (
                   <Card
                     key={celluleIndex}
-                    className={`p-4 border-2 transition-all duration-300 hover:shadow-lg hover:scale-[1.02] min-h-[120px] ${colonnesUtiles[celluleIndex].couleurCellule}`}
+                    className={`p-4 border-2 transition-all duration-300 hover:shadow-lg hover:scale-[1.02] ${colonne.couleurCellule}`}
                   >
-                    <div className={`text-sm leading-relaxed ${colonnesUtiles[celluleIndex].couleurTexte}`}>
+                    <div className="mb-3">
+                      <div className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium text-white ${colonne.couleur}`}>
+                        {colonne.icone}
+                        <span className="ml-2">{colonne.nom}</span>
+                      </div>
+                    </div>
+                    <div className={`text-sm leading-relaxed ${colonne.couleurTexte}`}>
                       <div className="space-y-2">
                         {cellule.split('\n').map((ligne, index) => (
                           <div key={index} className="leading-relaxed">
@@ -105,8 +109,8 @@ export const TableauRangB = ({ data }: TableauRangBProps) => {
                 );
               })}
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
 
       <div className="text-center bg-blue-50 p-6 rounded-lg border border-blue-200">
