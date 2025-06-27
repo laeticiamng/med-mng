@@ -30,13 +30,13 @@ export const generateLignesRangBIntelligentIC4 = (data: any): string[][] => {
   conceptsRangBIC4.forEach(concept => {
     const ligne = [
       concept.concept,
-      concept.analyse,
-      concept.cas || '',
-      concept.ecueil || '',
-      concept.technique || '',
-      concept.distinction || '',
-      concept.maitrise || '',
-      concept.excellence || ''
+      concept.definition,
+      concept.exemple || '',
+      concept.piege || '',
+      concept.mnemo || '',
+      concept.subtilite || '',
+      concept.application || '',
+      concept.vigilance || ''
     ];
     
     lignes.push(ligne);

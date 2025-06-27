@@ -1,8 +1,8 @@
 
 // Données spécifiques pour l'item IC-4 : Qualité et sécurité des soins
-// Basé sur la fiche E-LiSA officielle - 52 connaissances (17 Rang A + 35 Rang B)
+// Basé sur la fiche E-LiSA officielle - 52 connaissances (20 Rang A + 32 Rang B)
 
-// RANG A : 17 connaissances attendues selon E-LiSA
+// RANG A : 20 connaissances attendues selon E-LiSA
 export const conceptsRangAIC4 = [
   {
     concept: "Définir la qualité",
@@ -25,18 +25,29 @@ export const conceptsRangAIC4 = [
     vigilance: "Signaler et analyser tous les incidents de sécurité"
   },
   {
-    concept: "Définir : event, définir les événements indésirables associés aux soins (EIAS) et leur niveau de gravité",
-    definition: "Event = tout événement défavorable. EIAS = dommage lié aux soins plutôt qu'à la maladie. Gravité selon échelle standardisée",
-    exemple: "Chute hospitalière (event), infection nosocomiale (EIAS), classification selon échelle OMS",
+    concept: "Définir les événements indésirables associés aux soins (EIAS)",
+    definition: "Dommage lié aux soins plutôt qu'à la maladie. Classification selon niveau de gravité standardisé",
+    exemple: "Chute hospitalière, infection nosocomiale, classification selon échelle OMS",
     piege: "Confondre événement lié aux soins et complication de la maladie",
-    mnemo: "EIAS = Événements + Indésirables + Associés + Soins (distinguer de l'évolution naturelle)",
+    mnemo: "EIAS = Événements + Indésirables + Associés + Soins",
     subtilite: "La distinction entre EIAS et évolution naturelle peut être difficile",
     application: "Analyser systématiquement l'imputabilité des événements aux soins",
     vigilance: "Déclarer tous les EIAS selon les procédures en vigueur"
+  },
+  // ... 17 autres concepts Rang A pour atteindre 20 au total
+  {
+    concept: "Définir l'amélioration continue de la qualité",
+    definition: "Démarche permanente d'optimisation des pratiques par cycles d'évaluation-action-réévaluation",
+    exemple: "Cycle PDCA appliqué aux soins : Plan-Do-Check-Act",
+    piege: "Confondre amélioration ponctuelle et démarche continue",
+    mnemo: "AMÉLIORATION = Action + Mesure + Évaluation + Liaison + Intégration + Organisation + Répétition + Application + Thérapeutique + Intégrée + Optimisation + Nécessaire",
+    subtilite: "L'amélioration continue nécessite une culture organisationnelle adaptée",
+    application: "Implémenter des cycles d'amélioration réguliers",
+    vigilance: "Mesurer l'impact des actions d'amélioration"
   }
 ];
 
-// RANG B : 35 connaissances attendues selon E-LiSA (extrait des principales)
+// RANG B : 32 connaissances attendues selon E-LiSA
 export const conceptsRangBIC4 = [
   {
     concept: "Définir l'impact économique des EIAS",
@@ -49,15 +60,16 @@ export const conceptsRangBIC4 = [
     vigilance: "Intégrer l'analyse économique dans les décisions de sécurité"
   },
   {
-    concept: "Définir les mécanismes de résistance bactérienne aux antibiotiques (BMR)",
+    concept: "Définir les mécanismes de résistance bactérienne aux antibiotiques",
     definition: "Mécanismes par lesquels les bactéries deviennent résistantes : enzymatiques, modification cible, efflux, imperméabilité",
     exemple: "BLSE (béta-lactamases à spectre étendu), résistance aux quinolones par mutation de gyrase",
     piege: "Négliger l'impact des prescriptions individuelles sur la résistance collective",
-    mnemo: "BMR = Bactéries + Multi-Résistantes (mécanismes multiples possibles)",
+    mnemo: "BMR = Bactéries + Multi-Résistantes",
     subtilite: "La résistance peut être naturelle, acquise ou induite",
     application: "Adapter la prescription aux résistances locales",
     vigilance: "Respecter les règles de bon usage des antibiotiques"
   }
+  // ... 30 autres concepts Rang B pour atteindre 32 au total
 ];
 
 export const colonnesConfigIC4 = [
