@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Music, Settings, Minimize2 } from 'lucide-react';
+import { Music, Settings, Minimize2, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useGlobalAudio } from '@/contexts/GlobalAudioContext';
@@ -14,7 +14,10 @@ interface ParolesMusicalesProps {
 }
 
 export const ParolesMusicales = ({ paroles }: ParolesMusicalesProps) => {
-  const [isGenerating, setIsGenerating] = useState(false);
+  const [isGenerating, setIsGenerating] = useState<{ rangA: boolean; rangB: boolean }>({
+    rangA: false,
+    rangB: false
+  });
   const [selectedStyle, setSelectedStyle] = useState('');
   const [generatedAudio, setGeneratedAudio] = useState<{ rangA?: string; rangB?: string }>({});
   const { toast } = useToast();
@@ -63,11 +66,13 @@ export const ParolesMusicales = ({ paroles }: ParolesMusicalesProps) => {
       return;
     }
 
-    setIsGenerating(true);
+    setIsGenerating(prev => ({ ...prev, [rang === 'A' ? 'rangA' : 'rangB']: true }));
     const parolesIndex = rang === 'A' ? 0 : 1;
     const parolesText = paroles[parolesIndex];
 
     try {
+      console.log(`Génération musique Rang ${rang} avec style ${selectedStyle}`);
+      
       const { data, error } = await supabase.functions.invoke('generate-music', {
         body: {
           lyrics: parolesText,
@@ -76,7 +81,14 @@ export const ParolesMusicales = ({ paroles }: ParolesMusicalesProps) => {
         }
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Erreur Supabase:', error);
+        throw new Error(error.message || 'Erreur lors de l\'appel à la fonction');
+      }
+
+      if (data.status === 'error') {
+        throw new Error(data.error);
+      }
 
       const audioKey = rang === 'A' ? 'rangA' : 'rangB';
       setGeneratedAudio(prev => ({
@@ -88,15 +100,17 @@ export const ParolesMusicales = ({ paroles }: ParolesMusicalesProps) => {
         title: `Musique Rang ${rang} générée`,
         description: "La musique a été générée avec succès !",
       });
+
+      console.log(`Musique générée avec succès:`, data.audioUrl);
     } catch (error) {
       console.error('Erreur génération musique:', error);
       toast({
         title: "Erreur de génération",
-        description: "Impossible de générer la musique. Veuillez réessayer.",
+        description: error.message || "Impossible de générer la musique. Veuillez réessayer.",
         variant: "destructive"
       });
     } finally {
-      setIsGenerating(false);
+      setIsGenerating(prev => ({ ...prev, [rang === 'A' ? 'rangA' : 'rangB']: false }));
     }
   };
 
@@ -206,10 +220,17 @@ export const ParolesMusicales = ({ paroles }: ParolesMusicalesProps) => {
           <div className="flex justify-center">
             <Button
               onClick={() => generateMusic('A')}
-              disabled={isGenerating || !selectedStyle}
+              disabled={isGenerating.rangA || !selectedStyle}
               className="bg-amber-600 hover:bg-amber-700 text-white px-6 py-3"
             >
-              {isGenerating ? 'Génération...' : 'Générer Musique Rang A'}
+              {isGenerating.rangA ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Génération en cours...
+                </>
+              ) : (
+                'Générer Musique Rang A'
+              )}
             </Button>
           </div>
           
@@ -283,10 +304,17 @@ export const ParolesMusicales = ({ paroles }: ParolesMusicalesProps) => {
           <div className="flex justify-center">
             <Button
               onClick={() => generateMusic('B')}
-              disabled={isGenerating || !selectedStyle}
+              disabled={isGenerating.rangB || !selectedStyle}
               className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3"
             >
-              {isGenerating ? 'Génération...' : 'Générer Musique Rang B'}
+              {isGenerating.rangB ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Génération en cours...
+                </>
+              ) : (
+                'Générer Musique Rang B'
+              )}
             </Button>
           </div>
           
