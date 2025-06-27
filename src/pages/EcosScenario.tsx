@@ -255,7 +255,6 @@ const EcosScenario = () => {
               </Card>
             </>
           ) : (
-            /* Quiz ECOS */
             <Card className="bg-white/5 backdrop-blur-sm border-white/10">
               <div className="p-8">
                 <h2 className="text-3xl font-bold text-white mb-8 text-center">
