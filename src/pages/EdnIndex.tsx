@@ -1,24 +1,13 @@
 
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Brain, Search, BookOpen, Sparkles, Play } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Brain, Search, Sparkles, Play } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
 
 const EdnIndex = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [immersiveItems, setImmersiveItems] = useState<any[]>([]);
-
-  // Sample EDN items - in real app, this would come from API
-  const ednItems = [
-    { id: '096', title: 'Neuropathie périphérique', category: 'Neurologie', difficulty: 'Difficile' },
-    { id: '104', title: 'Insuffisance cardiaque chronique', category: 'Cardiologie', difficulty: 'Modéré' },
-    { id: '183', title: 'Hypoglycémie', category: 'Endocrinologie', difficulty: 'Facile' },
-    { id: '205', title: 'Hépatite virale', category: 'Gastroentérologie', difficulty: 'Modéré' },
-    { id: '267', title: 'Convulsions chez le nourrisson', category: 'Pédiatrie', difficulty: 'Difficile' },
-    { id: '312', title: 'Syndrome néphrotique', category: 'Néphrologie', difficulty: 'Modéré' },
-  ];
 
   useEffect(() => {
     const fetchImmersiveItems = async () => {
@@ -41,19 +30,10 @@ const EdnIndex = () => {
     fetchImmersiveItems();
   }, []);
 
-  const filteredItems = ednItems.filter(item =>
+  const filteredItems = immersiveItems.filter(item =>
     item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.category.toLowerCase().includes(searchTerm.toLowerCase())
+    item.subtitle.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty) {
-      case 'Facile': return 'text-green-400 bg-green-400/10';
-      case 'Modéré': return 'text-yellow-400 bg-yellow-400/10';
-      case 'Difficile': return 'text-red-400 bg-red-400/10';
-      default: return 'text-gray-400 bg-gray-400/10';
-    }
-  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900 relative overflow-hidden">
@@ -113,86 +93,43 @@ const EdnIndex = () => {
           </div>
 
           {/* Expériences immersives */}
-          {immersiveItems.length > 0 && (
-            <div className="mb-16">
-              <h2 className="text-3xl font-bold text-white mb-8 text-center">
-                🎭 Expériences Immersives
-              </h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {immersiveItems.map((item, index) => (
-                  <Link
-                    key={item.id}
-                    to={`/edn/immersive/${item.slug}`}
-                    className="group"
-                  >
-                    <div className="bg-gradient-to-br from-amber-100 to-blue-100 rounded-2xl p-6 border-2 border-amber-200 hover:border-amber-400 transition-all duration-300 hover:scale-105 hover:shadow-2xl animate-fade-in"
-                         style={{ animationDelay: `${index * 0.1}s` }}>
-                      <div className="flex items-start justify-between mb-4">
-                        <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-amber-500 to-blue-600 flex items-center justify-center text-white font-bold">
-                            <Play className="h-6 w-6" />
-                          </div>
-                          <div>
-                            <h3 className="text-amber-900 font-semibold text-lg group-hover:text-amber-700 transition-colors">
-                              {item.title}
-                            </h3>
-                            <p className="text-amber-700 text-sm">{item.subtitle}</p>
-                          </div>
+          {filteredItems.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredItems.map((item, index) => (
+                <Link
+                  key={item.id}
+                  to={`/edn/immersive/${item.slug}`}
+                  className="group"
+                >
+                  <div className="bg-gradient-to-br from-amber-100 to-blue-100 rounded-2xl p-6 border-2 border-amber-200 hover:border-amber-400 transition-all duration-300 hover:scale-105 hover:shadow-2xl animate-fade-in"
+                       style={{ animationDelay: `${index * 0.1}s` }}>
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-amber-500 to-blue-600 flex items-center justify-center text-white font-bold">
+                          <Play className="h-6 w-6" />
+                        </div>
+                        <div>
+                          <h3 className="text-amber-900 font-semibold text-lg group-hover:text-amber-700 transition-colors">
+                            {item.title}
+                          </h3>
+                          <p className="text-amber-700 text-sm">{item.subtitle}</p>
                         </div>
                       </div>
-                      
-                      <div className="flex items-center justify-between">
-                        <span className="px-3 py-1 rounded-full text-xs font-medium bg-amber-200 text-amber-800">
-                          {item.item_code}
-                        </span>
-                        <span className="text-amber-600 text-sm font-medium">
-                          Expérience immersive 🎯
-                        </span>
-                      </div>
                     </div>
-                  </Link>
-                ))}
-              </div>
+                    
+                    <div className="flex items-center justify-between">
+                      <span className="px-3 py-1 rounded-full text-xs font-medium bg-amber-200 text-amber-800">
+                        {item.item_code}
+                      </span>
+                      <span className="text-amber-600 text-sm font-medium">
+                        Expérience immersive 🎯
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
             </div>
-          )}
-
-          {/* Items grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredItems.map((item, index) => (
-              <Link
-                key={item.id}
-                to={`/edn/item-${item.id.toLowerCase()}-${item.title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}`}
-                className="group"
-              >
-                <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 hover:bg-white/10 hover:border-purple-400/30 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/10 animate-fade-in"
-                     style={{ animationDelay: `${index * 0.1}s` }}>
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-purple-500 to-blue-600 flex items-center justify-center text-white font-bold">
-                        {item.id}
-                      </div>
-                      <div>
-                        <h3 className="text-white font-semibold text-lg group-hover:text-purple-300 transition-colors">
-                          {item.title}
-                        </h3>
-                        <p className="text-white/60 text-sm">{item.category}</p>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <span className={`px-3 py-1 rounded-full text-xs font-medium ${getDifficultyColor(item.difficulty)}`}>
-                      {item.difficulty}
-                    </span>
-                    <BookOpen className="h-4 w-4 text-white/40 group-hover:text-purple-400 transition-colors" />
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
-
-          {/* Empty state */}
-          {filteredItems.length === 0 && (
+          ) : (
             <div className="text-center py-16">
               <Search className="h-16 w-16 text-white/20 mx-auto mb-4" />
               <h3 className="text-xl text-white/60 mb-2">Aucun item trouvé</h3>
