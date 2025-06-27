@@ -1,6 +1,5 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -20,6 +19,22 @@ serve(async (req) => {
       throw new Error('Paramètres manquants: lyrics, style et rang sont requis')
     }
 
+    // Vérifier si la clé API Replicate est configurée
+    const replicateToken = Deno.env.get('REPLICATE_API_TOKEN')
+    if (!replicateToken) {
+      console.error('REPLICATE_API_TOKEN non configuré')
+      return new Response(
+        JSON.stringify({ 
+          error: 'Configuration manquante: REPLICATE_API_TOKEN requis dans les secrets Supabase',
+          status: 'error'
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 500
+        }
+      )
+    }
+
     // Configuration des prompts MusicGen selon le style
     const stylePrompts = {
       'lofi-piano': 'lo-fi piano, soft jazz, relaxing, mellow, educational rap vocals',
@@ -37,19 +52,21 @@ serve(async (req) => {
       .replace(/\n\n+/g, ' ') // Remplace les multiples retours à la ligne
       .trim()
 
+    console.log(`Génération musique - Rang ${rang}, Style: ${style}`)
+
     // Appel à l'API MusicGen (Replicate)
     const musicGenResponse = await fetch('https://api.replicate.com/v1/predictions', {
       method: 'POST',
       headers: {
-        'Authorization': `Token ${Deno.env.get('REPLICATE_API_TOKEN')}`,
+        'Authorization': `Token ${replicateToken}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        version: "fb2b8b5e07513b55ca8bb634534223b67e7f2c4b5a7e2b3e7b5b5e5b5e5b5e5b", // MusicGen model
+        version: "b05b1dff1d8c6dc63d14b0cdb42135378dcb87f6373b0d3d341ede46e59e2dbe", // MusicGen model
         input: {
           model_version: "stereo-large",
           prompt: `${stylePrompts[style]}, lyrics: "${cleanLyrics.substring(0, 500)}"`,
-          duration: rang === 'A' ? 120 : 100, // Durée différente selon le rang
+          duration: rang === 'A' ? 120 : 100,
           temperature: 0.8,
           top_k: 250,
           top_p: 0.0,
@@ -59,10 +76,13 @@ serve(async (req) => {
     })
 
     if (!musicGenResponse.ok) {
-      throw new Error('Erreur lors de la génération musicale')
+      const errorText = await musicGenResponse.text()
+      console.error('Erreur Replicate API:', errorText)
+      throw new Error(`API Replicate: ${musicGenResponse.status} - ${errorText}`)
     }
 
     const musicGenData = await musicGenResponse.json()
+    console.log('Réponse initiale Replicate:', musicGenData)
     
     // Polling pour attendre la génération
     let attempts = 0
@@ -76,17 +96,24 @@ serve(async (req) => {
         `https://api.replicate.com/v1/predictions/${finalResult.id}`,
         {
           headers: {
-            'Authorization': `Token ${Deno.env.get('REPLICATE_API_TOKEN')}`,
+            'Authorization': `Token ${replicateToken}`,
           },
         }
       )
       
+      if (!statusResponse.ok) {
+        console.error('Erreur vérification status:', statusResponse.status)
+        break
+      }
+      
       finalResult = await statusResponse.json()
+      console.log(`Tentative ${attempts + 1}: Status = ${finalResult.status}`)
       attempts++
     }
 
     if (finalResult.status === 'failed') {
-      throw new Error('La génération musicale a échoué')
+      console.error('Génération échouée:', finalResult.error)
+      throw new Error(`Génération échouée: ${finalResult.error || 'Erreur inconnue'}`)
     }
 
     if (finalResult.status !== 'succeeded') {
@@ -100,7 +127,6 @@ serve(async (req) => {
       throw new Error('Aucune URL audio générée')
     }
 
-    // Log pour le suivi
     console.log(`Musique générée avec succès - Rang ${rang}, Style: ${style}`)
 
     return new Response(
