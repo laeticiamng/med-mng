@@ -6,6 +6,24 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+interface TopMediAISubmitResponse {
+  code: number;
+  message: string;
+  data?: {
+    chanson_id: string;
+  };
+}
+
+interface TopMediAIQueryResponse {
+  code: number;
+  message: string;
+  data?: {
+    status: string;
+    audio_url?: string;
+    progress?: number;
+  };
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
@@ -14,7 +32,7 @@ serve(async (req) => {
   try {
     const { lyrics, style, rang, duration = 240 } = await req.json()
 
-    console.log('🎵 Requête génération musique reçue:', { 
+    console.log('🎵 Requête génération musique TopMediAI reçue:', { 
       lyricsLength: lyrics?.length || 0, 
       style, 
       rang, 
@@ -30,37 +48,115 @@ serve(async (req) => {
       throw new Error(`Aucune parole valide fournie pour le Rang ${rang}`)
     }
 
-    // URLs d'audio de longue durée et de qualité pour chaque style
-    // Dans une vraie implémentation, nous utiliserions une API comme Suno AI, Mubert, ou AIVA
-    // pour générer réellement de la musique avec paroles chantées
-    const mockAudioUrls = {
-      'lofi-piano': 'https://commondatastorage.googleapis.com/codeskulptor-demos/DDR_assets/Sevish_-_battleTheme.mp3',
-      'afrobeat': 'https://commondatastorage.googleapis.com/codeskulptor-demos/DDR_assets/Kangaroo_MusiQue_-_The_Neverwritten_Role_Playing_Game.mp3',
-      'jazz-moderne': 'https://commondatastorage.googleapis.com/codeskulptor-demos/pyman_assets/intromusic.ogg',
-      'hip-hop-conscient': 'https://commondatastorage.googleapis.com/codeskulptor-demos/DDR_assets/Sevish_-_battleTheme.mp3',
-      'soul-rnb': 'https://commondatastorage.googleapis.com/codeskulptor-demos/DDR_assets/Kangaroo_MusiQue_-_The_Neverwritten_Role_Playing_Game.mp3',
-      'electro-chill': 'https://commondatastorage.googleapis.com/codeskulptor-demos/pyman_assets/intromusic.ogg'
+    const TOPMEDIAI_API_KEY = Deno.env.get('TOPMEDIAI_API_KEY')
+    if (!TOPMEDIAI_API_KEY) {
+      throw new Error('Clé API TopMediAI non configurée')
     }
 
-    const selectedUrl = mockAudioUrls[style] || mockAudioUrls['lofi-piano']
-    const durationMinutes = Math.floor(duration / 60)
-    const durationSeconds = duration % 60
-    const durationFormatted = `${durationMinutes}:${durationSeconds.toString().padStart(2, '0')}`
+    // Mapping des styles vers des prompts musicaux
+    const stylePrompts = {
+      'lofi-piano': 'Relaxing lo-fi piano with soft beats and ambient sounds',
+      'afrobeat': 'Energetic afrobeat with drums, bass and traditional African instruments',
+      'jazz-moderne': 'Modern jazz with saxophone, piano and smooth rhythms',
+      'hip-hop-conscient': 'Conscious hip-hop with meaningful lyrics and urban beats',
+      'soul-rnb': 'Soulful R&B with emotional vocals and groove',
+      'electro-chill': 'Chill electronic with synthesizers and ambient textures'
+    }
 
-    console.log(`🎤 SIMULATION: Génération chanson avec PAROLES CHANTÉES - Rang ${rang}`)
-    console.log(`📝 Style: ${style} | Durée: ${durationFormatted}`)
-    console.log(`🎵 Paroles à intégrer (${lyrics.length} caractères):`, lyrics.substring(0, 300) + '...')
-    console.log(`🎧 URL audio simulée: ${selectedUrl}`)
+    const prompt = stylePrompts[style] || stylePrompts['lofi-piano']
+    const title = `Chanson Rang ${rang} - ${style === 'lofi-piano' ? 'Colloque Singulier' : 'Outils Pratiques'}`
 
-    // Simulation d'un délai de génération réaliste pour une chanson avec voix
-    await new Promise(resolve => setTimeout(resolve, 2500))
+    console.log(`🎤 Soumission à TopMediAI - Rang ${rang}`)
+    console.log(`📝 Style: ${style} | Durée: ${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')}`)
+    console.log(`🎵 Prompt: ${prompt}`)
+    console.log(`📖 Paroles (${lyrics.length} caractères):`, lyrics.substring(0, 200) + '...')
+
+    // Étape 1: Soumettre la tâche de génération musicale
+    const submitResponse = await fetch('https://api.topmediai.com/v2/submit', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${TOPMEDIAI_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        is_auto: 1,
+        prompt: prompt,
+        lyrics: lyrics,
+        title: title,
+        instrumental: 0, // 0 = avec paroles chantées
+        model_version: "v3.5",
+        continue_at: 0
+      }),
+    })
+
+    if (!submitResponse.ok) {
+      const errorText = await submitResponse.text()
+      console.error('❌ Erreur soumission TopMediAI:', errorText)
+      throw new Error(`Erreur API TopMediAI (${submitResponse.status}): ${errorText}`)
+    }
+
+    const submitData: TopMediAISubmitResponse = await submitResponse.json()
+    console.log('✅ Tâche soumise:', submitData)
+
+    if (submitData.code !== 200 || !submitData.data?.chanson_id) {
+      throw new Error(`Erreur soumission: ${submitData.message}`)
+    }
+
+    const chanson_id = submitData.data.chanson_id
+
+    // Étape 2: Attendre que la génération soit terminée (polling)
+    let attempts = 0
+    const maxAttempts = 60 // 5 minutes max
+    let queryData: TopMediAIQueryResponse
+
+    console.log(`🔄 Polling du statut pour chanson_id: ${chanson_id}`)
+
+    do {
+      await new Promise(resolve => setTimeout(resolve, 5000)) // Attendre 5 secondes
+      attempts++
+
+      const queryResponse = await fetch(`https://api.topmediai.com/v2/query?chanson_id=${chanson_id}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${TOPMEDIAI_API_KEY}`,
+        },
+      })
+
+      if (!queryResponse.ok) {
+        const errorText = await queryResponse.text()
+        console.error('❌ Erreur query TopMediAI:', errorText)
+        throw new Error(`Erreur query API: ${errorText}`)
+      }
+
+      queryData = await queryResponse.json()
+      console.log(`🔍 Tentative ${attempts}: Status=${queryData.data?.status}, Progress=${queryData.data?.progress}%`)
+
+      if (queryData.data?.status === 'completed' && queryData.data?.audio_url) {
+        break
+      }
+
+      if (queryData.data?.status === 'failed') {
+        throw new Error('La génération musicale a échoué')
+      }
+
+    } while (attempts < maxAttempts && queryData.data?.status !== 'completed')
+
+    if (attempts >= maxAttempts) {
+      throw new Error('Timeout: La génération musicale prend trop de temps')
+    }
+
+    if (!queryData.data?.audio_url) {
+      throw new Error('Aucune URL audio générée')
+    }
+
+    const durationFormatted = `${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')}`
 
     console.log(`✅ Chanson avec PAROLES CHANTÉES générée avec succès - Rang ${rang} (${durationFormatted})`)
+    console.log(`🎧 URL audio: ${queryData.data.audio_url}`)
 
-    // En production, nous retournerions l'URL de la vraie chanson générée avec paroles
     return new Response(
       JSON.stringify({ 
-        audioUrl: selectedUrl,
+        audioUrl: queryData.data.audio_url,
         rang,
         style,
         duration: duration,
@@ -70,32 +166,33 @@ serve(async (req) => {
         lyrics_integrated: true,
         vocals_included: true,
         lyrics_length: lyrics.length,
-        note: '🎵 Version complète avec paroles chantées - Intégration vocale des concepts médicaux',
-        vocal_style: 'Voix claire et expressive avec articulation parfaite des termes médicaux',
+        chanson_id: chanson_id,
+        note: '🎵 Génération réelle avec TopMediAI - Paroles chantées intégrées',
+        vocal_style: 'Voix IA avec articulation claire des termes médicaux',
         music_elements: `Style ${style} avec accompagnement musical professionnel et voix lead`,
-        technical_specs: `Format audio haute qualité avec mix vocal/instrumental équilibré - Durée: ${durationFormatted}`,
-        // Pour débugger et vérifier que les paroles sont bien reçues
-        debug_info: {
-          lyrics_preview: lyrics.substring(0, 200) + (lyrics.length > 200 ? '...' : ''),
-          style_applied: style,
-          duration_requested: duration,
-          generation_timestamp: new Date().toISOString()
+        technical_specs: `Audio haute qualité TopMediAI avec mix vocal/instrumental - Durée: ${durationFormatted}`,
+        generation_info: {
+          api_used: 'TopMediAI v3.5',
+          attempts: attempts,
+          total_generation_time: `${attempts * 5} secondes`,
+          model_version: 'v3.5'
         }
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
 
   } catch (error) {
-    console.error('❌ Erreur génération chanson avec paroles chantées:', error)
+    console.error('❌ Erreur génération chanson TopMediAI:', error)
     return new Response(
       JSON.stringify({ 
         error: error.message || 'Erreur inconnue lors de la génération',
         status: 'error',
-        details: '🎤 Problème avec la génération de chanson avec paroles chantées intégrées',
+        details: '🎤 Problème avec la génération TopMediAI de chanson avec paroles chantées',
         debug: {
           error_type: error.name,
           error_message: error.message,
-          timestamp: new Date().toISOString()
+          timestamp: new Date().toISOString(),
+          api_used: 'TopMediAI'
         }
       }),
       { 
