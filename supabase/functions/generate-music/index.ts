@@ -21,15 +21,15 @@ serve(async (req) => {
       throw new Error('Paramètres manquants: lyrics, style et rang sont requis')
     }
 
-    // Vérifier si la clé API Replicate est configurée
-    const replicateToken = Deno.env.get('REPLICATE_API_TOKEN')
-    if (!replicateToken) {
-      console.error('REPLICATE_API_TOKEN non configuré')
+    // Vérifier si la clé API TopMediAI est configurée
+    const topMediAIApiKey = Deno.env.get('TOPMEDIAI_API_KEY')
+    if (!topMediAIApiKey) {
+      console.error('TOPMEDIAI_API_KEY non configuré')
       return new Response(
         JSON.stringify({ 
-          error: 'Configuration manquante: REPLICATE_API_TOKEN requis dans les secrets Supabase. Veuillez configurer cette clé API dans les paramètres Supabase.',
+          error: 'Configuration manquante: TOPMEDIAI_API_KEY requis dans les secrets Supabase. Veuillez configurer cette clé API dans les paramètres Supabase.',
           status: 'error',
-          details: 'Allez dans Supabase Dashboard > Settings > Edge Functions > Environment Variables et ajoutez REPLICATE_API_TOKEN'
+          details: 'Allez dans Supabase Dashboard > Settings > Edge Functions > Environment Variables et ajoutez TOPMEDIAI_API_KEY'
         }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -38,14 +38,14 @@ serve(async (req) => {
       )
     }
 
-    // Configuration des prompts MusicGen selon le style pour 4 minutes de musique
+    // Configuration des prompts musicaux selon le style pour 4 minutes de musique
     const stylePrompts = {
-      'lofi-piano': 'lo-fi piano, soft jazz, relaxing, mellow, educational music, long composition, extended melody',
-      'afrobeat': 'afrobeat, energetic drums, bass guitar, rhythmic, educational music, full song structure, extended composition',
-      'jazz-moderne': 'modern jazz, smooth saxophone, piano, sophisticated, educational music, complete song, extended arrangement',
-      'hip-hop-conscient': 'conscious hip-hop, deep bass, clear beats, educational, storytelling, full track, extended verses',
-      'soul-rnb': 'soul r&b, smooth vocals, emotional, educational, inspirational, complete song, extended composition',
-      'electro-chill': 'electronic chill, ambient, synth pads, atmospheric, educational music, long form, extended ambient track'
+      'lofi-piano': 'lo-fi piano, soft jazz, relaxing, mellow, educational music, extended composition, 4 minutes',
+      'afrobeat': 'afrobeat, energetic drums, bass guitar, rhythmic, educational music, full song structure, 4 minutes',
+      'jazz-moderne': 'modern jazz, smooth saxophone, piano, sophisticated, educational music, complete song, 4 minutes',
+      'hip-hop-conscient': 'conscious hip-hop, deep bass, clear beats, educational, storytelling, full track, 4 minutes',
+      'soul-rnb': 'soul r&b, smooth vocals, emotional, educational, inspirational, complete song, 4 minutes',
+      'electro-chill': 'electronic chill, ambient, synth pads, atmospheric, educational music, extended ambient track, 4 minutes'
     }
 
     // Nettoyage et préparation des paroles
@@ -59,65 +59,61 @@ serve(async (req) => {
     console.log(`Génération musique - Rang ${rang}, Style: ${style}`)
     console.log('Paroles nettoyées:', cleanLyrics.substring(0, 200) + '...')
 
-    // Prompt optimisé pour MusicGen avec composition étendue
-    const musicPrompt = `${stylePrompts[style] || 'educational music'}, instrumental, ${rang === 'A' ? 'contemplative and deep' : 'practical and engaging'}, clear melody, full composition, extended track`
+    // Prompt optimisé pour TopMediAI avec composition étendue
+    const musicPrompt = `${stylePrompts[style] || 'educational music'}, instrumental, ${rang === 'A' ? 'contemplative and deep' : 'practical and engaging'}, clear melody, full composition, 240 seconds duration`
 
     console.log('Prompt musical:', musicPrompt)
 
-    // Appel à l'API MusicGen (Replicate) avec durée de 4 minutes
-    const musicGenResponse = await fetch('https://api.replicate.com/v1/predictions', {
+    // Appel à l'API TopMediAI pour génération musicale
+    const topMediAIResponse = await fetch('https://api.topmediai.com/v1/music/generate', {
       method: 'POST',
       headers: {
-        'Authorization': `Token ${replicateToken}`,
+        'Authorization': `Bearer ${topMediAIApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        version: "b05b1dff1d8c6dc63d14b0cdb42135378dcb87f6373b0d3d341ede46e59e2dbe",
-        input: {
-          model_version: "stereo-large",
-          prompt: musicPrompt,
-          duration: 240, // 4 minutes = 240 secondes
-          temperature: 0.8,
-          top_k: 250,
-          top_p: 0.0,
-          classifier_free_guidance: 7.0
-        }
+        prompt: musicPrompt,
+        lyrics: cleanLyrics,
+        duration: 240, // 4 minutes = 240 secondes
+        style: style,
+        format: 'mp3',
+        quality: 'high'
       })
     })
 
-    if (!musicGenResponse.ok) {
-      const errorText = await musicGenResponse.text()
-      console.error('Erreur Replicate API:', musicGenResponse.status, errorText)
+    if (!topMediAIResponse.ok) {
+      const errorText = await topMediAIResponse.text()
+      console.error('Erreur TopMediAI API:', topMediAIResponse.status, errorText)
       
-      let errorMessage = `API Replicate: ${musicGenResponse.status}`
+      let errorMessage = `API TopMediAI: ${topMediAIResponse.status}`
       
-      if (musicGenResponse.status === 401) {
-        errorMessage = 'Clé API Replicate invalide ou manquante. Vérifiez la configuration de REPLICATE_API_TOKEN dans Supabase.'
-      } else if (musicGenResponse.status === 429) {
-        errorMessage = 'Limite de requêtes API Replicate atteinte. Veuillez réessayer dans quelques minutes.'
-      } else if (musicGenResponse.status === 400) {
+      if (topMediAIResponse.status === 401) {
+        errorMessage = 'Clé API TopMediAI invalide ou manquante. Vérifiez la configuration de TOPMEDIAI_API_KEY dans Supabase.'
+      } else if (topMediAIResponse.status === 429) {
+        errorMessage = 'Limite de requêtes API TopMediAI atteinte. Veuillez réessayer dans quelques minutes.'
+      } else if (topMediAIResponse.status === 400) {
         errorMessage = 'Paramètres de génération invalides. Veuillez réessayer avec un autre style.'
       }
       
       throw new Error(errorMessage)
     }
 
-    const musicGenData = await musicGenResponse.json()
-    console.log('Réponse initiale Replicate:', musicGenData.id, musicGenData.status)
+    const topMediAIData = await topMediAIResponse.json()
+    console.log('Réponse initiale TopMediAI:', topMediAIData.task_id, topMediAIData.status)
     
     // Polling pour attendre la génération avec timeout étendu pour 4 minutes
     let attempts = 0
     const maxAttempts = 60 // 5 minutes maximum pour générer 4 minutes de musique
-    let finalResult = musicGenData
+    let finalResult = topMediAIData
 
-    while (finalResult.status !== 'succeeded' && finalResult.status !== 'failed' && attempts < maxAttempts) {
+    while (finalResult.status !== 'completed' && finalResult.status !== 'failed' && attempts < maxAttempts) {
       await new Promise(resolve => setTimeout(resolve, 5000)) // Attendre 5 secondes
       
       const statusResponse = await fetch(
-        `https://api.replicate.com/v1/predictions/${finalResult.id}`,
+        `https://api.topmediai.com/v1/music/task/${finalResult.task_id}`,
         {
           headers: {
-            'Authorization': `Token ${replicateToken}`,
+            'Authorization': `Bearer ${topMediAIApiKey}`,
           },
         }
       )
@@ -137,12 +133,12 @@ serve(async (req) => {
       throw new Error(`Génération échouée: ${finalResult.error || 'Erreur inconnue lors de la génération musicale'}`)
     }
 
-    if (finalResult.status !== 'succeeded') {
+    if (finalResult.status !== 'completed') {
       throw new Error('Timeout: la génération musicale a pris trop de temps. Veuillez réessayer.')
     }
 
     // Récupération de l'URL audio générée
-    const audioUrl = finalResult.output?.[0] || finalResult.output
+    const audioUrl = finalResult.result?.audio_url || finalResult.audio_url
 
     if (!audioUrl) {
       console.error('Pas de sortie audio:', finalResult)
@@ -171,7 +167,7 @@ serve(async (req) => {
       JSON.stringify({ 
         error: error.message || 'Erreur inconnue lors de la génération',
         status: 'error',
-        details: 'Vérifiez que REPLICATE_API_TOKEN est correctement configuré dans Supabase'
+        details: 'Vérifiez que TOPMEDIAI_API_KEY est correctement configuré dans Supabase'
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
