@@ -291,8 +291,8 @@ export const premiumMusicStyles: MusicStyle[] = [
   }
 ];
 
-// Styles existants mis à jour
-export const existingStyles = [
+// Styles existants mis à jour avec l'interface correcte
+export const existingStyles: MusicStyle[] = [
   {
     value: 'lofi-piano',
     label: 'Lo-Fi Piano',
