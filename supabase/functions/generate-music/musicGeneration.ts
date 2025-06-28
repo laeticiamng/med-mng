@@ -66,7 +66,7 @@ export class MusicGenerator {
 
   async waitForCompletion(taskId: string, maxAttempts: number = 120, fastMode: boolean = false): Promise<MusicStatus> {
     let attempts = 0;
-    let musicData: MusicStatus;
+    let musicData: any;
     let currentInterval = fastMode ? 1000 : 3000; // Mode rapide : 1s, normal : 3s
     const maxInterval = fastMode ? 2000 : 10000; // Mode rapide : 2s max, normal : 10s max
     const intervalIncrement = fastMode ? 200 : 1000; // Augmentation plus petite en mode rapide
@@ -82,90 +82,115 @@ export class MusicGenerator {
 
       try {
         musicData = await this.getMusicStatus(taskId);
-        console.log(`🔍 Tentative ${attempts}/${maxAttempts}: Status=${musicData.status}, Interval=${currentInterval}ms ${fastMode ? '⚡' : ''}`);
+        
+        // CORRECTION CRITIQUE : Extraire le statut de la bonne structure
+        let currentStatus;
+        if (musicData.data && musicData.data.status) {
+          currentStatus = musicData.data.status;
+        } else if (musicData.status) {
+          currentStatus = musicData.status;
+        } else {
+          console.error(`❌ Aucun statut trouvé dans la réponse:`, JSON.stringify(musicData, null, 2));
+          currentStatus = 'UNKNOWN';
+        }
+        
+        console.log(`🔍 Tentative ${attempts}/${maxAttempts}: Status=${currentStatus}, Interval=${currentInterval}ms ${fastMode ? '⚡' : ''}`);
         
         // Debug: afficher la structure complète des données reçues
         if (musicData.data) {
-          console.log(`📊 Nombre d'audios: ${musicData.data.audio?.length || 0}`);
-          if (musicData.data.audio?.length > 0) {
-            const firstAudio = musicData.data.audio[0];
-            console.log(`📊 Premier audio - ID: ${firstAudio.id}, URL: ${firstAudio.audio_url || 'non définie'}`);
-          }
-        }
-
-        // Vérifier différentes structures possibles de réponse
-        let audioUrl = null;
-        
-        // Structure 1: data.audio[0].audio_url
-        if (musicData.data?.audio?.[0]?.audio_url) {
-          audioUrl = musicData.data.audio[0].audio_url;
-          console.log(`✅ URL audio trouvée (structure 1): ${audioUrl}`);
-        }
-        // Structure 2: data.audio_url directement
-        else if (musicData.data?.audio_url) {
-          audioUrl = musicData.data.audio_url;
-          console.log(`✅ URL audio trouvée (structure 2): ${audioUrl}`);
-        }
-        // Structure 3: audio_url au niveau racine
-        else if (musicData.audio_url) {
-          audioUrl = musicData.audio_url;
-          console.log(`✅ URL audio trouvée (structure 3): ${audioUrl}`);
-        }
-
-        // Si on a trouvé une URL audio, on peut retourner
-        if (audioUrl && audioUrl.length > 10) { // URL valide
-          console.log(`🎉 URL audio récupérée avec succès au statut ${musicData.status} ${fastMode ? '⚡ RAPIDE' : ''}`);
-          // Assurer que la structure est correcte pour le retour
-          if (!musicData.data?.audio?.[0]?.audio_url) {
-            if (!musicData.data) musicData.data = { audio: [] };
-            if (!musicData.data.audio) musicData.data.audio = [];
-            if (!musicData.data.audio[0]) {
-              musicData.data.audio[0] = {
-                id: taskId,
-                audio_url: audioUrl,
-                image_url: '',
-                duration: 240,
-                title: 'Generated Music',
-                lyric: '',
-                created_at: new Date().toISOString(),
-                model_name: 'V3_5',
-                type: 'generated'
-              };
-            } else {
-              musicData.data.audio[0].audio_url = audioUrl;
+          if (musicData.data.response && musicData.data.response.sunoData) {
+            console.log(`📊 Nombre d'audios (sunoData): ${musicData.data.response.sunoData?.length || 0}`);
+            if (musicData.data.response.sunoData?.length > 0) {
+              const firstAudio = musicData.data.response.sunoData[0];
+              console.log(`📊 Premier audio - ID: ${firstAudio.id}, URL: ${firstAudio.audioUrl || firstAudio.streamAudioUrl || 'non définie'}`);
+            }
+          } else if (musicData.data.audio) {
+            console.log(`📊 Nombre d'audios: ${musicData.data.audio?.length || 0}`);
+            if (musicData.data.audio?.length > 0) {
+              const firstAudio = musicData.data.audio[0];
+              console.log(`📊 Premier audio - ID: ${firstAudio.id}, URL: ${firstAudio.audio_url || 'non définie'}`);
             }
           }
-          return musicData;
+        }
+
+        // Vérifier différentes structures possibles de réponse pour l'URL audio
+        let audioUrl = null;
+        
+        // Structure 1: data.response.sunoData[0].audioUrl ou streamAudioUrl
+        if (musicData.data?.response?.sunoData?.[0]) {
+          const firstSunoData = musicData.data.response.sunoData[0];
+          audioUrl = firstSunoData.audioUrl || firstSunoData.streamAudioUrl;
+          if (audioUrl) {
+            console.log(`✅ URL audio trouvée (structure sunoData): ${audioUrl}`);
+          }
+        }
+        // Structure 2: data.audio[0].audio_url
+        else if (musicData.data?.audio?.[0]?.audio_url) {
+          audioUrl = musicData.data.audio[0].audio_url;
+          console.log(`✅ URL audio trouvée (structure audio): ${audioUrl}`);
+        }
+        // Structure 3: data.audio_url directement
+        else if (musicData.data?.audio_url) {
+          audioUrl = musicData.data.audio_url;
+          console.log(`✅ URL audio trouvée (structure directe): ${audioUrl}`);
+        }
+        // Structure 4: audio_url au niveau racine
+        else if (musicData.audio_url) {
+          audioUrl = musicData.audio_url;
+          console.log(`✅ URL audio trouvée (structure racine): ${audioUrl}`);
+        }
+
+        // Si on a trouvé une URL audio valide, on peut retourner
+        if (audioUrl && audioUrl.length > 10) { // URL valide
+          console.log(`🎉 URL audio récupérée avec succès au statut ${currentStatus} ${fastMode ? '⚡ RAPIDE' : ''}`);
+          // Construire la structure de retour avec le bon format
+          const finalResult: MusicStatus = {
+            status: currentStatus as any,
+            data: {
+              audio: [{
+                id: musicData.data?.response?.sunoData?.[0]?.id || taskId,
+                audio_url: audioUrl,
+                image_url: musicData.data?.response?.sunoData?.[0]?.imageUrl || '',
+                duration: musicData.data?.response?.sunoData?.[0]?.duration || 240,
+                title: musicData.data?.response?.sunoData?.[0]?.title || 'Generated Music',
+                lyric: musicData.data?.response?.sunoData?.[0]?.prompt || '',
+                created_at: new Date().toISOString(),
+                model_name: musicData.data?.response?.sunoData?.[0]?.modelName || 'V3_5',
+                type: 'generated'
+              }]
+            }
+          };
+          return finalResult;
         }
 
         // Statuts d'erreur définitifs
-        if (['CREATE_TASK_FAILED', 'GENERATE_AUDIO_FAILED', 'CALLBACK_EXCEPTION', 'SENSITIVE_WORD_ERROR'].includes(musicData.status)) {
-          console.error(`❌ Statut d'erreur définitif: ${musicData.status}`);
-          throw new Error(`La génération musicale a échoué: ${musicData.status}`);
+        if (['CREATE_TASK_FAILED', 'GENERATE_AUDIO_FAILED', 'CALLBACK_EXCEPTION', 'SENSITIVE_WORD_ERROR'].includes(currentStatus)) {
+          console.error(`❌ Statut d'erreur définitif: ${currentStatus}`);
+          throw new Error(`La génération musicale a échoué: ${currentStatus}`);
         }
 
         // Ajuster l'intervalle de polling selon le statut (mode rapide)
         if (fastMode) {
-          if (musicData.status === 'PENDING') {
+          if (currentStatus === 'PENDING') {
             currentInterval = Math.min(currentInterval, 1000); // 1s max pour PENDING
-          } else if (musicData.status === 'TEXT_SUCCESS') {
+          } else if (currentStatus === 'TEXT_SUCCESS') {
             currentInterval = Math.min(currentInterval + intervalIncrement, 1500); // 1.5s max pour TEXT_SUCCESS
-          } else if (musicData.status === 'FIRST_SUCCESS') {
+          } else if (currentStatus === 'FIRST_SUCCESS') {
             currentInterval = Math.min(currentInterval, 1000); // Retour à 1s pour FIRST_SUCCESS
           }
         } else {
           // Mode normal (logique existante)
-          if (musicData.status === 'PENDING') {
+          if (currentStatus === 'PENDING') {
             currentInterval = Math.min(currentInterval, 5000);
-          } else if (musicData.status === 'TEXT_SUCCESS') {
+          } else if (currentStatus === 'TEXT_SUCCESS') {
             currentInterval = Math.min(currentInterval + intervalIncrement, 8000);
-          } else if (musicData.status === 'FIRST_SUCCESS') {
+          } else if (currentStatus === 'FIRST_SUCCESS') {
             currentInterval = Math.min(currentInterval, 4000);
           }
         }
 
         // Pour SUCCESS, on doit avoir une URL audio
-        if (musicData.status === 'SUCCESS' && !audioUrl) {
+        if (currentStatus === 'SUCCESS' && !audioUrl) {
           console.error(`❌ Statut SUCCESS mais aucune URL audio trouvée`);
           console.error(`📊 Réponse complète:`, JSON.stringify(musicData, null, 2));
           // On continue le polling quelques fois de plus au cas où
@@ -175,7 +200,7 @@ export class MusicGenerator {
         }
 
         // Continuer le polling pour les autres statuts
-        console.log(`⏳ Statut ${musicData.status}, continue le polling dans ${currentInterval}ms... ${fastMode ? '⚡' : ''}`);
+        console.log(`⏳ Statut ${currentStatus}, continue le polling dans ${currentInterval}ms... ${fastMode ? '⚡' : ''}`);
 
       } catch (error) {
         console.error(`❌ Erreur lors de la vérification du statut (tentative ${attempts}):`, error);
@@ -192,7 +217,7 @@ export class MusicGenerator {
     // Vérification finale
     const totalTimeMinutes = Math.floor((maxAttempts * (fastMode ? 1 : 5)) / 60); // Estimation basée sur intervalle moyen
     console.error(`⏰ Timeout après ${maxAttempts} tentatives (~${totalTimeMinutes} minutes) ${fastMode ? '⚡ MODE RAPIDE' : ''}`);
-    console.error(`📊 Dernier statut:`, musicData?.status);
+    console.error(`📊 Dernier statut:`, musicData?.data?.status || musicData?.status);
     console.error(`📊 Dernière réponse:`, JSON.stringify(musicData || {}, null, 2));
     throw new Error(`Timeout: La génération musicale prend trop de temps (~${totalTimeMinutes} minutes) ${fastMode ? 'en mode rapide' : ''}`);
   }
