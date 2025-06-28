@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { MusicHeader } from './music/MusicHeader';
@@ -121,7 +120,6 @@ export const ParolesMusicales = ({ paroles, itemCode, itemTitle }: ParolesMusica
         <MusicStyleSelector 
           selectedStyle={selectedStyle}
           onStyleChange={setSelectedStyle}
-          musicStyles={musicStyles}
         />
         
         <MusicDurationSelector
@@ -167,7 +165,7 @@ export const ParolesMusicales = ({ paroles, itemCode, itemTitle }: ParolesMusica
         />
       )}
 
-      <MusicStyleIndicator selectedStyle={selectedStyle} musicStyles={musicStyles} />
+      <MusicStyleIndicator selectedStyle={selectedStyle} />
     </div>
   );
 };
