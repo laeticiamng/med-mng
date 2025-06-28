@@ -1,6 +1,7 @@
+
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Brain, Stethoscope, Volume2, VolumeX, Sparkles } from 'lucide-react';
+import { Brain, Stethoscope, Volume2, VolumeX, Sparkles, User, Library, Music, CreditCard, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 const Index = () => {
@@ -57,6 +58,58 @@ const Index = () => {
         </svg>
       </div>
 
+      {/* Navigation Header */}
+      <div className="relative z-20 p-6">
+        <div className="flex justify-between items-center">
+          {/* Logo */}
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-8 w-8 text-purple-400" />
+            <span className="text-2xl font-bold text-white">MED MNG</span>
+          </div>
+
+          {/* Navigation Links */}
+          <div className="flex items-center gap-4">
+            <Link to="/med-mng/library">
+              <Button variant="ghost" className="text-white/80 hover:text-white hover:bg-white/10 flex items-center gap-2">
+                <Library className="h-5 w-5" />
+                Bibliothèque
+              </Button>
+            </Link>
+            
+            <Link to="/med-mng/create">
+              <Button variant="ghost" className="text-white/80 hover:text-white hover:bg-white/10 flex items-center gap-2">
+                <Music className="h-5 w-5" />
+                Créer Musique
+              </Button>
+            </Link>
+            
+            <Link to="/med-mng/pricing">
+              <Button variant="ghost" className="text-white/80 hover:text-white hover:bg-white/10 flex items-center gap-2">
+                <CreditCard className="h-5 w-5" />
+                Abonnements
+              </Button>
+            </Link>
+            
+            <Link to="/med-mng/login">
+              <Button variant="outline" className="border-white/20 text-white hover:bg-white/10 flex items-center gap-2">
+                <User className="h-5 w-5" />
+                Connexion
+              </Button>
+            </Link>
+
+            {/* Music toggle */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsPlaying(!isPlaying)}
+              className="text-white/70 hover:text-white hover:bg-white/10"
+            >
+              {isPlaying ? <Volume2 className="h-5 w-5" /> : <VolumeX className="h-5 w-5" />}
+            </Button>
+          </div>
+        </div>
+      </div>
+
       {/* Mouse follower effect */}
       <div
         className="absolute w-96 h-96 rounded-full bg-gradient-to-r from-purple-500/10 to-blue-500/10 blur-3xl pointer-events-none transition-all duration-1000"
@@ -66,21 +119,9 @@ const Index = () => {
         }}
       />
 
-      {/* Music toggle */}
-      <div className="absolute top-6 right-6 z-20">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setIsPlaying(!isPlaying)}
-          className="text-white/70 hover:text-white hover:bg-white/10 transition-all duration-300"
-        >
-          {isPlaying ? <Volume2 className="h-5 w-5" /> : <VolumeX className="h-5 w-5" />}
-        </Button>
-      </div>
-
       {/* Main content */}
-      <div className="relative z-10 min-h-screen flex items-center justify-center px-4">
-        <div className="text-center max-w-4xl mx-auto">
+      <div className="relative z-10 min-h-screen flex items-center justify-center px-4 -mt-20">
+        <div className="text-center max-w-6xl mx-auto">
           {/* Logo/Title */}
           <div className="mb-8 animate-fade-in">
             <div className="inline-flex items-center gap-3 mb-4">
@@ -104,14 +145,14 @@ const Index = () => {
               </span>{' '}
               ?
             </p>
-            <p className="text-base md:text-lg text-white/70 max-w-2xl mx-auto">
+            <p className="text-base md:text-lg text-white/70 max-w-3xl mx-auto">
               Plongez dans un univers immersif où apprentissage rime avec émotion, 
               musique et interactivité. Découvrez une nouvelle façon d'apprendre la médecine.
             </p>
           </div>
 
           {/* Mode selection */}
-          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center animate-fade-in" style={{ animationDelay: '0.6s' }}>
+          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-12 animate-fade-in" style={{ animationDelay: '0.6s' }}>
             <Link to="/edn">
               <Button 
                 size="lg" 
@@ -145,8 +186,51 @@ const Index = () => {
             </Link>
           </div>
 
+          {/* Quick Access Grid */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-4xl mx-auto animate-fade-in" style={{ animationDelay: '0.9s' }}>
+            <Link to="/med-mng/library">
+              <Button 
+                variant="outline" 
+                className="h-20 flex flex-col items-center gap-2 border-white/20 text-white hover:bg-white/10 transition-all duration-300 hover:scale-105"
+              >
+                <Library className="h-6 w-6" />
+                <span className="text-sm">Bibliothèque</span>
+              </Button>
+            </Link>
+            
+            <Link to="/med-mng/create">
+              <Button 
+                variant="outline" 
+                className="h-20 flex flex-col items-center gap-2 border-white/20 text-white hover:bg-white/10 transition-all duration-300 hover:scale-105"
+              >
+                <Music className="h-6 w-6" />
+                <span className="text-sm">Créer</span>
+              </Button>
+            </Link>
+            
+            <Link to="/med-mng/pricing">
+              <Button 
+                variant="outline" 
+                className="h-20 flex flex-col items-center gap-2 border-white/20 text-white hover:bg-white/10 transition-all duration-300 hover:scale-105"
+              >
+                <CreditCard className="h-6 w-6" />
+                <span className="text-sm">Tarifs</span>
+              </Button>
+            </Link>
+            
+            <Link to="/med-mng/login">
+              <Button 
+                variant="outline" 
+                className="h-20 flex flex-col items-center gap-2 border-white/20 text-white hover:bg-white/10 transition-all duration-300 hover:scale-105"
+              >
+                <User className="h-6 w-6" />
+                <span className="text-sm">Profil</span>
+              </Button>
+            </Link>
+          </div>
+
           {/* Subtitle */}
-          <div className="mt-12 animate-fade-in" style={{ animationDelay: '0.9s' }}>
+          <div className="mt-12 animate-fade-in" style={{ animationDelay: '1.2s' }}>
             <p className="text-white/50 text-sm">
               Une expérience créée pour transformer votre apprentissage médical
             </p>
