@@ -1,16 +1,10 @@
 
-import { Card } from '@/components/ui/card';
-import { AudioPlayer } from '../AudioPlayer';
 import { MusicLoadingIndicator } from './MusicLoadingIndicator';
-import { MusicCardHeader } from './MusicCardHeader';
-import { MissingParolesWarning } from './MissingParolesWarning';
-import { ParolesDisplay } from './ParolesDisplay';
-import { GenerateButton } from './GenerateButton';
+import { MusicCardContent } from './MusicCardContent';
+import { MusicCardActions } from './MusicCardActions';
+import { MusicCardPlayer } from './MusicCardPlayer';
 import { MinimizedPlayerButton } from './MinimizedPlayerButton';
-import { SaveMusicButton } from './SaveMusicButton';
 import { useMusicCardState } from './hooks/useMusicCardState';
-import { formatParoles, hasValidParoles } from './utils/parolesFormatter';
-import { getCardStyling } from './utils/cardStyling';
 
 interface MusicCardProps {
   rang: 'A' | 'B';
@@ -58,10 +52,6 @@ export const MusicCard = ({
   itemCode
 }: MusicCardProps) => {
   const { isClicked, handleGenerateClick } = useMusicCardState(isGenerating);
-  const styling = getCardStyling(rang);
-  const parolesArray = formatParoles(paroles);
-  const hasValidParolesData = hasValidParoles(parolesArray);
-  const isButtonDisabled = isGenerating || isClicked || !selectedStyle || !hasValidParolesData;
 
   const onGenerateClick = () => {
     handleGenerateClick(rang, onGenerateMusic);
@@ -75,71 +65,48 @@ export const MusicCard = ({
         isVisible={isGenerating}
       />
 
-      <Card className={`p-8 bg-gradient-to-br ${styling.gradientFrom} ${styling.gradientTo} ${styling.borderColor} shadow-xl ${isGenerating ? 'opacity-75' : ''}`}>
-        <MusicCardHeader 
-          title={title}
-          iconColor={styling.iconColor}
-          textColor={styling.textColor}
-        />
-        
-        <MissingParolesWarning isVisible={!hasValidParolesData} />
-        
-        <ParolesDisplay 
-          parolesArray={parolesArray}
+      <MusicCardContent
+        rang={rang}
+        title={title}
+        paroles={paroles}
+        isGenerating={isGenerating}
+      >
+        <MusicCardActions
           rang={rang}
-          textColor={styling.textColor}
+          paroles={paroles}
+          selectedStyle={selectedStyle}
+          musicDuration={musicDuration}
+          isGenerating={isGenerating}
+          isClicked={isClicked}
+          onGenerate={onGenerateClick}
+        />
+        
+        <MusicCardPlayer
+          generatedAudio={generatedAudio || ''}
+          title={title}
+          rang={rang}
+          selectedStyle={selectedStyle}
+          itemCode={itemCode}
+          isPlaying={isPlaying}
+          isCurrentTrack={isCurrentTrack}
+          isMinimized={isMinimized}
+          currentTime={currentTime}
+          duration={duration}
+          volume={volume}
+          musicDuration={musicDuration}
+          onPlayPause={onPlayPause}
+          onSeek={onSeek}
+          onVolumeChange={onVolumeChange}
+          onStop={onStop}
+          onMinimize={onMinimize}
         />
 
-        <div className="space-y-4">
-          <GenerateButton
-            rang={rang}
-            isGenerating={isGenerating}
-            isDisabled={isButtonDisabled}
-            musicDuration={musicDuration}
-            buttonColor={styling.buttonColor}
-            onGenerate={onGenerateClick}
-          />
-          
-          {!hasValidParolesData && (
-            <p className="text-center text-sm text-gray-600">
-              La génération nécessite des paroles valides depuis la base de données Supabase.
-            </p>
-          )}
-          
-          {generatedAudio && !isMinimized && (
-            <div className="space-y-3">
-              <AudioPlayer
-                audioUrl={generatedAudio}
-                title={title}
-                isPlaying={isPlaying}
-                currentTime={isCurrentTrack ? currentTime : 0}
-                duration={isCurrentTrack ? duration : musicDuration}
-                volume={volume}
-                onPlayPause={onPlayPause}
-                onSeek={onSeek}
-                onVolumeChange={onVolumeChange}
-                onStop={onStop}
-                onClose={onMinimize}
-              />
-              
-              <SaveMusicButton
-                audioUrl={generatedAudio}
-                title={title}
-                rang={rang}
-                style={selectedStyle}
-                itemCode={itemCode}
-                isVisible={true}
-              />
-            </div>
-          )}
-
-          <MinimizedPlayerButton
-            rang={rang}
-            isVisible={!!(generatedAudio && isMinimized && isCurrentTrack)}
-            onMinimize={onMinimize}
-          />
-        </div>
-      </Card>
+        <MinimizedPlayerButton
+          rang={rang}
+          isVisible={!!(generatedAudio && isMinimized && isCurrentTrack)}
+          onMinimize={onMinimize}
+        />
+      </MusicCardContent>
     </div>
   );
 };
