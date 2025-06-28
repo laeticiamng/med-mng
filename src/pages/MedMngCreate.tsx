@@ -58,12 +58,12 @@ const MedMngCreateComponent = () => {
     return '';
   };
 
-  const canGenerate = () => {
+  const canGenerate = (): boolean => {
     if (contentType === 'item') {
-      return selectedItem && selectedRang && style;
+      return !!(selectedItem && selectedRang && style);
     }
     if (contentType === 'situation') {
-      return selectedSituation && style;
+      return !!(selectedSituation && style);
     }
     return false;
   };
