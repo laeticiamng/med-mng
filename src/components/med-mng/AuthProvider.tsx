@@ -36,15 +36,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setUser(session?.user ?? null);
         setLoading(false);
 
-        // Envoyer l'email de bienvenue pour les nouveaux utilisateurs
-        if (event === 'SIGNED_UP' && session?.user) {
-          const name = session.user.user_metadata?.name || session.user.email?.split('@')[0] || '';
-          console.log('👤 Nouvel utilisateur inscrit, envoi email de bienvenue...');
+        // Send welcome email for new users - check if user was just created
+        if (event === 'SIGNED_IN' && session?.user) {
+          // Check if this is a new user by looking at created_at timestamp
+          const userCreatedAt = new Date(session.user.created_at);
+          const now = new Date();
+          const timeDiff = now.getTime() - userCreatedAt.getTime();
+          const isNewUser = timeDiff < 60000; // User created within last minute
           
-          // Délai pour laisser le temps au trigger de créer le profil
-          setTimeout(async () => {
-            await sendWelcomeEmail(session.user.email!, name);
-          }, 2000);
+          if (isNewUser) {
+            const name = session.user.user_metadata?.name || session.user.email?.split('@')[0] || '';
+            console.log('👤 Nouvel utilisateur inscrit, envoi email de bienvenue...');
+            
+            // Delay to allow profile creation trigger to complete
+            setTimeout(async () => {
+              await sendWelcomeEmail(session.user.email!, name);
+            }, 2000);
+          }
         }
       }
     );
