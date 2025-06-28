@@ -2,7 +2,7 @@
 import { useState, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { useLanguage, SupportedLanguage } from '@/contexts/LanguageContext';
 
 interface GeneratingState {
   rangA: boolean;
@@ -178,7 +178,7 @@ export const useMusicGenerationWithTranslation = () => {
   // Fonction pour transposer une musique existante dans une autre langue
   const transposeMusicToLanguage = async (
     originalLyrics: string,
-    targetLanguage: string,
+    targetLanguage: SupportedLanguage,
     selectedStyle: string,
     duration: number = 240
   ) => {

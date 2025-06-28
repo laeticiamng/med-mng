@@ -1,117 +1,258 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 import { Badge } from '@/components/ui/badge';
 import { Card } from '@/components/ui/card';
-import { Input } from "@/components/ui/input"
-import { ScrollArea } from "@/components/ui/scroll-area"
+import { Button } from '@/components/ui/button';
+import { ArrowLeft, Music, Palette, BookOpen, Play } from 'lucide-react';
+import { BandeDessinee } from '@/components/edn/BandeDessinee';
+import { TableauRangA } from '@/components/edn/TableauRangA';
+import { TableauRangB } from '@/components/edn/TableauRangB';
+import { SceneImmersive } from '@/components/edn/SceneImmersive';
+import { ParolesMusicales } from '@/components/edn/ParolesMusicales';
+import { QuizFinal } from '@/components/edn/QuizFinal';
+import { TranslatedText } from '@/components/TranslatedText';
 
-interface EdnItem {
+interface EdnItemData {
   id: string;
+  item_code: string;
   title: string;
-  category: string;
-  difficulty: string;
-  content: string;
+  subtitle?: string;
+  slug: string;
+  content: any;
+  paroles_musicales?: string[];
+  tableau_rang_a?: any;
+  tableau_rang_b?: any;
+  scene_immersive?: any;
+  quiz_questions?: any;
+  created_at: string;
+  updated_at: string;
 }
 
 const EdnItem = () => {
   const { slug } = useParams();
-  const [item, setItem] = useState<EdnItem | null>(null);
-  const [search, setSearch] = useState<string>('');
+  const [item, setItem] = useState<EdnItemData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [activeSection, setActiveSection] = useState<'tableau-a' | 'tableau-b' | 'scene' | 'bd' | 'music' | 'quiz'>('tableau-a');
 
   useEffect(() => {
     const fetchItem = async () => {
+      if (!slug) return;
+      
       try {
-        const response = await fetch('/edn_data.json');
-        const data: EdnItem[] = await response.json();
-        const foundItem = data.find(item => item.id === slug);
-        if (foundItem) {
-          setItem(foundItem);
-        } else {
-          console.log('Item not found');
+        const { data, error } = await supabase
+          .from('edn_items_immersive')
+          .select('*')
+          .eq('slug', slug)
+          .single();
+
+        if (error) {
+          console.error('Erreur lors du chargement de l\'item:', error);
+          return;
+        }
+
+        if (data) {
+          setItem(data);
         }
       } catch (error) {
-        console.error('Error fetching data:', error);
+        console.error('Erreur:', error);
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchItem();
   }, [slug]);
 
-  if (!item) {
-    return <div>Loading...</div>;
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-blue-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-pulse text-2xl text-amber-800 mb-2">
+            <TranslatedText text="Chargement du contenu pédagogique..." />
+          </div>
+          <p className="text-amber-600">
+            <TranslatedText text="Préparation de l'expérience d'apprentissage" />
+          </p>
+        </div>
+      </div>
+    );
   }
 
-  const items = JSON.parse(item.content) as { title: string; content: string; difficulty?: string; category?: string }[];
+  if (!item) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-blue-50 flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold text-amber-800 mb-4">
+            <TranslatedText text="Item non trouvé" />
+          </h1>
+          <Link to="/edn" className="text-blue-600 hover:text-blue-800">
+            <TranslatedText text="Retour à la liste des items EDN" />
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
-  const filteredItems = items.filter(item =>
-    item.title.toLowerCase().includes(search.toLowerCase()) ||
-    item.content.toLowerCase().includes(search.toLowerCase())
-  );
+  const renderActiveSection = () => {
+    switch (activeSection) {
+      case 'tableau-a':
+        return item.tableau_rang_a ? (
+          <TableauRangA data={item.tableau_rang_a} />
+        ) : (
+          <div className="text-center py-8">
+            <TranslatedText text="Tableau Rang A en cours de développement" />
+          </div>
+        );
+      
+      case 'tableau-b':
+        return item.tableau_rang_b ? (
+          <TableauRangB data={item.tableau_rang_b} />
+        ) : (
+          <div className="text-center py-8">
+            <TranslatedText text="Tableau Rang B en cours de développement" />
+          </div>
+        );
+      
+      case 'scene':
+        return item.scene_immersive ? (
+          <SceneImmersive data={item.scene_immersive} />
+        ) : (
+          <div className="text-center py-8">
+            <TranslatedText text="Scène immersive en cours de développement" />
+          </div>
+        );
+      
+      case 'bd':
+        return <BandeDessinee itemData={item} />;
+      
+      case 'music':
+        return (
+          <ParolesMusicales 
+            paroles={item.paroles_musicales || []} 
+            itemCode={item.item_code}
+            itemTitle={item.title}
+          />
+        );
+      
+      case 'quiz':
+        return item.quiz_questions ? (
+          <QuizFinal questions={item.quiz_questions} />
+        ) : (
+          <div className="text-center py-8">
+            <TranslatedText text="Quiz en cours de développement" />
+          </div>
+        );
+      
+      default:
+        return null;
+    }
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-emerald-900 to-teal-900 relative overflow-hidden">
-      {/* Background effects */}
-      <div className="absolute inset-0">
-        {[...Array(15)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-1 h-1 bg-emerald-400/20 rounded-full animate-pulse"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 3}s`,
-            }}
-          />
-        ))}
-      </div>
-
-      <div className="relative z-10">
-        <div className="container mx-auto px-4 py-8">
-          <Link to="/edn" className="inline-block mb-8 text-white hover:text-emerald-300 transition-colors">
-            ← Retour à la liste des EDN
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-blue-50">
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="mb-8">
+          <Link 
+            to="/edn" 
+            className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 mb-4 transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            <TranslatedText text="Retour aux items EDN" />
           </Link>
-
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-white mb-4">{item.title}</h1>
-            <Badge variant="secondary" className="bg-emerald-900/50 text-emerald-200">
-              {item.category}
-            </Badge>
-          </div>
-
-          <Input
-            type="search"
-            placeholder="Rechercher un terme..."
-            className="w-full max-w-md mx-auto mb-6 bg-white/10 border-white/20 text-white placeholder:text-white/40"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-
-          <ScrollArea className="rounded-md border bg-secondary text-secondary-foreground">
-            <div className="p-4">
-              {filteredItems.map((item, index) => (
-                <Card key={index} className="bg-white/5 backdrop-blur-sm border-white/10 hover:bg-white/10 transition-colors">
-                  <div className="p-6">
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="flex items-center gap-3">
-                        <div className={`w-3 h-3 rounded-full ${
-                          String(item.difficulty).toLowerCase() === 'facile' ? 'bg-green-500' : 
-                          String(item.difficulty).toLowerCase() === 'moyen' ? 'bg-yellow-500' : 'bg-red-500'
-                        }`} />
-                        <Badge variant="outline" className="text-emerald-300 border-emerald-300">
-                          {item.difficulty}
-                        </Badge>
-                      </div>
-                      <Badge variant="secondary" className="bg-emerald-900/50 text-emerald-200">
-                        {item.category}
-                      </Badge>
-                    </div>
-                    <h2 className="text-2xl font-bold text-white mb-2">{item.title}</h2>
-                    <p className="text-white/80">{item.content}</p>
-                  </div>
-                </Card>
-              ))}
+          
+          <div className="bg-white/80 backdrop-blur-sm rounded-lg p-6 border border-amber-200">
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <Badge variant="outline" className="mb-2 text-amber-700 border-amber-300">
+                  {item.item_code}
+                </Badge>
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                  <TranslatedText text={item.title} />
+                </h1>
+                {item.subtitle && (
+                  <p className="text-lg text-gray-600">
+                    <TranslatedText text={item.subtitle} />
+                  </p>
+                )}
+              </div>
+              <Link
+                to={`/edn/immersive/${item.slug}`}
+                className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-2 rounded-lg hover:from-amber-600 hover:to-orange-600 transition-all"
+              >
+                <Play className="h-4 w-4" />
+                <TranslatedText text="Mode Immersif" />
+              </Link>
             </div>
-          </ScrollArea>
+          </div>
+        </div>
+
+        {/* Navigation */}
+        <div className="mb-8">
+          <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4 border border-amber-200">
+            <div className="flex flex-wrap gap-2">
+              <Button
+                variant={activeSection === 'tableau-a' ? 'default' : 'outline'}
+                onClick={() => setActiveSection('tableau-a')}
+                className="flex items-center gap-2"
+              >
+                <BookOpen className="h-4 w-4" />
+                <TranslatedText text="Tableau Rang A" />
+              </Button>
+              
+              <Button
+                variant={activeSection === 'tableau-b' ? 'default' : 'outline'}
+                onClick={() => setActiveSection('tableau-b')}
+                className="flex items-center gap-2"
+              >
+                <BookOpen className="h-4 w-4" />
+                <TranslatedText text="Tableau Rang B" />
+              </Button>
+              
+              <Button
+                variant={activeSection === 'scene' ? 'default' : 'outline'}
+                onClick={() => setActiveSection('scene')}
+                className="flex items-center gap-2"
+              >
+                <Palette className="h-4 w-4" />
+                <TranslatedText text="Scène Immersive" />
+              </Button>
+              
+              <Button
+                variant={activeSection === 'bd' ? 'default' : 'outline'}
+                onClick={() => setActiveSection('bd')}
+                className="flex items-center gap-2"
+              >
+                <BookOpen className="h-4 w-4" />
+                <TranslatedText text="Bande Dessinée" />
+              </Button>
+              
+              <Button
+                variant={activeSection === 'music' ? 'default' : 'outline'}
+                onClick={() => setActiveSection('music')}
+                className="flex items-center gap-2"
+              >
+                <Music className="h-4 w-4" />
+                <TranslatedText text="Génération Musicale" />
+              </Button>
+              
+              <Button
+                variant={activeSection === 'quiz' ? 'default' : 'outline'}
+                onClick={() => setActiveSection('quiz')}
+                className="flex items-center gap-2"
+              >
+                <BookOpen className="h-4 w-4" />
+                <TranslatedText text="Quiz Final" />
+              </Button>
+            </div>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="mb-8">
+          {renderActiveSection()}
         </div>
       </div>
     </div>
