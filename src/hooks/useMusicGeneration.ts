@@ -87,9 +87,9 @@ export const useMusicGeneration = () => {
 
       console.log('📤 Données envoyées à l\'Edge Function:', requestBody);
       
-      // Configuration optimisée pour une génération rapide
+      // Configuration optimisée pour une génération rapide - CORRECTION: sérialiser le body
       const { data, error } = await supabase.functions.invoke('generate-music', {
-        body: requestBody,
+        body: JSON.stringify(requestBody),
         headers: {
           'Content-Type': 'application/json'
         }
