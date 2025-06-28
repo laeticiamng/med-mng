@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { MusicGenerator } from './musicGeneration.ts';
 
@@ -51,6 +52,40 @@ serve(async (req) => {
       throw new Error('Clé API Suno non configurée dans les secrets Supabase');
     }
 
+    // Vérifier d'abord la disponibilité de l'API Suno
+    console.log('🔍 Vérification de la disponibilité de l\'API Suno...');
+    
+    try {
+      const healthCheck = await fetch('https://apibox.erweima.ai/api/v1/health', {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${SUNO_API_KEY}`,
+          'Accept': 'application/json'
+        },
+        timeout: 5000 // 5 secondes de timeout
+      });
+
+      console.log(`🏥 Health check Suno: ${healthCheck.status} ${healthCheck.statusText}`);
+      
+      if (healthCheck.status === 503) {
+        throw new Error('🚫 Service Suno AI temporairement indisponible (503). Réessayez dans quelques minutes.');
+      }
+      
+      if (!healthCheck.ok && healthCheck.status !== 404) { // 404 acceptable si pas d'endpoint health
+        const errorText = await healthCheck.text();
+        console.log('⚠️ Health check response:', errorText);
+        if (errorText.includes('503 Service Temporarily Unavailable')) {
+          throw new Error('🚫 Service Suno AI temporairement indisponible. Réessayez dans quelques minutes.');
+        }
+      }
+    } catch (healthError) {
+      console.log('⚠️ Health check échoué:', healthError.message);
+      if (healthError.message.includes('503') || healthError.message.includes('Service Temporarily Unavailable')) {
+        throw new Error('🚫 Service Suno AI temporairement indisponible. Réessayez dans quelques minutes.');
+      }
+      // Continue même si le health check échoue (l'endpoint pourrait ne pas exister)
+    }
+
     // Mapping des styles vers des descriptions musicales pour Suno
     const styleDescriptions = {
       'lofi-piano': 'relaxing lo-fi piano with soft beats, chill, ambient, mellow',
@@ -93,6 +128,12 @@ serve(async (req) => {
       });
     } catch (generateError) {
       console.error('❌ Erreur lors de la génération:', generateError);
+      
+      // Vérifier si c'est une erreur 503 spécifique
+      if (generateError.message.includes('503') || generateError.message.includes('Service Temporarily Unavailable')) {
+        throw new Error('🚫 Service Suno AI temporairement indisponible (503). Réessayez dans quelques minutes. Cela peut être dû à une maintenance ou une surcharge du serveur.');
+      }
+      
       throw new Error(`Erreur génération Suno: ${generateError.message}`);
     }
 
@@ -193,7 +234,11 @@ serve(async (req) => {
     let userMessage = 'Erreur inconnue lors de la génération';
     let httpStatus = 500;
     
-    if (error.message?.includes('JSON invalide') || error.message?.includes('Réponse JSON invalide')) {
+    if (error.message?.includes('Service Temporarily Unavailable') || error.message?.includes('503')) {
+      userMessage = '🚫 Service Suno AI temporairement indisponible. Cela peut être dû à une maintenance serveur ou à une surcharge. Réessayez dans 5-10 minutes.';
+      httpStatus = 503;
+      console.error('🔧 Erreur 503 - Service Suno indisponible temporairement');
+    } else if (error.message?.includes('JSON invalide') || error.message?.includes('Réponse JSON invalide')) {
       userMessage = 'L\'API Suno a retourné une réponse malformée. Réessayez dans quelques instants.';
       httpStatus = 502;
       console.error('🔧 Problème de format de réponse API Suno');
@@ -244,7 +289,7 @@ serve(async (req) => {
           api_used: 'Suno AI',
           base_url: 'https://apibox.erweima.ai',
           timeout_info: 'Timeout configuré: Mode rapide 2min, Mode normal 10min',
-          suggestion: httpStatus === 429 ? 'Rechargez vos crédits Suno AI sur https://apibox.erweima.ai' : httpStatus === 408 ? 'Réessayez en mode normal pour plus de temps' : 'Vérifiez la configuration de l\'API et réessayez'
+          suggestion: httpStatus === 503 ? 'Attendez 5-10 minutes puis réessayez - Service temporairement indisponible' : httpStatus === 429 ? 'Rechargez vos crédits Suno AI sur https://apibox.erweima.ai' : httpStatus === 408 ? 'Réessayez en mode normal pour plus de temps' : 'Vérifiez la configuration de l\'API et réessayez'
         }
       }),
       { 
