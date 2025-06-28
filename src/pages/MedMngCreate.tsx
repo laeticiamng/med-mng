@@ -9,6 +9,7 @@ import { MedMngNavigation } from '@/components/med-mng/MedMngNavigation';
 import { CreateSongHeader } from '@/components/med-mng/create/CreateSongHeader';
 import { CreateSongContainer } from '@/components/med-mng/create/CreateSongContainer';
 import { InformationCard } from '@/components/med-mng/create/InformationCard';
+import { useTranslateArray } from '@/hooks/useTranslation';
 
 // Simuler la récupération des items EDN (à remplacer par votre vraie source de données)
 const ednitems = [

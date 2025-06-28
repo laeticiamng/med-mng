@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Music, Library, CreditCard, User, Plus, LogOut } from 'lucide-react';
 import { useAuth } from './AuthProvider';
+import { TranslatedText } from '@/components/TranslatedText';
 
 export const MedMngNavigation: React.FC = () => {
   const navigate = useNavigate();
@@ -33,7 +34,7 @@ export const MedMngNavigation: React.FC = () => {
               className="flex items-center gap-2"
             >
               <Library className="h-4 w-4" />
-              Bibliothèque
+              <TranslatedText text="Bibliothèque" />
             </Button>
 
             <Button
@@ -42,7 +43,7 @@ export const MedMngNavigation: React.FC = () => {
               className="flex items-center gap-2"
             >
               <Plus className="h-4 w-4" />
-              Créer
+              <TranslatedText text="Créer" />
             </Button>
 
             <Button
@@ -51,7 +52,7 @@ export const MedMngNavigation: React.FC = () => {
               className="flex items-center gap-2"
             >
               <CreditCard className="h-4 w-4" />
-              Abonnements
+              <TranslatedText text="Abonnements" />
             </Button>
 
             <Button
@@ -60,7 +61,7 @@ export const MedMngNavigation: React.FC = () => {
               className="flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
             >
               <LogOut className="h-4 w-4" />
-              Déconnexion
+              <TranslatedText text="Déconnexion" />
             </Button>
           </div>
         </div>

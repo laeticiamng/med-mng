@@ -10,12 +10,18 @@ import { Input } from '@/components/ui/input';
 import { Search, Music, Heart, Plus } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { TranslatedText } from '@/components/TranslatedText';
+import { useTranslation } from '@/hooks/useTranslation';
 
 const MedMngLibraryComponent = () => {
   const medMngApi = useMedMngApi();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+
+  const { text: searchPlaceholder } = useTranslation('Rechercher une chanson...');
+  const { text: errorMessage } = useTranslation('Impossible de charger votre bibliothèque');
+  const { text: retryText } = useTranslation('Réessayer');
 
   const { data: library, isLoading, error, refetch } = useQuery({
     queryKey: ['med-mng-library', currentPage],
@@ -50,9 +56,9 @@ const MedMngLibraryComponent = () => {
         <MedMngNavigation />
         <div className="container mx-auto px-4 py-8">
           <div className="text-center">
-            <h1 className="text-2xl font-bold text-gray-900 mb-4">Erreur</h1>
-            <p className="text-gray-600 mb-4">Impossible de charger votre bibliothèque</p>
-            <Button onClick={() => refetch()}>Réessayer</Button>
+            <TranslatedText text="Erreur" as="h1" className="text-2xl font-bold text-gray-900 mb-4" />
+            <TranslatedText text={errorMessage} as="p" className="text-gray-600 mb-4" />
+            <Button onClick={() => refetch()}>{retryText}</Button>
           </div>
         </div>
       </div>
@@ -66,16 +72,21 @@ const MedMngLibraryComponent = () => {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">
-              Ma bibliothèque musicale
-            </h1>
-            <p className="text-gray-600">
-              {filteredSongs.length} chanson{filteredSongs.length > 1 ? 's' : ''} dans votre collection
-            </p>
+            <TranslatedText 
+              text="Ma bibliothèque musicale"
+              as="h1"
+              className="text-4xl font-bold text-gray-900 mb-2"
+              showLoader
+            />
+            <TranslatedText 
+              text={`${filteredSongs.length} chanson${filteredSongs.length > 1 ? 's' : ''} dans votre collection`}
+              as="p"
+              className="text-gray-600"
+            />
           </div>
           <div className="text-right">
             <div className="bg-white rounded-lg px-4 py-2 shadow-sm">
-              <div className="text-sm text-gray-600">Crédits restants</div>
+              <TranslatedText text="Crédits restants" className="text-sm text-gray-600" />
               <div className="text-2xl font-bold text-blue-600">
                 {quota?.remaining_credits || 0}
               </div>
@@ -88,7 +99,7 @@ const MedMngLibraryComponent = () => {
           <div className="relative max-w-md">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
             <Input
-              placeholder="Rechercher une chanson..."
+              placeholder={searchPlaceholder}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
@@ -103,13 +114,13 @@ const MedMngLibraryComponent = () => {
             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
           >
             <Plus className="h-4 w-4" />
-            Créer une chanson
+            <TranslatedText text="Créer une chanson" />
           </Button>
           <Button 
             variant="outline"
             onClick={() => navigate('/med-mng/pricing')}
           >
-            Voir les abonnements
+            <TranslatedText text="Voir les abonnements" />
           </Button>
         </div>
 
@@ -117,17 +128,21 @@ const MedMngLibraryComponent = () => {
         {filteredSongs.length === 0 ? (
           <div className="text-center py-16">
             <Music className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">
-              {searchTerm ? 'Aucun résultat' : 'Bibliothèque vide'}
-            </h3>
-            <p className="text-gray-600 mb-6">
-              {searchTerm 
+            <TranslatedText 
+              text={searchTerm ? 'Aucun résultat' : 'Bibliothèque vide'}
+              as="h3"
+              className="text-xl font-semibold text-gray-900 mb-2"
+            />
+            <TranslatedText 
+              text={searchTerm 
                 ? 'Aucune chanson ne correspond à votre recherche' 
                 : 'Commencez par créer votre première chanson'}
-            </p>
+              as="p"
+              className="text-gray-600 mb-6"
+            />
             {!searchTerm && (
               <Button onClick={() => navigate('/med-mng/create')} className="bg-blue-600 hover:bg-blue-700">
-                Créer ma première chanson
+                <TranslatedText text="Créer ma première chanson" />
               </Button>
             )}
           </div>
@@ -154,13 +169,13 @@ const MedMngLibraryComponent = () => {
                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
               >
-                Précédent
+                <TranslatedText text="Précédent" />
               </Button>
               <Button
                 variant="outline"
                 onClick={() => setCurrentPage(p => p + 1)}
               >
-                Suivant
+                <TranslatedText text="Suivant" />
               </Button>
             </div>
           </div>
