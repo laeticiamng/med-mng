@@ -41,7 +41,7 @@ const EdnMusicLibrary = () => {
       }
 
       const { data, error } = await supabase
-        .from('user_generated_music')
+        .from('user_generated_music' as any)
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
@@ -56,7 +56,7 @@ const EdnMusicLibrary = () => {
         return;
       }
 
-      setSavedMusics(data || []);
+      setSavedMusics(data as SavedMusic[] || []);
     } catch (error) {
       console.error('Erreur:', error);
     } finally {
@@ -90,7 +90,7 @@ const EdnMusicLibrary = () => {
   const handleDelete = async (musicId: string) => {
     try {
       const { error } = await supabase
-        .from('user_generated_music')
+        .from('user_generated_music' as any)
         .delete()
         .eq('id', musicId);
 
@@ -115,7 +115,7 @@ const EdnMusicLibrary = () => {
 
   const filteredMusics = savedMusics.filter(music =>
     music.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    music.item_code.toLowerCase().includes(searchTerm.toLowerCase())
+    (music.item_code && music.item_code.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   if (loading) {

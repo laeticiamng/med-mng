@@ -1359,6 +1359,45 @@ export type Database = {
           },
         ]
       }
+      user_generated_music: {
+        Row: {
+          audio_url: string
+          created_at: string
+          id: string
+          item_code: string | null
+          music_id: string
+          music_style: string
+          rang: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          audio_url: string
+          created_at?: string
+          id?: string
+          item_code?: string | null
+          music_id: string
+          music_style: string
+          rang: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          audio_url?: string
+          created_at?: string
+          id?: string
+          item_code?: string | null
+          music_id?: string
+          music_style?: string
+          rang?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       med_mng_view_library: {

@@ -46,9 +46,9 @@ export const SaveMusicButton = ({
       // Créer un identifiant unique pour cette musique
       const musicId = `${itemCode}-${rang}-${Date.now()}`;
       
-      // Sauvegarder dans une table de musiques personnelles
+      // Sauvegarder dans la table de musiques personnelles
       const { error } = await supabase
-        .from('user_generated_music')
+        .from('user_generated_music' as any)
         .insert({
           user_id: user.id,
           title: title,
