@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { useEmailNotifications } from '@/hooks/useEmailNotifications';
 
 interface AuthContextType {
   user: User | null;
@@ -19,6 +20,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const { sendWelcomeEmail } = useEmailNotifications();
 
   useEffect(() => {
     // Get initial session
@@ -30,13 +32,26 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('🔔 Auth state change:', event, session?.user?.email);
+        
         setUser(session?.user ?? null);
         setLoading(false);
+
+        // Envoyer l'email de bienvenue pour les nouveaux utilisateurs
+        if (event === 'SIGNED_UP' && session?.user) {
+          const name = session.user.user_metadata?.name || session.user.email?.split('@')[0] || '';
+          console.log('👤 Nouvel utilisateur inscrit, envoi email de bienvenue...');
+          
+          // Délai pour laisser le temps au trigger de créer le profil
+          setTimeout(async () => {
+            await sendWelcomeEmail(session.user.email!, name);
+          }, 2000);
+        }
       }
     );
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [sendWelcomeEmail]);
 
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({
@@ -51,6 +66,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       email,
       password,
       options: {
+        emailRedirectTo: `${window.location.origin}/med-mng/library`,
         data: {
           name,
         },
@@ -67,7 +83,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: window.location.origin,
+        redirectTo: `${window.location.origin}/med-mng/library`,
       },
     });
     return { error };
@@ -77,7 +93,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'facebook',
       options: {
-        redirectTo: window.location.origin,
+        redirectTo: `${window.location.origin}/med-mng/library`,
       },
     });
     return { error };
@@ -87,7 +103,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'apple',
       options: {
-        redirectTo: window.location.origin,
+        redirectTo: `${window.location.origin}/med-mng/library`,
       },
     });
     return { error };

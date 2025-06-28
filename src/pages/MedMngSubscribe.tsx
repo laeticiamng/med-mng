@@ -1,175 +1,143 @@
 
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { MedMngNavigation } from '@/components/med-mng/MedMngNavigation';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useAuth } from '@/components/med-mng/AuthProvider';
+import { useEmailNotifications } from '@/hooks/useEmailNotifications';
+import { useMedMngApi } from '@/hooks/useMedMngApi';
 import { Button } from '@/components/ui/button';
-import { Check, ArrowLeft, CreditCard } from 'lucide-react';
-import { TranslatedText } from '@/components/TranslatedText';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
+import { CheckCircle, CreditCard } from 'lucide-react';
 
-const planDetails = {
-  standard: {
-    name: 'Standard',
-    price: 14,
-    credits: 60,
-    features: [
-      'Qualité standard',
-      '60 crédits/mois',
-      'QCM illimités',
-      'Tableau illimités',
-      'Support email'
-    ]
-  },
-  pro: {
-    name: 'Pro',
-    price: 24,
-    credits: 2500,
-    features: [
-      'Qualité premium',
-      '2 500 crédits/mois',
-      'Reset mensuel',
-      'QCM + tableau illimités',
-      'QCM entraînement test',
-      'Support prioritaire'
-    ]
-  },
-  premium: {
-    name: 'Premium',
-    price: 34,
-    credits: 5000,
-    features: [
-      'Qualité premium',
-      '5 000 crédits/mois',
-      'Reset mensuel',
-      'QCM + tableau illimités',
-      'QCM entraînement test',
-      'Bande dessinée',
-      'Support VIP'
-    ]
-  }
+const plans = {
+  standard: { name: 'Standard', price: 9.99, credits: 60 },
+  pro: { name: 'Pro', price: 29.99, credits: 2500 },
+  premium: { name: 'Premium', price: 49.99, credits: 5000 },
 };
 
 export const MedMngSubscribe = () => {
   const { planId } = useParams<{ planId: string }>();
   const navigate = useNavigate();
-  
-  const plan = planId && planDetails[planId as keyof typeof planDetails];
+  const { user } = useAuth();
+  const { sendSubscriptionEmail } = useEmailNotifications();
+  const medMngApi = useMedMngApi();
+  const [isProcessing, setIsProcessing] = useState(false);
+
+  const plan = planId && plans[planId as keyof typeof plans];
 
   useEffect(() => {
-    if (!plan) {
-      toast.error('Plan invalide');
-      navigate('/med-mng/pricing');
+    if (!user) {
+      navigate('/med-mng/login');
+      return;
     }
-  }, [plan, navigate]);
 
-  const handleSubscribe = () => {
-    // Simuler le processus d'abonnement
-    toast.success(`Abonnement ${plan?.name} activé avec succès !`);
-    navigate('/med-mng/library');
+    if (!plan) {
+      navigate('/med-mng/pricing');
+      return;
+    }
+  }, [user, plan, navigate]);
+
+  const handleSubscription = async (gateway: 'stripe' | 'paypal' | 'demo') => {
+    if (!plan || !user) return;
+
+    setIsProcessing(true);
+    try {
+      console.log(`💳 Traitement abonnement ${plan.name} via ${gateway}`);
+
+      if (gateway === 'demo') {
+        // Simulation pour la démo
+        await medMngApi.createUserSubscription(planId!, 'demo', 'demo-sub-' + Date.now());
+        
+        // Envoyer l'email de confirmation d'abonnement
+        const userName = user.user_metadata?.name || user.email?.split('@')[0] || '';
+        await sendSubscriptionEmail(
+          user.email!,
+          userName,
+          plan.name,
+          plan.credits,
+          plan.price
+        );
+
+        toast.success(`🎉 Abonnement ${plan.name} activé ! Vérifiez vos emails.`);
+        navigate('/med-mng/library');
+      } else {
+        // Pour Stripe/PayPal, rediriger vers l'implémentation réelle
+        toast.info(`Redirection vers ${gateway}...`);
+        // Ici vous ajouteriez l'intégration Stripe/PayPal réelle
+      }
+
+    } catch (error) {
+      console.error('Erreur abonnement:', error);
+      toast.error('Erreur lors de la souscription. Réessayez.');
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   if (!plan) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-        <MedMngNavigation />
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold mb-4">Plan non trouvé</h1>
-            <Button onClick={() => navigate('/med-mng/pricing')}>
-              Retour aux plans
-            </Button>
-          </div>
-        </div>
-      </div>
-    );
+    return <div>Plan non trouvé</div>;
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      <MedMngNavigation />
-      
-      <div className="container mx-auto px-4 py-8">
-        <Button
-          variant="outline"
-          onClick={() => navigate('/med-mng/pricing')}
-          className="flex items-center gap-2 mb-6 bg-white/80 hover:bg-white shadow-sm"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          <TranslatedText text="Retour aux plans" />
-        </Button>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 px-4 py-8">
+      <div className="container mx-auto max-w-2xl">
+        <Card className="shadow-lg">
+          <CardHeader className="text-center bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-t-lg">
+            <CardTitle className="text-2xl">Finaliser votre abonnement</CardTitle>
+            <CardDescription className="text-blue-100">
+              Plan {plan.name} - {plan.price}€/mois
+            </CardDescription>
+          </CardHeader>
+          
+          <CardContent className="p-6">
+            <div className="bg-blue-50 rounded-lg p-4 mb-6">
+              <h3 className="font-semibold text-blue-800 mb-2">✨ Votre abonnement {plan.name} inclut :</h3>
+              <ul className="space-y-2 text-blue-700">
+                <li className="flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4 text-green-500" />
+                  <span>{plan.credits} crédits/mois pour la génération musicale</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4 text-green-500" />
+                  <span>Qualité audio premium</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4 text-green-500" />
+                  <span>QCM et tableaux illimités</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4 text-green-500" />
+                  <span>Support prioritaire</span>
+                </li>
+                {plan.name === 'Premium' && (
+                  <li className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <span>Bandes dessinées éducatives</span>
+                  </li>
+                )}
+              </ul>
+            </div>
 
-        <div className="max-w-2xl mx-auto">
-          <div className="text-center mb-8">
-            <TranslatedText 
-              text={`Finaliser l'abonnement ${plan.name}`}
-              as="h1"
-              className="text-3xl font-bold text-gray-900 mb-2"
-            />
-            <TranslatedText 
-              text="Confirmez votre choix et activez votre abonnement"
-              as="p"
-              className="text-gray-600"
-            />
-          </div>
-
-          <Card className="shadow-lg">
-            <CardHeader className="text-center pb-4">
-              <CardTitle className="text-2xl">{plan.name}</CardTitle>
-              <div className="space-y-1">
-                <div className="text-4xl font-bold text-blue-600">{plan.price}€</div>
-                <div className="text-sm text-muted-foreground">/mois</div>
-                <div className="text-sm font-medium text-blue-600">
-                  {plan.credits} crédits inclus
-                </div>
-              </div>
-            </CardHeader>
-            
-            <CardContent className="space-y-6">
-              <div>
-                <h3 className="font-semibold mb-3">
-                  <TranslatedText text="Fonctionnalités incluses :" />
-                </h3>
-                <ul className="space-y-2">
-                  {plan.features.map((feature, index) => (
-                    <li key={index} className="flex items-center gap-2">
-                      <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
-                      <span className="text-sm">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <div className="border-t pt-4">
-                <div className="bg-blue-50 p-4 rounded-lg mb-4">
-                  <p className="text-blue-800 text-sm">
-                    <TranslatedText text="🎵 Accès immédiat à la génération musicale IA avec Suno" />
-                  </p>
-                  <p className="text-blue-700 text-xs mt-1">
-                    <TranslatedText text="Créez des chansons personnalisées pour vos contenus pédagogiques" />
-                  </p>
-                </div>
-              </div>
+            <div className="space-y-4">
+              <h3 className="font-semibold text-gray-800">Choisissez votre mode de paiement :</h3>
               
-              <Button 
-                onClick={handleSubscribe}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-lg py-3"
+              <Button
+                onClick={() => handleSubscription('demo')}
+                disabled={isProcessing}
+                className="w-full bg-green-600 hover:bg-green-700 text-white py-3"
               >
                 <CreditCard className="h-5 w-5 mr-2" />
-                <TranslatedText text={`S'abonner au plan ${plan.name}`} />
+                {isProcessing ? 'Traitement...' : `Activer l'abonnement (Démo)`}
               </Button>
 
-              <div className="text-center text-xs text-gray-500 space-y-1">
-                <p>
-                  <TranslatedText text="Annulation possible à tout moment" />
-                </p>
-                <p>
-                  <TranslatedText text="Facturation mensuelle automatique" />
-                </p>
+              <div className="text-center text-sm text-gray-500">
+                <p>✅ Email de confirmation automatique</p>
+                <p>🔄 Renouvellement automatique mensuel</p>
+                <p>❌ Résiliation possible à tout moment</p>
               </div>
-            </CardContent>
-          </Card>
-        </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
