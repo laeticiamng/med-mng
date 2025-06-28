@@ -1,3 +1,4 @@
+
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { MusicGenerator } from './musicGeneration.ts';
 
@@ -12,13 +13,14 @@ serve(async (req) => {
   }
 
   try {
-    const { lyrics, style, rang, duration = 240 } = await req.json();
+    const { lyrics, style, rang, duration = 240, fastMode = false } = await req.json();
 
     console.log('🎵 Requête génération musique Suno reçue:', { 
       lyricsLength: lyrics?.length || 0, 
       style, 
       rang, 
       duration,
+      fastMode,
       lyricsPreview: lyrics?.substring(0, 100) + '...' || 'Aucune parole'
     });
 
@@ -51,7 +53,7 @@ serve(async (req) => {
     // Générer une URL de callback unique (pas utilisée mais requise par l'API)
     const callBackUrl = `https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/generate-music/callback?taskId=${crypto.randomUUID()}`;
 
-    console.log(`🎤 Génération Suno optimisée - Rang ${rang}`);
+    console.log(`🎤 Génération Suno ${fastMode ? 'RAPIDE' : 'NORMALE'} - Rang ${rang}`);
     console.log(`📝 Style: ${style} | Durée: ${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')}`);
     console.log(`🎵 Description: ${musicStyle}`);
     console.log(`📖 Paroles (${lyrics.length} caractères):`, lyrics.substring(0, 200) + '...');
@@ -60,7 +62,7 @@ serve(async (req) => {
     const generator = new MusicGenerator(SUNO_API_KEY);
 
     // Étape 1: Générer la chanson avec Suno
-    console.log('🚀 Lancement de la génération musicale optimisée...');
+    console.log(`🚀 Lancement de la génération musicale ${fastMode ? 'RAPIDE' : 'optimisée'}...`);
     const startTime = Date.now();
     
     const generateData = await generator.generateMusic({
@@ -80,13 +82,14 @@ serve(async (req) => {
       throw new Error('Aucun ID de tâche retourné par Suno');
     }
 
-    // Étape 2: Attendre que la génération soit terminée avec polling optimisé (timeout 20 minutes)
-    console.log('⏳ Attente optimisée de la génération musicale...');
-    const musicData = await generator.waitForCompletion(generateData.taskId, 120);
+    // Étape 2: Attendre que la génération soit terminée avec polling ultra-rapide
+    console.log(`⏳ Attente ${fastMode ? 'ULTRA-RAPIDE' : 'optimisée'} de la génération musicale...`);
+    const maxAttempts = fastMode ? 30 : 120; // 30 tentatives = ~30 secondes max en mode rapide
+    const musicData = await generator.waitForCompletion(generateData.taskId, maxAttempts, fastMode);
 
     // Calculer le temps total
     const totalTime = Math.floor((Date.now() - startTime) / 1000);
-    console.log(`⏱️ Génération terminée en ${totalTime} secondes`);
+    console.log(`⏱️ Génération terminée en ${totalTime} secondes ${fastMode ? '(MODE RAPIDE)' : ''}`);
 
     // Vérifier plusieurs structures possibles pour l'URL audio
     let audioUrl = null;
@@ -105,7 +108,7 @@ serve(async (req) => {
 
     const durationFormatted = `${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')}`;
 
-    console.log(`✅ Chanson avec PAROLES CHANTÉES générée avec succès - Rang ${rang} (${durationFormatted}) en ${totalTime}s`);
+    console.log(`✅ Chanson avec PAROLES CHANTÉES générée avec succès - Rang ${rang} (${durationFormatted}) en ${totalTime}s ${fastMode ? '⚡ RAPIDE' : ''}`);
     console.log(`🎧 URL audio: ${audioUrl}`);
 
     return new Response(
@@ -117,22 +120,23 @@ serve(async (req) => {
         durationFormatted: durationFormatted,
         generationTime: totalTime,
         status: 'success',
-        message: `🎤 Chanson avec PAROLES CHANTÉES générée pour le Rang ${rang} (${durationFormatted}) en ${totalTime}s`,
+        message: `🎤 Chanson avec PAROLES CHANTÉES générée pour le Rang ${rang} (${durationFormatted}) en ${totalTime}s ${fastMode ? '⚡ RAPIDE' : ''}`,
         lyrics_integrated: true,
         vocals_included: true,
         lyrics_length: lyrics.length,
         task_id: generateData.taskId,
         final_status: musicData.status,
-        note: '🎵 Génération optimisée avec Suno AI - Paroles chantées intégrées',
+        note: `🎵 Génération ${fastMode ? 'ULTRA-RAPIDE' : 'optimisée'} avec Suno AI - Paroles chantées intégrées`,
         vocal_style: 'Voix IA haute qualité avec articulation claire',
         music_elements: `Style ${style} avec accompagnement musical professionnel et voix lead`,
         technical_specs: `Audio haute qualité Suno AI avec mix vocal/instrumental - Durée: ${durationFormatted} - Temps: ${totalTime}s`,
         optimization_info: {
+          fast_mode: fastMode,
           polling_optimized: true,
           adaptive_intervals: true,
           early_detection: true,
-          max_attempts: 120,
-          estimated_max_time: '10 minutes'
+          max_attempts: maxAttempts,
+          estimated_max_time: fastMode ? '30 secondes' : '10 minutes'
         }
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -184,7 +188,7 @@ serve(async (req) => {
           timestamp: new Date().toISOString(),
           api_used: 'Suno AI',
           base_url: 'https://apibox.erweima.ai',
-          timeout_info: 'Timeout configuré à 30 minutes (180 tentatives × 10s)',
+          timeout_info: 'Timeout configuré en mode rapide: 30 secondes max',
           suggestion: httpStatus === 429 ? 'Rechargez vos crédits Suno AI sur https://apibox.erweima.ai' : 'Vérifiez la configuration de l\'API'
         }
       }),

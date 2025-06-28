@@ -73,27 +73,35 @@ export const useMusicGeneration = () => {
       const seconds = duration % 60;
       const durationText = `${minutes}:${seconds.toString().padStart(2, '0')}`;
       
-      console.log(`🎵 Lancement génération Rang ${rang} - Style: ${selectedStyle} - Durée: ${durationText}`);
+      console.log(`🎵 Lancement génération RAPIDE Rang ${rang} - Style: ${selectedStyle} - Durée: ${durationText}`);
       console.log(`📝 Paroles (${parolesText.length} caractères):`, parolesText.substring(0, 100) + '...');
       
+      // Configuration optimisée pour une génération rapide
       const { data, error } = await supabase.functions.invoke('generate-music', {
         body: {
           lyrics: parolesText,
           style: selectedStyle,
           rang: rang,
-          duration: duration
+          duration: duration,
+          fastMode: true // Nouveau paramètre pour mode rapide
+        },
+        headers: {
+          'Content-Type': 'application/json'
         }
       });
 
-      // Gestion des erreurs Supabase
+      // Gestion des erreurs Supabase améliorée
       if (error) {
         console.error('❌ Erreur Supabase Functions:', error);
         let errorMessage = 'Erreur lors de la génération musicale';
         
-        if (error.message?.includes('Authorization') || error.message?.includes('401')) {
-          errorMessage = 'Clé API Suno manquante ou invalide. Veuillez vérifier la configuration.';
+        // Gestion spécifique de l'erreur "Failed to send request"
+        if (error.message?.includes('Failed to send') || error.message?.includes('fetch')) {
+          errorMessage = '🔧 Erreur de connexion à l\'API Suno. Vérifiez votre configuration réseau et réessayez.';
+        } else if (error.message?.includes('Authorization') || error.message?.includes('401')) {
+          errorMessage = '🔑 Clé API Suno manquante ou invalide. Veuillez vérifier la configuration.';
         } else if (error.message?.includes('timeout')) {
-          errorMessage = 'Timeout: La génération prend trop de temps. Veuillez réessayer.';
+          errorMessage = '⏰ Timeout: La génération prend trop de temps. Réessayez avec des paroles plus courtes.';
         } else {
           errorMessage = error.message || errorMessage;
         }
@@ -136,18 +144,18 @@ export const useMusicGeneration = () => {
       }));
 
       toast({
-        title: `Musique Rang ${rang} générée`,
-        description: `Chanson de ${durationText} avec paroles chantées générée avec succès !`,
+        title: `🎉 Musique Rang ${rang} générée !`,
+        description: `Chanson de ${durationText} avec paroles chantées générée en mode rapide !`,
       });
 
-      console.log(`✅ Musique ${durationText} générée pour Rang ${rang}:`, data.audioUrl);
+      console.log(`✅ Musique RAPIDE ${durationText} générée pour Rang ${rang}:`, data.audioUrl);
       
     } catch (error) {
-      console.error(`❌ Erreur génération Rang ${rang}:`, error);
+      console.error(`❌ Erreur génération RAPIDE Rang ${rang}:`, error);
       const errorMessage = error.message || "Impossible de générer la musique. Veuillez réessayer.";
       setLastError(errorMessage);
       toast({
-        title: "Erreur de génération",
+        title: "Erreur de génération rapide",
         description: errorMessage,
         variant: "destructive"
       });
