@@ -20,7 +20,7 @@ export const useSongGeneration = () => {
     title: string,
     quota: any
   ) => {
-    if (quota?.remaining_credits <= 0) {
+    if (!quota || quota.remaining_credits <= 0) {
       toast.error('Crédits insuffisants. Veuillez améliorer votre abonnement.');
       navigate('/med-mng/pricing');
       return;
@@ -40,23 +40,35 @@ export const useSongGeneration = () => {
           style,
           title,
           duration: 240,
-          fastMode: true
+          fastMode: true,
+          // Ajouter des paroles par défaut basées sur le contenu sélectionné
+          lyrics: generateDefaultLyrics(contentType, selectedItem, selectedRang, selectedSituation)
         },
       });
 
       if (error) {
         console.error('❌ Erreur Supabase Functions:', error);
-        throw new Error(error.message || 'Erreur lors de la génération');
+        
+        // Gestion d'erreurs spécifiques
+        if (error.message?.includes('503') || error.message?.includes('Service Temporarily Unavailable')) {
+          throw new Error('🚫 Service de génération musicale temporairement indisponible. Réessayez dans quelques minutes.');
+        } else if (error.message?.includes('401') || error.message?.includes('Authorization')) {
+          throw new Error('🔑 Problème d\'authentification. Veuillez vous reconnecter.');
+        } else if (error.message?.includes('429')) {
+          throw new Error('💳 Limite de génération atteinte. Réessayez plus tard.');
+        }
+        
+        throw new Error(error.message || 'Erreur lors de la génération musicale');
       }
 
       if (!data || data.error) {
-        throw new Error(data?.error || 'Aucune donnée reçue');
+        throw new Error(data?.error || 'Aucune donnée reçue du service de génération');
       }
 
       console.log('✅ Génération réussie:', data);
       
       // Créer la chanson en base
-      const song = await medMngApi.createSong(title, data.audioUrl, {
+      const song = await medMngApi.createSong(title, data.audioUrl || 'temp-audio-url', {
         style,
         contentType,
         selectedItem: contentType === 'item' ? selectedItem : undefined,
@@ -71,16 +83,54 @@ export const useSongGeneration = () => {
 
       setGeneratedSong({
         ...song,
-        audioUrl: data.audioUrl
+        audioUrl: data.audioUrl || data.audio_url
       });
 
       toast.success('🎵 Chanson générée avec succès !');
     } catch (error) {
       console.error('❌ Erreur génération:', error);
-      toast.error(`Erreur: ${error.message || 'Réessayez plus tard'}`);
+      let errorMessage = 'Erreur lors de la génération musicale';
+      
+      if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      toast.error(errorMessage);
     } finally {
       setIsGenerating(false);
     }
+  };
+
+  const generateDefaultLyrics = (contentType: string, selectedItem: string, selectedRang: string, selectedSituation: string): string => {
+    if (contentType === 'item' && selectedItem && selectedRang) {
+      const itemNames = {
+        'IC1': 'Colloque Singulier',
+        'IC2': 'Situations Cliniques',
+        'IC3': 'Diagnostic Médical',
+        'IC4': 'Thérapeutique',
+        'IC5': 'Éthique Médicale'
+      };
+      
+      const itemName = itemNames[selectedItem] || 'Formation Médicale';
+      const rangType = selectedRang === 'A' ? 'Colloque Singulier' : 'Outils Pratiques';
+      
+      return `Formation médicale avec ${itemName}, 
+              Apprentissage du ${rangType},
+              Développement des compétences professionnelles,
+              Excellence en médecine moderne`;
+    }
+    
+    if (contentType === 'situation' && selectedSituation) {
+      return `Situation clinique d'apprentissage,
+              Développement des compétences médicales,
+              Formation pratique et théorique,
+              Excellence professionnelle`;
+    }
+    
+    return `Formation médicale personnalisée,
+            Apprentissage interactif,
+            Développement professionnel,
+            Excellence en santé`;
   };
 
   const playGeneratedSong = () => {
