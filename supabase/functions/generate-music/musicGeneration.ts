@@ -83,7 +83,7 @@ export class MusicGenerator {
       try {
         musicData = await this.getMusicStatus(taskId);
         
-        // CORRECTION CRITIQUE : Extraire le statut de la bonne structure
+        // CORRECTION : Extraire le statut de la bonne structure
         let currentStatus;
         if (musicData.data && musicData.data.status) {
           currentStatus = musicData.data.status;

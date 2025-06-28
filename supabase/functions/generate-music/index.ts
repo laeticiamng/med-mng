@@ -182,7 +182,6 @@ serve(async (req) => {
   } catch (error) {
     console.error('❌ Erreur génération chanson Suno:', error);
     
-    // Analyser le type d'erreur pour donner une réponse plus précise
     let userMessage = 'Erreur inconnue lors de la génération';
     let httpStatus = 500;
     
