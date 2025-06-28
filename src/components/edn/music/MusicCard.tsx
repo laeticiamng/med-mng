@@ -1,9 +1,9 @@
-
 import { useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Music, Minimize2, Loader2, AlertTriangle } from 'lucide-react';
 import { AudioPlayer } from '../AudioPlayer';
+import { MusicLoadingIndicator } from './MusicLoadingIndicator';
 
 interface MusicCardProps {
   rang: 'A' | 'B';
@@ -101,103 +101,112 @@ export const MusicCard = ({
   const isButtonDisabled = isGenerating || isClicked || !selectedStyle || !hasValidParoles;
 
   return (
-    <Card className={`p-8 bg-gradient-to-br ${gradientFrom} ${gradientTo} ${borderColor} shadow-xl`}>
-      <div className="text-center mb-6">
-        <div className="flex items-center justify-center mb-4">
-          <Music className={`h-6 w-6 ${iconColor} mr-3`} />
-          <h3 className={`text-2xl font-serif ${textColor} font-bold`}>
-            {title}
-          </h3>
-        </div>
-      </div>
-      
-      {!hasValidParoles && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6 flex items-center">
-          <AlertTriangle className="h-5 w-5 text-yellow-600 mr-3 flex-shrink-0" />
-          <div className="text-yellow-800">
-            <p className="font-medium">Paroles manquantes</p>
-            <p className="text-sm">Les paroles pour ce rang ne sont pas encore disponibles dans la base de données.</p>
-          </div>
-        </div>
-      )}
-      
-      <div className={`prose prose-lg max-w-none ${textColor} mb-8`}>
-        {parolesArray.map((ligne, index) => {
-          if (ligne.startsWith('[') && ligne.endsWith(']')) {
-            return (
-              <div key={index} className={`text-xl font-bold ${rang === 'A' ? 'text-amber-800' : 'text-blue-800'} my-4 text-center`}>
-                {ligne}
-              </div>
-            );
-          }
-          if (ligne.includes(' - ')) {
-            return (
-              <div key={index} className={`text-2xl font-bold ${textColor} mb-6 text-center border-b-2 ${rang === 'A' ? 'border-amber-300' : 'border-blue-300'} pb-3`}>
-                {ligne}
-              </div>
-            );
-          }
-          return (
-            <div key={index} className="text-lg leading-relaxed mb-2 italic font-medium">
-              {ligne}
-            </div>
-          );
-        })}
-      </div>
+    <div>
+      {/* Indicateur de chargement visible */}
+      <MusicLoadingIndicator 
+        rang={rang}
+        duration={musicDuration}
+        isVisible={isGenerating}
+      />
 
-      <div className="space-y-4">
-        <div className="flex justify-center">
-          <Button
-            onClick={handleGenerateClick}
-            disabled={isButtonDisabled}
-            className={`${buttonColor} text-white px-6 py-3 ${isButtonDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-          >
-            {isGenerating ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Génération {formatDuration(musicDuration)} en cours...
-              </>
-            ) : (
-              `Générer Musique Rang ${rang} (${formatDuration(musicDuration)})`
-            )}
-          </Button>
+      <Card className={`p-8 bg-gradient-to-br ${gradientFrom} ${gradientTo} ${borderColor} shadow-xl ${isGenerating ? 'opacity-75' : ''}`}>
+        <div className="text-center mb-6">
+          <div className="flex items-center justify-center mb-4">
+            <Music className={`h-6 w-6 ${iconColor} mr-3`} />
+            <h3 className={`text-2xl font-serif ${textColor} font-bold`}>
+              {title}
+            </h3>
+          </div>
         </div>
         
         {!hasValidParoles && (
-          <p className="text-center text-sm text-gray-600">
-            La génération nécessite des paroles valides depuis la base de données Supabase.
-          </p>
-        )}
-        
-        {generatedAudio && !isMinimized && (
-          <AudioPlayer
-            audioUrl={generatedAudio}
-            title={title}
-            isPlaying={isPlaying}
-            currentTime={isCurrentTrack ? currentTime : 0}
-            duration={isCurrentTrack ? duration : musicDuration}
-            volume={volume}
-            onPlayPause={onPlayPause}
-            onSeek={onSeek}
-            onVolumeChange={onVolumeChange}
-            onStop={onStop}
-            onClose={onMinimize}
-          />
-        )}
-
-        {generatedAudio && isMinimized && isCurrentTrack && (
-          <div className="text-center">
-            <Button
-              onClick={onMinimize}
-              variant="outline"
-              className={`${rang === 'A' ? 'border-amber-300 text-amber-600 hover:bg-amber-50' : 'border-blue-300 text-blue-600 hover:bg-blue-50'}`}
-            >
-              <Minimize2 className="h-4 w-4 mr-2" />
-              Lecteur minimisé - Continuer l'écoute
-            </Button>
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6 flex items-center">
+            <AlertTriangle className="h-5 w-5 text-yellow-600 mr-3 flex-shrink-0" />
+            <div className="text-yellow-800">
+              <p className="font-medium">Paroles manquantes</p>
+              <p className="text-sm">Les paroles pour ce rang ne sont pas encore disponibles dans la base de données.</p>
+            </div>
           </div>
         )}
-      </div>
-    </Card>
+        
+        <div className={`prose prose-lg max-w-none ${textColor} mb-8`}>
+          {parolesArray.map((ligne, index) => {
+            if (ligne.startsWith('[') && ligne.endsWith(']')) {
+              return (
+                <div key={index} className={`text-xl font-bold ${rang === 'A' ? 'text-amber-800' : 'text-blue-800'} my-4 text-center`}>
+                  {ligne}
+                </div>
+              );
+            }
+            if (ligne.includes(' - ')) {
+              return (
+                <div key={index} className={`text-2xl font-bold ${textColor} mb-6 text-center border-b-2 ${rang === 'A' ? 'border-amber-300' : 'border-blue-300'} pb-3`}>
+                  {ligne}
+                </div>
+              );
+            }
+            return (
+              <div key={index} className="text-lg leading-relaxed mb-2 italic font-medium">
+                {ligne}
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="space-y-4">
+          <div className="flex justify-center">
+            <Button
+              onClick={handleGenerateClick}
+              disabled={isButtonDisabled}
+              className={`${buttonColor} text-white px-6 py-3 ${isButtonDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+            >
+              {isGenerating ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Génération en cours...
+                </>
+              ) : (
+                `Générer Musique Rang ${rang} (${formatDuration(musicDuration)})`
+              )}
+            </Button>
+          </div>
+          
+          {!hasValidParoles && (
+            <p className="text-center text-sm text-gray-600">
+              La génération nécessite des paroles valides depuis la base de données Supabase.
+            </p>
+          )}
+          
+          {generatedAudio && !isMinimized && (
+            <AudioPlayer
+              audioUrl={generatedAudio}
+              title={title}
+              isPlaying={isPlaying}
+              currentTime={isCurrentTrack ? currentTime : 0}
+              duration={isCurrentTrack ? duration : musicDuration}
+              volume={volume}
+              onPlayPause={onPlayPause}
+              onSeek={onSeek}
+              onVolumeChange={onVolumeChange}
+              onStop={onStop}
+              onClose={onMinimize}
+            />
+          )}
+
+          {generatedAudio && isMinimized && isCurrentTrack && (
+            <div className="text-center">
+              <Button
+                onClick={onMinimize}
+                variant="outline"
+                className={`${rang === 'A' ? 'border-amber-300 text-amber-600 hover:bg-amber-50' : 'border-blue-300 text-blue-600 hover:bg-blue-50'}`}
+              >
+                <Minimize2 className="h-4 w-4 mr-2" />
+                Lecteur minimisé - Continuer l'écoute
+              </Button>
+            </div>
+          )}
+        </div>
+      </Card>
+    </div>
   );
 };
