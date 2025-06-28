@@ -34,18 +34,32 @@ serve(async (req) => {
       )
     }
 
-    // Style cohérent pour la bande dessinée
-    const comicStyle = "comic book illustration, clean line art, professional graphic novel style, consistent character design, medical setting, warm colors, educational illustration"
+    // Style cohérent pour la bande dessinée médicale
+    const medicalComicStyle = "professional medical comic book illustration, consistent cartoon style, clean line art, warm and reassuring colors, educational illustration for healthcare, consistent character design throughout the series"
     
-    // Contexte pour maintenir la cohérence des personnages
-    const characterContext = panelNumber === 1 
-      ? "Introduce main characters: a professional doctor (middle-aged, kind face, white coat) and a patient (concerned but hopeful expression)"
-      : "Same consistent characters from previous panels: the professional doctor and patient, maintaining their appearance"
+    // Contexte de cohérence des personnages amélioré
+    const characterConsistency = panelNumber === 1 
+      ? "Establish main characters with very specific visual details: Dr. Martin (40s, brown hair, gentle brown eyes, white medical coat with blue shirt underneath, stethoscope around neck, kind professional smile), Nurse Sophie (30s, blonde hair in neat bun, blue scrubs, caring green eyes, professional demeanor), Patient Marie (50s, brown hair, concerned but hopeful expression, casual clothing)"
+      : `CRITICAL: Use the EXACT SAME character appearances as established in panel 1: Dr. Martin (same brown hair, same brown eyes, same white coat, same facial features), Nurse Sophie (same blonde hair in bun, same blue scrubs, same green eyes), Patient Marie (same brown hair, same facial features). Maintain absolute visual consistency with previous panels.`
 
-    // Prompt enrichi pour la cohérence narrative
-    const enhancedPrompt = `${comicStyle}, ${characterContext}, ${prompt}. Panel ${panelNumber} of ${totalPanels} for "${itemTitle}". High quality, detailed, clear composition, consistent art style throughout the series.`
+    // Prompt enrichi pour la cohérence narrative et visuelle
+    const enhancedPrompt = `${medicalComicStyle}. ${characterConsistency}. 
+    
+    Scene description: ${prompt}
+    
+    Visual requirements:
+    - Same art style as previous panels (cartoon medical illustration)
+    - Same color palette (blues, whites, warm skin tones)
+    - Same character proportions and features
+    - Same medical facility background elements
+    - Professional healthcare setting
+    - Educational and reassuring mood
+    
+    Panel ${panelNumber} of ${totalPanels} for medical education topic: "${itemTitle}".
+    
+    MAINTAIN STRICT VISUAL CONTINUITY: Characters must look identical to previous panels, same faces, same clothing, same proportions. This is part of a continuous visual story.`
 
-    console.log(`Génération image panel ${panelNumber}/${totalPanels}:`, enhancedPrompt.substring(0, 200) + '...')
+    console.log(`Génération image médicale panel ${panelNumber}/${totalPanels}:`, enhancedPrompt.substring(0, 300) + '...')
 
     const response = await fetch('https://api.openai.com/v1/images/generations', {
       method: 'POST',
@@ -58,7 +72,8 @@ serve(async (req) => {
         prompt: enhancedPrompt,
         n: 1,
         size: '1024x1024',
-        quality: 'high'
+        quality: 'high',
+        style: 'natural'
       })
     })
 
@@ -87,20 +102,21 @@ serve(async (req) => {
     const imageData = data.data[0].b64_json
     const imageUrl = `data:image/png;base64,${imageData}`
 
-    console.log(`Image générée avec succès pour panel ${panelNumber}/${totalPanels}`)
+    console.log(`Image médicale générée avec succès pour panel ${panelNumber}/${totalPanels}`)
 
     return new Response(
       JSON.stringify({ 
         imageUrl,
         prompt: enhancedPrompt,
         panelNumber,
+        style: 'medical-comic',
         status: 'success'
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
 
   } catch (error) {
-    console.error('Erreur génération image:', error)
+    console.error('Erreur génération image médicale:', error)
     return new Response(
       JSON.stringify({ 
         error: error.message || 'Erreur inconnue lors de la génération',
