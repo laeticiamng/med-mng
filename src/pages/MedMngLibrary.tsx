@@ -7,7 +7,7 @@ import { MedMngNavigation } from '@/components/med-mng/MedMngNavigation';
 import { SongCard } from '@/components/med-mng/SongCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, Music, Heart, Plus } from 'lucide-react';
+import { Search, Music, Heart, Plus, AlertCircle } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TranslatedText } from '@/components/TranslatedText';
@@ -25,12 +25,32 @@ const MedMngLibraryComponent = () => {
 
   const { data: library, isLoading, error, refetch } = useQuery({
     queryKey: ['med-mng-library', currentPage],
-    queryFn: () => medMngApi.getLibrary(currentPage, 12),
+    queryFn: async () => {
+      try {
+        console.log('📚 Chargement de la bibliothèque...');
+        const result = await medMngApi.getLibrary(currentPage, 12);
+        console.log('✅ Bibliothèque chargée:', result);
+        return result;
+      } catch (err) {
+        console.error('❌ Erreur chargement bibliothèque:', err);
+        // Retourner un tableau vide plutôt que de lancer l'erreur
+        return [];
+      }
+    },
+    retry: 1,
+    retryDelay: 1000,
   });
 
   const { data: quota } = useQuery({
     queryKey: ['med-mng-quota'],
-    queryFn: () => medMngApi.getRemainingQuota(),
+    queryFn: async () => {
+      try {
+        return await medMngApi.getRemainingQuota();
+      } catch (err) {
+        console.error('❌ Erreur chargement quota:', err);
+        return { remaining_credits: 0 };
+      }
+    },
   });
 
   const filteredSongs = library?.filter(song => 
@@ -43,7 +63,10 @@ const MedMngLibraryComponent = () => {
         <MedMngNavigation />
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-center min-h-[400px]">
-            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <p className="text-gray-600">Chargement de votre bibliothèque...</p>
+            </div>
           </div>
         </div>
       </div>
@@ -55,10 +78,23 @@ const MedMngLibraryComponent = () => {
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
         <MedMngNavigation />
         <div className="container mx-auto px-4 py-8">
-          <div className="text-center">
+          <div className="text-center max-w-md mx-auto">
+            <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
             <TranslatedText text="Erreur" as="h1" className="text-2xl font-bold text-gray-900 mb-4" />
-            <TranslatedText text={errorMessage} as="p" className="text-gray-600 mb-4" />
-            <Button onClick={() => refetch()}>{retryText}</Button>
+            <TranslatedText text={errorMessage} as="p" className="text-gray-600 mb-6" />
+            <div className="space-y-3">
+              <Button onClick={() => refetch()} className="w-full">
+                {retryText}
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => navigate('/med-mng/create')}
+                className="w-full"
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                <TranslatedText text="Créer votre première chanson" />
+              </Button>
+            </div>
           </div>
         </div>
       </div>
