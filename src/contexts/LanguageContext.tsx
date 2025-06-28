@@ -1,5 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
 export type SupportedLanguage = 
   | 'fr' | 'en' | 'es' | 'de' | 'pt' | 'ar' | 'zh' | 'ja' | 'ru' | 'hi' 
@@ -74,32 +75,33 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     setIsTranslating(true);
     try {
-      // Utiliser l'endpoint Supabase Functions correct
-      const response = await fetch('/functions/v1/translate', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      console.log('🔄 Traduction en cours:', { text, target });
+
+      // Utiliser la méthode Supabase pour appeler l'edge function
+      const { data, error } = await supabase.functions.invoke('translate', {
+        body: {
           text,
           targetLanguage: target,
           sourceLanguage: 'fr'
-        }),
+        }
       });
 
-      if (!response.ok) {
-        throw new Error(`Erreur HTTP: ${response.status}`);
+      if (error) {
+        console.error('❌ Erreur traduction:', error);
+        throw new Error(`Erreur de traduction: ${error.message}`);
+      }
+      
+      if (data?.error) {
+        console.error('❌ Erreur dans la réponse:', data.error);
+        throw new Error(data.error);
       }
 
-      const result = await response.json();
+      const translatedText = data?.translatedText || text;
+      console.log('✅ Traduction réussie:', translatedText);
       
-      if (result.error) {
-        throw new Error(result.error);
-      }
-      
-      return result.translatedText || text;
+      return translatedText;
     } catch (error) {
-      console.error('Translation error:', error);
+      console.error('❌ Erreur traduction:', error);
       return text; // Retourner le texte original en cas d'erreur
     } finally {
       setIsTranslating(false);
