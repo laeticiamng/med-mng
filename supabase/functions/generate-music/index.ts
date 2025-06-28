@@ -99,9 +99,18 @@ serve(async (req) => {
 
     console.log('✅ Génération Suno lancée:', generateData);
 
-    if (!generateData?.taskId) {
+    // CORRECTION : Extraire le taskId de la structure de réponse correcte
+    let taskId;
+    if (generateData?.data?.taskId) {
+      taskId = generateData.data.taskId;
+    } else if (generateData?.taskId) {
+      taskId = generateData.taskId;
+    } else {
+      console.error('❌ Structure de réponse inattendue:', JSON.stringify(generateData, null, 2));
       throw new Error('Aucun ID de tâche retourné par Suno');
     }
+
+    console.log(`🔑 TaskId extrait: ${taskId}`);
 
     // Étape 2: Attendre que la génération soit terminée avec polling ultra-rapide
     console.log(`⏳ Attente ${fastMode ? 'ULTRA-RAPIDE' : 'optimisée'} de la génération musicale...`);
@@ -109,7 +118,7 @@ serve(async (req) => {
     
     let musicData;
     try {
-      musicData = await generator.waitForCompletion(generateData.taskId, maxAttempts, fastMode);
+      musicData = await generator.waitForCompletion(taskId, maxAttempts, fastMode);
     } catch (waitError) {
       console.error('❌ Erreur lors de l\'attente:', waitError);
       throw new Error(`Timeout génération: ${waitError.message}`);
@@ -152,7 +161,7 @@ serve(async (req) => {
         lyrics_integrated: true,
         vocals_included: true,
         lyrics_length: lyrics.length,
-        task_id: generateData.taskId,
+        task_id: taskId,
         final_status: musicData.status,
         note: `🎵 Génération ${fastMode ? 'ULTRA-RAPIDE' : 'optimisée'} avec Suno AI - Paroles chantées intégrées`,
         vocal_style: 'Voix IA haute qualité avec articulation claire',
