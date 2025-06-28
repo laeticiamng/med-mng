@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { MusicGenerator } from './musicGeneration.ts';
 
@@ -52,17 +51,18 @@ serve(async (req) => {
     // Générer une URL de callback unique (pas utilisée mais requise par l'API)
     const callBackUrl = `https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/generate-music/callback?taskId=${crypto.randomUUID()}`;
 
-    console.log(`🎤 Génération Suno - Rang ${rang}`);
+    console.log(`🎤 Génération Suno optimisée - Rang ${rang}`);
     console.log(`📝 Style: ${style} | Durée: ${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')}`);
     console.log(`🎵 Description: ${musicStyle}`);
     console.log(`📖 Paroles (${lyrics.length} caractères):`, lyrics.substring(0, 200) + '...');
-    console.log(`🔗 CallbackUrl: ${callBackUrl}`);
 
     // Initialiser le générateur de musique
     const generator = new MusicGenerator(SUNO_API_KEY);
 
     // Étape 1: Générer la chanson avec Suno
-    console.log('🚀 Lancement de la génération musicale...');
+    console.log('🚀 Lancement de la génération musicale optimisée...');
+    const startTime = Date.now();
+    
     const generateData = await generator.generateMusic({
       prompt: lyrics,
       style: musicStyle,
@@ -80,9 +80,13 @@ serve(async (req) => {
       throw new Error('Aucun ID de tâche retourné par Suno');
     }
 
-    // Étape 2: Attendre que la génération soit terminée (timeout 30 minutes)
-    console.log('⏳ Attente de la génération musicale...');
-    const musicData = await generator.waitForCompletion(generateData.taskId, 180);
+    // Étape 2: Attendre que la génération soit terminée avec polling optimisé (timeout 20 minutes)
+    console.log('⏳ Attente optimisée de la génération musicale...');
+    const musicData = await generator.waitForCompletion(generateData.taskId, 120);
+
+    // Calculer le temps total
+    const totalTime = Math.floor((Date.now() - startTime) / 1000);
+    console.log(`⏱️ Génération terminée en ${totalTime} secondes`);
 
     // Vérifier plusieurs structures possibles pour l'URL audio
     let audioUrl = null;
@@ -101,7 +105,7 @@ serve(async (req) => {
 
     const durationFormatted = `${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')}`;
 
-    console.log(`✅ Chanson avec PAROLES CHANTÉES générée avec succès - Rang ${rang} (${durationFormatted})`);
+    console.log(`✅ Chanson avec PAROLES CHANTÉES générée avec succès - Rang ${rang} (${durationFormatted}) en ${totalTime}s`);
     console.log(`🎧 URL audio: ${audioUrl}`);
 
     return new Response(
@@ -111,23 +115,24 @@ serve(async (req) => {
         style,
         duration: duration,
         durationFormatted: durationFormatted,
+        generationTime: totalTime,
         status: 'success',
-        message: `🎤 Chanson avec PAROLES CHANTÉES générée pour le Rang ${rang} (${durationFormatted})`,
+        message: `🎤 Chanson avec PAROLES CHANTÉES générée pour le Rang ${rang} (${durationFormatted}) en ${totalTime}s`,
         lyrics_integrated: true,
         vocals_included: true,
         lyrics_length: lyrics.length,
         task_id: generateData.taskId,
         final_status: musicData.status,
-        note: '🎵 Génération réelle avec Suno AI - Paroles chantées intégrées',
+        note: '🎵 Génération optimisée avec Suno AI - Paroles chantées intégrées',
         vocal_style: 'Voix IA haute qualité avec articulation claire',
         music_elements: `Style ${style} avec accompagnement musical professionnel et voix lead`,
-        technical_specs: `Audio haute qualité Suno AI avec mix vocal/instrumental - Durée: ${durationFormatted}`,
-        generation_info: {
-          api_used: 'Suno AI',
-          model_version: 'V3_5',
-          base_url: 'https://apibox.erweima.ai',
-          callback_url: callBackUrl,
-          polling_duration: `${Math.floor(180 * 10 / 60)} minutes max`
+        technical_specs: `Audio haute qualité Suno AI avec mix vocal/instrumental - Durée: ${durationFormatted} - Temps: ${totalTime}s`,
+        optimization_info: {
+          polling_optimized: true,
+          adaptive_intervals: true,
+          early_detection: true,
+          max_attempts: 120,
+          estimated_max_time: '10 minutes'
         }
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
