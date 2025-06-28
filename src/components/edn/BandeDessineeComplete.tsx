@@ -29,14 +29,26 @@ export const BandeDessineeComplete = ({ itemData }: BandeDessineeCompleteProps) 
       setPanels(bandeDessinee.vignettes);
       setIsLoaded(true);
     } else {
-      // Fallback pour les items sans bande dessinée pré-générée
-      console.warn(`Aucune bande dessinée pré-générée trouvée pour l'item ${itemData.item_code}`);
+      // Créer des vignettes par défaut basées sur les compétences du tableau rang A
+      const defaultPanels = createDefaultPanels(itemData);
+      setPanels(defaultPanels);
       setIsLoaded(true);
     }
   }, [itemData.item_code]);
 
-  const totalCompetences = (itemData.tableau_rang_a?.concepts?.length || 0) + 
-                          (itemData.tableau_rang_b?.concepts?.length || 0);
+  const createDefaultPanels = (data: any): VignettePregenere[] => {
+    if (!data.tableau_rang_a?.lignes) return [];
+
+    return data.tableau_rang_a.lignes.slice(0, 6).map((ligne: any[], index: number) => ({
+      id: index + 1,
+      title: `${ligne[0]} - Scénario ${index + 1}`,
+      text: `Dans cette situation clinique, nous explorons ${ligne[0].toLowerCase()}. ${ligne[1]} Cette vignette illustre concrètement comment ${ligne[2]} dans la pratique quotidienne du médecin.`,
+      imageUrl: `/lovable-uploads/5de8d99e-d7d8-41b8-b318-b4f51265648b.png`,
+      competences: [ligne[0], ligne[2]]
+    }));
+  };
+
+  const totalCompetences = (itemData.tableau_rang_a?.lignes?.length || 0);
 
   return (
     <div className="space-y-8 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-8 rounded-xl">
@@ -45,7 +57,7 @@ export const BandeDessineeComplete = ({ itemData }: BandeDessineeCompleteProps) 
       {/* Informations sur la completude */}
       <div className="bg-white p-6 rounded-xl border-2 border-indigo-200 shadow-lg">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-2xl font-bold text-indigo-900">🎯 Bande Dessinée Pré-Générée</h3>
+          <h3 className="text-2xl font-bold text-indigo-900">🎯 Bande Dessinée Éducative</h3>
           {isLoaded && (
             <div className="flex items-center text-green-600">
               <CheckCircle className="h-6 w-6 mr-2" />
@@ -64,8 +76,8 @@ export const BandeDessineeComplete = ({ itemData }: BandeDessineeCompleteProps) 
             <div className="text-sm text-blue-600">Compétences Couvertes</div>
           </div>
           <div className="text-center p-4 bg-purple-50 rounded-lg border border-purple-200">
-            <div className="text-3xl font-bold text-purple-700">15</div>
-            <div className="text-sm text-purple-600">Chapitres Complets</div>
+            <div className="text-3xl font-bold text-purple-700">{Math.min(panels.length, 8)}</div>
+            <div className="text-sm text-purple-600">Chapitres Illustrés</div>
           </div>
           <div className="text-center p-4 bg-amber-50 rounded-lg border border-amber-200">
             <div className="text-3xl font-bold text-amber-700">20/20</div>
@@ -76,8 +88,8 @@ export const BandeDessineeComplete = ({ itemData }: BandeDessineeCompleteProps) 
         <div className="mt-4 p-4 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-lg border border-emerald-200">
           <p className="text-emerald-800 font-medium text-center flex items-center justify-center gap-2">
             <span className="text-2xl">⚡</span>
-            Cette bande dessinée est pré-générée et disponible instantanément ! 
-            Chaque vignette couvre des compétences uniques pour une maîtrise complète.
+            Cette bande dessinée est générée automatiquement à partir des compétences de l'item ! 
+            Chaque vignette illustre des situations cliniques concrètes pour une maîtrise complète.
             <span className="text-2xl">🎯</span>
           </p>
         </div>
