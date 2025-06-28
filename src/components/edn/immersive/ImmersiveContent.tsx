@@ -1,4 +1,5 @@
 
+
 import { ParolesMusicales } from '../ParolesMusicales';
 import { TableauRangA } from '../TableauRangA';
 import { TableauRangB } from '../TableauRangB';
@@ -66,7 +67,7 @@ export const ImmersiveContent = ({ currentSection, item }: ImmersiveContentProps
       case 4:
         return (
           <div className="p-6">
-            <BandeDessinee data={item.bd_data} />
+            <BandeDessinee itemData={item} />
           </div>
         );
 
@@ -87,7 +88,7 @@ export const ImmersiveContent = ({ currentSection, item }: ImmersiveContentProps
       case 7:
         return (
           <div className="p-6">
-            <SceneImmersive scene={item.scene_immersive} />
+            <SceneImmersive data={item.scene_immersive} />
           </div>
         );
 
@@ -108,3 +109,4 @@ export const ImmersiveContent = ({ currentSection, item }: ImmersiveContentProps
     </div>
   );
 };
+
