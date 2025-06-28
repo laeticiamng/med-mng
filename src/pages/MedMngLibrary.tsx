@@ -3,6 +3,7 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useMedMngApi } from '@/hooks/useMedMngApi';
 import { withAuth } from '@/components/med-mng/withAuth';
+import { MedMngNavigation } from '@/components/med-mng/MedMngNavigation';
 import { SongCard } from '@/components/med-mng/SongCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -33,6 +34,7 @@ const MedMngLibraryComponent = () => {
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+        <MedMngNavigation />
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-center min-h-[400px]">
             <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
@@ -45,6 +47,7 @@ const MedMngLibraryComponent = () => {
   if (error) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+        <MedMngNavigation />
         <div className="container mx-auto px-4 py-8">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-gray-900 mb-4">Erreur</h1>
@@ -58,6 +61,7 @@ const MedMngLibraryComponent = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      <MedMngNavigation />
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">

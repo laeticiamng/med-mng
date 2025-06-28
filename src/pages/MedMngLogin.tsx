@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Music } from 'lucide-react';
 
 export const MedMngLogin = () => {
   const { user, signIn, signInWithGoogle, signInWithFacebook, signInWithApple } = useAuth();
@@ -58,7 +59,10 @@ export const MedMngLogin = () => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold text-gray-900">MED-MNG</CardTitle>
+          <div className="flex items-center justify-center gap-2 mb-4">
+            <Music className="h-8 w-8 text-blue-600" />
+            <span className="text-2xl font-bold text-gray-900">MED-MNG</span>
+          </div>
           <CardDescription>Connectez-vous à votre compte</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -139,6 +143,12 @@ export const MedMngLogin = () => {
           <div className="text-center text-sm">
             <Link to="/med-mng/pricing" className="text-blue-600 hover:underline">
               Voir les offres d'abonnement
+            </Link>
+          </div>
+
+          <div className="text-center text-sm">
+            <Link to="/med-mng/library" className="text-blue-600 hover:underline">
+              Accéder à l'application
             </Link>
           </div>
         </CardContent>

@@ -5,6 +5,7 @@ import { toast } from 'sonner';
 import { useQuery } from '@tanstack/react-query';
 import { useMedMngApi } from '@/hooks/useMedMngApi';
 import { useSongGeneration } from '@/hooks/useSongGeneration';
+import { MedMngNavigation } from '@/components/med-mng/MedMngNavigation';
 import { CreateSongHeader } from '@/components/med-mng/create/CreateSongHeader';
 import { CreateSongContainer } from '@/components/med-mng/create/CreateSongContainer';
 import { InformationCard } from '@/components/med-mng/create/InformationCard';
@@ -88,6 +89,7 @@ const MedMngCreateComponent = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      <MedMngNavigation />
       <div className="container mx-auto px-4 py-8">
         <CreateSongHeader remainingCredits={quota?.remaining_credits} />
 
