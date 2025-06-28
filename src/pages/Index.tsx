@@ -207,51 +207,51 @@ const Index = () => {
             </Link>
           </div>
 
-          {/* Quick Access Grid - Improved for mobile */}
+          {/* Quick Access Grid with proper content - Fixed white buttons issue */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 max-w-4xl mx-auto animate-fade-in" style={{ animationDelay: '0.9s' }}>
-            <Link to="/med-mng/library">
+            <Link to="/med-mng/library" className="block">
               <Button 
                 variant="outline" 
-                className="h-16 sm:h-20 flex flex-col items-center gap-1 sm:gap-2 border-white/30 text-white hover:bg-white/10 transition-all duration-300 hover:scale-105 rounded-xl"
+                className="w-full h-16 sm:h-20 flex flex-col items-center justify-center gap-1 sm:gap-2 border-white/30 bg-white/5 backdrop-blur-sm text-white hover:bg-white/10 hover:border-white/50 transition-all duration-300 hover:scale-105 rounded-xl"
               >
-                <Library className="h-4 w-4 sm:h-6 sm:w-6" />
-                <span className="text-xs sm:text-sm font-medium">
+                <Library className="h-4 w-4 sm:h-6 sm:w-6 text-white" />
+                <span className="text-xs sm:text-sm font-medium text-white">
                   <TranslatedText text="Bibliothèque" />
                 </span>
               </Button>
             </Link>
             
-            <Link to="/med-mng/create">
+            <Link to="/med-mng/create" className="block">
               <Button 
                 variant="outline" 
-                className="h-16 sm:h-20 flex flex-col items-center gap-1 sm:gap-2 border-white/30 text-white hover:bg-white/10 transition-all duration-300 hover:scale-105 rounded-xl"
+                className="w-full h-16 sm:h-20 flex flex-col items-center justify-center gap-1 sm:gap-2 border-white/30 bg-white/5 backdrop-blur-sm text-white hover:bg-white/10 hover:border-white/50 transition-all duration-300 hover:scale-105 rounded-xl"
               >
-                <Music className="h-4 w-4 sm:h-6 sm:w-6" />
-                <span className="text-xs sm:text-sm font-medium">
+                <Music className="h-4 w-4 sm:h-6 sm:w-6 text-white" />
+                <span className="text-xs sm:text-sm font-medium text-white">
                   <TranslatedText text="Créer" />
                 </span>
               </Button>
             </Link>
             
-            <Link to="/med-mng/pricing">
+            <Link to="/med-mng/pricing" className="block">
               <Button 
                 variant="outline" 
-                className="h-16 sm:h-20 flex flex-col items-center gap-1 sm:gap-2 border-white/30 text-white hover:bg-white/10 transition-all duration-300 hover:scale-105 rounded-xl"
+                className="w-full h-16 sm:h-20 flex flex-col items-center justify-center gap-1 sm:gap-2 border-white/30 bg-white/5 backdrop-blur-sm text-white hover:bg-white/10 hover:border-white/50 transition-all duration-300 hover:scale-105 rounded-xl"
               >
-                <CreditCard className="h-4 w-4 sm:h-6 sm:w-6" />
-                <span className="text-xs sm:text-sm font-medium">
+                <CreditCard className="h-4 w-4 sm:h-6 sm:w-6 text-white" />
+                <span className="text-xs sm:text-sm font-medium text-white">
                   <TranslatedText text="Tarifs" />
                 </span>
               </Button>
             </Link>
             
-            <Link to="/med-mng/login">
+            <Link to="/med-mng/login" className="block">
               <Button 
                 variant="outline" 
-                className="h-16 sm:h-20 flex flex-col items-center gap-1 sm:gap-2 border-white/30 text-white hover:bg-white/10 transition-all duration-300 hover:scale-105 rounded-xl"
+                className="w-full h-16 sm:h-20 flex flex-col items-center justify-center gap-1 sm:gap-2 border-white/30 bg-white/5 backdrop-blur-sm text-white hover:bg-white/10 hover:border-white/50 transition-all duration-300 hover:scale-105 rounded-xl"
               >
-                <User className="h-4 w-4 sm:h-6 sm:w-6" />
-                <span className="text-xs sm:text-sm font-medium">
+                <User className="h-4 w-4 sm:h-6 sm:w-6 text-white" />
+                <span className="text-xs sm:text-sm font-medium text-white">
                   <TranslatedText text="Profil" />
                 </span>
               </Button>
@@ -263,7 +263,7 @@ const Index = () => {
             <div className="grid grid-cols-1 gap-3 max-w-sm mx-auto">
               <Link to="/med-mng/library">
                 <Button 
-                  className="w-full bg-white/10 hover:bg-white/20 text-white border-white/30 flex items-center justify-center gap-3 py-3 rounded-xl transition-all"
+                  className="w-full bg-white/10 hover:bg-white/20 text-white border-white/30 flex items-center justify-center gap-3 py-3 rounded-xl transition-all backdrop-blur-sm"
                   variant="outline"
                 >
                   <Library className="h-5 w-5" />
@@ -273,7 +273,7 @@ const Index = () => {
               
               <Link to="/med-mng/create">
                 <Button 
-                  className="w-full bg-white/10 hover:bg-white/20 text-white border-white/30 flex items-center justify-center gap-3 py-3 rounded-xl transition-all"
+                  className="w-full bg-white/10 hover:bg-white/20 text-white border-white/30 flex items-center justify-center gap-3 py-3 rounded-xl transition-all backdrop-blur-sm"
                   variant="outline"
                 >
                   <Music className="h-5 w-5" />
@@ -283,7 +283,7 @@ const Index = () => {
               
               <Link to="/med-mng/pricing">
                 <Button 
-                  className="w-full bg-white/10 hover:bg-white/20 text-white border-white/30 flex items-center justify-center gap-3 py-3 rounded-xl transition-all"
+                  className="w-full bg-white/10 hover:bg-white/20 text-white border-white/30 flex items-center justify-center gap-3 py-3 rounded-xl transition-all backdrop-blur-sm"
                   variant="outline"
                 >
                   <CreditCard className="h-5 w-5" />
