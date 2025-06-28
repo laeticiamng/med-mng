@@ -10,7 +10,7 @@ import { MusicStyleIndicator } from './music/MusicStyleIndicator';
 import { LanguageTranspositionPanel } from './music/LanguageTranspositionPanel';
 import { useMusicGenerationWithTranslation } from '@/hooks/useMusicGenerationWithTranslation';
 import { useAudioControls } from '@/hooks/useAudioControls';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { useLanguage, SupportedLanguage } from '@/contexts/LanguageContext';
 
 interface ParolesMusicalesProps {
   paroles: string[];
@@ -83,7 +83,7 @@ export const ParolesMusicales = ({ paroles, itemCode, itemTitle }: ParolesMusica
     try {
       const transposedAudioUrl = await transposeMusicToLanguage(
         originalLyrics,
-        targetLanguage,
+        targetLanguage as SupportedLanguage,
         selectedStyle,
         musicDuration
       );

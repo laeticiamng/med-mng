@@ -20,7 +20,6 @@ interface EdnItemData {
   title: string;
   subtitle?: string;
   slug: string;
-  content: any;
   paroles_musicales?: string[];
   tableau_rang_a?: any;
   tableau_rang_b?: any;
@@ -53,7 +52,22 @@ const EdnItem = () => {
         }
 
         if (data) {
-          setItem(data);
+          // Mapper les données de Supabase vers notre interface
+          const mappedData: EdnItemData = {
+            id: data.id,
+            item_code: data.item_code,
+            title: data.title,
+            subtitle: data.subtitle,
+            slug: data.slug,
+            paroles_musicales: data.paroles_musicales,
+            tableau_rang_a: data.tableau_rang_a,
+            tableau_rang_b: data.tableau_rang_b,
+            scene_immersive: data.scene_immersive,
+            quiz_questions: data.quiz_questions,
+            created_at: data.created_at,
+            updated_at: data.updated_at
+          };
+          setItem(mappedData);
         }
       } catch (error) {
         console.error('Erreur:', error);
@@ -125,7 +139,18 @@ const EdnItem = () => {
         );
       
       case 'bd':
-        return <BandeDessinee itemData={item} />;
+        return (
+          <BandeDessinee 
+            itemData={{
+              title: item.title,
+              subtitle: item.subtitle || '',
+              slug: item.slug,
+              item_code: item.item_code,
+              tableau_rang_a: item.tableau_rang_a,
+              tableau_rang_b: item.tableau_rang_b
+            }}
+          />
+        );
       
       case 'music':
         return (
