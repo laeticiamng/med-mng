@@ -1,120 +1,109 @@
 
-import { PitchIntroSection } from './PitchIntroSection';
-import { SceneImmersive } from '../SceneImmersive';
-import { TableauRangA } from '../tableau/TableauRangA';
-import { TableauRangB } from '../tableau/TableauRangB';
 import { ParolesMusicales } from '../ParolesMusicales';
+import { TableauRangA } from '../TableauRangA';
+import { TableauRangB } from '../TableauRangB';
 import { BandeDessinee } from '../BandeDessinee';
 import { InteractionDragDrop } from '../InteractionDragDrop';
 import { QuizFinal } from '../QuizFinal';
+import { SceneImmersive } from '../SceneImmersive';
 
 interface ImmersiveContentProps {
   currentSection: number;
-  item: {
-    id: string;
-    title: string;
-    subtitle?: string;
-    item_code: string;
-    pitch_intro?: string;
-    tableau_rang_a?: any;
-    tableau_rang_b?: any;
-    scene_immersive?: any;
-    paroles_musicales?: string[];
-    interaction_config?: any;
-    quiz_questions?: any;
-  };
+  item: any;
 }
 
 export const ImmersiveContent = ({ currentSection, item }: ImmersiveContentProps) => {
-  console.log('ImmersiveContent - Section:', currentSection, 'Item:', item.item_code);
-
   const renderContent = () => {
     switch (currentSection) {
-      case 0: // Pitch d'introduction
+      case 0:
         return (
-          <PitchIntroSection
-            title={item.title}
-            itemCode={item.item_code}
-            subtitle={item.subtitle || ''}
-            pitchIntro={item.pitch_intro || ''}
-          />
+          <div className="p-8">
+            <div className="text-center">
+              <h1 className="text-4xl font-bold text-amber-900 mb-6">
+                {item.title}
+              </h1>
+              {item.subtitle && (
+                <p className="text-xl text-amber-700 mb-8">
+                  {item.subtitle}
+                </p>
+              )}
+              {item.pitch_intro && (
+                <div className="bg-amber-50 p-6 rounded-lg border-2 border-amber-200">
+                  <p className="text-lg text-amber-800 leading-relaxed">
+                    {item.pitch_intro}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
         );
 
-      case 1: // Scène immersive
+      case 1:
         return (
-          <SceneImmersive 
-            data={item.scene_immersive || {}}
-          />
+          <div className="p-6">
+            <TableauRangA data={item.tableau_rang_a} />
+          </div>
         );
 
-      case 2: // Tableau Rang A
+      case 2:
         return (
-          <TableauRangA 
-            data={{
-              tableau_rang_a: item.tableau_rang_a,
-              title: item.title,
-              item_code: item.item_code
-            }}
-          />
+          <div className="p-6">
+            <TableauRangB data={item.tableau_rang_b} />
+          </div>
         );
 
-      case 3: // Tableau Rang B
+      case 3:
         return (
-          <TableauRangB 
-            data={{
-              tableau_rang_b: item.tableau_rang_b,
-              title: item.title,
-              item_code: item.item_code
-            }}
-          />
+          <div className="p-6">
+            <ParolesMusicales 
+              paroles={item.paroles_musicales || []} 
+              itemCode={item.item_code}
+              itemTitle={item.title}
+            />
+          </div>
         );
 
-      case 4: // Paroles musicales
+      case 4:
         return (
-          <ParolesMusicales 
-            paroles={item.paroles_musicales || []}
-          />
+          <div className="p-6">
+            <BandeDessinee data={item.bd_data} />
+          </div>
         );
 
-      case 5: // Bande dessinée
+      case 5:
         return (
-          <BandeDessinee 
-            itemData={{
-              title: item.title,
-              subtitle: item.subtitle || '',
-              slug: item.item_code.toLowerCase(),
-              tableau_rang_a: item.tableau_rang_a,
-              tableau_rang_b: item.tableau_rang_b
-            }}
-          />
+          <div className="p-6">
+            <InteractionDragDrop config={item.interaction_config} />
+          </div>
         );
 
-      case 6: // Interaction
+      case 6:
         return (
-          <InteractionDragDrop 
-            config={item.interaction_config}
-          />
+          <div className="p-6">
+            <QuizFinal questions={item.quiz_questions || []} />
+          </div>
         );
 
-      case 7: // Quiz final
+      case 7:
         return (
-          <QuizFinal 
-            questions={item.quiz_questions}
-          />
+          <div className="p-6">
+            <SceneImmersive scene={item.scene_immersive} />
+          </div>
         );
 
       default:
         return (
-          <div className="text-center p-8">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Section non trouvée</h2>
-            <p className="text-gray-600">Cette section n'existe pas encore.</p>
+          <div className="p-8 text-center">
+            <h2 className="text-2xl font-bold text-amber-900">
+              Section en développement
+            </h2>
           </div>
         );
     }
   };
 
   return (
-    <div className="min-h-[400px] p-4 sm:p-6">
+    <div className="min-h-[500px]">
       {renderContent()}
     </div>
   );

@@ -1,5 +1,6 @@
 
 import { useState } from 'react';
+import { useParams } from 'react-router-dom';
 import { MusicHeader } from './music/MusicHeader';
 import { MusicStyleSelector } from './music/MusicStyleSelector';
 import { MusicDurationSelector } from './music/MusicDurationSelector';
@@ -11,9 +12,11 @@ import { useAudioControls } from '@/hooks/useAudioControls';
 
 interface ParolesMusicalesProps {
   paroles: string[];
+  itemCode?: string;
+  itemTitle?: string;
 }
 
-export const ParolesMusicales = ({ paroles }: ParolesMusicalesProps) => {
+export const ParolesMusicales = ({ paroles, itemCode, itemTitle }: ParolesMusicalesProps) => {
   const [selectedStyle, setSelectedStyle] = useState('');
   const [musicDuration, setMusicDuration] = useState(240); // 4 minutes par défaut
   
@@ -96,6 +99,8 @@ export const ParolesMusicales = ({ paroles }: ParolesMusicalesProps) => {
         onVolumeChange={changeVolume}
         onStop={handleStop}
         onMinimize={minimize}
+        itemCode={itemCode}
+        itemTitle={itemTitle}
       />
 
       <MusicStyleIndicator selectedStyle={selectedStyle} musicStyles={musicStyles} />

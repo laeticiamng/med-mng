@@ -19,6 +19,8 @@ interface MusicCardsSectionProps {
   onVolumeChange: (volume: number) => void;
   onStop: () => void;
   onMinimize: () => void;
+  itemCode?: string;
+  itemTitle?: string;
 }
 
 export const MusicCardsSection = ({
@@ -38,7 +40,9 @@ export const MusicCardsSection = ({
   onSeek,
   onVolumeChange,
   onStop,
-  onMinimize
+  onMinimize,
+  itemCode,
+  itemTitle
 }: MusicCardsSectionProps) => {
   const formatDuration = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
@@ -46,11 +50,51 @@ export const MusicCardsSection = ({
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
+  // Fonction pour générer les titres spécifiques selon l'item
+  const getTitlesForItem = (code: string = '', title: string = '') => {
+    const duration = formatDuration(musicDuration);
+    
+    switch (code) {
+      case 'IC-1':
+        return {
+          rangA: `${code} Rang A - Colloque Singulier & Communication (${duration})`,
+          rangB: `${code} Rang B - Outils de Raisonnement & TICE (${duration})`
+        };
+      case 'IC-2':
+        return {
+          rangA: `${code} Rang A - Valeurs & Déontologie Médicale (${duration})`,
+          rangB: `${code} Rang B - Organisation & Exercice Professionnel (${duration})`
+        };
+      case 'IC-3':
+        return {
+          rangA: `${code} Rang A - Evidence-Based Medicine (${duration})`,
+          rangB: `${code} Rang B - Systèmes d'Aide & Expertise Clinique (${duration})`
+        };
+      case 'IC-4':
+        return {
+          rangA: `${code} Rang A - Qualité & Sécurité des Soins (${duration})`,
+          rangB: `${code} Rang B - Expertise EIAS & Infectiologie (${duration})`
+        };
+      case 'IC-5':
+        return {
+          rangA: `${code} Rang A - Responsabilités & Erreurs Médicales (${duration})`,
+          rangB: `${code} Rang B - Contentieux & Gestion Juridique (${duration})`
+        };
+      default:
+        return {
+          rangA: `Rang A - Connaissances Fondamentales (${duration})`,
+          rangB: `Rang B - Expertise Avancée (${duration})`
+        };
+    }
+  };
+
+  const titles = getTitlesForItem(itemCode, itemTitle);
+
   return (
     <div className="space-y-8">
       <MusicCard
         rang="A"
-        title={`Chanson Rang A - Colloque Singulier (${formatDuration(musicDuration)})`}
+        title={titles.rangA}
         paroles={paroles[0] || 'Aucune parole disponible pour le Rang A'}
         selectedStyle={selectedStyle}
         musicDuration={musicDuration}
@@ -72,7 +116,7 @@ export const MusicCardsSection = ({
 
       <MusicCard
         rang="B"
-        title={`Chanson Rang B - Outils Pratiques (${formatDuration(musicDuration)})`}
+        title={titles.rangB}
         paroles={paroles[1] || 'Aucune parole disponible pour le Rang B'}
         selectedStyle={selectedStyle}
         musicDuration={musicDuration}
