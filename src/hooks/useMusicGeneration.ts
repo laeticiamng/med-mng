@@ -87,12 +87,9 @@ export const useMusicGeneration = () => {
 
       console.log('📤 Données envoyées à l\'Edge Function:', requestBody);
       
-      // Configuration optimisée pour une génération rapide - CORRECTION: sérialiser le body
+      // Configuration corrigée - sans header Content-Type qui peut causer des problèmes
       const { data, error } = await supabase.functions.invoke('generate-music', {
-        body: JSON.stringify(requestBody),
-        headers: {
-          'Content-Type': 'application/json'
-        }
+        body: requestBody
       });
 
       // Gestion des erreurs Supabase améliorée
