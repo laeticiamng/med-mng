@@ -1,9 +1,15 @@
-import { useState } from 'react';
+
 import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Music, Minimize2, Loader2, AlertTriangle } from 'lucide-react';
 import { AudioPlayer } from '../AudioPlayer';
 import { MusicLoadingIndicator } from './MusicLoadingIndicator';
+import { MusicCardHeader } from './MusicCardHeader';
+import { MissingParolesWarning } from './MissingParolesWarning';
+import { ParolesDisplay } from './ParolesDisplay';
+import { GenerateButton } from './GenerateButton';
+import { MinimizedPlayerButton } from './MinimizedPlayerButton';
+import { useMusicCardState } from './hooks/useMusicCardState';
+import { formatParoles, hasValidParoles } from './utils/parolesFormatter';
+import { getCardStyling } from './utils/cardStyling';
 
 interface MusicCardProps {
   rang: 'A' | 'B';
@@ -48,130 +54,50 @@ export const MusicCard = ({
   onStop,
   onMinimize
 }: MusicCardProps) => {
-  // Protection supplémentaire contre les double-clics
-  const [isClicked, setIsClicked] = useState(false);
-
-  const formatParoles = (text: string) => {
-    if (!text || text === 'Aucune parole disponible pour le Rang A' || text === 'Aucune parole disponible pour le Rang B') {
-      return ['Aucune parole disponible pour ce rang.'];
-    }
-    
-    return text
-      .replace(/\\n/g, '\n')
-      .replace(/\n\n+/g, '\n\n')
-      .split('\n')
-      .map(line => line.trim())
-      .filter(line => line.length > 0);
-  };
-
-  const formatDuration = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-  };
-
-  const handleGenerateClick = async () => {
-    if (isClicked || isGenerating) {
-      console.log(`⚠️ Clic ignoré - isClicked: ${isClicked}, isGenerating: ${isGenerating}`);
-      return;
-    }
-    
-    setIsClicked(true);
-    console.log(`🎵 Clic génération Rang ${rang}`);
-    
-    try {
-      await onGenerateMusic();
-    } finally {
-      // Réactiver après un délai pour éviter les double-clics rapides
-      setTimeout(() => setIsClicked(false), 2000);
-    }
-  };
-
-  const cardColor = rang === 'A' ? 'amber' : 'blue';
-  const gradientFrom = rang === 'A' ? 'from-amber-50' : 'from-blue-50';
-  const gradientTo = rang === 'A' ? 'to-orange-50' : 'to-indigo-50';
-  const borderColor = rang === 'A' ? 'border-amber-300' : 'border-blue-300';
-  const textColor = rang === 'A' ? 'text-amber-900' : 'text-blue-900';
-  const iconColor = rang === 'A' ? 'text-amber-600' : 'text-blue-600';
-  const buttonColor = rang === 'A' ? 'bg-amber-600 hover:bg-amber-700' : 'bg-blue-600 hover:bg-blue-700';
-
+  const { isClicked, handleGenerateClick } = useMusicCardState(isGenerating);
+  const styling = getCardStyling(rang);
   const parolesArray = formatParoles(paroles);
-  const hasValidParoles = parolesArray.length > 0 && parolesArray[0] !== 'Aucune parole disponible pour ce rang.';
+  const hasValidParolesData = hasValidParoles(parolesArray);
+  const isButtonDisabled = isGenerating || isClicked || !selectedStyle || !hasValidParolesData;
 
-  const isButtonDisabled = isGenerating || isClicked || !selectedStyle || !hasValidParoles;
+  const onGenerateClick = () => {
+    handleGenerateClick(rang, onGenerateMusic);
+  };
 
   return (
     <div>
-      {/* Indicateur de chargement visible */}
       <MusicLoadingIndicator 
         rang={rang}
         duration={musicDuration}
         isVisible={isGenerating}
       />
 
-      <Card className={`p-8 bg-gradient-to-br ${gradientFrom} ${gradientTo} ${borderColor} shadow-xl ${isGenerating ? 'opacity-75' : ''}`}>
-        <div className="text-center mb-6">
-          <div className="flex items-center justify-center mb-4">
-            <Music className={`h-6 w-6 ${iconColor} mr-3`} />
-            <h3 className={`text-2xl font-serif ${textColor} font-bold`}>
-              {title}
-            </h3>
-          </div>
-        </div>
+      <Card className={`p-8 bg-gradient-to-br ${styling.gradientFrom} ${styling.gradientTo} ${styling.borderColor} shadow-xl ${isGenerating ? 'opacity-75' : ''}`}>
+        <MusicCardHeader 
+          title={title}
+          iconColor={styling.iconColor}
+          textColor={styling.textColor}
+        />
         
-        {!hasValidParoles && (
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6 flex items-center">
-            <AlertTriangle className="h-5 w-5 text-yellow-600 mr-3 flex-shrink-0" />
-            <div className="text-yellow-800">
-              <p className="font-medium">Paroles manquantes</p>
-              <p className="text-sm">Les paroles pour ce rang ne sont pas encore disponibles dans la base de données.</p>
-            </div>
-          </div>
-        )}
+        <MissingParolesWarning isVisible={!hasValidParolesData} />
         
-        <div className={`prose prose-lg max-w-none ${textColor} mb-8`}>
-          {parolesArray.map((ligne, index) => {
-            if (ligne.startsWith('[') && ligne.endsWith(']')) {
-              return (
-                <div key={index} className={`text-xl font-bold ${rang === 'A' ? 'text-amber-800' : 'text-blue-800'} my-4 text-center`}>
-                  {ligne}
-                </div>
-              );
-            }
-            if (ligne.includes(' - ')) {
-              return (
-                <div key={index} className={`text-2xl font-bold ${textColor} mb-6 text-center border-b-2 ${rang === 'A' ? 'border-amber-300' : 'border-blue-300'} pb-3`}>
-                  {ligne}
-                </div>
-              );
-            }
-            return (
-              <div key={index} className="text-lg leading-relaxed mb-2 italic font-medium">
-                {ligne}
-              </div>
-            );
-          })}
-        </div>
+        <ParolesDisplay 
+          parolesArray={parolesArray}
+          rang={rang}
+          textColor={styling.textColor}
+        />
 
         <div className="space-y-4">
-          <div className="flex justify-center">
-            <Button
-              onClick={handleGenerateClick}
-              disabled={isButtonDisabled}
-              className={`${buttonColor} text-white px-6 py-3 ${isButtonDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
-            >
-              {isGenerating ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Génération en cours...
-                </>
-              ) : (
-                `Générer Musique Rang ${rang} (${formatDuration(musicDuration)})`
-              )}
-            </Button>
-          </div>
+          <GenerateButton
+            rang={rang}
+            isGenerating={isGenerating}
+            isDisabled={isButtonDisabled}
+            musicDuration={musicDuration}
+            buttonColor={styling.buttonColor}
+            onGenerate={onGenerateClick}
+          />
           
-          {!hasValidParoles && (
+          {!hasValidParolesData && (
             <p className="text-center text-sm text-gray-600">
               La génération nécessite des paroles valides depuis la base de données Supabase.
             </p>
@@ -193,18 +119,11 @@ export const MusicCard = ({
             />
           )}
 
-          {generatedAudio && isMinimized && isCurrentTrack && (
-            <div className="text-center">
-              <Button
-                onClick={onMinimize}
-                variant="outline"
-                className={`${rang === 'A' ? 'border-amber-300 text-amber-600 hover:bg-amber-50' : 'border-blue-300 text-blue-600 hover:bg-blue-50'}`}
-              >
-                <Minimize2 className="h-4 w-4 mr-2" />
-                Lecteur minimisé - Continuer l'écoute
-              </Button>
-            </div>
-          )}
+          <MinimizedPlayerButton
+            rang={rang}
+            isVisible={!!(generatedAudio && isMinimized && isCurrentTrack)}
+            onMinimize={onMinimize}
+          />
         </div>
       </Card>
     </div>
