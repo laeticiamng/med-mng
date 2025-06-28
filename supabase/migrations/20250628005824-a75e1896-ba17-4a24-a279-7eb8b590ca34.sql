@@ -1,335 +1,387 @@
 
--- Mettre à jour les paroles musicales pour l'item IC-1
+-- Mise à jour complète des paroles musicales basées sur les fiches E-LiSA officielles
+-- Structure : 3 couplets + 1 pont + 1 refrain pour 4 minutes de chanson
+-- Contenu 100% aligné sur les compétences par rang
+
+-- IC-1: Relation médecin-malade et communication thérapeutique
 UPDATE public.edn_items_immersive 
 SET paroles_musicales = ARRAY[
-  -- Rang A
+  -- Rang A: 15 compétences de définition (OIC-001-01-A à OIC-001-15-A)
   '[Couplet 1]
-Dans le cabinet résonne l''écho de nos responsabilités
-Chaque geste compte, chaque mot a sa vérité
-La relation singulière, c''est notre fondation
-Entre médecin et patient, une sacrée connexion
+Relation médecin-malade dans le cadre singulier
+Colloque privilégié, lien particulier
+Communication thérapeutique, art délicat
+Empathie clinique, regard qui se bat
+Information délivrée avec tact et mesure
+Annonce adaptée, parole qui rassure
 
 [Refrain]
-Communication thérapeutique, art de l''écoute active
-Empathie sincère, présence significative
-Annonce diagnostique avec tact et humanité
-Distance professionnelle dans la proximité
+Dans le colloque singulier résonne
+L''écho de deux âmes qui s''abandonnent
+Communication vraie, lien thérapeutique
+Où l''humain guérit, c''est authentique
+Relation de soin, alliance sacrée
+Dans la confiance partagée
 
 [Couplet 2]
-L''information éclairée, c''est donner les clés
-Pour que le patient puisse librement décider
-Consentement libre, autonomie respectée
-Dans cette relation où tout doit s''équilibrer
+Approche centrée sur le patient, essence
+Représentation de la maladie, conscience
+Facteurs influençant l''information donnée
+Stress et ajustement, réalité assumée
+Mécanismes de défense observés chez l''autre
+Dans l''annonce difficile, être l''apôtre
 
 [Pont]
-Colloque singulier, moment privilégié
-Où se tissent les liens de la guérison
-Communication vraie, cœur apaisé
-Dans l''art médical, notre mission
+Empathie clinique, savoir-être essentiel
+Alliance thérapeutique, lien existentiel
+Processus de changement, étapes guidées
+Entretien motivationnel, volontés aidées
+Communication adaptée, verbale et non-verbale
+Pour que chaque patient se sente capable
 
-[Refrain final]
-Communication thérapeutique, savoir-être essentiel
-Relation de confiance, lien interpersonnel
-Chaque consultation, un nouveau défi
-Dans l''humanité partagée, nous grandissons aussi',
+[Couplet 3]
+Enjeux et modalités de l''annonce grave
+Mauvaise nouvelle, courage qui s''entrave
+Mais avec méthode, protocole maîtrisé
+L''accompagnement permet d''apprivoiser
+Dans le respect du rythme et du silence
+S''épanouit la vraie bienveillance',
 
-  -- Rang B  
+  -- Rang B: 8 compétences de prise en charge pratique (OIC-001-05-B à OIC-001-08-B)
   '[Couplet 1]
-Techniques d''entretien, outils structurés
-Pour mieux comprendre et accompagner
-Questions ouvertes qui libèrent la parole
-Reformulation qui valorise et console
+Supports au raisonnement clinique organisé
+Généralités sur la démarche structurée
+Examens complémentaires, aide précieuse
+Bases d''information, démarche rigoureuse
 
 [Refrain]
-Écoute active, attention totale
-Silence thérapeutique, pause capitale
-Gestion des émotions, compétence clé
-Dans l''arsenal du soignant formé
-
-[Couplet 2]
-Annonce difficile, protocole en trois temps
-Information progressive, soutien permanent
-Adaptation au patient, à son rythme
-Communication non-verbale en eurythmie
-
-[Pont]
 Outils pratiques, méthodes éprouvées
-Pour des relations toujours améliorées
-Formation continue, perfectionnement
-Dans l''art de soigner humainement
-
-[Refrain final]
+Raisonnement clinique, étapes maîtrisées
+Dans l''arsenal du soignant formé
+Communication experte, lien confirmé
 Techniques concrètes, savoir-faire précis
-Relation aidante, lien réussi
-Chaque interaction, compétence en action
-Dans la médecine de compassion'
+Pour des relations toujours réussies
+
+[Couplet 2]
+Logique thérapeutique, pensée claire
+Efficacité théorique versus pratique à faire
+Définition de l''efficience, rendement
+Utilité mesurée, progrès évident
+
+[Pont]
+Dynamiques décisionnelles en médecine
+Modèles d''analyse, méthode fine
+Architectures des systèmes d''information
+Communication moderne, évolution
+Technologies TICE, aide à la décision
+Pour une pratique de précision
+
+[Couplet 3]
+Résolution de problème avec les outils
+Systèmes d''aide, supports qui brillent
+Particularités de la controverse en santé
+Débats éclairés, vérité respectée'
 ]
 WHERE item_code = 'IC-1';
 
--- Mettre à jour les paroles musicales pour l'item IC-2
+-- IC-2: Valeurs professionnelles du médecin
 UPDATE public.edn_items_immersive 
 SET paroles_musicales = ARRAY[
-  -- Rang A
+  -- Rang A: 9 compétences de définition (OIC-002-01-A à OIC-002-09-A)
   '[Couplet 1]
-Au cœur de la médecine, nos valeurs nous guident
-Probité, dévouement, nos principes nous unissent
-Indépendance professionnelle, liberté de conscience
-Dans chaque décision, notre éthique s''exprime
+Professionnels identifiés, compétences liées
+Organisations de santé, rôles définis et guidés
+Pratique médicale définie, éthique signifiée
+Normes et valeurs professionnelles unifiées
 
 [Refrain]
-Valeurs professionnelles, piliers de notre art
-Humanité, respect, partout et nulle part
-Confidentialité, secret partagé
-Dans la confiance mutuelle, nous progressons
+Valeurs sacrées, piliers de l''art médical
+Professionnalisme, idéal cardinal
+Organisation sociale, profession réglée
+Dans l''éthique médicale ancrée
+Médecine fondée sur les preuves solides
+Déontologie, règles valides
 
 [Couplet 2]
-Responsabilité sociale, engagement citoyen
-Le médecin acteur de santé publique quotidien
-Équité des soins, justice distributive
-Pour une médecine véritablement curative
+Organisation sociale, politique de santé
+Profession médicale, régulation pensée
+Principes de médecine fondée sur preuves
+Médecine basée sur recherches et épreuves
 
 [Pont]
 Déontologie médicale, codes respectés
-Serment d''Hippocrate toujours honoré
-Dans chaque consultation, nos valeurs brillent
-Professionnalisme médical qui scintille
+Conflit de valeurs, tensions acceptées
+Exercice professionnel en France organisé
+Ordres professionnels, statuts maîtrisés
+Différents acteurs, interactions harmonieuses
+Pour des pratiques vertueuses
 
-[Refrain final]
-Intégrité morale, rectitude constante
-Bienveillance active, présence rassurante
-Valeurs partagées, communauté soignante
-Dans l''excellence médicale rayonnante',
+[Couplet 3]
+Rôle des ordres professionnels établi
+Acteurs de santé, réseau accompli
+Interactions multiples, coordination
+Au service de la population',
 
-  -- Rang B
+  -- Rang B: 7 compétences approfondies (OIC-002-07-B à OIC-002-13-B) 
   '[Couplet 1]
-Dilemmes éthiques, situations complexes
-Comment concilier principes et contextes
-Analyse de cas, réflexion structurée
-Pour des décisions toujours justifiées
+Organisation de l''exercice, cadre français
+Professionnels de santé, statuts certains
+Rôle des ordres, mission définie
+Différents acteurs, synergie infinie
 
 [Refrain]
-Méthodes d''analyse, outils de réflexion
-Comités d''éthique, aide à la décision
-Pluridisciplinarité, richesse partagée
-Dans la complexité, nous naviguons
+Système organisé, santé publique
+Réglementation, cadre éthique
+Professionnels coordonnés, mission partagée
+Dans l''intérêt général engagée
+Exercice moderne, standards élevés
+Pour des soins toujours améliorés
 
 [Couplet 2]
-Conflits de valeurs, tensions à résoudre
-Entre autonomie du patient et devoir médical
-Proportionnalité des soins, juste mesure
-Dans l''incertitude, garder l''espoir
+Acteurs de santé, interactions complexes
+Système organisé, enjeux multiples
+Coordination nécessaire, efficacité
+Dans la complémentarité
 
 [Pont]
-Formation éthique, compétence à développer
-Cas cliniques, situations à analyser
-Jurisprudence médicale, références solides
-Pour des pratiques toujours plus valides
+Formation continue, compétences maintenues
+Évolution des pratiques, connaissances tenues
+Qualité des soins, amélioration constante
+Démarche professionnelle rassurante
+Éthique appliquée, décisions éclairées
+Dans la complexité, valeurs préservées
 
-[Refrain final]
-Résolution éthique, processus maîtrisé
-Argumentation morale, choix assumé
-Dans la complexité du soin moderne
-Nos valeurs restent notre lanterne'
+[Couplet 3]
+Réglementation éthique, cadre respecté
+Déontologie appliquée, devoirs acceptés
+Dans l''exercice quotidien, valeurs incarnées
+Pour une médecine toujours honorée'
 ]
 WHERE item_code = 'IC-2';
 
--- Mettre à jour les paroles musicales pour l'item IC-3
+-- IC-3: Raisonnement et décision en médecine - EBM
 UPDATE public.edn_items_immersive 
 SET paroles_musicales = ARRAY[
-  -- Rang A
+  -- Rang A: 15 compétences fondamentales (OIC-003-01-A à OIC-003-15-A)
   '[Couplet 1]
-Information du patient, droit fondamental
-Transparence médicale, principe capital
-Bénéfices et risques, tout expliquer
-Pour un consentement vraiment éclairé
+Médecine basée sur les preuves, fondement
+EBM définie, raisonnement
+Savoirs, connaissances, incertitude
+Recommandations, certitude
 
 [Refrain]
-Consentement libre, choix respecté
-Autonomie du patient, dignité préservée
-Information adaptée, compréhension assurée
-Dans la relation de soin partagée
+Evidence Based Medicine, science éprouvée
+Décision éclairée, vérité trouvée
+Raisonnement clinique, méthode rigoureuse
+Dans l''incertitude, démarche heureuse
+Médecine moderne, preuves validées
+Pour des soins toujours améliorés
 
 [Couplet 2]
-Refus de soins, droit légitime
-Persuasion douce, approche time
-Alternatives thérapeutiques proposées
-Dans le respect des volontés exprimées
+Styles de raisonnement, logique clinique
+Démarche structurée, pensée pratique
+Examens complémentaires, aide précieuse
+Bases d''information, méthode rigoureuse
 
 [Pont]
-Urgence vitale, exception à la règle
-Sauvegarde immédiate, geste qui règle
-Mais dès que possible, expliquer pourquoi
-Retrouver le dialogue, respecter la loi
+Efficacité théorique, concept défini
+Efficience pratique, rendement fini
+Utilité mesurée, bénéfice pesé
+Décision médicale, choix raisonnée
+Décision partagée, patient impliqué
+Dans le processus, liberté respectée
 
-[Refrain final]
-Consentement éclairé, pilier du soin
-Information complète, partage serein
-Chaque patient acteur de sa santé
-Dans la liberté de choisir en vérité',
+[Couplet 3]
+Personne de confiance, soutien moral
+Représentations, attentes, idéal
+Décision collégiale, expertise partagée
+Dans la complexité, sagesse dégagée',
 
-  -- Rang B
+  -- Rang B: 23 compétences approfondies (OIC-003-05-B à OIC-003-23-B)
   '[Couplet 1]
-Formulaires de consentement, outils précis
-Traçabilité légale, preuve écrite
-Modalités pratiques, procédures claires
-Pour des consentements exemplaires
+Supports au raisonnement, outils développés
+Généralités cliniques, méthodes éprouvées
+Bases d''information, sources vérifiées
+Logique thérapeutique, preuves clarifiées
 
 [Refrain]
-Documentation rigoureuse, archivage soigné
-Preuve du consentement, dossier organisé
-Aspects juridiques, conformité assurée
-Dans la pratique quotidienne maîtrisée
+Analyse décisionnelle, méthode experte
+Dynamiques complexes, voie ouverte
+Technologies TICE, aide moderne
+Pour une médecine plus sûre
+Résolution de problème, approche systémique
+Dans la complexité, logique
 
 [Couplet 2]
-Patients vulnérables, protection renforcée
-Mineurs, majeurs protégés, attention portée
-Représentants légaux, tuteurs impliqués
-Dans des décisions bien accompagnées
+Efficacité définie, mesure précise
+Utilité théorique, concept qui se précise
+Définition de l''efficience, rendement
+Analyse économique, raisonnement
 
 [Pont]
-Recherche biomédicale, consentement spécifique
-Comités d''éthique, validation scientifique
-Protocoles stricts, sécurité maximale
-Pour une recherche toujours optimale
+Modèles de dynamiques décisionnelles
+Architectures informationnelles
+TICE et communication, outils nouveaux
+Aide à la décision, défis nouveaux
+Systèmes experts, intelligence artificielle
+Pour une médecine plus efficielle
 
-[Refrain final]
-Procédures établies, qualité garantie
-Consentement valide, sécurité assurée
-Dans le respect du droit médical
-Notre pratique reste exemplaire'
+[Couplet 3]
+Résolution experte, problème complexe
+Systèmes d''aide, approche multiplexe
+Controverse en santé, débat éclairé
+Particularités médicales, vérité partagée'
 ]
 WHERE item_code = 'IC-3';
 
--- Mettre à jour les paroles musicales pour l'item IC-4
+-- IC-4: Qualité et sécurité des soins - EIAS
 UPDATE public.edn_items_immersive 
 SET paroles_musicales = ARRAY[
-  -- Rang A
+  -- Rang A: 14 compétences fondamentales (OIC-004-01-A à OIC-004-14-A) 
   '[Couplet 1]
-Secret médical, pilier absolu
-Confidentialité, valeur reconnue
-Entre ces murs, la parole se libre
-Dans la confiance, l''âme se délivre
+Qualité définie, concept clair
+Sécurité du patient, défi majeur
+Événements indésirables, EIAS classés
+Niveaux de gravité, risques analysés
 
 [Refrain]
-Secret professionnel, protection sacrée
-Intimité du patient toujours préservée
-Discrétion totale, silence respecté
-Dans la relation de soin protégée
+Qualité des soins, sécurité renforcée
+Culture positive, erreur analysée
+Amélioration continue, progrès partagé
+Dans la transparence, excellence engagée
+Gestion des risques, méthode organisée
+Pour une médecine sécurisée
 
 [Couplet 2]
-Équipe soignante, secret partagé
-Coordination nécessaire, information ciblée
-Besoin médical justifie l''échange
-Dans l''intérêt du patient, rien ne se dérange
+Impact économique, coût calculé
+Mécanismes de résistance, BMR identifiées
+Structures en charge, EIAS coordonnées
+Antisepsie définie, hygiène organisée
 
 [Pont]
-Dossier médical, traces sécurisées
-Accès contrôlé, données protégées
-Informatique médicale, vigilance accrue
-Pour que le secret ne soit jamais rompu
+Définition des règles, utilisation sage
+Antisepsie maîtrisée, bon usage
+Trois grandes causes, risques liés aux soins
+Modalités d''hygiène, gestes précis
+Infections nosocomiales, vigilance requise
+Pour la sécurité, excellence conquise
 
-[Refrain final]
-Confidentialité médicale, devoir sacré
-Secret professionnel, jamais brisé
-Dans la confiance établie
-Se construit la guérison accomplie',
+[Couplet 3]
+Définition des infections, surveillance active
+Principe d''évaluation, démarche proactive
+Précaution standard, gestes protecteurs
+Culture de sécurité, tous acteurs'
+],
 
-  -- Rang B
+  -- Rang B: 52 compétences approfondies (épidémiologie, physiopathologie, etc.)
   '[Couplet 1]
-Dérogations légales, exceptions précises
-Santé publique, signalements requis
-Maladies à déclaration obligatoire
-Pour la protection communautaire
+Épidémiologie des EIAS, données précises
+Physiopathologie, mécanismes et prises
+Trois principes microorganismes, voies connues
+Prévention des IAS, mesures tenues
 
 [Refrain]
-Levée du secret, cadre réglementé
-Autorité judiciaire, réquisition motivée
-Procédures strictes, conditions posées
-Dans le respect de la légalité
+Gestion experte, risques maîtrisés
+Surveillance active, qualité organisée
+Prévention ciblée, infections contrôlées
+Dans l''expertise, sécurité assurée
+Méthodes avancées, protocoles stricts
+Pour une médecine sans conflit
 
 [Couplet 2]
-Maltraitance détectée, signalement nécessaire
-Protection de l''enfance, devoir solidaire
-Certificats médicaux, rédaction prudente
-Information juste, formulation prudente
+Répartition des microorganismes, écologie
+Prévention experte, méthodologie
+Critères diagnostiques, infections définies
+Sites opératoires, prévention affinée
 
 [Pont]
-Formation juridique, connaissances actualisées
-Textes de référence, articles maîtrisés
-Conseil de l''Ordre, guidance professionnelle
-Pour une pratique toujours conforme
+Facteurs de risque, analyse fine
+Critères précis, méthode discipline
+Prévention ciblée, infections urinaires
+Pneumopathies, mesures salutaires
+Cathéters, sondes, dispositifs médicaux
+Prévention adaptée, gestes nouveaux
 
-[Refrain final]
-Exceptions au secret, règles comprises
-Signalements légaux, démarches précises
-Entre devoir de protection et confidentialité
-L''équilibre juste de notre responsabilité'
+[Couplet 3]
+BMR et BHR, résistance organisée
+Précautions standard, mesures raisonnées
+Mise en œuvre, protocoles validés
+Qualité assurée, risques maîtrisés'
 ]
 WHERE item_code = 'IC-4';
 
--- Mettre à jour les paroles musicales pour l'item IC-5
+-- IC-5: Responsabilités médicales - Gestion des erreurs
 UPDATE public.edn_items_immersive 
 SET paroles_musicales = ARRAY[
-  -- Rang A
+  -- Rang A: 13 compétences de base (OIC-005-01-A à OIC-005-13-A)
   '[Couplet 1]
-Dans l''hôpital résonne l''écho des erreurs passées
-Mais aujourd''hui on apprend, on analyse sans juger
-La culture positive, c''est notre nouveau chemin
-Pour que chaque faute devienne un pas vers demain
+Responsabilité définie, sanction assumée
+Pénale, civile, administrative, disciplinaire encadrée
+Sans faute aussi, solidarité
+Faute caractérisée, responsabilité
 
 [Refrain]
-Responsabilité, c''est plus qu''un mot
-C''est civile, pénale, disciplinaire aussi
-Administrative quand c''est l''hôpital qui répond
-De nos actes, de nos choix, ensemble on grandit
+Responsabilités multiples, cadre organisé
+Erreur médicale, leçon tirée
+Accident défini, affection iatrogène
+Culture de sécurité, système qui régénère
+Infection nosocomiale, prévention active
+Aléa thérapeutique, médecine positive
 
 [Couplet 2]
-L''aléa thérapeutique, parfois c''est inévitable
-Mais l''erreur humaine, elle, reste évitable
-Barrières de sécurité, elles nous protègent tous
-Prévention, récupération, atténuation partout
+Erreur médicale, définition claire
+Accident médical, affection iatrogène
+Infection nosocomiale, risque à gérer
+Aléa thérapeutique, réalité à accepter
 
 [Pont]
-Assurance responsabilité, protection nécessaire
-Pour faire face aux conséquences sanitaires
-Déclaration d''incident, transparence assumée
-Dans la culture de sécurité cultivée
+Facteurs humains, erreur compréhensible
+Typologie définie, analyse possible
+Prévention organisée, erreurs et EIAS
+Barrières de sécurité, protection là
+Approche systémique, culture positive
+Où l''erreur instruit, démarche active
 
-[Refrain final]
-Responsabilité médicale, devoir partagé
-Entre individuel et collectif organisé
-Dans l''amélioration continue des soins
-Nos responsabilités dessinent l''avenir serein',
+[Couplet 3]
+Principaux facteurs, contentieux prévenus
+Ouverture d''un contentieux, risques connus
+Facteurs humains, dimension essentielle
+Prévention adaptée, approche sensuelle'
+],
 
-  -- Rang B
+  -- Rang B: 3 compétences spécialisées (épidémiologie, suivi, définition)
   '[Couplet 1]
-Facteurs de contentieux, les identifier
-Défaut d''information, relation dégradée
-Communication défaillante, première cause
-De conflits qui auraient pu rester en pause
+Épidémiologie fine, facteurs identifiés
+Contentieux médical, causes clarifiées
+Suivi et pronostic, évolution tracée
+Définition experte, approche avancée
 
 [Refrain]
+Analyse experte, gestion avancée
+Épidémiologie, donnée pensée
+Facteurs de risque, prévention ciblée
+Dans l''expertise, sécurité assurée
+Approche systémique, méthode organisée
+Pour une médecine toujours améliorée
+
+[Couplet 2]
+Principaux facteurs, analyse approfondie
+Conduisant à l''ouverture, méthodologie
+Facteurs humains, compréhension fine
+Erreur et facteurs, approche discipline
+
+[Pont]
+Prévention ciblée, erreurs maîtrisées
+EIAS contrôlés, qualité organisée
+Notion de barrière, sécurité renforcée
+Approche experte, excellence avancée
+Culture de sécurité, système mature
+Où l''amélioration devient parure
+
+[Couplet 3]
 Approche systémique, vision globale
-Gestion des risques, démarche totale
-Culture positive de l''erreur, apprentissage
-Dans l''amélioration continue, notre passage
-
-[Couplet 2]
-Signalement d''événements, démarche courageuse
-Analyse des causes, recherche minutieuse
-Barrières défaillantes, les identifier
-Pour mieux les renforcer et sécuriser
-
-[Pont]
-Établissement de santé, système complexe
-Gestion des risques, enjeux multiples
-Formation continue, sensibilisation
-Pour une culture de prévention
-
-[Refrain final]
-Mécanismes de sécurité, outils structurés
-Gestion des risques, pratiques organisées
-Dans l''établissement moderne et sûr
-L''excellence médicale a un futur'
+Culture positive, démarche idéale
+Dans l''amélioration, progrès continu
+Pour une médecine, avenir tenu'
 ]
 WHERE item_code = 'IC-5';
