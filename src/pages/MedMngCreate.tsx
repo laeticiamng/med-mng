@@ -2,8 +2,6 @@
 import React, { useState } from 'react';
 import { withAuth } from '@/components/med-mng/withAuth';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
@@ -26,8 +24,10 @@ const MedMngCreateComponent = () => {
   const navigate = useNavigate();
   const medMngApi = useMedMngApi();
   
-  const [title, setTitle] = useState('');
-  const [lyrics, setLyrics] = useState('');
+  const [contentType, setContentType] = useState(''); // 'item' ou 'situation'
+  const [selectedItem, setSelectedItem] = useState('');
+  const [selectedRang, setSelectedRang] = useState(''); // 'A' ou 'B'
+  const [selectedSituation, setSelectedSituation] = useState('');
   const [style, setStyle] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [generatedSong, setGeneratedSong] = useState<any>(null);
@@ -37,9 +37,46 @@ const MedMngCreateComponent = () => {
     queryFn: () => medMngApi.getRemainingQuota(),
   });
 
+  // Simuler la récupération des items EDN (à remplacer par votre vraie source de données)
+  const ednitems = [
+    { code: 'IC1', title: 'Item à Choix Multiples 1' },
+    { code: 'IC2', title: 'Item à Choix Multiples 2' },
+    { code: 'IC3', title: 'Item à Choix Multiples 3' },
+    { code: 'IC4', title: 'Item à Choix Multiples 4' },
+    { code: 'IC5', title: 'Item à Choix Multiples 5' },
+  ];
+
+  const situations = [
+    { code: 'S1', title: 'Situation de départ 1' },
+    { code: 'S2', title: 'Situation de départ 2' },
+    { code: 'S3', title: 'Situation de départ 3' },
+  ];
+
+  const getSelectedTitle = () => {
+    if (contentType === 'item' && selectedItem && selectedRang) {
+      const item = ednitems.find(i => i.code === selectedItem);
+      return `${item?.title} - Rang ${selectedRang}`;
+    }
+    if (contentType === 'situation' && selectedSituation) {
+      const situation = situations.find(s => s.code === selectedSituation);
+      return situation?.title;
+    }
+    return '';
+  };
+
+  const canGenerate = () => {
+    if (contentType === 'item') {
+      return selectedItem && selectedRang && style;
+    }
+    if (contentType === 'situation') {
+      return selectedSituation && style;
+    }
+    return false;
+  };
+
   const handleGenerate = async () => {
-    if (!title.trim() || !lyrics.trim() || !style) {
-      toast.error('Veuillez remplir tous les champs');
+    if (!canGenerate()) {
+      toast.error('Veuillez sélectionner tous les paramètres requis');
       return;
     }
 
@@ -51,6 +88,8 @@ const MedMngCreateComponent = () => {
 
     setIsGenerating(true);
     try {
+      const title = getSelectedTitle();
+      
       // Appel à l'Edge Function de génération musicale
       const response = await fetch('/api/generate-music', {
         method: 'POST',
@@ -58,7 +97,10 @@ const MedMngCreateComponent = () => {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          lyrics,
+          contentType,
+          selectedItem: contentType === 'item' ? selectedItem : null,
+          selectedRang: contentType === 'item' ? selectedRang : null,
+          selectedSituation: contentType === 'situation' ? selectedSituation : null,
           style,
           title,
           duration: 240,
@@ -75,6 +117,10 @@ const MedMngCreateComponent = () => {
       // Créer la chanson en base
       const song = await medMngApi.createSong(title, result.audioUrl, {
         style,
+        contentType,
+        selectedItem: contentType === 'item' ? selectedItem : undefined,
+        selectedRang: contentType === 'item' ? selectedRang : undefined,
+        selectedSituation: contentType === 'situation' ? selectedSituation : undefined,
         duration: result.duration,
         generationTime: result.generationTime
       });
@@ -135,7 +181,7 @@ const MedMngCreateComponent = () => {
               Créer une chanson
             </h1>
             <p className="text-gray-600 mb-4">
-              Générez votre musique personnalisée avec l'IA
+              Sélectionnez votre contenu EDN et générez votre musique personnalisée
             </p>
             <div className="inline-flex items-center gap-2 bg-white rounded-lg px-4 py-2 shadow-sm">
               <Music className="h-5 w-5 text-blue-600" />
@@ -146,22 +192,75 @@ const MedMngCreateComponent = () => {
           </div>
 
           <div className="grid lg:grid-cols-2 gap-8">
-            {/* Formulaire de création */}
+            {/* Formulaire de sélection */}
             <Card>
               <CardHeader>
-                <CardTitle>Paramètres de génération</CardTitle>
+                <CardTitle>Sélection du contenu</CardTitle>
               </CardHeader>
               <CardContent className="space-y-6">
                 <div>
-                  <Label htmlFor="title">Titre de la chanson</Label>
-                  <Input
-                    id="title"
-                    placeholder="Ex: Ma Chanson Inspirante"
-                    value={title}
-                    onChange={(e) => setTitle(e.target.value)}
-                    disabled={isGenerating}
-                  />
+                  <Label htmlFor="contentType">Type de contenu</Label>
+                  <Select value={contentType} onValueChange={setContentType} disabled={isGenerating}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Choisissez le type de contenu" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="item">Item EDN</SelectItem>
+                      <SelectItem value="situation">Situation de départ</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
+
+                {contentType === 'item' && (
+                  <>
+                    <div>
+                      <Label htmlFor="item">Item EDN</Label>
+                      <Select value={selectedItem} onValueChange={setSelectedItem} disabled={isGenerating}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Sélectionnez un item" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {ednitems.map((item) => (
+                            <SelectItem key={item.code} value={item.code}>
+                              {item.code} - {item.title}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="rang">Rang</Label>
+                      <Select value={selectedRang} onValueChange={setSelectedRang} disabled={isGenerating}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Sélectionnez le rang" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="A">Rang A - Colloque singulier</SelectItem>
+                          <SelectItem value="B">Rang B - Outils pratiques</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </>
+                )}
+
+                {contentType === 'situation' && (
+                  <div>
+                    <Label htmlFor="situation">Situation de départ</Label>
+                    <Select value={selectedSituation} onValueChange={setSelectedSituation} disabled={isGenerating}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Sélectionnez une situation" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {situations.map((situation) => (
+                          <SelectItem key={situation.code} value={situation.code}>
+                            {situation.code} - {situation.title}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
 
                 <div>
                   <Label htmlFor="style">Style musical</Label>
@@ -179,25 +278,19 @@ const MedMngCreateComponent = () => {
                   </Select>
                 </div>
 
-                <div>
-                  <Label htmlFor="lyrics">Paroles</Label>
-                  <Textarea
-                    id="lyrics"
-                    placeholder="Écrivez ici les paroles de votre chanson..."
-                    value={lyrics}
-                    onChange={(e) => setLyrics(e.target.value)}
-                    disabled={isGenerating}
-                    rows={8}
-                    className="resize-none"
-                  />
-                  <p className="text-sm text-gray-500 mt-1">
-                    {lyrics.length}/3000 caractères
-                  </p>
-                </div>
+                {getSelectedTitle() && (
+                  <div className="p-4 bg-blue-50 rounded-lg">
+                    <h3 className="font-semibold text-blue-900 mb-2">Aperçu de la sélection :</h3>
+                    <p className="text-blue-800">{getSelectedTitle()}</p>
+                    <p className="text-sm text-blue-600 mt-1">
+                      Les paroles correspondantes seront automatiquement utilisées
+                    </p>
+                  </div>
+                )}
 
                 <Button
                   onClick={handleGenerate}
-                  disabled={isGenerating || !title.trim() || !lyrics.trim() || !style}
+                  disabled={isGenerating || !canGenerate()}
                   className="w-full bg-blue-600 hover:bg-blue-700"
                   size="lg"
                 >
@@ -263,7 +356,10 @@ const MedMngCreateComponent = () => {
                       <Music className="h-16 w-16 text-gray-400" />
                     </div>
                     <p className="text-gray-500">
-                      Votre chanson apparaîtra ici une fois générée
+                      {getSelectedTitle() ? 
+                        `Prêt à générer : ${getSelectedTitle()}` : 
+                        'Sélectionnez vos paramètres pour commencer'
+                      }
                     </p>
                   </div>
                 )}
@@ -271,23 +367,23 @@ const MedMngCreateComponent = () => {
             </Card>
           </div>
 
-          {/* Conseils */}
+          {/* Informations */}
           <Card className="mt-8">
             <CardHeader>
-              <CardTitle className="text-lg">💡 Conseils pour une meilleure génération</CardTitle>
+              <CardTitle className="text-lg">ℹ️ Comment ça fonctionne</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid md:grid-cols-2 gap-4 text-sm text-gray-600">
                 <div>
-                  <h4 className="font-semibold mb-2">Pour les paroles :</h4>
+                  <h4 className="font-semibold mb-2">Contenu garanti :</h4>
                   <ul className="space-y-1">
-                    <li>• Utilisez un langage simple et expressif</li>
-                    <li>• Structurez en couplets et refrains</li>
-                    <li>• Évitez les mots trop techniques</li>
+                    <li>• Paroles pré-validées et complètes</li>
+                    <li>• Toutes les compétences du rang incluses</li>
+                    <li>• Contenu pédagogiquement vérifié</li>
                   </ul>
                 </div>
                 <div>
-                  <h4 className="font-semibold mb-2">Pour le style :</h4>
+                  <h4 className="font-semibold mb-2">Styles disponibles :</h4>
                   <ul className="space-y-1">
                     <li>• Lo-Fi Piano : relaxant et méditatif</li>
                     <li>• Afrobeat : énergique et rythmé</li>
