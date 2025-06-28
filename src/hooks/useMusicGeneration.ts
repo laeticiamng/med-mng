@@ -76,15 +76,20 @@ export const useMusicGeneration = () => {
       console.log(`🎵 Lancement génération RAPIDE Rang ${rang} - Style: ${selectedStyle} - Durée: ${durationText}`);
       console.log(`📝 Paroles (${parolesText.length} caractères):`, parolesText.substring(0, 100) + '...');
       
+      // Préparer les données pour l'Edge Function
+      const requestBody = {
+        lyrics: parolesText,
+        style: selectedStyle,
+        rang: rang,
+        duration: duration,
+        fastMode: true
+      };
+
+      console.log('📤 Données envoyées à l\'Edge Function:', requestBody);
+      
       // Configuration optimisée pour une génération rapide
       const { data, error } = await supabase.functions.invoke('generate-music', {
-        body: {
-          lyrics: parolesText,
-          style: selectedStyle,
-          rang: rang,
-          duration: duration,
-          fastMode: true // Nouveau paramètre pour mode rapide
-        },
+        body: requestBody,
         headers: {
           'Content-Type': 'application/json'
         }
@@ -102,6 +107,8 @@ export const useMusicGeneration = () => {
           errorMessage = '🔑 Clé API Suno manquante ou invalide. Veuillez vérifier la configuration.';
         } else if (error.message?.includes('timeout')) {
           errorMessage = '⏰ Timeout: La génération prend trop de temps. Réessayez avec des paroles plus courtes.';
+        } else if (error.message?.includes('non-2xx status code')) {
+          errorMessage = '🚫 Erreur du serveur. Vérifiez la configuration de l\'API Suno dans Supabase.';
         } else {
           errorMessage = error.message || errorMessage;
         }
