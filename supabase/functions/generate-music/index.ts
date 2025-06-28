@@ -28,7 +28,7 @@ serve(async (req) => {
       throw new Error('JSON invalide dans la requête');
     }
 
-    const { lyrics, style, rang, duration = 240, fastMode = false } = requestData;
+    const { lyrics, style, rang, duration = 240, fastMode = true } = requestData; // Mode rapide par défaut
 
     console.log('🎵 Requête génération musique Suno reçue:', { 
       lyricsLength: lyrics?.length || 0, 
@@ -102,7 +102,7 @@ serve(async (req) => {
     // Générer une URL de callback unique (pas utilisée mais requise par l'API)
     const callBackUrl = `https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/generate-music/callback?taskId=${crypto.randomUUID()}`;
 
-    console.log(`🎤 Génération Suno ${fastMode ? 'RAPIDE (2min max)' : 'NORMALE (10min max)'} - Rang ${rang}`);
+    console.log(`🎤 Génération Suno ${fastMode ? 'RAPIDE ⚡ (2min max)' : 'NORMALE (4min max)'} - Rang ${rang}`);
     console.log(`📝 Style: ${style} | Durée: ${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')}`);
     console.log(`🎵 Description: ${musicStyle}`);
     console.log(`📖 Paroles (${lyrics.length} caractères):`, lyrics.substring(0, 200) + '...');
@@ -111,7 +111,7 @@ serve(async (req) => {
     const generator = new MusicGenerator(SUNO_API_KEY);
 
     // Étape 1: Générer la chanson avec Suno
-    console.log(`🚀 Lancement de la génération musicale ${fastMode ? 'RAPIDE (timeout 2min)' : 'optimisée (timeout 10min)'}...`);
+    console.log(`🚀 Lancement de la génération musicale ${fastMode ? 'RAPIDE ⚡ (timeout 2min)' : 'optimisée (timeout 4min)'}...`);
     const startTime = Date.now();
     
     let generateData;
@@ -152,9 +152,9 @@ serve(async (req) => {
 
     console.log(`🔑 TaskId extrait: ${taskId}`);
 
-    // Étape 2: Attendre que la génération soit terminée avec polling ajusté
-    console.log(`⏳ Attente ${fastMode ? 'RAPIDE (2min max)' : 'optimisée (10min max)'} de la génération musicale...`);
-    const maxAttempts = fastMode ? 60 : 120; // 60 tentatives en mode rapide = ~2min
+    // Étape 2: Attendre que la génération soit terminée avec polling optimisé
+    console.log(`⏳ Attente ${fastMode ? 'RAPIDE ⚡ (2min max)' : 'optimisée (4min max)'} de la génération musicale...`);
+    const maxAttempts = fastMode ? 80 : 60; // Plus de tentatives mais intervalles plus courts
     
     let musicData;
     try {
@@ -165,9 +165,9 @@ serve(async (req) => {
       // Améliorer le message d'erreur selon le type
       let userErrorMessage = 'Timeout génération: La génération musicale prend plus de temps que prévu.';
       if (fastMode) {
-        userErrorMessage = 'Timeout génération rapide: La génération dépasse les 2 minutes. Réessayez en mode normal pour plus de temps.';
+        userErrorMessage = 'Timeout génération rapide: La génération dépasse les 2 minutes. Le service pourrait être surchargé.';
       } else {
-        userErrorMessage = 'Timeout génération: La génération dépasse les 10 minutes. Réessayez avec des paroles plus courtes.';
+        userErrorMessage = 'Timeout génération: La génération dépasse les 4 minutes. Réessayez avec des paroles plus courtes.';
       }
       
       throw new Error(userErrorMessage);
@@ -175,7 +175,7 @@ serve(async (req) => {
 
     // Calculer le temps total
     const totalTime = Math.floor((Date.now() - startTime) / 1000);
-    console.log(`⏱️ Génération terminée en ${totalTime} secondes ${fastMode ? '(MODE RAPIDE)' : ''}`);
+    console.log(`⏱️ Génération terminée en ${totalTime} secondes ${fastMode ? '(MODE RAPIDE ⚡)' : ''}`);
 
     // Vérifier plusieurs structures possibles pour l'URL audio
     let audioUrl = null;
@@ -212,7 +212,7 @@ serve(async (req) => {
         lyrics_length: lyrics.length,
         task_id: taskId,
         final_status: musicData.status,
-        note: `🎵 Génération ${fastMode ? 'RAPIDE (2min max)' : 'optimisée (10min max)'} avec Suno AI - Paroles chantées intégrées`,
+        note: `🎵 Génération ${fastMode ? 'RAPIDE ⚡ (2min max)' : 'optimisée (4min max)'} avec Suno AI - Paroles chantées intégrées`,
         vocal_style: 'Voix IA haute qualité avec articulation claire',
         music_elements: `Style ${style} avec accompagnement musical professionnel et voix lead`,
         technical_specs: `Audio haute qualité Suno AI avec mix vocal/instrumental - Durée: ${durationFormatted} - Temps: ${totalTime}s`,
@@ -222,7 +222,7 @@ serve(async (req) => {
           adaptive_intervals: true,
           early_detection: true,
           max_attempts: maxAttempts,
-          estimated_max_time: fastMode ? '2 minutes' : '10 minutes'
+          estimated_max_time: fastMode ? '2 minutes' : '4 minutes'
         }
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -288,8 +288,8 @@ serve(async (req) => {
           timestamp: new Date().toISOString(),
           api_used: 'Suno AI',
           base_url: 'https://apibox.erweima.ai',
-          timeout_info: 'Timeout configuré: Mode rapide 2min, Mode normal 10min',
-          suggestion: httpStatus === 503 ? 'Attendez 5-10 minutes puis réessayez - Service temporairement indisponible' : httpStatus === 429 ? 'Rechargez vos crédits Suno AI sur https://apibox.erweima.ai' : httpStatus === 408 ? 'Réessayez en mode normal pour plus de temps' : 'Vérifiez la configuration de l\'API et réessayez'
+          timeout_info: 'Timeout configuré: Mode rapide 2min, Mode normal 4min',
+          suggestion: httpStatus === 503 ? 'Attendez 5-10 minutes puis réessayez - Service temporairement indisponible' : httpStatus === 429 ? 'Rechargez vos crédits Suno AI sur https://apibox.erweima.ai' : httpStatus === 408 ? 'Service peut être surchargé, réessayez dans quelques minutes' : 'Vérifiez la configuration de l\'API et réessayez'
         }
       }),
       { 
