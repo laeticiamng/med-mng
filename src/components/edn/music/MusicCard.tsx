@@ -7,6 +7,7 @@ import { MissingParolesWarning } from './MissingParolesWarning';
 import { ParolesDisplay } from './ParolesDisplay';
 import { GenerateButton } from './GenerateButton';
 import { MinimizedPlayerButton } from './MinimizedPlayerButton';
+import { SaveMusicButton } from './SaveMusicButton';
 import { useMusicCardState } from './hooks/useMusicCardState';
 import { formatParoles, hasValidParoles } from './utils/parolesFormatter';
 import { getCardStyling } from './utils/cardStyling';
@@ -31,6 +32,7 @@ interface MusicCardProps {
   onVolumeChange: (volume: number) => void;
   onStop: () => void;
   onMinimize: () => void;
+  itemCode?: string;
 }
 
 export const MusicCard = ({
@@ -52,7 +54,8 @@ export const MusicCard = ({
   onSeek,
   onVolumeChange,
   onStop,
-  onMinimize
+  onMinimize,
+  itemCode
 }: MusicCardProps) => {
   const { isClicked, handleGenerateClick } = useMusicCardState(isGenerating);
   const styling = getCardStyling(rang);
@@ -104,19 +107,30 @@ export const MusicCard = ({
           )}
           
           {generatedAudio && !isMinimized && (
-            <AudioPlayer
-              audioUrl={generatedAudio}
-              title={title}
-              isPlaying={isPlaying}
-              currentTime={isCurrentTrack ? currentTime : 0}
-              duration={isCurrentTrack ? duration : musicDuration}
-              volume={volume}
-              onPlayPause={onPlayPause}
-              onSeek={onSeek}
-              onVolumeChange={onVolumeChange}
-              onStop={onStop}
-              onClose={onMinimize}
-            />
+            <div className="space-y-3">
+              <AudioPlayer
+                audioUrl={generatedAudio}
+                title={title}
+                isPlaying={isPlaying}
+                currentTime={isCurrentTrack ? currentTime : 0}
+                duration={isCurrentTrack ? duration : musicDuration}
+                volume={volume}
+                onPlayPause={onPlayPause}
+                onSeek={onSeek}
+                onVolumeChange={onVolumeChange}
+                onStop={onStop}
+                onClose={onMinimize}
+              />
+              
+              <SaveMusicButton
+                audioUrl={generatedAudio}
+                title={title}
+                rang={rang}
+                style={selectedStyle}
+                itemCode={itemCode}
+                isVisible={true}
+              />
+            </div>
           )}
 
           <MinimizedPlayerButton
