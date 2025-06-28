@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useMedMngApi } from '@/hooks/useMedMngApi';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 export const useSongGeneration = () => {
   const navigate = useNavigate();
@@ -27,13 +28,11 @@ export const useSongGeneration = () => {
 
     setIsGenerating(true);
     try {
-      // Appel à l'Edge Function de génération musicale
-      const response = await fetch('/api/generate-music', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
+      console.log('🎵 Lancement génération musique via Supabase Functions...');
+      
+      // Utiliser Supabase Functions pour la génération musicale
+      const { data, error } = await supabase.functions.invoke('generate-music', {
+        body: {
           contentType,
           selectedItem: contentType === 'item' ? selectedItem : null,
           selectedRang: contentType === 'item' ? selectedRang : null,
@@ -42,24 +41,29 @@ export const useSongGeneration = () => {
           title,
           duration: 240,
           fastMode: true
-        }),
+        },
       });
 
-      if (!response.ok) {
-        throw new Error('Erreur lors de la génération');
+      if (error) {
+        console.error('❌ Erreur Supabase Functions:', error);
+        throw new Error(error.message || 'Erreur lors de la génération');
       }
 
-      const result = await response.json();
+      if (!data || data.error) {
+        throw new Error(data?.error || 'Aucune donnée reçue');
+      }
+
+      console.log('✅ Génération réussie:', data);
       
       // Créer la chanson en base
-      const song = await medMngApi.createSong(title, result.audioUrl, {
+      const song = await medMngApi.createSong(title, data.audioUrl, {
         style,
         contentType,
         selectedItem: contentType === 'item' ? selectedItem : undefined,
         selectedRang: contentType === 'item' ? selectedRang : undefined,
         selectedSituation: contentType === 'situation' ? selectedSituation : undefined,
-        duration: result.duration,
-        generationTime: result.generationTime
+        duration: data.duration || 240,
+        generationTime: data.generationTime || 0
       });
 
       // Ajouter automatiquement à la bibliothèque
@@ -67,13 +71,13 @@ export const useSongGeneration = () => {
 
       setGeneratedSong({
         ...song,
-        audioUrl: result.audioUrl
+        audioUrl: data.audioUrl
       });
 
       toast.success('🎵 Chanson générée avec succès !');
     } catch (error) {
-      console.error('Erreur génération:', error);
-      toast.error('Erreur lors de la génération. Réessayez.');
+      console.error('❌ Erreur génération:', error);
+      toast.error(`Erreur: ${error.message || 'Réessayez plus tard'}`);
     } finally {
       setIsGenerating(false);
     }

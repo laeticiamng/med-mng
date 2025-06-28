@@ -42,13 +42,22 @@ export const useLanguage = () => {
 
 export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [currentLanguage, setCurrentLanguage] = useState<SupportedLanguage>(() => {
-    const saved = localStorage.getItem('selectedLanguage');
-    return (saved as SupportedLanguage) || 'fr';
+    try {
+      const saved = localStorage.getItem('selectedLanguage');
+      return (saved as SupportedLanguage) || 'fr';
+    } catch (error) {
+      console.warn('Erreur lecture localStorage pour la langue:', error);
+      return 'fr';
+    }
   });
   const [isTranslating, setIsTranslating] = useState(false);
 
   useEffect(() => {
-    localStorage.setItem('selectedLanguage', currentLanguage);
+    try {
+      localStorage.setItem('selectedLanguage', currentLanguage);
+    } catch (error) {
+      console.warn('Erreur sauvegarde localStorage pour la langue:', error);
+    }
   }, [currentLanguage]);
 
   const setLanguage = (lang: SupportedLanguage) => {
@@ -65,7 +74,8 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     setIsTranslating(true);
     try {
-      const response = await fetch('/api/translate', {
+      // Utiliser l'endpoint Supabase Functions correct
+      const response = await fetch('/functions/v1/translate', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -78,10 +88,15 @@ export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       });
 
       if (!response.ok) {
-        throw new Error('Translation failed');
+        throw new Error(`Erreur HTTP: ${response.status}`);
       }
 
       const result = await response.json();
+      
+      if (result.error) {
+        throw new Error(result.error);
+      }
+      
       return result.translatedText || text;
     } catch (error) {
       console.error('Translation error:', error);
