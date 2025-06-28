@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { MusicGenerator } from './musicGeneration.ts';
 
@@ -68,7 +67,7 @@ serve(async (req) => {
     // Générer une URL de callback unique (pas utilisée mais requise par l'API)
     const callBackUrl = `https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/generate-music/callback?taskId=${crypto.randomUUID()}`;
 
-    console.log(`🎤 Génération Suno ${fastMode ? 'RAPIDE' : 'NORMALE'} - Rang ${rang}`);
+    console.log(`🎤 Génération Suno ${fastMode ? 'RAPIDE (2min max)' : 'NORMALE (10min max)'} - Rang ${rang}`);
     console.log(`📝 Style: ${style} | Durée: ${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')}`);
     console.log(`🎵 Description: ${musicStyle}`);
     console.log(`📖 Paroles (${lyrics.length} caractères):`, lyrics.substring(0, 200) + '...');
@@ -77,7 +76,7 @@ serve(async (req) => {
     const generator = new MusicGenerator(SUNO_API_KEY);
 
     // Étape 1: Générer la chanson avec Suno
-    console.log(`🚀 Lancement de la génération musicale ${fastMode ? 'RAPIDE' : 'optimisée'}...`);
+    console.log(`🚀 Lancement de la génération musicale ${fastMode ? 'RAPIDE (timeout 2min)' : 'optimisée (timeout 10min)'}...`);
     const startTime = Date.now();
     
     let generateData;
@@ -112,16 +111,25 @@ serve(async (req) => {
 
     console.log(`🔑 TaskId extrait: ${taskId}`);
 
-    // Étape 2: Attendre que la génération soit terminée avec polling ultra-rapide
-    console.log(`⏳ Attente ${fastMode ? 'ULTRA-RAPIDE' : 'optimisée'} de la génération musicale...`);
-    const maxAttempts = fastMode ? 30 : 120;
+    // Étape 2: Attendre que la génération soit terminée avec polling ajusté
+    console.log(`⏳ Attente ${fastMode ? 'RAPIDE (2min max)' : 'optimisée (10min max)'} de la génération musicale...`);
+    const maxAttempts = fastMode ? 60 : 120; // 60 tentatives en mode rapide = ~2min
     
     let musicData;
     try {
       musicData = await generator.waitForCompletion(taskId, maxAttempts, fastMode);
     } catch (waitError) {
       console.error('❌ Erreur lors de l\'attente:', waitError);
-      throw new Error(`Timeout génération: ${waitError.message}`);
+      
+      // Améliorer le message d'erreur selon le type
+      let userErrorMessage = 'Timeout génération: La génération musicale prend plus de temps que prévu.';
+      if (fastMode) {
+        userErrorMessage = 'Timeout génération rapide: La génération dépasse les 2 minutes. Réessayez en mode normal pour plus de temps.';
+      } else {
+        userErrorMessage = 'Timeout génération: La génération dépasse les 10 minutes. Réessayez avec des paroles plus courtes.';
+      }
+      
+      throw new Error(userErrorMessage);
     }
 
     // Calculer le temps total
@@ -163,7 +171,7 @@ serve(async (req) => {
         lyrics_length: lyrics.length,
         task_id: taskId,
         final_status: musicData.status,
-        note: `🎵 Génération ${fastMode ? 'ULTRA-RAPIDE' : 'optimisée'} avec Suno AI - Paroles chantées intégrées`,
+        note: `🎵 Génération ${fastMode ? 'RAPIDE (2min max)' : 'optimisée (10min max)'} avec Suno AI - Paroles chantées intégrées`,
         vocal_style: 'Voix IA haute qualité avec articulation claire',
         music_elements: `Style ${style} avec accompagnement musical professionnel et voix lead`,
         technical_specs: `Audio haute qualité Suno AI avec mix vocal/instrumental - Durée: ${durationFormatted} - Temps: ${totalTime}s`,
@@ -173,7 +181,7 @@ serve(async (req) => {
           adaptive_intervals: true,
           early_detection: true,
           max_attempts: maxAttempts,
-          estimated_max_time: fastMode ? '30 secondes' : '10 minutes'
+          estimated_max_time: fastMode ? '2 minutes' : '10 minutes'
         }
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -202,7 +210,7 @@ serve(async (req) => {
       httpStatus = 401;
       console.error('🔑 Problème d\'authentification Suno API');
     } else if (error.message?.includes('timeout') || error.message?.includes('Timeout')) {
-      userMessage = 'La génération prend trop de temps. Réessayez avec des paroles plus courtes.';
+      userMessage = error.message || 'La génération prend trop de temps. Réessayez avec des paroles plus courtes.';
       httpStatus = 408;
       console.error('⏰ Timeout de génération Suno');
     } else if (error.message?.includes('sensitive') || error.message?.includes('SENSITIVE_WORD_ERROR')) {
@@ -235,8 +243,8 @@ serve(async (req) => {
           timestamp: new Date().toISOString(),
           api_used: 'Suno AI',
           base_url: 'https://apibox.erweima.ai',
-          timeout_info: 'Timeout configuré en mode rapide: 30 secondes max',
-          suggestion: httpStatus === 429 ? 'Rechargez vos crédits Suno AI sur https://apibox.erweima.ai' : 'Vérifiez la configuration de l\'API et réessayez'
+          timeout_info: 'Timeout configuré: Mode rapide 2min, Mode normal 10min',
+          suggestion: httpStatus === 429 ? 'Rechargez vos crédits Suno AI sur https://apibox.erweima.ai' : httpStatus === 408 ? 'Réessayez en mode normal pour plus de temps' : 'Vérifiez la configuration de l\'API et réessayez'
         }
       }),
       { 

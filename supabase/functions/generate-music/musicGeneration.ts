@@ -67,11 +67,17 @@ export class MusicGenerator {
   async waitForCompletion(taskId: string, maxAttempts: number = 120, fastMode: boolean = false): Promise<MusicStatus> {
     let attempts = 0;
     let musicData: any;
-    let currentInterval = fastMode ? 1000 : 3000; // Mode rapide : 1s, normal : 3s
-    const maxInterval = fastMode ? 2000 : 10000; // Mode rapide : 2s max, normal : 10s max
-    const intervalIncrement = fastMode ? 200 : 1000; // Augmentation plus petite en mode rapide
+    
+    // Timeouts ajustés pour être plus permissifs
+    let currentInterval = fastMode ? 2000 : 3000; // Mode rapide : 2s, normal : 3s
+    const maxInterval = fastMode ? 5000 : 10000; // Mode rapide : 5s max, normal : 10s max
+    const intervalIncrement = fastMode ? 500 : 1000; // Augmentation plus douce
+    
+    // Augmenter les tentatives maximales pour le mode rapide
+    const adjustedMaxAttempts = fastMode ? 60 : maxAttempts; // 2 minutes en mode rapide au lieu de 30s
 
-    console.log(`🔄 Polling ${fastMode ? 'ULTRA-RAPIDE' : 'optimisé'} pour taskId: ${taskId} (max ${maxAttempts} tentatives)`);
+    console.log(`🔄 Polling ${fastMode ? 'ULTRA-RAPIDE' : 'optimisé'} pour taskId: ${taskId} (max ${adjustedMaxAttempts} tentatives)`);
+    console.log(`⏰ Temps maximum estimé: ${fastMode ? '2 minutes' : '10 minutes'}`);
 
     do {
       // Attendre avant la vérification (sauf pour la première tentative)
@@ -83,7 +89,7 @@ export class MusicGenerator {
       try {
         musicData = await this.getMusicStatus(taskId);
         
-        // CORRECTION : Extraire le statut de la bonne structure
+        // Extraire le statut de la bonne structure
         let currentStatus;
         if (musicData.data && musicData.data.status) {
           currentStatus = musicData.data.status;
@@ -94,7 +100,7 @@ export class MusicGenerator {
           currentStatus = 'UNKNOWN';
         }
         
-        console.log(`🔍 Tentative ${attempts}/${maxAttempts}: Status=${currentStatus}, Interval=${currentInterval}ms ${fastMode ? '⚡' : ''}`);
+        console.log(`🔍 Tentative ${attempts}/${adjustedMaxAttempts}: Status=${currentStatus}, Interval=${currentInterval}ms ${fastMode ? '⚡' : ''}`);
         
         // Debug: afficher la structure complète des données reçues
         if (musicData.data) {
@@ -169,14 +175,14 @@ export class MusicGenerator {
           throw new Error(`La génération musicale a échoué: ${currentStatus}`);
         }
 
-        // Ajuster l'intervalle de polling selon le statut (mode rapide)
+        // Ajuster l'intervalle de polling selon le statut (mode plus permissif)
         if (fastMode) {
           if (currentStatus === 'PENDING') {
-            currentInterval = Math.min(currentInterval, 1000); // 1s max pour PENDING
+            currentInterval = Math.min(currentInterval, 2500); // 2.5s max pour PENDING
           } else if (currentStatus === 'TEXT_SUCCESS') {
-            currentInterval = Math.min(currentInterval + intervalIncrement, 1500); // 1.5s max pour TEXT_SUCCESS
+            currentInterval = Math.min(currentInterval + intervalIncrement, 3000); // 3s max pour TEXT_SUCCESS
           } else if (currentStatus === 'FIRST_SUCCESS') {
-            currentInterval = Math.min(currentInterval, 1000); // Retour à 1s pour FIRST_SUCCESS
+            currentInterval = Math.min(currentInterval, 2000); // 2s pour FIRST_SUCCESS
           }
         } else {
           // Mode normal (logique existante)
@@ -194,7 +200,7 @@ export class MusicGenerator {
           console.error(`❌ Statut SUCCESS mais aucune URL audio trouvée`);
           console.error(`📊 Réponse complète:`, JSON.stringify(musicData, null, 2));
           // On continue le polling quelques fois de plus au cas où
-          if (attempts >= maxAttempts - 5) {
+          if (attempts >= adjustedMaxAttempts - 5) {
             throw new Error('Statut SUCCESS atteint mais aucune URL audio disponible');
           }
         }
@@ -204,7 +210,7 @@ export class MusicGenerator {
 
       } catch (error) {
         console.error(`❌ Erreur lors de la vérification du statut (tentative ${attempts}):`, error);
-        if (attempts >= maxAttempts) {
+        if (attempts >= adjustedMaxAttempts) {
           throw error;
         }
         // Augmenter légèrement l'intervalle en cas d'erreur
@@ -212,11 +218,11 @@ export class MusicGenerator {
         console.log(`🔄 Continue le polling malgré l'erreur dans ${currentInterval}ms... ${fastMode ? '⚡' : ''}`);
       }
 
-    } while (attempts < maxAttempts);
+    } while (attempts < adjustedMaxAttempts);
 
     // Vérification finale
-    const totalTimeMinutes = Math.floor((maxAttempts * (fastMode ? 1 : 5)) / 60); // Estimation basée sur intervalle moyen
-    console.error(`⏰ Timeout après ${maxAttempts} tentatives (~${totalTimeMinutes} minutes) ${fastMode ? '⚡ MODE RAPIDE' : ''}`);
+    const totalTimeMinutes = Math.floor((adjustedMaxAttempts * (fastMode ? 2.5 : 5)) / 60); // Estimation basée sur intervalle moyen
+    console.error(`⏰ Timeout après ${adjustedMaxAttempts} tentatives (~${totalTimeMinutes} minutes) ${fastMode ? '⚡ MODE RAPIDE' : ''}`);
     console.error(`📊 Dernier statut:`, musicData?.data?.status || musicData?.status);
     console.error(`📊 Dernière réponse:`, JSON.stringify(musicData || {}, null, 2));
     throw new Error(`Timeout: La génération musicale prend trop de temps (~${totalTimeMinutes} minutes) ${fastMode ? 'en mode rapide' : ''}`);
