@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -56,7 +55,7 @@ const EdnMusicLibrary = () => {
         return;
       }
 
-      setSavedMusics(data as SavedMusic[] || []);
+      setSavedMusics((data as unknown as SavedMusic[]) || []);
     } catch (error) {
       console.error('Erreur:', error);
     } finally {
