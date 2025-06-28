@@ -28,13 +28,21 @@ serve(async (req) => {
       throw new Error('JSON invalide dans la requête');
     }
 
-    const { lyrics, style, rang, duration = 240, fastMode = true } = requestData; // Mode rapide par défaut
+    const { 
+      lyrics, 
+      style, 
+      rang, 
+      duration = 240, 
+      language = 'fr', 
+      fastMode = true 
+    } = requestData;
 
     console.log('🎵 Requête génération musique Suno reçue:', { 
       lyricsLength: lyrics?.length || 0, 
       style, 
       rang, 
       duration,
+      language,
       fastMode,
       lyricsPreview: lyrics?.substring(0, 100) + '...' || 'Aucune parole'
     });
@@ -62,7 +70,7 @@ serve(async (req) => {
           'Authorization': `Bearer ${SUNO_API_KEY}`,
           'Accept': 'application/json'
         },
-        timeout: 5000 // 5 secondes de timeout
+        timeout: 5000
       });
 
       console.log(`🏥 Health check Suno: ${healthCheck.status} ${healthCheck.statusText}`);
@@ -71,7 +79,7 @@ serve(async (req) => {
         throw new Error('🚫 Service Suno AI temporairement indisponible (503). Réessayez dans quelques minutes.');
       }
       
-      if (!healthCheck.ok && healthCheck.status !== 404) { // 404 acceptable si pas d'endpoint health
+      if (!healthCheck.ok && healthCheck.status !== 404) {
         const errorText = await healthCheck.text();
         console.log('⚠️ Health check response:', errorText);
         if (errorText.includes('503 Service Temporarily Unavailable')) {
@@ -83,7 +91,6 @@ serve(async (req) => {
       if (healthError.message.includes('503') || healthError.message.includes('Service Temporarily Unavailable')) {
         throw new Error('🚫 Service Suno AI temporairement indisponible. Réessayez dans quelques minutes.');
       }
-      // Continue même si le health check échoue (l'endpoint pourrait ne pas exister)
     }
 
     // Mapping des styles vers des descriptions musicales pour Suno
@@ -97,21 +104,58 @@ serve(async (req) => {
     };
 
     const musicStyle = styleDescriptions[style] || styleDescriptions['lofi-piano'];
-    const title = `Rang ${rang} - ${style === 'lofi-piano' ? 'Colloque Singulier' : 'Outils Pratiques'}`;
+    
+    // Adapter le titre selon la langue
+    let title;
+    if (rang === 'TRANSPOSE') {
+      // Pour les transpositions
+      const languageNames = {
+        'en': 'English',
+        'es': 'Español', 
+        'de': 'Deutsch',
+        'zh': '中文',
+        'ja': '日本語',
+        'ar': 'العربية'
+      };
+      title = `Transposed to ${languageNames[language] || language}`;
+    } else {
+      // Pour les générations normales
+      const styleNames = {
+        'lofi-piano': language === 'fr' ? 'Colloque Singulier' : 'Medical Dialogue',
+        'afrobeat': language === 'fr' ? 'Formation Dynamique' : 'Dynamic Training',
+        'jazz-moderne': language === 'fr' ? 'Médecine Moderne' : 'Modern Medicine',
+        'hip-hop-conscient': language === 'fr' ? 'Conscience Médicale' : 'Medical Awareness',
+        'soul-rnb': language === 'fr' ? 'Âme Soignante' : 'Healing Soul',
+        'electro-chill': language === 'fr' ? 'Méditation Médicale' : 'Medical Meditation'
+      };
+      
+      const styleName = styleNames[style] || (language === 'fr' ? 'Formation Médicale' : 'Medical Training');
+      title = `Rang ${rang} - ${styleName}`;
+    }
 
     // Générer une URL de callback unique (pas utilisée mais requise par l'API)
     const callBackUrl = `https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/generate-music/callback?taskId=${crypto.randomUUID()}`;
 
-    console.log(`🎤 Génération Suno ${fastMode ? 'RAPIDE ⚡ (2min max)' : 'NORMALE (4min max)'} - Rang ${rang}`);
-    console.log(`📝 Style: ${style} | Durée: ${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')}`);
+    const languageFlag = {
+      'fr': '🇫🇷',
+      'en': '🇺🇸', 
+      'es': '🇪🇸',
+      'de': '🇩🇪',
+      'zh': '🇨🇳',
+      'ja': '🇯🇵',
+      'ar': '🇸🇦'
+    };
+
+    console.log(`🎤 Génération Suno ${fastMode ? 'RAPIDE ⚡ (2min max)' : 'NORMALE (4min max)'} - Rang ${rang} ${languageFlag[language] || '🌍'}`);
+    console.log(`📝 Style: ${style} | Durée: ${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')} | Langue: ${language}`);
     console.log(`🎵 Description: ${musicStyle}`);
-    console.log(`📖 Paroles (${lyrics.length} caractères):`, lyrics.substring(0, 200) + '...');
+    console.log(`📖 Paroles traduites (${lyrics.length} caractères):`, lyrics.substring(0, 200) + '...');
 
     // Initialiser le générateur de musique
     const generator = new MusicGenerator(SUNO_API_KEY);
 
     // Étape 1: Générer la chanson avec Suno
-    console.log(`🚀 Lancement de la génération musicale ${fastMode ? 'RAPIDE ⚡ (timeout 2min)' : 'optimisée (timeout 4min)'}...`);
+    console.log(`🚀 Lancement génération musicale ${fastMode ? 'RAPIDE ⚡ (timeout 2min)' : 'optimisée (timeout 4min)'} en ${language}...`);
     const startTime = Date.now();
     
     let generateData;
@@ -129,7 +173,6 @@ serve(async (req) => {
     } catch (generateError) {
       console.error('❌ Erreur lors de la génération:', generateError);
       
-      // Vérifier si c'est une erreur 503 spécifique
       if (generateError.message.includes('503') || generateError.message.includes('Service Temporarily Unavailable')) {
         throw new Error('🚫 Service Suno AI temporairement indisponible (503). Réessayez dans quelques minutes. Cela peut être dû à une maintenance ou une surcharge du serveur.');
       }
@@ -139,7 +182,7 @@ serve(async (req) => {
 
     console.log('✅ Génération Suno lancée:', generateData);
 
-    // CORRECTION : Extraire le taskId de la structure de réponse correcte
+    // Extraire le taskId de la structure de réponse correcte
     let taskId;
     if (generateData?.data?.taskId) {
       taskId = generateData.data.taskId;
@@ -154,7 +197,7 @@ serve(async (req) => {
 
     // Étape 2: Attendre que la génération soit terminée avec polling optimisé
     console.log(`⏳ Attente ${fastMode ? 'RAPIDE ⚡ (2min max)' : 'optimisée (4min max)'} de la génération musicale...`);
-    const maxAttempts = fastMode ? 80 : 60; // Plus de tentatives mais intervalles plus courts
+    const maxAttempts = fastMode ? 80 : 60;
     
     let musicData;
     try {
@@ -162,7 +205,6 @@ serve(async (req) => {
     } catch (waitError) {
       console.error('❌ Erreur lors de l\'attente:', waitError);
       
-      // Améliorer le message d'erreur selon le type
       let userErrorMessage = 'Timeout génération: La génération musicale prend plus de temps que prévu.';
       if (fastMode) {
         userErrorMessage = 'Timeout génération rapide: La génération dépasse les 2 minutes. Le service pourrait être surchargé.';
@@ -193,8 +235,9 @@ serve(async (req) => {
     }
 
     const durationFormatted = `${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')}`;
+    const languageName = language === 'fr' ? 'français' : language;
 
-    console.log(`✅ Chanson avec PAROLES CHANTÉES générée avec succès - Rang ${rang} (${durationFormatted}) en ${totalTime}s ${fastMode ? '⚡ RAPIDE' : ''}`);
+    console.log(`✅ Chanson avec PAROLES CHANTÉES générée avec succès - Rang ${rang} (${durationFormatted}) en ${languageName} en ${totalTime}s ${fastMode ? '⚡ RAPIDE' : ''}`);
     console.log(`🎧 URL audio: ${audioUrl}`);
 
     return new Response(
@@ -205,24 +248,26 @@ serve(async (req) => {
         duration: duration,
         durationFormatted: durationFormatted,
         generationTime: totalTime,
+        language: language,
         status: 'success',
-        message: `🎤 Chanson avec PAROLES CHANTÉES générée pour le Rang ${rang} (${durationFormatted}) en ${totalTime}s ${fastMode ? '⚡ RAPIDE' : ''}`,
+        message: `🎤 Chanson avec PAROLES CHANTÉES générée pour le Rang ${rang} (${durationFormatted}) en ${languageName} en ${totalTime}s ${fastMode ? '⚡ RAPIDE' : ''}`,
         lyrics_integrated: true,
         vocals_included: true,
         lyrics_length: lyrics.length,
         task_id: taskId,
         final_status: musicData.status,
-        note: `🎵 Génération ${fastMode ? 'RAPIDE ⚡ (2min max)' : 'optimisée (4min max)'} avec Suno AI - Paroles chantées intégrées`,
-        vocal_style: 'Voix IA haute qualité avec articulation claire',
-        music_elements: `Style ${style} avec accompagnement musical professionnel et voix lead`,
-        technical_specs: `Audio haute qualité Suno AI avec mix vocal/instrumental - Durée: ${durationFormatted} - Temps: ${totalTime}s`,
+        note: `🎵 Génération ${fastMode ? 'RAPIDE ⚡ (2min max)' : 'optimisée (4min max)'} avec Suno AI - Paroles chantées intégrées en ${languageName}`,
+        vocal_style: `Voix IA haute qualité avec articulation claire en ${languageName}`,
+        music_elements: `Style ${style} avec accompagnement musical professionnel et voix lead en ${languageName}`,
+        technical_specs: `Audio haute qualité Suno AI avec mix vocal/instrumental - Durée: ${durationFormatted} - Temps: ${totalTime}s - Langue: ${languageName}`,
         optimization_info: {
           fast_mode: fastMode,
           polling_optimized: true,
           adaptive_intervals: true,
           early_detection: true,
           max_attempts: maxAttempts,
-          estimated_max_time: fastMode ? '2 minutes' : '4 minutes'
+          estimated_max_time: fastMode ? '2 minutes' : '4 minutes',
+          target_language: language
         }
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -281,7 +326,7 @@ serve(async (req) => {
         error: userMessage,
         status: 'error',
         error_code: error.code || httpStatus,
-        details: '🎤 Problème avec la génération Suno AI de chanson avec paroles chantées',
+        details: '🎤 Problème avec la génération Suno AI de chanson avec paroles chantées multilingue',
         debug: {
           error_type: error.name,
           error_message: error.message,
@@ -289,6 +334,7 @@ serve(async (req) => {
           api_used: 'Suno AI',
           base_url: 'https://apibox.erweima.ai',
           timeout_info: 'Timeout configuré: Mode rapide 2min, Mode normal 4min',
+          multilingual_support: 'Génération musicale multilingue activée',
           suggestion: httpStatus === 503 ? 'Attendez 5-10 minutes puis réessayez - Service temporairement indisponible' : httpStatus === 429 ? 'Rechargez vos crédits Suno AI sur https://apibox.erweima.ai' : httpStatus === 408 ? 'Service peut être surchargé, réessayez dans quelques minutes' : 'Vérifiez la configuration de l\'API et réessayez'
         }
       }),

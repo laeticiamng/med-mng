@@ -1,5 +1,7 @@
 
 import { MusicCard } from './MusicCard';
+import { useGlobalTranslation } from '@/hooks/useGlobalTranslation';
+import { useEffect, useState } from 'react';
 
 interface MusicCardsSectionProps {
   paroles: string[];
@@ -44,57 +46,88 @@ export const MusicCardsSection = ({
   itemCode,
   itemTitle
 }: MusicCardsSectionProps) => {
+  const { translateContent, currentLanguage, isTranslationNeeded } = useGlobalTranslation();
+  const [translatedTitles, setTranslatedTitles] = useState({
+    rangA: '',
+    rangB: ''
+  });
+
   const formatDuration = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = seconds % 60;
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
-  // Fonction pour générer les titres spécifiques selon l'item
-  const getTitlesForItem = (code: string = '', title: string = '') => {
-    const duration = formatDuration(musicDuration);
-    
-    switch (code) {
-      case 'IC-1':
-        return {
-          rangA: `${code} Rang A - Colloque Singulier & Communication (${duration})`,
-          rangB: `${code} Rang B - Outils de Raisonnement & TICE (${duration})`
-        };
-      case 'IC-2':
-        return {
-          rangA: `${code} Rang A - Valeurs & Déontologie Médicale (${duration})`,
-          rangB: `${code} Rang B - Organisation & Exercice Professionnel (${duration})`
-        };
-      case 'IC-3':
-        return {
-          rangA: `${code} Rang A - Evidence-Based Medicine (${duration})`,
-          rangB: `${code} Rang B - Systèmes d'Aide & Expertise Clinique (${duration})`
-        };
-      case 'IC-4':
-        return {
-          rangA: `${code} Rang A - Qualité & Sécurité des Soins (${duration})`,
-          rangB: `${code} Rang B - Expertise EIAS & Infectiologie (${duration})`
-        };
-      case 'IC-5':
-        return {
-          rangA: `${code} Rang A - Responsabilités & Erreurs Médicales (${duration})`,
-          rangB: `${code} Rang B - Contentieux & Gestion Juridique (${duration})`
-        };
-      default:
-        return {
-          rangA: `Rang A - Connaissances Fondamentales (${duration})`,
-          rangB: `Rang B - Expertise Avancée (${duration})`
-        };
-    }
-  };
+  // Générer les titres spécifiques selon l'item et les traduire
+  useEffect(() => {
+    const generateAndTranslateTitles = async () => {
+      const duration = formatDuration(musicDuration);
+      
+      let baseTitles = {
+        rangA: '',
+        rangB: ''
+      };
 
-  const titles = getTitlesForItem(itemCode, itemTitle);
+      switch (itemCode) {
+        case 'IC-1':
+          baseTitles = {
+            rangA: `${itemCode} Rang A - Colloque Singulier & Communication (${duration})`,
+            rangB: `${itemCode} Rang B - Outils de Raisonnement & TICE (${duration})`
+          };
+          break;
+        case 'IC-2':
+          baseTitles = {
+            rangA: `${itemCode} Rang A - Valeurs & Déontologie Médicale (${duration})`,
+            rangB: `${itemCode} Rang B - Organisation & Exercice Professionnel (${duration})`
+          };
+          break;
+        case 'IC-3':
+          baseTitles = {
+            rangA: `${itemCode} Rang A - Evidence-Based Medicine (${duration})`,
+            rangB: `${itemCode} Rang B - Systèmes d'Aide & Expertise Clinique (${duration})`
+          };
+          break;
+        case 'IC-4':
+          baseTitles = {
+            rangA: `${itemCode} Rang A - Qualité & Sécurité des Soins (${duration})`,
+            rangB: `${itemCode} Rang B - Expertise EIAS & Infectiologie (${duration})`
+          };
+          break;
+        case 'IC-5':
+          baseTitles = {
+            rangA: `${itemCode} Rang A - Responsabilités & Erreurs Médicales (${duration})`,
+            rangB: `${itemCode} Rang B - Contentieux & Gestion Juridique (${duration})`
+          };
+          break;
+        default:
+          baseTitles = {
+            rangA: `Rang A - Connaissances Fondamentales (${duration})`,
+            rangB: `Rang B - Expertise Avancée (${duration})`
+          };
+      }
+
+      // Traduire les titres si nécessaire
+      if (isTranslationNeeded) {
+        const translatedRangA = await translateContent(baseTitles.rangA);
+        const translatedRangB = await translateContent(baseTitles.rangB);
+        
+        setTranslatedTitles({
+          rangA: translatedRangA,
+          rangB: translatedRangB
+        });
+      } else {
+        setTranslatedTitles(baseTitles);
+      }
+    };
+
+    generateAndTranslateTitles();
+  }, [itemCode, itemTitle, musicDuration, currentLanguage, isTranslationNeeded, translateContent]);
 
   return (
     <div className="space-y-8">
       <MusicCard
         rang="A"
-        title={titles.rangA}
+        title={translatedTitles.rangA}
         paroles={paroles[0] || 'Aucune parole disponible pour le Rang A'}
         selectedStyle={selectedStyle}
         musicDuration={musicDuration}
@@ -116,7 +149,7 @@ export const MusicCardsSection = ({
 
       <MusicCard
         rang="B"
-        title={titles.rangB}
+        title={translatedTitles.rangB}
         paroles={paroles[1] || 'Aucune parole disponible pour le Rang B'}
         selectedStyle={selectedStyle}
         musicDuration={musicDuration}
