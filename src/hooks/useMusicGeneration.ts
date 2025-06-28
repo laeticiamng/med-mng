@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -16,8 +16,19 @@ export const useMusicGeneration = () => {
   const [generatedAudio, setGeneratedAudio] = useState<{ rangA?: string; rangB?: string }>({});
   const [lastError, setLastError] = useState<string>('');
   const { toast } = useToast();
+  
+  // Protection contre les appels multiples
+  const generatingRef = useRef<Set<string>>(new Set());
 
   const generateMusic = async (rang: 'A' | 'B', paroles: string[], selectedStyle: string, duration: number = 240) => {
+    const rangKey = `rang${rang}` as keyof GeneratingState;
+    
+    // Protection contre les appels multiples
+    if (generatingRef.current.has(rang)) {
+      console.log(`⚠️ Génération déjà en cours pour le Rang ${rang}, ignoré`);
+      return;
+    }
+
     if (!selectedStyle) {
       toast({
         title: "Style musical requis",
@@ -36,8 +47,11 @@ export const useMusicGeneration = () => {
       return;
     }
 
-    setIsGenerating(prev => ({ ...prev, [rang === 'A' ? 'rangA' : 'rangB']: true }));
+    // Marquer comme en cours de génération
+    generatingRef.current.add(rang);
+    setIsGenerating(prev => ({ ...prev, [rangKey]: true }));
     setLastError('');
+    
     const parolesIndex = rang === 'A' ? 0 : 1;
     const parolesText = paroles[parolesIndex];
 
@@ -48,7 +62,9 @@ export const useMusicGeneration = () => {
         description: `Aucune parole n'est disponible pour le Rang ${rang}.`,
         variant: "destructive"
       });
-      setIsGenerating(prev => ({ ...prev, [rang === 'A' ? 'rangA' : 'rangB']: false }));
+      // Nettoyer l'état
+      generatingRef.current.delete(rang);
+      setIsGenerating(prev => ({ ...prev, [rangKey]: false }));
       return;
     }
 
@@ -57,8 +73,8 @@ export const useMusicGeneration = () => {
       const seconds = duration % 60;
       const durationText = `${minutes}:${seconds.toString().padStart(2, '0')}`;
       
-      console.log(`Génération musique Rang ${rang} avec style ${selectedStyle} - Durée: ${durationText}`);
-      console.log(`Paroles à intégrer (${parolesText.length} caractères):`, parolesText.substring(0, 200) + '...');
+      console.log(`🎵 Lancement génération Rang ${rang} - Style: ${selectedStyle} - Durée: ${durationText}`);
+      console.log(`📝 Paroles (${parolesText.length} caractères):`, parolesText.substring(0, 100) + '...');
       
       const { data, error } = await supabase.functions.invoke('generate-music', {
         body: {
@@ -71,10 +87,9 @@ export const useMusicGeneration = () => {
 
       // Gestion des erreurs Supabase
       if (error) {
-        console.error('Erreur Supabase Functions:', error);
+        console.error('❌ Erreur Supabase Functions:', error);
         let errorMessage = 'Erreur lors de la génération musicale';
         
-        // Vérifier si c'est une erreur d'API Key
         if (error.message?.includes('Authorization') || error.message?.includes('401')) {
           errorMessage = 'Clé API Suno manquante ou invalide. Veuillez vérifier la configuration.';
         } else if (error.message?.includes('timeout')) {
@@ -87,7 +102,6 @@ export const useMusicGeneration = () => {
         throw new Error(errorMessage);
       }
 
-      // Vérifier si la réponse contient une erreur
       if (!data) {
         throw new Error('Aucune donnée reçue de l\'API');
       }
@@ -106,12 +120,11 @@ export const useMusicGeneration = () => {
           errorMessage = '🚫 Paroles non autorisées par Suno AI. Modifiez le contenu.';
         }
         
-        console.error('Erreur API Suno:', errorMessage);
+        console.error('❌ Erreur API Suno:', errorMessage);
         setLastError(errorMessage);
         throw new Error(errorMessage);
       }
 
-      // Vérifier si on a bien reçu une URL audio
       if (!data.audioUrl) {
         throw new Error('Aucune URL audio générée par l\'API');
       }
@@ -127,14 +140,10 @@ export const useMusicGeneration = () => {
         description: `Chanson de ${durationText} avec paroles chantées générée avec succès !`,
       });
 
-      console.log(`Musique ${durationText} avec paroles générée:`, {
-        audioUrl: data.audioUrl,
-        lyricsIntegrated: data.lyrics_integrated,
-        vocalsIncluded: data.vocals_included
-      });
+      console.log(`✅ Musique ${durationText} générée pour Rang ${rang}:`, data.audioUrl);
       
     } catch (error) {
-      console.error('Erreur génération musique:', error);
+      console.error(`❌ Erreur génération Rang ${rang}:`, error);
       const errorMessage = error.message || "Impossible de générer la musique. Veuillez réessayer.";
       setLastError(errorMessage);
       toast({
@@ -143,7 +152,9 @@ export const useMusicGeneration = () => {
         variant: "destructive"
       });
     } finally {
-      setIsGenerating(prev => ({ ...prev, [rang === 'A' ? 'rangA' : 'rangB']: false }));
+      // Nettoyer l'état dans tous les cas
+      generatingRef.current.delete(rang);
+      setIsGenerating(prev => ({ ...prev, [rangKey]: false }));
     }
   };
 

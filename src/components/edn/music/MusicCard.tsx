@@ -48,6 +48,9 @@ export const MusicCard = ({
   onStop,
   onMinimize
 }: MusicCardProps) => {
+  // Protection supplémentaire contre les double-clics
+  const [isClicked, setIsClicked] = useState(false);
+
   const formatParoles = (text: string) => {
     if (!text || text === 'Aucune parole disponible pour le Rang A' || text === 'Aucune parole disponible pour le Rang B') {
       return ['Aucune parole disponible pour ce rang.'];
@@ -67,6 +70,23 @@ export const MusicCard = ({
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
+  const handleGenerateClick = async () => {
+    if (isClicked || isGenerating) {
+      console.log(`⚠️ Clic ignoré - isClicked: ${isClicked}, isGenerating: ${isGenerating}`);
+      return;
+    }
+    
+    setIsClicked(true);
+    console.log(`🎵 Clic génération Rang ${rang}`);
+    
+    try {
+      await onGenerateMusic();
+    } finally {
+      // Réactiver après un délai pour éviter les double-clics rapides
+      setTimeout(() => setIsClicked(false), 2000);
+    }
+  };
+
   const cardColor = rang === 'A' ? 'amber' : 'blue';
   const gradientFrom = rang === 'A' ? 'from-amber-50' : 'from-blue-50';
   const gradientTo = rang === 'A' ? 'to-orange-50' : 'to-indigo-50';
@@ -77,6 +97,8 @@ export const MusicCard = ({
 
   const parolesArray = formatParoles(paroles);
   const hasValidParoles = parolesArray.length > 0 && parolesArray[0] !== 'Aucune parole disponible pour ce rang.';
+
+  const isButtonDisabled = isGenerating || isClicked || !selectedStyle || !hasValidParoles;
 
   return (
     <Card className={`p-8 bg-gradient-to-br ${gradientFrom} ${gradientTo} ${borderColor} shadow-xl`}>
@@ -126,9 +148,9 @@ export const MusicCard = ({
       <div className="space-y-4">
         <div className="flex justify-center">
           <Button
-            onClick={onGenerateMusic}
-            disabled={isGenerating || !selectedStyle || !hasValidParoles}
-            className={`${buttonColor} text-white px-6 py-3`}
+            onClick={handleGenerateClick}
+            disabled={isButtonDisabled}
+            className={`${buttonColor} text-white px-6 py-3 ${isButtonDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             {isGenerating ? (
               <>
