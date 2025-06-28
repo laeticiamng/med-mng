@@ -137,6 +137,25 @@ class MedMngApi {
 
     return response.json();
   }
+
+  async createUserSubscription(planId: string, gateway: string, subscriptionId?: string) {
+    try {
+      const { error } = await supabase.rpc('med_mng_create_user_sub', {
+        plan_name: planId,
+        gateway_name: gateway,
+        subscription_id: subscriptionId || null,
+      });
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      return { success: true };
+    } catch (error) {
+      console.error('Erreur création abonnement:', error);
+      throw error;
+    }
+  }
 }
 
 export const medMngApi = new MedMngApi();
