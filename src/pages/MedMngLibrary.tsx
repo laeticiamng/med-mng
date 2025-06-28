@@ -96,7 +96,7 @@ const MedMngLibraryComponent = () => {
         <div className="flex gap-4 mb-8">
           <Button 
             onClick={() => navigate('/med-mng/create')}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
           >
             <Plus className="h-4 w-4" />
             Créer une chanson
@@ -122,7 +122,7 @@ const MedMngLibraryComponent = () => {
                 : 'Commencez par créer votre première chanson'}
             </p>
             {!searchTerm && (
-              <Button onClick={() => navigate('/med-mng/create')}>
+              <Button onClick={() => navigate('/med-mng/create')} className="bg-blue-600 hover:bg-blue-700">
                 Créer ma première chanson
               </Button>
             )}
