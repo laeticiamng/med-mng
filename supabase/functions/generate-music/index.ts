@@ -13,7 +13,22 @@ serve(async (req) => {
   }
 
   try {
-    const { lyrics, style, rang, duration = 240, fastMode = false } = await req.json();
+    const body = await req.text();
+    console.log(`📥 Raw request body: ${body}`);
+    
+    if (!body || body.trim() === '') {
+      throw new Error('Corps de requête vide');
+    }
+
+    let requestData;
+    try {
+      requestData = JSON.parse(body);
+    } catch (parseError) {
+      console.error('❌ Erreur parsing JSON requête:', parseError);
+      throw new Error('JSON invalide dans la requête');
+    }
+
+    const { lyrics, style, rang, duration = 240, fastMode = false } = requestData;
 
     console.log('🎵 Requête génération musique Suno reçue:', { 
       lyricsLength: lyrics?.length || 0, 
@@ -34,7 +49,7 @@ serve(async (req) => {
 
     const SUNO_API_KEY = Deno.env.get('SUNO_API_KEY');
     if (!SUNO_API_KEY) {
-      throw new Error('Clé API Suno non configurée');
+      throw new Error('Clé API Suno non configurée dans les secrets Supabase');
     }
 
     // Mapping des styles vers des descriptions musicales pour Suno
@@ -65,16 +80,22 @@ serve(async (req) => {
     console.log(`🚀 Lancement de la génération musicale ${fastMode ? 'RAPIDE' : 'optimisée'}...`);
     const startTime = Date.now();
     
-    const generateData = await generator.generateMusic({
-      prompt: lyrics,
-      style: musicStyle,
-      title: title,
-      customMode: true,
-      instrumental: false,
-      model: "V3_5",
-      negativeTags: undefined,
-      callBackUrl: callBackUrl
-    });
+    let generateData;
+    try {
+      generateData = await generator.generateMusic({
+        prompt: lyrics,
+        style: musicStyle,
+        title: title,
+        customMode: true,
+        instrumental: false,
+        model: "V3_5",
+        negativeTags: undefined,
+        callBackUrl: callBackUrl
+      });
+    } catch (generateError) {
+      console.error('❌ Erreur lors de la génération:', generateError);
+      throw new Error(`Erreur génération Suno: ${generateError.message}`);
+    }
 
     console.log('✅ Génération Suno lancée:', generateData);
 
@@ -84,8 +105,15 @@ serve(async (req) => {
 
     // Étape 2: Attendre que la génération soit terminée avec polling ultra-rapide
     console.log(`⏳ Attente ${fastMode ? 'ULTRA-RAPIDE' : 'optimisée'} de la génération musicale...`);
-    const maxAttempts = fastMode ? 30 : 120; // 30 tentatives = ~30 secondes max en mode rapide
-    const musicData = await generator.waitForCompletion(generateData.taskId, maxAttempts, fastMode);
+    const maxAttempts = fastMode ? 30 : 120;
+    
+    let musicData;
+    try {
+      musicData = await generator.waitForCompletion(generateData.taskId, maxAttempts, fastMode);
+    } catch (waitError) {
+      console.error('❌ Erreur lors de l\'attente:', waitError);
+      throw new Error(`Timeout génération: ${waitError.message}`);
+    }
 
     // Calculer le temps total
     const totalTime = Math.floor((Date.now() - startTime) / 1000);
@@ -149,7 +177,15 @@ serve(async (req) => {
     let userMessage = 'Erreur inconnue lors de la génération';
     let httpStatus = 500;
     
-    if (error.message?.includes('429') || error.code === 429) {
+    if (error.message?.includes('JSON invalide') || error.message?.includes('Réponse JSON invalide')) {
+      userMessage = 'L\'API Suno a retourné une réponse malformée. Réessayez dans quelques instants.';
+      httpStatus = 502;
+      console.error('🔧 Problème de format de réponse API Suno');
+    } else if (error.message?.includes('Réponse vide')) {
+      userMessage = 'L\'API Suno a retourné une réponse vide. Service temporairement indisponible.';
+      httpStatus = 502;
+      console.error('📭 Réponse vide de l\'API Suno');
+    } else if (error.message?.includes('429') || error.code === 429) {
       userMessage = 'Crédits Suno insuffisants. Veuillez recharger votre compte Suno AI.';
       httpStatus = 429;
       console.error('💳 Crédits Suno épuisés - L\'utilisateur doit recharger son compte');
@@ -174,6 +210,9 @@ serve(async (req) => {
     } else if (error.message?.includes('Clé API Suno non configurée')) {
       userMessage = 'Configuration manquante : Clé API Suno requise.';
       httpStatus = 500;
+    } else if (error.message?.includes('Corps de requête vide')) {
+      userMessage = 'Requête invalide : données manquantes.';
+      httpStatus = 400;
     }
     
     return new Response(
@@ -189,7 +228,7 @@ serve(async (req) => {
           api_used: 'Suno AI',
           base_url: 'https://apibox.erweima.ai',
           timeout_info: 'Timeout configuré en mode rapide: 30 secondes max',
-          suggestion: httpStatus === 429 ? 'Rechargez vos crédits Suno AI sur https://apibox.erweima.ai' : 'Vérifiez la configuration de l\'API'
+          suggestion: httpStatus === 429 ? 'Rechargez vos crédits Suno AI sur https://apibox.erweima.ai' : 'Vérifiez la configuration de l\'API et réessayez'
         }
       }),
       { 

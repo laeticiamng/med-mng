@@ -1,88 +1,130 @@
 
-// Suno API Client pour Edge Functions Supabase
-export interface SunoError {
-  code: number;
-  msg: string;
-}
-
 export class SunoApiClient {
-  private readonly maxRetries = 3;
-  private readonly baseURL = "https://apibox.erweima.ai";
-  private readonly apiKey: string;
+  private apiKey: string;
+  private baseUrl: string = 'https://apibox.erweima.ai';
 
   constructor(apiKey: string) {
-    if (!apiKey) throw new Error("Missing SUNO_API_KEY");
     this.apiKey = apiKey;
   }
 
-  async post<T>(endpoint: string, data: unknown): Promise<T> {
-    return this.requestWithRetry<T>("POST", endpoint, data);
-  }
+  async post<T>(endpoint: string, data: any): Promise<T> {
+    console.log(`🌐 POST ${this.baseUrl}${endpoint}`);
+    console.log(`📤 Payload:`, JSON.stringify(data, null, 2));
 
-  async get<T>(endpoint: string, params?: Record<string, string>): Promise<T> {
-    const url = params ? `${endpoint}?${new URLSearchParams(params)}` : endpoint;
-    return this.requestWithRetry<T>("GET", url);
-  }
+    const response = await fetch(`${this.baseUrl}${endpoint}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${this.apiKey}`,
+        'Accept': 'application/json'
+      },
+      body: JSON.stringify(data),
+    });
 
-  private async requestWithRetry<T>(
-    method: string,
-    url: string,
-    data?: unknown
-  ): Promise<T> {
-    for (let attempt = 0; attempt <= this.maxRetries; attempt++) {
+    console.log(`📊 Status: ${response.status} ${response.statusText}`);
+
+    if (!response.ok) {
+      let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+      
       try {
-        const options: RequestInit = {
-          method,
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${this.apiKey}`,
-          },
-        };
-
-        if (data && method !== "GET") {
-          options.body = JSON.stringify(data);
-        }
-
-        const response = await fetch(`${this.baseURL}${url}`, options);
-
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error(`Suno API Error ${response.status}:`, errorText);
-          throw new SunoRequestError(response.status, errorText);
-        }
-
-        const result = await response.json();
+        const errorText = await response.text();
+        console.error(`❌ Error response:`, errorText);
         
-        // Vérifier le format de réponse Suno avec code/data/msg
-        if (result.code !== undefined) {
-          if (result.code !== 200) {
-            throw new SunoRequestError(result.code, result.msg || 'Unknown Suno API error');
+        if (errorText.trim()) {
+          try {
+            const errorJson = JSON.parse(errorText);
+            errorMessage = errorJson.message || errorJson.error || errorMessage;
+          } catch {
+            errorMessage = errorText;
           }
-          return result.data as T;
         }
-        
-        return result as T;
-      } catch (err) {
-        console.error(`Attempt ${attempt + 1}/${this.maxRetries + 1} failed:`, err);
-        if (attempt === this.maxRetries) throw this.normalizeError(err);
-        // Exponential backoff (2^n * 500 ms)
-        await new Promise(r => setTimeout(r, 500 * Math.pow(2, attempt)));
+      } catch (e) {
+        console.error(`❌ Erreur lors de la lecture de la réponse d'erreur:`, e);
       }
+
+      throw new Error(errorMessage);
     }
-    throw new Error("Retry logic failed");
+
+    // Gestion sécurisée du parsing JSON
+    const responseText = await response.text();
+    console.log(`📥 Response text length: ${responseText.length}`);
+    
+    if (!responseText || responseText.trim() === '') {
+      throw new Error('Réponse vide de l\'API Suno');
+    }
+
+    try {
+      const result = JSON.parse(responseText);
+      console.log(`✅ Parsed response:`, result);
+      return result;
+    } catch (parseError) {
+      console.error(`❌ Erreur de parsing JSON:`, parseError);
+      console.error(`📄 Raw response:`, responseText.substring(0, 500));
+      throw new Error(`Réponse JSON invalide de l'API Suno: ${parseError.message}`);
+    }
   }
 
-  private normalizeError(err: unknown): Error {
-    if (err instanceof SunoRequestError) return err;
-    if (err instanceof Error) {
-      return new SunoRequestError(500, err.message);
+  async get<T>(endpoint: string, params?: Record<string, any>): Promise<T> {
+    const url = new URL(`${this.baseUrl}${endpoint}`);
+    
+    if (params) {
+      Object.entries(params).forEach(([key, value]) => {
+        if (value !== undefined && value !== null) {
+          url.searchParams.append(key, value.toString());
+        }
+      });
     }
-    return new Error("Unknown error occurred");
-  }
-}
 
-export class SunoRequestError extends Error {
-  constructor(public code: number, message: string) {
-    super(`[Suno ${code}] ${message}`);
+    console.log(`🌐 GET ${url.toString()}`);
+
+    const response = await fetch(url.toString(), {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${this.apiKey}`,
+        'Accept': 'application/json'
+      },
+    });
+
+    console.log(`📊 Status: ${response.status} ${response.statusText}`);
+
+    if (!response.ok) {
+      let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
+      
+      try {
+        const errorText = await response.text();
+        console.error(`❌ Error response:`, errorText);
+        
+        if (errorText.trim()) {
+          try {
+            const errorJson = JSON.parse(errorText);
+            errorMessage = errorJson.message || errorJson.error || errorMessage;
+          } catch {
+            errorMessage = errorText;
+          }
+        }
+      } catch (e) {
+        console.error(`❌ Erreur lors de la lecture de la réponse d'erreur:`, e);
+      }
+
+      throw new Error(errorMessage);
+    }
+
+    // Gestion sécurisée du parsing JSON
+    const responseText = await response.text();
+    console.log(`📥 Response text length: ${responseText.length}`);
+    
+    if (!responseText || responseText.trim() === '') {
+      throw new Error('Réponse vide de l\'API Suno');
+    }
+
+    try {
+      const result = JSON.parse(responseText);
+      console.log(`✅ Parsed response:`, result);
+      return result;
+    } catch (parseError) {
+      console.error(`❌ Erreur de parsing JSON:`, parseError);
+      console.error(`📄 Raw response:`, responseText.substring(0, 500));
+      throw new Error(`Réponse JSON invalide de l'API Suno: ${parseError.message}`);
+    }
   }
 }
