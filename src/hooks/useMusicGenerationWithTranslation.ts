@@ -83,21 +83,37 @@ export const useMusicGenerationWithTranslation = () => {
         console.log(`✅ Paroles traduites pour Rang ${rang}`);
       }
 
-      const minutes = Math.floor(duration / 60);
-      const seconds = duration % 60;
+      // Gérer les styles combinés
+      const isComposition = selectedStyle.includes('+');
+      const styleDescription = isComposition 
+        ? `Composition musicale personnalisée combinant plusieurs styles : ${selectedStyle.replace(/\+/g, ' × ')}`
+        : selectedStyle;
+
+      // Ajuster la durée pour les compositions
+      const adjustedDuration = isComposition 
+        ? duration + (selectedStyle.split('+').length - 1) * 30 
+        : duration;
+
+      const minutes = Math.floor(adjustedDuration / 60);
+      const seconds = adjustedDuration % 60;
       const durationText = `${minutes}:${seconds.toString().padStart(2, '0')}`;
       
-      console.log(`🎵 Génération musicale Rang ${rang} en ${currentLanguage} - Style: ${selectedStyle} - Durée: ${durationText}`);
+      console.log(`🎵 Génération musicale ${isComposition ? 'COMPOSITION PREMIUM' : 'STANDARD'} Rang ${rang} en ${currentLanguage} - Style: ${styleDescription} - Durée: ${durationText}`);
       console.log(`📝 Paroles traduites (${parolesText.length} caractères):`, parolesText.substring(0, 100) + '...');
       
       // Préparer les données pour l'Edge Function
       const requestBody = {
         lyrics: parolesText,
-        style: selectedStyle,
+        style: selectedStyle, // Peut contenir plusieurs styles séparés par +
         rang: rang,
-        duration: duration,
+        duration: adjustedDuration,
         language: currentLanguage,
-        fastMode: true
+        fastMode: true,
+        composition: isComposition ? {
+          styles: selectedStyle.split('+'),
+          fusion_mode: true,
+          enhanced_duration: true
+        } : undefined
       };
 
       console.log('📤 Données envoyées à l\'Edge Function:', requestBody);
@@ -152,12 +168,14 @@ export const useMusicGenerationWithTranslation = () => {
       }));
 
       const languageName = currentLanguage === 'fr' ? 'français' : currentLanguage;
+      const compositionText = isComposition ? ' (Composition Premium)' : '';
+      
       toast({
-        title: `🎉 Musique Rang ${rang} générée !`,
+        title: `🎉 Musique Rang ${rang} générée !${compositionText}`,
         description: `Chanson de ${durationText} avec paroles chantées générée en ${languageName} !`,
       });
 
-      console.log(`✅ Musique générée pour Rang ${rang} en ${languageName}:`, data.audioUrl);
+      console.log(`✅ Musique ${isComposition ? 'COMPOSITION PREMIUM' : 'standard'} générée pour Rang ${rang} en ${languageName}:`, data.audioUrl);
       
     } catch (error) {
       console.error(`❌ Erreur génération Rang ${rang}:`, error);
