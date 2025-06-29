@@ -55,7 +55,6 @@ serve(async (req) => {
       throw new Error(`Aucune parole valide fournie pour le Rang ${rang}`);
     }
 
-    // Récupération de la clé API depuis les secrets Supabase
     const SUNO_API_KEY = Deno.env.get('SUNO_API_KEY');
     if (!SUNO_API_KEY) {
       console.error('❌ SUNO_API_KEY manquante dans les secrets Supabase');
@@ -64,23 +63,23 @@ serve(async (req) => {
 
     console.log('🔑 SUNO_API_KEY trouvée, longueur:', SUNO_API_KEY.length);
 
-    // Initialisation du client Suno
     const sunoClient = new SunoApiClient(SUNO_API_KEY);
 
-    // Préparation de la requête pour Suno avec le format correct pour apibox.erweima.ai
+    // Préparer la requête avec TOUS les paramètres requis par l'API Suno
     const sunoRequest = {
       prompt: lyrics,
       style: style,
       title: `Rang ${rang} - ${style}`,
-      custom_mode: true,  // Ajout du paramètre manquant
+      model: "V4",  // AJOUT DU PARAMÈTRE MODEL REQUIS
+      custom_mode: true,
       instrumental: false,
-      wait_audio: true
+      wait_audio: true,
+      callBackUrl: `${Deno.env.get('SUPABASE_URL')}/functions/v1/generate-music/callback`  // AJOUT DU CALLBACK URL
     };
 
-    console.log('🎵 Envoi requête à Suno API:', sunoRequest);
+    console.log('🎵 Envoi requête à Suno API avec paramètres complets:', sunoRequest);
 
     try {
-      // Utilisation de l'endpoint Suno qui fonctionne
       const response = await sunoClient.post('https://apibox.erweima.ai/api/v1/generate', sunoRequest);
       console.log('✅ Réponse Suno reçue:', response);
 
@@ -93,11 +92,15 @@ serve(async (req) => {
         audioUrl = response.audio_url;
       } else if (response && response.url) {
         audioUrl = response.url;
+      } else if (response && response.data && Array.isArray(response.data) && response.data.length > 0) {
+        audioUrl = response.data[0].audio_url || response.data[0].url;
       }
 
       if (!audioUrl) {
-        console.log('⚠️ Aucune URL audio trouvée dans la réponse, utilisation d\'une URL de test plus longue');
-        // URL de test avec une vraie chanson de 3 minutes au lieu du son de 2 secondes
+        console.log('⚠️ Aucune URL audio trouvée dans la réponse, vérification des autres champs...');
+        console.log('🔍 Structure complète de la réponse:', JSON.stringify(response, null, 2));
+        
+        // Fallback temporaire seulement si vraiment nécessaire
         audioUrl = "https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3";
       }
 
@@ -111,9 +114,10 @@ serve(async (req) => {
         language: language,
         status: 'success',
         message: `✅ Musique générée avec succès pour le Rang ${rang}`,
-        lyrics_integrated: true,
-        vocals_included: true,
-        lyrics_length: lyrics.length
+        lyrics_integrated: audioUrl !== "https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3",
+        vocals_included: audioUrl !== "https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3",
+        lyrics_length: lyrics.length,
+        suno_response: response // Ajout pour debug
       };
 
       console.log('✅ Retour de succès:', successResponse);
@@ -126,28 +130,37 @@ serve(async (req) => {
     } catch (sunoError) {
       console.error('❌ Erreur appel Suno API:', sunoError);
       
-      // En cas d'erreur, retourner une URL audio de test plus longue et réaliste
-      const fallbackResponse = {
-        audioUrl: "https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3", // 3 minutes au lieu de 2 secondes
-        rang,
-        style,
-        duration: duration,
-        durationFormatted: `${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')}`,
-        generationTime: 5,
-        language: language,
-        status: 'fallback',
-        message: `⚠️ Service Suno temporairement indisponible. Utilisation d'un exemple musical pour le Rang ${rang}`,
-        lyrics_integrated: false,
-        vocals_included: false,
-        lyrics_length: lyrics.length,
-        error_details: sunoError.message
-      };
-
-      console.log('⚠️ Retour de fallback avec audio plus long:', fallbackResponse);
-
+      // Analyser l'erreur spécifique
+      let errorMessage = sunoError.message || 'Erreur inconnue';
+      let statusCode = 500;
+      
+      if (errorMessage.includes('callBackUrl')) {
+        errorMessage = '🔧 Erreur de configuration: callBackUrl manquant dans l\'API Suno';
+        statusCode = 400;
+      } else if (errorMessage.includes('model cannot be null')) {
+        errorMessage = '🔧 Erreur de configuration: paramètre model requis pour l\'API Suno';
+        statusCode = 400;
+      } else if (errorMessage.includes('401') || errorMessage.includes('Unauthorized')) {
+        errorMessage = '🔑 Clé API Suno invalide ou expirée';
+        statusCode = 401;
+      }
+      
       return new Response(
-        JSON.stringify(fallbackResponse),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ 
+          error: errorMessage,
+          status: 'error',
+          error_code: statusCode,
+          details: 'Erreur lors de l\'appel à l\'API Suno réelle',
+          debug: {
+            error_type: sunoError.name,
+            error_message: sunoError.message,
+            timestamp: new Date().toISOString()
+          }
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: statusCode
+        }
       );
     }
 
@@ -185,7 +198,7 @@ serve(async (req) => {
         error: userMessage,
         status: 'error',
         error_code: error.code || httpStatus,
-        details: '🔍 Tentative d\'appel réel à l\'API Suno',
+        details: '🔍 Appel API Suno avec paramètres corrigés',
         debug: {
           error_type: error.name,
           error_message: error.message,
