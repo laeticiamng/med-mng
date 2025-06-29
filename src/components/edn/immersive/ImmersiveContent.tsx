@@ -21,6 +21,8 @@ export const ImmersiveContent: React.FC<ImmersiveContentProps> = ({
   const renderSection = () => {
     const sectionName = sections[currentSection];
     
+    console.log('🎵 Rendu section:', currentSection, 'paroles_musicales:', item.paroles_musicales);
+    
     switch (currentSection) {
       case 0: // Pitch d'introduction
         return (
@@ -93,13 +95,34 @@ export const ImmersiveContent: React.FC<ImmersiveContentProps> = ({
         );
 
       case 4: // Paroles musicales
+        console.log('🎵 Affichage section Paroles musicales, données:', {
+          paroles: item.paroles_musicales,
+          length: item.paroles_musicales?.length,
+          item_code: item.item_code
+        });
+        
         return (
-          <ParolesMusicales
-            paroles={item.paroles_musicales}
-            itemCode={item.item_code}
-            tableauRangA={item.tableau_rang_a}
-            tableauRangB={item.tableau_rang_b}
-          />
+          <div>
+            {/* Toujours afficher la section, même si les paroles sont incomplètes */}
+            <ParolesMusicales
+              paroles={item.paroles_musicales || []}
+              itemCode={item.item_code}
+              tableauRangA={item.tableau_rang_a}
+              tableauRangB={item.tableau_rang_b}
+            />
+            
+            {/* Afficher un avertissement si les paroles sont insuffisantes */}
+            {(!item.paroles_musicales || item.paroles_musicales.length < 2) && (
+              <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <p className="text-yellow-800">
+                  ⚠️ <strong>Paroles incomplètes</strong> - Cet item nécessite des paroles plus complètes avec au moins 3 couplets et un refrain répété.
+                </p>
+                <p className="text-yellow-700 mt-2 text-sm">
+                  Données actuelles : {item.paroles_musicales?.length || 0} paragraphe(s) trouvé(s)
+                </p>
+              </div>
+            )}
+          </div>
         );
 
       case 5: // Bande dessinée
