@@ -69,7 +69,13 @@ export const useMusicGenerationOrchestrator = () => {
         return validatedAudioUrl;
       }
 
-      // Commencer le polling avec progression visuelle
+      // Afficher un message informatif à l'utilisateur
+      toast({
+        title: "Génération démarrée",
+        description: `Suno AI traite votre demande pour le Rang ${rang}. Cela peut prendre quelques minutes...`,
+      });
+
+      // Commencer le polling avec progression visuelle améliorée
       startPolling({
         rang,
         requestBody,
@@ -85,11 +91,23 @@ export const useMusicGenerationOrchestrator = () => {
           onSuccess(rangPolling, validatedAudioUrl);
         },
         onError: (error) => {
+          let errorMessage = error.message;
+          let toastTitle = "Erreur de génération Suno";
+          
+          // Messages plus informatifs selon le type d'erreur
+          if (errorMessage.includes('Délai d\'attente dépassé')) {
+            toastTitle = "Génération en cours...";
+            errorMessage = "La génération prend plus de temps que prévu. L'API Suno est peut-être occupée. Vous pouvez réessayer dans quelques minutes.";
+          } else if (errorMessage.includes('Trop d\'erreurs consécutives')) {
+            errorMessage = "Problème de connexion avec l'API Suno. Veuillez vérifier votre connexion internet et réessayer.";
+          }
+          
           toast({
-            title: "Erreur de génération Suno",
-            description: error.message,
+            title: toastTitle,
+            description: errorMessage,
             variant: "destructive"
           });
+          
           onError(error);
         }
       });
