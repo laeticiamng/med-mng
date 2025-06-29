@@ -1,8 +1,6 @@
 
 import React from 'react';
-import { RangParolesDisplay } from './RangParolesDisplay';
-import { RangGenerateButton } from './RangGenerateButton';
-import { RangAudioPlayer } from './RangAudioPlayer';
+import { MusicCard } from './MusicCard';
 
 interface ParolesMusicalesRangSectionProps {
   rang: 'A' | 'B';
@@ -10,7 +8,7 @@ interface ParolesMusicalesRangSectionProps {
   musicDuration: number;
   isGenerating: boolean;
   generatedAudio?: string;
-  itemCode: string;
+  itemCode?: string;
   currentTrack: any;
   isPlaying: boolean;
   currentTime: number;
@@ -21,6 +19,12 @@ interface ParolesMusicalesRangSectionProps {
   onSeek: (time: number) => void;
   onVolumeChange: (volume: number) => void;
   onStop: () => void;
+  generationProgress?: {
+    progress: number;
+    attempts: number;
+    maxAttempts: number;
+    estimatedTimeRemaining?: number;
+  };
 }
 
 export const ParolesMusicalesRangSection: React.FC<ParolesMusicalesRangSectionProps> = ({
@@ -39,64 +43,48 @@ export const ParolesMusicalesRangSection: React.FC<ParolesMusicalesRangSectionPr
   onPlayAudio,
   onSeek,
   onVolumeChange,
-  onStop
+  onStop,
+  generationProgress
 }) => {
-  const colors = {
-    A: {
-      bg: 'bg-amber-50',
-      border: 'border-amber-200',
-      text: 'text-amber-800',
-      textLight: 'text-amber-700',
-      button: 'bg-amber-600 hover:bg-amber-700'
-    },
-    B: {
-      bg: 'bg-blue-50',
-      border: 'border-blue-200', 
-      text: 'text-blue-800',
-      textLight: 'text-blue-700',
-      button: 'bg-blue-600 hover:bg-blue-700'
+  const title = `Musique Rang ${rang}`;
+  const selectedStyle = 'lofi-piano'; // Style par défaut, peut être modifié
+  
+  const isCurrentTrack = currentTrack?.url === generatedAudio;
+  const isMinimized = false; // Peut être géré par un état parent si nécessaire
+
+  const handlePlayPause = () => {
+    if (generatedAudio) {
+      onPlayAudio(generatedAudio, title);
     }
   };
 
-  const style = colors[rang];
-
-  if (!paroles) return null;
+  const handleMinimize = () => {
+    // Logique de minimisation si nécessaire
+  };
 
   return (
-    <div className={`border ${style.border} rounded-lg p-4 ${style.bg}`}>
-      <RangParolesDisplay
-        rang={rang}
-        paroles={paroles}
-        textColor={style.text}
-      />
-      
-      <div className="space-y-3">
-        <RangGenerateButton
-          rang={rang}
-          musicDuration={musicDuration}
-          isGenerating={isGenerating}
-          buttonColor={style.button}
-          onGenerate={onGenerate}
-        />
-
-        {generatedAudio && (
-          <RangAudioPlayer
-            rang={rang}
-            generatedAudio={generatedAudio}
-            itemCode={itemCode}
-            currentTrack={currentTrack}
-            isPlaying={isPlaying}
-            currentTime={currentTime}
-            duration={duration}
-            volume={volume}
-            musicDuration={musicDuration}
-            onPlayAudio={onPlayAudio}
-            onSeek={onSeek}
-            onVolumeChange={onVolumeChange}
-            onStop={onStop}
-          />
-        )}
-      </div>
-    </div>
+    <MusicCard
+      rang={rang}
+      title={title}
+      paroles={paroles}
+      selectedStyle={selectedStyle}
+      musicDuration={musicDuration}
+      isGenerating={isGenerating}
+      generatedAudio={generatedAudio}
+      isPlaying={isPlaying}
+      isCurrentTrack={isCurrentTrack}
+      isMinimized={isMinimized}
+      currentTime={currentTime}
+      duration={duration}
+      volume={volume}
+      onGenerateMusic={onGenerate}
+      onPlayPause={handlePlayPause}
+      onSeek={onSeek}
+      onVolumeChange={onVolumeChange}
+      onStop={onStop}
+      onMinimize={handleMinimize}
+      itemCode={itemCode}
+      generationProgress={generationProgress}
+    />
   );
 };

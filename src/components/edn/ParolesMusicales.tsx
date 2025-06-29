@@ -35,6 +35,7 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
   const {
     isGenerating,
     generatedAudio,
+    generationProgress,
     lastError,
     generateMusicInLanguage,
     currentLanguage
@@ -161,6 +162,7 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
 
   // Log de l'état pour debug
   console.log('🎵 ÉTAT ACTUEL generatedAudio:', generatedAudio);
+  console.log('🎵 ÉTAT ACTUEL generationProgress:', generationProgress);
 
   return (
     <div className="space-y-6">
@@ -230,6 +232,7 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
                     onSeek={seek}
                     onVolumeChange={changeVolume}
                     onStop={stop}
+                    generationProgress={generationProgress?.rangA}
                   />
                 )}
 
@@ -251,6 +254,7 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
                     onSeek={seek}
                     onVolumeChange={changeVolume}
                     onStop={stop}
+                    generationProgress={generationProgress?.rangB}
                   />
                 )}
               </div>
