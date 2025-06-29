@@ -58,7 +58,7 @@ export const useMusicGenerationWithTranslation = () => {
       // Initialiser le progress à 0
       updateGenerationProgress(rang, {
         progress: 0,
-        attempts: 0,
+        attempts: 1,
         maxAttempts: 12,
         estimatedTimeRemaining: 2
       });
@@ -76,22 +76,79 @@ export const useMusicGenerationWithTranslation = () => {
         fastMode: true
       };
 
-      // Polling pour récupérer les updates de progression
-      const pollProgress = async (taskId?: string) => {
-        const maxPolls = 24; // 2 minutes max
+      // Démarrer la génération initiale
+      console.log('🎵 Appel initial pour démarrer la génération...');
+      const { data: initialData, error: initialError } = await supabase.functions.invoke('generate-music', {
+        body: requestBody
+      });
+
+      if (initialError) {
+        console.error('❌ Erreur lors du démarrage:', initialError);
+        throw new Error(initialError.message || 'Erreur lors du démarrage de la génération');
+      }
+
+      console.log('🎵 Réponse initiale:', initialData);
+
+      // Si c'est déjà un succès (peu probable), on termine
+      if (initialData?.status === 'success' && initialData?.audioUrl) {
+        console.log('🎵 GÉNÉRATION TERMINÉE IMMÉDIATEMENT:', initialData.audioUrl);
+        const validatedAudioUrl = validateAndNormalizeAudioUrl(initialData.audioUrl);
+        setAudioUrl(rang, validatedAudioUrl);
+        
+        toast({
+          title: "Génération réussie",
+          description: `Musique générée avec succès pour le Rang ${rang}`,
+        });
+        
+        return validatedAudioUrl;
+      }
+
+      // Sinon, commencer le polling
+      const pollForProgress = async () => {
+        const maxPolls = 24; // 2 minutes max (24 * 5s = 120s)
         let pollCount = 0;
         
-        while (pollCount < maxPolls) {
+        const pollInterval = setInterval(async () => {
           try {
-            const { data, error } = await supabase.functions.invoke('generate-music', {
+            pollCount++;
+            console.log(`🔄 Polling ${pollCount}/${maxPolls} pour Rang ${rang}`);
+            
+            // Mettre à jour la progression basée sur le nombre de tentatives
+            const progressPercentage = Math.min(Math.round((pollCount / maxPolls) * 90), 90); // Max 90% pendant le polling
+            const estimatedTimeRemaining = Math.max(Math.round(((maxPolls - pollCount) * 5) / 60), 0);
+            
+            updateGenerationProgress(rang, {
+              progress: progressPercentage,
+              attempts: pollCount,
+              maxAttempts: maxPolls,
+              estimatedTimeRemaining
+            });
+
+            // Faire un nouvel appel pour vérifier le statut
+            const { data: pollData, error: pollError } = await supabase.functions.invoke('generate-music', {
               body: requestBody
             });
 
-            if (error) throw error;
+            if (pollError) {
+              console.warn(`⚠️ Erreur lors du polling ${pollCount}:`, pollError);
+              return; // Continue le polling
+            }
 
-            if (data.status === 'success' && data.audioUrl) {
-              console.log('🎵 GÉNÉRATION TERMINÉE:', data.audioUrl);
-              const validatedAudioUrl = validateAndNormalizeAudioUrl(data.audioUrl);
+            console.log(`📥 Données du polling ${pollCount}:`, pollData);
+
+            if (pollData?.status === 'success' && pollData?.audioUrl) {
+              console.log('✅ GÉNÉRATION TERMINÉE:', pollData.audioUrl);
+              clearInterval(pollInterval);
+              
+              // Progression à 100%
+              updateGenerationProgress(rang, {
+                progress: 100,
+                attempts: pollCount,
+                maxAttempts: maxPolls,
+                estimatedTimeRemaining: 0
+              });
+              
+              const validatedAudioUrl = validateAndNormalizeAudioUrl(pollData.audioUrl);
               setAudioUrl(rang, validatedAudioUrl);
               
               toast({
@@ -102,43 +159,31 @@ export const useMusicGenerationWithTranslation = () => {
               return validatedAudioUrl;
             }
 
-            if (data.status === 'generating' || data.status === 'timeout') {
-              // Mettre à jour le progress
-              updateGenerationProgress(rang, {
-                progress: data.progress || 0,
-                attempts: data.attempts || 0,
-                maxAttempts: data.maxAttempts || 12,
-                estimatedTimeRemaining: data.estimatedTimeRemaining || 0
-              });
-              
-              console.log(`🔄 Progression: ${data.progress}%`);
-              
-              if (data.status === 'timeout') {
-                throw new Error('La génération prend plus de temps que prévu. Veuillez réessayer.');
-              }
+            if (pollData?.status === 'error') {
+              clearInterval(pollInterval);
+              throw new Error(pollData.message || 'Erreur lors de la génération');
             }
 
-            // Attendre 5 secondes avant le prochain poll
-            await new Promise(resolve => setTimeout(resolve, 5000));
-            pollCount++;
+            // Si on a atteint le maximum de polls
+            if (pollCount >= maxPolls) {
+              clearInterval(pollInterval);
+              throw new Error('La génération prend plus de temps que prévu. Veuillez réessayer.');
+            }
             
           } catch (pollError) {
-            console.error('❌ Erreur lors du polling:', pollError);
+            console.error(`❌ Erreur lors du polling ${pollCount}:`, pollError);
             if (pollCount >= maxPolls - 1) {
+              clearInterval(pollInterval);
               throw pollError;
             }
-            await new Promise(resolve => setTimeout(resolve, 5000));
-            pollCount++;
           }
-        }
-        
-        throw new Error('Timeout: La génération a pris trop de temps');
+        }, 5000); // Poll toutes les 5 secondes
+
+        // Cleanup en cas d'erreur
+        return () => clearInterval(pollInterval);
       };
 
-      const audioUrl = await pollProgress();
-      console.log(`✅ GÉNÉRATION SUNO RÉUSSIE pour Rang ${rang}:`, audioUrl);
-      
-      return audioUrl;
+      await pollForProgress();
       
     } catch (error) {
       console.error(`❌ ERREUR GÉNÉRATION SUNO Rang ${rang}:`, error);
