@@ -1,5 +1,6 @@
 
-import { conceptsRangAIC3, conceptsRangBIC3, colonnesConfigIC3 } from './TableauRangADataIC3';
+import { conceptsRangAIC3, conceptsRangBIC3 } from './TableauRangADataIC3Concepts';
+import { colonnesConfigIC3 } from './TableauRangADataIC3Config';
 
 export const isIC3Item = (data: any): boolean => {
   return data?.theme?.toLowerCase().includes('raisonnement') ||
