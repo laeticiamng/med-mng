@@ -19,7 +19,7 @@ interface ParolesMusicalesProps {
 }
 
 export const ParolesMusicales = ({ paroles, itemCode, itemTitle }: ParolesMusicalesProps) => {
-  const [selectedStyle, setSelectedStyle] = useState('');
+  const [selectedStyle, setSelectedStyle] = useState('lofi-piano'); // Valeur par défaut
   const [musicDuration, setMusicDuration] = useState(240);
   const [showTranspositionPanel, setShowTranspositionPanel] = useState(false);
   
