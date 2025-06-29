@@ -67,12 +67,13 @@ serve(async (req) => {
     // Initialisation du client Suno
     const sunoClient = new SunoApiClient(SUNO_API_KEY);
 
-    // Préparation de la requête pour Suno avec l'endpoint correct
+    // Préparation de la requête pour Suno avec le format correct pour apibox.erweima.ai
     const sunoRequest = {
       prompt: lyrics,
-      tags: style,
+      style: style,
       title: `Rang ${rang} - ${style}`,
-      make_instrumental: false,
+      custom_mode: true,  // Ajout du paramètre manquant
+      instrumental: false,
       wait_audio: true
     };
 
