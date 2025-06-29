@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -15,6 +16,8 @@ import EcosScenario from "./pages/EcosScenario";
 import EdnIndex from "./pages/EdnIndex";
 import EdnItem from "./pages/EdnItem";
 import EdnItemImmersive from "./pages/EdnItemImmersive";
+import AuditGeneralPage from "./pages/AuditGeneral";
+import MentionsLegales from "./pages/MentionsLegales";
 import { MedMngLogin } from "./pages/MedMngLogin";
 import { MedMngSignup } from "./pages/MedMngSignup";
 import { MedMngPricing } from "./pages/MedMngPricing";
@@ -43,6 +46,8 @@ function App() {
                   <Route path="/edn" element={<EdnIndex />} />
                   <Route path="/edn/:slug" element={<EdnItem />} />
                   <Route path="/edn/immersive/:slug" element={<EdnItemImmersive />} />
+                  <Route path="/audit-general" element={<AuditGeneralPage />} />
+                  <Route path="/mentions-legales" element={<MentionsLegales />} />
                   <Route path="/med-mng/login" element={<MedMngLogin />} />
                   <Route path="/med-mng/signup" element={<MedMngSignup />} />
                   <Route path="/med-mng/pricing" element={<MedMngPricing />} />
