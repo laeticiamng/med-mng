@@ -9,40 +9,40 @@ export const AuditIC2 = () => {
       status: 'excellent',
       score: 92,
       details: [
-        'Rang A: 19/20 concepts conformes (95% couverture)',
-        'Rang B: 30/32 concepts experts selon E-LiSA',
+        'Rang A: 7/7 concepts LiSA conformes (100% couverture)',
+        'Rang B: 2/2 concepts experts selon LiSA',
         'Déontologie médicale complètement intégrée',
-        'Valeurs professionnelles solidement ancrées'
+        'Organisation profession médicale France'
       ]
     },
     completude: {
       status: 'bon',
       score: 89,
       details: [
-        'Éthique médicale: 7/8 dimensions couvertes',
-        'Déontologie professionnelle complète',
-        'Responsabilité et engagement professionnel',
-        'Dimension sociétale de la médecine'
+        'Définitions pratique et éthique médicale',
+        'Normes et valeurs professionnelles',
+        'EBM et responsabilité médicale',
+        'Acteurs de santé et interactions'
       ]
     },
     pedagogie: {
       status: 'bon',
       score: 87,
       details: [
-        'Études de cas éthiques',
-        'Analyse de dilemmes moraux',
-        'Réflexion sur les valeurs',
-        'Débats et discussions encadrées'
+        'Études de cas déontologiques',
+        'Analyse conflits valeurs/intérêts',
+        'Simulation décisions éthiques',
+        'Débats interprofessionnels'
       ]
     },
     actualite: {
       status: 'bon',
       score: 88,
       details: [
-        'Enjeux éthiques contemporains',
-        'Nouvelles technologies et éthique',
-        'Évolution sociétale et médecine',
-        'Bioéthique et innovations'
+        'Évolution réglementaire ordres',
+        'Nouvelles pratiques professionnelles',
+        'Télémédecine et déontologie',
+        'Intelligence artificielle et éthique'
       ]
     }
   };
@@ -86,7 +86,7 @@ export const AuditIC2 = () => {
             <div className="text-sm text-gray-600">Score global</div>
           </div>
           <Badge className="bg-green-100 text-green-800 text-lg px-4 py-2">
-            ✅ Excellent niveau E-LiSA
+            ✅ 7 Rang A + 2 Rang B LiSA
           </Badge>
         </div>
       </div>
@@ -124,27 +124,33 @@ export const AuditIC2 = () => {
       <Card className="p-6 bg-gradient-to-r from-green-50 to-blue-50">
         <div className="flex items-center space-x-2 mb-4">
           <TrendingUp className="h-5 w-5 text-green-600" />
-          <h3 className="text-lg font-semibold text-gray-800">Synthèse IC-2</h3>
+          <h3 className="text-lg font-semibold text-gray-800">Synthèse IC-2 selon LiSA</h3>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <h4 className="font-medium text-green-700 mb-2">✅ Points forts</h4>
+            <h4 className="font-medium text-green-700 mb-2">✅ Rang A LiSA (7/7 concepts)</h4>
             <ul className="space-y-1 text-sm text-gray-700">
-              <li>• Excellence déontologique confirmée</li>
-              <li>• Valeurs professionnelles intégrées</li>
-              <li>• Conformité E-LiSA exceptionnelle (92%)</li>
-              <li>• Approche éthique mature</li>
+              <li>• Professionnels et compétences santé</li>
+              <li>• Définitions pratique/éthique médicale</li>
+              <li>• Normes et valeurs professionnelles</li>
+              <li>• Régulation étatique profession</li>
+              <li>• EBM et responsabilité</li>
+              <li>• Déontologie et conflits</li>
+              <li>• Acteurs santé et interactions</li>
             </ul>
           </div>
           
           <div>
-            <h4 className="font-medium text-blue-700 mb-2">📈 Développement</h4>
+            <h4 className="font-medium text-blue-700 mb-2">🎯 Rang B LiSA (2/2 concepts)</h4>
             <ul className="space-y-1 text-sm text-gray-700">
-              <li>• Enrichir dimension sociétale</li>
-              <li>• Actualiser enjeux contemporains</li>
-              <li>• Renforcer cas pratiques</li>
-              <li>• Compléter concept Rang A manquant</li>
+              <li>• Organisation exercice professionnels France</li>
+              <li>• Rôle des ordres professionnels</li>
+            </ul>
+            <h4 className="font-medium text-green-700 mt-4 mb-2">📈 Évolutions</h4>
+            <ul className="space-y-1 text-sm text-gray-700">
+              <li>• Télémédecine et déontologie</li>
+              <li>• IA et nouvelles pratiques</li>
             </ul>
           </div>
         </div>

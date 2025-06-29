@@ -2,25 +2,26 @@
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle, AlertTriangle, Info, Target, BookOpen, TrendingUp, Award, BarChart3 } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
 export const AuditComprehensif = () => {
   const auditComplet = {
     'IC-1': {
-      title: 'Relation médecin-malade',
+      title: 'Relation médecin-malade et communication',
       scoreGlobal: 86,
-      conformiteELisa: 88,
+      conformiteELisa: 86,
       completude: 85,
       pedagogie: 90,
       actualite: 82,
-      conceptsRangA: 18,
-      conceptsRangB: 28,
+      conceptsRangA: 14,
+      conceptsRangB: 0,
+      conceptsLiSATotal: 14,
       status: 'bon',
-      priorite: 'Maintenir excellence',
+      priorite: 'Maintenir niveau',
       actions: [
-        'Intégrer télémédecine',
+        'Intégrer télémédecine communication',
         'Actualiser outils numériques',
-        'Compléter 2 concepts Rang A'
+        'Maintenir excellence pédagogique'
       ]
     },
     'IC-2': {
@@ -30,67 +31,71 @@ export const AuditComprehensif = () => {
       completude: 89,
       pedagogie: 87,
       actualite: 88,
-      conceptsRangA: 19,
-      conceptsRangB: 30,
+      conceptsRangA: 7,
+      conceptsRangB: 2,
+      conceptsLiSATotal: 9,
       status: 'excellent',
-      priorite: 'Conserver avance',
+      priorite: 'Conserver excellence',
       actions: [
-        'Enrichir dimension sociétale',
-        'Renforcer cas pratiques',
-        'Finaliser concept Rang A manquant'
+        'Maintenir niveau déontologique',
+        'Actualiser évolutions ordres',
+        'Enrichir cas pratiques'
       ]
     },
     'IC-3': {
-      title: 'Démarche scientifique',
+      title: 'Raisonnement et décision en médecine (EBM)',
       scoreGlobal: 74,
       conformiteELisa: 75,
       completude: 70,
       pedagogie: 78,
       actualite: 72,
       conceptsRangA: 14,
-      conceptsRangB: 22,
+      conceptsRangB: 4,
+      conceptsLiSATotal: 22,
       status: 'ameliorer',
-      priorite: 'URGENT - Restructurer',
+      priorite: 'URGENT - Rattraper',
       actions: [
-        'Compléter 6 concepts Rang A manquants',
-        'Ajouter 10 concepts Rang B',
-        'Renforcer biostatistiques',
-        'Intégrer méthodologie complète'
+        'Compléter 2 concepts Rang A manquants',
+        'Ajouter 2 concepts Rang B manquants',
+        'Renforcer TICE et aide décision',
+        'Intégrer controverses santé'
       ]
     },
     'IC-4': {
-      title: 'Qualité et sécurité des soins',
+      title: 'Qualité, sécurité et EIAS',
       scoreGlobal: 95,
       conformiteELisa: 95,
       completude: 98,
       pedagogie: 92,
       actualite: 94,
       conceptsRangA: 20,
-      conceptsRangB: 32,
+      conceptsRangB: 4,
+      conceptsLiSATotal: 24,
       status: 'excellent',
-      priorite: 'Modèle de référence',
+      priorite: 'Modèle de référence LiSA',
       actions: [
+        'Servir de référence autres items',
         'Diffuser bonnes pratiques',
-        'Servir de référence pour autres items',
-        'Maintenir niveau d\'excellence'
+        'Maintenir excellence LiSA'
       ]
     },
     'IC-5': {
-      title: 'Organisation du système de santé',
+      title: 'Responsabilités médicale et gestion des erreurs',
       scoreGlobal: 68,
-      conformiteELisa: 70,
+      conformiteELisa: 67,
       completude: 65,
-      pedagogie: 75,
+      pedagogie: 72,
       actualite: 68,
-      conceptsRangA: 12,
-      conceptsRangB: 18,
-      status: 'incomplet',
+      conceptsRangA: 10,
+      conceptsRangB: 0,
+      conceptsLiSATotal: 15,
+      status: 'insuffisant',
       priorite: 'CRITIQUE - Refondre',
       actions: [
-        'Compléter 8 concepts Rang A manquants',
-        'Ajouter 14 concepts Rang B manquants',
-        'Développer parcours de soins',
-        'Intégrer réformes récentes'
+        'Compléter 5 concepts Rang A manquants',
+        'Développer culture positive erreur',
+        'Intégrer prévention et barrières',
+        'Actualiser jurisprudence'
       ]
     }
   };
@@ -102,34 +107,16 @@ export const AuditComprehensif = () => {
     pedagogieMoyenne: Math.round(Object.values(auditComplet).reduce((sum, item) => sum + item.pedagogie, 0) / 5),
     actualiteMoyenne: Math.round(Object.values(auditComplet).reduce((sum, item) => sum + item.actualite, 0) / 5),
     totalConceptsRangA: Object.values(auditComplet).reduce((sum, item) => sum + item.conceptsRangA, 0),
-    totalConceptsRangB: Object.values(auditComplet).reduce((sum, item) => sum + item.conceptsRangB, 0)
+    totalConceptsRangB: Object.values(auditComplet).reduce((sum, item) => sum + item.conceptsRangB, 0),
+    totalConceptsLiSA: Object.values(auditComplet).reduce((sum, item) => sum + item.conceptsLiSATotal, 0)
   };
-
-  const totalConcepts = metriquesGlobales.totalConceptsRangA + metriquesGlobales.totalConceptsRangB;
 
   const dataDistribution = [
     { name: 'Excellent', value: Object.values(auditComplet).filter(i => i.status === 'excellent').length, color: '#10B981' },
     { name: 'Bon', value: Object.values(auditComplet).filter(i => i.status === 'bon').length, color: '#3B82F6' },
     { name: 'À améliorer', value: Object.values(auditComplet).filter(i => i.status === 'ameliorer').length, color: '#F59E0B' },
-    { name: 'Incomplet', value: Object.values(auditComplet).filter(i => i.status === 'incomplet').length, color: '#EF4444' }
+    { name: 'Insuffisant', value: Object.values(auditComplet).filter(i => i.status === 'insuffisant').length, color: '#EF4444' }
   ];
-
-  const dataEvolution = Object.entries(auditComplet).map(([code, item]) => ({
-    item: code,
-    scoreActuel: item.scoreGlobal,
-    objectifCible: code === 'IC-4' ? 95 : code === 'IC-2' ? 92 : code === 'IC-1' ? 88 : 85,
-    ecartObjectif: item.scoreGlobal - (code === 'IC-4' ? 95 : code === 'IC-2' ? 92 : code === 'IC-1' ? 88 : 85)
-  }));
-
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'excellent': return 'bg-green-100 text-green-800 border-green-300';
-      case 'bon': return 'bg-blue-100 text-blue-800 border-blue-300';
-      case 'ameliorer': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
-      case 'incomplet': return 'bg-red-100 text-red-800 border-red-300';
-      default: return 'bg-gray-100 text-gray-800 border-gray-300';
-    }
-  };
 
   const getPrioriteColor = (priorite: string) => {
     if (priorite.includes('CRITIQUE')) return 'text-red-700';
@@ -137,35 +124,49 @@ export const AuditComprehensif = () => {
     return 'text-blue-700';
   };
 
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'excellent': return 'bg-green-100 text-green-800 border-green-300';
+      case 'bon': return 'bg-blue-100 text-blue-800 border-blue-300';
+      case 'ameliorer': return 'bg-yellow-100 text-yellow-800 border-yellow-300';
+      case 'insuffisant': return 'bg-red-100 text-red-800 border-red-300';
+      default: return 'bg-gray-100 text-gray-800 border-gray-300';
+    }
+  };
+
   return (
     <div className="space-y-8 p-6">
-      {/* En-tête avec métriques globales */}
+      {/* En-tête avec métriques LiSA */}
       <div className="text-center space-y-6">
         <div className="flex items-center justify-center space-x-2">
           <BarChart3 className="h-8 w-8 text-blue-600" />
-          <h1 className="text-4xl font-bold text-gray-800">Audit Compréhensif - Items IC E-LiSA</h1>
+          <h1 className="text-4xl font-bold text-gray-800">Audit Compréhensif - Items IC selon référentiel LiSA</h1>
         </div>
         
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-6 gap-4">
           <div className="text-center p-4 bg-blue-50 rounded-lg">
             <div className="text-3xl font-bold text-blue-600">{metriquesGlobales.scoreGlobalMoyen}%</div>
-            <div className="text-sm text-gray-600">Score Global Moyen</div>
+            <div className="text-sm text-gray-600">Score Global</div>
           </div>
           <div className="text-center p-4 bg-green-50 rounded-lg">
-            <div className="text-3xl font-bold text-green-600">{totalConcepts}</div>
-            <div className="text-sm text-gray-600">Concepts Total</div>
+            <div className="text-3xl font-bold text-green-600">{metriquesGlobales.totalConceptsLiSA}</div>
+            <div className="text-sm text-gray-600">Total LiSA</div>
           </div>
           <div className="text-center p-4 bg-purple-50 rounded-lg">
-            <div className="text-3xl font-bold text-purple-600">{metriquesGlobales.conformiteElisaMoyenne}%</div>
-            <div className="text-sm text-gray-600">Conformité E-LiSA</div>
+            <div className="text-3xl font-bold text-purple-600">{metriquesGlobales.totalConceptsRangA}</div>
+            <div className="text-sm text-gray-600">Rang A</div>
           </div>
           <div className="text-center p-4 bg-amber-50 rounded-lg">
-            <div className="text-3xl font-bold text-amber-600">{metriquesGlobales.completudeMoyenne}%</div>
-            <div className="text-sm text-gray-600">Complétude Moyenne</div>
+            <div className="text-3xl font-bold text-amber-600">{metriquesGlobales.totalConceptsRangB}</div>
+            <div className="text-sm text-gray-600">Rang B</div>
           </div>
           <div className="text-center p-4 bg-teal-50 rounded-lg">
-            <div className="text-3xl font-bold text-teal-600">{metriquesGlobales.pedagogieMoyenne}%</div>
-            <div className="text-sm text-gray-600">Pédagogie Moyenne</div>
+            <div className="text-3xl font-bold text-teal-600">{metriquesGlobales.conformiteElisaMoyenne}%</div>
+            <div className="text-sm text-gray-600">Conformité</div>
+          </div>
+          <div className="text-center p-4 bg-indigo-50 rounded-lg">
+            <div className="text-3xl font-bold text-indigo-600">5</div>
+            <div className="text-sm text-gray-600">Items IC</div>
           </div>
         </div>
       </div>
@@ -173,7 +174,7 @@ export const AuditComprehensif = () => {
       {/* Graphiques de synthèse */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">Distribution des Statuts</h3>
+          <h3 className="text-lg font-semibold mb-4">Distribution des Statuts LiSA</h3>
           <ResponsiveContainer width="100%" height={250}>
             <PieChart>
               <Pie
@@ -194,7 +195,7 @@ export const AuditComprehensif = () => {
         </Card>
 
         <Card className="p-6">
-          <h3 className="text-lg font-semibold mb-4">Scores par Item</h3>
+          <h3 className="text-lg font-semibold mb-4">Scores par Item LiSA</h3>
           <ResponsiveContainer width="100%" height={250}>
             <BarChart data={Object.entries(auditComplet).map(([code, item]) => ({ item: code, score: item.scoreGlobal }))}>
               <CartesianGrid strokeDasharray="3 3" />
@@ -207,11 +208,11 @@ export const AuditComprehensif = () => {
         </Card>
       </div>
 
-      {/* Analyse détaillée par item */}
+      {/* Analyse détaillée par item selon LiSA */}
       <div className="space-y-4">
         <h2 className="text-2xl font-bold text-gray-800 flex items-center space-x-2">
           <Target className="h-6 w-6" />
-          <span>Analyse Détaillée par Item</span>
+          <span>Analyse Détaillée par Item selon LiSA</span>
         </h2>
         
         <div className="grid grid-cols-1 gap-4">
@@ -231,10 +232,10 @@ export const AuditComprehensif = () => {
               
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div>
-                  <h4 className="font-medium text-gray-700 mb-2">Métriques Détaillées</h4>
+                  <h4 className="font-medium text-gray-700 mb-2">Métriques LiSA</h4>
                   <div className="space-y-1 text-sm">
                     <div className="flex justify-between">
-                      <span>Conformité E-LiSA:</span>
+                      <span>Conformité LiSA:</span>
                       <span className="font-medium">{item.conformiteELisa}%</span>
                     </div>
                     <div className="flex justify-between">
@@ -253,29 +254,29 @@ export const AuditComprehensif = () => {
                 </div>
                 
                 <div>
-                  <h4 className="font-medium text-gray-700 mb-2">Concepts E-LiSA</h4>
+                  <h4 className="font-medium text-gray-700 mb-2">Concepts LiSA Officiels</h4>
                   <div className="space-y-1 text-sm">
                     <div className="flex justify-between">
                       <span>Rang A:</span>
-                      <span className="font-medium">{item.conceptsRangA}/20</span>
+                      <span className="font-medium">{item.conceptsRangA}</span>
                     </div>
                     <div className="flex justify-between">
                       <span>Rang B:</span>
-                      <span className="font-medium">{item.conceptsRangB}/32</span>
+                      <span className="font-medium">{item.conceptsRangB}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span>Total:</span>
-                      <span className="font-medium">{item.conceptsRangA + item.conceptsRangB}/52</span>
+                      <span>Total LiSA:</span>
+                      <span className="font-medium">{item.conceptsLiSATotal}</span>
                     </div>
-                    <div className="flex justify-between">
-                      <span>Complétude:</span>
-                      <span className="font-medium">{Math.round(((item.conceptsRangA + item.conceptsRangB) / 52) * 100)}%</span>
+                    <div className="flex justify-between font-semibold text-blue-600">
+                      <span>Conformité:</span>
+                      <span>{Math.round((item.conformiteELisa/100) * item.conceptsLiSATotal)}/{item.conceptsLiSATotal}</span>
                     </div>
                   </div>
                 </div>
                 
                 <div>
-                  <h4 className="font-medium text-gray-700 mb-2">Actions Prioritaires</h4>
+                  <h4 className="font-medium text-gray-700 mb-2">Actions Prioritaires LiSA</h4>
                   <ul className="space-y-1 text-sm">
                     {item.actions.map((action, index) => (
                       <li key={index} className="flex items-start space-x-2">
@@ -291,65 +292,65 @@ export const AuditComprehensif = () => {
         </div>
       </div>
 
-      {/* Plan d'action stratégique */}
+      {/* Plan d'action stratégique selon LiSA */}
       <Card className="p-6 bg-gradient-to-r from-blue-50 to-indigo-50">
         <div className="flex items-center space-x-2 mb-4">
           <Award className="h-6 w-6 text-blue-600" />
-          <h3 className="text-xl font-semibold text-gray-800">Plan d'Action Stratégique</h3>
+          <h3 className="text-xl font-semibold text-gray-800">Plan d'Action Stratégique selon LiSA</h3>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
-            <h4 className="font-medium text-red-700 mb-3">🚨 Actions Critiques (0-3 mois)</h4>
+            <h4 className="font-medium text-red-700 mb-3">🚨 Actions Critiques LiSA (0-3 mois)</h4>
             <ul className="space-y-2 text-sm text-gray-700">
-              <li>• <strong>IC-5:</strong> Refondre complètement (8 concepts Rang A + 14 Rang B manquants)</li>
-              <li>• <strong>IC-3:</strong> Restructurer méthodologie (6 concepts Rang A manquants)</li>
-              <li>• Harmoniser sur le modèle IC-4 (95% excellence)</li>
-              <li>• Actualiser contenus avec réformes récentes</li>
+              <li>• <strong>IC-5:</strong> Compléter 5 concepts Rang A manquants</li>
+              <li>• <strong>IC-3:</strong> Ajouter 4 concepts LiSA manquants</li>
+              <li>• Atteindre conformité LiSA minimale 80%</li>
+              <li>• Harmoniser sur modèle IC-4 (référence)</li>
             </ul>
           </div>
           
           <div>
-            <h4 className="font-medium text-orange-700 mb-3">⚠️ Actions Urgentes (3-6 mois)</h4>
+            <h4 className="font-medium text-orange-700 mb-3">⚠️ Actions Urgentes LiSA (3-6 mois)</h4>
             <ul className="space-y-2 text-sm text-gray-700">
-              <li>• <strong>IC-1:</strong> Intégrer télémédecine et outils numériques</li>
-              <li>• <strong>IC-2:</strong> Enrichir dimension sociétale</li>
+              <li>• <strong>IC-1:</strong> Maintenir niveau et moderniser</li>
+              <li>• <strong>IC-2:</strong> Conserver excellence déontologique</li>
+              <li>• Actualiser tous contenus selon LiSA 2024</li>
               <li>• Développer innovations pédagogiques</li>
-              <li>• Renforcer biostatistiques (IC-3)</li>
             </ul>
           </div>
           
           <div>
-            <h4 className="font-medium text-blue-700 mb-3">📈 Développement (6-12 mois)</h4>
+            <h4 className="font-medium text-blue-700 mb-3">📈 Excellence LiSA (6-12 mois)</h4>
             <ul className="space-y-2 text-sm text-gray-700">
-              <li>• Diffuser bonnes pratiques IC-4</li>
-              <li>• Atteindre 90% score moyen global</li>
-              <li>• 95% conformité E-LiSA sur tous items</li>
-              <li>• Certification qualité pédagogique</li>
+              <li>• Généraliser modèle IC-4 (95% excellence)</li>
+              <li>• Atteindre 90% conformité LiSA globale</li>
+              <li>• 84/84 concepts LiSA maîtrisés</li>
+              <li>• Certification conformité LiSA</li>
             </ul>
           </div>
         </div>
       </Card>
 
-      {/* Indicateurs de performance */}
+      {/* Indicateurs LiSA */}
       <Card className="p-6">
-        <h3 className="text-lg font-semibold text-gray-800 mb-4">Indicateurs de Performance Clés</h3>
+        <h3 className="text-lg font-semibold text-gray-800 mb-4">Indicateurs de Performance LiSA</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="text-center p-4 bg-gray-50 rounded-lg">
             <div className="text-2xl font-bold text-gray-800">{Object.values(auditComplet).filter(i => i.status === 'excellent').length}/5</div>
             <div className="text-sm text-gray-600">Items Excellents</div>
           </div>
           <div className="text-center p-4 bg-gray-50 rounded-lg">
-            <div className="text-2xl font-bold text-gray-800">{metriquesGlobales.totalConceptsRangA}/100</div>
+            <div className="text-2xl font-bold text-gray-800">{metriquesGlobales.totalConceptsRangA}/65</div>
             <div className="text-sm text-gray-600">Concepts Rang A</div>
           </div>
           <div className="text-center p-4 bg-gray-50 rounded-lg">
-            <div className="text-2xl font-bold text-gray-800">{metriquesGlobales.totalConceptsRangB}/160</div>
+            <div className="text-2xl font-bold text-gray-800">{metriquesGlobales.totalConceptsRangB}/10</div>
             <div className="text-sm text-gray-600">Concepts Rang B</div>
           </div>
           <div className="text-center p-4 bg-gray-50 rounded-lg">
-            <div className="text-2xl font-bold text-gray-800">{Math.round(((metriquesGlobales.totalConceptsRangA + metriquesGlobales.totalConceptsRangB) / 260) * 100)}%</div>
-            <div className="text-sm text-gray-600">Complétude E-LiSA</div>
+            <div className="text-2xl font-bold text-gray-800">{Math.round((metriquesGlobales.totalConceptsLiSA / 84) * 100)}%</div>
+            <div className="text-sm text-gray-600">Complétude LiSA</div>
           </div>
         </div>
       </Card>

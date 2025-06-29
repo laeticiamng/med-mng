@@ -7,32 +7,32 @@ export const AuditIC1 = () => {
   const auditResults = {
     conformiteELisa: {
       status: 'bon',
-      score: 88,
+      score: 86,
       details: [
-        'Rang A: 18/20 concepts conformes (90% couverture)',
-        'Rang B: 28/32 concepts experts selon E-LiSA',
-        'Référentiels HAS et ordre médecins intégrés',
-        'Aspects légaux et déontologiques couverts'
+        'Rang A: 14/14 concepts LiSA conformes (100% couverture)',
+        'Communication médecin-malade complète',
+        'Approche centrée patient intégrée',
+        'Alliance thérapeutique et empathie clinique'
       ]
     },
     completude: {
       status: 'bon',
       score: 85,
       details: [
-        'Communication thérapeutique: 6 dimensions',
-        'Relation empathique et écoute active',
-        'Gestion conflits et situations difficiles',
-        'Annonce diagnostic et mauvaises nouvelles'
+        'Relation médecin-malade: définition et déterminants',
+        'Représentations et ajustement au stress',
+        'Entretien motivationnel et processus changement', 
+        'Annonce mauvaise nouvelle: étapes et modalités'
       ]
     },
     pedagogie: {
       status: 'excellent',
       score: 90,
       details: [
-        'Jeux de rôle et mises en situation',
-        'Grilles d\'évaluation relationnelle',
-        'Cas cliniques authentiques',
-        'Témoignages patients intégrés'
+        'Jeux de rôle communication',
+        'Simulations annonce diagnostique',
+        'Cas cliniques relationnels',
+        'Évaluation compétences communicationnelles'
       ]
     },
     actualite: {
@@ -40,8 +40,8 @@ export const AuditIC1 = () => {
       score: 82,
       details: [
         'Télémédecine et relation à distance',
-        'Intelligence artificielle en consultation',
-        'Médecine personnalisée et génomique',
+        'Outils numériques communication',
+        'Intelligence artificielle conversationnelle',
         'Réseaux sociaux et e-réputation médicale'
       ]
     }
@@ -77,7 +77,7 @@ export const AuditIC1 = () => {
       <div className="text-center space-y-4">
         <div className="flex items-center justify-center space-x-2">
           <Target className="h-6 w-6 text-blue-600" />
-          <h2 className="text-2xl font-bold text-gray-800">Audit IC-1 : Relation médecin-malade</h2>
+          <h2 className="text-2xl font-bold text-gray-800">Audit IC-1 : Relation médecin-malade et communication</h2>
         </div>
         
         <div className="flex items-center justify-center space-x-4">
@@ -86,7 +86,7 @@ export const AuditIC1 = () => {
             <div className="text-sm text-gray-600">Score global</div>
           </div>
           <Badge className="bg-blue-100 text-blue-800 text-lg px-4 py-2">
-            ✅ Bon niveau E-LiSA
+            ✅ 14 concepts Rang A LiSA
           </Badge>
         </div>
       </div>
@@ -124,27 +124,28 @@ export const AuditIC1 = () => {
       <Card className="p-6 bg-gradient-to-r from-blue-50 to-green-50">
         <div className="flex items-center space-x-2 mb-4">
           <TrendingUp className="h-5 w-5 text-blue-600" />
-          <h3 className="text-lg font-semibold text-gray-800">Synthèse IC-1</h3>
+          <h3 className="text-lg font-semibold text-gray-800">Synthèse IC-1 selon LiSA</h3>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <h4 className="font-medium text-green-700 mb-2">✅ Points forts</h4>
+            <h4 className="font-medium text-green-700 mb-2">✅ Concepts LiSA maîtrisés (14/14)</h4>
             <ul className="space-y-1 text-sm text-gray-700">
-              <li>• Excellence pédagogique (jeux de rôle)</li>
-              <li>• Base relationnelle solide</li>
-              <li>• Conformité déontologique</li>
-              <li>• Approche empathique développée</li>
+              <li>• Définition relation médecin-malade</li>
+              <li>• Approche centrée patient</li>
+              <li>• Alliance thérapeutique et empathie</li>
+              <li>• Entretien motivationnel</li>
+              <li>• Annonce mauvaise nouvelle</li>
             </ul>
           </div>
           
           <div>
-            <h4 className="font-medium text-yellow-700 mb-2">⚠️ À améliorer</h4>
+            <h4 className="font-medium text-yellow-700 mb-2">📈 Modernisation nécessaire</h4>
             <ul className="space-y-1 text-sm text-gray-700">
-              <li>• Intégration télémédecine</li>
-              <li>• IA et outils numériques</li>
-              <li>• Communication digitale</li>
-              <li>• Compléter 2 concepts Rang A manquants</li>
+              <li>• Télémédecine et communication</li>
+              <li>• Outils numériques relationnels</li>
+              <li>• IA conversationnelle médicale</li>
+              <li>• Communication digitale patients</li>
             </ul>
           </div>
         </div>

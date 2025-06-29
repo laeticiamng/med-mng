@@ -7,42 +7,42 @@ export const AuditIC5 = () => {
   const auditResults = {
     conformiteELisa: {
       status: 'insuffisant',
-      score: 70,
+      score: 67,
       details: [
-        'Rang A: 12/20 concepts conformes (60% couverture)',
-        'Rang B: 18/32 concepts experts selon E-LiSA',
-        'Organisation hospitalière partiellement couverte',
-        'Système de santé français incomplet'
+        'Rang A: 10/15 concepts LiSA conformes (67% couverture)',
+        'Aucun Rang B (item IC-5 = Rang A uniquement LiSA)',
+        'Responsabilités médicales partielles',
+        'Gestion erreurs et EIAS incomplète'
       ]
     },
     completude: {
       status: 'insuffisant',
       score: 65,
       details: [
-        'Parcours de soins: 3/7 étapes définies',
-        'Acteurs santé: liste partielle',
-        'Financement: bases acquises',
-        'Gouvernance: aspects manquants'
+        'Responsabilités: pénale, civile, administrative',
+        'Faute vs erreur vs accident médical',
+        'Facteurs contentieux et erreur humaine',
+        'Culture positive erreur manquante'
       ]
     },
     pedagogie: {
       status: 'ameliorer',
-      score: 75,
+      score: 72,
       details: [
-        'Schémas organisationnels',
-        'Études de cas sectoriels',
-        'Simulation parcours patients',
-        'Jeux de gestion simplifiés'
+        'Cas pratiques responsabilités',
+        'Analyse d\'accidents médicaux',
+        'Simulation gestion erreurs',
+        'Formation prévention EIAS'
       ]
     },
     actualite: {
       status: 'insuffisant',
       score: 68,
       details: [
-        'Transformation numérique santé',
-        'Télémédecine et organisation',
-        'IA et aide à la décision',
-        'Réorganisation post-COVID'
+        'Évolution jurisprudence médicale',
+        'Nouvelles responsabilités télémédecine',
+        'IA et responsabilité algorithmique',
+        'Assurance et nouveaux risques'
       ]
     }
   };
@@ -79,7 +79,7 @@ export const AuditIC5 = () => {
       <div className="text-center space-y-4">
         <div className="flex items-center justify-center space-x-2">
           <Target className="h-6 w-6 text-red-600" />
-          <h2 className="text-2xl font-bold text-gray-800">Audit IC-5 : Organisation du système de santé</h2>
+          <h2 className="text-2xl font-bold text-gray-800">Audit IC-5 : Responsabilités médicale et gestion des erreurs</h2>
         </div>
         
         <div className="flex items-center justify-center space-x-4">
@@ -88,7 +88,7 @@ export const AuditIC5 = () => {
             <div className="text-sm text-gray-600">Score global</div>
           </div>
           <Badge className="bg-red-100 text-red-800 text-lg px-4 py-2">
-            🚨 Incomplet
+            🚨 15 concepts Rang A LiSA
           </Badge>
         </div>
       </div>
@@ -100,7 +100,7 @@ export const AuditIC5 = () => {
               <div className="flex items-center space-x-2">
                 {getStatusIcon(result.status)}
                 <h3 className="font-semibold text-gray-800 capitalize">
-                  {key.replace(/([A-Z])/g, ' $1').trim()}
+                  {key.replace /([A-Z])/g, ' $1').trim()}
                 </h3>
               </div>
               <div className="text-right">
@@ -126,28 +126,32 @@ export const AuditIC5 = () => {
       <Card className="p-6 bg-gradient-to-r from-red-50 to-orange-50 border-l-4 border-red-400">
         <div className="flex items-center space-x-2 mb-4">
           <AlertTriangle className="h-5 w-5 text-red-600" />
-          <h3 className="text-lg font-semibold text-gray-800">Plan de Rattrapage IC-5 - URGENT</h3>
+          <h3 className="text-lg font-semibold text-gray-800">Plan rattrapage IC-5 selon LiSA - URGENT</h3>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <h4 className="font-medium text-red-700 mb-2">🚨 Priorité Absolue</h4>
+            <h4 className="font-medium text-red-700 mb-2">🚨 Concepts Rang A manquants (5/15)</h4>
             <ul className="space-y-1 text-sm text-gray-700">
-              <li>• Compléter 8 concepts Rang A manquants</li>
-              <li>• Ajouter 14 concepts Rang B experts</li>
-              <li>• Développer parcours de soins complet</li>
-              <li>• Intégrer gouvernance et financement</li>
+              <li>• Responsabilité sans faute</li>
+              <li>• Définition aléa thérapeutique</li>
+              <li>• Prévention erreurs et barrières</li>
+              <li>• Culture positive de l'erreur</li>
+              <li>• Facteurs favorisant erreur humaine</li>
             </ul>
           </div>
           
           <div>
-            <h4 className="font-medium text-orange-700 mb-2">📋 Actions Immédiates</h4>
+            <h4 className="font-medium text-green-700 mb-2">✅ Concepts LiSA acquis (10/15)</h4>
             <ul className="space-y-1 text-sm text-gray-700">
-              <li>• Cartographie acteurs santé</li>
-              <li>• Réforme système post-COVID</li>
-              <li>• Transformation numérique</li>
-              <li>• Nouvelles organisations de soins</li>
+              <li>• Responsabilités pénale/civile/administrative</li>
+              <li>• Faute vs erreur vs accident médical</li>
+              <li>• Infection nosocomiale</li>
+              <li>• Facteurs contentieux</li>
+              <li>• Typologie erreur humaine</li>
             </ul>
+            <h4 className="font-medium text-orange-700 mt-4 mb-2">📋 Note LiSA</h4>
+            <p className="text-sm text-gray-700">IC-5 = 15 concepts Rang A uniquement (pas de Rang B)</p>
           </div>
         </div>
       </Card>

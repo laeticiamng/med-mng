@@ -9,40 +9,40 @@ export const AuditIC3 = () => {
       status: 'ameliorer',
       score: 75,
       details: [
-        'Rang A: 14/20 concepts conformes (70% couverture)',
-        'Rang B: 22/32 concepts experts selon E-LiSA',
-        'Méthodologie recherche partiellement couverte',
-        'Biostatistiques et épidémiologie à renforcer'
+        'Rang A: 14/16 concepts LiSA conformes (87% couverture)',
+        'Rang B: 4/6 concepts experts selon LiSA',
+        'EBM et niveaux de preuve intégrés',
+        'Décision médicale et TICE partielles'
       ]
     },
     completude: {
       status: 'ameliorer',
       score: 70,
       details: [
-        'Démarche scientifique: 4/7 étapes complètes',
-        'Lecture critique d\'articles',
-        'Bases statistiques essentielles',
-        'Éthique recherche et protocoles'
+        'Médecine basée preuves: définition et niveaux',
+        'Raisonnement clinique et styles décision',
+        'Décision partagée vs paternaliste',
+        'TICE et aide décision clinique manquantes'
       ]
     },
     pedagogie: {
       status: 'ameliorer',
       score: 78,
       details: [
-        'Exercices d\'analyse critique',
-        'Cas d\'études méthodologiques',
-        'Ateliers statistiques basiques',
-        'Projets de recherche simulés'
+        'Exercices analyse critique',
+        'Cas études méthodologiques',
+        'Ateliers lecture critique',
+        'Simulations décision médicale'
       ]
     },
     actualite: {
       status: 'ameliorer',
       score: 72,
       details: [
-        'Big data et intelligence artificielle',
-        'Médecine basée sur les preuves 2.0',
-        'Open science et publications ouvertes',
-        'Outils numériques de recherche'
+        'IA et aide à la décision',
+        'Big data et médecine prédictive',
+        'Open science et données ouvertes',
+        'Systèmes experts médicaux'
       ]
     }
   };
@@ -77,7 +77,7 @@ export const AuditIC3 = () => {
       <div className="text-center space-y-4">
         <div className="flex items-center justify-center space-x-2">
           <Target className="h-6 w-6 text-yellow-600" />
-          <h2 className="text-2xl font-bold text-gray-800">Audit IC-3 : Démarche scientifique</h2>
+          <h2 className="text-2xl font-bold text-gray-800">Audit IC-3 : Raisonnement et décision en médecine (EBM)</h2>
         </div>
         
         <div className="flex items-center justify-center space-x-4">
@@ -86,7 +86,7 @@ export const AuditIC3 = () => {
             <div className="text-sm text-gray-600">Score global</div>
           </div>
           <Badge className="bg-yellow-100 text-yellow-800 text-lg px-4 py-2">
-            ⚠️ À améliorer
+            ⚠️ 16 Rang A + 6 Rang B LiSA
           </Badge>
         </div>
       </div>
@@ -124,27 +124,31 @@ export const AuditIC3 = () => {
       <Card className="p-6 bg-gradient-to-r from-yellow-50 to-orange-50">
         <div className="flex items-center space-x-2 mb-4">
           <AlertTriangle className="h-5 w-5 text-yellow-600" />
-          <h3 className="text-lg font-semibold text-gray-800">Plan d'amélioration IC-3</h3>
+          <h3 className="text-lg font-semibold text-gray-800">Plan amélioration IC-3 selon LiSA</h3>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <h4 className="font-medium text-red-700 mb-2">🚨 Urgent</h4>
+            <h4 className="font-medium text-red-700 mb-2">🚨 Concepts Rang A manquants (2/16)</h4>
             <ul className="space-y-1 text-sm text-gray-700">
-              <li>• Compléter 6 concepts Rang A manquants</li>
-              <li>• Ajouter 10 concepts Rang B experts</li>
-              <li>• Renforcer biostatistiques</li>
-              <li>• Intégrer méthodologie complète</li>
+              <li>• TICE et aide décision clinique</li>
+              <li>• Controverse en santé</li>
+            </ul>
+            <h4 className="font-medium text-orange-700 mt-4 mb-2">📋 Concepts Rang B manquants (2/6)</h4>
+            <ul className="space-y-1 text-sm text-gray-700">
+              <li>• Systèmes d'aide à la décision</li>
+              <li>• Architectures systèmes information</li>
             </ul>
           </div>
           
           <div>
-            <h4 className="font-medium text-yellow-700 mb-2">📈 Développement</h4>
+            <h4 className="font-medium text-green-700 mb-2">✅ Concepts LiSA acquis</h4>
             <ul className="space-y-1 text-sm text-gray-700">
-              <li>• Big data et IA en recherche</li>
-              <li>• Outils numériques avancés</li>
-              <li>• Méthodes innovantes</li>
-              <li>• Collaboration internationale</li>
+              <li>• EBM et niveaux de preuve</li>
+              <li>• Styles de raisonnement</li>
+              <li>• Décision partagée/paternaliste</li>
+              <li>• Recommandations médicales</li>
+              <li>• Efficacité/effectivité/efficience</li>
             </ul>
           </div>
         </div>
