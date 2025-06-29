@@ -2,17 +2,17 @@
 import { useState, useEffect } from 'react';
 import { TableauRangAHeader } from './TableauRangAHeader';
 import { TableauRangAFooter } from './TableauRangAFooter';
-import { isIC4Item, processTableauRangAIC4 } from './TableauRangAUtilsIC4Integration';
+import { generateLignesRangBIntelligentIC4, determinerColonnesUtilesIC4 } from './TableauRangAUtilsIC4';
 
-interface TableauRangAProps {
+interface TableauRangBIC4Props {
   data: {
-    tableau_rang_a?: any;
+    tableau_rang_b?: any;
     title?: string;
     item_code?: string;
   };
 }
 
-export const TableauRangA = ({ data }: TableauRangAProps) => {
+export const TableauRangBIC4 = ({ data }: TableauRangBIC4Props) => {
   const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
   const [processedData, setProcessedData] = useState<{
     lignesEnrichies: string[][];
@@ -21,57 +21,52 @@ export const TableauRangA = ({ data }: TableauRangAProps) => {
   } | null>(null);
 
   useEffect(() => {
-    console.log('TableauRangA - Données reçues:', data);
+    console.log('TableauRangBIC4 - Données reçues:', data);
     
-    if (isIC4Item(data)) {
-      console.log('Item IC-4 détecté, traitement spécialisé');
-      const processed = processTableauRangAIC4(data.tableau_rang_a || data);
-      setProcessedData(processed);
+    const tableauData = data.tableau_rang_b;
+    
+    if (tableauData && tableauData.sections) {
+      // Convertir les sections en lignes pour l'affichage
+      const lignes: string[][] = [];
+      tableauData.sections.forEach((section: any) => {
+        section.concepts?.forEach((concept: any) => {
+          lignes.push([
+            concept.concept || '',
+            concept.definition || '',
+            concept.exemple || '',
+            concept.piege || '',
+            concept.mnemo || '',
+            concept.subtilite || '',
+            concept.application || '',
+            concept.vigilance || ''
+          ]);
+        });
+      });
+      
+      const colonnes = determinerColonnesUtilesIC4(lignes);
+      
+      setProcessedData({
+        lignesEnrichies: lignes,
+        colonnesUtiles: colonnes,
+        theme: tableauData.theme || 'IC-4 : Qualité et sécurité des soins - Rang B Expert'
+      });
     } else {
-      // Traitement standard pour les autres items
-      const tableauData = data.tableau_rang_a;
-      if (tableauData && tableauData.sections) {
-        // Convertir les sections en lignes pour l'affichage
-        const lignes: string[][] = [];
-        tableauData.sections.forEach((section: any) => {
-          section.concepts?.forEach((concept: any) => {
-            lignes.push([
-              concept.concept || '',
-              concept.definition || '',
-              concept.exemple || '',
-              concept.piege || '',
-              concept.mnemo || '',
-              concept.subtilite || '',
-              concept.application || '',
-              concept.vigilance || ''
-            ]);
-          });
-        });
-        
-        const colonnes = [
-          { nom: 'Concept', couleur: 'bg-blue-600', couleurCellule: 'bg-blue-50 border-blue-300', couleurTexte: 'text-blue-900 font-bold' },
-          { nom: 'Définition', couleur: 'bg-green-600', couleurCellule: 'bg-green-50 border-green-300', couleurTexte: 'text-green-800' },
-          { nom: 'Exemple', couleur: 'bg-amber-600', couleurCellule: 'bg-amber-50 border-amber-300', couleurTexte: 'text-amber-800' },
-          { nom: 'Piège', couleur: 'bg-red-600', couleurCellule: 'bg-red-50 border-red-300', couleurTexte: 'text-red-800 font-semibold' },
-          { nom: 'Mnémotechnique', couleur: 'bg-purple-600', couleurCellule: 'bg-purple-50 border-purple-300', couleurTexte: 'text-purple-800 font-medium italic' },
-          { nom: 'Subtilité', couleur: 'bg-indigo-600', couleurCellule: 'bg-indigo-50 border-indigo-300', couleurTexte: 'text-indigo-800 font-medium' },
-          { nom: 'Application', couleur: 'bg-teal-600', couleurCellule: 'bg-teal-50 border-teal-300', couleurTexte: 'text-teal-800' },
-          { nom: 'Vigilance', couleur: 'bg-orange-600', couleurCellule: 'bg-orange-50 border-orange-300', couleurTexte: 'text-orange-800 font-medium' }
-        ];
-        
-        setProcessedData({
-          lignesEnrichies: lignes,
-          colonnesUtiles: colonnes,
-          theme: tableauData.theme || data.title || 'Tableau des connaissances'
-        });
-      }
+      // Utiliser les données par défaut
+      const lignesDefault = generateLignesRangBIntelligentIC4({});
+      const colonnesDefault = determinerColonnesUtilesIC4(lignesDefault);
+      
+      setProcessedData({
+        lignesEnrichies: lignesDefault,
+        colonnesUtiles: colonnesDefault,
+        theme: 'IC-4 : Qualité et sécurité des soins - Rang B Expert'
+      });
     }
   }, [data]);
 
   if (!processedData || !processedData.lignesEnrichies.length) {
     return (
       <div className="bg-white rounded-lg shadow-lg p-6">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">Tableau Rang A</h2>
+        <h2 className="text-2xl font-bold text-gray-800 mb-4">Tableau Rang B Expert</h2>
         <p className="text-gray-600">Aucune donnée disponible pour ce tableau.</p>
       </div>
     );
@@ -93,7 +88,7 @@ export const TableauRangA = ({ data }: TableauRangAProps) => {
     <div className="space-y-6">
       <TableauRangAHeader 
         theme={theme}
-        itemCode={data.item_code || ''}
+        itemCode={data.item_code || 'IC-4'}
         totalCompetences={lignesEnrichies.length}
       />
 
@@ -117,7 +112,7 @@ export const TableauRangA = ({ data }: TableauRangAProps) => {
         <div className="divide-y divide-gray-200">
           {lignesEnrichies.map((ligne, rowIndex) => (
             <div key={rowIndex} className="hover:bg-gray-50">
-              {/* Ligne principale - mobile */}
+              {/* Version mobile avec expansion */}
               <div className="block md:hidden p-4 space-y-3">
                 <div className="flex items-center justify-between">
                   <h3 className="font-semibold text-gray-900 text-sm flex-1 pr-2">
@@ -154,7 +149,7 @@ export const TableauRangA = ({ data }: TableauRangAProps) => {
                 )}
               </div>
 
-              {/* Ligne principale - desktop */}
+              {/* Version desktop */}
               <div className="hidden md:block overflow-x-auto">
                 <div className="grid gap-2 p-4 min-w-[800px]" style={{ gridTemplateColumns: `repeat(${colonnesUtiles.length}, minmax(150px, 1fr))` }}>
                   {ligne.map((cellule, cellIndex) => {
