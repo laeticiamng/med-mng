@@ -7,7 +7,7 @@ class MedMngApi {
   private async getAuthHeaders() {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session?.access_token) {
-      throw new Error('Not authenticated');
+      throw new Error('Authentification requise pour MED-MNG');
     }
     
     return {
@@ -31,7 +31,7 @@ class MedMngApi {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error || 'Failed to create song');
+      throw new Error(error.error || 'Échec création chanson MED-MNG');
     }
 
     return response.json();
@@ -52,7 +52,7 @@ class MedMngApi {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error || 'Failed to add to library');
+      throw new Error(error.error || 'Échec ajout bibliothèque MED-MNG');
     }
 
     return response.json();
@@ -68,7 +68,7 @@ class MedMngApi {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error || 'Failed to remove from library');
+      throw new Error(error.error || 'Échec suppression bibliothèque MED-MNG');
     }
 
     return response.json();
@@ -84,7 +84,7 @@ class MedMngApi {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error || 'Failed to toggle like');
+      throw new Error(error.error || 'Échec toggle like MED-MNG');
     }
 
     return response.json();
@@ -100,7 +100,7 @@ class MedMngApi {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error || 'Failed to get library');
+      throw new Error(error.error || 'Échec récupération bibliothèque MED-MNG');
     }
 
     return response.json();
@@ -116,7 +116,7 @@ class MedMngApi {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error || 'Failed to get lyrics');
+      throw new Error(error.error || 'Échec récupération paroles MED-MNG');
     }
 
     return response.json();
@@ -132,7 +132,7 @@ class MedMngApi {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.error || 'Failed to get quota');
+      throw new Error(error.error || 'Échec récupération quota MED-MNG');
     }
 
     return response.json();
@@ -140,7 +140,7 @@ class MedMngApi {
 
   async createUserSubscription(planId: string, gateway: string, subscriptionId?: string) {
     try {
-      const { error } = await supabase.rpc('med_mng_create_user_sub', {
+      const { error } = await supabase.rpc('MedMNG_create_user_sub', {
         plan_name: planId,
         gateway_name: gateway,
         subscription_id: subscriptionId || null,
@@ -152,7 +152,7 @@ class MedMngApi {
 
       return { success: true };
     } catch (error) {
-      console.error('Erreur création abonnement:', error);
+      console.error('Erreur création abonnement MED-MNG:', error);
       throw error;
     }
   }
