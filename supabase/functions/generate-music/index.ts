@@ -55,6 +55,7 @@ serve(async (req) => {
       throw new Error(`Aucune parole valide fournie pour le Rang ${rang}`);
     }
 
+    // Récupération de la clé API depuis les secrets Supabase
     const SUNO_API_KEY = Deno.env.get('SUNO_API_KEY');
     if (!SUNO_API_KEY) {
       console.error('❌ SUNO_API_KEY manquante dans les secrets Supabase');
@@ -67,7 +68,7 @@ serve(async (req) => {
     console.log('🔍 Vérification de la disponibilité de l\'API Suno...');
     
     try {
-      const healthCheck = await fetch('https://apibox.erweima.ai/api/v1/health', {
+      const healthCheck = await fetch('https://api.suno.ai/generate/v2', {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${SUNO_API_KEY}`,
@@ -133,9 +134,6 @@ serve(async (req) => {
       title = `Rang ${rang} - ${styleName}`;
     }
 
-    // Générer une URL de callback unique
-    const callBackUrl = `https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/generate-music/callback?taskId=${crypto.randomUUID()}`;
-
     const languageFlag = {
       'fr': '🇫🇷',
       'en': '🇺🇸', 
@@ -151,7 +149,7 @@ serve(async (req) => {
     console.log(`🎵 Description: ${musicStyle}`);
     console.log(`📖 Paroles (${lyrics.length} caractères):`, lyrics.substring(0, 200) + '...');
 
-    // Initialiser le générateur de musique
+    // Initialiser le générateur de musique avec la clé API
     const generator = new MusicGenerator(SUNO_API_KEY);
 
     // Étape 1: Générer la chanson avec Suno
@@ -168,7 +166,7 @@ serve(async (req) => {
         instrumental: false,
         model: "V3_5",
         negativeTags: undefined,
-        callBackUrl: callBackUrl
+        callBackUrl: undefined
       });
       
       console.log('✅ Génération Suno lancée:', generateData);
@@ -315,7 +313,7 @@ serve(async (req) => {
           error_message: error.message,
           timestamp: new Date().toISOString(),
           api_used: 'Suno AI',
-          base_url: 'https://apibox.erweima.ai',
+          base_url: 'https://api.suno.ai',
           suggestion: httpStatus === 503 ? 'Attendez 5-10 minutes puis réessayez' : 
                      httpStatus === 401 ? 'Vérifiez votre clé API Suno dans les secrets Supabase' : 
                      httpStatus === 408 ? 'Réessayez dans quelques minutes' : 
