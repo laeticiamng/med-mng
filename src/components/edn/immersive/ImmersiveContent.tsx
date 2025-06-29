@@ -17,7 +17,14 @@ export const ImmersiveContent = ({ item, currentSection }: ImmersiveContentProps
   const renderContent = () => {
     switch (currentSection) {
       case 0:
-        return <PitchIntroSection item={item} />;
+        return (
+          <PitchIntroSection 
+            title={item.title || ''}
+            itemCode={item.item_code || ''}
+            subtitle={item.subtitle || ''}
+            pitchIntro={item.pitch_intro || ''}
+          />
+        );
       
       case 1:
         return <SceneImmersive data={item.scene_immersive} />;
@@ -57,7 +64,7 @@ export const ImmersiveContent = ({ item, currentSection }: ImmersiveContentProps
         return item.quiz_questions ? (
           <QuizFinal 
             questions={item.quiz_questions.questions || []} 
-            rewardMessages={item.reward_messages}
+            rewards={item.reward_messages}
           />
         ) : (
           <div className="bg-white rounded-lg shadow-lg p-6">
