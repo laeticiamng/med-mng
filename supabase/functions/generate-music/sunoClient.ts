@@ -16,7 +16,8 @@ export class SunoApiClient {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${this.apiKey}`,
-        'Accept': 'application/json'
+        'Accept': 'application/json',
+        'User-Agent': 'Supabase-Edge-Function/1.0'
       },
       body: JSON.stringify(data),
     });
