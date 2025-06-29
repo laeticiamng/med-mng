@@ -1,17 +1,16 @@
 
 export class SunoApiClient {
   private apiKey: string;
-  private baseUrl: string = 'https://api.suno.ai';
 
   constructor(apiKey: string) {
     this.apiKey = apiKey;
   }
 
   async post<T>(endpoint: string, data: any): Promise<T> {
-    console.log(`🌐 POST ${this.baseUrl}${endpoint}`);
+    console.log(`🌐 POST ${endpoint}`);
     console.log(`📤 Payload:`, JSON.stringify(data, null, 2));
 
-    const response = await fetch(`${this.baseUrl}${endpoint}`, {
+    const response = await fetch(endpoint, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -65,7 +64,7 @@ export class SunoApiClient {
   }
 
   async get<T>(endpoint: string, params?: Record<string, any>): Promise<T> {
-    const url = new URL(`${this.baseUrl}${endpoint}`);
+    const url = new URL(endpoint);
     
     if (params) {
       Object.entries(params).forEach(([key, value]) => {

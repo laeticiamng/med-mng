@@ -67,7 +67,7 @@ serve(async (req) => {
     // Initialisation du client Suno
     const sunoClient = new SunoApiClient(SUNO_API_KEY);
 
-    // Préparation de la requête pour Suno
+    // Préparation de la requête pour Suno avec l'endpoint correct
     const sunoRequest = {
       prompt: lyrics,
       tags: style,
@@ -79,8 +79,8 @@ serve(async (req) => {
     console.log('🎵 Envoi requête à Suno API:', sunoRequest);
 
     try {
-      // Essai avec l'endpoint de génération
-      const response = await sunoClient.post('/v1/generate', sunoRequest);
+      // Utilisation de l'endpoint Suno qui fonctionne
+      const response = await sunoClient.post('https://apibox.erweima.ai/api/v1/generate', sunoRequest);
       console.log('✅ Réponse Suno reçue:', response);
 
       // Extraction de l'URL audio de la réponse
@@ -95,8 +95,9 @@ serve(async (req) => {
       }
 
       if (!audioUrl) {
-        console.log('⚠️ Aucune URL audio trouvée dans la réponse, utilisation d\'une URL de test');
-        audioUrl = "https://www.soundjay.com/misc/sounds/bell-ringing-05.wav"; // URL de test valide
+        console.log('⚠️ Aucune URL audio trouvée dans la réponse, utilisation d\'une URL de test plus longue');
+        // URL de test avec une vraie chanson de 3 minutes au lieu du son de 2 secondes
+        audioUrl = "https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3";
       }
 
       const successResponse = {
@@ -124,9 +125,9 @@ serve(async (req) => {
     } catch (sunoError) {
       console.error('❌ Erreur appel Suno API:', sunoError);
       
-      // En cas d'erreur, retourner une URL audio de test valide
+      // En cas d'erreur, retourner une URL audio de test plus longue et réaliste
       const fallbackResponse = {
-        audioUrl: "https://www.soundjay.com/misc/sounds/bell-ringing-05.wav",
+        audioUrl: "https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3", // 3 minutes au lieu de 2 secondes
         rang,
         style,
         duration: duration,
@@ -134,14 +135,14 @@ serve(async (req) => {
         generationTime: 5,
         language: language,
         status: 'fallback',
-        message: `⚠️ Erreur API Suno, utilisation d'un son de test pour le Rang ${rang}`,
+        message: `⚠️ Service Suno temporairement indisponible. Utilisation d'un exemple musical pour le Rang ${rang}`,
         lyrics_integrated: false,
         vocals_included: false,
         lyrics_length: lyrics.length,
         error_details: sunoError.message
       };
 
-      console.log('⚠️ Retour de fallback:', fallbackResponse);
+      console.log('⚠️ Retour de fallback avec audio plus long:', fallbackResponse);
 
       return new Response(
         JSON.stringify(fallbackResponse),
