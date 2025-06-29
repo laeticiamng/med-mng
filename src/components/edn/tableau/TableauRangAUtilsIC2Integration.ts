@@ -42,7 +42,7 @@ export function processTableauRangAIC2(data: any) {
   // Déterminer les colonnes selon E-LiSA
   const colonnesUtiles = determinerColonnesUtilesIC2(lignesEnrichies);
   
-  const expectedCount = isRangB ? 2 : 7;
+  const expectedCount = isRangB ? 2 : 9;
   const actualCount = lignesEnrichies.length;
   
   console.log(`IC-2 E-LiSA ${isRangB ? 'Rang B' : 'Rang A'}: ${actualCount}/${expectedCount} connaissances`);
@@ -50,7 +50,7 @@ export function processTableauRangAIC2(data: any) {
   return {
     lignesEnrichies,
     colonnesUtiles,
-    theme: `${donneesEnrichies.theme} - ${isRangB ? 'Rang B (2 connaissances E-LiSA)' : 'Rang A (7 connaissances E-LiSA)'}`,
+    theme: `${donneesEnrichies.theme} - ${isRangB ? 'Rang B (2 connaissances E-LiSA)' : 'Rang A (9 connaissances E-LiSA)'}`,
     isRangB,
     isComplete: actualCount === expectedCount
   };

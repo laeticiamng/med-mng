@@ -7,17 +7,17 @@ export const AuditIC2 = () => {
   const auditResults = {
     conformiteELisa: {
       status: 'excellent',
-      score: 92,
+      score: 96,
       details: [
-        'Rang A: 7/7 concepts LiSA conformes (100% couverture)',
+        'Rang A: 9/9 concepts LiSA conformes (100% couverture)',
         'Rang B: 2/2 concepts experts selon LiSA',
         'Déontologie médicale complètement intégrée',
         'Organisation profession médicale France'
       ]
     },
     completude: {
-      status: 'bon',
-      score: 89,
+      status: 'excellent',
+      score: 94,
       details: [
         'Définitions pratique et éthique médicale',
         'Normes et valeurs professionnelles',
@@ -86,7 +86,7 @@ export const AuditIC2 = () => {
             <div className="text-sm text-gray-600">Score global</div>
           </div>
           <Badge className="bg-green-100 text-green-800 text-lg px-4 py-2">
-            ✅ 7 Rang A + 2 Rang B LiSA
+            ✅ 9 Rang A + 2 Rang B LiSA
           </Badge>
         </div>
       </div>
@@ -129,14 +129,16 @@ export const AuditIC2 = () => {
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <h4 className="font-medium text-green-700 mb-2">✅ Rang A LiSA (7/7 concepts)</h4>
+            <h4 className="font-medium text-green-700 mb-2">✅ Rang A LiSA (9/9 concepts)</h4>
             <ul className="space-y-1 text-sm text-gray-700">
               <li>• Professionnels et compétences santé</li>
-              <li>• Définitions pratique/éthique médicale</li>
+              <li>• Définition pratique médicale</li>
+              <li>• Signification de l'éthique</li>
               <li>• Normes et valeurs professionnelles</li>
-              <li>• Régulation étatique profession</li>
-              <li>• EBM et responsabilité</li>
-              <li>• Déontologie et conflits</li>
+              <li>• Organisation et régulation profession</li>
+              <li>• Médecine fondée sur preuves</li>
+              <li>• Médecine basée sur responsabilité</li>
+              <li>• Déontologie médicale</li>
               <li>• Acteurs santé et interactions</li>
             </ul>
           </div>
@@ -147,11 +149,11 @@ export const AuditIC2 = () => {
               <li>• Organisation exercice professionnels France</li>
               <li>• Rôle des ordres professionnels</li>
             </ul>
-            <h4 className="font-medium text-green-700 mt-4 mb-2">📈 Évolutions</h4>
-            <ul className="space-y-1 text-sm text-gray-700">
-              <li>• Télémédecine et déontologie</li>
-              <li>• IA et nouvelles pratiques</li>
-            </ul>
+            <h4 className="font-medium text-green-700 mt-4 mb-2">📈 Total LiSA</h4>
+            <div className="bg-green-100 p-3 rounded-lg">
+              <div className="text-center font-bold text-green-800">11 connaissances</div>
+              <div className="text-center text-sm text-green-600">Structure officielle E-LiSA</div>
+            </div>
           </div>
         </div>
       </Card>

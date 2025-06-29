@@ -1,5 +1,5 @@
 
-import { CheckCircle, Target, BookOpen, Award, Scale, Users, Shield, AlertTriangle } from 'lucide-react';
+import { CheckCircle, Target, BookOpen, Award, Scale, Users, Shield, AlertTriangle, Heart, Brain } from 'lucide-react';
 
 interface TableauRangAFooterIC2Props {
   colonnesCount?: number;
@@ -8,9 +8,9 @@ interface TableauRangAFooterIC2Props {
 }
 
 export const TableauRangAFooterIC2 = ({ colonnesCount = 0, lignesCount = 0, isRangB = false }: TableauRangAFooterIC2Props) => {
-  const expectedCount = isRangB ? 2 : 7;
+  const expectedCount = isRangB ? 2 : 9;
   const rangLabel = isRangB ? "B" : "A";
-  const totalExpected = isRangB ? "2 connaissances approfondies" : "7 connaissances fondamentales";
+  const totalExpected = isRangB ? "2 connaissances approfondies" : "9 connaissances fondamentales";
   const isComplete = lignesCount === expectedCount;
   
   return (
@@ -74,34 +74,42 @@ export const TableauRangAFooterIC2 = ({ colonnesCount = 0, lignesCount = 0, isRa
         </div>
         
         {!isRangB ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
             <div className="flex items-center space-x-2 text-blue-700">
               <Users className="h-4 w-4" />
               <span>1. Identifier professionnels et compétences</span>
             </div>
             <div className="flex items-center space-x-2 text-green-700">
               <Target className="h-4 w-4" />
-              <span>2. Définition pratique médicale et éthique</span>
+              <span>2. Définition pratique médicale</span>
             </div>
             <div className="flex items-center space-x-2 text-purple-700">
-              <Scale className="h-4 w-4" />
-              <span>3. Définitions normes et valeurs</span>
+              <Heart className="h-4 w-4" />
+              <span>3. Signification de l'éthique</span>
             </div>
             <div className="flex items-center space-x-2 text-orange-700">
-              <Shield className="h-4 w-4" />
-              <span>4. Organisation sociale et régulation</span>
+              <Scale className="h-4 w-4" />
+              <span>4. Normes et valeurs professionnelles</span>
             </div>
             <div className="flex items-center space-x-2 text-teal-700">
-              <Award className="h-4 w-4" />
-              <span>5. Médecine fondée sur preuves</span>
+              <Shield className="h-4 w-4" />
+              <span>5. Organisation et régulation</span>
             </div>
             <div className="flex items-center space-x-2 text-indigo-700">
-              <CheckCircle className="h-4 w-4" />
-              <span>6. Déontologie et conflits</span>
+              <Award className="h-4 w-4" />
+              <span>6. Médecine fondée sur preuves</span>
             </div>
-            <div className="flex items-center space-x-2 text-red-700 md:col-span-2 justify-center">
-              <Users className="h-4 w-4" />
-              <span>7. Différents acteurs et interactions</span>
+            <div className="flex items-center space-x-2 text-red-700">
+              <Heart className="h-4 w-4" />
+              <span>7. Médecine basée sur responsabilité</span>
+            </div>
+            <div className="flex items-center space-x-2 text-green-700">
+              <CheckCircle className="h-4 w-4" />
+              <span>8. Déontologie médicale</span>
+            </div>
+            <div className="flex items-center space-x-2 text-blue-700">
+              <Brain className="h-4 w-4" />
+              <span>9. Acteurs santé et interactions</span>
             </div>
           </div>
         ) : (

@@ -1,11 +1,11 @@
 
 // Données spécifiques pour l'item IC-2 : Les valeurs professionnelles du médecin et des autres professions de santé
-// Basé sur la fiche E-LiSA officielle - 9 connaissances exactement (7 Rang A + 2 Rang B)
+// Basé sur la fiche E-LiSA officielle - 11 connaissances exactement (9 Rang A + 2 Rang B)
 
-// RANG A : 7 connaissances attendues exactement selon E-LiSA
+// RANG A : 9 connaissances attendues exactement selon E-LiSA
 export const conceptsRangAIC2 = [
   {
-    concept: "Identifier les professionnels, compétences et ressources liées à un rôle particulier dans une organisation de santé",
+    concept: "Identifier les professionnels, compétences et ressources liés à un rôle particulier dans une organisation de santé",
     definition: "Cartographie complète des acteurs de santé : professionnels règlementés (médecins, pharmaciens, infirmiers, etc.) et leurs compétences spécifiques dans l'organisation sanitaire",
     exemple: "Médecins spécialistes, généralistes, chirurgiens-dentistes, sages-femmes, pharmaciens, infirmiers, masseurs-kinésithérapeutes, pédicures-podologues selon leurs rôles organisationnels",
     piege: "Confondre les professionnels de santé règlementés avec les autres acteurs ou méconnaître les compétences spécifiques",
@@ -15,14 +15,24 @@ export const conceptsRangAIC2 = [
     vigilance: "Respecter les périmètres de compétences et les responsabilités de chaque acteur"
   },
   {
-    concept: "Connaître la définition de la pratique médicale et connaître la signification de l'éthique",
-    definition: "Pratique médicale = activité professionnelle du médecin intégrant diagnostic, traitement, prévention. Éthique = réflexion sur l'action juste et appropriée",
-    exemple: "Pratique médicale : consultation, diagnostic, prescription, suivi. Éthique : questionnement moral face aux dilemmes cliniques",
-    piege: "Réduire la pratique médicale à la technique seule ou séparer éthique et pratique",
-    mnemo: "PRATIQUE-ÉTHIQUE = Pratique + Réflexion + Action + Technique + Intégrée + Questionnement + Utilisée + Ensemble",
-    subtilite: "L'éthique est indissociable de la pratique médicale quotidienne",
+    concept: "Connaître la définition de la pratique médicale",
+    definition: "Activité professionnelle du médecin intégrant diagnostic, traitement, prévention dans un cadre scientifique et relationnel structuré",
+    exemple: "Consultation médicale, établissement du diagnostic, prescription thérapeutique, suivi des patients, prévention des maladies",
+    piege: "Réduire la pratique médicale à la dimension technique seule en négligeant l'aspect relationnel",
+    mnemo: "PRATIQUE = Prévention + Relation + Actes + Thérapeutique + Intégration + Qualité + Utilisée + Évaluation",
+    subtilite: "La pratique médicale combine excellence technique et dimension humaine",
+    application: "Exercice médical global intégrant tous les aspects de la prise en charge",
+    vigilance: "Maintenir l'équilibre entre compétence technique et approche humaine"
+  },
+  {
+    concept: "Connaître la signification de l'éthique",
+    definition: "Réflexion philosophique sur l'action juste et appropriée, questionnement moral face aux dilemmes de la pratique médicale",
+    exemple: "Questionnement éthique face aux dilemmes cliniques : acharnement thérapeutique, fin de vie, conflits d'intérêts",
+    piege: "Confondre éthique personnelle et éthique professionnelle ou séparer éthique et pratique",
+    mnemo: "ÉTHIQUE = Évaluation + Théorie + Humanité + Intégrité + Questionnement + Utilisée + Ensemble",
+    subtilite: "L'éthique guide la réflexion mais ne donne pas de réponses toutes faites",
     application: "Intégration systématique de la réflexion éthique dans chaque décision médicale",
-    vigilance: "Ne pas dissocier compétence technique et questionnement éthique"
+    vigilance: "Ne pas instrumentaliser l'éthique mais en faire un véritable outil de réflexion"
   },
   {
     concept: "Connaître les définitions de normes et de valeurs professionnelles",
@@ -45,27 +55,37 @@ export const conceptsRangAIC2 = [
     vigilance: "Concilier liberté médicale et contraintes de santé publique et économiques"
   },
   {
-    concept: "Connaître les principes de la médecine fondée sur les preuves et de la médecine basée sur la responsabilité et l'expérience du malade",
-    definition: "EBM = Evidence + Expérience clinique + Préférences patient. Médecine de responsabilité = prise en compte de l'expérience vécue du patient",
-    exemple: "Décision thérapeutique combinant études scientifiques, expertise du praticien et vécu personnel du patient",
-    piege: "Opposer evidence-based medicine et médecine humaniste ou négliger l'une des composantes",
-    mnemo: "EBM-RESPONSABILITÉ = Evidence + Basée + Médecine + Responsabilité + Expérience + Souffrance + Personnalisée + Optimale + Nuancée + Sensible + Adaptée + Bienveillante + Individualisée + Libre + Intégrée + Totale + Éclairée",
-    subtilite: "Intégration harmonieuse de la science, de l'art médical et de l'expérience patient",
-    application: "Approche décisionnelle structurée intégrant toutes les dimensions",
-    vigilance: "Équilibrer rigueur scientifique et dimension humaine personnalisée"
+    concept: "Connaître les principes de la médecine fondés sur les preuves",
+    definition: "Evidence-Based Medicine : approche médicale basée sur les meilleures preuves scientifiques disponibles, intégrée à l'expertise clinique",
+    exemple: "Utilisation de méta-analyses, essais randomisés contrôlés, guidelines basées sur les preuves pour les décisions thérapeutiques",
+    piege: "Opposer EBM et médecine humaniste ou appliquer les preuves sans discernement clinique",
+    mnemo: "EBM = Evidence + Basée + Médecine + preuves scientifiques + expertise + patient",
+    subtilite: "L'EBM combine rigueur scientifique et adaptation individuelle",
+    application: "Décisions thérapeutiques basées sur les meilleures preuves disponibles",
+    vigilance: "Adapter les preuves générales au cas particulier de chaque patient"
   },
   {
-    concept: "Connaître les principes de déontologie médicale. Connaître la notion de conflit de valeurs et de conflit d'intérêts",
-    definition: "Déontologie = ensemble des devoirs professionnels codifiés. Conflits : opposition entre valeurs (autonomie/bienfaisance) ou intérêts (personnel/patient)",
-    exemple: "Code de déontologie médicale, conflits valeurs (respect autonomie vs protection), conflits intérêts (avantages pharmaceutiques)",
-    piege: "Confondre déontologie et éthique ou sous-estimer l'impact des conflits d'intérêts",
-    mnemo: "DÉONTOLOGIE-CONFLITS = Devoirs + Éthique + Officiels + Normatifs + Textes + Obligatoires + Légaux + Oppositions + Gestion + Intérêts + Équilibre + Conflits + Objectivité + Neutralité + Fidélité + Loyauté + Intégrité + Transparence + Séparation",
-    subtilite: "La déontologie fixe le cadre, les conflits nécessitent une résolution éthique",
-    application: "Respect strict du code déontologique et gestion transparente des conflits",
-    vigilance: "Identifier et gérer proactivement tous les conflits potentiels"
+    concept: "Connaître les principes de la médecine basés sur la responsabilité et l'expérience du malade",
+    definition: "Approche médicale intégrant l'expérience vécue du patient, ses préférences et sa responsabilité dans les décisions de santé",
+    exemple: "Prise en compte du vécu de la maladie, des préférences thérapeutiques, de l'autonomie décisionnelle du patient",
+    piege: "Négliger l'expérience subjective du patient ou imposer une vision purement technique",
+    mnemo: "RESPONSABILITÉ = Respect + Expérience + Souffrance + Personnalisée + Optimale + Nuancée + Sensible + Adaptée + Bienveillante + Individualisée + Libre + Intégrée + Totale + Éclairée",
+    subtilite: "Équilibre entre expertise médicale et autonomie du patient",
+    application: "Décisions partagées intégrant l'expérience et les préférences du patient",
+    vigilance: "Respecter l'autonomie sans abandonner la responsabilité médicale"
   },
   {
-    concept: "Connaître les différents acteurs de santé et leurs interactions",
+    concept: "Connaître les principes de déontologie médicale",
+    definition: "Ensemble des devoirs professionnels codifiés régissant l'exercice médical : code de déontologie, obligations envers patients et confrères",
+    exemple: "Code de déontologie médicale, secret professionnel, obligation de soins, respect de la dignité, confraternité",
+    piege: "Confondre déontologie et éthique ou méconnaître les obligations déontologiques",
+    mnemo: "DÉONTOLOGIE = Devoirs + Éthique + Officiels + Normatifs + Textes + Obligatoires + Légaux + Officiels + Gestion + Intégrité + Équilibre",
+    subtilite: "La déontologie fixe le cadre légal et professionnel minimum",
+    application: "Respect strict du code déontologique dans l'exercice quotidien",
+    vigilance: "Connaître et appliquer toutes les obligations déontologiques"
+  },
+  {
+    concept: "Connaître les différents acteurs de la santé et leurs interactions",
     definition: "Écosystème complexe d'acteurs : professionnels de santé, établissements, institutions, patients, familles, associations avec interactions multiples",
     exemple: "Hôpitaux, cliniques, médecine de ville, EHPAD, HAD, associations de patients, tutelles, ARS, CPAM, mutuelles",
     piege: "Vision restrictive des acteurs ou méconnaissance des interactions systémiques",

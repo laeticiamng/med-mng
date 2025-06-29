@@ -2,11 +2,11 @@
 import { conceptsRangAIC2, conceptsRangBIC2, colonnesConfigIC2 } from './TableauRangADataIC2';
 
 export const generateLignesRangAIntelligentIC2 = (data: any): string[][] => {
-  console.log('IC-2 Génération Rang A : 7 connaissances selon E-LiSA exactement');
+  console.log('IC-2 Génération Rang A : 9 connaissances selon E-LiSA exactement');
   
   const lignes: string[][] = [];
   
-  // Utiliser uniquement les 7 concepts Rang A définis selon E-LiSA
+  // Utiliser uniquement les 9 concepts Rang A définis selon E-LiSA
   conceptsRangAIC2.forEach(concept => {
     const ligne = [
       concept.concept,
@@ -21,7 +21,7 @@ export const generateLignesRangAIntelligentIC2 = (data: any): string[][] => {
     lignes.push(ligne);
   });
 
-  console.log(`IC-2 Rang A: ${lignes.length}/7 connaissances E-LiSA générées`);
+  console.log(`IC-2 Rang A: ${lignes.length}/9 connaissances E-LiSA générées`);
   return lignes;
 };
 
@@ -50,7 +50,7 @@ export const generateLignesRangBIntelligentIC2 = (data: any): string[][] => {
 };
 
 export const determinerColonnesUtilesIC2 = (lignes: string[][]): any[] => {
-  console.log('IC-2: Configuration colonnes optimisée pour les 9 connaissances E-LiSA');
+  console.log('IC-2: Configuration colonnes optimisée pour les 11 connaissances E-LiSA');
   
   // Toutes les colonnes sont pertinentes selon le format E-LiSA
   return colonnesConfigIC2;
@@ -62,7 +62,7 @@ export const enrichirDonneesIC2 = (data: any) => {
     ...data,
     theme: "IC-2 : Les valeurs professionnelles du médecin et des autres professions de santé",
     objectifs: [
-      "Maîtriser les 7 connaissances fondamentales du rang A selon E-LiSA",
+      "Maîtriser les 9 connaissances fondamentales du rang A selon E-LiSA",
       "Approfondir les 2 connaissances spécialisées du rang B selon E-LiSA", 
       "Intégrer valeurs et normes dans la pratique professionnelle",
       "Comprendre l'organisation et la régulation des professions de santé"
