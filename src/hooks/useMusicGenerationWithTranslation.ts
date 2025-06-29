@@ -59,8 +59,8 @@ export const useMusicGenerationWithTranslation = () => {
       updateGenerationProgress(rang, {
         progress: 0,
         attempts: 1,
-        maxAttempts: 12,
-        estimatedTimeRemaining: 2
+        maxAttempts: 24,
+        estimatedTimeRemaining: 4
       });
 
       const translatedLyrics = await translateLyricsIfNeeded(parolesText);
@@ -103,22 +103,23 @@ export const useMusicGenerationWithTranslation = () => {
         return validatedAudioUrl;
       }
 
-      // Sinon, commencer le polling
-      const pollForProgress = async () => {
-        const maxPolls = 24; // 2 minutes max (24 * 5s = 120s)
+      // Commencer le polling avec progression visuelle
+      const startPolling = () => {
+        const maxPolls = 48; // 4 minutes max (48 * 5s = 240s)
         let pollCount = 0;
         
         const pollInterval = setInterval(async () => {
           try {
             pollCount++;
-            console.log(`🔄 Polling ${pollCount}/${maxPolls} pour Rang ${rang}`);
             
-            // Mettre à jour la progression basée sur le nombre de tentatives
-            const progressPercentage = Math.min(Math.round((pollCount / maxPolls) * 90), 90); // Max 90% pendant le polling
+            // Progression visuelle basée sur le temps écoulé
+            const baseProgress = Math.min(Math.round((pollCount / maxPolls) * 85), 85);
             const estimatedTimeRemaining = Math.max(Math.round(((maxPolls - pollCount) * 5) / 60), 0);
             
+            console.log(`🔄 Polling ${pollCount}/${maxPolls} pour Rang ${rang} - Progress: ${baseProgress}%`);
+            
             updateGenerationProgress(rang, {
-              progress: progressPercentage,
+              progress: baseProgress,
               attempts: pollCount,
               maxAttempts: maxPolls,
               estimatedTimeRemaining
@@ -131,11 +132,17 @@ export const useMusicGenerationWithTranslation = () => {
 
             if (pollError) {
               console.warn(`⚠️ Erreur lors du polling ${pollCount}:`, pollError);
-              return; // Continue le polling
+              // Continue le polling même en cas d'erreur
+              if (pollCount >= maxPolls) {
+                clearInterval(pollInterval);
+                throw new Error('Délai d\'attente dépassé pour la génération musicale');
+              }
+              return;
             }
 
             console.log(`📥 Données du polling ${pollCount}:`, pollData);
 
+            // Vérifier si la génération est terminée avec succès
             if (pollData?.status === 'success' && pollData?.audioUrl) {
               console.log('✅ GÉNÉRATION TERMINÉE:', pollData.audioUrl);
               clearInterval(pollInterval);
@@ -159,12 +166,13 @@ export const useMusicGenerationWithTranslation = () => {
               return validatedAudioUrl;
             }
 
+            // Vérifier si il y a une erreur
             if (pollData?.status === 'error') {
               clearInterval(pollInterval);
               throw new Error(pollData.message || 'Erreur lors de la génération');
             }
 
-            // Si on a atteint le maximum de polls
+            // Timeout atteint
             if (pollCount >= maxPolls) {
               clearInterval(pollInterval);
               throw new Error('La génération prend plus de temps que prévu. Veuillez réessayer.');
@@ -172,18 +180,16 @@ export const useMusicGenerationWithTranslation = () => {
             
           } catch (pollError) {
             console.error(`❌ Erreur lors du polling ${pollCount}:`, pollError);
-            if (pollCount >= maxPolls - 1) {
-              clearInterval(pollInterval);
-              throw pollError;
-            }
+            clearInterval(pollInterval);
+            throw pollError;
           }
         }, 5000); // Poll toutes les 5 secondes
 
-        // Cleanup en cas d'erreur
-        return () => clearInterval(pollInterval);
+        return pollInterval;
       };
 
-      await pollForProgress();
+      // Démarrer le polling
+      startPolling();
       
     } catch (error) {
       console.error(`❌ ERREUR GÉNÉRATION SUNO Rang ${rang}:`, error);
