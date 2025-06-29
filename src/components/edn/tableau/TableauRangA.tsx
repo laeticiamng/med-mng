@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { TableauRangAHeader } from './TableauRangAHeader';
 import { TableauRangAFooter } from './TableauRangAFooter';
 import { isIC4Item, processTableauRangAIC4 } from './TableauRangAUtilsIC4Integration';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface TableauRangAProps {
   data: {
@@ -19,6 +20,7 @@ export const TableauRangA = ({ data }: TableauRangAProps) => {
     colonnesUtiles: any[];
     theme: string;
   } | null>(null);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     console.log('TableauRangA - Données reçues:', data);
@@ -31,7 +33,6 @@ export const TableauRangA = ({ data }: TableauRangAProps) => {
       // Traitement standard pour les autres items
       const tableauData = data.tableau_rang_a;
       if (tableauData && tableauData.sections) {
-        // Convertir les sections en lignes pour l'affichage
         const lignes: string[][] = [];
         tableauData.sections.forEach((section: any) => {
           section.concepts?.forEach((concept: any) => {
@@ -70,9 +71,9 @@ export const TableauRangA = ({ data }: TableauRangAProps) => {
 
   if (!processedData || !processedData.lignesEnrichies.length) {
     return (
-      <div className="bg-white rounded-lg shadow-lg p-6">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">Tableau Rang A</h2>
-        <p className="text-gray-600">Aucune donnée disponible pour ce tableau.</p>
+      <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 mx-2 sm:mx-0">
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4">Tableau Rang A</h2>
+        <p className="text-gray-600 text-sm sm:text-base">Aucune donnée disponible pour ce tableau.</p>
       </div>
     );
   }
@@ -90,52 +91,59 @@ export const TableauRangA = ({ data }: TableauRangAProps) => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 pb-20">
       <TableauRangAHeader 
         theme={theme}
         itemCode={data.item_code || ''}
         totalCompetences={lignesEnrichies.length}
       />
 
-      <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-        {/* En-têtes des colonnes */}
-        <div className="overflow-x-auto">
-          <div className="grid grid-cols-1 gap-2 p-4 min-w-[800px]" style={{ gridTemplateColumns: `repeat(${colonnesUtiles.length}, minmax(150px, 1fr))` }}>
-            {colonnesUtiles.map((colonne, index) => (
-              <div
-                key={index}
-                className={`${colonne.couleur} text-white p-3 rounded-lg text-center font-semibold text-sm flex items-center justify-center gap-1`}
-              >
-                {colonne.icone && <span>{colonne.icone}</span>}
-                {colonne.nom}
-              </div>
-            ))}
+      <div className="bg-white rounded-lg shadow-lg overflow-hidden mx-2 sm:mx-0">
+        {/* En-têtes des colonnes - masqués sur mobile */}
+        {!isMobile && (
+          <div className="overflow-x-auto">
+            <div className="grid grid-cols-1 gap-2 p-4 min-w-[800px]" style={{ gridTemplateColumns: `repeat(${colonnesUtiles.length}, minmax(150px, 1fr))` }}>
+              {colonnesUtiles.map((colonne, index) => (
+                <div
+                  key={index}
+                  className={`${colonne.couleur} text-white p-3 rounded-lg text-center font-semibold text-sm flex items-center justify-center gap-1`}
+                >
+                  {colonne.icone && <span>{colonne.icone}</span>}
+                  {colonne.nom}
+                </div>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* Lignes de données */}
+        {/* Lignes de données - optimisées mobile */}
         <div className="divide-y divide-gray-200">
           {lignesEnrichies.map((ligne, rowIndex) => (
             <div key={rowIndex} className="hover:bg-gray-50">
-              {/* Ligne principale - mobile */}
-              <div className="block md:hidden p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-semibold text-gray-900 text-sm flex-1 pr-2">
+              {/* Version mobile avec expansion améliorée */}
+              <div className="block md:hidden p-3 space-y-3">
+                <div className="flex items-start justify-between gap-3">
+                  <h3 className="font-semibold text-gray-900 text-sm leading-tight flex-1">
                     {ligne[0]}
                   </h3>
                   <button
                     onClick={() => toggleRow(rowIndex)}
-                    className="text-blue-600 hover:text-blue-800 text-sm font-medium ml-2 flex-shrink-0"
+                    className="text-blue-600 hover:text-blue-800 text-xs font-medium flex-shrink-0 px-2 py-1 bg-blue-50 rounded-full border border-blue-200"
                   >
-                    {expandedRows.has(rowIndex) ? 'Réduire' : 'Voir plus'}
+                    {expandedRows.has(rowIndex) ? 'Réduire' : 'Détails'}
                   </button>
+                </div>
+                
+                {/* Définition toujours visible sur mobile */}
+                <div className="bg-green-50 border border-green-200 p-2 rounded text-xs text-green-800">
+                  {ligne[1]}
                 </div>
                 
                 {expandedRows.has(rowIndex) && (
                   <div className="space-y-2 pt-2 border-t border-gray-200">
-                    {ligne.slice(1).map((cellule, cellIndex) => {
+                    {ligne.slice(2).map((cellule, cellIndex) => {
                       if (!cellule || cellule.trim() === '') return null;
-                      const colonne = colonnesUtiles[cellIndex + 1];
+                      const colonne = colonnesUtiles[cellIndex + 2];
                       if (!colonne) return null;
                       
                       return (
@@ -144,7 +152,7 @@ export const TableauRangA = ({ data }: TableauRangAProps) => {
                             {colonne.icone && <span>{colonne.icone}</span>}
                             {colonne.nom}
                           </div>
-                          <div className={`p-2 rounded border-2 ${colonne.couleurCellule} ${colonne.couleurTexte} text-xs`}>
+                          <div className={`p-2 rounded border ${colonne.couleurCellule} ${colonne.couleurTexte} text-xs leading-relaxed`}>
                             {cellule}
                           </div>
                         </div>
@@ -154,7 +162,7 @@ export const TableauRangA = ({ data }: TableauRangAProps) => {
                 )}
               </div>
 
-              {/* Ligne principale - desktop */}
+              {/* Version desktop */}
               <div className="hidden md:block overflow-x-auto">
                 <div className="grid gap-2 p-4 min-w-[800px]" style={{ gridTemplateColumns: `repeat(${colonnesUtiles.length}, minmax(150px, 1fr))` }}>
                   {ligne.map((cellule, cellIndex) => {

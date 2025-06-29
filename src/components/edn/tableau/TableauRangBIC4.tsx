@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { TableauRangAHeader } from './TableauRangAHeader';
 import { TableauRangAFooter } from './TableauRangAFooter';
 import { generateLignesRangBIntelligentIC4, determinerColonnesUtilesIC4 } from './TableauRangAUtilsIC4';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface TableauRangBIC4Props {
   data: {
@@ -19,6 +20,7 @@ export const TableauRangBIC4 = ({ data }: TableauRangBIC4Props) => {
     colonnesUtiles: any[];
     theme: string;
   } | null>(null);
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     console.log('TableauRangBIC4 - Données reçues:', data);
@@ -65,9 +67,9 @@ export const TableauRangBIC4 = ({ data }: TableauRangBIC4Props) => {
 
   if (!processedData || !processedData.lignesEnrichies.length) {
     return (
-      <div className="bg-white rounded-lg shadow-lg p-6">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">Tableau Rang B Expert</h2>
-        <p className="text-gray-600">Aucune donnée disponible pour ce tableau.</p>
+      <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 mx-2 sm:mx-0">
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4">Tableau Rang B Expert</h2>
+        <p className="text-gray-600 text-sm sm:text-base">Aucune donnée disponible pour ce tableau.</p>
       </div>
     );
   }
@@ -85,52 +87,65 @@ export const TableauRangBIC4 = ({ data }: TableauRangBIC4Props) => {
   };
 
   return (
-    <div className="space-y-6">
-      <TableauRangAHeader 
-        theme={theme}
-        itemCode={data.item_code || 'IC-4'}
-        totalCompetences={lignesEnrichies.length}
-      />
-
-      <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-        {/* En-têtes des colonnes */}
-        <div className="overflow-x-auto">
-          <div className="grid grid-cols-1 gap-2 p-4 min-w-[800px]" style={{ gridTemplateColumns: `repeat(${colonnesUtiles.length}, minmax(150px, 1fr))` }}>
-            {colonnesUtiles.map((colonne, index) => (
-              <div
-                key={index}
-                className={`${colonne.couleur} text-white p-3 rounded-lg text-center font-semibold text-sm flex items-center justify-center gap-1`}
-              >
-                {colonne.icone && <span>{colonne.icone}</span>}
-                {colonne.nom}
-              </div>
-            ))}
-          </div>
+    <div className="space-y-4 sm:space-y-6 pb-20">
+      <div className="bg-gradient-to-r from-slate-700 to-slate-800 text-white p-4 sm:p-6 rounded-lg mx-2 sm:mx-0">
+        <h2 className="text-xl sm:text-2xl font-bold mb-2">
+          📚 Rang B - Connaissances Approfondies
+        </h2>
+        <p className="text-slate-200 text-sm sm:text-base">
+          {theme} - {lignesEnrichies.length} compétence{lignesEnrichies.length > 1 ? 's' : ''} de niveau expert
+        </p>
+        <div className="text-xs text-slate-300 mt-2">
+          Item {data.item_code} • Niveau d'expertise avancé
         </div>
+      </div>
 
-        {/* Lignes de données */}
+      <div className="bg-white rounded-lg shadow-lg overflow-hidden border-l-4 border-slate-600 mx-2 sm:mx-0">
+        {/* En-têtes des colonnes - masqués sur mobile */}
+        {!isMobile && (
+          <div className="overflow-x-auto">
+            <div className="grid grid-cols-1 gap-2 p-4 min-w-[800px]" style={{ gridTemplateColumns: `repeat(${colonnesUtiles.length}, minmax(150px, 1fr))` }}>
+              {colonnesUtiles.map((colonne, index) => (
+                <div
+                  key={index}
+                  className={`${colonne.couleur} text-white p-3 rounded-lg text-center font-semibold text-sm flex items-center justify-center gap-1`}
+                >
+                  {colonne.icone && <span>{colonne.icone}</span>}
+                  {colonne.nom}
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Lignes de données - optimisées mobile */}
         <div className="divide-y divide-gray-200">
           {lignesEnrichies.map((ligne, rowIndex) => (
             <div key={rowIndex} className="hover:bg-gray-50">
-              {/* Version mobile avec expansion */}
-              <div className="block md:hidden p-4 space-y-3">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-semibold text-gray-900 text-sm flex-1 pr-2">
+              {/* Version mobile avec expansion améliorée */}
+              <div className="block md:hidden p-3 space-y-3">
+                <div className="flex items-start justify-between gap-3">
+                  <h3 className="font-semibold text-gray-900 text-sm leading-tight flex-1">
                     {ligne[0]}
                   </h3>
                   <button
                     onClick={() => toggleRow(rowIndex)}
-                    className="text-blue-600 hover:text-blue-800 text-sm font-medium ml-2 flex-shrink-0"
+                    className="text-slate-700 hover:text-slate-900 text-xs font-medium flex-shrink-0 px-2 py-1 bg-slate-100 rounded-full border border-slate-300"
                   >
-                    {expandedRows.has(rowIndex) ? 'Réduire' : 'Voir plus'}
+                    {expandedRows.has(rowIndex) ? 'Réduire' : 'Détails'}
                   </button>
+                </div>
+                
+                {/* Définition toujours visible sur mobile */}
+                <div className="bg-emerald-50 border border-emerald-200 p-2 rounded text-xs text-emerald-800">
+                  {ligne[1]}
                 </div>
                 
                 {expandedRows.has(rowIndex) && (
                   <div className="space-y-2 pt-2 border-t border-gray-200">
-                    {ligne.slice(1).map((cellule, cellIndex) => {
+                    {ligne.slice(2).map((cellule, cellIndex) => {
                       if (!cellule || cellule.trim() === '') return null;
-                      const colonne = colonnesUtiles[cellIndex + 1];
+                      const colonne = colonnesUtiles[cellIndex + 2];
                       if (!colonne) return null;
                       
                       return (
@@ -139,7 +154,7 @@ export const TableauRangBIC4 = ({ data }: TableauRangBIC4Props) => {
                             {colonne.icone && <span>{colonne.icone}</span>}
                             {colonne.nom}
                           </div>
-                          <div className={`p-2 rounded border-2 ${colonne.couleurCellule} ${colonne.couleurTexte} text-xs`}>
+                          <div className={`p-2 rounded border ${colonne.couleurCellule} ${colonne.couleurTexte} text-xs leading-relaxed`}>
                             {cellule}
                           </div>
                         </div>
