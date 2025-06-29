@@ -1,0 +1,145 @@
+
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
+import { BookOpen, Users, Clock, Target, Award, BarChart3, TrendingUp } from "lucide-react";
+
+export const MainSections = () => {
+  return (
+    <>
+      {/* Statistiques rapides */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
+        <Card className="text-center p-4">
+          <div className="text-2xl font-bold text-blue-600">5</div>
+          <div className="text-sm text-gray-600">Items IC Complets</div>
+        </Card>
+        <Card className="text-center p-4">
+          <div className="text-2xl font-bold text-green-600">150+</div>
+          <div className="text-sm text-gray-600">Concepts E-LiSA</div>
+        </Card>
+        <Card className="text-center p-4">
+          <div className="text-2xl font-bold text-purple-600">20+</div>
+          <div className="text-sm text-gray-600">Situations ECOS</div>
+        </Card>
+        <Card className="text-center p-4">
+          <div className="text-2xl font-bold text-orange-600">100%</div>
+          <div className="text-sm text-gray-600">Interactif</div>
+        </Card>
+      </div>
+
+      {/* Sections principales */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+        {/* EDN Section */}
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <div className="flex items-center space-x-2">
+              <BookOpen className="h-6 w-6 text-blue-600" />
+              <CardTitle>Items EDN Immersifs</CardTitle>
+            </div>
+            <CardDescription>
+              Explorez les 5 items de compétences avec tableaux interactifs, scènes immersives et contenus musicaux
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 gap-2">
+              <div className="flex items-center justify-between">
+                <span className="text-sm">IC-1 : Relation médecin-malade</span>
+                <Badge className="bg-blue-100 text-blue-800">Complet</Badge>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm">IC-2 : Valeurs professionnelles</span>
+                <Badge className="bg-green-100 text-green-800">Excellent</Badge>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm">IC-3 : Démarche scientifique</span>
+                <Badge className="bg-yellow-100 text-yellow-800">À améliorer</Badge>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm">IC-4 : Qualité et sécurité</span>
+                <Badge className="bg-green-100 text-green-800">Excellent</Badge>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm">IC-5 : Organisation système</span>
+                <Badge className="bg-red-100 text-red-800">Incomplet</Badge>
+              </div>
+            </div>
+            <Link to="/edn" className="block">
+              <Button className="w-full">Accéder aux Items EDN</Button>
+            </Link>
+          </CardContent>
+        </Card>
+
+        {/* ECOS Section */}
+        <Card className="hover:shadow-lg transition-shadow">
+          <CardHeader>
+            <div className="flex items-center space-x-2">
+              <Users className="h-6 w-6 text-green-600" />
+              <CardTitle>Simulations ECOS</CardTitle>
+            </div>
+            <CardDescription>
+              Entraînez-vous avec des situations cliniques réalistes et des patients virtuels
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <div className="flex items-center space-x-2">
+                <Clock className="h-4 w-4 text-gray-500" />
+                <span className="text-sm">Sessions chronométrées</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Target className="h-4 w-4 text-gray-500" />
+                <span className="text-sm">Évaluation en temps réel</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <Award className="h-4 w-4 text-gray-500" />
+                <span className="text-sm">Feedback détaillé</span>
+              </div>
+            </div>
+            <Link to="/ecos" className="block">
+              <Button variant="outline" className="w-full">Commencer les ECOS</Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Audit Section */}
+      <Card className="mb-12">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <BarChart3 className="h-6 w-6 text-purple-600" />
+              <CardTitle>Audit des Items EDN</CardTitle>
+            </div>
+            <Badge className="bg-purple-100 text-purple-800">Nouveau</Badge>
+          </div>
+          <CardDescription>
+            Analyse complète de la conformité E-LiSA des 5 items IC avec scores détaillés
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div className="text-center p-4 bg-blue-50 rounded-lg">
+              <div className="text-2xl font-bold text-blue-600">81%</div>
+              <div className="text-sm text-gray-600">Score Moyen Général</div>
+            </div>
+            <div className="text-center p-4 bg-green-50 rounded-lg">
+              <div className="text-2xl font-bold text-green-600">2</div>
+              <div className="text-sm text-gray-600">Items Excellents</div>
+            </div>
+            <div className="text-center p-4 bg-orange-50 rounded-lg">
+              <div className="text-2xl font-bold text-orange-600">2</div>
+              <div className="text-sm text-gray-600">À Améliorer</div>
+            </div>
+          </div>
+          <Link to="/audit-general">
+            <Button variant="outline" className="w-full flex items-center justify-center space-x-2">
+              <TrendingUp className="h-4 w-4" />
+              <span>Voir l'Audit Complet</span>
+            </Button>
+          </Link>
+        </CardContent>
+      </Card>
+    </>
+  );
+};
