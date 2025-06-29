@@ -9,6 +9,7 @@ interface SavedMusic {
   audio_url: string;
   item_code?: string;
   music_style: string;
+  rang: string;
   created_at: string;
 }
 
@@ -47,8 +48,8 @@ export const useMusicLibrary = () => {
     }
   };
 
-  const handlePlay = (musicId: string) => {
-    setPlayingId(playingId === musicId ? null : musicId);
+  const handlePlay = (music: SavedMusic) => {
+    setPlayingId(playingId === music.id ? null : music.id);
   };
 
   const handleDelete = async (musicId: string) => {
