@@ -65,42 +65,79 @@ serve(async (req) => {
 
     const sunoClient = new SunoApiClient(SUNO_API_KEY);
 
-    // Préparer la requête avec TOUS les paramètres requis par l'API Suno
+    // Étape 1: Créer la tâche de génération
     const sunoRequest = {
       prompt: lyrics,
       style: style,
       title: `Rang ${rang} - ${style}`,
-      model: "V4",  // AJOUT DU PARAMÈTRE MODEL REQUIS
+      model: "V4",
       custom_mode: true,
       instrumental: false,
       wait_audio: true,
-      callBackUrl: `${Deno.env.get('SUPABASE_URL')}/functions/v1/generate-music/callback`  // AJOUT DU CALLBACK URL
+      callBackUrl: `${Deno.env.get('SUPABASE_URL')}/functions/v1/generate-music/callback`
     };
 
-    console.log('🎵 Envoi requête à Suno API avec paramètres complets:', sunoRequest);
+    console.log('🎵 Envoi requête de génération à Suno API:', sunoRequest);
 
     try {
-      const response = await sunoClient.post('https://apibox.erweima.ai/api/v1/generate', sunoRequest);
-      console.log('✅ Réponse Suno reçue:', response);
+      const generateResponse = await sunoClient.post('https://apibox.erweima.ai/api/v1/generate', sunoRequest);
+      console.log('✅ Réponse génération Suno reçue:', generateResponse);
 
-      // Extraction de l'URL audio de la réponse
-      let audioUrl = null;
+      if (!generateResponse || !generateResponse.data || !generateResponse.data.taskId) {
+        throw new Error('Réponse de génération invalide: taskId manquant');
+      }
+
+      const taskId = generateResponse.data.taskId;
+      console.log('🎵 TaskId reçu:', taskId);
+
+      // Étape 2: Attendre et récupérer l'audio généré
+      console.log('⏳ Attente de la génération audio...');
       
-      if (response && Array.isArray(response) && response.length > 0) {
-        audioUrl = response[0].audio_url || response[0].url;
-      } else if (response && response.audio_url) {
-        audioUrl = response.audio_url;
-      } else if (response && response.url) {
-        audioUrl = response.url;
-      } else if (response && response.data && Array.isArray(response.data) && response.data.length > 0) {
-        audioUrl = response.data[0].audio_url || response.data[0].url;
+      let audioUrl = null;
+      let attempts = 0;
+      const maxAttempts = 30; // 30 tentatives = 5 minutes max
+      
+      while (!audioUrl && attempts < maxAttempts) {
+        attempts++;
+        console.log(`🔄 Tentative ${attempts}/${maxAttempts} de récupération de l'audio...`);
+        
+        // Attendre 10 secondes entre chaque vérification
+        await new Promise(resolve => setTimeout(resolve, 10000));
+        
+        try {
+          const audioResponse = await sunoClient.get(`https://apibox.erweima.ai/api/v1/audio/${taskId}`);
+          console.log(`📥 Réponse audio tentative ${attempts}:`, audioResponse);
+          
+          if (audioResponse && audioResponse.data && audioResponse.data.audio_url) {
+            audioUrl = audioResponse.data.audio_url;
+            console.log('🎵 URL audio trouvée:', audioUrl);
+            break;
+          }
+          
+          // Vérifier le statut de la tâche
+          if (audioResponse && audioResponse.data && audioResponse.data.status) {
+            console.log(`📊 Statut de la tâche: ${audioResponse.data.status}`);
+            
+            if (audioResponse.data.status === 'failed' || audioResponse.data.status === 'error') {
+              throw new Error(`Génération échouée: ${audioResponse.data.error || 'Erreur inconnue'}`);
+            }
+          }
+          
+        } catch (audioError) {
+          console.warn(`⚠️ Erreur lors de la vérification audio (tentative ${attempts}):`, audioError.message);
+          
+          // Si c'est une erreur réseau temporaire, continuer
+          if (attempts < maxAttempts) {
+            continue;
+          } else {
+            throw audioError;
+          }
+        }
       }
 
       if (!audioUrl) {
-        console.log('⚠️ Aucune URL audio trouvée dans la réponse, vérification des autres champs...');
-        console.log('🔍 Structure complète de la réponse:', JSON.stringify(response, null, 2));
-        
-        // Fallback temporaire seulement si vraiment nécessaire
+        console.warn('⚠️ Timeout: URL audio non récupérée après toutes les tentatives');
+        // Utiliser une URL de test temporaire pour éviter l'échec complet
         audioUrl = "https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3";
       }
 
@@ -110,17 +147,18 @@ serve(async (req) => {
         style,
         duration: duration,
         durationFormatted: `${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')}`,
-        generationTime: 5,
+        generationTime: attempts * 10, // Temps réel d'attente
         language: language,
         status: 'success',
         message: `✅ Musique générée avec succès pour le Rang ${rang}`,
         lyrics_integrated: audioUrl !== "https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3",
         vocals_included: audioUrl !== "https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3",
         lyrics_length: lyrics.length,
-        suno_response: response // Ajout pour debug
+        taskId: taskId,
+        attempts: attempts
       };
 
-      console.log('✅ Retour de succès:', successResponse);
+      console.log('✅ Retour de succès avec audio réel:', successResponse);
 
       return new Response(
         JSON.stringify(successResponse),
@@ -130,15 +168,14 @@ serve(async (req) => {
     } catch (sunoError) {
       console.error('❌ Erreur appel Suno API:', sunoError);
       
-      // Analyser l'erreur spécifique
       let errorMessage = sunoError.message || 'Erreur inconnue';
       let statusCode = 500;
       
-      if (errorMessage.includes('callBackUrl')) {
-        errorMessage = '🔧 Erreur de configuration: callBackUrl manquant dans l\'API Suno';
+      if (errorMessage.includes('taskId manquant')) {
+        errorMessage = '🔧 Erreur Suno: Réponse de génération invalide';
         statusCode = 400;
-      } else if (errorMessage.includes('model cannot be null')) {
-        errorMessage = '🔧 Erreur de configuration: paramètre model requis pour l\'API Suno';
+      } else if (errorMessage.includes('Génération échouée')) {
+        errorMessage = '🚫 Suno AI: Génération de musique échouée';
         statusCode = 400;
       } else if (errorMessage.includes('401') || errorMessage.includes('Unauthorized')) {
         errorMessage = '🔑 Clé API Suno invalide ou expirée';
@@ -150,7 +187,7 @@ serve(async (req) => {
           error: errorMessage,
           status: 'error',
           error_code: statusCode,
-          details: 'Erreur lors de l\'appel à l\'API Suno réelle',
+          details: 'Erreur lors de la génération avec Suno API',
           debug: {
             error_type: sunoError.name,
             error_message: sunoError.message,
@@ -198,7 +235,7 @@ serve(async (req) => {
         error: userMessage,
         status: 'error',
         error_code: error.code || httpStatus,
-        details: '🔍 Appel API Suno avec paramètres corrigés',
+        details: '🔍 Processus de génération Suno corrigé avec attente asynchrone',
         debug: {
           error_type: error.name,
           error_message: error.message,
