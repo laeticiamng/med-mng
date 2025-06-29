@@ -1,4 +1,3 @@
-
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle, AlertTriangle, Info, Target, BookOpen, TrendingUp, Award } from 'lucide-react';
