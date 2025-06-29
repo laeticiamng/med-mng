@@ -6,10 +6,14 @@ import { TableauRangAGrid } from './tableau/TableauRangAGrid';
 import { TableauRangAFooter } from './tableau/TableauRangAFooter';
 import { TableauRangAFooterIC1 } from './tableau/TableauRangAFooterIC1';
 import { TableauRangAFooterIC2 } from './tableau/TableauRangAFooterIC2';
+import { TableauRangAFooterIC3 } from './tableau/TableauRangAFooterIC3';
 import { TableauRangAFooterIC4 } from './tableau/TableauRangAFooterIC4';
+import { TableauRangAFooterIC5 } from './tableau/TableauRangAFooterIC5';
 import { processTableauRangAIC1, isIC1Item } from './tableau/TableauRangAUtilsIC1Integration';
 import { processTableauRangAIC2, isIC2Item } from './tableau/TableauRangAUtilsIC2Integration';
+import { processTableauRangAIC3, isIC3Item } from './tableau/TableauRangAUtilsIC3Integration';
 import { processTableauRangAIC4, isIC4Item } from './tableau/TableauRangAUtilsIC4Integration';
+import { processTableauRangAIC5, isIC5Item } from './tableau/TableauRangAUtilsIC5Integration';
 import { determinerColonnesUtiles, generateLignesRangAIntelligent } from './tableau/TableauRangAUtils';
 
 interface TableauRangAProps {
@@ -56,12 +60,32 @@ export const TableauRangA = ({ data }: TableauRangAProps) => {
       lignesCount={lignesEnrichies.length}
       isRangB={processed.isRangB}
     />;
+  } else if (isIC3Item(data)) {
+    const processed = processTableauRangAIC3(data);
+    lignesEnrichies = processed.lignesEnrichies;
+    colonnesUtiles = processed.colonnesUtiles;
+    theme = processed.theme;
+    footerComponent = <TableauRangAFooterIC3 
+      colonnesCount={colonnesUtiles.length} 
+      lignesCount={lignesEnrichies.length}
+      isRangB={processed.isRangB}
+    />;
   } else if (isIC4Item(data)) {
     const processed = processTableauRangAIC4(data);
     lignesEnrichies = processed.lignesEnrichies;
     colonnesUtiles = processed.colonnesUtiles;
     theme = processed.theme;
     footerComponent = <TableauRangAFooterIC4 colonnesCount={colonnesUtiles.length} lignesCount={lignesEnrichies.length} />;
+  } else if (isIC5Item(data)) {
+    const processed = processTableauRangAIC5(data);
+    lignesEnrichies = processed.lignesEnrichies;
+    colonnesUtiles = processed.colonnesUtiles;
+    theme = processed.theme;
+    footerComponent = <TableauRangAFooterIC5 
+      colonnesCount={colonnesUtiles.length} 
+      lignesCount={lignesEnrichies.length}
+      isRangB={processed.isRangB}
+    />;
   } else {
     // Traitement générique pour les autres items
     lignesEnrichies = generateLignesRangAIntelligent(data);
