@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -87,10 +86,18 @@ export const AuditComprehensif = () => {
 
       // Calcul des statistiques Supabase
       const totalItems = edmItems?.length || 0;
-      const itemsWithContent = edmItems?.filter(item => item.content && Object.keys(item.content).length > 0).length || 0;
-      const itemsWithTableaux = edmItems?.filter(item => 
-        item.content?.tableau_rang_a || item.content?.tableau_rang_b
-      ).length || 0;
+      const itemsWithContent = edmItems?.filter(item => {
+        const content = item.content;
+        return content && typeof content === 'object' && content !== null && Object.keys(content).length > 0;
+      }).length || 0;
+      
+      const itemsWithTableaux = edmItems?.filter(item => {
+        const content = item.content;
+        if (!content || typeof content !== 'object' || content === null) return false;
+        const contentObj = content as Record<string, any>;
+        return contentObj.tableau_rang_a || contentObj.tableau_rang_b;
+      }).length || 0;
+      
       const itemsComplete = immersiveItems?.length || 0;
 
       setSupabaseStats({
