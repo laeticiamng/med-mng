@@ -47,7 +47,7 @@ export const prepareStyleConfiguration = (selectedStyle: string, duration: numbe
 export const createRequestBody = (
   parolesText: string,
   selectedStyle: string,
-  rang: 'A' | 'B',
+  rang: 'A' | 'B' | 'TRANSPOSE',
   adjustedDuration: number,
   currentLanguage: string,
   isComposition: boolean
@@ -62,7 +62,7 @@ export const createRequestBody = (
     composition: isComposition ? {
       styles: selectedStyle.split('+'),
       fusion_mode: true,
-      enhanced_duration: true
+      enhanced_duration: true as const
     } : undefined
   };
 };

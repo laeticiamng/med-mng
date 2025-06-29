@@ -1,8 +1,8 @@
 
 import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Loader2, Play, Pause } from 'lucide-react';
-import { AudioPlayer } from '../AudioPlayer';
+import { RangParolesDisplay } from './RangParolesDisplay';
+import { RangGenerateButton } from './RangGenerateButton';
+import { RangAudioPlayer } from './RangAudioPlayer';
 
 interface ParolesMusicalesRangSectionProps {
   rang: 'A' | 'B';
@@ -41,12 +41,6 @@ export const ParolesMusicalesRangSection: React.FC<ParolesMusicalesRangSectionPr
   onVolumeChange,
   onStop
 }) => {
-  const formatDuration = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-  };
-
   const colors = {
     A: {
       bg: 'bg-amber-50',
@@ -70,61 +64,37 @@ export const ParolesMusicalesRangSection: React.FC<ParolesMusicalesRangSectionPr
 
   return (
     <div className={`border ${style.border} rounded-lg p-4 ${style.bg}`}>
-      <h4 className={`font-medium ${style.text} mb-2`}>Rang {rang} :</h4>
-      <p className={`text-sm ${style.textLight} whitespace-pre-wrap mb-4`}>
-        {paroles.substring(0, 200)}
-        {paroles.length > 200 && '...'}
-      </p>
+      <RangParolesDisplay
+        rang={rang}
+        paroles={paroles}
+        textColor={style.text}
+      />
       
       <div className="space-y-3">
-        <Button 
-          className={`${style.button} text-white`}
-          onClick={onGenerate}
-          disabled={isGenerating}
-        >
-          {isGenerating ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Génération Suno en cours...
-            </>
-          ) : (
-            `Générer avec Suno Rang ${rang} (${formatDuration(musicDuration)})`
-          )}
-        </Button>
+        <RangGenerateButton
+          rang={rang}
+          musicDuration={musicDuration}
+          isGenerating={isGenerating}
+          buttonColor={style.button}
+          onGenerate={onGenerate}
+        />
 
         {generatedAudio && (
-          <div className="mt-4 space-y-2">
-            {/* Bouton de test simple */}
-            <div className="flex items-center gap-2 p-3 bg-white rounded-lg border">
-              <Button
-                onClick={() => onPlayAudio(generatedAudio, `Rang ${rang} - ${itemCode}`)}
-                className="flex items-center gap-2"
-              >
-                {currentTrack?.url === generatedAudio && isPlaying ? (
-                  <Pause className="h-4 w-4" />
-                ) : (
-                  <Play className="h-4 w-4" />
-                )}
-                Test Audio Suno {rang}
-              </Button>
-              <span className="text-sm text-gray-600">
-                {currentTrack?.url === generatedAudio && isPlaying ? '🎵 En cours...' : '⏸️ Prêt'}
-              </span>
-            </div>
-            
-            <AudioPlayer
-              audioUrl={generatedAudio}
-              title={`Suno Rang ${rang} - ${itemCode}`}
-              isPlaying={currentTrack?.url === generatedAudio && isPlaying}
-              currentTime={currentTrack?.url === generatedAudio ? currentTime : 0}
-              duration={currentTrack?.url === generatedAudio ? duration : musicDuration}
-              volume={volume}
-              onPlayPause={() => onPlayAudio(generatedAudio, `Rang ${rang} - ${itemCode}`)}
-              onSeek={onSeek}
-              onVolumeChange={onVolumeChange}
-              onStop={onStop}
-            />
-          </div>
+          <RangAudioPlayer
+            rang={rang}
+            generatedAudio={generatedAudio}
+            itemCode={itemCode}
+            currentTrack={currentTrack}
+            isPlaying={isPlaying}
+            currentTime={currentTime}
+            duration={duration}
+            volume={volume}
+            musicDuration={musicDuration}
+            onPlayAudio={onPlayAudio}
+            onSeek={onSeek}
+            onVolumeChange={onVolumeChange}
+            onStop={onStop}
+          />
         )}
       </div>
     </div>
