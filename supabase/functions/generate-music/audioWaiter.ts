@@ -18,12 +18,12 @@ export async function waitForAudio(
   taskId: string,
   onProgress?: ProgressCallback
 ): Promise<AudioResult> {
-  console.log('⏳ Attente de la génération audio avec polling optimisé...');
+  console.log('⏳ Attente de la génération audio avec polling rapide optimisé...');
   
   let audioUrl = null;
   let attempts = 0;
-  const maxAttempts = 36; // Augmenté à 36 tentatives = 6 minutes
-  const waitTime = 10000; // 10 secondes entre chaque tentative
+  const maxAttempts = MAX_ATTEMPTS; // 12 tentatives = 2 minutes max
+  const waitTime = WAIT_TIME; // 5 secondes entre chaque tentative
   
   while (!audioUrl && attempts < maxAttempts) {
     attempts++;
@@ -36,16 +36,16 @@ export async function waitForAudio(
       onProgress(progress, attempts, maxAttempts);
     }
     
-    // Attendre avant la première tentative aussi (sauf si c'est la première)
+    // Attendre avant chaque tentative (sauf la première)
     if (attempts > 1) {
       await new Promise(resolve => setTimeout(resolve, waitTime));
     } else {
-      // Attendre 15 secondes avant la première vérification pour laisser le temps à Suno
-      await new Promise(resolve => setTimeout(resolve, 15000));
+      // Attendre seulement 5 secondes avant la première vérification
+      await new Promise(resolve => setTimeout(resolve, 5000));
     }
     
     try {
-      // Utiliser l'endpoint de statut au lieu de l'endpoint audio direct
+      // Utiliser l'endpoint de statut pour vérifier l'état
       const statusResponse = await sunoClient.get(`https://apibox.erweima.ai/api/v1/generate/record-info?taskId=${taskId}`);
       console.log(`📥 Réponse statut tentative ${attempts}:`, statusResponse);
       

@@ -20,39 +20,39 @@ export const useMusicPolling = () => {
   const startPolling = ({ 
     rang, 
     requestBody, 
-    maxPolls = 60, // Augmenté de 48 à 60 pour plus de patience
-    pollInterval = 8000, // Augmenté de 5s à 8s pour réduire la charge
+    maxPolls = 18, // Réduit à 18 (3 minutes max au lieu de 5)
+    pollInterval = 5000, // Réduit à 5s pour plus de réactivité
     onProgress,
     onSuccess,
     onError
   }: PollingConfig) => {
     let pollCount = 0;
     let consecutiveErrors = 0;
-    const maxConsecutiveErrors = 5;
+    const maxConsecutiveErrors = 3; // Réduit à 3 erreurs consécutives
     
     const intervalId = setInterval(async () => {
       try {
         pollCount++;
         
-        // Progression plus réaliste : lente au début, puis plus rapide
+        // Progression plus rapide et réaliste
         let baseProgress;
-        if (pollCount <= 10) {
-          // Première phase : progression très lente (0-15%)
-          baseProgress = Math.min(Math.round((pollCount / 10) * 15), 15);
-        } else if (pollCount <= 30) {
-          // Deuxième phase : progression modérée (15-50%)
-          baseProgress = 15 + Math.min(Math.round(((pollCount - 10) / 20) * 35), 35);
-        } else if (pollCount <= 50) {
-          // Troisième phase : progression normale (50-80%)
-          baseProgress = 50 + Math.min(Math.round(((pollCount - 30) / 20) * 30), 30);
+        if (pollCount <= 3) {
+          // Première phase : progression rapide (0-30%)
+          baseProgress = Math.min(Math.round((pollCount / 3) * 30), 30);
+        } else if (pollCount <= 8) {
+          // Deuxième phase : progression normale (30-70%)
+          baseProgress = 30 + Math.min(Math.round(((pollCount - 3) / 5) * 40), 40);
+        } else if (pollCount <= 15) {
+          // Troisième phase : progression modérée (70-95%)
+          baseProgress = 70 + Math.min(Math.round(((pollCount - 8) / 7) * 25), 25);
         } else {
-          // Phase finale : progression ralentie (80-95%)
-          baseProgress = 80 + Math.min(Math.round(((pollCount - 50) / 10) * 15), 15);
+          // Phase finale : progression très lente (95-98%)
+          baseProgress = 95 + Math.min(Math.round(((pollCount - 15) / 3) * 3), 3);
         }
         
         const estimatedTimeRemaining = Math.max(Math.round(((maxPolls - pollCount) * pollInterval) / 60000), 0);
         
-        console.log(`🔄 Polling amélioré ${pollCount}/${maxPolls} pour Rang ${rang} - Progress: ${baseProgress}%`);
+        console.log(`🔄 Polling rapide ${pollCount}/${maxPolls} pour Rang ${rang} - Progress: ${baseProgress}%`);
         
         onProgress(rang, {
           progress: baseProgress,
@@ -70,7 +70,7 @@ export const useMusicPolling = () => {
           consecutiveErrors++;
           console.warn(`⚠️ Erreur polling ${pollCount} (${consecutiveErrors}/${maxConsecutiveErrors}):`, pollError);
           
-          // Si trop d'erreurs consécutives, on arrête
+          // Si trop d'erreurs consécutives, on arrête plus rapidement
           if (consecutiveErrors >= maxConsecutiveErrors) {
             clearInterval(intervalId);
             onError(new Error(`Trop d'erreurs consécutives lors du polling (${consecutiveErrors})`));
@@ -80,7 +80,7 @@ export const useMusicPolling = () => {
           // Sinon on continue mais on vérifie si on a atteint le maximum de tentatives
           if (pollCount >= maxPolls) {
             clearInterval(intervalId);
-            onError(new Error('Délai d\'attente dépassé pour la génération musicale'));
+            onError(new Error('La génération prend plus de temps que prévu (2 minutes). Réessayez.'));
             return;
           }
           return;
@@ -120,10 +120,10 @@ export const useMusicPolling = () => {
           // On ne s'arrête pas, on continue à espérer
         }
 
-        // Timeout atteint
+        // Timeout atteint plus rapidement
         if (pollCount >= maxPolls) {
           clearInterval(intervalId);
-          onError(new Error('La génération prend exceptionnellement beaucoup de temps. L\'API Suno est peut-être surchargée. Veuillez réessayer dans quelques minutes.'));
+          onError(new Error('La génération prend plus de temps que prévu. Suno est peut-être occupé. Réessayez dans quelques minutes.'));
           return;
         }
         
