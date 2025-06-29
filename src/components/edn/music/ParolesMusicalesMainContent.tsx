@@ -7,6 +7,7 @@ interface ParolesMusicalesMainContentProps {
   paroles: string[];
   itemCode: string;
   musicDuration: number;
+  selectedStyle: string; // Add this prop
   isGenerating: { rangA: boolean; rangB: boolean };
   generatedAudio: { rangA?: string; rangB?: string };
   currentTrack: any;
@@ -39,6 +40,7 @@ export const ParolesMusicalesMainContent: React.FC<ParolesMusicalesMainContentPr
   paroles,
   itemCode,
   musicDuration,
+  selectedStyle,
   isGenerating,
   generatedAudio,
   currentTrack,
@@ -76,6 +78,7 @@ export const ParolesMusicalesMainContent: React.FC<ParolesMusicalesMainContentPr
           rang="A"
           paroles={paroles[0]}
           musicDuration={musicDuration}
+          selectedStyle={selectedStyle}
           isGenerating={isGenerating.rangA}
           generatedAudio={generatedAudio.rangA}
           itemCode={itemCode}
@@ -98,6 +101,7 @@ export const ParolesMusicalesMainContent: React.FC<ParolesMusicalesMainContentPr
           rang="B"
           paroles={paroles[1]}
           musicDuration={musicDuration}
+          selectedStyle={selectedStyle}
           isGenerating={isGenerating.rangB}
           generatedAudio={generatedAudio.rangB}
           itemCode={itemCode}

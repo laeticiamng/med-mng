@@ -91,6 +91,7 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
               paroles={paroles}
               itemCode={itemCode}
               musicDuration={musicDuration}
+              selectedStyle={selectedStyle}
               isGenerating={isGenerating}
               generatedAudio={generatedAudio}
               currentTrack={currentTrack}

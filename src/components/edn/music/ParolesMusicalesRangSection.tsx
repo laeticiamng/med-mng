@@ -14,6 +14,7 @@ interface ParolesMusicalesRangSectionProps {
   currentTime: number;
   duration: number;
   volume: number;
+  selectedStyle: string; // Add this prop
   onGenerate: () => void;
   onPlayAudio: (audioUrl: string, title: string) => void;
   onSeek: (time: number) => void;
@@ -39,6 +40,7 @@ export const ParolesMusicalesRangSection: React.FC<ParolesMusicalesRangSectionPr
   currentTime,
   duration,
   volume,
+  selectedStyle,
   onGenerate,
   onPlayAudio,
   onSeek,
@@ -47,10 +49,8 @@ export const ParolesMusicalesRangSection: React.FC<ParolesMusicalesRangSectionPr
   generationProgress
 }) => {
   const title = `Musique Rang ${rang}`;
-  const selectedStyle = 'lofi-piano'; // Style par défaut, peut être modifié
-  
   const isCurrentTrack = currentTrack?.url === generatedAudio;
-  const isMinimized = false; // Peut être géré par un état parent si nécessaire
+  const isMinimized = false;
 
   const handlePlayPause = () => {
     if (generatedAudio) {
