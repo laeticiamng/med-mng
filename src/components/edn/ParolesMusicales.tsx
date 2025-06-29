@@ -90,13 +90,20 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
     }
   };
 
+  // Fonction pour valider l'URL audio avant lecture
+  const isValidAudioUrl = (audioUrl: string): boolean => {
+    if (!audioUrl) return false;
+    // Accepter les URLs relatives (commençant par /) et les URLs absolues (http/https)
+    return audioUrl.startsWith('/') || audioUrl.startsWith('http://') || audioUrl.startsWith('https://');
+  };
+
   const handlePlayAudio = (audioUrl: string, title: string) => {
     console.log('🎵 BOUTON PLAY CLIQUÉ:', {
       audioUrl: audioUrl?.substring(0, 100) + '...',
       title,
       currentTrack: currentTrack?.url?.substring(0, 100) + '...',
       isPlaying,
-      audioUrlValid: !!audioUrl && audioUrl.startsWith('http')
+      audioUrlValid: isValidAudioUrl(audioUrl)
     });
 
     // Vérifications détaillées
@@ -105,7 +112,7 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
       return;
     }
 
-    if (!audioUrl.startsWith('http')) {
+    if (!isValidAudioUrl(audioUrl)) {
       console.error('❌ URL AUDIO INVALIDE:', audioUrl);
       return;
     }

@@ -39,6 +39,28 @@ export const useMusicGenerationWithTranslation = () => {
     translate = async (text: string) => text; // fallback
   }
 
+  // Fonction pour valider et normaliser l'URL audio
+  const validateAndNormalizeAudioUrl = (audioUrl: string): string => {
+    if (!audioUrl) {
+      throw new Error('Aucune URL audio reçue de l\'API Suno');
+    }
+
+    // Si l'URL est relative, on la considère comme valide (Suno peut retourner des URLs relatives)
+    if (audioUrl.startsWith('/')) {
+      console.log('🎵 URL RELATIVE DÉTECTÉE:', audioUrl);
+      return audioUrl; // Retourner l'URL relative telle quelle
+    }
+
+    // Si l'URL commence par http/https, on la considère comme valide
+    if (audioUrl.startsWith('http://') || audioUrl.startsWith('https://')) {
+      console.log('🎵 URL ABSOLUE DÉTECTÉE:', audioUrl);
+      return audioUrl;
+    }
+
+    // Si l'URL ne commence par aucun des deux, c'est invalide
+    throw new Error(`URL audio invalide reçue: ${audioUrl}`);
+  };
+
   const generateMusicInLanguage = async (
     rang: 'A' | 'B', 
     paroles: string[], 
@@ -87,36 +109,30 @@ export const useMusicGenerationWithTranslation = () => {
         audioUrl,
         callDuration,
         rang,
-        urlValid: audioUrl && audioUrl.startsWith('http')
+        urlType: audioUrl?.startsWith('/') ? 'relative' : audioUrl?.startsWith('http') ? 'absolute' : 'unknown'
       });
 
-      // Vérification critique de l'URL
-      if (!audioUrl) {
-        throw new Error('Aucune URL audio reçue de l\'API Suno');
-      }
-
-      if (!audioUrl.startsWith('http')) {
-        throw new Error(`URL audio invalide reçue: ${audioUrl}`);
-      }
+      // Validation et normalisation de l'URL - CRITIQUE !
+      const validatedAudioUrl = validateAndNormalizeAudioUrl(audioUrl);
 
       // Stocker l'URL audio - CRITIQUE !
-      console.log(`🎵 STOCKAGE URL AUDIO pour Rang ${rang}:`, audioUrl);
-      setAudioUrl(rang, audioUrl);
+      console.log(`🎵 STOCKAGE URL AUDIO pour Rang ${rang}:`, validatedAudioUrl);
+      setAudioUrl(rang, validatedAudioUrl);
 
       // Vérification immédiate du stockage
       console.log('🎵 VÉRIFICATION ÉTAT APRÈS STOCKAGE:', {
-        rangA: rang === 'A' ? audioUrl : generatedAudio.rangA,
-        rangB: rang === 'B' ? audioUrl : generatedAudio.rangB
+        rangA: rang === 'A' ? validatedAudioUrl : generatedAudio.rangA,
+        rangB: rang === 'B' ? validatedAudioUrl : generatedAudio.rangB
       });
 
       // Afficher le message de succès
       const successMessage = getSuccessMessage(rang, durationText, currentLanguage, isComposition);
       toast(successMessage);
 
-      console.log(`✅ GÉNÉRATION SUNO RÉUSSIE pour Rang ${rang} en ${currentLanguage} (${callDuration}s):`, audioUrl);
+      console.log(`✅ GÉNÉRATION SUNO RÉUSSIE pour Rang ${rang} en ${currentLanguage} (${callDuration}s):`, validatedAudioUrl);
       
       // Retourner l'URL pour vérification
-      return audioUrl;
+      return validatedAudioUrl;
       
     } catch (error) {
       console.error(`❌ ERREUR GÉNÉRATION SUNO Rang ${rang}:`, error);
