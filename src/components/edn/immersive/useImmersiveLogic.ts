@@ -66,11 +66,24 @@ export const useImmersiveLogic = () => {
             scene_immersive: !!data.scene_immersive,
             tableau_rang_a: !!data.tableau_rang_a,
             tableau_rang_b: !!data.tableau_rang_b,
-            paroles_musicales: !!data.paroles_musicales,
+            paroles_musicales: !!data.paroles_musicales && data.paroles_musicales.length >= 2,
             interaction_config: !!data.interaction_config,
             quiz_questions: !!data.quiz_questions
           }
         });
+
+        // Vérifier et valider les données critiques
+        if (!data.paroles_musicales || data.paroles_musicales.length < 2) {
+          console.warn('⚠️ Paroles musicales incomplètes pour', data.item_code);
+        }
+
+        if (!data.tableau_rang_a || !data.tableau_rang_b) {
+          console.warn('⚠️ Tableaux Rang A/B manquants pour', data.item_code);
+        }
+
+        if (!data.quiz_questions) {
+          console.warn('⚠️ Quiz manquant pour', data.item_code);
+        }
 
         setItem(data);
       } catch (error) {

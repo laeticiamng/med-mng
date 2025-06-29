@@ -19,7 +19,7 @@ interface ParolesMusicalesProps {
 }
 
 export const ParolesMusicales = ({ paroles, itemCode, itemTitle }: ParolesMusicalesProps) => {
-  const [selectedStyle, setSelectedStyle] = useState('lofi-piano'); // Valeur par défaut
+  const [selectedStyle, setSelectedStyle] = useState('lofi-piano');
   const [musicDuration, setMusicDuration] = useState(240);
   const [showTranspositionPanel, setShowTranspositionPanel] = useState(false);
   
@@ -55,8 +55,17 @@ export const ParolesMusicales = ({ paroles, itemCode, itemTitle }: ParolesMusica
       parolesContent: paroles
     });
     
-    if (!paroles || paroles.length === 0) {
-      console.warn('⚠️ Aucune parole disponible pour la génération musicale');
+    if (!paroles || paroles.length < 2) {
+      console.warn('⚠️ Paroles incomplètes:', {
+        received: paroles?.length || 0,
+        expected: 2,
+        content: paroles
+      });
+    } else {
+      console.log('✅ Paroles complètes:', {
+        rangA: paroles[0]?.length || 0,
+        rangB: paroles[1]?.length || 0
+      });
     }
   }, [paroles, itemCode, itemTitle]);
 
@@ -114,26 +123,29 @@ export const ParolesMusicales = ({ paroles, itemCode, itemTitle }: ParolesMusica
   };
 
   // Vérifier si nous avons des données valides à afficher
-  if (!paroles || paroles.length === 0) {
+  if (!paroles || paroles.length < 2 || !paroles[0] || !paroles[1]) {
     return (
       <div className="space-y-8">
         <MusicHeader />
         
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
           <div className="flex items-center justify-center gap-3 mb-4">
             <span className="text-4xl">🎵</span>
-            <h3 className="text-xl font-semibold text-yellow-800">
-              Paroles musicales non disponibles
+            <h3 className="text-xl font-semibold text-red-800">
+              Paroles musicales incomplètes
             </h3>
           </div>
-          <p className="text-yellow-700 mb-4">
-            Aucune parole musicale n'est configurée pour cet item.
+          <p className="text-red-700 mb-4">
+            Les paroles musicales pour cet item ne sont pas complètes dans Supabase.
           </p>
-          <div className="text-sm text-yellow-600 bg-yellow-100 rounded p-3">
+          <div className="text-sm text-red-600 bg-red-100 rounded p-3">
             <p><strong>Debug info:</strong></p>
             <p>Item Code: {itemCode || 'Non défini'}</p>
             <p>Item Title: {itemTitle || 'Non défini'}</p>
             <p>Paroles reçues: {paroles ? paroles.length : 0} élément(s)</p>
+            <p>Rang A: {paroles?.[0] ? `${paroles[0].length} caractères` : 'Manquant'}</p>
+            <p>Rang B: {paroles?.[1] ? `${paroles[1].length} caractères` : 'Manquant'}</p>
+            <p><strong>Status:</strong> Données Supabase à compléter</p>
           </div>
         </div>
       </div>
@@ -145,12 +157,13 @@ export const ParolesMusicales = ({ paroles, itemCode, itemTitle }: ParolesMusica
       <MusicHeader />
       
       {/* Debug: Afficher les données reçues */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm">
-        <p className="font-semibold text-blue-800 mb-2">🔍 Informations de debug :</p>
+      <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-sm">
+        <p className="font-semibold text-green-800 mb-2">✅ Paroles musicales complètes :</p>
         <p>Item: {itemCode} - {itemTitle}</p>
         <p>Paroles disponibles: {paroles.length} rang(s)</p>
-        <p>Rang A: {paroles[0] ? `${paroles[0].substring(0, 100)}...` : 'Non disponible'}</p>
-        <p>Rang B: {paroles[1] ? `${paroles[1].substring(0, 100)}...` : 'Non disponible'}</p>
+        <p>Rang A: {paroles[0].length} caractères</p>
+        <p>Rang B: {paroles[1].length} caractères</p>
+        <p><strong>Source:</strong> Données Supabase validées</p>
       </div>
       
       {/* Indication de la langue actuelle */}
