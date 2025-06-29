@@ -114,13 +114,14 @@ export const useMusicGenerationWithTranslation = () => {
       const seconds = adjustedDuration % 60;
       const durationText = `${minutes}:${seconds.toString().padStart(2, '0')}`;
       
-      console.log(`🎵 Génération musicale ${isComposition ? 'COMPOSITION PREMIUM' : 'STANDARD'} Rang ${rang} en ${currentLanguage} - Style: ${styleDescription} - Durée: ${durationText}`);
+      console.log(`🎵 DÉMARRAGE GÉNÉRATION SUNO ${isComposition ? 'COMPOSITION PREMIUM' : 'STANDARD'} Rang ${rang} en ${currentLanguage}`);
+      console.log(`🎨 Style: ${styleDescription} - Durée: ${durationText}`);
       console.log(`📝 Paroles traduites (${parolesText.length} caractères):`, parolesText.substring(0, 100) + '...');
       
-      // Préparer les données pour l'Edge Function
+      // Préparer les données pour l'Edge Function avec plus de détails
       const requestBody = {
         lyrics: parolesText,
-        style: selectedStyle, // Peut contenir plusieurs styles séparés par +
+        style: selectedStyle,
         rang: rang,
         duration: adjustedDuration,
         language: currentLanguage,
@@ -132,50 +133,74 @@ export const useMusicGenerationWithTranslation = () => {
         } : undefined
       };
 
-      console.log('📤 Données envoyées à l\'Edge Function:', requestBody);
+      console.log('📤 ENVOI À EDGE FUNCTION SUPABASE (generate-music):', requestBody);
       
+      // Appel à l'Edge Function Supabase avec timeout étendu
+      const startTime = Date.now();
+      console.log('🚀 Appel Edge Function Supabase...');
+
       const { data, error } = await supabase.functions.invoke('generate-music', {
         body: requestBody
       });
 
+      const callDuration = Math.floor((Date.now() - startTime) / 1000);
+      console.log(`⏱️ Durée appel Edge Function: ${callDuration}s`);
+
       // Gestion des erreurs Supabase
       if (error) {
-        console.error('❌ Erreur Supabase Functions:', error);
-        let errorMessage = 'Erreur lors de la génération musicale';
+        console.error('❌ ERREUR SUPABASE FUNCTIONS:', error);
+        console.error('❌ Type d\'erreur:', typeof error);
+        console.error('❌ Structure erreur:', Object.keys(error));
+        
+        let errorMessage = 'Erreur lors de la génération musicale avec Suno';
         
         if (error.message?.includes('Failed to send') || error.message?.includes('fetch')) {
           errorMessage = '🔧 Erreur de connexion à l\'API Suno. Vérifiez votre configuration réseau et réessayez.';
         } else if (error.message?.includes('Authorization') || error.message?.includes('401')) {
-          errorMessage = '🔑 Clé API Suno manquante ou invalide. Veuillez vérifier la configuration.';
+          errorMessage = '🔑 Clé API Suno manquante ou invalide. Veuillez vérifier la configuration Supabase.';
         } else if (error.message?.includes('timeout')) {
-          errorMessage = '⏰ Timeout: La génération prend trop de temps. Réessayez avec des paroles plus courtes.';
+          errorMessage = '⏰ Timeout: La génération Suno prend trop de temps. Réessayez avec des paroles plus courtes.';
+        } else if (error.message?.includes('503')) {
+          errorMessage = '🚫 Service Suno temporairement indisponible. Réessayez dans quelques minutes.';
         } else {
-          errorMessage = error.message || errorMessage;
+          errorMessage = `Erreur Suno: ${error.message || 'Erreur inconnue'}`;
         }
         
         setLastError(errorMessage);
         throw new Error(errorMessage);
       }
 
-      if (!data || data.error || data.status === 'error') {
-        let errorMessage = data?.error || data?.message || 'Erreur inconnue lors de la génération';
+      console.log('📥 RÉPONSE EDGE FUNCTION REÇUE:', data);
+      console.log('📊 Type de réponse:', typeof data);
+      console.log('📊 Clés de la réponse:', data ? Object.keys(data) : 'aucune');
+
+      if (!data) {
+        throw new Error('Aucune donnée reçue de l\'Edge Function Suno');
+      }
+
+      if (data.error || data.status === 'error') {
+        let errorMessage = data.error || data.message || 'Erreur inconnue lors de la génération Suno';
         
-        if (data?.error_code === 429) {
+        if (data.error_code === 429) {
           errorMessage = '💳 Crédits Suno épuisés. Rechargez votre compte sur https://apibox.erweima.ai';
-        } else if (data?.error_code === 401) {
+        } else if (data.error_code === 401) {
           errorMessage = '🔑 Clé API Suno invalide. Vérifiez votre configuration dans Supabase.';
-        } else if (data?.error_code === 408) {
-          errorMessage = '⏰ Génération trop longue. Réessayez avec des paroles plus courtes.';
+        } else if (data.error_code === 408) {
+          errorMessage = '⏰ Génération Suno trop longue. Réessayez avec des paroles plus courtes.';
         }
         
-        console.error('❌ Erreur API Suno:', errorMessage);
+        console.error('❌ ERREUR API SUNO:', errorMessage);
         setLastError(errorMessage);
         throw new Error(errorMessage);
       }
 
       if (!data.audioUrl) {
-        throw new Error('Aucune URL audio générée par l\'API');
+        console.error('❌ AUCUNE URL AUDIO dans la réponse Suno:', data);
+        throw new Error('Aucune URL audio générée par l\'API Suno');
       }
+
+      console.log(`🎧 URL AUDIO SUNO REÇUE: ${data.audioUrl}`);
+      console.log(`🎵 Validation URL: ${data.audioUrl.startsWith('http') ? '✅ Valide' : '❌ Invalide'}`);
 
       const audioKey = rang === 'A' ? 'rangA' : 'rangB';
       setGeneratedAudio(prev => ({
@@ -187,18 +212,20 @@ export const useMusicGenerationWithTranslation = () => {
       const compositionText = isComposition ? ' (Composition Premium)' : '';
       
       toast({
-        title: `🎉 Musique Rang ${rang} générée !${compositionText}`,
-        description: `Chanson de ${durationText} avec paroles chantées générée en ${languageName} !`,
+        title: `🎉 Musique Suno Rang ${rang} générée !${compositionText}`,
+        description: `Chanson de ${durationText} avec paroles chantées générée en ${languageName} via Suno AI !`,
       });
 
-      console.log(`✅ Musique ${isComposition ? 'COMPOSITION PREMIUM' : 'standard'} générée pour Rang ${rang} en ${languageName}:`, data.audioUrl);
+      console.log(`✅ GÉNÉRATION SUNO RÉUSSIE pour Rang ${rang} en ${languageName} (${callDuration}s):`, data.audioUrl);
       
     } catch (error) {
-      console.error(`❌ Erreur génération Rang ${rang}:`, error);
-      const errorMessage = error.message || "Impossible de générer la musique. Veuillez réessayer.";
+      console.error(`❌ ERREUR GÉNÉRATION SUNO Rang ${rang}:`, error);
+      console.error(`❌ Stack trace:`, error.stack);
+      
+      const errorMessage = error.message || "Impossible de générer la musique avec Suno. Veuillez réessayer.";
       setLastError(errorMessage);
       toast({
-        title: "Erreur de génération",
+        title: "Erreur de génération Suno",
         description: errorMessage,
         variant: "destructive"
       });
