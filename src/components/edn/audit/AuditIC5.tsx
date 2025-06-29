@@ -9,40 +9,40 @@ export const AuditIC5 = () => {
       status: 'insuffisant',
       score: 67,
       details: [
-        'Rang A: 10/15 concepts LiSA conformes (67% couverture)',
-        'Aucun Rang B (item IC-5 = Rang A uniquement LiSA)',
+        'Rang A: 10/15 concepts LiSA manquants (67% couverture)',
+        'Pas de concepts Rang B selon LiSA',
         'Responsabilités médicales partielles',
-        'Gestion erreurs et EIAS incomplète'
+        'Gestion erreurs et EIAS incomplètes'
       ]
     },
     completude: {
       status: 'insuffisant',
       score: 65,
       details: [
-        'Responsabilités: pénale, civile, administrative',
-        'Faute vs erreur vs accident médical',
-        'Facteurs contentieux et erreur humaine',
-        'Culture positive erreur manquante'
+        'Responsabilité pénale/civile: définitions manquantes',
+        'Différences faute/erreur/accident médical floues',
+        'Aléa thérapeutique mal défini',
+        'Culture positive erreur absente'
       ]
     },
     pedagogie: {
       status: 'ameliorer',
       score: 72,
       details: [
-        'Cas pratiques responsabilités',
-        'Analyse d\'accidents médicaux',
-        'Simulation gestion erreurs',
-        'Formation prévention EIAS'
+        'Cas cliniques responsabilité médicale',
+        'Simulations gestion erreurs',
+        'Ateliers analyse facteurs humains',
+        'Formation culture sécurité'
       ]
     },
     actualite: {
-      status: 'insuffisant',
+      status: 'ameliorer',
       score: 68,
       details: [
         'Évolution jurisprudence médicale',
-        'Nouvelles responsabilités télémédecine',
-        'IA et responsabilité algorithmique',
-        'Assurance et nouveaux risques'
+        'Nouveaux contentieux post-COVID',
+        'Télémédecine et responsabilités',
+        'IA médicale et responsabilité'
       ]
     }
   };
@@ -88,19 +88,19 @@ export const AuditIC5 = () => {
             <div className="text-sm text-gray-600">Score global</div>
           </div>
           <Badge className="bg-red-100 text-red-800 text-lg px-4 py-2">
-            🚨 15 concepts Rang A LiSA
+            ❌ 15 Rang A LiSA - 0 Rang B
           </Badge>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {Object.entries(auditResults).map(([key, result]) => (
-          <Card key={key} className="p-4 hover:shadow-lg transition-shadow border-l-4 border-red-300">
+          <Card key={key} className="p-4 hover:shadow-lg transition-shadow">
             <div className="flex items-start justify-between mb-3">
               <div className="flex items-center space-x-2">
                 {getStatusIcon(result.status)}
                 <h3 className="font-semibold text-gray-800 capitalize">
-                  {key.replace /([A-Z])/g, ' $1').trim()}
+                  {key.replace(/([A-Z])/g, ' $1').trim()}
                 </h3>
               </div>
               <div className="text-right">
@@ -123,35 +123,34 @@ export const AuditIC5 = () => {
         ))}
       </div>
 
-      <Card className="p-6 bg-gradient-to-r from-red-50 to-orange-50 border-l-4 border-red-400">
+      <Card className="p-6 bg-gradient-to-r from-red-50 to-orange-50">
         <div className="flex items-center space-x-2 mb-4">
           <AlertTriangle className="h-5 w-5 text-red-600" />
-          <h3 className="text-lg font-semibold text-gray-800">Plan rattrapage IC-5 selon LiSA - URGENT</h3>
+          <h3 className="text-lg font-semibold text-gray-800">Plan rattrapage IC-5 selon LiSA</h3>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <h4 className="font-medium text-red-700 mb-2">🚨 Concepts Rang A manquants (5/15)</h4>
             <ul className="space-y-1 text-sm text-gray-700">
-              <li>• Responsabilité sans faute</li>
-              <li>• Définition aléa thérapeutique</li>
-              <li>• Prévention erreurs et barrières</li>
+              <li>• Définition responsabilité administrative</li>
+              <li>• Définition responsabilité disciplinaire</li>
+              <li>• Définition responsabilité sans faute</li>
+              <li>• Facteurs conduisant contentieux</li>
               <li>• Culture positive de l'erreur</li>
-              <li>• Facteurs favorisant erreur humaine</li>
             </ul>
           </div>
           
           <div>
             <h4 className="font-medium text-green-700 mb-2">✅ Concepts LiSA acquis (10/15)</h4>
             <ul className="space-y-1 text-sm text-gray-700">
-              <li>• Responsabilités pénale/civile/administrative</li>
-              <li>• Faute vs erreur vs accident médical</li>
+              <li>• Responsabilité pénale/civile</li>
+              <li>• Faute vs erreur médicale</li>
+              <li>• Accident médical/iatrogène</li>
               <li>• Infection nosocomiale</li>
-              <li>• Facteurs contentieux</li>
-              <li>• Typologie erreur humaine</li>
+              <li>• Aléa thérapeutique</li>
+              <li>• Erreur humaine/facteurs/prévention</li>
             </ul>
-            <h4 className="font-medium text-orange-700 mt-4 mb-2">📋 Note LiSA</h4>
-            <p className="text-sm text-gray-700">IC-5 = 15 concepts Rang A uniquement (pas de Rang B)</p>
           </div>
         </div>
       </Card>

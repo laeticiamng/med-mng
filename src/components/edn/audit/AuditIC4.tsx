@@ -116,7 +116,7 @@ export const AuditIC4 = () => {
               <div className="flex items-center space-x-2">
                 {getStatusIcon(result.status)}
                 <h3 className="font-semibold text-gray-800 capitalize">
-                  {key.replace /([A-Z])/g, ' $1').trim()}
+                  {key.replace(/([A-Z])/g, ' $1').trim()}
                 </h3>
               </div>
               <div className="text-right">
