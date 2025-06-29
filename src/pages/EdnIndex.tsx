@@ -1,18 +1,18 @@
 
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { BookOpen, Music, Play, Palette, Brain, Users } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { BookOpen, Play, Music, Sparkles, Clock, Users, Target } from 'lucide-react';
 import { TranslatedText } from '@/components/TranslatedText';
 
 interface EdnItem {
   id: string;
   item_code: string;
   title: string;
-  subtitle: string;
+  subtitle?: string;
   slug: string;
   created_at: string;
 }
@@ -20,6 +20,7 @@ interface EdnItem {
 const EdnIndex = () => {
   const [items, setItems] = useState<EdnItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchItems = async () => {
@@ -27,14 +28,16 @@ const EdnIndex = () => {
         const { data, error } = await supabase
           .from('edn_items_immersive')
           .select('id, item_code, title, subtitle, slug, created_at')
-          .order('item_code');
+          .order('item_code', { ascending: true });
 
         if (error) {
           console.error('Erreur lors du chargement des items:', error);
           return;
         }
 
-        setItems(data || []);
+        if (data) {
+          setItems(data);
+        }
       } catch (error) {
         console.error('Erreur:', error);
       } finally {
@@ -50,10 +53,10 @@ const EdnIndex = () => {
       <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-blue-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-pulse text-2xl text-amber-800 mb-2">
-            <TranslatedText text="Chargement des contenus pédagogiques..." />
+            <TranslatedText text="Chargement des items EDN..." />
           </div>
           <p className="text-amber-600">
-            <TranslatedText text="Préparation de l'expérience d'apprentissage" />
+            <TranslatedText text="Préparation de votre expérience d'apprentissage" />
           </p>
         </div>
       </div>
@@ -65,129 +68,138 @@ const EdnIndex = () => {
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-12">
-          <div className="bg-white/80 backdrop-blur-sm rounded-lg p-8 border border-amber-200">
-            <h1 className="text-4xl font-bold text-gray-900 mb-4">
-              <TranslatedText text="Épreuves Dossier Numérique (EDN)" />
-            </h1>
-            <p className="text-xl text-gray-600 mb-6">
-              <TranslatedText text="Expérience d'apprentissage immersive et interactive" />
-            </p>
-            <div className="flex flex-wrap justify-center gap-4">
-              <div className="flex items-center gap-2 bg-amber-100 px-4 py-2 rounded-full">
-                <BookOpen className="h-5 w-5 text-amber-600" />
-                <span className="text-amber-800 font-medium">
-                  <TranslatedText text="Contenus Pédagogiques" />
-                </span>
-              </div>
-              <div className="flex items-center gap-2 bg-blue-100 px-4 py-2 rounded-full">
-                <Music className="h-5 w-5 text-blue-600" />
-                <span className="text-blue-800 font-medium">
-                  <TranslatedText text="Génération Musicale" />
-                </span>
-              </div>
-              <div className="flex items-center gap-2 bg-purple-100 px-4 py-2 rounded-full">
-                <Palette className="h-5 w-5 text-purple-600" />
-                <span className="text-purple-800 font-medium">
-                  <TranslatedText text="Expérience Immersive" />
-                </span>
-              </div>
-            </div>
-          </div>
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            <TranslatedText text="Items EDN - Apprentissage Immersif" />
+          </h1>
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <TranslatedText text="Découvrez une nouvelle façon d'apprendre avec nos expériences immersives" />
+          </p>
         </div>
 
-        {/* Quick Actions */}
-        <div className="mb-8">
-          <div className="bg-white/80 backdrop-blur-sm rounded-lg p-6 border border-amber-200">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">
-              <TranslatedText text="Accès Rapide" />
-            </h2>
-            <div className="flex flex-wrap gap-4">
-              <Link to="/edn/music-library">
-                <Button className="flex items-center gap-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600">
-                  <Music className="h-4 w-4" />
-                  <TranslatedText text="Ma Bibliothèque Musicale" />
-                </Button>
-              </Link>
-            </div>
-          </div>
+        {/* Features Grid */}
+        <div className="grid md:grid-cols-3 gap-6 mb-12">
+          <Card className="bg-white/80 backdrop-blur-sm border-amber-200">
+            <CardHeader>
+              <Sparkles className="h-8 w-8 text-amber-600 mb-2" />
+              <CardTitle className="text-amber-800">
+                <TranslatedText text="Expérience Immersive" />
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-600">
+                <TranslatedText text="Plongez dans des scénarios réalistes et interactifs" />
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white/80 backdrop-blur-sm border-blue-200">
+            <CardHeader>
+              <Music className="h-8 w-8 text-blue-600 mb-2" />
+              <CardTitle className="text-blue-800">
+                <TranslatedText text="Génération Musicale" />
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-600">
+                <TranslatedText text="Créez vos propres chansons pédagogiques" />
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-white/80 backdrop-blur-sm border-green-200">
+            <CardHeader>
+              <Target className="h-8 w-8 text-green-600 mb-2" />
+              <CardTitle className="text-green-800">
+                <TranslatedText text="Apprentissage Ciblé" />
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-gray-600">
+                <TranslatedText text="Contenu adapté aux objectifs EDN officiels" />
+              </p>
+            </CardContent>
+          </Card>
         </div>
 
         {/* Items Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {items.map((item) => (
-            <Card key={item.id} className="group hover:shadow-xl transition-all duration-300 bg-white/80 backdrop-blur-sm border-amber-200">
-              <CardHeader className="pb-4">
-                <div className="flex items-start justify-between">
-                  <Badge variant="outline" className="mb-2 text-amber-700 border-amber-300">
+            <Card key={item.id} className="bg-white/90 backdrop-blur-sm border-amber-200 hover:shadow-xl transition-all duration-300">
+              <CardHeader>
+                <div className="flex items-center justify-between mb-2">
+                  <Badge variant="outline" className="text-amber-700 border-amber-300">
                     {item.item_code}
                   </Badge>
-                  <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Link
-                      to={`/edn/immersive/${item.slug}`}
-                      className="inline-flex items-center gap-1 text-xs bg-gradient-to-r from-amber-500 to-orange-500 text-white px-2 py-1 rounded-full hover:from-amber-600 hover:to-orange-600 transition-all"
-                    >
-                      <Play className="h-3 w-3" />
-                      <TranslatedText text="Immersif" />
-                    </Link>
+                  <div className="flex items-center gap-1 text-amber-600">
+                    <Clock className="h-4 w-4" />
+                    <span className="text-sm">
+                      <TranslatedText text="~30 min" />
+                    </span>
                   </div>
                 </div>
-                <CardTitle className="text-lg leading-tight">
+                <CardTitle className="text-xl text-gray-900">
                   <TranslatedText text={item.title} />
                 </CardTitle>
                 {item.subtitle && (
-                  <p className="text-sm text-gray-600 mt-1">
+                  <CardDescription className="text-gray-600">
                     <TranslatedText text={item.subtitle} />
-                  </p>
+                  </CardDescription>
                 )}
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex flex-wrap gap-2">
-                  <div className="flex items-center gap-1 text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded">
-                    <BookOpen className="h-3 w-3" />
-                    <TranslatedText text="Tableaux" />
+              <CardContent>
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-center gap-2 text-sm text-gray-600">
+                    <Users className="h-4 w-4" />
+                    <span><TranslatedText text="Expérience interactive" /></span>
                   </div>
-                  <div className="flex items-center gap-1 text-xs bg-green-50 text-green-700 px-2 py-1 rounded">
-                    <Music className="h-3 w-3" />
-                    <TranslatedText text="Musique" />
+                  
+                  <div className="flex gap-2">
+                    <Link 
+                      to={`/edn/item/${item.slug}`}
+                      className="flex-1"
+                    >
+                      <Button variant="outline" className="w-full flex items-center gap-2">
+                        <BookOpen className="h-4 w-4" />
+                        <TranslatedText text="Explorer" />
+                      </Button>
+                    </Link>
+                    
+                    <Link 
+                      to={`/edn/immersive/${item.slug}`}
+                      className="flex-1"
+                    >
+                      <Button className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 flex items-center gap-2">
+                        <Play className="h-4 w-4" />
+                        <TranslatedText text="Mode Immersif" />
+                      </Button>
+                    </Link>
                   </div>
-                  <div className="flex items-center gap-1 text-xs bg-purple-50 text-purple-700 px-2 py-1 rounded">
-                    <Palette className="h-3 w-3" />
-                    <TranslatedText text="Scène" />
-                  </div>
-                  <div className="flex items-center gap-1 text-xs bg-orange-50 text-orange-700 px-2 py-1 rounded">
-                    <Brain className="h-3 w-3" />
-                    <TranslatedText text="Quiz" />
-                  </div>
-                </div>
-                
-                <div className="flex gap-2">
-                  <Link to={`/edn/${item.slug}`} className="flex-1">
-                    <Button variant="outline" className="w-full">
-                      <TranslatedText text="Explorer" />
-                    </Button>
-                  </Link>
-                  <Link to={`/edn/immersive/${item.slug}`}>
-                    <Button className="bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:from-amber-600 hover:to-orange-600">
-                      <Play className="h-4 w-4" />
-                    </Button>
-                  </Link>
                 </div>
               </CardContent>
             </Card>
           ))}
         </div>
 
-        {items.length === 0 && (
-          <div className="text-center py-16">
-            <BookOpen className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">
-              <TranslatedText text="Aucun contenu disponible" />
+        {items.length === 0 && !loading && (
+          <div className="text-center py-12">
+            <h3 className="text-xl font-semibold text-gray-700 mb-2">
+              <TranslatedText text="Aucun item EDN disponible" />
             </h3>
-            <p className="text-gray-600">
-              <TranslatedText text="Les contenus pédagogiques seront bientôt disponibles." />
+            <p className="text-gray-500">
+              <TranslatedText text="Les contenus sont en cours de préparation" />
             </p>
           </div>
         )}
+
+        {/* Quick Access to Music Library */}
+        <div className="mt-12 text-center">
+          <Link to="/edn/music-library">
+            <Button variant="outline" className="bg-white/80 backdrop-blur-sm border-amber-300 hover:bg-amber-50">
+              <Music className="h-4 w-4 mr-2" />
+              <TranslatedText text="Ma Bibliothèque Musicale" />
+            </Button>
+          </Link>
+        </div>
       </div>
     </div>
   );

@@ -32,6 +32,11 @@ export const MusicStyleSelector = ({ selectedStyle, onStyleChange }: MusicStyleS
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           🎼 Style Musical
+          {selectedStyle && (
+            <Badge variant="outline" className="ml-2">
+              {selectedStyleData?.label}
+            </Badge>
+          )}
         </CardTitle>
         <CardDescription>
           Choisissez le style musical parfait pour votre génération
@@ -53,7 +58,30 @@ export const MusicStyleSelector = ({ selectedStyle, onStyleChange }: MusicStyleS
         )}
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Filtres */}
+        {/* Sélection classique pour compatibilité - TOUJOURS VISIBLE */}
+        <div className="p-4 border rounded-lg bg-amber-50">
+          <label className="text-sm font-medium mb-2 block">✨ Sélection rapide (recommandée) :</label>
+          <Select value={selectedStyle} onValueChange={onStyleChange}>
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Choisissez votre style musical" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">Aucun style sélectionné</SelectItem>
+              {musicStyles.map((style) => (
+                <SelectItem key={style.value} value={style.value}>
+                  {style.label} - {style.description}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {!selectedStyle && (
+            <p className="text-xs text-orange-600 mt-1">
+              ⚠️ Vous devez sélectionner un style pour pouvoir générer de la musique
+            </p>
+          )}
+        </div>
+
+        {/* Filtres avancés */}
         <div className="flex flex-wrap gap-4">
           <div className="flex items-center gap-2">
             <label className="text-sm font-medium">Voix:</label>
@@ -133,23 +161,6 @@ export const MusicStyleSelector = ({ selectedStyle, onStyleChange }: MusicStyleS
             );
           })}
         </Tabs>
-
-        {/* Sélection classique pour compatibilité */}
-        <div className="pt-4 border-t">
-          <label className="text-sm font-medium mb-2 block">Ou sélection rapide:</label>
-          <Select value={selectedStyle} onValueChange={onStyleChange}>
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Sélectionnez un style musical" />
-            </SelectTrigger>
-            <SelectContent>
-              {musicStyles.map((style) => (
-                <SelectItem key={style.value} value={style.value}>
-                  {style.label} - {style.description}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
       </CardContent>
     </Card>
   );
