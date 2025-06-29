@@ -41,7 +41,9 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
     parolesLength: paroles?.length,
     hasParoles,
     hasTableauData,
-    itemCode
+    itemCode,
+    isGenerating,
+    generatedAudio
   });
 
   const handleGenerate = async (rang: 'A' | 'B') => {
