@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { TableauSection } from './TableauSection';
 import { QuizSection } from './QuizSection';

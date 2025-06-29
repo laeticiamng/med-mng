@@ -86,19 +86,21 @@ export const useImmersiveLogic = () => {
         }
 
         // Validation de la structure des quiz (répartition 70% A / 30% B)
-        if (data.quiz_questions?.questions) {
-          const questions = data.quiz_questions.questions;
-          const rangACount = questions.filter((q: any) => q.rang === 'A').length;
-          const rangBCount = questions.filter((q: any) => q.rang === 'B').length;
-          const total = questions.length;
-          
-          console.log('📊 Répartition quiz:', {
-            total,
-            rangA: rangACount,
-            rangB: rangBCount,
-            pourcentageA: Math.round((rangACount / total) * 100),
-            pourcentageB: Math.round((rangBCount / total) * 100)
-          });
+        if (data.quiz_questions && typeof data.quiz_questions === 'object' && 'questions' in data.quiz_questions) {
+          const questions = (data.quiz_questions as any).questions;
+          if (Array.isArray(questions)) {
+            const rangACount = questions.filter((q: any) => q.rang === 'A').length;
+            const rangBCount = questions.filter((q: any) => q.rang === 'B').length;
+            const total = questions.length;
+            
+            console.log('📊 Répartition quiz:', {
+              total,
+              rangA: rangACount,
+              rangB: rangBCount,
+              pourcentageA: Math.round((rangACount / total) * 100),
+              pourcentageB: Math.round((rangBCount / total) * 100)
+            });
+          }
         }
 
         setItem(data);

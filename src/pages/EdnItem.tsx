@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -177,7 +178,8 @@ const EdnItem = () => {
           <ParolesMusicales 
             paroles={item.paroles_musicales} 
             itemCode={item.item_code}
-            itemTitle={item.title}
+            tableauRangA={item.tableau_rang_a}
+            tableauRangB={item.tableau_rang_b}
           />
         );
       

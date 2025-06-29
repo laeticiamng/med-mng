@@ -20,7 +20,6 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
   tableauRangB
 }) => {
   const [selectedStyle, setSelectedStyle] = useState('');
-  const [selectedVoice, setSelectedVoice] = useState('');
   const [currentSong, setCurrentSong] = useState<number | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -53,7 +52,6 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
       
       console.log(`🎵 Génération musique ${itemCode} - Chanson ${songIndex + 1}`, {
         style: selectedStyle,
-        voice: selectedVoice,
         lyrics: paroles[songIndex]
       });
       
@@ -84,9 +82,7 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
         {/* Sélecteur de style musical */}
         <MusicStyleSelector
           selectedStyle={selectedStyle}
-          selectedVoice={selectedVoice}
           onStyleChange={setSelectedStyle}
-          onVoiceChange={setSelectedVoice}
         />
 
         {/* Affichage des paroles */}
@@ -109,7 +105,7 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
                     )}
                     <Button
                       onClick={() => handleGenerateMusic(index)}
-                      disabled={!selectedStyle || !selectedVoice || isGenerating}
+                      disabled={!selectedStyle || isGenerating}
                       size="sm"
                       className="flex items-center gap-2"
                     >
@@ -170,7 +166,7 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
         )}
 
         <div className="text-sm text-gray-600">
-          <p>🎵 Sélectionnez un style musical et un type de voix, puis cliquez sur "Générer musique" pour créer votre version personnalisée.</p>
+          <p>🎵 Sélectionnez un style musical, puis cliquez sur "Générer musique" pour créer votre version personnalisée.</p>
         </div>
       </CardContent>
     </Card>
