@@ -32,6 +32,7 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
 
   console.log('🎵 State local initialisé');
 
+  // Debugging: essayons de catcher toute erreur avec le hook
   let hookResult;
   try {
     console.log('🎵 Tentative d\'utilisation du hook useMusicGenerationWithTranslation');
@@ -43,6 +44,16 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
       <div className="p-4 bg-red-50 border border-red-200 rounded">
         <h3 className="text-red-800 font-bold">Erreur de hook</h3>
         <p className="text-red-600">Erreur lors de l'initialisation du hook: {error.message}</p>
+      </div>
+    );
+  }
+
+  if (!hookResult) {
+    console.error('❌ Hook result est null ou undefined');
+    return (
+      <div className="p-4 bg-red-50 border border-red-200 rounded">
+        <h3 className="text-red-800 font-bold">Hook non initialisé</h3>
+        <p className="text-red-600">Le hook useMusicGenerationWithTranslation n'a pas retourné de données</p>
       </div>
     );
   }
@@ -134,6 +145,7 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
 
   console.log('🎵 Rendu du contenu principal');
 
+  // Debugging: ajoutons un try-catch autour du rendu principal
   try {
     return (
       <div className="space-y-6">

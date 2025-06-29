@@ -10,6 +10,8 @@ interface GeneratingState {
 }
 
 export const useMusicGenerationWithTranslation = () => {
+  console.log('🎵 HOOK - useMusicGenerationWithTranslation initialisé');
+
   const [isGenerating, setIsGenerating] = useState<GeneratingState>({
     rangA: false,
     rangB: false
@@ -17,7 +19,19 @@ export const useMusicGenerationWithTranslation = () => {
   const [generatedAudio, setGeneratedAudio] = useState<{ rangA?: string; rangB?: string }>({});
   const [lastError, setLastError] = useState<string>('');
   const { toast } = useToast();
-  const { currentLanguage, translate } = useLanguage();
+  
+  let currentLanguage, translate;
+  try {
+    console.log('🎵 HOOK - Tentative d\'utilisation de useLanguage');
+    const languageContext = useLanguage();
+    currentLanguage = languageContext.currentLanguage;
+    translate = languageContext.translate;
+    console.log('🎵 HOOK - useLanguage réussi, langue:', currentLanguage);
+  } catch (error) {
+    console.error('❌ HOOK - Erreur avec useLanguage:', error);
+    currentLanguage = 'fr';
+    translate = async (text: string) => text; // fallback
+  }
   
   // Protection contre les appels multiples
   const generatingRef = useRef<Set<string>>(new Set());
@@ -28,6 +42,8 @@ export const useMusicGenerationWithTranslation = () => {
     selectedStyle: string, 
     duration: number = 240
   ) => {
+    console.log('🎵 HOOK - generateMusicInLanguage appelé:', { rang, paroles, selectedStyle, duration });
+    
     const rangKey = `rang${rang}` as keyof GeneratingState;
     
     // Protection contre les appels multiples
@@ -241,6 +257,13 @@ export const useMusicGenerationWithTranslation = () => {
       throw error;
     }
   };
+
+  console.log('🎵 HOOK - Retour des données du hook:', {
+    isGenerating,
+    generatedAudio,
+    lastError,
+    currentLanguage
+  });
 
   return {
     isGenerating,
