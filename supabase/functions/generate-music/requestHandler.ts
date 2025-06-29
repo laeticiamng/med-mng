@@ -11,7 +11,26 @@ export async function handleMusicGeneration(req: Request): Promise<Response> {
     const body = await req.text();
     console.log(`📥 Raw request body: ${body}`);
     
-    const requestData = validateRequest(body);
+    // Validation avec gestion d'erreur améliorée
+    let requestData;
+    try {
+      requestData = validateRequest(body);
+    } catch (validationError) {
+      console.error('❌ Erreur de validation:', validationError);
+      return new Response(
+        JSON.stringify({ 
+          error: 'Paramètres de requête invalides',
+          status: 'error',
+          message: validationError.message,
+          error_code: 400
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 400
+        }
+      );
+    }
+    
     const { lyrics, style, rang, duration, language, fastMode } = requestData;
 
     console.log('🎵 Requête génération musique Suno reçue:', { 
@@ -27,7 +46,18 @@ export async function handleMusicGeneration(req: Request): Promise<Response> {
     const SUNO_API_KEY = Deno.env.get('SUNO_API_KEY');
     if (!SUNO_API_KEY) {
       console.error('❌ SUNO_API_KEY manquante dans les secrets Supabase');
-      throw new Error('Clé API Suno non configurée dans les secrets Supabase. Veuillez ajouter SUNO_API_KEY dans les paramètres des fonctions.');
+      return new Response(
+        JSON.stringify({ 
+          error: 'Configuration API manquante',
+          status: 'error',
+          message: 'Clé API Suno non configurée dans les secrets Supabase. Veuillez ajouter SUNO_API_KEY dans les paramètres des fonctions.',
+          error_code: 500
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 500
+        }
+      );
     }
 
     console.log('🔑 SUNO_API_KEY trouvée, longueur:', SUNO_API_KEY.length);
@@ -41,7 +71,19 @@ export async function handleMusicGeneration(req: Request): Promise<Response> {
     console.log('✅ Réponse génération Suno reçue:', generateResponse);
 
     if (!generateResponse || !generateResponse.data || !generateResponse.data.taskId) {
-      throw new Error('Réponse de génération invalide: taskId manquant');
+      console.error('❌ Réponse génération invalide:', generateResponse);
+      return new Response(
+        JSON.stringify({ 
+          error: 'Réponse API invalide',
+          status: 'error',
+          message: 'Réponse de génération invalide: taskId manquant',
+          error_code: 502
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 502
+        }
+      );
     }
 
     const taskId = generateResponse.data.taskId;

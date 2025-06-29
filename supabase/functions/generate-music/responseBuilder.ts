@@ -1,5 +1,5 @@
 
-import { corsHeaders, WAIT_TIME } from './constants.ts';
+import { corsHeaders } from './constants.ts';
 
 export function createSuccessResponse(
   audioUrl: string, 
@@ -9,28 +9,21 @@ export function createSuccessResponse(
   language: string, 
   attempts: number
 ): Response {
-  const successResponse = {
-    audioUrl: audioUrl,
-    rang,
-    style,
-    duration: duration,
-    durationFormatted: `${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')}`,
-    generationTime: attempts * (WAIT_TIME / 1000),
-    language: language,
-    status: 'success',
-    message: `✅ Musique générée avec succès pour le Rang ${rang}`,
-    lyrics_integrated: true,
-    vocals_included: true,
-    taskId: '',
-    attempts: attempts,
-    progress: 100
-  };
-
-  console.log('✅ Retour de succès avec audio réel:', successResponse);
-
   return new Response(
-    JSON.stringify(successResponse),
-    { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    JSON.stringify({
+      status: 'success',
+      audioUrl,
+      rang,
+      style,
+      duration,
+      language,
+      attempts,
+      timestamp: new Date().toISOString()
+    }),
+    { 
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 200
+    }
   );
 }
 
@@ -40,24 +33,30 @@ export function createTimeoutResponse(
   style: string, 
   duration: number
 ): Response {
-  console.warn('⚠️ Timeout: Génération Suno prend plus de 2 minutes');
-  
-  const timeoutResponse = {
+  console.log('⏰ Retour de timeout avec taskId:', {
     status: 'timeout',
     message: 'La génération prend plus de temps que prévu. Veuillez réessayer dans quelques minutes.',
-    taskId: taskId,
+    taskId,
     rang,
     style,
-    duration: duration,
+    duration,
     attempts: 12,
     timeoutAfter: '2 minutes',
     progress: 100
-  };
-
-  console.log('⏰ Retour de timeout avec taskId:', timeoutResponse);
+  });
 
   return new Response(
-    JSON.stringify(timeoutResponse),
+    JSON.stringify({
+      status: 'timeout',
+      message: 'La génération prend plus de temps que prévu. Veuillez réessayer dans quelques minutes.',
+      taskId,
+      rang,
+      style,
+      duration,
+      attempts: 12,
+      timeoutAfter: '2 minutes',
+      progress: 100
+    }),
     { 
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 408
@@ -65,70 +64,19 @@ export function createTimeoutResponse(
   );
 }
 
-export function createProgressResponse(
-  taskId: string,
-  rang: 'A' | 'B',
-  style: string,
-  duration: number,
-  progress: number,
-  attempts: number,
-  maxAttempts: number
-): Response {
-  const progressResponse = {
-    status: 'generating',
-    message: `Génération en cours... ${progress}%`,
-    taskId: taskId,
-    rang,
-    style,
-    duration: duration,
-    progress: progress,
-    attempts: attempts,
-    maxAttempts: maxAttempts,
-    estimatedTimeRemaining: Math.round(((maxAttempts - attempts) * (WAIT_TIME / 1000)) / 60)
-  };
-
-  console.log(`🔄 Retour de progression ${progress}%:`, progressResponse);
-
-  return new Response(
-    JSON.stringify(progressResponse),
-    { 
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: 202
-    }
-  );
-}
-
 export function createErrorResponse(error: Error): Response {
-  let errorMessage = error.message || 'Erreur inconnue';
-  let statusCode = 500;
-  
-  if (errorMessage.includes('taskId manquant')) {
-    errorMessage = '🔧 Erreur Suno: Réponse de génération invalide';
-    statusCode = 400;
-  } else if (errorMessage.includes('Génération échouée')) {
-    errorMessage = '🚫 Suno AI: Génération de musique échouée';
-    statusCode = 400;
-  } else if (errorMessage.includes('401') || errorMessage.includes('Unauthorized')) {
-    errorMessage = '🔑 Clé API Suno invalide ou expirée';
-    statusCode = 401;
-  }
+  const errorMessage = error.message || 'Erreur inconnue lors de la génération';
   
   return new Response(
-    JSON.stringify({ 
-      error: errorMessage,
+    JSON.stringify({
       status: 'error',
-      error_code: statusCode,
-      details: 'Erreur lors de la génération avec Suno API',
-      progress: 0,
-      debug: {
-        error_type: error.name,
-        error_message: error.message,
-        timestamp: new Date().toISOString()
-      }
+      message: errorMessage,
+      error_code: 500,
+      timestamp: new Date().toISOString()
     }),
     { 
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-      status: statusCode
+      status: 500
     }
   );
 }
