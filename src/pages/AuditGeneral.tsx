@@ -4,16 +4,17 @@ import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { AuditGeneral } from '@/components/edn/audit/AuditGeneral';
+import { AuditComprehensif } from '@/components/edn/audit/AuditComprehensif';
 import { AuditIC1 } from '@/components/edn/audit/AuditIC1';
 import { AuditComparatif } from '@/components/edn/audit/AuditComparatif';
 import { AuditIC3 } from '@/components/edn/audit/AuditIC3';
 import { AuditIC4 } from '@/components/edn/audit/AuditIC4';
 import { AuditIC5 } from '@/components/edn/audit/AuditIC5';
-import { FileText, TrendingUp, Download, ArrowLeft, Award, BarChart3 } from 'lucide-react';
+import { FileText, TrendingUp, Download, ArrowLeft, Award, BarChart3, Database } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const AuditGeneralPage = () => {
-  const [activeTab, setActiveTab] = useState('general');
+  const [activeTab, setActiveTab] = useState('comprehensif');
 
   const handleExportReport = () => {
     console.log('Export du rapport général d\'audit');
@@ -40,7 +41,11 @@ const AuditGeneralPage = () => {
 
         <Card className="p-6">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-6">
+            <TabsList className="grid w-full grid-cols-7">
+              <TabsTrigger value="comprehensif" className="flex items-center space-x-2">
+                <Database className="h-4 w-4" />
+                <span>Audit Complet</span>
+              </TabsTrigger>
               <TabsTrigger value="general" className="flex items-center space-x-2">
                 <Award className="h-4 w-4" />
                 <span>Vue Générale</span>
@@ -66,6 +71,10 @@ const AuditGeneralPage = () => {
                 <span>Comparatif</span>
               </TabsTrigger>
             </TabsList>
+            
+            <TabsContent value="comprehensif" className="mt-6">
+              <AuditComprehensif />
+            </TabsContent>
             
             <TabsContent value="general" className="mt-6">
               <AuditGeneral />
