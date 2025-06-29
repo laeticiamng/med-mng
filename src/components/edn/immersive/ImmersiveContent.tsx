@@ -2,7 +2,7 @@ import React from 'react';
 import { TableauSection } from './TableauSection';
 import { QuizSection } from './QuizSection';
 import { ParolesMusicales } from '../ParolesMusicales';
-import { BandesDessinées } from '../BandesDessinées';
+import { BandeDessinee } from '../BandeDessinee';
 import { InteractionSection } from './InteractionSection';
 import { Badge } from '@/components/ui/badge';
 
@@ -103,7 +103,7 @@ export const ImmersiveContent: React.FC<ImmersiveContentProps> = ({
 
       case 5: // Bande dessinée
         return (
-          <BandesDessinées
+          <BandeDessinee
             itemCode={item.item_code}
             title={item.title}
             content={item.tableau_rang_a}
