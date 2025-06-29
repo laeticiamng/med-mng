@@ -41,18 +41,18 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
     currentLanguage
   } = useMusicGenerationWithTranslation();
 
-  // Contexte audio global pour le lecteur
+  // Contexte audio global pour le lecteur - utilisation des bons noms de méthodes
   const {
     currentTrack,
     isPlaying,
     currentTime,
     duration,
     volume,
-    playTrack,
-    pauseTrack,
-    seekTo,
-    setVolume: changeVolume,
-    stopTrack
+    play,
+    pause,
+    seek,
+    changeVolume,
+    stop
   } = useGlobalAudio();
 
   const handleGenerate = async (rang: 'A' | 'B') => {
@@ -90,12 +90,12 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
 
   const handlePlayAudio = (audioUrl: string, title: string) => {
     if (currentTrack?.url === audioUrl && isPlaying) {
-      pauseTrack();
+      pause();
     } else {
-      playTrack({
+      play({
         url: audioUrl,
         title: title,
-        artist: `Rang ${audioUrl.includes('rangA') ? 'A' : 'B'} - ${itemCode}`
+        rang: audioUrl.includes('rangA') ? 'A' : 'B'
       });
     }
   };
@@ -210,9 +210,9 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
                             duration={currentTrack?.url === generatedAudio.rangA ? duration : musicDuration}
                             volume={volume}
                             onPlayPause={() => handlePlayAudio(generatedAudio.rangA!, `Rang A - ${itemCode}`)}
-                            onSeek={seekTo}
+                            onSeek={seek}
                             onVolumeChange={changeVolume}
-                            onStop={stopTrack}
+                            onStop={stop}
                           />
                         </div>
                       )}
@@ -254,9 +254,9 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
                             duration={currentTrack?.url === generatedAudio.rangB ? duration : musicDuration}
                             volume={volume}
                             onPlayPause={() => handlePlayAudio(generatedAudio.rangB!, `Rang B - ${itemCode}`)}
-                            onSeek={seekTo}
+                            onSeek={seek}
                             onVolumeChange={changeVolume}
-                            onStop={stopTrack}
+                            onStop={stop}
                           />
                         </div>
                       )}
