@@ -8,7 +8,6 @@ import { Music, AlertTriangle, Plus, Sparkles } from 'lucide-react';
 import { MusicStyleSelector } from './music/MusicStyleSelector';
 import { MusicDurationSelector } from './music/MusicDurationSelector';
 import { GenerateButton } from './music/GenerateButton';
-import { MusicCardsSection } from './music/MusicCardsSection';
 import { ParolesDisplay } from './music/ParolesDisplay';
 import { MissingParolesWarning } from './music/MissingParolesWarning';
 import { useMusicGenerationWithTranslation } from '@/hooks/useMusicGenerationWithTranslation';
@@ -27,15 +26,15 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
   tableauRangB
 }) => {
   const [selectedStyle, setSelectedStyle] = useState<string>('');
-  const [selectedDuration, setSelectedDuration] = useState<string>('2min');
+  const [selectedDuration, setSelectedDuration] = useState<number>(120); // Changed to number
   const [activeTab, setActiveTab] = useState<'rang-a' | 'rang-b'>('rang-a');
 
   const {
-    generateMusic,
+    generateMusicInLanguage,
     isGenerating,
-    generatedMusic,
-    error,
-    clearError
+    generatedAudio,
+    lastError,
+    currentLanguage
   } = useMusicGenerationWithTranslation();
 
   // Vérifier si nous avons des données suffisantes
@@ -56,17 +55,8 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
       return;
     }
 
-    const tableauData = rang === 'A' ? tableauRangA : tableauRangB;
     const parolesData = hasParoles ? paroles : [];
-
-    await generateMusic({
-      itemCode,
-      rang,
-      musicStyle: selectedStyle,
-      duration: selectedDuration,
-      tableauData,
-      paroles: parolesData
-    });
+    await generateMusicInLanguage(rang, parolesData, selectedStyle, selectedDuration);
   };
 
   if (!hasParoles && !hasTableauData) {
@@ -127,8 +117,8 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
           onStyleChange={setSelectedStyle}
         />
         <MusicDurationSelector
-          selectedDuration={selectedDuration}
-          onDurationChange={setSelectedDuration}
+          selectedDuration={selectedDuration.toString()}
+          onDurationChange={(duration) => setSelectedDuration(parseInt(duration))}
         />
       </div>
 
@@ -170,11 +160,12 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
               )}
               
               <GenerateButton
-                isGenerating={isGenerating}
-                hasStyle={!!selectedStyle}
                 rang="A"
+                isGenerating={isGenerating.rangA}
+                isDisabled={!selectedStyle || !tableauRangA}
+                musicDuration={selectedDuration}
+                buttonColor="bg-amber-600 hover:bg-amber-700"
                 onGenerate={() => handleGenerate('A')}
-                disabled={!tableauRangA}
               />
               
               {!tableauRangA && (
@@ -182,6 +173,17 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
                   <p className="text-gray-600 text-sm">
                     ⚠️ Tableau Rang A non disponible pour cet item
                   </p>
+                </div>
+              )}
+
+              {/* Afficher l'audio généré pour Rang A */}
+              {generatedAudio.rangA && (
+                <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                  <h5 className="font-semibold text-amber-800 mb-2">Musique générée - Rang A</h5>
+                  <audio controls className="w-full">
+                    <source src={generatedAudio.rangA} type="audio/mpeg" />
+                    Votre navigateur ne supporte pas l'élément audio.
+                  </audio>
                 </div>
               )}
             </CardContent>
@@ -209,11 +211,12 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
               )}
               
               <GenerateButton
-                isGenerating={isGenerating}
-                hasStyle={!!selectedStyle}
                 rang="B"
+                isGenerating={isGenerating.rangB}
+                isDisabled={!selectedStyle || !tableauRangB}
+                musicDuration={selectedDuration}
+                buttonColor="bg-blue-600 hover:bg-blue-700"
                 onGenerate={() => handleGenerate('B')}
-                disabled={!tableauRangB}
               />
               
               {!tableauRangB && (
@@ -223,17 +226,34 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
                   </p>
                 </div>
               )}
+
+              {/* Afficher l'audio généré pour Rang B */}
+              {generatedAudio.rangB && (
+                <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                  <h5 className="font-semibold text-blue-800 mb-2">Musique générée - Rang B</h5>
+                  <audio controls className="w-full">
+                    <source src={generatedAudio.rangB} type="audio/mpeg" />
+                    Votre navigateur ne supporte pas l'élément audio.
+                  </audio>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
 
-      {/* Section des musiques générées */}
-      <MusicCardsSection 
-        generatedMusic={generatedMusic}
-        error={error}
-        onClearError={clearError}
-      />
+      {/* Afficher les erreurs */}
+      {lastError && (
+        <Card className="border-red-200 bg-red-50">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-2 text-red-700">
+              <AlertTriangle className="h-5 w-5" />
+              <span className="font-semibold">Erreur de génération</span>
+            </div>
+            <p className="text-red-600 mt-2">{lastError}</p>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };
