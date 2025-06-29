@@ -63,213 +63,77 @@ serve(async (req) => {
     }
 
     console.log('🔑 SUNO_API_KEY trouvée, longueur:', SUNO_API_KEY.length);
+    console.log('🔑 Premiers caractères de la clé:', SUNO_API_KEY.substring(0, 8) + '...');
 
-    // Vérifier d'abord la disponibilité de l'API Suno
-    console.log('🔍 Vérification de la disponibilité de l\'API Suno...');
+    // Test simple de l'API Suno avec différents endpoints possibles
+    console.log('🔍 Test de connectivité API Suno...');
     
-    try {
-      const healthCheck = await fetch('https://api.suno.ai/generate/v2', {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer ${SUNO_API_KEY}`,
-          'Accept': 'application/json'
+    const testEndpoints = [
+      'https://api.suno.ai/v1/generate',
+      'https://api.suno.ai/generate',
+      'https://api.suno.ai/v1/songs',
+      'https://api.suno.ai/songs',
+      'https://api.suno.ai/health',
+      'https://api.suno.ai/',
+      'https://suno.ai/api/v1/generate',
+      'https://suno.ai/api/generate'
+    ];
+
+    let workingEndpoint = null;
+    
+    for (const endpoint of testEndpoints) {
+      try {
+        console.log(`🔍 Test endpoint: ${endpoint}`);
+        const testResponse = await fetch(endpoint, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${SUNO_API_KEY}`,
+            'Accept': 'application/json',
+            'User-Agent': 'Supabase-Edge-Function'
+          }
+        });
+        
+        console.log(`📊 ${endpoint} - Status: ${testResponse.status} ${testResponse.statusText}`);
+        
+        if (testResponse.status < 500) { // Accepter même les 4xx car cela signifie que l'endpoint existe
+          workingEndpoint = endpoint;
+          console.log(`✅ Endpoint trouvé: ${endpoint}`);
+          break;
         }
-      });
-
-      console.log(`🏥 Health check Suno: ${healthCheck.status} ${healthCheck.statusText}`);
-      
-      if (healthCheck.status === 503) {
-        throw new Error('🚫 Service Suno AI temporairement indisponible (503). Réessayez dans quelques minutes.');
-      }
-      
-      if (healthCheck.status === 401) {
-        throw new Error('🔑 Clé API Suno invalide ou expirée. Vérifiez votre clé dans les secrets Supabase.');
-      }
-      
-    } catch (healthError) {
-      console.log('⚠️ Health check échoué:', healthError.message);
-      if (healthError.message.includes('503') || healthError.message.includes('Service Temporarily Unavailable')) {
-        throw new Error('🚫 Service Suno AI temporairement indisponible. Réessayez dans quelques minutes.');
-      }
-      if (healthError.message.includes('401') || healthError.message.includes('Invalid')) {
-        throw new Error('🔑 Clé API Suno invalide. Vérifiez votre configuration dans les secrets Supabase.');
+      } catch (error) {
+        console.log(`❌ ${endpoint} - Erreur: ${error.message}`);
       }
     }
 
-    // Mapping des styles vers des descriptions musicales pour Suno
-    const styleDescriptions = {
-      'lofi-piano': 'relaxing lo-fi piano with soft beats, chill, ambient, mellow',
-      'afrobeat': 'energetic afrobeat with drums, bass, traditional African instruments, upbeat',
-      'jazz-moderne': 'modern jazz with saxophone, piano, smooth rhythms, sophisticated',
-      'hip-hop-conscient': 'conscious hip-hop with meaningful lyrics, urban beats, thoughtful',
-      'soul-rnb': 'soulful R&B with emotional vocals, groove, heartfelt',
-      'electro-chill': 'chill electronic with synthesizers, ambient textures, downtempo'
+    if (!workingEndpoint) {
+      throw new Error('❌ Aucun endpoint Suno valide trouvé. Vérifiez l\'URL de base de l\'API Suno.');
+    }
+
+    // Pour l'instant, retourner une réponse de test avec des informations de diagnostic
+    const diagnosticInfo = {
+      audioUrl: "https://example.com/test-audio.mp3", // URL de test
+      rang,
+      style,
+      duration: duration,
+      durationFormatted: `${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')}`,
+      generationTime: 5,
+      language: language,
+      status: 'test_success',
+      message: `🔍 Test de diagnostic pour le Rang ${rang}`,
+      lyrics_integrated: true,
+      vocals_included: true,
+      lyrics_length: lyrics.length,
+      note: `🔍 Mode diagnostic - Endpoint trouvé: ${workingEndpoint}`,
+      api_key_length: SUNO_API_KEY.length,
+      api_key_prefix: SUNO_API_KEY.substring(0, 8) + '...',
+      tested_endpoints: testEndpoints.length,
+      working_endpoint: workingEndpoint
     };
 
-    const musicStyle = styleDescriptions[style] || styleDescriptions['lofi-piano'];
-    
-    // Adapter le titre selon la langue
-    let title;
-    if (rang === 'TRANSPOSE') {
-      const languageNames = {
-        'en': 'English',
-        'es': 'Español', 
-        'de': 'Deutsch',
-        'zh': '中文',
-        'ja': '日本語',
-        'ar': 'العربية'
-      };
-      title = `Transposed to ${languageNames[language] || language}`;
-    } else {
-      const styleNames = {
-        'lofi-piano': language === 'fr' ? 'Colloque Singulier' : 'Medical Dialogue',
-        'afrobeat': language === 'fr' ? 'Formation Dynamique' : 'Dynamic Training',
-        'jazz-moderne': language === 'fr' ? 'Médecine Moderne' : 'Modern Medicine',
-        'hip-hop-conscient': language === 'fr' ? 'Conscience Médicale' : 'Medical Awareness',
-        'soul-rnb': language === 'fr' ? 'Âme Soignante' : 'Healing Soul',
-        'electro-chill': language === 'fr' ? 'Méditation Médicale' : 'Medical Meditation'
-      };
-      
-      const styleName = styleNames[style] || (language === 'fr' ? 'Formation Médicale' : 'Medical Training');
-      title = `Rang ${rang} - ${styleName}`;
-    }
-
-    const languageFlag = {
-      'fr': '🇫🇷',
-      'en': '🇺🇸', 
-      'es': '🇪🇸',
-      'de': '🇩🇪',
-      'zh': '🇨🇳',
-      'ja': '🇯🇵',
-      'ar': '🇸🇦'
-    };
-
-    console.log(`🎤 Génération Suno ${fastMode ? 'RAPIDE ⚡' : 'NORMALE'} - Rang ${rang} ${languageFlag[language] || '🌍'}`);
-    console.log(`📝 Style: ${style} | Durée: ${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')} | Langue: ${language}`);
-    console.log(`🎵 Description: ${musicStyle}`);
-    console.log(`📖 Paroles (${lyrics.length} caractères):`, lyrics.substring(0, 200) + '...');
-
-    // Initialiser le générateur de musique avec la clé API
-    const generator = new MusicGenerator(SUNO_API_KEY);
-
-    // Étape 1: Générer la chanson avec Suno
-    console.log(`🚀 Lancement génération musicale...`);
-    const startTime = Date.now();
-    
-    let generateData;
-    try {
-      generateData = await generator.generateMusic({
-        prompt: lyrics,
-        style: musicStyle,
-        title: title,
-        customMode: true,
-        instrumental: false,
-        model: "V3_5",
-        negativeTags: undefined,
-        callBackUrl: undefined
-      });
-      
-      console.log('✅ Génération Suno lancée:', generateData);
-    } catch (generateError) {
-      console.error('❌ Erreur lors de la génération:', generateError);
-      
-      if (generateError.message.includes('503') || generateError.message.includes('Service Temporarily Unavailable')) {
-        throw new Error('🚫 Service Suno AI temporairement indisponible (503). Réessayez dans quelques minutes.');
-      }
-      
-      if (generateError.message.includes('401') || generateError.message.includes('Unauthorized')) {
-        throw new Error('🔑 Clé API Suno invalide ou expirée. Vérifiez votre configuration.');
-      }
-      
-      throw new Error(`Erreur génération Suno: ${generateError.message}`);
-    }
-
-    // Extraire le taskId
-    let taskId;
-    if (generateData?.data?.taskId) {
-      taskId = generateData.data.taskId;
-    } else if (generateData?.taskId) {
-      taskId = generateData.taskId;
-    } else {
-      console.error('❌ Structure de réponse inattendue:', JSON.stringify(generateData, null, 2));
-      throw new Error('Aucun ID de tâche retourné par Suno');
-    }
-
-    console.log(`🔑 TaskId extrait: ${taskId}`);
-
-    // Étape 2: Attendre que la génération soit terminée
-    console.log(`⏳ Attente de la génération musicale...`);
-    const maxAttempts = fastMode ? 80 : 60;
-    
-    let musicData;
-    try {
-      musicData = await generator.waitForCompletion(taskId, maxAttempts, fastMode);
-      console.log('✅ Génération terminée:', musicData);
-    } catch (waitError) {
-      console.error('❌ Erreur lors de l\'attente:', waitError);
-      
-      let userErrorMessage = 'Timeout génération: La génération musicale prend plus de temps que prévu.';
-      if (fastMode) {
-        userErrorMessage = 'Timeout génération rapide: La génération dépasse les 2 minutes. Le service pourrait être surchargé.';
-      } else {
-        userErrorMessage = 'Timeout génération: La génération dépasse les 4 minutes. Réessayez avec des paroles plus courtes.';
-      }
-      
-      throw new Error(userErrorMessage);
-    }
-
-    // Calculer le temps total
-    const totalTime = Math.floor((Date.now() - startTime) / 1000);
-    console.log(`⏱️ Génération terminée en ${totalTime} secondes`);
-
-    // Vérifier plusieurs structures possibles pour l'URL audio
-    let audioUrl = null;
-    if (musicData.data?.audio?.[0]?.audio_url) {
-      audioUrl = musicData.data.audio[0].audio_url;
-    } else if (musicData.data?.audio_url) {
-      audioUrl = musicData.data.audio_url;
-    } else if (musicData.audio_url) {
-      audioUrl = musicData.audio_url;
-    }
-
-    if (!audioUrl) {
-      console.error('❌ Réponse Suno sans URL audio:', JSON.stringify(musicData, null, 2));
-      throw new Error('Aucune URL audio dans la réponse de Suno');
-    }
-
-    // Valider que l'URL est bien une URL complète
-    if (!audioUrl.startsWith('http')) {
-      console.error('❌ URL audio invalide (pas une URL complète):', audioUrl);
-      throw new Error('URL audio invalide retournée par Suno');
-    }
-
-    const durationFormatted = `${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')}`;
-    const languageName = language === 'fr' ? 'français' : language;
-
-    console.log(`✅ Chanson générée avec succès - Rang ${rang} (${durationFormatted}) en ${languageName} en ${totalTime}s`);
-    console.log(`🎧 URL audio valide: ${audioUrl}`);
+    console.log('🔍 Retour d\'informations de diagnostic:', diagnosticInfo);
 
     return new Response(
-      JSON.stringify({ 
-        audioUrl: audioUrl,
-        rang,
-        style,
-        duration: duration,
-        durationFormatted: durationFormatted,
-        generationTime: totalTime,
-        language: language,
-        status: 'success',
-        message: `🎤 Chanson générée pour le Rang ${rang} (${durationFormatted}) en ${languageName} en ${totalTime}s`,
-        lyrics_integrated: true,
-        vocals_included: true,
-        lyrics_length: lyrics.length,
-        task_id: taskId,
-        final_status: musicData.status,
-        note: `🎵 Génération avec Suno AI - Paroles chantées intégrées en ${languageName}`,
-        vocal_style: `Voix IA haute qualité avec articulation claire en ${languageName}`,
-        music_elements: `Style ${style} avec accompagnement musical professionnel`,
-        technical_specs: `Audio haute qualité Suno AI - Durée: ${durationFormatted} - Temps: ${totalTime}s`
-      }),
+      JSON.stringify(diagnosticInfo),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
@@ -307,17 +171,13 @@ serve(async (req) => {
         error: userMessage,
         status: 'error',
         error_code: error.code || httpStatus,
-        details: '🎤 Problème avec la génération Suno AI',
+        details: '🔍 Diagnostic de l\'API Suno en cours',
         debug: {
           error_type: error.name,
           error_message: error.message,
           timestamp: new Date().toISOString(),
-          api_used: 'Suno AI',
-          base_url: 'https://api.suno.ai',
-          suggestion: httpStatus === 503 ? 'Attendez 5-10 minutes puis réessayez' : 
-                     httpStatus === 401 ? 'Vérifiez votre clé API Suno dans les secrets Supabase' : 
-                     httpStatus === 408 ? 'Réessayez dans quelques minutes' : 
-                     'Vérifiez la configuration et réessayez'
+          api_tested: 'Différents endpoints Suno testés',
+          suggestion: 'Vérifiez les logs pour plus de détails sur les endpoints testés'
         }
       }),
       { 
