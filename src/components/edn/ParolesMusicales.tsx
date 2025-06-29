@@ -26,7 +26,7 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
   tableauRangB
 }) => {
   const [selectedStyle, setSelectedStyle] = useState<string>('');
-  const [selectedDuration, setSelectedDuration] = useState<number>(120); // Changed to number
+  const [selectedDuration, setSelectedDuration] = useState<number>(120);
   const [activeTab, setActiveTab] = useState<'rang-a' | 'rang-b'>('rang-a');
 
   const {
@@ -117,8 +117,8 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
           onStyleChange={setSelectedStyle}
         />
         <MusicDurationSelector
-          selectedDuration={selectedDuration.toString()}
-          onDurationChange={(duration) => setSelectedDuration(parseInt(duration))}
+          duration={selectedDuration}
+          onDurationChange={setSelectedDuration}
         />
       </div>
 
