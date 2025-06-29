@@ -26,7 +26,7 @@ export const processTableauRangAIC3 = (data: any) => {
   return {
     lignesEnrichies,
     colonnesUtiles: colonnesConfigIC3,
-    theme: data?.rang === 'B' ? 'IC-3 Rang B - Expertise en raisonnement médical' : 'IC-3 Rang A - Fondamentaux du raisonnement médical',
+    theme: data?.rang === 'B' ? 'IC-3 Rang B - Expertise en raisonnement médical (8 concepts)' : 'IC-3 Rang A - Fondamentaux du raisonnement médical (15 concepts)',
     isRangB: data?.rang === 'B'
   };
 };

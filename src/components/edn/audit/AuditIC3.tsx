@@ -7,17 +7,17 @@ export const AuditIC3 = () => {
   const auditResults = {
     conformiteELisa: {
       status: 'ameliorer',
-      score: 75,
+      score: 78,
       details: [
-        'Rang A: 14/16 concepts LiSA conformes (87% couverture)',
-        'Rang B: 4/6 concepts experts selon LiSA',
+        'Rang A: 13/15 concepts LiSA conformes (87% couverture)',
+        'Rang B: 6/8 concepts experts selon LiSA',
         'EBM et niveaux de preuve intégrés',
         'Décision médicale et TICE partielles'
       ]
     },
     completude: {
       status: 'ameliorer',
-      score: 70,
+      score: 73,
       details: [
         'Médecine basée preuves: définition et niveaux',
         'Raisonnement clinique et styles décision',
@@ -27,7 +27,7 @@ export const AuditIC3 = () => {
     },
     pedagogie: {
       status: 'ameliorer',
-      score: 78,
+      score: 76,
       details: [
         'Exercices analyse critique',
         'Cas études méthodologiques',
@@ -37,7 +37,7 @@ export const AuditIC3 = () => {
     },
     actualite: {
       status: 'ameliorer',
-      score: 72,
+      score: 74,
       details: [
         'IA et aide à la décision',
         'Big data et médecine prédictive',
@@ -86,7 +86,7 @@ export const AuditIC3 = () => {
             <div className="text-sm text-gray-600">Score global</div>
           </div>
           <Badge className="bg-yellow-100 text-yellow-800 text-lg px-4 py-2">
-            ⚠️ 16 Rang A + 6 Rang B LiSA
+            ⚠️ 15 Rang A + 8 Rang B LiSA
           </Badge>
         </div>
       </div>
@@ -129,14 +129,14 @@ export const AuditIC3 = () => {
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <h4 className="font-medium text-red-700 mb-2">🚨 Concepts Rang A manquants (2/16)</h4>
+            <h4 className="font-medium text-red-700 mb-2">🚨 Concepts Rang A manquants (2/15)</h4>
             <ul className="space-y-1 text-sm text-gray-700">
               <li>• TICE et aide décision clinique</li>
-              <li>• Controverse en santé</li>
+              <li>• Particularités controverse en santé</li>
             </ul>
-            <h4 className="font-medium text-orange-700 mt-4 mb-2">📋 Concepts Rang B manquants (2/6)</h4>
+            <h4 className="font-medium text-orange-700 mt-4 mb-2">📋 Concepts Rang B manquants (2/8)</h4>
             <ul className="space-y-1 text-sm text-gray-700">
-              <li>• Systèmes d'aide à la décision</li>
+              <li>• Modèle dynamiques décisionnelles</li>
               <li>• Architectures systèmes information</li>
             </ul>
           </div>
@@ -149,6 +149,7 @@ export const AuditIC3 = () => {
               <li>• Décision partagée/paternaliste</li>
               <li>• Recommandations médicales</li>
               <li>• Efficacité/effectivité/efficience</li>
+              <li>• Supports au raisonnement</li>
             </ul>
           </div>
         </div>

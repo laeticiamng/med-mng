@@ -10,7 +10,7 @@ interface TableauRangAFooterIC3Props {
 }
 
 export const TableauRangAFooterIC3 = ({ colonnesCount, lignesCount, isRangB = false }: TableauRangAFooterIC3Props) => {
-  const expectedCount = isRangB ? 11 : 12;
+  const expectedCount = isRangB ? 8 : 15;
   const completionRate = Math.round((lignesCount / expectedCount) * 100);
   
   return (
@@ -65,15 +65,15 @@ export const TableauRangAFooterIC3 = ({ colonnesCount, lignesCount, isRangB = fa
               <>
                 <li>• Supports au raisonnement clinique</li>
                 <li>• Bases d'information médicale</li>
-                <li>• Évaluation des pratiques</li>
+                <li>• Logique thérapeutique</li>
                 <li>• Analyse décisionnelle avancée</li>
               </>
             ) : (
               <>
                 <li>• Médecine basée sur les preuves</li>
-                <li>• Lecture critique d'articles</li>
-                <li>• Biostatistiques médicales</li>
-                <li>• Outils d'aide à la décision</li>
+                <li>• Styles de raisonnement</li>
+                <li>• Décision médicale et partagée</li>
+                <li>• TICE et aide à la décision</li>
               </>
             )}
           </ul>
@@ -88,16 +88,16 @@ export const TableauRangAFooterIC3 = ({ colonnesCount, lignesCount, isRangB = fa
             {isRangB ? (
               <>
                 <li>• Maîtriser les outils de raisonnement</li>
-                <li>• Évaluer sa pratique professionnelle</li>
-                <li>• Analyser les enjeux de santé publique</li>
-                <li>• Développer l'esprit critique</li>
+                <li>• Analyser les dynamiques décisionnelles</li>
+                <li>• Comprendre les architectures SI</li>
+                <li>• Gérer les controverses médicales</li>
               </>
             ) : (
               <>
                 <li>• Comprendre les principes de l'EBM</li>
-                <li>• Savoir lire un article médical</li>
+                <li>• Maîtriser la démarche clinique</li>
                 <li>• Utiliser les outils d'aide à la décision</li>
-                <li>• Intégrer incertitude et probabilités</li>
+                <li>• Intégrer préférences patients</li>
               </>
             )}
           </ul>
