@@ -21,8 +21,8 @@ CREATE POLICY "Users can view their own profile" ON public.profiles
 CREATE POLICY "Users can update their own profile" ON public.profiles
   FOR UPDATE USING (auth.uid() = id);
 
--- Fonction pour créer un profil automatiquement lors de l'inscription
-CREATE OR REPLACE FUNCTION public.handle_new_user()
+-- Fonction pour créer un profil automatiquement lors de l'inscription avec préfixe MED MNG
+CREATE OR REPLACE FUNCTION public.med_mng_handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
   INSERT INTO public.profiles (id, email, name, is_test_account)
@@ -36,13 +36,13 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Trigger pour créer automatiquement le profil
+-- Trigger pour créer automatiquement le profil avec fonction MED MNG
 DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
-  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+  FOR EACH ROW EXECUTE FUNCTION public.med_mng_handle_new_user();
 
--- Modifier la fonction de quota pour les comptes test
+-- Modifier la fonction de quota pour les comptes test avec préfixe MED MNG
 CREATE OR REPLACE FUNCTION public.med_mng_get_remaining_quota()
 RETURNS INTEGER
 LANGUAGE plpgsql
@@ -204,23 +204,24 @@ ON CONFLICT (name) DO UPDATE SET
   variables = EXCLUDED.variables,
   updated_at = now();
 
--- Fonction pour trigger les emails
-CREATE OR REPLACE FUNCTION trigger_welcome_email()
+-- Fonction pour trigger les emails avec préfixe MED MNG
+CREATE OR REPLACE FUNCTION public.med_mng_trigger_welcome_email()
 RETURNS TRIGGER AS $$
 BEGIN
   -- Appeler la fonction d'envoi d'email de bienvenue
-  PERFORM pg_notify('send_welcome_email', json_build_object(
+  PERFORM pg_notify('med_mng_send_welcome_email', json_build_object(
     'user_id', NEW.id,
     'email', NEW.email,
-    'name', COALESCE(NEW.raw_user_meta_data->>'name', '')
+    'name', COALESCE(NEW.raw_user_meta_data->>'name', ''),
+    'platform', 'med-mng'
   )::text);
   
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql;
 
--- Trigger pour envoyer l'email de bienvenue
-DROP TRIGGER IF EXISTS welcome_email_trigger ON auth.users;
-CREATE TRIGGER welcome_email_trigger
+-- Trigger pour envoyer l'email de bienvenue avec fonction MED MNG
+DROP TRIGGER IF EXISTS med_mng_welcome_email_trigger ON auth.users;
+CREATE TRIGGER med_mng_welcome_email_trigger
   AFTER INSERT ON auth.users
-  FOR EACH ROW EXECUTE FUNCTION trigger_welcome_email();
+  FOR EACH ROW EXECUTE FUNCTION public.med_mng_trigger_welcome_email();

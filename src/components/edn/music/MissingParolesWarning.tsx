@@ -13,7 +13,7 @@ export const MissingParolesWarning = ({ isVisible }: MissingParolesWarningProps)
       <AlertTriangle className="h-5 w-5 text-yellow-600 mr-3 flex-shrink-0" />
       <div className="text-yellow-800">
         <p className="font-medium">Paroles manquantes</p>
-        <p className="text-sm">Les paroles pour ce rang ne sont pas encore disponibles dans la base de données.</p>
+        <p className="text-sm">Les paroles pour ce rang ne sont pas encore disponibles dans la base de données MED MNG.</p>
       </div>
     </div>
   );
