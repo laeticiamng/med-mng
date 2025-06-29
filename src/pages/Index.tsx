@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -13,7 +14,7 @@ const Index = () => {
           <div className="flex items-center justify-center space-x-2">
             <Sparkles className="h-8 w-8 text-blue-600" />
             <h1 className="text-4xl font-bold text-gray-800">
-              EDN & ECOS Médecine
+              MED MNG
             </h1>
           </div>
           <p className="text-xl text-gray-600 max-w-2xl mx-auto">
