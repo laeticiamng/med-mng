@@ -7,9 +7,9 @@ interface SavedMusic {
   id: string;
   title: string;
   audio_url: string;
+  item_code?: string;
   music_style: string;
   rang: string;
-  item_code: string;
   created_at: string;
 }
 
@@ -50,7 +50,7 @@ export const MusicLibraryGrid = ({ musics, playingId, onPlay, onDelete }: MusicL
                     {music.title}
                   </h3>
                   <p className="text-sm text-gray-500">
-                    {music.item_code} - Rang {music.rang}
+                    {music.item_code || 'N/A'} - Rang {music.rang}
                   </p>
                   <p className="text-xs text-gray-400 mt-1">
                     Style: {music.music_style}
