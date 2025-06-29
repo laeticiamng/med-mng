@@ -4,12 +4,12 @@ export const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Constantes pour l'attente audio optimisées pour génération rapide
-export const MAX_ATTEMPTS = 12; // 2 minutes au total (plus réaliste pour génération rapide)
-export const WAIT_TIME = 5000; // 5 secondes entre chaque tentative (plus réactif)
+// Constantes pour l'attente audio optimisées
+export const MAX_ATTEMPTS = 18; // 3 minutes au total
+export const WAIT_TIME = 10000; // 10 secondes entre chaque tentative
 
 // Timeout pour les requêtes HTTP
-export const HTTP_TIMEOUT = 20000; // 20 secondes (réduit)
+export const HTTP_TIMEOUT = 30000; // 30 secondes
 
 // Durée par défaut pour la validation
 export const DEFAULT_DURATION = 240; // 4 minutes par défaut

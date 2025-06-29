@@ -9,6 +9,15 @@ export function createSuccessResponse(
   language: string, 
   attempts: number
 ): Response {
+  console.log('✅ Création réponse de succès:', {
+    audioUrl: audioUrl?.substring(0, 100) + '...',
+    rang,
+    style,
+    duration,
+    language,
+    attempts
+  });
+
   return new Response(
     JSON.stringify({
       status: 'success',
@@ -40,8 +49,8 @@ export function createTimeoutResponse(
     rang,
     style,
     duration,
-    attempts: 12,
-    timeoutAfter: '2 minutes',
+    attempts: 18,
+    timeoutAfter: '3 minutes',
     progress: 100
   });
 
@@ -53,8 +62,8 @@ export function createTimeoutResponse(
       rang,
       style,
       duration,
-      attempts: 12,
-      timeoutAfter: '2 minutes',
+      attempts: 18,
+      timeoutAfter: '3 minutes',
       progress: 100
     }),
     { 
@@ -66,6 +75,13 @@ export function createTimeoutResponse(
 
 export function createErrorResponse(error: Error): Response {
   const errorMessage = error.message || 'Erreur inconnue lors de la génération';
+  
+  console.error('❌ Création réponse d\'erreur:', {
+    status: 'error',
+    message: errorMessage,
+    error_code: 500,
+    timestamp: new Date().toISOString()
+  });
   
   return new Response(
     JSON.stringify({
