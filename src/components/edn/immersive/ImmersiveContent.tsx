@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { TableauSection } from './TableauSection';
 import { QuizSection } from './QuizSection';
@@ -104,9 +105,14 @@ export const ImmersiveContent: React.FC<ImmersiveContentProps> = ({
       case 5: // Bande dessinée
         return (
           <BandeDessinee
-            itemCode={item.item_code}
-            title={item.title}
-            content={item.tableau_rang_a}
+            itemData={{
+              title: item.title,
+              subtitle: item.subtitle || '',
+              slug: item.slug,
+              item_code: item.item_code,
+              tableau_rang_a: item.tableau_rang_a,
+              tableau_rang_b: item.tableau_rang_b
+            }}
           />
         );
 
