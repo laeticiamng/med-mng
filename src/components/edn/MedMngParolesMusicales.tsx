@@ -1,12 +1,13 @@
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Music, AlertTriangle } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
 import { useMedMngMusicGeneration } from '@/hooks/useMedMngMusicGeneration';
 import { useGlobalAudio } from '@/contexts/GlobalAudioContext';
 import { ParolesMusicalesDebugInfo } from './music/ParolesMusicalesDebugInfo';
-import { ParolesMusicalesControls } from './music/ParolesMusicalesControls';
-import { ParolesMusicalesRangSection } from './music/ParolesMusicalesRangSection';
+import { MedMngParolesMusicalesHeader } from './music/MedMngParolesMusicalesHeader';
+import { MedMngParolesMusicalesControls } from './music/MedMngParolesMusicalesControls';
+import { MedMngParolesMusicalesErrorSection } from './music/MedMngParolesMusicalesErrorSection';
+import { MedMngParolesMusicalesContent } from './music/MedMngParolesMusicalesContent';
 
 interface MedMngParolesMusicalesProps {
   paroles?: string[];
@@ -110,18 +111,12 @@ export const MedMngParolesMusicales: React.FC<MedMngParolesMusicalesProps> = ({
   return (
     <div className="space-y-6">
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Music className="h-6 w-6 text-amber-600" />
-            Génération Musicale MED-MNG - {itemCode}
-          </CardTitle>
-          <CardDescription>
-            Génération sécurisée avec streaming via MED-MNG en {currentLanguage}
-          </CardDescription>
-        </CardHeader>
+        <MedMngParolesMusicalesHeader
+          itemCode={itemCode}
+          currentLanguage={currentLanguage}
+        />
         <CardContent>
           <div className="space-y-6">
-            {/* Informations de debug */}
             <ParolesMusicalesDebugInfo
               itemCode={itemCode}
               paroles={paroles}
@@ -133,87 +128,33 @@ export const MedMngParolesMusicales: React.FC<MedMngParolesMusicalesProps> = ({
               lastError={lastError}
             />
 
-            {/* Sélecteurs de style et durée */}
-            <ParolesMusicalesControls
+            <MedMngParolesMusicalesControls
               selectedStyle={selectedStyle}
               musicDuration={musicDuration}
               onStyleChange={setSelectedStyle}
               onDurationChange={setMusicDuration}
             />
 
-            {/* Affichage des erreurs */}
-            {lastError && (
-              <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                <div className="flex items-center gap-2 text-red-800">
-                  <AlertTriangle className="h-5 w-5" />
-                  <span className="font-semibold">Erreur MED-MNG</span>
-                </div>
-                <p className="text-red-700 mt-2">{lastError}</p>
-              </div>
-            )}
+            <MedMngParolesMusicalesErrorSection lastError={lastError} />
 
-            {/* Paroles et boutons de génération */}
-            {paroles && paroles.length > 0 && (
-              <div className="space-y-4">
-                <h3 className="font-semibold">Paroles disponibles pour MED-MNG :</h3>
-                
-                {paroles[0] && (
-                  <ParolesMusicalesRangSection
-                    rang="A"
-                    paroles={paroles[0]}
-                    musicDuration={musicDuration}
-                    selectedStyle={selectedStyle}
-                    isGenerating={isGenerating.rangA}
-                    generatedAudio={generatedAudio.rangA}
-                    itemCode={itemCode}
-                    currentTrack={currentTrack}
-                    isPlaying={isPlaying}
-                    currentTime={currentTime}
-                    duration={duration}
-                    volume={volume}
-                    onGenerate={() => handleGenerate('A')}
-                    onPlayAudio={handlePlayAudio}
-                    onSeek={seek}
-                    onVolumeChange={changeVolume}
-                    onStop={stop}
-                  />
-                )}
-
-                {paroles[1] && (
-                  <ParolesMusicalesRangSection
-                    rang="B"
-                    paroles={paroles[1]}
-                    musicDuration={musicDuration}
-                    selectedStyle={selectedStyle}
-                    isGenerating={isGenerating.rangB}
-                    generatedAudio={generatedAudio.rangB}
-                    itemCode={itemCode}
-                    currentTrack={currentTrack}
-                    isPlaying={isPlaying}
-                    currentTime={currentTime}
-                    duration={duration}
-                    volume={volume}
-                    onGenerate={() => handleGenerate('B')}
-                    onPlayAudio={handlePlayAudio}
-                    onSeek={seek}
-                    onVolumeChange={changeVolume}
-                    onStop={stop}
-                  />
-                )}
-              </div>
-            )}
-
-            {(!paroles || paroles.length === 0) && (
-              <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-                <div className="flex items-center gap-2 text-yellow-800">
-                  <AlertTriangle className="h-5 w-5" />
-                  <span className="font-semibold">Aucune parole disponible</span>
-                </div>
-                <p className="text-yellow-700 mt-2">
-                  Cet item ne contient pas encore de paroles musicales pour MED-MNG.
-                </p>
-              </div>
-            )}
+            <MedMngParolesMusicalesContent
+              paroles={paroles}
+              itemCode={itemCode}
+              musicDuration={musicDuration}
+              selectedStyle={selectedStyle}
+              isGenerating={isGenerating}
+              generatedAudio={generatedAudio}
+              currentTrack={currentTrack}
+              isPlaying={isPlaying}
+              currentTime={currentTime}
+              duration={duration}
+              volume={volume}
+              onGenerate={handleGenerate}
+              onPlayAudio={handlePlayAudio}
+              onSeek={seek}
+              onVolumeChange={changeVolume}
+              onStop={stop}
+            />
           </div>
         </CardContent>
       </Card>
