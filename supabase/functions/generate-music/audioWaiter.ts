@@ -18,60 +18,108 @@ export async function waitForAudio(
   taskId: string,
   onProgress?: ProgressCallback
 ): Promise<AudioResult> {
-  console.log('⏳ Attente de la génération audio (délai optimisé)...');
+  console.log('⏳ Attente de la génération audio avec polling optimisé...');
   
   let audioUrl = null;
   let attempts = 0;
+  const maxAttempts = 36; // Augmenté à 36 tentatives = 6 minutes
+  const waitTime = 10000; // 10 secondes entre chaque tentative
   
-  while (!audioUrl && attempts < MAX_ATTEMPTS) {
+  while (!audioUrl && attempts < maxAttempts) {
     attempts++;
-    const progress = Math.round((attempts / MAX_ATTEMPTS) * 100);
+    const progress = Math.round((attempts / maxAttempts) * 100);
     
-    console.log(`🔄 Tentative ${attempts}/${MAX_ATTEMPTS} de récupération de l'audio... (${progress}%)`);
+    console.log(`🔄 Tentative ${attempts}/${maxAttempts} de récupération de l'audio... (${progress}%)`);
     
     // Callback de progression si fourni
     if (onProgress) {
-      onProgress(progress, attempts, MAX_ATTEMPTS);
+      onProgress(progress, attempts, maxAttempts);
     }
     
+    // Attendre avant la première tentative aussi (sauf si c'est la première)
     if (attempts > 1) {
-      await new Promise(resolve => setTimeout(resolve, WAIT_TIME));
+      await new Promise(resolve => setTimeout(resolve, waitTime));
+    } else {
+      // Attendre 15 secondes avant la première vérification pour laisser le temps à Suno
+      await new Promise(resolve => setTimeout(resolve, 15000));
     }
     
     try {
-      const audioResponse = await sunoClient.get(`https://apibox.erweima.ai/api/v1/audio/${taskId}`);
-      console.log(`📥 Réponse audio tentative ${attempts}:`, audioResponse);
+      // Utiliser l'endpoint de statut au lieu de l'endpoint audio direct
+      const statusResponse = await sunoClient.get(`https://apibox.erweima.ai/api/v1/generate/record-info?taskId=${taskId}`);
+      console.log(`📥 Réponse statut tentative ${attempts}:`, statusResponse);
       
-      if (audioResponse && audioResponse.data && audioResponse.data.audio_url) {
-        audioUrl = audioResponse.data.audio_url;
-        console.log('🎵 URL audio trouvée:', audioUrl);
-        break;
+      // Vérifier différentes structures de réponse possibles
+      let currentStatus = 'PENDING';
+      let audioData = null;
+      
+      if (statusResponse?.data?.status) {
+        currentStatus = statusResponse.data.status;
+        audioData = statusResponse.data;
+      } else if (statusResponse?.status) {
+        currentStatus = statusResponse.status;
+        audioData = statusResponse;
       }
       
-      if (audioResponse && audioResponse.data && audioResponse.data.status) {
-        console.log(`📊 Statut de la tâche: ${audioResponse.data.status}`);
-        
-        if (audioResponse.data.status === 'failed' || audioResponse.data.status === 'error') {
-          throw new Error(`Génération échouée: ${audioResponse.data.error || 'Erreur inconnue'}`);
+      console.log(`📊 Statut de la tâche: ${currentStatus}`);
+      
+      // Vérifier les statuts d'erreur définitifs
+      if (['CREATE_TASK_FAILED', 'GENERATE_AUDIO_FAILED', 'CALLBACK_EXCEPTION', 'SENSITIVE_WORD_ERROR'].includes(currentStatus)) {
+        throw new Error(`Génération échouée avec le statut: ${currentStatus}`);
+      }
+      
+      // Chercher l'URL audio dans différentes structures possibles
+      if (currentStatus === 'SUCCESS' || currentStatus === 'FIRST_SUCCESS') {
+        // Structure 1: response.sunoData[0].audioUrl
+        if (audioData?.response?.sunoData?.[0]?.audioUrl) {
+          audioUrl = audioData.response.sunoData[0].audioUrl;
+          console.log('🎵 URL audio trouvée (structure sunoData):', audioUrl);
+        }
+        // Structure 2: response.sunoData[0].streamAudioUrl
+        else if (audioData?.response?.sunoData?.[0]?.streamAudioUrl) {
+          audioUrl = audioData.response.sunoData[0].streamAudioUrl;
+          console.log('🎵 URL audio trouvée (structure streamAudioUrl):', audioUrl);
+        }
+        // Structure 3: audio[0].audio_url
+        else if (audioData?.audio?.[0]?.audio_url) {
+          audioUrl = audioData.audio[0].audio_url;
+          console.log('🎵 URL audio trouvée (structure audio):', audioUrl);
+        }
+        // Structure 4: audio_url direct
+        else if (audioData?.audio_url) {
+          audioUrl = audioData.audio_url;
+          console.log('🎵 URL audio trouvée (structure directe):', audioUrl);
         }
         
-        if (audioResponse.data.status === 'processing' || audioResponse.data.status === 'pending') {
-          console.log('🔄 Tâche en cours de traitement, attente réduite...');
+        if (audioUrl) {
+          console.log('✅ Audio généré avec succès!');
+          break;
+        } else {
+          console.log('⚠️ Statut SUCCESS mais aucune URL audio trouvée, continue...');
         }
       }
       
-    } catch (audioError) {
-      console.warn(`⚠️ Erreur lors de la vérification audio (tentative ${attempts}):`, audioError.message);
-      
-      if (audioError.message?.includes('404') || audioError.message?.includes('Not Found')) {
-        console.log('📝 Task pas encore prête (404), continue...');
+      // Pour les autres statuts, continuer à attendre
+      if (['PENDING', 'TEXT_SUCCESS'].includes(currentStatus)) {
+        console.log(`⏳ Statut ${currentStatus}, génération en cours...`);
         continue;
       }
       
-      if (attempts < MAX_ATTEMPTS) {
+    } catch (error) {
+      console.warn(`⚠️ Erreur lors de la vérification du statut (tentative ${attempts}):`, error.message);
+      
+      // Si c'est une erreur 404, c'est normal au début
+      if (error.message?.includes('404') || error.message?.includes('Not Found')) {
+        console.log('📝 Tâche pas encore prête (404), continue...');
+        continue;
+      }
+      
+      // Pour les autres erreurs, continuer quand même mais logguer
+      if (attempts < maxAttempts) {
+        console.log('🔄 Continue malgré l\'erreur...');
         continue;
       } else {
-        throw audioError;
+        throw error;
       }
     }
   }
@@ -80,6 +128,6 @@ export async function waitForAudio(
     audioUrl,
     timeout: !audioUrl,
     attempts,
-    progress: Math.round((attempts / MAX_ATTEMPTS) * 100)
+    progress: Math.round((attempts / maxAttempts) * 100)
   };
 }

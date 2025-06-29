@@ -1,4 +1,6 @@
 
+import { HTTP_TIMEOUT } from './constants.ts';
+
 export class SunoApiClient {
   private apiKey: string;
 
@@ -6,123 +8,87 @@ export class SunoApiClient {
     this.apiKey = apiKey;
   }
 
-  async post<T>(endpoint: string, data: any): Promise<T> {
-    console.log(`🌐 POST ${endpoint}`);
+  async post<T>(url: string, data: any): Promise<T> {
+    console.log(`🌐 POST ${url}`);
     console.log(`📤 Payload:`, JSON.stringify(data, null, 2));
 
-    const response = await fetch(endpoint, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${this.apiKey}`,
-        'Accept': 'application/json',
-        'User-Agent': 'Supabase-Edge-Function/1.0'
-      },
-      body: JSON.stringify(data),
-    });
-
-    console.log(`📊 Status: ${response.status} ${response.statusText}`);
-
-    if (!response.ok) {
-      let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
-      
-      try {
-        const errorText = await response.text();
-        console.error(`❌ Error response:`, errorText);
-        
-        if (errorText.trim()) {
-          try {
-            const errorJson = JSON.parse(errorText);
-            errorMessage = errorJson.message || errorJson.error || errorMessage;
-          } catch {
-            errorMessage = errorText;
-          }
-        }
-      } catch (e) {
-        console.error(`❌ Erreur lors de la lecture de la réponse d'erreur:`, e);
-      }
-
-      throw new Error(errorMessage);
-    }
-
-    const responseText = await response.text();
-    console.log(`📥 Response text length: ${responseText.length}`);
-    
-    if (!responseText || responseText.trim() === '') {
-      throw new Error('Réponse vide de l\'API Suno');
-    }
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), HTTP_TIMEOUT);
 
     try {
-      const result = JSON.parse(responseText);
-      console.log(`✅ Parsed response:`, result);
-      return result;
-    } catch (parseError) {
-      console.error(`❌ Erreur de parsing JSON:`, parseError);
-      console.error(`📄 Raw response:`, responseText.substring(0, 500));
-      throw new Error(`Réponse JSON invalide de l'API Suno: ${parseError.message}`);
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${this.apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+      console.log(`📊 Status: ${response.status} ${response.statusText}`);
+
+      const responseText = await response.text();
+      console.log(`📥 Response text length: ${responseText.length}`);
+
+      if (!response.ok) {
+        console.error(`❌ Error response: ${responseText}`);
+        throw new Error(`HTTP ${response.status}: ${responseText}`);
+      }
+
+      const parsedResponse = JSON.parse(responseText);
+      console.log(`✅ Parsed response:`, parsedResponse);
+
+      return parsedResponse;
+    } catch (error) {
+      clearTimeout(timeoutId);
+      if (error.name === 'AbortError') {
+        throw new Error('Request timeout');
+      }
+      throw error;
     }
   }
 
-  async get<T>(endpoint: string, params?: Record<string, any>): Promise<T> {
-    const url = new URL(endpoint);
+  async get<T>(url: string, params?: Record<string, string>): Promise<T> {
+    const queryString = params ? '?' + new URLSearchParams(params).toString() : '';
+    const fullUrl = `${url}${queryString}`;
     
-    if (params) {
-      Object.entries(params).forEach(([key, value]) => {
-        if (value !== undefined && value !== null) {
-          url.searchParams.append(key, value.toString());
-        }
-      });
-    }
+    console.log(`🌐 GET ${fullUrl}`);
 
-    console.log(`🌐 GET ${url.toString()}`);
-
-    const response = await fetch(url.toString(), {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${this.apiKey}`,
-        'Accept': 'application/json'
-      },
-    });
-
-    console.log(`📊 Status: ${response.status} ${response.statusText}`);
-
-    if (!response.ok) {
-      let errorMessage = `HTTP ${response.status}: ${response.statusText}`;
-      
-      try {
-        const errorText = await response.text();
-        console.error(`❌ Error response:`, errorText);
-        
-        if (errorText.trim()) {
-          try {
-            const errorJson = JSON.parse(errorText);
-            errorMessage = errorJson.message || errorJson.error || errorMessage;
-          } catch {
-            errorMessage = errorText;
-          }
-        }
-      } catch (e) {
-        console.error(`❌ Erreur lors de la lecture de la réponse d'erreur:`, e);
-      }
-
-      throw new Error(errorMessage);
-    }
-
-    const responseText = await response.text();
-    console.log(`📥 Response text length: ${responseText.length}`);
-    
-    if (!responseText || responseText.trim() === '') {
-      throw new Error('Réponse vide de l\'API Suno');
-    }
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), HTTP_TIMEOUT);
 
     try {
-      const result = JSON.parse(responseText);
-      console.log(`✅ Parsed response:`, result);
-      return result;
-    } catch (parseError) {
-      console.error(`❌ Erreur de parsing JSON:`, parseError);
-      console.error(`📄 Raw response:`, responseText.substring(0, 500));
-      throw new Error(`Réponse JSON invalide de l'API Suno: ${parseError.message}`);
+      const response = await fetch(fullUrl, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${this.apiKey}`,
+          'Content-Type': 'application/json',
+        },
+        signal: controller.signal,
+      });
+
+      clearTimeout(timeoutId);
+      console.log(`📊 Status: ${response.status} ${response.statusText}`);
+
+      const responseText = await response.text();
+
+      if (!response.ok) {
+        console.error(`❌ Error response: ${responseText}`);
+        throw new Error(`HTTP ${response.status}: ${responseText}`);
+      }
+
+      const parsedResponse = JSON.parse(responseText);
+      console.log(`✅ GET Response:`, parsedResponse);
+
+      return parsedResponse;
+    } catch (error) {
+      clearTimeout(timeoutId);
+      if (error.name === 'AbortError') {
+        throw new Error('Request timeout');
+      }
+      throw error;
     }
   }
 }
