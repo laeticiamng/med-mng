@@ -10,3 +10,6 @@ export const WAIT_TIME = 5000; // 5 secondes entre chaque tentative (plus réact
 
 // Timeout pour les requêtes HTTP
 export const HTTP_TIMEOUT = 20000; // 20 secondes (réduit)
+
+// Durée par défaut pour la validation
+export const DEFAULT_DURATION = 240; // 4 minutes par défaut

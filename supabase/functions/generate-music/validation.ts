@@ -1,44 +1,53 @@
 
-import { DEFAULT_DURATION, DEFAULT_LANGUAGE, DEFAULT_FAST_MODE } from './constants.ts';
+import { DEFAULT_DURATION } from './constants.ts';
 
-export interface RequestData {
+export interface GenerateMusicRequest {
   lyrics: string;
   style: string;
   rang: 'A' | 'B';
-  duration: number;
-  language: string;
-  fastMode: boolean;
+  duration?: number;
+  language?: string;
+  fastMode?: boolean;
+  composition?: {
+    styles: string[];
+    fusion_mode: boolean;
+    enhanced_duration: boolean;
+  };
 }
 
-export function validateRequest(body: string): RequestData {
-  if (!body || body.trim() === '') {
-    throw new Error('Corps de requête vide');
-  }
-
+export function validateRequest(body: string): GenerateMusicRequest {
   let requestData;
+  
   try {
     requestData = JSON.parse(body);
-  } catch (parseError) {
-    console.error('❌ Erreur parsing JSON requête:', parseError);
-    throw new Error('JSON invalide dans la requête');
+  } catch (error) {
+    throw new Error('Corps de requête JSON invalide');
   }
 
-  const { 
-    lyrics, 
-    style, 
-    rang, 
-    duration = DEFAULT_DURATION, 
-    language = DEFAULT_LANGUAGE, 
-    fastMode = DEFAULT_FAST_MODE 
-  } = requestData;
-
-  if (!lyrics || !style || !rang) {
-    throw new Error('Paramètres manquants: lyrics, style et rang sont requis');
+  if (!requestData.lyrics || typeof requestData.lyrics !== 'string') {
+    throw new Error('Paroles manquantes ou invalides');
   }
 
-  if (lyrics.trim() === '' || lyrics === 'Aucune parole disponible pour le Rang A' || lyrics === 'Aucune parole disponible pour le Rang B') {
-    throw new Error(`Aucune parole valide fournie pour le Rang ${rang}`);
+  if (!requestData.style || typeof requestData.style !== 'string') {
+    throw new Error('Style musical manquant ou invalide');
   }
 
-  return { lyrics, style, rang, duration, language, fastMode };
+  if (!requestData.rang || !['A', 'B'].includes(requestData.rang)) {
+    throw new Error('Rang invalide (doit être A ou B)');
+  }
+
+  // Valider la durée avec une valeur par défaut
+  const duration = requestData.duration && typeof requestData.duration === 'number' 
+    ? Math.max(60, Math.min(600, requestData.duration)) // Entre 1 et 10 minutes
+    : DEFAULT_DURATION;
+
+  return {
+    lyrics: requestData.lyrics.trim(),
+    style: requestData.style.trim(),
+    rang: requestData.rang,
+    duration,
+    language: requestData.language || 'fr',
+    fastMode: requestData.fastMode !== false, // true par défaut
+    composition: requestData.composition
+  };
 }
