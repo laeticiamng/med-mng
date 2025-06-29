@@ -16,6 +16,7 @@ import EcosScenario from "./pages/EcosScenario";
 import EdnIndex from "./pages/EdnIndex";
 import EdnItem from "./pages/EdnItem";
 import EdnItemImmersive from "./pages/EdnItemImmersive";
+import EdnMusicLibrary from "./pages/EdnMusicLibrary";
 import AuditGeneralPage from "./pages/AuditGeneral";
 import MentionsLegales from "./pages/MentionsLegales";
 import PolitiqueConfidentialite from "./pages/PolitiqueConfidentialite";
@@ -47,6 +48,7 @@ function App() {
                   <Route path="/edn" element={<EdnIndex />} />
                   <Route path="/edn/:slug" element={<EdnItem />} />
                   <Route path="/edn/immersive/:slug" element={<EdnItemImmersive />} />
+                  <Route path="/edn/music-library" element={<EdnMusicLibrary />} />
                   <Route path="/audit-general" element={<AuditGeneralPage />} />
                   <Route path="/mentions-legales" element={<MentionsLegales />} />
                   <Route path="/politique-confidentialite" element={<PolitiqueConfidentialite />} />

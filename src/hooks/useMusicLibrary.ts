@@ -7,45 +7,39 @@ interface SavedMusic {
   id: string;
   title: string;
   audio_url: string;
+  item_code?: string;
   music_style: string;
-  rang: string;
-  item_code: string;
   created_at: string;
 }
 
 export const useMusicLibrary = () => {
   const [savedMusics, setSavedMusics] = useState<SavedMusic[]>([]);
   const [loading, setLoading] = useState(true);
-  const [currentAudio, setCurrentAudio] = useState<HTMLAudioElement | null>(null);
   const [playingId, setPlayingId] = useState<string | null>(null);
   const { toast } = useToast();
 
+  useEffect(() => {
+    fetchSavedMusics();
+  }, []);
+
   const fetchSavedMusics = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        setLoading(false);
-        return;
-      }
-
       const { data, error } = await supabase
-        .from('user_generated_music' as any)
+        .from('user_generated_music')
         .select('*')
-        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Erreur chargement:', error);
+        console.error('Erreur lors du chargement des musiques:', error);
         toast({
-          title: "Erreur de chargement",
-          description: "Impossible de charger votre bibliothèque musicale.",
+          title: "Erreur",
+          description: "Impossible de charger votre bibliothèque musicale",
           variant: "destructive"
         });
         return;
       }
 
-      setSavedMusics((data as unknown as SavedMusic[]) || []);
+      setSavedMusics(data || []);
     } catch (error) {
       console.error('Erreur:', error);
     } finally {
@@ -53,64 +47,42 @@ export const useMusicLibrary = () => {
     }
   };
 
-  const handlePlay = (music: SavedMusic) => {
-    if (currentAudio) {
-      currentAudio.pause();
-    }
-
-    if (playingId === music.id) {
-      setPlayingId(null);
-      setCurrentAudio(null);
-      return;
-    }
-
-    const audio = new Audio(music.audio_url);
-    audio.play();
-    
-    audio.addEventListener('ended', () => {
-      setPlayingId(null);
-      setCurrentAudio(null);
-    });
-
-    setCurrentAudio(audio);
-    setPlayingId(music.id);
+  const handlePlay = (musicId: string) => {
+    setPlayingId(playingId === musicId ? null : musicId);
   };
 
   const handleDelete = async (musicId: string) => {
     try {
       const { error } = await supabase
-        .from('user_generated_music' as any)
+        .from('user_generated_music')
         .delete()
         .eq('id', musicId);
 
       if (error) {
         toast({
-          title: "Erreur de suppression",
-          description: "Impossible de supprimer cette musique.",
+          title: "Erreur",
+          description: "Impossible de supprimer cette musique",
           variant: "destructive"
         });
         return;
       }
 
-      setSavedMusics(prev => prev.filter(m => m.id !== musicId));
+      setSavedMusics(prev => prev.filter(music => music.id !== musicId));
       toast({
-        title: "Musique supprimée",
-        description: "La musique a été retirée de votre bibliothèque.",
+        title: "Supprimé",
+        description: "Musique supprimée de votre bibliothèque"
       });
     } catch (error) {
-      console.error('Erreur suppression:', error);
+      console.error('Erreur lors de la suppression:', error);
     }
   };
-
-  useEffect(() => {
-    fetchSavedMusics();
-  }, []);
 
   return {
     savedMusics,
     loading,
     playingId,
     handlePlay,
-    handleDelete
+    handleDelete,
+    refetch: fetchSavedMusics
   };
 };

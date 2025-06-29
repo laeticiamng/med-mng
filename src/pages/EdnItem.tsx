@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -153,9 +152,30 @@ const EdnItem = () => {
         );
       
       case 'music':
+        // Vérifier si les paroles musicales existent
+        if (!item.paroles_musicales || item.paroles_musicales.length === 0) {
+          return (
+            <div className="text-center py-8 bg-amber-50 rounded-lg border border-amber-200">
+              <Music className="h-12 w-12 text-amber-600 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-amber-800 mb-2">
+                <TranslatedText text="Paroles musicales en préparation" />
+              </h3>
+              <p className="text-amber-600 mb-4">
+                <TranslatedText text="Les paroles pour cet item sont en cours de création." />
+              </p>
+              <Link to="/edn/music-library">
+                <Button className="bg-amber-600 hover:bg-amber-700">
+                  <Music className="h-4 w-4 mr-2" />
+                  <TranslatedText text="Voir ma bibliothèque musicale" />
+                </Button>
+              </Link>
+            </div>
+          );
+        }
+        
         return (
           <ParolesMusicales 
-            paroles={item.paroles_musicales || []} 
+            paroles={item.paroles_musicales} 
             itemCode={item.item_code}
             itemTitle={item.title}
           />
@@ -209,6 +229,16 @@ const EdnItem = () => {
               >
                 <Play className="h-4 w-4" />
                 <TranslatedText text="Mode Immersif" />
+              </Link>
+            </div>
+            
+            {/* Bouton d'accès direct à la bibliothèque musicale */}
+            <div className="mt-4">
+              <Link to="/edn/music-library">
+                <Button variant="outline" className="flex items-center gap-2">
+                  <Music className="h-4 w-4" />
+                  <TranslatedText text="Ma Bibliothèque Musicale" />
+                </Button>
               </Link>
             </div>
           </div>
