@@ -1,5 +1,6 @@
 
 import { MusicLoadingIndicator } from './MusicLoadingIndicator';
+import { MusicGenerationProgress } from './MusicGenerationProgress';
 import { MusicCardContent } from './MusicCardContent';
 import { MusicCardActions } from './MusicCardActions';
 import { MusicCardPlayer } from './MusicCardPlayer';
@@ -27,6 +28,12 @@ interface MusicCardProps {
   onStop: () => void;
   onMinimize: () => void;
   itemCode?: string;
+  generationProgress?: {
+    progress: number;
+    attempts: number;
+    maxAttempts: number;
+    estimatedTimeRemaining?: number;
+  };
 }
 
 export const MusicCard = ({
@@ -49,7 +56,8 @@ export const MusicCard = ({
   onVolumeChange,
   onStop,
   onMinimize,
-  itemCode
+  itemCode,
+  generationProgress
 }: MusicCardProps) => {
   const { isClicked, handleGenerateClick } = useMusicCardState(isGenerating);
 
@@ -58,11 +66,21 @@ export const MusicCard = ({
   };
 
   return (
-    <div>
+    <div className="space-y-4">
       <MusicLoadingIndicator 
         rang={rang}
         duration={musicDuration}
-        isVisible={isGenerating}
+        isVisible={isGenerating && !generationProgress}
+      />
+
+      <MusicGenerationProgress
+        rang={rang}
+        progress={generationProgress?.progress || 0}
+        attempts={generationProgress?.attempts || 0}
+        maxAttempts={generationProgress?.maxAttempts || 12}
+        estimatedTimeRemaining={generationProgress?.estimatedTimeRemaining}
+        style={selectedStyle}
+        isVisible={isGenerating && !!generationProgress}
       />
 
       <MusicCardContent

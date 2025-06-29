@@ -22,7 +22,8 @@ export function createSuccessResponse(
     lyrics_integrated: true,
     vocals_included: true,
     taskId: '',
-    attempts: attempts
+    attempts: attempts,
+    progress: 100
   };
 
   console.log('✅ Retour de succès avec audio réel:', successResponse);
@@ -49,7 +50,8 @@ export function createTimeoutResponse(
     style,
     duration: duration,
     attempts: 12,
-    timeoutAfter: '2 minutes'
+    timeoutAfter: '2 minutes',
+    progress: 100
   };
 
   console.log('⏰ Retour de timeout avec taskId:', timeoutResponse);
@@ -59,6 +61,39 @@ export function createTimeoutResponse(
     { 
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 408
+    }
+  );
+}
+
+export function createProgressResponse(
+  taskId: string,
+  rang: 'A' | 'B',
+  style: string,
+  duration: number,
+  progress: number,
+  attempts: number,
+  maxAttempts: number
+): Response {
+  const progressResponse = {
+    status: 'generating',
+    message: `Génération en cours... ${progress}%`,
+    taskId: taskId,
+    rang,
+    style,
+    duration: duration,
+    progress: progress,
+    attempts: attempts,
+    maxAttempts: maxAttempts,
+    estimatedTimeRemaining: Math.round(((maxAttempts - attempts) * (WAIT_TIME / 1000)) / 60)
+  };
+
+  console.log(`🔄 Retour de progression ${progress}%:`, progressResponse);
+
+  return new Response(
+    JSON.stringify(progressResponse),
+    { 
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 202
     }
   );
 }
@@ -84,6 +119,7 @@ export function createErrorResponse(error: Error): Response {
       status: 'error',
       error_code: statusCode,
       details: 'Erreur lors de la génération avec Suno API',
+      progress: 0,
       debug: {
         error_type: error.name,
         error_message: error.message,

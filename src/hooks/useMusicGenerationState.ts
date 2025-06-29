@@ -6,12 +6,23 @@ interface GeneratingState {
   rangB: boolean;
 }
 
+interface GenerationProgress {
+  progress: number;
+  attempts: number;
+  maxAttempts: number;
+  estimatedTimeRemaining?: number;
+}
+
 export const useMusicGenerationState = () => {
   const [isGenerating, setIsGenerating] = useState<GeneratingState>({
     rangA: false,
     rangB: false
   });
   const [generatedAudio, setGeneratedAudio] = useState<{ rangA?: string; rangB?: string }>({});
+  const [generationProgress, setGenerationProgress] = useState<{ 
+    rangA?: GenerationProgress; 
+    rangB?: GenerationProgress 
+  }>({});
   const [lastError, setLastError] = useState<string>('');
   
   // Protection contre les appels multiples
@@ -20,6 +31,12 @@ export const useMusicGenerationState = () => {
   const setGeneratingState = (rang: 'A' | 'B', isGenerating: boolean) => {
     const rangKey = `rang${rang}` as keyof GeneratingState;
     setIsGenerating(prev => ({ ...prev, [rangKey]: isGenerating }));
+    
+    // Reset du progress quand la génération s'arrête
+    if (!isGenerating) {
+      const progressKey = rang === 'A' ? 'rangA' : 'rangB';
+      setGenerationProgress(prev => ({ ...prev, [progressKey]: undefined }));
+    }
   };
 
   const setAudioUrl = (rang: 'A' | 'B', url: string) => {
@@ -37,6 +54,11 @@ export const useMusicGenerationState = () => {
     });
   };
 
+  const updateGenerationProgress = (rang: 'A' | 'B', progress: GenerationProgress) => {
+    const progressKey = rang === 'A' ? 'rangA' : 'rangB';
+    setGenerationProgress(prev => ({ ...prev, [progressKey]: progress }));
+  };
+
   const isAlreadyGenerating = (rang: 'A' | 'B') => {
     return generatingRef.current.has(rang);
   };
@@ -52,10 +74,12 @@ export const useMusicGenerationState = () => {
   return {
     isGenerating,
     generatedAudio,
+    generationProgress,
     lastError,
     setLastError,
     setGeneratingState,
     setAudioUrl,
+    updateGenerationProgress,
     isAlreadyGenerating,
     markAsGenerating,
     unmarkAsGenerating

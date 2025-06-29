@@ -6,9 +6,18 @@ export interface AudioResult {
   audioUrl?: string;
   timeout: boolean;
   attempts: number;
+  progress?: number;
 }
 
-export async function waitForAudio(sunoClient: SunoApiClient, taskId: string): Promise<AudioResult> {
+export interface ProgressCallback {
+  (progress: number, attempt: number, maxAttempts: number): void;
+}
+
+export async function waitForAudio(
+  sunoClient: SunoApiClient, 
+  taskId: string,
+  onProgress?: ProgressCallback
+): Promise<AudioResult> {
   console.log('⏳ Attente de la génération audio (délai optimisé)...');
   
   let audioUrl = null;
@@ -16,7 +25,14 @@ export async function waitForAudio(sunoClient: SunoApiClient, taskId: string): P
   
   while (!audioUrl && attempts < MAX_ATTEMPTS) {
     attempts++;
-    console.log(`🔄 Tentative ${attempts}/${MAX_ATTEMPTS} de récupération de l'audio...`);
+    const progress = Math.round((attempts / MAX_ATTEMPTS) * 100);
+    
+    console.log(`🔄 Tentative ${attempts}/${MAX_ATTEMPTS} de récupération de l'audio... (${progress}%)`);
+    
+    // Callback de progression si fourni
+    if (onProgress) {
+      onProgress(progress, attempts, MAX_ATTEMPTS);
+    }
     
     if (attempts > 1) {
       await new Promise(resolve => setTimeout(resolve, WAIT_TIME));
@@ -63,6 +79,7 @@ export async function waitForAudio(sunoClient: SunoApiClient, taskId: string): P
   return {
     audioUrl,
     timeout: !audioUrl,
-    attempts
+    attempts,
+    progress: Math.round((attempts / MAX_ATTEMPTS) * 100)
   };
 }
