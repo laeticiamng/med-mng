@@ -1,9 +1,9 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import { BookOpen, Users, Clock, Sparkles, BarChart3, Target, Award, TrendingUp, Music } from "lucide-react";
+import PolitiqueConfidentialite from "./PolitiqueConfidentialite";
 
 const Index = () => {
   return (
@@ -212,6 +212,7 @@ const Index = () => {
                 <h3 className="font-semibold mb-4">Légal</h3>
                 <div className="space-y-2">
                   <Link to="/mentions-legales" className="block text-gray-600 hover:text-blue-600 text-sm">Mentions Légales</Link>
+                  <Link to="/politique-confidentialite" className="block text-gray-600 hover:text-blue-600 text-sm">Politique de Confidentialité</Link>
                   <a href="mailto:contact@emotionscare.com" className="block text-gray-600 hover:text-blue-600 text-sm">Contact</a>
                 </div>
               </div>

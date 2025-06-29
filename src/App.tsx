@@ -48,6 +48,7 @@ function App() {
                   <Route path="/edn/immersive/:slug" element={<EdnItemImmersive />} />
                   <Route path="/audit-general" element={<AuditGeneralPage />} />
                   <Route path="/mentions-legales" element={<MentionsLegales />} />
+                  <Route path="/politique-confidentialite" element={<PolitiqueConfidentialite />} />
                   <Route path="/med-mng/login" element={<MedMngLogin />} />
                   <Route path="/med-mng/signup" element={<MedMngSignup />} />
                   <Route path="/med-mng/pricing" element={<MedMngPricing />} />
