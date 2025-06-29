@@ -137,6 +137,27 @@ class MedMngApi {
 
     return response.json();
   }
+
+  async createUserSubscription(planId: string, gateway: string, subscriptionId: string) {
+    const headers = await this.getAuthHeaders();
+    
+    const response = await fetch(`${API_BASE_URL}/subscriptions`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        plan_id: planId,
+        gateway,
+        subscription_id: subscriptionId,
+      }),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Échec création abonnement MED-MNG');
+    }
+
+    return response.json();
+  }
 }
 
 export const medMngApi = new MedMngApi();

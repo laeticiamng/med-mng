@@ -41,6 +41,24 @@ serve(async (req) => {
   const path = url.pathname.replace('/functions/v1/med-mng-api', '');
 
   try {
+    // Route: POST /subscriptions - Create subscription
+    if (path === '/subscriptions' && req.method === 'POST') {
+      const { plan_id, gateway, subscription_id } = await req.json();
+      
+      const { error } = await supabase.rpc('med_mng_create_user_sub', {
+        plan_name: plan_id,
+        gateway_name: gateway,
+        subscription_id: subscription_id
+      });
+
+      if (error) throw error;
+
+      return new Response(
+        JSON.stringify({ success: true }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     // Route: POST /songs - Create a new song
     if (path === '/songs' && req.method === 'POST') {
       const { title, suno_audio_id, meta } = await req.json();
