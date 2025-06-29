@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { TableauRangAHeader } from './TableauRangAHeader';
-import { TableauRangAFooter } from './TableauRangAFooter';
+import { TableauRangAFooterIC4 } from './TableauRangAFooterIC4';
 import { generateLignesRangBIntelligentIC4, determinerColonnesUtilesIC4 } from './TableauRangAUtilsIC4';
 import { useIsMobile } from '@/hooks/use-mobile';
 
@@ -50,7 +50,7 @@ export const TableauRangBIC4 = ({ data }: TableauRangBIC4Props) => {
       setProcessedData({
         lignesEnrichies: lignes,
         colonnesUtiles: colonnes,
-        theme: tableauData.theme || 'IC-4 : Qualité et sécurité des soins - Rang B Expert'
+        theme: tableauData.theme || 'IC-4 : Qualité et sécurité des soins - Rang B Expert (22 connaissances LiSA)'
       });
     } else {
       // Utiliser les données par défaut
@@ -60,7 +60,7 @@ export const TableauRangBIC4 = ({ data }: TableauRangBIC4Props) => {
       setProcessedData({
         lignesEnrichies: lignesDefault,
         colonnesUtiles: colonnesDefault,
-        theme: 'IC-4 : Qualité et sécurité des soins - Rang B Expert'
+        theme: 'IC-4 : Qualité et sécurité des soins - Rang B Expert (22 connaissances LiSA)'
       });
     }
   }, [data]);
@@ -68,7 +68,7 @@ export const TableauRangBIC4 = ({ data }: TableauRangBIC4Props) => {
   if (!processedData || !processedData.lignesEnrichies.length) {
     return (
       <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 mx-2 sm:mx-0">
-        <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4">Tableau Rang B Expert</h2>
+        <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4">Tableau Rang B Expert IC-4</h2>
         <p className="text-gray-600 text-sm sm:text-base">Aucune donnée disponible pour ce tableau.</p>
       </div>
     );
@@ -90,13 +90,13 @@ export const TableauRangBIC4 = ({ data }: TableauRangBIC4Props) => {
     <div className="space-y-4 sm:space-y-6 pb-20">
       <div className="bg-gradient-to-r from-slate-700 to-slate-800 text-white p-4 sm:p-6 rounded-lg mx-2 sm:mx-0">
         <h2 className="text-xl sm:text-2xl font-bold mb-2">
-          📚 Rang B - Connaissances Approfondies
+          📚 Rang B - Connaissances Expertes LiSA
         </h2>
         <p className="text-slate-200 text-sm sm:text-base">
           {theme} - {lignesEnrichies.length} compétence{lignesEnrichies.length > 1 ? 's' : ''} de niveau expert
         </p>
         <div className="text-xs text-slate-300 mt-2">
-          Item {data.item_code} • Niveau d'expertise avancé
+          Item {data.item_code} • Structure LiSA officielle • {lignesEnrichies.length}/22 connaissances
         </div>
       </div>
 
@@ -187,9 +187,10 @@ export const TableauRangBIC4 = ({ data }: TableauRangBIC4Props) => {
         </div>
       </div>
 
-      <TableauRangAFooter 
+      <TableauRangAFooterIC4 
         colonnesCount={colonnesUtiles.length}
         lignesCount={lignesEnrichies.length}
+        isRangB={true}
       />
     </div>
   );
