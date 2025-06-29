@@ -18,6 +18,7 @@ import EdnItem from "./pages/EdnItem";
 import EdnItemImmersive from "./pages/EdnItemImmersive";
 import AuditGeneralPage from "./pages/AuditGeneral";
 import MentionsLegales from "./pages/MentionsLegales";
+import PolitiqueConfidentialite from "./pages/PolitiqueConfidentialite";
 import { MedMngLogin } from "./pages/MedMngLogin";
 import { MedMngSignup } from "./pages/MedMngSignup";
 import { MedMngPricing } from "./pages/MedMngPricing";
