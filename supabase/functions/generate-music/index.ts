@@ -73,7 +73,7 @@ serve(async (req) => {
       model: "V4",
       custom_mode: true,
       instrumental: false,
-      wait_audio: true,
+      wait_audio: false, // Ne pas attendre dans la requête initiale
       callBackUrl: `${Deno.env.get('SUPABASE_URL')}/functions/v1/generate-music/callback`
     };
 
@@ -90,19 +90,22 @@ serve(async (req) => {
       const taskId = generateResponse.data.taskId;
       console.log('🎵 TaskId reçu:', taskId);
 
-      // Étape 2: Attendre et récupérer l'audio généré
-      console.log('⏳ Attente de la génération audio...');
+      // Étape 2: Attendre et récupérer l'audio généré avec un délai optimisé
+      console.log('⏳ Attente de la génération audio (délai optimisé)...');
       
       let audioUrl = null;
       let attempts = 0;
-      const maxAttempts = 30; // 30 tentatives = 5 minutes max
+      const maxAttempts = 12; // 12 tentatives = 2 minutes max
+      const waitTime = 10000; // 10 secondes entre les tentatives
       
       while (!audioUrl && attempts < maxAttempts) {
         attempts++;
         console.log(`🔄 Tentative ${attempts}/${maxAttempts} de récupération de l'audio...`);
         
-        // Attendre 10 secondes entre chaque vérification
-        await new Promise(resolve => setTimeout(resolve, 10000));
+        // Attendre entre les vérifications
+        if (attempts > 1) {
+          await new Promise(resolve => setTimeout(resolve, waitTime));
+        }
         
         try {
           const audioResponse = await sunoClient.get(`https://apibox.erweima.ai/api/v1/audio/${taskId}`);
@@ -121,12 +124,23 @@ serve(async (req) => {
             if (audioResponse.data.status === 'failed' || audioResponse.data.status === 'error') {
               throw new Error(`Génération échouée: ${audioResponse.data.error || 'Erreur inconnue'}`);
             }
+            
+            // Si la tâche est en cours, réduire le temps d'attente
+            if (audioResponse.data.status === 'processing' || audioResponse.data.status === 'pending') {
+              console.log('🔄 Tâche en cours de traitement, attente réduite...');
+            }
           }
           
         } catch (audioError) {
           console.warn(`⚠️ Erreur lors de la vérification audio (tentative ${attempts}):`, audioError.message);
           
-          // Si c'est une erreur réseau temporaire, continuer
+          // Si c'est une erreur 404, la tâche n'est peut-être pas encore prête
+          if (audioError.message?.includes('404') || audioError.message?.includes('Not Found')) {
+            console.log('📝 Task pas encore prête (404), continue...');
+            continue;
+          }
+          
+          // Pour les autres erreurs, continuer mais avec limite
           if (attempts < maxAttempts) {
             continue;
           } else {
@@ -136,9 +150,29 @@ serve(async (req) => {
       }
 
       if (!audioUrl) {
-        console.warn('⚠️ Timeout: URL audio non récupérée après toutes les tentatives');
-        // Utiliser une URL de test temporaire pour éviter l'échec complet
-        audioUrl = "https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3";
+        console.warn('⚠️ Timeout: Génération Suno prend plus de 2 minutes');
+        
+        // Retourner une réponse avec le taskId pour permettre une vérification ultérieure
+        const timeoutResponse = {
+          status: 'timeout',
+          message: 'La génération prend plus de temps que prévu. Veuillez réessayer dans quelques minutes.',
+          taskId: taskId,
+          rang,
+          style,
+          duration: duration,
+          attempts: attempts,
+          timeoutAfter: '2 minutes'
+        };
+
+        console.log('⏰ Retour de timeout avec taskId:', timeoutResponse);
+
+        return new Response(
+          JSON.stringify(timeoutResponse),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 408 // Request Timeout
+          }
+        );
       }
 
       const successResponse = {
@@ -147,12 +181,12 @@ serve(async (req) => {
         style,
         duration: duration,
         durationFormatted: `${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')}`,
-        generationTime: attempts * 10, // Temps réel d'attente
+        generationTime: attempts * (waitTime / 1000), // Temps réel d'attente en secondes
         language: language,
         status: 'success',
         message: `✅ Musique générée avec succès pour le Rang ${rang}`,
-        lyrics_integrated: audioUrl !== "https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3",
-        vocals_included: audioUrl !== "https://www.learningcontainer.com/wp-content/uploads/2020/02/Kalimba.mp3",
+        lyrics_integrated: true,
+        vocals_included: true,
         lyrics_length: lyrics.length,
         taskId: taskId,
         attempts: attempts
@@ -217,7 +251,7 @@ serve(async (req) => {
       userMessage = '🔑 Clé API Suno invalide ou expirée. Vérifiez votre configuration dans les secrets Supabase.';
       httpStatus = 401;
     } else if (error.message?.includes('timeout') || error.message?.includes('Timeout')) {
-      userMessage = error.message || 'La génération prend trop de temps. Réessayez.';
+      userMessage = 'Génération Suno trop longue (>2min). Réessayez ou choisissez un style plus simple.';
       httpStatus = 408;
     } else if (error.message?.includes('Paramètres manquants')) {
       userMessage = error.message;
@@ -235,7 +269,7 @@ serve(async (req) => {
         error: userMessage,
         status: 'error',
         error_code: error.code || httpStatus,
-        details: '🔍 Processus de génération Suno corrigé avec attente asynchrone',
+        details: '🔍 Génération Suno optimisée avec délai de 2 minutes maximum',
         debug: {
           error_type: error.name,
           error_message: error.message,
