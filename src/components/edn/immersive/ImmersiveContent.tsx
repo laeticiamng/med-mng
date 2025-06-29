@@ -40,7 +40,21 @@ export const ImmersiveContent = ({ item, currentSection }: ImmersiveContentProps
         return <TableauRangA data={{ ...item, tableau_rang_a: item.tableau_rang_b }} />;
       
       case 4:
-        return <ParolesMusicales paroles={item.paroles_musicales} />;
+        // Ajouter des logs pour déboguer les paroles musicales
+        console.log('🎵 Section Paroles Musicales - Item data:', {
+          item_code: item.item_code,
+          title: item.title,
+          paroles_musicales: item.paroles_musicales,
+          paroles_length: item.paroles_musicales?.length || 0
+        });
+        
+        return (
+          <ParolesMusicales 
+            paroles={item.paroles_musicales || []} 
+            itemCode={item.item_code}
+            itemTitle={item.title}
+          />
+        );
       
       case 5:
         return (

@@ -1,4 +1,5 @@
-import { useState } from 'react';
+
+import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { MusicHeader } from './music/MusicHeader';
 import { MusicStyleSelector } from './music/MusicStyleSelector';
@@ -45,6 +46,20 @@ export const ParolesMusicales = ({ paroles, itemCode, itemTitle }: ParolesMusica
     minimize
   } = useAudioControls();
 
+  // Logs de débogage pour identifier le problème
+  useEffect(() => {
+    console.log('🎵 ParolesMusicales - Props reçues:', {
+      paroles: paroles?.length || 0,
+      itemCode,
+      itemTitle,
+      parolesContent: paroles
+    });
+    
+    if (!paroles || paroles.length === 0) {
+      console.warn('⚠️ Aucune parole disponible pour la génération musicale');
+    }
+  }, [paroles, itemCode, itemTitle]);
+
   const musicStyles = [
     { value: 'lofi-piano', label: 'Lo-fi Piano Doux' },
     { value: 'afrobeat', label: 'Afrobeat Énergique' },
@@ -55,6 +70,7 @@ export const ParolesMusicales = ({ paroles, itemCode, itemTitle }: ParolesMusica
   ];
 
   const handleGenerateMusic = async (rang: 'A' | 'B') => {
+    console.log(`🚀 Génération demandée pour Rang ${rang} avec style: ${selectedStyle}`);
     await generateMusicInLanguage(rang, paroles, selectedStyle, musicDuration);
   };
 
@@ -97,9 +113,45 @@ export const ParolesMusicales = ({ paroles, itemCode, itemTitle }: ParolesMusica
     }
   };
 
+  // Vérifier si nous avons des données valides à afficher
+  if (!paroles || paroles.length === 0) {
+    return (
+      <div className="space-y-8">
+        <MusicHeader />
+        
+        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 text-center">
+          <div className="flex items-center justify-center gap-3 mb-4">
+            <span className="text-4xl">🎵</span>
+            <h3 className="text-xl font-semibold text-yellow-800">
+              Paroles musicales non disponibles
+            </h3>
+          </div>
+          <p className="text-yellow-700 mb-4">
+            Aucune parole musicale n'est configurée pour cet item.
+          </p>
+          <div className="text-sm text-yellow-600 bg-yellow-100 rounded p-3">
+            <p><strong>Debug info:</strong></p>
+            <p>Item Code: {itemCode || 'Non défini'}</p>
+            <p>Item Title: {itemTitle || 'Non défini'}</p>
+            <p>Paroles reçues: {paroles ? paroles.length : 0} élément(s)</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-8">
       <MusicHeader />
+      
+      {/* Debug: Afficher les données reçues */}
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-sm">
+        <p className="font-semibold text-blue-800 mb-2">🔍 Informations de debug :</p>
+        <p>Item: {itemCode} - {itemTitle}</p>
+        <p>Paroles disponibles: {paroles.length} rang(s)</p>
+        <p>Rang A: {paroles[0] ? `${paroles[0].substring(0, 100)}...` : 'Non disponible'}</p>
+        <p>Rang B: {paroles[1] ? `${paroles[1].substring(0, 100)}...` : 'Non disponible'}</p>
+      </div>
       
       {/* Indication de la langue actuelle */}
       <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">

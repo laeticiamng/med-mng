@@ -43,6 +43,8 @@ export const useImmersiveLogic = () => {
   useEffect(() => {
     const fetchItem = async () => {
       try {
+        console.log('🔍 Chargement item immersif pour slug:', slug);
+        
         const { data, error } = await supabase
           .from('edn_items_immersive')
           .select('*')
@@ -50,13 +52,29 @@ export const useImmersiveLogic = () => {
           .single();
 
         if (error) {
-          console.error('Error fetching item:', error);
+          console.error('❌ Erreur lors du chargement de l\'item:', error);
           return;
         }
 
+        console.log('✅ Item chargé avec succès:', {
+          item_code: data.item_code,
+          title: data.title,
+          paroles_musicales: data.paroles_musicales,
+          paroles_length: data.paroles_musicales?.length || 0,
+          sections_disponibles: {
+            pitch_intro: !!data.pitch_intro,
+            scene_immersive: !!data.scene_immersive,
+            tableau_rang_a: !!data.tableau_rang_a,
+            tableau_rang_b: !!data.tableau_rang_b,
+            paroles_musicales: !!data.paroles_musicales,
+            interaction_config: !!data.interaction_config,
+            quiz_questions: !!data.quiz_questions
+          }
+        });
+
         setItem(data);
       } catch (error) {
-        console.error('Error:', error);
+        console.error('❌ Erreur inattendue:', error);
       } finally {
         setLoading(false);
       }
@@ -70,6 +88,12 @@ export const useImmersiveLogic = () => {
   useEffect(() => {
     const newProgress = ((currentSection + 1) / sections.length) * 100;
     setProgress(newProgress);
+    
+    console.log('📍 Navigation vers section:', {
+      index: currentSection,
+      section: sections[currentSection],
+      progress: newProgress
+    });
   }, [currentSection]);
 
   const toggleAudio = () => {
