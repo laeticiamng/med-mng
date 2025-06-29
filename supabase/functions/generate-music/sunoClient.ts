@@ -1,7 +1,7 @@
 
 export class SunoApiClient {
   private apiKey: string;
-  private baseUrl: string = 'https://apibox.erweima.ai';
+  private baseUrl: string = 'https://api.suno.ai';
 
   constructor(apiKey: string) {
     this.apiKey = apiKey;
@@ -45,7 +45,6 @@ export class SunoApiClient {
       throw new Error(errorMessage);
     }
 
-    // Gestion sécurisée du parsing JSON
     const responseText = await response.text();
     console.log(`📥 Response text length: ${responseText.length}`);
     
@@ -109,7 +108,6 @@ export class SunoApiClient {
       throw new Error(errorMessage);
     }
 
-    // Gestion sécurisée du parsing JSON
     const responseText = await response.text();
     console.log(`📥 Response text length: ${responseText.length}`);
     
