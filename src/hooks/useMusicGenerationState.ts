@@ -23,11 +23,18 @@ export const useMusicGenerationState = () => {
   };
 
   const setAudioUrl = (rang: 'A' | 'B', url: string) => {
+    console.log(`🎵 STATE - setAudioUrl appelé:`, { rang, url, urlValid: url?.startsWith('http') });
+    
     const audioKey = rang === 'A' ? 'rangA' : 'rangB';
-    setGeneratedAudio(prev => ({
-      ...prev,
-      [audioKey]: url
-    }));
+    
+    setGeneratedAudio(prev => {
+      const newState = {
+        ...prev,
+        [audioKey]: url
+      };
+      console.log(`🎵 STATE - Nouvel état generatedAudio:`, newState);
+      return newState;
+    });
   };
 
   const isAlreadyGenerating = (rang: 'A' | 'B') => {

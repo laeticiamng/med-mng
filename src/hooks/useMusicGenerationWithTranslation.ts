@@ -83,14 +83,40 @@ export const useMusicGenerationWithTranslation = () => {
       // Appeler l'API Suno
       const { audioUrl, callDuration } = await callSunoApi(requestBody);
 
-      // Stocker l'URL audio
+      console.log('🎵 RÉPONSE API SUNO REÇUE:', {
+        audioUrl,
+        callDuration,
+        rang,
+        urlValid: audioUrl && audioUrl.startsWith('http')
+      });
+
+      // Vérification critique de l'URL
+      if (!audioUrl) {
+        throw new Error('Aucune URL audio reçue de l\'API Suno');
+      }
+
+      if (!audioUrl.startsWith('http')) {
+        throw new Error(`URL audio invalide reçue: ${audioUrl}`);
+      }
+
+      // Stocker l'URL audio - CRITIQUE !
+      console.log(`🎵 STOCKAGE URL AUDIO pour Rang ${rang}:`, audioUrl);
       setAudioUrl(rang, audioUrl);
+
+      // Vérification immédiate du stockage
+      console.log('🎵 VÉRIFICATION ÉTAT APRÈS STOCKAGE:', {
+        rangA: rang === 'A' ? audioUrl : generatedAudio.rangA,
+        rangB: rang === 'B' ? audioUrl : generatedAudio.rangB
+      });
 
       // Afficher le message de succès
       const successMessage = getSuccessMessage(rang, durationText, currentLanguage, isComposition);
       toast(successMessage);
 
       console.log(`✅ GÉNÉRATION SUNO RÉUSSIE pour Rang ${rang} en ${currentLanguage} (${callDuration}s):`, audioUrl);
+      
+      // Retourner l'URL pour vérification
+      return audioUrl;
       
     } catch (error) {
       console.error(`❌ ERREUR GÉNÉRATION SUNO Rang ${rang}:`, error);
@@ -103,6 +129,7 @@ export const useMusicGenerationWithTranslation = () => {
         description: errorMessage,
         variant: "destructive"
       });
+      throw error;
     } finally {
       // Nettoyer l'état dans tous les cas
       unmarkAsGenerating(rang);

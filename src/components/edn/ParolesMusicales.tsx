@@ -77,8 +77,14 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
 
     try {
       console.log('🚀 APPEL generateMusicInLanguage...');
-      await generateMusicInLanguage(rang, paroles, selectedStyle, musicDuration);
-      console.log(`✅ GÉNÉRATION TERMINÉE POUR RANG ${rang}`);
+      const audioUrl = await generateMusicInLanguage(rang, paroles, selectedStyle, musicDuration);
+      console.log(`✅ GÉNÉRATION TERMINÉE POUR RANG ${rang}, URL:`, audioUrl);
+      
+      // Vérification supplémentaire de l'état
+      setTimeout(() => {
+        console.log('🎵 VÉRIFICATION ÉTAT RETARDÉE generatedAudio:', generatedAudio);
+      }, 100);
+      
     } catch (error) {
       console.error(`❌ ERREUR GÉNÉRATION RANG ${rang}:`, error);
     }
@@ -145,6 +151,9 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
       });
     }
   };
+
+  // Log de l'état pour debug
+  console.log('🎵 ÉTAT ACTUEL generatedAudio:', generatedAudio);
 
   return (
     <div className="space-y-6">
