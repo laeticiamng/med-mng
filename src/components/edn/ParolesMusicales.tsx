@@ -1,9 +1,8 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Music, AlertTriangle, Loader2 } from 'lucide-react';
+import { Music, AlertTriangle, Loader2, Play, Pause, Volume2, SkipBack, SkipForward } from 'lucide-react';
 import { useMusicGenerationWithTranslation } from '@/hooks/useMusicGenerationWithTranslation';
 import { AudioPlayer } from './AudioPlayer';
 import { useGlobalAudio } from '@/contexts/GlobalAudioContext';
@@ -89,9 +88,36 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
   };
 
   const handlePlayAudio = (audioUrl: string, title: string) => {
+    console.log('🎵 Tentative de lecture audio:', {
+      audioUrl,
+      title,
+      currentTrack: currentTrack?.url,
+      isPlaying,
+      audioUrlValid: !!audioUrl && audioUrl.startsWith('http')
+    });
+
+    // Vérification de l'URL
+    if (!audioUrl || !audioUrl.startsWith('http')) {
+      console.error('❌ URL audio invalide:', audioUrl);
+      return;
+    }
+
+    // Test de connectivité à l'URL
+    const testAudio = new Audio();
+    testAudio.addEventListener('canplay', () => {
+      console.log('✅ Audio peut être lu, URL valide');
+    });
+    testAudio.addEventListener('error', (e) => {
+      console.error('❌ Erreur de test audio:', e);
+      console.error('❌ Problème avec l\'URL:', audioUrl);
+    });
+    testAudio.src = audioUrl;
+
     if (currentTrack?.url === audioUrl && isPlaying) {
+      console.log('⏸️ Pause de l\'audio en cours');
       pause();
     } else {
+      console.log('▶️ Lecture du nouvel audio');
       play({
         url: audioUrl,
         title: title,
@@ -116,13 +142,21 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
           <div className="space-y-6">
             {/* Informations de debug */}
             <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-              <h3 className="font-semibold text-green-800 mb-2">✅ Page chargée avec succès</h3>
+              <h3 className="font-semibold text-green-800 mb-2">✅ Debug Info</h3>
               <div className="text-sm text-green-700 space-y-1">
                 <p>Item Code: {itemCode}</p>
                 <p>Paroles disponibles: {paroles?.length || 0}</p>
                 <p>Langue actuelle: {currentLanguage}</p>
                 <p>Style sélectionné: {selectedStyle}</p>
                 <p>Durée: {formatDuration(musicDuration)}</p>
+                <p>Audio Rang A: {generatedAudio.rangA ? '✅ Disponible' : '❌ Non généré'}</p>
+                <p>Audio Rang B: {generatedAudio.rangB ? '✅ Disponible' : '❌ Non généré'}</p>
+                {generatedAudio.rangA && (
+                  <p className="break-all">URL A: {generatedAudio.rangA.substring(0, 50)}...</p>
+                )}
+                {generatedAudio.rangB && (
+                  <p className="break-all">URL B: {generatedAudio.rangB.substring(0, 50)}...</p>
+                )}
               </div>
             </div>
 
@@ -201,7 +235,25 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
                       </Button>
 
                       {generatedAudio.rangA && (
-                        <div className="mt-4">
+                        <div className="mt-4 space-y-2">
+                          {/* Bouton de test simple */}
+                          <div className="flex items-center gap-2 p-3 bg-white rounded-lg border">
+                            <Button
+                              onClick={() => handlePlayAudio(generatedAudio.rangA!, `Rang A - ${itemCode}`)}
+                              className="flex items-center gap-2"
+                            >
+                              {currentTrack?.url === generatedAudio.rangA && isPlaying ? (
+                                <Pause className="h-4 w-4" />
+                              ) : (
+                                <Play className="h-4 w-4" />
+                              )}
+                              Test Play/Pause
+                            </Button>
+                            <span className="text-sm text-gray-600">
+                              {currentTrack?.url === generatedAudio.rangA && isPlaying ? 'En cours...' : 'Prêt'}
+                            </span>
+                          </div>
+                          
                           <AudioPlayer
                             audioUrl={generatedAudio.rangA}
                             title={`Rang A - ${itemCode}`}
@@ -245,7 +297,25 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
                       </Button>
 
                       {generatedAudio.rangB && (
-                        <div className="mt-4">
+                        <div className="mt-4 space-y-2">
+                          {/* Bouton de test simple */}
+                          <div className="flex items-center gap-2 p-3 bg-white rounded-lg border">
+                            <Button
+                              onClick={() => handlePlayAudio(generatedAudio.rangB!, `Rang B - ${itemCode}`)}
+                              className="flex items-center gap-2"
+                            >
+                              {currentTrack?.url === generatedAudio.rangB && isPlaying ? (
+                                <Pause className="h-4 w-4" />
+                              ) : (
+                                <Play className="h-4 w-4" />
+                              )}
+                              Test Play/Pause
+                            </Button>
+                            <span className="text-sm text-gray-600">
+                              {currentTrack?.url === generatedAudio.rangB && isPlaying ? 'En cours...' : 'Prêt'}
+                            </span>
+                          </div>
+                          
                           <AudioPlayer
                             audioUrl={generatedAudio.rangB}
                             title={`Rang B - ${itemCode}`}
