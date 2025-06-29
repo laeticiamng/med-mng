@@ -1,4 +1,3 @@
-
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Shield, Eye, Lock, UserCheck, Database, Globe, Clock, Mail } from 'lucide-react';
@@ -57,11 +56,12 @@ const PolitiqueConfidentialite = () => {
                 <div className="flex items-center space-x-4 pt-2">
                   <div className="flex items-center space-x-1">
                     <Mail className="h-4 w-4 text-green-600" />
-                    <span>contact@emotionscare.com</span>
+                    <span>medmng@emotionscare.com</span>
                   </div>
+                  <span className="text-gray-500">ou</span>
                   <div className="flex items-center space-x-1">
                     <Mail className="h-4 w-4 text-green-600" />
-                    <span>medmng@emotionscare.com</span>
+                    <span>contact@emotionscare.com</span>
                   </div>
                 </div>
                 <p className="pt-2"><strong>Représentée par :</strong> Laëticia Motongane, Présidente et responsable de la publication</p>
@@ -225,7 +225,7 @@ const PolitiqueConfidentialite = () => {
                 <div className="flex items-center space-x-4 mt-2">
                   <div className="flex items-center space-x-1">
                     <Mail className="h-4 w-4 text-teal-600" />
-                    <span>dpo@emotionscare.com</span>
+                    <span>medmng@emotionscare.com</span>
                   </div>
                   <span className="text-gray-500">ou</span>
                   <div className="flex items-center space-x-1">
