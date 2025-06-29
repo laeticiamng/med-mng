@@ -1,6 +1,6 @@
 
 import { HeroSection } from "@/components/HeroSection";
-import { MngPresentation } from "@/components/MngPresentation";
+import { MngPresentationBrief } from "@/components/MngPresentationBrief";
 import { MainSections } from "@/components/MainSections";
 import { AppFooter } from "@/components/AppFooter";
 
@@ -9,7 +9,7 @@ const Index = () => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       <div className="container mx-auto px-4 py-8">
         <HeroSection />
-        <MngPresentation />
+        <MngPresentationBrief />
         <MainSections />
         <AppFooter />
       </div>

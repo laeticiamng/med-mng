@@ -1,3 +1,4 @@
+
 import { Suspense, lazy } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -19,6 +20,7 @@ import AuditGeneral from "./pages/AuditGeneral";
 import AuditIC4 from "./pages/AuditIC4";
 import MentionsLegales from "./pages/MentionsLegales";
 import PolitiqueConfidentialite from "./pages/PolitiqueConfidentialite";
+import MngMethod from "./pages/MngMethod";
 import { MedMngLogin } from "./pages/MedMngLogin";
 import { MedMngSignup } from "./pages/MedMngSignup";
 import { MedMngPricing } from "./pages/MedMngPricing";
@@ -39,6 +41,7 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/mng-method" element={<MngMethod />} />
               <Route path="/edn" element={<EdnIndex />} />
               <Route path="/edn/immersive/:slug" element={<EdnItemImmersive />} />
               <Route path="/edn/item/:slug" element={<EdnItem />} />
