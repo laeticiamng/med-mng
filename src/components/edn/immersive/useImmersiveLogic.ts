@@ -74,7 +74,7 @@ export const useImmersiveLogic = () => {
 
         // Vérifier et valider les données critiques
         if (!data.paroles_musicales || data.paroles_musicales.length < 2) {
-          console.warn('⚠️ Paroles musicales incomplètes pour', data.item_code);
+          console.warn('⚠️ Paroles musicales incomplètes pour', data.item_code, '- Attendu: 2, Actuel:', data.paroles_musicales?.length || 0);
         }
 
         if (!data.tableau_rang_a || !data.tableau_rang_b) {
@@ -83,6 +83,22 @@ export const useImmersiveLogic = () => {
 
         if (!data.quiz_questions) {
           console.warn('⚠️ Quiz manquant pour', data.item_code);
+        }
+
+        // Validation de la structure des quiz (répartition 70% A / 30% B)
+        if (data.quiz_questions?.questions) {
+          const questions = data.quiz_questions.questions;
+          const rangACount = questions.filter((q: any) => q.rang === 'A').length;
+          const rangBCount = questions.filter((q: any) => q.rang === 'B').length;
+          const total = questions.length;
+          
+          console.log('📊 Répartition quiz:', {
+            total,
+            rangA: rangACount,
+            rangB: rangBCount,
+            pourcentageA: Math.round((rangACount / total) * 100),
+            pourcentageB: Math.round((rangBCount / total) * 100)
+          });
         }
 
         setItem(data);

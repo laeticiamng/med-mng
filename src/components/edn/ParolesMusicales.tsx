@@ -1,236 +1,178 @@
 
-import { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
-import { MusicHeader } from './music/MusicHeader';
+import React, { useState } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Play, Pause, Music, Mic, Volume2 } from 'lucide-react';
 import { MusicStyleSelector } from './music/MusicStyleSelector';
-import { MusicDurationSelector } from './music/MusicDurationSelector';
-import { MusicErrorDisplay } from './music/MusicErrorDisplay';
-import { MusicCardsSection } from './music/MusicCardsSection';
-import { MusicStyleIndicator } from './music/MusicStyleIndicator';
-import { LanguageTranspositionPanel } from './music/LanguageTranspositionPanel';
-import { useMusicGenerationWithTranslation } from '@/hooks/useMusicGenerationWithTranslation';
-import { useAudioControls } from '@/hooks/useAudioControls';
-import { useLanguage, SupportedLanguage } from '@/contexts/LanguageContext';
 
 interface ParolesMusicalesProps {
   paroles: string[];
-  itemCode?: string;
-  itemTitle?: string;
+  itemCode: string;
+  tableauRangA?: any;
+  tableauRangB?: any;
 }
 
-export const ParolesMusicales = ({ paroles, itemCode, itemTitle }: ParolesMusicalesProps) => {
-  const [selectedStyle, setSelectedStyle] = useState('lofi-piano');
-  const [musicDuration, setMusicDuration] = useState(240);
-  const [showTranspositionPanel, setShowTranspositionPanel] = useState(false);
-  
-  const { currentLanguage } = useLanguage();
-  const { 
-    isGenerating, 
-    generatedAudio, 
-    lastError, 
-    generateMusicInLanguage,
-    transposeMusicToLanguage 
-  } = useMusicGenerationWithTranslation();
-  
-  const {
-    currentTime,
-    duration,
-    volume,
-    isMinimized,
-    handlePlayPause,
-    handleStop,
-    isCurrentTrackPlaying,
-    isCurrentTrack,
-    seek,
-    changeVolume,
-    minimize
-  } = useAudioControls();
+export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({ 
+  paroles, 
+  itemCode,
+  tableauRangA,
+  tableauRangB
+}) => {
+  const [selectedStyle, setSelectedStyle] = useState('');
+  const [selectedVoice, setSelectedVoice] = useState('');
+  const [currentSong, setCurrentSong] = useState<number | null>(null);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
 
-  // Logs de débogage pour identifier le problème
-  useEffect(() => {
-    console.log('🎵 ParolesMusicales - Props reçues:', {
-      paroles: paroles?.length || 0,
-      itemCode,
-      itemTitle,
-      parolesContent: paroles
-    });
-    
-    if (!paroles || paroles.length < 2) {
-      console.warn('⚠️ Paroles incomplètes:', {
-        received: paroles?.length || 0,
-        expected: 2,
-        content: paroles
-      });
-    } else {
-      console.log('✅ Paroles complètes:', {
-        rangA: paroles[0]?.length || 0,
-        rangB: paroles[1]?.length || 0
-      });
-    }
-  }, [paroles, itemCode, itemTitle]);
-
-  const musicStyles = [
-    { value: 'lofi-piano', label: 'Lo-fi Piano Doux' },
-    { value: 'afrobeat', label: 'Afrobeat Énergique' },
-    { value: 'jazz-moderne', label: 'Jazz Moderne' },
-    { value: 'hip-hop-conscient', label: 'Hip-Hop Conscient' },
-    { value: 'soul-rnb', label: 'Soul R&B' },
-    { value: 'electro-chill', label: 'Electro Chill' }
-  ];
-
-  const handleGenerateMusic = async (rang: 'A' | 'B') => {
-    console.log(`🚀 Génération demandée pour Rang ${rang} avec style: ${selectedStyle}`);
-    await generateMusicInLanguage(rang, paroles, selectedStyle, musicDuration);
-  };
-
-  const handlePlayPauseWrapper = (rang: 'rangA' | 'rangB') => {
-    handlePlayPause(rang, generatedAudio);
-  };
-
-  const isCurrentTrackPlayingWrapper = (rang: 'rangA' | 'rangB') => {
-    return isCurrentTrackPlaying(rang, generatedAudio);
-  };
-
-  const isCurrentTrackWrapper = (rang: 'rangA' | 'rangB') => {
-    return isCurrentTrack(rang, generatedAudio);
-  };
-
-  const handleTransposeMusic = async (targetLanguage: string, rang: 'A' | 'B') => {
-    const parolesIndex = rang === 'A' ? 0 : 1;
-    const originalLyrics = paroles[parolesIndex];
-    
-    if (!originalLyrics) {
-      console.error('Aucune parole disponible pour la transposition');
-      return;
-    }
-
-    try {
-      const transposedAudioUrl = await transposeMusicToLanguage(
-        originalLyrics,
-        targetLanguage as SupportedLanguage,
-        selectedStyle,
-        musicDuration
-      );
-      
-      // Mettre à jour l'audio généré avec la version transposée
-      const audioKey = rang === 'A' ? 'rangA' : 'rangB';
-      // Note: Ici vous pourriez vouloir stocker les versions dans différentes langues
-      // Pour l'instant, on remplace l'audio existant
-      console.log(`Musique transposée vers ${targetLanguage}:`, transposedAudioUrl);
-    } catch (error) {
-      console.error('Erreur lors de la transposition:', error);
-    }
-  };
-
-  // Vérifier si nous avons des données valides à afficher
-  if (!paroles || paroles.length < 2 || !paroles[0] || !paroles[1]) {
+  if (!paroles || paroles.length === 0) {
     return (
-      <div className="space-y-8">
-        <MusicHeader />
-        
-        <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <span className="text-4xl">🎵</span>
-            <h3 className="text-xl font-semibold text-red-800">
-              Paroles musicales incomplètes
-            </h3>
+      <Card className="w-full">
+        <CardHeader>
+          <CardTitle className="text-red-600">⚠️ Paroles Musicales - Contenu indisponible</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-gray-500">Les paroles musicales ne sont pas encore disponibles dans Supabase.</p>
+          <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded">
+            <p className="text-blue-700">
+              <strong>Données attendues :</strong> 2 chansons complètes (Rang A et Rang B) basées sur les tableaux correspondants.
+            </p>
           </div>
-          <p className="text-red-700 mb-4">
-            Les paroles musicales pour cet item ne sont pas complètes dans Supabase.
-          </p>
-          <div className="text-sm text-red-600 bg-red-100 rounded p-3">
-            <p><strong>Debug info:</strong></p>
-            <p>Item Code: {itemCode || 'Non défini'}</p>
-            <p>Item Title: {itemTitle || 'Non défini'}</p>
-            <p>Paroles reçues: {paroles ? paroles.length : 0} élément(s)</p>
-            <p>Rang A: {paroles?.[0] ? `${paroles[0].length} caractères` : 'Manquant'}</p>
-            <p>Rang B: {paroles?.[1] ? `${paroles[1].length} caractères` : 'Manquant'}</p>
-            <p><strong>Status:</strong> Données Supabase à compléter</p>
-          </div>
-        </div>
-      </div>
+        </CardContent>
+      </Card>
     );
   }
 
+  const handleGenerateMusic = async (songIndex: number) => {
+    setIsGenerating(true);
+    setCurrentSong(songIndex);
+    
+    try {
+      // Simuler la génération musicale
+      await new Promise(resolve => setTimeout(resolve, 3000));
+      
+      console.log(`🎵 Génération musique ${itemCode} - Chanson ${songIndex + 1}`, {
+        style: selectedStyle,
+        voice: selectedVoice,
+        lyrics: paroles[songIndex]
+      });
+      
+      setIsPlaying(true);
+    } catch (error) {
+      console.error('Erreur génération musique:', error);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
+  const togglePlayback = () => {
+    setIsPlaying(!isPlaying);
+  };
+
+  const rangLabels = ['Rang A', 'Rang B'];
+
   return (
-    <div className="space-y-8">
-      <MusicHeader />
-      
-      {/* Debug: Afficher les données reçues */}
-      <div className="bg-green-50 border border-green-200 rounded-lg p-4 text-sm">
-        <p className="font-semibold text-green-800 mb-2">✅ Paroles musicales complètes :</p>
-        <p>Item: {itemCode} - {itemTitle}</p>
-        <p>Paroles disponibles: {paroles.length} rang(s)</p>
-        <p>Rang A: {paroles[0].length} caractères</p>
-        <p>Rang B: {paroles[1].length} caractères</p>
-        <p><strong>Source:</strong> Données Supabase validées</p>
-      </div>
-      
-      {/* Indication de la langue actuelle */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <div className="flex items-center gap-2">
-          <span className="text-2xl">🌍</span>
-          <div>
-            <p className="font-semibold text-blue-800">
-              Interface en {currentLanguage === 'fr' ? 'Français' : currentLanguage}
-            </p>
-            <p className="text-sm text-blue-600">
-              La musique sera générée dans cette langue à partir du contenu pédagogique français
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Music className="w-6 h-6 text-purple-600" />
+          Paroles Musicales - {itemCode}
+          <Badge variant="outline">{paroles.length} chanson{paroles.length > 1 ? 's' : ''}</Badge>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        {/* Sélecteur de style musical */}
+        <MusicStyleSelector
+          selectedStyle={selectedStyle}
+          selectedVoice={selectedVoice}
+          onStyleChange={setSelectedStyle}
+          onVoiceChange={setSelectedVoice}
+        />
+
+        {/* Affichage des paroles */}
+        <div className="space-y-6">
+          {paroles.map((chanson, index) => (
+            <Card key={index} className="border-l-4 border-l-purple-400">
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Badge variant={index === 0 ? 'default' : 'secondary'}>
+                      {rangLabels[index] || `Chanson ${index + 1}`}
+                    </Badge>
+                    <span className="text-lg">
+                      {index === 0 ? 'Fondamentaux' : 'Approfondissements'}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {currentSong === index && isPlaying && (
+                      <Volume2 className="w-4 h-4 text-green-600 animate-pulse" />
+                    )}
+                    <Button
+                      onClick={() => handleGenerateMusic(index)}
+                      disabled={!selectedStyle || !selectedVoice || isGenerating}
+                      size="sm"
+                      className="flex items-center gap-2"
+                    >
+                      {isGenerating && currentSong === index ? (
+                        <>
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                          Génération...
+                        </>
+                      ) : (
+                        <>
+                          <Mic className="w-4 h-4" />
+                          Générer musique
+                        </>
+                      )}
+                    </Button>
+                    {currentSong === index && (
+                      <Button
+                        onClick={togglePlayback}
+                        size="sm"
+                        variant="outline"
+                        className="flex items-center gap-1"
+                      >
+                        {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
+                      </Button>
+                    )}
+                  </div>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <pre className="whitespace-pre-wrap text-sm leading-relaxed font-mono">
+                    {chanson}
+                  </pre>
+                </div>
+                
+                {index === 0 && tableauRangA && (
+                  <div className="mt-3 text-xs text-gray-600">
+                    <strong>Basé sur :</strong> {tableauRangA.theme || 'Tableau Rang A'}
+                  </div>
+                )}
+                {index === 1 && tableauRangB && (
+                  <div className="mt-3 text-xs text-gray-600">
+                    <strong>Basé sur :</strong> {tableauRangB.theme || 'Tableau Rang B'}
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        {paroles.length < 2 && (
+          <div className="p-4 bg-orange-50 border border-orange-200 rounded">
+            <p className="text-orange-700">
+              ⚠️ Il devrait y avoir 2 chansons complètes (une pour chaque rang). 
+              Actuellement : {paroles.length} chanson{paroles.length > 1 ? 's' : ''} disponible{paroles.length > 1 ? 's' : ''}.
             </p>
           </div>
+        )}
+
+        <div className="text-sm text-gray-600">
+          <p>🎵 Sélectionnez un style musical et un type de voix, puis cliquez sur "Générer musique" pour créer votre version personnalisée.</p>
         </div>
-      </div>
-      
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <MusicStyleSelector 
-          selectedStyle={selectedStyle}
-          onStyleChange={setSelectedStyle}
-        />
-        
-        <MusicDurationSelector
-          duration={musicDuration}
-          onDurationChange={setMusicDuration}
-          disabled={isGenerating.rangA || isGenerating.rangB}
-        />
-      </div>
-
-      {lastError && <MusicErrorDisplay error={lastError} />}
-
-      <MusicCardsSection
-        paroles={paroles}
-        selectedStyle={selectedStyle}
-        musicDuration={musicDuration}
-        isGenerating={isGenerating}
-        generatedAudio={generatedAudio}
-        onGenerateMusic={handleGenerateMusic}
-        onPlayPause={handlePlayPauseWrapper}
-        isCurrentTrackPlaying={isCurrentTrackPlayingWrapper}
-        isCurrentTrack={isCurrentTrackWrapper}
-        isMinimized={isMinimized}
-        currentTime={currentTime}
-        duration={duration}
-        volume={volume}
-        onSeek={seek}
-        onVolumeChange={changeVolume}
-        onStop={handleStop}
-        onMinimize={minimize}
-        itemCode={itemCode}
-        itemTitle={itemTitle}
-      />
-
-      {/* Panel de transposition dans d'autres langues */}
-      {(generatedAudio.rangA || generatedAudio.rangB) && (
-        <LanguageTranspositionPanel
-          isVisible={showTranspositionPanel}
-          onToggle={() => setShowTranspositionPanel(!showTranspositionPanel)}
-          onTranspose={handleTransposeMusic}
-          currentLanguage={currentLanguage}
-          hasRangA={!!generatedAudio.rangA}
-          hasRangB={!!generatedAudio.rangB}
-        />
-      )}
-
-      <MusicStyleIndicator selectedStyle={selectedStyle} />
-    </div>
+      </CardContent>
+    </Card>
   );
 };

@@ -1,194 +1,144 @@
 
-import { TableauRangA } from '../tableau/TableauRangA';
-import { TableauRangBIC4 } from '../tableau/TableauRangBIC4';
-import { SceneImmersive } from '../SceneImmersive';
+import React from 'react';
+import { TableauSection } from './TableauSection';
+import { QuizSection } from './QuizSection';
 import { ParolesMusicales } from '../ParolesMusicales';
-import { InteractionDragDrop } from '../InteractionDragDrop';
-import { QuizFinal } from '../QuizFinal';
-import { PitchIntroSection } from './PitchIntroSection';
-import { isIC4Item } from '../tableau/TableauRangAUtilsIC4Integration';
+import { BandesDessinées } from '../BandesDessinées';
+import { InteractionSection } from './InteractionSection';
+import { Badge } from '@/components/ui/badge';
 
 interface ImmersiveContentProps {
   item: any;
   currentSection: number;
+  sections: string[];
 }
 
-export const ImmersiveContent = ({ item, currentSection }: ImmersiveContentProps) => {
-  const renderContent = () => {
+export const ImmersiveContent: React.FC<ImmersiveContentProps> = ({
+  item,
+  currentSection,
+  sections
+}) => {
+  const renderSection = () => {
+    const sectionName = sections[currentSection];
+    
     switch (currentSection) {
-      case 0:
+      case 0: // Pitch d'introduction
         return (
-          <PitchIntroSection 
-            title={item.title || ''}
-            itemCode={item.item_code || ''}
-            subtitle={item.subtitle || ''}
-            pitchIntro={item.pitch_intro || ''}
-          />
-        );
-      
-      case 1:
-        return <SceneImmersive data={item.scene_immersive} itemCode={item.item_code} />;
-      
-      case 2:
-        // Vérifier que les données tableau_rang_a existent
-        if (!item.tableau_rang_a) {
-          return (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-8 text-center">
-              <div className="flex items-center justify-center gap-3 mb-4">
-                <span className="text-4xl">📊</span>
-                <h3 className="text-xl font-semibold text-yellow-800">
-                  Tableau Rang A en cours de finalisation
-                </h3>
+          <div className="prose max-w-none">
+            <h2 className="text-2xl font-bold mb-4">Introduction</h2>
+            {item.pitch_intro ? (
+              <p className="text-lg leading-relaxed">{item.pitch_intro}</p>
+            ) : (
+              <div className="p-4 bg-red-50 border border-red-200 rounded">
+                <p className="text-red-600">⚠️ Pitch d'introduction non disponible dans Supabase</p>
               </div>
-              <p className="text-yellow-700 mb-4">
-                Le contenu du Tableau Rang A pour {item.item_code} est en cours de mise à jour depuis Supabase.
-              </p>
-              <div className="text-sm text-yellow-600 bg-yellow-100 rounded p-3">
-                <p><strong>Item:</strong> {item.item_code} - {item.title}</p>
-                <p><strong>Status:</strong> Données Supabase en cours de synchronisation</p>
-              </div>
-            </div>
-          );
-        }
-        return <TableauRangA data={item.tableau_rang_a} />;
-      
-      case 3:
-        // Vérifier que les données tableau_rang_b existent
-        if (!item.tableau_rang_b) {
-          return (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-8 text-center">
-              <div className="flex items-center justify-center gap-3 mb-4">
-                <span className="text-4xl">📊</span>
-                <h3 className="text-xl font-semibold text-yellow-800">
-                  Tableau Rang B en cours de finalisation
-                </h3>
-              </div>
-              <p className="text-yellow-700 mb-4">
-                Le contenu du Tableau Rang B pour {item.item_code} est en cours de mise à jour depuis Supabase.
-              </p>
-              <div className="text-sm text-yellow-600 bg-yellow-100 rounded p-3">
-                <p><strong>Item:</strong> {item.item_code} - {item.title}</p>
-                <p><strong>Status:</strong> Données Supabase en cours de synchronisation</p>
-              </div>
-            </div>
-          );
-        }
-        
-        // Utiliser le composant spécialisé pour IC-4 Rang B
-        if (isIC4Item(item)) {
-          return <TableauRangBIC4 data={item.tableau_rang_b} />;
-        }
-        return <TableauRangA data={item.tableau_rang_b} />;
-      
-      case 4:
-        // Vérifier que les paroles musicales existent et sont complètes
-        if (!item.paroles_musicales || item.paroles_musicales.length < 2) {
-          return (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-8 text-center">
-              <div className="flex items-center justify-center gap-3 mb-4">
-                <span className="text-4xl">🎵</span>
-                <h3 className="text-xl font-semibold text-yellow-800">
-                  Paroles musicales en cours de finalisation
-                </h3>
-              </div>
-              <p className="text-yellow-700 mb-4">
-                Les paroles musicales pour {item.item_code} sont en cours de mise à jour depuis Supabase.
-              </p>
-              <div className="text-sm text-yellow-600 bg-yellow-100 rounded p-3">
-                <p><strong>Item:</strong> {item.item_code} - {item.title}</p>
-                <p><strong>Paroles disponibles:</strong> {item.paroles_musicales?.length || 0}/2 rangs</p>
-                <p><strong>Status:</strong> Données Supabase en cours de synchronisation</p>
-              </div>
-            </div>
-          );
-        }
-
-        console.log('🎵 Section Paroles Musicales - Item data:', {
-          item_code: item.item_code,
-          title: item.title,
-          paroles_musicales: item.paroles_musicales,
-          paroles_length: item.paroles_musicales?.length || 0
-        });
-        
-        return (
-          <ParolesMusicales 
-            paroles={item.paroles_musicales || []} 
-            itemCode={item.item_code}
-            itemTitle={item.title}
-          />
-        );
-      
-      case 5:
-        return (
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Bande dessinée</h2>
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-              <p className="text-blue-700 font-medium">🎨 Génération d'images en cours</p>
-              <p className="text-blue-600 text-sm mt-2">
-                Les images de bande dessinée sont en cours de génération depuis Supabase et seront figées pour une expérience optimale.
-              </p>
-            </div>
-            <p className="text-gray-600">Cette section sera bientôt disponible avec des vraies images générées.</p>
+            )}
           </div>
         );
-      
-      case 6:
-        if (!item.interaction_config) {
-          return (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-8 text-center">
-              <div className="flex items-center justify-center gap-3 mb-4">
-                <span className="text-4xl">🎯</span>
-                <h3 className="text-xl font-semibold text-yellow-800">
-                  Interaction en cours de finalisation
-                </h3>
-              </div>
-              <p className="text-yellow-700 mb-4">
-                L'interaction pour {item.item_code} est en cours de mise à jour depuis Supabase.
-              </p>
-            </div>
-          );
-        }
-        return <InteractionDragDrop config={item.interaction_config} />;
-      
-      case 7:
-        if (!item.quiz_questions) {
-          return (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-8 text-center">
-              <div className="flex items-center justify-center gap-3 mb-4">
-                <span className="text-4xl">❓</span>
-                <h3 className="text-xl font-semibold text-yellow-800">
-                  Quiz en cours de finalisation
-                </h3>
-              </div>
-              <p className="text-yellow-700 mb-4">
-                Le quiz pour {item.item_code} est en cours de mise à jour depuis Supabase.
-              </p>
-              <p className="text-yellow-600 text-sm">
-                <strong>Répartition cible:</strong> 70% questions Rang A, 30% questions Rang B
-              </p>
-            </div>
-          );
-        }
+
+      case 1: // Scène immersive
         return (
-          <QuizFinal 
-            questions={item.quiz_questions.questions || []} 
-            rewards={item.reward_messages}
+          <div className="prose max-w-none">
+            <h2 className="text-2xl font-bold mb-4">Scène immersive</h2>
+            {item.scene_immersive ? (
+              <div className="p-6 bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg">
+                <h3 className="text-xl font-semibold mb-3">Contexte</h3>
+                <p className="text-gray-700 mb-4">{item.scene_immersive.setting || 'Contexte médical professionnel'}</p>
+                
+                {item.scene_immersive.characters && (
+                  <div className="mb-4">
+                    <h4 className="font-semibold mb-2">Personnages :</h4>
+                    <div className="space-y-2">
+                      {item.scene_immersive.characters.map((char: any, idx: number) => (
+                        <div key={idx} className="flex items-center gap-2">
+                          <Badge variant="outline">{char.role}</Badge>
+                          <span>{char.name} - {char.description}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                
+                {item.scene_immersive.scenario && (
+                  <div>
+                    <h4 className="font-semibold mb-2">Scénario :</h4>
+                    <p className="text-gray-700">{item.scene_immersive.scenario}</p>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="p-4 bg-red-50 border border-red-200 rounded">
+                <p className="text-red-600">⚠️ Scène immersive non disponible dans Supabase</p>
+              </div>
+            )}
+          </div>
+        );
+
+      case 2: // Tableau Rang A
+        return (
+          <TableauSection
+            data={item.tableau_rang_a}
+            title="Fondamentaux - Rang A"
+            type="rang_a"
           />
         );
-      
+
+      case 3: // Tableau Rang B
+        return (
+          <TableauSection
+            data={item.tableau_rang_b}
+            title="Approfondissements - Rang B"
+            type="rang_b"
+          />
+        );
+
+      case 4: // Paroles musicales
+        return (
+          <ParolesMusicales
+            paroles={item.paroles_musicales}
+            itemCode={item.item_code}
+            tableauRangA={item.tableau_rang_a}
+            tableauRangB={item.tableau_rang_b}
+          />
+        );
+
+      case 5: // Bande dessinée
+        return (
+          <BandesDessinées
+            itemCode={item.item_code}
+            title={item.title}
+            content={item.tableau_rang_a}
+          />
+        );
+
+      case 6: // Interaction
+        return (
+          <InteractionSection
+            interactionConfig={item.interaction_config}
+            itemCode={item.item_code}
+          />
+        );
+
+      case 7: // Quiz final
+        return (
+          <QuizSection
+            quizData={item.quiz_questions}
+            itemCode={item.item_code}
+          />
+        );
+
       default:
         return (
-          <div className="bg-white rounded-lg shadow-lg p-6">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Section non trouvée</h2>
-            <p className="text-gray-600">Cette section n'existe pas.</p>
+          <div className="p-4 bg-yellow-50 border border-yellow-200 rounded">
+            <p className="text-yellow-700">Section en cours de développement...</p>
           </div>
         );
     }
   };
 
   return (
-    <div className="flex-1 overflow-y-auto p-6">
-      {renderContent()}
+    <div className="min-h-[600px]">
+      {renderSection()}
     </div>
   );
 };
