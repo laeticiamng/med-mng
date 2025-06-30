@@ -48,6 +48,7 @@ const App = () => (
               <Route path="/ecos" element={<EcosIndex />} />
               <Route path="/ecos/:scenarioId" element={<EcosScenario />} />
               <Route path="/audit-general" element={<AuditGeneral />} />
+              <Route path="/audit-edn" element={<AuditEDN />} />
               <Route path="/audit-ic4" element={<AuditIC4 />} />
               <Route path="/mng-method" element={<MngMethod />} />
               <Route path="/mentions-legales" element={<MentionsLegales />} />
