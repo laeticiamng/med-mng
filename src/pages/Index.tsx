@@ -6,8 +6,9 @@ import { MusicGenerationSection } from "@/components/MusicGenerationSection";
 import { AppFooter } from "@/components/AppFooter";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { LogIn, CreditCard, BarChart3 } from "lucide-react";
+import { LogIn, CreditCard, BarChart3, Music, Users, BookOpen, Zap, Target, Award, TrendingUp } from "lucide-react";
 import { TranslatedText } from "@/components/TranslatedText";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -32,9 +33,10 @@ const Index = () => {
             <div className="flex items-center gap-3">
               <Button
                 variant="ghost"
-                onClick={() => navigate('/edn')}
+                onClick={() => navigate('/generator')}
                 className="hidden sm:inline-flex text-gray-600 hover:text-gray-900"
               >
+                <Music className="h-4 w-4 mr-2" />
                 <TranslatedText text="Générateur" />
               </Button>
               
@@ -66,6 +68,156 @@ const Index = () => {
           <HeroSection />
         </div>
 
+        {/* Section d'accès rapide enrichie */}
+        <div className="pb-16">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">
+              <TranslatedText text="Accès Rapide aux Outils" />
+            </h2>
+            <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+              <TranslatedText text="Choisissez votre méthode d'apprentissage et commencez immédiatement" />
+            </p>
+          </div>
+          
+          <div className="grid md:grid-cols-3 gap-8 max-w-4xl mx-auto">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer group" onClick={() => navigate('/edn')}>
+              <CardHeader className="text-center">
+                <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4 group-hover:bg-blue-200 transition-colors">
+                  <BookOpen className="h-8 w-8 text-blue-600" />
+                </div>
+                <CardTitle className="text-xl">
+                  <TranslatedText text="Items EDN" />
+                </CardTitle>
+                <CardDescription>
+                  <TranslatedText text="Items à Choix Multiples pour l'apprentissage médical structuré" />
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 text-sm text-gray-600">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                    <span>IC1 à IC5 disponibles</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span>Rangs A et B</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                    <span>Contenu interactif</span>
+                  </div>
+                </div>
+                <Button className="w-full mt-4 bg-blue-600 hover:bg-blue-700">
+                  <TranslatedText text="Accéder aux Items" />
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer group" onClick={() => navigate('/ecos')}>
+              <CardHeader className="text-center">
+                <div className="mx-auto w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4 group-hover:bg-green-200 transition-colors">
+                  <Users className="h-8 w-8 text-green-600" />
+                </div>
+                <CardTitle className="text-xl">
+                  <TranslatedText text="Simulation ECOS" />
+                </CardTitle>
+                <CardDescription>
+                  <TranslatedText text="Évaluations Cliniques Objectives Structurées en simulation" />
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 text-sm text-gray-600">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                    <span>Cas cliniques réalistes</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
+                    <span>Évaluation en temps réel</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                    <span>Feedback immédiat</span>
+                  </div>
+                </div>
+                <Button className="w-full mt-4 bg-green-600 hover:bg-green-700">
+                  <TranslatedText text="Commencer ECOS" />
+                </Button>
+              </CardContent>
+            </Card>
+
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer group" onClick={() => navigate('/generator')}>
+              <CardHeader className="text-center">
+                <div className="mx-auto w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mb-4 group-hover:bg-amber-200 transition-colors">
+                  <Music className="h-8 w-8 text-amber-600" />
+                </div>
+                <CardTitle className="text-xl">
+                  <TranslatedText text="Générateur Musical" />
+                </CardTitle>
+                <CardDescription>
+                  <TranslatedText text="Génération rapide de musique éducative personnalisée" />
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2 text-sm text-gray-600">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-amber-500 rounded-full"></div>
+                    <span>Sélection rapide d'items</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-pink-500 rounded-full"></div>
+                    <span>Styles musicaux variés</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 bg-indigo-500 rounded-full"></div>
+                    <span>Génération IA instantanée</span>
+                  </div>
+                </div>
+                <Button className="w-full mt-4 bg-amber-600 hover:bg-amber-700">
+                  <TranslatedText text="Générer Maintenant" />
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* Section statistiques et avantages */}
+        <div className="pb-16">
+          <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 text-white">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-bold mb-4">
+                <TranslatedText text="Pourquoi Choisir MED MNG ?" />
+              </h2>
+              <p className="text-xl opacity-90">
+                <TranslatedText text="Une plateforme complète pour l'apprentissage médical moderne" />
+              </p>
+            </div>
+            
+            <div className="grid md:grid-cols-4 gap-6 text-center">
+              <div className="bg-white/10 rounded-lg p-6 backdrop-blur-sm">
+                <Zap className="h-12 w-12 mx-auto mb-4 text-yellow-300" />
+                <h3 className="text-2xl font-bold mb-2">IA Avancée</h3>
+                <p className="text-sm opacity-90">Génération musicale intelligente pour un apprentissage optimal</p>
+              </div>
+              <div className="bg-white/10 rounded-lg p-6 backdrop-blur-sm">
+                <Target className="h-12 w-12 mx-auto mb-4 text-green-300" />
+                <h3 className="text-2xl font-bold mb-2">Ciblé</h3>
+                <p className="text-sm opacity-90">Contenu adapté aux référentiels médicaux officiels</p>
+              </div>
+              <div className="bg-white/10 rounded-lg p-6 backdrop-blur-sm">
+                <Award className="h-12 w-12 mx-auto mb-4 text-orange-300" />
+                <h3 className="text-2xl font-bold mb-2">Qualité</h3>
+                <p className="text-sm opacity-90">Méthode pédagogique innovante et éprouvée</p>
+              </div>
+              <div className="bg-white/10 rounded-lg p-6 backdrop-blur-sm">
+                <TrendingUp className="h-12 w-12 mx-auto mb-4 text-blue-300" />
+                <h3 className="text-2xl font-bold mb-2">Efficace</h3>
+                <p className="text-sm opacity-90">Amélioration mesurable des performances d'apprentissage</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         {/* Section MNG */}
         <div className="pb-16">
           <MngPresentationBrief />
@@ -85,7 +237,7 @@ const Index = () => {
         <AppFooter />
       </div>
 
-      {/* Admin Audit Button - Bottom Right */}
+      {/* Admin Audit Button - Bottom Right - UNIQUEMENT POUR ADMIN */}
       {isAdmin && (
         <div className="fixed bottom-4 right-4 z-50">
           <Button

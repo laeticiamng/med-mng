@@ -1,5 +1,4 @@
 
-import { Suspense, lazy } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -7,27 +6,27 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { GlobalAudioProvider } from "@/contexts/GlobalAudioContext";
-import { GlobalMiniPlayer } from "@/components/GlobalMiniPlayer";
 import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
-import EcosIndex from "./pages/EcosIndex";
-import EcosScenario from "./pages/EcosScenario";
+import Generator from "./pages/Generator";
 import EdnIndex from "./pages/EdnIndex";
 import EdnItem from "./pages/EdnItem";
 import EdnItemImmersive from "./pages/EdnItemImmersive";
 import EdnMusicLibrary from "./pages/EdnMusicLibrary";
+import EcosIndex from "./pages/EcosIndex";
+import EcosScenario from "./pages/EcosScenario";
 import AuditGeneral from "./pages/AuditGeneral";
 import AuditIC4 from "./pages/AuditIC4";
+import MngMethod from "./pages/MngMethod";
+import NotFound from "./pages/NotFound";
 import MentionsLegales from "./pages/MentionsLegales";
 import PolitiqueConfidentialite from "./pages/PolitiqueConfidentialite";
-import MngMethod from "./pages/MngMethod";
 import { MedMngLogin } from "./pages/MedMngLogin";
 import { MedMngSignup } from "./pages/MedMngSignup";
 import { MedMngPricing } from "./pages/MedMngPricing";
+import { MedMngSubscribe } from "./pages/MedMngSubscribe";
+import { MedMngCreate } from "./pages/MedMngCreate";
 import { MedMngLibrary } from "./pages/MedMngLibrary";
 import { MedMngPlayer } from "./pages/MedMngPlayer";
-import { MedMngCreate } from "./pages/MedMngCreate";
-import { MedMngSubscribe } from "./pages/MedMngSubscribe";
 
 const queryClient = new QueryClient();
 
@@ -41,15 +40,18 @@ const App = () => (
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
-              <Route path="/mng-method" element={<MngMethod />} />
+              <Route path="/generator" element={<Generator />} />
               <Route path="/edn" element={<EdnIndex />} />
-              <Route path="/edn/immersive/:slug" element={<EdnItemImmersive />} />
-              <Route path="/edn/item/:slug" element={<EdnItem />} />
+              <Route path="/edn/:itemCode" element={<EdnItem />} />
+              <Route path="/edn/:itemCode/immersive" element={<EdnItemImmersive />} />
               <Route path="/edn/music-library" element={<EdnMusicLibrary />} />
               <Route path="/ecos" element={<EcosIndex />} />
               <Route path="/ecos/:scenarioId" element={<EcosScenario />} />
-              <Route path="/audit" element={<AuditGeneral />} />
-              <Route path="/audit/ic4" element={<AuditIC4 />} />
+              <Route path="/audit-general" element={<AuditGeneral />} />
+              <Route path="/audit-ic4" element={<AuditIC4 />} />
+              <Route path="/mng-method" element={<MngMethod />} />
+              <Route path="/mentions-legales" element={<MentionsLegales />} />
+              <Route path="/politique-confidentialite" element={<PolitiqueConfidentialite />} />
               <Route path="/med-mng/login" element={<MedMngLogin />} />
               <Route path="/med-mng/signup" element={<MedMngSignup />} />
               <Route path="/med-mng/pricing" element={<MedMngPricing />} />
@@ -57,11 +59,8 @@ const App = () => (
               <Route path="/med-mng/create" element={<MedMngCreate />} />
               <Route path="/med-mng/library" element={<MedMngLibrary />} />
               <Route path="/med-mng/player/:songId" element={<MedMngPlayer />} />
-              <Route path="/mentions-legales" element={<MentionsLegales />} />
-              <Route path="/politique-confidentialite" element={<PolitiqueConfidentialite />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
-            <GlobalMiniPlayer />
           </BrowserRouter>
         </TooltipProvider>
       </GlobalAudioProvider>
