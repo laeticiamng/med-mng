@@ -15,7 +15,12 @@ export class IC1Validator {
       report.recommendations.push('Migrer l\'item vers le format v2 avec item_metadata, content.rang_a, content.rang_b');
     } else {
       const validation = validateItemEDN(item);
-      if (!validation.success) {
+      
+      if (validation.success) {
+        // Validation successful, item is compliant
+        console.log('✅ Item validé avec succès');
+      } else {
+        // Validation failed, access the errors array
         report.isCompliant = false;
         report.missingElements.push(...validation.errors);
       }
