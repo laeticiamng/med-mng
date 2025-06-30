@@ -6,12 +6,21 @@ import { CheckCircle, Target, AlertTriangle, Lightbulb } from 'lucide-react';
 interface TableauRangAFooterIC4Props {
   colonnesCount: number;
   lignesCount: number;
+  isRangB?: boolean;
 }
 
 export const TableauRangAFooterIC4: React.FC<TableauRangAFooterIC4Props> = ({
   colonnesCount,
-  lignesCount
+  lignesCount,
+  isRangB = false
 }) => {
+  const gradientClass = isRangB 
+    ? "bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200"
+    : "bg-gradient-to-r from-amber-50 to-orange-50 border border-amber-200";
+  
+  const titleColor = isRangB ? "text-purple-800" : "text-amber-800";
+  const textColor = isRangB ? "text-purple-700" : "text-amber-700";
+
   return (
     <div className="mt-8 space-y-6">
       {/* Statistiques */}
@@ -20,8 +29,8 @@ export const TableauRangAFooterIC4: React.FC<TableauRangAFooterIC4Props> = ({
           <div className="flex items-center justify-center mb-2">
             <Target className="h-5 w-5 text-blue-600" />
           </div>
-          <div className="text-2xl font-bold text-blue-700">13</div>
-          <div className="text-sm text-blue-600">Concepts fondamentaux</div>
+          <div className="text-2xl font-bold text-blue-700">{isRangB ? '22' : '13'}</div>
+          <div className="text-sm text-blue-600">Concepts {isRangB ? 'experts' : 'fondamentaux'}</div>
         </div>
         
         <div className="text-center p-4 bg-green-50 rounded-lg border border-green-200">
@@ -50,32 +59,58 @@ export const TableauRangAFooterIC4: React.FC<TableauRangAFooterIC4Props> = ({
       </div>
 
       {/* Points clés */}
-      <div className="bg-gradient-to-r from-amber-50 to-orange-50 p-6 rounded-xl border border-amber-200">
-        <h3 className="text-lg font-semibold text-amber-800 mb-4 flex items-center gap-2">
+      <div className={`p-6 rounded-xl ${gradientClass}`}>
+        <h3 className={`text-lg font-semibold mb-4 flex items-center gap-2 ${titleColor}`}>
           <Target className="h-5 w-5" />
-          Points clés IC-4 - Qualité et sécurité des soins
+          Points clés IC-4 - Qualité et sécurité des soins {isRangB ? '(Expert)' : ''}
         </h3>
         
         <div className="grid md:grid-cols-2 gap-6">
           <div>
-            <h4 className="font-medium text-amber-700 mb-3">🎯 Fondamentaux à retenir</h4>
-            <ul className="space-y-2 text-sm text-amber-700">
-              <li>• <strong>Qualité :</strong> 7 dimensions (SPEC-AEC)</li>
-              <li>• <strong>EIAS :</strong> 40-50% évitables</li>
-              <li>• <strong>SHA :</strong> 7 temps, 20-30 secondes</li>
-              <li>• <strong>Antisepsie :</strong> tissus vivants</li>
-              <li>• <strong>Asepsie :</strong> prévention contamination</li>
+            <h4 className={`font-medium mb-3 ${textColor}`}>
+              🎯 {isRangB ? 'Expertise avancée' : 'Fondamentaux à retenir'}
+            </h4>
+            <ul className={`space-y-2 text-sm ${textColor}`}>
+              {isRangB ? (
+                <>
+                  <li>• <strong>Économique :</strong> 760M€/an IAS Europe</li>
+                  <li>• <strong>Transmission :</strong> Plasmides résistants</li>
+                  <li>• <strong>Structures :</strong> 3 niveaux coordination</li>
+                  <li>• <strong>Causes :</strong> Modèle systémique Reason</li>
+                  <li>• <strong>Leadership :</strong> Culture transformation</li>
+                </>
+              ) : (
+                <>
+                  <li>• <strong>Qualité :</strong> 7 dimensions (SPEC-AEC)</li>
+                  <li>• <strong>EIAS :</strong> 40-50% évitables</li>
+                  <li>• <strong>SHA :</strong> 7 temps, 20-30 secondes</li>
+                  <li>• <strong>Antisepsie :</strong> tissus vivants</li>
+                  <li>• <strong>Asepsie :</strong> prévention contamination</li>
+                </>
+              )}
             </ul>
           </div>
           
           <div>
-            <h4 className="font-medium text-amber-700 mb-3">⚠️ Pièges à éviter</h4>
-            <ul className="space-y-2 text-sm text-amber-700">
-              <li>• Confondre qualité et sécurité</li>
-              <li>• EIAS ≠ complication attendue</li>
-              <li>• Antisepsie ≠ désinfection</li>
-              <li>• Gants ne dispensent pas SHA</li>
-              <li>• Approche punitive vs culture juste</li>
+            <h4 className={`font-medium mb-3 ${textColor}`}>⚠️ Pièges à éviter</h4>
+            <ul className={`space-y-2 text-sm ${textColor}`}>
+              {isRangB ? (
+                <>
+                  <li>• Analyse superficielle vs systémique</li>
+                  <li>• Bouc émissaire vs causes multiples</li>
+                  <li>• Résistance stable vs transférable</li>
+                  <li>• Coût partiel vs coût global</li>
+                  <li>• Vision locale vs approche système</li>
+                </>
+              ) : (
+                <>
+                  <li>• Confondre qualité et sécurité</li>
+                  <li>• EIAS ≠ complication attendue</li>
+                  <li>• Antisepsie ≠ désinfection</li>
+                  <li>• Gants ne dispensent pas SHA</li>
+                  <li>• Approche punitive vs culture juste</li>
+                </>
+              )}
             </ul>
           </div>
         </div>
@@ -98,13 +133,21 @@ export const TableauRangAFooterIC4: React.FC<TableauRangAFooterIC4Props> = ({
         <Badge variant="secondary" className="bg-orange-100 text-orange-700 border-orange-300">
           Antisepsie-Asepsie
         </Badge>
+        {isRangB && (
+          <Badge variant="secondary" className="bg-indigo-100 text-indigo-700 border-indigo-300">
+            Expertise économique
+          </Badge>
+        )}
       </div>
 
       {/* Note de progression */}
       <div className="text-center text-sm text-gray-600 bg-gray-50 p-3 rounded-lg">
-        📊 Tableau IC-4 : {lignesCount} concepts fondamentaux sur {colonnesCount} dimensions d'analyse
+        📊 Tableau IC-4 : {lignesCount} concepts {isRangB ? 'experts' : 'fondamentaux'} sur {colonnesCount} dimensions d'analyse
         <br />
-        🎯 Passage au Rang B avec 22 concepts experts après maîtrise complète
+        🎯 {isRangB 
+          ? 'Maîtrise experte pour leadership qualité-sécurité institutionnel'
+          : 'Passage au Rang B avec 22 concepts experts après maîtrise complète'
+        }
       </div>
     </div>
   );
