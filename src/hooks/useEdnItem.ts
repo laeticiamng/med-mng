@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useEdnItemV2Process } from './useEdnItemV2Process';
 
 interface EdnItemData {
   id: string;
@@ -15,11 +16,15 @@ interface EdnItemData {
   quiz_questions?: any;
   created_at: string;
   updated_at: string;
+  payload_v2?: any;
 }
 
 export const useEdnItem = (slug: string | undefined) => {
-  const [item, setItem] = useState<EdnItemData | null>(null);
+  const [rawItem, setRawItem] = useState<EdnItemData | null>(null);
   const [loading, setLoading] = useState(true);
+
+  // Process the item with V2 compatibility
+  const item = useEdnItemV2Process(rawItem);
 
   useEffect(() => {
     const fetchItem = async () => {
@@ -50,9 +55,10 @@ export const useEdnItem = (slug: string | undefined) => {
             scene_immersive: data.scene_immersive,
             quiz_questions: data.quiz_questions,
             created_at: data.created_at,
-            updated_at: data.updated_at
+            updated_at: data.updated_at,
+            payload_v2: data.payload_v2
           };
-          setItem(mappedData);
+          setRawItem(mappedData);
         }
       } catch (error) {
         console.error('Erreur:', error);
