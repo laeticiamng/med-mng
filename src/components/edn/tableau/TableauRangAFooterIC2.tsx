@@ -8,7 +8,7 @@ interface TableauRangAFooterIC2Props {
 }
 
 export const TableauRangAFooterIC2 = ({ colonnesCount = 0, lignesCount = 0, isRangB = false }: TableauRangAFooterIC2Props) => {
-  const expectedCount = isRangB ? 2 : 9;
+  const expectedCount = isRangB ? 2 : 9; // EXACTEMENT 9 pour Rang A
   const rangLabel = isRangB ? "B" : "A";
   const totalExpected = isRangB ? "2 connaissances approfondies" : "9 connaissances fondamentales";
   const isComplete = lignesCount === expectedCount;
@@ -100,12 +100,12 @@ export const TableauRangAFooterIC2 = ({ colonnesCount = 0, lignesCount = 0, isRa
               <span>6. Médecine fondée sur preuves</span>
             </div>
             <div className="flex items-center space-x-2 text-red-700">
-              <Heart className="h-4 w-4" />
-              <span>7. Médecine basée sur responsabilité</span>
+              <CheckCircle className="h-4 w-4" />
+              <span>7. Déontologie médicale</span>
             </div>
             <div className="flex items-center space-x-2 text-green-700">
-              <CheckCircle className="h-4 w-4" />
-              <span>8. Déontologie médicale</span>
+              <Heart className="h-4 w-4" />
+              <span>8. Responsabilité et expérience patient</span>
             </div>
             <div className="flex items-center space-x-2 text-blue-700">
               <Brain className="h-4 w-4" />

@@ -2,7 +2,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import { runAndDisplayIC2Audit } from './runIC2Audit';
 
-// Contenu complet IC-2 selon E-LiSA officiel
+// Contenu complet IC-2 selon E-LiSA officiel - 9 Rang A + 2 Rang B
 const COMPLETE_IC2_CONTENT = {
   tableau_rang_a: {
     title: "Rang A - Connaissances fondamentales (9 concepts E-LiSA)",
@@ -38,14 +38,14 @@ const COMPLETE_IC2_CONTENT = {
         keywords: ["médecine fondée", "preuves", "evidence", "EBM", "scientifiques", "expertise", "clinique"]
       },
       {
-        title: "Connaître les principes de la médecine basée sur la responsabilité et l'expérience du malade",
-        content: "Approche médicale intégrant l'expérience vécue du patient, ses préférences et sa responsabilité dans les décisions de santé. Équilibre entre expertise médicale et autonomie du patient.",
-        keywords: ["responsabilité", "expérience", "malade", "patient", "préférences", "autonomie", "décisions"]
-      },
-      {
         title: "Connaître les principes de déontologie médicale",
         content: "Ensemble des devoirs professionnels codifiés régissant l'exercice médical : code de déontologie, secret professionnel, obligation de soins, respect de la dignité, confraternité.",
         keywords: ["déontologie", "devoirs", "professionnels", "code", "secret", "obligation", "soins", "dignité"]
+      },
+      {
+        title: "Connaître le concept de médecine basée sur la responsabilité et l'expérience du patient",
+        content: "Approche médicale intégrant l'expérience vécue du patient, ses préférences et sa responsabilité dans les décisions de santé. Équilibre entre expertise médicale et autonomie du patient.",
+        keywords: ["responsabilité", "expérience", "patient", "préférences", "autonomie", "décisions"]
       },
       {
         title: "Connaître les différents acteurs de la santé et leurs interactions",
@@ -55,7 +55,7 @@ const COMPLETE_IC2_CONTENT = {
     ]
   },
   tableau_rang_b: {
-    title: "Rang B - Connaissances approfondies (3 concepts E-LiSA)",
+    title: "Rang B - Connaissances approfondies (2 concepts E-LiSA)",
     sections: [
       {
         title: "Connaître l'organisation de l'exercice des professionnels de santé en France et leurs statuts",
@@ -66,18 +66,105 @@ const COMPLETE_IC2_CONTENT = {
         title: "Connaître le rôle des ordres professionnels",
         content: "Instances de régulation professionnelle : inscription, discipline, surveillance déontologique, organisation territoriale (départemental, régional, national). CNOM, conseils départementaux et régionaux, procédures disciplinaires.",
         keywords: ["ordres", "professionnels", "régulation", "discipline", "surveillance", "déontologique", "CNOM", "disciplinaires"]
-      },
-      {
-        title: "Connaître les interactions entre acteurs",
-        content: "Coordination entre tous les acteurs du système de santé : professionnels, établissements, institutions, patients, associations. Approche systémique nécessaire pour comprendre la complexité des interactions.",
-        keywords: ["interactions", "coordination", "système", "établissements", "systémique", "complexité"]
       }
     ]
   }
 };
 
+// Paroles musicales complètes pour IC-2
+const COMPLETE_IC2_PAROLES = [
+  "Dans les couloirs blancs de l'hôpital moderne",
+  "Résonnent les pas de ceux qui soignent et espèrent", 
+  "Neuf connaissances guident leur noble mission",
+  "Valeurs, déontologie, organisation en fusion",
+  "",
+  "Refrain :",
+  "IC-2, les valeurs du médecin",
+  "Responsabilité, compassion, chemin", 
+  "Du rang A fondamental au rang B approfondi",
+  "Chaque professionnel porte en lui l'éthique et la vie",
+  "",
+  "Identifier d'abord tous les professionnels",
+  "Leurs compétences, leurs rôles essentiels",
+  "Définir la pratique, comprendre l'éthique", 
+  "Normes et valeurs, base authentique",
+  "",
+  "Organisation sociale, régulation d'État",
+  "Médecine fondée sur preuves qui ne se tait",
+  "Déontologie stricte, responsabilité claire",
+  "Acteurs multiples dans l'univers sanitaire",
+  "",
+  "Refrain :",
+  "IC-2, les valeurs du médecin", 
+  "Responsabilité, compassion, chemin",
+  "Du rang A fondamental au rang B approfondi",
+  "Chaque professionnel porte en lui l'éthique et la vie",
+  "",
+  "Rang B maintenant, approfondissement",
+  "Statuts d'exercice, organisation vraiment",
+  "Ordres professionnels, leur rôle précis",
+  "Régulation, discipline, cadre établi",
+  "",
+  "Final :",
+  "Onze connaissances, E-LiSA officiel",
+  "Pour des soignants au cœur essentiel",
+  "Valeurs professionnelles, éternelles et sûres",
+  "Guident nos pas vers la médecine pure"
+];
+
+// Quiz questions complètes
+const COMPLETE_IC2_QUIZ = {
+  questions: [
+    {
+      question: "Combien de connaissances Rang A sont attendues pour IC-2 selon E-LiSA ?",
+      options: ["7", "8", "9", "10"],
+      correct: 2,
+      explanation: "Selon le référentiel E-LiSA officiel, IC-2 comprend exactement 9 connaissances de Rang A."
+    },
+    {
+      question: "Quelle est la différence entre valeurs et normes professionnelles ?",
+      options: [
+        "Il n'y en a pas",
+        "Les valeurs sont des principes, les normes sont des règles concrètes", 
+        "Les normes sont plus importantes",
+        "Les valeurs changent, pas les normes"
+      ],
+      correct: 1,
+      explanation: "Les valeurs sont des principes fondamentaux (dignité, respect), les normes sont des règles concrètes qui traduisent ces valeurs."
+    },
+    {
+      question: "Que signifie EBM en médecine ?",
+      options: [
+        "European Board of Medicine",
+        "Evidence-Based Medicine", 
+        "Emergency Basic Medicine",
+        "Ethical Biomedical Medicine"
+      ],
+      correct: 1,
+      explanation: "EBM signifie Evidence-Based Medicine : médecine fondée sur les preuves scientifiques."
+    },
+    {
+      question: "Combien de connaissances Rang B contient IC-2 selon E-LiSA ?",
+      options: ["1", "2", "3", "4"],
+      correct: 1,
+      explanation: "IC-2 contient exactement 2 connaissances de Rang B selon le référentiel E-LiSA."
+    },
+    {
+      question: "Quel est le rôle principal des ordres professionnels ?",
+      options: [
+        "Former les médecins",
+        "Régulation, discipline et surveillance déontologique",
+        "Fixer les tarifs médicaux", 
+        "Organiser les concours"
+      ],
+      correct: 1,
+      explanation: "Les ordres professionnels assurent la régulation, la discipline et la surveillance déontologique des professions de santé."
+    }
+  ]
+};
+
 export async function completeIC2Item() {
-  console.log('🔧 Vérification et complétion de l\'item IC-2...');
+  console.log('🔧 Vérification et complétion complète de l\'item IC-2...');
   
   try {
     // D'abord, vérifier l'état actuel
@@ -88,9 +175,9 @@ export async function completeIC2Item() {
       return auditReport;
     }
     
-    console.log('🔧 Mise à jour du contenu IC-2 selon E-LiSA...');
+    console.log('🔧 Mise à jour COMPLÈTE du contenu IC-2 selon E-LiSA...');
     
-    // Mise à jour de l'item IC-2
+    // Mise à jour complète de l'item IC-2 avec TOUS les éléments
     const { data, error } = await supabase
       .from('edn_items_immersive')
       .upsert({
@@ -108,7 +195,7 @@ export async function completeIC2Item() {
         },
         audio_ambiance: {
           style: "classical",
-          tempo: "moderate",
+          tempo: "moderate", 
           instruments: ["piano", "strings"],
           mood: "reflective"
         },
@@ -133,18 +220,9 @@ export async function completeIC2Item() {
               description: "Infirmiers, pharmaciens, kinés illustrant la collaboration"
             }
           ],
-          scenario: "Une journée type dans le service illustrant concrètement chacune des 11 connaissances E-LiSA en action"
+          scenario: "Une journée type dans le service illustrant concrètement chacune des 11 connaissances E-LiSA en action : consultation éthique, réunion interprofessionnelle, cas de déontologie, etc."
         },
-        paroles_musicales: [
-          "Dans les couloirs blancs de l'hôpital moderne",
-          "Résonnent les pas de ceux qui soignent et espèrent",
-          "Onze connaissances guident leur noble mission",
-          "Valeurs, déontologie, organisation en fusion",
-          "Du rang A fondamental au rang B approfondi",
-          "Chaque professionnel porte en lui l'éthique et la vie",
-          "Responsabilité, compassion, probité sincère",
-          "Font de la médecine un art, une science claire"
-        ],
+        paroles_musicales: COMPLETE_IC2_PAROLES,
         interaction_config: {
           type: "comprehensive_learning",
           title: "Maîtrisez les 11 connaissances IC-2 selon E-LiSA",
@@ -155,36 +233,32 @@ export async function completeIC2Item() {
               items: [
                 { concept: "Définition pratique médicale", rang: "A" },
                 { concept: "Organisation des statuts", rang: "B" },
-                { concept: "Rôle des ordres", rang: "B" }
+                { concept: "Rôle des ordres", rang: "B" },
+                { concept: "Normes et valeurs", rang: "A" }
+              ]
+            },
+            {
+              type: "drag_drop",
+              title: "Classez les 9 connaissances Rang A",
+              items: [
+                "Identifier professionnels",
+                "Définition pratique médicale", 
+                "Signification éthique",
+                "Normes et valeurs",
+                "Organisation et régulation",
+                "Médecine fondée sur preuves",
+                "Déontologie médicale",
+                "Responsabilité patient",
+                "Acteurs et interactions"
               ]
             }
           ]
         },
-        quiz_questions: {
-          questions: [
-            {
-              question: "Combien de connaissances Rang A sont attendues pour IC-2 selon E-LiSA ?",
-              options: ["6", "7", "8", "9"],
-              correct: 3,
-              explanation: "Selon le référentiel E-LiSA officiel, IC-2 comprend exactement 9 connaissances de Rang A."
-            },
-            {
-              question: "Quelle est la différence entre valeurs et normes professionnelles ?",
-              options: [
-                "Il n'y en a pas",
-                "Les valeurs sont des principes, les normes sont des règles concrètes",
-                "Les normes sont plus importantes",
-                "Les valeurs changent, pas les normes"
-              ],
-              correct: 1,
-              explanation: "Les valeurs sont des principes fondamentaux (dignité, respect), les normes sont des règles concrètes qui traduisent ces valeurs."
-            }
-          ]
-        },
+        quiz_questions: COMPLETE_IC2_QUIZ,
         reward_messages: {
           completion: "Excellent ! Vous maîtrisez parfaitement les 11 connaissances IC-2 selon E-LiSA.",
-          badges: ["Expert IC-2", "Valeurs professionnelles", "E-LiSA validé"],
-          next_steps: "Passez maintenant à IC-3 ou approfondissez avec des cas cliniques."
+          badges: ["Expert IC-2", "Valeurs professionnelles", "E-LiSA validé", "Déontologie maîtrisée"],
+          next_steps: "Passez maintenant à IC-3 ou approfondissez avec des cas cliniques concrets."
         },
         updated_at: new Date().toISOString()
       }, {
@@ -196,16 +270,22 @@ export async function completeIC2Item() {
       throw error;
     }
 
-    console.log('✅ Item IC-2 mis à jour avec succès');
+    console.log('✅ Item IC-2 mis à jour avec TOUS les éléments (tableaux, BD, paroles, quiz)');
     
     // Vérification finale
     const finalAudit = await runAndDisplayIC2Audit();
     
-    console.log('\n🎯 VÉRIFICATION FINALE:');
+    console.log('\n🎯 VÉRIFICATION FINALE COMPLÈTE:');
     console.log(`📊 Complétude finale: ${finalAudit.completeness}%`);
+    console.log(`📋 Rang A: ${finalAudit.rangA.found}/${finalAudit.rangA.expected} connaissances`);
+    console.log(`🎯 Rang B: ${finalAudit.rangB.found}/${finalAudit.rangB.expected} connaissances`);
     
     if (finalAudit.completeness === 100) {
-      console.log('🎉 Item IC-2 maintenant COMPLET à 100% selon E-LiSA !');
+      console.log('🎉 Item IC-2 maintenant COMPLET à 100% avec TOUS les éléments selon E-LiSA !');
+      console.log('✅ Tableaux: 9 Rang A + 2 Rang B');
+      console.log('🎵 Paroles: Complètes avec refrains');
+      console.log('🎯 Quiz: 5 questions détaillées');
+      console.log('🎨 Bande dessinée: Structure prête');
     } else {
       console.log('⚠️ Des éléments peuvent encore manquer...');
     }
@@ -213,7 +293,7 @@ export async function completeIC2Item() {
     return finalAudit;
     
   } catch (error) {
-    console.error('❌ Erreur lors de la complétion IC-2:', error);
+    console.error('❌ Erreur lors de la complétion complète IC-2:', error);
     throw error;
   }
 }

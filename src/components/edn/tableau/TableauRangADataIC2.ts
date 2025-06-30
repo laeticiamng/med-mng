@@ -55,7 +55,7 @@ export const conceptsRangAIC2 = [
     vigilance: "Concilier liberté médicale et contraintes de santé publique et économiques"
   },
   {
-    concept: "Connaître les principes de la médecine fondés sur les preuves",
+    concept: "Connaître les principes de la médecine fondée sur les preuves",
     definition: "Evidence-Based Medicine : approche médicale basée sur les meilleures preuves scientifiques disponibles, intégrée à l'expertise clinique",
     exemple: "Utilisation de méta-analyses, essais randomisés contrôlés, guidelines basées sur les preuves pour les décisions thérapeutiques",
     piege: "Opposer EBM et médecine humaniste ou appliquer les preuves sans discernement clinique",
@@ -65,17 +65,7 @@ export const conceptsRangAIC2 = [
     vigilance: "Adapter les preuves générales au cas particulier de chaque patient"
   },
   {
-    concept: "Connaître les principes de la médecine basés sur la responsabilité et l'expérience du malade",
-    definition: "Approche médicale intégrant l'expérience vécue du patient, ses préférences et sa responsabilité dans les décisions de santé",
-    exemple: "Prise en compte du vécu de la maladie, des préférences thérapeutiques, de l'autonomie décisionnelle du patient",
-    piege: "Négliger l'expérience subjective du patient ou imposer une vision purement technique",
-    mnemo: "RESPONSABILITÉ = Respect + Expérience + Souffrance + Personnalisée + Optimale + Nuancée + Sensible + Adaptée + Bienveillante + Individualisée + Libre + Intégrée + Totale + Éclairée",
-    subtilite: "Équilibre entre expertise médicale et autonomie du patient",
-    application: "Décisions partagées intégrant l'expérience et les préférences du patient",
-    vigilance: "Respecter l'autonomie sans abandonner la responsabilité médicale"
-  },
-  {
-    concept: "Connaître les principes de déontologie médicale",
+    concept: "Connaître les principes de déontologie médicale, connaître la notion de conflit de valeurs et de conflit d'intérêts",
     definition: "Ensemble des devoirs professionnels codifiés régissant l'exercice médical : code de déontologie, obligations envers patients et confrères",
     exemple: "Code de déontologie médicale, secret professionnel, obligation de soins, respect de la dignité, confraternité",
     piege: "Confondre déontologie et éthique ou méconnaître les obligations déontologiques",
@@ -85,7 +75,17 @@ export const conceptsRangAIC2 = [
     vigilance: "Connaître et appliquer toutes les obligations déontologiques"
   },
   {
-    concept: "Connaître les différents acteurs de la santé et leurs interactions",
+    concept: "Connaître le concept de médecine basée sur la responsabilité et l'expérience du patient",
+    definition: "Approche médicale intégrant l'expérience vécue du patient, ses préférences et sa responsabilité dans les décisions de santé",
+    exemple: "Prise en compte du vécu de la maladie, des préférences thérapeutiques, de l'autonomie décisionnelle du patient",
+    piege: "Négliger l'expérience subjective du patient ou imposer une vision purement technique",
+    mnemo: "RESPONSABILITÉ = Respect + Expérience + Souffrance + Personnalisée + Optimale + Nuancée + Sensible + Adaptée + Bienveillante + Individualisée + Libre + Intégrée + Totale + Éclairée",
+    subtilite: "Équilibre entre expertise médicale et autonomie du patient",
+    application: "Décisions partagées intégrant l'expérience et les préférences du patient",
+    vigilance: "Respecter l'autonomie sans abandonner la responsabilité médicale"
+  },
+  {
+    concept: "Connaître les différents acteurs de la santé et leurs interactions spécifiques",
     definition: "Écosystème complexe d'acteurs : professionnels de santé, établissements, institutions, patients, familles, associations avec interactions multiples",
     exemple: "Hôpitaux, cliniques, médecine de ville, EHPAD, HAD, associations de patients, tutelles, ARS, CPAM, mutuelles",
     piege: "Vision restrictive des acteurs ou méconnaissance des interactions systémiques",
@@ -109,7 +109,7 @@ export const conceptsRangBIC2 = [
     vigilance: "Respecter les obligations spécifiques à chaque statut d'exercice"
   },
   {
-    concept: "Connaître le rôle des ordres professionnels",
+    concept: "Connaître le rôle des ordres professionnels et leur fonctionnement",
     definition: "Instances de régulation professionnelle : inscription, discipline, surveillance déontologique, organisation territoriale (départemental, régional, national)",
     exemple: "CNOM, conseils départementaux et régionaux, procédures disciplinaires, veille déontologique, missions de service public",
     piege: "Sous-estimer le pouvoir disciplinaire des ordres ou méconnaître leur organisation",
