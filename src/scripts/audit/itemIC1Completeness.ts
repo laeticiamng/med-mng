@@ -99,20 +99,12 @@ export class IC1CompletenessAuditor {
         report.missingElements.push('Item non conforme au schéma v2');
         report.recommendations.push('Migrer l\'item vers le format v2 avec item_metadata, content.rang_a, content.rang_b');
       } else {
-        // 2. Validation du schéma avec correction de l'accès aux erreurs
+        // 2. Validation du schéma avec la bonne structure de retour
         const validation = validateItemEDN(ic1Item);
-        if (!validation.success && validation.error) {
+        if (!validation.success) {
           report.isCompliant = false;
-          // S'assurer que error est bien une ZodError
-          if ('issues' in validation.error) {
-            const errorMessages = validation.error.issues.map(
-              (issue: any) => `${issue.path.join('.')} - ${issue.message}`
-            );
-            report.missingElements.push(...errorMessages);
-          } else {
-            // Fallback si la structure est différente
-            report.missingElements.push('Erreur de validation du schéma');
-          }
+          // validateItemEDN retourne { success: false, errors: string[] }
+          report.missingElements.push(...validation.errors);
         }
       }
 
