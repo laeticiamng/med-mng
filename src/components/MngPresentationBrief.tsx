@@ -17,9 +17,6 @@ export const MngPresentationBrief = () => {
           <CardDescription className="text-purple-100 text-lg">
             Music Neuro Learning Generator - Révolutionnez votre apprentissage
           </CardDescription>
-          <p className="text-sm text-purple-200 mt-2">
-            Méthode pédagogique innovante développée par Laëticia Motongane
-          </p>
         </CardHeader>
       </Card>
 
