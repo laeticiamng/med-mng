@@ -56,7 +56,7 @@ export const useEdnItem = (slug: string | undefined) => {
             quiz_questions: data.quiz_questions,
             created_at: data.created_at,
             updated_at: data.updated_at,
-            payload_v2: data.payload_v2
+            payload_v2: (data as any).payload_v2
           };
           setRawItem(mappedData);
         }
