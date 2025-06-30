@@ -22,7 +22,9 @@ export class IC1Validator {
       } else {
         // Validation failed, access the errors array
         report.isCompliant = false;
-        report.missingElements.push(...validation.errors);
+        // Use type narrowing to ensure TypeScript knows this is the failure case
+        const failedValidation = validation as { success: false; errors: string[] };
+        report.missingElements.push(...failedValidation.errors);
       }
     }
   }
