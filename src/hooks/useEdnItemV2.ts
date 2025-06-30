@@ -66,18 +66,28 @@ export const useEdnItemV2 = (slug: string | undefined): UseEdnItemV2Result => {
 
         if (isV2) {
           console.log('✅ Item v2 détecté, validation en cours...');
-          const validation = validateItemEDN(data);
           
-          if (validation.success) {
-            console.log('✅ Item v2 valide');
-            parsedItem = EDNItemParser.parseItemV2(validation.data, data.id);
-            valErrors = [];
-          } else {
-            console.warn('⚠️ Item v2 invalide:', validation.error);
-            valErrors = validation.error.issues.map(
-              (issue) => `${issue.path.join('.')} – ${issue.message}`
-            );
-            // On continue quand même le parsing pour éviter la régression
+          try {
+            // Approche alternative : on parse directement et on catch les erreurs de validation
+            const validation = validateItemEDN(data);
+            
+            if ('success' in validation && validation.success === true && 'data' in validation) {
+              console.log('✅ Item v2 valide');
+              // On utilise directement les données validées
+              const validatedData = validation.data;
+              parsedItem = EDNItemParser.parseItemV2(validatedData, data.id);
+              valErrors = [];
+            } else if ('error' in validation && validation.error) {
+              console.warn('⚠️ Item v2 invalide:', validation.error);
+              valErrors = validation.error.issues.map(
+                (issue: any) => `${issue.path.join('.')} – ${issue.message}`
+              );
+              // On continue quand même le parsing pour éviter la régression
+              parsedItem = EDNItemParser.parseAnyItem(data, data.id);
+            }
+          } catch (err) {
+            console.error('❌ Erreur de validation:', err);
+            // En cas d'erreur, on parse comme v1
             parsedItem = EDNItemParser.parseAnyItem(data, data.id);
           }
         } else {
