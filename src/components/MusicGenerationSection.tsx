@@ -1,13 +1,16 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Music, Library, Heart, Wand2, BookOpen } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Music, Library, Heart, Wand2, BookOpen, Gift } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { TranslatedText } from '@/components/TranslatedText';
+import { useFreeTrialLimit } from '@/hooks/useFreeTrialLimit';
 
 export const MusicGenerationSection = () => {
   const navigate = useNavigate();
+  const { getRemainingGenerations, maxFreeGenerations } = useFreeTrialLimit();
+  const remainingFree = getRemainingGenerations();
 
   const features = [
     {
@@ -44,9 +47,17 @@ export const MusicGenerationSection = () => {
           <h2 className="text-4xl font-bold text-gray-900 mb-4">
             <TranslatedText text="Génération Musicale IA" />
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-8">
+          <p className="text-xl text-gray-600 max-w-3xl mx-auto mb-6">
             <TranslatedText text="Transformez vos contenus EDN en chansons personnalisées avec l'intelligence artificielle. Apprenez en musique et créez votre bibliothèque médicale unique." />
           </p>
+
+          {/* Free Trial Badge */}
+          {remainingFree > 0 && (
+            <Badge variant="secondary" className="mb-6 px-4 py-2 text-lg bg-green-100 text-green-800">
+              <Gift className="h-4 w-4 mr-2" />
+              <TranslatedText text={`${remainingFree}/${maxFreeGenerations} générations gratuites restantes`} />
+            </Badge>
+          )}
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button 
@@ -55,7 +66,7 @@ export const MusicGenerationSection = () => {
               className="bg-amber-600 hover:bg-amber-700 text-white px-8 py-3 text-lg"
             >
               <Music className="h-6 w-6 mr-2" />
-              <TranslatedText text="Générer ma Musique" />
+              <TranslatedText text={remainingFree > 0 ? "Générer gratuitement" : "Générer ma Musique"} />
             </Button>
             <Button 
               onClick={() => navigate('/edn/music-library')}
@@ -66,6 +77,16 @@ export const MusicGenerationSection = () => {
               <Library className="h-6 w-6 mr-2" />
               <TranslatedText text="Ma Bibliothèque" />
             </Button>
+            
+            {remainingFree === 0 && (
+              <Button 
+                onClick={() => navigate('/med-mng/pricing')}
+                size="lg"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 text-lg"
+              >
+                <TranslatedText text="Voir les Tarifs" />
+              </Button>
+            )}
           </div>
         </div>
 
@@ -160,14 +181,14 @@ export const MusicGenerationSection = () => {
                   <TranslatedText text="Prêt à commencer ?" />
                 </h4>
                 <p className="text-gray-600 mb-6">
-                  <TranslatedText text="Créez votre première chanson médicale en quelques clics" />
+                  <TranslatedText text={remainingFree > 0 ? `${remainingFree} générations gratuites disponibles` : "Créez votre première chanson médicale"} />
                 </p>
                 <Button 
-                  onClick={() => navigate('/edn')}
+                  onClick={() => navigate(remainingFree > 0 ? '/edn' : '/med-mng/pricing')}
                   className="bg-amber-600 hover:bg-amber-700 text-white w-full"
                 >
                   <Wand2 className="h-5 w-5 mr-2" />
-                  <TranslatedText text="Commencer maintenant" />
+                  <TranslatedText text={remainingFree > 0 ? "Essayer gratuitement" : "Voir les tarifs"} />
                 </Button>
               </div>
             </div>
