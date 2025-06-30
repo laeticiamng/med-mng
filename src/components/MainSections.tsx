@@ -1,145 +1,211 @@
 
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { BookOpen, Stethoscope, Users, Brain, MessageSquare, Music, ArrowRight, CheckCircle } from "lucide-react";
 import { Link } from "react-router-dom";
-import { BookOpen, Users, Clock, Target, Award, BarChart3, TrendingUp } from "lucide-react";
 
-export const MainSections = () => {
+const MainSections = () => {
+  const sections = [
+    {
+      id: "edn",
+      title: "Items EDN",
+      description: "Items de Connaissance pour l'Examen National Dématérialisé",
+      icon: BookOpen,
+      color: "bg-blue-500",
+      count: "10 items complets",
+      status: "Contenus officiels corrigés",
+      features: [
+        "Contenus Rang A et Rang B",
+        "Paroles musicales personnalisées", 
+        "Scènes immersives interactives",
+        "Quiz d'auto-évaluation"
+      ],
+      href: "/edn",
+      badge: "Mis à jour"
+    },
+    {
+      id: "urgegpt",
+      title: "UrgeGPT",
+      description: "Assistant IA spécialisé en médecine d'urgence",
+      icon: Stethoscope,
+      color: "bg-red-500",
+      count: "Protocoles actualisés",
+      status: "Assistant IA disponible 24h/7j",
+      features: [
+        "Protocoles d'urgence",
+        "Recommandations basées sur les guidelines",
+        "Support décisionnel rapide",
+        "Sources médicales vérifiées"
+      ],
+      href: "/urgegpt",
+      badge: "IA"
+    },
+    {
+      id: "community",
+      title: "Communauté",
+      description: "Réseau social pour étudiants et professionnels de santé",
+      icon: Users,
+      color: "bg-green-500",
+      count: "Réseau actif",
+      status: "Échanges entre pairs",
+      features: [
+        "Discussions spécialisées",
+        "Partage d'expériences",
+        "Groupes d'étude",
+        "Mentorat"
+      ],
+      href: "/community",
+      badge: "Social"
+    },
+    {
+      id: "emotionscare",
+      title: "EmotionsCare",
+      description: "Bien-être émotionnel et musicothérapie",
+      icon: Brain,
+      color: "bg-purple-500",
+      count: "Outils bien-être",
+      status: "Support émotionnel personnalisé",
+      features: [
+        "Analyse émotionnelle IA",
+        "Musicothérapie adaptative",
+        "Journal personnel",
+        "Suivi du bien-être"
+      ],
+      href: "/emotions",
+      badge: "Bien-être"
+    },
+    {
+      id: "chat",
+      title: "MedChat",
+      description: "Chat intelligent pour questions médicales",
+      icon: MessageSquare,
+      color: "bg-orange-500",
+      count: "Assistant disponible",
+      status: "Réponses instantanées",
+      features: [
+        "Chat en temps réel",
+        "Base de connaissances médicales",
+        "Historique des conversations",
+        "Support multilingue"
+      ],
+      href: "/chat",
+      badge: "Chat IA"
+    },
+    {
+      id: "music",
+      title: "MedMusic",
+      description: "Génération musicale pour l'apprentissage médical",
+      icon: Music,
+      color: "bg-pink-500",
+      count: "Générateur musical",
+      status: "Création musicale personnalisée",
+      features: [
+        "Paroles médicales adaptées",
+        "Styles musicaux variés",
+        "Mémorisation facilitée",
+        "Bibliothèque personnelle"
+      ],
+      href: "/music-generator",
+      badge: "Créatif"
+    }
+  ];
+
   return (
-    <>
-      {/* Statistiques rapides */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-12">
-        <Card className="text-center p-4">
-          <div className="text-2xl font-bold text-blue-600">5</div>
-          <div className="text-sm text-gray-600">Items IC Complets</div>
-        </Card>
-        <Card className="text-center p-4">
-          <div className="text-2xl font-bold text-green-600">150+</div>
-          <div className="text-sm text-gray-600">Concepts E-LiSA</div>
-        </Card>
-        <Card className="text-center p-4">
-          <div className="text-2xl font-bold text-purple-600">20+</div>
-          <div className="text-sm text-gray-600">Situations ECOS</div>
-        </Card>
-        <Card className="text-center p-4">
-          <div className="text-2xl font-bold text-orange-600">100%</div>
-          <div className="text-sm text-gray-600">Interactif</div>
-        </Card>
+    <div className="container mx-auto px-4 py-8">
+      <div className="text-center mb-12">
+        <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          MedMng - Plateforme Médicale Intelligente
+        </h1>
+        <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+          Votre compagnon d'apprentissage médical avec IA, contenus officiels et outils innovants
+        </p>
+        <div className="flex items-center justify-center gap-2 mt-4">
+          <CheckCircle className="h-5 w-5 text-green-500" />
+          <span className="text-sm text-green-600 font-medium">
+            Tous les contenus EDN ont été corrigés et mis à jour
+          </span>
+        </div>
       </div>
 
-      {/* Sections principales */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
-        {/* EDN Section */}
-        <Card className="hover:shadow-lg transition-shadow">
-          <CardHeader>
-            <div className="flex items-center space-x-2">
-              <BookOpen className="h-6 w-6 text-blue-600" />
-              <CardTitle>Items EDN Immersifs</CardTitle>
-            </div>
-            <CardDescription>
-              Explorez les 5 items de compétences avec tableaux interactifs, scènes immersives et contenus musicaux
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 gap-2">
-              <div className="flex items-center justify-between">
-                <span className="text-sm">IC-1 : Relation médecin-malade</span>
-                <Badge className="bg-blue-100 text-blue-800">Complet</Badge>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm">IC-2 : Valeurs professionnelles</span>
-                <Badge className="bg-green-100 text-green-800">Excellent</Badge>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm">IC-3 : Démarche scientifique</span>
-                <Badge className="bg-yellow-100 text-yellow-800">À améliorer</Badge>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm">IC-4 : Qualité et sécurité</span>
-                <Badge className="bg-green-100 text-green-800">Excellent</Badge>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm">IC-5 : Organisation système</span>
-                <Badge className="bg-red-100 text-red-800">Incomplet</Badge>
-              </div>
-            </div>
-            <Link to="/edn" className="block">
-              <Button className="w-full">Accéder aux Items EDN</Button>
-            </Link>
-          </CardContent>
-        </Card>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {sections.map((section) => {
+          const IconComponent = section.icon;
+          return (
+            <Card key={section.id} className="group hover:shadow-lg transition-all duration-300 border-2 hover:border-primary/20">
+              <CardHeader className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className={`p-3 rounded-lg ${section.color} text-white`}>
+                    <IconComponent className="h-6 w-6" />
+                  </div>
+                  <Badge variant="secondary" className="text-xs">
+                    {section.badge}
+                  </Badge>
+                </div>
+                <div>
+                  <CardTitle className="text-xl group-hover:text-primary transition-colors">
+                    {section.title}
+                  </CardTitle>
+                  <CardDescription className="text-sm text-muted-foreground mt-2">
+                    {section.description}
+                  </CardDescription>
+                </div>
+              </CardHeader>
 
-        {/* ECOS Section */}
-        <Card className="hover:shadow-lg transition-shadow">
-          <CardHeader>
-            <div className="flex items-center space-x-2">
-              <Users className="h-6 w-6 text-green-600" />
-              <CardTitle>Simulations ECOS</CardTitle>
-            </div>
-            <CardDescription>
-              Entraînez-vous avec des situations cliniques réalistes et des patients virtuels
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
+              <CardContent className="space-y-4">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="font-medium text-primary">{section.count}</span>
+                  <span className="text-muted-foreground">{section.status}</span>
+                </div>
+
+                <div className="space-y-2">
+                  {section.features.map((feature, index) => (
+                    <div key={index} className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      <span>{feature}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <Button asChild className="w-full group-hover:bg-primary/90 transition-colors">
+                  <Link to={section.href} className="flex items-center justify-center gap-2">
+                    Accéder
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </Button>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+
+      <div className="mt-16 text-center">
+        <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-8 border">
+          <h2 className="text-2xl font-bold mb-4">Dernières mises à jour</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
             <div className="space-y-2">
-              <div className="flex items-center space-x-2">
-                <Clock className="h-4 w-4 text-gray-500" />
-                <span className="text-sm">Sessions chronométrées</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Target className="h-4 w-4 text-gray-500" />
-                <span className="text-sm">Évaluation en temps réel</span>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Award className="h-4 w-4 text-gray-500" />
-                <span className="text-sm">Feedback détaillé</span>
-              </div>
+              <h3 className="font-semibold text-blue-600">Items EDN</h3>
+              <p className="text-muted-foreground">
+                Correction complète des contenus génériques. Chaque item dispose maintenant de son contenu spécifique et authentique.
+              </p>
             </div>
-            <Link to="/ecos" className="block">
-              <Button variant="outline" className="w-full">Commencer les ECOS</Button>
-            </Link>
-          </CardContent>
-        </Card>
+            <div className="space-y-2">
+              <h3 className="font-semibold text-purple-600">Paroles Musicales</h3>
+              <p className="text-muted-foreground">
+                Ajout de paroles musicales personnalisées pour chaque item EDN, facilitant la mémorisation.
+              </p>
+            </div>
+            <div className="space-y-2">
+              <h3 className="font-semibold text-green-600">Scènes Immersives</h3>
+              <p className="text-muted-foreground">
+                Nouveaux scénarios interactifs avec dialogues et points d'apprentissage pratiques.
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
-
-      {/* Audit Section */}
-      <Card className="mb-12">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <BarChart3 className="h-6 w-6 text-purple-600" />
-              <CardTitle>Audit des Items EDN</CardTitle>
-            </div>
-            <Badge className="bg-purple-100 text-purple-800">Nouveau</Badge>
-          </div>
-          <CardDescription>
-            Analyse complète de la conformité E-LiSA des 5 items IC avec scores détaillés
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-            <div className="text-center p-4 bg-blue-50 rounded-lg">
-              <div className="text-2xl font-bold text-blue-600">81%</div>
-              <div className="text-sm text-gray-600">Score Moyen Général</div>
-            </div>
-            <div className="text-center p-4 bg-green-50 rounded-lg">
-              <div className="text-2xl font-bold text-green-600">2</div>
-              <div className="text-sm text-gray-600">Items Excellents</div>
-            </div>
-            <div className="text-center p-4 bg-orange-50 rounded-lg">
-              <div className="text-2xl font-bold text-orange-600">2</div>
-              <div className="text-sm text-gray-600">À Améliorer</div>
-            </div>
-          </div>
-          <Link to="/audit-general">
-            <Button variant="outline" className="w-full flex items-center justify-center space-x-2">
-              <TrendingUp className="h-4 w-4" />
-              <span>Voir l'Audit Complet</span>
-            </Button>
-          </Link>
-        </CardContent>
-      </Card>
-    </>
+    </div>
   );
 };
+
+export default MainSections;
