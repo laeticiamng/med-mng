@@ -3,7 +3,8 @@ import { conceptsRangAIC3, conceptsRangBIC3 } from './TableauRangADataIC3Concept
 import { colonnesConfigIC3 } from './TableauRangADataIC3Config';
 
 export const isIC3Item = (data: any): boolean => {
-  return data?.theme?.toLowerCase().includes('raisonnement') ||
+  return data?.item_code === 'IC-3' ||
+         data?.theme?.toLowerCase().includes('raisonnement') ||
          data?.theme?.toLowerCase().includes('décision') ||
          data?.theme?.toLowerCase().includes('scientifique') ||
          data?.title?.toLowerCase().includes('ic-3') ||
@@ -11,7 +12,8 @@ export const isIC3Item = (data: any): boolean => {
 };
 
 export const processTableauRangAIC3 = (data: any) => {
-  const concepts = data?.rang === 'B' ? conceptsRangBIC3 : conceptsRangAIC3;
+  const isRangB = data?.rang === 'B' || data?.theme?.includes('Rang B');
+  const concepts = isRangB ? conceptsRangBIC3 : conceptsRangAIC3;
   
   const lignesEnrichies = concepts.map(concept => [
     concept.concept,
@@ -27,7 +29,8 @@ export const processTableauRangAIC3 = (data: any) => {
   return {
     lignesEnrichies,
     colonnesUtiles: colonnesConfigIC3,
-    theme: data?.rang === 'B' ? 'IC-3 Rang B - Expertise en raisonnement médical (8 concepts)' : 'IC-3 Rang A - Fondamentaux du raisonnement médical (15 concepts)',
-    isRangB: data?.rang === 'B'
+    theme: isRangB ? 'IC-3 Rang B - Expertise en raisonnement médical (8 concepts)' : 'IC-3 Rang A - Fondamentaux du raisonnement médical (15 concepts)',
+    isRangB,
+    isComplete: lignesEnrichies.length > 0
   };
 };

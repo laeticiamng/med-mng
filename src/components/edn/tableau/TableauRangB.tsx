@@ -1,6 +1,7 @@
 
 import { useState } from 'react';
 import { processTableauRangAIC2, isIC2Item } from './TableauRangAUtilsIC2Integration';
+import { processTableauRangAIC3, isIC3Item } from './TableauRangAUtilsIC3Integration';
 import { processTableauRangAIC5, isIC5Item } from './TableauRangAUtilsIC5Integration';
 import { processStandardTableauData } from './TableauRangAUtilsStandard';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -29,12 +30,21 @@ export const TableauRangB = ({ data }: TableauRangBProps) => {
     console.log('✅ Item IC-2 détecté, traitement spécialisé E-LiSA');
     processedData = processTableauRangAIC2({
       ...data,
+      rang: 'B',
       theme: 'Rang B - IC-2 Valeurs professionnelles'
+    });
+  } else if (isIC3Item(data)) {
+    console.log('✅ Item IC-3 détecté, traitement spécialisé Décision');
+    processedData = processTableauRangAIC3({
+      ...data,
+      rang: 'B',
+      theme: 'Rang B - IC-3 Raisonnement et décision médicale'
     });
   } else if (isIC5Item(data)) {
     console.log('✅ Item IC-5 détecté, traitement spécialisé Organisation');
     processedData = processTableauRangAIC5({
       ...data,
+      rang: 'B',
       theme: 'Rang B - IC-5 Organisation système de santé'
     });
   } else {
