@@ -2,7 +2,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, Stethoscope, Users, Brain, MessageSquare, Music, ArrowRight, CheckCircle } from "lucide-react";
+import { BookOpen, MessageSquare, Music, ArrowRight, CheckCircle, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const MainSections = () => {
@@ -25,57 +25,6 @@ const MainSections = () => {
       badge: "Mis à jour"
     },
     {
-      id: "urgegpt",
-      title: "UrgeGPT",
-      description: "Assistant IA spécialisé en médecine d'urgence",
-      icon: Stethoscope,
-      color: "bg-red-500",
-      count: "Protocoles actualisés",
-      status: "Assistant IA disponible 24h/7j",
-      features: [
-        "Protocoles d'urgence",
-        "Recommandations basées sur les guidelines",
-        "Support décisionnel rapide",
-        "Sources médicales vérifiées"
-      ],
-      href: "/urgegpt",
-      badge: "IA"
-    },
-    {
-      id: "community",
-      title: "Communauté",
-      description: "Réseau social pour étudiants et professionnels de santé",
-      icon: Users,
-      color: "bg-green-500",
-      count: "Réseau actif",
-      status: "Échanges entre pairs",
-      features: [
-        "Discussions spécialisées",
-        "Partage d'expériences",
-        "Groupes d'étude",
-        "Mentorat"
-      ],
-      href: "/community",
-      badge: "Social"
-    },
-    {
-      id: "emotionscare",
-      title: "EmotionsCare",
-      description: "Bien-être émotionnel et musicothérapie",
-      icon: Brain,
-      color: "bg-purple-500",
-      count: "Outils bien-être",
-      status: "Support émotionnel personnalisé",
-      features: [
-        "Analyse émotionnelle IA",
-        "Musicothérapie adaptative",
-        "Journal personnel",
-        "Suivi du bien-être"
-      ],
-      href: "/emotions",
-      badge: "Bien-être"
-    },
-    {
       id: "chat",
       title: "MedChat",
       description: "Chat intelligent pour questions médicales",
@@ -94,7 +43,7 @@ const MainSections = () => {
     },
     {
       id: "music",
-      title: "MedMusic",
+      title: "Générateur Musical",
       description: "Génération musicale pour l'apprentissage médical",
       icon: Music,
       color: "bg-pink-500",
@@ -106,8 +55,17 @@ const MainSections = () => {
         "Mémorisation facilitée",
         "Bibliothèque personnelle"
       ],
-      href: "/music-generator",
+      href: "/generator",
       badge: "Créatif"
+    }
+  ];
+
+  const externalLinks = [
+    {
+      title: "EmotionsCare",
+      description: "Plateforme de bien-être émotionnel et musicothérapie",
+      url: "https://emotionscare.com",
+      color: "bg-purple-500"
     }
   ];
 
@@ -115,10 +73,10 @@ const MainSections = () => {
     <div className="container mx-auto px-4 py-8">
       <div className="text-center mb-12">
         <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-          MedMng - Plateforme Médicale Intelligente
+          MED MNG - Plateforme Médicale Intelligente
         </h1>
         <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-          Votre compagnon d'apprentissage médical avec IA, contenus officiels et outils innovants
+          Votre compagnon d'apprentissage médical avec IA, contenus officiels et génération musicale
         </p>
         <div className="flex items-center justify-center gap-2 mt-4">
           <CheckCircle className="h-5 w-5 text-green-500" />
@@ -128,7 +86,7 @@ const MainSections = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
         {sections.map((section) => {
           const IconComponent = section.icon;
           return (
@@ -179,7 +137,31 @@ const MainSections = () => {
         })}
       </div>
 
-      <div className="mt-16 text-center">
+      {/* Liens externes */}
+      <div className="mb-16">
+        <h2 className="text-2xl font-bold text-center mb-8">Plateformes partenaires</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {externalLinks.map((link, index) => (
+            <Card key={index} className="group hover:shadow-lg transition-all duration-300 border-2 hover:border-primary/20">
+              <CardContent className="p-6 text-center">
+                <div className={`w-12 h-12 ${link.color} rounded-lg mx-auto mb-4 flex items-center justify-center`}>
+                  <ExternalLink className="h-6 w-6 text-white" />
+                </div>
+                <h3 className="text-lg font-bold mb-2">{link.title}</h3>
+                <p className="text-sm text-muted-foreground mb-4">{link.description}</p>
+                <Button asChild variant="outline" className="w-full">
+                  <a href={link.url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2">
+                    Visiter
+                    <ExternalLink className="h-4 w-4" />
+                  </a>
+                </Button>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+
+      <div className="text-center">
         <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-8 border">
           <h2 className="text-2xl font-bold mb-4">Dernières mises à jour</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
@@ -196,9 +178,9 @@ const MainSections = () => {
               </p>
             </div>
             <div className="space-y-2">
-              <h3 className="font-semibold text-green-600">Scènes Immersives</h3>
+              <h3 className="font-semibold text-green-600">Générateur Musical</h3>
               <p className="text-muted-foreground">
-                Nouveaux scénarios interactifs avec dialogues et points d'apprentissage pratiques.
+                Nouvel outil de génération musicale avec IA pour transformer les contenus EDN en chansons d'apprentissage.
               </p>
             </div>
           </div>

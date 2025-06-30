@@ -9,9 +9,8 @@ import { PremiumBackground } from "@/components/ui/premium-background";
 import { PremiumCard } from "@/components/ui/premium-card";
 import { PremiumButton } from "@/components/ui/premium-button";
 import { useNavigate } from "react-router-dom";
-import { LogIn, CreditCard, BarChart3, Music, Users, BookOpen, Zap, Target, Award, TrendingUp, Sparkles, Star } from "lucide-react";
+import { LogIn, CreditCard, BarChart3, Music, BookOpen, MessageSquare, Zap, Target, Award, TrendingUp, Sparkles, Star } from "lucide-react";
 import { TranslatedText } from "@/components/TranslatedText";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -120,7 +119,7 @@ const Index = () => {
             </p>
           </div>
           
-          <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
             <PremiumCard variant="gradient" className="p-8 text-center cursor-pointer" onClick={() => navigate('/edn')}>
               <div className="mx-auto w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-blue-500/25">
                 <BookOpen className="h-10 w-10 text-white" />
@@ -147,35 +146,6 @@ const Index = () => {
               </div>
               <PremiumButton variant="primary" size="lg" className="w-full">
                 <TranslatedText text="Accéder aux Items" />
-              </PremiumButton>
-            </PremiumCard>
-
-            <PremiumCard variant="gradient" className="p-8 text-center cursor-pointer" onClick={() => navigate('/ecos')}>
-              <div className="mx-auto w-20 h-20 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-green-500/25">
-                <Users className="h-10 w-10 text-white" />
-              </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                <TranslatedText text="Simulation ECOS" />
-              </h3>
-              <p className="text-gray-600 mb-6 leading-relaxed">
-                <TranslatedText text="Évaluations Cliniques Objectives Structurées en simulation" />
-              </p>
-              <div className="space-y-3 text-sm text-gray-600 mb-8">
-                <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full"></div>
-                  <span>Cas cliniques réalistes</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-gradient-to-r from-orange-500 to-amber-500 rounded-full"></div>
-                  <span>Évaluation en temps réel</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-gradient-to-r from-red-500 to-pink-500 rounded-full"></div>
-                  <span>Feedback immédiat</span>
-                </div>
-              </div>
-              <PremiumButton variant="accent" size="lg" className="w-full">
-                <TranslatedText text="Commencer ECOS" />
               </PremiumButton>
             </PremiumCard>
 
