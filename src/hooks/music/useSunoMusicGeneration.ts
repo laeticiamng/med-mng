@@ -18,6 +18,7 @@ export const useSunoMusicGeneration = () => {
   const {
     isGenerating,
     generatedAudio,
+    generationProgress,
     lastError,
     setLastError,
     setGeneratingState,
@@ -99,6 +100,7 @@ export const useSunoMusicGeneration = () => {
   return {
     isGenerating,
     generatedAudio,
+    generationProgress,
     lastError,
     generateMusicInLanguage,
     currentLanguage
