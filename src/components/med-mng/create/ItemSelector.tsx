@@ -16,10 +16,11 @@ const ednitems = [
   { code: 'IC2', title: 'Les valeurs professionnelles du médecin' },
   { code: 'IC3', title: 'Raisonnement et décision en médecine' },
   { code: 'IC4', title: 'Qualité et sécurité des soins' },
-  { code: 'IC5', title: 'Organisation du système de santé' },
-  { code: 'IC6', title: 'Organisation de l\'exercice clinique et sécurisation' },
-  { code: 'IC7', title: 'Les discriminations' },
-  { code: 'IC8', title: 'Certificats médicaux dans le cadre des violences' },
+  { code: 'IC5', title: 'Responsabilités médicale pénale, civile, administrative et disciplinaire' },
+  { code: 'IC6', title: 'Organisation de l\'exercice clinique et sécurisation du parcours patient' },
+  { code: 'IC7', title: 'Les droits individuels et collectifs du patient' },
+  { code: 'IC8', title: 'Les discriminations' },
+  { code: 'IC9', title: 'Certificats médicaux dans le cadre des violences' },
 ];
 
 export const ItemSelector: React.FC<ItemSelectorProps> = ({

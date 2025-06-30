@@ -12,6 +12,7 @@ import { TableauRangAFooterIC5 } from './TableauRangAFooterIC5';
 import { TableauRangAFooterIC6 } from './TableauRangAFooterIC6';
 import { TableauRangAFooterIC7 } from './TableauRangAFooterIC7';
 import { TableauRangAFooterIC8 } from './TableauRangAFooterIC8';
+import { TableauRangAFooterIC9 } from './TableauRangAFooterIC9';
 import { processTableauRangAIC1, isIC1Item } from './TableauRangAUtilsIC1Integration';
 import { processTableauRangAIC2, isIC2Item } from './TableauRangAUtilsIC2Integration';
 import { processTableauRangAIC3, isIC3Item } from './TableauRangAUtilsIC3Integration';
@@ -20,6 +21,7 @@ import { processTableauRangAIC5, isIC5Item } from './TableauRangAUtilsIC5Integra
 import { processTableauRangAIC6, isIC6Item } from './TableauRangAUtilsIC6Integration';
 import { processTableauRangAIC7, isIC7Item } from './TableauRangAUtilsIC7Integration';
 import { processTableauRangAIC8, isIC8Item } from './TableauRangAUtilsIC8Integration';
+import { processTableauRangAIC9, isIC9Item } from './TableauRangAUtilsIC9Integration';
 import { processStandardTableauData } from './TableauRangAUtilsStandard';
 import { determinerColonnesUtiles, generateLignesRangAIntelligent } from './TableauRangAUtils';
 
@@ -114,7 +116,7 @@ export const TableauRangA = ({ data }: TableauRangAProps) => {
       lignesCount={lignesEnrichies.length}
     />;
   } else if (isIC7Item(data)) {
-    console.log('✅ Item IC-7 détecté - Les discriminations');
+    console.log('✅ Item IC-7 détecté - Les droits des patients');
     const processed = processTableauRangAIC7(data);
     lignesEnrichies = processed.lignesEnrichies;
     colonnesUtiles = processed.colonnesUtiles;
@@ -124,12 +126,22 @@ export const TableauRangA = ({ data }: TableauRangAProps) => {
       lignesCount={lignesEnrichies.length}
     />;
   } else if (isIC8Item(data)) {
-    console.log('✅ Item IC-8 détecté - Certificats médicaux violences');
+    console.log('✅ Item IC-8 détecté - Les discriminations');
     const processed = processTableauRangAIC8(data);
     lignesEnrichies = processed.lignesEnrichies;
     colonnesUtiles = processed.colonnesUtiles;
     theme = processed.theme;
     footerComponent = <TableauRangAFooterIC8 
+      colonnesCount={colonnesUtiles.length} 
+      lignesCount={lignesEnrichies.length}
+    />;
+  } else if (isIC9Item(data)) {
+    console.log('✅ Item IC-9 détecté - Certificats médicaux violences');
+    const processed = processTableauRangAIC9(data);
+    lignesEnrichies = processed.lignesEnrichies;
+    colonnesUtiles = processed.colonnesUtiles;
+    theme = processed.theme;
+    footerComponent = <TableauRangAFooterIC9 
       colonnesCount={colonnesUtiles.length} 
       lignesCount={lignesEnrichies.length}
     />;

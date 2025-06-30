@@ -1,28 +1,17 @@
 
-import React from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { TableauRangAHeader } from './TableauRangAHeader';
 import { TableauRangAGrid } from './TableauRangAGrid';
 import { TableauRangAFooter } from './TableauRangAFooter';
-import { TableauRangAFooterIC2 } from './TableauRangAFooterIC2';
-import { TableauRangAFooterIC3 } from './TableauRangAFooterIC3';
-import { TableauRangAFooterIC4 } from './TableauRangAFooterIC4';
-import { TableauRangAFooterIC5 } from './TableauRangAFooterIC5';
-import { TableauRangAFooterIC6 } from './TableauRangAFooterIC6';
-import { TableauRangAFooterIC7 } from './TableauRangAFooterIC7';
-import { TableauRangAFooterIC8 } from './TableauRangAFooterIC8';
-import { processTableauRangAIC2, isIC2Item } from './TableauRangAUtilsIC2Integration';
-import { processTableauRangAIC3, isIC3Item } from './TableauRangAUtilsIC3Integration';
-import { processTableauRangBIC4, isIC4Item } from './TableauRangAUtilsIC4Integration';
-import { processTableauRangAIC5, isIC5Item } from './TableauRangAUtilsIC5Integration';
-import { isIC6Item } from './TableauRangAUtilsIC6Integration';
-import { isIC7Item } from './TableauRangAUtilsIC7Integration';
-import { isIC8Item } from './TableauRangAUtilsIC8Integration';
+import { TableauRangBIC4 } from './TableauRangBIC4';
+import { processTableauRangBIC4, isIC4RangBItem } from './TableauRangBUtilsIC4Integration';
 import { processTableauRangBIC6 } from './TableauRangBUtilsIC6Integration';
 import { processTableauRangBIC7 } from './TableauRangBUtilsIC7Integration';
 import { processTableauRangBIC8 } from './TableauRangBUtilsIC8Integration';
+import { processTableauRangBIC9 } from './TableauRangBUtilsIC9Integration';
 import { processStandardTableauData } from './TableauRangAUtilsStandard';
+import { determinerColonnesUtiles, generateLignesRangAIntelligent } from './TableauRangAUtils';
 
 interface TableauRangBProps {
   data: {
@@ -42,8 +31,8 @@ export const TableauRangB = ({ data }: TableauRangBProps) => {
   if (!data) {
     return (
       <div className="text-center space-y-6">
-        <h2 className="text-3xl font-serif text-purple-900">Tableau Rang B</h2>
-        <p className="text-purple-700">Aucune donnée disponible</p>
+        <h2 className="text-3xl font-serif text-amber-900">Tableau Rang B</h2>
+        <p className="text-amber-700">Aucune donnée disponible</p>
       </div>
     );
   }
@@ -54,83 +43,44 @@ export const TableauRangB = ({ data }: TableauRangBProps) => {
   let theme: string;
   let footerComponent: JSX.Element;
 
-  if (isIC2Item(data)) {
-    console.log('✅ Item IC-2 Rang B détecté');
-    const processed = processTableauRangAIC2(data);
-    lignesEnrichies = processed.lignesEnrichies;
-    colonnesUtiles = processed.colonnesUtiles;
-    theme = processed.theme;
-    footerComponent = <TableauRangAFooterIC2 
-      colonnesCount={colonnesUtiles.length} 
-      lignesCount={lignesEnrichies.length}
-      isRangB={true}
-    />;
-  } else if (isIC3Item(data)) {
-    console.log('✅ Item IC-3 Rang B détecté');
-    const processed = processTableauRangAIC3(data);
-    lignesEnrichies = processed.lignesEnrichies;
-    colonnesUtiles = processed.colonnesUtiles;
-    theme = processed.theme;
-    footerComponent = <TableauRangAFooterIC3 
-      colonnesCount={colonnesUtiles.length} 
-      lignesCount={lignesEnrichies.length}
-      isRangB={true}
-    />;
-  } else if (isIC4Item(data)) {
-    console.log('✅ Item IC-4 Rang B détecté - Expertise qualité et sécurité');
+  if (isIC4RangBItem(data)) {
+    console.log('✅ Item IC-4 Rang B détecté');
     const processed = processTableauRangBIC4(data);
     lignesEnrichies = processed.lignesEnrichies;
     colonnesUtiles = processed.colonnesUtiles;
     theme = processed.theme;
-    footerComponent = <TableauRangAFooterIC4 
+    footerComponent = <TableauRangBIC4 
       colonnesCount={colonnesUtiles.length} 
       lignesCount={lignesEnrichies.length}
-      isRangB={true}
     />;
-  } else if (isIC5Item(data)) {
-    console.log('✅ Item IC-5 Rang B détecté');
-    const processed = processTableauRangAIC5(data);
-    lignesEnrichies = processed.lignesEnrichies;
-    colonnesUtiles = processed.colonnesUtiles;
-    theme = processed.theme;
-    footerComponent = <TableauRangAFooterIC5 
-      colonnesCount={colonnesUtiles.length} 
-      lignesCount={lignesEnrichies.length}
-      isRangB={true}
-    />;
-  } else if (isIC6Item(data)) {
-    console.log('✅ Item IC-6 Rang B détecté - Organisation expertise');
+  } else if (data?.item_code === 'IC-6') {
+    console.log('✅ Item IC-6 Rang B détecté');
     const processed = processTableauRangBIC6(data);
     lignesEnrichies = processed.lignesEnrichies;
     colonnesUtiles = processed.colonnesUtiles;
     theme = processed.theme;
-    footerComponent = <TableauRangAFooterIC6 
-      colonnesCount={colonnesUtiles.length} 
-      lignesCount={lignesEnrichies.length}
-      isRangB={true}
-    />;
-  } else if (isIC7Item(data)) {
-    console.log('✅ Item IC-7 Rang B détecté - Discriminations expertise');
+    footerComponent = <TableauRangAFooter colonnesCount={colonnesUtiles.length} lignesCount={lignesEnrichies.length} />;
+  } else if (data?.item_code === 'IC-7') {
+    console.log('✅ Item IC-7 Rang B détecté');
     const processed = processTableauRangBIC7(data);
     lignesEnrichies = processed.lignesEnrichies;
     colonnesUtiles = processed.colonnesUtiles;
     theme = processed.theme;
-    footerComponent = <TableauRangAFooterIC7 
-      colonnesCount={colonnesUtiles.length} 
-      lignesCount={lignesEnrichies.length}
-      isRangB={true}
-    />;
-  } else if (isIC8Item(data)) {
-    console.log('✅ Item IC-8 Rang B détecté - Certificats expertise');
+    footerComponent = <TableauRangAFooter colonnesCount={colonnesUtiles.length} lignesCount={lignesEnrichies.length} />;
+  } else if (data?.item_code === 'IC-8') {
+    console.log('✅ Item IC-8 Rang B détecté');
     const processed = processTableauRangBIC8(data);
     lignesEnrichies = processed.lignesEnrichies;
     colonnesUtiles = processed.colonnesUtiles;
     theme = processed.theme;
-    footerComponent = <TableauRangAFooterIC8 
-      colonnesCount={colonnesUtiles.length} 
-      lignesCount={lignesEnrichies.length}
-      isRangB={true}
-    />;
+    footerComponent = <TableauRangAFooter colonnesCount={colonnesUtiles.length} lignesCount={lignesEnrichies.length} />;
+  } else if (data?.item_code === 'IC-9') {
+    console.log('✅ Item IC-9 Rang B détecté');
+    const processed = processTableauRangBIC9(data);
+    lignesEnrichies = processed.lignesEnrichies;
+    colonnesUtiles = processed.colonnesUtiles;
+    theme = processed.theme;
+    footerComponent = <TableauRangAFooter colonnesCount={colonnesUtiles.length} lignesCount={lignesEnrichies.length} />;
   } else {
     // Traitement standard avec les nouvelles données JSON de Supabase
     console.log('📋 Traitement standard Rang B pour:', data?.item_code);
@@ -140,8 +90,9 @@ export const TableauRangB = ({ data }: TableauRangBProps) => {
       colonnesUtiles = processed.colonnesUtiles;
       theme = processed.theme;
     } else {
-      lignesEnrichies = [];
-      colonnesUtiles = [];
+      // Fallback vers l'ancienne méthode si pas de données JSON
+      lignesEnrichies = generateLignesRangAIntelligent(data);
+      colonnesUtiles = determinerColonnesUtiles(lignesEnrichies);
       theme = data.theme || data.title || 'Tableau Rang B';
     }
     footerComponent = <TableauRangAFooter colonnesCount={colonnesUtiles.length} lignesCount={lignesEnrichies.length} />;
@@ -154,12 +105,11 @@ export const TableauRangB = ({ data }: TableauRangBProps) => {
   });
 
   return (
-    <div className="space-y-8 bg-gradient-to-br from-purple-50 via-indigo-50 to-blue-50 p-6 rounded-xl">
+    <div className="space-y-8 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-6 rounded-xl">
       <TableauRangAHeader 
         theme={theme} 
         itemCode={data?.item_code || 'IC-X'} 
-        totalCompetences={lignesEnrichies.length}
-        isRangB={true}
+        totalCompetences={lignesEnrichies.length} 
       />
       
       {lignesEnrichies.length > 0 ? (
@@ -171,12 +121,12 @@ export const TableauRangB = ({ data }: TableauRangBProps) => {
           {footerComponent}
         </>
       ) : (
-        <Card className="p-8 text-center bg-white/50 backdrop-blur-sm border-purple-200">
-          <p className="text-purple-700 text-lg">
-            Le contenu expert Rang B est en cours de développement...
+        <Card className="p-8 text-center bg-white/50 backdrop-blur-sm border-blue-200">
+          <p className="text-blue-700 text-lg">
+            Les concepts de ce tableau sont en cours de traitement...
           </p>
-          <Badge variant="outline" className="mt-4 text-purple-600 border-purple-300">
-            Expertise avancée en préparation
+          <Badge variant="outline" className="mt-4 text-blue-600 border-blue-300">
+            Contenu en développement
           </Badge>
         </Card>
       )}
