@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -29,13 +28,18 @@ const Generator = () => {
   // Check if any generation is in progress
   const isGenerating = musicGeneration.isGenerating?.rangA || musicGeneration.isGenerating?.rangB;
 
-  // Items EDN avec les vrais noms
+  // Items EDN complets avec tous les 10 items
   const ednItems = [
     { code: 'IC1', title: 'La relation médecin-malade' },
     { code: 'IC2', title: 'Les valeurs professionnelles du médecin' },
     { code: 'IC3', title: 'Raisonnement et décision en médecine' },
     { code: 'IC4', title: 'Qualité et sécurité des soins' },
     { code: 'IC5', title: 'Organisation du système de santé' },
+    { code: 'IC6', title: 'Organisation de l\'exercice clinique et sécurisation du parcours patient' },
+    { code: 'IC7', title: 'Les discriminations' },
+    { code: 'IC8', title: 'Certificats médicaux dans le cadre des violences' },
+    { code: 'IC9', title: 'Médecine légale et expertises judiciaires' },
+    { code: 'IC10', title: 'Approches transversales : corporéité, spiritualité, sexualité' }
   ];
 
   // Situations ECOS disponibles
@@ -197,6 +201,7 @@ const Generator = () => {
                       <BookOpen className="h-8 w-8 mx-auto mb-2 text-blue-600" />
                       <h3 className="font-semibold">EDN</h3>
                       <p className="text-sm text-gray-600">Items à Choix Multiples</p>
+                      <p className="text-xs text-green-600 mt-1">10 items disponibles</p>
                     </CardContent>
                   </Card>
                   <Card 
@@ -211,6 +216,7 @@ const Generator = () => {
                       <Users className="h-8 w-8 mx-auto mb-2 text-green-600" />
                       <h3 className="font-semibold">ECOS</h3>
                       <p className="text-sm text-gray-600">Situations de départ</p>
+                      <p className="text-xs text-blue-600 mt-1">3 situations disponibles</p>
                     </CardContent>
                   </Card>
                 </div>
@@ -344,7 +350,7 @@ const Generator = () => {
             onAddToLibrary={handleAddToLibrary}
           />
 
-          {/* Informations d'aide */}
+          {/* Informations d'aide mise à jour */}
           <Card className="bg-blue-50 border-blue-200">
             <CardContent className="p-6">
               <h3 className="font-semibold text-blue-900 mb-3">
@@ -352,11 +358,12 @@ const Generator = () => {
               </h3>
               <div className="space-y-2 text-sm text-blue-800">
                 <p>• <TranslatedText text="Choisissez le type de contenu (EDN ou ECOS)" /></p>
-                <p>• <TranslatedText text="Sélectionnez l'item ou la situation spécifique" /></p>
-                <p>• <TranslatedText text="Pour EDN : choisissez le rang A (débutant) ou B (avancé)" /></p>
-                <p>• <TranslatedText text="Sélectionnez votre style musical préféré" /></p>
+                <p>• <TranslatedText text="Pour EDN : sélectionnez parmi les 10 items disponibles (IC1 à IC10)" /></p>
+                <p>• <TranslatedText text="Pour ECOS : choisissez une des 3 situations de départ" /></p>
+                <p>• <TranslatedText text="Sélectionnez le rang A (débutant) ou B (avancé) pour EDN" /></p>
+                <p>• <TranslatedText text="Choisissez votre style musical préféré" /></p>
                 <p>• <TranslatedText text="Cliquez sur 'Générer' pour créer votre musique personnalisée" /></p>
-                <p>• <TranslatedText text="Une fois générée, utilisez le lecteur pour écouter votre musique" /></p>
+                <p>• <TranslatedText text="Utilisez le lecteur pour écouter et sauvegarder votre musique" /></p>
               </div>
             </CardContent>
           </Card>
