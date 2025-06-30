@@ -32,7 +32,7 @@ export const TableauRangAFooterIC9: React.FC<TableauRangAFooterIC9Props> = ({
         <div className="flex items-center gap-2">
           <AlertTriangle className="h-5 w-5 text-orange-600" />
           <span className="text-sm font-medium text-orange-700">
-            {colonnesUtiles.length} dimensions d'analyse
+            {colonnesCount} dimensions d'analyse
           </span>
         </div>
         <Badge variant="outline" className="text-red-600 border-red-300 w-fit">

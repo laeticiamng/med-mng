@@ -41,3 +41,11 @@ export const processTableauRangBIC4Advanced = (data: any) => {
     expertiseLevel: 'advanced'
   };
 };
+
+export const processTableauRangBIC4 = processTableauRangBIC4Advanced;
+
+export const isIC4RangBItem = (data: any): boolean => {
+  return data?.item_code === 'IC-4' || 
+         data?.title?.includes('Qualité et sécurité des soins') ||
+         data?.slug === 'ic4-qualite-securite-soins';
+};

@@ -4,7 +4,6 @@ import { Badge } from '@/components/ui/badge';
 import { TableauRangAHeader } from './TableauRangAHeader';
 import { TableauRangAGrid } from './TableauRangAGrid';
 import { TableauRangAFooter } from './TableauRangAFooter';
-import { TableauRangBIC4 } from './TableauRangBIC4';
 import { processTableauRangBIC4, isIC4RangBItem } from './TableauRangBUtilsIC4Integration';
 import { processTableauRangBIC6 } from './TableauRangBUtilsIC6Integration';
 import { processTableauRangBIC7 } from './TableauRangBUtilsIC7Integration';
@@ -49,7 +48,7 @@ export const TableauRangB = ({ data }: TableauRangBProps) => {
     lignesEnrichies = processed.lignesEnrichies;
     colonnesUtiles = processed.colonnesUtiles;
     theme = processed.theme;
-    footerComponent = <TableauRangBIC4 
+    footerComponent = <TableauRangAFooter 
       colonnesCount={colonnesUtiles.length} 
       lignesCount={lignesEnrichies.length}
     />;
