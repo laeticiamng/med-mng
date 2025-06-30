@@ -2,6 +2,7 @@
 import { HeroSection } from "@/components/HeroSection";
 import { MngPresentationBrief } from "@/components/MngPresentationBrief";
 import { MainSections } from "@/components/MainSections";
+import { MusicGenerationSection } from "@/components/MusicGenerationSection";
 import { AppFooter } from "@/components/AppFooter";
 
 const Index = () => {
@@ -10,6 +11,7 @@ const Index = () => {
       <div className="container mx-auto px-4 py-8">
         <HeroSection />
         <MngPresentationBrief />
+        <MusicGenerationSection />
         <MainSections />
         <AppFooter />
       </div>

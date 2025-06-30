@@ -11,12 +11,14 @@ interface SavedMusic {
   music_style: string;
   rang: string;
   created_at: string;
+  is_favorite?: boolean;
 }
 
 export const useMusicLibrary = () => {
   const [savedMusics, setSavedMusics] = useState<SavedMusic[]>([]);
   const [loading, setLoading] = useState(true);
   const [playingId, setPlayingId] = useState<string | null>(null);
+  const [filter, setFilter] = useState<'all' | 'favorites'>('all');
   const { toast } = useToast();
 
   useEffect(() => {
@@ -78,12 +80,50 @@ export const useMusicLibrary = () => {
     }
   };
 
+  const handleToggleFavorite = async (musicId: string) => {
+    try {
+      const music = savedMusics.find(m => m.id === musicId);
+      if (!music) return;
+
+      const newFavoriteStatus = !music.is_favorite;
+
+      // Ici, vous pourriez ajouter une table séparée pour les favoris
+      // Pour l'instant, on met à jour localement
+      setSavedMusics(prev => 
+        prev.map(m => 
+          m.id === musicId 
+            ? { ...m, is_favorite: newFavoriteStatus }
+            : m
+        )
+      );
+
+      toast({
+        title: newFavoriteStatus ? "⭐ Ajouté aux favoris !" : "Retiré des favoris",
+        description: newFavoriteStatus 
+          ? "Cette musique est maintenant dans vos favoris." 
+          : "Musique retirée de vos favoris."
+      });
+    } catch (error) {
+      console.error('Erreur lors de la modification des favoris:', error);
+    }
+  };
+
+  const filteredMusics = savedMusics.filter(music => {
+    if (filter === 'favorites') {
+      return music.is_favorite;
+    }
+    return true;
+  });
+
   return {
-    savedMusics,
+    savedMusics: filteredMusics,
     loading,
     playingId,
+    filter,
+    setFilter,
     handlePlay,
     handleDelete,
+    handleToggleFavorite,
     refetch: fetchSavedMusics
   };
 };
