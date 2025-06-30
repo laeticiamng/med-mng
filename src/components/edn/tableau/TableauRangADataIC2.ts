@@ -1,8 +1,7 @@
-
 // Données spécifiques pour l'item IC-2 : Les valeurs professionnelles du médecin et des autres professions de santé
-// Basé sur la fiche E-LiSA officielle - 11 connaissances exactement (9 Rang A + 2 Rang B)
+// Basé sur la fiche E-LiSA officielle - 9 connaissances exactement (7 Rang A + 2 Rang B)
 
-// RANG A : 9 connaissances attendues exactement selon E-LiSA
+// RANG A : 7 connaissances attendues exactement selon E-LiSA
 export const conceptsRangAIC2 = [
   {
     concept: "Identifier les professionnels, compétences et ressources liés à un rôle particulier dans une organisation de santé",
@@ -15,24 +14,14 @@ export const conceptsRangAIC2 = [
     vigilance: "Respecter les périmètres de compétences et les responsabilités de chaque acteur"
   },
   {
-    concept: "Connaître la définition de la pratique médicale",
-    definition: "Activité professionnelle du médecin intégrant diagnostic, traitement, prévention dans un cadre scientifique et relationnel structuré",
-    exemple: "Consultation médicale, établissement du diagnostic, prescription thérapeutique, suivi des patients, prévention des maladies",
-    piege: "Réduire la pratique médicale à la dimension technique seule en négligeant l'aspect relationnel",
-    mnemo: "PRATIQUE = Prévention + Relation + Actes + Thérapeutique + Intégration + Qualité + Utilisée + Évaluation",
-    subtilite: "La pratique médicale combine excellence technique et dimension humaine",
-    application: "Exercice médical global intégrant tous les aspects de la prise en charge",
-    vigilance: "Maintenir l'équilibre entre compétence technique et approche humaine"
-  },
-  {
-    concept: "Connaître la signification de l'éthique",
-    definition: "Réflexion philosophique sur l'action juste et appropriée, questionnement moral face aux dilemmes de la pratique médicale",
-    exemple: "Questionnement éthique face aux dilemmes cliniques : acharnement thérapeutique, fin de vie, conflits d'intérêts",
-    piege: "Confondre éthique personnelle et éthique professionnelle ou séparer éthique et pratique",
-    mnemo: "ÉTHIQUE = Évaluation + Théorie + Humanité + Intégrité + Questionnement + Utilisée + Ensemble",
-    subtilite: "L'éthique guide la réflexion mais ne donne pas de réponses toutes faites",
-    application: "Intégration systématique de la réflexion éthique dans chaque décision médicale",
-    vigilance: "Ne pas instrumentaliser l'éthique mais en faire un véritable outil de réflexion"
+    concept: "Connaître la définition de la pratique médicale et connaître la signification de l'éthique",
+    definition: "Activité professionnelle du médecin intégrant diagnostic, traitement, prévention dans un cadre scientifique et relationnel structuré + réflexion philosophique sur l'action juste",
+    exemple: "Consultation médicale, établissement du diagnostic, prescription thérapeutique combinés à la réflexion éthique face aux dilemmes cliniques",
+    piege: "Séparer pratique médicale et éthique ou réduire l'une à la dimension technique",
+    mnemo: "PRATIQUE-ÉTHIQUE = Prévention + Relation + Actes + Thérapeutique + Intégrité + Questionnement + Utilisée + Évaluation",
+    subtilite: "La pratique médicale et l'éthique sont indissociables dans l'exercice médical",
+    application: "Exercice médical global intégrant excellence technique et réflexion éthique",
+    vigilance: "Maintenir l'équilibre entre compétence technique, approche humaine et questionnement éthique"
   },
   {
     concept: "Connaître les définitions de normes et de valeurs professionnelles",
@@ -55,44 +44,34 @@ export const conceptsRangAIC2 = [
     vigilance: "Concilier liberté médicale et contraintes de santé publique et économiques"
   },
   {
-    concept: "Connaître les principes de la médecine fondée sur les preuves",
-    definition: "Evidence-Based Medicine : approche médicale basée sur les meilleures preuves scientifiques disponibles, intégrée à l'expertise clinique",
-    exemple: "Utilisation de méta-analyses, essais randomisés contrôlés, guidelines basées sur les preuves pour les décisions thérapeutiques",
-    piege: "Opposer EBM et médecine humaniste ou appliquer les preuves sans discernement clinique",
-    mnemo: "EBM = Evidence + Basée + Médecine + preuves scientifiques + expertise + patient",
-    subtilite: "L'EBM combine rigueur scientifique et adaptation individuelle",
-    application: "Décisions thérapeutiques basées sur les meilleures preuves disponibles",
-    vigilance: "Adapter les preuves générales au cas particulier de chaque patient"
+    concept: "Connaître les principes de la médecine fondée sur les preuves et de la médecine basée sur la responsabilité et l'expérience du malade",
+    definition: "Evidence-Based Medicine combinée à l'approche intégrant l'expérience vécue du patient, ses préférences et sa responsabilité dans les décisions de santé",
+    exemple: "Utilisation de méta-analyses et essais randomisés + prise en compte du vécu de la maladie et des préférences thérapeutiques du patient",
+    piege: "Opposer EBM et médecine humaniste ou négliger l'expérience subjective du patient",
+    mnemo: "EBM-RESPONSABILITÉ = Evidence + Basée + Médecine + Responsabilité + Expérience + Souffrance + Personnalisée + Optimale + Nuancée + Sensible + Adaptée + Bienveillante + Individualisée + Libre + Intégrée",
+    subtilite: "Équilibre entre rigueur scientifique, expertise médicale et autonomie du patient",
+    application: "Décisions thérapeutiques basées sur les preuves ET les préférences du patient",
+    vigilance: "Adapter les preuves générales au cas particulier tout en respectant l'autonomie"
   },
   {
     concept: "Connaître les principes de déontologie médicale, connaître la notion de conflit de valeurs et de conflit d'intérêts",
-    definition: "Ensemble des devoirs professionnels codifiés régissant l'exercice médical : code de déontologie, obligations envers patients et confrères",
-    exemple: "Code de déontologie médicale, secret professionnel, obligation de soins, respect de la dignité, confraternité",
-    piege: "Confondre déontologie et éthique ou méconnaître les obligations déontologiques",
-    mnemo: "DÉONTOLOGIE = Devoirs + Éthique + Officiels + Normatifs + Textes + Obligatoires + Légaux + Officiels + Gestion + Intégrité + Équilibre",
-    subtilite: "La déontologie fixe le cadre légal et professionnel minimum",
-    application: "Respect strict du code déontologique dans l'exercice quotidien",
-    vigilance: "Connaître et appliquer toutes les obligations déontologiques"
+    definition: "Ensemble des devoirs professionnels codifiés + gestion des tensions entre valeurs contradictoires et des situations où intérêts personnels interfèrent avec intérêt du patient",
+    exemple: "Code de déontologie médicale, secret professionnel, obligation de soins + gestion conflits valeurs (autonomie vs bienfaisance) et d'intérêts (financiers, personnels)",
+    piege: "Confondre déontologie et éthique ou méconnaître la complexité des conflits de valeurs/intérêts",
+    mnemo: "DÉONTOLOGIE-CONFLITS = Devoirs + Éthique + Officiels + Normatifs + Textes + Obligatoires + Légaux + Officiels + Gestion + Intégrité + Équilibre + Conflits + Oppositions + Neutralité + Fidélité + Loyauté + Intérêts + Tensions + Solutions",
+    subtilite: "La déontologie fixe le cadre mais les conflits nécessitent une analyse cas par cas",
+    application: "Respect strict du code déontologique avec gestion éclairée des conflits",
+    vigilance: "Identifier et gérer les conflits de valeurs et d'intérêts de manière transparente"
   },
   {
-    concept: "Connaître le concept de médecine basée sur la responsabilité et l'expérience du patient",
-    definition: "Approche médicale intégrant l'expérience vécue du patient, ses préférences et sa responsabilité dans les décisions de santé",
-    exemple: "Prise en compte du vécu de la maladie, des préférences thérapeutiques, de l'autonomie décisionnelle du patient",
-    piege: "Négliger l'expérience subjective du patient ou imposer une vision purement technique",
-    mnemo: "RESPONSABILITÉ = Respect + Expérience + Souffrance + Personnalisée + Optimale + Nuancée + Sensible + Adaptée + Bienveillante + Individualisée + Libre + Intégrée + Totale + Éclairée",
-    subtilite: "Équilibre entre expertise médicale et autonomie du patient",
-    application: "Décisions partagées intégrant l'expérience et les préférences du patient",
-    vigilance: "Respecter l'autonomie sans abandonner la responsabilité médicale"
-  },
-  {
-    concept: "Connaître les différents acteurs de la santé et leurs interactions spécifiques",
-    definition: "Écosystème complexe d'acteurs : professionnels de santé, établissements, institutions, patients, familles, associations avec interactions multiples",
-    exemple: "Hôpitaux, cliniques, médecine de ville, EHPAD, HAD, associations de patients, tutelles, ARS, CPAM, mutuelles",
-    piege: "Vision restrictive des acteurs ou méconnaissance des interactions systémiques",
-    mnemo: "ACTEURS-INTERACTIONS = Acteurs + Complexes + Territoires + Établissements + Utilités + Réseaux + Santé + Institutions + Nombreux + Patients + Échanges + Relations + Associations + Coordinations + Territoires + Intégrés + Organisés + Nombreuses + Synergies",
-    subtilite: "Approche systémique nécessaire pour comprendre la complexité des interactions",
-    application: "Coordination efficace avec tous les acteurs du parcours patient",
-    vigilance: "Prendre en compte la dimension systémique dans chaque décision"
+    concept: "Connaître les interactions professionnelles et la collaboration interprofessionnelle",
+    definition: "Modes de coopération entre professionnels de santé : coordination, délégation, référence, travail en équipe pluridisciplinaire pour optimiser la prise en charge",
+    exemple: "Réunions de concertation pluridisciplinaire, consultations partagées, protocoles de coopération, télémédecine collaborative",
+    piege: "Vision hiérarchique rigide ou méconnaissance des compétences des autres professionnels",
+    mnemo: "INTERACTIONS-COLLABORATION = Interactions + Nombreuses + Territoires + Équipes + Relations + Acteurs + Coordinations + Territoires + Intégrées + Optimisées + Nombreuses + Synergies + Collaboration + Optimale + Légale + Légitime + Adaptée + Bienveillante + Ouverte + Respectueuse + Adaptée + Territoriale + Intégrée + Optimisée + Nombreuses",
+    subtilite: "Chaque professionnel garde son expertise tout en s'intégrant dans une démarche collective",
+    application: "Participation active aux équipes pluridisciplinaires et réseaux de soins",
+    vigilance: "Respecter les compétences de chaque professionnel dans une logique collaborative"
   }
 ];
 

@@ -8,9 +8,9 @@ interface TableauRangAFooterIC2Props {
 }
 
 export const TableauRangAFooterIC2 = ({ colonnesCount = 0, lignesCount = 0, isRangB = false }: TableauRangAFooterIC2Props) => {
-  const expectedCount = isRangB ? 2 : 9; // EXACTEMENT 9 pour Rang A
+  const expectedCount = isRangB ? 2 : 7; // EXACTEMENT 7 pour Rang A
   const rangLabel = isRangB ? "B" : "A";
-  const totalExpected = isRangB ? "2 connaissances approfondies" : "9 connaissances fondamentales";
+  const totalExpected = isRangB ? "2 connaissances approfondies" : "7 connaissances fondamentales";
   const isComplete = lignesCount === expectedCount;
   
   return (
@@ -74,42 +74,34 @@ export const TableauRangAFooterIC2 = ({ colonnesCount = 0, lignesCount = 0, isRa
         </div>
         
         {!isRangB ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
             <div className="flex items-center space-x-2 text-blue-700">
               <Users className="h-4 w-4" />
               <span>1. Identifier professionnels et compétences</span>
             </div>
             <div className="flex items-center space-x-2 text-green-700">
               <Target className="h-4 w-4" />
-              <span>2. Définition pratique médicale</span>
-            </div>
-            <div className="flex items-center space-x-2 text-purple-700">
-              <Heart className="h-4 w-4" />
-              <span>3. Signification de l'éthique</span>
+              <span>2. Définition pratique médicale et éthique</span>
             </div>
             <div className="flex items-center space-x-2 text-orange-700">
               <Scale className="h-4 w-4" />
-              <span>4. Normes et valeurs professionnelles</span>
+              <span>3. Normes et valeurs professionnelles</span>
             </div>
             <div className="flex items-center space-x-2 text-teal-700">
               <Shield className="h-4 w-4" />
-              <span>5. Organisation et régulation</span>
+              <span>4. Organisation et régulation</span>
             </div>
             <div className="flex items-center space-x-2 text-indigo-700">
               <Award className="h-4 w-4" />
-              <span>6. Médecine fondée sur preuves</span>
+              <span>5. EBM et responsabilité patient</span>
             </div>
             <div className="flex items-center space-x-2 text-red-700">
               <CheckCircle className="h-4 w-4" />
-              <span>7. Déontologie médicale</span>
+              <span>6. Déontologie et conflits</span>
             </div>
-            <div className="flex items-center space-x-2 text-green-700">
-              <Heart className="h-4 w-4" />
-              <span>8. Responsabilité et expérience patient</span>
-            </div>
-            <div className="flex items-center space-x-2 text-blue-700">
+            <div className="flex items-center space-x-2 text-purple-700">
               <Brain className="h-4 w-4" />
-              <span>9. Acteurs santé et interactions</span>
+              <span>7. Interactions interprofessionnelles</span>
             </div>
           </div>
         ) : (
