@@ -14,7 +14,7 @@ import { toast } from 'sonner';
 const Generator = () => {
   const navigate = useNavigate();
   const { getRemainingGenerations, maxFreeGenerations } = useFreeTrialLimit();
-  const { isGenerating, generateMusicInLanguage } = useMusicGenerationWithTranslation();
+  const musicGeneration = useMusicGenerationWithTranslation();
   
   const [contentType, setContentType] = useState(''); // 'edn' ou 'ecos'
   const [selectedItem, setSelectedItem] = useState('');
@@ -23,6 +23,9 @@ const Generator = () => {
   const [selectedStyle, setSelectedStyle] = useState('');
   
   const remainingFree = getRemainingGenerations();
+
+  // Check if any generation is in progress
+  const isGenerating = musicGeneration.isGenerating.rangA || musicGeneration.isGenerating.rangB;
 
   // Items EDN disponibles
   const ednItems = [
@@ -83,7 +86,7 @@ const Generator = () => {
 
       const rang = contentType === 'edn' ? selectedRang as 'A' | 'B' : 'A';
       
-      await generateMusicInLanguage(rang, mockLyrics, selectedStyle, 240);
+      await musicGeneration.generateMusicInLanguage(rang, mockLyrics, selectedStyle, 240);
       
       toast.success('Génération musicale réussie !');
       
