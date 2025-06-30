@@ -12,11 +12,11 @@ interface ItemSelectorProps {
 }
 
 const ednitems = [
-  { code: 'IC1', title: 'Item à Choix Multiples 1' },
-  { code: 'IC2', title: 'Item à Choix Multiples 2' },
-  { code: 'IC3', title: 'Item à Choix Multiples 3' },
-  { code: 'IC4', title: 'Item à Choix Multiples 4' },
-  { code: 'IC5', title: 'Item à Choix Multiples 5' },
+  { code: 'IC1', title: 'La relation médecin-malade' },
+  { code: 'IC2', title: 'Les valeurs professionnelles du médecin' },
+  { code: 'IC3', title: 'Raisonnement et décision en médecine' },
+  { code: 'IC4', title: 'Qualité et sécurité des soins' },
+  { code: 'IC5', title: 'Organisation du système de santé' },
 ];
 
 export const ItemSelector: React.FC<ItemSelectorProps> = ({

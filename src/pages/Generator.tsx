@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -25,15 +24,15 @@ const Generator = () => {
   const remainingFree = getRemainingGenerations();
 
   // Check if any generation is in progress
-  const isGenerating = musicGeneration.isGenerating.rangA || musicGeneration.isGenerating.rangB;
+  const isGenerating = musicGeneration.isGenerating?.rangA || musicGeneration.isGenerating?.rangB;
 
-  // Items EDN disponibles
+  // Items EDN avec les vrais noms
   const ednItems = [
-    { code: 'IC1', title: 'Item à Choix Multiples 1 - Professionnalisme' },
-    { code: 'IC2', title: 'Item à Choix Multiples 2 - Communication' },
-    { code: 'IC3', title: 'Item à Choix Multiples 3 - Connaissances' },
-    { code: 'IC4', title: 'Item à Choix Multiples 4 - Habiletés cliniques' },
-    { code: 'IC5', title: 'Item à Choix Multiples 5 - Amélioration de la qualité' },
+    { code: 'IC1', title: 'La relation médecin-malade' },
+    { code: 'IC2', title: 'Les valeurs professionnelles du médecin' },
+    { code: 'IC3', title: 'Raisonnement et décision en médecine' },
+    { code: 'IC4', title: 'Qualité et sécurité des soins' },
+    { code: 'IC5', title: 'Organisation du système de santé' },
   ];
 
   // Situations ECOS disponibles
@@ -209,7 +208,7 @@ const Generator = () => {
                       <SelectContent>
                         {ednItems.map((item) => (
                           <SelectItem key={item.code} value={item.code}>
-                            {item.title}
+                            {item.code} - {item.title}
                           </SelectItem>
                         ))}
                       </SelectContent>

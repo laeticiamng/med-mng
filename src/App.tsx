@@ -42,8 +42,8 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/generator" element={<Generator />} />
               <Route path="/edn" element={<EdnIndex />} />
-              <Route path="/edn/:itemCode" element={<EdnItem />} />
-              <Route path="/edn/:itemCode/immersive" element={<EdnItemImmersive />} />
+              <Route path="/edn/:slug" element={<EdnItem />} />
+              <Route path="/edn/:slug/immersive" element={<EdnItemImmersive />} />
               <Route path="/edn/music-library" element={<EdnMusicLibrary />} />
               <Route path="/ecos" element={<EcosIndex />} />
               <Route path="/ecos/:scenarioId" element={<EcosScenario />} />
