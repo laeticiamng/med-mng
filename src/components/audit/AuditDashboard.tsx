@@ -7,6 +7,7 @@ import { AuditOverview } from './AuditOverview';
 import { AuditProgress } from './AuditProgress';
 import { AuditItemsList } from './AuditItemsList';
 import { AuditInstructions } from './AuditInstructions';
+import { AuditIC2CompletionDashboard } from './AuditIC2CompletionDashboard';
 
 export const AuditDashboard = () => {
   const { report, loading, error, runAudit, exportReport } = useAuditItems();
@@ -21,6 +22,9 @@ export const AuditDashboard = () => {
       />
 
       {error && <AuditErrorDisplay error={error} />}
+
+      {/* Bouton de complétion IC-2 - toujours visible */}
+      <AuditIC2CompletionDashboard onComplete={runAudit} />
 
       {report && (
         <div className="space-y-8">
