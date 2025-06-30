@@ -1,0 +1,202 @@
+
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://docflemme.com/schemas/itemEDN.schema.json",
+  "title": "EDN Item Schema v2",
+  "description": "Schema standardisé pour tous les items EDN",
+  "type": "object",
+  "required": ["item_metadata", "content", "generation_config"],
+  "properties": {
+    "item_metadata": {
+      "type": "object",
+      "required": ["code", "title", "category", "difficulty", "version"],
+      "properties": {
+        "code": {
+          "type": "string",
+          "pattern": "^IC-[0-9]+$",
+          "description": "Code officiel de l'item (ex: IC-1, IC-42)"
+        },
+        "title": {
+          "type": "string",
+          "minLength": 5,
+          "maxLength": 200,
+          "description": "Titre officiel de l'item"
+        },
+        "subtitle": {
+          "type": "string",
+          "maxLength": 300,
+          "description": "Sous-titre optionnel"
+        },
+        "category": {
+          "type": "string",
+          "enum": ["relation_medecin_malade", "valeurs_professionnelles", "raisonnement_decision", "qualite_securite", "organisation_systeme"],
+          "description": "Catégorie principale de l'item"
+        },
+        "difficulty": {
+          "type": "string",
+          "enum": ["A", "B", "AB"],
+          "description": "A = Colloque singulier, B = Outils pratiques, AB = Les deux"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^v2\\.[0-9]+\\.[0-9]+$",
+          "description": "Version du schema utilisé (ex: v2.0.1)"
+        },
+        "slug": {
+          "type": "string",
+          "pattern": "^[a-z0-9-]+$",
+          "description": "Identifiant URL unique"
+        },
+        "created_at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "updated_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    },
+    "content": {
+      "type": "object",
+      "required": ["rang_a", "rang_b"],
+      "properties": {
+        "rang_a": {
+          "$ref": "#/$defs/rangContent"
+        },
+        "rang_b": {
+          "$ref": "#/$defs/rangContent"
+        }
+      }
+    },
+    "generation_config": {
+      "type": "object",
+      "required": ["music_enabled", "bd_enabled", "quiz_enabled", "interactive_enabled"],
+      "properties": {
+        "music_enabled": {
+          "type": "boolean",
+          "description": "Génération musicale activée"
+        },
+        "bd_enabled": {
+          "type": "boolean",
+          "description": "Génération BD activée"
+        },
+        "quiz_enabled": {
+          "type": "boolean",
+          "description": "Quiz final activé"
+        },
+        "interactive_enabled": {
+          "type": "boolean",
+          "description": "Mode immersif activé"
+        }
+      }
+    },
+    "ai_prompts": {
+      "type": "object",
+      "properties": {
+        "music_prompt_base": {
+          "type": "string",
+          "description": "Prompt de base pour génération musicale"
+        },
+        "bd_prompt_base": {
+          "type": "string",
+          "description": "Prompt de base pour génération BD"
+        },
+        "quiz_prompt_base": {
+          "type": "string",
+          "description": "Prompt de base pour génération quiz"
+        }
+      }
+    }
+  },
+  "$defs": {
+    "rangContent": {
+      "type": "object",
+      "required": ["theme", "competences"],
+      "properties": {
+        "theme": {
+          "type": "string",
+          "description": "Thème principal du rang"
+        },
+        "competences": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/competence"
+          }
+        }
+      }
+    },
+    "competence": {
+      "type": "object",
+      "required": [
+        "competence_id", 
+        "concept", 
+        "definition", 
+        "exemple", 
+        "piege", 
+        "mnemo", 
+        "subtilite", 
+        "application", 
+        "vigilance", 
+        "paroles_chantables"
+      ],
+      "properties": {
+        "competence_id": {
+          "type": "string",
+          "pattern": "^[A-Z0-9_]+$",
+          "description": "Identifiant unique de la compétence"
+        },
+        "concept": {
+          "type": "string",
+          "minLength": 3,
+          "maxLength": 150,
+          "description": "Concept principal"
+        },
+        "definition": {
+          "type": "string",
+          "minLength": 10,
+          "description": "Définition complète"
+        },
+        "exemple": {
+          "type": "string",
+          "minLength": 10,
+          "description": "Exemple concret"
+        },
+        "piege": {
+          "type": "string",
+          "minLength": 10,
+          "description": "Piège à éviter"
+        },
+        "mnemo": {
+          "type": "string",
+          "minLength": 3,
+          "description": "Moyen mnémotechnique"
+        },
+        "subtilite": {
+          "type": "string",
+          "minLength": 10,
+          "description": "Subtilité importante"
+        },
+        "application": {
+          "type": "string",
+          "minLength": 10,
+          "description": "Application pratique"
+        },
+        "vigilance": {
+          "type": "string",
+          "minLength": 10,
+          "description": "Point de vigilance"
+        },
+        "paroles_chantables": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "minLength": 10
+          },
+          "description": "Versions chantables du concept"
+        }
+      }
+    }
+  }
+}
