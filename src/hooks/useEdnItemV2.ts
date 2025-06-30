@@ -61,24 +61,30 @@ export const useEdnItemV2 = (slug: string | undefined): UseEdnItemV2Result => {
         const isV2 = EDNItemParser.isItemV2(data);
         setIsV2Format(isV2);
         
+        let parsedItem: ParsedEDNItem | null = null;
+        let valErrors: string[] = [];
+
         if (isV2) {
           console.log('✅ Item v2 détecté, validation en cours...');
           const validation = validateItemEDN(data);
           
-          if (!validation.success) {
-            console.warn('⚠️ Item v2 invalide:', validation.errors);
-            setValidationErrors(validation.errors);
-            // On continue quand même le parsing pour éviter la régression
-          } else {
+          if (validation.success) {
             console.log('✅ Item v2 valide');
-            setValidationErrors([]);
+            parsedItem = EDNItemParser.parseItemV2(validation.data, data.id);
+            valErrors = [];
+          } else {
+            console.warn('⚠️ Item v2 invalide:', validation.errors);
+            valErrors = validation.errors;
+            // On continue quand même le parsing pour éviter la régression
+            parsedItem = EDNItemParser.parseAnyItem(data, data.id);
           }
+        } else {
+          // Item format v1
+          parsedItem = EDNItemParser.parseAnyItem(data, data.id);
         }
 
-        // 3. Parsing unifié (v1 ou v2)
-        const parsedItem = EDNItemParser.parseAnyItem(data, data.id);
-        console.log('🎯 Item parsé:', parsedItem);
-        
+        // 3. Set state commun
+        setValidationErrors(valErrors);
         setItem(parsedItem);
         setError(null);
         
