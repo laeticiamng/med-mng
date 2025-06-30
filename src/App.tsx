@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -16,6 +15,7 @@ import EcosIndex from "./pages/EcosIndex";
 import EcosScenario from "./pages/EcosScenario";
 import AuditGeneral from "./pages/AuditGeneral";
 import AuditEDN from "./pages/AuditEDN";
+import AuditIC1 from "./pages/AuditIC1";
 import AuditIC4 from "./pages/AuditIC4";
 import MngMethod from "./pages/MngMethod";
 import NotFound from "./pages/NotFound";
@@ -50,6 +50,7 @@ const App = () => (
               <Route path="/ecos/:scenarioId" element={<EcosScenario />} />
               <Route path="/audit-general" element={<AuditGeneral />} />
               <Route path="/audit-edn" element={<AuditEDN />} />
+              <Route path="/audit-ic1" element={<AuditIC1 />} />
               <Route path="/audit-ic4" element={<AuditIC4 />} />
               <Route path="/mng-method" element={<MngMethod />} />
               <Route path="/mentions-legales" element={<MentionsLegales />} />
