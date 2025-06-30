@@ -30,10 +30,15 @@ export const isIC2Item = (data: any): boolean => {
 // Fonction pour détecter si c'est le rang B selon E-LiSA
 export const isRangBIC2 = (data: any): boolean => {
   if (!data) return false;
+  
+  // Forcer le rang B pour IC-2 quand le thème contient "Rang B"
   const theme = (data.theme || '').toLowerCase();
-  return theme.includes('rang b') || theme.includes('approfondissement') || 
-         theme.includes('organisation') || theme.includes('ordres') ||
-         theme.includes('statuts');
+  const isExplicitRangB = theme.includes('rang b') || theme.includes('approfondissement');
+  
+  console.log('🔍 isRangBIC2 - Theme:', theme);
+  console.log('📊 isRangBIC2 - Explicit Rang B:', isExplicitRangB);
+  
+  return isExplicitRangB;
 };
 
 // Fonction principale pour traiter les données IC-2 selon E-LiSA officielle
@@ -53,11 +58,12 @@ export function processTableauRangAIC2(data: any) {
     : generateLignesRangAIntelligentIC2(donneesEnrichies);
   
   console.log('📋 IC-2 - Lignes générées:', lignesEnrichies.length);
+  console.log('📋 IC-2 - Contenu lignes:', lignesEnrichies);
   
   // Déterminer les colonnes selon E-LiSA
   const colonnesUtiles = determinerColonnesUtilesIC2(lignesEnrichies);
   
-  const expectedCount = isRangB ? 2 : 7; // Correction : IC-2 a 7 compétences Rang A selon E-LiSA
+  const expectedCount = isRangB ? 2 : 7; // IC-2 a 7 compétences Rang A et 2 Rang B selon E-LiSA
   const actualCount = lignesEnrichies.length;
   
   console.log(`✅ IC-2 E-LiSA ${isRangB ? 'Rang B' : 'Rang A'}: ${actualCount}/${expectedCount} connaissances`);

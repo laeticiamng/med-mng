@@ -33,9 +33,13 @@ interface EdnItemContentProps {
 }
 
 export const EdnItemContent = ({ activeSection, item }: EdnItemContentProps) => {
+  console.log('🔍 EdnItemContent - Active section:', activeSection);
+  console.log('📊 EdnItemContent - Item data:', item);
+  
   const renderActiveSection = () => {
     switch (activeSection) {
       case 'tableau-a':
+        console.log('📋 Rendering Tableau Rang A for:', item.item_code);
         return item.tableau_rang_a ? (
           <TableauRangA data={item.tableau_rang_a} />
         ) : (
@@ -45,16 +49,18 @@ export const EdnItemContent = ({ activeSection, item }: EdnItemContentProps) => 
         );
       
       case 'tableau-b':
-        return item.tableau_rang_b ? (
+        console.log('📋 Rendering Tableau Rang B for:', item.item_code);
+        console.log('📊 Tableau Rang B raw data:', item.tableau_rang_b);
+        
+        // Toujours passer les données complètes de l'item au TableauRangB
+        return (
           <TableauRangB data={{
             title: item.title,
             item_code: item.item_code,
-            tableau_rang_b: item.tableau_rang_b
+            tableau_rang_b: item.tableau_rang_b,
+            // Forcer le thème Rang B pour le traitement
+            theme: item.item_code === 'IC-2' ? 'Rang B - IC-2 Valeurs professionnelles' : undefined
           }} />
-        ) : (
-          <div className="text-center py-8">
-            <TranslatedText text="Tableau Rang B en cours de développement" />
-          </div>
         );
       
       case 'scene':
