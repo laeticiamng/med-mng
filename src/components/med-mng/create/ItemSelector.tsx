@@ -17,6 +17,9 @@ const ednitems = [
   { code: 'IC3', title: 'Raisonnement et décision en médecine' },
   { code: 'IC4', title: 'Qualité et sécurité des soins' },
   { code: 'IC5', title: 'Organisation du système de santé' },
+  { code: 'IC6', title: 'Organisation de l\'exercice clinique et sécurisation' },
+  { code: 'IC7', title: 'Les discriminations' },
+  { code: 'IC8', title: 'Certificats médicaux dans le cadre des violences' },
 ];
 
 export const ItemSelector: React.FC<ItemSelectorProps> = ({
