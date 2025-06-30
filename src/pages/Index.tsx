@@ -1,7 +1,7 @@
 
 import { HeroSection } from "@/components/HeroSection";
 import { MngPresentationBrief } from "@/components/MngPresentationBrief";
-import { MainSections } from "@/components/MainSections";
+import MainSections from "@/components/MainSections";
 import { MusicGenerationSection } from "@/components/MusicGenerationSection";
 import { AppFooter } from "@/components/AppFooter";
 import { Button } from "@/components/ui/button";
