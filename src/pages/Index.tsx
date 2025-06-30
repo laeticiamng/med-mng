@@ -6,11 +6,14 @@ import { MusicGenerationSection } from "@/components/MusicGenerationSection";
 import { AppFooter } from "@/components/AppFooter";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { LogIn, CreditCard } from "lucide-react";
+import { LogIn, CreditCard, BarChart3 } from "lucide-react";
 import { TranslatedText } from "@/components/TranslatedText";
 
 const Index = () => {
   const navigate = useNavigate();
+
+  // Simple admin check - you can replace this with your actual admin logic
+  const isAdmin = localStorage.getItem('isAdmin') === 'true';
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
@@ -81,6 +84,21 @@ const Index = () => {
         {/* Footer */}
         <AppFooter />
       </div>
+
+      {/* Admin Audit Button - Bottom Right */}
+      {isAdmin && (
+        <div className="fixed bottom-4 right-4 z-50">
+          <Button
+            onClick={() => navigate('/audit-general')}
+            variant="outline"
+            size="sm"
+            className="bg-white/95 backdrop-blur-sm border-gray-300 hover:bg-gray-50 shadow-lg hover:shadow-xl transition-all duration-200 font-medium"
+          >
+            <BarChart3 className="h-4 w-4 mr-2" />
+            <span className="text-sm font-medium">Audit EDN</span>
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

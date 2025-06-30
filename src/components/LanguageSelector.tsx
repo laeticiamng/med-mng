@@ -20,7 +20,7 @@ export const LanguageSelector: React.FC = () => {
   };
 
   return (
-    <div className="fixed bottom-4 left-4 z-50">
+    <div className="fixed bottom-4 left-4 z-40">
       <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
         <DropdownMenuTrigger asChild>
           <Button
