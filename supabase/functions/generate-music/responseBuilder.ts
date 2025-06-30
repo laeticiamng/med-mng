@@ -1,29 +1,34 @@
 
 import { corsHeaders } from './constants.ts';
 
-export function createSuccessResponse(audioUrl: string, rang: string, style: string, duration: number, language: string = 'fr', attempts: number = 1) {
-  console.log(`✅ SUCCÈS - Création réponse avec URL:`, audioUrl);
+export function createSuccessResponse(audioUrl: string, rang: string, style: string, duration: number, language: string, attempts: number): Response {
+  console.log(`✅ Création réponse succès pour ${rang} - URL: ${audioUrl}`);
   
-  const response = {
-    status: 'success',
-    audioUrl: audioUrl,
-    rang: rang,
-    style: style,
-    duration: duration,
-    language: language,
-    attempts: attempts,
-    message: `Musique générée avec succès pour le Rang ${rang} en ${language} (${attempts} tentatives)`
-  };
+  const minutes = Math.floor(duration / 60);
+  const seconds = duration % 60;
+  const durationText = `${minutes}:${seconds.toString().padStart(2, '0')}`;
   
-  console.log(`📤 Réponse finale:`, response);
-  
-  return new Response(JSON.stringify(response), {
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    status: 200
-  });
+  return new Response(
+    JSON.stringify({
+      status: 'success',
+      audioUrl: audioUrl,
+      rang: rang,
+      style: style,
+      duration: duration,
+      durationText: durationText,
+      language: language,
+      attempts: attempts,
+      message: `🎵 Musique générée avec succès pour le Rang ${rang} !`,
+      generationTime: `Généré en ${attempts} tentatives`
+    }),
+    {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 200
+    }
+  );
 }
 
-export function createTimeoutResponse(taskId: string, rang: string, style: string, duration: number) {
+export function createTimeoutResponse(taskId: string, rang: string, style: string, duration: number): Response {
   console.log(`⏰ TIMEOUT - Création réponse timeout pour taskId: ${taskId}`);
   
   const timeoutResponse = {
@@ -40,26 +45,51 @@ export function createTimeoutResponse(taskId: string, rang: string, style: strin
   
   console.log(`⏰ Retour de timeout avec taskId: ${taskId}`, timeoutResponse);
   
-  return new Response(JSON.stringify(timeoutResponse), {
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    status: 408 // Request Timeout
-  });
+  return new Response(
+    JSON.stringify(timeoutResponse),
+    {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 408 // Request Timeout
+    }
+  );
 }
 
-export function createErrorResponse(error: any) {
-  console.error(`❌ ERREUR - Création réponse erreur:`, error);
+export function createErrorResponse(error: any): Response {
+  console.error('❌ Création réponse erreur:', error);
   
-  const errorResponse = {
-    error: 'Erreur lors de la génération musicale',
-    status: 'error',
-    message: error.message || 'Une erreur inattendue est survenue',
-    error_code: 500,
-    details: 'Erreur lors de la communication avec l\'API Suno',
-    timestamp: new Date().toISOString()
-  };
+  let errorMessage = 'Erreur interne du serveur';
+  let errorCode = 500;
   
-  return new Response(JSON.stringify(errorResponse), {
-    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    status: 500
-  });
+  if (error.message) {
+    if (error.message.includes('API key') || error.message.includes('Authorization')) {
+      errorMessage = 'Clé API Suno manquante ou invalide';
+      errorCode = 401;
+    } else if (error.message.includes('timeout') || error.message.includes('Timeout')) {
+      errorMessage = 'Timeout lors de la génération musicale';
+      errorCode = 408;
+    } else if (error.message.includes('limit') || error.message.includes('quota')) {
+      errorMessage = 'Limite API atteinte, réessayez plus tard';
+      errorCode = 429;
+    } else {
+      errorMessage = error.message;
+    }
+  }
+  
+  return new Response(
+    JSON.stringify({
+      error: errorMessage,
+      status: 'error',
+      error_code: errorCode,
+      details: 'Erreur lors de la génération avec Suno API',
+      debug: {
+        error_type: error.name || 'Unknown',
+        error_message: error.message || 'Unknown error',
+        timestamp: new Date().toISOString()
+      }
+    }),
+    {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: errorCode
+    }
+  );
 }
