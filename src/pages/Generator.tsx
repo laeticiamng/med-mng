@@ -1,9 +1,11 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { TranslatedText } from '@/components/TranslatedText';
+import { GeneratorMusicPlayer } from '@/components/GeneratorMusicPlayer';
 import { Music, Wand2, BookOpen, Users, ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useFreeTrialLimit } from '@/hooks/useFreeTrialLimit';
@@ -15,11 +17,12 @@ const Generator = () => {
   const { getRemainingGenerations, maxFreeGenerations } = useFreeTrialLimit();
   const musicGeneration = useMusicGenerationWithTranslation();
   
-  const [contentType, setContentType] = useState(''); // 'edn' ou 'ecos'
+  const [contentType, setContentType] = useState('');
   const [selectedItem, setSelectedItem] = useState('');
-  const [selectedRang, setSelectedRang] = useState(''); // 'A' ou 'B'
+  const [selectedRang, setSelectedRang] = useState('');
   const [selectedSituation, setSelectedSituation] = useState('');
   const [selectedStyle, setSelectedStyle] = useState('');
+  const [generatedSong, setGeneratedSong] = useState(null);
   
   const remainingFree = getRemainingGenerations();
 
@@ -85,13 +88,31 @@ const Generator = () => {
 
       const rang = contentType === 'edn' ? selectedRang as 'A' | 'B' : 'A';
       
-      await musicGeneration.generateMusicInLanguage(rang, mockLyrics, selectedStyle, 240);
+      const audioUrl = await musicGeneration.generateMusicInLanguage(rang, mockLyrics, selectedStyle, 240);
       
+      // Créer un objet chanson simulé
+      const song = {
+        id: Date.now(),
+        title: `${contentType === 'edn' ? selectedItem : selectedSituation} - ${selectedStyle}`,
+        audioUrl: audioUrl,
+        style: selectedStyle,
+        rang: rang,
+        duration: 240
+      };
+
+      setGeneratedSong(song);
       toast.success('Génération musicale réussie !');
       
     } catch (error) {
       console.error('Erreur génération:', error);
       toast.error('Erreur lors de la génération musicale');
+    }
+  };
+
+  const handleAddToLibrary = () => {
+    if (generatedSong) {
+      toast.success('Chanson ajoutée à votre bibliothèque !');
+      // Ici on pourrait ajouter la logique pour sauvegarder en base
     }
   };
 
@@ -101,6 +122,7 @@ const Generator = () => {
     setSelectedRang('');
     setSelectedSituation('');
     setSelectedStyle('');
+    setGeneratedSong(null);
   };
 
   return (
@@ -316,6 +338,12 @@ const Generator = () => {
             </CardContent>
           </Card>
 
+          {/* Lecteur de musique générée */}
+          <GeneratorMusicPlayer
+            generatedSong={generatedSong}
+            onAddToLibrary={handleAddToLibrary}
+          />
+
           {/* Informations d'aide */}
           <Card className="bg-blue-50 border-blue-200">
             <CardContent className="p-6">
@@ -328,6 +356,7 @@ const Generator = () => {
                 <p>• <TranslatedText text="Pour EDN : choisissez le rang A (débutant) ou B (avancé)" /></p>
                 <p>• <TranslatedText text="Sélectionnez votre style musical préféré" /></p>
                 <p>• <TranslatedText text="Cliquez sur 'Générer' pour créer votre musique personnalisée" /></p>
+                <p>• <TranslatedText text="Une fois générée, utilisez le lecteur pour écouter votre musique" /></p>
               </div>
             </CardContent>
           </Card>
