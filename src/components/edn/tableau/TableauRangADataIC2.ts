@@ -1,5 +1,6 @@
+
 // Données spécifiques pour l'item IC-2 : Les valeurs professionnelles du médecin et des autres professions de santé
-// Basé sur la fiche E-LiSA officielle - 9 connaissances exactement (7 Rang A + 2 Rang B)
+// Basé sur la fiche E-LiSA officielle - 7 connaissances Rang A exactement selon E-LiSA
 
 // RANG A : 7 connaissances attendues exactement selon E-LiSA
 export const conceptsRangAIC2 = [
