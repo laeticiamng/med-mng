@@ -45,6 +45,7 @@ export async function waitForAudio(sunoClient: SunoApiClient, taskId: string) {
         // Prendre la première piste disponible
         const firstTrack = sunoData[0];
         
+        // Priorité aux URLs dans cet ordre
         if (firstTrack?.audioUrl) {
           console.log(`🎵 URL AUDIO DIRECTE TROUVÉE RAPIDEMENT:`, firstTrack.audioUrl);
           return { audioUrl: firstTrack.audioUrl, attempts: attempt };
@@ -61,6 +62,25 @@ export async function waitForAudio(sunoClient: SunoApiClient, taskId: string) {
         }
         
         console.log(`⚠️ SUCCÈS mais aucune URL audio trouvée:`, firstTrack);
+      }
+      
+      // Nouveau : Vérifier si on a des URLs de streaming même avec TEXT_SUCCESS
+      if (statusResponse?.data?.status === 'TEXT_SUCCESS' && statusResponse?.data?.response?.sunoData) {
+        const sunoData = statusResponse.data.response.sunoData;
+        console.log(`🔄 TEXT_SUCCESS avec ${sunoData.length} pistes, vérification URLs...`);
+        
+        const firstTrack = sunoData[0];
+        
+        // Accepter les URLs de streaming même si le statut n'est pas SUCCESS
+        if (firstTrack?.streamAudioUrl) {
+          console.log(`🎵 URL STREAM TROUVÉE avec TEXT_SUCCESS:`, firstTrack.streamAudioUrl);
+          return { audioUrl: firstTrack.streamAudioUrl, attempts: attempt };
+        }
+        
+        if (firstTrack?.sourceStreamAudioUrl) {
+          console.log(`🎵 URL SOURCE STREAM TROUVÉE avec TEXT_SUCCESS:`, firstTrack.sourceStreamAudioUrl);
+          return { audioUrl: firstTrack.sourceStreamAudioUrl, attempts: attempt };
+        }
       }
       
       // Vérifications d'état optimisées
