@@ -5,11 +5,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { TranslatedText } from '@/components/TranslatedText';
 import { GeneratorMusicPlayer } from '@/components/GeneratorMusicPlayer';
-import { Music, Wand2, BookOpen, Users, ArrowLeft } from 'lucide-react';
+import { Music, Wand2, BookOpen, Users, ArrowLeft, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useFreeTrialLimit } from '@/hooks/useFreeTrialLimit';
 import { useMusicGenerationWithTranslation } from '@/hooks/useMusicGenerationWithTranslation';
 import { toast } from 'sonner';
+import { PremiumBackground } from '@/components/ui/premium-background';
+import { PremiumCard } from '@/components/ui/premium-card';
+import { PremiumButton } from '@/components/ui/premium-button';
 
 const Generator = () => {
   const navigate = useNavigate();
@@ -130,26 +133,28 @@ const Generator = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-red-50">
-      {/* Header */}
-      <div className="bg-white/95 backdrop-blur-sm border-b shadow-sm">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="ghost"
+    <PremiumBackground variant="amber">
+      {/* Header premium */}
+      <div className="bg-white/70 backdrop-blur-xl border-b border-white/20 shadow-lg shadow-black/5">
+        <div className="container mx-auto px-4 py-6">
+          <div className="flex items-center gap-6">
+            <PremiumButton
+              variant="glass"
+              size="md"
               onClick={() => navigate('/')}
-              className="flex items-center gap-2"
             >
-              <ArrowLeft className="h-4 w-4" />
+              <ArrowLeft className="h-5 w-5 mr-2" />
               <TranslatedText text="Retour" />
-            </Button>
-            <div className="flex items-center gap-3">
-              <Music className="h-8 w-8 text-amber-600" />
+            </PremiumButton>
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl shadow-lg flex items-center justify-center">
+                <Music className="h-7 w-7 text-white" />
+              </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
                   <TranslatedText text="Générateur Musical IA" />
                 </h1>
-                <p className="text-sm text-gray-600">
+                <p className="text-gray-600 font-medium">
                   <TranslatedText text="Générez rapidement vos contenus en musique" />
                 </p>
               </div>
@@ -158,84 +163,87 @@ const Generator = () => {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
+      <div className="container mx-auto px-4 py-12">
+        <div className="max-w-6xl mx-auto">
           
-          {/* Badge générations restantes */}
+          {/* Badge générations restantes premium */}
           {remainingFree > 0 && (
-            <div className="text-center mb-8">
-              <Badge variant="secondary" className="px-4 py-2 text-lg bg-green-100 text-green-800">
-                <Music className="h-4 w-4 mr-2" />
-                <TranslatedText text={`${remainingFree}/${maxFreeGenerations} générations gratuites restantes`} />
-              </Badge>
+            <div className="text-center mb-12">
+              <div className="inline-flex items-center gap-3 bg-gradient-to-r from-green-100 to-emerald-100 px-8 py-4 rounded-2xl border border-green-200/50 shadow-lg shadow-green-500/10">
+                <Music className="h-6 w-6 text-green-700" />
+                <span className="text-green-800 font-bold text-lg">
+                  <TranslatedText text={`${remainingFree}/${maxFreeGenerations} générations gratuites restantes`} />
+                </span>
+              </div>
             </div>
           )}
 
-          {/* Formulaire de génération */}
-          <Card className="mb-8">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Wand2 className="h-6 w-6 text-amber-600" />
-                <TranslatedText text="Configuration de génération" />
-              </CardTitle>
-              <CardDescription>
-                <TranslatedText text="Sélectionnez le type de contenu, l'item et le style musical" />
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
+          {/* Formulaire de génération premium */}
+          <PremiumCard variant="glass" className="mb-12 p-8">
+            <div className="flex items-center gap-4 mb-8">
+              <Wand2 className="h-8 w-8 text-amber-600" />
+              <div>
+                <h2 className="text-2xl font-bold text-gray-900">
+                  <TranslatedText text="Configuration de génération" />
+                </h2>
+                <p className="text-gray-600">
+                  <TranslatedText text="Sélectionnez le type de contenu, l'item et le style musical" />
+                </p>
+              </div>
+            </div>
+            
+            <div className="space-y-8">
               
-              {/* Sélection du type de contenu */}
-              <div className="space-y-2">
-                <label className="text-sm font-medium">
+              {/* Sélection du type de contenu premium */}
+              <div className="space-y-4">
+                <label className="text-lg font-semibold text-gray-900">
                   <TranslatedText text="Type de contenu" />
                 </label>
-                <div className="grid grid-cols-2 gap-4">
-                  <Card 
-                    className={`cursor-pointer transition-all ${contentType === 'edn' ? 'ring-2 ring-amber-500 bg-amber-50' : 'hover:bg-gray-50'}`}
+                <div className="grid grid-cols-2 gap-6">
+                  <PremiumCard 
+                    variant={contentType === 'edn' ? 'elevated' : 'default'}
+                    className={`cursor-pointer transition-all p-6 text-center ${contentType === 'edn' ? 'ring-2 ring-amber-500 shadow-amber-500/20' : ''}`}
                     onClick={() => {
                       setContentType('edn');
                       setSelectedSituation('');
                     }}
                   >
-                    <CardContent className="p-4 text-center">
-                      <BookOpen className="h-8 w-8 mx-auto mb-2 text-blue-600" />
-                      <h3 className="font-semibold">EDN</h3>
-                      <p className="text-sm text-gray-600">Items à Choix Multiples</p>
-                      <p className="text-xs text-green-600 mt-1">10 items disponibles</p>
-                    </CardContent>
-                  </Card>
-                  <Card 
-                    className={`cursor-pointer transition-all ${contentType === 'ecos' ? 'ring-2 ring-amber-500 bg-amber-50' : 'hover:bg-gray-50'}`}
+                    <BookOpen className="h-12 w-12 mx-auto mb-4 text-blue-600" />
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">EDN</h3>
+                    <p className="text-gray-600 mb-3">Items à Choix Multiples</p>
+                    <p className="text-sm text-green-600 font-semibold">10 items disponibles</p>
+                  </PremiumCard>
+                  <PremiumCard 
+                    variant={contentType === 'ecos' ? 'elevated' : 'default'}
+                    className={`cursor-pointer transition-all p-6 text-center ${contentType === 'ecos' ? 'ring-2 ring-amber-500 shadow-amber-500/20' : ''}`}
                     onClick={() => {
                       setContentType('ecos');
                       setSelectedItem('');
                       setSelectedRang('');
                     }}
                   >
-                    <CardContent className="p-4 text-center">
-                      <Users className="h-8 w-8 mx-auto mb-2 text-green-600" />
-                      <h3 className="font-semibold">ECOS</h3>
-                      <p className="text-sm text-gray-600">Situations de départ</p>
-                      <p className="text-xs text-blue-600 mt-1">3 situations disponibles</p>
-                    </CardContent>
-                  </Card>
+                    <Users className="h-12 w-12 mx-auto mb-4 text-green-600" />
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">ECOS</h3>
+                    <p className="text-gray-600 mb-3">Situations de départ</p>
+                    <p className="text-sm text-blue-600 font-semibold">3 situations disponibles</p>
+                  </PremiumCard>
                 </div>
               </div>
 
-              {/* Sélection EDN */}
+              {/* Sélection EDN premium */}
               {contentType === 'edn' && (
                 <>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">
+                  <div className="space-y-4">
+                    <label className="text-lg font-semibold text-gray-900">
                       <TranslatedText text="Item EDN" />
                     </label>
                     <Select value={selectedItem} onValueChange={setSelectedItem}>
-                      <SelectTrigger>
+                      <SelectTrigger className="h-14 text-base bg-white/50 backdrop-blur-sm border-white/30 shadow-lg">
                         <SelectValue placeholder="Sélectionnez un item EDN" />
                       </SelectTrigger>
-                      <SelectContent>
+                      <SelectContent className="bg-white/95 backdrop-blur-xl border-white/30 shadow-2xl">
                         {ednItems.map((item) => (
-                          <SelectItem key={item.code} value={item.code}>
+                          <SelectItem key={item.code} value={item.code} className="text-base py-3">
                             {item.code} - {item.title}
                           </SelectItem>
                         ))}
@@ -243,47 +251,45 @@ const Generator = () => {
                     </Select>
                   </div>
 
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">
+                  <div className="space-y-4">
+                    <label className="text-lg font-semibold text-gray-900">
                       <TranslatedText text="Rang" />
                     </label>
-                    <div className="grid grid-cols-2 gap-4">
-                      <Card 
-                        className={`cursor-pointer transition-all ${selectedRang === 'A' ? 'ring-2 ring-blue-500 bg-blue-50' : 'hover:bg-gray-50'}`}
+                    <div className="grid grid-cols-2 gap-6">
+                      <PremiumCard 
+                        variant={selectedRang === 'A' ? 'elevated' : 'default'}
+                        className={`cursor-pointer transition-all p-6 text-center ${selectedRang === 'A' ? 'ring-2 ring-blue-500 shadow-blue-500/20' : ''}`}
                         onClick={() => setSelectedRang('A')}
                       >
-                        <CardContent className="p-4 text-center">
-                          <h3 className="font-bold text-lg">Rang A</h3>
-                          <p className="text-sm text-gray-600">Niveau débutant</p>
-                        </CardContent>
-                      </Card>
-                      <Card 
-                        className={`cursor-pointer transition-all ${selectedRang === 'B' ? 'ring-2 ring-purple-500 bg-purple-50' : 'hover:bg-gray-50'}`}
+                        <h3 className="text-2xl font-bold text-gray-900 mb-2">Rang A</h3>
+                        <p className="text-gray-600">Niveau débutant</p>
+                      </PremiumCard>
+                      <PremiumCard 
+                        variant={selectedRang === 'B' ? 'elevated' : 'default'}
+                        className={`cursor-pointer transition-all p-6 text-center ${selectedRang === 'B' ? 'ring-2 ring-purple-500 shadow-purple-500/20' : ''}`}
                         onClick={() => setSelectedRang('B')}
                       >
-                        <CardContent className="p-4 text-center">
-                          <h3 className="font-bold text-lg">Rang B</h3>
-                          <p className="text-sm text-gray-600">Niveau avancé</p>
-                        </CardContent>
-                      </Card>
+                        <h3 className="text-2xl font-bold text-gray-900 mb-2">Rang B</h3>
+                        <p className="text-gray-600">Niveau avancé</p>
+                      </PremiumCard>
                     </div>
                   </div>
                 </>
               )}
 
-              {/* Sélection ECOS */}
+              {/* Sélection ECOS premium */}
               {contentType === 'ecos' && (
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">
+                <div className="space-y-4">
+                  <label className="text-lg font-semibold text-gray-900">
                     <TranslatedText text="Situation ECOS" />
                   </label>
                   <Select value={selectedSituation} onValueChange={setSelectedSituation}>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-14 text-base bg-white/50 backdrop-blur-sm border-white/30 shadow-lg">
                       <SelectValue placeholder="Sélectionnez une situation ECOS" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-white/95 backdrop-blur-xl border-white/30 shadow-2xl">
                       {ecosSituations.map((situation) => (
-                        <SelectItem key={situation.code} value={situation.code}>
+                        <SelectItem key={situation.code} value={situation.code} className="text-base py-3">
                           {situation.title}
                         </SelectItem>
                       ))}
@@ -292,19 +298,19 @@ const Generator = () => {
                 </div>
               )}
 
-              {/* Sélection du style musical */}
+              {/* Sélection du style musical premium */}
               {contentType && (
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">
+                <div className="space-y-4">
+                  <label className="text-lg font-semibold text-gray-900">
                     <TranslatedText text="Style musical" />
                   </label>
                   <Select value={selectedStyle} onValueChange={setSelectedStyle}>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-14 text-base bg-white/50 backdrop-blur-sm border-white/30 shadow-lg">
                       <SelectValue placeholder="Choisissez un style musical" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="bg-white/95 backdrop-blur-xl border-white/30 shadow-2xl">
                       {musicStyles.map((style) => (
-                        <SelectItem key={style.value} value={style.value}>
+                        <SelectItem key={style.value} value={style.value} className="text-base py-3">
                           {style.label}
                         </SelectItem>
                       ))}
@@ -313,63 +319,86 @@ const Generator = () => {
                 </div>
               )}
 
-              {/* Boutons d'action */}
-              <div className="flex gap-4 pt-4">
-                <Button
+              {/* Boutons d'action premium */}
+              <div className="flex gap-6 pt-6">
+                <PremiumButton
+                  variant="primary"
+                  size="xl"
                   onClick={handleGenerate}
                   disabled={!canGenerate() || isGenerating || remainingFree <= 0}
-                  className="flex-1 bg-amber-600 hover:bg-amber-700"
-                  size="lg"
+                  className="flex-1"
                 >
                   {isGenerating ? (
                     <>
-                      <div className="animate-spin h-4 w-4 mr-2 border-2 border-white border-t-transparent rounded-full" />
+                      <div className="animate-spin h-5 w-5 mr-3 border-2 border-white border-t-transparent rounded-full" />
                       <TranslatedText text="Génération en cours..." />
                     </>
                   ) : (
                     <>
-                      <Music className="h-4 w-4 mr-2" />
+                      <Music className="h-5 w-5 mr-3" />
                       <TranslatedText text="Générer la musique" />
                     </>
                   )}
-                </Button>
-                <Button
+                </PremiumButton>
+                <PremiumButton
+                  variant="secondary"
+                  size="xl"
                   onClick={resetForm}
-                  variant="outline"
-                  size="lg"
                 >
                   <TranslatedText text="Réinitialiser" />
-                </Button>
+                </PremiumButton>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+          </PremiumCard>
 
-          {/* Lecteur de musique générée */}
+          {/* Lecteur de musique générée premium */}
           <GeneratorMusicPlayer
             generatedSong={generatedSong}
             onAddToLibrary={handleAddToLibrary}
           />
 
-          {/* Informations d'aide mise à jour */}
-          <Card className="bg-blue-50 border-blue-200">
-            <CardContent className="p-6">
-              <h3 className="font-semibold text-blue-900 mb-3">
-                <TranslatedText text="Comment utiliser le générateur ?" />
-              </h3>
-              <div className="space-y-2 text-sm text-blue-800">
-                <p>• <TranslatedText text="Choisissez le type de contenu (EDN ou ECOS)" /></p>
-                <p>• <TranslatedText text="Pour EDN : sélectionnez parmi les 10 items disponibles (IC1 à IC10)" /></p>
-                <p>• <TranslatedText text="Pour ECOS : choisissez une des 3 situations de départ" /></p>
-                <p>• <TranslatedText text="Sélectionnez le rang A (débutant) ou B (avancé) pour EDN" /></p>
-                <p>• <TranslatedText text="Choisissez votre style musical préféré" /></p>
-                <p>• <TranslatedText text="Cliquez sur 'Générer' pour créer votre musique personnalisée" /></p>
-                <p>• <TranslatedText text="Utilisez le lecteur pour écouter et sauvegarder votre musique" /></p>
+          {/* Informations d'aide premium */}
+          <PremiumCard variant="glass" className="p-8">
+            <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
+                <Sparkles className="h-5 w-5 text-white" />
               </div>
-            </CardContent>
-          </Card>
+              <TranslatedText text="Comment utiliser le générateur ?" />
+            </h3>
+            <div className="grid md:grid-cols-2 gap-6 text-gray-700">
+              <div className="space-y-4">
+                <p className="flex items-start gap-3">
+                  <span className="w-6 h-6 bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-full flex items-center justify-center text-sm font-bold mt-0.5">1</span>
+                  <TranslatedText text="Choisissez le type de contenu (EDN ou ECOS)" />
+                </p>
+                <p className="flex items-start gap-3">
+                  <span className="w-6 h-6 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full flex items-center justify-center text-sm font-bold mt-0.5">2</span>
+                  <TranslatedText text="Pour EDN : sélectionnez parmi les 10 items disponibles (IC1 à IC10)" />
+                </p>
+                <p className="flex items-start gap-3">
+                  <span className="w-6 h-6 bg-gradient-to-r from-purple-500 to-violet-500 text-white rounded-full flex items-center justify-center text-sm font-bold mt-0.5">3</span>
+                  <TranslatedText text="Pour ECOS : choisissez une des 3 situations de départ" />
+                </p>
+              </div>
+              <div className="space-y-4">
+                <p className="flex items-start gap-3">
+                  <span className="w-6 h-6 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-full flex items-center justify-center text-sm font-bold mt-0.5">4</span>
+                  <TranslatedText text="Sélectionnez le rang A (débutant) ou B (avancé) pour EDN" />
+                </p>
+                <p className="flex items-start gap-3">
+                  <span className="w-6 h-6 bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-full flex items-center justify-center text-sm font-bold mt-0.5">5</span>
+                  <TranslatedText text="Choisissez votre style musical préféré" />
+                </p>
+                <p className="flex items-start gap-3">
+                  <span className="w-6 h-6 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-full flex items-center justify-center text-sm font-bold mt-0.5">6</span>
+                  <TranslatedText text="Cliquez sur 'Générer' pour créer votre musique personnalisée" />
+                </p>
+              </div>
+            </div>
+          </PremiumCard>
         </div>
       </div>
-    </div>
+    </PremiumBackground>
   );
 };
 
