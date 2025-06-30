@@ -75,7 +75,7 @@ export const useEdnItemV2 = (slug: string | undefined): UseEdnItemV2Result => {
           } else {
             console.warn('⚠️ Item v2 invalide:', validation.error);
             valErrors = validation.error.issues.map(
-              (iss) => `${iss.path.join('.')} – ${iss.message}`
+              (issue) => `${issue.path.join('.')} – ${issue.message}`
             );
             // On continue quand même le parsing pour éviter la régression
             parsedItem = EDNItemParser.parseAnyItem(data, data.id);
