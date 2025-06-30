@@ -2,7 +2,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, MessageSquare, Music, ArrowRight, CheckCircle, ExternalLink } from "lucide-react";
+import { BookOpen, MessageSquare, Music, Users, ArrowRight, CheckCircle, ExternalLink } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const MainSections = () => {
@@ -10,7 +10,7 @@ const MainSections = () => {
     {
       id: "edn",
       title: "Items EDN",
-      description: "Items de Connaissance pour l'Examen National Dématérialisé",
+      description: "Items de Connaissance pour l'Examen National Dématérialisé (IC-1 à IC-10)",
       icon: BookOpen,
       color: "bg-blue-500",
       count: "10 items complets",
@@ -22,7 +22,24 @@ const MainSections = () => {
         "Quiz d'auto-évaluation"
       ],
       href: "/edn",
-      badge: "Mis à jour"
+      badge: "Complet"
+    },
+    {
+      id: "ecos",
+      title: "Simulations ECOS",
+      description: "Examens Cliniques Objectifs Structurés pour la pratique clinique",
+      icon: Users,
+      color: "bg-green-500",
+      count: "Situations cliniques",
+      status: "En cours de développement",
+      features: [
+        "Scénarios cliniques réalistes",
+        "Évaluation par compétences",
+        "Feedback personnalisé",
+        "Entraînement progressif"
+      ],
+      href: "/ecos",
+      badge: "Bientôt"
     },
     {
       id: "chat",
@@ -30,7 +47,7 @@ const MainSections = () => {
       description: "Chat intelligent pour questions médicales",
       icon: MessageSquare,
       color: "bg-orange-500",
-      count: "Assistant disponible",
+      count: "Assistant IA disponible",
       status: "Réponses instantanées",
       features: [
         "Chat en temps réel",
@@ -39,7 +56,7 @@ const MainSections = () => {
         "Support multilingue"
       ],
       href: "/chat",
-      badge: "Chat IA"
+      badge: "IA Avancée"
     },
     {
       id: "music",
@@ -47,11 +64,11 @@ const MainSections = () => {
       description: "Génération musicale pour l'apprentissage médical",
       icon: Music,
       color: "bg-pink-500",
-      count: "Générateur musical",
+      count: "Styles musicaux variés",
       status: "Création musicale personnalisée",
       features: [
         "Paroles médicales adaptées",
-        "Styles musicaux variés",
+        "Multiples styles musicaux",
         "Mémorisation facilitée",
         "Bibliothèque personnelle"
       ],
@@ -76,7 +93,7 @@ const MainSections = () => {
           MED MNG - Plateforme Médicale Intelligente
         </h1>
         <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-          Votre compagnon d'apprentissage médical avec IA, contenus officiels et génération musicale
+          Votre compagnon d'apprentissage médical avec IA, contenus officiels EDN et génération musicale
         </p>
         <div className="flex items-center justify-center gap-2 mt-4">
           <CheckCircle className="h-5 w-5 text-green-500" />
@@ -86,7 +103,7 @@ const MainSections = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6 mb-12">
         {sections.map((section) => {
           const IconComponent = section.icon;
           return (
@@ -125,10 +142,10 @@ const MainSections = () => {
                   ))}
                 </div>
 
-                <Button asChild className="w-full group-hover:bg-primary/90 transition-colors">
+                <Button asChild className="w-full group-hover:bg-primary/90 transition-colors" disabled={section.id === "ecos"}>
                   <Link to={section.href} className="flex items-center justify-center gap-2">
-                    Accéder
-                    <ArrowRight className="h-4 w-4" />
+                    {section.id === "ecos" ? "Bientôt disponible" : "Accéder"}
+                    {section.id !== "ecos" && <ArrowRight className="h-4 w-4" />}
                   </Link>
                 </Button>
               </CardContent>
@@ -166,21 +183,21 @@ const MainSections = () => {
           <h2 className="text-2xl font-bold mb-4">Dernières mises à jour</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
             <div className="space-y-2">
-              <h3 className="font-semibold text-blue-600">Items EDN</h3>
+              <h3 className="font-semibold text-blue-600">Items EDN (IC-1 à IC-10)</h3>
               <p className="text-muted-foreground">
-                Correction complète des contenus génériques. Chaque item dispose maintenant de son contenu spécifique et authentique.
+                Correction complète des 10 items de connaissance. Chaque item dispose de son contenu spécifique et authentique selon les référentiels officiels.
               </p>
             </div>
             <div className="space-y-2">
               <h3 className="font-semibold text-purple-600">Paroles Musicales</h3>
               <p className="text-muted-foreground">
-                Ajout de paroles musicales personnalisées pour chaque item EDN, facilitant la mémorisation.
+                Ajout de paroles musicales personnalisées pour chaque item EDN, facilitant la mémorisation et l'apprentissage ludique.
               </p>
             </div>
             <div className="space-y-2">
-              <h3 className="font-semibold text-green-600">Générateur Musical</h3>
+              <h3 className="font-semibold text-green-600">Générateur Musical IA</h3>
               <p className="text-muted-foreground">
-                Nouvel outil de génération musicale avec IA pour transformer les contenus EDN en chansons d'apprentissage.
+                Nouvel outil de génération musicale avec intelligence artificielle pour transformer les contenus EDN en chansons d'apprentissage.
               </p>
             </div>
           </div>

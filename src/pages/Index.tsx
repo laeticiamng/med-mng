@@ -9,7 +9,7 @@ import { PremiumBackground } from "@/components/ui/premium-background";
 import { PremiumCard } from "@/components/ui/premium-card";
 import { PremiumButton } from "@/components/ui/premium-button";
 import { useNavigate } from "react-router-dom";
-import { LogIn, CreditCard, BarChart3, Music, BookOpen, MessageSquare, Zap, Target, Award, TrendingUp, Sparkles, Star } from "lucide-react";
+import { LogIn, CreditCard, BarChart3, Music, BookOpen, MessageSquare, Users, Zap, Target, Award, TrendingUp, Sparkles, Star } from "lucide-react";
 import { TranslatedText } from "@/components/TranslatedText";
 
 const Index = () => {
@@ -108,7 +108,7 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Section d'accès rapide premium */}
+        {/* Section d'accès rapide premium avec grille 2x2 */}
         <div className="pb-20">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-900 mb-6">
@@ -119,21 +119,22 @@ const Index = () => {
             </p>
           </div>
           
-          <div className="grid md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
+            {/* Items EDN */}
             <PremiumCard variant="gradient" className="p-8 text-center cursor-pointer" onClick={() => navigate('/edn')}>
               <div className="mx-auto w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-blue-500/25">
                 <BookOpen className="h-10 w-10 text-white" />
               </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                <TranslatedText text="Items EDN" />
+                <TranslatedText text="Items EDN (IC-1 à IC-10)" />
               </h3>
               <p className="text-gray-600 mb-6 leading-relaxed">
-                <TranslatedText text="Items à Choix Multiples pour l'apprentissage médical structuré" />
+                <TranslatedText text="Items à Choix Multiples pour l'apprentissage médical structuré - 10 items complets" />
               </p>
               <div className="space-y-3 text-sm text-gray-600 mb-8">
                 <div className="flex items-center gap-3">
                   <div className="w-3 h-3 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full"></div>
-                  <span>IC1 à IC10 disponibles</span>
+                  <span>IC-1 à IC-10 disponibles</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="w-3 h-3 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full"></div>
@@ -149,15 +150,16 @@ const Index = () => {
               </PremiumButton>
             </PremiumCard>
 
+            {/* Générateur Musical */}
             <PremiumCard variant="gradient" className="p-8 text-center cursor-pointer" onClick={() => navigate('/generator')}>
               <div className="mx-auto w-20 h-20 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-amber-500/25">
                 <Music className="h-10 w-10 text-white" />
               </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                <TranslatedText text="Générateur Musical" />
+                <TranslatedText text="Générateur Musical IA" />
               </h3>
               <p className="text-gray-600 mb-6 leading-relaxed">
-                <TranslatedText text="Génération rapide de musique éducative personnalisée" />
+                <TranslatedText text="Génération rapide de musique éducative personnalisée avec intelligence artificielle" />
               </p>
               <div className="space-y-3 text-sm text-gray-600 mb-8">
                 <div className="flex items-center gap-3">
@@ -175,6 +177,66 @@ const Index = () => {
               </div>
               <PremiumButton variant="secondary" size="lg" className="w-full">
                 <TranslatedText text="Générer Maintenant" />
+              </PremiumButton>
+            </PremiumCard>
+
+            {/* ECOS */}
+            <PremiumCard variant="gradient" className="p-8 text-center cursor-pointer opacity-75" onClick={() => navigate('/ecos')}>
+              <div className="mx-auto w-20 h-20 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-green-500/25">
+                <Users className="h-10 w-10 text-white" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                <TranslatedText text="Simulations ECOS" />
+              </h3>
+              <p className="text-gray-600 mb-6 leading-relaxed">
+                <TranslatedText text="Examens Cliniques Objectifs Structurés pour la pratique clinique" />
+              </p>
+              <div className="space-y-3 text-sm text-gray-600 mb-8">
+                <div className="flex items-center gap-3">
+                  <div className="w-3 h-3 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full"></div>
+                  <span>Scénarios cliniques réalistes</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-3 h-3 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full"></div>
+                  <span>Évaluation par compétences</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-3 h-3 bg-gradient-to-r from-purple-500 to-violet-500 rounded-full"></div>
+                  <span>Feedback personnalisé</span>
+                </div>
+              </div>
+              <PremiumButton variant="glass" size="lg" className="w-full" disabled>
+                <TranslatedText text="Bientôt Disponible" />
+              </PremiumButton>
+            </PremiumCard>
+
+            {/* MedChat */}
+            <PremiumCard variant="gradient" className="p-8 text-center cursor-pointer" onClick={() => navigate('/chat')}>
+              <div className="mx-auto w-20 h-20 bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-orange-500/25">
+                <MessageSquare className="h-10 w-10 text-white" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                <TranslatedText text="MedChat IA" />
+              </h3>
+              <p className="text-gray-600 mb-6 leading-relaxed">
+                <TranslatedText text="Chat intelligent pour questions médicales avec IA avancée" />
+              </p>
+              <div className="space-y-3 text-sm text-gray-600 mb-8">
+                <div className="flex items-center gap-3">
+                  <div className="w-3 h-3 bg-gradient-to-r from-orange-500 to-red-500 rounded-full"></div>
+                  <span>Chat en temps réel</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-3 h-3 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full"></div>
+                  <span>Base de connaissances médicales</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-3 h-3 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full"></div>
+                  <span>Réponses instantanées</span>
+                </div>
+              </div>
+              <PremiumButton variant="accent" size="lg" className="w-full">
+                <TranslatedText text="Démarrer Chat" />
               </PremiumButton>
             </PremiumCard>
           </div>
@@ -200,8 +262,8 @@ const Index = () => {
               </PremiumCard>
               <PremiumCard variant="elevated" className="p-8">
                 <Target className="h-16 w-16 mx-auto mb-6 p-4 bg-gradient-to-br from-green-400 to-emerald-500 text-white rounded-2xl shadow-lg shadow-green-500/25" />
-                <h3 className="text-2xl font-bold mb-4 text-gray-900">Ciblé</h3>
-                <p className="text-gray-600">Contenu adapté aux référentiels médicaux officiels</p>
+                <h3 className="text-2xl font-bold mb-4 text-gray-900">Ciblé EDN</h3>
+                <p className="text-gray-600">Contenu adapté aux référentiels médicaux officiels IC-1 à IC-10</p>
               </PremiumCard>
               <PremiumCard variant="elevated" className="p-8">
                 <Award className="h-16 w-16 mx-auto mb-6 p-4 bg-gradient-to-br from-orange-400 to-red-500 text-white rounded-2xl shadow-lg shadow-orange-500/25" />

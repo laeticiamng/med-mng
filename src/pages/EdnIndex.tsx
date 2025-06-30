@@ -81,6 +81,13 @@ const EdnIndex = () => {
     }
   });
 
+  // Trier les items par numéro pour avoir 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
+  const sortedItems = filteredItems.sort((a, b) => {
+    const numA = parseInt(a.item_code.replace('IC-', '') || '0');
+    const numB = parseInt(b.item_code.replace('IC-', '') || '0');
+    return numA - numB;
+  });
+
   const getItemStatus = (item: EdnItem) => {
     const hasRangA = !!item.tableau_rang_a;
     const hasRangB = !!item.tableau_rang_b;
@@ -106,6 +113,10 @@ const EdnIndex = () => {
     return features;
   };
 
+  const getItemNumber = (itemCode: string) => {
+    return parseInt(itemCode.replace('IC-', '') || '0');
+  };
+
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -125,17 +136,17 @@ const EdnIndex = () => {
       <div className="text-center mb-8">
         <div className="flex items-center justify-center gap-3 mb-4">
           <BookOpen className="h-8 w-8 text-primary" />
-          <h1 className="text-4xl font-bold">Items EDN Immersifs</h1>
+          <h1 className="text-4xl font-bold">Items EDN Immersifs (IC-1 à IC-10)</h1>
           <Sparkles className="h-6 w-6 text-yellow-500" />
         </div>
         <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-4">
-          Découvrez nos {items.length} items de connaissance pour l'Examen National Dématérialisé, 
-          enrichis de contenus interactifs, paroles musicales et scénarios immersifs.
+          Découvrez nos 10 items de connaissance pour l'Examen National Dematérialisé, 
+          numérotés de 1 à 10, enrichis de contenus interactifs, paroles musicales et scénarios immersifs.
         </p>
         <div className="flex items-center justify-center gap-2">
           <CheckCircle className="h-5 w-5 text-green-500" />
           <span className="text-sm text-green-600 font-medium">
-            Contenus officiels corrigés et validés
+            Contenus officiels corrigés et validés selon référentiels EDN
           </span>
         </div>
       </div>
@@ -145,7 +156,7 @@ const EdnIndex = () => {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
           <Input
-            placeholder="Rechercher un item par titre, code ou contenu..."
+            placeholder="Rechercher un item par titre, code (IC-1, IC-2...) ou contenu..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10"
@@ -153,10 +164,10 @@ const EdnIndex = () => {
         </div>
         <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="w-full md:w-auto">
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="all">Tous</TabsTrigger>
-            <TabsTrigger value="foundation">Base</TabsTrigger>
-            <TabsTrigger value="clinical">Clinique</TabsTrigger>
-            <TabsTrigger value="advanced">Avancé</TabsTrigger>
+            <TabsTrigger value="all">Tous (1-10)</TabsTrigger>
+            <TabsTrigger value="foundation">Base (1-3)</TabsTrigger>
+            <TabsTrigger value="clinical">Clinique (4-7)</TabsTrigger>
+            <TabsTrigger value="advanced">Avancé (8-10)</TabsTrigger>
           </TabsList>
         </Tabs>
       </div>
@@ -165,8 +176,8 @@ const EdnIndex = () => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
         <Card>
           <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-primary">{items.length}</div>
-            <div className="text-sm text-muted-foreground">Items Total</div>
+            <div className="text-2xl font-bold text-primary">10</div>
+            <div className="text-sm text-muted-foreground">Items Total (IC-1 à IC-10)</div>
           </CardContent>
         </Card>
         <Card>
@@ -195,26 +206,32 @@ const EdnIndex = () => {
         </Card>
       </div>
 
-      {/* Items Grid */}
+      {/* Items Grid avec numérotation claire */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {filteredItems.map((item) => {
+        {sortedItems.map((item) => {
           const itemStatus = getItemStatus(item);
           const features = getItemFeatures(item);
+          const itemNumber = getItemNumber(item.item_code);
           
           return (
             <Card key={item.id} className="group hover:shadow-lg transition-all duration-300 border-2 hover:border-primary/20">
               <CardHeader className="space-y-3">
                 <div className="flex items-start justify-between">
-                  <Badge variant="outline" className="text-xs font-mono">
-                    {item.item_code}
-                  </Badge>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
+                      <span className="text-white font-bold text-lg">{itemNumber}</span>
+                    </div>
+                    <Badge variant="outline" className="text-xs font-mono">
+                      {item.item_code}
+                    </Badge>
+                  </div>
                   <Badge variant={itemStatus.variant} className="text-xs">
                     {itemStatus.status}
                   </Badge>
                 </div>
                 <div>
                   <CardTitle className="text-lg leading-tight group-hover:text-primary transition-colors">
-                    {item.title}
+                    {itemNumber}. {item.title}
                   </CardTitle>
                   {item.subtitle && (
                     <CardDescription className="text-sm mt-2">
@@ -245,7 +262,7 @@ const EdnIndex = () => {
 
                 <Button asChild className="w-full group-hover:bg-primary/90 transition-colors">
                   <Link to={`/edn/${item.slug}`} className="flex items-center justify-center gap-2">
-                    Explorer l'item
+                    Explorer l'item {itemNumber}
                     <ArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>
