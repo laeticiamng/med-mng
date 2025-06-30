@@ -15,6 +15,7 @@ import EdnMusicLibrary from "./pages/EdnMusicLibrary";
 import EcosIndex from "./pages/EcosIndex";
 import EcosScenario from "./pages/EcosScenario";
 import AuditGeneral from "./pages/AuditGeneral";
+import AuditEDN from "./pages/AuditEDN";
 import AuditIC4 from "./pages/AuditIC4";
 import MngMethod from "./pages/MngMethod";
 import NotFound from "./pages/NotFound";
