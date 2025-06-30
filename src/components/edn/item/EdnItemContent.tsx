@@ -52,15 +52,18 @@ export const EdnItemContent = ({ activeSection, item }: EdnItemContentProps) => 
         console.log('📋 Rendering Tableau Rang B for:', item.item_code);
         console.log('📊 Tableau Rang B raw data:', item.tableau_rang_b);
         
-        // Toujours passer les données complètes de l'item au TableauRangB
+        // Passer les données complètes avec itemCode requis
         return (
-          <TableauRangB data={{
-            title: item.title,
-            item_code: item.item_code,
-            tableau_rang_b: item.tableau_rang_b,
-            // Forcer le thème Rang B pour le traitement
-            theme: item.item_code === 'IC-2' ? 'Rang B - IC-2 Valeurs professionnelles' : undefined
-          }} />
+          <TableauRangB 
+            data={{
+              title: item.title,
+              item_code: item.item_code,
+              tableau_rang_b: item.tableau_rang_b,
+              // Forcer le thème Rang B pour le traitement
+              theme: item.item_code === 'IC-2' ? 'Rang B - IC-2 Valeurs professionnelles' : undefined
+            }}
+            itemCode={item.item_code}
+          />
         );
       
       case 'scene':

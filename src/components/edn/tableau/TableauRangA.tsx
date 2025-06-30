@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { TableauRangAHeader } from './TableauRangAHeader';
 import { TableauRangAGrid } from './TableauRangAGrid';
@@ -46,6 +47,10 @@ export const TableauRangA: React.FC<TableauRangAProps> = ({ data, itemCode }) =>
     return ligne;
   });
 
+  // Transformation des données pour le nouveau format
+  const colonnesUtiles = colonnes;
+  const lignesEnrichies = lignes.map(ligne => Object.values(ligne));
+
   const renderSpecificFooter = () => {
     const colonnesCount = colonnes.length;
     const lignesCount = lignes.length;
@@ -80,8 +85,15 @@ export const TableauRangA: React.FC<TableauRangAProps> = ({ data, itemCode }) =>
 
   return (
     <div className="w-full space-y-6">
-      <TableauRangAHeader theme={theme} />
-      <TableauRangAGrid colonnes={colonnes} lignes={lignes} />
+      <TableauRangAHeader 
+        theme={theme} 
+        itemCode={itemCode}
+        totalCompetences={lignes.length}
+      />
+      <TableauRangAGrid 
+        colonnesUtiles={colonnesUtiles} 
+        lignesEnrichies={lignesEnrichies} 
+      />
       {renderSpecificFooter()}
     </div>
   );

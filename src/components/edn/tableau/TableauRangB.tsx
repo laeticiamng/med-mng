@@ -1,7 +1,8 @@
+
 import React from 'react';
 import { TableauRangAHeader } from './TableauRangAHeader';
 import { TableauRangAGrid } from './TableauRangAGrid';
-import { processTableauRangBUtilsIC4Integration } from './TableauRangBUtilsIC4Integration';
+import { processTableauRangBIC4 } from './TableauRangBUtilsIC4Integration';
 import { processTableauRangBIC6 } from './TableauRangBUtilsIC6Integration';
 import { processTableauRangBIC7 } from './TableauRangBUtilsIC7Integration';
 import { processTableauRangBIC8 } from './TableauRangBUtilsIC8Integration';
@@ -40,7 +41,7 @@ export const TableauRangB: React.FC<TableauRangBProps> = ({ data, itemCode }) =>
   try {
     switch (itemCode) {
       case 'IC-4':
-        processedData = processTableauRangBUtilsIC4Integration(data);
+        processedData = processTableauRangBIC4(data);
         break;
       case 'IC-6':
         processedData = processTableauRangBIC6(data);
@@ -77,13 +78,19 @@ export const TableauRangB: React.FC<TableauRangBProps> = ({ data, itemCode }) =>
   }
 
   const { lignesEnrichies, colonnesUtiles, theme } = processedData;
-  const colonnes = colonnesUtiles.map(col => col.nom);
-  const lignes = lignesEnrichies;
 
   return (
     <div className="w-full space-y-6">
-      <TableauRangAHeader theme={theme} />
-      <TableauRangAGrid colonnes={colonnes} lignes={lignes} />
+      <TableauRangAHeader 
+        theme={theme} 
+        itemCode={itemCode}
+        totalCompetences={lignesEnrichies.length}
+        isRangB={true}
+      />
+      <TableauRangAGrid 
+        colonnesUtiles={colonnesUtiles} 
+        lignesEnrichies={lignesEnrichies} 
+      />
     </div>
   );
 };

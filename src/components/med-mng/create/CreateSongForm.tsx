@@ -57,10 +57,7 @@ export const CreateSongForm: React.FC<CreateSongFormProps> = ({
         {contentType === 'item' && (
           <ItemSelector
             selectedItem={selectedItem}
-            selectedRang={selectedRang}
-            onItemChange={onItemChange}
-            onRangChange={onRangChange}
-            disabled={isGenerating}
+            onItemSelect={onItemChange}
           />
         )}
 
