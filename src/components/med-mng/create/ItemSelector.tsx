@@ -21,6 +21,8 @@ const ednitems = [
   { code: 'IC7', title: 'Les droits individuels et collectifs du patient' },
   { code: 'IC8', title: 'Les discriminations' },
   { code: 'IC9', title: 'Certificats médicaux dans le cadre des violences' },
+  { code: 'IC10', title: 'Approches transversales du corps' },
+  { code: 'OIC-010-03-B', title: 'Impact des maladies sur l\'expérience du corps' },
 ];
 
 export const ItemSelector: React.FC<ItemSelectorProps> = ({

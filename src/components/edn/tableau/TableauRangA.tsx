@@ -13,6 +13,8 @@ import { TableauRangAFooterIC6 } from './TableauRangAFooterIC6';
 import { TableauRangAFooterIC7 } from './TableauRangAFooterIC7';
 import { TableauRangAFooterIC8 } from './TableauRangAFooterIC8';
 import { TableauRangAFooterIC9 } from './TableauRangAFooterIC9';
+import { TableauRangAFooterIC10 } from './TableauRangAFooterIC10';
+import { TableauRangAFooterOIC010 } from './TableauRangAFooterOIC010';
 import { processTableauRangAIC1, isIC1Item } from './TableauRangAUtilsIC1Integration';
 import { processTableauRangAIC2, isIC2Item } from './TableauRangAUtilsIC2Integration';
 import { processTableauRangAIC3, isIC3Item } from './TableauRangAUtilsIC3Integration';
@@ -22,6 +24,8 @@ import { processTableauRangAIC6, isIC6Item } from './TableauRangAUtilsIC6Integra
 import { processTableauRangAIC7, isIC7Item } from './TableauRangAUtilsIC7Integration';
 import { processTableauRangAIC8, isIC8Item } from './TableauRangAUtilsIC8Integration';
 import { processTableauRangAIC9, isIC9Item } from './TableauRangAUtilsIC9Integration';
+import { processTableauRangAIC10, isIC10Item } from './TableauRangAUtilsIC10Integration';
+import { processTableauRangAOIC010, isOIC010Item } from './TableauRangAUtilsOIC010Integration';
 import { processStandardTableauData } from './TableauRangAUtilsStandard';
 import { determinerColonnesUtiles, generateLignesRangAIntelligent } from './TableauRangAUtils';
 
@@ -142,6 +146,26 @@ export const TableauRangA = ({ data }: TableauRangAProps) => {
     colonnesUtiles = processed.colonnesUtiles;
     theme = processed.theme;
     footerComponent = <TableauRangAFooterIC9 
+      colonnesCount={colonnesUtiles.length} 
+      lignesCount={lignesEnrichies.length}
+    />;
+  } else if (isIC10Item(data)) {
+    console.log('✅ Item IC-10 détecté - Approches transversales du corps');
+    const processed = processTableauRangAIC10(data);
+    lignesEnrichies = processed.lignesEnrichies;
+    colonnesUtiles = processed.colonnesUtiles;
+    theme = processed.theme;
+    footerComponent = <TableauRangAFooterIC10 
+      colonnesCount={colonnesUtiles.length} 
+      lignesCount={lignesEnrichies.length}
+    />;
+  } else if (isOIC010Item(data)) {
+    console.log('✅ Item OIC-010-03-B détecté - Impact des maladies sur l\'expérience du corps');
+    const processed = processTableauRangAOIC010(data);
+    lignesEnrichies = processed.lignesEnrichies;
+    colonnesUtiles = processed.colonnesUtiles;
+    theme = processed.theme;
+    footerComponent = <TableauRangAFooterOIC010 
       colonnesCount={colonnesUtiles.length} 
       lignesCount={lignesEnrichies.length}
     />;

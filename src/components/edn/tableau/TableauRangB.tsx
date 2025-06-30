@@ -9,6 +9,8 @@ import { processTableauRangBIC6 } from './TableauRangBUtilsIC6Integration';
 import { processTableauRangBIC7 } from './TableauRangBUtilsIC7Integration';
 import { processTableauRangBIC8 } from './TableauRangBUtilsIC8Integration';
 import { processTableauRangBIC9 } from './TableauRangBUtilsIC9Integration';
+import { processTableauRangBIC10 } from './TableauRangBUtilsIC10Integration';
+import { processTableauRangBOIC010 } from './TableauRangBUtilsOIC010Integration';
 import { processStandardTableauData } from './TableauRangAUtilsStandard';
 import { determinerColonnesUtiles, generateLignesRangAIntelligent } from './TableauRangAUtils';
 
@@ -76,6 +78,20 @@ export const TableauRangB = ({ data }: TableauRangBProps) => {
   } else if (data?.item_code === 'IC-9') {
     console.log('✅ Item IC-9 Rang B détecté');
     const processed = processTableauRangBIC9(data);
+    lignesEnrichies = processed.lignesEnrichies;
+    colonnesUtiles = processed.colonnesUtiles;
+    theme = processed.theme;
+    footerComponent = <TableauRangAFooter colonnesCount={colonnesUtiles.length} lignesCount={lignesEnrichies.length} />;
+  } else if (data?.item_code === 'IC-10') {
+    console.log('✅ Item IC-10 Rang B détecté');
+    const processed = processTableauRangBIC10(data);
+    lignesEnrichies = processed.lignesEnrichies;
+    colonnesUtiles = processed.colonnesUtiles;
+    theme = processed.theme;
+    footerComponent = <TableauRangAFooter colonnesCount={colonnesUtiles.length} lignesCount={lignesEnrichies.length} />;
+  } else if (data?.item_code === 'OIC-010-03-B') {
+    console.log('✅ Item OIC-010-03-B Rang B détecté');
+    const processed = processTableauRangBOIC010(data);
     lignesEnrichies = processed.lignesEnrichies;
     colonnesUtiles = processed.colonnesUtiles;
     theme = processed.theme;
