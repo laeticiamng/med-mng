@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { TableauRangAHeader } from './TableauRangAHeader';
 import { TableauRangAGrid } from './TableauRangAGrid';

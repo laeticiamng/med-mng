@@ -8,14 +8,14 @@ export const processTableauRangBIC10 = (data: any) => {
   const concepts = tableauData?.sections?.[0]?.concepts || [];
   
   const colonnesUtiles = [
-    { nom: 'Concept expert', description: 'Approche multidimensionnelle' },
-    { nom: 'Analyse intégrative', description: 'Vision holistique' },
+    { nom: 'Concept expert', description: 'Approche transversale experte' },
+    { nom: 'Analyse holistique', description: 'Vision globale avancée' },
     { nom: 'Cas complexe', description: 'Situation experte' },
     { nom: 'Écueil expert', description: 'Piège niveau avancé' },
     { nom: 'Technique avancée', description: 'Méthode spécialisée' },
-    { nom: 'Distinction fine', description: 'Nuances importantes' },
+    { nom: 'Distinction fine', description: 'Nuances corporelles' },
     { nom: 'Maîtrise', description: 'Application experte' },
-    { nom: 'Excellence', description: 'Approche transversale' }
+    { nom: 'Excellence', description: 'Approche parfaite' }
   ];
 
   const lignesEnrichies = concepts.map((concept: any) => [

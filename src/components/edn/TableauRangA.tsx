@@ -1,4 +1,3 @@
-
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { TableauRangAHeader } from './tableau/TableauRangAHeader';
@@ -9,11 +8,13 @@ import { TableauRangAFooterIC2 } from './tableau/TableauRangAFooterIC2';
 import { TableauRangAFooterIC3 } from './tableau/TableauRangAFooterIC3';
 import { TableauRangAFooterIC4 } from './tableau/TableauRangAFooterIC4';
 import { TableauRangAFooterIC5 } from './tableau/TableauRangAFooterIC5';
+import { TableauRangAFooterIC10 } from './tableau/TableauRangAFooterIC10';
 import { processTableauRangAIC1, isIC1Item } from './tableau/TableauRangAUtilsIC1Integration';
 import { processTableauRangAIC2, isIC2Item } from './tableau/TableauRangAUtilsIC2Integration';
 import { processTableauRangAIC3, isIC3Item } from './tableau/TableauRangAUtilsIC3Integration';
 import { processTableauRangAIC4, isIC4Item } from './tableau/TableauRangAUtilsIC4Integration';
 import { processTableauRangAIC5, isIC5Item } from './tableau/TableauRangAUtilsIC5Integration';
+import { processTableauRangAIC10, isIC10Item } from './tableau/TableauRangAUtilsIC10Integration';
 import { determinerColonnesUtiles, generateLignesRangAIntelligent } from './tableau/TableauRangAUtils';
 
 interface TableauRangAProps {
@@ -86,6 +87,12 @@ export const TableauRangA = ({ data }: TableauRangAProps) => {
       lignesCount={lignesEnrichies.length}
       isRangB={processed.isRangB}
     />;
+  } else if (isIC10Item(data)) {
+    const processed = processTableauRangAIC10(data);
+    lignesEnrichies = processed.lignesEnrichies;
+    colonnesUtiles = processed.colonnesUtiles;
+    theme = processed.theme;
+    footerComponent = <TableauRangAFooterIC10 colonnesCount={colonnesUtiles.length} lignesCount={lignesEnrichies.length} />;
   } else {
     // Traitement générique pour les autres items
     lignesEnrichies = generateLignesRangAIntelligent(data);

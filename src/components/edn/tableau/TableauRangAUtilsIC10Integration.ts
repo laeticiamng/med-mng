@@ -1,21 +1,21 @@
 
-// Utilitaires pour l'intégration des données IC-10
+// Utilitaires pour l'affichage du Tableau Rang A IC-10
 export const processTableauRangAIC10 = (data: any) => {
-  console.log('🔍 Traitement IC-10 - Approches transversales du corps');
+  console.log('🔍 Traitement IC-10 Rang A');
   
-  // Extraire les données du tableau
+  // Extraire les données des concepts
   const tableauData = data.tableau_rang_a || data;
   const concepts = tableauData?.sections?.[0]?.concepts || [];
   
   const colonnesUtiles = [
-    { nom: 'Concept', description: 'Dimension corporelle' },
-    { nom: 'Définition', description: 'Approche théorique' },
-    { nom: 'Exemple', description: 'Cas pratique concret' },
-    { nom: 'Piège', description: 'Erreur à éviter' },
-    { nom: 'Mnémotechnique', description: 'Aide-mémoire' },
-    { nom: 'Subtilité', description: 'Nuance importante' },
-    { nom: 'Application', description: 'Mise en pratique' },
-    { nom: 'Vigilance', description: 'Point d\'attention' }
+    { nom: 'Concept', description: 'Approche transversale', couleur: 'bg-teal-600', couleurCellule: 'bg-teal-50', couleurTexte: 'text-teal-800' },
+    { nom: 'Définition', description: 'Compréhension globale', couleur: 'bg-purple-600', couleurCellule: 'bg-purple-50', couleurTexte: 'text-purple-800' },
+    { nom: 'Exemple', description: 'Application clinique', couleur: 'bg-blue-600', couleurCellule: 'bg-blue-50', couleurTexte: 'text-blue-800' },
+    { nom: 'Piège', description: 'Réductionnisme', couleur: 'bg-red-600', couleurCellule: 'bg-red-50', couleurTexte: 'text-red-800' },
+    { nom: 'Mnémo', description: 'Mémorisation', couleur: 'bg-yellow-600', couleurCellule: 'bg-yellow-50', couleurTexte: 'text-yellow-800' },
+    { nom: 'Subtilité', description: 'Nuances importantes', couleur: 'bg-indigo-600', couleurCellule: 'bg-indigo-50', couleurTexte: 'text-indigo-800' },
+    { nom: 'Application', description: 'Mise en pratique', couleur: 'bg-green-600', couleurCellule: 'bg-green-50', couleurTexte: 'text-green-800' },
+    { nom: 'Vigilance', description: 'Points d\'attention', couleur: 'bg-orange-600', couleurCellule: 'bg-orange-50', couleurTexte: 'text-orange-800' }
   ];
 
   const lignesEnrichies = concepts.map((concept: any) => [
@@ -29,9 +29,9 @@ export const processTableauRangAIC10 = (data: any) => {
     concept.vigilance || ''
   ]);
 
-  const theme = "IC-10 - Approches transversales du corps";
+  const theme = "IC-10 Rang A - Approches transversales du corps";
 
-  console.log(`✅ IC-10 traité: ${lignesEnrichies.length} concepts`);
+  console.log(`✅ IC-10 Rang A traité: ${lignesEnrichies.length} concepts`);
 
   return {
     lignesEnrichies,
@@ -42,8 +42,7 @@ export const processTableauRangAIC10 = (data: any) => {
 };
 
 export const isIC10Item = (data: any): boolean => {
-  return data?.item_code === 'IC-10' || 
-         data?.title?.includes('Approches transversales') ||
-         data?.title?.includes('corps') ||
-         data?.theme?.includes('IC-10');
+  return data?.theme?.includes('IC-10') || 
+         data?.title?.includes('Approches transversales du corps') ||
+         data?.item_code === 'IC-10';
 };
