@@ -17,6 +17,52 @@ const EXPECTED_IC2_RANG_B = [
   'Connaître les différents acteurs de la santé et leurs interactions'
 ];
 
+// Fonction pour analyser le contenu et détecter les concepts présents
+function analyzeContentForConcepts(content: any, expectedConcepts: string[]): { found: string[], missing: string[] } {
+  const found: string[] = [];
+  const missing: string[] = [];
+  
+  const contentStr = JSON.stringify(content).toLowerCase();
+  
+  expectedConcepts.forEach(concept => {
+    const keywords = extractKeywords(concept);
+    const isPresent = keywords.some(keyword => contentStr.includes(keyword.toLowerCase()));
+    
+    if (isPresent) {
+      found.push(concept);
+    } else {
+      missing.push(concept);
+    }
+  });
+  
+  return { found, missing };
+}
+
+// Extraire les mots-clés principaux d'un concept
+function extractKeywords(concept: string): string[] {
+  const keywordMap: { [key: string]: string[] } = {
+    'Identifier les professionnels': ['professionnels', 'compétences', 'ressources', 'organisation', 'santé', 'acteurs'],
+    'définition de la pratique médicale': ['pratique médicale', 'éthique', 'définition', 'médecine'],
+    'normes et de valeurs professionnelles': ['normes', 'valeurs', 'professionnelles', 'déontologie'],
+    'organisation sociale et politique': ['organisation', 'politique', 'régulation', 'étatique', 'profession'],
+    'médecine fondée sur les preuves': ['evidence', 'preuves', 'ebm', 'scientifique', 'responsabilité'],
+    'déontologie médicale': ['déontologie', 'conflit', 'valeurs', 'intérêts', 'code'],
+    'exercice des professionnels': ['exercice', 'statuts', 'professionnels', 'france'],
+    'ordres professionnels': ['ordres', 'professionnels', 'régulation', 'cnom'],
+    'acteurs de la santé': ['acteurs', 'santé', 'interactions', 'collaboration']
+  };
+  
+  // Trouver la clé correspondante
+  const matchingKey = Object.keys(keywordMap).find(key => concept.toLowerCase().includes(key.toLowerCase()));
+  
+  if (matchingKey) {
+    return keywordMap[matchingKey];
+  }
+  
+  // Fallback : extraire les mots principaux du concept
+  return concept.split(' ').filter(word => word.length > 3);
+}
+
 export async function checkIC2Completeness() {
   console.log('🔍 Vérification complétude IC-2 selon E-LiSA officiel...');
   
@@ -60,61 +106,43 @@ export async function checkIC2Completeness() {
       title: ic2Item.title,
       slug: ic2Item.slug,
       rangA: {
-        expected: 6, // Selon E-LiSA: 6 connaissances principales en Rang A
+        expected: 6,
         found: 0,
-        concepts: [],
-        missingConcepts: [...EXPECTED_IC2_RANG_A]
+        concepts: [] as string[],
+        missingConcepts: [] as string[]
       },
       rangB: {
-        expected: 3, // Selon E-LiSA: 3 connaissances en Rang B
+        expected: 3,
         found: 0,
-        concepts: [],
-        missingConcepts: [...EXPECTED_IC2_RANG_B]
+        concepts: [] as string[],
+        missingConcepts: [] as string[]
       },
       completeness: 0,
-      recommendations: []
+      recommendations: [] as string[]
     };
 
     // Analyser le contenu Rang A
     if (ic2Item.tableau_rang_a) {
-      const rangAData = typeof ic2Item.tableau_rang_a === 'string' 
-        ? JSON.parse(ic2Item.tableau_rang_a) 
-        : ic2Item.tableau_rang_a;
-
-      if (rangAData.lignes && Array.isArray(rangAData.lignes)) {
-        report.rangA.found = rangAData.lignes.length;
-        
-        // Extraire les concepts présents
-        rangAData.lignes.forEach((ligne: any, index: number) => {
-          const concept = Array.isArray(ligne) ? ligne[0] : ligne.concept || ligne.titre;
-          if (concept) {
-            report.rangA.concepts.push(concept);
-          }
-        });
-
-        console.log(`📋 Rang A: ${report.rangA.found} concepts trouvés`);
-      }
+      const analysis = analyzeContentForConcepts(ic2Item.tableau_rang_a, EXPECTED_IC2_RANG_A);
+      report.rangA.found = analysis.found.length;
+      report.rangA.concepts = analysis.found;
+      report.rangA.missingConcepts = analysis.missing;
+      
+      console.log(`📋 Rang A: ${report.rangA.found}/6 concepts trouvés`);
+    } else {
+      report.rangA.missingConcepts = [...EXPECTED_IC2_RANG_A];
     }
 
     // Analyser le contenu Rang B
     if (ic2Item.tableau_rang_b) {
-      const rangBData = typeof ic2Item.tableau_rang_b === 'string' 
-        ? JSON.parse(ic2Item.tableau_rang_b) 
-        : ic2Item.tableau_rang_b;
-
-      if (rangBData.lignes && Array.isArray(rangBData.lignes)) {
-        report.rangB.found = rangBData.lignes.length;
-        
-        // Extraire les concepts présents
-        rangBData.lignes.forEach((ligne: any, index: number) => {
-          const concept = Array.isArray(ligne) ? ligne[0] : ligne.concept || ligne.titre;
-          if (concept) {
-            report.rangB.concepts.push(concept);
-          }
-        });
-
-        console.log(`📋 Rang B: ${report.rangB.found} concepts trouvés`);
-      }
+      const analysis = analyzeContentForConcepts(ic2Item.tableau_rang_b, EXPECTED_IC2_RANG_B);
+      report.rangB.found = analysis.found.length;
+      report.rangB.concepts = analysis.found;
+      report.rangB.missingConcepts = analysis.missing;
+      
+      console.log(`📋 Rang B: ${report.rangB.found}/3 concepts trouvés`);
+    } else {
+      report.rangB.missingConcepts = [...EXPECTED_IC2_RANG_B];
     }
 
     // Calculer la complétude
@@ -125,10 +153,16 @@ export async function checkIC2Completeness() {
     // Générer les recommandations
     if (report.rangA.found < report.rangA.expected) {
       report.recommendations.push(`Rang A: ${report.rangA.expected - report.rangA.found} concepts manquants`);
+      report.rangA.missingConcepts.forEach(concept => {
+        report.recommendations.push(`Ajouter : ${concept}`);
+      });
     }
     
     if (report.rangB.found < report.rangB.expected) {
       report.recommendations.push(`Rang B: ${report.rangB.expected - report.rangB.found} concepts manquants`);
+      report.rangB.missingConcepts.forEach(concept => {
+        report.recommendations.push(`Ajouter : ${concept}`);
+      });
     }
 
     if (report.completeness < 100) {

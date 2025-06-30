@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { CheckCircle, AlertTriangle, RefreshCw, Target } from 'lucide-react';
+import { CheckCircle, AlertTriangle, RefreshCw, Target, XCircle } from 'lucide-react';
 import { checkIC2Completeness } from '@/scripts/audit/ic2CompletenessCheck';
 
 interface IC2Report {
@@ -132,17 +132,35 @@ export const AuditIC2Completeness = () => {
             <h4 className="font-semibold text-gray-800 mb-3">
               📋 Rang A - Connaissances fondamentales ({report.rangA.found}/{report.rangA.expected})
             </h4>
-            {report.rangA.concepts.length > 0 ? (
-              <div className="space-y-2">
-                {report.rangA.concepts.map((concept, index) => (
-                  <div key={index} className="flex items-start space-x-2 text-sm">
-                    <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
-                    <span className="text-gray-700">{concept}</span>
-                  </div>
-                ))}
+            
+            {/* Concepts présents */}
+            {report.rangA.concepts.length > 0 && (
+              <div className="mb-4">
+                <h5 className="text-sm font-medium text-green-700 mb-2">✅ Concepts présents :</h5>
+                <div className="space-y-2">
+                  {report.rangA.concepts.map((concept, index) => (
+                    <div key={index} className="flex items-start space-x-2 text-sm">
+                      <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                      <span className="text-gray-700">{concept}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-            ) : (
-              <p className="text-gray-500 text-sm">Aucun concept détecté</p>
+            )}
+
+            {/* Concepts manquants */}
+            {report.rangA.missingConcepts.length > 0 && (
+              <div>
+                <h5 className="text-sm font-medium text-red-700 mb-2">❌ Concepts manquants :</h5>
+                <div className="space-y-2">
+                  {report.rangA.missingConcepts.map((concept, index) => (
+                    <div key={index} className="flex items-start space-x-2 text-sm">
+                      <XCircle className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
+                      <span className="text-gray-700">{concept}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             )}
           </Card>
 
@@ -151,24 +169,42 @@ export const AuditIC2Completeness = () => {
             <h4 className="font-semibold text-gray-800 mb-3">
               🎯 Rang B - Connaissances approfondies ({report.rangB.found}/{report.rangB.expected})
             </h4>
-            {report.rangB.concepts.length > 0 ? (
-              <div className="space-y-2">
-                {report.rangB.concepts.map((concept, index) => (
-                  <div key={index} className="flex items-start space-x-2 text-sm">
-                    <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
-                    <span className="text-gray-700">{concept}</span>
-                  </div>
-                ))}
+            
+            {/* Concepts présents */}
+            {report.rangB.concepts.length > 0 && (
+              <div className="mb-4">
+                <h5 className="text-sm font-medium text-green-700 mb-2">✅ Concepts présents :</h5>
+                <div className="space-y-2">
+                  {report.rangB.concepts.map((concept, index) => (
+                    <div key={index} className="flex items-start space-x-2 text-sm">
+                      <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
+                      <span className="text-gray-700">{concept}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-            ) : (
-              <p className="text-gray-500 text-sm">Aucun concept détecté</p>
+            )}
+
+            {/* Concepts manquants */}
+            {report.rangB.missingConcepts.length > 0 && (
+              <div>
+                <h5 className="text-sm font-medium text-red-700 mb-2">❌ Concepts manquants :</h5>
+                <div className="space-y-2">
+                  {report.rangB.missingConcepts.map((concept, index) => (
+                    <div key={index} className="flex items-start space-x-2 text-sm">
+                      <XCircle className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
+                      <span className="text-gray-700">{concept}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             )}
           </Card>
 
           {/* Recommandations */}
           {report.recommendations.length > 0 && (
             <Card className="p-4 border-yellow-200 bg-yellow-50">
-              <h4 className="font-semibold text-yellow-800 mb-3">💡 Recommandations</h4>
+              <h4 className="font-semibold text-yellow-800 mb-3">💡 Recommandations pour atteindre 100%</h4>
               <div className="space-y-1">
                 {report.recommendations.map((rec, index) => (
                   <div key={index} className="flex items-start space-x-2 text-sm">
