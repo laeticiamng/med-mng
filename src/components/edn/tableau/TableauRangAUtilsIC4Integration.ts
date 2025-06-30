@@ -1,80 +1,85 @@
 
-import { conceptsRangAIC4 } from './TableauRangADataIC4';
-import { generateLignesRangAIntelligentIC4, determinerColonnesUtilesIC4 } from './TableauRangAUtilsIC4';
-
-// Fonction pour détecter si c'est l'item IC-4
+// Utilitaires pour l'intégration des données IC-4 avec structure complexe
 export const isIC4Item = (data: any): boolean => {
-  if (!data || !data.item_code) return false;
-  return data.item_code === 'IC-4';
+  return data?.item_code === 'IC-4' || 
+         data?.title?.includes('Qualité et sécurité des soins') ||
+         data?.slug === 'ic4-qualite-securite-soins';
 };
 
-// Fonction principale pour traiter les données IC-4 depuis Supabase
-export function processTableauRangAIC4(tableauData: any) {
-  console.log('Processing IC-4 data from Supabase:', tableauData);
+export const processTableauRangAIC4 = (data: any) => {
+  console.log('🔍 Traitement IC-4 Qualité et sécurité des soins');
   
-  // Extraire les concepts depuis la structure Supabase
-  const lignes: string[][] = [];
+  // Extraire les données des concepts depuis la nouvelle structure JSON
+  const tableauData = data.tableau_rang_a || data;
+  const concepts = tableauData?.sections?.[0]?.concepts || [];
   
-  if (tableauData && tableauData.sections) {
-    tableauData.sections.forEach((section: any) => {
-      section.concepts?.forEach((concept: any) => {
-        const ligne = [
-          concept.concept || '',
-          concept.definition || '',
-          concept.exemple || '',
-          concept.piege || '',
-          concept.mnemo || '',
-          concept.subtilite || '',
-          concept.application || '',
-          concept.vigilance || ''
-        ];
-        lignes.push(ligne);
-      });
-    });
-  }
-  
-  // Si pas de données structurées, utiliser les données par défaut
-  if (lignes.length === 0) {
-    console.log('Utilisation des données IC-4 par défaut');
-    return {
-      lignesEnrichies: generateLignesRangAIntelligentIC4({}),
-      colonnesUtiles: determinerColonnesUtilesIC4([]),
-      theme: 'IC-4 : Qualité et sécurité des soins - Rang A'
-    };
-  }
-  
-  // Déterminer les colonnes utiles basées sur le contenu
-  const colonnesUtiles = determinerColonnesUtilesIC4(lignes);
-  
-  return {
-    lignesEnrichies: lignes,
-    colonnesUtiles,
-    theme: tableauData?.theme || 'IC-4 : Qualité et sécurité des soins - Rang A'
-  };
-}
-
-// Fonction pour générer les lignes IC-4 optimisées (compatibilité)
-export const generateLignesRangAWithIC4 = (data: any): string[][] => {
-  if (isIC4Item(data)) {
-    console.log('Utilisation des données spécifiques IC-4');
-    const processed = processTableauRangAIC4(data.tableau_rang_a || data);
-    return processed.lignesEnrichies;
-  }
-  
-  // Retombe sur la génération standard pour les autres items
-  return data.lignes || [];
-};
-
-// Fonction pour déterminer les colonnes IC-4 optimisées (compatibilité)
-export const determinerColonnesUtilesWithIC4 = (lignes: string[][], data: any): any[] => {
-  if (isIC4Item(data)) {
-    console.log('Utilisation des colonnes spécifiques IC-4');
-    return determinerColonnesUtilesIC4(lignes);
-  }
-  
-  // Retombe sur la détermination standard pour les autres items
-  return [
-    { nom: 'Concept', couleur: 'bg-blue-600', couleurCellule: 'bg-blue-50', couleurTexte: 'text-blue-800' },
-    { nom: 'Définition', couleur: 'bg-green-600', couleurCellule: 'bg-green-50', couleurTexte: 'text-green-800' }
+  const colonnesUtiles = [
+    { nom: 'Concept', description: 'Notion clé à maîtriser' },
+    { nom: 'Définition', description: 'Définition précise et complète' },
+    { nom: 'Exemple', description: 'Illustration pratique' },
+    { nom: 'Piège', description: 'Erreur fréquente à éviter' },
+    { nom: 'Mnémo', description: 'Aide-mémoire' },
+    { nom: 'Application', description: 'Mise en pratique' },
+    { nom: 'Vigilance', description: 'Point de vigilance' }
   ];
+
+  const lignesEnrichies = concepts.map((concept: any) => [
+    concept.concept || '',
+    concept.definition || '',
+    concept.exemple || '',
+    concept.piege || '',
+    concept.mnemo || '',
+    concept.application || '',
+    concept.vigilance || ''
+  ]);
+
+  const theme = "IC-4 Rang A - Qualité et sécurité des soins (13 concepts)";
+
+  console.log(`✅ IC-4 traité: ${lignesEnrichies.length} concepts`);
+
+  return {
+    lignesEnrichies,
+    colonnesUtiles,
+    theme,
+    isRangB: false
+  };
+};
+
+export const processTableauRangBIC4 = (data: any) => {
+  console.log('🔍 Traitement IC-4 Rang B - Expertise qualité et sécurité');
+  
+  // Extraire les données des concepts experts depuis la nouvelle structure JSON
+  const tableauData = data.tableau_rang_b || data;
+  const concepts = tableauData?.sections?.[0]?.concepts || [];
+  
+  const colonnesUtiles = [
+    { nom: 'Concept', description: 'Expertise avancée' },
+    { nom: 'Analyse', description: 'Analyse approfondie' },
+    { nom: 'Cas complexe', description: 'Situation concrète' },
+    { nom: 'Écueil', description: 'Piège d\'expert' },
+    { nom: 'Technique', description: 'Méthode spécialisée' },
+    { nom: 'Maîtrise', description: 'Niveau de maîtrise requis' },
+    { nom: 'Excellence', description: 'Niveau d\'excellence' }
+  ];
+
+  const lignesEnrichies = concepts.map((concept: any) => [
+    concept.concept || '',
+    concept.analyse || '',
+    concept.cas || '',
+    concept.ecueil || '',
+    concept.technique || '',
+    concept.maitrise || '',
+    concept.excellence || ''
+  ]);
+
+  const theme = "IC-4 Rang B - Expertise qualité et sécurité (22 concepts)";
+
+  console.log(`✅ IC-4 Rang B traité: ${lignesEnrichies.length} concepts experts`);
+
+  return {
+    lignesEnrichies,
+    colonnesUtiles,
+    theme,
+    isRangB: true
+  };
 };

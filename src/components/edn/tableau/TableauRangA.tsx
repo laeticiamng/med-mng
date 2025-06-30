@@ -1,3 +1,4 @@
+
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { TableauRangAHeader } from './TableauRangAHeader';
@@ -76,12 +77,15 @@ export const TableauRangA = ({ data }: TableauRangAProps) => {
       isRangB={processed.isRangB}
     />;
   } else if (isIC4Item(data)) {
-    console.log('✅ Item IC-4 détecté');
+    console.log('✅ Item IC-4 détecté - Qualité et sécurité des soins');
     const processed = processTableauRangAIC4(data);
     lignesEnrichies = processed.lignesEnrichies;
     colonnesUtiles = processed.colonnesUtiles;
     theme = processed.theme;
-    footerComponent = <TableauRangAFooterIC4 colonnesCount={colonnesUtiles.length} lignesCount={lignesEnrichies.length} />;
+    footerComponent = <TableauRangAFooterIC4 
+      colonnesCount={colonnesUtiles.length} 
+      lignesCount={lignesEnrichies.length}
+    />;
   } else if (isIC5Item(data)) {
     console.log('✅ Item IC-5 détecté');
     const processed = processTableauRangAIC5(data);
