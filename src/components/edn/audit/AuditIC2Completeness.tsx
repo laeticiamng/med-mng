@@ -1,10 +1,10 @@
-
 import { useState, useEffect } from 'react';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { CheckCircle, AlertTriangle, RefreshCw, Target, XCircle } from 'lucide-react';
 import { checkIC2Completeness } from '@/scripts/audit/ic2CompletenessCheck';
+import { AuditIC2CompletionButton } from './AuditIC2CompletionButton';
 
 interface IC2Report {
   exists: boolean;
@@ -73,6 +73,11 @@ export const AuditIC2Completeness = () => {
           Vérifier
         </Button>
       </div>
+
+      {/* Bouton de complétion automatique */}
+      {report && report.completeness < 100 && (
+        <AuditIC2CompletionButton />
+      )}
 
       {error && (
         <Card className="p-4 border-red-200 bg-red-50">
@@ -213,6 +218,19 @@ export const AuditIC2Completeness = () => {
                   </div>
                 ))}
               </div>
+            </Card>
+          )}
+
+          {/* Message de félicitation si complet */}
+          {report.completeness === 100 && (
+            <Card className="p-6 border-green-200 bg-green-50 text-center">
+              <CheckCircle className="h-12 w-12 text-green-600 mx-auto mb-4" />
+              <h3 className="text-lg font-bold text-green-800 mb-2">
+                🎉 Félicitations ! Item IC-2 COMPLET
+              </h3>
+              <p className="text-green-700">
+                L'item IC-2 contient bien les 11 connaissances attendues selon le référentiel E-LiSA officiel.
+              </p>
             </Card>
           )}
         </div>
