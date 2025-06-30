@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Music } from 'lucide-react';
 import { BandeDessinee } from '@/components/edn/BandeDessinee';
 import { TableauRangA } from '@/components/edn/TableauRangA';
-import { TableauRangB } from '@/components/edn/TableauRangB';
+import { TableauRangB } from '@/components/edn/tableau/TableauRangB';
 import { SceneImmersive } from '@/components/edn/SceneImmersive';
 import { ParolesMusicales } from '@/components/edn/ParolesMusicales';
 import { QuizFinal } from '@/components/edn/QuizFinal';
@@ -46,7 +46,11 @@ export const EdnItemContent = ({ activeSection, item }: EdnItemContentProps) => 
       
       case 'tableau-b':
         return item.tableau_rang_b ? (
-          <TableauRangB data={item.tableau_rang_b} />
+          <TableauRangB data={{
+            title: item.title,
+            item_code: item.item_code,
+            tableau_rang_b: item.tableau_rang_b
+          }} />
         ) : (
           <div className="text-center py-8">
             <TranslatedText text="Tableau Rang B en cours de développement" />
