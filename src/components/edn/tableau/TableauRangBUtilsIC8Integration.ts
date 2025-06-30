@@ -8,28 +8,28 @@ export const processTableauRangBIC8 = (data: any) => {
   const concepts = tableauData?.sections?.[0]?.concepts || [];
   
   const colonnesUtiles = [
-    { nom: 'Concept expert', description: 'Expertise médico-légale' },
-    { nom: 'Analyse judiciaire', description: 'Approche expertale' },
+    { nom: 'Concept expert', description: 'Lutte anti-discrimination' },
+    { nom: 'Analyse systémique', description: 'Approche structurelle' },
     { nom: 'Cas complexe', description: 'Situation experte' },
     { nom: 'Écueil expert', description: 'Piège niveau avancé' },
-    { nom: 'Technique avancée', description: 'Méthode spécialisée' },
-    { nom: 'Distinction fine', description: 'Nuances importantes' },
+    { nom: 'Technique avancée', description: 'Intervention spécialisée' },
+    { nom: 'Distinction fine', description: 'Nuances sociales' },
     { nom: 'Maîtrise', description: 'Application experte' },
-    { nom: 'Excellence', description: 'Expertise judiciaire' }
+    { nom: 'Excellence', description: 'Équité parfaite' }
   ];
 
   const lignesEnrichies = concepts.map((concept: any) => [
     concept.concept || '',
-    concept.analyse || '',
-    concept.cas || '',
-    concept.ecueil || '',
-    concept.technique || '',
-    concept.distinction || '',
-    concept.maitrise || '',
-    concept.excellence || ''
+    concept.definition || '',
+    concept.exemple || '',
+    concept.piege || '',
+    concept.mnemo || '',
+    concept.subtilite || '',
+    concept.application || '',
+    concept.vigilance || ''
   ]);
 
-  const theme = "IC-8 Rang B - Expertise certificats et violences";
+  const theme = "IC-8 Rang B - Expertise lutte contre les discriminations";
 
   console.log(`✅ IC-8 Rang B expert traité: ${lignesEnrichies.length} concepts`);
 

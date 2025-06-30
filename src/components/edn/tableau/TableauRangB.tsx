@@ -1,150 +1,89 @@
-
-import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import React from 'react';
 import { TableauRangAHeader } from './TableauRangAHeader';
 import { TableauRangAGrid } from './TableauRangAGrid';
-import { TableauRangAFooter } from './TableauRangAFooter';
-import { processTableauRangBIC4, isIC4RangBItem } from './TableauRangBUtilsIC4Integration';
+import { processTableauRangBUtilsIC4Integration } from './TableauRangBUtilsIC4Integration';
 import { processTableauRangBIC6 } from './TableauRangBUtilsIC6Integration';
 import { processTableauRangBIC7 } from './TableauRangBUtilsIC7Integration';
 import { processTableauRangBIC8 } from './TableauRangBUtilsIC8Integration';
 import { processTableauRangBIC9 } from './TableauRangBUtilsIC9Integration';
 import { processTableauRangBIC10 } from './TableauRangBUtilsIC10Integration';
 import { processTableauRangBOIC010 } from './TableauRangBUtilsOIC010Integration';
-import { processStandardTableauData } from './TableauRangAUtilsStandard';
-import { determinerColonnesUtiles, generateLignesRangAIntelligent } from './TableauRangAUtils';
 
 interface TableauRangBProps {
-  data: {
-    theme?: string;
-    title?: string;
-    item_code?: string;
-    colonnes?: string[];
-    lignes?: string[][];
-    sections?: any[];
-    tableau_rang_b?: any;
-  };
+  data: any;
+  itemCode: string;
 }
 
-export const TableauRangB = ({ data }: TableauRangBProps) => {
-  console.log('🔍 TableauRangB - Données reçues:', data);
+interface Colonne {
+  nom: string;
+  description: string;
+}
+
+interface ProcessedData {
+  lignesEnrichies: string[][];
+  colonnesUtiles: Colonne[];
+  theme: string;
+  isRangB: boolean;
+  expertiseLevel: string;
+}
+
+export const TableauRangB: React.FC<TableauRangBProps> = ({ data, itemCode }) => {
+  console.log(`TableauRangB - itemCode: ${itemCode}`);
 
   if (!data) {
-    return (
-      <div className="text-center space-y-6">
-        <h2 className="text-3xl font-serif text-amber-900">Tableau Rang B</h2>
-        <p className="text-amber-700">Aucune donnée disponible</p>
-      </div>
-    );
+    console.warn('TableauRangB - Pas de données fournies.');
+    return <p>Pas de données disponibles pour le Rang B.</p>;
   }
 
-  // Déterminer le type d'item et traiter les données en conséquence
-  let lignesEnrichies: string[][];
-  let colonnesUtiles: any[];
-  let theme: string;
-  let footerComponent: JSX.Element;
-
-  if (isIC4RangBItem(data)) {
-    console.log('✅ Item IC-4 Rang B détecté');
-    const processed = processTableauRangBIC4(data);
-    lignesEnrichies = processed.lignesEnrichies;
-    colonnesUtiles = processed.colonnesUtiles;
-    theme = processed.theme;
-    footerComponent = <TableauRangAFooter 
-      colonnesCount={colonnesUtiles.length} 
-      lignesCount={lignesEnrichies.length}
-    />;
-  } else if (data?.item_code === 'IC-6') {
-    console.log('✅ Item IC-6 Rang B détecté');
-    const processed = processTableauRangBIC6(data);
-    lignesEnrichies = processed.lignesEnrichies;
-    colonnesUtiles = processed.colonnesUtiles;
-    theme = processed.theme;
-    footerComponent = <TableauRangAFooter colonnesCount={colonnesUtiles.length} lignesCount={lignesEnrichies.length} />;
-  } else if (data?.item_code === 'IC-7') {
-    console.log('✅ Item IC-7 Rang B détecté');
-    const processed = processTableauRangBIC7(data);
-    lignesEnrichies = processed.lignesEnrichies;
-    colonnesUtiles = processed.colonnesUtiles;
-    theme = processed.theme;
-    footerComponent = <TableauRangAFooter colonnesCount={colonnesUtiles.length} lignesCount={lignesEnrichies.length} />;
-  } else if (data?.item_code === 'IC-8') {
-    console.log('✅ Item IC-8 Rang B détecté');
-    const processed = processTableauRangBIC8(data);
-    lignesEnrichies = processed.lignesEnrichies;
-    colonnesUtiles = processed.colonnesUtiles;
-    theme = processed.theme;
-    footerComponent = <TableauRangAFooter colonnesCount={colonnesUtiles.length} lignesCount={lignesEnrichies.length} />;
-  } else if (data?.item_code === 'IC-9') {
-    console.log('✅ Item IC-9 Rang B détecté');
-    const processed = processTableauRangBIC9(data);
-    lignesEnrichies = processed.lignesEnrichies;
-    colonnesUtiles = processed.colonnesUtiles;
-    theme = processed.theme;
-    footerComponent = <TableauRangAFooter colonnesCount={colonnesUtiles.length} lignesCount={lignesEnrichies.length} />;
-  } else if (data?.item_code === 'IC-10') {
-    console.log('✅ Item IC-10 Rang B détecté');
-    const processed = processTableauRangBIC10(data);
-    lignesEnrichies = processed.lignesEnrichies;
-    colonnesUtiles = processed.colonnesUtiles;
-    theme = processed.theme;
-    footerComponent = <TableauRangAFooter colonnesCount={colonnesUtiles.length} lignesCount={lignesEnrichies.length} />;
-  } else if (data?.item_code === 'OIC-010-03-B') {
-    console.log('✅ Item OIC-010-03-B Rang B détecté');
-    const processed = processTableauRangBOIC010(data);
-    lignesEnrichies = processed.lignesEnrichies;
-    colonnesUtiles = processed.colonnesUtiles;
-    theme = processed.theme;
-    footerComponent = <TableauRangAFooter colonnesCount={colonnesUtiles.length} lignesCount={lignesEnrichies.length} />;
-  } else {
-    // Traitement standard avec les nouvelles données JSON de Supabase
-    console.log('📋 Traitement standard Rang B pour:', data?.item_code);
-    const processed = processStandardTableauData(data, true);
-    if (processed) {
-      lignesEnrichies = processed.lignesEnrichies;
-      colonnesUtiles = processed.colonnesUtiles;
-      theme = processed.theme;
-    } else {
-      // Fallback vers l'ancienne méthode si pas de données JSON
-      lignesEnrichies = generateLignesRangAIntelligent(data);
-      colonnesUtiles = determinerColonnesUtiles(lignesEnrichies);
-      theme = data.theme || data.title || 'Tableau Rang B';
+  let processedData;
+  
+  try {
+    switch (itemCode) {
+      case 'IC-4':
+        processedData = processTableauRangBUtilsIC4Integration(data);
+        break;
+      case 'IC-6':
+        processedData = processTableauRangBIC6(data);
+        break;
+      case 'IC-7':
+        processedData = processTableauRangBIC7(data);
+        break;
+      case 'IC-8':
+        processedData = processTableauRangBIC8(data);
+        break;
+      case 'IC-9':
+        processedData = processTableauRangBIC9(data);
+        break;
+      case 'IC-10':
+        processedData = processTableauRangBIC10(data);
+        break;
+      case 'OIC-010-03-B':
+        processedData = processTableauRangBOIC010(data);
+        break;
+      default:
+        console.warn(`TableauRangB - Code item non supporté: ${itemCode}`);
+        processedData = {
+          lignesEnrichies: [],
+          colonnesUtiles: [],
+          theme: 'Rang B - Données non traitées',
+          isRangB: true,
+          expertiseLevel: 'unknown'
+        };
+        break;
     }
-    footerComponent = <TableauRangAFooter colonnesCount={colonnesUtiles.length} lignesCount={lignesEnrichies.length} />;
+  } catch (error) {
+    console.error("Erreur lors du traitement des données Rang B:", error);
+    return <p>Erreur lors du traitement des données.</p>;
   }
 
-  console.log('📊 TableauRangB - Données traitées:', {
-    theme,
-    colonnesUtiles: colonnesUtiles.length,
-    lignesEnrichies: lignesEnrichies.length
-  });
+  const { lignesEnrichies, colonnesUtiles, theme } = processedData;
+  const colonnes = colonnesUtiles.map(col => col.nom);
+  const lignes = lignesEnrichies;
 
   return (
-    <div className="space-y-8 bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-6 rounded-xl">
-      <TableauRangAHeader 
-        theme={theme} 
-        itemCode={data?.item_code || 'IC-X'} 
-        totalCompetences={lignesEnrichies.length} 
-      />
-      
-      {lignesEnrichies.length > 0 ? (
-        <>
-          <TableauRangAGrid 
-            colonnesUtiles={colonnesUtiles}
-            lignesEnrichies={lignesEnrichies}
-          />
-          {footerComponent}
-        </>
-      ) : (
-        <Card className="p-8 text-center bg-white/50 backdrop-blur-sm border-blue-200">
-          <p className="text-blue-700 text-lg">
-            Les concepts de ce tableau sont en cours de traitement...
-          </p>
-          <Badge variant="outline" className="mt-4 text-blue-600 border-blue-300">
-            Contenu en développement
-          </Badge>
-        </Card>
-      )}
+    <div className="w-full space-y-6">
+      <TableauRangAHeader theme={theme} />
+      <TableauRangAGrid colonnes={colonnes} lignes={lignes} />
     </div>
   );
 };

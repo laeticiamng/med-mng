@@ -8,28 +8,28 @@ export const processTableauRangBIC7 = (data: any) => {
   const concepts = tableauData?.sections?.[0]?.concepts || [];
   
   const colonnesUtiles = [
-    { nom: 'Concept expert', description: 'Expertise anti-discrimination' },
-    { nom: 'Approche intersectionnelle', description: 'Analyse multifactorielle' },
-    { nom: 'Cas complexe', description: 'Situation discriminatoire' },
+    { nom: 'Concept expert', description: 'Droits appliqués' },
+    { nom: 'Analyse juridique', description: 'Cadre légal approfondi' },
+    { nom: 'Cas complexe', description: 'Situation experte' },
     { nom: 'Écueil expert', description: 'Piège niveau avancé' },
     { nom: 'Technique avancée', description: 'Méthode spécialisée' },
-    { nom: 'Distinction fine', description: 'Nuances importantes' },
+    { nom: 'Distinction fine', description: 'Nuances juridiques' },
     { nom: 'Maîtrise', description: 'Application experte' },
-    { nom: 'Excellence', description: 'Leadership inclusif' }
+    { nom: 'Excellence', description: 'Médiation parfaite' }
   ];
 
   const lignesEnrichies = concepts.map((concept: any) => [
     concept.concept || '',
-    concept.analyse || '',
-    concept.cas || '',
-    concept.ecueil || '',
-    concept.technique || '',
-    concept.distinction || '',
-    concept.maitrise || '',
-    concept.excellence || ''
+    concept.definition || '',
+    concept.exemple || '',
+    concept.piege || '',
+    concept.mnemo || '',
+    concept.subtilite || '',
+    concept.application || '',
+    concept.vigilance || ''
   ]);
 
-  const theme = "IC-7 Rang B - Expertise lutte contre discriminations";
+  const theme = "IC-7 Rang B - Expertise application des droits";
 
   console.log(`✅ IC-7 Rang B expert traité: ${lignesEnrichies.length} concepts`);
 

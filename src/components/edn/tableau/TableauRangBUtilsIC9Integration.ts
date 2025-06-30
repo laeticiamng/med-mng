@@ -9,27 +9,27 @@ export const processTableauRangBIC9 = (data: any) => {
   
   const colonnesUtiles = [
     { nom: 'Concept expert', description: 'Expertise médico-légale' },
-    { nom: 'Analyse judiciaire', description: 'Approche expertale' },
+    { nom: 'Analyse légale', description: 'Approche judiciaire' },
     { nom: 'Cas complexe', description: 'Situation experte' },
     { nom: 'Écueil expert', description: 'Piège niveau avancé' },
     { nom: 'Technique avancée', description: 'Méthode spécialisée' },
-    { nom: 'Distinction fine', description: 'Nuances importantes' },
+    { nom: 'Distinction fine', description: 'Nuances légales' },
     { nom: 'Maîtrise', description: 'Application experte' },
-    { nom: 'Excellence', description: 'Expertise judiciaire' }
+    { nom: 'Excellence', description: 'Expertise reconnue' }
   ];
 
   const lignesEnrichies = concepts.map((concept: any) => [
     concept.concept || '',
-    concept.analyse || '',
-    concept.cas || '',
-    concept.ecueil || '',
-    concept.technique || '',
-    concept.distinction || '',
-    concept.maitrise || '',
-    concept.excellence || ''
+    concept.definition || '',
+    concept.exemple || '',
+    concept.piege || '',
+    concept.mnemo || '',
+    concept.subtilite || '',
+    concept.application || '',
+    concept.vigilance || ''
   ]);
 
-  const theme = "IC-9 Rang B - Expertise certificats et violences";
+  const theme = "IC-9 Rang B - Expertise médico-légale avancée";
 
   console.log(`✅ IC-9 Rang B expert traité: ${lignesEnrichies.length} concepts`);
 
