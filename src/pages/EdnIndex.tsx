@@ -155,7 +155,7 @@ const EdnIndex = () => {
                   
                   <div className="flex gap-2">
                     <Link 
-                      to={`/edn/item/${item.slug}`}
+                      to={`/edn/${item.slug}`}
                       className="flex-1"
                     >
                       <Button variant="outline" className="w-full flex items-center gap-2">
@@ -165,7 +165,7 @@ const EdnIndex = () => {
                     </Link>
                     
                     <Link 
-                      to={`/edn/immersive/${item.slug}`}
+                      to={`/edn/${item.slug}/immersive`}
                       className="flex-1"
                     >
                       <Button className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 flex items-center gap-2">

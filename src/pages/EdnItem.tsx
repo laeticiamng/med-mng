@@ -214,19 +214,19 @@ const EdnItem = () => {
             <div className="flex items-start justify-between mb-4">
               <div>
                 <Badge variant="outline" className="mb-2 text-amber-700 border-amber-300">
-                  {item.item_code}
+                  {item?.item_code}
                 </Badge>
                 <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                  <TranslatedText text={item.title} />
+                  <TranslatedText text={item?.title || ''} />
                 </h1>
-                {item.subtitle && (
+                {item?.subtitle && (
                   <p className="text-lg text-gray-600">
                     <TranslatedText text={item.subtitle} />
                   </p>
                 )}
               </div>
               <Link
-                to={`/edn/immersive/${item.slug}`}
+                to={`/edn/${item?.slug}/immersive`}
                 className="inline-flex items-center gap-2 bg-gradient-to-r from-amber-500 to-orange-500 text-white px-4 py-2 rounded-lg hover:from-amber-600 hover:to-orange-600 transition-all"
               >
                 <Play className="h-4 w-4" />
