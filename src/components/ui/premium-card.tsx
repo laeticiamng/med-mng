@@ -2,7 +2,7 @@
 import React from 'react';
 import { cn } from '@/lib/utils';
 
-interface PremiumCardProps {
+interface PremiumCardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
   className?: string;
   variant?: 'default' | 'gradient' | 'glass' | 'elevated';
@@ -13,7 +13,8 @@ export const PremiumCard: React.FC<PremiumCardProps> = ({
   children,
   className,
   variant = 'default',
-  hover = true
+  hover = true,
+  ...props
 }) => {
   const getVariantClasses = () => {
     switch (variant) {
@@ -33,12 +34,15 @@ export const PremiumCard: React.FC<PremiumCardProps> = ({
     : '';
 
   return (
-    <div className={cn(
-      'rounded-2xl transition-all duration-500 ease-out',
-      getVariantClasses(),
-      hoverClasses,
-      className
-    )}>
+    <div 
+      className={cn(
+        'rounded-2xl transition-all duration-500 ease-out',
+        getVariantClasses(),
+        hoverClasses,
+        className
+      )}
+      {...props}
+    >
       {children}
     </div>
   );
