@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { validateItemEDN, ItemEDNV2 } from '@/schemas/itemEDNSchema';
 import { EDNItemParser } from '@/parsers/ednItemParser';
@@ -102,7 +101,7 @@ export class IC1CompletenessAuditor {
       } else {
         // 2. Validation du schéma
         const validation = validateItemEDN(ic1Item);
-        if ('success' in validation && !validation.success) {
+        if (!validation.success) {
           report.isCompliant = false;
           report.missingElements.push(...validation.errors);
         }
