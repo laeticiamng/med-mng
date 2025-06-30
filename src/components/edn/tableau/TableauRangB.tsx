@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { processTableauRangAIC2, isIC2Item } from './TableauRangAUtilsIC2Integration';
 import { processTableauRangAIC5, isIC5Item } from './TableauRangAUtilsIC5Integration';
+import { processStandardTableauData } from './TableauRangAUtilsStandard';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -9,12 +10,7 @@ import { ChevronDown, ChevronUp } from 'lucide-react';
 
 interface TableauRangBProps {
   data: {
-    tableau_rang_b?: {
-      title?: string;
-      theme?: string;
-      colonnes?: string[];
-      lignes?: string[][];
-    };
+    tableau_rang_b?: any;
     title?: string;
     item_code?: string;
     theme?: string;
@@ -25,79 +21,39 @@ export const TableauRangB = ({ data }: TableauRangBProps) => {
   const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
 
   console.log('🔍 TableauRangB - Données reçues:', data);
-  console.log('📊 TableauRangB - Item code:', data?.item_code);
-  console.log('📋 TableauRangB - Tableau rang B brut:', data?.tableau_rang_b);
 
-  // Traitement spécialisé pour IC-2
+  // Traitement spécialisé selon l'item
+  let processedData = null;
+
   if (isIC2Item(data)) {
     console.log('✅ Item IC-2 détecté, traitement spécialisé E-LiSA');
-    
-    try {
-      const processedData = processTableauRangAIC2({
-        ...data,
-        theme: data.theme || 'Rang B - IC-2 Valeurs professionnelles'
-      });
-      
-      console.log('📈 IC-2 Rang B traité:', processedData);
-      
-      if (processedData.isRangB && processedData.lignesEnrichies && processedData.lignesEnrichies.length > 0) {
-        return renderTableauRangB(
-          processedData.lignesEnrichies,
-          processedData.colonnesUtiles,
-          processedData.theme,
-          data?.item_code || 'IC-2'
-        );
-      }
-    } catch (error) {
-      console.error('❌ Erreur traitement IC-2 Rang B:', error);
-    }
-  }
-
-  // Traitement spécialisé pour IC-5
-  if (isIC5Item(data)) {
+    processedData = processTableauRangAIC2({
+      ...data,
+      theme: 'Rang B - IC-2 Valeurs professionnelles'
+    });
+  } else if (isIC5Item(data)) {
     console.log('✅ Item IC-5 détecté, traitement spécialisé Organisation');
-    
-    try {
-      const processedData = processTableauRangAIC5({
-        ...data,
-        theme: data.theme || 'Rang B - IC-5 Organisation système de santé'
-      });
-      
-      console.log('📈 IC-5 Rang B traité:', processedData);
-      
-      if (processedData.isRangB && processedData.lignesEnrichies && processedData.lignesEnrichies.length > 0) {
-        return renderTableauRangB(
-          processedData.lignesEnrichies,
-          processedData.colonnesUtiles,
-          processedData.theme,
-          data?.item_code || 'IC-5'
-        );
-      }
-    } catch (error) {
-      console.error('❌ Erreur traitement IC-5 Rang B:', error);
-    }
+    processedData = processTableauRangAIC5({
+      ...data,
+      theme: 'Rang B - IC-5 Organisation système de santé'
+    });
+  } else {
+    console.log('📋 Traitement standard Rang B pour:', data?.item_code);
+    processedData = processStandardTableauData(data, true);
   }
 
-  // Traitement standard pour les autres items
-  const tableauData = data?.tableau_rang_b;
-  const colonnes = tableauData?.colonnes || [];
-  const lignes = tableauData?.lignes || [];
-  const theme = tableauData?.theme || tableauData?.title || 'Connaissances approfondies - Rang B';
-  const itemCode = data?.item_code || 'Item';
-
-  console.log('📊 TableauRangB standard - Données extraites:', { 
-    colonnes: colonnes.length, 
-    lignes: lignes.length, 
-    theme,
-    itemCode 
-  });
-
-  // Si pas de données Rang B disponibles
-  if (!lignes.length) {
-    return renderEmptyRangB(itemCode);
+  // Vérifier si des données Rang B existent
+  if (!processedData || (!processedData.isRangB && !data.tableau_rang_b)) {
+    return renderEmptyRangB(data?.item_code || 'Item');
   }
 
-  return renderTableauRangB(lignes, generateStandardColumns(), theme, itemCode);
+  if (!processedData.lignesEnrichies || processedData.lignesEnrichies.length === 0) {
+    return renderEmptyRangB(data?.item_code || 'Item');
+  }
+
+  const { lignesEnrichies, colonnesUtiles, theme } = processedData;
+
+  return renderTableauRangB(lignesEnrichies, colonnesUtiles, theme, data?.item_code || 'Item');
 
   function renderTableauRangB(lignes: string[][], colonnes: any[], theme: string, itemCode: string) {
     const toggleRow = (index: number) => {
@@ -239,47 +195,21 @@ export const TableauRangB = ({ data }: TableauRangBProps) => {
                   </div>
                 </div>
                 <CardTitle className="text-lg font-semibold text-blue-800 mb-2">
-                  Toutes les compétences sont classées en Rang A
+                  Connaissances Rang B disponibles
                 </CardTitle>
                 <CardDescription className="text-blue-600 text-sm leading-relaxed">
-                  Pour cet item <span className="font-semibold">{itemCode}</span>, toutes les compétences identifiées sont 
-                  considérées comme fondamentales et sont donc classées en <span className="font-semibold">Rang A</span>.
+                  Pour cet item <span className="font-semibold">{itemCode}</span>, des connaissances approfondies 
+                  de <span className="font-semibold">Rang B</span> sont désormais disponibles.
                   <br />
                   <span className="text-xs text-blue-500 mt-2 block">
-                    ℹ️ Le Rang B est réservé aux connaissances approfondies et spécialisées
+                    ℹ️ Le Rang B présente les compétences expertes et spécialisées
                   </span>
                 </CardDescription>
               </CardContent>
             </Card>
-            
-            {/* Bouton pour voir le Rang A */}
-            <div className="mt-6">
-              <p className="text-sm text-gray-600 mb-3">
-                Consultez les compétences fondamentales dans le Rang A
-              </p>
-              <Badge className="bg-amber-100 text-amber-800 border-amber-300 px-4 py-2">
-                <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span className="text-sm font-medium">Toutes les compétences en Rang A</span>
-              </Badge>
-            </div>
           </div>
         </CardContent>
       </Card>
     );
-  }
-
-  function generateStandardColumns() {
-    return [
-      { nom: 'Concept Expert', couleur: 'bg-indigo-600', couleurCellule: 'bg-indigo-50 border-indigo-300' },
-      { nom: 'Analyse Approfondie', couleur: 'bg-blue-600', couleurCellule: 'bg-blue-50 border-blue-300' },
-      { nom: 'Cas Complexe', couleur: 'bg-emerald-600', couleurCellule: 'bg-emerald-50 border-emerald-300' },
-      { nom: 'Écueil Expert', couleur: 'bg-red-600', couleurCellule: 'bg-red-50 border-red-300' },
-      { nom: 'Technique Avancée', couleur: 'bg-amber-600', couleurCellule: 'bg-amber-50 border-amber-300' },
-      { nom: 'Distinction Fine', couleur: 'bg-purple-600', couleurCellule: 'bg-purple-50 border-purple-300' },
-      { nom: 'Maîtrise Technique', couleur: 'bg-teal-600', couleurCellule: 'bg-teal-50 border-teal-300' },
-      { nom: 'Excellence Requise', couleur: 'bg-slate-600', couleurCellule: 'bg-slate-50 border-slate-300' }
-    ];
   }
 };

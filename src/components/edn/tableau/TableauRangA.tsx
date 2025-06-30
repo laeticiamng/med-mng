@@ -1,80 +1,58 @@
 
-import { useState, useEffect } from 'react';
-import { TableauRangAHeader } from './TableauRangAHeader';
-import { TableauRangAFooter } from './TableauRangAFooter';
-import { isIC4Item, processTableauRangAIC4 } from './TableauRangAUtilsIC4Integration';
-import { useIsMobile } from '@/hooks/use-mobile';
+import { useState } from 'react';
+import { processTableauRangAIC1, isIC1Item } from './TableauRangAUtilsIC1Integration';
+import { processTableauRangAIC2, isIC2Item } from './TableauRangAUtilsIC2Integration';
+import { processTableauRangAIC4, isIC4Item } from './TableauRangAUtilsIC4Integration';
+import { processTableauRangAIC5, isIC5Item } from './TableauRangAUtilsIC5Integration';
+import { processStandardTableauData } from './TableauRangAUtilsStandard';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 
 interface TableauRangAProps {
-  data: {
-    tableau_rang_a?: any;
-    title?: string;
-    item_code?: string;
-  };
+  data: any;
 }
 
 export const TableauRangA = ({ data }: TableauRangAProps) => {
   const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
-  const [processedData, setProcessedData] = useState<{
-    lignesEnrichies: string[][];
-    colonnesUtiles: any[];
-    theme: string;
-  } | null>(null);
-  const isMobile = useIsMobile();
 
-  useEffect(() => {
-    console.log('TableauRangA - Données reçues:', data);
-    
-    if (isIC4Item(data)) {
-      console.log('Item IC-4 détecté, traitement spécialisé');
-      const processed = processTableauRangAIC4(data.tableau_rang_a || data);
-      setProcessedData(processed);
-    } else {
-      // Traitement standard pour les autres items
-      const tableauData = data.tableau_rang_a;
-      if (tableauData && tableauData.sections) {
-        const lignes: string[][] = [];
-        tableauData.sections.forEach((section: any) => {
-          section.concepts?.forEach((concept: any) => {
-            lignes.push([
-              concept.concept || '',
-              concept.definition || '',
-              concept.exemple || '',
-              concept.piege || '',
-              concept.mnemo || '',
-              concept.subtilite || '',
-              concept.application || '',
-              concept.vigilance || ''
-            ]);
-          });
-        });
-        
-        const colonnes = [
-          { nom: 'Concept', couleur: 'bg-blue-600', couleurCellule: 'bg-blue-50 border-blue-300', couleurTexte: 'text-blue-900 font-bold' },
-          { nom: 'Définition', couleur: 'bg-green-600', couleurCellule: 'bg-green-50 border-green-300', couleurTexte: 'text-green-800' },
-          { nom: 'Exemple', couleur: 'bg-amber-600', couleurCellule: 'bg-amber-50 border-amber-300', couleurTexte: 'text-amber-800' },
-          { nom: 'Piège', couleur: 'bg-red-600', couleurCellule: 'bg-red-50 border-red-300', couleurTexte: 'text-red-800 font-semibold' },
-          { nom: 'Mnémotechnique', couleur: 'bg-purple-600', couleurCellule: 'bg-purple-50 border-purple-300', couleurTexte: 'text-purple-800 font-medium italic' },
-          { nom: 'Subtilité', couleur: 'bg-indigo-600', couleurCellule: 'bg-indigo-50 border-indigo-300', couleurTexte: 'text-indigo-800 font-medium' },
-          { nom: 'Application', couleur: 'bg-teal-600', couleurCellule: 'bg-teal-50 border-teal-300', couleurTexte: 'text-teal-800' },
-          { nom: 'Vigilance', couleur: 'bg-orange-600', couleurCellule: 'bg-orange-50 border-orange-300', couleurTexte: 'text-orange-800 font-medium' }
-        ];
-        
-        setProcessedData({
-          lignesEnrichies: lignes,
-          colonnesUtiles: colonnes,
-          theme: tableauData.theme || data.title || 'Tableau des connaissances'
-        });
-      }
-    }
-  }, [data]);
+  console.log('🔍 TableauRangA - Données reçues:', data);
 
-  if (!processedData || !processedData.lignesEnrichies.length) {
+  // Traitement spécialisé selon l'item
+  let processedData = null;
+
+  if (isIC1Item(data)) {
+    console.log('✅ Item IC-1 détecté');
+    processedData = processTableauRangAIC1(data);
+  } else if (isIC2Item(data)) {
+    console.log('✅ Item IC-2 détecté');
+    processedData = processTableauRangAIC2(data);
+  } else if (isIC4Item(data)) {
+    console.log('✅ Item IC-4 détecté');
+    processedData = processTableauRangAIC4(data);
+  } else if (isIC5Item(data)) {
+    console.log('✅ Item IC-5 détecté');
+    processedData = processTableauRangAIC5(data);
+  } else {
+    console.log('📋 Traitement standard pour:', data?.item_code);
+    processedData = processStandardTableauData(data, false);
+  }
+
+  if (!processedData || !processedData.lignesEnrichies || processedData.lignesEnrichies.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 mx-2 sm:mx-0">
-        <h2 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4">Tableau Rang A</h2>
-        <p className="text-gray-600 text-sm sm:text-base">Aucune donnée disponible pour ce tableau.</p>
-      </div>
+      <Card className="shadow-lg">
+        <CardHeader>
+          <CardTitle className="text-2xl font-bold text-gray-800 text-center">
+            📚 Tableau Rang A - {data?.item_code || 'Item'}
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-8">
+            <p className="text-gray-600">Données en cours de chargement...</p>
+          </div>
+        </CardContent>
+      </Card>
     );
   }
 
@@ -91,104 +69,110 @@ export const TableauRangA = ({ data }: TableauRangAProps) => {
   };
 
   return (
-    <div className="space-y-4 sm:space-y-6 pb-20">
-      <TableauRangAHeader 
-        theme={theme}
-        itemCode={data.item_code || ''}
-        totalCompetences={lignesEnrichies.length}
-      />
-
-      <div className="bg-white rounded-lg shadow-lg overflow-hidden mx-2 sm:mx-0">
-        {/* En-têtes des colonnes - masqués sur mobile */}
-        {!isMobile && (
-          <div className="overflow-x-auto">
-            <div className="grid grid-cols-1 gap-2 p-4 min-w-[800px]" style={{ gridTemplateColumns: `repeat(${colonnesUtiles.length}, minmax(150px, 1fr))` }}>
-              {colonnesUtiles.map((colonne, index) => (
-                <div
-                  key={index}
-                  className={`${colonne.couleur} text-white p-3 rounded-lg text-center font-semibold text-sm flex items-center justify-center gap-1`}
-                >
-                  {colonne.icone && <span>{colonne.icone}</span>}
-                  {colonne.nom}
-                </div>
-              ))}
-            </div>
+    <div className="space-y-6">
+      {/* En-tête principal */}
+      <Card className="border-l-4 border-amber-600">
+        <CardHeader className="bg-gradient-to-r from-amber-700 to-amber-800 text-white rounded-t-lg">
+          <CardTitle className="text-2xl font-bold flex items-center gap-2">
+            📚 Rang A - Connaissances Fondamentales
+          </CardTitle>
+          <CardDescription className="text-amber-200">
+            {theme}
+          </CardDescription>
+          <div className="flex items-center gap-4 mt-2">
+            <Badge variant="secondary" className="bg-amber-600 text-white">
+              Item {data?.item_code || 'N/A'}
+            </Badge>
+            <Badge variant="outline" className="border-amber-300 text-amber-200">
+              {lignesEnrichies.length} compétence{lignesEnrichies.length > 1 ? 's' : ''} fondamentale{lignesEnrichies.length > 1 ? 's' : ''}
+            </Badge>
           </div>
-        )}
+        </CardHeader>
+      </Card>
 
-        {/* Lignes de données - optimisées mobile */}
-        <div className="divide-y divide-gray-200">
-          {lignesEnrichies.map((ligne, rowIndex) => (
-            <div key={rowIndex} className="hover:bg-gray-50">
-              {/* Version mobile avec expansion améliorée */}
-              <div className="block md:hidden p-3 space-y-3">
-                <div className="flex items-start justify-between gap-3">
-                  <h3 className="font-semibold text-gray-900 text-sm leading-tight flex-1">
+      {/* Tableau des compétences */}
+      <div className="space-y-4">
+        {lignesEnrichies.map((ligne, rowIndex) => (
+          <Card key={rowIndex} className="shadow-md hover:shadow-lg transition-shadow">
+            <CardHeader 
+              className="cursor-pointer hover:bg-amber-50 transition-colors"
+              onClick={() => toggleRow(rowIndex)}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex-1">
+                  <CardTitle className="text-lg font-semibold text-amber-800 mb-2">
                     {ligne[0]}
-                  </h3>
-                  <button
-                    onClick={() => toggleRow(rowIndex)}
-                    className="text-blue-600 hover:text-blue-800 text-xs font-medium flex-shrink-0 px-2 py-1 bg-blue-50 rounded-full border border-blue-200"
-                  >
-                    {expandedRows.has(rowIndex) ? 'Réduire' : 'Détails'}
-                  </button>
+                  </CardTitle>
+                  <CardDescription className="text-sm text-amber-600">
+                    Cliquez pour voir les détails de cette compétence fondamentale
+                  </CardDescription>
                 </div>
-                
-                {/* Définition toujours visible sur mobile */}
-                <div className="bg-green-50 border border-green-200 p-2 rounded text-xs text-green-800">
-                  {ligne[1]}
-                </div>
-                
-                {expandedRows.has(rowIndex) && (
-                  <div className="space-y-2 pt-2 border-t border-gray-200">
-                    {ligne.slice(2).map((cellule, cellIndex) => {
-                      if (!cellule || cellule.trim() === '') return null;
-                      const colonne = colonnesUtiles[cellIndex + 2];
-                      if (!colonne) return null;
-                      
-                      return (
-                        <div key={cellIndex} className="space-y-1">
-                          <div className="text-xs font-medium text-gray-600 flex items-center gap-1">
-                            {colonne.icone && <span>{colonne.icone}</span>}
-                            {colonne.nom}
-                          </div>
-                          <div className={`p-2 rounded border ${colonne.couleurCellule} ${colonne.couleurTexte} text-xs leading-relaxed`}>
-                            {cellule}
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-
-              {/* Version desktop */}
-              <div className="hidden md:block overflow-x-auto">
-                <div className="grid gap-2 p-4 min-w-[800px]" style={{ gridTemplateColumns: `repeat(${colonnesUtiles.length}, minmax(150px, 1fr))` }}>
-                  {ligne.map((cellule, cellIndex) => {
-                    const colonne = colonnesUtiles[cellIndex];
-                    if (!colonne) return null;
-                    
-                    return (
-                      <div
-                        key={cellIndex}
-                        className={`p-3 rounded border-2 ${colonne.couleurCellule} ${colonne.couleurTexte} text-sm min-h-[60px] flex items-start`}
-                      >
-                        {cellule || '-'}
-                      </div>
-                    );
-                  })}
+                <div className="ml-4">
+                  {expandedRows.has(rowIndex) ? 
+                    <ChevronUp className="h-5 w-5 text-amber-500" /> : 
+                    <ChevronDown className="h-5 w-5 text-amber-500" />
+                  }
                 </div>
               </div>
-            </div>
-          ))}
-        </div>
+            </CardHeader>
+            
+            {expandedRows.has(rowIndex) && (
+              <CardContent className="pt-0">
+                <div className="border-t border-amber-200 pt-4">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        {colonnesUtiles.slice(1).map((colonne: any, index: number) => (
+                          <TableHead key={index} className="font-semibold text-amber-700">
+                            {colonne.nom || colonne}
+                          </TableHead>
+                        ))}
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      <TableRow>
+                        {ligne.slice(1).map((cellule, cellIndex) => {
+                          const colonne = colonnesUtiles[cellIndex + 1];
+                          return (
+                            <TableCell 
+                              key={cellIndex} 
+                              className={`${colonne?.couleurCellule || 'bg-gray-50'} ${colonne?.couleurTexte || 'text-gray-800'} border-l-2 ${colonne?.couleur?.replace('bg-', 'border-') || 'border-gray-300'}`}
+                            >
+                              <div className="text-sm leading-relaxed">
+                                {cellule || '-'}
+                              </div>
+                            </TableCell>
+                          );
+                        })}
+                      </TableRow>
+                    </TableBody>
+                  </Table>
+                </div>
+              </CardContent>
+            )}
+          </Card>
+        ))}
       </div>
 
-      <TableauRangAFooter 
-        colonnesCount={colonnesUtiles.length}
-        lignesCount={lignesEnrichies.length}
-      />
+      {/* Pied de page informatif */}
+      <Card className="bg-amber-50 border-amber-200">
+        <CardContent className="pt-6">
+          <div className="text-center text-sm text-amber-600">
+            <div className="flex items-center justify-center gap-4 flex-wrap">
+              <span className="flex items-center gap-1">
+                <span className="font-semibold text-amber-800">{lignesEnrichies.length}</span>
+                compétence{lignesEnrichies.length > 1 ? 's' : ''} fondamentale{lignesEnrichies.length > 1 ? 's' : ''}
+              </span>
+              <span className="text-amber-400">•</span>
+              <span className="flex items-center gap-1">
+                Item <span className="font-semibold text-amber-800">{data?.item_code || 'N/A'}</span>
+              </span>
+              <span className="text-amber-400">•</span>
+              <span className="text-amber-500">Rang A selon référentiel E-LiSA</span>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
