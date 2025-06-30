@@ -1,6 +1,7 @@
 
 import { useState } from 'react';
 import { processTableauRangAIC2, isIC2Item } from './TableauRangAUtilsIC2Integration';
+import { processTableauRangAIC5, isIC5Item } from './TableauRangAUtilsIC5Integration';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -16,7 +17,7 @@ interface TableauRangBProps {
     };
     title?: string;
     item_code?: string;
-    theme?: string; // Ajout de la propriété theme au niveau racine
+    theme?: string;
   };
 }
 
@@ -49,6 +50,31 @@ export const TableauRangB = ({ data }: TableauRangBProps) => {
       }
     } catch (error) {
       console.error('❌ Erreur traitement IC-2 Rang B:', error);
+    }
+  }
+
+  // Traitement spécialisé pour IC-5
+  if (isIC5Item(data)) {
+    console.log('✅ Item IC-5 détecté, traitement spécialisé Organisation');
+    
+    try {
+      const processedData = processTableauRangAIC5({
+        ...data,
+        theme: data.theme || 'Rang B - IC-5 Organisation système de santé'
+      });
+      
+      console.log('📈 IC-5 Rang B traité:', processedData);
+      
+      if (processedData.isRangB && processedData.lignesEnrichies && processedData.lignesEnrichies.length > 0) {
+        return renderTableauRangB(
+          processedData.lignesEnrichies,
+          processedData.colonnesUtiles,
+          processedData.theme,
+          data?.item_code || 'IC-5'
+        );
+      }
+    } catch (error) {
+      console.error('❌ Erreur traitement IC-5 Rang B:', error);
     }
   }
 
