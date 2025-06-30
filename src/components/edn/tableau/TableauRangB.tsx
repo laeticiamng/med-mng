@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { processTableauRangAIC2, isIC2Item } from './TableauRangAUtilsIC2Integration';
 
@@ -12,6 +11,7 @@ interface TableauRangBProps {
     };
     title?: string;
     item_code?: string;
+    theme?: string; // Ajout de la propriété theme au niveau racine
   };
 }
 
@@ -29,7 +29,7 @@ export const TableauRangB = ({ data }: TableauRangBProps) => {
     try {
       const processedData = processTableauRangAIC2({
         ...data,
-        theme: 'Rang B - IC-2 Valeurs professionnelles'
+        theme: data.theme || 'Rang B - IC-2 Valeurs professionnelles'
       });
       
       console.log('📈 IC-2 Rang B traité:', processedData);
