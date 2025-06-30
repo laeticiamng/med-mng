@@ -1,31 +1,7 @@
 
-import { useState, useEffect } from 'react';
-import { EDNItemsAuditor } from '@/scripts/auditItems';
-
-interface AuditResult {
-  id: string;
-  slug: string;
-  item_code: string;
-  status: 'valid' | 'invalid' | 'error';
-  errors: string[];
-  warnings: string[];
-  isV2Format: boolean;
-  completeness: {
-    rangA: boolean;
-    rangB: boolean;
-    parolesMusicales: boolean;
-    generationConfig: boolean;
-  };
-}
-
-interface AuditReport {
-  timestamp: string;
-  totalItems: number;
-  validItems: number;
-  invalidItems: number;
-  errorItems: number;
-  results: AuditResult[];
-}
+import { useState } from 'react';
+import { EDNItemsAuditor, AuditReportGenerators } from '@/scripts/auditItems';
+import type { AuditResult, AuditReport } from '@/scripts/auditItems';
 
 interface UseAuditItemsResult {
   report: AuditReport | null;
@@ -68,11 +44,11 @@ export const useAuditItems = (): UseAuditItemsResult => {
     let mimeType: string;
 
     if (format === 'json') {
-      content = EDNItemsAuditor.generateJSONReport(report);
+      content = AuditReportGenerators.generateJSONReport(report);
       filename = `audit-edn-${new Date().toISOString().split('T')[0]}.json`;
       mimeType = 'application/json';
     } else {
-      content = EDNItemsAuditor.generateMarkdownReport(report);
+      content = AuditReportGenerators.generateMarkdownReport(report);
       filename = `audit-edn-${new Date().toISOString().split('T')[0]}.md`;
       mimeType = 'text/markdown';
     }
