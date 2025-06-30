@@ -1,6 +1,6 @@
 
-import { useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useParams, Link, useLocation } from 'react-router-dom';
 import { useEdnItem } from '@/hooks/useEdnItem';
 import { EdnItemHeader } from '@/components/edn/item/EdnItemHeader';
 import { EdnItemNavigation } from '@/components/edn/item/EdnItemNavigation';
@@ -11,8 +11,16 @@ type SectionType = 'tableau-a' | 'tableau-b' | 'scene' | 'bd' | 'music' | 'quiz'
 
 const EdnItem = () => {
   const { slug } = useParams();
+  const location = useLocation();
   const { item, loading } = useEdnItem(slug);
   const [activeSection, setActiveSection] = useState<SectionType>('tableau-a');
+
+  // Debug logging pour vérifier la navigation
+  useEffect(() => {
+    console.log('EdnItem - Current location:', location.pathname);
+    console.log('EdnItem - Current slug:', slug);
+    console.log('EdnItem - Item loaded:', item?.item_code);
+  }, [location.pathname, slug, item]);
 
   if (loading) {
     return (

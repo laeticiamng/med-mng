@@ -17,19 +17,67 @@ interface TableauRangBProps {
 export const TableauRangB = ({ data }: TableauRangBProps) => {
   const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
 
-  // Extraire les données du tableau depuis Supabase
-  const tableauData = data.tableau_rang_b;
+  console.log('TableauRangB - Données complètes reçues:', data);
+  console.log('TableauRangB - Item code:', data?.item_code);
+  console.log('TableauRangB - Title:', data?.title);
+  console.log('TableauRangB - Tableau rang B:', data?.tableau_rang_b);
+
+  // Extraire les données du tableau depuis les données reçues
+  const tableauData = data?.tableau_rang_b;
   const colonnes = tableauData?.colonnes || [];
   const lignes = tableauData?.lignes || [];
-  const theme = tableauData?.theme || 'Connaissances approfondies';
+  const theme = tableauData?.theme || tableauData?.title || 'Connaissances approfondies - Rang B';
+  const itemCode = data?.item_code || 'Item';
 
-  console.log('TableauRangB - Données reçues:', { tableauData, colonnes: colonnes.length, lignes: lignes.length });
+  console.log('TableauRangB - Données extraites:', { 
+    colonnes: colonnes.length, 
+    lignes: lignes.length, 
+    theme,
+    itemCode 
+  });
 
+  // Si pas de données Rang B disponibles
   if (!tableauData || !lignes.length) {
     return (
       <div className="bg-white rounded-lg shadow-lg p-6">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">Tableau Rang B</h2>
-        <p className="text-gray-600">Aucune donnée Rang B disponible pour cet item.</p>
+        <div className="text-center space-y-4">
+          <h2 className="text-2xl font-bold text-gray-800 mb-4">
+            📚 Tableau Rang B - {itemCode}
+          </h2>
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
+            <div className="flex items-center justify-center mb-4">
+              <div className="bg-blue-100 rounded-full p-3">
+                <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+            </div>
+            <h3 className="text-lg font-semibold text-blue-800 mb-2">
+              Toutes les compétences sont classées en Rang A
+            </h3>
+            <p className="text-blue-600 text-sm leading-relaxed">
+              Pour cet item <span className="font-semibold">{itemCode}</span>, toutes les compétences identifiées sont 
+              considérées comme fondamentales et sont donc classées en <span className="font-semibold">Rang A</span>.
+              <br />
+              <span className="text-xs text-blue-500 mt-2 block">
+                ℹ️ Le Rang B est réservé aux connaissances approfondies et spécialisées
+              </span>
+            </p>
+          </div>
+          
+          {/* Bouton pour voir le Rang A */}
+          <div className="mt-6">
+            <p className="text-sm text-gray-600 mb-3">
+              Consultez les compétences fondamentales dans le Rang A
+            </p>
+            <div className="inline-flex items-center px-4 py-2 bg-amber-100 text-amber-800 rounded-lg border border-amber-300">
+              <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span className="text-sm font-medium">Toutes les compétences en Rang A</span>
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -70,7 +118,7 @@ export const TableauRangB = ({ data }: TableauRangBProps) => {
           {theme} - {lignes.length} compétence{lignes.length > 1 ? 's' : ''} de niveau expert
         </p>
         <div className="text-xs text-slate-300 mt-2">
-          Item {data.item_code} • Niveau d'expertise avancé
+          Item {itemCode} • Niveau d'expertise avancé
         </div>
       </div>
 
@@ -155,7 +203,7 @@ export const TableauRangB = ({ data }: TableauRangBProps) => {
       <div className="bg-slate-50 border border-slate-200 rounded-lg p-4">
         <div className="text-center text-sm text-slate-600">
           <span className="font-medium">{lignes.length}</span> compétence{lignes.length > 1 ? 's' : ''} de niveau expert • 
-          Item <span className="font-medium">{data.item_code}</span> • 
+          Item <span className="font-medium">{itemCode}</span> • 
           Rang B selon référentiel E-LiSA
         </div>
       </div>
