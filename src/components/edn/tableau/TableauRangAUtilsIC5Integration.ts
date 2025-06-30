@@ -108,7 +108,7 @@ export function processTableauRangAIC5(data: any) {
   console.log('📋 IC-5 - Contenu lignes:', lignesEnrichies);
   
   // Déterminer les colonnes
-  const colonnesUtiles = determinerColonnesUtilesIC5(lignes);
+  const colonnesUtiles = determinerColonnesUtilesIC5(lignesEnrichies);
   
   const expectedCount = isRangB ? 4 : 4; // IC-5 a 4 compétences A et 4 B
   const actualCount = lignesEnrichies.length;
