@@ -75,9 +75,9 @@ export const AuditIC2Completeness = () => {
         </Button>
       </div>
 
-      {/* Bouton de complétion automatique */}
-      {report && report.completeness < 100 && (
-        <AuditIC2CompletionButton />
+      {/* Bouton de complétion automatique - TOUJOURS VISIBLE pour les tests */}
+      {report && (
+        <AuditIC2CompletionButton onComplete={runAudit} />
       )}
 
       {error && (

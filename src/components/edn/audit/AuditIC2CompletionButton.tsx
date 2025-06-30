@@ -5,7 +5,11 @@ import { Card } from '@/components/ui/card';
 import { CheckCircle, AlertTriangle, RefreshCw, Zap } from 'lucide-react';
 import { completeIC2Item } from '@/scripts/audit/completeIC2Item';
 
-export const AuditIC2CompletionButton = () => {
+interface AuditIC2CompletionButtonProps {
+  onComplete?: () => void;
+}
+
+export const AuditIC2CompletionButton = ({ onComplete }: AuditIC2CompletionButtonProps) => {
   const [completing, setCompleting] = useState(false);
   const [completed, setCompleted] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -21,6 +25,10 @@ export const AuditIC2CompletionButton = () => {
       if (finalReport.completeness === 100) {
         setCompleted(true);
         console.log('🎉 IC-2 complété avec succès !');
+        // Rafraîchir l'audit parent
+        if (onComplete) {
+          setTimeout(onComplete, 1000);
+        }
       } else {
         setError(`Complétude à ${finalReport.completeness}% - Des éléments peuvent encore manquer`);
       }
@@ -35,9 +43,18 @@ export const AuditIC2CompletionButton = () => {
   if (completed) {
     return (
       <Card className="p-4 border-green-200 bg-green-50">
-        <div className="flex items-center space-x-2">
-          <CheckCircle className="h-5 w-5 text-green-600" />
-          <span className="text-green-800 font-medium">IC-2 complété à 100% selon E-LiSA !</span>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center space-x-2">
+            <CheckCircle className="h-5 w-5 text-green-600" />
+            <span className="text-green-800 font-medium">IC-2 complété à 100% selon E-LiSA !</span>
+          </div>
+          <Button 
+            onClick={() => setCompleted(false)} 
+            size="sm"
+            variant="outline"
+          >
+            Réinitialiser
+          </Button>
         </div>
       </Card>
     );
@@ -69,7 +86,9 @@ export const AuditIC2CompletionButton = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <Zap className="h-5 w-5 text-blue-600" />
-          <span className="text-blue-800">Compléter automatiquement IC-2 selon E-LiSA</span>
+          <span className="text-blue-800 font-medium">
+            Compléter automatiquement depuis Supabase les éléments IC-2 manquants
+          </span>
         </div>
         <Button onClick={handleComplete} disabled={completing} size="sm">
           <RefreshCw className={`h-4 w-4 mr-2 ${completing ? 'animate-spin' : ''}`} />
