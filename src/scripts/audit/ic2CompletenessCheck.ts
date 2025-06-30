@@ -32,8 +32,23 @@ export async function checkIC2Completeness() {
       console.error('❌ Item IC-2 non trouvé:', error);
       return {
         exists: false,
+        itemCode: 'IC-2',
+        title: 'Non trouvé',
+        slug: 'valeurs-professionnelles-medecin',
+        rangA: {
+          expected: 6,
+          found: 0,
+          concepts: [],
+          missingConcepts: [...EXPECTED_IC2_RANG_A]
+        },
+        rangB: {
+          expected: 3,
+          found: 0,
+          concepts: [],
+          missingConcepts: [...EXPECTED_IC2_RANG_B]
+        },
         completeness: 0,
-        missingElements: ['Item IC-2 non trouvé dans la base de données']
+        recommendations: ['Item IC-2 non trouvé dans la base de données']
       };
     }
 
