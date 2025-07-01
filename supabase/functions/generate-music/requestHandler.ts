@@ -1,9 +1,8 @@
 
 import { corsHeaders } from './constants.ts';
-import { SunoApiClient } from './sunoClient.ts';
 
 export async function handleMusicGeneration(req: Request) {
-  console.log('🎵 Début génération musicale avec SunoAI API');
+  console.log('🎵 Début génération musicale avec Suno API');
   
   if (req.method !== 'POST') {
     return new Response('Method not allowed', { 
@@ -48,10 +47,15 @@ export async function handleMusicGeneration(req: Request) {
       );
     }
 
-    console.log('✅ Clé API SunoAI configurée, longueur:', SUNO_API_KEY.length);
-    const client = new SunoApiClient(SUNO_API_KEY);
+    console.log('✅ Clé API Suno configurée, longueur:', SUNO_API_KEY.length);
     
-    // Format correct pour SunoAI API
+    // Configuration selon la documentation officielle Suno API
+    const apiHeaders = {
+      'Authorization': `Bearer ${SUNO_API_KEY}`,
+      'Content-Type': 'application/json'
+    };
+
+    // Payload pour génération musicale selon la doc
     const sunoPayload = {
       custom_mode: false,
       input: {
@@ -62,19 +66,53 @@ export async function handleMusicGeneration(req: Request) {
       }
     };
 
-    console.log('🚀 Envoi vers SunoAI API:', JSON.stringify(sunoPayload, null, 2));
+    console.log('🚀 Envoi vers Suno API:', JSON.stringify(sunoPayload, null, 2));
 
-    // Utiliser l'endpoint correct de SunoAI API
-    const generateResponse = await client.post<any>(
-      'https://api.sunoaiapi.com/api/v1/gateway/generate/music',
-      sunoPayload
+    // Utiliser l'URL de base officielle de la documentation
+    const generateResponse = await fetch(
+      'https://apibox.erweima.ai/api/v1/gateway/generate/music',
+      {
+        method: 'POST',
+        headers: apiHeaders,
+        body: JSON.stringify(sunoPayload)
+      }
     );
 
-    console.log('📊 Réponse génération complète:', JSON.stringify(generateResponse, null, 2));
+    console.log('📊 Statut de réponse:', generateResponse.status);
+
+    if (!generateResponse.ok) {
+      const errorText = await generateResponse.text();
+      console.error('❌ Erreur API Suno:', generateResponse.status, errorText);
+      
+      let errorMessage = 'Erreur API Suno';
+      if (generateResponse.status === 401) {
+        errorMessage = 'Authentification échouée - Vérifiez votre clé API Suno';
+      } else if (generateResponse.status === 429) {
+        errorMessage = 'Crédits insuffisants - Le compte manque de crédits';
+      } else if (generateResponse.status === 400) {
+        errorMessage = 'Paramètres non valides - Vérifiez le format des paroles';
+      }
+      
+      return new Response(
+        JSON.stringify({ 
+          error: errorMessage,
+          status: 'error',
+          error_code: generateResponse.status,
+          details: errorText
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: generateResponse.status
+        }
+      );
+    }
+
+    const generateData = await generateResponse.json();
+    console.log('📥 Réponse génération complète:', JSON.stringify(generateData, null, 2));
 
     // Vérifier si la réponse contient directement les données audio
-    if (generateResponse.data && generateResponse.data.length > 0) {
-      const audioData = generateResponse.data[0];
+    if (generateData.data && generateData.data.length > 0) {
+      const audioData = generateData.data[0];
       const audioUrl = audioData.audio_url || audioData.stream_url || audioData.url;
       
       if (audioUrl) {
@@ -96,16 +134,16 @@ export async function handleMusicGeneration(req: Request) {
     }
 
     // Si pas de données directes, vérifier s'il y a un task_id pour le polling
-    const taskId = generateResponse.task_id || generateResponse.data?.task_id || generateResponse.id;
+    const taskId = generateData.task_id || generateData.data?.task_id || generateData.id;
     
     if (!taskId) {
-      console.error('❌ Pas de task_id dans la réponse:', generateResponse);
+      console.error('❌ Pas de task_id dans la réponse:', generateData);
       return new Response(
         JSON.stringify({ 
-          error: 'Réponse API SunoAI invalide - pas de task_id',
+          error: 'Réponse API Suno invalide - pas de task_id',
           status: 'error',
           error_code: 500,
-          details: generateResponse
+          details: generateData
         }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -116,7 +154,7 @@ export async function handleMusicGeneration(req: Request) {
 
     console.log(`🔄 Début du polling avec taskId: ${taskId}`);
     
-    // Polling optimisé pour SunoAI API
+    // Polling pour vérifier le statut
     const maxAttempts = 15;
     const pollInterval = 5000; // 5 secondes
     
@@ -126,19 +164,28 @@ export async function handleMusicGeneration(req: Request) {
       await new Promise(resolve => setTimeout(resolve, pollInterval));
       
       try {
-        const statusResponse = await client.get<any>(
-          'https://api.sunoaiapi.com/api/v1/gateway/query',
-          { ids: taskId }
+        const statusResponse = await fetch(
+          `https://apibox.erweima.ai/api/v1/gateway/query?ids=${taskId}`,
+          { 
+            method: 'GET',
+            headers: apiHeaders
+          }
         );
 
-        console.log(`📥 Réponse statut tentative ${attempt}:`, JSON.stringify(statusResponse, null, 2));
+        if (!statusResponse.ok) {
+          console.error(`❌ Erreur polling ${attempt}:`, statusResponse.status);
+          continue;
+        }
 
-        if (statusResponse.data && statusResponse.data.length > 0) {
-          const result = statusResponse.data[0];
+        const statusData = await statusResponse.json();
+        console.log(`📥 Réponse statut tentative ${attempt}:`, JSON.stringify(statusData, null, 2));
+
+        if (statusData.data && statusData.data.length > 0) {
+          const result = statusData.data[0];
           
-          // Vérifier les statuts de succès pour SunoAI API
+          // Vérifier les statuts de succès
           if (result.status === 'complete' && result.audio_url) {
-            console.log('✅ Génération SunoAI réussie!');
+            console.log('✅ Génération Suno réussie!');
             
             return new Response(
               JSON.stringify({ 
@@ -158,35 +205,35 @@ export async function handleMusicGeneration(req: Request) {
           }
           
           if (result.status === 'processing' || result.status === 'queued' || result.status === 'running') {
-            console.log(`⏳ En cours SunoAI: ${result.status} (tentative ${attempt})`);
+            console.log(`⏳ En cours: ${result.status} (tentative ${attempt})`);
             continue;
           }
           
           if (result.status === 'error' || result.status === 'failed') {
-            const errorMsg = result.error_message || result.message || 'Erreur SunoAI inconnue';
-            console.error(`❌ Génération SunoAI échouée: ${errorMsg}`);
-            throw new Error(`Génération SunoAI échouée: ${errorMsg}`);
+            const errorMsg = result.error_message || result.message || 'Erreur Suno inconnue';
+            console.error(`❌ Génération échouée: ${errorMsg}`);
+            throw new Error(`Génération échouée: ${errorMsg}`);
           }
           
-          console.log(`ℹ️ Statut SunoAI inconnu: ${result.status}, continuation...`);
+          console.log(`ℹ️ Statut inconnu: ${result.status}, continuation...`);
         } else {
-          console.log(`⚠️ Pas de données dans la réponse de polling SunoAI ${attempt}`);
+          console.log(`⚠️ Pas de données dans la réponse de polling ${attempt}`);
         }
         
       } catch (pollError) {
-        console.error(`❌ Erreur polling SunoAI tentative ${attempt}:`, pollError);
+        console.error(`❌ Erreur polling tentative ${attempt}:`, pollError);
         if (attempt === maxAttempts) {
-          throw new Error(`Échec du polling SunoAI après ${maxAttempts} tentatives: ${pollError.message}`);
+          throw new Error(`Échec du polling après ${maxAttempts} tentatives: ${pollError.message}`);
         }
       }
     }
 
     // Timeout après toutes les tentatives
-    console.log('⏰ Timeout atteint pour la génération SunoAI');
+    console.log('⏰ Timeout atteint pour la génération');
     return new Response(
       JSON.stringify({ 
         status: 'timeout',
-        message: `La génération SunoAI prend plus de temps que prévu (${maxAttempts * pollInterval / 1000}s)`,
+        message: `La génération prend plus de temps que prévu (${maxAttempts * pollInterval / 1000}s)`,
         taskId,
         suggestion: 'Vous pouvez réessayer dans quelques minutes'
       }),
@@ -197,19 +244,19 @@ export async function handleMusicGeneration(req: Request) {
     );
 
   } catch (error) {
-    console.error('❌ Erreur génération chanson SunoAI:', error);
+    console.error('❌ Erreur génération chanson Suno:', error);
     
-    let errorMessage = 'Erreur interne du serveur SunoAI';
+    let errorMessage = 'Erreur interne du serveur';
     let errorCode = 500;
     
     if (error.message?.includes('401')) {
-      errorMessage = 'Clé API SunoAI invalide ou expirée';
+      errorMessage = 'Clé API Suno invalide ou expirée';
       errorCode = 401;
     } else if (error.message?.includes('429')) {
-      errorMessage = 'Limite de taux API SunoAI atteinte, réessayez plus tard';
+      errorMessage = 'Crédits insuffisants - Rechargez votre compte Suno';
       errorCode = 429;
     } else if (error.message?.includes('timeout')) {
-      errorMessage = 'Délai d\'attente dépassé lors de la génération SunoAI';
+      errorMessage = 'Délai d\'attente dépassé lors de la génération';
       errorCode = 408;
     } else if (error.message) {
       errorMessage = error.message;
@@ -220,7 +267,7 @@ export async function handleMusicGeneration(req: Request) {
         error: errorMessage,
         status: 'error',
         error_code: errorCode,
-        details: 'Erreur lors de la génération avec SunoAI API'
+        details: 'Erreur lors de la génération avec Suno API'
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
