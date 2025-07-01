@@ -18,6 +18,7 @@ export async function handleMusicGeneration(req: Request) {
     const { lyrics, style, rang, duration, language = 'fr', fastMode = true } = body;
 
     if (!lyrics || !style || !rang) {
+      console.log('❌ Paramètres manquants:', { lyrics: !!lyrics, style: !!style, rang: !!rang });
       return new Response(
         JSON.stringify({ 
           error: 'Paramètres manquants: lyrics, style et rang sont requis',
@@ -50,27 +51,27 @@ export async function handleMusicGeneration(req: Request) {
 
     console.log('✅ Clé API Suno configurée, longueur:', SUNO_API_KEY.length);
     
-    // Configuration API - Utilisation de l'API Suno officielle
+    // Configuration API - Test avec l'API Suno v4
     const apiHeaders = {
       'Authorization': `Bearer ${SUNO_API_KEY}`,
       'Content-Type': 'application/json',
       'Accept': 'application/json'
     };
 
-    // Payload selon l'API Suno v4
+    // Payload simplifié pour Suno v4
     const sunoPayload = {
       title: `Rang ${rang} - ${style}`,
       style: style,
       prompt: lyrics,
       model: 'chirp-v4',
       make_instrumental: false,
-      wait_audio: fastMode
+      wait_audio: false
     };
 
-    console.log('🚀 Tentative de génération avec API Suno officielle');
+    console.log('🚀 Tentative de génération avec API Suno v4');
     console.log('📤 Payload:', JSON.stringify(sunoPayload, null, 2));
 
-    // Test d'authentification d'abord avec l'API officielle
+    // Endpoint API Suno v4
     const apiUrl = 'https://api.sunoaiapi.com/api/v1/gateway/generate/music';
     
     const generateResponse = await fetch(apiUrl, {
@@ -80,12 +81,12 @@ export async function handleMusicGeneration(req: Request) {
     });
 
     console.log('📊 Statut de réponse:', generateResponse.status);
-    console.log('📊 URL utilisée:', apiUrl);
+    console.log('📊 Headers de réponse:', Object.fromEntries(generateResponse.headers.entries()));
     
     const responseText = await generateResponse.text();
-    console.log('📥 Réponse brute:', responseText.substring(0, 300));
+    console.log('📥 Réponse brute complète:', responseText);
 
-    // Gestion spécifique des erreurs d'authentification
+    // Test de la clé API avant tout
     if (generateResponse.status === 401) {
       console.error('❌ ERREUR D\'AUTHENTIFICATION: Clé API Suno invalide ou expirée');
       return new Response(
@@ -94,7 +95,13 @@ export async function handleMusicGeneration(req: Request) {
           status: 'error',
           error_code: 401,
           action_required: 'renew_api_key',
-          details: 'Authentification échouée auprès de l\'API Suno'
+          details: 'Authentification échouée auprès de l\'API Suno',
+          debug_info: {
+            api_key_length: SUNO_API_KEY.length,
+            api_key_start: SUNO_API_KEY.substring(0, 10) + '...',
+            response_status: generateResponse.status,
+            response_headers: Object.fromEntries(generateResponse.headers.entries())
+          }
         }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -126,11 +133,19 @@ export async function handleMusicGeneration(req: Request) {
           error: `Erreur API Suno (${generateResponse.status}): ${responseText}`,
           status: 'error',
           error_code: generateResponse.status,
-          details: responseText.substring(0, 200)
+          details: responseText.substring(0, 500),
+          debug_info: {
+            url: apiUrl,
+            method: 'POST',
+            headers: apiHeaders,
+            payload: sunoPayload,
+            response_status: generateResponse.status,
+            response_headers: Object.fromEntries(generateResponse.headers.entries())
+          }
         }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: generateResponse.status
+          status: 500
         }
       );
     }
@@ -140,13 +155,17 @@ export async function handleMusicGeneration(req: Request) {
     try {
       generateData = JSON.parse(responseText);
     } catch (parseError) {
-      console.error('❌ Réponse non-JSON reçue:', responseText.substring(0, 200));
+      console.error('❌ Réponse non-JSON reçue:', responseText.substring(0, 300));
       return new Response(
         JSON.stringify({ 
           error: 'Réponse API invalide - Format non JSON',
           status: 'error',
           error_code: 500,
-          details: responseText.substring(0, 200)
+          details: responseText.substring(0, 300),
+          debug_info: {
+            parse_error: parseError.message,
+            raw_response: responseText.substring(0, 100)
+          }
         }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -199,10 +218,10 @@ export async function handleMusicGeneration(req: Request) {
     if (taskId) {
       console.log(`🔄 Démarrage polling pour taskId: ${taskId}`);
       
-      for (let attempt = 1; attempt <= 8; attempt++) {
-        console.log(`🔄 Polling ${attempt}/8`);
+      for (let attempt = 1; attempt <= 12; attempt++) {
+        console.log(`🔄 Polling ${attempt}/12`);
         
-        await new Promise(resolve => setTimeout(resolve, 3000));
+        await new Promise(resolve => setTimeout(resolve, 5000));
         
         try {
           const statusUrl = `https://api.sunoaiapi.com/api/v1/gateway/query?ids=${taskId}`;
@@ -211,9 +230,11 @@ export async function handleMusicGeneration(req: Request) {
             headers: apiHeaders
           });
 
+          console.log(`📊 Polling ${attempt} - Statut:`, statusResponse.status);
+
           if (statusResponse.ok) {
             const statusText = await statusResponse.text();
-            console.log(`📊 Polling ${attempt} - Statut:`, statusResponse.status);
+            console.log(`📥 Réponse polling ${attempt}:`, statusText.substring(0, 200));
             
             let statusData;
             try {
@@ -252,6 +273,8 @@ export async function handleMusicGeneration(req: Request) {
                 }
               );
             }
+          } else {
+            console.log(`⚠️ Erreur polling ${attempt} - Status:`, statusResponse.status);
           }
         } catch (pollError) {
           console.log(`⚠️ Erreur polling ${attempt}:`, pollError.message);
@@ -266,7 +289,11 @@ export async function handleMusicGeneration(req: Request) {
         status: 'error',
         error_code: 500,
         taskId,
-        details: 'La génération n\'a pas abouti dans le délai imparti'
+        details: 'La génération n\'a pas abouti dans le délai imparti (1 minute)',
+        debug_info: {
+          initial_response: generateData,
+          polling_attempts: 12
+        }
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -275,14 +302,20 @@ export async function handleMusicGeneration(req: Request) {
     );
 
   } catch (error) {
-    console.error('❌ Erreur critique:', error);
+    console.error('❌ Erreur critique complète:', error);
+    console.error('❌ Stack trace:', error.stack);
     
     return new Response(
       JSON.stringify({ 
-        error: `Erreur serveur: ${error.message}`,
+        error: `Erreur serveur critique: ${error.message}`,
         status: 'error',
         error_code: 500,
-        details: 'Erreur interne lors de la génération'
+        details: 'Erreur interne lors de la génération',
+        debug_info: {
+          error_name: error.name,
+          error_message: error.message,
+          error_stack: error.stack?.substring(0, 500)
+        }
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
