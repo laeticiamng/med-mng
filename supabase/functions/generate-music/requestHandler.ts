@@ -49,28 +49,26 @@ export async function handleMusicGeneration(req: Request) {
 
     console.log('✅ Clé API Suno configurée, longueur:', SUNO_API_KEY.length);
     
-    // Configuration selon la documentation officielle Suno API
+    // Headers selon la documentation SunoAI API
     const apiHeaders = {
       'Authorization': `Bearer ${SUNO_API_KEY}`,
       'Content-Type': 'application/json'
     };
 
-    // Payload pour génération musicale selon la doc
+    // Payload simplifié selon la doc
     const sunoPayload = {
-      custom_mode: false,
-      input: {
-        lyrics: lyrics,
-        tags: style,
-        title: `Rang ${rang} - ${style}`,
-        mv: "chirp-v3-5"
-      }
+      prompt: lyrics,
+      tags: style,
+      title: `Rang ${rang} - ${style}`,
+      make_instrumental: false,
+      wait_audio: false
     };
 
     console.log('🚀 Envoi vers Suno API:', JSON.stringify(sunoPayload, null, 2));
 
-    // Utiliser l'URL de base officielle de la documentation
+    // Utiliser l'URL correcte de SunoAI API
     const generateResponse = await fetch(
-      'https://apibox.erweima.ai/api/v1/gateway/generate/music',
+      'https://api.sunoaiapi.com/api/v1/gateway/generate/music',
       {
         method: 'POST',
         headers: apiHeaders,
@@ -79,10 +77,11 @@ export async function handleMusicGeneration(req: Request) {
     );
 
     console.log('📊 Statut de réponse:', generateResponse.status);
+    const responseText = await generateResponse.text();
+    console.log('📥 Réponse brute:', responseText);
 
     if (!generateResponse.ok) {
-      const errorText = await generateResponse.text();
-      console.error('❌ Erreur API Suno:', generateResponse.status, errorText);
+      console.error('❌ Erreur API Suno:', generateResponse.status, responseText);
       
       let errorMessage = 'Erreur API Suno';
       if (generateResponse.status === 401) {
@@ -91,6 +90,8 @@ export async function handleMusicGeneration(req: Request) {
         errorMessage = 'Crédits insuffisants - Le compte manque de crédits';
       } else if (generateResponse.status === 400) {
         errorMessage = 'Paramètres non valides - Vérifiez le format des paroles';
+      } else if (generateResponse.status === 404) {
+        errorMessage = 'Endpoint non trouvé - Vérifiez la configuration de l\'API';
       }
       
       return new Response(
@@ -98,7 +99,7 @@ export async function handleMusicGeneration(req: Request) {
           error: errorMessage,
           status: 'error',
           error_code: generateResponse.status,
-          details: errorText
+          details: responseText
         }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -107,7 +108,25 @@ export async function handleMusicGeneration(req: Request) {
       );
     }
 
-    const generateData = await generateResponse.json();
+    let generateData;
+    try {
+      generateData = JSON.parse(responseText);
+    } catch (e) {
+      console.error('❌ Erreur parsing JSON:', e);
+      return new Response(
+        JSON.stringify({ 
+          error: 'Réponse API invalide',
+          status: 'error',
+          error_code: 500,
+          details: responseText
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 500
+        }
+      );
+    }
+
     console.log('📥 Réponse génération complète:', JSON.stringify(generateData, null, 2));
 
     // Vérifier si la réponse contient directement les données audio
@@ -155,8 +174,8 @@ export async function handleMusicGeneration(req: Request) {
     console.log(`🔄 Début du polling avec taskId: ${taskId}`);
     
     // Polling pour vérifier le statut
-    const maxAttempts = 15;
-    const pollInterval = 5000; // 5 secondes
+    const maxAttempts = 30;
+    const pollInterval = 3000; // 3 secondes
     
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       console.log(`🔄 Polling ${attempt}/${maxAttempts} pour taskId: ${taskId}`);
@@ -165,10 +184,13 @@ export async function handleMusicGeneration(req: Request) {
       
       try {
         const statusResponse = await fetch(
-          `https://apibox.erweima.ai/api/v1/gateway/query?ids=${taskId}`,
+          `https://api.sunoaiapi.com/api/v1/gateway/query?ids=${taskId}`,
           { 
             method: 'GET',
-            headers: apiHeaders
+            headers: {
+              'Authorization': `Bearer ${SUNO_API_KEY}`,
+              'Content-Type': 'application/json'
+            }
           }
         );
 
@@ -177,7 +199,8 @@ export async function handleMusicGeneration(req: Request) {
           continue;
         }
 
-        const statusData = await statusResponse.json();
+        const statusText = await statusResponse.text();
+        const statusData = JSON.parse(statusText);
         console.log(`📥 Réponse statut tentative ${attempt}:`, JSON.stringify(statusData, null, 2));
 
         if (statusData.data && statusData.data.length > 0) {
