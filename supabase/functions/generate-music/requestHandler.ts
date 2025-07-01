@@ -3,7 +3,7 @@ import { corsHeaders } from './constants.ts';
 import { SunoApiClient } from './sunoClient.ts';
 
 export async function handleMusicGeneration(req: Request) {
-  console.log('🎵 Début génération musicale');
+  console.log('🎵 Début génération musicale avec SunoAI API');
   
   if (req.method !== 'POST') {
     return new Response('Method not allowed', { 
@@ -48,22 +48,23 @@ export async function handleMusicGeneration(req: Request) {
       );
     }
 
-    console.log('✅ Clé API Suno configurée, longueur:', SUNO_API_KEY.length);
+    console.log('✅ Clé API SunoAI configurée, longueur:', SUNO_API_KEY.length);
     const client = new SunoApiClient(SUNO_API_KEY);
     
-    // Préparer les données pour l'API Suno avec l'endpoint corrigé
+    // Format correct pour SunoAI API
     const sunoPayload = {
-      prompt: lyrics,
-      style: style,
-      title: `Rang ${rang} - ${style}`,
-      model: 'v3.5',
-      instrumental: false,
-      wait_audio: false
+      custom_mode: false,
+      input: {
+        lyrics: lyrics,
+        tags: style,
+        title: `Rang ${rang} - ${style}`,
+        mv: "chirp-v3-5"
+      }
     };
 
-    console.log('🚀 Envoi vers API Suno:', JSON.stringify(sunoPayload, null, 2));
+    console.log('🚀 Envoi vers SunoAI API:', JSON.stringify(sunoPayload, null, 2));
 
-    // Utiliser l'endpoint correct de l'API Suno
+    // Utiliser l'endpoint correct de SunoAI API
     const generateResponse = await client.post<any>(
       'https://api.sunoaiapi.com/api/v1/gateway/generate/music',
       sunoPayload
@@ -101,7 +102,7 @@ export async function handleMusicGeneration(req: Request) {
       console.error('❌ Pas de task_id dans la réponse:', generateResponse);
       return new Response(
         JSON.stringify({ 
-          error: 'Réponse API Suno invalide - pas de task_id',
+          error: 'Réponse API SunoAI invalide - pas de task_id',
           status: 'error',
           error_code: 500,
           details: generateResponse
@@ -115,9 +116,9 @@ export async function handleMusicGeneration(req: Request) {
 
     console.log(`🔄 Début du polling avec taskId: ${taskId}`);
     
-    // Polling amélioré avec gestion d'erreurs
-    const maxAttempts = 20;
-    const pollInterval = 3000; // 3 secondes
+    // Polling optimisé pour SunoAI API
+    const maxAttempts = 15;
+    const pollInterval = 5000; // 5 secondes
     
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       console.log(`🔄 Polling ${attempt}/${maxAttempts} pour taskId: ${taskId}`);
@@ -135,9 +136,9 @@ export async function handleMusicGeneration(req: Request) {
         if (statusResponse.data && statusResponse.data.length > 0) {
           const result = statusResponse.data[0];
           
-          // Vérifier tous les statuts possibles de succès
-          if ((result.status === 'complete' || result.status === 'TEXT_SUCCESS') && result.audio_url) {
-            console.log('✅ Génération réussie!');
+          // Vérifier les statuts de succès pour SunoAI API
+          if (result.status === 'complete' && result.audio_url) {
+            console.log('✅ Génération SunoAI réussie!');
             
             return new Response(
               JSON.stringify({ 
@@ -156,37 +157,36 @@ export async function handleMusicGeneration(req: Request) {
             );
           }
           
-          if (result.status === 'processing' || result.status === 'queued' || result.status === 'generating') {
-            console.log(`⏳ En cours: ${result.status} (tentative ${attempt})`);
+          if (result.status === 'processing' || result.status === 'queued' || result.status === 'running') {
+            console.log(`⏳ En cours SunoAI: ${result.status} (tentative ${attempt})`);
             continue;
           }
           
           if (result.status === 'error' || result.status === 'failed') {
-            const errorMsg = result.error_message || result.message || 'Erreur inconnue';
-            console.error(`❌ Génération échouée: ${errorMsg}`);
-            throw new Error(`Génération échouée: ${errorMsg}`);
+            const errorMsg = result.error_message || result.message || 'Erreur SunoAI inconnue';
+            console.error(`❌ Génération SunoAI échouée: ${errorMsg}`);
+            throw new Error(`Génération SunoAI échouée: ${errorMsg}`);
           }
           
-          console.log(`ℹ️ Statut inconnu: ${result.status}, continuation...`);
+          console.log(`ℹ️ Statut SunoAI inconnu: ${result.status}, continuation...`);
         } else {
-          console.log(`⚠️ Pas de données dans la réponse de polling ${attempt}`);
+          console.log(`⚠️ Pas de données dans la réponse de polling SunoAI ${attempt}`);
         }
         
       } catch (pollError) {
-        console.error(`❌ Erreur polling tentative ${attempt}:`, pollError);
+        console.error(`❌ Erreur polling SunoAI tentative ${attempt}:`, pollError);
         if (attempt === maxAttempts) {
-          throw new Error(`Échec du polling après ${maxAttempts} tentatives: ${pollError.message}`);
+          throw new Error(`Échec du polling SunoAI après ${maxAttempts} tentatives: ${pollError.message}`);
         }
-        // Continue le polling même en cas d'erreur individuelle
       }
     }
 
     // Timeout après toutes les tentatives
-    console.log('⏰ Timeout atteint pour la génération');
+    console.log('⏰ Timeout atteint pour la génération SunoAI');
     return new Response(
       JSON.stringify({ 
         status: 'timeout',
-        message: `La génération prend plus de temps que prévu (${maxAttempts * pollInterval / 1000}s)`,
+        message: `La génération SunoAI prend plus de temps que prévu (${maxAttempts * pollInterval / 1000}s)`,
         taskId,
         suggestion: 'Vous pouvez réessayer dans quelques minutes'
       }),
@@ -197,19 +197,19 @@ export async function handleMusicGeneration(req: Request) {
     );
 
   } catch (error) {
-    console.error('❌ Erreur génération chanson Suno:', error);
+    console.error('❌ Erreur génération chanson SunoAI:', error);
     
-    let errorMessage = 'Erreur interne du serveur';
+    let errorMessage = 'Erreur interne du serveur SunoAI';
     let errorCode = 500;
     
     if (error.message?.includes('401')) {
-      errorMessage = 'Clé API Suno invalide ou expirée';
+      errorMessage = 'Clé API SunoAI invalide ou expirée';
       errorCode = 401;
     } else if (error.message?.includes('429')) {
-      errorMessage = 'Limite de taux API Suno atteinte, réessayez plus tard';
+      errorMessage = 'Limite de taux API SunoAI atteinte, réessayez plus tard';
       errorCode = 429;
     } else if (error.message?.includes('timeout')) {
-      errorMessage = 'Délai d\'attente dépassé lors de la génération';
+      errorMessage = 'Délai d\'attente dépassé lors de la génération SunoAI';
       errorCode = 408;
     } else if (error.message) {
       errorMessage = error.message;
@@ -220,7 +220,7 @@ export async function handleMusicGeneration(req: Request) {
         error: errorMessage,
         status: 'error',
         error_code: errorCode,
-        details: 'Erreur lors de la génération avec Suno API'
+        details: 'Erreur lors de la génération avec SunoAI API'
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
