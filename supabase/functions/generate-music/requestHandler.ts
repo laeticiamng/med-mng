@@ -49,13 +49,14 @@ export async function handleMusicGeneration(req: Request) {
 
     console.log('✅ Clé API Suno configurée, longueur:', SUNO_API_KEY.length);
     
-    // Headers selon votre documentation
+    // Configuration API optimisée
     const apiHeaders = {
       'Authorization': `Bearer ${SUNO_API_KEY}`,
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
     };
 
-    // Payload selon votre documentation
+    // Payload optimisé selon la documentation
     const sunoPayload = {
       prompt: lyrics,
       tags: style,
@@ -66,9 +67,9 @@ export async function handleMusicGeneration(req: Request) {
 
     console.log('🚀 Envoi vers Suno API:', JSON.stringify(sunoPayload, null, 2));
 
-    // Utiliser l'URL de votre documentation
+    // Appel API principal
     const generateResponse = await fetch(
-      'https://apibox.erweima.ai/api/v1/gateway/generate/music',
+      'https://suno-api.netfly.app/api/generate',
       {
         method: 'POST',
         headers: apiHeaders,
@@ -87,11 +88,11 @@ export async function handleMusicGeneration(req: Request) {
       if (generateResponse.status === 401) {
         errorMessage = 'Authentification échouée - Vérifiez votre clé API Suno';
       } else if (generateResponse.status === 429) {
-        errorMessage = 'Crédits insuffisants - Le compte manque de crédits';
+        errorMessage = 'Limite de requêtes atteinte - Réessayez dans quelques minutes';
       } else if (generateResponse.status === 400) {
         errorMessage = 'Paramètres non valides - Vérifiez le format des paroles';
       } else if (generateResponse.status === 404) {
-        errorMessage = 'Endpoint non trouvé - Vérifiez la configuration de l\'API';
+        errorMessage = 'Endpoint non trouvé - Service Suno temporairement indisponible';
       }
       
       return new Response(
@@ -130,9 +131,9 @@ export async function handleMusicGeneration(req: Request) {
     console.log('📥 Réponse génération complète:', JSON.stringify(generateData, null, 2));
 
     // Vérifier si la réponse contient directement les données audio
-    if (generateData.data && generateData.data.length > 0) {
-      const audioData = generateData.data[0];
-      const audioUrl = audioData.audio_url || audioData.stream_url || audioData.url;
+    if (generateData && Array.isArray(generateData) && generateData.length > 0) {
+      const audioData = generateData[0];
+      const audioUrl = audioData.audio_url || audioData.url;
       
       if (audioUrl) {
         console.log(`🎧 URL AUDIO DIRECTE TROUVÉE: ${audioUrl}`);
@@ -152,14 +153,14 @@ export async function handleMusicGeneration(req: Request) {
       }
     }
 
-    // Si pas de données directes, vérifier s'il y a un task_id pour le polling
-    const taskId = generateData.task_id || generateData.data?.task_id || generateData.id;
+    // Si pas de données directes, vérifier s'il y a un ID pour le polling
+    const taskId = generateData?.id || generateData?.[0]?.id;
     
     if (!taskId) {
-      console.error('❌ Pas de task_id dans la réponse:', generateData);
+      console.error('❌ Pas d\'ID dans la réponse:', generateData);
       return new Response(
         JSON.stringify({ 
-          error: 'Réponse API Suno invalide - pas de task_id',
+          error: 'Réponse API Suno invalide - pas d\'ID de tâche',
           status: 'error',
           error_code: 500,
           details: generateData
@@ -173,9 +174,9 @@ export async function handleMusicGeneration(req: Request) {
 
     console.log(`🔄 Début du polling avec taskId: ${taskId}`);
     
-    // Polling pour vérifier le statut
-    const maxAttempts = 20;
-    const pollInterval = 2000; // 2 secondes
+    // Polling optimisé
+    const maxAttempts = 15;
+    const pollInterval = 3000; // 3 secondes
     
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       console.log(`🔄 Polling ${attempt}/${maxAttempts} pour taskId: ${taskId}`);
@@ -184,12 +185,13 @@ export async function handleMusicGeneration(req: Request) {
       
       try {
         const statusResponse = await fetch(
-          `https://apibox.erweima.ai/api/v1/gateway/query?ids=${taskId}`,
+          `https://suno-api.netfly.app/api/get?ids=${taskId}`,
           { 
             method: 'GET',
             headers: {
               'Authorization': `Bearer ${SUNO_API_KEY}`,
-              'Content-Type': 'application/json'
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
             }
           }
         );
@@ -203,8 +205,8 @@ export async function handleMusicGeneration(req: Request) {
         const statusData = JSON.parse(statusText);
         console.log(`📥 Réponse statut tentative ${attempt}:`, JSON.stringify(statusData, null, 2));
 
-        if (statusData.data && statusData.data.length > 0) {
-          const result = statusData.data[0];
+        if (statusData && Array.isArray(statusData) && statusData.length > 0) {
+          const result = statusData[0];
           
           // Vérifier les statuts de succès
           if (result.status === 'complete' && result.audio_url) {
@@ -227,7 +229,7 @@ export async function handleMusicGeneration(req: Request) {
             );
           }
           
-          if (result.status === 'processing' || result.status === 'queued' || result.status === 'running') {
+          if (result.status === 'streaming' || result.status === 'submitted' || result.status === 'queued') {
             console.log(`⏳ En cours: ${result.status} (tentative ${attempt})`);
             continue;
           }
@@ -276,7 +278,7 @@ export async function handleMusicGeneration(req: Request) {
       errorMessage = 'Clé API Suno invalide ou expirée';
       errorCode = 401;
     } else if (error.message?.includes('429')) {
-      errorMessage = 'Crédits insuffisants - Rechargez votre compte Suno';
+      errorMessage = 'Limite de requêtes atteinte - Réessayez plus tard';
       errorCode = 429;
     } else if (error.message?.includes('timeout')) {
       errorMessage = 'Délai d\'attente dépassé lors de la génération';
