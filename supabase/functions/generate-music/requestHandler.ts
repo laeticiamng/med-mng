@@ -49,13 +49,13 @@ export async function handleMusicGeneration(req: Request) {
 
     console.log('✅ Clé API Suno configurée, longueur:', SUNO_API_KEY.length);
     
-    // Headers selon la documentation SunoAI API
+    // Headers selon votre documentation
     const apiHeaders = {
       'Authorization': `Bearer ${SUNO_API_KEY}`,
       'Content-Type': 'application/json'
     };
 
-    // Payload simplifié selon la doc
+    // Payload selon votre documentation
     const sunoPayload = {
       prompt: lyrics,
       tags: style,
@@ -66,9 +66,9 @@ export async function handleMusicGeneration(req: Request) {
 
     console.log('🚀 Envoi vers Suno API:', JSON.stringify(sunoPayload, null, 2));
 
-    // Utiliser l'URL correcte de SunoAI API
+    // Utiliser l'URL de votre documentation
     const generateResponse = await fetch(
-      'https://api.sunoaiapi.com/api/v1/gateway/generate/music',
+      'https://apibox.erweima.ai/api/v1/gateway/generate/music',
       {
         method: 'POST',
         headers: apiHeaders,
@@ -174,8 +174,8 @@ export async function handleMusicGeneration(req: Request) {
     console.log(`🔄 Début du polling avec taskId: ${taskId}`);
     
     // Polling pour vérifier le statut
-    const maxAttempts = 30;
-    const pollInterval = 3000; // 3 secondes
+    const maxAttempts = 20;
+    const pollInterval = 2000; // 2 secondes
     
     for (let attempt = 1; attempt <= maxAttempts; attempt++) {
       console.log(`🔄 Polling ${attempt}/${maxAttempts} pour taskId: ${taskId}`);
@@ -184,7 +184,7 @@ export async function handleMusicGeneration(req: Request) {
       
       try {
         const statusResponse = await fetch(
-          `https://api.sunoaiapi.com/api/v1/gateway/query?ids=${taskId}`,
+          `https://apibox.erweima.ai/api/v1/gateway/query?ids=${taskId}`,
           { 
             method: 'GET',
             headers: {
