@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -5,10 +6,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { TranslatedText } from '@/components/TranslatedText';
 import { GeneratorMusicPlayer } from '@/components/GeneratorMusicPlayer';
-import { Music, Wand2, BookOpen, Users, ArrowLeft, Sparkles } from 'lucide-react';
+import { Music, Wand2, BookOpen, Users, ArrowLeft, Sparkles, AlertTriangle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useFreeTrialLimit } from '@/hooks/useFreeTrialLimit';
 import { useMusicGenerationWithTranslation } from '@/hooks/useMusicGenerationWithTranslation';
+import { useEdnItemLyrics } from '@/hooks/useEdnItemLyrics';
 import { toast } from 'sonner';
 import { PremiumBackground } from '@/components/ui/premium-background';
 import { PremiumCard } from '@/components/ui/premium-card';
@@ -25,6 +27,11 @@ const Generator = () => {
   const [selectedSituation, setSelectedSituation] = useState('');
   const [selectedStyle, setSelectedStyle] = useState('');
   const [generatedSong, setGeneratedSong] = useState(null);
+  
+  // Récupération des paroles de l'item EDN sélectionné
+  const { lyrics: ednLyrics, loading: lyricsLoading, error: lyricsError } = useEdnItemLyrics(
+    contentType === 'item' ? selectedItem : null
+  );
   
   const remainingFree = getRemainingGenerations();
 
@@ -66,7 +73,7 @@ const Generator = () => {
 
   const canGenerate = () => {
     if (contentType === 'edn') {
-      return selectedItem && selectedRang && selectedStyle;
+      return selectedItem && selectedRang && selectedStyle && ednLyrics?.paroles_musicales;
     }
     if (contentType === 'ecos') {
       return selectedSituation && selectedStyle;
@@ -87,28 +94,60 @@ const Generator = () => {
     }
 
     try {
-      // Simuler les paroles (normalement récupérées depuis la base de données)
-      const mockLyrics = [
-        `Paroles pour ${contentType === 'edn' ? selectedItem : selectedSituation} Rang A`,
-        `Paroles pour ${contentType === 'edn' ? selectedItem : selectedSituation} Rang B`
-      ];
+      let lyricsToUse: string[] = [];
+      let titlePrefix = '';
+
+      if (contentType === 'edn' && ednLyrics?.paroles_musicales) {
+        // Utiliser les vraies paroles de l'item EDN
+        lyricsToUse = ednLyrics.paroles_musicales;
+        titlePrefix = `${ednLyrics.title} - ${selectedItem}`;
+        
+        console.log('🎵 Utilisation des paroles EDN réelles:', {
+          item: selectedItem,
+          title: ednLyrics.title,
+          paroles_count: lyricsToUse.length,
+          rang: selectedRang
+        });
+      } else if (contentType === 'ecos') {
+        // Utiliser des paroles simulées pour ECOS (à remplacer par de vraies paroles plus tard)
+        lyricsToUse = [
+          `Paroles pour ${selectedSituation} - Situation clinique`,
+          `Paroles avancées pour ${selectedSituation} - Expertise médicale`
+        ];
+        titlePrefix = selectedSituation;
+      }
+
+      if (lyricsToUse.length === 0) {
+        toast.error('Aucune parole disponible pour cet item');
+        return;
+      }
 
       const rang = contentType === 'edn' ? selectedRang as 'A' | 'B' : 'A';
       
-      const audioUrl = await musicGeneration.generateMusicInLanguage(rang, mockLyrics, selectedStyle, 240);
+      console.log('🚀 Génération avec paroles réelles:', {
+        contentType,
+        selectedItem,
+        rang,
+        style: selectedStyle,
+        lyricsPreview: lyricsToUse[rang === 'A' ? 0 : 1]?.substring(0, 100) + '...'
+      });
       
-      // Créer un objet chanson simulé
+      const audioUrl = await musicGeneration.generateMusicInLanguage(rang, lyricsToUse, selectedStyle, 240);
+      
+      // Créer un objet chanson avec les vraies données
       const song = {
         id: Date.now(),
-        title: `${contentType === 'edn' ? selectedItem : selectedSituation} - ${selectedStyle}`,
+        title: `${titlePrefix} - ${selectedStyle}`,
         audioUrl: audioUrl,
         style: selectedStyle,
         rang: rang,
-        duration: 240
+        duration: 240,
+        itemCode: contentType === 'edn' ? selectedItem : selectedSituation,
+        lyrics: lyricsToUse[rang === 'A' ? 0 : 1]
       };
 
       setGeneratedSong(song);
-      toast.success('Génération musicale réussie !');
+      toast.success('Génération musicale réussie avec les paroles de l\'item !');
       
     } catch (error) {
       console.error('Erreur génération:', error);
@@ -251,6 +290,48 @@ const Generator = () => {
                     </Select>
                   </div>
 
+                  {/* Affichage du statut des paroles */}
+                  {selectedItem && (
+                    <div className="space-y-4">
+                      <label className="text-lg font-semibold text-gray-900">
+                        <TranslatedText text="Paroles de l'item" />
+                      </label>
+                      {lyricsLoading && (
+                        <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                          <div className="flex items-center gap-2 text-blue-800">
+                            <div className="animate-spin h-4 w-4 border-2 border-blue-600 border-t-transparent rounded-full"></div>
+                            <span>Chargement des paroles...</span>
+                          </div>
+                        </div>
+                      )}
+                      {lyricsError && (
+                        <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                          <div className="flex items-center gap-2 text-red-800">
+                            <AlertTriangle className="h-5 w-5" />
+                            <span>Erreur: {lyricsError}</span>
+                          </div>
+                        </div>
+                      )}
+                      {ednLyrics && (
+                        <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
+                          <div className="flex items-center gap-2 text-green-800 mb-2">
+                            <Music className="h-5 w-5" />
+                            <span className="font-semibold">Paroles trouvées pour {ednLyrics.title}</span>
+                          </div>
+                          <p className="text-green-700">
+                            {ednLyrics.paroles_musicales?.length || 0} versions de paroles disponibles 
+                            (Rang A et B)
+                          </p>
+                          {ednLyrics.paroles_musicales && ednLyrics.paroles_musicales.length > 0 && (
+                            <div className="mt-2 text-sm text-green-600">
+                              Aperçu: {ednLyrics.paroles_musicales[0]?.substring(0, 100)}...
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   <div className="space-y-4">
                     <label className="text-lg font-semibold text-gray-900">
                       <TranslatedText text="Rang" />
@@ -325,7 +406,7 @@ const Generator = () => {
                   variant="primary"
                   size="xl"
                   onClick={handleGenerate}
-                  disabled={!canGenerate() || isGenerating || remainingFree <= 0}
+                  disabled={!canGenerate() || isGenerating || remainingFree <= 0 || lyricsLoading}
                   className="flex-1"
                 >
                   {isGenerating ? (
@@ -391,7 +472,7 @@ const Generator = () => {
                 </p>
                 <p className="flex items-start gap-3">
                   <span className="w-6 h-6 bg-gradient-to-r from-indigo-500 to-purple-500 text-white rounded-full flex items-center justify-center text-sm font-bold mt-0.5">6</span>
-                  <TranslatedText text="Cliquez sur 'Générer' pour créer votre musique personnalisée" />
+                  <TranslatedText text="Les paroles de l'item seront automatiquement intégrées !" />
                 </p>
               </div>
             </div>
