@@ -37,7 +37,7 @@ export async function handleMusicGeneration(req: Request) {
       console.error('❌ SUNO_API_KEY manquante dans les variables d\'environnement');
       return new Response(
         JSON.stringify({ 
-          error: 'CONFIGURATION REQUISE: La clé API Suno doit être configurée dans les secrets Supabase. Allez dans Project Settings > Edge Functions > Secrets et ajoutez SUNO_API_KEY.',
+          error: 'CONFIGURATION REQUISE: La clé API Suno doit être configurée dans les secrets Supabase.',
           status: 'error',
           error_code: 500,
           action_required: 'configure_api_key'
@@ -51,28 +51,27 @@ export async function handleMusicGeneration(req: Request) {
 
     console.log('✅ Clé API Suno configurée, longueur:', SUNO_API_KEY.length);
     
-    // Configuration API - Test avec l'API Suno v4
+    // Configuration API - Utilisation de l'API Suno officielle
     const apiHeaders = {
       'Authorization': `Bearer ${SUNO_API_KEY}`,
       'Content-Type': 'application/json',
       'Accept': 'application/json'
     };
 
-    // Payload simplifié pour Suno v4
+    // Payload correct pour l'API Suno v3.5
     const sunoPayload = {
-      title: `Rang ${rang} - ${style}`,
-      style: style,
       prompt: lyrics,
-      model: 'chirp-v4',
+      tags: style,
+      title: `Rang ${rang} - ${style}`,
       make_instrumental: false,
       wait_audio: false
     };
 
-    console.log('🚀 Tentative de génération avec API Suno v4');
+    console.log('🚀 Tentative de génération avec API Suno v3.5');
     console.log('📤 Payload:', JSON.stringify(sunoPayload, null, 2));
 
-    // Endpoint API Suno v4
-    const apiUrl = 'https://api.sunoaiapi.com/api/v1/gateway/generate/music';
+    // Endpoint API Suno correct
+    const apiUrl = 'https://studio-api.suno.ai/api/generate/v2/';
     
     const generateResponse = await fetch(apiUrl, {
       method: 'POST',
@@ -86,22 +85,16 @@ export async function handleMusicGeneration(req: Request) {
     const responseText = await generateResponse.text();
     console.log('📥 Réponse brute complète:', responseText);
 
-    // Test de la clé API avant tout
+    // Gestion des erreurs d'authentification
     if (generateResponse.status === 401) {
-      console.error('❌ ERREUR D\'AUTHENTIFICATION: Clé API Suno invalide ou expirée');
+      console.error('❌ ERREUR D\'AUTHENTIFICATION: Clé API Suno invalide');
       return new Response(
         JSON.stringify({ 
-          error: 'CLEF API SUNO INVALIDE: Votre clé API Suno a expiré ou n\'est pas valide. Veuillez la renouveler sur https://apibox.erweima.ai et mettre à jour la variable SUNO_API_KEY dans les secrets Supabase.',
+          error: 'CLEF API SUNO INVALIDE: Votre clé API Suno a expiré ou n\'est pas valide. Veuillez la renouveler.',
           status: 'error',
           error_code: 401,
           action_required: 'renew_api_key',
-          details: 'Authentification échouée auprès de l\'API Suno',
-          debug_info: {
-            api_key_length: SUNO_API_KEY.length,
-            api_key_start: SUNO_API_KEY.substring(0, 10) + '...',
-            response_status: generateResponse.status,
-            response_headers: Object.fromEntries(generateResponse.headers.entries())
-          }
+          details: 'Authentification échouée auprès de l\'API Suno'
         }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -114,7 +107,7 @@ export async function handleMusicGeneration(req: Request) {
       console.error('❌ LIMITE DE CRÉDITS ATTEINTE');
       return new Response(
         JSON.stringify({ 
-          error: 'CRÉDITS SUNO ÉPUISÉS: Vous avez atteint la limite de votre quota Suno. Rechargez vos crédits sur https://apibox.erweima.ai',
+          error: 'CRÉDITS SUNO ÉPUISÉS: Vous avez atteint la limite de votre quota Suno.',
           status: 'error',
           error_code: 429,
           action_required: 'recharge_credits'
@@ -128,26 +121,10 @@ export async function handleMusicGeneration(req: Request) {
 
     if (!generateResponse.ok) {
       console.error('❌ Erreur API Suno:', generateResponse.status, responseText);
-      return new Response(
-        JSON.stringify({ 
-          error: `Erreur API Suno (${generateResponse.status}): ${responseText}`,
-          status: 'error',
-          error_code: generateResponse.status,
-          details: responseText.substring(0, 500),
-          debug_info: {
-            url: apiUrl,
-            method: 'POST',
-            headers: apiHeaders,
-            payload: sunoPayload,
-            response_status: generateResponse.status,
-            response_headers: Object.fromEntries(generateResponse.headers.entries())
-          }
-        }),
-        { 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 500
-        }
-      );
+      
+      // Essayer l'API alternative si l'API principale échoue
+      console.log('🔄 Tentative avec API alternative...');
+      return await tryAlternativeAPI(lyrics, style, rang, SUNO_API_KEY);
     }
 
     // Vérifier si la réponse est du JSON valide
@@ -161,11 +138,7 @@ export async function handleMusicGeneration(req: Request) {
           error: 'Réponse API invalide - Format non JSON',
           status: 'error',
           error_code: 500,
-          details: responseText.substring(0, 300),
-          debug_info: {
-            parse_error: parseError.message,
-            raw_response: responseText.substring(0, 100)
-          }
+          details: responseText.substring(0, 300)
         }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -180,20 +153,13 @@ export async function handleMusicGeneration(req: Request) {
     let audioUrl = null;
     let taskId = null;
 
-    if (generateData.data && Array.isArray(generateData.data) && generateData.data.length > 0) {
-      const firstClip = generateData.data[0];
+    if (generateData.clips && Array.isArray(generateData.clips) && generateData.clips.length > 0) {
+      const firstClip = generateData.clips[0];
       audioUrl = firstClip.audio_url;
       taskId = firstClip.id;
-      console.log('📋 Format data array détecté, taskId:', taskId);
     } else if (generateData.audio_url) {
       audioUrl = generateData.audio_url;
       taskId = generateData.id;
-      console.log('📋 Format direct détecté, taskId:', taskId);
-    } else if (Array.isArray(generateData) && generateData.length > 0) {
-      const firstResult = generateData[0];
-      audioUrl = firstResult.audio_url;
-      taskId = firstResult.id;
-      console.log('📋 Format array direct détecté, taskId:', taskId);
     }
 
     if (audioUrl && audioUrl !== null && audioUrl !== '') {
@@ -217,83 +183,16 @@ export async function handleMusicGeneration(req: Request) {
     // Si pas d'URL audio directe mais un taskId, démarrer le polling
     if (taskId) {
       console.log(`🔄 Démarrage polling pour taskId: ${taskId}`);
-      
-      for (let attempt = 1; attempt <= 12; attempt++) {
-        console.log(`🔄 Polling ${attempt}/12`);
-        
-        await new Promise(resolve => setTimeout(resolve, 5000));
-        
-        try {
-          const statusUrl = `https://api.sunoaiapi.com/api/v1/gateway/query?ids=${taskId}`;
-          const statusResponse = await fetch(statusUrl, {
-            method: 'GET',
-            headers: apiHeaders
-          });
-
-          console.log(`📊 Polling ${attempt} - Statut:`, statusResponse.status);
-
-          if (statusResponse.ok) {
-            const statusText = await statusResponse.text();
-            console.log(`📥 Réponse polling ${attempt}:`, statusText.substring(0, 200));
-            
-            let statusData;
-            try {
-              statusData = JSON.parse(statusText);
-            } catch (e) {
-              console.log(`⚠️ Réponse polling non-JSON ${attempt}`);
-              continue;
-            }
-            
-            let foundAudioUrl = null;
-            if (Array.isArray(statusData)) {
-              const result = statusData.find(item => item.id === taskId);
-              foundAudioUrl = result?.audio_url;
-            } else if (statusData.data && Array.isArray(statusData.data)) {
-              const result = statusData.data.find(item => item.id === taskId);
-              foundAudioUrl = result?.audio_url;
-            } else if (statusData.audio_url) {
-              foundAudioUrl = statusData.audio_url;
-            }
-            
-            if (foundAudioUrl && foundAudioUrl !== null) {
-              console.log(`✅ URL trouvée après ${attempt} tentatives:`, foundAudioUrl);
-              return new Response(
-                JSON.stringify({ 
-                  audioUrl: foundAudioUrl,
-                  status: 'success',
-                  taskId,
-                  rang,
-                  style,
-                  duration,
-                  attempts: attempt
-                }),
-                { 
-                  headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-                  status: 200
-                }
-              );
-            }
-          } else {
-            console.log(`⚠️ Erreur polling ${attempt} - Status:`, statusResponse.status);
-          }
-        } catch (pollError) {
-          console.log(`⚠️ Erreur polling ${attempt}:`, pollError.message);
-        }
-      }
+      return await pollForAudio(taskId, SUNO_API_KEY, rang, style, duration);
     }
 
-    // Aucune URL audio trouvée après tous les essais
+    // Aucune URL audio trouvée
     return new Response(
       JSON.stringify({ 
-        error: 'Génération échouée: Aucune URL audio produite après le polling',
+        error: 'Génération échouée: Aucune URL audio produite',
         status: 'error',
         error_code: 500,
-        taskId,
-        details: 'La génération n\'a pas abouti dans le délai imparti (1 minute)',
-        debug_info: {
-          initial_response: generateData,
-          polling_attempts: 12
-        }
+        details: 'La génération n\'a pas abouti'
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -310,12 +209,7 @@ export async function handleMusicGeneration(req: Request) {
         error: `Erreur serveur critique: ${error.message}`,
         status: 'error',
         error_code: 500,
-        details: 'Erreur interne lors de la génération',
-        debug_info: {
-          error_name: error.name,
-          error_message: error.message,
-          error_stack: error.stack?.substring(0, 500)
-        }
+        details: 'Erreur interne lors de la génération'
       }),
       { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -323,4 +217,160 @@ export async function handleMusicGeneration(req: Request) {
       }
     );
   }
+}
+
+async function tryAlternativeAPI(lyrics: string, style: string, rang: string, apiKey: string) {
+  try {
+    console.log('🔄 Utilisation de l\'API alternative Suno');
+    
+    const alternativePayload = {
+      title: `Rang ${rang} - ${style}`,
+      style: style,
+      prompt: lyrics,
+      model: 'chirp-v3-5',
+      make_instrumental: false,
+      wait_audio: false
+    };
+
+    const alternativeUrl = 'https://api.sunoaiapi.com/api/v1/gateway/generate/music';
+    
+    const response = await fetch(alternativeUrl, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(alternativePayload)
+    });
+
+    console.log('📊 Statut API alternative:', response.status);
+    
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('❌ Erreur API alternative:', errorText);
+      
+      return new Response(
+        JSON.stringify({ 
+          error: `Erreur des deux APIs Suno (${response.status}): ${errorText}`,
+          status: 'error',
+          error_code: response.status,
+          details: 'Les APIs Suno principale et alternative ont échoué'
+        }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 500
+        }
+      );
+    }
+
+    const data = await response.json();
+    console.log('✅ Réponse API alternative:', data);
+
+    if (data.data && data.data.length > 0) {
+      const audioUrl = data.data[0].audio_url;
+      if (audioUrl) {
+        return new Response(
+          JSON.stringify({ 
+            audioUrl,
+            status: 'success',
+            taskId: data.data[0].id,
+            rang,
+            style
+          }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+            status: 200
+          }
+        );
+      }
+    }
+
+    return new Response(
+      JSON.stringify({ 
+        error: 'Aucune URL audio générée par l\'API alternative',
+        status: 'error',
+        error_code: 500
+      }),
+      { 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 500
+      }
+    );
+
+  } catch (error) {
+    console.error('❌ Erreur API alternative:', error);
+    return new Response(
+      JSON.stringify({ 
+        error: `Erreur API alternative: ${error.message}`,
+        status: 'error',
+        error_code: 500
+      }),
+      { 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 500
+      }
+    );
+  }
+}
+
+async function pollForAudio(taskId: string, apiKey: string, rang: string, style: string, duration?: number) {
+  console.log(`🔄 Polling pour taskId: ${taskId}`);
+  
+  for (let attempt = 1; attempt <= 12; attempt++) {
+    console.log(`🔄 Polling ${attempt}/12`);
+    
+    await new Promise(resolve => setTimeout(resolve, 5000));
+    
+    try {
+      const statusUrl = `https://studio-api.suno.ai/api/feed/?ids=${taskId}`;
+      const statusResponse = await fetch(statusUrl, {
+        headers: {
+          'Authorization': `Bearer ${apiKey}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (statusResponse.ok) {
+        const statusData = await statusResponse.json();
+        console.log(`📥 Réponse polling ${attempt}:`, statusData);
+        
+        if (statusData && statusData.length > 0) {
+          const track = statusData.find(item => item.id === taskId);
+          if (track && track.audio_url) {
+            console.log(`✅ URL trouvée après ${attempt} tentatives:`, track.audio_url);
+            return new Response(
+              JSON.stringify({ 
+                audioUrl: track.audio_url,
+                status: 'success',
+                taskId,
+                rang,
+                style,
+                duration,
+                attempts: attempt
+              }),
+              { 
+                headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+                status: 200
+              }
+            );
+          }
+        }
+      }
+    } catch (pollError) {
+      console.log(`⚠️ Erreur polling ${attempt}:`, pollError);
+    }
+  }
+
+  return new Response(
+    JSON.stringify({ 
+      error: 'Délai d\'attente dépassé pour la génération',
+      status: 'error',
+      error_code: 408,
+      details: 'La génération prend plus de temps que prévu'
+    }),
+    { 
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      status: 408
+    }
+  );
 }
