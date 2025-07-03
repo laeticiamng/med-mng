@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Music } from 'lucide-react';
 import { BandeDessinee } from '@/components/edn/BandeDessinee';
+import { EnhancedBandeDessinee } from '@/components/edn/EnhancedBandeDessinee';
 import { TableauRangA } from '@/components/edn/TableauRangA';
 import { TableauRangB } from '@/components/edn/tableau/TableauRangB';
 import { SceneImmersive } from '@/components/edn/SceneImmersive';
