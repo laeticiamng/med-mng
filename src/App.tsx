@@ -8,8 +8,6 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { GlobalAudioProvider } from "@/contexts/GlobalAudioContext";
 import Index from "./pages/Index";
 import Generator from "./pages/Generator";
-import SunoGenerator from "./pages/SunoGenerator";
-import OpenAIGenerator from "./pages/OpenAIGenerator";
 import EdnIndex from "./pages/EdnIndex";
 import EdnItem from "./pages/EdnItem";
 import EdnItemImmersive from "./pages/EdnItemImmersive";
@@ -43,8 +41,6 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/generator" element={<Generator />} />
-              <Route path="/suno-generator" element={<SunoGenerator />} />
-              <Route path="/openai-generator" element={<OpenAIGenerator />} />
               <Route path="/edn" element={<EdnIndex />} />
               <Route path="/edn/:slug" element={<EdnItem />} />
               <Route path="/edn/:slug/immersive" element={<EdnItemImmersive />} />

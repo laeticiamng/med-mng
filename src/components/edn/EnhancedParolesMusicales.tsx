@@ -132,21 +132,29 @@ export const EnhancedParolesMusicales: React.FC<EnhancedParolesMusicalesProps> =
                     </div>
                   )}
 
-                  {/* Version Rang A+B */}
-                  {generatedAudio.rangAB && (
-                    <div className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4">
-                      <h4 className="font-semibold text-green-800 mb-2">🎵 Version Rang A+B</h4>
-                      <p className="text-sm text-green-600 mb-3">Compétences complètes</p>
-                      <div className="space-y-2">
+                  {/* Version Rang A+B - Générer la version combinée */}
+                  <div className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4">
+                    <h4 className="font-semibold text-green-800 mb-2">🎵 Version Rang A+B</h4>
+                    <p className="text-sm text-green-600 mb-3">Compétences complètes combinées</p>
+                    <div className="space-y-2">
+                      {generatedAudio.rangAB ? (
                         <button 
                           onClick={() => handlePlayAudio(generatedAudio.rangAB!, `${itemCode} - Rang A+B`)}
                           className="w-full p-2 bg-green-600 text-white rounded hover:bg-green-700"
                         >
                           {currentTrack?.url === generatedAudio.rangAB && isPlaying ? 'Pause' : 'Écouter'}
                         </button>
-                      </div>
+                      ) : (
+                        <button 
+                          onClick={() => handleGenerate('AB')}
+                          disabled={isGenerating.rangA || isGenerating.rangB || !enhancedParoles[2]}
+                          className="w-full p-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:bg-gray-400"
+                        >
+                          {isGenerating.rangA || isGenerating.rangB ? 'Génération...' : 'Générer Version A+B'}
+                        </button>
+                      )}
                     </div>
-                  )}
+                  </div>
                 </div>
               </div>
             )}

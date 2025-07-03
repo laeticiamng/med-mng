@@ -152,15 +152,8 @@ export const EnhancedQuizFinal: React.FC<EnhancedQuizFinalProps> = ({
         <TabsContent value="errors" className="space-y-6">
           {currentErrors.length > 0 ? (
             <QuizErrorSongGenerator
-              errors={currentErrors.map(error => ({
-                question: error.question,
-                userAnswer: error.userAnswer,
-                correctAnswer: error.correctAnswer,
-                explanation: error.explanation,
-                theme: error.theme
-              }))}
+              itemCode={itemCode || 'Quiz'}
               itemTitle={itemTitle}
-              onAddToLibrary={handleAddToLibrary}
             />
           ) : (
             <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">

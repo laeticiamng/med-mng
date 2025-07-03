@@ -190,11 +190,11 @@ const Generator = () => {
                 <Music className="h-7 w-7 text-white" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
-                  <TranslatedText text="Générateur Musical IA" />
+                <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+                  <TranslatedText text="Générateur Musical" />
                 </h1>
-                <p className="text-gray-600 font-medium">
-                  <TranslatedText text="Générez rapidement vos contenus en musique" />
+                <p className="text-sm md:text-base text-gray-600 font-medium">
+                  <TranslatedText text="Transformez vos cours en musique" />
                 </p>
               </div>
             </div>
@@ -202,7 +202,7 @@ const Generator = () => {
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-12">
+      <div className="container mx-auto px-2 md:px-4 py-6 md:py-12">
         <div className="max-w-6xl mx-auto">
           
           {/* Badge générations restantes premium */}
@@ -238,10 +238,10 @@ const Generator = () => {
                 <label className="text-lg font-semibold text-gray-900">
                   <TranslatedText text="Type de contenu" />
                 </label>
-                <div className="grid grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                   <PremiumCard 
                     variant={contentType === 'edn' ? 'elevated' : 'default'}
-                    className={`cursor-pointer transition-all p-6 text-center ${contentType === 'edn' ? 'ring-2 ring-amber-500 shadow-amber-500/20' : ''}`}
+                    className={`cursor-pointer transition-all p-4 md:p-6 text-center ${contentType === 'edn' ? 'ring-2 ring-amber-500 shadow-amber-500/20' : ''}`}
                     onClick={() => {
                       setContentType('edn');
                       setSelectedSituation('');
@@ -252,9 +252,9 @@ const Generator = () => {
                     <p className="text-gray-600 mb-3">Items à Choix Multiples</p>
                     <p className="text-sm text-green-600 font-semibold">10 items disponibles</p>
                   </PremiumCard>
-                  <PremiumCard 
+                    <PremiumCard 
                     variant={contentType === 'ecos' ? 'elevated' : 'default'}
-                    className={`cursor-pointer transition-all p-6 text-center ${contentType === 'ecos' ? 'ring-2 ring-amber-500 shadow-amber-500/20' : ''}`}
+                    className={`cursor-pointer transition-all p-4 md:p-6 text-center ${contentType === 'ecos' ? 'ring-2 ring-amber-500 shadow-amber-500/20' : ''}`}
                     onClick={() => {
                       setContentType('ecos');
                       setSelectedItem('');
@@ -336,10 +336,10 @@ const Generator = () => {
                     <label className="text-lg font-semibold text-gray-900">
                       <TranslatedText text="Rang" />
                     </label>
-                    <div className="grid grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                       <PremiumCard 
                         variant={selectedRang === 'A' ? 'elevated' : 'default'}
-                        className={`cursor-pointer transition-all p-6 text-center ${selectedRang === 'A' ? 'ring-2 ring-blue-500 shadow-blue-500/20' : ''}`}
+                        className={`cursor-pointer transition-all p-4 md:p-6 text-center ${selectedRang === 'A' ? 'ring-2 ring-blue-500 shadow-blue-500/20' : ''}`}
                         onClick={() => setSelectedRang('A')}
                       >
                         <h3 className="text-2xl font-bold text-gray-900 mb-2">Rang A</h3>
@@ -347,7 +347,7 @@ const Generator = () => {
                       </PremiumCard>
                       <PremiumCard 
                         variant={selectedRang === 'B' ? 'elevated' : 'default'}
-                        className={`cursor-pointer transition-all p-6 text-center ${selectedRang === 'B' ? 'ring-2 ring-purple-500 shadow-purple-500/20' : ''}`}
+                        className={`cursor-pointer transition-all p-4 md:p-6 text-center ${selectedRang === 'B' ? 'ring-2 ring-purple-500 shadow-purple-500/20' : ''}`}
                         onClick={() => setSelectedRang('B')}
                       >
                         <h3 className="text-2xl font-bold text-gray-900 mb-2">Rang B</h3>
@@ -401,7 +401,7 @@ const Generator = () => {
               )}
 
               {/* Boutons d'action premium */}
-              <div className="flex gap-6 pt-6">
+              <div className="flex flex-col md:flex-row gap-4 md:gap-6 pt-6">
                 <PremiumButton
                   variant="primary"
                   size="xl"

@@ -112,18 +112,18 @@ export const MedChat: React.FC = () => {
               <MessageSquare className="h-6 w-6 text-white" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
-                <TranslatedText text="MedChat IA" />
-              </h1>
-              <p className="text-gray-600">
-                <TranslatedText text="Assistant intelligent pour vos cours médicaux" />
-              </p>
+            <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
+              <TranslatedText text="Chat Intelligent" />
+            </h1>
+            <p className="text-sm md:text-base text-gray-600">
+              <TranslatedText text="Assistant pour vos cours médicaux" />
+            </p>
             </div>
           </div>
         </div>
 
         {/* Chat Interface */}
-        <Card className="max-w-4xl mx-auto h-[calc(100vh-200px)] flex flex-col">
+        <Card className="mx-auto h-[calc(100vh-180px)] md:h-[calc(100vh-200px)] flex flex-col">
           <CardHeader className="flex-shrink-0 border-b">
             <CardTitle className="flex items-center gap-2">
               <Search className="h-5 w-5 text-orange-600" />

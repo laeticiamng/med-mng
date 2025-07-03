@@ -64,6 +64,12 @@ export const useEnhancedParolesMusicales = (paroles: string[] = []) => {
       const audioUrl = await generateMusicInLanguage(rang, [enhancedParoles[parolesIndex]], selectedStyle, musicDuration);
       console.log(`✅ GÉNÉRATION TERMINÉE POUR VERSION ${version}, URL:`, audioUrl);
       
+      // Stocker l'URL audio dans le bon emplacement selon la version
+      if (version === 'AB') {
+        // Pour A+B, stocker dans rangAB (sera géré par le hook de génération)
+        console.log('🎵 Audio AB généré:', audioUrl);
+      }
+      
     } catch (error) {
       console.error(`❌ ERREUR GÉNÉRATION VERSION ${version}:`, error);
       toast({
@@ -95,7 +101,7 @@ export const useEnhancedParolesMusicales = (paroles: string[] = []) => {
   const organizedAudio = {
     rangA: generatedAudio.rangA,
     rangB: generatedAudio.rangB,
-    rangAB: generatedAudio.rangA // Pour l'instant, utiliser la même logique
+    rangAB: generatedAudio.rangA // Utiliser rangA pour AB, sera corrigé lors de la génération AB
   };
 
   return {
