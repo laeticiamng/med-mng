@@ -28,6 +28,7 @@ import { MedMngSubscribe } from "./pages/MedMngSubscribe";
 import { MedMngCreate } from "./pages/MedMngCreate";
 import { MedMngLibrary } from "./pages/MedMngLibrary";
 import { MedMngPlayer } from "./pages/MedMngPlayer";
+import { MedChat } from "./pages/MedChat";
 
 const queryClient = new QueryClient();
 
@@ -71,6 +72,7 @@ const App = () => (
               <Route path="/med-mng/create" element={<MedMngCreate />} />
               <Route path="/med-mng/library" element={<MedMngLibrary />} />
               <Route path="/med-mng/player/:songId" element={<MedMngPlayer />} />
+              <Route path="/chat" element={<MedChat />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
