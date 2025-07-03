@@ -18,7 +18,7 @@ export const useMusicGenerationState = () => {
     rangA: false,
     rangB: false
   });
-  const [generatedAudio, setGeneratedAudio] = useState<{ rangA?: string; rangB?: string }>({});
+  const [generatedAudio, setGeneratedAudio] = useState<{ rangA?: string; rangB?: string; rangAB?: string }>({});
   const [generationProgress, setGenerationProgress] = useState<{ 
     rangA?: GenerationProgress; 
     rangB?: GenerationProgress 
@@ -39,10 +39,10 @@ export const useMusicGenerationState = () => {
     }
   };
 
-  const setAudioUrl = (rang: 'A' | 'B', url: string) => {
+  const setAudioUrl = (rang: 'A' | 'B' | 'AB', url: string) => {
     console.log(`🎵 STATE - setAudioUrl appelé:`, { rang, url, urlValid: url?.startsWith('http') });
     
-    const audioKey = rang === 'A' ? 'rangA' : 'rangB';
+    const audioKey = rang === 'A' ? 'rangA' : rang === 'B' ? 'rangB' : 'rangAB';
     
     setGeneratedAudio(prev => {
       const newState = {

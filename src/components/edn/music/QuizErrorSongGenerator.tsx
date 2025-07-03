@@ -38,25 +38,45 @@ export const QuizErrorSongGenerator: React.FC<QuizErrorSongGeneratorProps> = ({
       return acc;
     }, {} as Record<string, typeof currentErrors>);
 
-    let lyrics = `Quiz ${itemCode} - Erreurs à retenir\n\n`;
+    let lyrics = `[Chanson d'Erreurs - ${itemCode}]
     
-    Object.entries(errorsByTheme).forEach(([theme, errors]) => {
-      lyrics += `[Couplet - ${theme}]\n`;
-      errors.forEach(error => {
-        lyrics += `Question: ${error.question}\n`;
-        lyrics += `Réponse correcte: ${error.correctAnswer}\n`;
+[Intro]
+Mes erreurs du quiz ${itemTitle}
+Transformées en mélodie
+Pour mieux les retenir
+Et ne plus les subir
+
+`;
+    
+    Object.entries(errorsByTheme).forEach(([theme, errors], themeIndex) => {
+      lyrics += `[Couplet ${themeIndex + 1} - ${theme}]\n`;
+      errors.forEach((error, index) => {
+        lyrics += `Erreur ${index + 1}: ${error.question.substring(0, 80)}...\n`;
+        lyrics += `La bonne réponse était: ${error.correctAnswer}\n`;
         if (error.explanation) {
-          lyrics += `Explication: ${error.explanation}\n`;
+          lyrics += `Car en fait: ${error.explanation.substring(0, 100)}...\n`;
         }
-        lyrics += '\n';
+        lyrics += `Maintenant je sais, je retiens la leçon\n\n`;
       });
     });
 
-    lyrics += `[Refrain]\n`;
-    lyrics += `Retenir les erreurs, c'est progresser\n`;
-    lyrics += `Chaque faute est une leçon à intégrer\n`;
-    lyrics += `${itemCode}, je maîtrise maintenant\n`;
-    lyrics += `Mon savoir grandit constamment\n`;
+    lyrics += `[Refrain]
+🎵 Mes erreurs sont mes professeurs
+Chaque faute devient un bonheur
+${currentErrors.length} leçons à retenir
+Pour mieux réussir et grandir 🎵
+
+[Pont]
+Quiz ${itemCode}, merci pour tes enseignements
+Chaque erreur forge mes apprentissages
+De mes fautes naît la sagesse
+Et ma connaissance progresse
+
+[Fin]
+Erreurs transformées en chanson
+Difficile d'oublier la leçon !
+${itemTitle}, je te maîtrise
+Grâce à mes erreurs... quelle surprise !`;
 
     return lyrics;
   };

@@ -77,7 +77,7 @@ export const EdnItemContent = ({ activeSection, item }: EdnItemContentProps) => 
       
       case 'bd':
         return (
-          <BandeDessinee 
+          <EnhancedBandeDessinee 
             itemData={{
               title: item.title,
               subtitle: item.subtitle || '',

@@ -37,7 +37,24 @@ export const useEnhancedParolesMusicales = (paroles: string[] = []) => {
       return paroles || [];
     }
 
-    const combinedLyrics = `${paroles[0]}\n\n--- Transition ---\n\n${paroles[1]}`;
+    // Créer une version combinée intelligente des rangs A et B
+    const combinedLyrics = `[Version Complète - Rang A & B Combinés]
+
+[Rang A - Compétences Fondamentales]
+${paroles[0] || 'Contenu Rang A non disponible'}
+
+[Transition Musicale]
+🎵 Maintenant passons aux compétences avancées... 🎵
+
+[Rang B - Compétences Avancées]
+${paroles[1] || 'Contenu Rang B non disponible'}
+
+[Synthèse Finale]
+Rang A et B unis, pour une maîtrise complète
+Des bases aux sommets, le savoir se complète
+Chaque niveau acquis renforce l'ensemble
+Pour une expertise qui se rassemble`;
+
     return [...paroles, combinedLyrics];
   };
 
@@ -64,10 +81,10 @@ export const useEnhancedParolesMusicales = (paroles: string[] = []) => {
       const audioUrl = await generateMusicInLanguage(rang, [enhancedParoles[parolesIndex]], selectedStyle, musicDuration);
       console.log(`✅ GÉNÉRATION TERMINÉE POUR VERSION ${version}, URL:`, audioUrl);
       
-      // Stocker l'URL audio dans le bon emplacement selon la version
+      // L'audio est automatiquement stocké par generateMusicInLanguage
       if (version === 'AB') {
-        // Pour A+B, stocker dans rangAB (sera géré par le hook de génération)
         console.log('🎵 Audio AB généré:', audioUrl);
+        // Le stockage est géré automatiquement par le hook de génération
       }
       
     } catch (error) {
@@ -101,7 +118,7 @@ export const useEnhancedParolesMusicales = (paroles: string[] = []) => {
   const organizedAudio = {
     rangA: generatedAudio.rangA,
     rangB: generatedAudio.rangB,
-    rangAB: generatedAudio.rangA // Utiliser rangA pour AB, sera corrigé lors de la génération AB
+    rangAB: generatedAudio.rangAB || null // Utiliser la version AB spécifique
   };
 
   return {
