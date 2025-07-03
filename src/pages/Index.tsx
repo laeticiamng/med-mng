@@ -9,7 +9,7 @@ import { PremiumBackground } from "@/components/ui/premium-background";
 import { PremiumCard } from "@/components/ui/premium-card";
 import { PremiumButton } from "@/components/ui/premium-button";
 import { useNavigate } from "react-router-dom";
-import { LogIn, CreditCard, BarChart3, Music, BookOpen, MessageSquare, Users, Zap, Target, Award, TrendingUp, Sparkles, Star } from "lucide-react";
+import { LogIn, CreditCard, BarChart3, Music, BookOpen, MessageSquare, Users, Zap, Target, Award, TrendingUp, Sparkles, Star, Wand2 } from "lucide-react";
 import { TranslatedText } from "@/components/TranslatedText";
 
 const Index = () => {
@@ -96,14 +96,24 @@ const Index = () => {
                 <BookOpen className="h-6 w-6 mr-3" />
                 <TranslatedText text="Explorer les Items EDN" />
               </PremiumButton>
-              <PremiumButton
-                variant="glass"
-                size="xl"
-                onClick={() => navigate('/generator')}
-              >
-                <Music className="h-6 w-6 mr-3" />
-                <TranslatedText text="Générer de la Musique" />
-              </PremiumButton>
+              <div className="flex gap-4">
+                <PremiumButton
+                  variant="glass"
+                  size="lg"
+                  onClick={() => navigate('/generator')}
+                >
+                  <Music className="h-5 w-5 mr-2" />
+                  <TranslatedText text="Générateur (Supabase)" />
+                </PremiumButton>
+                <PremiumButton
+                  variant="secondary"
+                  size="lg"
+                  onClick={() => navigate('/suno-generator')}
+                >
+                  <Wand2 className="h-5 w-5 mr-2" />
+                  <TranslatedText text="Suno Direct" />
+                </PremiumButton>
+              </div>
             </div>
           </div>
         </div>
