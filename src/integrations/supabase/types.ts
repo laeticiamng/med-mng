@@ -804,6 +804,45 @@ export type Database = {
           },
         ]
       }
+      google_sheets_integrations: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean | null
+          last_sync: string | null
+          mapping_config: Json
+          sheet_id: string
+          sheet_name: string
+          updated_at: string
+          user_id: string | null
+          webhook_token: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          last_sync?: string | null
+          mapping_config?: Json
+          sheet_id: string
+          sheet_name: string
+          updated_at?: string
+          user_id?: string | null
+          webhook_token?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          last_sync?: string | null
+          mapping_config?: Json
+          sheet_id?: string
+          sheet_name?: string
+          updated_at?: string
+          user_id?: string | null
+          webhook_token?: string
+        }
+        Relationships: []
+      }
       groups: {
         Row: {
           id: string
@@ -824,6 +863,92 @@ export type Database = {
           topic?: string
         }
         Relationships: []
+      }
+      import_batches: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          error_rows: number | null
+          errors: Json | null
+          file_url: string | null
+          filename: string
+          id: string
+          mapping_config: Json | null
+          processed_rows: number | null
+          status: string
+          success_rows: number | null
+          total_rows: number | null
+          user_id: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          error_rows?: number | null
+          errors?: Json | null
+          file_url?: string | null
+          filename: string
+          id?: string
+          mapping_config?: Json | null
+          processed_rows?: number | null
+          status?: string
+          success_rows?: number | null
+          total_rows?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          error_rows?: number | null
+          errors?: Json | null
+          file_url?: string | null
+          filename?: string
+          id?: string
+          mapping_config?: Json | null
+          processed_rows?: number | null
+          status?: string
+          success_rows?: number | null
+          total_rows?: number | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      import_raw_data: {
+        Row: {
+          batch_id: string | null
+          created_at: string
+          error_message: string | null
+          id: string
+          processed: boolean | null
+          raw_data: Json
+          row_number: number
+        }
+        Insert: {
+          batch_id?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          processed?: boolean | null
+          raw_data: Json
+          row_number: number
+        }
+        Update: {
+          batch_id?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          processed?: boolean | null
+          raw_data?: Json
+          row_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "import_raw_data_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "import_batches"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       integration_logs: {
         Row: {
@@ -1940,6 +2065,10 @@ export type Database = {
       accept_invitation: {
         Args: { token_param: string }
         Returns: boolean
+      }
+      cleanup_old_imports: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       count_all_invitations: {
         Args: Record<PropertyKey, never>

@@ -58,6 +58,18 @@ const Index = () => {
                 <TranslatedText text="Chat IA" />
               </PremiumButton>
               
+              {isAdmin && (
+                <PremiumButton
+                  variant="glass"
+                  size="sm"
+                  onClick={() => navigate('/admin/import')}
+                  className="hidden lg:inline-flex"
+                >
+                  <BarChart3 className="h-4 w-4 mr-2" />
+                  <TranslatedText text="Admin Import" />
+                </PremiumButton>
+              )}
+              
               <PremiumButton
                 variant="secondary"
                 size="sm"
