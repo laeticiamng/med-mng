@@ -78,7 +78,7 @@ export const EnhancedParolesMusicales: React.FC<EnhancedParolesMusicalesProps> =
                 selectedVersion={selectedVersion}
                 onVersionChange={setSelectedVersion}
                 onGenerate={handleGenerate}
-                isGenerating={isGenerating}
+                isGenerating={isGenerating.rangA || isGenerating.rangB}
                 generatedAudio={generatedAudio}
               />
             </div>
@@ -121,24 +121,14 @@ export const EnhancedParolesMusicales: React.FC<EnhancedParolesMusicalesProps> =
                     <div className="bg-gradient-to-br from-purple-50 to-violet-50 border border-purple-200 rounded-lg p-4">
                       <h4 className="font-semibold text-purple-800 mb-2">🎵 Version Rang B</h4>
                       <p className="text-sm text-purple-600 mb-3">Compétences avancées</p>
-                      <MusicCardsSection
-                        songs={[{
-                          title: `${itemCode} - Rang B`,
-                          audioUrl: generatedAudio.rangB,
-                          style: selectedStyle,
-                          rang: 'B',
-                          duration: musicDuration
-                        }]}
-                        currentTrack={currentTrack}
-                        isPlaying={isPlaying}
-                        currentTime={currentTime}
-                        duration={duration}
-                        volume={volume}
-                        onPlayAudio={handlePlayAudio}
-                        onSeek={seek}
-                        onVolumeChange={changeVolume}
-                        onStop={stop}
-                      />
+                      <div className="space-y-2">
+                        <button 
+                          onClick={() => handlePlayAudio(generatedAudio.rangB!, `${itemCode} - Rang B`)}
+                          className="w-full p-2 bg-purple-600 text-white rounded hover:bg-purple-700"
+                        >
+                          {currentTrack?.url === generatedAudio.rangB && isPlaying ? 'Pause' : 'Écouter'}
+                        </button>
+                      </div>
                     </div>
                   )}
 
@@ -147,24 +137,14 @@ export const EnhancedParolesMusicales: React.FC<EnhancedParolesMusicalesProps> =
                     <div className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4">
                       <h4 className="font-semibold text-green-800 mb-2">🎵 Version Rang A+B</h4>
                       <p className="text-sm text-green-600 mb-3">Compétences complètes</p>
-                      <MusicCardsSection
-                        songs={[{
-                          title: `${itemCode} - Rang A+B Complet`,
-                          audioUrl: generatedAudio.rangAB,
-                          style: selectedStyle,
-                          rang: 'AB',
-                          duration: musicDuration
-                        }]}
-                        currentTrack={currentTrack}
-                        isPlaying={isPlaying}
-                        currentTime={currentTime}
-                        duration={duration}
-                        volume={volume}
-                        onPlayAudio={handlePlayAudio}
-                        onSeek={seek}
-                        onVolumeChange={changeVolume}
-                        onStop={stop}
-                      />
+                      <div className="space-y-2">
+                        <button 
+                          onClick={() => handlePlayAudio(generatedAudio.rangAB!, `${itemCode} - Rang A+B`)}
+                          className="w-full p-2 bg-green-600 text-white rounded hover:bg-green-700"
+                        >
+                          {currentTrack?.url === generatedAudio.rangAB && isPlaying ? 'Pause' : 'Écouter'}
+                        </button>
+                      </div>
                     </div>
                   )}
                 </div>
