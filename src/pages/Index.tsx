@@ -42,10 +42,20 @@ const Index = () => {
                 variant="glass"
                 size="sm"
                 onClick={() => navigate('/generator')}
-                className="hidden sm:inline-flex"
+                className="hidden md:inline-flex"
               >
                 <Music className="h-4 w-4 mr-2" />
                 <TranslatedText text="Générateur" />
+              </PremiumButton>
+              
+              <PremiumButton
+                variant="glass"
+                size="sm"
+                onClick={() => navigate('/chat')}
+                className="hidden sm:inline-flex"
+              >
+                <MessageSquare className="h-4 w-4 mr-2" />
+                <TranslatedText text="Chat IA" />
               </PremiumButton>
               
               <PremiumButton
@@ -96,32 +106,14 @@ const Index = () => {
                 <BookOpen className="h-6 w-6 mr-3" />
                 <TranslatedText text="Explorer les Items EDN" />
               </PremiumButton>
-              <div className="flex gap-4">
-                <PremiumButton
-                  variant="glass"
-                  size="lg"
-                  onClick={() => navigate('/generator')}
-                >
-                  <Music className="h-5 w-5 mr-2" />
-                  <TranslatedText text="Générateur (Supabase)" />
-                </PremiumButton>
-                <PremiumButton
-                  variant="secondary"
-                  size="lg"
-                  onClick={() => navigate('/suno-generator')}
-                >
-                  <Wand2 className="h-5 w-5 mr-2" />
-                  <TranslatedText text="Suno Direct" />
-                </PremiumButton>
-                <PremiumButton
-                  variant="accent"
-                  size="lg"
-                  onClick={() => navigate('/openai-generator')}
-                >
-                  <Brain className="h-5 w-5 mr-2" />
-                  <TranslatedText text="OpenAI Direct" />
-                </PremiumButton>
-              </div>
+              <PremiumButton
+                variant="glass"
+                size="lg"
+                onClick={() => navigate('/generator')}
+              >
+                <Music className="h-5 w-5 mr-2" />
+                <TranslatedText text="Générateur Musical" />
+              </PremiumButton>
             </div>
           </div>
         </div>
@@ -199,7 +191,7 @@ const Index = () => {
             </PremiumCard>
 
             {/* ECOS */}
-            <PremiumCard variant="gradient" className="p-8 text-center cursor-pointer opacity-75" onClick={() => navigate('/ecos')}>
+            <PremiumCard variant="gradient" className="p-8 text-center cursor-pointer" onClick={() => navigate('/ecos')}>
               <div className="mx-auto w-20 h-20 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-green-500/25">
                 <Users className="h-10 w-10 text-white" />
               </div>
@@ -207,12 +199,12 @@ const Index = () => {
                 <TranslatedText text="Simulations ECOS" />
               </h3>
               <p className="text-gray-600 mb-6 leading-relaxed">
-                <TranslatedText text="Examens Cliniques Objectifs Structurés pour la pratique clinique" />
+                <TranslatedText text="Examens Cliniques Objectifs Structurés pour la pratique clinique - 3 situations disponibles" />
               </p>
               <div className="space-y-3 text-sm text-gray-600 mb-8">
                 <div className="flex items-center gap-3">
                   <div className="w-3 h-3 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full"></div>
-                  <span>Scénarios cliniques réalistes</span>
+                  <span>3 scénarios cliniques complets</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="w-3 h-3 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full"></div>
@@ -220,11 +212,11 @@ const Index = () => {
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="w-3 h-3 bg-gradient-to-r from-purple-500 to-violet-500 rounded-full"></div>
-                  <span>Feedback personnalisé</span>
+                  <span>Feedback détaillé</span>
                 </div>
               </div>
-              <PremiumButton variant="glass" size="lg" className="w-full" disabled>
-                <TranslatedText text="Bientôt Disponible" />
+              <PremiumButton variant="glass" size="lg" className="w-full">
+                <TranslatedText text="Commencer ECOS" />
               </PremiumButton>
             </PremiumCard>
 
@@ -234,10 +226,10 @@ const Index = () => {
                 <MessageSquare className="h-10 w-10 text-white" />
               </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                <TranslatedText text="MedChat IA" />
+                <TranslatedText text="Assistant IA" />
               </h3>
               <p className="text-gray-600 mb-6 leading-relaxed">
-                <TranslatedText text="Chat intelligent pour questions médicales avec IA avancée" />
+                <TranslatedText text="Assistant intelligent connecté à vos cours médicaux" />
               </p>
               <div className="space-y-3 text-sm text-gray-600 mb-8">
                 <div className="flex items-center gap-3">

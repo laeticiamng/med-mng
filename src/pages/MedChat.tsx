@@ -122,8 +122,8 @@ export const MedChat: React.FC = () => {
           </div>
         </div>
 
-        {/* Chat Interface */}
-        <Card className="mx-auto h-[calc(100vh-180px)] md:h-[calc(100vh-200px)] flex flex-col">
+        {/* Chat Interface mobile optimisé */}
+        <Card className="mx-auto h-[calc(100vh-120px)] md:h-[calc(100vh-200px)] flex flex-col">
           <CardHeader className="flex-shrink-0 border-b">
             <CardTitle className="flex items-center gap-2">
               <Search className="h-5 w-5 text-orange-600" />
@@ -132,9 +132,9 @@ export const MedChat: React.FC = () => {
           </CardHeader>
           
           <CardContent className="flex-1 flex flex-col p-0">
-            {/* Messages */}
-            <ScrollArea className="flex-1 p-6">
-              <div className="space-y-4">
+            {/* Messages mobile optimisé */}
+            <ScrollArea className="flex-1 p-3 md:p-6">
+              <div className="space-y-3 md:space-y-4">
                 {messages.map((message) => (
                   <div
                     key={message.id}
@@ -149,7 +149,7 @@ export const MedChat: React.FC = () => {
                     )}
                     
                     <div
-                      className={`max-w-[70%] p-4 rounded-2xl ${
+                      className={`max-w-[85%] md:max-w-[70%] p-3 md:p-4 rounded-2xl ${
                         message.role === 'user'
                           ? 'bg-orange-600 text-white'
                           : 'bg-white border border-gray-200 shadow-sm'
@@ -202,14 +202,14 @@ export const MedChat: React.FC = () => {
               <div ref={messagesEndRef} />
             </ScrollArea>
 
-            {/* Input */}
-            <div className="border-t p-4">
+            {/* Input mobile optimisé */}
+            <div className="border-t p-3 md:p-4">
               <div className="flex gap-2">
                 <Input
                   value={currentMessage}
                   onChange={(e) => setCurrentMessage(e.target.value)}
                   onKeyPress={handleKeyPress}
-                  placeholder="Posez votre question sur n'importe quel cours..."
+                  placeholder="Tapez votre question médicale ici..."
                   className="flex-1"
                   disabled={isLoading}
                 />

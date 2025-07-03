@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { CheckCircle, XCircle, Trophy, RotateCcw } from 'lucide-react';
+import { useQuizWithErrorTracking } from '@/hooks/useQuizWithErrorTracking';
 
 interface QuizQuestion {
   question: string;
@@ -36,16 +37,24 @@ interface QuizFinalProps {
     badge?: string;
     message?: string;
   };
+  itemCode?: string;
+  itemTitle?: string;
 }
 
-export const QuizFinal = ({ questions, rewards }: QuizFinalProps) => {
+export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = 'Quiz EDN' }: QuizFinalProps) => {
   console.log('QuizFinal - questions received:', questions);
   console.log('QuizFinal - rewards received:', rewards);
 
-  const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [answers, setAnswers] = useState<{ [key: number]: any }>({});
-  const [showResults, setShowResults] = useState(false);
-  const [score, setScore] = useState(0);
+  const {
+    answers,
+    currentQuestion,
+    showResults,
+    score,
+    handleAnswer,
+    finishQuiz,
+    resetQuiz,
+    setCurrentQuestion
+  } = useQuizWithErrorTracking(itemCode, itemTitle);
 
   // Gestion du cas où les questions sont dans un format différent
   if (!questions) {
@@ -137,72 +146,7 @@ export const QuizFinal = ({ questions, rewards }: QuizFinalProps) => {
     );
   }
 
-  const handleAnswer = (questionId: number, answer: any) => {
-    setAnswers(prev => ({
-      ...prev,
-      [questionId]: answer
-    }));
-  };
-
-  const calculateScore = () => {
-    let totalScore = 0;
-    
-    // QCM scoring
-    if (questions.qcm) {
-      questions.qcm.forEach((q, i) => {
-        if (answers[i] === q.correct) totalScore++;
-      });
-    }
-
-    // QRU scoring
-    if (questions.qru) {
-      const startId = questions.qcm?.length || 0;
-      questions.qru.forEach((q, i) => {
-        const id = i + startId;
-        const userAnswer = answers[id]?.toLowerCase() || '';
-        if (q.reponse && userAnswer.includes(q.reponse.toLowerCase())) totalScore++;
-      });
-    }
-
-    // QROC scoring
-    if (questions.qroc) {
-      const startId = (questions.qcm?.length || 0) + (questions.qru?.length || 0);
-      questions.qroc.forEach((q, i) => {
-        const id = i + startId;
-        const userAnswer = answers[id]?.toLowerCase() || '';
-        if (q.points_cles) {
-          const matchedPoints = q.points_cles.filter(point => 
-            userAnswer.includes(point.toLowerCase())
-          );
-          if (matchedPoints.length >= 2) totalScore++;
-        }
-      });
-    }
-
-    // ZAP scoring
-    if (questions.zap) {
-      const startId = (questions.qcm?.length || 0) + (questions.qru?.length || 0) + (questions.qroc?.length || 0);
-      questions.zap.forEach((q, i) => {
-        const id = i + startId;
-        if (answers[id] === q.correct) totalScore++;
-      });
-    }
-
-    return totalScore;
-  };
-
-  const finishQuiz = () => {
-    const finalScore = calculateScore();
-    setScore(finalScore);
-    setShowResults(true);
-  };
-
-  const resetQuiz = () => {
-    setCurrentQuestion(0);
-    setAnswers({});
-    setShowResults(false);
-    setScore(0);
-  };
+  // Les fonctions sont maintenant gérées par le hook useQuizWithErrorTracking
 
   const getRewardMessage = () => {
     if (!rewards) return "Quiz terminé !";
@@ -354,51 +298,58 @@ export const QuizFinal = ({ questions, rewards }: QuizFinalProps) => {
         </div>
       </div>
 
-      <Card className="p-8 bg-white/90 border-amber-200">
+      <Card className="p-4 md:p-8 bg-white/90 border-amber-200">
         {renderQuestion(allQuestions[currentQuestion])}
       </Card>
 
-      <div className="flex justify-between items-center">
-        <Button
-          onClick={() => setCurrentQuestion(Math.max(0, currentQuestion - 1))}
-          disabled={currentQuestion === 0}
-          variant="outline"
-          className="border-amber-300 text-amber-700 hover:bg-amber-50"
-        >
-          Précédent
-        </Button>
-
-        <div className="flex space-x-2">
-          {allQuestions.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentQuestion(index)}
-              className={`w-3 h-3 rounded-full transition-colors ${
-                index === currentQuestion
-                  ? 'bg-amber-600'
-                  : answers[allQuestions[index].id] !== undefined
-                  ? 'bg-green-400'
-                  : 'bg-gray-200'
-              }`}
-            />
-          ))}
+      {/* Navigation mobile optimisée */}
+      <div className="space-y-4">
+        {/* Indicateurs de progression */}
+        <div className="flex justify-center">
+          <div className="flex space-x-1 overflow-x-auto max-w-full px-2">
+            {allQuestions.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentQuestion(index)}
+                className={`w-2 h-2 md:w-3 md:h-3 rounded-full transition-colors flex-shrink-0 ${
+                  index === currentQuestion
+                    ? 'bg-amber-600'
+                    : answers[allQuestions[index].id] !== undefined
+                    ? 'bg-green-400'
+                    : 'bg-gray-200'
+                }`}
+              />
+            ))}
+          </div>
         </div>
 
-        {currentQuestion === allQuestions.length - 1 ? (
+        {/* Boutons de navigation */}
+        <div className="flex justify-between items-center gap-4">
           <Button
-            onClick={finishQuiz}
-            className="bg-green-600 hover:bg-green-700 text-white"
+            onClick={() => setCurrentQuestion(Math.max(0, currentQuestion - 1))}
+            disabled={currentQuestion === 0}
+            variant="outline"
+            className="border-amber-300 text-amber-700 hover:bg-amber-50 flex-1 md:flex-none"
           >
-            Terminer le quiz
+            Précédent
           </Button>
-        ) : (
-          <Button
-            onClick={() => setCurrentQuestion(Math.min(allQuestions.length - 1, currentQuestion + 1))}
-            className="bg-amber-600 hover:bg-amber-700 text-white"
-          >
-            Suivant
-          </Button>
-        )}
+
+          {currentQuestion === allQuestions.length - 1 ? (
+            <Button
+              onClick={() => finishQuiz(questions)}
+              className="bg-green-600 hover:bg-green-700 text-white flex-1 md:flex-none"
+            >
+              Terminer le quiz
+            </Button>
+          ) : (
+            <Button
+              onClick={() => setCurrentQuestion(Math.min(allQuestions.length - 1, currentQuestion + 1))}
+              className="bg-amber-600 hover:bg-amber-700 text-white flex-1 md:flex-none"
+            >
+              Suivant
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );

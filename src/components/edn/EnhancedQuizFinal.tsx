@@ -75,14 +75,14 @@ export const EnhancedQuizFinal: React.FC<EnhancedQuizFinalProps> = ({
     // Ici on pourrait intégrer avec un système de bibliothèque musicale
   };
 
-  // Wrapper pour le QuizFinal original avec tracking des erreurs
+  // Wrapper pour le QuizFinal avec tracking des erreurs intégré
   const QuizWithErrorTracking = () => {
-    // TODO: Intégrer le tracking des erreurs dans le composant QuizFinal
-    // Pour l'instant, on utilise le composant original
     return (
       <QuizFinal 
         questions={questions} 
         rewards={rewards}
+        itemCode={itemCode}
+        itemTitle={itemTitle}
       />
     );
   };
@@ -180,19 +180,6 @@ export const EnhancedQuizFinal: React.FC<EnhancedQuizFinalProps> = ({
         </TabsContent>
       </Tabs>
 
-      {/* Informations de session (debug) */}
-      {hasCurrentSession && (
-        <Card className="bg-gray-50 border-gray-200">
-          <CardContent className="pt-6">
-            <div className="text-xs space-y-1 text-gray-600">
-              <div><strong>Session ID:</strong> {currentSession?.id}</div>
-              <div><strong>Démarrage:</strong> {currentSession?.startTime.toLocaleTimeString()}</div>
-              <div><strong>Item:</strong> {itemCode} - {itemTitle}</div>
-              <div><strong>Erreurs en temps réel:</strong> {currentErrors.length}</div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
     </div>
   );
