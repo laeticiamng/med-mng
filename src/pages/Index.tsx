@@ -9,7 +9,7 @@ import { PremiumBackground } from "@/components/ui/premium-background";
 import { PremiumCard } from "@/components/ui/premium-card";
 import { PremiumButton } from "@/components/ui/premium-button";
 import { useNavigate } from "react-router-dom";
-import { LogIn, CreditCard, BarChart3, Music, BookOpen, MessageSquare, Users, Zap, Target, Award, TrendingUp, Sparkles, Star, Wand2, Brain } from "lucide-react";
+import { LogIn, CreditCard, BarChart3, Music, BookOpen, MessageSquare, Users, Zap, Target, Award, TrendingUp, Sparkles, Star, Wand2, Brain, Settings } from "lucide-react";
 import { TranslatedText } from "@/components/TranslatedText";
 
 const Index = () => {
@@ -67,6 +67,18 @@ const Index = () => {
                 >
                   <BarChart3 className="h-4 w-4 mr-2" />
                   <TranslatedText text="Admin Import" />
+                </PremiumButton>
+              )}
+              
+              {isAdmin && (
+                <PremiumButton
+                  variant="glass"
+                  size="sm"
+                  onClick={() => navigate('/admin/audit')}
+                  className="hidden xl:inline-flex"
+                >
+                  <Settings className="h-4 w-4 mr-2" />
+                  <TranslatedText text="Audit" />
                 </PremiumButton>
               )}
               

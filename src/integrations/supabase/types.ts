@@ -170,6 +170,148 @@ export type Database = {
           },
         ]
       }
+      audit_fixes: {
+        Row: {
+          applied: boolean | null
+          applied_at: string | null
+          created_at: string
+          fix_script: string
+          fix_type: string
+          id: string
+          issue_id: string | null
+          result: Json | null
+          rollback_script: string | null
+        }
+        Insert: {
+          applied?: boolean | null
+          applied_at?: string | null
+          created_at?: string
+          fix_script: string
+          fix_type: string
+          id?: string
+          issue_id?: string | null
+          result?: Json | null
+          rollback_script?: string | null
+        }
+        Update: {
+          applied?: boolean | null
+          applied_at?: string | null
+          created_at?: string
+          fix_script?: string
+          fix_type?: string
+          id?: string
+          issue_id?: string | null
+          result?: Json | null
+          rollback_script?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_fixes_issue_id_fkey"
+            columns: ["issue_id"]
+            isOneToOne: false
+            referencedRelation: "audit_issues"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      audit_issues: {
+        Row: {
+          affected_column: string | null
+          affected_component: string | null
+          affected_file: string | null
+          affected_table: string | null
+          auto_fixable: boolean | null
+          created_at: string
+          description: string
+          fixed: boolean | null
+          id: string
+          issue_type: string
+          metadata: Json | null
+          report_id: string | null
+          severity: string
+          suggestion: string | null
+          title: string
+        }
+        Insert: {
+          affected_column?: string | null
+          affected_component?: string | null
+          affected_file?: string | null
+          affected_table?: string | null
+          auto_fixable?: boolean | null
+          created_at?: string
+          description: string
+          fixed?: boolean | null
+          id?: string
+          issue_type: string
+          metadata?: Json | null
+          report_id?: string | null
+          severity: string
+          suggestion?: string | null
+          title: string
+        }
+        Update: {
+          affected_column?: string | null
+          affected_component?: string | null
+          affected_file?: string | null
+          affected_table?: string | null
+          auto_fixable?: boolean | null
+          created_at?: string
+          description?: string
+          fixed?: boolean | null
+          id?: string
+          issue_type?: string
+          metadata?: Json | null
+          report_id?: string | null
+          severity?: string
+          suggestion?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_issues_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "audit_reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      audit_reports: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          created_by: string | null
+          findings: Json | null
+          id: string
+          metrics: Json | null
+          recommendations: Json | null
+          report_type: string
+          status: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          findings?: Json | null
+          id?: string
+          metrics?: Json | null
+          recommendations?: Json | null
+          report_type: string
+          status?: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          findings?: Json | null
+          id?: string
+          metrics?: Json | null
+          recommendations?: Json | null
+          report_type?: string
+          status?: string
+        }
+        Relationships: []
+      }
       badges: {
         Row: {
           awarded_at: string
@@ -306,6 +448,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      cleanup_history: {
+        Row: {
+          affected_records: number | null
+          cleanup_type: string
+          created_at: string
+          created_by: string | null
+          details: Json | null
+          id: string
+        }
+        Insert: {
+          affected_records?: number | null
+          cleanup_type: string
+          created_at?: string
+          created_by?: string | null
+          details?: Json | null
+          id?: string
+        }
+        Update: {
+          affected_records?: number | null
+          cleanup_type?: string
+          created_at?: string
+          created_by?: string | null
+          details?: Json | null
+          id?: string
+        }
+        Relationships: []
       }
       comments: {
         Row: {
@@ -2066,6 +2235,10 @@ export type Database = {
         Args: { token_param: string }
         Returns: boolean
       }
+      cleanup_duplicates: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
       cleanup_old_imports: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -2088,6 +2261,18 @@ export type Database = {
           target_user_id: string
           template_variables?: Json
         }
+        Returns: string
+      }
+      detect_data_inconsistencies: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
+      detect_edn_duplicates: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
+      generate_audit_report: {
+        Args: { report_type_param?: string }
         Returns: string
       }
       get_activity_stats: {
