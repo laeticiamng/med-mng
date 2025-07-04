@@ -29,28 +29,55 @@ const RUBRIQUES_MAP: Record<string, string> = {
 export function parseOICContent(page: any): OicCompetence | null {
   try {
     const title = page.title;
-    const content = page.revisions?.[0]?.['*'] || '';
+    // Le contenu peut être dans slots.main.content (format moderne) ou dans revisions[0]['*'] (format ancien)
+    const content = page.revisions?.[0]?.slots?.main?.content || page.revisions?.[0]?.['*'] || '';
+    
+    if (!content) {
+      console.warn(`⚠️ Pas de contenu pour ${title}`);
+      return null;
+    }
     
     // Extraire l'identifiant OIC
     const match = title.match(/OIC-(\d{3})-(\d{2})-([AB])-(\d{2})/);
-    if (!match) return null;
+    if (!match) {
+      console.warn(`⚠️ Format de titre non conforme: ${title}`);
+      return null;
+    }
     
     const [objectif_id, item_parent, rubrique_code, rang, ordre_str] = match;
     
-    // Extraire l'intitulé depuis le wikitext
+    // Extraire l'intitulé depuis le wikitext - plusieurs patterns possibles
     let intitule = title;
-    const intituleMatch = content.match(/\|\s*Intitulé\s*=\s*([^\n\|]+)/i) || 
-                         content.match(/<th[^>]*>Intitulé<\/th>\s*<td[^>]*>([^<]+)/i);
-    if (intituleMatch) {
-      intitule = intituleMatch[1].trim();
+    const intitulePatterns = [
+      /\|\s*[Ii]ntitulé\s*=\s*([^\n\|]+)/,
+      /\|\s*[Tt]itre\s*=\s*([^\n\|]+)/,
+      /'''(.+?)'''/,
+      /<th[^>]*>[Ii]ntitulé<\/th>\s*<td[^>]*>([^<]+)/
+    ];
+    
+    for (const pattern of intitulePatterns) {
+      const intituleMatch = pattern.exec(content);
+      if (intituleMatch && intituleMatch[1].trim()) {
+        intitule = intituleMatch[1].trim();
+        break;
+      }
     }
     
-    // Extraire la description
+    // Extraire la description - plusieurs patterns possibles
     let description = '';
-    const descMatch = content.match(/\|\s*Description\s*=\s*([^\n\|]+)/i) ||
-                     content.match(/<th[^>]*>Description<\/th>\s*<td[^>]*>([^<]+)/i);
-    if (descMatch) {
-      description = descMatch[1].trim();
+    const descPatterns = [
+      /\|\s*[Dd]escription\s*=\s*([^\n\|]+)/,
+      /\|\s*[Dd]éfinition\s*=\s*([^\n\|]+)/,
+      /<th[^>]*>[Dd]escription<\/th>\s*<td[^>]*>([^<]+)/,
+      /\n\n(.+?)(?=\n\n|\[\[|$)/s // Premier paragraphe
+    ];
+    
+    for (const pattern of descPatterns) {
+      const descMatch = pattern.exec(content);
+      if (descMatch && descMatch[1].trim()) {
+        description = descMatch[1].trim().replace(/\[\[(.+?)\]\]/g, '$1');
+        break;
+      }
     }
     
     return {

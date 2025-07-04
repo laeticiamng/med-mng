@@ -131,7 +131,7 @@ async function extractCompetences(supabaseClient: any, session_id: string) {
     
     // Récupérer tous les IDs des pages
     console.log('📋 Récupération de la liste des objectifs...')
-    const allPageIds = await getCategoryMembers(authCookies)
+    const { pageIds: allPageIds, titles } = await getCategoryMembers(authCookies)
     console.log(`📊 ${allPageIds.length} pages trouvées`)
     
     // Traitement par lots de 50 pages
