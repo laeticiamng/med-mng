@@ -1,4 +1,4 @@
-// extract-oic-competences.js
+// extract-oic-competences.cjs
 // Script Node.js pour GitHub Actions - Extraction complète des 4,872 compétences OIC
 
 const puppeteer = require('puppeteer');
