@@ -31,12 +31,39 @@ serve(async (req) => {
   }
 
   try {
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    )
+    // Vérifier les variables d'environnement requises
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+    const unessUsername = Deno.env.get('UNESS_USERNAME')
+    const unessPassword = Deno.env.get('UNESS_PASSWORD')
 
-    const { action, session_id, page, resume_from } = await req.json()
+    if (!supabaseUrl || !supabaseKey) {
+      console.error('Variables Supabase manquantes')
+      throw new Error('Configuration Supabase manquante')
+    }
+
+    if (!unessUsername || !unessPassword) {
+      console.error('Identifiants UNESS manquants')
+      throw new Error('Identifiants UNESS manquants - vérifiez les secrets dans Supabase')
+    }
+
+    const supabaseClient = createClient(supabaseUrl, supabaseKey)
+
+    let requestBody
+    try {
+      requestBody = await req.json()
+    } catch (error) {
+      console.error('Erreur parsing JSON:', error)
+      throw new Error('Format de requête invalide')
+    }
+
+    const { action, session_id, page, resume_from } = requestBody
+
+    console.log(`Action demandée: ${action}`)
+
+    if (!action) {
+      throw new Error('Action manquante dans la requête')
+    }
 
     switch (action) {
       case 'start':
@@ -166,42 +193,74 @@ async function extractObjectifsBackground(supabaseClient: any, session_id: strin
 
 async function authenticateUNESS(): Promise<string> {
   const loginUrl = 'https://auth.uness.fr/cas/login'
-  const username = Deno.env.get('UNESS_USERNAME') || 'laeticia.moto-ngane@etud.u-picardie.fr'
-  const password = Deno.env.get('UNESS_PASSWORD') || 'Aiciteal1!'
+  const username = Deno.env.get('UNESS_USERNAME')
+  const password = Deno.env.get('UNESS_PASSWORD')
 
-  // Première requête pour récupérer le formulaire de connexion
-  let response = await fetch(loginUrl)
-  let html = await response.text()
-  let cookies = response.headers.get('set-cookie') || ''
-
-  // Extraire le token CSRF
-  const csrfMatch = html.match(/name="execution" value="([^"]+)"/)
-  const execution = csrfMatch ? csrfMatch[1] : ''
-
-  // Connexion avec les identifiants
-  const loginData = new URLSearchParams({
-    username,
-    password,
-    execution,
-    '_eventId': 'submit'
-  })
-
-  response = await fetch(loginUrl, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'Cookie': cookies
-    },
-    body: loginData
-  })
-
-  // Récupérer les cookies d'authentification
-  const authCookies = response.headers.get('set-cookie')
-  if (authCookies) {
-    cookies += '; ' + authCookies
+  if (!username || !password) {
+    throw new Error('Identifiants UNESS manquants dans les variables d\'environnement')
   }
 
-  return cookies
+  console.log(`🔐 Authentification UNESS pour l'utilisateur: ${username}`)
+
+  try {
+    // Première requête pour récupérer le formulaire de connexion
+    let response = await fetch(loginUrl)
+    
+    if (!response.ok) {
+      throw new Error(`Erreur lors de l'accès à la page de connexion: ${response.status}`)
+    }
+    
+    let html = await response.text()
+    let cookies = response.headers.get('set-cookie') || ''
+
+    console.log('📋 Page de connexion récupérée, extraction du token CSRF...')
+
+    // Extraire le token CSRF
+    const csrfMatch = html.match(/name="execution" value="([^"]+)"/)
+    const execution = csrfMatch ? csrfMatch[1] : ''
+
+    if (!execution) {
+      console.warn('⚠️ Token CSRF non trouvé, tentative de connexion sans token')
+    }
+
+    // Connexion avec les identifiants
+    const loginData = new URLSearchParams({
+      username,
+      password,
+      execution,
+      '_eventId': 'submit'
+    })
+
+    console.log('🔑 Envoi des identifiants de connexion...')
+
+    response = await fetch(loginUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Cookie': cookies,
+        'User-Agent': 'Mozilla/5.0 (compatible; EdnExtractor/1.0)'
+      },
+      body: loginData
+    })
+
+    // Vérifier la réponse
+    if (!response.ok) {
+      throw new Error(`Erreur lors de la connexion: ${response.status}`)
+    }
+
+    // Récupérer les cookies d'authentification
+    const authCookies = response.headers.get('set-cookie')
+    if (authCookies) {
+      cookies += '; ' + authCookies
+    }
+
+    console.log('✅ Authentification UNESS réussie')
+    return cookies
+
+  } catch (error) {
+    console.error('❌ Erreur lors de l\'authentification UNESS:', error)
+    throw new Error(`Échec de l'authentification UNESS: ${error.message}`)
+  }
 }
 
 async function extractPageObjectifs(cookies: string, page: number): Promise<EdnObjectif[]> {
