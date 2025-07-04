@@ -45,56 +45,30 @@ export const BandeDessineeComplete = ({ itemData }: BandeDessineeCompleteProps) 
   const createDefaultPanels = (data: any): VignettePregenere[] => {
     console.log('🔍 Analyse des données pour création de vignettes:', data);
     
-    // Essayer différentes structures de données possibles
-    let lignes = null;
+    // Créer des vignettes basées sur le tableau rang A
+    const sections = data.tableau_rang_a?.sections || [];
+    const itemCode = data.item_code || 'IC-1';
+    const itemNumber = itemCode.replace('IC-', '');
     
-    if (data.tableau_rang_a?.lignes) {
-      lignes = data.tableau_rang_a.lignes;
-      console.log('📋 Lignes trouvées dans tableau_rang_a.lignes:', lignes.length);
-    } else if (data.tableau_rang_a?.data) {
-      lignes = data.tableau_rang_a.data;
-      console.log('📋 Lignes trouvées dans tableau_rang_a.data:', lignes.length);
-    } else if (Array.isArray(data.tableau_rang_a)) {
-      lignes = data.tableau_rang_a;
-      console.log('📋 Lignes trouvées dans tableau_rang_a (array):', lignes.length);
+    if (sections.length === 0) {
+      // Créer une vignette par défaut si pas de sections
+      return [{
+        id: 1,
+        title: `Introduction ${itemCode}`,
+        text: `Découvrez les concepts essentiels de l'item ${itemNumber}: ${data.title}`,
+        imageUrl: `https://images.unsplash.com/photo-1576091160399-112ba8d25d1f?w=500&h=300&fit=crop&crop=center`,
+        competences: ['Compréhension générale']
+      }];
     }
-
-    if (!lignes || lignes.length === 0) {
-      console.log('❌ Aucune donnée trouvée, création de vignettes génériques');
-      // Créer des vignettes génériques
-      return Array.from({ length: 4 }, (_, index) => ({
-        id: index + 1,
-        title: `${data.title} - Vignette ${index + 1}`,
-        text: `Cette vignette illustre des aspects importants de "${data.title}". Elle présente des situations cliniques pratiques pour améliorer la compréhension et la maîtrise des compétences médicales.`,
-        imageUrl: `/lovable-uploads/5de8d99e-d7d8-41b8-b318-b4f51265648b.png`,
-        competences: [`Compétence clinique ${index + 1}`, `Pratique médicale ${index + 1}`]
-      }));
-    }
-
-    return lignes.slice(0, 6).map((ligne: any, index: number) => {
-      let competence1 = 'Compétence médicale';
-      let competence2 = 'Pratique clinique';
-      let description = 'Situation clinique pratique';
-
-      // Adapter selon la structure des données
-      if (Array.isArray(ligne)) {
-        competence1 = ligne[0] || competence1;
-        description = ligne[1] || description;
-        competence2 = ligne[2] || competence2;
-      } else if (typeof ligne === 'object') {
-        competence1 = ligne.competence || ligne.title || competence1;
-        description = ligne.description || ligne.text || description;
-        competence2 = ligne.skill || ligne.pratique || competence2;
-      }
-
-      return {
-        id: index + 1,
-        title: `${competence1} - Scénario ${index + 1}`,
-        text: `Dans cette situation clinique, nous explorons ${competence1.toLowerCase()}. ${description} Cette vignette illustre concrètement comment ${competence2} dans la pratique quotidienne du médecin.`,
-        imageUrl: `/lovable-uploads/5de8d99e-d7d8-41b8-b318-b4f51265648b.png`,
-        competences: [competence1, competence2]
-      };
-    });
+    
+    // Créer une vignette pour chaque section du rang A
+    return sections.map((section: any, index: number) => ({
+      id: index + 1,
+      title: section.title || `Étape ${index + 1}`,
+      text: section.content || `Contenu de la section ${index + 1} pour l'item ${itemNumber}`,
+      imageUrl: `https://images.unsplash.com/photo-${1576091160399 + index}?w=500&h=300&fit=crop&crop=center`,
+      competences: section.keywords || [`Compétence ${index + 1}`]
+    }));
   };
 
   const totalCompetences = (itemData.tableau_rang_a?.lignes?.length || 
@@ -156,8 +130,7 @@ export const BandeDessineeComplete = ({ itemData }: BandeDessineeCompleteProps) 
                 title: panel.title,
                 text: panel.text,
                 imageUrl: panel.imageUrl,
-                competences: panel.competences,
-                isGenerated: true
+                competences: panel.competences
               }} />
               {panel.competences.length > 0 && (
                 <div className="mt-3 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
