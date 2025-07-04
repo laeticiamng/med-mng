@@ -71,11 +71,11 @@ const EdnIndex = () => {
     const itemNumber = parseInt(item.item_code.replace('IC-', '') || '0');
     switch (selectedCategory) {
       case 'foundation':
-        return matchesSearch && itemNumber <= 3;
+        return matchesSearch && itemNumber <= 100;
       case 'clinical':
-        return matchesSearch && itemNumber >= 4 && itemNumber <= 7;
+        return matchesSearch && itemNumber >= 101 && itemNumber <= 250;
       case 'advanced':
-        return matchesSearch && itemNumber >= 8;
+        return matchesSearch && itemNumber >= 251;
       default:
         return matchesSearch;
     }
@@ -136,12 +136,12 @@ const EdnIndex = () => {
       <div className="text-center mb-8">
         <div className="flex items-center justify-center gap-3 mb-4">
           <BookOpen className="h-8 w-8 text-primary" />
-          <h1 className="text-4xl font-bold">Items EDN Immersifs (IC-1 à IC-10)</h1>
+          <h1 className="text-4xl font-bold">Items EDN Immersifs (IC-1 à IC-367)</h1>
           <Sparkles className="h-6 w-6 text-yellow-500" />
         </div>
         <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-4">
-          Découvrez nos 10 items de connaissance pour l'Examen National Dematérialisé, 
-          numérotés de 1 à 10, enrichis de contenus interactifs, paroles musicales et scénarios immersifs.
+          Découvrez nos 367 items de connaissance pour l'Examen National Dématérialisé, 
+          numérotés de 1 à 367, enrichis de contenus interactifs, paroles musicales et scénarios immersifs.
         </p>
         <div className="flex items-center justify-center gap-2">
           <CheckCircle className="h-5 w-5 text-green-500" />
@@ -164,10 +164,10 @@ const EdnIndex = () => {
         </div>
         <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="w-full md:w-auto">
           <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="all">Tous (1-10)</TabsTrigger>
-            <TabsTrigger value="foundation">Base (1-3)</TabsTrigger>
-            <TabsTrigger value="clinical">Clinique (4-7)</TabsTrigger>
-            <TabsTrigger value="advanced">Avancé (8-10)</TabsTrigger>
+            <TabsTrigger value="all">Tous (1-367)</TabsTrigger>
+            <TabsTrigger value="foundation">Base (1-100)</TabsTrigger>
+            <TabsTrigger value="clinical">Clinique (101-250)</TabsTrigger>
+            <TabsTrigger value="advanced">Avancé (251-367)</TabsTrigger>
           </TabsList>
         </Tabs>
       </div>
@@ -176,8 +176,8 @@ const EdnIndex = () => {
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
         <Card>
           <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-primary">10</div>
-            <div className="text-sm text-muted-foreground">Items Total (IC-1 à IC-10)</div>
+            <div className="text-2xl font-bold text-primary">{items.length}</div>
+            <div className="text-sm text-muted-foreground">Items Total (IC-1 à IC-367)</div>
           </CardContent>
         </Card>
         <Card>
