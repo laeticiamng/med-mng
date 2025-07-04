@@ -595,6 +595,45 @@ export type Database = {
         }
         Relationships: []
       }
+      edn_extraction_progress: {
+        Row: {
+          created_at: string
+          derniere_activite: string
+          erreurs: Json | null
+          id: string
+          objectifs_extraits: number | null
+          page_courante: number | null
+          session_id: string
+          statut: string | null
+          total_objectifs: number | null
+          total_pages: number | null
+        }
+        Insert: {
+          created_at?: string
+          derniere_activite?: string
+          erreurs?: Json | null
+          id?: string
+          objectifs_extraits?: number | null
+          page_courante?: number | null
+          session_id: string
+          statut?: string | null
+          total_objectifs?: number | null
+          total_pages?: number | null
+        }
+        Update: {
+          created_at?: string
+          derniere_activite?: string
+          erreurs?: Json | null
+          id?: string
+          objectifs_extraits?: number | null
+          page_courante?: number | null
+          session_id?: string
+          statut?: string | null
+          total_objectifs?: number | null
+          total_pages?: number | null
+        }
+        Relationships: []
+      }
       edn_items: {
         Row: {
           created_at: string | null
@@ -751,6 +790,51 @@ export type Database = {
           rangs_a?: string[] | null
           rangs_b?: string[] | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      edn_objectifs_connaissance: {
+        Row: {
+          created_at: string
+          date_import: string
+          description: string | null
+          id: string
+          intitule: string
+          item_parent: number
+          objectif_id: string
+          ordre: number | null
+          rang: string
+          rubrique: string
+          updated_at: string
+          url_source: string | null
+        }
+        Insert: {
+          created_at?: string
+          date_import?: string
+          description?: string | null
+          id?: string
+          intitule: string
+          item_parent: number
+          objectif_id: string
+          ordre?: number | null
+          rang: string
+          rubrique: string
+          updated_at?: string
+          url_source?: string | null
+        }
+        Update: {
+          created_at?: string
+          date_import?: string
+          description?: string | null
+          id?: string
+          intitule?: string
+          item_parent?: number
+          objectif_id?: string
+          ordre?: number | null
+          rang?: string
+          rubrique?: string
+          updated_at?: string
+          url_source?: string | null
         }
         Relationships: []
       }
@@ -2507,6 +2591,16 @@ export type Database = {
           category: string
           count: number
           timestamp_day: string
+        }[]
+      }
+      get_edn_objectifs_rapport: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          item_parent: number
+          objectifs_attendus: number
+          objectifs_extraits: number
+          completude_pct: number
+          manquants: string[]
         }[]
       }
       mark_notifications_as_read: {
