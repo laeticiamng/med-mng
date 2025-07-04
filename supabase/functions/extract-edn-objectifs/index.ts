@@ -122,33 +122,63 @@ async function extractObjectifsBackground(supabaseClient: any, session_id: strin
   try {
     // Étape 1: Authentification CAS UNESS
     console.log('🔐 Connexion au CAS UNESS...')
+    
+    // Mettre à jour le statut pour indiquer l'authentification
+    await supabaseClient
+      .from('edn_extraction_progress')
+      .update({
+        statut: 'en_cours',
+        derniere_activite: new Date().toISOString()
+      })
+      .eq('session_id', session_id)
+    
     cookies = await authenticateUNESS()
+    console.log('✅ Authentification UNESS réussie')
     
     // Étape 2: Extraction page par page
     while (page <= maxPages) {
       console.log(`📄 Extraction page ${page}/${maxPages}...`)
       
+      // Mettre à jour le progrès avant chaque page
+      await supabaseClient
+        .from('edn_extraction_progress')
+        .update({
+          page_courante: page,
+          objectifs_extraits: totalExtraits,
+          derniere_activite: new Date().toISOString()
+        })
+        .eq('session_id', session_id)
+      
       const objectifs = await extractPageObjectifs(cookies, page)
+      console.log(`📊 Page ${page}: ${objectifs.length} objectifs trouvés`)
       
       if (objectifs.length === 0) {
-        console.log('Aucun objectif trouvé, arrêt de l\'extraction')
+        console.log('⚠️ Aucun objectif trouvé, arrêt de l\'extraction')
         break
       }
 
       // Sauvegarder en base
+      let savedOnThisPage = 0
       for (const objectif of objectifs) {
         try {
-          await supabaseClient
+          const { error } = await supabaseClient
             .from('edn_objectifs_connaissance')
             .upsert(objectif, { onConflict: 'objectif_id' })
           
-          totalExtraits++
+          if (error) {
+            console.error(`❌ Erreur sauvegarde objectif ${objectif.objectif_id}:`, error)
+          } else {
+            savedOnThisPage++
+            totalExtraits++
+          }
         } catch (error) {
-          console.error(`Erreur sauvegarde objectif ${objectif.objectif_id}:`, error)
+          console.error(`💥 Exception sauvegarde objectif ${objectif.objectif_id}:`, error)
         }
       }
+      
+      console.log(`✅ Page ${page}: ${savedOnThisPage}/${objectifs.length} objectifs sauvegardés (Total: ${totalExtraits})`)
 
-      // Mettre à jour le progrès
+      // Mettre à jour le progrès après chaque page
       await supabaseClient
         .from('edn_extraction_progress')
         .update({
@@ -165,6 +195,8 @@ async function extractObjectifsBackground(supabaseClient: any, session_id: strin
     }
 
     // Finaliser l'extraction
+    console.log(`🎉 Extraction terminée avec succès: ${totalExtraits} objectifs extraits au total`)
+    
     await supabaseClient
       .from('edn_extraction_progress')
       .update({
@@ -174,16 +206,23 @@ async function extractObjectifsBackground(supabaseClient: any, session_id: strin
       })
       .eq('session_id', session_id)
 
-    console.log(`✅ Extraction terminée: ${totalExtraits} objectifs extraits`)
-
   } catch (error) {
-    console.error('❌ Erreur durant l\'extraction:', error)
+    console.error('💥 Erreur critique durant l\'extraction:', error)
+    
+    // Ajouter l'erreur aux logs
+    const errorDetails = {
+      timestamp: new Date().toISOString(), 
+      message: error.message,
+      stack: error.stack,
+      page: page,
+      totalExtraits: totalExtraits
+    }
     
     await supabaseClient
       .from('edn_extraction_progress')
       .update({
         statut: 'erreur',
-        erreurs: [{ timestamp: new Date().toISOString(), message: error.message }],
+        erreurs: [errorDetails],
         derniere_activite: new Date().toISOString()
       })
       .eq('session_id', session_id)
