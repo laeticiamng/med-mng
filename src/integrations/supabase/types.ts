@@ -2424,6 +2424,13 @@ export type Database = {
         Args: { token_param: string }
         Returns: boolean
       }
+      audit_and_fix_edn_content: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          updated_count: number
+          audit_report: Json
+        }[]
+      }
       cleanup_duplicates: {
         Args: Record<PropertyKey, never>
         Returns: Json
