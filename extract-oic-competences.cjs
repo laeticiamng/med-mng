@@ -261,11 +261,13 @@ async function authenticateCAS(page) {
   log(`✅ Authentification CAS terminée avec succès`);
 }
 
-// Extraction via API MediaWiki
+// Extraction via API MediaWiki avec DEBUG INTENSIF
 async function extractViaAPI(page, stats) {
   const allCompetences = [];
   let continueToken = '';
   let pageCount = 0;
+  
+  log('🚀 === DÉBUT EXTRACTION API MEDIAWIKI ===');
   
   do {
     const apiUrl = new URL(config.urls.api);
@@ -278,34 +280,90 @@ async function extractViaAPI(page, stats) {
       apiUrl.searchParams.set('cmcontinue', continueToken);
     }
     
+    log(`🔗 URL API: ${apiUrl.toString()}`);
+    
     try {
+      log('📡 Appel API MediaWiki...');
       const apiData = await page.evaluate(async (url) => {
+        console.log(`[BROWSER] Fetching: ${url}`);
         const response = await fetch(url);
-        return await response.json();
+        console.log(`[BROWSER] Response status: ${response.status}`);
+        const data = await response.json();
+        console.log(`[BROWSER] Response data keys:`, Object.keys(data));
+        return data;
       }, apiUrl.toString());
       
+      log(`📊 Réponse API reçue: ${JSON.stringify(apiData, null, 2).substring(0, 500)}...`);
+      
       if (apiData.error) {
+        log(`❌ ERREUR API: ${JSON.stringify(apiData.error)}`);
         throw new Error(`API Error: ${apiData.error.code} - ${apiData.error.info}`);
       }
       
-      const pageIds = apiData.query?.categorymembers
-        ?.filter(p => p.title?.match(/OIC-\d{3}-\d{2}-[AB]-\d{2}/))
-        ?.map(p => p.pageid) || [];
+      if (!apiData.query) {
+        log(`❌ PAS DE QUERY dans la réponse API`);
+        log(`📄 Réponse complète: ${JSON.stringify(apiData)}`);
+        throw new Error('Pas de section query dans la réponse API');
+      }
+      
+      if (!apiData.query.categorymembers) {
+        log(`❌ PAS DE CATEGORYMEMBERS dans query`);
+        log(`📄 Query keys: ${Object.keys(apiData.query)}`);
+        throw new Error('Pas de categorymembers dans la réponse');
+      }
+      
+      const allMembers = apiData.query.categorymembers || [];
+      log(`📋 ${allMembers.length} membres trouvés dans la catégorie`);
+      
+      // Debug: afficher quelques exemples
+      if (allMembers.length > 0) {
+        log(`🔍 Premiers exemples de titres:`);
+        allMembers.slice(0, 5).forEach((member, i) => {
+          log(`   ${i+1}. "${member.title}" (ID: ${member.pageid})`);
+        });
+      }
+      
+      const pageIds = allMembers
+        .filter(p => {
+          const match = p.title?.match(/OIC-\d{3}-\d{2}-[AB]-\d{2}/);
+          if (!match && p.title?.includes('OIC')) {
+            log(`⚠️ Titre OIC non matché: "${p.title}"`);
+          }
+          return match;
+        })
+        .map(p => p.pageid);
       
       stats.totalFound += pageIds.length;
-      log(`📄 Lot ${++pageCount}: ${pageIds.length} compétences trouvées (Total: ${stats.totalFound})`);
+      log(`📄 Lot ${++pageCount}: ${pageIds.length}/${allMembers.length} compétences valides (Total: ${stats.totalFound})`);
+      
+      if (pageIds.length === 0) {
+        log(`❌ AUCUNE COMPÉTENCE OIC TROUVÉE dans ce lot !`);
+        log(`📋 Exemples de titres reçus:`);
+        allMembers.slice(0, 10).forEach(member => {
+          log(`   - "${member.title}"`);
+        });
+      }
       
       // Traiter par batches de 50
       for (let i = 0; i < pageIds.length; i += 50) {
         const batch = pageIds.slice(i, i + 50);
+        log(`🔄 Traitement batch ${Math.floor(i/50) + 1}: IDs ${batch.join(', ')}`);
+        
         try {
           const competences = await getPageContents(page, batch);
+          log(`✅ ${competences.length} compétences extraites du batch`);
+          
+          if (competences.length > 0) {
+            log(`🔍 Exemple de compétence extraite: ${JSON.stringify(competences[0], null, 2)}`);
+          }
+          
           allCompetences.push(...competences);
           stats.totalProcessed += batch.length;
           
           log(`   ✅ Batch ${Math.floor(i/50) + 1}: ${competences.length}/${batch.length} extraites`);
         } catch (error) {
           log(`   ❌ Erreur batch ${Math.floor(i/50) + 1}: ${error.message}`);
+          log(`   📄 Stack trace: ${error.stack}`);
           stats.totalErrors += batch.length;
           stats.errors.push({ 
             type: 'BATCH_ERROR', 
@@ -320,9 +378,11 @@ async function extractViaAPI(page, stats) {
       }
       
       continueToken = apiData.continue?.cmcontinue || '';
+      log(`🔄 Continue token: ${continueToken || 'NONE'}`);
       
     } catch (error) {
-      log(`❌ Erreur page API ${pageCount}: ${error.message}`);
+      log(`❌ ERREUR CRITIQUE page API ${pageCount}: ${error.message}`);
+      log(`📄 Stack trace: ${error.stack}`);
       stats.errors.push({ 
         type: 'API_ERROR', 
         page: pageCount, 
@@ -334,11 +394,17 @@ async function extractViaAPI(page, stats) {
     
   } while (continueToken);
   
+  log(`🏁 === FIN EXTRACTION API MEDIAWIKI ===`);
+  log(`📊 Total compétences extraites: ${allCompetences.length}`);
+  
   return allCompetences;
 }
 
-// Récupérer le contenu des pages
+// Récupérer le contenu des pages avec DEBUG INTENSIF
 async function getPageContents(page, pageIds) {
+  log(`📥 === DÉBUT RÉCUPÉRATION CONTENU ${pageIds.length} PAGES ===`);
+  log(`🔢 Page IDs: ${pageIds.join(', ')}`);
+  
   const contentUrl = new URL(config.urls.api);
   contentUrl.searchParams.set('action', 'query');
   contentUrl.searchParams.set('pageids', pageIds.join('|'));
@@ -348,21 +414,83 @@ async function getPageContents(page, pageIds) {
   contentUrl.searchParams.set('format', 'json');
   contentUrl.searchParams.set('formatversion', '2');
   
-  const contentData = await page.evaluate(async (url) => {
-    const response = await fetch(url);
-    return await response.json();
-  }, contentUrl.toString());
+  log(`🔗 URL contenu: ${contentUrl.toString()}`);
   
-  const competences = [];
-  
-  for (const pageData of Object.values(contentData.query?.pages || {})) {
-    const competence = parseCompetence(pageData);
-    if (competence) {
-      competences.push(competence);
+  try {
+    const contentData = await page.evaluate(async (url) => {
+      console.log(`[BROWSER CONTENT] Fetching: ${url}`);
+      const response = await fetch(url);
+      console.log(`[BROWSER CONTENT] Response status: ${response.status}`);
+      const data = await response.json();
+      console.log(`[BROWSER CONTENT] Response data keys:`, Object.keys(data));
+      if (data.query && data.query.pages) {
+        console.log(`[BROWSER CONTENT] Pages count: ${Object.keys(data.query.pages).length}`);
+      }
+      return data;
+    }, contentUrl.toString());
+    
+    log(`📄 Réponse contenu reçue - Keys: ${Object.keys(contentData)}`);
+    
+    if (contentData.error) {
+      log(`❌ ERREUR API CONTENU: ${JSON.stringify(contentData.error)}`);
+      throw new Error(`Content API Error: ${contentData.error.code} - ${contentData.error.info}`);
     }
+    
+    if (!contentData.query) {
+      log(`❌ PAS DE QUERY dans réponse contenu`);
+      log(`📄 Réponse complète: ${JSON.stringify(contentData)}`);
+      throw new Error('Pas de section query dans la réponse contenu');
+    }
+    
+    if (!contentData.query.pages) {
+      log(`❌ PAS DE PAGES dans query contenu`);
+      log(`📄 Query keys: ${Object.keys(contentData.query)}`);
+      throw new Error('Pas de pages dans la réponse contenu');
+    }
+    
+    const pages = Object.values(contentData.query.pages);
+    log(`📚 ${pages.length} pages reçues pour traitement`);
+    
+    const competences = [];
+    
+    for (let i = 0; i < pages.length; i++) {
+      const pageData = pages[i];
+      log(`📖 Traitement page ${i+1}/${pages.length}: "${pageData.title}" (ID: ${pageData.pageid})`);
+      
+      // Debug du contenu de la page
+      if (pageData.revisions && pageData.revisions.length > 0) {
+        const revision = pageData.revisions[0];
+        log(`📝 Révision trouvée - slots: ${Object.keys(revision.slots || {})}`);
+        if (revision.slots && revision.slots.main) {
+          const contentLength = revision.slots.main.content?.length || 0;
+          log(`📄 Contenu main: ${contentLength} caractères`);
+          if (contentLength > 0) {
+            log(`🔍 Début contenu: ${revision.slots.main.content.substring(0, 200)}...`);
+          }
+        }
+      } else {
+        log(`❌ Aucune révision trouvée pour page "${pageData.title}"`);
+      }
+      
+      const competence = parseCompetence(pageData);
+      if (competence) {
+        log(`✅ Compétence parsée: ${competence.objectif_id} - ${competence.intitule.substring(0, 50)}...`);
+        competences.push(competence);
+      } else {
+        log(`❌ Échec parsing pour page "${pageData.title}"`);
+      }
+    }
+    
+    log(`📥 === FIN RÉCUPÉRATION CONTENU ===`);
+    log(`✅ ${competences.length}/${pages.length} compétences extraites avec succès`);
+    
+    return competences;
+    
+  } catch (error) {
+    log(`❌ ERREUR CRITIQUE récupération contenu: ${error.message}`);
+    log(`📄 Stack trace: ${error.stack}`);
+    throw error;
   }
-  
-  return competences;
 }
 
 // Parser une compétence
