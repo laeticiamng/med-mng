@@ -120,7 +120,7 @@ async function authenticateCAS(page) {
     log('🔑 Saisie des identifiants CAS...');
     
     // Attendre que la page soit entièrement chargée
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    await new Promise(resolve => setTimeout(resolve, 5000));
     
     // Debug: voir la structure de la page
     const html = await page.content();
@@ -128,13 +128,15 @@ async function authenticateCAS(page) {
     
     // Essayer différents sélecteurs possibles pour le username
     let usernameField = null;
-    const userSelectors = ['#username', 'input[name="username"]', 'input[type="text"]', '[name="username"]'];
+    const userSelectors = ['#username', 'input[name="username"]', 'input[type="text"]', '[name="username"]', 'input[id="username"]'];
     for (const selector of userSelectors) {
       try {
-        await page.waitForSelector(selector, { timeout: 2000 });
-        usernameField = selector;
-        log(`✅ Champ username trouvé avec: ${selector}`);
-        break;
+        const element = await page.$(selector);
+        if (element) {
+          usernameField = selector;
+          log(`✅ Champ username trouvé avec: ${selector}`);
+          break;
+        }
       } catch (e) {
         log(`⚠️ Sélecteur ${selector} non trouvé`);
       }
@@ -142,22 +144,57 @@ async function authenticateCAS(page) {
     
     // Essayer différents sélecteurs possibles pour le password
     let passwordField = null;
-    const passwordSelectors = ['#password', 'input[name="password"]', 'input[type="password"]', '[name="password"]'];
+    const passwordSelectors = [
+      '#password', 
+      'input[name="password"]', 
+      'input[type="password"]', 
+      '[name="password"]',
+      'input[id="password"]',
+      '#mot_de_passe',
+      'input[name="mot_de_passe"]'
+    ];
     for (const selector of passwordSelectors) {
       try {
-        await page.waitForSelector(selector, { timeout: 2000 });
-        passwordField = selector;
-        log(`✅ Champ password trouvé avec: ${selector}`);
-        break;
+        const element = await page.$(selector);
+        if (element) {
+          passwordField = selector;
+          log(`✅ Champ password trouvé avec: ${selector}`);
+          break;
+        }
       } catch (e) {
         log(`⚠️ Sélecteur ${selector} non trouvé`);
       }
     }
     
+    // Si pas trouvé, chercher TOUS les inputs password
+    if (!passwordField) {
+      log(`🔍 Recherche de tous les champs password...`);
+      const allPasswordInputs = await page.$$('input[type="password"]');
+      if (allPasswordInputs.length > 0) {
+        passwordField = 'input[type="password"]';
+        log(`✅ Trouvé ${allPasswordInputs.length} champ(s) password générique(s)`);
+      }
+    }
+    
+    // Si toujours pas trouvé, chercher dans le HTML
+    if (!passwordField) {
+      log(`🔍 Analyse du HTML pour trouver les champs password...`);
+      if (html.includes('type="password"') || html.includes('name="password"')) {
+        log(`📄 Champ password détecté dans le HTML mais sélecteur non trouvé`);
+        // Essayer avec un sélecteur plus générique
+        passwordField = 'input[type="password"]';
+      }
+    }
+    
     if (!usernameField || !passwordField) {
       log(`❌ Impossible de trouver les champs de connexion`);
-      log(`🔍 Contenu de la page (500 premiers caractères):`);
-      log(html.substring(0, 500));
+      log(`🔍 Contenu de la page (premiers 1000 caractères):`);
+      log(html.substring(0, 1000));
+      log(`🔍 Contenu de la page (recherche password dans HTML):`);
+      const passwordMatch = html.match(/input[^>]*password[^>]*>/gi);
+      if (passwordMatch) {
+        log(`📄 Champs password trouvés: ${passwordMatch.join(', ')}`);
+      }
       throw new Error('Champs de connexion CAS non trouvés');
     }
     
