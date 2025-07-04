@@ -6,12 +6,14 @@ export async function getCategoryMembers(authCookies: string = ''): Promise<{ pa
   let totalFound = 0;
   
   console.log('📋 Début de la récupération des membres de la catégorie...');
+  console.log(`🔐 Cookies d'auth: ${authCookies ? 'PRÉSENTS' : 'ABSENTS'}`);
   
   do {
     const url = new URL('https://livret.uness.fr/lisa/2025/api.php');
     url.searchParams.set('action', 'query');
     url.searchParams.set('list', 'categorymembers');
-    url.searchParams.set('cmtitle', 'Catégorie:Objectif_de_connaissance');
+    // CORRECTION: Encoding proper du titre de catégorie
+    url.searchParams.set('cmtitle', encodeURIComponent('Catégorie:Objectif_de_connaissance'));
     url.searchParams.set('cmlimit', '500');
     url.searchParams.set('format', 'json');
     url.searchParams.set('origin', '*'); // CORS
@@ -26,8 +28,10 @@ export async function getCategoryMembers(authCookies: string = ''): Promise<{ pa
       'Accept-Language': 'fr-FR,fr;q=0.9'
     };
     
+    // CORRECTION: Injection des cookies d'authentification
     if (authCookies) {
       headers['Cookie'] = authCookies;
+      console.log('🍪 Cookies injectés dans la requête');
     }
     
     try {
@@ -37,15 +41,27 @@ export async function getCategoryMembers(authCookies: string = ''): Promise<{ pa
         credentials: 'include' // Important pour les cookies
       });
       
+      // CORRECTION: Détecter les redirections CAS
+      if (response.status === 302 || response.status === 301) {
+        console.error('🔐 Redirection détectée - authentification CAS requise');
+        throw new Error('AUTH_REQUIRED: Redirection CAS détectée');
+      }
+      
       if (!response.ok) {
         console.error(`❌ Erreur HTTP: ${response.status} ${response.statusText}`);
+        if (response.status === 403) {
+          console.error('🔐 Accès interdit - authentification requise');
+          throw new Error('AUTH_REQUIRED: Accès interdit (403)');
+        }
         const text = await response.text();
         console.error('Réponse:', text.substring(0, 500));
         break;
       }
       
       const data = await response.json();
-      console.log(`📊 Réponse reçue, ${data.query?.categorymembers?.length || 0} membres trouvés`);
+      console.log(`📊 Réponse API reçue`);
+      console.log(`   - Status: ${response.status}`);
+      console.log(`   - Membres trouvés: ${data.query?.categorymembers?.length || 0}`);
       
       // Vérifier si on a une erreur API
       if (data.error) {
@@ -53,8 +69,15 @@ export async function getCategoryMembers(authCookies: string = ''): Promise<{ pa
         break;
       }
       
+      // CORRECTION: Diagnostic AUTH_REQUIRED si tableau vide
       if (data.query?.categorymembers) {
+        if (data.query.categorymembers.length === 0 && !authCookies) {
+          console.error('🔐 AUTH_REQUIRED: Catégorie vide sans authentification');
+          throw new Error('AUTH_REQUIRED: Catégorie vide - authentification CAS probablement requise');
+        }
+        
         data.query.categorymembers.forEach((page: any) => {
+          console.log(`   - Page trouvée: ${page.title}`);
           // Regex plus flexible pour capturer différents formats
           if (page.title && (
             page.title.match(/OIC-\d{3}-\d{2}-[AB]-\d{2}/) ||
@@ -65,6 +88,12 @@ export async function getCategoryMembers(authCookies: string = ''): Promise<{ pa
             totalFound++;
           }
         });
+      } else {
+        console.warn('⚠️  Pas de propriété categorymembers dans la réponse');
+        if (!authCookies) {
+          console.error('🔐 AUTH_REQUIRED: Pas de données et pas d\'authentification');
+          throw new Error('AUTH_REQUIRED: Pas de données sans authentification');
+        }
       }
       
       // Gestion de la pagination
@@ -74,6 +103,9 @@ export async function getCategoryMembers(authCookies: string = ''): Promise<{ pa
       
     } catch (error) {
       console.error('❌ Erreur lors de la requête:', error);
+      if (error.message.includes('AUTH_REQUIRED')) {
+        throw error; // Propager l'erreur d'authentification
+      }
       break;
     }
     
@@ -93,6 +125,7 @@ export async function getPageContent(pageIds: number[], authCookies: string = ''
   }
   
   console.log(`📄 Récupération du contenu de ${pageIds.length} pages en ${chunks.length} requêtes...`);
+  console.log(`🔐 Cookies d'auth: ${authCookies ? 'PRÉSENTS' : 'ABSENTS'}`);
   
   for (let i = 0; i < chunks.length; i++) {
     const chunk = chunks[i];
@@ -111,8 +144,10 @@ export async function getPageContent(pageIds: number[], authCookies: string = ''
       'Accept': 'application/json'
     };
     
+    // CORRECTION: Injection des cookies d'authentification
     if (authCookies) {
       headers['Cookie'] = authCookies;
+      console.log(`🍪 Cookies injectés pour batch ${i+1}`);
     }
     
     try {
@@ -123,6 +158,9 @@ export async function getPageContent(pageIds: number[], authCookies: string = ''
       
       if (!response.ok) {
         console.error(`❌ Erreur HTTP batch ${i+1}: ${response.status}`);
+        if (response.status === 403 || response.status === 302) {
+          console.error('🔐 Problème d\'authentification détecté pour le contenu');
+        }
         continue;
       }
       
@@ -135,9 +173,10 @@ export async function getPageContent(pageIds: number[], authCookies: string = ''
       
       if (data.query?.pages) {
         results.push(...data.query.pages);
+        console.log(`✅ Batch ${i+1}/${chunks.length} - ${data.query.pages.length} pages récupérées`);
+      } else {
+        console.warn(`⚠️  Batch ${i+1}: Pas de données pages dans la réponse`);
       }
-      
-      console.log(`✅ Batch ${i+1}/${chunks.length} traité`);
       
       // Délai pour éviter le rate limiting
       await new Promise(resolve => setTimeout(resolve, 100));

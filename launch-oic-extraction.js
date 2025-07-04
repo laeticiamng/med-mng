@@ -1,5 +1,5 @@
 // Script pour lancer l'extraction complète des 4,872 compétences OIC
-console.log('🚀 Lancement de l\'extraction complète des objectifs OIC...');
+console.log('🚀 Lancement de l\'extraction complète des objectifs OIC avec authentification...');
 
 fetch('https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/extract-edn-objectifs', {
   method: 'POST',
@@ -26,5 +26,5 @@ fetch('https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/extract-edn-objecti
   console.error('💥 Erreur critique:', error);
 });
 
-console.log('⏳ Extraction lancée... Cela peut prendre 15-20 minutes pour traiter les 4,872 compétences.');
-console.log('📊 Vous pouvez suivre le progrès avec l\'interface /admin/extract-objectifs');
+console.log('⏳ Extraction lancée avec authentification CAS...');
+console.log('📊 Vérifiez les logs Edge Function pour le diagnostic détaillé');

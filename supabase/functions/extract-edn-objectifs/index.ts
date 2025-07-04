@@ -3,6 +3,14 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { getCategoryMembers, getPageContent, testPublicAccess } from './api-client.ts'
 import { parseOICContent, OicCompetence } from './oic-parser.ts'
 
+// Importations pour Puppeteer (authentification CAS)
+// @ts-ignore
+import puppeteer from "https://deno.land/x/puppeteer@16.2.0/mod.ts"
+
+// Credentials CAS depuis les variables d'environnement
+const CAS_USERNAME = Deno.env.get('CAS_USERNAME') || 'laeticia.moto-ngane@etud.u-picardie.fr'
+const CAS_PASSWORD = Deno.env.get('CAS_PASSWORD') || 'Aiciteal1!'
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -116,8 +124,13 @@ async function extractCompetences(supabaseClient: any, session_id: string) {
     let authCookies = ''
     
     if (!isPublic) {
-      console.log('🔐 API privée - tentative sans authentification')
-      // On continue sans authentification pour voir si ça marche
+      console.log('🔐 API privée - authentification CAS requise')
+      // CORRECTION: Utiliser Puppeteer pour récupérer les cookies d'authentification
+      authCookies = await authenticateAndGetCookies()
+      if (!authCookies) {
+        throw new Error('AUTH_REQUIRED: Impossible d\'obtenir les cookies d\'authentification CAS')
+      }
+      console.log('✅ Cookies d\'authentification obtenus')
     }
     
     // Mettre à jour le statut
@@ -288,5 +301,92 @@ async function generateRapport(supabaseClient: any) {
       JSON.stringify(emptyStats),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
+  }
+}
+
+/**
+ * Authentification CAS via Puppeteer pour récupérer les cookies
+ */
+async function authenticateAndGetCookies(): Promise<string> {
+  console.log('🔐 Démarrage authentification CAS avec Puppeteer...')
+  
+  let browser;
+  try {
+    // Lancer Puppeteer
+    browser = await puppeteer.launch({
+      headless: true,
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-web-security',
+        '--disable-features=site-per-process'
+      ]
+    })
+    
+    const page = await browser.newPage()
+    
+    // Aller sur une page protégée qui redirige vers CAS
+    console.log('🌐 Navigation vers page protégée...')
+    await page.goto('https://livret.uness.fr/lisa/2025/Catégorie:Objectif_de_connaissance', {
+      waitUntil: 'networkidle2',
+      timeout: 30000
+    })
+    
+    // Vérifier si on est redirigé vers CAS
+    const currentUrl = page.url()
+    console.log(`📍 URL actuelle: ${currentUrl}`)
+    
+    if (currentUrl.includes('auth.uness.fr/cas/login')) {
+      console.log('🔑 Formulaire CAS détecté, saisie des identifiants...')
+      
+      // Attendre le formulaire de login
+      await page.waitForSelector('#username', { visible: true, timeout: 10000 })
+      await page.waitForSelector('#password', { visible: true, timeout: 10000 })
+      
+      // Saisir les identifiants
+      await page.type('#username', CAS_USERNAME)
+      await page.type('#password', CAS_PASSWORD)
+      
+      // Cliquer sur submit
+      await page.click('input[name="submit"], input[type="submit"], button[type="submit"]')
+      
+      // Attendre redirection vers livret.uness.fr
+      console.log('⏳ Attente de la redirection post-authentification...')
+      await page.waitForFunction(
+        () => window.location.href.includes('livret.uness.fr'),
+        { timeout: 30000 }
+      )
+      
+      console.log('✅ Authentification CAS réussie')
+    } else if (currentUrl.includes('livret.uness.fr')) {
+      console.log('✅ Déjà authentifié ou pas de redirection CAS')
+    } else {
+      console.warn('⚠️  URL inattendue après navigation:', currentUrl)
+    }
+    
+    // Récupérer tous les cookies du domaine uness.fr
+    const cookies = await page.cookies()
+    const unessConsolidatedCookies = cookies
+      .filter(cookie => cookie.domain.includes('uness.fr'))
+      .map(cookie => `${cookie.name}=${cookie.value}`)
+      .join('; ')
+    
+    console.log(`🍪 ${cookies.length} cookies récupérés`)
+    console.log(`🔗 Cookies UNESS consolidés: ${unessConsolidatedCookies.length} caractères`)
+    
+    if (!unessConsolidatedCookies) {
+      throw new Error('Aucun cookie UNESS récupéré après authentification')
+    }
+    
+    return unessConsolidatedCookies
+    
+  } catch (error) {
+    console.error('❌ Erreur lors de l\'authentification CAS:', error)
+    throw error
+  } finally {
+    if (browser) {
+      await browser.close()
+    }
   }
 }
