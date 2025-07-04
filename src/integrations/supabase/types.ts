@@ -2020,10 +2020,11 @@ export type Database = {
           item_parent: string
           objectif_id: string
           ordre: number | null
-          rang: string | null
+          rang: string
+          raw_json: Json | null
           rubrique: string | null
           updated_at: string | null
-          url_source: string | null
+          url_source: string
         }
         Insert: {
           created_at?: string | null
@@ -2035,10 +2036,11 @@ export type Database = {
           item_parent: string
           objectif_id: string
           ordre?: number | null
-          rang?: string | null
+          rang: string
+          raw_json?: Json | null
           rubrique?: string | null
           updated_at?: string | null
-          url_source?: string | null
+          url_source: string
         }
         Update: {
           created_at?: string | null
@@ -2050,10 +2052,11 @@ export type Database = {
           item_parent?: string
           objectif_id?: string
           ordre?: number | null
-          rang?: string | null
+          rang?: string
+          raw_json?: Json | null
           rubrique?: string | null
           updated_at?: string | null
-          url_source?: string | null
+          url_source?: string
         }
         Relationships: []
       }
