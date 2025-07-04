@@ -44,7 +44,10 @@ serve(async (req) => {
 
     if (!supabaseUrl || !supabaseKey) {
       console.error('Variables Supabase manquantes')
-      throw new Error('Configuration Supabase manquante')
+      return new Response(
+        JSON.stringify({ error: 'Configuration Supabase manquante' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
     }
 
     console.log(`🔐 Utilisation des identifiants UNESS: ${unessUsername}`)
@@ -56,7 +59,10 @@ serve(async (req) => {
       requestBody = await req.json()
     } catch (error) {
       console.error('Erreur parsing JSON:', error)
-      throw new Error('Format de requête invalide')
+      return new Response(
+        JSON.stringify({ error: 'Format de requête invalide' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
     }
 
     const { action, session_id, page, resume_from } = requestBody
@@ -64,7 +70,10 @@ serve(async (req) => {
     console.log(`🎯 Action demandée: ${action}`)
 
     if (!action) {
-      throw new Error('Action manquante dans la requête')
+      return new Response(
+        JSON.stringify({ error: 'Action manquante dans la requête' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
     }
 
     switch (action) {
