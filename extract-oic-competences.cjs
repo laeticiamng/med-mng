@@ -116,43 +116,107 @@ async function authenticateCAS(page) {
   await page.goto(config.urls.category, { waitUntil: 'networkidle2', timeout: 30000 });
   
   // Vérifier si redirection vers CAS
-  if (page.url().includes('cas/login')) {
-    log('🔑 Saisie des identifiants CAS...');
+  if (page.url().includes('cas/login') || page.url().includes('uness.fr')) {
+    log('🔑 Début du processus d\'authentification UNESS (2 étapes)...');
     
-    // Attendre que la page soit entièrement chargée
-    await new Promise(resolve => setTimeout(resolve, 5000));
+    // ÉTAPE 1 : Saisir l'email
+    await new Promise(resolve => setTimeout(resolve, 3000));
     
-    // Debug: voir la structure de la page
-    const html = await page.content();
-    log(`🔍 URL actuelle: ${page.url()}`);
+    log('📧 ÉTAPE 1 : Saisie de l\'adresse email...');
+    const html1 = await page.content();
+    log(`🔍 URL étape 1: ${page.url()}`);
     
-    // Essayer différents sélecteurs possibles pour le username
-    let usernameField = null;
-    const userSelectors = ['#username', 'input[name="username"]', 'input[type="text"]', '[name="username"]', 'input[id="username"]'];
-    for (const selector of userSelectors) {
+    // Chercher le champ email (première étape)
+    let emailField = null;
+    const emailSelectors = [
+      'input[type="email"]', 
+      'input[name="email"]', 
+      'input[placeholder*="email"]',
+      'input[placeholder*="adresse"]',
+      '#email',
+      'input[type="text"]' // fallback
+    ];
+    
+    for (const selector of emailSelectors) {
       try {
         const element = await page.$(selector);
         if (element) {
-          usernameField = selector;
-          log(`✅ Champ username trouvé avec: ${selector}`);
+          emailField = selector;
+          log(`✅ Champ email trouvé avec: ${selector}`);
           break;
         }
       } catch (e) {
-        log(`⚠️ Sélecteur ${selector} non trouvé`);
+        log(`⚠️ Sélecteur email ${selector} non trouvé`);
       }
     }
     
-    // Essayer différents sélecteurs possibles pour le password
+    if (!emailField) {
+      log(`❌ Champ email non trouvé`);
+      log(`🔍 Contenu page 1 (1000 premiers caractères):`);
+      log(html1.substring(0, 1000));
+      throw new Error('Champ email non trouvé');
+    }
+    
+    // Saisir l'email
+    await page.type(emailField, config.cas.username);
+    log(`✅ Email saisi: ${config.cas.username}`);
+    
+    // Chercher le bouton "SE CONNECTER" de la première étape
+    let connectButton1 = null;
+    const connectSelectors1 = [
+      'button:contains("SE CONNECTER")',
+      'input[value*="CONNECTER"]',
+      'button[type="submit"]',
+      'input[type="submit"]',
+      'button'
+    ];
+    
+    for (const selector of connectSelectors1) {
+      try {
+        const element = await page.$(selector);
+        if (element) {
+          const text = await page.evaluate(el => el.textContent || el.value, element);
+          if (text && text.includes('CONNECTER')) {
+            connectButton1 = selector;
+            log(`✅ Bouton connexion étape 1 trouvé avec: ${selector}`);
+            break;
+          }
+        }
+      } catch (e) {
+        // Continuer
+      }
+    }
+    
+    if (!connectButton1) {
+      // Essayer un sélecteur générique
+      connectButton1 = 'button, input[type="submit"]';
+      log(`⚠️ Utilisation du bouton générique pour étape 1`);
+    }
+    
+    // Cliquer sur SE CONNECTER (étape 1)
+    log('🔄 Clic sur SE CONNECTER (étape 1)...');
+    await Promise.all([
+      page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 30000 }),
+      page.click(connectButton1)
+    ]);
+    
+    // ÉTAPE 2 : Saisir le mot de passe
+    await new Promise(resolve => setTimeout(resolve, 3000));
+    
+    log('🔐 ÉTAPE 2 : Saisie du mot de passe...');
+    const html2 = await page.content();
+    log(`🔍 URL étape 2: ${page.url()}`);
+    
+    // Chercher le champ password (deuxième étape)
     let passwordField = null;
     const passwordSelectors = [
-      '#password', 
-      'input[name="password"]', 
-      'input[type="password"]', 
-      '[name="password"]',
-      'input[id="password"]',
-      '#mot_de_passe',
-      'input[name="mot_de_passe"]'
+      'input[type="password"]',
+      'input[name="password"]',
+      'input[placeholder*="mot de passe"]',
+      'input[placeholder*="password"]',
+      '#password'
     ];
+    
     for (const selector of passwordSelectors) {
       try {
         const element = await page.$(selector);
@@ -162,72 +226,61 @@ async function authenticateCAS(page) {
           break;
         }
       } catch (e) {
-        log(`⚠️ Sélecteur ${selector} non trouvé`);
+        log(`⚠️ Sélecteur password ${selector} non trouvé`);
       }
     }
     
-    // Si pas trouvé, chercher TOUS les inputs password
     if (!passwordField) {
-      log(`🔍 Recherche de tous les champs password...`);
-      const allPasswordInputs = await page.$$('input[type="password"]');
-      if (allPasswordInputs.length > 0) {
-        passwordField = 'input[type="password"]';
-        log(`✅ Trouvé ${allPasswordInputs.length} champ(s) password générique(s)`);
-      }
+      log(`❌ Champ password non trouvé`);
+      log(`🔍 Contenu page 2 (1000 premiers caractères):`);
+      log(html2.substring(0, 1000));
+      throw new Error('Champ password non trouvé');
     }
     
-    // Si toujours pas trouvé, chercher dans le HTML
-    if (!passwordField) {
-      log(`🔍 Analyse du HTML pour trouver les champs password...`);
-      if (html.includes('type="password"') || html.includes('name="password"')) {
-        log(`📄 Champ password détecté dans le HTML mais sélecteur non trouvé`);
-        // Essayer avec un sélecteur plus générique
-        passwordField = 'input[type="password"]';
-      }
-    }
-    
-    if (!usernameField || !passwordField) {
-      log(`❌ Impossible de trouver les champs de connexion`);
-      log(`🔍 Contenu de la page (premiers 1000 caractères):`);
-      log(html.substring(0, 1000));
-      log(`🔍 Contenu de la page (recherche password dans HTML):`);
-      const passwordMatch = html.match(/input[^>]*password[^>]*>/gi);
-      if (passwordMatch) {
-        log(`📄 Champs password trouvés: ${passwordMatch.join(', ')}`);
-      }
-      throw new Error('Champs de connexion CAS non trouvés');
-    }
-    
-    // Saisir les identifiants
-    await page.type(usernameField, config.cas.username);
+    // Saisir le mot de passe
     await page.type(passwordField, config.cas.password);
+    log(`✅ Mot de passe saisi`);
     
-    // Chercher le bouton de soumission
-    let submitButton = null;
-    const submitSelectors = ['input[type="submit"]', 'button[type="submit"]', 'input[name="submit"]', 'button'];
-    for (const selector of submitSelectors) {
+    // Chercher le bouton "SE CONNECTER" de la deuxième étape
+    let connectButton2 = null;
+    const connectSelectors2 = [
+      'button:contains("SE CONNECTER")',
+      'input[value*="CONNECTER"]',
+      'button[type="submit"]',
+      'input[type="submit"]',
+      'button'
+    ];
+    
+    for (const selector of connectSelectors2) {
       try {
         const element = await page.$(selector);
         if (element) {
-          submitButton = selector;
-          log(`✅ Bouton submit trouvé avec: ${selector}`);
-          break;
+          const text = await page.evaluate(el => el.textContent || el.value, element);
+          if (text && text.includes('CONNECTER')) {
+            connectButton2 = selector;
+            log(`✅ Bouton connexion étape 2 trouvé avec: ${selector}`);
+            break;
+          }
         }
       } catch (e) {
-        log(`⚠️ Bouton ${selector} non trouvé`);
+        // Continuer
       }
     }
     
-    if (!submitButton) {
-      throw new Error('Bouton de soumission non trouvé');
+    if (!connectButton2) {
+      connectButton2 = 'button, input[type="submit"]';
+      log(`⚠️ Utilisation du bouton générique pour étape 2`);
     }
     
+    // Cliquer sur SE CONNECTER (étape 2)
+    log('🔄 Clic sur SE CONNECTER (étape 2)...');
     await Promise.all([
       page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 30000 }),
-      page.click(submitButton)
+      page.click(connectButton2)
     ]);
     
     await new Promise(resolve => setTimeout(resolve, 2000));
+    log(`✅ Authentification terminée. URL finale: ${page.url()}`);
   }
 }
 
