@@ -1,0 +1,41 @@
+name: Extract OIC Competences
+
+on:
+  workflow_dispatch:  # Lancement manuel
+  schedule:
+    - cron: '0 2 * * 0'  # Chaque dimanche à 2h (optionnel)
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: |
+        npm install puppeteer @supabase/supabase-js dotenv
+    
+    - name: Run OIC extraction
+      env:
+        SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        CAS_USERNAME: ${{ secrets.CAS_USERNAME }}
+        CAS_PASSWORD: ${{ secrets.CAS_PASSWORD }}
+      run: |
+        node extract-oic-competences.js
+    
+    - name: Upload extraction report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: extraction-report
+        path: |
+          rapport-*.json
+          extraction-*.log
