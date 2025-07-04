@@ -559,6 +559,42 @@ export type Database = {
         }
         Relationships: []
       }
+      ecos_situations_uness: {
+        Row: {
+          competences_associees: string[] | null
+          contenu_complet_html: string | null
+          created_at: string
+          date_import: string
+          id: string
+          intitule_sd: string
+          sd_id: number
+          updated_at: string
+          url_source: string | null
+        }
+        Insert: {
+          competences_associees?: string[] | null
+          contenu_complet_html?: string | null
+          created_at?: string
+          date_import?: string
+          id?: string
+          intitule_sd: string
+          sd_id: number
+          updated_at?: string
+          url_source?: string | null
+        }
+        Update: {
+          competences_associees?: string[] | null
+          contenu_complet_html?: string | null
+          created_at?: string
+          date_import?: string
+          id?: string
+          intitule_sd?: string
+          sd_id?: number
+          updated_at?: string
+          url_source?: string | null
+        }
+        Relationships: []
+      }
       edn_items: {
         Row: {
           created_at: string | null

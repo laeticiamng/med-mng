@@ -31,6 +31,7 @@ import AdminImport from "./pages/AdminImport";
 import AdminAudit from "./pages/AdminAudit";
 import AdminExtractEdn from "./pages/AdminExtractEdn";
 import AdminCompleteProcess from "./pages/AdminCompleteProcess";
+import AdminExtractEcos from "./pages/AdminExtractEcos";
 
 const queryClient = new QueryClient();
 
@@ -76,6 +77,7 @@ const App = () => (
               <Route path="/admin/import" element={<AdminImport />} />
               <Route path="/admin/audit" element={<AdminAudit />} />
               <Route path="/admin/extract-edn" element={<AdminExtractEdn />} />
+              <Route path="/admin/extract-ecos" element={<AdminExtractEcos />} />
               <Route path="/admin/complete" element={<AdminCompleteProcess />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
