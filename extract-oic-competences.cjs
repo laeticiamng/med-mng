@@ -70,6 +70,50 @@ async function extractAllCompetences() {
     log('🔐 Authentification CAS...');
     await authenticateCAS(page);
     
+    // 2. Récupérer les cookies de session après authentification
+    const cookies = await page.cookies();
+    const cookieString = cookies
+      .filter(c => c.domain.includes('uness.fr'))
+      .map(c => `${c.name}=${c.value}`)
+      .join('; ');
+    log(`🍪 Cookies de session récupérés: ${cookies.length} cookies pour uness.fr`);
+    
+    // DEBUG: afficher les cookies pour voir s'ils sont du bon domaine
+    if (cookies.length > 0) {
+      log(`🔍 COOKIES DÉTAILLÉS:`);
+      cookies.forEach((cookie, i) => {
+        log(`   ${i+1}. ${cookie.name}=${cookie.value.substring(0, 20)}... (domain: ${cookie.domain})`);
+      });
+    } else {
+      log(`⚠️ AUCUN COOKIE RÉCUPÉRÉ - PROBLÈME D'AUTHENTIFICATION PROBABLE`);
+    }
+    
+    // TEST: essayer un appel API directement après authentification
+    log('🧪 TEST API avec authentification...');
+    try {
+      const testResult = await page.evaluate(async () => {
+        const testUrl = 'https://livret.uness.fr/lisa/2025/api.php?action=query&list=categorymembers&cmtitle=Catégorie:Objectif_de_connaissance&cmlimit=1&format=json&origin=*';
+        const response = await fetch(testUrl);
+        const data = await response.json();
+        return {
+          status: response.status,
+          error: data.error,
+          hasQuery: !!data.query,
+          hasMembers: data.query?.categorymembers?.length > 0
+        };
+      });
+      log(`🧪 Résultat test API: ${JSON.stringify(testResult)}`);
+      
+      if (testResult.error) {
+        log(`❌ ERREUR TEST API: ${JSON.stringify(testResult.error)}`);
+        if (testResult.error.code === 'readapidenied') {
+          throw new Error('API MediaWiki toujours protégée malgré l\'authentification CAS');
+        }
+      }
+    } catch (testError) {
+      log(`❌ ERREUR TEST API: ${testError.message}`);
+    }
+    
   // 2. Vérifier l'authentification - ne pas naviguer, utiliser l'URL actuelle
   const currentUrl = page.url();
   log(`🔍 URL après authentification: ${currentUrl}`);
@@ -126,9 +170,9 @@ async function extractAllCompetences() {
   }
   log('✅ Authentification CAS réussie');
     
-    // 3. Extraction via API MediaWiki
+    // 3. Extraction via API MediaWiki avec cookies
     log('📊 Début extraction via API MediaWiki...');
-    const allCompetences = await extractViaAPI(page, stats);
+    const allCompetences = await extractViaAPI(page, stats, cookieString);
     
     // 4. Insertion dans Supabase
     log(`💾 Insertion de ${allCompetences.length} compétences dans Supabase...`);
@@ -262,7 +306,7 @@ async function authenticateCAS(page) {
 }
 
 // Extraction via API MediaWiki avec DEBUG INTENSIF
-async function extractViaAPI(page, stats) {
+async function extractViaAPI(page, stats, cookieString) {
   const allCompetences = [];
   let continueToken = '';
   let pageCount = 0;
