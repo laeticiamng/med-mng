@@ -72,7 +72,7 @@ const App = () => (
               <Route path="/med-mng/login" element={<MedMngLogin />} />
               <Route path="/med-mng/signup" element={<MedMngSignup />} />
               <Route path="/med-mng/pricing" element={<MedMngPricing />} />
-              <Route path="/med-mng/subscribe" element={<ProtectedRoute><MedMngSubscribe /></ProtectedRoute>} />
+              <Route path="/med-mng/subscribe/:planId" element={<ProtectedRoute><MedMngSubscribe /></ProtectedRoute>} />
               <Route path="/med-mng/create" element={<ProtectedRoute><MedMngCreate /></ProtectedRoute>} />
               <Route path="/med-mng/library" element={<ProtectedRoute><MedMngLibrary /></ProtectedRoute>} />
               <Route path="/med-mng/player/:songId" element={<ProtectedRoute><MedMngPlayer /></ProtectedRoute>} />
