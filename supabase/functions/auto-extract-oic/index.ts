@@ -11,9 +11,10 @@ serve(async (req) => {
   }
 
   try {
-    console.log('🤖 AUTO-EXTRACT-OIC: Démarrage automatique de l\'extraction')
+    console.log('🤖 AUTO-EXTRACT-OIC: Démarrage automatique FORCÉ de l\'extraction')
     
-    // Lancer l'extraction OIC automatiquement
+    // Lancer l'extraction OIC automatiquement avec force
+    console.log('⚡ Appel IMMÉDIAT à extract-edn-objectifs...')
     const extractionResponse = await fetch('https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/extract-edn-objectifs', {
       method: 'POST',
       headers: {
