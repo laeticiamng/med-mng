@@ -253,13 +253,13 @@ export const EdnObjectifsExtraction: React.FC = () => {
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="text-center">
                     <div className="text-2xl font-bold text-primary">
-                      {status.objectifs_extraits}
+                      {status.competences_extraites}
                     </div>
                     <div className="text-sm text-muted-foreground">Extraits</div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold">
-                      {status.total_objectifs}
+                      {status.total_competences}
                     </div>
                     <div className="text-sm text-muted-foreground">Total</div>
                   </div>
@@ -271,7 +271,7 @@ export const EdnObjectifsExtraction: React.FC = () => {
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold">
-                      {Math.round((status.objectifs_extraits / status.total_objectifs) * 100)}%
+                      {Math.round((status.competences_extraites / status.total_competences) * 100)}%
                     </div>
                     <div className="text-sm text-muted-foreground">Complété</div>
                   </div>
@@ -280,10 +280,10 @@ export const EdnObjectifsExtraction: React.FC = () => {
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span>Progression</span>
-                    <span>{status.objectifs_extraits} / {status.total_objectifs}</span>
+                    <span>{status.competences_extraites} / {status.total_competences}</span>
                   </div>
                   <Progress 
-                    value={(status.objectifs_extraits / status.total_objectifs) * 100} 
+                    value={(status.competences_extraites / status.total_competences) * 100} 
                     className="h-2"
                   />
                 </div>
@@ -400,7 +400,7 @@ export const EdnObjectifsExtraction: React.FC = () => {
                             </Badge>
                             <div className="text-sm">
                               <div className="font-medium">
-                                {item.objectifs_extraits} / {item.objectifs_attendus} objectifs
+                                {item.competences_extraites} / {item.competences_attendues} objectifs
                               </div>
                             </div>
                           </div>

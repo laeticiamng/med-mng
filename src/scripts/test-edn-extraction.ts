@@ -23,10 +23,10 @@ async function testEdnExtraction() {
         const status = await ednExtractor.getStatus();
         totalChecks++;
         
-        const progress = Math.round((status.objectifs_extraits / status.total_objectifs) * 100);
+        const progress = Math.round((status.competences_extraites / status.total_competences) * 100);
         const pageProgress = Math.round((status.page_courante / status.total_pages) * 100);
         
-        console.log(`📊 Progrès global: ${progress}% (${status.objectifs_extraits}/${status.total_objectifs} objectifs)`);
+        console.log(`📊 Progrès global: ${progress}% (${status.competences_extraites}/${status.total_competences} objectifs)`);
         console.log(`📄 Pages: ${status.page_courante}/${status.total_pages} (${pageProgress}%)`);
         console.log(`🟢 Statut: ${status.statut.toUpperCase()}`);
         console.log('---');
@@ -39,7 +39,7 @@ async function testEdnExtraction() {
           const rapport = await ednExtractor.generateRapport();
           
           console.log('\n📈 RAPPORT FINAL:');
-          console.log(`✅ Total extraits: ${rapport.total_objectifs_extraits.toLocaleString()}`);
+          console.log(`✅ Total extraits: ${rapport.total_competences_extraites.toLocaleString()}`);
           console.log(`🎯 Complétude: ${rapport.completude_globale}%`);
           console.log(`📚 Items couverts: ${rapport.repartition_par_item.length}`);
           
@@ -50,7 +50,7 @@ async function testEdnExtraction() {
           
           console.log('\n🏆 TOP 5 DES ITEMS LES PLUS COMPLETS:');
           topItems.forEach((item, index) => {
-            console.log(`${index + 1}. IC-${item.item_parent.toString().padStart(3, '0')}: ${Math.round(item.completude_pct)}% (${item.objectifs_extraits}/${item.objectifs_attendus})`);
+            console.log(`${index + 1}. IC-${item.item_parent.toString().padStart(3, '0')}: ${Math.round(item.completude_pct)}% (${item.competences_extraites}/${item.competences_attendues})`);
           });
           
           return;
