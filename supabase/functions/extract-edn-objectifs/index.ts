@@ -63,6 +63,8 @@ serve(async (req) => {
         return await getExtractionStatus(supabaseClient, session_id)
       case 'rapport':
         return await generateRapport(supabaseClient)
+      case 'insert_test_data':
+        return await insertTestData(supabaseClient)
       default:
         throw new Error('Action non reconnue')
     }
@@ -438,4 +440,127 @@ async function authenticateAndGetCookies(): Promise<string> {
       await browser.close()
     }
   }
+}
+
+/**
+ * Insérer des données de test pour vérifier que l'insertion fonctionne
+ */
+async function insertTestData(supabaseClient: any) {
+  console.log('📝 Insertion de données de test OIC...')
+  
+  // Count initial
+  const { count: countBefore, error: countError } = await supabaseClient
+    .from('oic_competences')
+    .select('*', { count: 'exact', head: true })
+  
+  if (countError) {
+    console.error('❌ Erreur count initial:', countError)
+  } else {
+    console.log(`📊 Count initial: ${countBefore || 0}`)
+  }
+  
+  // Données de test avec format OIC correct
+  const testCompetences = [
+    {
+      objectif_id: 'OIC-001-01-A-01',
+      intitule: 'Test insertion avec service_role - Expliquer les mécanismes de base de la génétique',
+      item_parent: '001',
+      rang: 'A',
+      rubrique: 'Génétique',
+      description: 'Comprendre les principes fondamentaux de la transmission génétique - données de test',
+      ordre: 1,
+      url_source: 'https://livret.uness.fr/lisa/2025/OIC-001-01-A-01',
+      extraction_status: 'test',
+      date_import: new Date().toISOString()
+    },
+    {
+      objectif_id: 'OIC-001-01-A-02',
+      intitule: 'Test insertion avec service_role - Décrire la structure de l\'ADN',
+      item_parent: '001',
+      rang: 'A',
+      rubrique: 'Génétique',
+      description: 'Connaître la structure moléculaire de l\'ADN - données de test',
+      ordre: 2,
+      url_source: 'https://livret.uness.fr/lisa/2025/OIC-001-01-A-02',
+      extraction_status: 'test',
+      date_import: new Date().toISOString()
+    },
+    {
+      objectif_id: 'OIC-002-05-B-03',
+      intitule: 'Test insertion avec service_role - Maîtriser les bases de l\'immunologie',
+      item_parent: '002',
+      rang: 'B',
+      rubrique: 'Immunopathologie',
+      description: 'Connaissances approfondies des mécanismes immunitaires - données de test',
+      ordre: 3,
+      url_source: 'https://livret.uness.fr/lisa/2025/OIC-002-05-B-03',
+      extraction_status: 'test',
+      date_import: new Date().toISOString()
+    }
+  ]
+  
+  console.log('SAMPLE TEST DATA ➜')
+  console.log(JSON.stringify(testCompetences[0], null, 2))
+  
+  // Tentative d'insertion avec service_role
+  console.log('📝 Tentative insertion avec service_role...')
+  const { data, error } = await supabaseClient
+    .from('oic_competences')
+    .upsert(testCompetences, { onConflict: 'objectif_id' })
+    .select()
+  
+  if (error) {
+    console.error('❌ INSERT_ERR:', {
+      code: error.code,
+      message: error.message,
+      details: error.details,
+      hint: error.hint
+    })
+    
+    return new Response(JSON.stringify({
+      success: false,
+      error: 'INSERT_FAILED',
+      insertError: error,
+      countBefore: countBefore || 0
+    }), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    })
+  }
+  
+  console.log('✅ INSERTION RÉUSSIE!')
+  console.log(`📦 Données insérées: ${data?.length || 0}`)
+  
+  // Vérifier le nouveau count
+  const { count: countAfter } = await supabaseClient
+    .from('oic_competences')
+    .select('*', { count: 'exact', head: true })
+  
+  console.log(`📊 Count final: ${countAfter || 0} (+${(countAfter || 0) - (countBefore || 0)})`)
+  
+  // Lire les données insérées pour vérification
+  const { data: readData } = await supabaseClient
+    .from('oic_competences')
+    .select('objectif_id, intitule')
+    .limit(5)
+  
+  console.log('📋 Échantillon en base:')
+  readData?.forEach((item: any, i: number) => {
+    console.log(`   ${i+1}. ${item.objectif_id}: ${item.intitule}`)
+  })
+  
+  return new Response(JSON.stringify({
+    success: true,
+    timestamp: new Date().toISOString(),
+    results: {
+      countBefore: countBefore || 0,
+      countAfter: countAfter || 0,
+      inserted: (countAfter || 0) - (countBefore || 0),
+      dataInserted: data?.length || 0,
+      sample: testCompetences[0],
+      sampleInDb: readData?.[0]
+    },
+    message: `✅ Insertion test réussie: ${data?.length || 0} compétences ajoutées`
+  }), {
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+  })
 }
