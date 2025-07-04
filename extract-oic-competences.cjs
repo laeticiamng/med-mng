@@ -306,6 +306,23 @@ async function authenticateCAS(page) {
       await new Promise(resolve => setTimeout(resolve, 5000));
     }
     
+    // Attendre que la redirection OAuth2 soit complète
+    log('🔄 Attente de la redirection OAuth2 vers livret.uness.fr...');
+    try {
+      await page.waitForFunction(
+        () => {
+          const url = window.location.href;
+          return url.includes('livret.uness.fr') && !url.includes('cas/login') && !url.includes('auth.uness.fr');
+        },
+        { timeout: 60000, polling: 1000 }
+      );
+      log(`✅ Redirection OAuth2 réussie. URL finale: ${page.url()}`);
+    } catch (error) {
+      log(`⚠️ Timeout redirection OAuth2, URL actuelle: ${page.url()}`);
+      // Essayer de naviguer manuellement vers la page cible
+      await page.goto(config.urls.category, { waitUntil: 'networkidle2', timeout: 30000 });
+    }
+    
     await new Promise(resolve => setTimeout(resolve, 2000));
     log(`✅ Authentification terminée. URL finale: ${page.url()}`);
   }
