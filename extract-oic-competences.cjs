@@ -119,13 +119,75 @@ async function authenticateCAS(page) {
   if (page.url().includes('cas/login')) {
     log('🔑 Saisie des identifiants CAS...');
     
-    await page.waitForSelector('#username', { timeout: 10000 });
-    await page.type('#username', config.cas.username);
-    await page.type('#password', config.cas.password);
+    // Attendre que la page soit entièrement chargée
+    await page.waitForTimeout(3000);
+    
+    // Debug: voir la structure de la page
+    const html = await page.content();
+    log(`🔍 URL actuelle: ${page.url()}`);
+    
+    // Essayer différents sélecteurs possibles pour le username
+    let usernameField = null;
+    const userSelectors = ['#username', 'input[name="username"]', 'input[type="text"]', '[name="username"]'];
+    for (const selector of userSelectors) {
+      try {
+        await page.waitForSelector(selector, { timeout: 2000 });
+        usernameField = selector;
+        log(`✅ Champ username trouvé avec: ${selector}`);
+        break;
+      } catch (e) {
+        log(`⚠️ Sélecteur ${selector} non trouvé`);
+      }
+    }
+    
+    // Essayer différents sélecteurs possibles pour le password
+    let passwordField = null;
+    const passwordSelectors = ['#password', 'input[name="password"]', 'input[type="password"]', '[name="password"]'];
+    for (const selector of passwordSelectors) {
+      try {
+        await page.waitForSelector(selector, { timeout: 2000 });
+        passwordField = selector;
+        log(`✅ Champ password trouvé avec: ${selector}`);
+        break;
+      } catch (e) {
+        log(`⚠️ Sélecteur ${selector} non trouvé`);
+      }
+    }
+    
+    if (!usernameField || !passwordField) {
+      log(`❌ Impossible de trouver les champs de connexion`);
+      log(`🔍 Contenu de la page (500 premiers caractères):`);
+      log(html.substring(0, 500));
+      throw new Error('Champs de connexion CAS non trouvés');
+    }
+    
+    // Saisir les identifiants
+    await page.type(usernameField, config.cas.username);
+    await page.type(passwordField, config.cas.password);
+    
+    // Chercher le bouton de soumission
+    let submitButton = null;
+    const submitSelectors = ['input[type="submit"]', 'button[type="submit"]', 'input[name="submit"]', 'button'];
+    for (const selector of submitSelectors) {
+      try {
+        const element = await page.$(selector);
+        if (element) {
+          submitButton = selector;
+          log(`✅ Bouton submit trouvé avec: ${selector}`);
+          break;
+        }
+      } catch (e) {
+        log(`⚠️ Bouton ${selector} non trouvé`);
+      }
+    }
+    
+    if (!submitButton) {
+      throw new Error('Bouton de soumission non trouvé');
+    }
     
     await Promise.all([
       page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 30000 }),
-      page.click('input[type="submit"], button[type="submit"]')
+      page.click(submitButton)
     ]);
     
     await page.waitForTimeout(2000);
