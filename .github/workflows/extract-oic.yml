@@ -29,7 +29,7 @@ jobs:
         CAS_USERNAME: ${{ secrets.CAS_USERNAME }}
         CAS_PASSWORD: ${{ secrets.CAS_PASSWORD }}
       run: |
-        node extract-oic-competences.js
+        node extract-oic-competences.cjs
     
     - name: Upload extraction report
       uses: actions/upload-artifact@v4
