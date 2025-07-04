@@ -1,6 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-import { launch } from "https://deno.land/x/puppeteer@16.2.0/mod.ts"
 
 interface OicCompetence {
   objectif_id: string; // Format OIC-XXX-YY-R-ZZ
@@ -260,42 +259,110 @@ async function extractCompetencesWithRealCAS(supabaseClient: any, session_id: st
   }
 }
 
-// Nouvelle fonction d'authentification CAS légère
+// Authentification CAS simplifiée via fetch (sans Puppeteer)
 async function authenticateWithCAS(username: string, password: string): Promise<string> {
-  console.log('🔐 Authentification CAS via Puppeteer minimal...')
-  
-  const browser = await launch({
-    headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
-  });
+  console.log('🔐 Authentification CAS simplifiée via fetch...')
   
   try {
-    const page = await browser.newPage();
-    
-    // Aller sur la page qui redirige vers CAS
-    await page.goto('https://livret.uness.fr/lisa/2025/Cat%C3%A9gorie:Objectif_de_connaissance', {
-      waitUntil: 'networkidle2'
+    // Étape 1: Aller sur une page protégée pour déclencher la redirection CAS
+    const initialResponse = await fetch('https://livret.uness.fr/lisa/2025/Cat%C3%A9gorie:Objectif_de_connaissance', {
+      redirect: 'manual', // Ne pas suivre les redirections automatiquement
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (compatible; OIC-Extractor/1.0)'
+      }
     });
     
-    // Vérifier redirection CAS
-    if (page.url().includes('auth.uness.fr/cas/login')) {
-      await page.waitForSelector('#username');
-      await page.type('#username', username);
-      await page.type('#password', password);
-      await page.click('input[name="submit"]');
-      
-      await page.waitForFunction(() => window.location.href.includes('livret.uness.fr'));
+    // Si pas de redirection, l'API est peut-être publique
+    if (initialResponse.status === 200) {
+      console.log('🚨 Page accessible directement - API publique possible')
+      return '';
     }
     
-    // Récupérer les cookies
-    const cookies = await page.cookies();
-    const cookieString = cookies.map(c => `${c.name}=${c.value}`).join('; ');
+    // Si redirection vers CAS, récupérer l'URL de login
+    if (initialResponse.status === 302 || initialResponse.status === 301) {
+      const casLoginUrl = initialResponse.headers.get('location');
+      if (!casLoginUrl?.includes('auth.uness.fr/cas/login')) {
+        console.log('🔍 Redirection non-CAS détectée, tentative d\'accès direct')
+        return '';
+      }
+      
+      console.log('🔑 Redirection CAS détectée, authentification requise...')
+      
+      // Étape 2: Récupérer le formulaire de login CAS
+      const casResponse = await fetch(casLoginUrl, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (compatible; OIC-Extractor/1.0)'
+        }
+      });
+      
+      const casHtml = await casResponse.text();
+      
+      // Extraire les cookies de session CAS
+      const casSessionCookies = casResponse.headers.get('set-cookie') || '';
+      
+      // Extraire le token CSRF/LT du formulaire
+      const ltMatch = casHtml.match(/name="lt"\s+value="([^"]+)"/);
+      const executionMatch = casHtml.match(/name="execution"\s+value="([^"]+)"/);
+      
+      const lt = ltMatch?.[1];
+      const execution = executionMatch?.[1];
+      
+      if (!lt) {
+        console.warn('⚠️ Token LT non trouvé, tentative sans token...')
+      }
+      
+      // Étape 3: Soumettre les credentials
+      const loginParams = new URLSearchParams();
+      loginParams.append('username', username);
+      loginParams.append('password', password);
+      if (lt) loginParams.append('lt', lt);
+      if (execution) loginParams.append('execution', execution);
+      loginParams.append('_eventId', 'submit');
+      
+      const loginResponse = await fetch(casLoginUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'User-Agent': 'Mozilla/5.0 (compatible; OIC-Extractor/1.0)',
+          'Cookie': casSessionCookies,
+          'Referer': casLoginUrl
+        },
+        body: loginParams.toString(),
+        redirect: 'manual'
+      });
+      
+      // Vérifier si l'authentification a réussi (redirection vers le service)
+      if (loginResponse.status === 302 || loginResponse.status === 301) {
+        const serviceTicketUrl = loginResponse.headers.get('location');
+        
+        if (serviceTicketUrl?.includes('ticket=')) {
+          console.log('✅ Authentification CAS réussie, récupération du ticket de service...')
+          
+          // Étape 4: Échanger le ticket contre une session MediaWiki
+          const serviceResponse = await fetch(serviceTicketUrl, {
+            redirect: 'manual',
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (compatible; OIC-Extractor/1.0)'
+            }
+          });
+          
+          const mediawikiCookies = serviceResponse.headers.get('set-cookie') || '';
+          
+          if (mediawikiCookies) {
+            console.log('🍪 Cookies MediaWiki récupérés avec succès')
+            return mediawikiCookies;
+          }
+        }
+      }
+    }
     
-    console.log('✅ Authentification CAS réussie, cookies récupérés')
-    return cookieString;
+    console.warn('⚠️ Authentification CAS échouée, tentative d\'accès sans authentification...')
+    return '';
     
-  } finally {
-    await browser.close();
+  } catch (error) {
+    console.error('❌ Erreur lors de l\'authentification CAS:', error);
+    console.log('🔄 Tentative d\'accès sans authentification...')
+    return '';
   }
 }
 
