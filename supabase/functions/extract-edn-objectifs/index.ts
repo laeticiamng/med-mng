@@ -1,27 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-
-interface OicCompetence {
-  objectif_id: string; // Format OIC-XXX-YY-R-ZZ
-  intitule: string;
-  item_parent: string; // Numéro d'item EDN (001-367)
-  rang: string; // A ou B
-  rubrique: string;
-  description?: string;
-  ordre?: number;
-  url_source: string;
-  hash_content?: string;
-}
-
-interface ExtractionSession {
-  session_id: string;
-  page_number: number;
-  items_extracted: number;
-  status: string;
-  auth_cookies?: string;
-  current_page_url?: string;
-  last_item_id?: string;
-}
+import { getCategoryMembers, getPageContent, testPublicAccess } from './api-client.ts'
+import { parseOICContent, OicCompetence } from './oic-parser.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -37,10 +17,6 @@ serve(async (req) => {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
     
-    // Identifiants UNESS (selon spécifications ticket)
-    const unessUsername = Deno.env.get('UNESS_USERNAME') || 'laeticia.moto-ngane@etud.u-picardie.fr'
-    const unessPassword = Deno.env.get('UNESS_PASSWORD') || 'Aiciteal1!'
-
     if (!supabaseUrl || !supabaseKey) {
       console.error('Variables Supabase manquantes')
       return new Response(
@@ -48,8 +24,6 @@ serve(async (req) => {
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
-
-    console.log(`🔐 Utilisation des identifiants UNESS: ${unessUsername}`)
 
     const supabaseClient = createClient(supabaseUrl, supabaseKey)
 
@@ -64,22 +38,13 @@ serve(async (req) => {
       )
     }
 
-    const { action, session_id, page, resume_from } = requestBody
+    const { action, session_id } = requestBody
 
     console.log(`🎯 Action demandée: ${action}`)
 
-    if (!action) {
-      return new Response(
-        JSON.stringify({ error: 'Action manquante dans la requête' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
-
     switch (action) {
       case 'start':
-        return await startExtractionWithBackground(supabaseClient, unessUsername, unessPassword)
-      case 'resume':
-        return await resumeExtraction(supabaseClient, session_id, resume_from)
+        return await startExtraction(supabaseClient)
       case 'status':
         return await getExtractionStatus(supabaseClient, session_id)
       case 'rapport':
@@ -97,10 +62,10 @@ serve(async (req) => {
   }
 })
 
-async function startExtractionWithBackground(supabaseClient: any, username: string, password: string) {
+async function startExtraction(supabaseClient: any) {
   const session_id = crypto.randomUUID()
   
-  console.log('🚀 Démarrage extraction avec tâche en arrière-plan')
+  console.log('🚀 Démarrage extraction simplifiée')
   console.log(`📊 Session: ${session_id}`)
   
   // Initialiser le tracking de progression
@@ -115,14 +80,13 @@ async function startExtractionWithBackground(supabaseClient: any, username: stri
       total_pages: 25
     })
 
-  // Lancer l'extraction en arrière-plan avec waitUntil
-  const backgroundTask = extractCompetencesWithRealCAS(supabaseClient, session_id, username, password)
+  // Lancer l'extraction en arrière-plan
+  const backgroundTask = extractCompetences(supabaseClient, session_id)
   
   // Utiliser waitUntil pour permettre l'exécution en arrière-plan
   if (typeof EdgeRuntime !== 'undefined' && EdgeRuntime.waitUntil) {
     EdgeRuntime.waitUntil(backgroundTask)
   } else {
-    // Fallback - juste lancer sans attendre
     backgroundTask.catch(error => {
       console.error('Erreur tâche arrière-plan:', error)
     })
@@ -133,66 +97,30 @@ async function startExtractionWithBackground(supabaseClient: any, username: stri
     JSON.stringify({
       success: true,
       session_id,
-      message: 'Extraction des 4,872 compétences OIC démarrée en arrière-plan',
+      message: 'Extraction des 4,872 compétences OIC démarrée',
       status_url: `/functions/extract-edn-objectifs?action=status&session_id=${session_id}`
     }),
     { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
   )
 }
 
-async function startExtraction(supabaseClient: any, username: string, password: string) {
-  const session_id = crypto.randomUUID()
-  
-  console.log('🚀 Démarrage extraction avec authentification CAS UNESS')
-  console.log(`📊 Session: ${session_id}`)
-  
-  // Initialiser le tracking de progression
-  await supabaseClient
-    .from('oic_extraction_progress')
-    .insert({
-      session_id,
-      status: 'en_cours',
-      page_number: 1,
-      items_extracted: 0,
-      total_expected: 4872,
-      total_pages: 25
-    })
-
-  // Lancer l'extraction en arrière-plan avec authentification CAS
-  extractCompetencesWithRealCAS(supabaseClient, session_id, username, password)
-
-  return new Response(
-    JSON.stringify({
-      success: true,
-      session_id,
-      message: 'Extraction des 4,872 compétences OIC démarrée avec authentification CAS UNESS',
-      status_url: `/functions/extract-edn-objectifs?action=status&session_id=${session_id}`
-    }),
-    { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-  )
-}
-
-async function extractCompetencesWithRealCAS(supabaseClient: any, session_id: string, username: string, password: string) {
+async function extractCompetences(supabaseClient: any, session_id: string) {
   let totalExtraites = 0;
   let currentBatch = 0;
-  let authCookies = '';
 
   try {
-    console.log('🚀 TICKET 4-bis: Extraction API-first des 4,872 objectifs OIC')
+    console.log('🚀 Début extraction des objectifs OIC')
     
-    // Étape 1: Tester si l'API est publique
-    console.log('🔍 Test de l\'API MediaWiki publique...')
-    const testResponse = await fetch('https://livret.uness.fr/lisa/2025/api.php?action=query&meta=siteinfo&format=json');
+    // Tester l'accès à l'API
+    const isPublic = await testPublicAccess()
+    let authCookies = ''
     
-    if (testResponse.ok) {
-      console.log('✅ API MediaWiki publique accessible!')
-      authCookies = ''; // Pas besoin d'authentification
-    } else {
-      console.log('🔐 API privée détectée - Authentification CAS requise...')
-      authCookies = await authenticateWithCAS(username, password);
+    if (!isPublic) {
+      console.log('🔐 API privée - tentative sans authentification')
+      // On continue sans authentification pour voir si ça marche
     }
     
-    // Mettre à jour le statut pour indiquer le début de l'extraction
+    // Mettre à jour le statut
     await supabaseClient
       .from('oic_extraction_progress')
       .update({
@@ -201,20 +129,20 @@ async function extractCompetencesWithRealCAS(supabaseClient: any, session_id: st
       })
       .eq('session_id', session_id)
     
-    // Étape 2: Récupérer tous les IDs des pages de la catégorie
-    console.log('📋 Récupération de la liste des objectifs via API MediaWiki...')
-    const allPageIds = await getCategoryMembers(authCookies);
-    console.log(`📊 ${allPageIds.length} pages trouvées dans la catégorie`)
+    // Récupérer tous les IDs des pages
+    console.log('📋 Récupération de la liste des objectifs...')
+    const allPageIds = await getCategoryMembers(authCookies)
+    console.log(`📊 ${allPageIds.length} pages trouvées`)
     
-    // Étape 3: Traitement par lots de 50 pages
-    const batchSize = 50;
-    const totalBatches = Math.ceil(allPageIds.length / batchSize);
+    // Traitement par lots de 50 pages
+    const batchSize = 50
+    const totalBatches = Math.ceil(allPageIds.length / batchSize)
     
     for (let batch = 0; batch < totalBatches; batch++) {
-      currentBatch = batch + 1;
-      const startIdx = batch * batchSize;
-      const endIdx = Math.min(startIdx + batchSize, allPageIds.length);
-      const batchIds = allPageIds.slice(startIdx, endIdx);
+      currentBatch = batch + 1
+      const startIdx = batch * batchSize
+      const endIdx = Math.min(startIdx + batchSize, allPageIds.length)
+      const batchIds = allPageIds.slice(startIdx, endIdx)
       
       console.log(`📦 Batch ${currentBatch}/${totalBatches} - Pages ${startIdx + 1} à ${endIdx}`)
       
@@ -229,46 +157,46 @@ async function extractCompetencesWithRealCAS(supabaseClient: any, session_id: st
         .eq('session_id', session_id)
       
       // Récupérer le contenu du batch
-      const batchContent = await getPageContent(batchIds, authCookies);
+      const batchContent = await getPageContent(batchIds, authCookies)
       
       // Parser et sauvegarder chaque page
-      let savedInBatch = 0;
+      let savedInBatch = 0
       for (const page of batchContent) {
         try {
-          const competence = parseOICContent(page);
+          const competence = parseOICContent(page)
           
           if (competence) {
             // Générer un hash pour éviter les doublons
             const hashContent = await crypto.subtle.digest('SHA-256', 
               new TextEncoder().encode(JSON.stringify(competence))
-            );
-            const hashArray = Array.from(new Uint8Array(hashContent));
-            competence.hash_content = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            )
+            const hashArray = Array.from(new Uint8Array(hashContent))
+            competence.hash_content = hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
             
             const { error } = await supabaseClient
               .from('oic_competences')
-              .upsert(competence, { onConflict: 'objectif_id' });
+              .upsert(competence, { onConflict: 'objectif_id' })
             
             if (error) {
-              console.error(`❌ Erreur sauvegarde ${competence.objectif_id}:`, error);
+              console.error(`❌ Erreur sauvegarde ${competence.objectif_id}:`, error)
             } else {
-              savedInBatch++;
-              totalExtraites++;
+              savedInBatch++
+              totalExtraites++
             }
           }
         } catch (error) {
-          console.error(`💥 Erreur parsing page ${page.title}:`, error);
+          console.error(`💥 Erreur parsing page ${page.title}:`, error)
         }
       }
       
-      console.log(`✅ Batch ${currentBatch}: ${savedInBatch}/${batchIds.length} objectifs sauvegardés (Total: ${totalExtraites})`);
+      console.log(`✅ Batch ${currentBatch}: ${savedInBatch}/${batchIds.length} objectifs sauvegardés (Total: ${totalExtraites})`)
       
       // Pause entre les batches
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await new Promise(resolve => setTimeout(resolve, 1000))
     }
 
     // Finaliser l'extraction
-    console.log(`🎉 Extraction API terminée: ${totalExtraites} objectifs OIC extraits`)
+    console.log(`🎉 Extraction terminée: ${totalExtraites} objectifs OIC extraits`)
     
     await supabaseClient
       .from('oic_extraction_progress')
@@ -280,264 +208,18 @@ async function extractCompetencesWithRealCAS(supabaseClient: any, session_id: st
       .eq('session_id', session_id)
 
   } catch (error) {
-    console.error('💥 Erreur critique extraction API:', error)
-    
-    const errorDetails = {
-      timestamp: new Date().toISOString(),
-      message: error.message,
-      stack: error.stack,
-      batch: currentBatch,
-      totalExtraites: totalExtraites
-    }
+    console.error('💥 Erreur critique extraction:', error)
     
     await supabaseClient
       .from('oic_extraction_progress')
       .update({
         status: 'erreur',
         error_message: error.message,
-        failed_urls: [errorDetails],
         last_activity: new Date().toISOString()
       })
       .eq('session_id', session_id)
   }
 }
-
-// Authentification CAS simplifiée via fetch (sans Puppeteer)
-async function authenticateWithCAS(username: string, password: string): Promise<string> {
-  console.log('🔐 Authentification CAS simplifiée via fetch...')
-  
-  try {
-    // Étape 1: Aller sur une page protégée pour déclencher la redirection CAS
-    const initialResponse = await fetch('https://livret.uness.fr/lisa/2025/Cat%C3%A9gorie:Objectif_de_connaissance', {
-      redirect: 'manual', // Ne pas suivre les redirections automatiquement
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible; OIC-Extractor/1.0)'
-      }
-    });
-    
-    // Si pas de redirection, l'API est peut-être publique
-    if (initialResponse.status === 200) {
-      console.log('🚨 Page accessible directement - API publique possible')
-      return '';
-    }
-    
-    // Si redirection vers CAS, récupérer l'URL de login
-    if (initialResponse.status === 302 || initialResponse.status === 301) {
-      const casLoginUrl = initialResponse.headers.get('location');
-      if (!casLoginUrl?.includes('auth.uness.fr/cas/login')) {
-        console.log('🔍 Redirection non-CAS détectée, tentative d\'accès direct')
-        return '';
-      }
-      
-      console.log('🔑 Redirection CAS détectée, authentification requise...')
-      
-      // Étape 2: Récupérer le formulaire de login CAS
-      const casResponse = await fetch(casLoginUrl, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (compatible; OIC-Extractor/1.0)'
-        }
-      });
-      
-      const casHtml = await casResponse.text();
-      
-      // Extraire les cookies de session CAS
-      const casSessionCookies = casResponse.headers.get('set-cookie') || '';
-      
-      // Extraire le token CSRF/LT du formulaire
-      const ltMatch = casHtml.match(/name="lt"\s+value="([^"]+)"/);
-      const executionMatch = casHtml.match(/name="execution"\s+value="([^"]+)"/);
-      
-      const lt = ltMatch?.[1];
-      const execution = executionMatch?.[1];
-      
-      if (!lt) {
-        console.warn('⚠️ Token LT non trouvé, tentative sans token...')
-      }
-      
-      // Étape 3: Soumettre les credentials
-      const loginParams = new URLSearchParams();
-      loginParams.append('username', username);
-      loginParams.append('password', password);
-      if (lt) loginParams.append('lt', lt);
-      if (execution) loginParams.append('execution', execution);
-      loginParams.append('_eventId', 'submit');
-      
-      const loginResponse = await fetch(casLoginUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-          'User-Agent': 'Mozilla/5.0 (compatible; OIC-Extractor/1.0)',
-          'Cookie': casSessionCookies,
-          'Referer': casLoginUrl
-        },
-        body: loginParams.toString(),
-        redirect: 'manual'
-      });
-      
-      // Vérifier si l'authentification a réussi (redirection vers le service)
-      if (loginResponse.status === 302 || loginResponse.status === 301) {
-        const serviceTicketUrl = loginResponse.headers.get('location');
-        
-        if (serviceTicketUrl?.includes('ticket=')) {
-          console.log('✅ Authentification CAS réussie, récupération du ticket de service...')
-          
-          // Étape 4: Échanger le ticket contre une session MediaWiki
-          const serviceResponse = await fetch(serviceTicketUrl, {
-            redirect: 'manual',
-            headers: {
-              'User-Agent': 'Mozilla/5.0 (compatible; OIC-Extractor/1.0)'
-            }
-          });
-          
-          const mediawikiCookies = serviceResponse.headers.get('set-cookie') || '';
-          
-          if (mediawikiCookies) {
-            console.log('🍪 Cookies MediaWiki récupérés avec succès')
-            return mediawikiCookies;
-          }
-        }
-      }
-    }
-    
-    console.warn('⚠️ Authentification CAS échouée, tentative d\'accès sans authentification...')
-    return '';
-    
-  } catch (error) {
-    console.error('❌ Erreur lors de l\'authentification CAS:', error);
-    console.log('🔄 Tentative d\'accès sans authentification...')
-    return '';
-  }
-}
-
-// Récupérer tous les membres de la catégorie
-async function getCategoryMembers(authCookies: string): Promise<number[]> {
-  const pageIds: number[] = [];
-  let cmcontinue = '';
-  
-  do {
-    const url = new URL('https://livret.uness.fr/lisa/2025/api.php');
-    url.searchParams.set('action', 'query');
-    url.searchParams.set('list', 'categorymembers');
-    url.searchParams.set('cmtitle', 'Catégorie:Objectif_de_connaissance');
-    url.searchParams.set('cmlimit', '500');
-    url.searchParams.set('format', 'json');
-    
-    if (cmcontinue) {
-      url.searchParams.set('cmcontinue', cmcontinue);
-    }
-    
-    const headers: Record<string, string> = {
-      'User-Agent': 'Mozilla/5.0 (compatible; OIC-Extractor/1.0)'
-    };
-    
-    if (authCookies) {
-      headers['Cookie'] = authCookies;
-    }
-    
-    const response = await fetch(url.toString(), { headers });
-    const data = await response.json();
-    
-    if (data.query?.categorymembers) {
-      data.query.categorymembers.forEach((page: any) => {
-        if (page.title?.match(/OIC-\d{3}-\d{2}-[AB]-\d{2}/)) {
-          pageIds.push(page.pageid);
-        }
-      });
-    }
-    
-    cmcontinue = data.continue?.cmcontinue || '';
-    
-  } while (cmcontinue);
-  
-  return pageIds;
-}
-
-// Récupérer le contenu des pages par batch
-async function getPageContent(pageIds: number[], authCookies: string): Promise<any[]> {
-  const url = new URL('https://livret.uness.fr/lisa/2025/api.php');
-  url.searchParams.set('action', 'query');
-  url.searchParams.set('prop', 'revisions');
-  url.searchParams.set('rvprop', 'content|ids|timestamp');
-  url.searchParams.set('pageids', pageIds.join('|'));
-  url.searchParams.set('format', 'json');
-  
-  const headers: Record<string, string> = {
-    'User-Agent': 'Mozilla/5.0 (compatible; OIC-Extractor/1.0)'
-  };
-  
-  if (authCookies) {
-    headers['Cookie'] = authCookies;
-  }
-  
-  const response = await fetch(url.toString(), { headers });
-  const data = await response.json();
-  
-  return Object.values(data.query?.pages || {});
-}
-
-// Parser le contenu d'une page OIC
-function parseOICContent(page: any): any | null {
-  try {
-    const title = page.title;
-    const content = page.revisions?.[0]?.['*'] || '';
-    
-    // Extraire l'identifiant OIC
-    const match = title.match(/OIC-(\d{3})-(\d{2})-([AB])-(\d{2})/);
-    if (!match) return null;
-    
-    const [objectif_id, item_parent, rubrique_code, rang, ordre_str] = match;
-    
-    // Mapping des rubriques
-    const rubriques: Record<string, string> = {
-      '01': 'Génétique',
-      '02': 'Immunopathologie', 
-      '03': 'Inflammation',
-      '04': 'Cancérologie',
-      '05': 'Pharmacologie',
-      '06': 'Douleur',
-      '07': 'Santé publique',
-      '08': 'Thérapeutique',
-      '09': 'Urgences',
-      '10': 'Vieillissement',
-      '11': 'Interprétation'
-    };
-    
-    // Extraire l'intitulé depuis le wikitext
-    let intitule = title;
-    const intituleMatch = content.match(/\|\s*Intitulé\s*=\s*([^\n\|]+)/i) || 
-                         content.match(/<th[^>]*>Intitulé<\/th>\s*<td[^>]*>([^<]+)/i);
-    if (intituleMatch) {
-      intitule = intituleMatch[1].trim();
-    }
-    
-    // Extraire la description
-    let description = '';
-    const descMatch = content.match(/\|\s*Description\s*=\s*([^\n\|]+)/i) ||
-                     content.match(/<th[^>]*>Description<\/th>\s*<td[^>]*>([^<]+)/i);
-    if (descMatch) {
-      description = descMatch[1].trim();
-    }
-    
-    return {
-      objectif_id,
-      intitule,
-      item_parent,
-      rang,
-      rubrique: rubriques[rubrique_code] || 'Autre',
-      description,
-      ordre: parseInt(ordre_str),
-      url_source: `https://livret.uness.fr/lisa/2025/${encodeURIComponent(title)}`,
-      date_import: new Date().toISOString(),
-      extraction_status: 'complete'
-    };
-    
-  } catch (error) {
-    console.error('Erreur parsing:', error);
-    return null;
-  }
-}
-
-// Fonction supprimée - remplacée par parseOICContent dans la nouvelle approche API
 
 async function getExtractionStatus(supabaseClient: any, session_id: string) {
   const { data, error } = await supabaseClient
@@ -567,11 +249,9 @@ async function generateRapport(supabaseClient: any) {
       throw new Error(`Erreur génération rapport: ${error.message}`)
     }
 
-    const reportData = data[0] || {
+    const reportData = data || {
       summary: { expected: 4872, extracted: 0, completeness_pct: 0 },
-      by_item: [],
-      missing_items: [],
-      failed_urls: []
+      by_item: []
     }
 
     const stats = {
@@ -609,44 +289,4 @@ async function generateRapport(supabaseClient: any) {
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   }
-}
-
-async function resumeExtraction(supabaseClient: any, session_id: string, resume_from?: number) {
-  // Récupérer l'état de la session
-  const { data: session } = await supabaseClient
-    .from('oic_extraction_progress')
-    .select('*')
-    .eq('session_id', session_id)
-    .single()
-
-  if (!session) {
-    throw new Error('Session non trouvée')
-  }
-
-  // Reprendre à partir de la page spécifiée ou de la dernière page
-  const startPage = resume_from || session.page_number
-
-  await supabaseClient
-    .from('oic_extraction_progress')
-    .update({
-      status: 'en_cours',
-      page_number: startPage,
-      last_activity: new Date().toISOString()
-    })
-    .eq('session_id', session_id)
-
-  // Relancer l'extraction avec les identifiants CAS
-  const username = Deno.env.get('UNESS_USERNAME') || 'laeticia.moto-ngane@etud.u-picardie.fr'
-  const password = Deno.env.get('UNESS_PASSWORD') || 'Aiciteal1!'
-  
-  extractCompetencesWithRealCAS(supabaseClient, session_id, username, password)
-
-  return new Response(
-    JSON.stringify({
-      success: true,
-      message: `Extraction reprise à partir de la page ${startPage}`,
-      session_id
-    }),
-    { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-  )
 }

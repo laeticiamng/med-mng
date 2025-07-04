@@ -2633,12 +2633,7 @@ export type Database = {
       }
       get_oic_extraction_report: {
         Args: Record<PropertyKey, never>
-        Returns: {
-          summary: Json
-          by_item: Json
-          missing_items: string[]
-          failed_urls: string[]
-        }[]
+        Returns: Json
       }
       mark_notifications_as_read: {
         Args: { user_id_param: string; notification_ids?: string[] }
