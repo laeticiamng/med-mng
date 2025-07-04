@@ -77,7 +77,7 @@ serve(async (req) => {
 
     switch (action) {
       case 'start':
-        return await startExtraction(supabaseClient, unessUsername, unessPassword)
+        return await startExtractionWithBackground(supabaseClient, unessUsername, unessPassword)
       case 'resume':
         return await resumeExtraction(supabaseClient, session_id, resume_from)
       case 'status':
@@ -96,6 +96,49 @@ serve(async (req) => {
     )
   }
 })
+
+async function startExtractionWithBackground(supabaseClient: any, username: string, password: string) {
+  const session_id = crypto.randomUUID()
+  
+  console.log('🚀 Démarrage extraction avec tâche en arrière-plan')
+  console.log(`📊 Session: ${session_id}`)
+  
+  // Initialiser le tracking de progression
+  await supabaseClient
+    .from('oic_extraction_progress')
+    .insert({
+      session_id,
+      status: 'en_cours',
+      page_number: 1,
+      items_extracted: 0,
+      total_expected: 4872,
+      total_pages: 25
+    })
+
+  // Lancer l'extraction en arrière-plan avec waitUntil
+  const backgroundTask = extractCompetencesWithRealCAS(supabaseClient, session_id, username, password)
+  
+  // Utiliser waitUntil pour permettre l'exécution en arrière-plan
+  if (typeof EdgeRuntime !== 'undefined' && EdgeRuntime.waitUntil) {
+    EdgeRuntime.waitUntil(backgroundTask)
+  } else {
+    // Fallback - juste lancer sans attendre
+    backgroundTask.catch(error => {
+      console.error('Erreur tâche arrière-plan:', error)
+    })
+  }
+
+  // Retourner immédiatement la réponse
+  return new Response(
+    JSON.stringify({
+      success: true,
+      session_id,
+      message: 'Extraction des 4,872 compétences OIC démarrée en arrière-plan',
+      status_url: `/functions/extract-edn-objectifs?action=status&session_id=${session_id}`
+    }),
+    { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+  )
+}
 
 async function startExtraction(supabaseClient: any, username: string, password: string) {
   const session_id = crypto.randomUUID()
