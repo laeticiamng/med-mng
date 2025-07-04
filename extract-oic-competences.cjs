@@ -70,16 +70,33 @@ async function extractAllCompetences() {
     log('🔐 Authentification CAS...');
     await authenticateCAS(page);
     
-    // 2. Vérifier l'authentification
-    await page.goto(config.urls.category, { waitUntil: 'networkidle2' });
-    const isAuthenticated = await page.evaluate(() => {
-      return !window.location.href.includes('cas/login');
-    });
+  // 2. Vérifier l'authentification
+  await page.goto(config.urls.category, { waitUntil: 'networkidle2', timeout: 60000 });
+  
+  // Attendre que la page se charge complètement
+  await new Promise(resolve => setTimeout(resolve, 3000));
+  
+  const currentUrl = page.url();
+  log(`🔍 URL de vérification: ${currentUrl}`);
+  
+  const isAuthenticated = await page.evaluate(() => {
+    // Vérifier plusieurs conditions d'authentification
+    const url = window.location.href;
+    const hasContent = document.body.innerText.includes('Objectif de connaissance') || 
+                      document.body.innerText.includes('Catégorie') ||
+                      document.querySelector('h1');
+    const notOnAuthPage = !url.includes('cas/login') && !url.includes('auth.uness.fr/cas');
     
-    if (!isAuthenticated) {
-      throw new Error('❌ Authentification CAS échouée');
-    }
-    log('✅ Authentification CAS réussie');
+    return notOnAuthPage && hasContent;
+  });
+  
+  if (!isAuthenticated) {
+    log(`❌ Authentification échouée - URL: ${currentUrl}`);
+    const pageContent = await page.content();
+    log(`🔍 Contenu page (500 premiers caractères): ${pageContent.substring(0, 500)}`);
+    throw new Error('❌ Authentification CAS échouée');
+  }
+  log('✅ Authentification CAS réussie');
     
     // 3. Extraction via API MediaWiki
     log('📊 Début extraction via API MediaWiki...');
@@ -116,11 +133,11 @@ async function authenticateCAS(page) {
   await page.goto(config.urls.category, { waitUntil: 'networkidle2', timeout: 30000 });
   
   // Vérifier si redirection vers CAS
-  if (page.url().includes('cas/login') || page.url().includes('uness.fr')) {
+  if (page.url().includes('cas/login') || page.url().includes('auth.uness.fr')) {
     log('🔑 Début du processus d\'authentification UNESS (2 étapes)...');
     
     // ÉTAPE 1 : Saisir l'email
-    await new Promise(resolve => setTimeout(resolve, 3000));
+    await new Promise(resolve => setTimeout(resolve, 5000));
     
     log('📧 ÉTAPE 1 : Saisie de l\'adresse email...');
     const html1 = await page.content();
