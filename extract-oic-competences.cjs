@@ -70,30 +70,58 @@ async function extractAllCompetences() {
     log('🔐 Authentification CAS...');
     await authenticateCAS(page);
     
-  // 2. Vérifier l'authentification
-  await page.goto(config.urls.category, { waitUntil: 'networkidle2', timeout: 60000 });
+  // 2. Vérifier l'authentification - ne pas naviguer, utiliser l'URL actuelle
+  const currentUrl = page.url();
+  log(`🔍 URL après authentification: ${currentUrl}`);
+  
+  // Si on est déjà sur livret.uness.fr, pas besoin de re-naviguer
+  if (currentUrl.includes('livret.uness.fr')) {
+    log('✅ Déjà sur livret.uness.fr après authentification');
+  } else {
+    log('⚠️ Pas encore sur livret.uness.fr, tentative de navigation...');
+    await page.goto(config.urls.category, { waitUntil: 'networkidle2', timeout: 60000 });
+  }
   
   // Attendre que la page se charge complètement
   await new Promise(resolve => setTimeout(resolve, 3000));
   
-  const currentUrl = page.url();
-  log(`🔍 URL de vérification: ${currentUrl}`);
+  const finalUrl = page.url();
+  log(`🔍 URL finale pour vérification: ${finalUrl}`);
   
   const isAuthenticated = await page.evaluate(() => {
     // Vérifier plusieurs conditions d'authentification
     const url = window.location.href;
     const hasContent = document.body.innerText.includes('Objectif de connaissance') || 
                       document.body.innerText.includes('Catégorie') ||
-                      document.querySelector('h1');
+                      document.querySelector('h1') ||
+                      document.body.innerText.includes('Livret') ||
+                      document.body.innerText.includes('UNESS');
     const notOnAuthPage = !url.includes('cas/login') && !url.includes('auth.uness.fr/cas');
     
     return notOnAuthPage && hasContent;
   });
   
   if (!isAuthenticated) {
-    log(`❌ Authentification échouée - URL: ${currentUrl}`);
+    log(`❌ Authentification échouée - URL: ${finalUrl}`);
     const pageContent = await page.content();
     log(`🔍 Contenu page (500 premiers caractères): ${pageContent.substring(0, 500)}`);
+    
+    // Essayer une dernière fois avec une approche différente
+    log('🔄 Tentative finale avec navigation directe vers API...');
+    try {
+      await page.goto(config.urls.api + '?action=query&meta=siteinfo&format=json', { 
+        waitUntil: 'networkidle2', 
+        timeout: 30000 
+      });
+      const apiContent = await page.content();
+      if (apiContent.includes('query') && !apiContent.includes('cas/login')) {
+        log('✅ API accessible, authentification OK');
+        return; // Success
+      }
+    } catch (e) {
+      log(`❌ Test API échoué: ${e.message}`);
+    }
+    
     throw new Error('❌ Authentification CAS échouée');
   }
   log('✅ Authentification CAS réussie');
