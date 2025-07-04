@@ -195,10 +195,15 @@ async function authenticateCAS(page) {
     
     // Cliquer sur SE CONNECTER (étape 1)
     log('🔄 Clic sur SE CONNECTER (étape 1)...');
-    await Promise.all([
-      page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 30000 }),
-      page.click(connectButton1)
-    ]);
+    try {
+      await Promise.all([
+        page.waitForNavigation({ waitUntil: 'networkidle0', timeout: 60000 }),
+        page.click(connectButton1)
+      ]);
+    } catch (navError) {
+      log(`⚠️ Timeout navigation étape 1, continuons quand même...`);
+      await new Promise(resolve => setTimeout(resolve, 5000));
+    }
     
     // ÉTAPE 2 : Saisir le mot de passe
     await new Promise(resolve => setTimeout(resolve, 3000));
@@ -274,10 +279,15 @@ async function authenticateCAS(page) {
     
     // Cliquer sur SE CONNECTER (étape 2)
     log('🔄 Clic sur SE CONNECTER (étape 2)...');
-    await Promise.all([
-      page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 30000 }),
-      page.click(connectButton2)
-    ]);
+    try {
+      await Promise.all([
+        page.waitForNavigation({ waitUntil: 'networkidle0', timeout: 60000 }),
+        page.click(connectButton2)
+      ]);
+    } catch (navError) {
+      log(`⚠️ Timeout navigation étape 2, continuons quand même...`);
+      await new Promise(resolve => setTimeout(resolve, 5000));
+    }
     
     await new Promise(resolve => setTimeout(resolve, 2000));
     log(`✅ Authentification terminée. URL finale: ${page.url()}`);
