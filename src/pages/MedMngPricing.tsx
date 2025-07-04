@@ -50,7 +50,7 @@ export const MedMngPricing = () => {
     {
       icon: Download,
       title: "Sauvegarde cloud",
-      description: "Vos créations toujours accessibles - 100% streaming, aucun téléchargement autorisé"
+      description: "Vos créations toujours accessibles - 100% streaming"
     }
   ];
 
