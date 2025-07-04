@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>🔧 DEBUG OIC EXTRACTION</title>
+    <style>
+        body { font-family: monospace; margin: 20px; background: #1a1a1a; color: #fff; }
+        .result { background: #2a2a2a; padding: 10px; margin: 10px 0; border-radius: 5px; }
+        .success { border-left: 4px solid #4CAF50; }
+        .error { border-left: 4px solid #f44336; }
+        .warning { border-left: 4px solid #ff9800; }
+        button { padding: 10px 20px; margin: 5px; background: #4CAF50; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background: #45a049; }
+        #results { max-height: 80vh; overflow-y: auto; }
+        .step-title { font-weight: bold; color: #4CAF50; margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>🔧 DEBUG OIC EXTRACTION</h1>
+    <p>Diagnostic méthodique des 4,872 compétences OIC</p>
+    
+    <div>
+        <button onclick="runFullDiagnostic()">🚀 Diagnostic Complet</button>
+        <button onclick="testStep('1')">1️⃣ Test API Publique</button>
+        <button onclick="testStep('2')">2️⃣ Test Catégorie</button>
+        <button onclick="testStep('3')">3️⃣ Test Variantes</button>
+        <button onclick="testStep('4')">4️⃣ Test Contenu</button>
+        <button onclick="testDirectCurl()">📡 Tests Directs</button>
+        <button onclick="clearResults()">🗑️ Effacer</button>
+    </div>
+    
+    <div id="results"></div>
+
+    <script>
+        const EDGE_FUNCTION_URL = 'https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/debug-oic-extraction';
+        const AUTH_HEADERS = {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU'
+        };
+
+        function addResult(content, type = 'result') {
+            const div = document.createElement('div');
+            div.className = `result ${type}`;
+            div.innerHTML = content.replace(/\n/g, '<br>');
+            document.getElementById('results').appendChild(div);
+            div.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+
+        async function runFullDiagnostic() {
+            addResult('🚀 Lancement diagnostic complet...', 'warning');
+            
+            try {
+                const response = await fetch(EDGE_FUNCTION_URL, {
+                    method: 'POST',
+                    headers: AUTH_HEADERS,
+                    body: JSON.stringify({ step: 'all' })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    addResult(`✅ Diagnostic terminé à ${data.timestamp}`, 'success');
+                    
+                    data.results.forEach(result => {
+                        if (result.startsWith('===')) {
+                            addResult(result, 'step-title');
+                        } else if (result.includes('✅')) {
+                            addResult(result, 'success');
+                        } else if (result.includes('❌')) {
+                            addResult(result, 'error');
+                        } else if (result.includes('🔐') || result.includes('⚠️')) {
+                            addResult(result, 'warning');
+                        } else {
+                            addResult(result);
+                        }
+                    });
+                } else {
+                    const errorText = await response.text();
+                    addResult(`❌ Erreur diagnostic: ${response.status} ${response.statusText}<br>${errorText}`, 'error');
+                }
+            } catch (error) {
+                addResult(`💥 Erreur critique: ${error.message}`, 'error');
+            }
+        }
+
+        async function testStep(stepNumber) {
+            addResult(`🔍 Test étape ${stepNumber}...`, 'warning');
+            
+            try {
+                const response = await fetch(EDGE_FUNCTION_URL, {
+                    method: 'POST',
+                    headers: AUTH_HEADERS,
+                    body: JSON.stringify({ step: stepNumber })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    data.results.forEach(result => {
+                        if (result.includes('✅')) {
+                            addResult(result, 'success');
+                        } else if (result.includes('❌')) {
+                            addResult(result, 'error');
+                        } else {
+                            addResult(result);
+                        }
+                    });
+                } else {
+                    const errorText = await response.text();
+                    addResult(`❌ Erreur étape ${stepNumber}: ${errorText}`, 'error');
+                }
+            } catch (error) {
+                addResult(`💥 Erreur: ${error.message}`, 'error');
+            }
+        }
+
+        async function testDirectCurl() {
+            addResult('🧪 Tests directs (équivalents curl)...', 'warning');
+            
+            // Test 1: API siteinfo
+            addResult('1️⃣ Test API siteinfo...');
+            try {
+                const response = await fetch('https://livret.uness.fr/lisa/2025/api.php?action=query&meta=siteinfo&format=json&origin=*');
+                addResult(`Status: ${response.status} ${response.statusText}`);
+                
+                if (response.ok) {
+                    const text = await response.text();
+                    addResult(`Contenu: ${text.substring(0, 200)}...`);
+                    addResult('✅ API accessible', 'success');
+                } else {
+                    addResult('❌ API inaccessible', 'error');
+                }
+            } catch (e) {
+                addResult(`❌ Erreur: ${e.message}`, 'error');
+            }
+            
+            // Test 2: Catégorie
+            addResult('2️⃣ Test catégorie...');
+            try {
+                const url = 'https://livret.uness.fr/lisa/2025/api.php?action=query&list=categorymembers&cmtitle=Catégorie%3AObjectif_de_connaissance&cmlimit=3&format=json&origin=*';
+                const response = await fetch(url);
+                addResult(`Status: ${response.status}`);
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const members = data.query?.categorymembers || [];
+                    if (members.length > 0) {
+                        addResult(`✅ ${members.length} membres trouvés`, 'success');
+                        members.forEach((member, i) => {
+                            addResult(`  ${i+1}. ${member.title} (ID: ${member.pageid})`);
+                        });
+                    } else {
+                        addResult('❌ Aucun membre trouvé', 'error');
+                    }
+                } else {
+                    const text = await response.text();
+                    addResult(`❌ Erreur: ${text.substring(0, 200)}`, 'error');
+                }
+            } catch (e) {
+                addResult(`❌ Erreur: ${e.message}`, 'error');
+            }
+        }
+
+        // Auto-scroll setup
+        const observer = new MutationObserver(() => {
+            const results = document.getElementById('results');
+            results.scrollTop = results.scrollHeight;
+        });
+        observer.observe(document.getElementById('results'), { childList: true });
+    </script>
+</body>
+</html>
