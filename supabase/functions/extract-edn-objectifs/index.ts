@@ -34,18 +34,17 @@ serve(async (req) => {
     // Vérifier les variables d'environnement requises
     const supabaseUrl = Deno.env.get('SUPABASE_URL')
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
-    const unessUsername = Deno.env.get('UNESS_USERNAME')
-    const unessPassword = Deno.env.get('UNESS_PASSWORD')
+    
+    // Utiliser les identifiants fournis par défaut si les secrets ne sont pas configurés
+    const unessUsername = Deno.env.get('UNESS_USERNAME') || 'laeticia.moto-ngane@etud.u-picardie.fr'
+    const unessPassword = Deno.env.get('UNESS_PASSWORD') || 'Aiciteal1!'
 
     if (!supabaseUrl || !supabaseKey) {
       console.error('Variables Supabase manquantes')
       throw new Error('Configuration Supabase manquante')
     }
 
-    if (!unessUsername || !unessPassword) {
-      console.error('Identifiants UNESS manquants')
-      throw new Error('Identifiants UNESS manquants - vérifiez les secrets dans Supabase')
-    }
+    console.log(`🔐 Utilisation des identifiants UNESS: ${unessUsername}`)
 
     const supabaseClient = createClient(supabaseUrl, supabaseKey)
 
@@ -193,12 +192,9 @@ async function extractObjectifsBackground(supabaseClient: any, session_id: strin
 
 async function authenticateUNESS(): Promise<string> {
   const loginUrl = 'https://auth.uness.fr/cas/login'
-  const username = Deno.env.get('UNESS_USERNAME')
-  const password = Deno.env.get('UNESS_PASSWORD')
-
-  if (!username || !password) {
-    throw new Error('Identifiants UNESS manquants dans les variables d\'environnement')
-  }
+  // Utiliser les identifiants fournis par défaut si les secrets ne sont pas configurés  
+  const username = Deno.env.get('UNESS_USERNAME') || 'laeticia.moto-ngane@etud.u-picardie.fr'
+  const password = Deno.env.get('UNESS_PASSWORD') || 'Aiciteal1!'
 
   console.log(`🔐 Authentification UNESS pour l'utilisateur: ${username}`)
 
