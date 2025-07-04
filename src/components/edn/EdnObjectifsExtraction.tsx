@@ -43,14 +43,22 @@ export const EdnObjectifsExtraction: React.FC = () => {
   const [resumeSessionId, setResumeSessionId] = useState<string>('');
 
   const handleStartExtraction = async () => {
+    console.log('🔍 DEBUG: handleStartExtraction called');
+    
     try {
+      console.log('🔍 DEBUG: Setting states...');
       setError(null);
       setIsExtracting(true);
       
+      console.log('🔍 DEBUG: Calling extractor.startExtraction()...');
       const result = await extractor.startExtraction();
       
+      console.log('🔍 DEBUG: Extraction started successfully:', result);
+      
       // Démarre le polling du statut
+      console.log('🔍 DEBUG: Starting status polling...');
       extractor.startStatusPolling((newStatus) => {
+        console.log('🔍 DEBUG: Status update received:', newStatus);
         setStatus(newStatus);
         
         if (newStatus.status === 'termine' || newStatus.status === 'erreur') {
@@ -62,6 +70,7 @@ export const EdnObjectifsExtraction: React.FC = () => {
       });
       
     } catch (err: any) {
+      console.error('❌ DEBUG: Error in handleStartExtraction:', err);
       setError(err.message);
       setIsExtracting(false);
     }
