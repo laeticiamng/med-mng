@@ -40,7 +40,11 @@ export async function handleMusicGeneration(req: Request) {
           error: 'CONFIGURATION REQUISE: La clé API Suno doit être configurée dans les secrets Supabase.',
           status: 'error',
           error_code: 500,
-          action_required: 'configure_api_key'
+          action_required: 'configure_api_key',
+          debug: {
+            timestamp: new Date().toISOString(),
+            available_env_vars: Object.keys(Deno.env.toObject()).filter(key => key.includes('SUNO') || key.includes('API'))
+          }
         }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
