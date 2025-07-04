@@ -21,11 +21,11 @@ const plans: PricingPlan[] = [
   {
     id: 'standard',
     name: 'Standard',
-    price: 14,
+    price: 19,
     credits: 60,
     songs: '≈15 chansons/mois',
     features: [
-      'Qualité standard',
+      'Suno 3.5',
       '60 crédits/mois',
       'QCM illimités',
       'Tableau illimités',
@@ -35,13 +35,13 @@ const plans: PricingPlan[] = [
   {
     id: 'pro',
     name: 'Pro',
-    price: 24,
+    price: 29,
     credits: 2500,
     songs: '≈500 chansons/mois',
     badge: 'Le plus populaire',
     popular: true,
     features: [
-      'Qualité premium',
+      'Suno 4',
       '2 500 crédits/mois',
       'Reset mensuel',
       'QCM + tableau illimités',
@@ -52,13 +52,13 @@ const plans: PricingPlan[] = [
   {
     id: 'premium',
     name: 'Premium',
-    price: 34,
+    price: 39,
     credits: 5000,
     songs: '≈1 000 chansons/mois',
     badge: 'Meilleur rapport qualité-prix',
     bestValue: true,
     features: [
-      'Qualité premium',
+      'Suno 4.5',
       '5 000 crédits/mois',
       'Reset mensuel',
       'QCM + tableau illimités',
