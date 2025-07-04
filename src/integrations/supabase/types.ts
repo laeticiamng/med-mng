@@ -2464,6 +2464,12 @@ export type Database = {
         Args: { report_type_param?: string }
         Returns: string
       }
+      generate_specific_content_all_items: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          updated_count: number
+        }[]
+      }
       get_activity_stats: {
         Args: { p_start_date?: string; p_end_date?: string }
         Returns: {
