@@ -270,17 +270,28 @@ async function extractViaAPI(page, stats) {
   log('🚀 === DÉBUT EXTRACTION API MEDIAWIKI ===');
   
   do {
-    const apiUrl = new URL(config.urls.api);
-    apiUrl.searchParams.set('action', 'query');
-    apiUrl.searchParams.set('list', 'categorymembers');
-    apiUrl.searchParams.set('cmtitle', 'Catégorie:Objectif_de_connaissance');
-    apiUrl.searchParams.set('cmlimit', '500');
-    apiUrl.searchParams.set('format', 'json');
-    if (continueToken) {
-      apiUrl.searchParams.set('cmcontinue', continueToken);
-    }
+  const apiUrl = new URL(config.urls.api);
+  // ⚠️ CORRECTION : Éviter l'encodage du ":" dans "Catégorie:Objectif_de_connaissance"
+  const categoryTitle = 'Catégorie:Objectif_de_connaissance';
+  
+  apiUrl.searchParams.set('action', 'query');
+  apiUrl.searchParams.set('list', 'categorymembers');
+  apiUrl.searchParams.set('cmtitle', categoryTitle); // Le ":" reste intact
+  apiUrl.searchParams.set('cmlimit', '500');
+  apiUrl.searchParams.set('format', 'json');
+  apiUrl.searchParams.set('origin', '*'); // Ajout pour éviter les problèmes CORS
+  if (continueToken) {
+    apiUrl.searchParams.set('cmcontinue', continueToken);
+  }
+  
+  // Correction manuelle de l'URL si nécessaire
+  let finalUrl = apiUrl.toString();
+  if (finalUrl.includes('Catégorie%3AObjectif_de_connaissance')) {
+    finalUrl = finalUrl.replace('Catégorie%3AObjectif_de_connaissance', 'Catégorie:Objectif_de_connaissance');
+    log(`🔧 URL corrigée pour préserver le ":" : ${finalUrl}`);
+  }
     
-    log(`🔗 URL API: ${apiUrl.toString()}`);
+    log(`🔗 URL API: ${finalUrl}`);
     
     try {
       log('📡 Appel API MediaWiki...');
@@ -291,7 +302,7 @@ async function extractViaAPI(page, stats) {
         const data = await response.json();
         console.log(`[BROWSER] Response data keys:`, Object.keys(data));
         return data;
-      }, apiUrl.toString());
+      }, finalUrl); // Utiliser finalUrl au lieu de apiUrl.toString()
       
       log(`📊 Réponse API reçue: ${JSON.stringify(apiData, null, 2).substring(0, 500)}...`);
       

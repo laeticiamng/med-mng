@@ -6,8 +6,31 @@ on:
     - cron: '0 2 * * 0'  # Chaque dimanche à 2h (optionnel)
 
 jobs:
+  diagnostic-api:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Test category API
+      run: |
+        echo "🔍 Test API MediaWiki (1 résultat) ..."
+        curl -s 'https://livret.uness.fr/lisa/2025/api.php?action=query&list=categorymembers&cmtitle=Catégorie:Objectif_de_connaissance&cmlimit=1&format=json&origin=*' | jq .
+        
+    - name: Test batch 50
+      run: |
+        echo "📄 Test 50 pages avec prop=revisions ..."
+        # Récupère 50 pageids depuis la première requête
+        IDS=$(curl -s 'https://livret.uness.fr/lisa/2025/api.php?action=query&list=categorymembers&cmtitle=Catégorie:Objectif_de_connaissance&cmlimit=50&format=json&origin=*' | jq -r '.query.categorymembers[].pageid' | paste -sd'|' -)
+        echo "🔢 Page IDs récupérés: $IDS"
+        if [ -n "$IDS" ]; then
+          echo "📖 Test récupération contenu de $IDS ..."
+          curl -s "https://livret.uness.fr/lisa/2025/api.php?action=query&prop=revisions&rvprop=content|timestamp&format=json&origin=*&pageids=${IDS}&formatversion=2" | jq '.query.pages | length'
+        else
+          echo "❌ Aucun ID récupéré - problème avec la catégorie"
+        fi
+
   extract:
     runs-on: ubuntu-latest
+    needs: diagnostic-api
     
     steps:
     - name: Checkout code
