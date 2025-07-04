@@ -312,7 +312,7 @@ async function authenticateAndGetCookies(): Promise<string> {
   
   let browser;
   try {
-    // Lancer Puppeteer
+    // Lancer Puppeteer avec plus d'options pour Deno
     browser = await puppeteer.launch({
       headless: true,
       args: [
@@ -320,11 +320,39 @@ async function authenticateAndGetCookies(): Promise<string> {
         '--disable-setuid-sandbox',
         '--disable-dev-shm-usage',
         '--disable-web-security',
-        '--disable-features=site-per-process'
+        '--disable-features=site-per-process',
+        '--disable-background-timer-throttling',
+        '--disable-backgrounding-occluded-windows',
+        '--disable-renderer-backgrounding'
       ]
     })
     
     const page = await browser.newPage()
+    
+    // Configurer user agent
+    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36')
+    
+    // Tester d'abord l'accès direct sans authentification
+    console.log('🧪 Test accès direct sans authentification...')
+    try {
+      const testResponse = await page.goto('https://livret.uness.fr/lisa/2025/api.php?action=query&list=categorymembers&cmtitle=Catégorie:Objectif_de_connaissance&cmlimit=10&format=json', {
+        waitUntil: 'networkidle2',
+        timeout: 15000
+      })
+      
+      if (testResponse?.ok()) {
+        const content = await page.content()
+        console.log('✅ Accès direct réussi, pas d\'authentification nécessaire')
+        console.log('🔍 Contenu test:', content.substring(0, 200))
+        
+        if (content.includes('query') || content.includes('categorymembers')) {
+          console.log('🎉 API accessible publiquement - pas besoin d\'authentification CAS')
+          return '' // Pas de cookies nécessaires
+        }
+      }
+    } catch (e) {
+      console.log('❌ Accès direct échoué, authentification CAS nécessaire')
+    }
     
     // Aller sur une page protégée qui redirige vers CAS
     console.log('🌐 Navigation vers page protégée...')
@@ -345,6 +373,7 @@ async function authenticateAndGetCookies(): Promise<string> {
       await page.waitForSelector('#password', { visible: true, timeout: 10000 })
       
       // Saisir les identifiants
+      console.log(`🔐 Saisie identifiants: ${CAS_USERNAME}`)
       await page.type('#username', CAS_USERNAME)
       await page.type('#password', CAS_PASSWORD)
       
@@ -375,14 +404,15 @@ async function authenticateAndGetCookies(): Promise<string> {
     console.log(`🍪 ${cookies.length} cookies récupérés`)
     console.log(`🔗 Cookies UNESS consolidés: ${unessConsolidatedCookies.length} caractères`)
     
-    if (!unessConsolidatedCookies) {
-      throw new Error('Aucun cookie UNESS récupéré après authentification')
+    if (unessConsolidatedCookies.length > 0) {
+      console.log('🎯 Cookies détaillés:', cookies.map(c => `${c.name}=${c.value.substring(0, 20)}...`))
     }
     
     return unessConsolidatedCookies
     
   } catch (error) {
     console.error('❌ Erreur lors de l\'authentification CAS:', error)
+    console.error('📊 Stack trace:', error.stack)
     throw error
   } finally {
     if (browser) {
