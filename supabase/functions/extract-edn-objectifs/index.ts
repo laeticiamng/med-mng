@@ -33,7 +33,13 @@ serve(async (req) => {
       )
     }
 
-    const supabaseClient = createClient(supabaseUrl, supabaseKey)
+    // CORRECTION: Utiliser service_role avec auth désactivée pour contourner RLS
+    const supabaseClient = createClient(supabaseUrl, supabaseKey, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false
+      }
+    })
 
     let requestBody
     try {
