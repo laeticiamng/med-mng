@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { launch } from "https://deno.land/x/puppeteer@16.2.0/mod.ts"
 
 interface OicCompetence {
   objectif_id: string; // Format OIC-XXX-YY-R-ZZ
@@ -34,7 +35,6 @@ serve(async (req) => {
   }
 
   try {
-    // Vérifier les variables d'environnement requises
     const supabaseUrl = Deno.env.get('SUPABASE_URL')
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
     
@@ -108,7 +108,7 @@ async function startExtraction(supabaseClient: any, username: string, password: 
     })
 
   // Lancer l'extraction en arrière-plan avec authentification CAS
-  extractCompetencesWithCAS(supabaseClient, session_id, username, password)
+  extractCompetencesWithRealCAS(supabaseClient, session_id, username, password)
 
   return new Response(
     JSON.stringify({
@@ -121,15 +121,69 @@ async function startExtraction(supabaseClient: any, username: string, password: 
   )
 }
 
-async function extractCompetencesWithCAS(supabaseClient: any, session_id: string, username: string, password: string) {
+async function extractCompetencesWithRealCAS(supabaseClient: any, session_id: string, username: string, password: string) {
   let totalExtraites = 0;
   let pageNum = 1;
-  const maxPages = 25; // 25 pages de ~200 compétences chacune
+  const maxPages = 25;
+  let browser;
 
   try {
-    console.log('🔐 Authentification CAS UNESS...')
+    console.log('🔐 Lancement de Puppeteer pour authentification CAS UNESS...')
     
-    // Mettre à jour le statut pour indiquer l'authentification
+    // Lancer Puppeteer
+    browser = await launch({
+      headless: true,
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-accelerated-2d-canvas',
+        '--no-first-run',
+        '--no-zygote',
+        '--disable-gpu',
+        '--disable-extensions'
+      ]
+    });
+
+    const page = await browser.newPage();
+    
+    // Configurer user agent
+    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+    
+    console.log('🌐 Accès à la page d\'objectifs de connaissance...')
+    
+    // Aller sur la page des objectifs de connaissance
+    await page.goto('https://livret.uness.fr/lisa/2025/Cat%C3%A9gorie:Objectif_de_connaissance', {
+      waitUntil: 'networkidle2',
+      timeout: 30000
+    });
+    
+    // Vérifier si on est redirigé vers CAS
+    const currentUrl = page.url();
+    if (currentUrl.includes('auth.uness.fr/cas/login')) {
+      console.log('🔑 Redirection CAS détectée, authentification...')
+      
+      // Attendre le formulaire de connexion
+      await page.waitForSelector('#username', { visible: true, timeout: 10000 });
+      await page.waitForSelector('#password', { visible: true, timeout: 10000 });
+      
+      // Remplir les champs
+      await page.type('#username', username);
+      await page.type('#password', password);
+      
+      // Cliquer sur le bouton de connexion
+      await page.click('input[name="submit"]');
+      
+      // Attendre la redirection vers livret.uness.fr
+      await page.waitForFunction(
+        () => window.location.href.includes('livret.uness.fr'),
+        { timeout: 30000 }
+      );
+      
+      console.log('✅ Authentification CAS réussie, retour sur livret.uness.fr')
+    }
+    
+    // Mettre à jour le statut pour indiquer l'authentification réussie
     await supabaseClient
       .from('oic_extraction_progress')
       .update({
@@ -138,11 +192,7 @@ async function extractCompetencesWithCAS(supabaseClient: any, session_id: string
       })
       .eq('session_id', session_id)
     
-    // Simulation d'authentification CAS (remplacer par Puppeteer en production)
-    const authCookies = await authenticateWithCAS(username, password)
-    console.log('✅ Authentification CAS réussie')
-    
-    // Extraction page par page de la catégorie Objectif de connaissance
+    // Extraction page par page
     while (pageNum <= maxPages) {
       console.log(`📄 Page ${pageNum}/${maxPages} - Extraction objectifs OIC...`)
       
@@ -156,42 +206,77 @@ async function extractCompetencesWithCAS(supabaseClient: any, session_id: string
         })
         .eq('session_id', session_id)
       
-      // Simulation d'extraction (remplacer par scraping réel avec Puppeteer)
-      const competences = await extractPageObjectifs(authCookies, pageNum)
-      console.log(`📊 Page ${pageNum}: ${competences.length} objectifs trouvés`)
+      // Naviguer vers la page appropriée
+      let pageUrl;
+      if (pageNum === 1) {
+        pageUrl = 'https://livret.uness.fr/lisa/2025/Cat%C3%A9gorie:Objectif_de_connaissance';
+      } else {
+        // Utiliser la pagination
+        pageUrl = `https://livret.uness.fr/lisa/2025/index.php?title=Cat%C3%A9gorie:Objectif_de_connaissance&from=${encodeURIComponent('OIC-')}`;
+      }
       
-      if (competences.length === 0) {
+      await page.goto(pageUrl, { waitUntil: 'networkidle2', timeout: 30000 });
+      
+      // Extraire les liens vers les objectifs OIC
+      const competenceLinks = await page.evaluate(() => {
+        const links = [];
+        const pageLinks = document.querySelectorAll('a[href*="/OIC-"]');
+        
+        pageLinks.forEach(link => {
+          const text = link.textContent?.trim();
+          if (text && text.match(/OIC-\d{3}-\d{2}-[AB]-\d{2}/)) {
+            const match = text.match(/OIC-\d{3}-\d{2}-[AB]-\d{2}/);
+            if (match) {
+              links.push({
+                url: link.href,
+                id: match[0]
+              });
+            }
+          }
+        });
+        
+        return links;
+      });
+      
+      console.log(`📊 Page ${pageNum}: ${competenceLinks.length} objectifs trouvés`)
+      
+      if (competenceLinks.length === 0) {
         console.log('⚠️ Aucun objectif trouvé, arrêt de l\'extraction')
         break
       }
 
       // Sauvegarder en base
       let savedOnThisPage = 0
-      for (const competence of competences) {
+      for (const link of competenceLinks) {
         try {
-          // Générer un hash pour éviter les doublons
-          const hashContent = await crypto.subtle.digest('SHA-256', 
-            new TextEncoder().encode(JSON.stringify(competence))
-          )
-          const hashArray = Array.from(new Uint8Array(hashContent))
-          competence.hash_content = hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
+          // Extraire les détails de la compétence
+          const competence = await extractCompetenceDetails(page, link);
           
-          const { error } = await supabaseClient
-            .from('oic_competences')
-            .upsert(competence, { onConflict: 'objectif_id' })
-          
-          if (error) {
-            console.error(`❌ Erreur sauvegarde ${competence.objectif_id}:`, error)
-          } else {
-            savedOnThisPage++
-            totalExtraites++
+          if (competence) {
+            // Générer un hash pour éviter les doublons
+            const hashContent = await crypto.subtle.digest('SHA-256', 
+              new TextEncoder().encode(JSON.stringify(competence))
+            )
+            const hashArray = Array.from(new Uint8Array(hashContent))
+            competence.hash_content = hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
+            
+            const { error } = await supabaseClient
+              .from('oic_competences')
+              .upsert(competence, { onConflict: 'objectif_id' })
+            
+            if (error) {
+              console.error(`❌ Erreur sauvegarde ${competence.objectif_id}:`, error)
+            } else {
+              savedOnThisPage++
+              totalExtraites++
+            }
           }
         } catch (error) {
-          console.error(`💥 Exception sauvegarde ${competence.objectif_id}:`, error)
+          console.error(`💥 Exception sauvegarde ${link.id}:`, error)
         }
       }
       
-      console.log(`✅ Page ${pageNum}: ${savedOnThisPage}/${competences.length} objectifs sauvegardés (Total: ${totalExtraites})`)
+      console.log(`✅ Page ${pageNum}: ${savedOnThisPage}/${competenceLinks.length} objectifs sauvegardés (Total: ${totalExtraites})`)
 
       // Mettre à jour le progrès après chaque page
       await supabaseClient
@@ -241,83 +326,85 @@ async function extractCompetencesWithCAS(supabaseClient: any, session_id: string
         last_activity: new Date().toISOString()
       })
       .eq('session_id', session_id)
+  } finally {
+    if (browser) {
+      await browser.close();
+    }
   }
 }
 
-// Simulation d'authentification CAS (à remplacer par Puppeteer)
-async function authenticateWithCAS(username: string, password: string): Promise<string> {
-  console.log(`🔐 Authentification CAS pour: ${username}`)
-  
+async function extractCompetenceDetails(page: any, link: any) {
   try {
-    // Simulation - en production, utiliser Puppeteer pour :
-    // 1. Aller sur https://livret.uness.fr/lisa/2025/Catégorie:Objectif_de_connaissance
-    // 2. Être redirigé vers CAS https://auth.uness.fr/cas/login
-    // 3. Remplir le formulaire avec username/password
-    // 4. Récupérer les cookies d'authentification
+    console.log(`🔍 Extraction détaillée: ${link.id} - ${link.url}`)
     
-    await new Promise(resolve => setTimeout(resolve, 1000)) // Simulation délai
+    // Naviguer vers la page de la compétence
+    await page.goto(link.url, { waitUntil: 'networkidle2', timeout: 30000 });
     
-    console.log('✅ Authentification CAS simulée réussie')
-    return 'simulated_auth_cookies'
+    // Extraire les données de la page
+    const competenceData = await page.evaluate(() => {
+      const data: any = {};
+      
+      // Titre principal
+      const titleElement = document.querySelector('h1.firstHeading');
+      data.intitule = titleElement?.textContent?.trim() || '';
+      
+      // Parsing de l'identifiant
+      const match = data.intitule?.match(/OIC-(\d{3})-(\d{2})-([AB])-(\d{2})/);
+      if (match) {
+        data.objectif_id = match[0];
+        data.item_parent = match[1];
+        data.rang = match[3];
+        data.ordre = parseInt(match[4]);
+      }
+      
+      // Extraction du contenu structuré
+      const content = document.querySelector('.mw-parser-output');
+      if (content) {
+        // Description (premier paragraphe)
+        const firstParagraph = content.querySelector('p');
+        data.description = firstParagraph?.textContent?.trim() || '';
+      }
+      
+      // Détection de la rubrique (basée sur les catégories ou le contenu)
+      const rubriques = [
+        'Génétique', 'Immunopathologie', 'Inflammation',
+        'Cancérologie', 'Pharmacologie', 'Douleur',
+        'Santé publique', 'Thérapeutique', 'Urgences',
+        'Vieillissement', 'Interprétation'
+      ];
+      
+      // Rechercher la rubrique dans le contenu
+      const contentText = content?.textContent?.toLowerCase() || '';
+      for (const rubrique of rubriques) {
+        if (contentText.includes(rubrique.toLowerCase())) {
+          data.rubrique = rubrique;
+          break;
+        }
+      }
+      
+      // Rubrique par défaut si non trouvée
+      if (!data.rubrique) {
+        data.rubrique = 'Autre';
+      }
+      
+      return data;
+    });
+    
+    // Ajout de l'URL source
+    competenceData.url_source = link.url;
+    
+    // Vérification des données obligatoires
+    if (!competenceData.objectif_id || !competenceData.intitule) {
+      console.warn(`⚠️ Données incomplètes pour ${link.id}`);
+      return null;
+    }
+    
+    return competenceData;
     
   } catch (error) {
-    console.error('❌ Erreur authentification CAS:', error)
-    throw new Error(`Échec authentification CAS: ${error.message}`)
+    console.error(`❌ Erreur extraction détails ${link.id}:`, error);
+    return null;
   }
-}
-
-// Simulation d'extraction d'une page (à remplacer par scraping réel)
-async function extractPageObjectifs(authCookies: string, pageNum: number): Promise<OicCompetence[]> {
-  console.log(`🔍 Extraction page ${pageNum} avec cookies: ${authCookies}`)
-  
-  // Simulation - en production, utiliser Puppeteer pour :
-  // 1. Naviguer vers la page avec les cookies CAS
-  // 2. Extraire les liens vers les objectifs OIC-XXX-YY-R-ZZ
-  // 3. Pour chaque lien, extraire les détails complets
-  
-  const simulatedObjectifs: OicCompetence[] = []
-  
-  // Simulation de 50-200 objectifs par page selon distribution réelle
-  const objectifsPerPage = pageNum <= 20 ? 200 : 72 // Dernière page plus petite
-  
-  for (let i = 1; i <= objectifsPerPage; i++) {
-    const itemNum = Math.floor(Math.random() * 367) + 1 // Items 001-367
-    const rubriqueNum = Math.floor(Math.random() * 11) + 1 // Rubriques 01-11
-    const rang = Math.random() > 0.5 ? 'A' : 'B'
-    const ordre = Math.floor(Math.random() * 99) + 1
-    
-    const itemParent = itemNum.toString().padStart(3, '0')
-    const rubriqueCode = rubriqueNum.toString().padStart(2, '0')
-    const ordreCode = ordre.toString().padStart(2, '0')
-    
-    const objectifId = `OIC-${itemParent}-${rubriqueCode}-${rang}-${ordreCode}`
-    
-    simulatedObjectifs.push({
-      objectif_id: objectifId,
-      intitule: `Objectif de connaissance ${objectifId}`,
-      item_parent: itemParent,
-      rang: rang,
-      rubrique: getRubriqueNom(rubriqueNum),
-      description: `Description détaillée de l'objectif ${objectifId}`,
-      ordre: ordre,
-      url_source: `https://livret.uness.fr/lisa/2025/${objectifId}`
-    })
-  }
-  
-  // Simulation délai réseau
-  await new Promise(resolve => setTimeout(resolve, 500))
-  
-  return simulatedObjectifs
-}
-
-function getRubriqueNom(num: number): string {
-  const rubriques = [
-    'Génétique', 'Immunopathologie', 'Inflammation',
-    'Cancérologie', 'Pharmacologie', 'Douleur',
-    'Santé publique', 'Thérapeutique', 'Urgences',
-    'Vieillissement', 'Interprétation'
-  ]
-  return rubriques[num - 1] || 'Autre'
 }
 
 async function getExtractionStatus(supabaseClient: any, session_id: string) {
@@ -420,7 +507,7 @@ async function resumeExtraction(supabaseClient: any, session_id: string, resume_
   const username = Deno.env.get('UNESS_USERNAME') || 'laeticia.moto-ngane@etud.u-picardie.fr'
   const password = Deno.env.get('UNESS_PASSWORD') || 'Aiciteal1!'
   
-  extractCompetencesWithCAS(supabaseClient, session_id, username, password)
+  extractCompetencesWithRealCAS(supabaseClient, session_id, username, password)
 
   return new Response(
     JSON.stringify({

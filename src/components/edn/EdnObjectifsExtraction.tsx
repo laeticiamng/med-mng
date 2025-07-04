@@ -82,9 +82,9 @@ export const EdnObjectifsExtraction: React.FC = () => {
       extractor.startStatusPolling((newStatus) => {
         setStatus(newStatus);
         
-        if (newStatus.statut === 'termine' || newStatus.statut === 'erreur') {
+        if (newStatus.status === 'termine' || newStatus.status === 'erreur') {
           setIsExtracting(false);
-          if (newStatus.statut === 'termine') {
+          if (newStatus.status === 'termine') {
             handleGenerateRapport();
           }
         }
@@ -239,11 +239,11 @@ export const EdnObjectifsExtraction: React.FC = () => {
               <CardHeader>
                 <CardTitle className="flex items-center justify-between">
                   <span className="flex items-center gap-2">
-                    {getStatusIcon(status.statut)}
+                    {getStatusIcon(status.status)}
                     Statut de l'Extraction
                   </span>
-                  <Badge className={getStatusColor(status.statut)}>
-                    {status.statut.toUpperCase()}
+                  <Badge className={getStatusColor(status.status)}>
+                    {status.status.toUpperCase()}
                   </Badge>
                 </CardTitle>
                 <CardDescription>
@@ -251,28 +251,28 @@ export const EdnObjectifsExtraction: React.FC = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                   <div className="text-center">
                     <div className="text-2xl font-bold text-primary">
-                      {status.competences_extraites}
+                      {status.items_extracted}
                     </div>
                     <div className="text-sm text-muted-foreground">Extraits</div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold">
-                      {status.total_competences}
+                      {status.total_expected}
                     </div>
                     <div className="text-sm text-muted-foreground">Total</div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold text-blue-600">
-                      {status.page_courante}
+                      {status.page_number}
                     </div>
                     <div className="text-sm text-muted-foreground">Page actuelle</div>
                   </div>
                   <div className="text-center">
                     <div className="text-2xl font-bold">
-                      {Math.round((status.competences_extraites / status.total_competences) * 100)}%
+                      {Math.round((status.items_extracted / status.total_expected) * 100)}%
                     </div>
                     <div className="text-sm text-muted-foreground">Complété</div>
                   </div>
@@ -281,10 +281,10 @@ export const EdnObjectifsExtraction: React.FC = () => {
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span>Progression</span>
-                    <span>{status.competences_extraites} / {status.total_competences}</span>
+                    <span>{status.items_extracted} / {status.total_expected}</span>
                   </div>
                   <Progress 
-                    value={(status.competences_extraites / status.total_competences) * 100} 
+                    value={(status.items_extracted / status.total_expected) * 100} 
                     className="h-2"
                   />
                 </div>
@@ -292,23 +292,23 @@ export const EdnObjectifsExtraction: React.FC = () => {
                 <div className="space-y-2">
                   <div className="flex justify-between text-sm">
                     <span>Pages</span>
-                    <span>{status.page_courante} / {status.total_pages}</span>
+                    <span>{status.page_number} / {status.total_pages}</span>
                   </div>
                   <Progress 
-                    value={(status.page_courante / status.total_pages) * 100} 
+                    value={(status.page_number / status.total_pages) * 100} 
                     className="h-2"
                   />
                 </div>
 
                 <div className="text-xs text-muted-foreground">
-                  Dernière activité: {new Date(status.derniere_activite).toLocaleString()}
+                  Dernière activité: {new Date(status.last_activity).toLocaleString()}
                 </div>
 
-                {status.erreurs && status.erreurs.length > 0 && (
+                {status.failed_urls && status.failed_urls.length > 0 && (
                   <Alert className="border-yellow-200 bg-yellow-50">
                     <AlertCircle className="h-4 w-4" />
                     <AlertDescription>
-                      {status.erreurs.length} erreur(s) détectée(s)
+                      {status.failed_urls.length} erreur(s) détectée(s)
                     </AlertDescription>
                   </Alert>
                 )}

@@ -23,15 +23,15 @@ async function testEdnExtraction() {
         const status = await ednExtractor.getStatus();
         totalChecks++;
         
-        const progress = Math.round((status.competences_extraites / status.total_competences) * 100);
-        const pageProgress = Math.round((status.page_courante / status.total_pages) * 100);
+        const progress = Math.round((status.items_extracted / status.total_expected) * 100);
+        const pageProgress = Math.round((status.page_number / status.total_pages) * 100);
         
-        console.log(`📊 Progrès global: ${progress}% (${status.competences_extraites}/${status.total_competences} objectifs)`);
-        console.log(`📄 Pages: ${status.page_courante}/${status.total_pages} (${pageProgress}%)`);
-        console.log(`🟢 Statut: ${status.statut.toUpperCase()}`);
+        console.log(`📊 Progrès global: ${progress}% (${status.items_extracted}/${status.total_expected} objectifs)`);
+        console.log(`📄 Pages: ${status.page_number}/${status.total_pages} (${pageProgress}%)`);
+        console.log(`🟢 Statut: ${status.status.toUpperCase()}`);
         console.log('---');
         
-        if (status.statut === 'termine') {
+        if (status.status === 'termine') {
           console.log('🎉 EXTRACTION TERMINÉE AVEC SUCCÈS!');
           
           // Générer le rapport final
@@ -56,10 +56,10 @@ async function testEdnExtraction() {
           return;
         }
         
-        if (status.statut === 'erreur') {
+        if (status.status === 'erreur') {
           console.error('❌ ERREUR DURANT L\'EXTRACTION');
-          if (status.erreurs && status.erreurs.length > 0) {
-            console.error('🔍 Détails des erreurs:', status.erreurs);
+          if (status.failed_urls && status.failed_urls.length > 0) {
+            console.error('🔍 Détails des erreurs:', status.failed_urls);
           }
           return;
         }
