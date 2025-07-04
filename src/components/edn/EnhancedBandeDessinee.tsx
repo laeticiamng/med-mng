@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { BandeDessineeComplete } from './BandeDessineeComplete';
 import { ValeursProfessionnellesBD } from './ValeursProfessionnellesBD';
-import { ContentGenerator } from './content/ContentGenerator';
+import { AlternativeContentFormats } from './content/AlternativeContentFormats';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -63,7 +63,7 @@ export const EnhancedBandeDessinee: React.FC<EnhancedBandeDessineeProps> = ({ it
         </TabsContent>
 
         <TabsContent value="formats-alternatifs" className="space-y-6">
-          <ContentGenerator 
+          <AlternativeContentFormats 
             itemData={{
               ...itemData,
               item_code: itemData.item_code || 'IC1'

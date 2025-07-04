@@ -10,10 +10,10 @@ const MainSections = () => {
     {
       id: "edn",
       title: "Items EDN",
-      description: "Items de Connaissance pour l'Examen National Dématérialisé (IC-1 à IC-10)",
+      description: "Items de Connaissance pour l'Examen National Dématérialisé (IC-1 à IC-367)",
       icon: BookOpen,
       color: "bg-blue-500",
-      count: "10 items complets",
+      count: "367 items complets",
       status: "Contenus officiels corrigés",
       features: [
         "Contenus Rang A et Rang B",
@@ -183,9 +183,9 @@ const MainSections = () => {
           <h2 className="text-2xl font-bold mb-4">Dernières mises à jour</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
             <div className="space-y-2">
-              <h3 className="font-semibold text-blue-600">Items EDN (IC-1 à IC-10)</h3>
+              <h3 className="font-semibold text-blue-600">Items EDN (IC-1 à IC-367)</h3>
               <p className="text-muted-foreground">
-                Correction complète des 10 items de connaissance. Chaque item dispose de son contenu spécifique et authentique selon les référentiels officiels.
+                Correction complète des 367 items de connaissance. Chaque item dispose de son contenu spécifique et authentique selon les référentiels officiels.
               </p>
             </div>
             <div className="space-y-2">

@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { ComicHeader } from './comic/ComicHeader';
-import { ComicPanel } from './comic/ComicPanel';
+import { InteractiveComicPanel } from './comic/InteractiveComicPanel';
 import { ComicFooter } from './comic/ComicFooter';
 import { CheckCircle } from 'lucide-react';
 import { getBandeDessineePregenere, type VignettePregenere } from '@/data/bandesDessineesPregenerees';
@@ -151,7 +151,7 @@ export const BandeDessineeComplete = ({ itemData }: BandeDessineeCompleteProps) 
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-8">
           {panels.map((panel) => (
             <div key={panel.id} className="relative">
-              <ComicPanel panel={{
+              <InteractiveComicPanel panel={{
                 id: panel.id,
                 title: panel.title,
                 text: panel.text,
