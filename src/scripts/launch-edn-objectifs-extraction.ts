@@ -39,13 +39,17 @@ export class EdnObjectifsExtractor {
 
   async startExtraction(): Promise<ExtractionResponse> {
     console.log('🚀 Démarrage de l\'extraction des 4,872 compétences OIC...');
+    console.log('🔍 DEBUG: Avant appel supabase.functions.invoke');
     
     try {
+      console.log('🔍 DEBUG: Calling extract-edn-objectifs with action: start');
       const { data, error } = await supabase.functions.invoke('extract-edn-objectifs', {
         body: {
           action: 'start'
         }
       });
+
+      console.log('🔍 DEBUG: Response received:', { data, error });
 
       if (error) {
         console.error('❌ Erreur lors du démarrage:', error);
@@ -60,6 +64,7 @@ export class EdnObjectifsExtractor {
       
     } catch (error) {
       console.error('❌ Échec du démarrage de l\'extraction:', error);
+      console.error('❌ DEBUG: Full error details:', error);
       throw error;
     }
   }
