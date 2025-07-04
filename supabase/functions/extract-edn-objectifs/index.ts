@@ -22,8 +22,9 @@ serve(async (req) => {
   }
 
   try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+    // Configuration Supabase - utiliser les valeurs hardcodées pour ce projet
+    const supabaseUrl = 'https://yaincoxihiqdksxgrsrk.supabase.co'
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0MjgxMTgyNywiZXhwIjoyMDU4Mzg3ODI3fQ.lqvk4b1gIS3gbSFKtjQuOM4XgsnEK4aPaAVCDMkdbyM'
     
     if (!supabaseUrl || !supabaseKey) {
       console.error('Variables Supabase manquantes')
