@@ -595,45 +595,6 @@ export type Database = {
         }
         Relationships: []
       }
-      edn_extraction_progress: {
-        Row: {
-          created_at: string
-          derniere_activite: string
-          erreurs: Json | null
-          id: string
-          objectifs_extraits: number | null
-          page_courante: number | null
-          session_id: string
-          statut: string | null
-          total_objectifs: number | null
-          total_pages: number | null
-        }
-        Insert: {
-          created_at?: string
-          derniere_activite?: string
-          erreurs?: Json | null
-          id?: string
-          objectifs_extraits?: number | null
-          page_courante?: number | null
-          session_id: string
-          statut?: string | null
-          total_objectifs?: number | null
-          total_pages?: number | null
-        }
-        Update: {
-          created_at?: string
-          derniere_activite?: string
-          erreurs?: Json | null
-          id?: string
-          objectifs_extraits?: number | null
-          page_courante?: number | null
-          session_id?: string
-          statut?: string | null
-          total_objectifs?: number | null
-          total_pages?: number | null
-        }
-        Relationships: []
-      }
       edn_items: {
         Row: {
           created_at: string | null
@@ -790,51 +751,6 @@ export type Database = {
           rangs_a?: string[] | null
           rangs_b?: string[] | null
           updated_at?: string
-        }
-        Relationships: []
-      }
-      edn_objectifs_connaissance: {
-        Row: {
-          created_at: string
-          date_import: string
-          description: string | null
-          id: string
-          intitule: string
-          item_parent: number
-          objectif_id: string
-          ordre: number | null
-          rang: string
-          rubrique: string
-          updated_at: string
-          url_source: string | null
-        }
-        Insert: {
-          created_at?: string
-          date_import?: string
-          description?: string | null
-          id?: string
-          intitule: string
-          item_parent: number
-          objectif_id: string
-          ordre?: number | null
-          rang: string
-          rubrique: string
-          updated_at?: string
-          url_source?: string | null
-        }
-        Update: {
-          created_at?: string
-          date_import?: string
-          description?: string | null
-          id?: string
-          intitule?: string
-          item_parent?: number
-          objectif_id?: string
-          ordre?: number | null
-          rang?: string
-          rubrique?: string
-          updated_at?: string
-          url_source?: string | null
         }
         Relationships: []
       }
@@ -2093,6 +2009,87 @@ export type Database = {
         }
         Relationships: []
       }
+      oic_competences: {
+        Row: {
+          created_at: string
+          date_import: string
+          description: string | null
+          intitule: string
+          item_parent: string
+          objectif_id: string
+          ordre: number | null
+          rang: string
+          rubrique: string
+          updated_at: string
+          url_source: string | null
+        }
+        Insert: {
+          created_at?: string
+          date_import?: string
+          description?: string | null
+          intitule: string
+          item_parent: string
+          objectif_id: string
+          ordre?: number | null
+          rang: string
+          rubrique: string
+          updated_at?: string
+          url_source?: string | null
+        }
+        Update: {
+          created_at?: string
+          date_import?: string
+          description?: string | null
+          intitule?: string
+          item_parent?: string
+          objectif_id?: string
+          ordre?: number | null
+          rang?: string
+          rubrique?: string
+          updated_at?: string
+          url_source?: string | null
+        }
+        Relationships: []
+      }
+      oic_extraction_progress: {
+        Row: {
+          competences_extraites: number | null
+          created_at: string
+          derniere_activite: string
+          erreurs: Json | null
+          id: string
+          page_courante: number | null
+          session_id: string
+          statut: string | null
+          total_competences: number | null
+          total_pages: number | null
+        }
+        Insert: {
+          competences_extraites?: number | null
+          created_at?: string
+          derniere_activite?: string
+          erreurs?: Json | null
+          id?: string
+          page_courante?: number | null
+          session_id: string
+          statut?: string | null
+          total_competences?: number | null
+          total_pages?: number | null
+        }
+        Update: {
+          competences_extraites?: number | null
+          created_at?: string
+          derniere_activite?: string
+          erreurs?: Json | null
+          id?: string
+          page_courante?: number | null
+          session_id?: string
+          statut?: string | null
+          total_competences?: number | null
+          total_pages?: number | null
+        }
+        Relationships: []
+      }
       page_analytics: {
         Row: {
           id: string
@@ -2599,6 +2596,16 @@ export type Database = {
           item_parent: number
           objectifs_attendus: number
           objectifs_extraits: number
+          completude_pct: number
+          manquants: string[]
+        }[]
+      }
+      get_oic_competences_rapport: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          item_parent: string
+          competences_attendues: number
+          competences_extraites: number
           completude_pct: number
           manquants: string[]
         }[]

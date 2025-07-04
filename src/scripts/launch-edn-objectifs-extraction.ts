@@ -9,8 +9,8 @@ interface ExtractionResponse {
 
 interface ExtractionStatus {
   session_id: string;
-  total_objectifs: number;
-  objectifs_extraits: number;
+  total_competences: number;
+  competences_extraites: number;
   page_courante: number;
   total_pages: number;
   statut: 'en_cours' | 'termine' | 'erreur' | 'pause';
@@ -19,13 +19,14 @@ interface ExtractionStatus {
 }
 
 interface ExtractionStats {
-  total_objectifs_extraits: number;
-  total_objectifs_attendus: number;
+  total_competences_extraites: number;
+  total_competences_attendues: number;
   completude_globale: number;
+  items_ern_couverts: number;
   repartition_par_item: Array<{
-    item_parent: number;
-    objectifs_attendus: number;
-    objectifs_extraits: number;
+    item_parent: string;
+    competences_attendues: number;
+    competences_extraites: number;
     completude_pct: number;
     manquants: string[];
   }>;
@@ -36,7 +37,7 @@ export class EdnObjectifsExtractor {
   private statusInterval: number | null = null;
 
   async startExtraction(): Promise<ExtractionResponse> {
-    console.log('🚀 Démarrage de l\'extraction des 4,872 objectifs EDN...');
+    console.log('🚀 Démarrage de l\'extraction des 4,872 compétences OIC...');
     
     try {
       const { data, error } = await supabase.functions.invoke('extract-edn-objectifs', {
@@ -158,9 +159,9 @@ export class EdnObjectifsExtractor {
     }
   }
 
-  async getExtractedObjectifs(item_parent?: number, rang?: 'A' | 'B', limit: number = 100) {
+  async getExtractedCompetences(item_parent?: string, rang?: 'A' | 'B', limit: number = 100) {
     let query = supabase
-      .from('edn_objectifs_connaissance')
+      .from('oic_competences')
       .select('*')
       .order('item_parent', { ascending: true })
       .order('ordre', { ascending: true })
@@ -177,15 +178,15 @@ export class EdnObjectifsExtractor {
     const { data, error } = await query;
 
     if (error) {
-      throw new Error(`Erreur lors de la récupération des objectifs: ${error.message}`);
+      throw new Error(`Erreur lors de la récupération des compétences: ${error.message}`);
     }
 
     return data || [];
   }
 
-  async getStatsByItem(item_parent: number) {
+  async getStatsByItem(item_parent: string) {
     const { data, error } = await supabase
-      .from('edn_objectifs_connaissance')
+      .from('oic_competences')
       .select('rang, rubrique')
       .eq('item_parent', item_parent);
 
@@ -221,7 +222,7 @@ export async function launchEdnObjectifsExtraction() {
     
     // Démarre le polling automatique
     extractor.startStatusPolling((status) => {
-      console.log(`📊 Progrès: ${status.objectifs_extraits}/${status.total_objectifs} objectifs (${Math.round((status.objectifs_extraits/status.total_objectifs)*100)}%)`);
+      console.log(`📊 Progrès: ${status.competences_extraites}/${status.total_competences} compétences (${Math.round((status.competences_extraites/status.total_competences)*100)}%)`);
       console.log(`📄 Page: ${status.page_courante}/${status.total_pages}`);
       console.log(`🟢 Statut: ${status.statut}`);
       

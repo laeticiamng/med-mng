@@ -10,8 +10,8 @@ import { PlayCircle, Pause, RefreshCw, BarChart3, CheckCircle, AlertCircle, Cloc
 
 interface ExtractionStatus {
   session_id: string;
-  total_objectifs: number;
-  objectifs_extraits: number;
+  total_competences: number;
+  competences_extraites: number;
   page_courante: number;
   total_pages: number;
   statut: 'en_cours' | 'termine' | 'erreur' | 'pause';
@@ -20,13 +20,14 @@ interface ExtractionStatus {
 }
 
 interface ExtractionStats {
-  total_objectifs_extraits: number;
-  total_objectifs_attendus: number;
+  total_competences_extraites: number;
+  total_competences_attendues: number;
   completude_globale: number;
+  items_ern_couverts: number;
   repartition_par_item: Array<{
-    item_parent: number;
-    objectifs_attendus: number;
-    objectifs_extraits: number;
+    item_parent: string;
+    competences_attendues: number;
+    competences_extraites: number;
     completude_pct: number;
     manquants: string[];
   }>;
@@ -341,10 +342,10 @@ export const EdnObjectifsExtraction: React.FC = () => {
                   </CardHeader>
                   <CardContent>
                     <div className="text-3xl font-bold text-primary">
-                      {stats.total_objectifs_extraits.toLocaleString()}
+                      {stats.total_competences_extraites.toLocaleString()}
                     </div>
                     <div className="text-sm text-muted-foreground">
-                      sur {stats.total_objectifs_attendus.toLocaleString()} attendus
+                      sur {stats.total_competences_attendues.toLocaleString()} attendues
                     </div>
                   </CardContent>
                 </Card>
