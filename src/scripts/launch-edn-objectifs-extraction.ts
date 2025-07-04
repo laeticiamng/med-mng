@@ -43,6 +43,7 @@ export class EdnObjectifsExtractor {
     
     try {
       console.log('🔍 DEBUG: Calling extract-edn-objectifs with action: start');
+      
       const { data, error } = await supabase.functions.invoke('extract-edn-objectifs', {
         body: {
           action: 'start'
@@ -53,7 +54,11 @@ export class EdnObjectifsExtractor {
 
       if (error) {
         console.error('❌ Erreur lors du démarrage:', error);
-        throw error;
+        throw new Error(`Erreur Edge Function: ${error.message || JSON.stringify(error)}`);
+      }
+
+      if (!data) {
+        throw new Error('Aucune donnée reçue de l\'edge function');
       }
 
       this.session_id = data.session_id;
@@ -65,7 +70,13 @@ export class EdnObjectifsExtractor {
     } catch (error) {
       console.error('❌ Échec du démarrage de l\'extraction:', error);
       console.error('❌ DEBUG: Full error details:', error);
-      throw error;
+      
+      // Rethrow avec un message plus clair
+      if (error instanceof Error) {
+        throw new Error(`Erreur extraction: ${error.message}`);
+      } else {
+        throw new Error(`Erreur inconnue: ${JSON.stringify(error)}`);
+      }
     }
   }
 
