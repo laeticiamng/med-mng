@@ -2576,6 +2576,14 @@ export type Database = {
           details: Json
         }[]
       }
+      update_edn_items_with_specific_content: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          processed_count: number
+          success_count: number
+          error_count: number
+        }[]
+      }
       verify_invitation_token: {
         Args: { token_param: string }
         Returns: Json
