@@ -128,18 +128,24 @@ async function extractCompetences(supabaseClient: any, session_id: string) {
   try {
     console.log('🚀 Début extraction des objectifs OIC')
     
-    // Tester l'accès à l'API
-    const isPublic = await testPublicAccess()
+    // SIMPLIFICATION: Test direct de l'API sans authentification complexe
+    console.log('🧪 Test d\'accès à l\'API MediaWiki...')
     let authCookies = ''
     
-    if (!isPublic) {
-      console.log('🔐 API privée - authentification CAS requise')
-      // CORRECTION: Utiliser Puppeteer pour récupérer les cookies d'authentification
-      authCookies = await authenticateAndGetCookies()
-      if (!authCookies) {
-        throw new Error('AUTH_REQUIRED: Impossible d\'obtenir les cookies d\'authentification CAS')
+    // Test simple de l'API
+    try {
+      const testResponse = await fetch('https://livret.uness.fr/lisa/2025/api.php?action=query&list=categorymembers&cmtitle=Catégorie:Objectif_de_connaissance&cmlimit=1&format=json')
+      const testData = await testResponse.json()
+      
+      if (testData.error && testData.error.code === 'readapidenied') {
+        console.log('❌ API protégée - authentification requise')
+        throw new Error('AUTHENTICATION_REQUIRED: L\'API MediaWiki nécessite une authentification CAS. Veuillez utiliser le script Puppeteer local ou GitHub Actions.')
       }
-      console.log('✅ Cookies d\'authentification obtenus')
+      
+      console.log('✅ API accessible - extraction possible')
+    } catch (error) {
+      console.error('❌ Erreur test API:', error)
+      throw new Error(`API_ACCESS_ERROR: ${error.message}`)
     }
     
     // Mettre à jour le statut
