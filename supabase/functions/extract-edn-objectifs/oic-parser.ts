@@ -9,6 +9,8 @@ export interface OicCompetence {
   ordre?: number;
   url_source: string;
   hash_content?: string;
+  date_import?: string;
+  extraction_status?: string;
 }
 
 // Mapping des rubriques

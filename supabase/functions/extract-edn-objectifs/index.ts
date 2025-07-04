@@ -176,9 +176,15 @@ async function extractCompetences(supabaseClient: any, session_id: string) {
       let savedInBatch = 0
       for (const page of batchContent) {
         try {
+          console.log(`🔍 Parsing page: ${page.title} (ID: ${page.pageid})`)
           const competence = parseOICContent(page)
           
           if (competence) {
+            // Log de l'échantillon AVANT insertion
+            if (savedInBatch === 0) {
+              console.log('SAMPLE ➜', JSON.stringify(competence, null, 2))
+            }
+            
             // Générer un hash pour éviter les doublons
             const hashContent = await crypto.subtle.digest('SHA-256', 
               new TextEncoder().encode(JSON.stringify(competence))
@@ -186,19 +192,26 @@ async function extractCompetences(supabaseClient: any, session_id: string) {
             const hashArray = Array.from(new Uint8Array(hashContent))
             competence.hash_content = hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
             
+            // Test d'insertion unitaire avec logging détaillé
+            console.log(`📝 Tentative insertion: ${competence.objectif_id}`)
             const { error } = await supabaseClient
               .from('oic_competences')
               .upsert(competence, { onConflict: 'objectif_id' })
             
             if (error) {
-              console.error(`❌ Erreur sauvegarde ${competence.objectif_id}:`, error)
+              console.error(`❌ INSERT_ERR ${competence.objectif_id}:`, error)
+              console.error('📄 Données problématiques:', JSON.stringify(competence, null, 2))
             } else {
+              console.log(`✅ Insertion réussie: ${competence.objectif_id}`)
               savedInBatch++
               totalExtraites++
             }
+          } else {
+            console.log(`⚠️  Parsing échoué pour ${page.title} - competence null`)
           }
         } catch (error) {
           console.error(`💥 Erreur parsing page ${page.title}:`, error)
+          console.error('📄 Page content preview:', page.revisions?.[0]?.content?.substring(0, 200))
         }
       }
       
