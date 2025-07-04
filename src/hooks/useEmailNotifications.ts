@@ -4,9 +4,10 @@ import { supabase } from '@/integrations/supabase/client';
 export const useEmailNotifications = () => {
   const sendWelcomeEmail = async (email: string, name: string) => {
     try {
-      const { data, error } = await supabase.functions.invoke('send-emails', {
+      console.log('📧 Envoi email de bienvenue à:', email, name);
+      
+      const { data, error } = await supabase.functions.invoke('send-welcome-email', {
         body: {
-          type: 'welcome',
           email,
           name,
         },

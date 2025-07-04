@@ -26,6 +26,8 @@ import { MedMngSubscribe } from "./pages/MedMngSubscribe";
 import { MedMngCreate } from "./pages/MedMngCreate";
 import { MedMngLibrary } from "./pages/MedMngLibrary";
 import { MedMngPlayer } from "./pages/MedMngPlayer";
+import { AuthProvider } from "./components/med-mng/AuthProvider";
+import { ProtectedRoute } from "./components/med-mng/withAuth";
 import { MedChat } from "./pages/MedChat";
 import AdminImport from "./pages/AdminImport";
 import AdminAudit from "./pages/AdminAudit";
@@ -39,17 +41,18 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <LanguageProvider>
       <GlobalAudioProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
+        <AuthProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
+            <BrowserRouter>
+              <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/generator" element={<Generator />} />
-              <Route path="/edn" element={<EdnIndex />} />
-              <Route path="/edn/:slug" element={<EdnItem />} />
-              <Route path="/edn/:slug/immersive" element={<EdnItemImmersive />} />
-              <Route path="/edn/music-library" element={<EdnMusicLibrary />} />
+              <Route path="/edn" element={<ProtectedRoute><EdnIndex /></ProtectedRoute>} />
+              <Route path="/edn/:slug" element={<ProtectedRoute><EdnItem /></ProtectedRoute>} />
+              <Route path="/edn/:slug/immersive" element={<ProtectedRoute><EdnItemImmersive /></ProtectedRoute>} />
+              <Route path="/edn/music-library" element={<ProtectedRoute><EdnMusicLibrary /></ProtectedRoute>} />
               <Route path="/ecos" element={<EcosIndex />} />
               <Route path="/ecos/:scenarioId" element={<EcosScenario />} />
               
@@ -69,10 +72,10 @@ const App = () => (
               <Route path="/med-mng/login" element={<MedMngLogin />} />
               <Route path="/med-mng/signup" element={<MedMngSignup />} />
               <Route path="/med-mng/pricing" element={<MedMngPricing />} />
-              <Route path="/med-mng/subscribe" element={<MedMngSubscribe />} />
-              <Route path="/med-mng/create" element={<MedMngCreate />} />
-              <Route path="/med-mng/library" element={<MedMngLibrary />} />
-              <Route path="/med-mng/player/:songId" element={<MedMngPlayer />} />
+              <Route path="/med-mng/subscribe" element={<ProtectedRoute><MedMngSubscribe /></ProtectedRoute>} />
+              <Route path="/med-mng/create" element={<ProtectedRoute><MedMngCreate /></ProtectedRoute>} />
+              <Route path="/med-mng/library" element={<ProtectedRoute><MedMngLibrary /></ProtectedRoute>} />
+              <Route path="/med-mng/player/:songId" element={<ProtectedRoute><MedMngPlayer /></ProtectedRoute>} />
               <Route path="/chat" element={<MedChat />} />
               <Route path="/admin/import" element={<AdminImport />} />
               <Route path="/admin/audit" element={<AdminAudit />} />
@@ -83,6 +86,7 @@ const App = () => (
             </Routes>
           </BrowserRouter>
         </TooltipProvider>
+        </AuthProvider>
       </GlobalAudioProvider>
     </LanguageProvider>
   </QueryClientProvider>

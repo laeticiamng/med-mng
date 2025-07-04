@@ -125,10 +125,10 @@ const Index = () => {
               <PremiumButton
                 variant="primary"
                 size="xl"
-                onClick={() => navigate('/edn')}
+                onClick={() => navigate('/med-mng/pricing')}
               >
                 <BookOpen className="h-6 w-6 mr-3" />
-                <TranslatedText text="Explorer les Items EDN" />
+                <TranslatedText text="Découvrir MED-MNG" />
               </PremiumButton>
               <PremiumButton
                 variant="glass"
