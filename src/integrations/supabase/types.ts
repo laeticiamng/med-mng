@@ -2589,6 +2589,13 @@ export type Database = {
           details: Json
         }[]
       }
+      update_edn_items_with_real_specific_content: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          updated_count: number
+          details: Json
+        }[]
+      }
       update_edn_items_with_specific_content: {
         Args: Record<PropertyKey, never>
         Returns: {
