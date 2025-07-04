@@ -9,13 +9,14 @@ interface ExtractionResponse {
 
 interface ExtractionStatus {
   session_id: string;
-  total_competences: number;
-  competences_extraites: number;
-  page_courante: number;
+  total_expected: number;
+  items_extracted: number;
+  page_number: number;
   total_pages: number;
-  statut: 'en_cours' | 'termine' | 'erreur' | 'pause';
-  derniere_activite: string;
-  erreurs?: any[];
+  status: 'en_cours' | 'termine' | 'erreur' | 'pause';
+  last_activity: string;
+  error_message?: string;
+  failed_urls?: string[];
 }
 
 interface ExtractionStats {
@@ -143,7 +144,7 @@ export class EdnObjectifsExtractor {
         callback(status);
         
         // Arrêter le polling si terminé ou en erreur
-        if (status.statut === 'termine' || status.statut === 'erreur') {
+        if (status.status === 'termine' || status.status === 'erreur') {
           this.stopStatusPolling();
         }
       } catch (error) {
@@ -222,11 +223,11 @@ export async function launchEdnObjectifsExtraction() {
     
     // Démarre le polling automatique
     extractor.startStatusPolling((status) => {
-      console.log(`📊 Progrès: ${status.competences_extraites}/${status.total_competences} compétences (${Math.round((status.competences_extraites/status.total_competences)*100)}%)`);
-      console.log(`📄 Page: ${status.page_courante}/${status.total_pages}`);
-      console.log(`🟢 Statut: ${status.statut}`);
+      console.log(`📊 Progrès: ${status.items_extracted}/${status.total_expected} compétences (${Math.round((status.items_extracted/status.total_expected)*100)}%)`);
+      console.log(`📄 Page: ${status.page_number}/${status.total_pages}`);
+      console.log(`🟢 Statut: ${status.status.toUpperCase()}`);
       
-      if (status.statut === 'termine') {
+      if (status.status === 'termine') {
         console.log('🎉 Extraction terminée avec succès!');
         extractor.generateRapport().then(rapport => {
           console.log('📊 Rapport final:', rapport);

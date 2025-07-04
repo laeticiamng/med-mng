@@ -10,13 +10,14 @@ import { PlayCircle, Pause, RefreshCw, BarChart3, CheckCircle, AlertCircle, Cloc
 
 interface ExtractionStatus {
   session_id: string;
-  total_competences: number;
-  competences_extraites: number;
-  page_courante: number;
+  total_expected: number;
+  items_extracted: number;
+  page_number: number;
   total_pages: number;
-  statut: 'en_cours' | 'termine' | 'erreur' | 'pause';
-  derniere_activite: string;
-  erreurs?: any[];
+  status: 'en_cours' | 'termine' | 'erreur' | 'pause';
+  last_activity: string;
+  error_message?: string;
+  failed_urls?: string[];
 }
 
 interface ExtractionStats {
@@ -52,9 +53,9 @@ export const EdnObjectifsExtraction: React.FC = () => {
       extractor.startStatusPolling((newStatus) => {
         setStatus(newStatus);
         
-        if (newStatus.statut === 'termine' || newStatus.statut === 'erreur') {
+        if (newStatus.status === 'termine' || newStatus.status === 'erreur') {
           setIsExtracting(false);
-          if (newStatus.statut === 'termine') {
+          if (newStatus.status === 'termine') {
             handleGenerateRapport();
           }
         }

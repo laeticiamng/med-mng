@@ -2011,81 +2011,99 @@ export type Database = {
       }
       oic_competences: {
         Row: {
-          created_at: string
-          date_import: string
+          created_at: string | null
+          date_import: string | null
           description: string | null
+          extraction_status: string | null
+          hash_content: string | null
           intitule: string
           item_parent: string
           objectif_id: string
           ordre: number | null
-          rang: string
-          rubrique: string
-          updated_at: string
+          rang: string | null
+          rubrique: string | null
+          updated_at: string | null
           url_source: string | null
         }
         Insert: {
-          created_at?: string
-          date_import?: string
+          created_at?: string | null
+          date_import?: string | null
           description?: string | null
+          extraction_status?: string | null
+          hash_content?: string | null
           intitule: string
           item_parent: string
           objectif_id: string
           ordre?: number | null
-          rang: string
-          rubrique: string
-          updated_at?: string
+          rang?: string | null
+          rubrique?: string | null
+          updated_at?: string | null
           url_source?: string | null
         }
         Update: {
-          created_at?: string
-          date_import?: string
+          created_at?: string | null
+          date_import?: string | null
           description?: string | null
+          extraction_status?: string | null
+          hash_content?: string | null
           intitule?: string
           item_parent?: string
           objectif_id?: string
           ordre?: number | null
-          rang?: string
-          rubrique?: string
-          updated_at?: string
+          rang?: string | null
+          rubrique?: string | null
+          updated_at?: string | null
           url_source?: string | null
         }
         Relationships: []
       }
       oic_extraction_progress: {
         Row: {
-          competences_extraites: number | null
-          created_at: string
-          derniere_activite: string
-          erreurs: Json | null
+          auth_cookies: string | null
+          created_at: string | null
+          current_page_url: string | null
+          error_message: string | null
+          failed_urls: Json | null
           id: string
-          page_courante: number | null
+          items_extracted: number | null
+          last_activity: string | null
+          last_item_id: string | null
+          page_number: number | null
           session_id: string
-          statut: string | null
-          total_competences: number | null
+          status: string | null
+          total_expected: number | null
           total_pages: number | null
         }
         Insert: {
-          competences_extraites?: number | null
-          created_at?: string
-          derniere_activite?: string
-          erreurs?: Json | null
+          auth_cookies?: string | null
+          created_at?: string | null
+          current_page_url?: string | null
+          error_message?: string | null
+          failed_urls?: Json | null
           id?: string
-          page_courante?: number | null
+          items_extracted?: number | null
+          last_activity?: string | null
+          last_item_id?: string | null
+          page_number?: number | null
           session_id: string
-          statut?: string | null
-          total_competences?: number | null
+          status?: string | null
+          total_expected?: number | null
           total_pages?: number | null
         }
         Update: {
-          competences_extraites?: number | null
-          created_at?: string
-          derniere_activite?: string
-          erreurs?: Json | null
+          auth_cookies?: string | null
+          created_at?: string | null
+          current_page_url?: string | null
+          error_message?: string | null
+          failed_urls?: Json | null
           id?: string
-          page_courante?: number | null
+          items_extracted?: number | null
+          last_activity?: string | null
+          last_item_id?: string | null
+          page_number?: number | null
           session_id?: string
-          statut?: string | null
-          total_competences?: number | null
+          status?: string | null
+          total_expected?: number | null
           total_pages?: number | null
         }
         Relationships: []
@@ -2608,6 +2626,15 @@ export type Database = {
           competences_extraites: number
           completude_pct: number
           manquants: string[]
+        }[]
+      }
+      get_oic_extraction_report: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          summary: Json
+          by_item: Json
+          missing_items: string[]
+          failed_urls: string[]
         }[]
       }
       mark_notifications_as_read: {
