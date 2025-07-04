@@ -25,7 +25,7 @@ const plans: PricingPlan[] = [
     credits: 60,
     songs: '≈15 chansons/mois',
     features: [
-      'Audio standard (Suno 3.5)',
+      'Audio standard (MNG 3.5)',
       '60 crédits/mois',
       'QCM illimités',
       'Tableau illimités',
@@ -41,7 +41,7 @@ const plans: PricingPlan[] = [
     badge: 'Le plus populaire',
     popular: true,
     features: [
-      'Audio premium (Suno 4)',
+      'Audio premium (MNG 4)',
       '2 500 crédits/mois',
       'Reset mensuel',
       'QCM + tableau illimités',
@@ -58,7 +58,7 @@ const plans: PricingPlan[] = [
     badge: 'Meilleur rapport qualité-prix',
     bestValue: true,
     features: [
-      'Audio high premium studio version (Suno 4.5)',
+      'Audio high premium studio version (MNG 4.5)',
       '5 000 crédits/mois',
       'Reset mensuel',
       'QCM + tableau illimités',
