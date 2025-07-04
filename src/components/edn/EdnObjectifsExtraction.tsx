@@ -35,6 +35,8 @@ interface ExtractionStats {
 }
 
 export const EdnObjectifsExtraction: React.FC = () => {
+  console.log('🔍 DEBUG: EdnObjectifsExtraction component loaded');
+  
   const [extractor] = useState(() => new EdnObjectifsExtractor());
   const [status, setStatus] = useState<ExtractionStatus | null>(null);
   const [stats, setStats] = useState<ExtractionStats | null>(null);
