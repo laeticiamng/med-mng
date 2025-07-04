@@ -156,204 +156,109 @@ async function extractAllCompetences() {
   }
 }
 
-// Authentification CAS
+// Authentification CAS complètement refaite
 async function authenticateCAS(page) {
+  log('🌐 Navigation vers page protégée pour déclencher l\'authentification...');
   await page.goto(config.urls.category, { waitUntil: 'networkidle2', timeout: 30000 });
   
-  // Vérifier si redirection vers CAS
-  if (page.url().includes('cas/login') || page.url().includes('auth.uness.fr')) {
-    log('🔑 Début du processus d\'authentification UNESS (2 étapes)...');
-    
-    // ÉTAPE 1 : Saisir l'email
-    await new Promise(resolve => setTimeout(resolve, 5000));
-    
-    log('📧 ÉTAPE 1 : Saisie de l\'adresse email...');
-    const html1 = await page.content();
-    log(`🔍 URL étape 1: ${page.url()}`);
-    
-    // Chercher le champ email (première étape)
-    let emailField = null;
-    const emailSelectors = [
-      'input[type="email"]', 
-      'input[name="email"]', 
-      'input[placeholder*="email"]',
-      'input[placeholder*="adresse"]',
-      '#email',
-      'input[type="text"]' // fallback
-    ];
-    
-    for (const selector of emailSelectors) {
-      try {
-        const element = await page.$(selector);
-        if (element) {
-          emailField = selector;
-          log(`✅ Champ email trouvé avec: ${selector}`);
-          break;
-        }
-      } catch (e) {
-        log(`⚠️ Sélecteur email ${selector} non trouvé`);
-      }
-    }
-    
-    if (!emailField) {
-      log(`❌ Champ email non trouvé`);
-      log(`🔍 Contenu page 1 (1000 premiers caractères):`);
-      log(html1.substring(0, 1000));
-      throw new Error('Champ email non trouvé');
-    }
-    
-    // Saisir l'email
-    await page.type(emailField, config.cas.username);
-    log(`✅ Email saisi: ${config.cas.username}`);
-    
-    // Chercher le bouton "SE CONNECTER" de la première étape
-    let connectButton1 = null;
-    const connectSelectors1 = [
-      'button:contains("SE CONNECTER")',
-      'input[value*="CONNECTER"]',
-      'button[type="submit"]',
-      'input[type="submit"]',
-      'button'
-    ];
-    
-    for (const selector of connectSelectors1) {
-      try {
-        const element = await page.$(selector);
-        if (element) {
-          const text = await page.evaluate(el => el.textContent || el.value, element);
-          if (text && text.includes('CONNECTER')) {
-            connectButton1 = selector;
-            log(`✅ Bouton connexion étape 1 trouvé avec: ${selector}`);
-            break;
-          }
-        }
-      } catch (e) {
-        // Continuer
-      }
-    }
-    
-    if (!connectButton1) {
-      // Essayer un sélecteur générique
-      connectButton1 = 'button, input[type="submit"]';
-      log(`⚠️ Utilisation du bouton générique pour étape 1`);
-    }
-    
-    // Cliquer sur SE CONNECTER (étape 1)
-    log('🔄 Clic sur SE CONNECTER (étape 1)...');
-    try {
-      await Promise.all([
-        page.waitForNavigation({ waitUntil: 'networkidle0', timeout: 60000 }),
-        page.click(connectButton1)
-      ]);
-    } catch (navError) {
-      log(`⚠️ Timeout navigation étape 1, continuons quand même...`);
-      await new Promise(resolve => setTimeout(resolve, 5000));
-    }
-    
-    // ÉTAPE 2 : Saisir le mot de passe
-    await new Promise(resolve => setTimeout(resolve, 3000));
-    
-    log('🔐 ÉTAPE 2 : Saisie du mot de passe...');
-    const html2 = await page.content();
-    log(`🔍 URL étape 2: ${page.url()}`);
-    
-    // Chercher le champ password (deuxième étape)
-    let passwordField = null;
-    const passwordSelectors = [
-      'input[type="password"]',
-      'input[name="password"]',
-      'input[placeholder*="mot de passe"]',
-      'input[placeholder*="password"]',
-      '#password'
-    ];
-    
-    for (const selector of passwordSelectors) {
-      try {
-        const element = await page.$(selector);
-        if (element) {
-          passwordField = selector;
-          log(`✅ Champ password trouvé avec: ${selector}`);
-          break;
-        }
-      } catch (e) {
-        log(`⚠️ Sélecteur password ${selector} non trouvé`);
-      }
-    }
-    
-    if (!passwordField) {
-      log(`❌ Champ password non trouvé`);
-      log(`🔍 Contenu page 2 (1000 premiers caractères):`);
-      log(html2.substring(0, 1000));
-      throw new Error('Champ password non trouvé');
-    }
-    
-    // Saisir le mot de passe
-    await page.type(passwordField, config.cas.password);
-    log(`✅ Mot de passe saisi`);
-    
-    // Chercher le bouton "SE CONNECTER" de la deuxième étape
-    let connectButton2 = null;
-    const connectSelectors2 = [
-      'button:contains("SE CONNECTER")',
-      'input[value*="CONNECTER"]',
-      'button[type="submit"]',
-      'input[type="submit"]',
-      'button'
-    ];
-    
-    for (const selector of connectSelectors2) {
-      try {
-        const element = await page.$(selector);
-        if (element) {
-          const text = await page.evaluate(el => el.textContent || el.value, element);
-          if (text && text.includes('CONNECTER')) {
-            connectButton2 = selector;
-            log(`✅ Bouton connexion étape 2 trouvé avec: ${selector}`);
-            break;
-          }
-        }
-      } catch (e) {
-        // Continuer
-      }
-    }
-    
-    if (!connectButton2) {
-      connectButton2 = 'button, input[type="submit"]';
-      log(`⚠️ Utilisation du bouton générique pour étape 2`);
-    }
-    
-    // Cliquer sur SE CONNECTER (étape 2)
-    log('🔄 Clic sur SE CONNECTER (étape 2)...');
-    try {
-      await Promise.all([
-        page.waitForNavigation({ waitUntil: 'networkidle0', timeout: 60000 }),
-        page.click(connectButton2)
-      ]);
-    } catch (navError) {
-      log(`⚠️ Timeout navigation étape 2, continuons quand même...`);
-      await new Promise(resolve => setTimeout(resolve, 5000));
-    }
-    
-    // Attendre que la redirection OAuth2 soit complète
-    log('🔄 Attente de la redirection OAuth2 vers livret.uness.fr...');
-    try {
-      await page.waitForFunction(
-        () => {
-          const url = window.location.href;
-          return url.includes('livret.uness.fr') && !url.includes('cas/login') && !url.includes('auth.uness.fr');
-        },
-        { timeout: 60000, polling: 1000 }
-      );
-      log(`✅ Redirection OAuth2 réussie. URL finale: ${page.url()}`);
-    } catch (error) {
-      log(`⚠️ Timeout redirection OAuth2, URL actuelle: ${page.url()}`);
-      // Essayer de naviguer manuellement vers la page cible
-      await page.goto(config.urls.category, { waitUntil: 'networkidle2', timeout: 30000 });
-    }
-    
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    log(`✅ Authentification terminée. URL finale: ${page.url()}`);
+  const initialUrl = page.url();
+  log(`🔍 URL initiale: ${initialUrl}`);
+  
+  // Si pas de redirection CAS, on est déjà authentifié
+  if (!initialUrl.includes('cas/login') && !initialUrl.includes('auth.uness.fr')) {
+    log('✅ Pas de redirection CAS - déjà authentifié');
+    return;
   }
+  
+  log('🔑 Authentification CAS requise - début du processus...');
+  
+  // Attendre que la page de login soit entièrement chargée
+  await new Promise(resolve => setTimeout(resolve, 3000));
+  
+  // Étape 1: Saisir l'email
+  log('📧 Saisie de l\'email...');
+  await page.waitForSelector('input[type="email"], input[name="email"], input[type="text"]', { timeout: 10000 });
+  
+  const emailInput = await page.$('input[type="email"]') || await page.$('input[name="email"]') || await page.$('input[type="text"]');
+  if (!emailInput) {
+    throw new Error('Champ email non trouvé');
+  }
+  
+  await emailInput.type(config.cas.username);
+  log(`✅ Email saisi: ${config.cas.username}`);
+  
+  // Cliquer sur le bouton de la première étape
+  const submitButton1 = await page.$('button[type="submit"], input[type="submit"]');
+  if (!submitButton1) {
+    throw new Error('Bouton submit étape 1 non trouvé');
+  }
+  
+  log('🔄 Clic sur le bouton de connexion étape 1...');
+  await submitButton1.click();
+  
+  // Attendre la navigation vers l'étape 2
+  try {
+    await page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 30000 });
+  } catch (e) {
+    log('⚠️ Pas de navigation détectée, continuons...');
+  }
+  
+  await new Promise(resolve => setTimeout(resolve, 3000));
+  
+  // Étape 2: Saisir le mot de passe
+  log('🔐 Saisie du mot de passe...');
+  await page.waitForSelector('input[type="password"]', { timeout: 10000 });
+  
+  const passwordInput = await page.$('input[type="password"]');
+  if (!passwordInput) {
+    throw new Error('Champ mot de passe non trouvé');
+  }
+  
+  await passwordInput.type(config.cas.password);
+  log('✅ Mot de passe saisi');
+  
+  // Cliquer sur le bouton de la deuxième étape
+  const submitButton2 = await page.$('button[type="submit"], input[type="submit"]');
+  if (!submitButton2) {
+    throw new Error('Bouton submit étape 2 non trouvé');
+  }
+  
+  log('🔄 Clic sur le bouton de connexion étape 2...');
+  await submitButton2.click();
+  
+  // Attendre la redirection OAuth2 complète vers livret.uness.fr
+  log('⏳ Attente de la redirection OAuth2 complète...');
+  
+  let redirectSuccess = false;
+  for (let attempt = 0; attempt < 12; attempt++) { // 12 tentatives = 2 minutes max
+    await new Promise(resolve => setTimeout(resolve, 10000)); // Attendre 10 secondes
+    
+    const currentUrl = page.url();
+    log(`🔍 Tentative ${attempt + 1} - URL actuelle: ${currentUrl.substring(0, 100)}...`);
+    
+    // Vérifier si on est arrivé sur livret.uness.fr
+    if (currentUrl.includes('livret.uness.fr') && !currentUrl.includes('cas/login') && !currentUrl.includes('auth.uness.fr/cas')) {
+      log('🎉 Redirection OAuth2 réussie !');
+      redirectSuccess = true;
+      break;
+    }
+    
+    // Si on est toujours sur une page d'auth, continuer d'attendre
+    if (currentUrl.includes('auth.uness.fr') || currentUrl.includes('cas/login')) {
+      log(`⏳ Toujours en cours d'authentification, patience...`);
+      continue;
+    }
+    
+    // Si on est sur une page inattendue, essayer de naviguer
+    log(`⚠️ URL inattendue: ${currentUrl.substring(0, 100)}`);
+  }
+  
+  if (!redirectSuccess) {
+    log('❌ La redirection OAuth2 a échoué après 2 minutes d\'attente');
+    throw new Error('Timeout OAuth2 - redirection vers livret.uness.fr échouée');
+  }
+  
+  log(`✅ Authentification CAS terminée avec succès`);
 }
 
 // Extraction via API MediaWiki
