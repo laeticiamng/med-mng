@@ -120,7 +120,7 @@ async function authenticateCAS(page) {
     log('🔑 Saisie des identifiants CAS...');
     
     // Attendre que la page soit entièrement chargée
-    await page.waitForTimeout(3000);
+    await new Promise(resolve => setTimeout(resolve, 3000));
     
     // Debug: voir la structure de la page
     const html = await page.content();
@@ -190,7 +190,7 @@ async function authenticateCAS(page) {
       page.click(submitButton)
     ]);
     
-    await page.waitForTimeout(2000);
+    await new Promise(resolve => setTimeout(resolve, 2000));
   }
 }
 
