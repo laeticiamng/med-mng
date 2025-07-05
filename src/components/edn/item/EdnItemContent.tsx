@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Music } from 'lucide-react';
 import { BandeDessinee } from '@/components/edn/BandeDessinee';
 import { EnhancedBandeDessinee } from '@/components/edn/EnhancedBandeDessinee';
-import { TableauRangA } from '@/components/edn/TableauRangA';
+import { TableauRangA } from '@/components/edn/tableau/TableauRangA';
 import { TableauRangB } from '@/components/edn/tableau/TableauRangB';
 import { SceneImmersive } from '@/components/edn/SceneImmersive';
 import { ParolesMusicales } from '@/components/edn/ParolesMusicales';
@@ -41,8 +41,9 @@ export const EdnItemContent = ({ activeSection, item }: EdnItemContentProps) => 
     switch (activeSection) {
       case 'tableau-a':
         console.log('📋 Rendering Tableau Rang A for:', item.item_code);
+        console.log('📊 Tableau Rang A raw data:', item.tableau_rang_a);
         return item.tableau_rang_a ? (
-          <TableauRangA data={item.tableau_rang_a} />
+          <TableauRangA data={item.tableau_rang_a} itemCode={item.item_code} />
         ) : (
           <div className="text-center py-8">
             <TranslatedText text="Tableau Rang A en cours de développement" />
@@ -53,16 +54,9 @@ export const EdnItemContent = ({ activeSection, item }: EdnItemContentProps) => 
         console.log('📋 Rendering Tableau Rang B for:', item.item_code);
         console.log('📊 Tableau Rang B raw data:', item.tableau_rang_b);
         
-        // Passer les données complètes avec itemCode requis
         return (
           <TableauRangB 
-            data={{
-              title: item.title,
-              item_code: item.item_code,
-              tableau_rang_b: item.tableau_rang_b,
-              // Forcer le thème Rang B pour le traitement
-              theme: item.item_code === 'IC-2' ? 'Rang B - IC-2 Valeurs professionnelles' : undefined
-            }}
+            data={item.tableau_rang_b}
             itemCode={item.item_code}
           />
         );
