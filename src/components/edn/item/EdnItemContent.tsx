@@ -8,7 +8,7 @@ import { TableauRangA } from '@/components/edn/TableauRangA';
 import { TableauRangB } from '@/components/edn/tableau/TableauRangB';
 import { SceneImmersive } from '@/components/edn/SceneImmersive';
 import { ParolesMusicales } from '@/components/edn/ParolesMusicales';
-import { QuizFinal } from '@/components/edn/QuizFinal';
+import { EnhancedQuizFinal } from '@/components/edn/EnhancedQuizFinal';
 import { TranslatedText } from '@/components/TranslatedText';
 
 type SectionType = 'tableau-a' | 'tableau-b' | 'scene' | 'bd' | 'music' | 'quiz';
@@ -122,7 +122,11 @@ export const EdnItemContent = ({ activeSection, item }: EdnItemContentProps) => 
       
       case 'quiz':
         return item.quiz_questions ? (
-          <QuizFinal questions={item.quiz_questions} />
+          <EnhancedQuizFinal 
+            questions={item.quiz_questions} 
+            itemCode={item.item_code}
+            itemTitle={item.title}
+          />
         ) : (
           <div className="text-center py-8">
             <TranslatedText text="Quiz en cours de développement" />

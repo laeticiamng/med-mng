@@ -2698,6 +2698,16 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      complete_all_items_with_competences: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          processed_items: number
+          updated_items: number
+          total_competences_rang_a: number
+          total_competences_rang_b: number
+          items_details: Json
+        }[]
+      }
       count_all_invitations: {
         Args: Record<PropertyKey, never>
         Returns: number
@@ -2784,6 +2794,18 @@ export type Database = {
       get_oic_extraction_report: {
         Args: Record<PropertyKey, never>
         Returns: Json
+      }
+      get_platform_completion_stats: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          total_items: number
+          items_with_3_paroles: number
+          items_with_50_qcm: number
+          total_competences_available: number
+          competences_rang_a_integrated: number
+          competences_rang_b_integrated: number
+          completion_percentage: number
+        }[]
       }
       integrate_oic_into_edn_items: {
         Args: Record<PropertyKey, never>

@@ -1,11 +1,12 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { QuizFinal } from './QuizFinal';
 import { QuizErrorSongGenerator } from './music/QuizErrorSongGenerator';
+import { QuizSelector, QuizConfig } from './quiz/QuizSelector';
 import { useQuizErrorTracker } from '@/hooks/useQuizErrorTracker';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Trophy, Music, AlertTriangle, BookOpen } from 'lucide-react';
+import { Trophy, Music, AlertTriangle, BookOpen, RotateCcw, Settings } from 'lucide-react';
 
 interface EnhancedQuizFinalProps {
   questions: {
@@ -36,6 +37,9 @@ export const EnhancedQuizFinal: React.FC<EnhancedQuizFinalProps> = ({
   itemCode,
   itemTitle
 }) => {
+  const [quizStarted, setQuizStarted] = useState(false);
+  const [quizConfig, setQuizConfig] = useState<QuizConfig | null>(null);
+  
   const {
     startQuizSession,
     addQuizError,
@@ -51,29 +55,45 @@ export const EnhancedQuizFinal: React.FC<EnhancedQuizFinalProps> = ({
     loadSavedSessions();
   }, [loadSavedSessions]);
 
-  // Démarrer une session si elle n'existe pas
-  useEffect(() => {
-    if (!hasCurrentSession && questions) {
-      const totalQuestions = (questions.qcm?.length || 0) + 
-                           (questions.qru?.length || 0) + 
-                           (questions.qroc?.length || 0) + 
-                           (questions.zap?.length || 0);
-      
-      if (totalQuestions > 0) {
-        startQuizSession(itemCode, itemTitle, totalQuestions);
-      }
-    }
-  }, [questions, itemCode, itemTitle, hasCurrentSession, startQuizSession]);
+  const handleStartQuiz = (config: QuizConfig) => {
+    setQuizConfig(config);
+    setQuizStarted(true);
+    
+    // Démarrer une nouvelle session avec la configuration
+    startQuizSession(itemCode, itemTitle, config.numberOfQuestions);
+  };
+
+  const handleResetQuiz = () => {
+    setQuizStarted(false);
+    setQuizConfig(null);
+  };
 
   const handleQuizFinished = (finalScore: number) => {
     const completedSession = endQuizSession(finalScore);
     return completedSession;
   };
 
-  const handleAddToLibrary = (song: any) => {
-    console.log('🎵 Chanson d\'erreurs ajoutée à la bibliothèque:', song);
-    // Ici on pourrait intégrer avec un système de bibliothèque musicale
-  };
+  // Calculer le nombre total de questions disponibles
+  const totalAvailableQuestions = Array.isArray(questions) 
+    ? questions.length 
+    : (questions.qcm?.length || 0) + 
+      (questions.qru?.length || 0) + 
+      (questions.qroc?.length || 0) + 
+      (questions.zap?.length || 0);
+
+  // Si le quiz n'est pas encore configuré, afficher le sélecteur
+  if (!quizStarted) {
+    return (
+      <div className="space-y-6">
+        <QuizSelector
+          itemCode={itemCode}
+          itemTitle={itemTitle}
+          totalQuestions={totalAvailableQuestions}
+          onStartQuiz={handleStartQuiz}
+        />
+      </div>
+    );
+  }
 
   // Wrapper pour le QuizFinal avec tracking des erreurs intégré
   const QuizWithErrorTracking = () => {
@@ -97,32 +117,73 @@ export const EnhancedQuizFinal: React.FC<EnhancedQuizFinalProps> = ({
             <Trophy className="h-6 w-6" />
             Quiz Interactif - {itemTitle}
           </CardTitle>
-          <CardDescription>
-            Quiz avec suivi des erreurs et génération de chansons personnalisées
+          <CardDescription className="flex items-center justify-between">
+            <span>Quiz avec suivi des erreurs et génération de chansons personnalisées</span>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleResetQuiz}
+              className="text-amber-700 border-amber-300 hover:bg-amber-100"
+            >
+              <RotateCcw className="h-4 w-4 mr-1" />
+              Reconfigurer
+            </Button>
           </CardDescription>
         </CardHeader>
-        {hasCurrentSession && (
+        
+        {/* Configuration active */}
+        {quizConfig && (
           <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="text-center p-3 bg-white rounded-lg border border-amber-200">
-                <div className="text-lg font-bold text-amber-600">
-                  {currentSession?.totalQuestions || 0}
-                </div>
-                <div className="text-xs text-amber-700">Questions totales</div>
+            <div className="bg-white/60 rounded-lg p-4 mb-4 border border-amber-200">
+              <div className="flex items-center gap-2 mb-2">
+                <Settings className="h-4 w-4 text-amber-600" />
+                <span className="font-medium text-amber-800">Configuration active</span>
               </div>
-              <div className="text-center p-3 bg-white rounded-lg border border-amber-200">
-                <div className="text-lg font-bold text-red-600">
-                  {currentErrors.length}
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                <div>
+                  <span className="text-amber-700">Questions:</span>
+                  <div className="font-semibold">{quizConfig.numberOfQuestions}</div>
                 </div>
-                <div className="text-xs text-red-700">Erreurs détectées</div>
-              </div>
-              <div className="text-center p-3 bg-white rounded-lg border border-amber-200">
-                <div className="text-lg font-bold text-green-600">
-                  {currentSession ? ((currentSession.totalQuestions - currentErrors.length) / currentSession.totalQuestions * 100).toFixed(0) : 0}%
+                <div>
+                  <span className="text-amber-700">Type:</span>
+                  <div className="font-semibold">
+                    {quizConfig.questionType === 'mixed' ? 'Mixte' :
+                     quizConfig.questionType === 'rang-a' ? 'Rang A' : 'Rang B'}
+                  </div>
                 </div>
-                <div className="text-xs text-green-700">Score actuel</div>
+                <div>
+                  <span className="text-amber-700">Difficulté:</span>
+                  <div className="font-semibold capitalize">{quizConfig.difficulty}</div>
+                </div>
+                <div>
+                  <span className="text-amber-700">Durée:</span>
+                  <div className="font-semibold">{Math.ceil(quizConfig.numberOfQuestions * 1.5)} min</div>
+                </div>
               </div>
             </div>
+            
+            {hasCurrentSession && (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="text-center p-3 bg-white rounded-lg border border-amber-200">
+                  <div className="text-lg font-bold text-amber-600">
+                    {currentSession?.totalQuestions || 0}
+                  </div>
+                  <div className="text-xs text-amber-700">Questions totales</div>
+                </div>
+                <div className="text-center p-3 bg-white rounded-lg border border-amber-200">
+                  <div className="text-lg font-bold text-red-600">
+                    {currentErrors.length}
+                  </div>
+                  <div className="text-xs text-red-700">Erreurs détectées</div>
+                </div>
+                <div className="text-center p-3 bg-white rounded-lg border border-amber-200">
+                  <div className="text-lg font-bold text-green-600">
+                    {currentSession ? ((currentSession.totalQuestions - currentErrors.length) / currentSession.totalQuestions * 100).toFixed(0) : 0}%
+                  </div>
+                  <div className="text-xs text-green-700">Score actuel</div>
+                </div>
+              </div>
+            )}
           </CardContent>
         )}
       </Card>
@@ -179,8 +240,6 @@ export const EnhancedQuizFinal: React.FC<EnhancedQuizFinalProps> = ({
           )}
         </TabsContent>
       </Tabs>
-
-
     </div>
   );
 };

@@ -160,23 +160,23 @@ const Index = () => {
                 <BookOpen className="h-10 w-10 text-white" />
               </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                <TranslatedText text="Items EDN (IC-1 à IC-10)" />
+                <TranslatedText text="Items EDN Complets (IC-1 à IC-367)" />
               </h3>
               <p className="text-gray-600 mb-6 leading-relaxed">
-                <TranslatedText text="Items à Choix Multiples pour l'apprentissage médical structuré - 10 items complets" />
+                <TranslatedText text="Items de Connaissance complets pour l'apprentissage médical structuré - 367 items avec compétences OIC intégrées" />
               </p>
               <div className="space-y-3 text-sm text-gray-600 mb-8">
                 <div className="flex items-center gap-3">
                   <div className="w-3 h-3 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full"></div>
-                  <span>IC-1 à IC-10 disponibles</span>
+                  <span>367 items complets (IC-1 à IC-367)</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="w-3 h-3 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full"></div>
-                  <span>Rangs A et B</span>
+                  <span>4,872 compétences OIC intégrées</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="w-3 h-3 bg-gradient-to-r from-purple-500 to-violet-500 rounded-full"></div>
-                  <span>Contenu interactif</span>
+                  <span>Tableaux Rang A et B, 50 QCM par item</span>
                 </div>
               </div>
               <PremiumButton variant="primary" size="lg" className="w-full">
@@ -297,7 +297,7 @@ const Index = () => {
               <PremiumCard variant="elevated" className="p-8">
                 <Target className="h-16 w-16 mx-auto mb-6 p-4 bg-gradient-to-br from-green-400 to-emerald-500 text-white rounded-2xl shadow-lg shadow-green-500/25" />
                 <h3 className="text-2xl font-bold mb-4 text-gray-900">Ciblé EDN</h3>
-                <p className="text-gray-600">Contenu adapté aux référentiels médicaux officiels IC-1 à IC-10</p>
+                <p className="text-gray-600">Contenu adapté aux référentiels médicaux officiels IC-1 à IC-367</p>
               </PremiumCard>
               <PremiumCard variant="elevated" className="p-8">
                 <Award className="h-16 w-16 mx-auto mb-6 p-4 bg-gradient-to-br from-orange-400 to-red-500 text-white rounded-2xl shadow-lg shadow-orange-500/25" />
