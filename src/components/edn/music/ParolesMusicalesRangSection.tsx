@@ -15,6 +15,7 @@ interface ParolesMusicalesRangSectionProps {
   duration: number;
   volume: number;
   selectedStyle: string; // Add this prop
+  title?: string; // Titre personnalisé optionnel
   onGenerate: () => void;
   onPlayAudio: (audioUrl: string, title: string) => void;
   onSeek: (time: number) => void;
@@ -41,6 +42,7 @@ export const ParolesMusicalesRangSection: React.FC<ParolesMusicalesRangSectionPr
   duration,
   volume,
   selectedStyle,
+  title: customTitle,
   onGenerate,
   onPlayAudio,
   onSeek,
@@ -48,7 +50,7 @@ export const ParolesMusicalesRangSection: React.FC<ParolesMusicalesRangSectionPr
   onStop,
   generationProgress
 }) => {
-  const title = `Musique Rang ${rang}`;
+  const title = customTitle || `Musique Rang ${rang}`;
   const isCurrentTrack = currentTrack?.url === generatedAudio;
   const isMinimized = false;
 

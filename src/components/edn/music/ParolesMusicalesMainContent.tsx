@@ -71,7 +71,7 @@ export const ParolesMusicalesMainContent: React.FC<ParolesMusicalesMainContentPr
 
   return (
     <div className="space-y-4">
-      <h3 className="font-semibold">Paroles disponibles pour Suno :</h3>
+      <h3 className="font-semibold">Paroles disponibles pour génération musicale Suno :</h3>
       
       {paroles[0] && (
         <ParolesMusicalesRangSection
@@ -117,6 +117,42 @@ export const ParolesMusicalesMainContent: React.FC<ParolesMusicalesMainContentPr
           onStop={onStop}
           generationProgress={generationProgress?.rangB}
         />
+      )}
+
+      {paroles[0] && paroles[1] && (
+        <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg">
+          <h4 className="font-semibold text-blue-800 mb-3 flex items-center gap-2">
+            🎵 Section Combinée Rang A+B - Fusion des compétences
+          </h4>
+          <ParolesMusicalesRangSection
+            rang="A"
+            paroles={`${paroles[0]}\n\n--- TRANSITION RANG B ---\n\n${paroles[1]}`}
+            musicDuration={musicDuration * 1.5} // Durée augmentée pour la fusion
+            selectedStyle={selectedStyle}
+            isGenerating={isGenerating.rangA || isGenerating.rangB}
+            generatedAudio={undefined} // Pas encore d'audio combiné
+            itemCode={`${itemCode}-FUSION`}
+            currentTrack={currentTrack}
+            isPlaying={isPlaying}
+            currentTime={currentTime}
+            duration={duration}
+            volume={volume}
+            onGenerate={() => {
+              // Pour l'instant, générer le Rang A puis B
+              onGenerate('A');
+              setTimeout(() => onGenerate('B'), 1000);
+            }}
+            onPlayAudio={onPlayAudio}
+            onSeek={onSeek}
+            onVolumeChange={onVolumeChange}
+            onStop={onStop}
+            generationProgress={generationProgress?.rangA}
+            title="Musique Complète A+B"
+          />
+          <p className="text-blue-600 text-sm mt-2">
+            ✨ Cette section combine les compétences Rang A et Rang B pour une expérience musicale complète de {itemCode}
+          </p>
+        </div>
       )}
     </div>
   );

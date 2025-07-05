@@ -2867,6 +2867,14 @@ export type Database = {
           errors_count: number
         }[]
       }
+      fix_all_edn_items_with_real_oic_competences: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          fixed_count: number
+          errors_count: number
+          details: Json
+        }[]
+      }
       generate_audit_report: {
         Args: { report_type_param?: string }
         Returns: string

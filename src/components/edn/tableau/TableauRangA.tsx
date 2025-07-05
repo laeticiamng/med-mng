@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { TableauCompetencesOIC } from './TableauCompetencesOIC';
 import { TableauRangAHeader } from './TableauRangAHeader';
 import { TableauRangAGrid } from './TableauRangAGrid';
 import { TableauRangAFooter } from './TableauRangAFooter';
@@ -17,30 +18,37 @@ import { TableauRangAFooterOIC010 } from './TableauRangAFooterOIC010';
 
 interface TableauRangAProps {
   data: any;
-  itemCode: string;
-}
-
-interface Colonne {
-  nom: string;
-  description: string;
-}
-
-interface Ligne {
-  [key: string]: string;
+  itemCode?: string;
 }
 
 export const TableauRangA: React.FC<TableauRangAProps> = ({ data, itemCode }) => {
+  console.log('🔍 TableauRangA - données reçues:', { data, itemCode });
+
+  // Nouveau format avec compétences OIC
+  if (data && data.competences && Array.isArray(data.competences)) {
+    console.log('✅ Format OIC détecté, utilisation du nouveau composant');
+    return (
+      <TableauCompetencesOIC 
+        data={data} 
+        itemCode={itemCode || 'IC-X'} 
+        rang="A" 
+      />
+    );
+  }
+
+  // Ancien format avec colonnes/lignes (fallback)
+  console.log('⚠️ Format ancien détecté, utilisation de l\'ancien composant');
   const theme = data?.theme || "Thème non défini";
   const colonnesData = data?.colonnes || [];
   const lignesData = data?.lignes || [];
 
-  const colonnes: Colonne[] = colonnesData.map((col: any) => ({
+  const colonnes = colonnesData.map((col: any) => ({
     nom: col.nom || 'N/A',
     description: col.description || 'N/A',
   }));
 
-  const lignes: Ligne[] = lignesData.map((ligneData: any) => {
-    const ligne: Ligne = {};
+  const lignes = lignesData.map((ligneData: any) => {
+    const ligne: any = {};
     colonnesData.forEach((col: any, index: number) => {
       ligne[col.nom] = ligneData[index] || '';
     });
@@ -49,11 +57,13 @@ export const TableauRangA: React.FC<TableauRangAProps> = ({ data, itemCode }) =>
 
   // Transformation des données pour le nouveau format
   const colonnesUtiles = colonnes;
-  const lignesEnrichies = lignes.map(ligne => Object.values(ligne));
+  const lignesEnrichies = lignes.map((ligne: any) => Object.values(ligne));
 
   const renderSpecificFooter = () => {
     const colonnesCount = colonnes.length;
     const lignesCount = lignes.length;
+
+    if (!itemCode) return <TableauRangAFooter colonnesCount={colonnesCount} lignesCount={lignesCount} />;
 
     switch (itemCode) {
       case 'IC-1':
@@ -87,7 +97,7 @@ export const TableauRangA: React.FC<TableauRangAProps> = ({ data, itemCode }) =>
     <div className="w-full space-y-6">
       <TableauRangAHeader 
         theme={theme} 
-        itemCode={itemCode}
+        itemCode={itemCode || 'IC-X'}
         totalCompetences={lignes.length}
       />
       <TableauRangAGrid 

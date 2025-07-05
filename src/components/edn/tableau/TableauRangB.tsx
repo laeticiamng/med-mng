@@ -1,4 +1,5 @@
 import React from 'react';
+import { TableauCompetencesOIC } from './TableauCompetencesOIC';
 import { TableauRangAHeader } from './TableauRangAHeader';
 import { TableauRangAGrid } from './TableauRangAGrid';
 import { processTableauRangBIC4 } from './TableauRangBUtilsIC4Integration';
@@ -14,27 +15,30 @@ interface TableauRangBProps {
   itemCode: string;
 }
 
-interface Colonne {
-  nom: string;
-  description: string;
-}
-
-interface ProcessedData {
-  lignesEnrichies: string[][];
-  colonnesUtiles: Colonne[];
-  theme: string;
-  isRangB: boolean;
-  expertiseLevel: string;
-}
-
 export const TableauRangB: React.FC<TableauRangBProps> = ({ data, itemCode }) => {
-  console.log(`TableauRangB - itemCode: ${itemCode}`);
+  console.log('🔍 TableauRangB - données reçues:', { data, itemCode });
 
+  // Vérifier si on a des données
   if (!data) {
     console.warn('TableauRangB - Pas de données fournies.');
     return <p>Pas de données disponibles pour le Rang B.</p>;
   }
 
+  // Nouveau format avec compétences OIC
+  if (data.competences && Array.isArray(data.competences)) {
+    console.log('✅ Format OIC détecté pour Rang B, utilisation du nouveau composant');
+    return (
+      <TableauCompetencesOIC 
+        data={data} 
+        itemCode={itemCode} 
+        rang="B" 
+      />
+    );
+  }
+
+  // Ancien format avec processeurs spécialisés (fallback)
+  console.log('⚠️ Format ancien détecté pour Rang B, utilisation des processeurs spécialisés');
+  
   let processedData;
   
   try {
