@@ -9,7 +9,6 @@ interface PricingPlan {
   id: string;
   name: string;
   price: number;
-  credits: number;
   songs: string;
   badge?: string;
   features: string[];
@@ -22,11 +21,10 @@ const plans: PricingPlan[] = [
     id: 'standard',
     name: 'Standard',
     price: 19,
-    credits: 60,
-    songs: '≈15 chansons/mois',
+    songs: '30 chansons/mois',
     features: [
       'Audio standard (MNG 3.5)',
-      '60 crédits/mois',
+      '30 chansons/mois',
       'QCM illimités',
       'Tableau illimités',
       'Support email'
@@ -36,13 +34,12 @@ const plans: PricingPlan[] = [
     id: 'pro',
     name: 'Pro',
     price: 29,
-    credits: 2500,
-    songs: '≈500 chansons/mois',
+    songs: '300 chansons/mois',
     badge: 'Le plus populaire',
     popular: true,
     features: [
       'Audio premium (MNG 4)',
-      '2 500 crédits/mois',
+      '300 chansons/mois',
       'Reset mensuel',
       'QCM + tableau illimités',
       'QCM entraînement test',
@@ -53,13 +50,12 @@ const plans: PricingPlan[] = [
     id: 'premium',
     name: 'Premium',
     price: 39,
-    credits: 5000,
-    songs: '≈1 000 chansons/mois',
+    songs: '3 000 chansons/mois',
     badge: 'Meilleur rapport qualité-prix',
     bestValue: true,
     features: [
       'Audio high premium studio version (MNG 4.5)',
-      '5 000 crédits/mois',
+      '3 000 chansons/mois',
       'Reset mensuel',
       'QCM + tableau illimités',
       'QCM entraînement test',
@@ -100,7 +96,7 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, loadin
               <div className="text-sm text-muted-foreground">/mois</div>
               <div className="text-sm font-medium text-blue-600">{plan.songs}</div>
             </div>
-            <CardDescription>{plan.credits} crédits inclus</CardDescription>
+            <CardDescription>{plan.songs} inclus</CardDescription>
           </CardHeader>
           
           <CardContent className="space-y-4">

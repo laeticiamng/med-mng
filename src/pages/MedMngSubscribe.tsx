@@ -10,9 +10,9 @@ import { toast } from 'sonner';
 import { CheckCircle, CreditCard } from 'lucide-react';
 
 const plans = {
-  standard: { name: 'Standard', price: 9.99, credits: 60 },
-  pro: { name: 'Pro', price: 29.99, credits: 2500 },
-  premium: { name: 'Premium', price: 49.99, credits: 5000 },
+  standard: { name: 'Standard', price: 9.99, songs: 30 },
+  pro: { name: 'Pro', price: 29.99, songs: 300 },
+  premium: { name: 'Premium', price: 49.99, songs: 3000 },
 };
 
 export const MedMngSubscribe = () => {
@@ -54,7 +54,7 @@ export const MedMngSubscribe = () => {
           user.email!,
           userName,
           plan.name,
-          plan.credits,
+          plan.songs,
           plan.price
         );
 
@@ -95,7 +95,7 @@ export const MedMngSubscribe = () => {
               <ul className="space-y-2 text-blue-700">
                 <li className="flex items-center gap-2">
                   <CheckCircle className="h-4 w-4 text-green-500" />
-                  <span>{plan.credits} crédits/mois pour la génération musicale</span>
+                  <span>{plan.songs} chansons/mois pour la génération musicale</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <CheckCircle className="h-4 w-4 text-green-500" />
