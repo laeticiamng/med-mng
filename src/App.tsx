@@ -14,7 +14,7 @@ import EdnItemImmersive from "./pages/EdnItemImmersive";
 import EdnMusicLibrary from "./pages/EdnMusicLibrary";
 import EcosIndex from "./pages/EcosIndex";
 import EcosScenario from "./pages/EcosScenario";
-import AuditUnified from "./pages/AuditUnified";
+import AuditComplete from "./pages/AuditComplete";
 import MngMethod from "./pages/MngMethod";
 import NotFound from "./pages/NotFound";
 import MentionsLegales from "./pages/MentionsLegales";
@@ -57,15 +57,17 @@ const App = () => (
               <Route path="/ecos" element={<EcosIndex />} />
               <Route path="/ecos/:scenarioId" element={<EcosScenario />} />
               
-              {/* Unified audit page */}
-              <Route path="/audit" element={<AuditUnified />} />
-              
-              {/* Redirect old audit routes to unified page */}
-              <Route path="/audit-general" element={<Navigate to="/audit" replace />} />
-              <Route path="/audit-edn" element={<Navigate to="/audit" replace />} />
-              <Route path="/audit-ic1" element={<Navigate to="/audit" replace />} />
-              <Route path="/audit-ic2" element={<Navigate to="/audit" replace />} />
-              <Route path="/audit-ic4" element={<Navigate to="/audit" replace />} />
+               {/* Unified audit page */}
+               <Route path="/audit" element={<AuditComplete />} />
+               
+               {/* Redirect all old audit routes to new unified page */}
+               <Route path="/audit-general" element={<Navigate to="/audit" replace />} />
+               <Route path="/audit-edn" element={<Navigate to="/audit" replace />} />
+               <Route path="/audit-unified" element={<Navigate to="/audit" replace />} />
+               <Route path="/audit-ic1" element={<Navigate to="/audit" replace />} />
+               <Route path="/audit-ic2" element={<Navigate to="/audit" replace />} />
+               <Route path="/audit-ic4" element={<Navigate to="/audit" replace />} />
+               <Route path="/audit-complete" element={<Navigate to="/audit" replace />} />
               
               <Route path="/mng-method" element={<MngMethod />} />
               <Route path="/mentions-legales" element={<MentionsLegales />} />
