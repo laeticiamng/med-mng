@@ -441,10 +441,10 @@ async function extractViaMediaWikiAPI(page, stats, cookieString) {
       });
     }
     
-    // Tester différents patterns de filtrage
-    const oicPattern1 = /OIC-\d{3}-\d{2}-[AB]-\d{2}/;
-    const oicPattern2 = /OIC[\s_-]\d{3}[\s_-]\d{2}[\s_-][AB][\s_-]\d{2}/;
-    const oicPattern3 = /OIC.*\d{3}.*\d{2}.*[AB].*\d{2}/;
+    // Tester différents patterns de filtrage - format réel OIC-XXX-XX-A
+    const oicPattern1 = /OIC-\d{3}-\d{2}-[AB]/;
+    const oicPattern2 = /OIC[\s_-]\d{3}[\s_-]\d{2}[\s_-][AB]/;
+    const oicPattern3 = /OIC.*\d{3}.*\d{2}.*[AB]/;
     
     let pageIds = allMembers
       .filter(p => p.title?.match(oicPattern1))
@@ -536,7 +536,7 @@ async function extractViaCategoryScraping(page, stats) {
           const href = link.getAttribute('href');
           const title = link.textContent || link.getAttribute('title') || '';
           
-          if (title.match(/OIC-\d{3}-\d{2}-[AB]-\d{2}/)) {
+          if (title.match(/OIC-\d{3}-\d{2}-[AB]/)) {
             // Extraire l'ID de page depuis l'URL si possible
             const pageIdMatch = href.match(/[?&]curid=(\d+)/);
             const pageId = pageIdMatch ? parseInt(pageIdMatch[1]) : Math.random() * 1000000; // Fallback
@@ -741,15 +741,16 @@ async function getPageContents(page, pageIds) {
 function parseCompetence(pageData) {
   try {
     const title = pageData.title || '';
-    // Chercher le pattern OIC n'importe où dans le titre (pas seulement au début)
-    const match = title.match(/OIC-(\d{3})-(\d{2})-([AB])-(\d{2})/);
+    // Chercher le pattern OIC réel: OIC-XXX-XX-A (sans partie finale)
+    const match = title.match(/OIC-(\d{3})-(\d{2})-([AB])/);
     
     if (!match) {
       log(`❌ Pattern OIC non trouvé dans: "${title}"`);
       return null;
     }
     
-    const [fullId, item, rubriqueCode, rang, ordre] = match;
+    const [fullId, item, rubriqueCode, rang] = match;
+    const ordre = 1; // Valeur par défaut
     
     let content = '';
     if (pageData.revisions?.[0]?.slots?.main?.content) {
