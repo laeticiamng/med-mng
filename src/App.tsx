@@ -28,6 +28,7 @@ import { MedMngLibrary } from "./pages/MedMngLibrary";
 import { MedMngPlayer } from "./pages/MedMngPlayer";
 import { AuthProvider } from "./components/med-mng/AuthProvider";
 import { ProtectedRoute } from "./components/med-mng/withAuth";
+import { MedMngSuccess } from "./pages/MedMngSuccess";
 import { MedChat } from "./pages/MedChat";
 import AdminImport from "./pages/AdminImport";
 import AdminAudit from "./pages/AdminAudit";
@@ -75,8 +76,9 @@ const App = () => (
               <Route path="/med-mng/login" element={<MedMngLogin />} />
               <Route path="/med-mng/signup" element={<MedMngSignup />} />
               <Route path="/med-mng/pricing" element={<MedMngPricing />} />
-              <Route path="/med-mng/subscribe/:planId" element={<ProtectedRoute><MedMngSubscribe /></ProtectedRoute>} />
-              <Route path="/med-mng/create" element={<ProtectedRoute><MedMngCreate /></ProtectedRoute>} />
+                <Route path="/med-mng/subscribe/:planId" element={<ProtectedRoute><MedMngSubscribe /></ProtectedRoute>} />
+                <Route path="/med-mng/success" element={<ProtectedRoute><MedMngSuccess /></ProtectedRoute>} />
+                <Route path="/med-mng/create" element={<ProtectedRoute><MedMngCreate /></ProtectedRoute>} />
               <Route path="/med-mng/library" element={<ProtectedRoute><MedMngLibrary /></ProtectedRoute>} />
               <Route path="/med-mng/player/:songId" element={<ProtectedRoute><MedMngPlayer /></ProtectedRoute>} />
               <Route path="/chat" element={<MedChat />} />

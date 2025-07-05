@@ -6,12 +6,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { TranslatedText } from '@/components/TranslatedText';
 import { GeneratorMusicPlayer } from '@/components/GeneratorMusicPlayer';
-import { Music, Wand2, BookOpen, Users, ArrowLeft, Sparkles, AlertTriangle } from 'lucide-react';
+import { Music, Wand2, BookOpen, Users, ArrowLeft, Sparkles, AlertTriangle, Lock } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useFreeTrialLimit } from '@/hooks/useFreeTrialLimit';
+import { useSubscription } from '@/hooks/useSubscription';
 import { useMusicGenerationWithTranslation } from '@/hooks/useMusicGenerationWithTranslation';
 import { useEdnItemLyrics } from '@/hooks/useEdnItemLyrics';
 import { useAllEdnItems } from '@/hooks/useAllEdnItems';
+import { useAuth } from '@/components/med-mng/AuthProvider';
 import { toast } from 'sonner';
 import { PremiumBackground } from '@/components/ui/premium-background';
 import { PremiumCard } from '@/components/ui/premium-card';
@@ -21,7 +23,9 @@ import { musicStyles, getStylesByGenre } from '@/components/edn/music/MusicStyle
 
 const Generator = () => {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const { getRemainingGenerations, maxFreeGenerations } = useFreeTrialLimit();
+  const { subscription, musicQuota, incrementMusicUsage, canGenerateMusic, canSaveMusic, getUsageDisplay } = useSubscription();
   const musicGeneration = useMusicGenerationWithTranslation();
   
   const [contentType, setContentType] = useState('');
@@ -70,10 +74,21 @@ const Generator = () => {
       return;
     }
 
-    if (remainingFree <= 0) {
-      toast.error('Plus de générations gratuites disponibles');
-      navigate('/med-mng/pricing');
-      return;
+    // Vérification des quotas selon le type d'utilisateur
+    if (!user) {
+      // Utilisateur non connecté - utilise le système gratuit limité
+      if (remainingFree <= 0) {
+        toast.error('Plus de générations gratuites disponibles. Connectez-vous pour continuer.');
+        navigate('/med-mng/login');
+        return;
+      }
+    } else {
+      // Utilisateur connecté - vérifie les quotas d'abonnement
+      if (!canGenerateMusic()) {
+        toast.error('Quota de génération atteint pour ce mois. Améliorez votre abonnement.');
+        navigate('/med-mng/pricing');
+        return;
+      }
     }
 
     try {
@@ -132,6 +147,14 @@ const Generator = () => {
       
       const audioUrl = await musicGeneration.generateMusicInLanguage(actualRang, lyricsToUse, selectedStyle, 240);
       
+      // Incrémenter l'usage après génération réussie
+      if (user) {
+        const success = await incrementMusicUsage();
+        if (!success) {
+          toast.error('Erreur lors de la mise à jour du quota');
+        }
+      }
+      
       // Créer un objet chanson avec les vraies données
       const song = {
         id: Date.now(),
@@ -154,10 +177,22 @@ const Generator = () => {
   };
 
   const handleAddToLibrary = () => {
-    if (generatedSong) {
-      toast.success('Chanson ajoutée à votre bibliothèque !');
-      // Ici on pourrait ajouter la logique pour sauvegarder en base
+    if (!generatedSong) return;
+    
+    if (!user) {
+      toast.error('Connectez-vous pour sauvegarder vos musiques');
+      navigate('/med-mng/login');
+      return;
     }
+    
+    if (!canSaveMusic()) {
+      toast.error('Votre abonnement ne permet pas de sauvegarder. Améliorez votre plan.');
+      navigate('/med-mng/pricing');
+      return;
+    }
+    
+    toast.success('Chanson ajoutée à votre bibliothèque !');
+    // Ici on pourrait ajouter la logique pour sauvegarder en base
   };
 
   const resetForm = () => {
@@ -204,13 +239,30 @@ const Generator = () => {
         <div className="max-w-6xl mx-auto">
           
           {/* Badge générations restantes premium */}
-          {remainingFree > 0 && (
+          {!user && remainingFree > 0 && (
             <div className="text-center mb-12">
               <div className="inline-flex items-center gap-3 bg-gradient-to-r from-green-100 to-emerald-100 px-8 py-4 rounded-2xl border border-green-200/50 shadow-lg shadow-green-500/10">
                 <Music className="h-6 w-6 text-green-700" />
                 <span className="text-green-800 font-bold text-lg">
                   <TranslatedText text={`${remainingFree}/${maxFreeGenerations} générations gratuites restantes`} />
                 </span>
+              </div>
+            </div>
+          )}
+          
+          {/* Badge quota abonnement */}
+          {user && musicQuota && (
+            <div className="text-center mb-12">
+              <div className="inline-flex items-center gap-3 bg-gradient-to-r from-blue-100 to-indigo-100 px-8 py-4 rounded-2xl border border-blue-200/50 shadow-lg shadow-blue-500/10">
+                <Music className="h-6 w-6 text-blue-700" />
+                <span className="text-blue-800 font-bold text-lg">
+                  {getUsageDisplay()}
+                </span>
+                {!musicQuota.can_generate && (
+                  <Badge variant="secondary" className="bg-red-100 text-red-800">
+                    Quota atteint
+                  </Badge>
+                )}
               </div>
             </div>
           )}
@@ -427,7 +479,7 @@ const Generator = () => {
                   variant="primary"
                   size="xl"
                   onClick={handleGenerate}
-                  disabled={!canGenerate() || isGenerating || remainingFree <= 0 || lyricsLoading}
+                  disabled={!canGenerate() || isGenerating || (!user && remainingFree <= 0) || (user && !canGenerateMusic()) || lyricsLoading}
                   className="flex-1"
                 >
                   {isGenerating ? (

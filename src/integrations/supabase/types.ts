@@ -1916,6 +1916,47 @@ export type Database = {
         }
         Relationships: []
       }
+      music_generation_usage: {
+        Row: {
+          created_at: string
+          generated_count: number
+          id: string
+          month_year: string
+          quota_limit: number
+          subscription_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          generated_count?: number
+          id?: string
+          month_year: string
+          quota_limit: number
+          subscription_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          generated_count?: number
+          id?: string
+          month_year?: string
+          quota_limit?: number
+          subscription_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "music_generation_usage_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "user_subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notification_preferences: {
         Row: {
           category: string
@@ -2483,6 +2524,36 @@ export type Database = {
         }
         Relationships: []
       }
+      subscription_plans: {
+        Row: {
+          created_at: string
+          features: Json
+          id: string
+          monthly_music_quota: number
+          name: string
+          price: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          features?: Json
+          id: string
+          monthly_music_quota: number
+          name: string
+          price: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          features?: Json
+          id?: string
+          monthly_music_quota?: number
+          name?: string
+          price?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       therapeutic_classes: {
         Row: {
           created_at: string | null
@@ -2656,6 +2727,50 @@ export type Database = {
         }
         Relationships: []
       }
+      user_subscriptions: {
+        Row: {
+          created_at: string
+          current_period_end: string | null
+          current_period_start: string | null
+          id: string
+          plan_id: string
+          status: string
+          stripe_subscription_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          plan_id: string
+          status?: string
+          stripe_subscription_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          plan_id?: string
+          status?: string
+          stripe_subscription_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       med_mng_view_library: {
@@ -2688,6 +2803,15 @@ export type Database = {
         Returns: {
           updated_count: number
           audit_report: Json
+        }[]
+      }
+      check_music_generation_quota: {
+        Args: { user_uuid: string }
+        Returns: {
+          can_generate: boolean
+          current_usage: number
+          quota_limit: number
+          plan_name: string
         }[]
       }
       cleanup_duplicates: {
@@ -2806,6 +2930,20 @@ export type Database = {
           competences_rang_b_integrated: number
           completion_percentage: number
         }[]
+      }
+      get_user_subscription: {
+        Args: { user_uuid: string }
+        Returns: {
+          plan_id: string
+          plan_name: string
+          monthly_quota: number
+          features: Json
+          status: string
+        }[]
+      }
+      increment_music_usage: {
+        Args: { user_uuid: string }
+        Returns: boolean
       }
       integrate_oic_into_edn_items: {
         Args: Record<PropertyKey, never>
