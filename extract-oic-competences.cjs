@@ -741,9 +741,13 @@ async function getPageContents(page, pageIds) {
 function parseCompetence(pageData) {
   try {
     const title = pageData.title || '';
+    // Chercher le pattern OIC n'importe où dans le titre (pas seulement au début)
     const match = title.match(/OIC-(\d{3})-(\d{2})-([AB])-(\d{2})/);
     
-    if (!match) return null;
+    if (!match) {
+      log(`❌ Pattern OIC non trouvé dans: "${title}"`);
+      return null;
+    }
     
     const [fullId, item, rubriqueCode, rang, ordre] = match;
     
