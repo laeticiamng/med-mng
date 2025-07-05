@@ -1,165 +1,125 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 
-export type SupportedLanguage = 
-  | 'fr' | 'en' | 'es' | 'de' | 'pt' | 'ar' | 'zh' | 'ja' | 'ru' | 'hi' 
-  | 'it' | 'ko' | 'tr' | 'nl' | 'pl';
+export type Language = 'fr' | 'en' | 'es' | 'it' | 'zh' | 'ja';
 
-export const SUPPORTED_LANGUAGES = {
-  fr: { name: 'Français', flag: '🇫🇷' },
-  en: { name: 'English', flag: '🇺🇸' },
-  es: { name: 'Español', flag: '🇪🇸' },
-  de: { name: 'Deutsch', flag: '🇩🇪' },
-  pt: { name: 'Português', flag: '🇧🇷' },
-  ar: { name: 'العربية', flag: '🇸🇦' },
-  zh: { name: '中文', flag: '🇨🇳' },
-  ja: { name: '日本語', flag: '🇯🇵' },
-  ru: { name: 'Русский', flag: '🇷🇺' },
-  hi: { name: 'हिन्दी', flag: '🇮🇳' },
-  it: { name: 'Italiano', flag: '🇮🇹' },
-  ko: { name: '한국어', flag: '🇰🇷' },
-  tr: { name: 'Türkçe', flag: '🇹🇷' },
-  nl: { name: 'Nederlands', flag: '🇳🇱' },
-  pl: { name: 'Polski', flag: '🇵🇱' }
-};
+export interface LanguageInfo {
+  code: Language;
+  name: string;
+  nativeName: string;
+  flag: string;
+}
+
+export const LANGUAGES: LanguageInfo[] = [
+  { code: 'fr', name: 'Français', nativeName: 'Français', flag: '🇫🇷' },
+  { code: 'en', name: 'English', nativeName: 'English', flag: '🇺🇸' },
+  { code: 'es', name: 'Español', nativeName: 'Español', flag: '🇪🇸' },
+  { code: 'it', name: 'Italiano', nativeName: 'Italiano', flag: '🇮🇹' },
+  { code: 'zh', name: '中文', nativeName: '中文', flag: '🇨🇳' },
+  { code: 'ja', name: '日本語', nativeName: '日本語', flag: '🇯🇵' },
+];
 
 interface LanguageContextType {
-  currentLanguage: SupportedLanguage;
-  setLanguage: (lang: SupportedLanguage) => void;
-  translate: (text: string, targetLanguage?: SupportedLanguage) => Promise<string>;
-  isTranslating: boolean;
+  currentLanguage: Language;
+  setCurrentLanguage: (language: Language) => void;
+  t: (key: string, params?: Record<string, string | number>) => string;
+  languages: LanguageInfo[];
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
-export const useLanguage = () => {
-  const context = useContext(LanguageContext);
-  if (!context) {
-    throw new Error('useLanguage must be used within a LanguageProvider');
-  }
-  return context;
-};
+interface LanguageProviderProps {
+  children: React.ReactNode;
+}
 
-// Rate limiting pour éviter de surcharger l'API
-let requestCount = 0;
-let resetTime = Date.now();
-const MAX_REQUESTS_PER_MINUTE = 30;
-
-export const LanguageProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [currentLanguage, setCurrentLanguage] = useState<SupportedLanguage>(() => {
-    try {
-      const saved = localStorage.getItem('selectedLanguage');
-      return (saved as SupportedLanguage) || 'fr';
-    } catch (error) {
-      console.warn('Erreur lecture localStorage pour la langue:', error);
-      return 'fr';
-    }
+export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) => {
+  const [currentLanguage, setCurrentLanguageState] = useState<Language>(() => {
+    // Récupérer la langue depuis localStorage ou utiliser français par défaut
+    const savedLanguage = localStorage.getItem('medmng-language');
+    return (savedLanguage as Language) || 'fr';
   });
-  const [isTranslating, setIsTranslating] = useState(false);
 
+  const [translations, setTranslations] = useState<Record<string, any>>({});
+
+  // Charger les traductions pour la langue courante
   useEffect(() => {
-    try {
-      localStorage.setItem('selectedLanguage', currentLanguage);
-    } catch (error) {
-      console.warn('Erreur sauvegarde localStorage pour la langue:', error);
-    }
+    const loadTranslations = async () => {
+      try {
+        const translationModule = await import(`../locales/${currentLanguage}/common.json`);
+        setTranslations(translationModule.default || translationModule);
+      } catch (error) {
+        console.warn(`Erreur lors du chargement des traductions pour ${currentLanguage}:`, error);
+        // Fallback vers le français
+        if (currentLanguage !== 'fr') {
+          try {
+            const fallbackModule = await import('../locales/fr/common.json');
+            setTranslations(fallbackModule.default || fallbackModule);
+          } catch (fallbackError) {
+            console.error('Erreur lors du chargement des traductions de fallback:', fallbackError);
+          }
+        }
+      }
+    };
+
+    loadTranslations();
   }, [currentLanguage]);
 
-  const setLanguage = (lang: SupportedLanguage) => {
-    setCurrentLanguage(lang);
+  const setCurrentLanguage = (language: Language) => {
+    setCurrentLanguageState(language);
+    localStorage.setItem('medmng-language', language);
+    
+    // Émettre un événement pour notifier les autres composants
+    window.dispatchEvent(new CustomEvent('languageChanged', { detail: language }));
   };
 
-  const checkRateLimit = (): boolean => {
-    const now = Date.now();
+  // Fonction de traduction avec support des paramètres
+  const t = (key: string, params?: Record<string, string | number>): string => {
+    const keys = key.split('.');
+    let value: any = translations;
     
-    // Reset le compteur chaque minute
-    if (now - resetTime > 60000) {
-      requestCount = 0;
-      resetTime = now;
-    }
-    
-    if (requestCount >= MAX_REQUESTS_PER_MINUTE) {
-      console.warn('Rate limit atteint, requête ignorée');
-      return false;
-    }
-    
-    requestCount++;
-    return true;
-  };
-
-  const translate = async (text: string, targetLanguage?: SupportedLanguage): Promise<string> => {
-    const target = targetLanguage || currentLanguage;
-    
-    // Si c'est déjà en français, pas de traduction nécessaire
-    if (target === 'fr' || !text.trim()) {
-      return text;
-    }
-
-    // Vérifier le rate limiting local
-    if (!checkRateLimit()) {
-      console.warn('Rate limit local atteint, retour du texte original');
-      return text;
-    }
-
-    setIsTranslating(true);
-    try {
-      console.log('🔄 Traduction en cours:', { text: text.substring(0, 50) + '...', target });
-
-      const { data, error } = await supabase.functions.invoke('translate', {
-        body: {
-          text,
-          targetLanguage: target,
-          sourceLanguage: 'fr'
-        }
-      });
-
-      if (error) {
-        console.error('❌ Erreur traduction:', error);
-        
-        // Si c'est une erreur 429, on retourne le texte original sans lever d'erreur
-        if (error.message?.includes('429')) {
-          console.warn('Rate limit API atteint, utilisation du texte original');
-          return text;
-        }
-        
-        throw new Error(`Erreur de traduction: ${error.message}`);
+    for (const k of keys) {
+      if (value && typeof value === 'object' && k in value) {
+        value = value[k];
+      } else {
+        // Fallback : retourner la clé si pas de traduction
+        console.warn(`Traduction manquante pour la clé: ${key} (langue: ${currentLanguage})`);
+        return key;
       }
-      
-      if (data?.error) {
-        console.error('❌ Erreur dans la réponse:', data.error);
-        
-        // Si c'est une erreur 429, on retourne le texte original sans lever d'erreur
-        if (data.error.includes('429')) {
-          console.warn('Rate limit API atteint, utilisation du texte original');
-          return text;
-        }
-        
-        throw new Error(data.error);
-      }
-
-      const translatedText = data?.translatedText || text;
-      console.log('✅ Traduction réussie');
-      
-      return translatedText;
-    } catch (error) {
-      console.error('❌ Erreur traduction:', error);
-      
-      // En cas d'erreur, retourner le texte original plutôt que de lever une erreur
-      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
-      if (errorMessage.includes('429')) {
-        console.warn('Rate limit détecté, utilisation du texte original');
-      }
-      
-      return text;
-    } finally {
-      setIsTranslating(false);
     }
+    
+    if (typeof value !== 'string') {
+      console.warn(`Valeur de traduction invalide pour: ${key}`);
+      return key;
+    }
+    
+    // Remplacer les paramètres dans la traduction
+    if (params) {
+      return Object.entries(params).reduce((text, [param, val]) => {
+        return text.replace(new RegExp(`{{${param}}}`, 'g'), String(val));
+      }, value);
+    }
+    
+    return value;
   };
 
   return (
-    <LanguageContext.Provider value={{ currentLanguage, setLanguage, translate, isTranslating }}>
+    <LanguageContext.Provider
+      value={{
+        currentLanguage,
+        setCurrentLanguage,
+        t,
+        languages: LANGUAGES,
+      }}
+    >
       {children}
     </LanguageContext.Provider>
   );
+};
+
+export const useLanguage = () => {
+  const context = useContext(LanguageContext);
+  if (context === undefined) {
+    throw new Error('useLanguage must be used within a LanguageProvider');
+  }
+  return context;
 };
