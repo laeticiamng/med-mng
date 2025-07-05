@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { AuditDashboard } from '@/components/audit/AuditDashboard';
 import { AuditGeneral } from '@/components/edn/audit/AuditGeneral';
-import { AuditComprehensif } from '@/components/edn/audit/AuditComprehensif';
+import { ComprehensiveAuditDashboard } from '@/components/audit/ComprehensiveAuditDashboard';
 import { AuditIC1 } from '@/components/edn/audit/AuditIC1';
 import { AuditIC1Completeness } from '@/components/audit/AuditIC1Completeness';
 import { AuditIC2Completeness } from '@/components/edn/audit/AuditIC2Completeness';
@@ -231,9 +231,9 @@ const AuditComplete = () => {
             <TabsContent value="comprehensif" className="mt-6">
               <div className="bg-gray-50 rounded-lg p-4 mb-4">
                 <h3 className="text-lg font-semibold text-gray-700 mb-2">Audit Compréhensif</h3>
-                <p className="text-gray-600">Analyse détaillée et exhaustive de tous les composants</p>
+                <p className="text-gray-600">Analyse détaillée et exhaustive avec corrections automatiques</p>
               </div>
-              <AuditComprehensif />
+              <ComprehensiveAuditDashboard />
             </TabsContent>
             
             <TabsContent value="general" className="mt-6">

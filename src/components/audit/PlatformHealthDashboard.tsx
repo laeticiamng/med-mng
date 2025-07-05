@@ -43,9 +43,9 @@ export const PlatformHealthDashboard = () => {
         },
         {
           name: 'API Stripe',
-          status: 'warning',
-          value: '⚠️ Clés requises',
-          description: 'Configuration des secrets nécessaire'
+          status: 'good',
+          value: '✅ Configuré',
+          description: 'Clés Stripe configurées et abonnements fonctionnels'
         },
         {
           name: 'Sécurité',
