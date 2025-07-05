@@ -11,10 +11,13 @@ import { useNavigate } from 'react-router-dom';
 import { useFreeTrialLimit } from '@/hooks/useFreeTrialLimit';
 import { useMusicGenerationWithTranslation } from '@/hooks/useMusicGenerationWithTranslation';
 import { useEdnItemLyrics } from '@/hooks/useEdnItemLyrics';
+import { useAllEdnItems } from '@/hooks/useAllEdnItems';
 import { toast } from 'sonner';
 import { PremiumBackground } from '@/components/ui/premium-background';
 import { PremiumCard } from '@/components/ui/premium-card';
 import { PremiumButton } from '@/components/ui/premium-button';
+
+import { musicStyles, getStylesByGenre } from '@/components/edn/music/MusicStylesData';
 
 const Generator = () => {
   const navigate = useNavigate();
@@ -30,7 +33,7 @@ const Generator = () => {
   
   // Récupération des paroles de l'item EDN sélectionné
   const { lyrics: ednLyrics, loading: lyricsLoading, error: lyricsError } = useEdnItemLyrics(
-    contentType === 'item' ? selectedItem : null
+    contentType === 'edn' ? selectedItem : null
   );
   
   const remainingFree = getRemainingGenerations();
@@ -38,19 +41,8 @@ const Generator = () => {
   // Check if any generation is in progress
   const isGenerating = musicGeneration.isGenerating?.rangA || musicGeneration.isGenerating?.rangB;
 
-  // Items EDN complets avec tous les 10 items
-  const ednItems = [
-    { code: 'IC1', title: 'La relation médecin-malade' },
-    { code: 'IC2', title: 'Les valeurs professionnelles du médecin' },
-    { code: 'IC3', title: 'Raisonnement et décision en médecine' },
-    { code: 'IC4', title: 'Qualité et sécurité des soins' },
-    { code: 'IC5', title: 'Organisation du système de santé' },
-    { code: 'IC6', title: 'Organisation de l\'exercice clinique et sécurisation du parcours patient' },
-    { code: 'IC7', title: 'Les discriminations' },
-    { code: 'IC8', title: 'Certificats médicaux dans le cadre des violences' },
-    { code: 'IC9', title: 'Médecine légale et expertises judiciaires' },
-    { code: 'IC10', title: 'Approches transversales : corporéité, spiritualité, sexualité' }
-  ];
+  // Hook pour charger tous les 367 items EDN depuis la base de données
+  const { items: allEdnItems, loading: itemsLoading, error: itemsError } = useAllEdnItems();
 
   // Situations ECOS disponibles
   const ecosSituations = [
@@ -59,17 +51,8 @@ const Generator = () => {
     { code: 'S3', title: 'Situation de départ 3 - Prévention' },
   ];
 
-  // Styles musicaux disponibles
-  const musicStyles = [
-    { value: 'pop', label: 'Pop' },
-    { value: 'rock', label: 'Rock' },
-    { value: 'jazz', label: 'Jazz' },
-    { value: 'classical', label: 'Classique' },
-    { value: 'reggae', label: 'Reggae' },
-    { value: 'hip-hop', label: 'Hip-Hop' },
-    { value: 'folk', label: 'Folk' },
-    { value: 'electronic', label: 'Électronique' },
-  ];
+  // Grouper les styles par genre pour un affichage organisé
+  const stylesByGenre = getStylesByGenre();
 
   const canGenerate = () => {
     if (contentType === 'edn') {
@@ -122,17 +105,32 @@ const Generator = () => {
         return;
       }
 
-      const rang = contentType === 'edn' ? selectedRang as 'A' | 'B' : 'A';
+      const rang = contentType === 'edn' ? selectedRang as ('A' | 'B' | 'AB') : 'A';
       
       console.log('🚀 Génération avec paroles réelles:', {
         contentType,
         selectedItem,
         rang,
         style: selectedStyle,
-        lyricsPreview: lyricsToUse[rang === 'A' ? 0 : 1]?.substring(0, 100) + '...'
+        lyricsPreview: lyricsToUse[rang === 'A' ? 0 : rang === 'B' ? 1 : 2]?.substring(0, 100) + '...'
       });
       
-      const audioUrl = await musicGeneration.generateMusicInLanguage(rang, lyricsToUse, selectedStyle, 240);
+      // Gérer le cas du rang AB (mixte)
+      let actualRang: 'A' | 'B' = 'A';
+      let lyricsIndex = 0;
+      
+      if (rang === 'A') {
+        actualRang = 'A';
+        lyricsIndex = 0;
+      } else if (rang === 'B') {
+        actualRang = 'B'; 
+        lyricsIndex = 1;
+      } else if (rang === 'AB') {
+        actualRang = 'A'; // On utilise le rang A pour l'API mais les paroles mixtes
+        lyricsIndex = 2; // Index 2 = paroles mixtes (A+B)
+      }
+      
+      const audioUrl = await musicGeneration.generateMusicInLanguage(actualRang, lyricsToUse, selectedStyle, 240);
       
       // Créer un objet chanson avec les vraies données
       const song = {
@@ -143,7 +141,7 @@ const Generator = () => {
         rang: rang,
         duration: 240,
         itemCode: contentType === 'edn' ? selectedItem : selectedSituation,
-        lyrics: lyricsToUse[rang === 'A' ? 0 : 1]
+        lyrics: lyricsToUse[lyricsIndex]
       };
 
       setGeneratedSong(song);
@@ -250,7 +248,9 @@ const Generator = () => {
                     <BookOpen className="h-12 w-12 mx-auto mb-4 text-blue-600" />
                     <h3 className="text-xl font-bold text-gray-900 mb-2">EDN</h3>
                     <p className="text-gray-700 mb-3">Items à Choix Multiples</p>
-                    <p className="text-sm text-green-600 font-semibold">10 items disponibles</p>
+                    <p className="text-sm text-green-600 font-semibold">
+                      {itemsLoading ? 'Chargement...' : `${allEdnItems.length} items disponibles`}
+                    </p>
                   </PremiumCard>
                     <PremiumCard 
                     variant={contentType === 'ecos' ? 'elevated' : 'default'}
@@ -280,12 +280,18 @@ const Generator = () => {
                       <SelectTrigger className="h-14 text-base bg-white/50 backdrop-blur-sm border-white/30 shadow-lg">
                         <SelectValue placeholder="Sélectionnez un item EDN" />
                       </SelectTrigger>
-                      <SelectContent className="bg-white/95 backdrop-blur-xl border-white/30 shadow-2xl">
-                        {ednItems.map((item) => (
-                          <SelectItem key={item.code} value={item.code} className="text-base py-3">
-                            {item.code} - {item.title}
-                          </SelectItem>
-                        ))}
+                      <SelectContent className="bg-white/95 backdrop-blur-xl border-white/30 shadow-2xl max-h-80 overflow-y-auto">
+                        {itemsLoading ? (
+                          <SelectItem value="" disabled>Chargement des items...</SelectItem>
+                        ) : itemsError ? (
+                          <SelectItem value="" disabled>Erreur: {itemsError}</SelectItem>
+                        ) : (
+                          allEdnItems.map((item) => (
+                            <SelectItem key={item.item_code} value={item.item_code} className="text-base py-3">
+                              {item.item_code} - {item.title.length > 50 ? item.title.substring(0, 50) + '...' : item.title}
+                            </SelectItem>
+                          ))
+                        )}
                       </SelectContent>
                     </Select>
                   </div>
@@ -336,22 +342,30 @@ const Generator = () => {
                     <label className="text-lg font-semibold text-gray-900">
                       <TranslatedText text="Rang" />
                     </label>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
                       <PremiumCard 
                         variant={selectedRang === 'A' ? 'elevated' : 'default'}
-                        className={`cursor-pointer transition-all p-4 md:p-6 text-center hover-scale ${selectedRang === 'A' ? 'ring-2 ring-blue-500 shadow-blue-500/20' : 'hover:shadow-lg'}`}
+                        className={`cursor-pointer transition-all p-4 text-center hover-scale ${selectedRang === 'A' ? 'ring-2 ring-blue-500 shadow-blue-500/20' : 'hover:shadow-lg'}`}
                         onClick={() => setSelectedRang('A')}
                       >
-                        <h3 className="text-2xl font-bold text-gray-900 mb-2">Rang A</h3>
-                        <p className="text-gray-700">Niveau débutant</p>
+                        <h3 className="text-xl font-bold text-gray-900 mb-2">Rang A</h3>
+                        <p className="text-gray-600 text-sm">Compétences fondamentales</p>
                       </PremiumCard>
                       <PremiumCard 
                         variant={selectedRang === 'B' ? 'elevated' : 'default'}
-                        className={`cursor-pointer transition-all p-4 md:p-6 text-center hover-scale ${selectedRang === 'B' ? 'ring-2 ring-purple-500 shadow-purple-500/20' : 'hover:shadow-lg'}`}
+                        className={`cursor-pointer transition-all p-4 text-center hover-scale ${selectedRang === 'B' ? 'ring-2 ring-purple-500 shadow-purple-500/20' : 'hover:shadow-lg'}`}
                         onClick={() => setSelectedRang('B')}
                       >
-                        <h3 className="text-2xl font-bold text-gray-900 mb-2">Rang B</h3>
-                        <p className="text-gray-700">Niveau avancé</p>
+                        <h3 className="text-xl font-bold text-gray-900 mb-2">Rang B</h3>
+                        <p className="text-gray-600 text-sm">Compétences approfondies</p>
+                      </PremiumCard>
+                      <PremiumCard 
+                        variant={selectedRang === 'AB' ? 'elevated' : 'default'}
+                        className={`cursor-pointer transition-all p-4 text-center hover-scale ${selectedRang === 'AB' ? 'ring-2 ring-amber-500 shadow-amber-500/20' : 'hover:shadow-lg'}`}
+                        onClick={() => setSelectedRang('AB')}
+                      >
+                        <h3 className="text-xl font-bold text-gray-900 mb-2">Rang A+B</h3>
+                        <p className="text-gray-600 text-sm">Compétences complètes</p>
                       </PremiumCard>
                     </div>
                   </div>
@@ -389,11 +403,18 @@ const Generator = () => {
                     <SelectTrigger className="h-14 text-base bg-white/50 backdrop-blur-sm border-white/30 shadow-lg">
                       <SelectValue placeholder="Choisissez un style musical" />
                     </SelectTrigger>
-                    <SelectContent className="bg-white/95 backdrop-blur-xl border-white/30 shadow-2xl">
-                      {musicStyles.map((style) => (
-                        <SelectItem key={style.value} value={style.value} className="text-base py-3">
-                          {style.label}
-                        </SelectItem>
+                    <SelectContent className="bg-white/95 backdrop-blur-xl border-white/30 shadow-2xl max-h-80 overflow-y-auto">
+                      {Object.entries(stylesByGenre).map(([genre, styles]: [string, any[]]) => (
+                        <div key={genre}>
+                          <div className="px-2 py-1 text-xs font-semibold text-gray-500 bg-gray-100">
+                            {genre}
+                          </div>
+                          {styles.map((style) => (
+                            <SelectItem key={style.value} value={style.value} className="text-base py-3 pl-4">
+                              {style.label} - {style.description}
+                            </SelectItem>
+                          ))}
+                        </div>
                       ))}
                     </SelectContent>
                   </Select>
@@ -454,7 +475,7 @@ const Generator = () => {
                 </p>
                 <p className="flex items-start gap-3">
                   <span className="w-6 h-6 bg-gradient-to-r from-green-500 to-emerald-500 text-white rounded-full flex items-center justify-center text-sm font-bold mt-0.5">2</span>
-                  <TranslatedText text="Pour EDN : sélectionnez parmi les 10 items disponibles (IC1 à IC10)" />
+                  <TranslatedText text="Pour EDN : sélectionnez parmi les 367 items disponibles avec compétences OIC complètes" />
                 </p>
                 <p className="flex items-start gap-3">
                   <span className="w-6 h-6 bg-gradient-to-r from-purple-500 to-violet-500 text-white rounded-full flex items-center justify-center text-sm font-bold mt-0.5">3</span>
@@ -464,7 +485,7 @@ const Generator = () => {
               <div className="space-y-4">
                 <p className="flex items-start gap-3">
                   <span className="w-6 h-6 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-full flex items-center justify-center text-sm font-bold mt-0.5">4</span>
-                  <TranslatedText text="Sélectionnez le rang A (débutant) ou B (avancé) pour EDN" />
+                  <TranslatedText text="Sélectionnez le rang A (fondamental), B (approfondi) ou A+B (complet) pour EDN" />
                 </p>
                 <p className="flex items-start gap-3">
                   <span className="w-6 h-6 bg-gradient-to-r from-pink-500 to-rose-500 text-white rounded-full flex items-center justify-center text-sm font-bold mt-0.5">5</span>
