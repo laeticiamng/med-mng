@@ -198,7 +198,7 @@ async function analyzeDataQuality(supabaseClient: any) {
 }
 
 async function fixDataQuality(supabaseClient: any) {
-  console.log('🔧 Starting OIC data quality fixes...');
+  console.log('🔧 Starting AGGRESSIVE OIC data quality fixes...');
   
   const report: FixReport = {
     totalProcessed: 0,
@@ -211,12 +211,12 @@ async function fixDataQuality(supabaseClient: any) {
     samples: []
   };
 
-  // Récupérer toutes les compétences
+  // Récupérer SEULEMENT les compétences problématiques pour optimiser
   const { data: competences, error } = await supabaseClient
     .from('oic_competences')
     .select('*')
-    .order('item_parent', { ascending: true })
-    .order('ordre', { ascending: true });
+    .or('description.like.%&lt;%,description.like.%&gt;%,description.like.%&nbsp;%,description.like.-%,description.like.*%,intitule.like.%[[%]]%,description.is.null,description.eq.')
+    .limit(1000)
 
   if (error) {
     throw new Error(`Failed to fetch competences: ${error.message}`);
