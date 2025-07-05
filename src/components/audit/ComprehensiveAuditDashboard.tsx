@@ -123,6 +123,30 @@ export const ComprehensiveAuditDashboard = () => {
                   </Button>
                   
                   <Button 
+                    onClick={async () => {
+                      setFixing(true);
+                      try {
+                        const fixedCount = await ComprehensiveSystemAuditor.massFixEdnItems();
+                        console.log(`${fixedCount} items EDN corrigés massivement`);
+                        // Relancer l'audit après les corrections
+                        if (fixedCount > 0) {
+                          await runComprehensiveAudit();
+                        }
+                      } catch (error) {
+                        console.error('Erreur corrections massives:', error);
+                      } finally {
+                        setFixing(false);
+                      }
+                    }}
+                    disabled={fixing}
+                    variant="outline"
+                    className="flex items-center gap-2"
+                  >
+                    <RefreshCw className="h-4 w-4" />
+                    {fixing ? 'Correction massive...' : 'Correction massive EDN'}
+                  </Button>
+                  
+                  <Button 
                     onClick={exportAuditReport}
                     variant="outline"
                     className="flex items-center gap-2"
