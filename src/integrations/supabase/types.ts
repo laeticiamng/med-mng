@@ -2060,6 +2060,42 @@ export type Database = {
         }
         Relationships: []
       }
+      oic_extraction_methods: {
+        Row: {
+          created_at: string
+          extraction_date: string
+          extraction_script: string
+          id: string
+          method_name: string
+          notes: string | null
+          regex_patterns: Json
+          success_rate: number
+          total_extracted: number
+        }
+        Insert: {
+          created_at?: string
+          extraction_date?: string
+          extraction_script: string
+          id?: string
+          method_name: string
+          notes?: string | null
+          regex_patterns: Json
+          success_rate: number
+          total_extracted: number
+        }
+        Update: {
+          created_at?: string
+          extraction_date?: string
+          extraction_script?: string
+          id?: string
+          method_name?: string
+          notes?: string | null
+          regex_patterns?: Json
+          success_rate?: number
+          total_extracted?: number
+        }
+        Relationships: []
+      }
       oic_extraction_progress: {
         Row: {
           auth_cookies: string | null
@@ -2635,6 +2671,15 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
+      integrate_oic_into_edn_items: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          updated_items: number
+          success_count: number
+          error_count: number
+          details: Json
+        }[]
+      }
       mark_notifications_as_read: {
         Args: { user_id_param: string; notification_ids?: string[] }
         Returns: number
@@ -2722,6 +2767,16 @@ export type Database = {
           details: Json
         }[]
       }
+      organize_competences_by_item_and_rank: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          item_number: number
+          rang_a_competences: Json
+          rang_b_competences: Json
+          total_rang_a: number
+          total_rang_b: number
+        }[]
+      }
       update_all_edn_items_unique_content: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -2747,6 +2802,17 @@ export type Database = {
       verify_invitation_token: {
         Args: { token_param: string }
         Returns: Json
+      }
+      verify_oic_data_integrity: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          total_competences: number
+          with_content: number
+          without_content: number
+          by_item: Json
+          by_rank: Json
+          integrity_score: number
+        }[]
       }
     }
     Enums: {
