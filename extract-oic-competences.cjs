@@ -88,30 +88,52 @@ async function extractAllCompetences() {
       log(`⚠️ AUCUN COOKIE RÉCUPÉRÉ - PROBLÈME D'AUTHENTIFICATION PROBABLE`);
     }
     
-    // TEST: essayer un appel API directement après authentification
-    log('🧪 TEST API avec authentification...');
+    // TEST: essayer un appel API avec les cookies de session
+    log('🧪 TEST API avec authentification et cookies...');
     try {
-      // Utiliser page.request() au lieu de page.evaluate() pour préserver les cookies
-      const testUrl = 'https://livret.uness.fr/lisa/2025/api.php?action=query&list=categorymembers&cmtitle=Catégorie:Objectif_de_connaissance&cmlimit=1&format=json&origin=*';
-      const response = await page.goto(testUrl, { waitUntil: 'networkidle2' });
-      const responseText = await page.content();
+      // Créer une requête avec les cookies de session
+      const testUrl = 'https://livret.uness.fr/lisa/2025/api.php?action=query&list=categorymembers&cmtitle=Catégorie:Objectif_de_connaissance&cmlimit=1&format=json';
       
-      // Extraire le JSON de la réponse
-      const jsonMatch = responseText.match(/<pre[^>]*>({.*})<\/pre>/s);
-      if (jsonMatch) {
-        const data = JSON.parse(jsonMatch[1]);
-        log(`🧪 Résultat test API: status=${response.status()}, hasQuery=${!!data.query}, hasMembers=${data.query?.categorymembers?.length > 0}`);
+      const response = await page.evaluate(async (url, cookieStr) => {
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Cookie': cookieStr,
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            'Accept': 'application/json, text/plain, */*',
+            'Referer': 'https://livret.uness.fr/lisa/2025/',
+            'X-Requested-With': 'XMLHttpRequest'
+          },
+          credentials: 'include'
+        });
         
-        if (data.error) {
-          log(`❌ ERREUR TEST API: ${JSON.stringify(data.error)}`);
-          if (data.error.code === 'readapidenied') {
-            throw new Error('API MediaWiki toujours protégée malgré l\'authentification CAS');
+        const text = await response.text();
+        return {
+          status: response.status,
+          ok: response.ok,
+          text: text
+        };
+      }, testUrl, cookieString);
+      
+      log(`🧪 Réponse API test: status=${response.status}, ok=${response.ok}`);
+      log(`🧪 Contenu API test (200 premiers chars): ${response.text.substring(0, 200)}...`);
+      
+      if (response.ok) {
+        try {
+          const data = JSON.parse(response.text);
+          if (data.error) {
+            log(`❌ ERREUR API: ${JSON.stringify(data.error)}`);
+            if (data.error.code === 'readapidenied') {
+              log(`⚠️ API toujours protégée - on continue avec navigation directe`);
+            }
+          } else if (data.query?.categorymembers?.length > 0) {
+            log(`✅ TEST API RÉUSSI: ${data.query.categorymembers.length} membres trouvés`);
+          } else {
+            log(`📊 API accessible mais aucun membre trouvé`);
           }
-        } else if (data.query?.categorymembers?.length > 0) {
-          log(`✅ TEST API RÉUSSI: ${data.query.categorymembers.length} membres trouvés`);
+        } catch (parseError) {
+          log(`❌ Erreur parsing JSON: ${parseError.message}`);
         }
-      } else {
-        log(`❌ Format de réponse API inattendu`);
       }
     } catch (testError) {
       log(`❌ ERREUR TEST API: ${testError.message}`);
@@ -308,160 +330,267 @@ async function authenticateCAS(page) {
   log(`✅ Authentification CAS terminée avec succès`);
 }
 
-// Extraction via API MediaWiki avec DEBUG INTENSIF
+// Extraction hybride : API MediaWiki + scraping de secours
 async function extractViaAPI(page, stats, cookieString) {
   const allCompetences = [];
   let continueToken = '';
   let pageCount = 0;
+  let useAPIFallback = false;
   
-  log('🚀 === DÉBUT EXTRACTION API MEDIAWIKI ===');
+  log('🚀 === DÉBUT EXTRACTION HYBRIDE ===');
+  
+  // Première tentative avec l'API
+  try {
+    return await extractViaMediaWikiAPI(page, stats, cookieString);
+  } catch (error) {
+    log(`❌ API MediaWiki échouée: ${error.message}`);
+    log(`🔄 BASCULEMENT vers scraping HTML direct...`);
+    return await extractViaCategoryScraping(page, stats);
+  }
+}
+
+// Méthode API MediaWiki classique
+async function extractViaMediaWikiAPI(page, stats, cookieString) {
+  const allCompetences = [];
+  let continueToken = '';
+  let pageCount = 0;
+  
+  log('📡 === EXTRACTION VIA API MEDIAWIKI ===');
   
   do {
-  const apiUrl = new URL(config.urls.api);
-  // ⚠️ CORRECTION : Éviter l'encodage du ":" dans "Catégorie:Objectif_de_connaissance"
-  const categoryTitle = 'Catégorie:Objectif_de_connaissance';
-  
-  apiUrl.searchParams.set('action', 'query');
-  apiUrl.searchParams.set('list', 'categorymembers');
-  apiUrl.searchParams.set('cmtitle', categoryTitle); // Le ":" reste intact
-  apiUrl.searchParams.set('cmlimit', '500');
-  apiUrl.searchParams.set('format', 'json');
-  apiUrl.searchParams.set('origin', '*'); // Ajout pour éviter les problèmes CORS
-  if (continueToken) {
-    apiUrl.searchParams.set('cmcontinue', continueToken);
-  }
-  
-  // Correction manuelle de l'URL si nécessaire
-  let finalUrl = apiUrl.toString();
-  if (finalUrl.includes('Catégorie%3AObjectif_de_connaissance')) {
-    finalUrl = finalUrl.replace('Catégorie%3AObjectif_de_connaissance', 'Catégorie:Objectif_de_connaissance');
-    log(`🔧 URL corrigée pour préserver le ":" : ${finalUrl}`);
-  }
+    const apiUrl = new URL(config.urls.api);
+    const categoryTitle = 'Catégorie:Objectif_de_connaissance';
+    
+    apiUrl.searchParams.set('action', 'query');
+    apiUrl.searchParams.set('list', 'categorymembers');
+    apiUrl.searchParams.set('cmtitle', categoryTitle);
+    apiUrl.searchParams.set('cmlimit', '500');
+    apiUrl.searchParams.set('format', 'json');
+    if (continueToken) {
+      apiUrl.searchParams.set('cmcontinue', continueToken);
+    }
+    
+    let finalUrl = apiUrl.toString();
+    if (finalUrl.includes('Catégorie%3AObjectif_de_connaissance')) {
+      finalUrl = finalUrl.replace('Catégorie%3AObjectif_de_connaissance', 'Catégorie:Objectif_de_connaissance');
+    }
     
     log(`🔗 URL API: ${finalUrl}`);
     
-    try {
-      log('📡 Appel API MediaWiki...');
-      // Utiliser page.goto() pour préserver les cookies CAS
-      const response = await page.goto(finalUrl, { waitUntil: 'networkidle2' });
-      const responseText = await page.content();
-      
-      // Extraire le JSON de la réponse
-      const jsonMatch = responseText.match(/<pre[^>]*>({.*})<\/pre>/s);
-      if (!jsonMatch) {
-        log(`❌ Format de réponse API inattendu: ${responseText.substring(0, 500)}`);
-        throw new Error('Format de réponse API non JSON');
-      }
-      
-      const apiData = JSON.parse(jsonMatch[1]);
-      log(`📡 Response status: ${response.status()}`);
-      log(`📡 Response data keys: ${Object.keys(apiData)}`);
-      
-      
-      log(`📊 Réponse API reçue: ${JSON.stringify(apiData, null, 2).substring(0, 500)}...`);
-      
-      if (apiData.error) {
-        log(`❌ ERREUR API: ${JSON.stringify(apiData.error)}`);
-        throw new Error(`API Error: ${apiData.error.code} - ${apiData.error.info}`);
-      }
-      
-      if (!apiData.query) {
-        log(`❌ PAS DE QUERY dans la réponse API`);
-        log(`📄 Réponse complète: ${JSON.stringify(apiData)}`);
-        throw new Error('Pas de section query dans la réponse API');
-      }
-      
-      if (!apiData.query.categorymembers) {
-        log(`❌ PAS DE CATEGORYMEMBERS dans query`);
-        log(`📄 Query keys: ${Object.keys(apiData.query)}`);
-        throw new Error('Pas de categorymembers dans la réponse');
-      }
-      
-      const allMembers = apiData.query.categorymembers || [];
-      log(`📋 ${allMembers.length} membres trouvés dans la catégorie`);
-      
-      // Debug: afficher quelques exemples
-      if (allMembers.length > 0) {
-        log(`🔍 Premiers exemples de titres:`);
-        allMembers.slice(0, 5).forEach((member, i) => {
-          log(`   ${i+1}. "${member.title}" (ID: ${member.pageid})`);
+    // Tenter avec page.evaluate et cookies explicites
+    const apiResponse = await page.evaluate(async (url, cookies) => {
+      try {
+        const response = await fetch(url, {
+          method: 'GET',
+          headers: {
+            'Cookie': cookies,
+            'User-Agent': 'Mozilla/5.0 (compatible; OIC-Extractor/1.0)',
+            'Accept': 'application/json',
+            'Referer': 'https://livret.uness.fr/lisa/2025/'
+          },
+          credentials: 'include'
         });
-      }
-      
-      const pageIds = allMembers
-        .filter(p => {
-          const match = p.title?.match(/OIC-\d{3}-\d{2}-[AB]-\d{2}/);
-          if (!match && p.title?.includes('OIC')) {
-            log(`⚠️ Titre OIC non matché: "${p.title}"`);
-          }
-          return match;
-        })
-        .map(p => p.pageid);
-      
-      stats.totalFound += pageIds.length;
-      log(`📄 Lot ${++pageCount}: ${pageIds.length}/${allMembers.length} compétences valides (Total: ${stats.totalFound})`);
-      
-      if (pageIds.length === 0) {
-        log(`❌ AUCUNE COMPÉTENCE OIC TROUVÉE dans ce lot !`);
-        log(`📋 Exemples de titres reçus:`);
-        allMembers.slice(0, 10).forEach(member => {
-          log(`   - "${member.title}"`);
-        });
-      }
-      
-      // Traiter par batches de 50
-      for (let i = 0; i < pageIds.length; i += 50) {
-        const batch = pageIds.slice(i, i + 50);
-        log(`🔄 Traitement batch ${Math.floor(i/50) + 1}: IDs ${batch.join(', ')}`);
         
-        try {
-          const competences = await getPageContents(page, batch);
-          log(`✅ ${competences.length} compétences extraites du batch`);
-          
-          if (competences.length > 0) {
-            log(`🔍 Exemple de compétence extraite: ${JSON.stringify(competences[0], null, 2)}`);
-          }
-          
-          allCompetences.push(...competences);
-          stats.totalProcessed += batch.length;
-          
-          log(`   ✅ Batch ${Math.floor(i/50) + 1}: ${competences.length}/${batch.length} extraites`);
-        } catch (error) {
-          log(`   ❌ Erreur batch ${Math.floor(i/50) + 1}: ${error.message}`);
-          log(`   📄 Stack trace: ${error.stack}`);
-          stats.totalErrors += batch.length;
-          stats.errors.push({ 
-            type: 'BATCH_ERROR', 
-            batch: Math.floor(i/50) + 1, 
-            error: error.message, 
-            timestamp: new Date().toISOString() 
-          });
-        }
-        
-        // Pause entre batches
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        const text = await response.text();
+        return {
+          ok: response.ok,
+          status: response.status,
+          text: text
+        };
+      } catch (error) {
+        return {
+          ok: false,
+          error: error.message
+        };
       }
-      
-      continueToken = apiData.continue?.cmcontinue || '';
-      log(`🔄 Continue token: ${continueToken || 'NONE'}`);
-      
-    } catch (error) {
-      log(`❌ ERREUR CRITIQUE page API ${pageCount}: ${error.message}`);
-      log(`📄 Stack trace: ${error.stack}`);
-      stats.errors.push({ 
-        type: 'API_ERROR', 
-        page: pageCount, 
-        error: error.message, 
-        timestamp: new Date().toISOString() 
-      });
-      break;
+    }, finalUrl, cookieString);
+    
+    if (!apiResponse.ok) {
+      throw new Error(`API request failed: ${apiResponse.error || apiResponse.status}`);
     }
+    
+    let apiData;
+    try {
+      apiData = JSON.parse(apiResponse.text);
+    } catch (parseError) {
+      log(`❌ Erreur parsing JSON API: ${parseError.message}`);
+      log(`📄 Réponse brute: ${apiResponse.text.substring(0, 500)}...`);
+      throw new Error('Réponse API non-JSON');
+    }
+    
+    if (apiData.error) {
+      log(`❌ ERREUR API: ${JSON.stringify(apiData.error)}`);
+      if (apiData.error.code === 'readapidenied') {
+        throw new Error('API MediaWiki protégée - access denied');
+      }
+      throw new Error(`API Error: ${apiData.error.code} - ${apiData.error.info}`);
+    }
+    
+    if (!apiData.query?.categorymembers) {
+      throw new Error('Pas de categorymembers dans la réponse API');
+    }
+    
+    const allMembers = apiData.query.categorymembers || [];
+    log(`📋 ${allMembers.length} membres trouvés dans la catégorie (API)`);
+    
+    const pageIds = allMembers
+      .filter(p => p.title?.match(/OIC-\d{3}-\d{2}-[AB]-\d{2}/))
+      .map(p => p.pageid);
+    
+    stats.totalFound += pageIds.length;
+    log(`📄 Lot ${++pageCount}: ${pageIds.length}/${allMembers.length} compétences valides (Total: ${stats.totalFound})`);
+    
+    // Traiter par batches
+    for (let i = 0; i < pageIds.length; i += 50) {
+      const batch = pageIds.slice(i, i + 50);
+      try {
+        const competences = await getPageContents(page, batch);
+        allCompetences.push(...competences);
+        stats.totalProcessed += batch.length;
+        log(`   ✅ Batch ${Math.floor(i/50) + 1}: ${competences.length}/${batch.length} extraites`);
+      } catch (error) {
+        log(`   ❌ Erreur batch ${Math.floor(i/50) + 1}: ${error.message}`);
+        stats.totalErrors += batch.length;
+      }
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+    
+    continueToken = apiData.continue?.cmcontinue || '';
     
   } while (continueToken);
   
-  log(`🏁 === FIN EXTRACTION API MEDIAWIKI ===`);
-  log(`📊 Total compétences extraites: ${allCompetences.length}`);
+  log(`✅ API MediaWiki: ${allCompetences.length} compétences extraites`);
+  return allCompetences;
+}
+
+// Méthode scraping HTML de secours
+async function extractViaCategoryScraping(page, stats) {
+  const allCompetences = [];
+  let currentPage = 0;
   
+  log('🕷️ === EXTRACTION PAR SCRAPING HTML ===');
+  
+  do {
+    const categoryUrl = currentPage === 0 
+      ? config.urls.category
+      : `${config.urls.category}?pagefrom=${currentPage}`;
+      
+    log(`🌐 Navigation vers: ${categoryUrl}`);
+    
+    try {
+      await page.goto(categoryUrl, { waitUntil: 'networkidle2', timeout: 30000 });
+      
+      // Attendre que le contenu se charge
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      
+      // Extraire les liens OIC de la page de catégorie
+      const oicPages = await page.evaluate(() => {
+        const links = [];
+        const allLinks = document.querySelectorAll('a[href*="OIC-"]');
+        
+        allLinks.forEach(link => {
+          const href = link.getAttribute('href');
+          const title = link.textContent || link.getAttribute('title') || '';
+          
+          if (title.match(/OIC-\d{3}-\d{2}-[AB]-\d{2}/)) {
+            // Extraire l'ID de page depuis l'URL si possible
+            const pageIdMatch = href.match(/[?&]curid=(\d+)/);
+            const pageId = pageIdMatch ? parseInt(pageIdMatch[1]) : Math.random() * 1000000; // Fallback
+            
+            links.push({
+              title: title,
+              href: href,
+              pageid: pageId
+            });
+          }
+        });
+        
+        return links;
+      });
+      
+      log(`🔍 Scraping HTML: ${oicPages.length} pages OIC trouvées`);
+      stats.totalFound += oicPages.length;
+      
+      if (oicPages.length === 0) {
+        log(`❌ Aucune page OIC trouvée - fin du scraping`);
+        break;
+      }
+      
+      // Traiter chaque page individuellement
+      for (let i = 0; i < oicPages.length; i++) {
+        const oicPage = oicPages[i];
+        log(`📖 Scraping page ${i+1}/${oicPages.length}: ${oicPage.title}`);
+        
+        try {
+          // Naviguer vers la page individuelle
+          const fullUrl = oicPage.href.startsWith('http') 
+            ? oicPage.href 
+            : `https://livret.uness.fr${oicPage.href}`;
+          
+          await page.goto(fullUrl, { waitUntil: 'networkidle2', timeout: 30000 });
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          
+          // Extraire le contenu de la page
+          const pageContent = await page.evaluate(() => {
+            return {
+              title: document.title || '',
+              content: document.body.innerText || ''
+            };
+          });
+          
+          // Simuler une structure de page pour parseCompetence
+          const simulatedPageData = {
+            title: oicPage.title,
+            pageid: oicPage.pageid,
+            revisions: [{
+              slots: {
+                main: {
+                  content: pageContent.content
+                }
+              }
+            }]
+          };
+          
+          const competence = parseCompetence(simulatedPageData);
+          if (competence) {
+            allCompetences.push(competence);
+            stats.totalProcessed++;
+            log(`   ✅ Compétence parsée: ${competence.objectif_id}`);
+          } else {
+            log(`   ❌ Échec parsing: ${oicPage.title}`);
+            stats.totalErrors++;
+          }
+          
+        } catch (pageError) {
+          log(`   ❌ Erreur page ${oicPage.title}: ${pageError.message}`);
+          stats.totalErrors++;
+        }
+        
+        // Pause entre pages
+        await new Promise(resolve => setTimeout(resolve, 500));
+      }
+      
+      currentPage++;
+      
+      // Vérifier s'il y a une page suivante
+      const hasNextPage = await page.evaluate(() => {
+        return document.querySelector('a:contains("suivant")') !== null ||
+               document.querySelector('a[href*="pagefrom="]') !== null;
+      });
+      
+      if (!hasNextPage || currentPage > 20) { // Limite de sécurité
+        log(`📄 Fin du scraping - page ${currentPage} ou limite atteinte`);
+        break;
+      }
+      
+    } catch (error) {
+      log(`❌ Erreur scraping page ${currentPage}: ${error.message}`);
+      break;
+    }
+    
+  } while (true);
+  
+  log(`✅ Scraping HTML: ${allCompetences.length} compétences extraites`);
   return allCompetences;
 }
 
