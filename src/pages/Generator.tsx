@@ -1,25 +1,21 @@
 
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
+import { ArrowLeft, Sparkles, Music } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'sonner';
 import { TranslatedText } from '@/components/TranslatedText';
 import { GeneratorMusicPlayer } from '@/components/GeneratorMusicPlayer';
-import { Music, Wand2, BookOpen, Users, ArrowLeft, Sparkles, AlertTriangle, Lock } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { PremiumBackground } from '@/components/ui/premium-background';
+import { PremiumCard } from '@/components/ui/premium-card';
+import { PremiumButton } from '@/components/ui/premium-button';
 import { useFreeTrialLimit } from '@/hooks/useFreeTrialLimit';
 import { useSubscription } from '@/hooks/useSubscription';
 import { useMusicGenerationWithTranslation } from '@/hooks/useMusicGenerationWithTranslation';
 import { useEdnItemLyrics } from '@/hooks/useEdnItemLyrics';
 import { useAllEdnItems } from '@/hooks/useAllEdnItems';
 import { useAuth } from '@/components/med-mng/AuthProvider';
-import { toast } from 'sonner';
-import { PremiumBackground } from '@/components/ui/premium-background';
-import { PremiumCard } from '@/components/ui/premium-card';
-import { PremiumButton } from '@/components/ui/premium-button';
-
-import { musicStyles, getStylesByGenre } from '@/components/edn/music/MusicStylesData';
+import { QuotaDisplay } from '@/components/generator/QuotaDisplay';
+import { GeneratorForm } from '@/components/generator/GeneratorForm';
 
 const Generator = () => {
   const navigate = useNavigate();
@@ -47,16 +43,6 @@ const Generator = () => {
 
   // Hook pour charger tous les 367 items EDN depuis la base de données
   const { items: allEdnItems, loading: itemsLoading, error: itemsError } = useAllEdnItems();
-
-  // Situations ECOS disponibles
-  const ecosSituations = [
-    { code: 'S1', title: 'Situation de départ 1 - Consultation' },
-    { code: 'S2', title: 'Situation de départ 2 - Urgence' },
-    { code: 'S3', title: 'Situation de départ 3 - Prévention' },
-  ];
-
-  // Grouper les styles par genre pour un affichage organisé
-  const stylesByGenre = getStylesByGenre();
 
   const canGenerate = () => {
     if (contentType === 'edn') {
@@ -238,272 +224,39 @@ const Generator = () => {
       <div className="container mx-auto px-2 md:px-4 py-6 md:py-12">
         <div className="max-w-6xl mx-auto">
           
-          {/* Badge générations restantes premium */}
-          {!user && remainingFree > 0 && (
-            <div className="text-center mb-12">
-              <div className="inline-flex items-center gap-3 bg-gradient-to-r from-green-100 to-emerald-100 px-8 py-4 rounded-2xl border border-green-200/50 shadow-lg shadow-green-500/10">
-                <Music className="h-6 w-6 text-green-700" />
-                <span className="text-green-800 font-bold text-lg">
-                  <TranslatedText text={`${remainingFree}/${maxFreeGenerations} générations gratuites restantes`} />
-                </span>
-              </div>
-            </div>
-          )}
-          
-          {/* Badge quota abonnement */}
-          {user && musicQuota && (
-            <div className="text-center mb-12">
-              <div className="inline-flex items-center gap-3 bg-gradient-to-r from-blue-100 to-indigo-100 px-8 py-4 rounded-2xl border border-blue-200/50 shadow-lg shadow-blue-500/10">
-                <Music className="h-6 w-6 text-blue-700" />
-                <span className="text-blue-800 font-bold text-lg">
-                  {getUsageDisplay()}
-                </span>
-                {!musicQuota.can_generate && (
-                  <Badge variant="secondary" className="bg-red-100 text-red-800">
-                    Quota atteint
-                  </Badge>
-                )}
-              </div>
-            </div>
-          )}
+          <QuotaDisplay
+            user={user}
+            remainingFree={remainingFree}
+            maxFreeGenerations={maxFreeGenerations}
+            musicQuota={musicQuota}
+            getUsageDisplay={getUsageDisplay}
+          />
 
-          {/* Formulaire de génération premium */}
-          <PremiumCard variant="glass" className="mb-12 p-8">
-            <div className="flex items-center gap-4 mb-8">
-              <Wand2 className="h-8 w-8 text-amber-600" />
-              <div>
-                <h2 className="text-2xl font-bold text-gray-900">
-                  <TranslatedText text="Configuration de génération" />
-                </h2>
-                <p className="text-gray-600">
-                  <TranslatedText text="Sélectionnez le type de contenu, l'item et le style musical" />
-                </p>
-              </div>
-            </div>
-            
-            <div className="space-y-8">
-              
-              {/* Sélection du type de contenu premium */}
-              <div className="space-y-4">
-                <label className="text-lg font-semibold text-gray-900">
-                  <TranslatedText text="Type de contenu" />
-                </label>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                  <PremiumCard 
-                    variant={contentType === 'edn' ? 'elevated' : 'default'}
-                    className={`cursor-pointer transition-all p-4 md:p-6 text-center hover-scale ${contentType === 'edn' ? 'ring-2 ring-amber-500 shadow-amber-500/20' : 'hover:shadow-lg'}`}
-                    onClick={() => {
-                      setContentType('edn');
-                      setSelectedSituation('');
-                    }}
-                  >
-                    <BookOpen className="h-12 w-12 mx-auto mb-4 text-blue-600" />
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">EDN</h3>
-                    <p className="text-gray-700 mb-3">Items à Choix Multiples</p>
-                    <p className="text-sm text-green-600 font-semibold">
-                      {itemsLoading ? 'Chargement...' : `${allEdnItems.length} items disponibles`}
-                    </p>
-                  </PremiumCard>
-                    <PremiumCard 
-                    variant={contentType === 'ecos' ? 'elevated' : 'default'}
-                    className={`cursor-pointer transition-all p-4 md:p-6 text-center hover-scale ${contentType === 'ecos' ? 'ring-2 ring-amber-500 shadow-amber-500/20' : 'hover:shadow-lg'}`}
-                    onClick={() => {
-                      setContentType('ecos');
-                      setSelectedItem('');
-                      setSelectedRang('');
-                    }}
-                  >
-                    <Users className="h-12 w-12 mx-auto mb-4 text-green-600" />
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">ECOS</h3>
-                    <p className="text-gray-700 mb-3">Situations de départ</p>
-                    <p className="text-sm text-blue-600 font-semibold">3 situations disponibles</p>
-                  </PremiumCard>
-                </div>
-              </div>
-
-              {/* Sélection EDN premium */}
-              {contentType === 'edn' && (
-                <>
-                  <div className="space-y-4">
-                    <label className="text-lg font-semibold text-gray-900">
-                      <TranslatedText text="Item EDN" />
-                    </label>
-                    <Select value={selectedItem} onValueChange={setSelectedItem}>
-                      <SelectTrigger className="h-14 text-base bg-white/50 backdrop-blur-sm border-white/30 shadow-lg">
-                        <SelectValue placeholder="Sélectionnez un item EDN" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-white/95 backdrop-blur-xl border-white/30 shadow-2xl max-h-80 overflow-y-auto">
-                        {itemsLoading ? (
-                          <SelectItem value="" disabled>Chargement des items...</SelectItem>
-                        ) : itemsError ? (
-                          <SelectItem value="" disabled>Erreur: {itemsError}</SelectItem>
-                        ) : (
-                          allEdnItems.map((item) => (
-                            <SelectItem key={item.item_code} value={item.item_code} className="text-base py-3">
-                              {item.item_code} - {item.title.length > 50 ? item.title.substring(0, 50) + '...' : item.title}
-                            </SelectItem>
-                          ))
-                        )}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {/* Affichage du statut des paroles */}
-                  {selectedItem && (
-                    <div className="space-y-4">
-                      <label className="text-lg font-semibold text-gray-900">
-                        <TranslatedText text="Paroles de l'item" />
-                      </label>
-                      {lyricsLoading && (
-                        <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
-                          <div className="flex items-center gap-2 text-blue-800">
-                            <div className="animate-spin h-4 w-4 border-2 border-blue-600 border-t-transparent rounded-full"></div>
-                            <span>Chargement des paroles...</span>
-                          </div>
-                        </div>
-                      )}
-                      {lyricsError && (
-                        <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
-                          <div className="flex items-center gap-2 text-red-800">
-                            <AlertTriangle className="h-5 w-5" />
-                            <span>Erreur: {lyricsError}</span>
-                          </div>
-                        </div>
-                      )}
-                      {ednLyrics && (
-                        <div className="p-4 bg-green-50 border border-green-200 rounded-lg">
-                          <div className="flex items-center gap-2 text-green-800 mb-2">
-                            <Music className="h-5 w-5" />
-                            <span className="font-semibold">Paroles trouvées pour {ednLyrics.title}</span>
-                          </div>
-                          <p className="text-green-700">
-                            {ednLyrics.paroles_musicales?.length || 0} versions de paroles disponibles 
-                            (Rang A et B)
-                          </p>
-                          {ednLyrics.paroles_musicales && ednLyrics.paroles_musicales.length > 0 && (
-                            <div className="mt-2 text-sm text-green-600">
-                              Aperçu: {ednLyrics.paroles_musicales[0]?.substring(0, 100)}...
-                            </div>
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  <div className="space-y-4">
-                    <label className="text-lg font-semibold text-gray-900">
-                      <TranslatedText text="Rang" />
-                    </label>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-                      <PremiumCard 
-                        variant={selectedRang === 'A' ? 'elevated' : 'default'}
-                        className={`cursor-pointer transition-all p-4 text-center hover-scale ${selectedRang === 'A' ? 'ring-2 ring-blue-500 shadow-blue-500/20' : 'hover:shadow-lg'}`}
-                        onClick={() => setSelectedRang('A')}
-                      >
-                        <h3 className="text-xl font-bold text-gray-900 mb-2">Rang A</h3>
-                        <p className="text-gray-600 text-sm">Compétences fondamentales</p>
-                      </PremiumCard>
-                      <PremiumCard 
-                        variant={selectedRang === 'B' ? 'elevated' : 'default'}
-                        className={`cursor-pointer transition-all p-4 text-center hover-scale ${selectedRang === 'B' ? 'ring-2 ring-purple-500 shadow-purple-500/20' : 'hover:shadow-lg'}`}
-                        onClick={() => setSelectedRang('B')}
-                      >
-                        <h3 className="text-xl font-bold text-gray-900 mb-2">Rang B</h3>
-                        <p className="text-gray-600 text-sm">Compétences approfondies</p>
-                      </PremiumCard>
-                      <PremiumCard 
-                        variant={selectedRang === 'AB' ? 'elevated' : 'default'}
-                        className={`cursor-pointer transition-all p-4 text-center hover-scale ${selectedRang === 'AB' ? 'ring-2 ring-amber-500 shadow-amber-500/20' : 'hover:shadow-lg'}`}
-                        onClick={() => setSelectedRang('AB')}
-                      >
-                        <h3 className="text-xl font-bold text-gray-900 mb-2">Rang A+B</h3>
-                        <p className="text-gray-600 text-sm">Compétences complètes</p>
-                      </PremiumCard>
-                    </div>
-                  </div>
-                </>
-              )}
-
-              {/* Sélection ECOS premium */}
-              {contentType === 'ecos' && (
-                <div className="space-y-4">
-                  <label className="text-lg font-semibold text-gray-900">
-                    <TranslatedText text="Situation ECOS" />
-                  </label>
-                  <Select value={selectedSituation} onValueChange={setSelectedSituation}>
-                    <SelectTrigger className="h-14 text-base bg-white/50 backdrop-blur-sm border-white/30 shadow-lg">
-                      <SelectValue placeholder="Sélectionnez une situation ECOS" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-white/95 backdrop-blur-xl border-white/30 shadow-2xl">
-                      {ecosSituations.map((situation) => (
-                        <SelectItem key={situation.code} value={situation.code} className="text-base py-3">
-                          {situation.title}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-
-              {/* Sélection du style musical premium */}
-              {contentType && (
-                <div className="space-y-4">
-                  <label className="text-lg font-semibold text-gray-900">
-                    <TranslatedText text="Style musical" />
-                  </label>
-                  <Select value={selectedStyle} onValueChange={setSelectedStyle}>
-                    <SelectTrigger className="h-14 text-base bg-white/50 backdrop-blur-sm border-white/30 shadow-lg">
-                      <SelectValue placeholder="Choisissez un style musical" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-white/95 backdrop-blur-xl border-white/30 shadow-2xl max-h-80 overflow-y-auto">
-                      {Object.entries(stylesByGenre).map(([genre, styles]: [string, any[]]) => (
-                        <div key={genre}>
-                          <div className="px-2 py-1 text-xs font-semibold text-gray-500 bg-gray-100">
-                            {genre}
-                          </div>
-                          {styles.map((style) => (
-                            <SelectItem key={style.value} value={style.value} className="text-base py-3 pl-4">
-                              {style.label} - {style.description}
-                            </SelectItem>
-                          ))}
-                        </div>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
-
-              {/* Boutons d'action premium */}
-              <div className="flex flex-col md:flex-row gap-4 md:gap-6 pt-6">
-                <PremiumButton
-                  variant="primary"
-                  size="xl"
-                  onClick={handleGenerate}
-                  disabled={!canGenerate() || isGenerating || (!user && remainingFree <= 0) || (user && !canGenerateMusic()) || lyricsLoading}
-                  className="flex-1"
-                >
-                  {isGenerating ? (
-                    <>
-                      <div className="animate-spin h-5 w-5 mr-3 border-2 border-white border-t-transparent rounded-full" />
-                      <TranslatedText text="Génération en cours..." />
-                    </>
-                  ) : (
-                    <>
-                      <Music className="h-5 w-5 mr-3" />
-                      <TranslatedText text="Générer la musique" />
-                    </>
-                  )}
-                </PremiumButton>
-                <PremiumButton
-                  variant="secondary"
-                  size="xl"
-                  onClick={resetForm}
-                >
-                  <TranslatedText text="Réinitialiser" />
-                </PremiumButton>
-              </div>
-            </div>
-          </PremiumCard>
+          <GeneratorForm
+            contentType={contentType}
+            setContentType={setContentType}
+            selectedItem={selectedItem}
+            setSelectedItem={setSelectedItem}
+            selectedRang={selectedRang}
+            setSelectedRang={setSelectedRang}
+            selectedSituation={selectedSituation}
+            setSelectedSituation={setSelectedSituation}
+            selectedStyle={selectedStyle}
+            setSelectedStyle={setSelectedStyle}
+            allEdnItems={allEdnItems}
+            itemsLoading={itemsLoading}
+            itemsError={itemsError}
+            ednLyrics={ednLyrics}
+            lyricsLoading={lyricsLoading}
+            lyricsError={lyricsError}
+            canGenerate={canGenerate}
+            handleGenerate={handleGenerate}
+            resetForm={resetForm}
+            isGenerating={isGenerating}
+            user={user}
+            remainingFree={remainingFree}
+            canGenerateMusic={canGenerateMusic}
+          />
 
           {/* Lecteur de musique générée premium */}
           <GeneratorMusicPlayer

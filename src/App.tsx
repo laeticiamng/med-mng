@@ -30,6 +30,7 @@ import { AuthProvider } from "./components/med-mng/AuthProvider";
 import { ProtectedRoute } from "./components/med-mng/withAuth";
 import { MedMngSuccess } from "./pages/MedMngSuccess";
 import { MedChat } from "./pages/MedChat";
+import { SubscriptionTest } from "./pages/SubscriptionTest";
 import AdminImport from "./pages/AdminImport";
 import AdminAudit from "./pages/AdminAudit";
 import AdminExtractEdn from "./pages/AdminExtractEdn";
@@ -88,6 +89,7 @@ const App = () => (
               <Route path="/admin/extract-ecos" element={<AdminExtractEcos />} />
               <Route path="/admin/extract-objectifs" element={<EdnObjectifsExtractionPage />} />
               <Route path="/admin/complete" element={<AdminCompleteProcess />} />
+              <Route path="/test-subscriptions" element={<SubscriptionTest />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
