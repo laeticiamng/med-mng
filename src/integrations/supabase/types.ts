@@ -2968,6 +2968,16 @@ export type Database = {
         Args: { user_uuid: string }
         Returns: boolean
       }
+      integrate_all_oic_competences_into_edn_items: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          processed_items: number
+          integrated_competences: number
+          rang_a_total: number
+          rang_b_total: number
+          success_details: Json
+        }[]
+      }
       integrate_oic_into_edn_items: {
         Args: Record<PropertyKey, never>
         Returns: {
