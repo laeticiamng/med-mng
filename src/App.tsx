@@ -37,6 +37,7 @@ import AdminExtractEdn from "./pages/AdminExtractEdn";
 import AdminCompleteProcess from "./pages/AdminCompleteProcess";
 import AdminExtractEcos from "./pages/AdminExtractEcos";
 import EdnObjectifsExtractionPage from "./pages/EdnObjectifsExtraction";
+import OicDataQualityManager from "./pages/OicDataQualityManager";
 
 const queryClient = new QueryClient();
 
@@ -87,8 +88,9 @@ const App = () => (
               <Route path="/admin/audit" element={<AdminAudit />} />
               <Route path="/admin/extract-edn" element={<AdminExtractEdn />} />
               <Route path="/admin/extract-ecos" element={<AdminExtractEcos />} />
-              <Route path="/admin/extract-objectifs" element={<EdnObjectifsExtractionPage />} />
-              <Route path="/admin/complete" element={<AdminCompleteProcess />} />
+               <Route path="/admin/extract-objectifs" element={<EdnObjectifsExtractionPage />} />
+               <Route path="/admin/oic-quality" element={<OicDataQualityManager />} />
+               <Route path="/admin/complete" element={<AdminCompleteProcess />} />
               <Route path="/test-subscriptions" element={<SubscriptionTest />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
