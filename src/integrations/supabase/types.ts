@@ -312,6 +312,120 @@ export type Database = {
         }
         Relationships: []
       }
+      backup_edn_items_immersive: {
+        Row: {
+          audio_ambiance: Json | null
+          created_at: string | null
+          id: string | null
+          interaction_config: Json | null
+          item_code: string | null
+          paroles_musicales: string[] | null
+          payload_v2: Json | null
+          pitch_intro: string | null
+          quiz_questions: Json | null
+          reward_messages: Json | null
+          scene_immersive: Json | null
+          slug: string | null
+          subtitle: string | null
+          tableau_rang_a: Json | null
+          tableau_rang_b: Json | null
+          title: string | null
+          updated_at: string | null
+          visual_ambiance: Json | null
+        }
+        Insert: {
+          audio_ambiance?: Json | null
+          created_at?: string | null
+          id?: string | null
+          interaction_config?: Json | null
+          item_code?: string | null
+          paroles_musicales?: string[] | null
+          payload_v2?: Json | null
+          pitch_intro?: string | null
+          quiz_questions?: Json | null
+          reward_messages?: Json | null
+          scene_immersive?: Json | null
+          slug?: string | null
+          subtitle?: string | null
+          tableau_rang_a?: Json | null
+          tableau_rang_b?: Json | null
+          title?: string | null
+          updated_at?: string | null
+          visual_ambiance?: Json | null
+        }
+        Update: {
+          audio_ambiance?: Json | null
+          created_at?: string | null
+          id?: string | null
+          interaction_config?: Json | null
+          item_code?: string | null
+          paroles_musicales?: string[] | null
+          payload_v2?: Json | null
+          pitch_intro?: string | null
+          quiz_questions?: Json | null
+          reward_messages?: Json | null
+          scene_immersive?: Json | null
+          slug?: string | null
+          subtitle?: string | null
+          tableau_rang_a?: Json | null
+          tableau_rang_b?: Json | null
+          title?: string | null
+          updated_at?: string | null
+          visual_ambiance?: Json | null
+        }
+        Relationships: []
+      }
+      backup_oic_competences: {
+        Row: {
+          created_at: string | null
+          date_import: string | null
+          description: string | null
+          extraction_status: string | null
+          hash_content: string | null
+          intitule: string | null
+          item_parent: string | null
+          objectif_id: string | null
+          ordre: number | null
+          rang: string | null
+          raw_json: Json | null
+          rubrique: string | null
+          updated_at: string | null
+          url_source: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          date_import?: string | null
+          description?: string | null
+          extraction_status?: string | null
+          hash_content?: string | null
+          intitule?: string | null
+          item_parent?: string | null
+          objectif_id?: string | null
+          ordre?: number | null
+          rang?: string | null
+          raw_json?: Json | null
+          rubrique?: string | null
+          updated_at?: string | null
+          url_source?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          date_import?: string | null
+          description?: string | null
+          extraction_status?: string | null
+          hash_content?: string | null
+          intitule?: string | null
+          item_parent?: string | null
+          objectif_id?: string | null
+          ordre?: number | null
+          rang?: string | null
+          raw_json?: Json | null
+          rubrique?: string | null
+          updated_at?: string | null
+          url_source?: string | null
+        }
+        Relationships: []
+      }
       badges: {
         Row: {
           awarded_at: string
@@ -2797,6 +2911,19 @@ export type Database = {
           processed_count: number
           success_count: number
           error_count: number
+        }[]
+      }
+      verify_integration_success: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          total_items: number
+          items_with_competences: number
+          items_without_competences: number
+          avg_competences_per_item: number
+          rang_a_total: number
+          rang_b_total: number
+          paroles_generated: number
+          integration_health_score: number
         }[]
       }
       verify_invitation_token: {
