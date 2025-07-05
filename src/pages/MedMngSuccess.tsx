@@ -1,23 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { CheckCircle, Music, ArrowRight, Home } from 'lucide-react';
+import { CheckCircle, Music, ArrowRight, Home, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useSubscription } from '@/hooks/useSubscription';
+import { useAuth } from '@/components/med-mng/AuthProvider';
 import { TranslatedText } from '@/components/TranslatedText';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 export const MedMngSuccess = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const sessionId = searchParams.get('session_id');
+  const { user } = useAuth();
   const { fetchSubscription, subscription } = useSubscription();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Refresh subscription data after successful payment
     const refreshData = async () => {
-      if (sessionId) {
-        // Wait a bit for webhook to process
+      if (sessionId && user) {
+        // Wait for webhook to process
         setTimeout(async () => {
           await fetchSubscription();
           setLoading(false);
@@ -28,7 +31,29 @@ export const MedMngSuccess = () => {
     };
 
     refreshData();
-  }, [sessionId, fetchSubscription]);
+  }, [sessionId, user, fetchSubscription]);
+
+  const handleManageSubscription = async () => {
+    if (!user) {
+      toast.error('Vous devez être connecté');
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase.functions.invoke('customer-portal', {
+        headers: { Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}` }
+      });
+
+      if (error) throw error;
+
+      if (data?.url) {
+        window.open(data.url, '_blank');
+      }
+    } catch (error) {
+      console.error('Error opening customer portal:', error);
+      toast.error('Erreur lors de l\'ouverture du portail client');
+    }
+  };
 
   if (loading) {
     return (
@@ -104,12 +129,13 @@ export const MedMngSuccess = () => {
               </Button>
 
               <Button
-                onClick={() => navigate('/edn')}
+                onClick={handleManageSubscription}
                 variant="outline"
                 className="w-full py-3"
                 size="lg"
               >
-                Accéder aux contenus EDN
+                <Settings className="h-5 w-5 mr-2" />
+                Gérer mon abonnement
               </Button>
 
               <Button
