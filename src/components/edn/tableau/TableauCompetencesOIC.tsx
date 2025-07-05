@@ -102,18 +102,86 @@ export const TableauCompetencesOIC: React.FC<TableauCompetencesOICProps> = ({
                   </h4>
                   {competence.description && competence.description.trim() !== '' && (
                     <div className="text-sm text-muted-foreground leading-relaxed bg-muted/30 rounded-lg p-3 border border-border/20">
-                      <div 
-                        className="prose prose-sm max-w-none"
-                        dangerouslySetInnerHTML={{
-                          __html: competence.description
-                            .replace(/&nbsp;/g, ' ')
-                            .replace(/&lt;/g, '<')
-                            .replace(/&gt;/g, '>')
-                            .replace(/<br\s*\/?>/gi, '<br>')
-                            .replace(/^\s*-\s+/, '')
-                            .trim()
-                        }}
-                      />
+                      {(() => {
+                        const rawDescription = competence.description.trim();
+                        
+                        // Détection des données problématiques
+                        const isTooShort = rawDescription.length < 30;
+                        const isFragment = /^[-*•]\s/.test(rawDescription);
+                        const hasCorruptedHTML = /&[lg]t;|{[|]|class="wikitable"/.test(rawDescription);
+                        const isEmpty = rawDescription === '' || rawDescription === '&lt;br /&gt;';
+                        
+                        if (isEmpty) {
+                          return (
+                            <div className="italic text-muted-foreground/70 text-xs">
+                              📝 Description non disponible dans la base de données OIC
+                            </div>
+                          );
+                        }
+                        
+                        if (isTooShort && isFragment) {
+                          return (
+                            <div className="space-y-2">
+                              <div className="text-orange-600 text-xs font-medium flex items-center gap-1">
+                                ⚠️ Données incomplètes (fragment extrait)
+                              </div>
+                              <div 
+                                className="prose prose-sm max-w-none"
+                                dangerouslySetInnerHTML={{
+                                  __html: rawDescription
+                                    .replace(/&nbsp;/g, ' ')
+                                    .replace(/&lt;/g, '<')
+                                    .replace(/&gt;/g, '>')
+                                    .replace(/<br\s*\/?>/gi, '<br>')
+                                    .replace(/^\s*[-*•]\s*/, '• ')
+                                    .trim()
+                                }}
+                              />
+                            </div>
+                          );
+                        }
+                        
+                        if (hasCorruptedHTML) {
+                          return (
+                            <div className="space-y-2">
+                              <div className="text-amber-600 text-xs font-medium flex items-center gap-1">
+                                🔧 Formatage à corriger
+                              </div>
+                              <div 
+                                className="prose prose-sm max-w-none"
+                                dangerouslySetInnerHTML={{
+                                  __html: rawDescription
+                                    .replace(/&nbsp;/g, ' ')
+                                    .replace(/&lt;/g, '<')
+                                    .replace(/&gt;/g, '>')
+                                    .replace(/<br\s*\/?>/gi, '<br>')
+                                    .replace(/\{\|\s*class="wikitable"[\s\S]*?\|\}/g, '[Tableau à reformater]')
+                                    .replace(/\[\[([^\]]+)\]\]/g, '$1')
+                                    .replace(/^\s*[-*•]\s*/, '')
+                                    .trim()
+                                }}
+                              />
+                            </div>
+                          );
+                        }
+                        
+                        // Nettoyage standard pour les descriptions complètes
+                        return (
+                          <div 
+                            className="prose prose-sm max-w-none"
+                            dangerouslySetInnerHTML={{
+                              __html: rawDescription
+                                .replace(/&nbsp;/g, ' ')
+                                .replace(/&lt;/g, '<')
+                                .replace(/&gt;/g, '>')
+                                .replace(/<br\s*\/?>/gi, '<br>')
+                                .replace(/\[\[([^\]|]+)(?:\|[^\]]+)?\]\]/g, '$1')
+                                .replace(/^\s*[-*•]\s*/, '')
+                                .trim()
+                            }}
+                          />
+                        );
+                      })()}
                     </div>
                   )}
                 </div>
