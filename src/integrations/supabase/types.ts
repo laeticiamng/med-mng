@@ -2860,6 +2860,13 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
+      fix_all_edn_items_with_real_content: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          fixed_count: number
+          errors_count: number
+        }[]
+      }
       generate_audit_report: {
         Args: { report_type_param?: string }
         Returns: string

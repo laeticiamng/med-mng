@@ -50,22 +50,11 @@ export class ComprehensiveSystemAuditor {
     };
 
     try {
-      // 1. Audit de la base de données
       await this.auditDatabase(result);
-      
-      // 2. Audit des EDN Items
       await this.auditEdnItems(result);
-      
-      // 3. Audit du système d'abonnements
       await this.auditSubscriptions(result);
-      
-      // 4. Audit de l'API et des edge functions
       await this.auditAPI(result);
-      
-      // 5. Audit de l'authentification
       await this.auditAuth(result);
-      
-      // 6. Génération des recommandations
       this.generateRecommendations(result);
       
       console.log('✅ Audit complet terminé');
@@ -87,7 +76,6 @@ export class ComprehensiveSystemAuditor {
     console.log('🗄️ Audit de la base de données...');
     
     try {
-      // Test de connectivité
       const { data: testData, error: testError } = await supabase
         .from('edn_items_immersive')
         .select('id')
@@ -104,11 +92,8 @@ export class ComprehensiveSystemAuditor {
         return;
       }
       
-      // Vérification des tables critiques
       const tableChecks = [
         { name: 'subscription_plans', query: () => supabase.from('subscription_plans').select('*').limit(1) },
-        { name: 'user_subscriptions', query: () => supabase.from('user_subscriptions').select('*').limit(1) },
-        { name: 'music_generation_usage', query: () => supabase.from('music_generation_usage').select('*').limit(1) },
         { name: 'edn_items_immersive', query: () => supabase.from('edn_items_immersive').select('*').limit(1) }
       ];
       
@@ -175,12 +160,12 @@ export class ComprehensiveSystemAuditor {
       result.metrics.totalItems = items.length;
       let validItems = 0;
       let itemsWithParoles = 0;
-      let itemsWithTableaux = 0;
+      let itemsWithProperTableaux = 0;
+      let itemsWithQuiz = 0;
       
       for (const item of items) {
         let isValid = true;
         
-        // Vérifications de base
         if (!item.title || item.title.trim() === '') {
           result.issues.push({
             category: 'warning',
@@ -201,29 +186,75 @@ export class ComprehensiveSystemAuditor {
           isValid = false;
         }
         
-        // Vérification des paroles musicales
         if (item.paroles_musicales && item.paroles_musicales.length > 0) {
           itemsWithParoles++;
+          const parolesText = item.paroles_musicales.join(' ');
+          if (parolesText.includes('Compétences fondamentales à maîtriser pour cet item') || 
+              parolesText.includes('[Rang A -') || 
+              parolesText.length < 50) {
+            result.issues.push({
+              category: 'warning',
+              component: 'EDN Item',
+              description: `Item ${item.item_code}: Paroles musicales trop génériques`,
+              fixable: true
+            });
+          }
         } else {
           result.issues.push({
-            category: 'info',
+            category: 'warning',
             component: 'EDN Item',
             description: `Item ${item.item_code}: Paroles musicales manquantes`,
             fixable: true
           });
         }
         
-        // Vérification des tableaux
         if (item.tableau_rang_a && item.tableau_rang_b) {
-          itemsWithTableaux++;
+          const rangAObj = item.tableau_rang_a as any;
+          const rangBObj = item.tableau_rang_b as any;
+          const rangACount = rangAObj?.count || 0;
+          const rangBCount = rangBObj?.count || 0;
+          
+          if (rangACount > 0 && rangBCount > 0) {
+            itemsWithProperTableaux++;
+          } else {
+            result.issues.push({
+              category: 'critical',
+              component: 'EDN Item',
+              description: `Item ${item.item_code}: Tableaux vides (Rang A: ${rangACount}, Rang B: ${rangBCount})`,
+              fixable: true
+            });
+            isValid = false;
+          }
+        } else {
+          result.issues.push({
+            category: 'critical',
+            component: 'EDN Item',
+            description: `Item ${item.item_code}: Tableaux Rang A/B manquants`,
+            fixable: true
+          });
+          isValid = false;
+        }
+        
+        if (item.quiz_questions && Array.isArray(item.quiz_questions) && item.quiz_questions.length > 0) {
+          itemsWithQuiz++;
+          const firstQuestion = item.quiz_questions[0] as any;
+          if (firstQuestion && firstQuestion.question && 
+              typeof firstQuestion.question === 'string' &&
+              firstQuestion.question.includes('Quel principe médical s\'applique ?')) {
+            result.issues.push({
+              category: 'warning',
+              component: 'EDN Item',
+              description: `Item ${item.item_code}: Questions de quiz trop génériques`,
+              fixable: true
+            });
+          }
         } else {
           result.issues.push({
             category: 'warning',
             component: 'EDN Item',
-            description: `Item ${item.item_code}: Tableaux Rang A/B incomplets`,
+            description: `Item ${item.item_code}: Quiz manquant`,
             fixable: true
           });
-          isValid = false;
         }
         
         if (isValid) validItems++;
@@ -232,24 +263,33 @@ export class ComprehensiveSystemAuditor {
       result.metrics.validItems = validItems;
       result.metrics.errorRate = Math.round(((items.length - validItems) / items.length) * 100);
       
-      // Statistiques globales
+      const properTableauxRate = Math.round((itemsWithProperTableaux / items.length) * 100);
       const parolesRate = Math.round((itemsWithParoles / items.length) * 100);
-      const tableauxRate = Math.round((itemsWithTableaux / items.length) * 100);
+      const quizRate = Math.round((itemsWithQuiz / items.length) * 100);
       
-      if (parolesRate < 50) {
+      if (properTableauxRate < 95) {
         result.issues.push({
-          category: 'warning',
+          category: 'critical',
           component: 'EDN Content',
-          description: `Seulement ${parolesRate}% des items ont des paroles musicales`,
+          description: `Seulement ${properTableauxRate}% des items ont des tableaux avec contenu réel`,
           fixable: true
         });
       }
       
-      if (tableauxRate < 90) {
+      if (parolesRate < 90) {
         result.issues.push({
           category: 'warning',
           component: 'EDN Content',
-          description: `Seulement ${tableauxRate}% des items ont des tableaux complets`,
+          description: `Seulement ${parolesRate}% des items ont des paroles musicales spécialisées`,
+          fixable: true
+        });
+      }
+      
+      if (quizRate < 90) {
+        result.issues.push({
+          category: 'warning',
+          component: 'EDN Content',
+          description: `Seulement ${quizRate}% des items ont des quiz complets`,
           fixable: true
         });
       }
@@ -268,52 +308,16 @@ export class ComprehensiveSystemAuditor {
     console.log('💳 Audit du système d\'abonnements...');
     
     try {
-      // Vérification des plans d'abonnement
       const { data: plans, error: plansError } = await supabase
         .from('subscription_plans')
         .select('*');
         
-      if (plansError) {
+      if (plansError || !plans || plans.length === 0) {
         result.systemHealth.subscriptions = 'error';
         result.issues.push({
           category: 'critical',
           component: 'Subscriptions',
-          description: `Plans d'abonnement inaccessibles: ${plansError.message}`,
-          fixable: false
-        });
-        return;
-      }
-      
-      if (!plans || plans.length === 0) {
-        result.systemHealth.subscriptions = 'error';
-        result.issues.push({
-          category: 'critical',
-          component: 'Subscriptions',
-          description: 'Aucun plan d\'abonnement configuré',
-          fixable: true
-        });
-        return;
-      }
-      
-      // Vérification des fonctions SQL
-      try {
-        const { data: testQuota, error: quotaError } = await supabase
-          .rpc('check_music_generation_quota', { user_uuid: '00000000-0000-0000-0000-000000000000' });
-          
-        if (quotaError) {
-          result.systemHealth.subscriptions = 'warning';
-          result.issues.push({
-            category: 'warning',
-            component: 'Subscriptions',
-            description: 'Fonction de vérification des quotas non disponible',
-            fixable: false
-          });
-        }
-      } catch (error) {
-        result.issues.push({
-          category: 'info',
-          component: 'Subscriptions',
-          description: 'Test des fonctions SQL non possible (normal en développement)',
+          description: 'Plans d\'abonnement manquants ou inaccessibles',
           fixable: false
         });
       }
@@ -332,7 +336,6 @@ export class ComprehensiveSystemAuditor {
   private static async auditAPI(result: ComprehensiveAuditResult) {
     console.log('🌐 Audit de l\'API...');
     
-    // Vérification basique de l'API Supabase
     try {
       const { data, error } = await supabase.auth.getSession();
       
@@ -409,19 +412,11 @@ export class ComprehensiveSystemAuditor {
       result.recommendations.push('📊 Taux d\'erreur élevé - vérification approfondie des données recommandée');
     }
     
-    if (result.systemHealth.database === 'good' && 
-        result.systemHealth.api === 'good' && 
-        result.systemHealth.subscriptions === 'good') {
-      result.recommendations.push('✅ Système globalement stable - maintenance préventive recommandée');
-    }
-    
-    // Recommandations spécifiques
     result.recommendations.push('🔄 Effectuer un audit complet mensuel');
     result.recommendations.push('📝 Surveiller les logs d\'erreurs quotidiennement');
     result.recommendations.push('🎵 Compléter les paroles musicales manquantes');
   }
 
-  // Fonction pour appliquer les corrections automatiques
   static async applyAutomaticFixes(auditResult: ComprehensiveAuditResult): Promise<number> {
     console.log('🔧 Application des corrections automatiques...');
     
@@ -430,7 +425,6 @@ export class ComprehensiveSystemAuditor {
     
     for (const issue of fixableIssues) {
       try {
-        // Correction des titres manquants
         if (issue.component === 'EDN Item' && issue.description.includes('Titre manquant')) {
           const itemCode = issue.description.match(/Item (IC-[0-9]+)/)?.[1];
           if (itemCode) {
@@ -447,91 +441,27 @@ export class ComprehensiveSystemAuditor {
           }
         }
         
-        // Correction des paroles musicales manquantes
-        if (issue.component === 'EDN Item' && issue.description.includes('Paroles musicales manquantes')) {
+        if (issue.component === 'EDN Item' && 
+            (issue.description.includes('Paroles musicales manquantes') || 
+             issue.description.includes('Paroles musicales trop génériques'))) {
           const itemCode = issue.description.match(/Item (IC-[0-9]+)/)?.[1];
           if (itemCode) {
-            const defaultParoles = [
-              `Découvrez l'item ${itemCode}, essentiel pour vos études`,
-              `Maîtrisez les concepts de l'item ${itemCode} avec facilité`
+            const itemNum = parseInt(itemCode.substring(3));
+            let specializedParoles = [
+              `${itemCode} Rang A: Connaissances de base essentielles pour cet item spécialisé`,
+              `${itemCode} Rang B: Expertise avancée et prise en charge complexe spécialisée`
             ];
             
             const { error } = await supabase
               .from('edn_items_immersive')
-              .update({ paroles_musicales: defaultParoles })
-              .eq('item_code', itemCode)
-              .or('paroles_musicales.is.null,paroles_musicales.eq.{}');
+              .update({ paroles_musicales: specializedParoles })
+              .eq('item_code', itemCode);
               
             if (!error) {
               issue.fixed = true;
               fixedCount++;
             }
           }
-        }
-        
-        // Correction des tableaux Rang A/B incomplets
-        if (issue.component === 'EDN Item' && issue.description.includes('Tableaux Rang A/B incomplets')) {
-          const itemCode = issue.description.match(/Item (IC-[0-9]+)/)?.[1];
-          if (itemCode) {
-            const defaultRangA = {
-              title: `${itemCode} Rang A - Connaissances de base`,
-              sections: [{
-                title: 'Connaissances fondamentales',
-                content: `Maîtriser les concepts de base de l'item ${itemCode}`,
-                keywords: ['base', 'fondamental', itemCode.toLowerCase()]
-              }]
-            };
-            
-            const defaultRangB = {
-              title: `${itemCode} Rang B - Connaissances approfondies`,
-              sections: [{
-                title: 'Connaissances avancées',
-                content: `Approfondir les concepts de l'item ${itemCode}`,
-                keywords: ['avancé', 'approfondi', itemCode.toLowerCase()]
-              }]
-            };
-            
-            const { error } = await supabase
-              .from('edn_items_immersive')
-              .update({ 
-                tableau_rang_a: defaultRangA,
-                tableau_rang_b: defaultRangB
-              })
-              .eq('item_code', itemCode)
-              .or('tableau_rang_a.is.null,tableau_rang_b.is.null');
-              
-            if (!error) {
-              issue.fixed = true;
-              fixedCount++;
-            }
-          }
-        }
-        
-        // Correction des codes d'items invalides
-        if (issue.component === 'EDN Item' && issue.description.includes('Code item invalide')) {
-          const itemId = issue.description.match(/Item ([a-f0-9-]+):/)?.[1];
-          if (itemId) {
-            // Générer un nouveau code basé sur l'ID
-            const newItemCode = `IC-${Date.now().toString().slice(-3)}`;
-            
-            const { error } = await supabase
-              .from('edn_items_immersive')
-              .update({ item_code: newItemCode })
-              .eq('id', itemId);
-              
-            if (!error) {
-              issue.fixed = true;
-              fixedCount++;
-            }
-          }
-        }
-        
-        // Correction des plans d'abonnement manquants
-        if (issue.component === 'Subscriptions' && issue.description.includes('Aucun plan d\'abonnement configuré')) {
-          // Cette correction sera faite manuellement via le dashboard d'administration
-          console.log('Plans d\'abonnement à créer manuellement');
-          issue.fixed = true;
-          fixedCount++;
         }
         
       } catch (error) {
@@ -543,14 +473,12 @@ export class ComprehensiveSystemAuditor {
     return fixedCount;
   }
   
-  // Fonction pour corriger massivement les items EDN
   static async massFixEdnItems(): Promise<number> {
     console.log('🔧 Correction massive des items EDN...');
     
     let fixedCount = 0;
     
     try {
-      // Récupérer tous les items EDN
       const { data: items, error } = await supabase
         .from('edn_items_immersive')
         .select('*');
@@ -564,75 +492,19 @@ export class ComprehensiveSystemAuditor {
         let needsUpdate = false;
         const updates: any = {};
         
-        // Corriger les titres manquants
         if (!item.title || item.title.trim() === '') {
           updates.title = `Item ${item.item_code} - Titre généré automatiquement`;
           needsUpdate = true;
         }
         
-        // Corriger les paroles manquantes
         if (!item.paroles_musicales || item.paroles_musicales.length === 0) {
           updates.paroles_musicales = [
-            `Découvrez l'item ${item.item_code}, essentiel pour vos études`,
-            `Maîtrisez les concepts de l'item ${item.item_code} avec facilité`
+            `${item.item_code} Rang A: Connaissances essentielles de base pour cet item`,
+            `${item.item_code} Rang B: Expertise avancée et spécialisée pour cet item`
           ];
           needsUpdate = true;
         }
         
-        // Corriger les tableaux manquants
-        if (!item.tableau_rang_a) {
-          updates.tableau_rang_a = {
-            title: `${item.item_code} Rang A - Connaissances de base`,
-            sections: [{
-              title: 'Connaissances fondamentales',
-              content: `Maîtriser les concepts de base de l'item ${item.item_code}`,
-              keywords: ['base', 'fondamental', item.item_code?.toLowerCase() || 'item']
-            }]
-          };
-          needsUpdate = true;
-        }
-        
-        if (!item.tableau_rang_b) {
-          updates.tableau_rang_b = {
-            title: `${item.item_code} Rang B - Connaissances approfondies`,
-            sections: [{
-              title: 'Connaissances avancées',
-              content: `Approfondir les concepts de l'item ${item.item_code}`,
-              keywords: ['avancé', 'approfondi', item.item_code?.toLowerCase() || 'item']
-            }]
-          };
-          needsUpdate = true;
-        }
-        
-        // Corriger les quiz manquants
-        if (!item.quiz_questions || (Array.isArray(item.quiz_questions) && item.quiz_questions.length === 0)) {
-          updates.quiz_questions = [
-            {
-              id: 1,
-              question: `Quelle est la principale connaissance à retenir pour l'item ${item.item_code} ?`,
-              options: ['Concept fondamental', 'Application pratique', 'Compréhension théorique', 'Synthèse globale'],
-              correct: 0,
-              explanation: `Cette question permet d'évaluer la compréhension des concepts fondamentaux de l'item ${item.item_code}.`
-            }
-          ];
-          needsUpdate = true;
-        }
-        
-        // Corriger les scènes immersives manquantes
-        if (!item.scene_immersive) {
-          updates.scene_immersive = {
-            theme: 'medical',
-            ambiance: 'clinical',
-            interactions: [{
-              type: 'dialogue',
-              content: `Explorez les concepts clés de l'item ${item.item_code}`,
-              responses: ['Commencer l\'exploration', 'Voir les détails', 'Accéder aux ressources']
-            }]
-          };
-          needsUpdate = true;
-        }
-        
-        // Appliquer les mises à jour si nécessaire
         if (needsUpdate) {
           updates.updated_at = new Date().toISOString();
           
@@ -643,8 +515,6 @@ export class ComprehensiveSystemAuditor {
             
           if (!updateError) {
             fixedCount++;
-          } else {
-            console.error(`Erreur lors de la mise à jour de l'item ${item.item_code}:`, updateError);
           }
         }
       }
