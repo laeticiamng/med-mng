@@ -91,24 +91,27 @@ async function extractAllCompetences() {
     // TEST: essayer un appel API directement après authentification
     log('🧪 TEST API avec authentification...');
     try {
-      const testResult = await page.evaluate(async () => {
-        const testUrl = 'https://livret.uness.fr/lisa/2025/api.php?action=query&list=categorymembers&cmtitle=Catégorie:Objectif_de_connaissance&cmlimit=1&format=json&origin=*';
-        const response = await fetch(testUrl);
-        const data = await response.json();
-        return {
-          status: response.status,
-          error: data.error,
-          hasQuery: !!data.query,
-          hasMembers: data.query?.categorymembers?.length > 0
-        };
-      });
-      log(`🧪 Résultat test API: ${JSON.stringify(testResult)}`);
+      // Utiliser page.request() au lieu de page.evaluate() pour préserver les cookies
+      const testUrl = 'https://livret.uness.fr/lisa/2025/api.php?action=query&list=categorymembers&cmtitle=Catégorie:Objectif_de_connaissance&cmlimit=1&format=json&origin=*';
+      const response = await page.goto(testUrl, { waitUntil: 'networkidle2' });
+      const responseText = await page.content();
       
-      if (testResult.error) {
-        log(`❌ ERREUR TEST API: ${JSON.stringify(testResult.error)}`);
-        if (testResult.error.code === 'readapidenied') {
-          throw new Error('API MediaWiki toujours protégée malgré l\'authentification CAS');
+      // Extraire le JSON de la réponse
+      const jsonMatch = responseText.match(/<pre[^>]*>({.*})<\/pre>/s);
+      if (jsonMatch) {
+        const data = JSON.parse(jsonMatch[1]);
+        log(`🧪 Résultat test API: status=${response.status()}, hasQuery=${!!data.query}, hasMembers=${data.query?.categorymembers?.length > 0}`);
+        
+        if (data.error) {
+          log(`❌ ERREUR TEST API: ${JSON.stringify(data.error)}`);
+          if (data.error.code === 'readapidenied') {
+            throw new Error('API MediaWiki toujours protégée malgré l\'authentification CAS');
+          }
+        } else if (data.query?.categorymembers?.length > 0) {
+          log(`✅ TEST API RÉUSSI: ${data.query.categorymembers.length} membres trouvés`);
         }
+      } else {
+        log(`❌ Format de réponse API inattendu`);
       }
     } catch (testError) {
       log(`❌ ERREUR TEST API: ${testError.message}`);
@@ -339,14 +342,21 @@ async function extractViaAPI(page, stats, cookieString) {
     
     try {
       log('📡 Appel API MediaWiki...');
-      const apiData = await page.evaluate(async (url) => {
-        console.log(`[BROWSER] Fetching: ${url}`);
-        const response = await fetch(url);
-        console.log(`[BROWSER] Response status: ${response.status}`);
-        const data = await response.json();
-        console.log(`[BROWSER] Response data keys:`, Object.keys(data));
-        return data;
-      }, finalUrl); // Utiliser finalUrl au lieu de apiUrl.toString()
+      // Utiliser page.goto() pour préserver les cookies CAS
+      const response = await page.goto(finalUrl, { waitUntil: 'networkidle2' });
+      const responseText = await page.content();
+      
+      // Extraire le JSON de la réponse
+      const jsonMatch = responseText.match(/<pre[^>]*>({.*})<\/pre>/s);
+      if (!jsonMatch) {
+        log(`❌ Format de réponse API inattendu: ${responseText.substring(0, 500)}`);
+        throw new Error('Format de réponse API non JSON');
+      }
+      
+      const apiData = JSON.parse(jsonMatch[1]);
+      log(`📡 Response status: ${response.status()}`);
+      log(`📡 Response data keys: ${Object.keys(apiData)}`);
+      
       
       log(`📊 Réponse API reçue: ${JSON.stringify(apiData, null, 2).substring(0, 500)}...`);
       
@@ -472,17 +482,23 @@ async function getPageContents(page, pageIds) {
   log(`🔗 URL contenu: ${contentUrl.toString()}`);
   
   try {
-    const contentData = await page.evaluate(async (url) => {
-      console.log(`[BROWSER CONTENT] Fetching: ${url}`);
-      const response = await fetch(url);
-      console.log(`[BROWSER CONTENT] Response status: ${response.status}`);
-      const data = await response.json();
-      console.log(`[BROWSER CONTENT] Response data keys:`, Object.keys(data));
-      if (data.query && data.query.pages) {
-        console.log(`[BROWSER CONTENT] Pages count: ${Object.keys(data.query.pages).length}`);
-      }
-      return data;
-    }, contentUrl.toString());
+    // Utiliser page.goto() pour préserver les cookies CAS
+    const response = await page.goto(contentUrl.toString(), { waitUntil: 'networkidle2' });
+    const responseText = await page.content();
+    
+    // Extraire le JSON de la réponse
+    const jsonMatch = responseText.match(/<pre[^>]*>({.*})<\/pre>/s);
+    if (!jsonMatch) {
+      log(`❌ Format de réponse contenu inattendu: ${responseText.substring(0, 500)}`);
+      throw new Error('Format de réponse contenu non JSON');
+    }
+    
+    const contentData = JSON.parse(jsonMatch[1]);
+    log(`📄 Response status: ${response.status()}`);
+    log(`📄 Response data keys: ${Object.keys(contentData)}`);
+    if (contentData.query && contentData.query.pages) {
+      log(`📄 Pages count: ${Object.keys(contentData.query.pages).length}`);
+    }
     
     log(`📄 Réponse contenu reçue - Keys: ${Object.keys(contentData)}`);
     
