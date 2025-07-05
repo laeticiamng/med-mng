@@ -23,18 +23,34 @@ export const TableauCompetencesOIC: React.FC<TableauCompetencesOICProps> = ({
   itemCode, 
   rang 
 }) => {
-  if (!data || !data.competences || data.competences.length === 0) {
+  // Gestion du cas où il n'y a pas de compétences OIC définies
+  if (!data || !data.competences || data.competences.length === 0 || data.count === 0) {
     return (
       <Card className="w-full">
-        <CardHeader>
-          <CardTitle className="text-amber-800">
-            {itemCode} Rang {rang} - Aucune compétence disponible
+        <CardHeader className={`${rang === 'A' ? 'bg-amber-50' : 'bg-orange-50'} border-b`}>
+          <CardTitle className={`${rang === 'A' ? 'text-amber-800' : 'text-orange-800'} flex items-center justify-between`}>
+            <span>{itemCode} Rang {rang} - Compétences OIC</span>
+            <Badge variant="outline" className="ml-2 text-gray-500">
+              0 compétence OIC
+            </Badge>
           </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-gray-600">
-            Les compétences pour ce rang ne sont pas encore disponibles.
+          <p className={`text-sm ${rang === 'A' ? 'text-amber-600' : 'text-orange-600'}`}>
+            Aucune compétence OIC officielle définie pour ce rang
           </p>
+        </CardHeader>
+        <CardContent className="p-6 text-center">
+          <div className="space-y-3">
+            <div className={`w-16 h-16 mx-auto rounded-full ${rang === 'A' ? 'bg-amber-100' : 'bg-orange-100'} flex items-center justify-center`}>
+              <span className={`text-2xl ${rang === 'A' ? 'text-amber-600' : 'text-orange-600'}`}>📋</span>
+            </div>
+            <h4 className="font-semibold text-gray-900">
+              Aucune compétence OIC disponible
+            </h4>
+            <p className="text-gray-600 text-sm max-w-md mx-auto">
+              Cet item n'a pas encore de compétences OIC officielles définies pour le rang {rang} 
+              dans le référentiel extracté de la base de données.
+            </p>
+          </div>
         </CardContent>
       </Card>
     );

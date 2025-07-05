@@ -2860,6 +2860,14 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
+      fix_all_edn_items_complete_oic_correction: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          fixed_count: number
+          errors_count: number
+          details: Json
+        }[]
+      }
       fix_all_edn_items_with_real_content: {
         Args: Record<PropertyKey, never>
         Returns: {
