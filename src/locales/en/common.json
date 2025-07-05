@@ -59,7 +59,8 @@
     "generationSuccess": "Musical generation successful with item lyrics!",
     "generationError": "Error during musical generation",
     "addToLibrary": "Add to library",
-    "addedToLibrary": "Song added to your library!"
+    "addedToLibrary": "Song added to your library!",
+    "freeGenerationsRemaining": "{{count}}/3 free generations remaining"
   },
   "home": {
     "title": "MED MNG",

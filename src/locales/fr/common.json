@@ -59,7 +59,8 @@
     "generationSuccess": "Génération musicale réussie avec les paroles de l'item !",
     "generationError": "Erreur lors de la génération musicale",
     "addToLibrary": "Ajouter à la bibliothèque",
-    "addedToLibrary": "Chanson ajoutée à votre bibliothèque !"
+    "addedToLibrary": "Chanson ajoutée à votre bibliothèque !",
+    "freeGenerationsRemaining": "{{count}}/3 générations gratuites restantes"
   },
   "home": {
     "title": "MED MNG",

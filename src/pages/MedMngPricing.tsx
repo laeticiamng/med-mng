@@ -21,7 +21,7 @@ export const MedMngPricing = () => {
   const freeFeatures = [
     {
       icon: Music,
-      title: "2 chansons gratuites",
+      title: "3 chansons gratuites",
       description: "Testez notre générateur d'IA musicale"
     },
     {
@@ -90,7 +90,7 @@ export const MedMngPricing = () => {
           {/* Free Trial Badge */}
           <Badge variant="secondary" className="mb-6 px-4 py-2 text-lg">
             <Music className="h-4 w-4 mr-2" />
-            <TranslatedText text="2 chansons gratuites pour commencer !" />
+            <TranslatedText text="3 chansons gratuites pour commencer !" />
           </Badge>
         </div>
 
@@ -197,7 +197,7 @@ export const MedMngPricing = () => {
                   <TranslatedText text="Comment fonctionne la version gratuite ?" />
                 </h4>
                 <p className="text-gray-600">
-                  <TranslatedText text="Vous pouvez générer jusqu'à 2 chansons gratuitement pour tester notre technologie d'IA musicale. Aucune carte bancaire requise." />
+                  <TranslatedText text="Vous pouvez générer jusqu'à 3 chansons gratuitement pour tester notre technologie d'IA musicale. Aucune carte bancaire requise." />
                 </p>
               </div>
 

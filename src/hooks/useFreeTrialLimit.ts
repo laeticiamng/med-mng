@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
 const FREE_TRIAL_KEY = 'med-mng-free-trial-count';
-const MAX_FREE_GENERATIONS = 2;
+const MAX_FREE_GENERATIONS = 3;
 
 export const useFreeTrialLimit = () => {
   const [freeGenerationsUsed, setFreeGenerationsUsed] = useState(0);
