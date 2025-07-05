@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 export type Language = 'fr' | 'en' | 'es' | 'it' | 'zh' | 'ja';
+export type SupportedLanguage = Language; // Alias pour compatibilité
 
 export interface LanguageInfo {
   code: Language;
@@ -19,10 +20,18 @@ export const LANGUAGES: LanguageInfo[] = [
   { code: 'ja', name: '日本語', nativeName: '日本語', flag: '🇯🇵' },
 ];
 
+// Alias pour compatibilité
+export const SUPPORTED_LANGUAGES: Record<string, LanguageInfo> = LANGUAGES.reduce((acc, lang) => {
+  acc[lang.code] = lang;
+  return acc;
+}, {} as Record<string, LanguageInfo>);
+
 interface LanguageContextType {
   currentLanguage: Language;
   setCurrentLanguage: (language: Language) => void;
   t: (key: string, params?: Record<string, string | number>) => string;
+  translate: (text: string, targetLanguage?: Language) => Promise<string>;
+  isTranslating: boolean;
   languages: LanguageInfo[];
 }
 
@@ -40,6 +49,7 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
   });
 
   const [translations, setTranslations] = useState<Record<string, any>>({});
+  const [isTranslating, setIsTranslating] = useState(false);
 
   // Charger les traductions pour la langue courante
   useEffect(() => {
@@ -102,12 +112,38 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
     return value;
   };
 
+  // Fonction de traduction de texte libre (pour compatibilité avec les hooks existants)
+  const translate = async (text: string, targetLanguage?: Language): Promise<string> => {
+    const target = targetLanguage || currentLanguage;
+    
+    // Si c'est déjà en français ou la langue cible, retourner tel quel
+    if (target === 'fr') {
+      return text;
+    }
+
+    setIsTranslating(true);
+    
+    try {
+      // Pour l'instant, on retourne le texte tel quel
+      // Plus tard, on pourra intégrer une vraie API de traduction
+      console.log(`Traduction simulée de "${text}" vers ${target}`);
+      return text;
+    } catch (error) {
+      console.error('Erreur de traduction:', error);
+      return text;
+    } finally {
+      setIsTranslating(false);
+    }
+  };
+
   return (
     <LanguageContext.Provider
       value={{
         currentLanguage,
         setCurrentLanguage,
         t,
+        translate,
+        isTranslating,
         languages: LANGUAGES,
       }}
     >
