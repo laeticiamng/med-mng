@@ -433,9 +433,53 @@ async function extractViaMediaWikiAPI(page, stats, cookieString) {
     const allMembers = apiData.query.categorymembers || [];
     log(`📋 ${allMembers.length} membres trouvés dans la catégorie (API)`);
     
-    const pageIds = allMembers
-      .filter(p => p.title?.match(/OIC-\d{3}-\d{2}-[AB]-\d{2}/))
+    // DEBUG: Afficher les premiers titres pour comprendre le format
+    if (pageCount === 0 && allMembers.length > 0) {
+      log(`🔍 DEBUG - Exemples de titres de pages:`);
+      allMembers.slice(0, 10).forEach((page, i) => {
+        log(`   ${i+1}. "${page.title}" (ID: ${page.pageid})`);
+      });
+    }
+    
+    // Tester différents patterns de filtrage
+    const oicPattern1 = /OIC-\d{3}-\d{2}-[AB]-\d{2}/;
+    const oicPattern2 = /OIC[\s_-]\d{3}[\s_-]\d{2}[\s_-][AB][\s_-]\d{2}/;
+    const oicPattern3 = /OIC.*\d{3}.*\d{2}.*[AB].*\d{2}/;
+    
+    let pageIds = allMembers
+      .filter(p => p.title?.match(oicPattern1))
       .map(p => p.pageid);
+    
+    if (pageIds.length === 0) {
+      log(`⚠️ Pattern strict ne trouve rien, test pattern flexible...`);
+      pageIds = allMembers
+        .filter(p => p.title?.match(oicPattern2))
+        .map(p => p.pageid);
+    }
+    
+    if (pageIds.length === 0) {
+      log(`⚠️ Pattern avec espaces ne trouve rien, test pattern très flexible...`);
+      pageIds = allMembers
+        .filter(p => p.title?.match(oicPattern3))
+        .map(p => p.pageid);
+    }
+    
+    if (pageIds.length === 0) {
+      log(`🔍 PATTERN DEBUG - Test si les pages contiennent "OIC":`);
+      const oicPages = allMembers.filter(p => p.title?.includes('OIC'));
+      log(`   → ${oicPages.length} pages contiennent "OIC"`);
+      if (oicPages.length > 0) {
+        oicPages.slice(0, 5).forEach((page, i) => {
+          log(`     ${i+1}. "${page.title}"`);
+        });
+      }
+      
+      // Si aucun pattern ne fonctionne, prendre toutes les pages pour debug
+      if (allMembers.length > 0) {
+        log(`🚨 TAKING ALL PAGES FOR DEBUG - Will extract content to see actual format`);
+        pageIds = allMembers.slice(0, 10).map(p => p.pageid); // Prendre seulement 10 pour debug
+      }
+    }
     
     stats.totalFound += pageIds.length;
     log(`📄 Lot ${++pageCount}: ${pageIds.length}/${allMembers.length} compétences valides (Total: ${stats.totalFound})`);
