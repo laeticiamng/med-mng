@@ -46,10 +46,10 @@ const Generator = () => {
 
   const canGenerate = () => {
     if (contentType === 'edn') {
-      return selectedItem && selectedRang && selectedStyle && ednLyrics?.paroles_musicales;
+      return !!(selectedItem && selectedRang && selectedStyle && ednLyrics?.paroles_musicales);
     }
     if (contentType === 'ecos') {
-      return selectedSituation && selectedStyle;
+      return !!(selectedSituation && selectedStyle);
     }
     return false;
   };
