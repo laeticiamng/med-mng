@@ -1,15 +1,19 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { getCategoryMembers, getPageContent, testPublicAccess } from './api-client.ts'
-import { parseOICContent, OicCompetence } from './oic-parser.ts'
+import { parseEnhancedOICContent, EnhancedOicCompetence } from './enhanced-oic-parser.ts'
 
 // Importations pour Puppeteer (authentification CAS)
 // @ts-ignore
 import puppeteer from "https://deno.land/x/puppeteer@16.2.0/mod.ts"
 
-// Credentials CAS depuis les variables d'environnement
-const CAS_USERNAME = Deno.env.get('CAS_USERNAME') || 'laeticia.moto-ngane@etud.u-picardie.fr'
-const CAS_PASSWORD = Deno.env.get('CAS_PASSWORD') || 'Aiciteal1!'
+// Credentials CAS sécurisés depuis les secrets Supabase
+const CAS_USERNAME = Deno.env.get('CAS_USERNAME')
+const CAS_PASSWORD = Deno.env.get('CAS_PASSWORD')
+
+if (!CAS_USERNAME || !CAS_PASSWORD) {
+  console.error('❌ Credentials CAS manquants dans les secrets Supabase')
+}
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -22,9 +26,9 @@ serve(async (req) => {
   }
 
   try {
-    // Configuration Supabase - utiliser les valeurs hardcodées pour ce projet
-    const supabaseUrl = 'https://yaincoxihiqdksxgrsrk.supabase.co'
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0MjgxMTgyNywiZXhwIjoyMDU4Mzg3ODI3fQ.lqvk4b1gIS3gbSFKtjQuOM4XgsnEK4aPaAVCDMkdbyM'
+    // Configuration Supabase sécurisée depuis les variables d'environnement
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
     
     if (!supabaseUrl || !supabaseKey) {
       console.error('Variables Supabase manquantes')
@@ -191,8 +195,8 @@ async function extractCompetences(supabaseClient: any, session_id: string) {
       let savedInBatch = 0
       for (const page of batchContent) {
         try {
-          console.log(`🔍 Parsing page: ${page.title} (ID: ${page.pageid})`)
-          const competence = parseOICContent(page)
+          console.log(`🔍 Parsing page avec parser amélioré: ${page.title} (ID: ${page.pageid})`)
+          const competence = parseEnhancedOICContent(page)
           
           if (competence) {
             // Log de l'échantillon AVANT insertion
