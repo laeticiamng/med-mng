@@ -325,9 +325,9 @@ function extractRangs(html: string, rangType: string): string[] {
         
         // Extraire les éléments de liste de manière robuste
         const listMatches = [
-          ...Array.from(content.matchAll(/<li[^>]*>([^<]+(?:<[^>]+>[^<]*</[^>]+>[^<]*)*)<\/li>/gi)),
-          ...Array.from(content.matchAll(/<p[^>]*>\\*\\s*([^<]+)<\/p>/gi)),
-          ...Array.from(content.matchAll(/\\*\\s*([^\n*]{10,200})/g))
+          ...Array.from(content.matchAll(/<li[^>]*>([^<]+)<\/li>/gi)),
+          ...Array.from(content.matchAll(/<p[^>]*>\*\s*([^<]+)<\/p>/gi)),
+          ...Array.from(content.matchAll(/\*\s*([^\n*]{10,200})/g))
         ];
         
         listMatches.forEach(match => {
