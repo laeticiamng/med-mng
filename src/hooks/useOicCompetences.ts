@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -33,7 +34,7 @@ export const useOicCompetences = (itemCode: string, rang: 'A' | 'B') => {
         // Extraire le numéro d'item (IC-1 -> 001, IC-10 -> 010)
         const itemNumber = itemCode.replace('IC-', '').padStart(3, '0');
         
-        console.log(`🔍 Récupération compétences OIC pour item ${itemNumber} rang ${rang}`);
+        console.log(`🔍 Récupération compétences OIC RÉELLES pour item ${itemNumber} rang ${rang}`);
         
         const { data, error } = await supabase
           .from('oic_competences')
@@ -60,16 +61,30 @@ export const useOicCompetences = (itemCode: string, rang: 'A' | 'B') => {
           .order('objectif_id');
 
         if (error) {
-          console.error('Erreur récupération OIC:', error);
+          console.error('❌ Erreur récupération OIC:', error);
           setError(error.message);
           return;
         }
 
-        console.log(`✅ ${data?.length || 0} compétences OIC récupérées pour ${itemCode} rang ${rang}`);
-        setCompetences(data || []);
+        console.log(`✅ ${data?.length || 0} compétences OIC RÉELLES récupérées pour ${itemCode} rang ${rang}`);
+        
+        // Filtrer pour ne garder que les compétences avec du vrai contenu (pas générique)
+        const realCompetences = data?.filter(comp => {
+          // Vérifier si c'est du contenu générique enrichi automatiquement
+          const hasGenericContent = 
+            comp.titre_complet?.includes('Expertise de base en') ||
+            comp.titre_complet?.includes('Expertise avancée en') ||
+            comp.sommaire?.includes('Communication - Éthique - Raisonnement') ||
+            comp.intitule === comp.description;
+          
+          return !hasGenericContent && comp.objectif_id && comp.intitule;
+        }) || [];
+
+        console.log(`🎯 ${realCompetences.length} compétences AUTHENTIQUES après filtrage`);
+        setCompetences(realCompetences);
         
       } catch (err) {
-        console.error('Erreur:', err);
+        console.error('❌ Erreur:', err);
         setError(err instanceof Error ? err.message : 'Erreur inconnue');
       } finally {
         setLoading(false);
