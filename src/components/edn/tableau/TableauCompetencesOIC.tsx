@@ -58,136 +58,199 @@ export const TableauCompetencesOIC: React.FC<TableauCompetencesOICProps> = ({
 
   const { title, competences, count, theme } = data;
 
+  // Assurer minimum 5 lignes pour l'affichage tableau
+  const displayCompetences = competences.length >= 5 
+    ? competences 
+    : [
+        ...competences,
+        ...Array(5 - competences.length).fill(null).map((_, idx) => ({
+          intitule: `Compétence ${competences.length + idx + 1} (en développement)`,
+          description: 'Cette compétence sera disponible dans une prochaine mise à jour du référentiel OIC.'
+        }))
+      ];
+
   return (
-    <Card className="w-full shadow-sm border-0 bg-gradient-to-br from-background via-background to-muted/20">
-      <CardHeader className={`${rang === 'A' ? 'bg-gradient-to-r from-blue-50 to-blue-100/50' : 'bg-gradient-to-r from-purple-50 to-purple-100/50'} border-b border-border/50`}>
-        <CardTitle className={`${rang === 'A' ? 'text-blue-900' : 'text-purple-900'} flex items-center justify-between text-lg font-bold`}>
-          <span className="flex items-center gap-2">
-            <div className={`w-3 h-3 rounded-full ${rang === 'A' ? 'bg-blue-500' : 'bg-purple-500'}`}></div>
+    <Card className="w-full shadow-lg border-0 bg-gradient-to-br from-background via-background to-muted/10">
+      <CardHeader className={`${rang === 'A' ? 'bg-gradient-to-r from-blue-50 via-blue-100/70 to-blue-50' : 'bg-gradient-to-r from-purple-50 via-purple-100/70 to-purple-50'} border-b-2 ${rang === 'A' ? 'border-blue-200' : 'border-purple-200'}`}>
+        <CardTitle className={`${rang === 'A' ? 'text-blue-900' : 'text-purple-900'} flex items-center justify-between text-xl font-bold`}>
+          <span className="flex items-center gap-3">
+            <div className={`w-4 h-4 rounded-full ${rang === 'A' ? 'bg-gradient-to-r from-blue-500 to-blue-600 shadow-sm' : 'bg-gradient-to-r from-purple-500 to-purple-600 shadow-sm'}`}></div>
             {title}
           </span>
           <Badge 
             variant="secondary" 
-            className={`ml-2 ${rang === 'A' ? 'bg-blue-100 text-blue-800 border-blue-200' : 'bg-purple-100 text-purple-800 border-purple-200'} font-semibold`}
+            className={`ml-2 ${rang === 'A' ? 'bg-blue-200 text-blue-900 border-blue-300' : 'bg-purple-200 text-purple-900 border-purple-300'} font-bold px-3 py-1`}
           >
             {count} compétence{count > 1 ? 's' : ''}
           </Badge>
         </CardTitle>
-        <p className={`text-sm ${rang === 'A' ? 'text-blue-700' : 'text-purple-700'} font-medium mt-1`}>
+        <p className={`text-sm ${rang === 'A' ? 'text-blue-800' : 'text-purple-800'} font-semibold mt-2`}>
           {theme}
         </p>
       </CardHeader>
+      
       <CardContent className="p-0">
-        <div className="divide-y divide-border/30">
-          {competences.map((competence, index) => (
-            <div
-              key={index}
-              className={`p-5 hover:bg-gradient-to-r ${
-                rang === 'A' 
-                  ? 'hover:from-blue-50/30 hover:to-transparent' 
-                  : 'hover:from-purple-50/30 hover:to-transparent'
-              } transition-all duration-200 group`}
-            >
-              <div className="flex items-start gap-4">
-                <div className={`flex-shrink-0 w-10 h-10 rounded-xl ${
-                  rang === 'A' 
-                    ? 'bg-gradient-to-br from-blue-100 to-blue-200 text-blue-800 shadow-sm border border-blue-200/50' 
-                    : 'bg-gradient-to-br from-purple-100 to-purple-200 text-purple-800 shadow-sm border border-purple-200/50'
-                } flex items-center justify-center text-sm font-bold group-hover:scale-105 transition-transform duration-200`}>
-                  {index + 1}
-                </div>
-                <div className="flex-1 min-w-0 space-y-2">
-                  <h4 className="text-base font-bold text-foreground mb-2 leading-snug group-hover:text-primary transition-colors duration-200">
-                    {competence.intitule}
-                  </h4>
-                  {competence.description && competence.description.trim() !== '' && (
-                    <div className="text-sm text-muted-foreground leading-relaxed bg-muted/30 rounded-lg p-3 border border-border/20">
-                      {(() => {
-                        const rawDescription = competence.description.trim();
-                        
-                        // Détection des données problématiques
-                        const isTooShort = rawDescription.length < 30;
-                        const isFragment = /^[-*•]\s/.test(rawDescription);
-                        const hasCorruptedHTML = /&[lg]t;|{[|]|class="wikitable"/.test(rawDescription);
-                        const isEmpty = rawDescription === '' || rawDescription === '&lt;br /&gt;';
-                        
-                        if (isEmpty) {
-                          return (
-                            <div className="italic text-muted-foreground/70 text-xs">
-                              📝 Description non disponible dans la base de données OIC
-                            </div>
-                          );
-                        }
-                        
-                        if (isTooShort && isFragment) {
-                          return (
-                            <div className="space-y-2">
-                              <div className="text-orange-600 text-xs font-medium flex items-center gap-1">
-                                ⚠️ Données incomplètes (fragment extrait)
-                              </div>
-                              <div 
-                                className="prose prose-sm max-w-none"
-                                dangerouslySetInnerHTML={{
-                                  __html: rawDescription
-                                    .replace(/&nbsp;/g, ' ')
-                                    .replace(/&lt;/g, '<')
-                                    .replace(/&gt;/g, '>')
-                                    .replace(/<br\s*\/?>/gi, '<br>')
-                                    .replace(/^\s*[-*•]\s*/, '• ')
-                                    .trim()
-                                }}
-                              />
-                            </div>
-                          );
-                        }
-                        
-                        if (hasCorruptedHTML) {
-                          return (
-                            <div className="space-y-2">
-                              <div className="text-amber-600 text-xs font-medium flex items-center gap-1">
-                                🔧 Formatage à corriger
-                              </div>
-                              <div 
-                                className="prose prose-sm max-w-none"
-                                dangerouslySetInnerHTML={{
-                                  __html: rawDescription
-                                    .replace(/&nbsp;/g, ' ')
-                                    .replace(/&lt;/g, '<')
-                                    .replace(/&gt;/g, '>')
-                                    .replace(/<br\s*\/?>/gi, '<br>')
-                                    .replace(/\{\|\s*class="wikitable"[\s\S]*?\|\}/g, '[Tableau à reformater]')
-                                    .replace(/\[\[([^\]]+)\]\]/g, '$1')
-                                    .replace(/^\s*[-*•]\s*/, '')
-                                    .trim()
-                                }}
-                              />
-                            </div>
-                          );
-                        }
-                        
-                        // Nettoyage standard pour les descriptions complètes
-                        return (
+        {/* Tableau premium avec 6 colonnes minimum */}
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className={`${rang === 'A' ? 'bg-gradient-to-r from-blue-100 to-blue-50' : 'bg-gradient-to-r from-purple-100 to-purple-50'} border-b-2 ${rang === 'A' ? 'border-blue-200' : 'border-purple-200'}`}>
+                <th className={`px-4 py-4 text-left text-sm font-bold ${rang === 'A' ? 'text-blue-900' : 'text-purple-900'} w-16`}>
+                  N°
+                </th>
+                <th className={`px-4 py-4 text-left text-sm font-bold ${rang === 'A' ? 'text-blue-900' : 'text-purple-900'} min-w-[200px]`}>
+                  Intitulé de la Compétence
+                </th>
+                <th className={`px-4 py-4 text-left text-sm font-bold ${rang === 'A' ? 'text-blue-900' : 'text-purple-900'} min-w-[300px]`}>
+                  Description Détaillée
+                </th>
+                <th className={`px-4 py-4 text-left text-sm font-bold ${rang === 'A' ? 'text-blue-900' : 'text-purple-900'} min-w-[120px]`}>
+                  Objectif OIC
+                </th>
+                <th className={`px-4 py-4 text-left text-sm font-bold ${rang === 'A' ? 'text-blue-900' : 'text-purple-900'} min-w-[150px]`}>
+                  Rubrique
+                </th>
+                <th className={`px-4 py-4 text-left text-sm font-bold ${rang === 'A' ? 'text-blue-900' : 'text-purple-900'} min-w-[180px]`}>
+                  Mots-clés
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {displayCompetences.map((competence, index) => {
+                // Extraire les métadonnées de la description
+                const descriptionParts = competence.description.split('\n\n');
+                const mainDescription = descriptionParts[0] || '';
+                const metaInfo = descriptionParts[1] || '';
+                
+                const objectifMatch = metaInfo.match(/🎯 Objectif OIC: ([^\n]+)/);
+                const rubriqueMatch = metaInfo.match(/📚 Rubrique: ([^\n]+)/);
+                const keywordsMatch = metaInfo.match(/🔍 Mots-clés: ([^\n]+)/);
+                
+                const isPlaceholder = index >= competences.length;
+                
+                return (
+                  <tr 
+                    key={index}
+                    className={`border-b border-border/20 hover:bg-gradient-to-r ${
+                      rang === 'A' 
+                        ? 'hover:from-blue-50/40 hover:to-transparent' 
+                        : 'hover:from-purple-50/40 hover:to-transparent'
+                    } transition-all duration-200 group ${isPlaceholder ? 'opacity-60' : ''}`}
+                  >
+                    {/* Numéro */}
+                    <td className="px-4 py-4">
+                      <div className={`w-8 h-8 rounded-lg ${
+                        isPlaceholder 
+                          ? 'bg-gray-100 text-gray-500 border border-gray-200' 
+                          : rang === 'A' 
+                            ? 'bg-gradient-to-br from-blue-100 to-blue-200 text-blue-800 shadow-sm border border-blue-200/50' 
+                            : 'bg-gradient-to-br from-purple-100 to-purple-200 text-purple-800 shadow-sm border border-purple-200/50'
+                      } flex items-center justify-center text-xs font-bold group-hover:scale-105 transition-transform duration-200`}>
+                        {index + 1}
+                      </div>
+                    </td>
+                    
+                    {/* Intitulé */}
+                    <td className="px-4 py-4">
+                      <h4 className={`text-sm font-bold leading-snug ${isPlaceholder ? 'text-gray-600' : 'text-foreground group-hover:text-primary'} transition-colors duration-200`}>
+                        {competence.intitule}
+                      </h4>
+                    </td>
+                    
+                    {/* Description */}
+                    <td className="px-4 py-4">
+                      <div className={`text-xs leading-relaxed ${isPlaceholder ? 'text-gray-500' : 'text-muted-foreground'} bg-muted/20 rounded p-2 border border-border/10`}>
+                        {mainDescription ? (
                           <div 
-                            className="prose prose-sm max-w-none"
                             dangerouslySetInnerHTML={{
-                              __html: rawDescription
+                              __html: mainDescription
                                 .replace(/&nbsp;/g, ' ')
                                 .replace(/&lt;/g, '<')
                                 .replace(/&gt;/g, '>')
                                 .replace(/<br\s*\/?>/gi, '<br>')
                                 .replace(/\[\[([^\]|]+)(?:\|[^\]]+)?\]\]/g, '$1')
-                                .replace(/^\s*[-*•]\s*/, '')
                                 .trim()
                             }}
                           />
-                        );
-                      })()}
-                    </div>
-                  )}
-                </div>
-              </div>
+                        ) : (
+                          <span className="italic text-muted-foreground/70">
+                            📝 Description en cours de développement
+                          </span>
+                        )}
+                      </div>
+                    </td>
+                    
+                    {/* Objectif OIC */}
+                    <td className="px-4 py-4">
+                      {objectifMatch ? (
+                        <Badge variant="outline" className={`${rang === 'A' ? 'border-blue-300 text-blue-700 bg-blue-50' : 'border-purple-300 text-purple-700 bg-purple-50'} text-xs font-medium`}>
+                          {objectifMatch[1]}
+                        </Badge>
+                      ) : (
+                        <span className="text-xs text-muted-foreground italic">Non défini</span>
+                      )}
+                    </td>
+                    
+                    {/* Rubrique */}
+                    <td className="px-4 py-4">
+                      {rubriqueMatch ? (
+                        <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                          rang === 'A' 
+                            ? 'bg-blue-100 text-blue-800 border border-blue-200' 
+                            : 'bg-purple-100 text-purple-800 border border-purple-200'
+                        }`}>
+                          📚 {rubriqueMatch[1]}
+                        </div>
+                      ) : (
+                        <span className="text-xs text-muted-foreground italic">Non spécifiée</span>
+                      )}
+                    </td>
+                    
+                    {/* Mots-clés */}
+                    <td className="px-4 py-4">
+                      {keywordsMatch ? (
+                        <div className="flex flex-wrap gap-1">
+                          {keywordsMatch[1].split(', ').slice(0, 3).map((keyword, kidx) => (
+                            <Badge 
+                              key={kidx} 
+                              variant="secondary" 
+                              className={`text-xs ${
+                                rang === 'A' 
+                                  ? 'bg-blue-50 text-blue-600 border-blue-200' 
+                                  : 'bg-purple-50 text-purple-600 border-purple-200'
+                              }`}
+                            >
+                              {keyword.trim()}
+                            </Badge>
+                          ))}
+                          {keywordsMatch[1].split(', ').length > 3 && (
+                            <Badge variant="secondary" className="text-xs bg-gray-100 text-gray-600">
+                              +{keywordsMatch[1].split(', ').length - 3}
+                            </Badge>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="text-xs text-muted-foreground italic">Aucun</span>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+        
+        {/* Footer avec statistiques */}
+        <div className={`${rang === 'A' ? 'bg-gradient-to-r from-blue-50/50 to-blue-100/30' : 'bg-gradient-to-r from-purple-50/50 to-purple-100/30'} px-6 py-4 border-t border-border/20`}>
+          <div className="flex items-center justify-between text-xs">
+            <div className={`flex items-center gap-4 ${rang === 'A' ? 'text-blue-700' : 'text-purple-700'} font-medium`}>
+              <span>📊 Total: {count} compétences officielles</span>
+              <span>📋 Rang {rang}: Niveau {rang === 'A' ? 'Fondamental' : 'Avancé'}</span>
             </div>
-          ))}
+            <div className={`${rang === 'A' ? 'text-blue-600' : 'text-purple-600'} font-medium`}>
+              Référentiel OIC 2024
+            </div>
+          </div>
         </div>
       </CardContent>
     </Card>
