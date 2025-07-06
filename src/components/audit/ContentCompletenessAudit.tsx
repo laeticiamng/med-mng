@@ -161,8 +161,110 @@ export const ContentCompletenessAudit: React.FC = () => {
               </Card>
             </div>
 
+            {/* Résumé analytique */}
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-6 mb-6 border">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">📊 Analyse Détaillée</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
+                <div className="bg-white p-4 rounded-lg border">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-3 h-3 bg-red-500 rounded-full"></div>
+                    <span className="font-medium">Critiques (&lt;20%)</span>
+                  </div>
+                  <p className="text-2xl font-bold text-red-600">{results.statistics.criticalCount}</p>
+                  <p className="text-gray-600">Nécessitent une action immédiate</p>
+                </div>
+                <div className="bg-white p-4 rounded-lg border">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
+                    <span className="font-medium">Incomplètes (20-70%)</span>
+                  </div>
+                  <p className="text-2xl font-bold text-orange-600">{results.statistics.incompleteCount}</p>
+                  <p className="text-gray-600">Peuvent être améliorées</p>
+                </div>
+                <div className="bg-white p-4 rounded-lg border">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-3 h-3 bg-yellow-500 rounded-full"></div>
+                    <span className="font-medium">Attention (70-90%)</span>
+                  </div>
+                  <p className="text-2xl font-bold text-yellow-600">{results.needsAttention.length}</p>
+                  <p className="text-gray-600">Peuvent être optimisées</p>
+                </div>
+                <div className="bg-white p-4 rounded-lg border">
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+                    <span className="font-medium">Complètes (&gt;90%)</span>
+                  </div>
+                  <p className="text-2xl font-bold text-green-600">{results.statistics.completeCount}</p>
+                  <p className="text-gray-600">Bien documentées</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Actions recommandées */}
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-6 mb-6">
+              <h3 className="text-lg font-semibold text-amber-800 mb-4">🎯 Actions Prioritaires</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <h4 className="font-medium text-amber-800 mb-2">Immédiat</h4>
+                  <ul className="text-sm text-amber-700 space-y-1">
+                    <li>• Corriger {results.statistics.criticalCount} compétences critiques</li>
+                    <li>• Remplir les champs obligatoires vides</li>
+                    <li>• Éliminer les contenus génériques</li>
+                  </ul>
+                </div>
+                <div>
+                  <h4 className="font-medium text-amber-800 mb-2">Court terme</h4>
+                  <ul className="text-sm text-amber-700 space-y-1">
+                    <li>• Enrichir {results.statistics.incompleteCount} compétences incomplètes</li>
+                    <li>• Synchroniser avec les données UNESS officielles</li>
+                    <li>• Standardiser les formats de contenu</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* Métriques de qualité */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+              <Card>
+                <CardContent className="p-4">
+                  <h4 className="font-semibold text-gray-900 mb-2">Taux de Complétude</h4>
+                  <div className="flex items-center gap-3">
+                    <Progress value={results.statistics.averageCompleteness} className="flex-1" />
+                    <span className="text-lg font-bold text-blue-600">{results.statistics.averageCompleteness}%</span>
+                  </div>
+                  <p className="text-xs text-gray-600 mt-1">Moyenne générale</p>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardContent className="p-4">
+                  <h4 className="font-semibold text-gray-900 mb-2">Qualité des Données</h4>
+                  <div className="flex items-center gap-3">
+                    <Progress value={Math.round((results.statistics.completeCount / results.total) * 100)} className="flex-1" />
+                    <span className="text-lg font-bold text-green-600">
+                      {Math.round((results.statistics.completeCount / results.total) * 100)}%
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-600 mt-1">Compétences de qualité</p>
+                </CardContent>
+              </Card>
+              
+              <Card>
+                <CardContent className="p-4">
+                  <h4 className="font-semibold text-gray-900 mb-2">Urgence d'Action</h4>
+                  <div className="flex items-center gap-3">
+                    <Progress value={Math.round((results.statistics.criticalCount / results.total) * 100)} className="flex-1" />
+                    <span className="text-lg font-bold text-red-600">
+                      {Math.round((results.statistics.criticalCount / results.total) * 100)}%
+                    </span>
+                  </div>
+                  <p className="text-xs text-gray-600 mt-1">Compétences critiques</p>
+                </CardContent>
+              </Card>
+            </div>
+
             {/* Onglets détaillés */}
-            <Tabs defaultValue="critical" className="w-full">
+            <Tabs defaultValue={results.statistics.criticalCount > 0 ? "critical" : "incomplete"} className="w-full">
               <TabsList className="grid w-full grid-cols-4">
                 <TabsTrigger value="critical" className="flex items-center gap-2">
                   <AlertTriangle className="w-4 h-4" />
@@ -186,8 +288,18 @@ export const ContentCompletenessAudit: React.FC = () => {
                 <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
                   <h4 className="font-semibold text-red-800 mb-2">🚨 Compétences Critiques</h4>
                   <p className="text-red-700 text-sm">
-                    Ces compétences ont moins de {20}% de complétude et nécessitent une attention immédiate.
+                    Ces compétences ont moins de 20% de complétude et nécessitent une attention immédiate.
                   </p>
+                  {results.critical.length > 0 && (
+                    <div className="mt-3 p-3 bg-red-100 rounded border border-red-300">
+                      <h5 className="font-medium text-red-800 text-xs mb-2">ACTIONS URGENTES REQUISES :</h5>
+                      <ul className="text-xs text-red-700 space-y-1">
+                        <li>• Identifier les sources de données officielles UNESS</li>
+                        <li>• Prioriser l'enrichissement de ces {results.critical.length} compétences</li>
+                        <li>• Programmer une extraction complète des contenus manquants</li>
+                      </ul>
+                    </div>
+                  )}
                 </div>
                 
                 {results.critical.map((comp) => (
@@ -335,11 +447,51 @@ export const ContentCompletenessAudit: React.FC = () => {
               </TabsContent>
             </Tabs>
 
-            {/* Actions */}
-            <div className="flex justify-center pt-4">
+            {/* Plan d'action et export */}
+            <div className="bg-gray-50 rounded-lg p-6 mt-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">📋 Plan d'Action et Export</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-white p-4 rounded border">
+                  <h4 className="font-medium text-gray-900 mb-2">📊 Rapport Détaillé</h4>
+                  <p className="text-sm text-gray-600 mb-3">
+                    Exportez un rapport complet de l'analyse avec toutes les métriques.
+                  </p>
+                  <Button variant="outline" size="sm" className="w-full">
+                    Télécharger PDF
+                  </Button>
+                </div>
+                
+                <div className="bg-white p-4 rounded border">
+                  <h4 className="font-medium text-gray-900 mb-2">📋 Liste Compétences</h4>
+                  <p className="text-sm text-gray-600 mb-3">
+                    Exportez la liste des compétences à corriger au format CSV.
+                  </p>
+                  <Button variant="outline" size="sm" className="w-full">
+                    Exporter CSV
+                  </Button>
+                </div>
+                
+                <div className="bg-white p-4 rounded border">
+                  <h4 className="font-medium text-gray-900 mb-2">🔄 Synchronisation</h4>
+                  <p className="text-sm text-gray-600 mb-3">
+                    Lancez une synchronisation avec les données UNESS officielles.
+                  </p>
+                  <Button variant="outline" size="sm" className="w-full">
+                    Sync UNESS
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            {/* Actions principales */}
+            <div className="flex justify-center gap-4 pt-6">
               <Button onClick={runAnalysis} variant="outline" className="flex items-center gap-2">
                 <Play className="w-4 h-4" />
                 Relancer l'analyse
+              </Button>
+              <Button className="flex items-center gap-2">
+                <CheckCircle className="w-4 h-4" />
+                Appliquer les corrections
               </Button>
             </div>
           </div>
