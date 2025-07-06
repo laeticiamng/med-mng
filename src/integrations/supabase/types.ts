@@ -2166,50 +2166,86 @@ export type Database = {
       }
       oic_competences: {
         Row: {
+          causes_echec: string | null
+          contenu_detaille: Json | null
+          contributeurs: string | null
           created_at: string | null
           date_import: string | null
           description: string | null
+          effets_indesirables: string | null
           extraction_status: string | null
           hash_content: string | null
+          indications: string | null
+          interactions: string | null
           intitule: string
           item_parent: string
+          mecanismes: string | null
+          modalites_surveillance: string | null
           objectif_id: string
           ordre: number | null
+          ordre_affichage: number | null
           rang: string
           raw_json: Json | null
           rubrique: string | null
+          sections_detaillees: Json | null
+          sommaire: string | null
+          titre_complet: string | null
           updated_at: string | null
           url_source: string
         }
         Insert: {
+          causes_echec?: string | null
+          contenu_detaille?: Json | null
+          contributeurs?: string | null
           created_at?: string | null
           date_import?: string | null
           description?: string | null
+          effets_indesirables?: string | null
           extraction_status?: string | null
           hash_content?: string | null
+          indications?: string | null
+          interactions?: string | null
           intitule: string
           item_parent: string
+          mecanismes?: string | null
+          modalites_surveillance?: string | null
           objectif_id: string
           ordre?: number | null
+          ordre_affichage?: number | null
           rang: string
           raw_json?: Json | null
           rubrique?: string | null
+          sections_detaillees?: Json | null
+          sommaire?: string | null
+          titre_complet?: string | null
           updated_at?: string | null
           url_source: string
         }
         Update: {
+          causes_echec?: string | null
+          contenu_detaille?: Json | null
+          contributeurs?: string | null
           created_at?: string | null
           date_import?: string | null
           description?: string | null
+          effets_indesirables?: string | null
           extraction_status?: string | null
           hash_content?: string | null
+          indications?: string | null
+          interactions?: string | null
           intitule?: string
           item_parent?: string
+          mecanismes?: string | null
+          modalites_surveillance?: string | null
           objectif_id?: string
           ordre?: number | null
+          ordre_affichage?: number | null
           rang?: string
           raw_json?: Json | null
           rubrique?: string | null
+          sections_detaillees?: Json | null
+          sommaire?: string | null
+          titre_complet?: string | null
           updated_at?: string | null
           url_source?: string
         }

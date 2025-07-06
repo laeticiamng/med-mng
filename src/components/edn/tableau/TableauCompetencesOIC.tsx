@@ -8,6 +8,19 @@ interface CompetenceOIC {
   objectif_id?: string;
   rubrique?: string;
   keywords?: string[];
+  // Contenu enrichi niveau LiSA
+  titre_complet?: string;
+  sommaire?: string;
+  mecanismes?: string;
+  indications?: string;
+  effets_indesirables?: string;
+  interactions?: string;
+  modalites_surveillance?: string;
+  causes_echec?: string;
+  contributeurs?: string;
+  ordre_affichage?: number;
+  sections_detaillees?: any;
+  contenu_detaille?: any;
 }
 
 interface TableauCompetencesOICProps {
@@ -93,28 +106,34 @@ export const TableauCompetencesOIC: React.FC<TableauCompetencesOICProps> = ({
       </CardHeader>
       
       <CardContent className="p-0">
-        {/* Tableau premium avec 6 colonnes minimum */}
+        {/* Tableau premium enrichi niveau LiSA - 8 colonnes détaillées */}
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className={`${rang === 'A' ? 'bg-gradient-to-r from-blue-100 to-blue-50' : 'bg-gradient-to-r from-purple-100 to-purple-50'} border-b-2 ${rang === 'A' ? 'border-blue-200' : 'border-purple-200'}`}>
-                <th className={`px-4 py-4 text-left text-sm font-bold ${rang === 'A' ? 'text-blue-900' : 'text-purple-900'} w-16`}>
+                <th className={`px-3 py-4 text-left text-xs font-bold ${rang === 'A' ? 'text-blue-900' : 'text-purple-900'} w-12`}>
                   N°
                 </th>
-                <th className={`px-4 py-4 text-left text-sm font-bold ${rang === 'A' ? 'text-blue-900' : 'text-purple-900'} min-w-[200px]`}>
-                  Intitulé de la Compétence
+                <th className={`px-3 py-4 text-left text-xs font-bold ${rang === 'A' ? 'text-blue-900' : 'text-purple-900'} min-w-[180px]`}>
+                  Code & Titre Complet
                 </th>
-                <th className={`px-4 py-4 text-left text-sm font-bold ${rang === 'A' ? 'text-blue-900' : 'text-purple-900'} min-w-[300px]`}>
-                  Description Détaillée
+                <th className={`px-3 py-4 text-left text-xs font-bold ${rang === 'A' ? 'text-blue-900' : 'text-purple-900'} min-w-[200px]`}>
+                  Sommaire & Description
                 </th>
-                <th className={`px-4 py-4 text-left text-sm font-bold ${rang === 'A' ? 'text-blue-900' : 'text-purple-900'} min-w-[120px]`}>
-                  Objectif OIC
+                <th className={`px-3 py-4 text-left text-xs font-bold ${rang === 'A' ? 'text-blue-900' : 'text-purple-900'} min-w-[160px]`}>
+                  Mécanismes
                 </th>
-                <th className={`px-4 py-4 text-left text-sm font-bold ${rang === 'A' ? 'text-blue-900' : 'text-purple-900'} min-w-[150px]`}>
-                  Rubrique
+                <th className={`px-3 py-4 text-left text-xs font-bold ${rang === 'A' ? 'text-blue-900' : 'text-purple-900'} min-w-[160px]`}>
+                  Indications
                 </th>
-                <th className={`px-4 py-4 text-left text-sm font-bold ${rang === 'A' ? 'text-blue-900' : 'text-purple-900'} min-w-[180px]`}>
-                  Mots-clés
+                <th className={`px-3 py-4 text-left text-xs font-bold ${rang === 'A' ? 'text-blue-900' : 'text-purple-900'} min-w-[180px]`}>
+                  Effets & Interactions
+                </th>
+                <th className={`px-3 py-4 text-left text-xs font-bold ${rang === 'A' ? 'text-blue-900' : 'text-purple-900'} min-w-[160px]`}>
+                  Surveillance & Causes Échec
+                </th>
+                <th className={`px-3 py-4 text-left text-xs font-bold ${rang === 'A' ? 'text-blue-900' : 'text-purple-900'} min-w-[120px]`}>
+                  Métadonnées
                 </th>
               </tr>
             </thead>
@@ -132,7 +151,7 @@ export const TableauCompetencesOIC: React.FC<TableauCompetencesOICProps> = ({
                     } transition-all duration-200 group ${isPlaceholder ? 'opacity-60' : ''}`}
                   >
                     {/* Numéro */}
-                    <td className="px-4 py-4">
+                    <td className="px-3 py-4">
                       <div className={`w-8 h-8 rounded-lg ${
                         isPlaceholder 
                           ? 'bg-gray-100 text-gray-500 border border-gray-200' 
@@ -140,92 +159,193 @@ export const TableauCompetencesOIC: React.FC<TableauCompetencesOICProps> = ({
                             ? 'bg-gradient-to-br from-blue-100 to-blue-200 text-blue-800 shadow-sm border border-blue-200/50' 
                             : 'bg-gradient-to-br from-purple-100 to-purple-200 text-purple-800 shadow-sm border border-purple-200/50'
                       } flex items-center justify-center text-xs font-bold group-hover:scale-105 transition-transform duration-200`}>
-                        {index + 1}
+                        {competence.ordre_affichage || index + 1}
                       </div>
                     </td>
                     
-                    {/* Intitulé */}
-                    <td className="px-4 py-4">
-                      <h4 className={`text-sm font-bold leading-snug ${isPlaceholder ? 'text-gray-600' : 'text-foreground group-hover:text-primary'} transition-colors duration-200`}>
-                        {competence.intitule}
-                      </h4>
+                    {/* Code & Titre Complet */}
+                    <td className="px-3 py-4">
+                      <div className="space-y-2">
+                        {competence.objectif_id && (
+                          <Badge variant="outline" className={`${rang === 'A' ? 'border-blue-300 text-blue-700 bg-blue-50' : 'border-purple-300 text-purple-700 bg-purple-50'} text-xs font-mono`}>
+                            {competence.objectif_id}
+                          </Badge>
+                        )}
+                        <h4 className={`text-xs font-bold leading-tight ${isPlaceholder ? 'text-gray-600' : 'text-foreground group-hover:text-primary'} transition-colors duration-200`}>
+                          {competence.titre_complet || competence.intitule}
+                        </h4>
+                      </div>
                     </td>
                     
-                    {/* Description */}
-                    <td className="px-4 py-4">
-                      <div className={`text-xs leading-relaxed ${isPlaceholder ? 'text-gray-500' : 'text-muted-foreground'} bg-muted/20 rounded p-2 border border-border/10`}>
-                        {competence.description ? (
-                          <div 
-                            dangerouslySetInnerHTML={{
-                              __html: competence.description
-                                .replace(/&nbsp;/g, ' ')
-                                .replace(/&lt;/g, '<')
-                                .replace(/&gt;/g, '>')
-                                .replace(/<br\s*\/?>/gi, '<br>')
-                                .replace(/\[\[([^\]|]+)(?:\|[^\]]+)?\]\]/g, '$1')
-                                .trim()
-                            }}
-                          />
-                        ) : (
-                          <span className="italic text-muted-foreground/70">
-                            📝 Description en cours de développement
-                          </span>
+                    {/* Sommaire & Description */}
+                    <td className="px-3 py-4">
+                      <div className={`text-xs leading-relaxed space-y-2`}>
+                        {competence.sommaire && (
+                          <div className="bg-amber-50 border border-amber-200 rounded p-2">
+                            <div className="font-semibold text-amber-800 mb-1">📋 Sommaire:</div>
+                            <div 
+                              className="text-amber-700 text-xs"
+                              dangerouslySetInnerHTML={{
+                                __html: competence.sommaire.replace(/\n/g, '<br>')
+                              }}
+                            />
+                          </div>
+                        )}
+                        {competence.description && (
+                          <div className={`${isPlaceholder ? 'text-gray-500' : 'text-muted-foreground'} bg-muted/20 rounded p-2 border border-border/10`}>
+                            <div 
+                              dangerouslySetInnerHTML={{
+                                __html: competence.description
+                                  .replace(/&nbsp;/g, ' ')
+                                  .replace(/&lt;/g, '<')
+                                  .replace(/&gt;/g, '>')
+                                  .replace(/<br\s*\/?>/gi, '<br>')
+                                  .replace(/\[\[([^\]|]+)(?:\|[^\]]+)?\]\]/g, '$1')
+                                  .trim()
+                              }}
+                            />
+                          </div>
                         )}
                       </div>
                     </td>
                     
-                    {/* Objectif OIC */}
-                    <td className="px-4 py-4">
-                      {competence.objectif_id && competence.objectif_id !== 'Non défini' ? (
-                        <Badge variant="outline" className={`${rang === 'A' ? 'border-blue-300 text-blue-700 bg-blue-50' : 'border-purple-300 text-purple-700 bg-purple-50'} text-xs font-medium`}>
-                          {competence.objectif_id}
-                        </Badge>
+                    {/* Mécanismes */}
+                    <td className="px-3 py-4">
+                      {competence.mecanismes ? (
+                        <div className="bg-green-50 border border-green-200 rounded p-2">
+                          <div className="font-semibold text-green-800 mb-1 text-xs">⚙️ Mécanismes:</div>
+                          <div 
+                            className="text-green-700 text-xs leading-relaxed"
+                            dangerouslySetInnerHTML={{
+                              __html: competence.mecanismes.replace(/\n/g, '<br>')
+                            }}
+                          />
+                        </div>
                       ) : (
-                        <span className="text-xs text-muted-foreground italic">Non défini</span>
+                        <span className="text-xs text-muted-foreground italic">En développement</span>
                       )}
                     </td>
                     
-                    {/* Rubrique */}
-                    <td className="px-4 py-4">
-                      {competence.rubrique && competence.rubrique !== 'Non spécifiée' ? (
-                        <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                          rang === 'A' 
-                            ? 'bg-blue-100 text-blue-800 border border-blue-200' 
-                            : 'bg-purple-100 text-purple-800 border border-purple-200'
-                        }`}>
-                          📚 {competence.rubrique}
+                    {/* Indications */}
+                    <td className="px-3 py-4">
+                      {competence.indications ? (
+                        <div className="bg-blue-50 border border-blue-200 rounded p-2">
+                          <div className="font-semibold text-blue-800 mb-1 text-xs">🎯 Indications:</div>
+                          <div 
+                            className="text-blue-700 text-xs leading-relaxed"
+                            dangerouslySetInnerHTML={{
+                              __html: competence.indications.replace(/\n/g, '<br>')
+                            }}
+                          />
                         </div>
                       ) : (
-                        <span className="text-xs text-muted-foreground italic">Non spécifiée</span>
+                        <span className="text-xs text-muted-foreground italic">En développement</span>
                       )}
                     </td>
                     
-                    {/* Mots-clés */}
-                    <td className="px-4 py-4">
-                      {competence.keywords && Array.isArray(competence.keywords) && competence.keywords.length > 0 ? (
-                        <div className="flex flex-wrap gap-1">
-                          {competence.keywords.slice(0, 3).map((keyword: string, kidx: number) => (
-                            <Badge 
-                              key={kidx} 
-                              variant="secondary" 
-                              className={`text-xs ${
-                                rang === 'A' 
-                                  ? 'bg-blue-50 text-blue-600 border-blue-200' 
-                                  : 'bg-purple-50 text-purple-600 border-purple-200'
-                              }`}
-                            >
-                              {keyword.trim()}
-                            </Badge>
-                          ))}
-                          {competence.keywords.length > 3 && (
-                            <Badge variant="secondary" className="text-xs bg-gray-100 text-gray-600">
-                              +{competence.keywords.length - 3}
-                            </Badge>
-                          )}
-                        </div>
-                      ) : (
-                        <span className="text-xs text-muted-foreground italic">Aucun</span>
-                      )}
+                    {/* Effets & Interactions */}
+                    <td className="px-3 py-4">
+                      <div className="space-y-2">
+                        {competence.effets_indesirables && (
+                          <div className="bg-red-50 border border-red-200 rounded p-2">
+                            <div className="font-semibold text-red-800 mb-1 text-xs">⚠️ Effets indésirables:</div>
+                            <div 
+                              className="text-red-700 text-xs leading-relaxed"
+                              dangerouslySetInnerHTML={{
+                                __html: competence.effets_indesirables.replace(/\n/g, '<br>')
+                              }}
+                            />
+                          </div>
+                        )}
+                        {competence.interactions && (
+                          <div className="bg-orange-50 border border-orange-200 rounded p-2">
+                            <div className="font-semibold text-orange-800 mb-1 text-xs">🔄 Interactions:</div>
+                            <div 
+                              className="text-orange-700 text-xs leading-relaxed"
+                              dangerouslySetInnerHTML={{
+                                __html: competence.interactions.replace(/\n/g, '<br>')
+                              }}
+                            />
+                          </div>
+                        )}
+                        {!competence.effets_indesirables && !competence.interactions && (
+                          <span className="text-xs text-muted-foreground italic">En développement</span>
+                        )}
+                      </div>
+                    </td>
+                    
+                    {/* Surveillance & Causes Échec */}
+                    <td className="px-3 py-4">
+                      <div className="space-y-2">
+                        {competence.modalites_surveillance && (
+                          <div className="bg-purple-50 border border-purple-200 rounded p-2">
+                            <div className="font-semibold text-purple-800 mb-1 text-xs">🔍 Surveillance:</div>
+                            <div 
+                              className="text-purple-700 text-xs leading-relaxed"
+                              dangerouslySetInnerHTML={{
+                                __html: competence.modalites_surveillance.replace(/\n/g, '<br>')
+                              }}
+                            />
+                          </div>
+                        )}
+                        {competence.causes_echec && (
+                          <div className="bg-gray-50 border border-gray-200 rounded p-2">
+                            <div className="font-semibold text-gray-800 mb-1 text-xs">❌ Causes échec:</div>
+                            <div 
+                              className="text-gray-700 text-xs leading-relaxed"
+                              dangerouslySetInnerHTML={{
+                                __html: competence.causes_echec.replace(/\n/g, '<br>')
+                              }}
+                            />
+                          </div>
+                        )}
+                        {!competence.modalites_surveillance && !competence.causes_echec && (
+                          <span className="text-xs text-muted-foreground italic">En développement</span>
+                        )}
+                      </div>
+                    </td>
+                    
+                    {/* Métadonnées */}  
+                    <td className="px-3 py-4">
+                      <div className="space-y-2">
+                        {competence.rubrique && competence.rubrique !== 'Non spécifiée' && (
+                          <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                            rang === 'A' 
+                              ? 'bg-blue-100 text-blue-800 border border-blue-200' 
+                              : 'bg-purple-100 text-purple-800 border border-purple-200'
+                          }`}>
+                            📚 {competence.rubrique}
+                          </div>
+                        )}
+                        {competence.contributeurs && (
+                          <div className="text-xs text-muted-foreground">
+                            <div className="font-semibold">👥 Contributeurs:</div>
+                            <div className="text-xs">{competence.contributeurs}</div>
+                          </div>
+                        )}
+                        {competence.keywords && Array.isArray(competence.keywords) && competence.keywords.length > 0 && (
+                          <div className="flex flex-wrap gap-1">
+                            {competence.keywords.slice(0, 2).map((keyword: string, kidx: number) => (
+                              <Badge 
+                                key={kidx} 
+                                variant="secondary" 
+                                className={`text-xs ${
+                                  rang === 'A' 
+                                    ? 'bg-blue-50 text-blue-600 border-blue-200' 
+                                    : 'bg-purple-50 text-purple-600 border-purple-200'
+                                }`}
+                              >
+                                {keyword.trim()}
+                              </Badge>
+                            ))}
+                            {competence.keywords.length > 2 && (
+                              <Badge variant="secondary" className="text-xs bg-gray-100 text-gray-600">
+                                +{competence.keywords.length - 2}
+                              </Badge>
+                            )}
+                          </div>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 );
