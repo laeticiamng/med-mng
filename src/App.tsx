@@ -38,6 +38,7 @@ import AdminCompleteProcess from "./pages/AdminCompleteProcess";
 import AdminExtractEcos from "./pages/AdminExtractEcos";
 import EdnObjectifsExtractionPage from "./pages/EdnObjectifsExtraction";
 import OicDataQualityManager from "./pages/OicDataQualityManager";
+import AuditCompleteness from "./pages/AuditCompleteness";
 
 const queryClient = new QueryClient();
 
@@ -60,8 +61,9 @@ const App = () => (
               <Route path="/ecos" element={<EcosIndex />} />
               <Route path="/ecos/:scenarioId" element={<EcosScenario />} />
               
-               {/* Unified audit page */}
-               <Route path="/audit" element={<AuditComplete />} />
+                {/* Unified audit page */}
+                <Route path="/audit" element={<AuditComplete />} />
+                <Route path="/audit-completeness" element={<AuditCompleteness />} />
                
                {/* Redirect all old audit routes to new unified page */}
                <Route path="/audit-general" element={<Navigate to="/audit" replace />} />

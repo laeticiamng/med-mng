@@ -2,7 +2,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { BookOpen, MessageSquare, Music, Users, ArrowRight, CheckCircle, ExternalLink } from "lucide-react";
+import { BookOpen, MessageSquare, Music, Users, ArrowRight, CheckCircle, ExternalLink, BarChart3 } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const MainSections = () => {
@@ -57,6 +57,23 @@ const MainSections = () => {
       ],
       href: "/chat",
       badge: "IA Avancée"
+    },
+    {
+      id: "audit",
+      title: "Audit Complétude OIC",
+      description: "Analyse automatique de la qualité des compétences OIC",
+      icon: BarChart3,
+      color: "bg-indigo-500",
+      count: "Analyse en temps réel",
+      status: "Audit automatisé des données",
+      features: [
+        "Détection des contenus incomplets",
+        "Rapport de complétude détaillé",
+        "Recommandations d'amélioration",
+        "Métriques de qualité"
+      ],
+      href: "/audit-completeness",
+      badge: "Audit"
     },
     {
       id: "music",
