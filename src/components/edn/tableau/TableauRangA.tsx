@@ -29,13 +29,34 @@ export const TableauRangA: React.FC<TableauRangAProps> = ({ data, itemCode }) =>
   if (data && data.sections && Array.isArray(data.sections) && data.sections.length > 0) {
     console.log('✅ Format OIC avec sections détecté, conversion pour nouveau composant');
     
-    // Convertir le format sections vers le format competences attendu
+    // Convertir le format sections vers le format competences attendu avec toutes les informations
     const competencesData = {
       title: data.title || `${itemCode} Rang A - Compétences OIC`,
-      competences: data.sections.map((section: any) => ({
-        intitule: section.title || section.content || 'Compétence non définie',
-        description: section.content || section.description || ''
-      })),
+      competences: data.sections.map((section: any) => {
+        // Créer une description enrichie avec toutes les informations disponibles
+        let enrichedDescription = '';
+        
+        if (section.content) {
+          enrichedDescription += section.content;
+        }
+        
+        // Ajouter les informations métier importantes
+        const metaInfo = [];
+        if (section.objectif_id) metaInfo.push(`🎯 Objectif OIC: ${section.objectif_id}`);
+        if (section.rubrique) metaInfo.push(`📚 Rubrique: ${section.rubrique}`);
+        if (section.keywords && Array.isArray(section.keywords) && section.keywords.length > 0) {
+          metaInfo.push(`🔍 Mots-clés: ${section.keywords.join(', ')}`);
+        }
+        
+        if (metaInfo.length > 0) {
+          enrichedDescription += (enrichedDescription ? '\n\n' : '') + metaInfo.join('\n');
+        }
+        
+        return {
+          intitule: section.title || 'Compétence non définie',
+          description: enrichedDescription || 'Description non disponible'
+        };
+      }),
       count: data.competences_count || data.sections.length,
       theme: data.subtitle || 'Compétences OIC'
     };
