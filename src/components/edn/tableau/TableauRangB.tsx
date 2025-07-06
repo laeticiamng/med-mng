@@ -33,28 +33,12 @@ export const TableauRangB: React.FC<TableauRangBProps> = ({ data, itemCode }) =>
     const competencesData = {
       title: data.title || `${itemCode} Rang B - Compétences OIC avancées`,
       competences: data.sections.map((section: any) => {
-        // Créer une description enrichie avec toutes les informations disponibles
-        let enrichedDescription = '';
-        
-        if (section.content) {
-          enrichedDescription += section.content;
-        }
-        
-        // Ajouter les informations métier importantes
-        const metaInfo = [];
-        if (section.objectif_id) metaInfo.push(`🎯 Objectif OIC: ${section.objectif_id}`);
-        if (section.rubrique) metaInfo.push(`📚 Rubrique: ${section.rubrique}`);
-        if (section.keywords && Array.isArray(section.keywords) && section.keywords.length > 0) {
-          metaInfo.push(`🔍 Mots-clés: ${section.keywords.join(', ')}`);
-        }
-        
-        if (metaInfo.length > 0) {
-          enrichedDescription += (enrichedDescription ? '\n\n' : '') + metaInfo.join('\n');
-        }
-        
         return {
           intitule: section.title || 'Compétence non définie',
-          description: enrichedDescription || 'Description non disponible'
+          description: section.content || 'Description non disponible',
+          objectif_id: section.objectif_id || 'Non défini',
+          rubrique: section.rubrique || 'Non spécifiée',
+          keywords: section.keywords || []
         };
       }),
       count: data.competences_count || data.sections.length,

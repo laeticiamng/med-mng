@@ -5,6 +5,9 @@ import { Badge } from '@/components/ui/badge';
 interface CompetenceOIC {
   intitule: string;
   description: string;
+  objectif_id?: string;
+  rubrique?: string;
+  keywords?: string[];
 }
 
 interface TableauCompetencesOICProps {
@@ -116,16 +119,7 @@ export const TableauCompetencesOIC: React.FC<TableauCompetencesOICProps> = ({
               </tr>
             </thead>
             <tbody>
-              {displayCompetences.map((competence, index) => {
-                // Extraire les métadonnées de la description
-                const descriptionParts = competence.description.split('\n\n');
-                const mainDescription = descriptionParts[0] || '';
-                const metaInfo = descriptionParts[1] || '';
-                
-                const objectifMatch = metaInfo.match(/🎯 Objectif OIC: ([^\n]+)/);
-                const rubriqueMatch = metaInfo.match(/📚 Rubrique: ([^\n]+)/);
-                const keywordsMatch = metaInfo.match(/🔍 Mots-clés: ([^\n]+)/);
-                
+              {displayCompetences.map((competence: any, index) => {
                 const isPlaceholder = index >= competences.length;
                 
                 return (
@@ -160,10 +154,10 @@ export const TableauCompetencesOIC: React.FC<TableauCompetencesOICProps> = ({
                     {/* Description */}
                     <td className="px-4 py-4">
                       <div className={`text-xs leading-relaxed ${isPlaceholder ? 'text-gray-500' : 'text-muted-foreground'} bg-muted/20 rounded p-2 border border-border/10`}>
-                        {mainDescription ? (
+                        {competence.description ? (
                           <div 
                             dangerouslySetInnerHTML={{
-                              __html: mainDescription
+                              __html: competence.description
                                 .replace(/&nbsp;/g, ' ')
                                 .replace(/&lt;/g, '<')
                                 .replace(/&gt;/g, '>')
@@ -182,9 +176,9 @@ export const TableauCompetencesOIC: React.FC<TableauCompetencesOICProps> = ({
                     
                     {/* Objectif OIC */}
                     <td className="px-4 py-4">
-                      {objectifMatch ? (
+                      {competence.objectif_id && competence.objectif_id !== 'Non défini' ? (
                         <Badge variant="outline" className={`${rang === 'A' ? 'border-blue-300 text-blue-700 bg-blue-50' : 'border-purple-300 text-purple-700 bg-purple-50'} text-xs font-medium`}>
-                          {objectifMatch[1]}
+                          {competence.objectif_id}
                         </Badge>
                       ) : (
                         <span className="text-xs text-muted-foreground italic">Non défini</span>
@@ -193,13 +187,13 @@ export const TableauCompetencesOIC: React.FC<TableauCompetencesOICProps> = ({
                     
                     {/* Rubrique */}
                     <td className="px-4 py-4">
-                      {rubriqueMatch ? (
+                      {competence.rubrique && competence.rubrique !== 'Non spécifiée' ? (
                         <div className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
                           rang === 'A' 
                             ? 'bg-blue-100 text-blue-800 border border-blue-200' 
                             : 'bg-purple-100 text-purple-800 border border-purple-200'
                         }`}>
-                          📚 {rubriqueMatch[1]}
+                          📚 {competence.rubrique}
                         </div>
                       ) : (
                         <span className="text-xs text-muted-foreground italic">Non spécifiée</span>
@@ -208,9 +202,9 @@ export const TableauCompetencesOIC: React.FC<TableauCompetencesOICProps> = ({
                     
                     {/* Mots-clés */}
                     <td className="px-4 py-4">
-                      {keywordsMatch ? (
+                      {competence.keywords && Array.isArray(competence.keywords) && competence.keywords.length > 0 ? (
                         <div className="flex flex-wrap gap-1">
-                          {keywordsMatch[1].split(', ').slice(0, 3).map((keyword, kidx) => (
+                          {competence.keywords.slice(0, 3).map((keyword: string, kidx: number) => (
                             <Badge 
                               key={kidx} 
                               variant="secondary" 
@@ -223,9 +217,9 @@ export const TableauCompetencesOIC: React.FC<TableauCompetencesOICProps> = ({
                               {keyword.trim()}
                             </Badge>
                           ))}
-                          {keywordsMatch[1].split(', ').length > 3 && (
+                          {competence.keywords.length > 3 && (
                             <Badge variant="secondary" className="text-xs bg-gray-100 text-gray-600">
-                              +{keywordsMatch[1].split(', ').length - 3}
+                              +{competence.keywords.length - 3}
                             </Badge>
                           )}
                         </div>
