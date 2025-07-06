@@ -17,6 +17,7 @@ interface TableauRangBProps {
 
 export const TableauRangB: React.FC<TableauRangBProps> = ({ data, itemCode }) => {
   console.log('🔍 TableauRangB - données reçues:', { data, itemCode });
+  console.log('🔍 TableauRangB - structure complète:', JSON.stringify(data, null, 2));
 
   // Vérifier si on a des données
   if (!data) {
@@ -24,9 +25,35 @@ export const TableauRangB: React.FC<TableauRangBProps> = ({ data, itemCode }) =>
     return <p>Pas de données disponibles pour le Rang B.</p>;
   }
 
-  // Nouveau format avec compétences OIC
+  // Nouveau format avec sections OIC (après migration)
+  if (data && data.sections && Array.isArray(data.sections) && data.sections.length > 0) {
+    console.log('✅ Format OIC avec sections détecté pour Rang B, conversion pour nouveau composant');
+    
+    // Convertir le format sections vers le format competences attendu
+    const competencesData = {
+      title: data.title || `${itemCode} Rang B - Compétences OIC avancées`,
+      competences: data.sections.map((section: any) => ({
+        intitule: section.title || section.content || 'Compétence non définie',
+        description: section.content || section.description || ''
+      })),
+      count: data.competences_count || data.sections.length,
+      theme: data.subtitle || 'Compétences OIC avancées'
+    };
+    
+    console.log('🔄 Données Rang B converties:', competencesData);
+    
+    return (
+      <TableauCompetencesOIC 
+        data={competencesData} 
+        itemCode={itemCode} 
+        rang="B" 
+      />
+    );
+  }
+
+  // Format direct avec compétences (ancien format)
   if (data.competences && Array.isArray(data.competences)) {
-    console.log('✅ Format OIC détecté pour Rang B, utilisation du nouveau composant');
+    console.log('✅ Format OIC direct détecté pour Rang B, utilisation du nouveau composant');
     return (
       <TableauCompetencesOIC 
         data={data} 

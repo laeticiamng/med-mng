@@ -23,10 +23,37 @@ interface TableauRangAProps {
 
 export const TableauRangA: React.FC<TableauRangAProps> = ({ data, itemCode }) => {
   console.log('🔍 TableauRangA - données reçues:', { data, itemCode });
+  console.log('🔍 TableauRangA - structure complète:', JSON.stringify(data, null, 2));
 
-  // Nouveau format avec compétences OIC
+  // Nouveau format avec sections OIC (après migration)
+  if (data && data.sections && Array.isArray(data.sections) && data.sections.length > 0) {
+    console.log('✅ Format OIC avec sections détecté, conversion pour nouveau composant');
+    
+    // Convertir le format sections vers le format competences attendu
+    const competencesData = {
+      title: data.title || `${itemCode} Rang A - Compétences OIC`,
+      competences: data.sections.map((section: any) => ({
+        intitule: section.title || section.content || 'Compétence non définie',
+        description: section.content || section.description || ''
+      })),
+      count: data.competences_count || data.sections.length,
+      theme: data.subtitle || 'Compétences OIC'
+    };
+    
+    console.log('🔄 Données converties:', competencesData);
+    
+    return (
+      <TableauCompetencesOIC 
+        data={competencesData} 
+        itemCode={itemCode || 'IC-X'} 
+        rang="A" 
+      />
+    );
+  }
+
+  // Format direct avec compétences (ancien format)
   if (data && data.competences && Array.isArray(data.competences)) {
-    console.log('✅ Format OIC détecté, utilisation du nouveau composant');
+    console.log('✅ Format OIC direct détecté, utilisation du nouveau composant');
     return (
       <TableauCompetencesOIC 
         data={data} 

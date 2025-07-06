@@ -42,6 +42,7 @@ export const EdnItemContent = ({ activeSection, item }: EdnItemContentProps) => 
       case 'tableau-a':
         console.log('📋 Rendering Tableau Rang A for:', item.item_code);
         console.log('📊 Tableau Rang A raw data:', item.tableau_rang_a);
+        console.log('📊 Item complet:', JSON.stringify(item, null, 2));
         return item.tableau_rang_a ? (
           <TableauRangA data={item.tableau_rang_a} itemCode={item.item_code} />
         ) : (
