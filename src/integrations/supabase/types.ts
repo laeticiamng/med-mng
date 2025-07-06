@@ -2896,6 +2896,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
+      enrich_oic_by_specialty_range: {
+        Args: { start_item: number; end_item: number; specialty_name: string }
+        Returns: number
+      }
       fix_all_edn_items_complete_oic_correction: {
         Args: Record<PropertyKey, never>
         Returns: {
