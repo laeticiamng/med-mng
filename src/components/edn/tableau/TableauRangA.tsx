@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { TableauCompetencesOIC } from './TableauCompetencesOIC';
+import { TableauCompetencesOICOptimized } from './TableauCompetencesOICOptimized';
 import { TableauRangAHeader } from './TableauRangAHeader';
 import { TableauRangAGrid } from './TableauRangAGrid';
 import { TableauRangAFooter } from './TableauRangAFooter';
@@ -73,7 +73,7 @@ export const TableauRangA: React.FC<TableauRangAProps> = ({ data, itemCode }) =>
     console.log('🔄 Données converties:', competencesData);
     
     return (
-      <TableauCompetencesOIC 
+      <TableauCompetencesOICOptimized 
         data={competencesData} 
         itemCode={itemCode || 'IC-X'} 
         rang="A" 
@@ -85,7 +85,7 @@ export const TableauRangA: React.FC<TableauRangAProps> = ({ data, itemCode }) =>
   if (data && data.competences && Array.isArray(data.competences)) {
     console.log('✅ Format OIC direct détecté, utilisation du nouveau composant');
     return (
-      <TableauCompetencesOIC 
+      <TableauCompetencesOICOptimized 
         data={data} 
         itemCode={itemCode || 'IC-X'} 
         rang="A" 

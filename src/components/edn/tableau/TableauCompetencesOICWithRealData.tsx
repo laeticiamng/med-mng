@@ -1,5 +1,5 @@
 import React from 'react';
-import { TableauCompetencesOIC } from './TableauCompetencesOIC';
+import { TableauCompetencesOICOptimized } from './TableauCompetencesOICOptimized';
 import { useOicCompetences } from '@/hooks/useOicCompetences';
 
 interface TableauCompetencesOICWithRealDataProps {
@@ -92,7 +92,7 @@ export const TableauCompetencesOICWithRealData: React.FC<TableauCompetencesOICWi
   console.log(`✅ Affichage de ${competences.length} compétences OIC réelles pour ${itemCode} rang ${rang}`);
 
   return (
-    <TableauCompetencesOIC 
+    <TableauCompetencesOICOptimized 
       data={competencesData} 
       itemCode={itemCode} 
       rang={rang} 
