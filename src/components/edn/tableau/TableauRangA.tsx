@@ -37,8 +37,19 @@ export const TableauRangA: React.FC<TableauRangAProps> = ({ data, itemCode }) =>
           intitule: section.title || 'Compétence non définie',
           description: section.content || 'Description non disponible',
           objectif_id: section.objectif_id || 'Non défini',
-          rubrique: section.rubrique || 'Non spécifiée', 
-          keywords: section.keywords || []
+          rubrique: section.rubrique || 'Non spécifiée',
+          keywords: section.keywords || [],
+          // Données enrichies niveau LiSA (seront récupérées de la DB)
+          titre_complet: null,
+          sommaire: null,
+          mecanismes: null,
+          indications: null,
+          effets_indesirables: null,
+          interactions: null,
+          modalites_surveillance: null,
+          causes_echec: null,
+          contributeurs: null,
+          ordre_affichage: null
         };
       }),
       count: data.competences_count || data.sections.length,
