@@ -2,6 +2,7 @@ import React from 'react';
 import { TableauCompetencesOIC } from './TableauCompetencesOIC';
 import { TableauRangAHeader } from './TableauRangAHeader';
 import { TableauRangAGrid } from './TableauRangAGrid';
+import { TableauCompetencesOICWithRealData } from './TableauCompetencesOICWithRealData';
 import { processTableauRangBIC4 } from './TableauRangBUtilsIC4Integration';
 import { processTableauRangBIC6 } from './TableauRangBUtilsIC6Integration';
 import { processTableauRangBIC7 } from './TableauRangBUtilsIC7Integration';
@@ -19,10 +20,16 @@ export const TableauRangB: React.FC<TableauRangBProps> = ({ data, itemCode }) =>
   console.log('🔍 TableauRangB - données reçues:', { data, itemCode });
   console.log('🔍 TableauRangB - structure complète:', JSON.stringify(data, null, 2));
 
-  // Vérifier si on a des données
-  if (!data) {
-    console.warn('TableauRangB - Pas de données fournies.');
-    return <p>Pas de données disponibles pour le Rang B.</p>;
+  // Utiliser les vraies données OIC si itemCode est fourni
+  if (itemCode && (itemCode.startsWith('IC-') || itemCode.startsWith('OIC-'))) {
+    console.log('✅ Utilisation des vraies données OIC pour', itemCode, 'rang B');
+    
+    return (
+      <TableauCompetencesOICWithRealData 
+        itemCode={itemCode} 
+        rang="B" 
+      />
+    );
   }
 
   // Nouveau format avec sections OIC (après migration)

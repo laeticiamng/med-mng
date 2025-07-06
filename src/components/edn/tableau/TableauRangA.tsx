@@ -4,6 +4,8 @@ import { TableauCompetencesOIC } from './TableauCompetencesOIC';
 import { TableauRangAHeader } from './TableauRangAHeader';
 import { TableauRangAGrid } from './TableauRangAGrid';
 import { TableauRangAFooter } from './TableauRangAFooter';
+import { useOicCompetences } from '@/hooks/useOicCompetences';
+import { TableauCompetencesOICWithRealData } from './TableauCompetencesOICWithRealData';
 import { TableauRangAFooterIC1 } from './TableauRangAFooterIC1';
 import { TableauRangAFooterIC2 } from './TableauRangAFooterIC2';
 import { TableauRangAFooterIC3 } from './TableauRangAFooterIC3';
@@ -24,6 +26,18 @@ interface TableauRangAProps {
 export const TableauRangA: React.FC<TableauRangAProps> = ({ data, itemCode }) => {
   console.log('🔍 TableauRangA - données reçues:', { data, itemCode });
   console.log('🔍 TableauRangA - structure complète:', JSON.stringify(data, null, 2));
+
+  // Utiliser les vraies données OIC si itemCode est fourni
+  if (itemCode && (itemCode.startsWith('IC-') || itemCode.startsWith('OIC-'))) {
+    console.log('✅ Utilisation des vraies données OIC pour', itemCode);
+    
+    return (
+      <TableauCompetencesOICWithRealData 
+        itemCode={itemCode} 
+        rang="A" 
+      />
+    );
+  }
 
   // Nouveau format avec sections OIC (après migration)
   if (data && data.sections && Array.isArray(data.sections) && data.sections.length > 0) {
