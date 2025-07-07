@@ -2541,6 +2541,51 @@ export type Database = {
         }
         Relationships: []
       }
+      security_audit_log: {
+        Row: {
+          action_taken: string
+          audit_type: string
+          audited_by: string | null
+          created_at: string | null
+          description: string
+          finding_type: string
+          id: string
+          location: string
+          metadata: Json | null
+          resolved_at: string | null
+          sensitive_data_hash: string | null
+          severity: string
+        }
+        Insert: {
+          action_taken: string
+          audit_type: string
+          audited_by?: string | null
+          created_at?: string | null
+          description: string
+          finding_type: string
+          id?: string
+          location: string
+          metadata?: Json | null
+          resolved_at?: string | null
+          sensitive_data_hash?: string | null
+          severity: string
+        }
+        Update: {
+          action_taken?: string
+          audit_type?: string
+          audited_by?: string | null
+          created_at?: string | null
+          description?: string
+          finding_type?: string
+          id?: string
+          location?: string
+          metadata?: Json | null
+          resolved_at?: string | null
+          sensitive_data_hash?: string | null
+          severity?: string
+        }
+        Relationships: []
+      }
       starting_situations: {
         Row: {
           category: string | null
@@ -2826,6 +2871,17 @@ export type Database = {
         }
         Relationships: []
       }
+      security_violations_summary: {
+        Row: {
+          affected_locations: string[] | null
+          finding_type: string | null
+          last_detection: string | null
+          severity: string | null
+          unresolved_count: number | null
+          violation_count: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       accept_invitation: {
@@ -2900,6 +2956,15 @@ export type Database = {
       detect_edn_duplicates: {
         Args: Record<PropertyKey, never>
         Returns: Json
+      }
+      emergency_security_cleanup: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          cleaned_table: string
+          cleaned_column: string
+          records_affected: number
+          cleanup_type: string
+        }[]
       }
       enrich_oic_by_specialty_range: {
         Args: { start_item: number; end_item: number; specialty_name: string }
@@ -3032,6 +3097,19 @@ export type Database = {
           details: Json
         }[]
       }
+      log_security_finding: {
+        Args: {
+          _audit_type: string
+          _severity: string
+          _location: string
+          _finding_type: string
+          _description: string
+          _sensitive_data?: string
+          _action_taken?: string
+          _metadata?: Json
+        }
+        Returns: string
+      }
       mark_notifications_as_read: {
         Args: { user_id_param: string; notification_ids?: string[] }
         Returns: number
@@ -3127,6 +3205,15 @@ export type Database = {
           rang_b_competences: Json
           total_rang_a: number
           total_rang_b: number
+        }[]
+      }
+      scan_for_security_violations: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          table_name: string
+          column_name: string
+          suspicious_data_count: number
+          sample_finding: string
         }[]
       }
       update_all_edn_items_unique_content: {
