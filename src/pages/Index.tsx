@@ -5,6 +5,8 @@ import MainSections from "@/components/MainSections";
 import { MusicGenerationSection } from "@/components/MusicGenerationSection";
 import { AppFooter } from "@/components/AppFooter";
 import { Button } from "@/components/ui/button";
+import { Code } from "lucide-react";
+import { Link } from "react-router-dom";
 import { PremiumBackground } from "@/components/ui/premium-background";
 import { PremiumCard } from "@/components/ui/premium-card";
 import { PremiumButton } from "@/components/ui/premium-button";
@@ -344,6 +346,24 @@ const Index = () => {
             <BarChart3 className="h-5 w-5 mr-2" />
             <span className="font-semibold">Audit EDN</span>
           </PremiumButton>
+        </div>
+      )}
+
+      {/* Bouton Dev Workspace en mode développement */}
+      {(window.location.hostname.includes('lovable') || 
+        window.location.hostname === 'localhost' || 
+        process.env.NODE_ENV === 'development') && (
+        <div className="fixed bottom-20 right-6 z-50">
+          <Link to="/dev-workspace">
+            <PremiumButton
+              variant="glass"
+              size="md"
+              className="shadow-2xl shadow-blue-500/30 border-blue-300"
+            >
+              <Code className="h-5 w-5 mr-2" />
+              <span className="font-semibold">🔧 Dev Zone</span>
+            </PremiumButton>
+          </Link>
         </div>
       )}
 
