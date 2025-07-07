@@ -2919,6 +2919,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      cleanup_security_scan_false_positives: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
       complete_all_items_with_competences: {
         Args: Record<PropertyKey, never>
         Returns: {
