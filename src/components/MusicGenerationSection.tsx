@@ -10,12 +10,22 @@ import { MusicGenerationCTA } from '@/components/home/MusicGenerationCTA';
 export const MusicGenerationSection = () => {
   const freeTrialData = useFreeTrialLimit();
   
-  if (!freeTrialData.isInitialized) {
-    return null; // ou un loader
+  // Protection supplémentaire contre les erreurs de destructuration
+  if (!freeTrialData || !freeTrialData.isInitialized) {
+    return (
+      <section className="py-16 bg-gradient-to-br from-amber-50 via-orange-50 to-red-50">
+        <div className="container mx-auto px-4 text-center">
+          <div className="animate-pulse">
+            <div className="h-8 bg-gray-200 rounded w-64 mx-auto mb-4"></div>
+            <div className="h-4 bg-gray-100 rounded w-96 mx-auto"></div>
+          </div>
+        </div>
+      </section>
+    );
   }
   
   const { getRemainingGenerations, maxFreeGenerations } = freeTrialData;
-  const remainingFree = getRemainingGenerations();
+  const remainingFree = getRemainingGenerations ? getRemainingGenerations() : 0;
 
   return (
     <section className="py-16 bg-gradient-to-br from-amber-50 via-orange-50 to-red-50">
