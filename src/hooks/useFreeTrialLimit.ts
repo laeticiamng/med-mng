@@ -22,15 +22,26 @@ export const useFreeTrialLimit = () => {
   const [freeGenerationsUsed, setFreeGenerationsUsed] = useState(0);
   const [canGenerateMore, setCanGenerateMore] = useState(true);
   const [error, setError] = useState<FreeTrialError | null>(null);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   // Initialisation sécurisée des données
   useEffect(() => {
     try {
+      // Vérifier si localStorage est disponible
+      if (typeof window === 'undefined' || !window.localStorage) {
+        setFreeGenerationsUsed(0);
+        setCanGenerateMore(true);
+        setError(null);
+        setIsInitialized(true);
+        return;
+      }
+
       const stored = localStorage.getItem(FREE_TRIAL_KEY);
       const count = validateStoredCount(stored);
       setFreeGenerationsUsed(count);
       setCanGenerateMore(count < MAX_FREE_GENERATIONS);
       setError(null);
+      setIsInitialized(true);
     } catch (err) {
       console.error('Erreur lors de la récupération du compteur gratuit:', err);
       setError({
@@ -40,6 +51,7 @@ export const useFreeTrialLimit = () => {
       // Fallback: utiliser les valeurs par défaut
       setFreeGenerationsUsed(0);
       setCanGenerateMore(true);
+      setIsInitialized(true);
     }
   }, []);
 
