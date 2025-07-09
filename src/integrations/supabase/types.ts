@@ -7,6 +7,11 @@ export type Json =
   | Json[]
 
 export type Database = {
+  // Allows to automatically instanciate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "12.2.3 (519615d)"
+  }
   public: {
     Tables: {
       abonnement_biovida: {
@@ -2536,6 +2541,51 @@ export type Database = {
         }
         Relationships: []
       }
+      security_audit_log: {
+        Row: {
+          action_taken: string
+          audit_type: string
+          audited_by: string | null
+          created_at: string | null
+          description: string
+          finding_type: string
+          id: string
+          location: string
+          metadata: Json | null
+          resolved_at: string | null
+          sensitive_data_hash: string | null
+          severity: string
+        }
+        Insert: {
+          action_taken: string
+          audit_type: string
+          audited_by?: string | null
+          created_at?: string | null
+          description: string
+          finding_type: string
+          id?: string
+          location: string
+          metadata?: Json | null
+          resolved_at?: string | null
+          sensitive_data_hash?: string | null
+          severity: string
+        }
+        Update: {
+          action_taken?: string
+          audit_type?: string
+          audited_by?: string | null
+          created_at?: string | null
+          description?: string
+          finding_type?: string
+          id?: string
+          location?: string
+          metadata?: Json | null
+          resolved_at?: string | null
+          sensitive_data_hash?: string | null
+          severity?: string
+        }
+        Relationships: []
+      }
       starting_situations: {
         Row: {
           category: string | null
@@ -2821,6 +2871,17 @@ export type Database = {
         }
         Relationships: []
       }
+      security_violations_summary: {
+        Row: {
+          affected_locations: string[] | null
+          finding_type: string | null
+          last_detection: string | null
+          severity: string | null
+          unresolved_count: number | null
+          violation_count: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       accept_invitation: {
@@ -2857,6 +2918,10 @@ export type Database = {
       cleanup_old_imports: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      cleanup_security_scan_false_positives: {
+        Args: Record<PropertyKey, never>
+        Returns: number
       }
       complete_all_items_with_competences: {
         Args: Record<PropertyKey, never>
@@ -2895,6 +2960,15 @@ export type Database = {
       detect_edn_duplicates: {
         Args: Record<PropertyKey, never>
         Returns: Json
+      }
+      emergency_security_cleanup: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          cleaned_table: string
+          cleaned_column: string
+          records_affected: number
+          cleanup_type: string
+        }[]
       }
       enrich_oic_by_specialty_range: {
         Args: { start_item: number; end_item: number; specialty_name: string }
@@ -3027,6 +3101,19 @@ export type Database = {
           details: Json
         }[]
       }
+      log_security_finding: {
+        Args: {
+          _audit_type: string
+          _severity: string
+          _location: string
+          _finding_type: string
+          _description: string
+          _sensitive_data?: string
+          _action_taken?: string
+          _metadata?: Json
+        }
+        Returns: string
+      }
       mark_notifications_as_read: {
         Args: { user_id_param: string; notification_ids?: string[] }
         Returns: number
@@ -3124,6 +3211,15 @@ export type Database = {
           total_rang_b: number
         }[]
       }
+      scan_for_security_violations: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          table_name: string
+          column_name: string
+          suspicious_data_count: number
+          sample_finding: string
+        }[]
+      }
       update_all_edn_items_unique_content: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -3184,21 +3280,25 @@ export type Database = {
   }
 }
 
-type DefaultSchema = Database[Extract<keyof Database, "public">]
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-        Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? (Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
-      Database[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R
     }
     ? R
@@ -3216,14 +3316,16 @@ export type Tables<
 export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I
     }
     ? I
@@ -3239,14 +3341,16 @@ export type TablesInsert<
 export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   TableName extends DefaultSchemaTableNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never = never,
-> = DefaultSchemaTableNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U
     }
     ? U
@@ -3262,14 +3366,16 @@ export type TablesUpdate<
 export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   EnumName extends DefaultSchemaEnumNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
     : never = never,
-> = DefaultSchemaEnumNameOrOptions extends { schema: keyof Database }
-  ? Database[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
     ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
     : never
@@ -3277,14 +3383,16 @@ export type Enums<
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
-    | { schema: keyof Database },
+    | { schema: keyof DatabaseWithoutInternals },
   CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
-    schema: keyof Database
+    schema: keyof DatabaseWithoutInternals
   }
-    ? keyof Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
     : never = never,
-> = PublicCompositeTypeNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
   : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
     ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
