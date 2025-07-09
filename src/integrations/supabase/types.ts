@@ -2982,6 +2982,14 @@ export type Database = {
           details: Json
         }[]
       }
+      fix_all_edn_items_simple_correction: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          fixed_count: number
+          errors_count: number
+          details: Json
+        }[]
+      }
       fix_all_edn_items_with_real_content: {
         Args: Record<PropertyKey, never>
         Returns: {
