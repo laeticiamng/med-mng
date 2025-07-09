@@ -8,7 +8,13 @@ import { MusicGenerationHowItWorks } from '@/components/home/MusicGenerationHowI
 import { MusicGenerationCTA } from '@/components/home/MusicGenerationCTA';
 
 export const MusicGenerationSection = () => {
-  const { getRemainingGenerations, maxFreeGenerations } = useFreeTrialLimit();
+  const freeTrialData = useFreeTrialLimit();
+  
+  if (!freeTrialData.isInitialized) {
+    return null; // ou un loader
+  }
+  
+  const { getRemainingGenerations, maxFreeGenerations } = freeTrialData;
   const remainingFree = getRemainingGenerations();
 
   return (

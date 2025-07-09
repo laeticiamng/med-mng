@@ -20,8 +20,14 @@ import { GeneratorForm } from '@/components/generator/GeneratorForm';
 const Generator = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { getRemainingGenerations, maxFreeGenerations } = useFreeTrialLimit();
+  const freeTrialData = useFreeTrialLimit();
   const { subscription, musicQuota, incrementMusicUsage, canGenerateMusic, canSaveMusic, getUsageDisplay } = useSubscription();
+  
+  if (!freeTrialData.isInitialized) {
+    return <div>Chargement...</div>;
+  }
+  
+  const { getRemainingGenerations, maxFreeGenerations } = freeTrialData;
   const musicGeneration = useMusicGenerationWithTranslation();
   
   const [contentType, setContentType] = useState('');

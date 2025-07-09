@@ -124,6 +124,7 @@ export const useFreeTrialLimit = () => {
     canGenerateMore,
     maxFreeGenerations: MAX_FREE_GENERATIONS,
     error,
+    isInitialized,
     incrementFreeGeneration,
     checkCanGenerate,
     getRemainingGenerations,
