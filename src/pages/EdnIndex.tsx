@@ -9,6 +9,7 @@ import { BookOpen, Search, Filter, CheckCircle, Music, Users, Brain, ArrowRight,
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { ComparisonResults } from "@/components/edn/ComparisonResults";
 
 interface EdnItem {
   id: string;
@@ -170,6 +171,11 @@ const EdnIndex = () => {
             <TabsTrigger value="advanced">Avancé (251-367)</TabsTrigger>
           </TabsList>
         </Tabs>
+      </div>
+
+      {/* Comparison with Official Content */}
+      <div className="mb-8">
+        <ComparisonResults />
       </div>
 
       {/* Stats */}

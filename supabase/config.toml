@@ -41,3 +41,6 @@ enable_confirmations = false
 
 [functions.generate-music]
 verify_jwt = false
+
+[functions.compare-official-content]
+verify_jwt = false
