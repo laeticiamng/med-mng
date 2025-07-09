@@ -19,7 +19,6 @@ import MngMethod from "./pages/MngMethod";
 import NotFound from "./pages/NotFound";
 import MentionsLegales from "./pages/MentionsLegales";
 import PolitiqueConfidentialite from "./pages/PolitiqueConfidentialite";
-import ExtractionMonitor from "./pages/ExtractionMonitor";
 import { MedMngLogin } from "./pages/MedMngLogin";
 import { MedMngSignup } from "./pages/MedMngSignup";
 import { MedMngPricing } from "./pages/MedMngPricing";
@@ -40,8 +39,6 @@ import AdminExtractEcos from "./pages/AdminExtractEcos";
 import EdnObjectifsExtractionPage from "./pages/EdnObjectifsExtraction";
 import OicDataQualityManager from "./pages/OicDataQualityManager";
 import AuditCompleteness from "./pages/AuditCompleteness";
-import DevWorkspace from "./pages/DevWorkspace";
-import { AdminProtection } from "./components/dev/AdminProtection";
 
 const queryClient = new QueryClient();
 
@@ -80,25 +77,23 @@ const App = () => (
               <Route path="/mng-method" element={<MngMethod />} />
               <Route path="/mentions-legales" element={<MentionsLegales />} />
               <Route path="/politique-confidentialite" element={<PolitiqueConfidentialite />} />
-              <Route path="/extraction" element={<ExtractionMonitor />} />
               <Route path="/med-mng/login" element={<MedMngLogin />} />
               <Route path="/med-mng/signup" element={<MedMngSignup />} />
               <Route path="/med-mng/pricing" element={<MedMngPricing />} />
-                <Route path="/med-mng/subscribe/:planId" element={<ProtectedRoute><AdminProtection><MedMngSubscribe /></AdminProtection></ProtectedRoute>} />
+                <Route path="/med-mng/subscribe/:planId" element={<ProtectedRoute><MedMngSubscribe /></ProtectedRoute>} />
                 <Route path="/med-mng/success" element={<ProtectedRoute><MedMngSuccess /></ProtectedRoute>} />
                 <Route path="/med-mng/create" element={<ProtectedRoute><MedMngCreate /></ProtectedRoute>} />
               <Route path="/med-mng/library" element={<ProtectedRoute><MedMngLibrary /></ProtectedRoute>} />
               <Route path="/med-mng/player/:songId" element={<ProtectedRoute><MedMngPlayer /></ProtectedRoute>} />
               <Route path="/chat" element={<MedChat />} />
-              <Route path="/dev-workspace" element={<DevWorkspace />} />
-              <Route path="/admin/import" element={<AdminProtection><AdminImport /></AdminProtection>} />
-              <Route path="/admin/audit" element={<AdminProtection><AdminAudit /></AdminProtection>} />
-              <Route path="/admin/extract-edn" element={<AdminProtection><AdminExtractEdn /></AdminProtection>} />
-              <Route path="/admin/extract-ecos" element={<AdminProtection><AdminExtractEcos /></AdminProtection>} />
-               <Route path="/admin/extract-objectifs" element={<AdminProtection><EdnObjectifsExtractionPage /></AdminProtection>} />
-               <Route path="/admin/oic-quality" element={<AdminProtection><OicDataQualityManager /></AdminProtection>} />
-               <Route path="/admin/complete" element={<AdminProtection><AdminCompleteProcess /></AdminProtection>} />
-              <Route path="/test-subscriptions" element={<AdminProtection><SubscriptionTest /></AdminProtection>} />
+              <Route path="/admin/import" element={<AdminImport />} />
+              <Route path="/admin/audit" element={<AdminAudit />} />
+              <Route path="/admin/extract-edn" element={<AdminExtractEdn />} />
+              <Route path="/admin/extract-ecos" element={<AdminExtractEcos />} />
+               <Route path="/admin/extract-objectifs" element={<EdnObjectifsExtractionPage />} />
+               <Route path="/admin/oic-quality" element={<OicDataQualityManager />} />
+               <Route path="/admin/complete" element={<AdminCompleteProcess />} />
+              <Route path="/test-subscriptions" element={<SubscriptionTest />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

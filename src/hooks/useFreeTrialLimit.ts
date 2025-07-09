@@ -22,26 +22,15 @@ export const useFreeTrialLimit = () => {
   const [freeGenerationsUsed, setFreeGenerationsUsed] = useState(0);
   const [canGenerateMore, setCanGenerateMore] = useState(true);
   const [error, setError] = useState<FreeTrialError | null>(null);
-  const [isInitialized, setIsInitialized] = useState(false);
 
   // Initialisation sécurisée des données
   useEffect(() => {
     try {
-      // Vérifier si localStorage est disponible
-      if (typeof window === 'undefined' || !window.localStorage) {
-        setFreeGenerationsUsed(0);
-        setCanGenerateMore(true);
-        setError(null);
-        setIsInitialized(true);
-        return;
-      }
-
       const stored = localStorage.getItem(FREE_TRIAL_KEY);
       const count = validateStoredCount(stored);
       setFreeGenerationsUsed(count);
       setCanGenerateMore(count < MAX_FREE_GENERATIONS);
       setError(null);
-      setIsInitialized(true);
     } catch (err) {
       console.error('Erreur lors de la récupération du compteur gratuit:', err);
       setError({
@@ -51,18 +40,11 @@ export const useFreeTrialLimit = () => {
       // Fallback: utiliser les valeurs par défaut
       setFreeGenerationsUsed(0);
       setCanGenerateMore(true);
-      setIsInitialized(true);
     }
   }, []);
 
   const incrementFreeGeneration = useCallback(() => {
-    if (!isInitialized) return false;
-    
     try {
-      if (typeof window === 'undefined' || !window.localStorage) {
-        return false;
-      }
-      
       const newCount = Math.min(freeGenerationsUsed + 1, MAX_FREE_GENERATIONS);
       setFreeGenerationsUsed(newCount);
       localStorage.setItem(FREE_TRIAL_KEY, newCount.toString());
@@ -87,11 +69,9 @@ export const useFreeTrialLimit = () => {
       toast.error('Erreur lors de la mise à jour du compteur de générations');
       return false;
     }
-  }, [freeGenerationsUsed, isInitialized]);
+  }, [freeGenerationsUsed]);
 
   const checkCanGenerate = useCallback((isAuthenticated: boolean): boolean => {
-    if (!isInitialized) return false;
-    
     if (isAuthenticated) {
       return true; // Les utilisateurs connectés n'ont pas de limite (selon leur abonnement)
     }
@@ -102,21 +82,14 @@ export const useFreeTrialLimit = () => {
     }
     
     return true;
-  }, [canGenerateMore, isInitialized]);
+  }, [canGenerateMore]);
 
   const getRemainingGenerations = useCallback((): number => {
-    if (!isInitialized) return MAX_FREE_GENERATIONS;
     return Math.max(0, MAX_FREE_GENERATIONS - freeGenerationsUsed);
-  }, [freeGenerationsUsed, isInitialized]);
+  }, [freeGenerationsUsed]);
 
   const resetFreeTrialCount = useCallback(() => {
-    if (!isInitialized) return false;
-    
     try {
-      if (typeof window === 'undefined' || !window.localStorage) {
-        return false;
-      }
-      
       localStorage.removeItem(FREE_TRIAL_KEY);
       setFreeGenerationsUsed(0);
       setCanGenerateMore(true);
@@ -132,14 +105,13 @@ export const useFreeTrialLimit = () => {
       toast.error('Erreur lors de la réinitialisation du compteur');
       return false;
     }
-  }, [isInitialized]);
+  }, []);
 
   return {
     freeGenerationsUsed,
     canGenerateMore,
     maxFreeGenerations: MAX_FREE_GENERATIONS,
     error,
-    isInitialized,
     incrementFreeGeneration,
     checkCanGenerate,
     getRemainingGenerations,

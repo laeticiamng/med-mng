@@ -1,6 +1,5 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-import { DOMParser } from "https://deno.land/x/deno_dom@v0.1.38/deno-dom-wasm.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -39,9 +38,9 @@ serve(async (req) => {
 
     console.log(`🚀 Starting EDN extraction - Action: ${action}, Resume from item: ${resumeFromItem}`);
 
-    // Validation des credentials depuis les secrets Supabase
-    const username = credentials?.username || Deno.env.get("CAS_USERNAME");
-    const password = credentials?.password || Deno.env.get("CAS_PASSWORD");
+    // Validation des credentials
+    const username = credentials?.username || Deno.env.get("UNESS_USERNAME");
+    const password = credentials?.password || Deno.env.get("UNESS_PASSWORD");
 
     if (!username || !password) {
       throw new Error("Credentials UNESS manquants (username/password)");
@@ -264,94 +263,32 @@ async function extractSingleItem(itemId: number, cookies: string): Promise<EdnIt
 function extractRangs(html: string, rangType: string): string[] {
   const rangs: string[] = [];
   
-  try {
-    // Parser HTML avec DOMParser si disponible
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
-    
-    if (doc) {
-      // Chercher par sélecteurs CSS plus précis
-      const selectors = [
-        `h2:contains("${rangType}") + ul li`,
-        `h3:contains("${rangType}") + ul li`,
-        `th:contains("${rangType}") + td li`,
-        `.rang-${rangType.toLowerCase().replace(' ', '-')} li`,
-        `[data-rang="${rangType}"] li`
-      ];
+  // Patterns pour identifier les sections Rang A/B
+  const patterns = [
+    new RegExp(`${rangType}[^<]*</[^>]+>([\\s\\S]*?)(?=Rang\\s+[AB]|$)`, 'i'),
+    new RegExp(`<[^>]*>${rangType}[^<]*</[^>]+>([\\s\\S]*?)(?=<[^>]*>Rang\\s+[AB]|$)`, 'i')
+  ];
+
+  for (const pattern of patterns) {
+    const match = html.match(pattern);
+    if (match) {
+      const content = match[1];
+      // Extraire les éléments de liste ou paragraphes
+      const listItems = content.match(/<li[^>]*>([^<]+)<\/li>/gi) || [];
+      const paragraphs = content.match(/<p[^>]*>([^<]+)<\/p>/gi) || [];
       
-      for (const selector of selectors) {
-        try {
-          const elements = doc.querySelectorAll(selector);
-          if (elements.length > 0) {
-            elements.forEach(el => {
-              const text = el.textContent?.trim();
-              if (text && text.length > 10 && text.length < 500) {
-                rangs.push(text);
-              }
-            });
-            if (rangs.length > 0) break;
-          }
-        } catch (e) {
-          continue;
+      [...listItems, ...paragraphs].forEach(item => {
+        const cleanText = item.replace(/<[^>]+>/g, '').trim();
+        if (cleanText && cleanText.length > 5) {
+          rangs.push(cleanText);
         }
-      }
-    }
-  } catch (e) {
-    console.warn('⚠️ Erreur parsing DOM, fallback sur regex');
-  }
-  
-  // Fallback sur les patterns regex améliorés
-  if (rangs.length === 0) {
-    const patterns = [
-      // Headers avec listes qui suivent
-      new RegExp(`<h[2-6][^>]*>.*?${rangType}.*?</h[2-6]>\\s*<ul[^>]*>([\\s\\S]*?)</ul>`, 'i'),
-      new RegExp(`<th[^>]*>.*?${rangType}.*?</th>\\s*<td[^>]*>([\\s\\S]*?)</td>`, 'i'),
+      });
       
-      // Sections avec div ou span
-      new RegExp(`<div[^>]*class="[^"]*${rangType.toLowerCase()}[^"]*"[^>]*>([\\s\\S]*?)</div>`, 'i'),
-      
-      // Patterns WikiText
-      new RegExp(`===?\\s*${rangType}\\s*===?([\\s\\S]*?)(?====|$)`, 'i'),
-      
-      // Patterns génériques améliorés
-      new RegExp(`${rangType}[^<]*</h[^>]+>([\\s\\S]*?)(?=<h[^>]+>|Rang\\s+[AB]|$)`, 'i'),
-      new RegExp(`<[^>]*>${rangType}[^<]*</[^>]+>([\\s\\S]*?)(?=<[^>]*>Rang\\s+[AB]|$)`, 'i')
-    ];
-
-    for (const pattern of patterns) {
-      const match = html.match(pattern);
-      if (match && match[1]) {
-        const content = match[1];
-        
-        // Extraire les éléments de liste de manière robuste
-        const listMatches = [
-          ...Array.from(content.matchAll(/<li[^>]*>([^<]+)<\/li>/gi)),
-          ...Array.from(content.matchAll(/<p[^>]*>\*\s*([^<]+)<\/p>/gi)),
-          ...Array.from(content.matchAll(/\*\s*([^\n*]{10,200})/g))
-        ];
-        
-        listMatches.forEach(match => {
-          if (match[1]) {
-            const cleanText = match[1]
-              .replace(/<[^>]+>/g, '')
-              .replace(/&[^;]+;/g, ' ')
-              .trim();
-            if (cleanText && cleanText.length > 10 && cleanText.length < 500) {
-              rangs.push(cleanText);
-            }
-          }
-        });
-        
-        if (rangs.length > 0) break;
-      }
+      if (rangs.length > 0) break;
     }
   }
 
-  // Nettoyer et valider les résultats
-  return rangs
-    .map(rang => rang.trim())
-    .filter(rang => rang.length > 5 && rang.length < 500)
-    .slice(0, 20); // Limiter à 20 éléments max
+  return rangs;
 }
 
 function extractCookies(headers: Headers): string {

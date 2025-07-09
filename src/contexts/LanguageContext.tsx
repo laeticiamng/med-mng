@@ -44,12 +44,8 @@ interface LanguageProviderProps {
 export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) => {
   const [currentLanguage, setCurrentLanguageState] = useState<Language>(() => {
     // Récupérer la langue depuis localStorage ou utiliser français par défaut
-    try {
-      const savedLanguage = localStorage.getItem('medmng-language');
-      return (savedLanguage as Language) || 'fr';
-    } catch {
-      return 'fr';
-    }
+    const savedLanguage = localStorage.getItem('medmng-language');
+    return (savedLanguage as Language) || 'fr';
   });
 
   const [translations, setTranslations] = useState<Record<string, any>>({});
@@ -59,23 +55,19 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
   useEffect(() => {
     const loadTranslations = async () => {
       try {
-        // Pour l'instant, on utilise des traductions par défaut
-        // Plus tard on pourra ajouter des fichiers de traduction
-        setTranslations({
-          common: {
-            welcome: 'Bienvenue',
-            hello: 'Bonjour'
-          }
-        });
+        const translationModule = await import(`../locales/${currentLanguage}/common.json`);
+        setTranslations(translationModule.default || translationModule);
       } catch (error) {
         console.warn(`Erreur lors du chargement des traductions pour ${currentLanguage}:`, error);
-        // Traductions de fallback
-        setTranslations({
-          common: {
-            welcome: 'Bienvenue',
-            hello: 'Bonjour'
+        // Fallback vers le français
+        if (currentLanguage !== 'fr') {
+          try {
+            const fallbackModule = await import('../locales/fr/common.json');
+            setTranslations(fallbackModule.default || fallbackModule);
+          } catch (fallbackError) {
+            console.error('Erreur lors du chargement des traductions de fallback:', fallbackError);
           }
-        });
+        }
       }
     };
 
@@ -84,14 +76,10 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
 
   const setCurrentLanguage = (language: Language) => {
     setCurrentLanguageState(language);
-    try {
-      localStorage.setItem('medmng-language', language);
-      
-      // Émettre un événement pour notifier les autres composants
-      window.dispatchEvent(new CustomEvent('languageChanged', { detail: language }));
-    } catch (error) {
-      console.warn('Erreur lors de la sauvegarde de la langue:', error);
-    }
+    localStorage.setItem('medmng-language', language);
+    
+    // Émettre un événement pour notifier les autres composants
+    window.dispatchEvent(new CustomEvent('languageChanged', { detail: language }));
   };
 
   // Fonction de traduction avec support des paramètres
