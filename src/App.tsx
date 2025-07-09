@@ -8,11 +8,12 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { GlobalAudioProvider } from "@/contexts/GlobalAudioContext";
 import { AuthProvider } from "./components/med-mng/AuthProvider";
+import { DevModeIndicator } from "./components/dev/DevModeIndicator";
 import Index from "./pages/Index";
 
 const queryClient = new QueryClient();
 
-// Test avec tous les providers de base
+// Test avec DevModeIndicator - probablement le vrai coupable
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <LanguageProvider>
@@ -21,6 +22,7 @@ const App = () => (
           <TooltipProvider>
             <Toaster />
             <Sonner />
+            <DevModeIndicator />
             <BrowserRouter>
               <Routes>
                 <Route path="/" element={<Index />} />
