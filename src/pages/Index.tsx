@@ -1,39 +1,81 @@
 import React from 'react';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { MusicGenerationSection } from "@/components/MusicGenerationSection";
+import { Link } from "react-router-dom";
+import { Music, Brain, Stethoscope, BookOpen } from "lucide-react";
 
 const Index = () => {
   return (
-    <div style={{ 
-      padding: '20px', 
-      backgroundColor: '#f0f0f0', 
-      minHeight: '100vh',
-      fontSize: '18px',
-      color: '#333'
-    }}>
-      <h1 style={{ color: 'red', fontSize: '32px' }}>TEST - PAGE SIMPLE</h1>
-      <p>Si vous voyez ce texte, l'application fonctionne.</p>
-      <p>Problème : Les composants complexes causent l'erreur.</p>
-      <div style={{ 
-        backgroundColor: 'white', 
-        padding: '20px', 
-        margin: '20px 0',
-        border: '2px solid #333',
-        borderRadius: '10px'
-      }}>
-        <h2>MED MNG - Test Simple</h2>
-        <button 
-          style={{ 
-            backgroundColor: '#007bff', 
-            color: 'white', 
-            padding: '10px 20px',
-            border: 'none',
-            borderRadius: '5px',
-            fontSize: '16px',
-            cursor: 'pointer'
-          }}
-          onClick={() => alert('Test réussi !')}
-        >
-          Cliquez ici pour tester
-        </button>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      <div className="container mx-auto px-4 py-8">
+        {/* Header */}
+        <header className="text-center mb-12">
+          <h1 className="text-4xl font-bold text-gray-900 mb-4">
+            E-LiSA Platform
+          </h1>
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+            Plateforme d'apprentissage médical avec intelligence artificielle
+          </p>
+        </header>
+
+        {/* Navigation Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+          <Link to="/generator">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+              <CardHeader>
+                <Music className="h-8 w-8 text-blue-600 mb-2" />
+                <CardTitle>Générateur</CardTitle>
+                <CardDescription>Créez du contenu médical</CardDescription>
+              </CardHeader>
+            </Card>
+          </Link>
+
+          <Link to="/edn">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+              <CardHeader>
+                <BookOpen className="h-8 w-8 text-green-600 mb-2" />
+                <CardTitle>EDN</CardTitle>
+                <CardDescription>Items de connaissance</CardDescription>
+              </CardHeader>
+            </Card>
+          </Link>
+
+          <Link to="/ecos">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+              <CardHeader>
+                <Stethoscope className="h-8 w-8 text-red-600 mb-2" />
+                <CardTitle>ECOS</CardTitle>
+                <CardDescription>Situations cliniques</CardDescription>
+              </CardHeader>
+            </Card>
+          </Link>
+
+          <Link to="/med-mng/pricing">
+            <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+              <CardHeader>
+                <Brain className="h-8 w-8 text-purple-600 mb-2" />
+                <CardTitle>Med MNG</CardTitle>
+                <CardDescription>Gestion médicale IA</CardDescription>
+              </CardHeader>
+            </Card>
+          </Link>
+        </div>
+
+        {/* Music Generation Section */}
+        <MusicGenerationSection />
+
+        {/* Footer */}
+        <footer className="text-center mt-12 pt-8 border-t border-gray-200">
+          <div className="flex justify-center space-x-6">
+            <Link to="/mentions-legales" className="text-gray-600 hover:text-gray-900">
+              Mentions légales
+            </Link>
+            <Link to="/politique-confidentialite" className="text-gray-600 hover:text-gray-900">
+              Politique de confidentialité
+            </Link>
+          </div>
+        </footer>
       </div>
     </div>
   );
