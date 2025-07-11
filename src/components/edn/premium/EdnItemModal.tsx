@@ -83,9 +83,9 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
   const itemNumber = getItemNumber(finalItem.item_code);
 
   return (
-    <Dialog open={isOpen} onOpenChange={() => onClose()}>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent 
-        className={`${isFullscreen || isMobile ? 'max-w-[98vw] max-h-[98vh]' : 'max-w-6xl max-h-[90vh]'} 
+        className={`${isFullscreen || isMobile ? 'max-w-[100vw] max-h-[100vh] m-0 rounded-none' : 'max-w-6xl max-h-[90vh]'} 
                    overflow-hidden p-0 bg-gradient-to-br from-purple-50 to-indigo-50`}
       >
         {/* Header */}
@@ -106,14 +106,16 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
             </div>
             
             <div className="flex items-center gap-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setIsFullscreen(!isFullscreen)}
-                className="text-white hover:bg-white/20"
-              >
-                {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
-              </Button>
+              {!isMobile && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setIsFullscreen(!isFullscreen)}
+                  className="text-white hover:bg-white/20"
+                >
+                  {isFullscreen ? <Minimize2 className="h-4 w-4" /> : <Maximize2 className="h-4 w-4" />}
+                </Button>
+              )}
               <Button
                 variant="ghost"
                 size="sm"
@@ -142,23 +144,25 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
         </DialogHeader>
 
         {/* Navigation Tabs */}
-        <div className="flex-shrink-0 border-b bg-white/80 backdrop-blur-sm overflow-x-auto">
+        <div className="flex-shrink-0 border-b bg-white/80 backdrop-blur-sm">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="w-full justify-start bg-transparent p-0 h-auto">
-              {tabs.map((tab) => {
-                const IconComponent = tab.icon;
-                return (
-                  <TabsTrigger
-                    key={tab.id}
-                    value={tab.id}
-                    className={`flex items-center gap-2 ${isMobile ? 'px-3 py-2 text-sm' : 'px-6 py-3'} data-[state=active]:bg-purple-100 data-[state=active]:text-purple-700 whitespace-nowrap`}
-                  >
-                    <IconComponent className="h-4 w-4" />
-                    {isMobile && tab.label.length > 6 ? tab.label.substring(0, 6) : tab.label}
-                  </TabsTrigger>
-                );
-              })}
-            </TabsList>
+            <div className={isMobile ? "overflow-x-auto scrollbar-hide" : ""}>
+              <TabsList className="w-full justify-start bg-transparent p-0 h-auto flex-nowrap">
+                {tabs.map((tab) => {
+                  const IconComponent = tab.icon;
+                  return (
+                    <TabsTrigger
+                      key={tab.id}
+                      value={tab.id}
+                      className={`flex items-center gap-2 ${isMobile ? 'px-3 py-2 text-sm min-w-[80px]' : 'px-6 py-3'} data-[state=active]:bg-purple-100 data-[state=active]:text-purple-700 whitespace-nowrap`}
+                    >
+                      <IconComponent className="h-4 w-4" />
+                      <span className={isMobile ? "text-xs" : ""}>{isMobile && tab.label.length > 6 ? tab.label.substring(0, 5) + '.' : tab.label}</span>
+                    </TabsTrigger>
+                  );
+                })}
+              </TabsList>
+            </div>
           </Tabs>
         </div>
 

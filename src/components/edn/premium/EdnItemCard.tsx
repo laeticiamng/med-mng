@@ -155,8 +155,13 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
         {/* Action Buttons */}
         <div className="flex gap-2 pt-2">
           <Button 
-            onClick={onOpen}
-            className={`flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white ${isMobile ? 'text-sm py-2' : ''}`}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onOpen();
+            }}
+            className={`flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white ${isMobile ? 'text-sm py-2' : ''} transition-all duration-200 active:scale-95`}
+            type="button"
           >
             <Maximize2 className="h-4 w-4 mr-2" />
             {isMobile ? 'Ouvrir' : 'Mode Immersif'}
@@ -164,7 +169,12 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
           <Button 
             variant="outline" 
             size="sm"
-            className="px-3 hover:bg-purple-50 hover:border-purple-300"
+            className="px-3 hover:bg-purple-50 hover:border-purple-300 transition-all duration-200 active:scale-95"
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+            }}
           >
             <Play className="h-4 w-4" />
           </Button>

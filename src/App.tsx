@@ -9,7 +9,7 @@ import { GlobalAudioProvider } from "@/contexts/GlobalAudioContext";
 import Index from "./pages/Index";
 import Generator from "./pages/Generator";
 import EdnIndex from "./pages/EdnIndex";
-import EdnItem from "./pages/EdnItem";
+
 import EdnItemImmersive from "./pages/EdnItemImmersive";
 import EdnMusicLibrary from "./pages/EdnMusicLibrary";
 
@@ -57,7 +57,7 @@ const App = () => (
               <Route path="/" element={<Index />} />
               <Route path="/generator" element={<Generator />} />
                <Route path="/edn" element={<ProtectedRoute><EdnIndex /></ProtectedRoute>} />
-               <Route path="/edn/:slug" element={<ProtectedRoute><EdnItem /></ProtectedRoute>} />
+               
                <Route path="/edn/:slug/immersive" element={<ProtectedRoute><EdnItemImmersive /></ProtectedRoute>} />
                <Route path="/edn/music-library" element={<ProtectedRoute><EdnMusicLibrary /></ProtectedRoute>} />
               <Route path="/ecos" element={<EcosIndex />} />

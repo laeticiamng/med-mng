@@ -3,7 +3,7 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>MED MNG par EmotionsCare - Expérience Immersive d'Apprentissage Médical</title>
     <meta name="description" content="Plateforme immersive d'apprentissage des items EDN et situations ECOS - Médecine sensorielle et interactive" />
     <meta name="author" content="MED MNG par EmotionsCare" />
@@ -21,6 +21,45 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@medmng" />
     <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    
+    <style>
+      /* Corrections critiques pour la navigation mobile */
+      @media (max-width: 768px) {
+        body {
+          -webkit-text-size-adjust: 100%;
+          -webkit-tap-highlight-color: transparent;
+          touch-action: manipulation;
+        }
+        
+        button, [role="button"], [role="tab"] {
+          min-height: 44px;
+          min-width: 44px;
+          -webkit-user-select: none;
+          user-select: none;
+          -webkit-tap-highlight-color: transparent;
+          touch-action: manipulation;
+        }
+        
+        .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+        
+        input[type="text"], input[type="search"], textarea {
+          font-size: 16px;
+        }
+      }
+      
+      @supports (-webkit-touch-callout: none) {
+        .modal-content {
+          -webkit-overflow-scrolling: touch;
+        }
+      }
+    </style>
   </head>
 
   <body>
