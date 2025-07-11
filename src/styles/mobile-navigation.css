@@ -1,0 +1,77 @@
+/* Mobile Navigation Premium Styles */
+
+/* Cache la scrollbar sur mobile tout en gardant le scroll */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Amélioration du scroll horizontal tactile */
+.mobile-scroll {
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+.mobile-scroll > * {
+  scroll-snap-align: start;
+}
+
+/* Animation de feedback tactile */
+@keyframes touch-feedback {
+  0% { transform: scale(1); }
+  50% { transform: scale(0.95); }
+  100% { transform: scale(1); }
+}
+
+.touch-feedback:active {
+  animation: touch-feedback 0.15s ease-in-out;
+}
+
+/* Optimisations pour les zones tactiles */
+.mobile-touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Styles pour les boutons de navigation circulaires */
+.nav-button-circle {
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* Animation de glissement pour les onglets */
+.tab-slide-enter {
+  opacity: 0;
+  transform: translateX(20px);
+}
+
+.tab-slide-enter-active {
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.tab-slide-exit {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.tab-slide-exit-active {
+  opacity: 0;
+  transform: translateX(-20px);
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+/* Amélioration des focus states pour l'accessibilité */
+@media (hover: none) and (pointer: coarse) {
+  .mobile-optimized:focus {
+    outline: 2px solid #8b5cf6;
+    outline-offset: 2px;
+  }
+}

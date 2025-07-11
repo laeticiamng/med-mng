@@ -143,31 +143,103 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
           )}
         </DialogHeader>
 
-        {/* Navigation Tabs */}
-        <div className="flex-shrink-0 border-b bg-white/80 backdrop-blur-sm">
+        {/* Navigation Tabs Premium Mobile */}
+        <div className="flex-shrink-0 border-b bg-white/80 backdrop-blur-sm relative">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <div className={isMobile ? "overflow-x-auto scrollbar-hide" : ""}>
-              <TabsList className="w-full justify-start bg-transparent p-0 h-auto flex-nowrap">
+            {isMobile ? (
+              // Navigation mobile avec swipe et scroll amélioré
+              <div className="relative">
+                <div className="overflow-x-auto scrollbar-hide py-2 px-4">
+                  <div className="flex gap-1 min-w-max">
+                    {tabs.map((tab, index) => {
+                      const IconComponent = tab.icon;
+                      const isActive = activeTab === tab.id;
+                      return (
+                        <button
+                          key={tab.id}
+                          onClick={() => setActiveTab(tab.id)}
+                          className={`
+                            flex flex-col items-center gap-1 px-4 py-3 rounded-xl min-w-[72px] transition-all duration-300 active:scale-95
+                            ${isActive 
+                              ? 'bg-purple-600 text-white shadow-lg scale-105 transform' 
+                              : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                            }
+                          `}
+                        >
+                          <IconComponent className={`h-5 w-5 ${isActive ? 'animate-pulse' : ''}`} />
+                          <span className="text-xs font-medium leading-none">
+                            {tab.label}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+                {/* Indicateur de swipe */}
+                <div className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-400">
+                  <div className="flex items-center gap-1">
+                    <div className="w-1 h-1 bg-current rounded-full opacity-40"></div>
+                    <div className="w-1 h-1 bg-current rounded-full opacity-60"></div>
+                    <div className="w-1 h-1 bg-current rounded-full opacity-80"></div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              // Navigation desktop
+              <TabsList className="w-full justify-start bg-transparent p-0 h-auto">
                 {tabs.map((tab) => {
                   const IconComponent = tab.icon;
                   return (
                     <TabsTrigger
                       key={tab.id}
                       value={tab.id}
-                      className={`flex items-center gap-2 ${isMobile ? 'px-3 py-2 text-sm min-w-[80px]' : 'px-6 py-3'} data-[state=active]:bg-purple-100 data-[state=active]:text-purple-700 whitespace-nowrap`}
+                      className="flex items-center gap-2 px-6 py-3 data-[state=active]:bg-purple-100 data-[state=active]:text-purple-700"
                     >
                       <IconComponent className="h-4 w-4" />
-                      <span className={isMobile ? "text-xs" : ""}>{isMobile && tab.label.length > 6 ? tab.label.substring(0, 5) + '.' : tab.label}</span>
+                      <span>{tab.label}</span>
                     </TabsTrigger>
                   );
                 })}
               </TabsList>
-            </div>
+            )}
           </Tabs>
         </div>
 
-        {/* Content */}
-        <div className="flex-1 overflow-y-auto">
+        {/* Content avec navigation tactile */}
+        <div className="flex-1 overflow-y-auto relative">
+          {isMobile && (
+            // Navigation par flèches sur mobile
+            <div className="absolute top-4 right-4 z-10 flex gap-2">
+              <Button
+                size="sm"
+                variant="ghost"
+                className="w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm shadow-md active:scale-95"
+                onClick={() => {
+                  const currentIndex = tabs.findIndex(tab => tab.id === activeTab);
+                  if (currentIndex > 0) {
+                    setActiveTab(tabs[currentIndex - 1].id);
+                  }
+                }}
+                disabled={tabs.findIndex(tab => tab.id === activeTab) === 0}
+              >
+                ←
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="w-8 h-8 rounded-full bg-white/80 backdrop-blur-sm shadow-md active:scale-95"
+                onClick={() => {
+                  const currentIndex = tabs.findIndex(tab => tab.id === activeTab);
+                  if (currentIndex < tabs.length - 1) {
+                    setActiveTab(tabs[currentIndex + 1].id);
+                  }
+                }}
+                disabled={tabs.findIndex(tab => tab.id === activeTab) === tabs.length - 1}
+              >
+                →
+              </Button>
+            </div>
+          )}
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             {/* Overview */}
             <TabsContent value="overview" className={`${isMobile ? 'p-4' : 'p-6'} space-y-4`}>

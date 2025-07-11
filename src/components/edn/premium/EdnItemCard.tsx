@@ -152,32 +152,53 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
           </div>
         )}
 
-        {/* Action Buttons */}
-        <div className="flex gap-2 pt-2">
+        {/* Action Buttons Premium Mobile */}
+        <div className={`flex gap-2 pt-2 ${isMobile ? 'flex-col' : ''}`}>
           <Button 
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
               onOpen();
             }}
-            className={`flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white ${isMobile ? 'text-sm py-2' : ''} transition-all duration-200 active:scale-95`}
+            className={`${isMobile ? 'w-full py-3' : 'flex-1'} bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white transition-all duration-300 active:scale-95 shadow-lg hover:shadow-xl`}
             type="button"
           >
             <Maximize2 className="h-4 w-4 mr-2" />
-            {isMobile ? 'Ouvrir' : 'Mode Immersif'}
+            {isMobile ? 'Explorer le contenu' : 'Mode Immersif'}
           </Button>
-          <Button 
-            variant="outline" 
-            size="sm"
-            className="px-3 hover:bg-purple-50 hover:border-purple-300 transition-all duration-200 active:scale-95"
-            type="button"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-            }}
-          >
-            <Play className="h-4 w-4" />
-          </Button>
+          
+          {isMobile ? (
+            // Boutons secondaires sur mobile
+            <div className="flex gap-2">
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="flex-1 hover:bg-purple-50 hover:border-purple-300 transition-all duration-200 active:scale-95"
+                type="button"
+              >
+                <Play className="h-4 w-4 mr-1" />
+                Lire
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                className="flex-1 hover:bg-green-50 hover:border-green-300 transition-all duration-200 active:scale-95"
+                type="button"
+              >
+                <Star className="h-4 w-4 mr-1" />
+                Favoris
+              </Button>
+            </div>
+          ) : (
+            <Button 
+              variant="outline" 
+              size="sm"
+              className="px-3 hover:bg-purple-50 hover:border-purple-300 transition-all duration-200 active:scale-95"
+              type="button"
+            >
+              <Play className="h-4 w-4" />
+            </Button>
+          )}
         </div>
       </CardContent>
     </Card>

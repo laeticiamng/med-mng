@@ -191,35 +191,67 @@ const EdnIndex = () => {
             </div>
           </div>
 
-          {/* Search and Filters */}
+          {/* Search and Filters Premium Mobile */}
           <div className="flex flex-col gap-4">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+              <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 ${isMobile ? 'h-5 w-5' : 'h-5 w-5'}`} />
               <Input
                 placeholder={isMobile ? "Rechercher items..." : "Rechercher parmi les 367 items (titre, code IC-1, compétences, rangs...)"}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className={`pl-10 pr-4 ${isMobile ? 'py-2 text-base' : 'py-3 text-lg'} border-purple-200 focus:border-purple-400 bg-white/70`}
+                className={`pl-10 pr-4 ${isMobile ? 'py-4 text-base rounded-xl' : 'py-3 text-lg'} border-purple-200 focus:border-purple-400 bg-white/70 transition-all duration-300 focus:shadow-lg focus:scale-[1.02]`}
               />
+              {searchTerm && (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 h-6 w-6 rounded-full"
+                  onClick={() => setSearchTerm('')}
+                >
+                  ×
+                </Button>
+              )}
             </div>
-            <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="w-full">
-              <TabsList className={`grid w-full ${isMobile ? 'grid-cols-2' : 'grid-cols-5'} bg-white/70`}>
-                {isMobile ? (
-                  <>
-                    <TabsTrigger value="all" className="text-xs">Tous</TabsTrigger>
-                    <TabsTrigger value="complete" className="text-xs">100%</TabsTrigger>
-                  </>
-                ) : (
-                  <>
-                    <TabsTrigger value="all">Tous (367)</TabsTrigger>
-                    <TabsTrigger value="foundation">Base (1-100)</TabsTrigger>
-                    <TabsTrigger value="clinical">Clinique (101-250)</TabsTrigger>
-                    <TabsTrigger value="advanced">Avancé (251-367)</TabsTrigger>
-                    <TabsTrigger value="complete">Complets 100%</TabsTrigger>
-                  </>
-                )}
-              </TabsList>
-            </Tabs>
+            
+            {isMobile ? (
+              // Filtres mobiles améliorés
+              <div className="grid grid-cols-2 gap-2">
+                {[
+                  { value: 'all', label: 'Tous', count: stats.total },
+                  { value: 'complete', label: 'Complets', count: stats.complete },
+                  { value: 'foundation', label: 'Base', count: items.filter(item => parseInt(item.item_code.replace('IC-', '') || '0') <= 100).length },
+                  { value: 'clinical', label: 'Clinique', count: items.filter(item => { const num = parseInt(item.item_code.replace('IC-', '') || '0'); return num >= 101 && num <= 250; }).length }
+                ].map((filter) => (
+                  <Button
+                    key={filter.value}
+                    variant={selectedCategory === filter.value ? "default" : "outline"}
+                    className={`
+                      h-auto py-3 px-3 flex flex-col gap-1 transition-all duration-300 active:scale-95
+                      ${selectedCategory === filter.value 
+                        ? 'bg-purple-600 text-white shadow-lg transform scale-105' 
+                        : 'bg-white/80 hover:bg-purple-50 hover:border-purple-300'
+                      }
+                    `}
+                    onClick={() => setSelectedCategory(filter.value)}
+                  >
+                    <span className="text-sm font-semibold">{filter.label}</span>
+                    <span className={`text-xs ${selectedCategory === filter.value ? 'text-purple-100' : 'text-gray-500'}`}>
+                      {filter.count}
+                    </span>
+                  </Button>
+                ))}
+              </div>
+            ) : (
+              <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="w-full">
+                <TabsList className="grid w-full grid-cols-5 bg-white/70">
+                  <TabsTrigger value="all">Tous (367)</TabsTrigger>
+                  <TabsTrigger value="foundation">Base (1-100)</TabsTrigger>
+                  <TabsTrigger value="clinical">Clinique (101-250)</TabsTrigger>
+                  <TabsTrigger value="advanced">Avancé (251-367)</TabsTrigger>
+                  <TabsTrigger value="complete">Complets 100%</TabsTrigger>
+                </TabsList>
+              </Tabs>
+            )}
           </div>
         </div>
       </div>
