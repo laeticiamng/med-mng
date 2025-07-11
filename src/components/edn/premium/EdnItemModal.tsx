@@ -9,11 +9,14 @@ import {
   VolumeX, Maximize2, Minimize2, FileText, Image, 
   CheckCircle, Star, Download, Share2
 } from "lucide-react";
-import { TableauRangA } from "@/components/edn/tableau/TableauRangA";
-import { TableauRangB } from "@/components/edn/tableau/TableauRangB";
+import { TableauRangA } from "@/components/edn/TableauRangA";
+import { TableauRangB } from "@/components/edn/TableauRangB";
 import { ParolesMusicales } from "@/components/edn/ParolesMusicales";
 import { SceneImmersive } from "@/components/edn/SceneImmersive";
 import { EnhancedQuizFinal } from "@/components/edn/EnhancedQuizFinal";
+import { BdGallery } from "@/components/edn/BdGallery";
+import { RomanNarratif } from "@/components/edn/RomanNarratif";
+import { CompetencesBadges } from "@/components/edn/CompetencesBadges";
 
 interface EdnItemModalProps {
   item: any;
@@ -46,7 +49,7 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
     }
     
     if (item.tableau_rang_b) {
-      tabs.push({ id: 'rang-b', label: 'Rang B', icon: BookOpen, available: true });
+      tabs.push({ id: 'rang-b', label: 'Rang B', icon: Brain, available: true });
     }
     
     if (item.paroles_musicales && item.paroles_musicales.length > 0) {
@@ -60,6 +63,10 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
     if (item.quiz_questions) {
       tabs.push({ id: 'quiz', label: 'Quiz', icon: Brain, available: true });
     }
+    
+    // Nouveaux onglets pour BD et Roman
+    tabs.push({ id: 'bd', label: 'BD', icon: Image, available: true });
+    tabs.push({ id: 'roman', label: 'Roman', icon: FileText, available: true });
     
     return tabs;
   };
@@ -150,6 +157,9 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             {/* Overview */}
             <TabsContent value="overview" className="p-6 space-y-6">
+              {/* Badges de compétences */}
+              <CompetencesBadges item={item} />
+              
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <Card>
                   <CardHeader>
@@ -258,6 +268,26 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                 />
               </TabsContent>
             )}
+
+            {/* BD Gallery */}
+            <TabsContent value="bd" className="p-6">
+              <BdGallery 
+                itemCode={item.item_code}
+                title={item.title}
+                tableauRangA={item.tableau_rang_a}
+                tableauRangB={item.tableau_rang_b}
+              />
+            </TabsContent>
+
+            {/* Roman Narratif */}
+            <TabsContent value="roman" className="p-6">
+              <RomanNarratif 
+                itemCode={item.item_code}
+                title={item.title}
+                tableauRangA={item.tableau_rang_a}
+                tableauRangB={item.tableau_rang_b}
+              />
+            </TabsContent>
           </Tabs>
         </div>
       </DialogContent>

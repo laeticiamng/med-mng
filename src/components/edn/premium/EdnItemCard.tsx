@@ -8,6 +8,7 @@ import {
   Image, FileText, Volume2, Gamepad2, Maximize2,
   Star, CheckCircle, AlertCircle
 } from "lucide-react";
+import { CompetencesBadges } from "@/components/edn/CompetencesBadges";
 
 interface EdnItemCardProps {
   item: {
@@ -134,41 +135,10 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
           })}
         </div>
 
-        {/* Content Preview */}
+        {/* Badges de compétences */}
         <div className="space-y-2">
-          <h4 className="text-sm font-semibold text-gray-800">Contenus disponibles:</h4>
-          <div className="flex flex-wrap gap-1">
-            {item.tableau_rang_a && (
-              <Badge variant="outline" className="text-xs bg-blue-50 text-blue-700 border-blue-200">
-                <BookOpen className="h-3 w-3 mr-1" />
-                Tableau A
-              </Badge>
-            )}
-            {item.tableau_rang_b && (
-              <Badge variant="outline" className="text-xs bg-purple-50 text-purple-700 border-purple-200">
-                <BookOpen className="h-3 w-3 mr-1" />
-                Tableau B
-              </Badge>
-            )}
-            {item.paroles_musicales && item.paroles_musicales.length > 0 && (
-              <Badge variant="outline" className="text-xs bg-green-50 text-green-700 border-green-200">
-                <Headphones className="h-3 w-3 mr-1" />
-                {item.paroles_musicales.length} chansons
-              </Badge>
-            )}
-            {item.scene_immersive && (
-              <Badge variant="outline" className="text-xs bg-orange-50 text-orange-700 border-orange-200">
-                <Users className="h-3 w-3 mr-1" />
-                Scène
-              </Badge>
-            )}
-            {item.quiz_questions && (
-              <Badge variant="outline" className="text-xs bg-red-50 text-red-700 border-red-200">
-                <Gamepad2 className="h-3 w-3 mr-1" />
-                Quiz
-              </Badge>
-            )}
-          </div>
+          <h4 className="text-sm font-semibold text-gray-800">Compétences UNESS:</h4>
+          <CompetencesBadges item={item} />
         </div>
 
         {/* Action Buttons */}
