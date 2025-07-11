@@ -8,6 +8,7 @@ import {
   Image, FileText, Volume2, Gamepad2, Maximize2,
   Star, CheckCircle, AlertCircle
 } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { CompetencesBadges } from "@/components/edn/CompetencesBadges";
 import { useEdnItemV2Process } from "@/hooks/useEdnItemV2Process";
 
@@ -34,6 +35,7 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
   completionPercentage,
   onOpen
 }) => {
+  const isMobile = useIsMobile();
   // Traitement des données V2 si nécessaire
   const processedItem = useEdnItemV2Process(item);
   const finalItem = processedItem || item;
@@ -85,31 +87,33 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
   return (
     <Card className="group hover:shadow-2xl transition-all duration-500 border-2 hover:border-purple-300/50 bg-white/80 backdrop-blur-sm overflow-hidden">
       {/* Header avec gradient */}
-      <div className="bg-gradient-to-r from-purple-500 to-indigo-500 p-4 text-white">
-        <div className="flex items-start justify-between mb-3">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">{itemNumber}</span>
+      <div className={`bg-gradient-to-r from-purple-500 to-indigo-500 ${isMobile ? 'p-3' : 'p-4'} text-white`}>
+        <div className={`flex items-start justify-between ${isMobile ? 'mb-2' : 'mb-3'}`}>
+          <div className={`flex items-center ${isMobile ? 'gap-2' : 'gap-3'}`}>
+            <div className={`${isMobile ? 'w-10 h-10' : 'w-12 h-12'} bg-white/20 rounded-lg flex items-center justify-center`}>
+              <span className={`text-white font-bold ${isMobile ? 'text-base' : 'text-lg'}`}>{itemNumber}</span>
             </div>
-            <Badge variant="secondary" className="bg-white/20 text-white border-white/20">
-              {finalItem.item_code}
-            </Badge>
+            {!isMobile && (
+              <Badge variant="secondary" className="bg-white/20 text-white border-white/20">
+                {finalItem.item_code}
+              </Badge>
+            )}
           </div>
           {getCompletionBadge()}
         </div>
         
-        <CardTitle className="text-lg leading-tight text-white group-hover:text-purple-100 transition-colors">
-          {itemNumber}. {finalItem.title}
+        <CardTitle className={`${isMobile ? 'text-base' : 'text-lg'} leading-tight text-white group-hover:text-purple-100 transition-colors`}>
+          {isMobile ? `${itemNumber}. ${finalItem.title.length > 40 ? finalItem.title.substring(0, 40) + '...' : finalItem.title}` : `${itemNumber}. ${finalItem.title}`}
         </CardTitle>
         
-        {finalItem.subtitle && (
+        {finalItem.subtitle && !isMobile && (
           <p className="text-purple-100 text-sm mt-2 line-clamp-2">
             {finalItem.subtitle}
           </p>
         )}
       </div>
 
-      <CardContent className="p-4 space-y-4">
+      <CardContent className={`${isMobile ? 'p-3 space-y-3' : 'p-4 space-y-4'}`}>
         {/* Progress Bar */}
         <div className="space-y-2">
           <div className="flex justify-between items-center">
@@ -125,13 +129,13 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
         </div>
 
         {/* Features Grid */}
-        <div className="grid grid-cols-3 gap-2">
-          {features.map((feature, index) => {
+        <div className={`grid ${isMobile ? 'grid-cols-2' : 'grid-cols-3'} gap-2`}>
+          {features.slice(0, isMobile ? 4 : features.length).map((feature, index) => {
             const IconComponent = feature.icon;
             return (
               <div 
                 key={index} 
-                className="flex flex-col items-center p-2 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
+                className={`flex flex-col items-center ${isMobile ? 'p-1.5' : 'p-2'} bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors`}
               >
                 <IconComponent className={`h-4 w-4 ${feature.color} mb-1`} />
                 <span className="text-xs text-gray-600 font-medium">{feature.text}</span>
@@ -141,19 +145,21 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
         </div>
 
         {/* Badges de compétences */}
-        <div className="space-y-2">
-          <h4 className="text-sm font-semibold text-gray-800">Compétences UNESS:</h4>
-          <CompetencesBadges item={finalItem} />
-        </div>
+        {!isMobile && (
+          <div className="space-y-2">
+            <h4 className="text-sm font-semibold text-gray-800">Compétences UNESS:</h4>
+            <CompetencesBadges item={finalItem} />
+          </div>
+        )}
 
         {/* Action Buttons */}
         <div className="flex gap-2 pt-2">
           <Button 
             onClick={onOpen}
-            className="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white"
+            className={`flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white ${isMobile ? 'text-sm py-2' : ''}`}
           >
             <Maximize2 className="h-4 w-4 mr-2" />
-            Mode Immersif
+            {isMobile ? 'Ouvrir' : 'Mode Immersif'}
           </Button>
           <Button 
             variant="outline" 

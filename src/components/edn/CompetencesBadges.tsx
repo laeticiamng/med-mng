@@ -4,6 +4,7 @@ import {
   CheckCircle, AlertCircle, XCircle, Clock, 
   BookOpen, Brain, Music, Users, Gamepad2 
 } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface CompetencesBadgesProps {
   item: {
@@ -16,6 +17,7 @@ interface CompetencesBadgesProps {
 }
 
 export const CompetencesBadges: React.FC<CompetencesBadgesProps> = ({ item }) => {
+  const isMobile = useIsMobile();
   
   const getCompetencesCount = (rang: 'A' | 'B') => {
     const tableau = rang === 'A' ? item.tableau_rang_a : item.tableau_rang_b;
@@ -116,7 +118,7 @@ export const CompetencesBadges: React.FC<CompetencesBadgesProps> = ({ item }) =>
       </div>
 
       {/* Badges détaillés par fonctionnalité */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2">
+      <div className={`grid ${isMobile ? 'grid-cols-2' : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-5'} gap-2`}>
         {features.map((feature) => {
           const IconComponent = feature.icon;
           return (

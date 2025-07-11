@@ -9,6 +9,7 @@ import {
   VolumeX, Maximize2, Minimize2, FileText, Image, 
   CheckCircle, Star, Download, Share2
 } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { TableauRangA } from "@/components/edn/TableauRangA";
 import { TableauRangB } from "@/components/edn/TableauRangB";
 import { ParolesMusicales } from "@/components/edn/ParolesMusicales";
@@ -34,6 +35,7 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
   const [activeTab, setActiveTab] = useState('overview');
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [audioPlaying, setAudioPlaying] = useState(false);
+  const isMobile = useIsMobile();
 
   // Traitement des données V2 si nécessaire
   const processedItem = useEdnItemV2Process(item);
@@ -83,21 +85,21 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
   return (
     <Dialog open={isOpen} onOpenChange={() => onClose()}>
       <DialogContent 
-        className={`${isFullscreen ? 'max-w-[98vw] max-h-[98vh]' : 'max-w-6xl max-h-[90vh]'} 
+        className={`${isFullscreen || isMobile ? 'max-w-[98vw] max-h-[98vh]' : 'max-w-6xl max-h-[90vh]'} 
                    overflow-hidden p-0 bg-gradient-to-br from-purple-50 to-indigo-50`}
       >
         {/* Header */}
-        <DialogHeader className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white p-6 flex-shrink-0">
+        <DialogHeader className={`bg-gradient-to-r from-purple-600 to-indigo-600 text-white ${isMobile ? 'p-4' : 'p-6'} flex-shrink-0`}>
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-white/20 rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">{itemNumber}</span>
+            <div className={`flex items-center ${isMobile ? 'gap-2' : 'gap-4'}`}>
+              <div className={`${isMobile ? 'w-8 h-8' : 'w-12 h-12'} bg-white/20 rounded-lg flex items-center justify-center`}>
+                <span className={`text-white font-bold ${isMobile ? 'text-sm' : 'text-lg'}`}>{itemNumber}</span>
               </div>
               <div>
-                <DialogTitle className="text-2xl font-bold text-white mb-1">
-                  {finalItem.item_code}: {finalItem.title}
+                <DialogTitle className={`${isMobile ? 'text-lg' : 'text-2xl'} font-bold text-white mb-1`}>
+                  {isMobile ? finalItem.item_code : `${finalItem.item_code}: ${finalItem.title}`}
                 </DialogTitle>
-                {finalItem.subtitle && (
+                {!isMobile && finalItem.subtitle && (
                   <p className="text-purple-100">{finalItem.subtitle}</p>
                 )}
               </div>
@@ -124,21 +126,23 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
           </div>
           
           {/* Quick Stats */}
-          <div className="flex gap-2 mt-4">
-            {tabs.slice(1).map((tab) => {
-              const IconComponent = tab.icon;
-              return (
-                <Badge key={tab.id} className="bg-white/20 text-white border-white/20">
-                  <IconComponent className="h-3 w-3 mr-1" />
-                  {tab.label}
-                </Badge>
-              );
-            })}
-          </div>
+          {!isMobile && (
+            <div className="flex gap-2 mt-4 flex-wrap">
+              {tabs.slice(1).map((tab) => {
+                const IconComponent = tab.icon;
+                return (
+                  <Badge key={tab.id} className="bg-white/20 text-white border-white/20">
+                    <IconComponent className="h-3 w-3 mr-1" />
+                    {tab.label}
+                  </Badge>
+                );
+              })}
+            </div>
+          )}
         </DialogHeader>
 
         {/* Navigation Tabs */}
-        <div className="flex-shrink-0 border-b bg-white/80 backdrop-blur-sm">
+        <div className="flex-shrink-0 border-b bg-white/80 backdrop-blur-sm overflow-x-auto">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="w-full justify-start bg-transparent p-0 h-auto">
               {tabs.map((tab) => {
@@ -147,10 +151,10 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                   <TabsTrigger
                     key={tab.id}
                     value={tab.id}
-                    className="flex items-center gap-2 px-6 py-3 data-[state=active]:bg-purple-100 data-[state=active]:text-purple-700"
+                    className={`flex items-center gap-2 ${isMobile ? 'px-3 py-2 text-sm' : 'px-6 py-3'} data-[state=active]:bg-purple-100 data-[state=active]:text-purple-700 whitespace-nowrap`}
                   >
                     <IconComponent className="h-4 w-4" />
-                    {tab.label}
+                    {isMobile && tab.label.length > 6 ? tab.label.substring(0, 6) : tab.label}
                   </TabsTrigger>
                 );
               })}
@@ -162,14 +166,14 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
         <div className="flex-1 overflow-y-auto">
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             {/* Overview */}
-            <TabsContent value="overview" className="p-6 space-y-6">
+            <TabsContent value="overview" className={`${isMobile ? 'p-4' : 'p-6'} space-y-4`}>
               {/* Validation complète des compétences */}
               <CompetenceValidation item={finalItem} />
               
               {/* Badges de compétences */}
               <CompetencesBadges item={finalItem} />
               
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className={`grid ${isMobile ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-2'} gap-4`}>
                 <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2">
@@ -238,21 +242,21 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
 
             {/* Rang A */}
             {finalItem.tableau_rang_a && (
-              <TabsContent value="rang-a" className="p-6">
+              <TabsContent value="rang-a" className={isMobile ? 'p-4' : 'p-6'}>
                 <TableauRangA data={finalItem.tableau_rang_a} />
               </TabsContent>
             )}
 
             {/* Rang B */}
             {finalItem.tableau_rang_b && (
-              <TabsContent value="rang-b" className="p-6">
+              <TabsContent value="rang-b" className={isMobile ? 'p-4' : 'p-6'}>
                 <TableauRangB data={finalItem.tableau_rang_b} itemCode={finalItem.item_code} />
               </TabsContent>
             )}
 
             {/* Music */}
             {finalItem.paroles_musicales && finalItem.paroles_musicales.length > 0 && (
-              <TabsContent value="music" className="p-6">
+              <TabsContent value="music" className={isMobile ? 'p-4' : 'p-6'}>
                 <ParolesMusicales 
                   paroles={finalItem.paroles_musicales}
                   itemCode={finalItem.item_code}
@@ -262,14 +266,14 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
 
             {/* Scene */}
             {finalItem.scene_immersive && (
-              <TabsContent value="scene" className="p-6">
+              <TabsContent value="scene" className={isMobile ? 'p-4' : 'p-6'}>
                 <SceneImmersive data={finalItem.scene_immersive} itemCode={finalItem.item_code} />
               </TabsContent>
             )}
 
             {/* Quiz */}
             {finalItem.quiz_questions && (
-              <TabsContent value="quiz" className="p-6">
+              <TabsContent value="quiz" className={isMobile ? 'p-4' : 'p-6'}>
                 <EnhancedQuizFinal 
                   questions={finalItem.quiz_questions}
                   itemCode={finalItem.item_code}
@@ -279,7 +283,7 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
             )}
 
             {/* BD Gallery */}
-            <TabsContent value="bd" className="p-6">
+            <TabsContent value="bd" className={isMobile ? 'p-4' : 'p-6'}>
               <BdGallery 
                 itemCode={finalItem.item_code}
                 title={finalItem.title}
@@ -289,7 +293,7 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
             </TabsContent>
 
             {/* Roman Narratif */}
-            <TabsContent value="roman" className="p-6">
+            <TabsContent value="roman" className={isMobile ? 'p-4' : 'p-6'}>
               <RomanNarratif 
                 itemCode={finalItem.item_code}
                 title={finalItem.title}

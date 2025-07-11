@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { EdnItemModal } from "@/components/edn/premium/EdnItemModal";
 import { EdnItemCard } from "@/components/edn/premium/EdnItemCard";
 
@@ -41,6 +42,7 @@ const EdnIndex = () => {
   const [selectedItem, setSelectedItem] = useState<EdnItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { toast } = useToast();
+  const isMobile = useIsMobile();
 
   useEffect(() => {
     fetchAllItems();
@@ -190,23 +192,32 @@ const EdnIndex = () => {
           </div>
 
           {/* Search and Filters */}
-          <div className="flex flex-col lg:flex-row gap-4">
-            <div className="relative flex-1">
+          <div className="flex flex-col gap-4">
+            <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
               <Input
-                placeholder="Rechercher parmi les 367 items (titre, code IC-1, compétences, rangs...)"
+                placeholder={isMobile ? "Rechercher items..." : "Rechercher parmi les 367 items (titre, code IC-1, compétences, rangs...)"}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-4 py-3 text-lg border-purple-200 focus:border-purple-400 bg-white/70"
+                className={`pl-10 pr-4 ${isMobile ? 'py-2 text-base' : 'py-3 text-lg'} border-purple-200 focus:border-purple-400 bg-white/70`}
               />
             </div>
-            <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="w-full lg:w-auto">
-              <TabsList className="grid w-full grid-cols-5 bg-white/70">
-                <TabsTrigger value="all">Tous (367)</TabsTrigger>
-                <TabsTrigger value="foundation">Base (1-100)</TabsTrigger>
-                <TabsTrigger value="clinical">Clinique (101-250)</TabsTrigger>
-                <TabsTrigger value="advanced">Avancé (251-367)</TabsTrigger>
-                <TabsTrigger value="complete">Complets 100%</TabsTrigger>
+            <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="w-full">
+              <TabsList className={`grid w-full ${isMobile ? 'grid-cols-2' : 'grid-cols-5'} bg-white/70`}>
+                {isMobile ? (
+                  <>
+                    <TabsTrigger value="all" className="text-xs">Tous</TabsTrigger>
+                    <TabsTrigger value="complete" className="text-xs">100%</TabsTrigger>
+                  </>
+                ) : (
+                  <>
+                    <TabsTrigger value="all">Tous (367)</TabsTrigger>
+                    <TabsTrigger value="foundation">Base (1-100)</TabsTrigger>
+                    <TabsTrigger value="clinical">Clinique (101-250)</TabsTrigger>
+                    <TabsTrigger value="advanced">Avancé (251-367)</TabsTrigger>
+                    <TabsTrigger value="complete">Complets 100%</TabsTrigger>
+                  </>
+                )}
               </TabsList>
             </Tabs>
           </div>
@@ -214,9 +225,9 @@ const EdnIndex = () => {
       </div>
 
       {/* Stats Bar */}
-      <div className="bg-white/60 backdrop-blur-sm border-y border-purple-200/50 py-6">
+      <div className="bg-white/60 backdrop-blur-sm border-y border-purple-200/50 py-4">
         <div className="container mx-auto px-4">
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+          <div className={`grid ${isMobile ? 'grid-cols-2' : 'grid-cols-2 md:grid-cols-3 lg:grid-cols-6'} gap-2 mb-4`}>
             {[
               { title: "Items Total", value: stats.total, subtitle: "IC-1 à IC-367", icon: BookOpen, color: "text-blue-600", bgColor: "bg-blue-50" },
               { title: "Affichés", value: stats.displayed, subtitle: "Filtrés", icon: Target, color: "text-purple-600", bgColor: "bg-purple-50" },
@@ -228,11 +239,11 @@ const EdnIndex = () => {
               const IconComponent = stat.icon;
               return (
                 <Card key={index} className={`${stat.bgColor} border-2 hover:shadow-lg transition-all duration-300`}>
-                  <CardContent className="p-4 text-center">
-                    <IconComponent className={`h-6 w-6 ${stat.color} mx-auto mb-2`} />
-                    <div className={`text-2xl font-bold ${stat.color}`}>{stat.value}</div>
-                    <div className="text-sm font-medium text-gray-700 mb-1">{stat.title}</div>
-                    <div className="text-xs text-gray-500">{stat.subtitle}</div>
+                  <CardContent className={`${isMobile ? 'p-2' : 'p-4'} text-center`}>
+                    <IconComponent className={`${isMobile ? 'h-4 w-4' : 'h-6 w-6'} ${stat.color} mx-auto mb-2`} />
+                    <div className={`${isMobile ? 'text-lg' : 'text-2xl'} font-bold ${stat.color}`}>{stat.value}</div>
+                    <div className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium text-gray-700 mb-1`}>{isMobile ? stat.title.split(' ')[0] : stat.title}</div>
+                    {!isMobile && <div className="text-xs text-gray-500">{stat.subtitle}</div>}
                   </CardContent>
                 </Card>
               );
@@ -272,7 +283,7 @@ const EdnIndex = () => {
             <p className="text-gray-600">Essayez de modifier vos critères de recherche ou de filtrage.</p>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className={`grid ${isMobile ? 'grid-cols-1 gap-4' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'}`}>
             {filteredItems.map((item) => (
               <EdnItemCard
                 key={item.id}

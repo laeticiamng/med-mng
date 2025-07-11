@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { BookOpen, Brain, Target, Award, CheckCircle } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface TableauRangBProps {
   data: {
@@ -25,6 +26,8 @@ interface TableauRangBProps {
 }
 
 export const TableauRangB: React.FC<TableauRangBProps> = ({ data, itemCode }) => {
+  const isMobile = useIsMobile();
+  
   if (!data || !data.sections) {
     return (
       <Card className="border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-indigo-50">
@@ -64,8 +67,8 @@ export const TableauRangB: React.FC<TableauRangBProps> = ({ data, itemCode }) =>
             </Badge>
           </div>
         </CardHeader>
-        <CardContent className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <CardContent className={isMobile ? 'p-4' : 'p-6'}>
+          <div className={`grid ${isMobile ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-3'} gap-4 mb-6`}>
             <div className="text-center">
               <div className="text-2xl font-bold text-purple-600">{concepts.length}</div>
               <div className="text-sm text-gray-600">Compétences Expertes</div>
@@ -91,10 +94,10 @@ export const TableauRangB: React.FC<TableauRangBProps> = ({ data, itemCode }) =>
               {section.title}
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-6">
-            <div className="space-y-6">
+          <CardContent className={isMobile ? 'p-4' : 'p-6'}>
+            <div className={isMobile ? 'space-y-4' : 'space-y-6'}>
               {section.concepts?.map((concept, conceptIndex) => (
-                <div key={conceptIndex} className="border border-gray-200 rounded-lg p-6 bg-white hover:shadow-md transition-shadow">
+                <div key={conceptIndex} className={`border border-gray-200 rounded-lg ${isMobile ? 'p-4' : 'p-6'} bg-white hover:shadow-md transition-shadow`}>
                   {/* En-tête du concept */}
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex-1">
@@ -111,7 +114,7 @@ export const TableauRangB: React.FC<TableauRangBProps> = ({ data, itemCode }) =>
                   </div>
 
                   {/* Contenu détaillé */}
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className={`grid ${isMobile ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-2'} gap-4`}>
                     {concept.analyse && (
                       <div className="space-y-2">
                         <h5 className="text-sm font-semibold text-purple-700 flex items-center gap-1">

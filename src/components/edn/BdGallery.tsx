@@ -6,6 +6,7 @@ import {
   Image, ChevronLeft, ChevronRight, Maximize2, 
   Download, Share2, Eye, BookOpen
 } from 'lucide-react';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface BdGalleryProps {
   itemCode: string;
@@ -22,6 +23,7 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
 }) => {
   const [currentVignette, setCurrentVignette] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const isMobile = useIsMobile();
 
   // Générer des vignettes basées sur les compétences
   const generateVignettes = () => {
@@ -171,7 +173,7 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
             <img 
               src={currentVig.image} 
               alt={currentVig.title}
-              className="w-full h-96 object-cover rounded-t-lg"
+              className={`w-full ${isMobile ? 'h-48' : 'h-96'} object-cover rounded-t-lg`}
             />
             <div className="absolute top-4 left-4">
               <Badge className={`${getVignetteColor(currentVig.type)} border-2`}>
@@ -190,7 +192,7 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
             </div>
           </div>
           
-          <div className="p-6">
+          <div className={isMobile ? 'p-4' : 'p-6'}>
             <h3 className="text-xl font-bold mb-2">{currentVig.title}</h3>
             <p className="text-gray-600 mb-4">{currentVig.description}</p>
             
@@ -219,7 +221,7 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
       {/* Miniatures */}
       <Card>
         <CardContent className="p-4">
-          <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-2">
+          <div className={`grid ${isMobile ? 'grid-cols-3' : 'grid-cols-4 md:grid-cols-6 lg:grid-cols-8'} gap-2`}>
             {vignettes.map((vignette, index) => (
               <button
                 key={vignette.id}
