@@ -17,6 +17,8 @@ import { EnhancedQuizFinal } from "@/components/edn/EnhancedQuizFinal";
 import { BdGallery } from "@/components/edn/BdGallery";
 import { RomanNarratif } from "@/components/edn/RomanNarratif";
 import { CompetencesBadges } from "@/components/edn/CompetencesBadges";
+import { CompetenceValidation } from "@/components/edn/CompetenceValidation";
+import { useEdnItemV2Process } from "@/hooks/useEdnItemV2Process";
 
 interface EdnItemModalProps {
   item: any;
@@ -33,7 +35,11 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [audioPlaying, setAudioPlaying] = useState(false);
 
-  if (!item) return null;
+  // Traitement des données V2 si nécessaire
+  const processedItem = useEdnItemV2Process(item);
+  const finalItem = processedItem || item;
+
+  if (!finalItem) return null;
 
   const getItemNumber = (itemCode: string) => {
     return parseInt(itemCode.replace('IC-', '') || '0');
@@ -44,23 +50,23 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
       { id: 'overview', label: 'Aperçu', icon: BookOpen, available: true },
     ];
     
-    if (item.tableau_rang_a) {
+    if (finalItem.tableau_rang_a) {
       tabs.push({ id: 'rang-a', label: 'Rang A', icon: BookOpen, available: true });
     }
     
-    if (item.tableau_rang_b) {
+    if (finalItem.tableau_rang_b) {
       tabs.push({ id: 'rang-b', label: 'Rang B', icon: Brain, available: true });
     }
     
-    if (item.paroles_musicales && item.paroles_musicales.length > 0) {
+    if (finalItem.paroles_musicales && finalItem.paroles_musicales.length > 0) {
       tabs.push({ id: 'music', label: 'Musique', icon: Music, available: true });
     }
     
-    if (item.scene_immersive) {
+    if (finalItem.scene_immersive) {
       tabs.push({ id: 'scene', label: 'Scène', icon: Users, available: true });
     }
     
-    if (item.quiz_questions) {
+    if (finalItem.quiz_questions) {
       tabs.push({ id: 'quiz', label: 'Quiz', icon: Brain, available: true });
     }
     
@@ -72,7 +78,7 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
   };
 
   const tabs = getAvailableTabs();
-  const itemNumber = getItemNumber(item.item_code);
+  const itemNumber = getItemNumber(finalItem.item_code);
 
   return (
     <Dialog open={isOpen} onOpenChange={() => onClose()}>
@@ -89,10 +95,10 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
               </div>
               <div>
                 <DialogTitle className="text-2xl font-bold text-white mb-1">
-                  {item.item_code}: {item.title}
+                  {finalItem.item_code}: {finalItem.title}
                 </DialogTitle>
-                {item.subtitle && (
-                  <p className="text-purple-100">{item.subtitle}</p>
+                {finalItem.subtitle && (
+                  <p className="text-purple-100">{finalItem.subtitle}</p>
                 )}
               </div>
             </div>
@@ -157,8 +163,11 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             {/* Overview */}
             <TabsContent value="overview" className="p-6 space-y-6">
+              {/* Validation complète des compétences */}
+              <CompetenceValidation item={finalItem} />
+              
               {/* Badges de compétences */}
-              <CompetencesBadges item={item} />
+              <CompetencesBadges item={finalItem} />
               
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <Card>
@@ -169,31 +178,31 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-3">
-                    {item.tableau_rang_a && (
+                    {finalItem.tableau_rang_a && (
                       <div className="flex items-center gap-2 text-green-600">
                         <CheckCircle className="h-4 w-4" />
                         <span>Tableau Rang A - Compétences fondamentales</span>
                       </div>
                     )}
-                    {item.tableau_rang_b && (
+                    {finalItem.tableau_rang_b && (
                       <div className="flex items-center gap-2 text-green-600">
                         <CheckCircle className="h-4 w-4" />
                         <span>Tableau Rang B - Compétences avancées</span>
                       </div>
                     )}
-                    {item.paroles_musicales && item.paroles_musicales.length > 0 && (
+                    {finalItem.paroles_musicales && finalItem.paroles_musicales.length > 0 && (
                       <div className="flex items-center gap-2 text-green-600">
                         <CheckCircle className="h-4 w-4" />
-                        <span>Musique - {item.paroles_musicales.length} chansons d'apprentissage</span>
+                        <span>Musique - {finalItem.paroles_musicales.length} chansons d'apprentissage</span>
                       </div>
                     )}
-                    {item.scene_immersive && (
+                    {finalItem.scene_immersive && (
                       <div className="flex items-center gap-2 text-green-600">
                         <CheckCircle className="h-4 w-4" />
                         <span>Scène immersive - Expérience interactive</span>
                       </div>
                     )}
-                    {item.quiz_questions && (
+                    {finalItem.quiz_questions && (
                       <div className="flex items-center gap-2 text-green-600">
                         <CheckCircle className="h-4 w-4" />
                         <span>Quiz interactif - Évaluation des connaissances</span>
@@ -228,43 +237,43 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
             </TabsContent>
 
             {/* Rang A */}
-            {item.tableau_rang_a && (
+            {finalItem.tableau_rang_a && (
               <TabsContent value="rang-a" className="p-6">
-                <TableauRangA data={item.tableau_rang_a} />
+                <TableauRangA data={finalItem.tableau_rang_a} />
               </TabsContent>
             )}
 
             {/* Rang B */}
-            {item.tableau_rang_b && (
+            {finalItem.tableau_rang_b && (
               <TabsContent value="rang-b" className="p-6">
-                <TableauRangB data={item.tableau_rang_b} itemCode={item.item_code} />
+                <TableauRangB data={finalItem.tableau_rang_b} itemCode={finalItem.item_code} />
               </TabsContent>
             )}
 
             {/* Music */}
-            {item.paroles_musicales && item.paroles_musicales.length > 0 && (
+            {finalItem.paroles_musicales && finalItem.paroles_musicales.length > 0 && (
               <TabsContent value="music" className="p-6">
                 <ParolesMusicales 
-                  paroles={item.paroles_musicales}
-                  itemCode={item.item_code}
+                  paroles={finalItem.paroles_musicales}
+                  itemCode={finalItem.item_code}
                 />
               </TabsContent>
             )}
 
             {/* Scene */}
-            {item.scene_immersive && (
+            {finalItem.scene_immersive && (
               <TabsContent value="scene" className="p-6">
-                <SceneImmersive data={item.scene_immersive} itemCode={item.item_code} />
+                <SceneImmersive data={finalItem.scene_immersive} itemCode={finalItem.item_code} />
               </TabsContent>
             )}
 
             {/* Quiz */}
-            {item.quiz_questions && (
+            {finalItem.quiz_questions && (
               <TabsContent value="quiz" className="p-6">
                 <EnhancedQuizFinal 
-                  questions={item.quiz_questions}
-                  itemCode={item.item_code}
-                  itemTitle={item.title}
+                  questions={finalItem.quiz_questions}
+                  itemCode={finalItem.item_code}
+                  itemTitle={finalItem.title}
                 />
               </TabsContent>
             )}
@@ -272,20 +281,20 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
             {/* BD Gallery */}
             <TabsContent value="bd" className="p-6">
               <BdGallery 
-                itemCode={item.item_code}
-                title={item.title}
-                tableauRangA={item.tableau_rang_a}
-                tableauRangB={item.tableau_rang_b}
+                itemCode={finalItem.item_code}
+                title={finalItem.title}
+                tableauRangA={finalItem.tableau_rang_a}
+                tableauRangB={finalItem.tableau_rang_b}
               />
             </TabsContent>
 
             {/* Roman Narratif */}
             <TabsContent value="roman" className="p-6">
               <RomanNarratif 
-                itemCode={item.item_code}
-                title={item.title}
-                tableauRangA={item.tableau_rang_a}
-                tableauRangB={item.tableau_rang_b}
+                itemCode={finalItem.item_code}
+                title={finalItem.title}
+                tableauRangA={finalItem.tableau_rang_a}
+                tableauRangB={finalItem.tableau_rang_b}
               />
             </TabsContent>
           </Tabs>

@@ -9,6 +9,7 @@ import {
   Star, CheckCircle, AlertCircle
 } from "lucide-react";
 import { CompetencesBadges } from "@/components/edn/CompetencesBadges";
+import { useEdnItemV2Process } from "@/hooks/useEdnItemV2Process";
 
 interface EdnItemCardProps {
   item: {
@@ -33,20 +34,24 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
   completionPercentage,
   onOpen
 }) => {
+  // Traitement des données V2 si nécessaire
+  const processedItem = useEdnItemV2Process(item);
+  const finalItem = processedItem || item;
+
   const getItemNumber = (itemCode: string) => {
     return parseInt(itemCode.replace('IC-', '') || '0');
   };
 
   const getFeatures = () => {
     const features = [];
-    if (item.tableau_rang_a) features.push({ icon: BookOpen, text: 'Rang A', color: 'text-blue-600' });
-    if (item.tableau_rang_b) features.push({ icon: BookOpen, text: 'Rang B', color: 'text-purple-600' });
-    if (item.paroles_musicales && item.paroles_musicales.length > 0) {
+    if (finalItem.tableau_rang_a) features.push({ icon: BookOpen, text: 'Rang A', color: 'text-blue-600' });
+    if (finalItem.tableau_rang_b) features.push({ icon: BookOpen, text: 'Rang B', color: 'text-purple-600' });
+    if (finalItem.paroles_musicales && finalItem.paroles_musicales.length > 0) {
       features.push({ icon: Music, text: 'Musique', color: 'text-green-600' });
     }
-    if (item.scene_immersive) features.push({ icon: Users, text: 'Scène', color: 'text-orange-600' });
-    if (item.quiz_questions) features.push({ icon: Brain, text: 'Quiz', color: 'text-red-600' });
-    if (item.audio_ambiance) features.push({ icon: Volume2, text: 'Audio', color: 'text-indigo-600' });
+    if (finalItem.scene_immersive) features.push({ icon: Users, text: 'Scène', color: 'text-orange-600' });
+    if (finalItem.quiz_questions) features.push({ icon: Brain, text: 'Quiz', color: 'text-red-600' });
+    if (finalItem.audio_ambiance) features.push({ icon: Volume2, text: 'Audio', color: 'text-indigo-600' });
     return features;
   };
 
@@ -74,7 +79,7 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
     );
   };
 
-  const itemNumber = getItemNumber(item.item_code);
+  const itemNumber = getItemNumber(finalItem.item_code);
   const features = getFeatures();
 
   return (
@@ -87,19 +92,19 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
               <span className="text-white font-bold text-lg">{itemNumber}</span>
             </div>
             <Badge variant="secondary" className="bg-white/20 text-white border-white/20">
-              {item.item_code}
+              {finalItem.item_code}
             </Badge>
           </div>
           {getCompletionBadge()}
         </div>
         
         <CardTitle className="text-lg leading-tight text-white group-hover:text-purple-100 transition-colors">
-          {itemNumber}. {item.title}
+          {itemNumber}. {finalItem.title}
         </CardTitle>
         
-        {item.subtitle && (
+        {finalItem.subtitle && (
           <p className="text-purple-100 text-sm mt-2 line-clamp-2">
-            {item.subtitle}
+            {finalItem.subtitle}
           </p>
         )}
       </div>
@@ -138,7 +143,7 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
         {/* Badges de compétences */}
         <div className="space-y-2">
           <h4 className="text-sm font-semibold text-gray-800">Compétences UNESS:</h4>
-          <CompetencesBadges item={item} />
+          <CompetencesBadges item={finalItem} />
         </div>
 
         {/* Action Buttons */}
