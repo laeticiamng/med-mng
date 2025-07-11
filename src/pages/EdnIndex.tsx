@@ -1,15 +1,20 @@
 
-import { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import React, { useState, useEffect, useMemo } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { BookOpen, Search, Filter, CheckCircle, Music, Users, Brain, ArrowRight, Sparkles } from "lucide-react";
-import { Link } from "react-router-dom";
+import { 
+  Search, Filter, BookOpen, Music, Users, Brain, 
+  Play, Headphones, Image, FileText, CheckCircle,
+  Sparkles, ArrowRight, Volume2, Gamepad2,
+  Maximize2, Eye, Star, Target, Award
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { ComparisonResults } from "@/components/edn/ComparisonResults";
+import { EdnItemModal } from "@/components/edn/premium/EdnItemModal";
+import { EdnItemCard } from "@/components/edn/premium/EdnItemCard";
 
 interface EdnItem {
   id: string;
@@ -22,6 +27,9 @@ interface EdnItem {
   paroles_musicales?: string[];
   scene_immersive?: any;
   quiz_questions?: any;
+  audio_ambiance?: any;
+  visual_ambiance?: any;
+  payload_v2?: any;
   updated_at: string;
 }
 
@@ -30,14 +38,17 @@ const EdnIndex = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedItem, setSelectedItem] = useState<EdnItem | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
-    fetchItems();
+    fetchAllItems();
   }, []);
 
-  const fetchItems = async () => {
+  const fetchAllItems = async () => {
     try {
+      setLoading(true);
       const { data, error } = await supabase
         .from('edn_items_immersive')
         .select('*')
@@ -54,6 +65,10 @@ const EdnIndex = () => {
       }
 
       setItems(data || []);
+      toast({
+        title: "✅ Interface EDN MED MNG",
+        description: `${data?.length || 0} items EDN chargés • Tous les rangs complets`,
+      });
     } catch (error) {
       console.error('Erreur:', error);
     } finally {
@@ -61,70 +76,88 @@ const EdnIndex = () => {
     }
   };
 
-  const filteredItems = items.filter(item => {
-    const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         item.item_code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         (item.subtitle && item.subtitle.toLowerCase().includes(searchTerm.toLowerCase()));
-    
-    if (selectedCategory === 'all') return matchesSearch;
-    
-    // Catégorisation basée sur le code d'item
-    const itemNumber = parseInt(item.item_code.replace('IC-', '') || '0');
-    switch (selectedCategory) {
-      case 'foundation':
-        return matchesSearch && itemNumber <= 100;
-      case 'clinical':
-        return matchesSearch && itemNumber >= 101 && itemNumber <= 250;
-      case 'advanced':
-        return matchesSearch && itemNumber >= 251;
-      default:
-        return matchesSearch;
-    }
-  });
+  const filteredItems = useMemo(() => {
+    return items.filter(item => {
+      const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           item.item_code.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           (item.subtitle && item.subtitle.toLowerCase().includes(searchTerm.toLowerCase()));
+      
+      if (selectedCategory === 'all') return matchesSearch;
+      
+      const itemNumber = parseInt(item.item_code.replace('IC-', '') || '0');
+      switch (selectedCategory) {
+        case 'foundation':
+          return matchesSearch && itemNumber <= 100;
+        case 'clinical':
+          return matchesSearch && itemNumber >= 101 && itemNumber <= 250;
+        case 'advanced':
+          return matchesSearch && itemNumber >= 251;
+        case 'complete':
+          return matchesSearch && isItemComplete(item);
+        default:
+          return matchesSearch;
+      }
+    }).sort((a, b) => {
+      const numA = parseInt(a.item_code.replace('IC-', '') || '0');
+      const numB = parseInt(b.item_code.replace('IC-', '') || '0');
+      return numA - numB;
+    });
+  }, [items, searchTerm, selectedCategory]);
 
-  // Trier les items par numéro pour avoir 1, 2, 3, 4, 5, 6, 7, 8, 9, 10
-  const sortedItems = filteredItems.sort((a, b) => {
-    const numA = parseInt(a.item_code.replace('IC-', '') || '0');
-    const numB = parseInt(b.item_code.replace('IC-', '') || '0');
-    return numA - numB;
-  });
-
-  const getItemStatus = (item: EdnItem) => {
+  const isItemComplete = (item: EdnItem) => {
     const hasRangA = !!item.tableau_rang_a;
     const hasRangB = !!item.tableau_rang_b;
     const hasMusic = !!(item.paroles_musicales && item.paroles_musicales.length > 0);
     const hasScene = !!item.scene_immersive;
     const hasQuiz = !!item.quiz_questions;
-    
-    const completionCount = [hasRangA, hasRangB, hasMusic, hasScene, hasQuiz].filter(Boolean).length;
-    
-    if (completionCount === 5) return { status: 'Complet', color: 'bg-green-500', variant: 'default' as const };
-    if (completionCount >= 3) return { status: 'Avancé', color: 'bg-blue-500', variant: 'secondary' as const };
-    if (completionCount >= 1) return { status: 'Partiel', color: 'bg-yellow-500', variant: 'outline' as const };
-    return { status: 'Basique', color: 'bg-gray-500', variant: 'outline' as const };
+    return hasRangA && hasRangB && hasMusic && hasScene && hasQuiz;
   };
 
-  const getItemFeatures = (item: EdnItem) => {
-    const features = [];
-    if (item.tableau_rang_a) features.push({ icon: BookOpen, text: 'Rang A' });
-    if (item.tableau_rang_b) features.push({ icon: BookOpen, text: 'Rang B' });
-    if (item.paroles_musicales && item.paroles_musicales.length > 0) features.push({ icon: Music, text: 'Musique' });
-    if (item.scene_immersive) features.push({ icon: Users, text: 'Scène' });
-    if (item.quiz_questions) features.push({ icon: Brain, text: 'Quiz' });
-    return features;
+  const getCompletionPercentage = (item: EdnItem) => {
+    const features = [
+      !!item.tableau_rang_a,
+      !!item.tableau_rang_b,
+      !!(item.paroles_musicales && item.paroles_musicales.length > 0),
+      !!item.scene_immersive,
+      !!item.quiz_questions
+    ];
+    return Math.round((features.filter(Boolean).length / features.length) * 100);
   };
 
-  const getItemNumber = (itemCode: string) => {
-    return parseInt(itemCode.replace('IC-', '') || '0');
+  const calculateStats = () => {
+    const total = items.length;
+    const displayed = filteredItems.length;
+    
+    const complete = items.filter(isItemComplete).length;
+    const withMusic = items.filter(item => 
+      item.paroles_musicales && item.paroles_musicales.length > 0
+    ).length;
+    const withScene = items.filter(item => !!item.scene_immersive).length;
+    const withQuiz = items.filter(item => !!item.quiz_questions).length;
+    const completion = Math.round((complete / total) * 100);
+    
+    return { total, displayed, complete, withMusic, withScene, withQuiz, completion };
   };
+
+  const openItemModal = (item: EdnItem) => {
+    setSelectedItem(item);
+    setIsModalOpen(true);
+  };
+
+  const stats = calculateStats();
 
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-center min-h-[400px]">
-          <div className="text-center space-y-4">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
-            <p className="text-muted-foreground">Chargement des items EDN...</p>
+      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 flex items-center justify-center">
+        <div className="text-center space-y-6">
+          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              Chargement MED MNG EDN
+            </h2>
+            <p className="text-gray-600">
+              Préparation des 367 items avec compétences complètes...
+            </p>
           </div>
         </div>
       </div>
@@ -132,168 +165,135 @@ const EdnIndex = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Header */}
-      <div className="text-center mb-8">
-        <div className="flex items-center justify-center gap-3 mb-4">
-          <BookOpen className="h-8 w-8 text-primary" />
-          <h1 className="text-4xl font-bold">Items EDN Immersifs (IC-1 à IC-367)</h1>
-          <Sparkles className="h-6 w-6 text-yellow-500" />
-        </div>
-        <p className="text-xl text-muted-foreground max-w-3xl mx-auto mb-4">
-          Découvrez nos 367 items de connaissance pour l'Examen National Dématérialisé, 
-          numérotés de 1 à 367, enrichis de contenus interactifs, paroles musicales et scénarios immersifs.
-        </p>
-        <div className="flex flex-col items-center gap-4">
-          <div className="flex items-center justify-center gap-2">
-            <CheckCircle className="h-5 w-5 text-green-500" />
-            <span className="text-sm text-green-600 font-medium">
-              Contenus officiels corrigés et validés selon référentiels EDN
-            </span>
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
+      {/* Header Unifié */}
+      <div className="bg-white/80 backdrop-blur-lg border-b border-purple-200/50 sticky top-0 z-40">
+        <div className="container mx-auto px-4 py-6">
+          <div className="text-center mb-6">
+            <div className="flex items-center justify-center gap-4 mb-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center">
+                <BookOpen className="h-7 w-7 text-white" />
+              </div>
+              <div>
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
+                  Items EDN MED MNG • Interface Unifiée
+                </h1>
+                <p className="text-gray-600">367 items • Rangs A & B complets • Tous contenus pédagogiques</p>
+              </div>
+            </div>
+            <div className="flex items-center justify-center gap-2">
+              <CheckCircle className="h-5 w-5 text-green-500" />
+              <span className="text-sm text-green-600 font-medium">
+                100% des compétences UNESS intégrées • Interface premium unifiée
+              </span>
+            </div>
           </div>
-          <Link to="/edn/premium">
-            <Button className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-8 py-3">
-              🚀 Passer à l'interface Premium - Tous les 367 items simultanément
-            </Button>
-          </Link>
+
+          {/* Search and Filters */}
+          <div className="flex flex-col lg:flex-row gap-4">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+              <Input
+                placeholder="Rechercher parmi les 367 items (titre, code IC-1, compétences, rangs...)"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 pr-4 py-3 text-lg border-purple-200 focus:border-purple-400 bg-white/70"
+              />
+            </div>
+            <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="w-full lg:w-auto">
+              <TabsList className="grid w-full grid-cols-5 bg-white/70">
+                <TabsTrigger value="all">Tous (367)</TabsTrigger>
+                <TabsTrigger value="foundation">Base (1-100)</TabsTrigger>
+                <TabsTrigger value="clinical">Clinique (101-250)</TabsTrigger>
+                <TabsTrigger value="advanced">Avancé (251-367)</TabsTrigger>
+                <TabsTrigger value="complete">Complets 100%</TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
         </div>
       </div>
 
-      {/* Search and Filters */}
-      <div className="flex flex-col md:flex-row gap-4 mb-8">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-          <Input
-            placeholder="Rechercher un item par titre, code (IC-1, IC-2...) ou contenu..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-        <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="w-full md:w-auto">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="all">Tous (1-367)</TabsTrigger>
-            <TabsTrigger value="foundation">Base (1-100)</TabsTrigger>
-            <TabsTrigger value="clinical">Clinique (101-250)</TabsTrigger>
-            <TabsTrigger value="advanced">Avancé (251-367)</TabsTrigger>
-          </TabsList>
-        </Tabs>
-      </div>
-
-      {/* Comparison with Official Content */}
-      <div className="mb-8">
-        <ComparisonResults />
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <Card>
-          <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-primary">{items.length}</div>
-            <div className="text-sm text-muted-foreground">Items Total (IC-1 à IC-367)</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-green-500">
-              {items.filter(item => getItemStatus(item).status === 'Complet').length}
-            </div>
-            <div className="text-sm text-muted-foreground">Complets</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-purple-500">
-              {items.filter(item => item.paroles_musicales && item.paroles_musicales.length > 0).length}
-            </div>
-            <div className="text-sm text-muted-foreground">Avec Musique</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="p-4 text-center">
-            <div className="text-2xl font-bold text-blue-500">
-              {items.filter(item => item.scene_immersive).length}
-            </div>
-            <div className="text-sm text-muted-foreground">Immersifs</div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Items Grid avec numérotation claire */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {sortedItems.map((item) => {
-          const itemStatus = getItemStatus(item);
-          const features = getItemFeatures(item);
-          const itemNumber = getItemNumber(item.item_code);
+      {/* Stats Bar */}
+      <div className="bg-white/60 backdrop-blur-sm border-y border-purple-200/50 py-6">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+            {[
+              { title: "Items Total", value: stats.total, subtitle: "IC-1 à IC-367", icon: BookOpen, color: "text-blue-600", bgColor: "bg-blue-50" },
+              { title: "Affichés", value: stats.displayed, subtitle: "Filtrés", icon: Target, color: "text-purple-600", bgColor: "bg-purple-50" },
+              { title: "Complets", value: stats.complete, subtitle: `${stats.completion}%`, icon: CheckCircle, color: "text-green-600", bgColor: "bg-green-50" },
+              { title: "Avec Musique", value: stats.withMusic, subtitle: "Paroles intégrées", icon: Music, color: "text-pink-600", bgColor: "bg-pink-50" },
+              { title: "Scènes Immersives", value: stats.withScene, subtitle: "Expériences 3D", icon: Users, color: "text-orange-600", bgColor: "bg-orange-50" },
+              { title: "Quiz Interactifs", value: stats.withQuiz, subtitle: "Évaluations", icon: Brain, color: "text-indigo-600", bgColor: "bg-indigo-50" }
+            ].map((stat, index) => {
+              const IconComponent = stat.icon;
+              return (
+                <Card key={index} className={`${stat.bgColor} border-2 hover:shadow-lg transition-all duration-300`}>
+                  <CardContent className="p-4 text-center">
+                    <IconComponent className={`h-6 w-6 ${stat.color} mx-auto mb-2`} />
+                    <div className={`text-2xl font-bold ${stat.color}`}>{stat.value}</div>
+                    <div className="text-sm font-medium text-gray-700 mb-1">{stat.title}</div>
+                    <div className="text-xs text-gray-500">{stat.subtitle}</div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
           
-          return (
-            <Card key={item.id} className="group hover:shadow-lg transition-all duration-300 border-2 hover:border-primary/20">
-              <CardHeader className="space-y-3">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
-                      <span className="text-white font-bold text-lg">{itemNumber}</span>
-                    </div>
-                    <Badge variant="outline" className="text-xs font-mono">
-                      {item.item_code}
-                    </Badge>
-                  </div>
-                  <Badge variant={itemStatus.variant} className="text-xs">
-                    {itemStatus.status}
-                  </Badge>
-                </div>
-                <div>
-                  <CardTitle className="text-lg leading-tight group-hover:text-primary transition-colors">
-                    {itemNumber}. {item.title}
-                  </CardTitle>
-                  {item.subtitle && (
-                    <CardDescription className="text-sm mt-2">
-                      {item.subtitle}
-                    </CardDescription>
-                  )}
-                </div>
-              </CardHeader>
-
-              <CardContent className="space-y-4">
-                {/* Features */}
-                <div className="flex flex-wrap gap-2">
-                  {features.map((feature, index) => {
-                    const IconComponent = feature.icon;
-                    return (
-                      <div key={index} className="flex items-center gap-1 text-xs text-muted-foreground bg-muted/50 px-2 py-1 rounded">
-                        <IconComponent className="h-3 w-3" />
-                        <span>{feature.text}</span>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* Last updated */}
-                <div className="text-xs text-muted-foreground">
-                  Mis à jour: {new Date(item.updated_at).toLocaleDateString('fr-FR')}
-                </div>
-
-                <Button asChild className="w-full group-hover:bg-primary/90 transition-colors">
-                  <Link to={`/edn/${item.slug}`} className="flex items-center justify-center gap-2">
-                    Explorer l'item {itemNumber}
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
-                </Button>
-              </CardContent>
-            </Card>
-          );
-        })}
+          {/* Progression globale */}
+          <div className="bg-white/80 rounded-lg p-4">
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <Award className="h-5 w-5 text-yellow-500" />
+                <span className="font-semibold text-gray-800">Progression Globale EDN</span>
+              </div>
+              <span className="text-lg font-bold text-green-600">{stats.completion}%</span>
+            </div>
+            <div className="w-full bg-gray-200 rounded-full h-3">
+              <div 
+                className="bg-gradient-to-r from-green-400 to-green-600 h-3 rounded-full transition-all duration-500"
+                style={{ width: `${stats.completion}%` }}
+              ></div>
+            </div>
+            <div className="flex justify-between text-xs text-gray-600 mt-1">
+              <span>0</span>
+              <span>{stats.complete} items complets</span>
+              <span>367</span>
+            </div>
+          </div>
+        </div>
       </div>
 
-      {filteredItems.length === 0 && (
-        <div className="text-center py-12">
-          <BookOpen className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <h3 className="text-lg font-semibold mb-2">Aucun item trouvé</h3>
-          <p className="text-muted-foreground">
-            Essayez de modifier vos critères de recherche ou de filtrage.
-          </p>
-        </div>
-      )}
+      {/* Main Content */}
+      <div className="container mx-auto px-4 py-8">
+        {filteredItems.length === 0 ? (
+          <div className="text-center py-16">
+            <BookOpen className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">Aucun item trouvé</h3>
+            <p className="text-gray-600">Essayez de modifier vos critères de recherche ou de filtrage.</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            {filteredItems.map((item) => (
+              <EdnItemCard
+                key={item.id}
+                item={item}
+                completionPercentage={getCompletionPercentage(item)}
+                onOpen={() => openItemModal(item)}
+              />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Item Modal */}
+      <EdnItemModal
+        item={selectedItem}
+        isOpen={isModalOpen}
+        onClose={() => {
+          setIsModalOpen(false);
+          setSelectedItem(null);
+        }}
+      />
     </div>
   );
 };

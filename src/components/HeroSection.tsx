@@ -18,10 +18,10 @@ export const HeroSection = () => {
       
       {/* Navigation rapide */}
       <div className="flex flex-wrap justify-center gap-4 mt-8">
-        <Link to="/edn/premium">
+        <Link to="/edn">
           <Button size="lg" className="flex items-center space-x-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700">
             <BookOpen className="h-5 w-5" />
-            <span>EDN Premium (367 items)</span>
+            <span>Items EDN (Interface unifiée)</span>
           </Button>
         </Link>
         <Link to="/ecos">
