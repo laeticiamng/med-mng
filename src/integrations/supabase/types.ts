@@ -2402,16 +2402,19 @@ export type Database = {
           avatar_url: string | null
           bio: string | null
           created_at: string | null
+          credits_left: number | null
           department: string | null
           email: string | null
           emotional_score: number | null
           id: string
+          is_test_account: boolean | null
           job_title: string | null
           location: string | null
           name: string | null
           phone: string | null
           preferences: Json | null
           role: string | null
+          subscription_plan: string | null
           updated_at: string | null
           website: string | null
         }
@@ -2419,16 +2422,19 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           created_at?: string | null
+          credits_left?: number | null
           department?: string | null
           email?: string | null
           emotional_score?: number | null
           id: string
+          is_test_account?: boolean | null
           job_title?: string | null
           location?: string | null
           name?: string | null
           phone?: string | null
           preferences?: Json | null
           role?: string | null
+          subscription_plan?: string | null
           updated_at?: string | null
           website?: string | null
         }
@@ -2436,16 +2442,19 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           created_at?: string | null
+          credits_left?: number | null
           department?: string | null
           email?: string | null
           emotional_score?: number | null
           id?: string
+          is_test_account?: boolean | null
           job_title?: string | null
           location?: string | null
           name?: string | null
           phone?: string | null
           preferences?: Json | null
           role?: string | null
+          subscription_plan?: string | null
           updated_at?: string | null
           website?: string | null
         }
