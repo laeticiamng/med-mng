@@ -68,6 +68,15 @@ export const MedMngNavigation: React.FC = () => {
             </Button>
 
             <Button
+              variant={isActive('/med-mng/profile') ? 'default' : 'ghost'}
+              onClick={() => navigate('/med-mng/profile')}
+              className="flex items-center gap-2 px-3 py-2 rounded-lg transition-all hover:bg-gray-100"
+            >
+              <User className="h-4 w-4" />
+              <TranslatedText text="Profil" />
+            </Button>
+
+            <Button
               variant="ghost"
               onClick={handleSignOut}
               className="flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50 px-3 py-2 rounded-lg transition-all"
@@ -130,6 +139,16 @@ export const MedMngNavigation: React.FC = () => {
             >
               <CreditCard className="h-4 w-4" />
               <TranslatedText text="Abonnements" />
+            </Button>
+
+            <Button
+              variant={isActive('/med-mng/profile') ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => navigate('/med-mng/profile')}
+              className="flex items-center gap-2"
+            >
+              <User className="h-4 w-4" />
+              <TranslatedText text="Profil" />
             </Button>
           </div>
         </div>
