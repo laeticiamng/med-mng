@@ -28,9 +28,9 @@ export const EdnItemSelector: React.FC<EdnItemSelectorProps> = ({
         </SelectTrigger>
         <SelectContent className="bg-white/95 backdrop-blur-xl border-white/30 shadow-2xl max-h-80 overflow-y-auto">
           {itemsLoading ? (
-            <SelectItem value="" disabled>Chargement des items...</SelectItem>
+            <div className="px-2 py-3 text-center text-gray-500">Chargement des items...</div>
           ) : itemsError ? (
-            <SelectItem value="" disabled>Erreur: {itemsError}</SelectItem>
+            <div className="px-2 py-3 text-center text-red-500">Erreur: {itemsError}</div>
           ) : (
             allEdnItems.map((item) => (
               <SelectItem key={item.item_code} value={item.item_code} className="text-base py-3">
