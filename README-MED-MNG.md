@@ -152,6 +152,13 @@ const song = await medMngApi.createSong(title, sunoAudioId, metadata);
 const streamUrl = medMngApi.getSongStreamUrl(songId);
 ```
 
+#### Nouveaux endpoints de vérification
+
+- `GET /verify-item/{id}` : retourne un rapport de complétude pour l'item ciblé.
+- `GET /verify-all` : liste les rapports pour tous les items enregistrés.
+- `POST /complete-item/{id}` : génère automatiquement le contenu manquant pour un item.
+- `POST /complete-all` : tente de compléter tous les items de la base.
+
 ## 🎵 Intégration Suno AI
 
 ### Génération musicale

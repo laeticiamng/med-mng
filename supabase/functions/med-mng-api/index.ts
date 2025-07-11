@@ -6,6 +6,8 @@ import { handleSubscriptions } from './routes/subscriptions.ts';
 import { handleSongs } from './routes/songs.ts';
 import { handleLibrary } from './routes/library.ts';
 import { handleQuota } from './routes/quota.ts';
+import { handleVerify } from './routes/verify.ts';
+import { handleComplete } from './routes/complete.ts';
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -32,6 +34,12 @@ serve(async (req) => {
     if (response) return response;
 
     response = await handleQuota(req, supabase, path);
+    if (response) return response;
+
+    response = await handleVerify(req, supabase, path);
+    if (response) return response;
+
+    response = await handleComplete(req, supabase, path);
     if (response) return response;
 
     return new Response(
