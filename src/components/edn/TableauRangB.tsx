@@ -20,6 +20,17 @@ interface TableauRangBProps {
         excellence?: string;
         paroles_chantables?: string[];
       }>;
+      competences?: Array<{
+        competence_id: string;
+        concept: string;
+        analyse?: string;
+        cas?: string;
+        ecueil?: string;
+        technique?: string;
+        maitrise?: string;
+        excellence?: string;
+        paroles_chantables?: string[];
+      }>;
     }>;
   };
   itemCode: string;
@@ -47,7 +58,16 @@ export const TableauRangB: React.FC<TableauRangBProps> = ({ data, itemCode }) =>
   }
 
   const getAllConcepts = () => {
-    return data.sections?.flatMap(section => section.concepts || []) || [];
+    if (!data || !data.sections) return [];
+    
+    return data.sections.flatMap(section => {
+      if (section.concepts && Array.isArray(section.concepts)) {
+        return section.concepts;
+      } else if (section.competences && Array.isArray(section.competences)) {
+        return section.competences;
+      }
+      return [];
+    });
   };
 
   const concepts = getAllConcepts();
@@ -78,10 +98,24 @@ export const TableauRangB: React.FC<TableauRangBProps> = ({ data, itemCode }) =>
               <div className="text-sm text-gray-600">Sections Spécialisées</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">100%</div>
+              <div className="text-2xl font-bold text-green-600">
+                {concepts.length > 0 ? '100%' : '0%'}
+              </div>
               <div className="text-sm text-gray-600">Couverture Complète</div>
             </div>
           </div>
+          
+          {/* Message si pas de compétences */}
+          {concepts.length === 0 && (
+            <div className="text-center p-4 bg-orange-50 border border-orange-200 rounded-lg">
+              <p className="text-orange-700 font-medium">
+                📋 Compétences en cours d'intégration pour le rang B
+              </p>
+              <p className="text-orange-600 text-sm mt-1">
+                {data.sections?.length || 0} section{(data.sections?.length || 0) > 1 ? 's' : ''} configurée{(data.sections?.length || 0) > 1 ? 's' : ''} • Contenu bientôt disponible
+              </p>
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -96,7 +130,7 @@ export const TableauRangB: React.FC<TableauRangBProps> = ({ data, itemCode }) =>
           </CardHeader>
           <CardContent className={isMobile ? 'p-4' : 'p-6'}>
             <div className={isMobile ? 'space-y-4' : 'space-y-6'}>
-              {section.concepts?.map((concept, conceptIndex) => (
+              {concepts.length > 0 ? section.concepts?.map((concept, conceptIndex) => (
                 <div key={conceptIndex} className={`border border-gray-200 rounded-lg ${isMobile ? 'p-4' : 'p-6'} bg-white hover:shadow-md transition-shadow`}>
                   {/* En-tête du concept */}
                   <div className="flex items-start justify-between mb-4">
@@ -205,7 +239,12 @@ export const TableauRangB: React.FC<TableauRangBProps> = ({ data, itemCode }) =>
                     </div>
                   )}
                 </div>
-              ))}
+              )) : (
+                <div className="text-center py-8 text-gray-500">
+                  <p>📋 Compétences en préparation pour cette section</p>
+                  <p className="text-sm mt-2">Les concepts seront bientôt disponibles</p>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>

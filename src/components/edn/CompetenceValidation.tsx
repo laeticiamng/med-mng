@@ -1,13 +1,16 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CheckCircle, AlertTriangle, Info } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { CheckCircle, AlertTriangle, Info, XCircle } from "lucide-react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface CompetenceValidationProps {
   item: any;
 }
 
 export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item }) => {
+  const isMobile = useIsMobile();
   const validateCompetences = () => {
     const validation = {
       rangA: {
@@ -24,31 +27,45 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
       issues: []
     };
 
-    // Validation Rang A
+    // Validation Rang A - logique améliorée
     if (item.tableau_rang_a) {
       validation.rangA.present = true;
       
-      if (item.tableau_rang_a.sections) {
+      if (item.tableau_rang_a.sections && Array.isArray(item.tableau_rang_a.sections)) {
         const concepts = item.tableau_rang_a.sections.flatMap((section: any) => 
-          section.concepts || []
+          section.concepts || section.competences || []
         );
         validation.rangA.count = concepts.length;
-        validation.rangA.competences = concepts.map((c: any) => c.competence_id || c.concept).filter(Boolean);
+        validation.rangA.competences = concepts.map((c: any) => 
+          c.competence_id || c.concept || c.title || 'Compétence'
+        ).filter(Boolean);
+      } else if (item.tableau_rang_a.competences && Array.isArray(item.tableau_rang_a.competences)) {
+        validation.rangA.count = item.tableau_rang_a.competences.length;
+        validation.rangA.competences = item.tableau_rang_a.competences.map((c: any) => 
+          c.competence_id || c.concept || c.title || 'Compétence'
+        );
       }
     } else {
       validation.issues.push("Tableau Rang A manquant");
     }
 
-    // Validation Rang B
+    // Validation Rang B - logique améliorée
     if (item.tableau_rang_b) {
       validation.rangB.present = true;
       
-      if (item.tableau_rang_b.sections) {
+      if (item.tableau_rang_b.sections && Array.isArray(item.tableau_rang_b.sections)) {
         const concepts = item.tableau_rang_b.sections.flatMap((section: any) => 
-          section.concepts || []
+          section.concepts || section.competences || []
         );
         validation.rangB.count = concepts.length;
-        validation.rangB.competences = concepts.map((c: any) => c.competence_id || c.concept).filter(Boolean);
+        validation.rangB.competences = concepts.map((c: any) => 
+          c.competence_id || c.concept || c.title || 'Compétence'
+        ).filter(Boolean);
+      } else if (item.tableau_rang_b.competences && Array.isArray(item.tableau_rang_b.competences)) {
+        validation.rangB.count = item.tableau_rang_b.competences.length;
+        validation.rangB.competences = item.tableau_rang_b.competences.map((c: any) => 
+          c.competence_id || c.concept || c.title || 'Compétence'
+        );
       }
     } else {
       validation.issues.push("Tableau Rang B manquant");
@@ -93,15 +110,15 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
 
   return (
     <Card className={`border-2 ${getStatusColor()}`}>
-      <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2 text-lg">
+      <CardHeader className={isMobile ? "pb-2" : "pb-3"}>
+        <CardTitle className={`flex items-center gap-2 ${isMobile ? 'text-base' : 'text-lg'}`}>
           {getStatusIcon()}
           Validation des Compétences - {item.item_code}
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className={`space-y-4 ${isMobile ? 'p-4' : ''}`}>
         {/* Résumé */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className={`grid ${isMobile ? 'grid-cols-1' : 'grid-cols-1 md:grid-cols-3'} gap-4`}>
           <div className="text-center p-3 rounded-lg bg-white border">
             <div className="text-2xl font-bold text-blue-600">
               {validation.rangA.count}
@@ -205,7 +222,7 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
             ? 'bg-green-50 border-green-200 text-green-800' 
             : 'bg-yellow-50 border-yellow-200 text-yellow-800'
         }`}>
-          <div className="flex items-center gap-2 font-semibold">
+          <div className={`flex items-center gap-2 font-semibold ${isMobile ? 'text-sm' : ''}`}>
             {validation.complete ? (
               <>
                 <CheckCircle className="h-4 w-4" />
@@ -214,11 +231,25 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
             ) : (
               <>
                 <AlertTriangle className="h-4 w-4" />
-                Item en cours de développement - {validation.issues.length} éléments à compléter
+                {validation.issues.length === 0 && (validation.rangA.count > 0 || validation.rangB.count > 0) 
+                  ? `Item utilisable - ${validation.rangA.count + validation.rangB.count} compétences disponibles`
+                  : `Item en cours de développement - ${validation.issues.length} éléments à compléter`
+                }
               </>
             )}
           </div>
         </div>
+        
+        {/* Alerte spécifique pour les items avec 0 compétences mais présents */}
+        {!validation.complete && validation.rangA.present && validation.rangB.present && 
+         validation.rangA.count === 0 && validation.rangB.count === 0 && (
+          <Alert className="border-blue-200 bg-blue-50">
+            <Info className="h-4 w-4 text-blue-600" />
+            <AlertDescription className="text-blue-800">
+              Les tableaux de compétences sont présents mais vides. Les compétences seront bientôt disponibles.
+            </AlertDescription>
+          </Alert>
+        )}
       </CardContent>
     </Card>
   );
