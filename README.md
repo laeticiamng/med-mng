@@ -1,4 +1,6 @@
 # MED-MNG Backend
+[![CI](https://github.com/med-mng/med-mng/actions/workflows/ci.yml/badge.svg)](https://github.com/med-mng/med-mng/actions/workflows/ci.yml) ![version](https://img.shields.io/badge/version-0.1.0-blue) ![license](https://img.shields.io/badge/license-MIT-green)
+
 
 This repository contains the server side of the MED-MNG platform. It exposes a set of Supabase edge functions and background workers used to manage medical learning content generated from musical AI.
 
@@ -47,6 +49,19 @@ supabase start
 
 ```bash
 pnpm dev
+```
+
+To start the API server only:
+
+```bash
+pnpm start:server
+```
+
+### Docker
+
+```bash
+docker build -t med-mng .
+docker run -p 3000:3000 med-mng
 ```
 
 ## Key Endpoints
