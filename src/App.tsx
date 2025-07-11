@@ -12,6 +12,7 @@ import EdnIndex from "./pages/EdnIndex";
 import EdnItem from "./pages/EdnItem";
 import EdnItemImmersive from "./pages/EdnItemImmersive";
 import EdnMusicLibrary from "./pages/EdnMusicLibrary";
+import EdnPremiumDashboard from "./pages/EdnPremiumDashboard";
 import EcosIndex from "./pages/EcosIndex";
 import EcosScenario from "./pages/EcosScenario";
 import AuditComplete from "./pages/AuditComplete";
@@ -55,10 +56,11 @@ const App = () => (
               <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/generator" element={<Generator />} />
-              <Route path="/edn" element={<ProtectedRoute><EdnIndex /></ProtectedRoute>} />
-              <Route path="/edn/:slug" element={<ProtectedRoute><EdnItem /></ProtectedRoute>} />
-              <Route path="/edn/:slug/immersive" element={<ProtectedRoute><EdnItemImmersive /></ProtectedRoute>} />
-              <Route path="/edn/music-library" element={<ProtectedRoute><EdnMusicLibrary /></ProtectedRoute>} />
+               <Route path="/edn" element={<ProtectedRoute><EdnIndex /></ProtectedRoute>} />
+               <Route path="/edn/premium" element={<ProtectedRoute><EdnPremiumDashboard /></ProtectedRoute>} />
+               <Route path="/edn/:slug" element={<ProtectedRoute><EdnItem /></ProtectedRoute>} />
+               <Route path="/edn/:slug/immersive" element={<ProtectedRoute><EdnItemImmersive /></ProtectedRoute>} />
+               <Route path="/edn/music-library" element={<ProtectedRoute><EdnMusicLibrary /></ProtectedRoute>} />
               <Route path="/ecos" element={<EcosIndex />} />
               <Route path="/ecos/:scenarioId" element={<EcosScenario />} />
               

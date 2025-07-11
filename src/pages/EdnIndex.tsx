@@ -144,11 +144,18 @@ const EdnIndex = () => {
           Découvrez nos 367 items de connaissance pour l'Examen National Dématérialisé, 
           numérotés de 1 à 367, enrichis de contenus interactifs, paroles musicales et scénarios immersifs.
         </p>
-        <div className="flex items-center justify-center gap-2">
-          <CheckCircle className="h-5 w-5 text-green-500" />
-          <span className="text-sm text-green-600 font-medium">
-            Contenus officiels corrigés et validés selon référentiels EDN
-          </span>
+        <div className="flex flex-col items-center gap-4">
+          <div className="flex items-center justify-center gap-2">
+            <CheckCircle className="h-5 w-5 text-green-500" />
+            <span className="text-sm text-green-600 font-medium">
+              Contenus officiels corrigés et validés selon référentiels EDN
+            </span>
+          </div>
+          <Link to="/edn/premium">
+            <Button className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white px-8 py-3">
+              🚀 Passer à l'interface Premium - Tous les 367 items simultanément
+            </Button>
+          </Link>
         </div>
       </div>
 
