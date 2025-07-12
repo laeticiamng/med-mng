@@ -65,8 +65,10 @@ export const useEdnItemV2Process = (item: any) => {
             concepts: v2Data.content.rang_b.competences
           }]
         },
-        paroles_musicales: v2Data.content.rang_a.competences.flatMap(c => c.paroles_chantables)
-          .concat(v2Data.content.rang_b.competences.flatMap(c => c.paroles_chantables))
+        paroles_musicales: [
+          ...v2Data.content.rang_a.competences.flatMap(comp => comp.paroles_chantables || []),
+          ...v2Data.content.rang_b.competences.flatMap(comp => comp.paroles_chantables || [])
+        ]
       };
 
       return transformedItem;
