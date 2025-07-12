@@ -121,11 +121,11 @@ export class EDNItemParser {
    */
   private static extractParolesMusicales(itemV2: ItemEDNV2): string[] {
     const parolesRangA = itemV2.content.rang_a.competences
-      .flatMap(c => c.paroles_chantables)
+      .flatMap(comp => comp.paroles_chantables)
       .join('\n\n');
       
     const parolesRangB = itemV2.content.rang_b.competences
-      .flatMap(c => c.paroles_chantables)
+      .flatMap(comp => comp.paroles_chantables)
       .join('\n\n');
     
     return [parolesRangA, parolesRangB].filter(p => p.length > 0);
