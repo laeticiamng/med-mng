@@ -54,11 +54,8 @@ export const EdnExtractionTest = () => {
         body: {
           action: 'test',
           resumeFromItem: 1,
-          maxItems: 3,
-          credentials: {
-            username: 'laeticia.moto-ngane@etud.u-picardie.fr',
-            password: 'Aiciteal1!'
-          }
+          maxItems: 3
+          // Credentials maintenant gérés par les secrets UNESS_EMAIL et UNESS_PASSWORD
         }
       });
 

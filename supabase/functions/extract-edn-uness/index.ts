@@ -40,6 +40,10 @@ const supabaseUrl = Deno.env.get('SUPABASE_URL')
 const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
 const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
+// Récupération des secrets UNESS
+const UNESS_EMAIL = Deno.env.get('UNESS_EMAIL')
+const UNESS_PASSWORD = Deno.env.get('UNESS_PASSWORD')
+
 serve(async (req) => {
   console.log('🚀 Fonction extract-edn-uness démarrée - Version complète UNES')
   
@@ -62,9 +66,15 @@ serve(async (req) => {
     console.log(`📍 Items: ${resumeFromItem} → ${resumeFromItem + maxItems - 1}`)
     console.log(`🎯 Mode: ${fullExtraction ? 'EXTRACTION COMPLÈTE' : 'TEST'}`)
     
-    if (!credentials) {
-      throw new Error('Credentials UNESS sont requises')
+    // Utiliser les secrets ou les credentials fournis
+    const username = UNESS_EMAIL || credentials?.username
+    const password = UNESS_PASSWORD || credentials?.password
+    
+    if (!username || !password) {
+      throw new Error('Credentials UNESS manquants (vérifier les secrets UNESS_EMAIL et UNESS_PASSWORD)')
     }
+    
+    console.log(`👤 Utilisation du compte: ${username.substring(0, 3)}***`)
     
     // Tentative de récupération de session persistante
     let sessionData: SessionStorage | null = null
@@ -78,8 +88,8 @@ serve(async (req) => {
     
     const results = await extractCompletEdnItems(
       supabase, 
-      credentials.username, 
-      credentials.password, 
+      username, 
+      password, 
       resumeFromItem,
       maxItems,
       fullExtraction,
@@ -154,12 +164,28 @@ async function authenticateUNESS(username: string, password: string, existingSes
     
     extractCookies(initResponse, cookies)
     
-    // ÉTAPE 2: Soumission email
+    // ÉTAPE 2: Soumission email avec parsing du formulaire
     console.log('📧 Étape 2: Soumission email...')
-    const emailFormData = new URLSearchParams()
-    emailFormData.append('email', username)
+    const initHtml = await initResponse.text()
     
-    const emailResponse = await fetch('https://cockpit.uness.fr/', {
+    // Extraire le token de sécurité ou les champs cachés
+    const $ = cheerio.load(initHtml)
+    const form = $('form').first()
+    
+    const emailFormData = new URLSearchParams()
+    emailFormData.append('username', username) // Souvent 'username' plutôt que 'email'
+    
+    // Ajouter tous les champs cachés du formulaire
+    form.find('input[type="hidden"]').each((_, element) => {
+      const name = $(element).attr('name')
+      const value = $(element).attr('value')
+      if (name && value) {
+        emailFormData.append(name, value)
+        console.log(`🔑 Champ caché ajouté: ${name}`)
+      }
+    })
+    
+    const emailResponse = await fetch('https://cockpit.uness.fr/cas/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -170,40 +196,72 @@ async function authenticateUNESS(username: string, password: string, existingSes
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
       },
       body: emailFormData.toString(),
-      redirect: 'manual'
+      redirect: 'follow'
     })
     
     extractCookies(emailResponse, cookies)
+    console.log(`📧 Réponse email: ${emailResponse.status}`)
     
-    // ÉTAPE 3: Soumission mot de passe
+    // Analyser la réponse pour détecter la page mot de passe
+    const emailHtml = await emailResponse.text()
+    if (emailHtml.includes('password') || emailHtml.includes('mot de passe')) {
+      console.log('✅ Page mot de passe détectée')
+    }
+    
+    // ÉTAPE 3: Soumission mot de passe avec parsing du nouveau formulaire
     console.log('🔐 Étape 3: Soumission mot de passe...')
+    const $2 = cheerio.load(emailHtml)
+    const passwordForm = $2('form').first()
+    
     const passwordFormData = new URLSearchParams()
     passwordFormData.append('password', password)
-    passwordFormData.append('email', username)
+    passwordFormData.append('username', username) // Garder le username
     
-    const passwordResponse = await fetch('https://cockpit.uness.fr/login', {
+    // Ajouter tous les champs cachés du formulaire de mot de passe
+    passwordForm.find('input[type="hidden"]').each((_, element) => {
+      const name = $2(element).attr('name')
+      const value = $2(element).attr('value')
+      if (name && value) {
+        passwordFormData.append(name, value)
+        console.log(`🔑 Champ caché mot de passe: ${name}`)
+      }
+    })
+    
+    // Construire l'URL du formulaire de mot de passe
+    const formAction = passwordForm.attr('action') || '/cas/login'
+    const passwordUrl = formAction.startsWith('http') ? formAction : `https://cockpit.uness.fr${formAction}`
+    
+    const passwordResponse = await fetch(passwordUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         'User-Agent': USER_AGENT,
         'Cookie': cookiesToString(cookies),
         'Origin': 'https://cockpit.uness.fr',
-        'Referer': 'https://cockpit.uness.fr/',
+        'Referer': emailResponse.url,
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
       },
       body: passwordFormData.toString(),
-      redirect: 'manual'
+      redirect: 'follow'
     })
     
     extractCookies(passwordResponse, cookies)
+    console.log(`🔐 Réponse mot de passe: ${passwordResponse.status}`)
     
-    // ÉTAPE 4: Suivre les redirections vers LiSA
-    if (passwordResponse.status === 302 || passwordResponse.status === 303) {
-      console.log('✅ Authentification réussie - Redirection vers LiSA...')
+    // ÉTAPE 4: Vérifier l'authentification et accéder à LiSA
+    const passwordHtml = await passwordResponse.text()
+    
+    // Vérifier si l'authentification a réussi (pas de message d'erreur)
+    if (!passwordHtml.includes('Identifiants incorrects') && 
+        !passwordHtml.includes('Authentication failed') &&
+        !passwordHtml.includes('Veuillez saisir')) {
+      
+      console.log('✅ Authentification réussie - Test accès LiSA...')
       
       const lisaAccess = await followRedirectionToLisa(cookies, USER_AGENT)
       
       if (lisaAccess.success) {
+        console.log('🎯 Accès LiSA authentifié confirmé')
         // Sauvegarder la session (valide 2h)
         const sessionData: SessionStorage = {
           cookies: cookiesToString(cookies),
@@ -216,6 +274,8 @@ async function authenticateUNESS(username: string, password: string, existingSes
           sessionData
         }
       }
+    } else {
+      console.log('❌ Échec authentification - Message d\'erreur détecté')
     }
     
     // FALLBACK: Accès direct public
