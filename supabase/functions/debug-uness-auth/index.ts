@@ -65,7 +65,16 @@ serve(async (req) => {
     })
     
     addCookie(response.headers.get("set-cookie"))
-    const redirectLocation = response.headers.get("location")
+    let redirectLocation = response.headers.get("location")
+    
+    // Si l'URL de redirection est relative, la construire en absolu
+    if (redirectLocation && !redirectLocation.startsWith('http')) {
+      if (redirectLocation.startsWith('/')) {
+        redirectLocation = 'https://livret.uness.fr' + redirectLocation
+      } else {
+        redirectLocation = 'https://livret.uness.fr/' + redirectLocation
+      }
+    }
     
     console.log(`[DEBUG] step1 ${response.status} redirect: ${redirectLocation}`)
     debugInfo.push({ 
