@@ -52,9 +52,9 @@ export const EdnExtractionTest = () => {
       
       const { data, error } = await supabase.functions.invoke('extract-edn-uness', {
         body: {
-          action: 'debug_auth', // Test d'authentification uniquement
+          action: 'test', // Test avec les nouveaux credentials
           resumeFromItem: 1,
-          maxItems: 1
+          maxItems: 3
         }
       });
 
