@@ -45,14 +45,19 @@ serve(async (req) => {
 
     console.log(`🚀 DEBUT extraction - Action: ${action}, Items: ${resumeFromItem} à ${resumeFromItem + 2}`);
 
-    // Validation des credentials
-    const username = credentials?.username || "laeticia.moto-ngane@etud.u-picardie.fr";
-    const password = credentials?.password || "Aiciteal1!";
+    // Validation des credentials - PROBLÈME POTENTIEL ICI
+    if (!credentials || !credentials.username || !credentials.password) {
+      throw new Error("❌ Credentials UNESS manquants dans la requête. Veuillez fournir username et password.");
+    }
 
-    console.log(`🔐 Credentials: ${username} / ${password ? '***' : 'MANQUANT'}`);
+    const username = credentials.username;
+    const password = credentials.password;
 
-    if (!username || !password) {
-      throw new Error("Credentials UNESS manquants (username/password)");
+    console.log(`🔐 Credentials reçus: ${username} / ${password ? '***' : 'MANQUANT'}`);
+
+    // Vérification que les credentials ne sont pas vides
+    if (!username.trim() || !password.trim()) {
+      throw new Error("❌ Credentials UNESS vides. Username et password ne peuvent pas être vides.");
     }
 
     console.log("🎯 Appel extractEdnItems...");
@@ -240,8 +245,12 @@ async function authenticateCAS(username: string, password: string): Promise<stri
     'password': password,
     'execution': execution,
     '_eventId': 'submit',
-    'geolocation': ''
+    'geolocation': '',
+    'submit': 'SE CONNECTER'
   });
+
+  console.log("📋 Données du formulaire préparées");
+  console.log("🔗 URL de soumission: https://auth.uness.fr/cas/login");
 
   const authResponse = await fetch("https://auth.uness.fr/cas/login", {
     method: 'POST',
@@ -250,7 +259,8 @@ async function authenticateCAS(username: string, password: string): Promise<stri
       'Cookie': loginCookies,
       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
       'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-      'Referer': 'https://auth.uness.fr/cas/login'
+      'Referer': 'https://auth.uness.fr/cas/login',
+      'Origin': 'https://auth.uness.fr'
     },
     body: formData.toString(),
     redirect: 'manual'
