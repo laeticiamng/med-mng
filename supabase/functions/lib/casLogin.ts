@@ -14,7 +14,7 @@ export async function casLogin(email: string, password: string): Promise<CasLogi
   try {
     console.log('[AUTH] Step 1: GET cockpit homepage')
     
-    // ÉTAPE 1: Page cockpit d'accueil
+    // ÉTAPE 1: Page cockpit d'accueil pour récupérer les détails du formulaire
     const cockpitResponse = await fetch('https://cockpit.uness.fr/', {
       method: 'GET',
       headers: {
@@ -26,15 +26,16 @@ export async function casLogin(email: string, password: string): Promise<CasLogi
     })
     
     jar.addFromResponse(cockpitResponse)
+    const cockpitHtml = await cockpitResponse.text()
     console.log(`[AUTH] Step 1 completed: ${cockpitResponse.status}`)
     debugInfo.push({ step: 1, status: cockpitResponse.status, cookies: jar.toObject() })
 
-    // ÉTAPE 2: POST email pour déclencher redirection CAS
-    console.log('[AUTH] Step 2: POST email')
-    const emailFormData = new URLSearchParams()
-    emailFormData.append('email', email)
+    // ÉTAPE 2: POST direct vers auth.uness.fr/cas/login avec l'email
+    console.log('[AUTH] Step 2: POST username to CAS')
+    const loginFormData = new URLSearchParams()
+    loginFormData.append('username', email)
 
-    const emailResponse = await fetch('https://cockpit.uness.fr/login/email', {
+    const casLoginResponse = await fetch('https://auth.uness.fr/cas/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -45,66 +46,78 @@ export async function casLogin(email: string, password: string): Promise<CasLogi
         'Referer': 'https://cockpit.uness.fr/',
         'Origin': 'https://cockpit.uness.fr'
       },
-      body: emailFormData,
+      body: loginFormData,
       redirect: 'manual'
     })
     
-    jar.addFromResponse(emailResponse)
-    const casRedirectUrl = emailResponse.headers.get('Location')
-    console.log(`[AUTH] Step 2 completed: ${emailResponse.status}, redirect: ${casRedirectUrl}`)
-    debugInfo.push({ step: 2, status: emailResponse.status, location: casRedirectUrl })
+    jar.addFromResponse(casLoginResponse)
+    console.log(`[AUTH] Step 2 completed: ${casLoginResponse.status}`)
+    debugInfo.push({ step: 2, status: casLoginResponse.status, cookies: jar.toObject() })
 
-    if (!casRedirectUrl) {
-      throw new Error('Pas de redirection CAS après POST email')
+    // ÉTAPE 3: Suivre les redirections pour arriver à la page de mot de passe
+    let currentResponse = casLoginResponse
+    let currentUrl = casLoginResponse.headers.get('Location')
+    let stepCount = 3
+    
+    while (currentUrl && stepCount < 10) {
+      console.log(`[AUTH] Step ${stepCount}: Following redirect to ${currentUrl}`)
+      
+      currentResponse = await fetch(currentUrl, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+          'Accept-Language': 'fr-FR,fr;q=0.9,en;q=0.8',
+          'Cookie': jar.toString()
+        },
+        redirect: 'manual'
+      })
+      
+      jar.addFromResponse(currentResponse)
+      console.log(`[AUTH] Step ${stepCount} completed: ${currentResponse.status}`)
+      debugInfo.push({ step: stepCount, status: currentResponse.status, url: currentUrl })
+      
+      if (currentResponse.status >= 300 && currentResponse.status < 400) {
+        currentUrl = currentResponse.headers.get('Location')
+        stepCount++
+      } else {
+        break
+      }
     }
 
-    // ÉTAPE 3: GET page de login CAS
-    console.log('[AUTH] Step 3: GET CAS login page')
-    const casPageResponse = await fetch(casRedirectUrl, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-        'Accept-Language': 'fr-FR,fr;q=0.9,en;q=0.8',
-        'Cookie': jar.toString(),
-        'Referer': 'https://cockpit.uness.fr/'
-      }
-    })
+    // ÉTAPE 4: Parser la page finale pour les champs de mot de passe
+    const finalHtml = await currentResponse.text()
+    console.log(`[AUTH] Step ${stepCount}: Parsing password form`)
     
-    jar.addFromResponse(casPageResponse)
-    const casHtml = await casPageResponse.text()
+    // Chercher les champs cachés du formulaire CAS
+    const ltMatch = finalHtml.match(/name="lt" value="([^"]+)"/)
+    const executionMatch = finalHtml.match(/name="execution" value="([^"]+)"/)
+    const passwordFormMatch = finalHtml.match(/name="password"/)
     
-    // Parser les champs cachés CAS
-    const ltMatch = casHtml.match(/name="lt" value="([^"]+)"/)
-    const executionMatch = casHtml.match(/name="execution" value="([^"]+)"/)
-    
-    console.log(`[AUTH] Step 3 completed: ${casPageResponse.status}, lt found: ${!!ltMatch}, execution found: ${!!executionMatch}`)
+    console.log(`[AUTH] Form fields found - lt: ${!!ltMatch}, execution: ${!!executionMatch}, password: ${!!passwordFormMatch}`)
     debugInfo.push({ 
-      step: 3, 
-      status: casPageResponse.status, 
+      step: stepCount, 
+      status: currentResponse.status, 
       lt: ltMatch?.[1]?.substring(0, 20) + '...',
       execution: executionMatch?.[1]?.substring(0, 20) + '...',
-      hasLoginForm: casHtml.includes('name="username"') || casHtml.includes('name="password"'),
-      casUrl: casPageResponse.url,
-      htmlPreview: casHtml.substring(0, 500)
+      hasPasswordForm: !!passwordFormMatch,
+      finalUrl: currentResponse.url,
+      htmlPreview: finalHtml.substring(0, 500)
     })
 
-    if (!ltMatch || !executionMatch) {
-      throw new Error(`Champs CAS manquants - lt: ${!!ltMatch}, execution: ${!!executionMatch}`)
+    if (!ltMatch || !executionMatch || !passwordFormMatch) {
+      throw new Error(`Champs de formulaire manquants - lt: ${!!ltMatch}, execution: ${!!executionMatch}, password: ${!!passwordFormMatch}`)
     }
 
-    // ÉTAPE 4: POST login/password sur la vraie URL CAS
-    console.log('[AUTH] Step 4: POST credentials')
-    const loginFormData = new URLSearchParams()
-    loginFormData.append('username', email)
-    loginFormData.append('password', password)
-    loginFormData.append('lt', ltMatch[1])
-    loginFormData.append('execution', executionMatch[1])
-    loginFormData.append('_eventId', 'submit')
+    // ÉTAPE 5: POST mot de passe
+    console.log('[AUTH] Step 5: POST password')
+    const passwordFormData = new URLSearchParams()
+    passwordFormData.append('username', email)
+    passwordFormData.append('password', password)
+    passwordFormData.append('lt', ltMatch[1])
+    passwordFormData.append('execution', executionMatch[1])
+    passwordFormData.append('_eventId', 'submit')
 
-    // Utiliser l'URL de la page CAS actuelle pour le POST
-    const casLoginUrl = casPageResponse.url
-    
-    const loginResponse = await fetch(casLoginUrl, {
+    const passwordResponse = await fetch(currentResponse.url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -112,37 +125,37 @@ export async function casLogin(email: string, password: string): Promise<CasLogi
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
         'Accept-Language': 'fr-FR,fr;q=0.9,en;q=0.8',
         'Cookie': jar.toString(),
-        'Referer': casLoginUrl,
-        'Origin': new URL(casLoginUrl).origin
+        'Referer': currentResponse.url,
+        'Origin': new URL(currentResponse.url).origin
       },
-      body: loginFormData,
+      body: passwordFormData,
       redirect: 'manual'
     })
     
-    jar.addFromResponse(loginResponse)
-    const ticketLocation = loginResponse.headers.get('Location')
+    jar.addFromResponse(passwordResponse)
+    const ticketLocation = passwordResponse.headers.get('Location')
     const hasTicket = ticketLocation?.includes('ticket=')
     
-    console.log(`[AUTH] Step 4 completed: ${loginResponse.status}, ticket found: ${hasTicket}`)
+    console.log(`[AUTH] Step 5 completed: ${passwordResponse.status}, ticket found: ${hasTicket}`)
     debugInfo.push({ 
-      step: 4, 
-      status: loginResponse.status, 
+      step: 5, 
+      status: passwordResponse.status, 
       hasTicket,
       location: ticketLocation?.substring(0, 100) + '...'
     })
 
     if (!ticketLocation || !hasTicket) {
-      const responseText = await loginResponse.text()
+      const responseText = await passwordResponse.text()
       const hasError = responseText.includes('error') || responseText.includes('échec') || responseText.includes('invalid')
       debugInfo.push({ 
         loginError: hasError, 
         responsePreview: responseText.substring(0, 500) 
       })
-      throw new Error(`Pas de ticket CAS reçu. Status: ${loginResponse.status}`)
+      throw new Error(`Pas de ticket CAS reçu. Status: ${passwordResponse.status}`)
     }
 
-    // ÉTAPE 5: Validation ticket avec LiSA
-    console.log('[AUTH] Step 5: Validate ticket with LiSA')
+    // ÉTAPE 6: Validation ticket avec LiSA
+    console.log('[AUTH] Step 6: Validate ticket with LiSA')
     const lisaResponse = await fetch(ticketLocation, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
@@ -174,9 +187,9 @@ export async function casLogin(email: string, password: string): Promise<CasLogi
     const lisaHtml = await finalResponse.text()
     const isAuthenticated = lisaHtml.includes('LiSA') && !lisaHtml.includes('Connexion') && !lisaHtml.includes('login')
     
-    console.log(`[AUTH] Step 5 completed: ${finalResponse.status}, authenticated: ${isAuthenticated}`)
+    console.log(`[AUTH] Step 6 completed: ${finalResponse.status}, authenticated: ${isAuthenticated}`)
     debugInfo.push({ 
-      step: 5, 
+      step: 6, 
       status: finalResponse.status, 
       isAuthenticated,
       hasLisaTitle: lisaHtml.includes('LiSA'),
