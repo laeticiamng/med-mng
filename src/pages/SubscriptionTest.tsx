@@ -43,6 +43,42 @@ export const SubscriptionTest = () => {
           
           <TabsContent value="test" className="mt-6">
             <SubscriptionTestPanel />
+            
+            {/* Ajout du test EDN UNESS */}
+            <div className="mt-8 p-6 bg-white rounded-lg shadow-sm border">
+              <h3 className="text-lg font-semibold mb-4">Test Extraction EDN UNESS</h3>
+              <button 
+                onClick={async () => {
+                  console.log("🚀 Démarrage test EDN UNESS...");
+                  try {
+                    const response = await fetch('/api/extract-edn-uness', {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                      },
+                      body: JSON.stringify({
+                        action: 'start',
+                        resumeFromItem: 1,
+                        credentials: {
+                          username: 'laeticia.moto-ngane@etud.u-picardie.fr',
+                          password: 'Aiciteal1!'
+                        }
+                      })
+                    });
+                    
+                    const result = await response.json();
+                    console.log("✅ Résultat:", result);
+                    alert(`Extraction terminée: ${result.stats?.totalProcessed || 0} items traités`);
+                  } catch (error) {
+                    console.error("❌ Erreur:", error);
+                    alert("Erreur lors de l'extraction");
+                  }
+                }}
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                Tester Extraction EDN
+              </button>
+            </div>
           </TabsContent>
           
           <TabsContent value="audit" className="mt-6">
