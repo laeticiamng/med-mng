@@ -58,25 +58,26 @@ serve(async (req) => {
     // ÉTAPE 1: Première requête vers livret.uness.fr pour récupérer la redirection
     console.log('[DEBUG] step1: GET livret.uness.fr pour redirection')
     let response = await fetch(service, { 
-      redirect: "follow", // Suivre automatiquement les redirections
+      redirect: "manual", // Gérer manuellement les redirections
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
       }
     })
     
     addCookie(response.headers.get("set-cookie"))
-    const finalUrl = response.url // URL finale après redirections
-    const html = await response.text()
+    let redirectLocation = response.headers.get("location")
+    let html = await response.text()
     
-    console.log(`[DEBUG] step1 ${response.status} final URL: ${finalUrl}`)
-    console.log('[DEBUG] HTML length:', html.length)
-    console.log('[DEBUG] HTML preview:', html.substring(0, 1000))
+    console.log(`[DEBUG] step1 ${response.status} redirect: ${redirectLocation}`)
+    console.log(`[DEBUG] step1 HTML length: ${html.length}`)
+    console.log(`[DEBUG] step1 HTML preview:`, html.substring(0, 500))
     
     debugInfo.push({ 
       step: 1, 
-      action: "GET livret.uness.fr avec redirections",
+      action: "GET livret.uness.fr",
       status: response.status, 
-      finalUrl: finalUrl,
+      redirectLocation: redirectLocation,
+      htmlLength: html.length,
       cookies: Object.keys(jar)
     })
 
@@ -118,14 +119,20 @@ serve(async (req) => {
     
     console.log(`[DEBUG] Auth URL trouvée: ${authUrl}`)
     
+    if (!authUrl && redirectLocation) {
+      // Si pas de lien dans le HTML, utiliser la redirection directe
+      authUrl = redirectLocation.startsWith('http') ? redirectLocation : 'https://livret.uness.fr' + redirectLocation
+      console.log(`[DEBUG] Utilisation de la redirection directe: ${authUrl}`)
+    }
+    
     if (!authUrl) {
       // Sauvegarder le HTML pour debug
       debugInfo.push({
         error: "Aucun lien CAS trouvé",
         htmlSample: html.substring(0, 2000),
-        finalUrl: finalUrl
+        redirectLocation: redirectLocation
       })
-      throw new Error(`Aucun lien vers auth.uness.fr trouvé dans la page. URL finale: ${finalUrl}`)
+      throw new Error(`Aucun lien vers auth.uness.fr trouvé. Redirection: ${redirectLocation}`)
     }
     
     // ÉTAPE 2: Aller vers la page CAS
