@@ -41,6 +41,7 @@ import AdminExtractEcos from "./pages/AdminExtractEcos";
 import EdnObjectifsExtractionPage from "./pages/EdnObjectifsExtraction";
 import OicDataQualityManager from "./pages/OicDataQualityManager";
 import AuditCompleteness from "./pages/AuditCompleteness";
+import TestExtraction from "./pages/TestExtraction";
 
 const queryClient = new QueryClient();
 
@@ -96,8 +97,9 @@ const App = () => (
                <Route path="/admin/extract-objectifs" element={<EdnObjectifsExtractionPage />} />
                <Route path="/admin/oic-quality" element={<OicDataQualityManager />} />
                <Route path="/admin/complete" element={<AdminCompleteProcess />} />
-              <Route path="/test-subscriptions" element={<SubscriptionTest />} />
-              <Route path="*" element={<NotFound />} />
+               <Route path="/test-subscriptions" element={<SubscriptionTest />} />
+               <Route path="/test-extraction" element={<TestExtraction />} />
+               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
         </TooltipProvider>
