@@ -50,3 +50,6 @@ verify_jwt = false
 
 [functions.test-edn-extraction]
 verify_jwt = false
+
+[functions.debug-uness-auth]
+verify_jwt = false
