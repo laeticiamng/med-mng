@@ -297,7 +297,14 @@ export const EdnExtractionTest = () => {
                       <span className="font-medium">Rang A:</span>
                       <div className="text-muted-foreground">
                         {item.tableau_rang_a ? 
-                          `${JSON.parse(item.tableau_rang_a)?.sections?.[0]?.concepts?.length || 0} concepts` :
+                          (() => {
+                            try {
+                              const parsed = JSON.parse(item.tableau_rang_a);
+                              return `${parsed?.sections?.[0]?.concepts?.length || 0} concepts`;
+                            } catch {
+                              return 'Format invalide';
+                            }
+                          })() :
                           'Non défini'
                         }
                       </div>
@@ -306,7 +313,14 @@ export const EdnExtractionTest = () => {
                       <span className="font-medium">Rang B:</span>
                       <div className="text-muted-foreground">
                         {item.tableau_rang_b ? 
-                          `${JSON.parse(item.tableau_rang_b)?.sections?.[0]?.concepts?.length || 0} concepts` :
+                          (() => {
+                            try {
+                              const parsed = JSON.parse(item.tableau_rang_b);
+                              return `${parsed?.sections?.[0]?.concepts?.length || 0} concepts`;
+                            } catch {
+                              return 'Format invalide';
+                            }
+                          })() :
                           'Non défini'
                         }
                       </div>
