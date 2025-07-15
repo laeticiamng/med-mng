@@ -190,36 +190,57 @@ async function extractEdnItems(supabase: any, username: string, password: string
 }
 
 async function authenticateCAS(username: string, password: string): Promise<string> {
+  console.log("🔐 Début de l'authentification CAS UNESS...");
   console.log("🔐 Étape 1: Récupération du formulaire de connexion CAS...");
   
   // Étape 1: Récupérer le formulaire de connexion CAS
   const loginPageResponse = await fetch("https://auth.uness.fr/cas/login", {
     headers: {
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+      'Accept-Language': 'fr-FR,fr;q=0.9,en;q=0.8',
+      'Accept-Encoding': 'gzip, deflate, br',
+      'Connection': 'keep-alive',
+      'Upgrade-Insecure-Requests': '1'
     }
   });
 
   if (!loginPageResponse.ok) {
-    throw new Error(`Impossible d'accéder à la page de connexion CAS: ${loginPageResponse.status}`);
+    throw new Error(`Erreur lors de la récupération de la page de login: ${loginPageResponse.status}`);
   }
 
   const loginPageHTML = await loginPageResponse.text();
   const loginCookies = extractCookies(loginPageResponse.headers);
   console.log("📋 Cookies de session récupérés");
 
+  // Debug: vérifier si on a bien la page de login
+  if (loginPageHTML.includes("Veuillez saisir votre adresse e-mail")) {
+    console.log("✅ Page de login CAS récupérée avec succès");
+  } else {
+    console.log("⚠️ Page inattendue récupérée");
+  }
+
   // Extraire le token CSRF/execution du formulaire
   const executionMatch = loginPageHTML.match(/name="execution" value="([^"]+)"/);
   const execution = executionMatch ? executionMatch[1] : '';
   console.log(`🔑 Token d'exécution CAS: ${execution ? execution.substring(0, 20) + '...' : 'NON TROUVÉ'}`);
 
+  if (!execution) {
+    console.log("❌ Token d'exécution non trouvé dans le HTML:");
+    console.log(loginPageHTML.substring(0, 1000));
+    throw new Error("Token d'exécution CAS non trouvé");
+  }
+
   console.log("🔐 Étape 2: Soumission des credentials...");
+  console.log(`🔐 Credentials: ${username} / ***`);
 
   // Étape 2: Soumettre les credentials
   const formData = new URLSearchParams({
     'username': username,
     'password': password,
     'execution': execution,
-    '_eventId': 'submit'
+    '_eventId': 'submit',
+    'geolocation': ''
   });
 
   const authResponse = await fetch("https://auth.uness.fr/cas/login", {
@@ -227,18 +248,31 @@ async function authenticateCAS(username: string, password: string): Promise<stri
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
       'Cookie': loginCookies,
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+      'Referer': 'https://auth.uness.fr/cas/login'
     },
-    body: formData,
+    body: formData.toString(),
     redirect: 'manual'
   });
 
   console.log(`📊 Réponse authentification CAS: ${authResponse.status}`);
 
+  // Debug: afficher la réponse pour voir ce qui se passe
+  const responseText = await authResponse.text();
+  console.log(`📋 Taille de la réponse: ${responseText.length} caractères`);
+  
+  if (responseText.includes("Veuillez saisir votre adresse e-mail")) {
+    console.log("❌ Encore sur la page de login - authentification échouée");
+    console.log("🔍 Détail erreur:", responseText.substring(0, 500));
+    throw new Error("Authentification CAS échouée - identifiants incorrects");
+  }
+
   // Vérifier la redirection (succès de l'authentification)
   if (authResponse.status === 302 || authResponse.status === 200) {
     const authCookies = extractCookies(authResponse.headers);
     const combinedCookies = `${loginCookies}; ${authCookies}`;
+    console.log("✅ Authentification CAS réussie");
     console.log("✅ Authentification CAS réussie, cookies combinés");
     return combinedCookies;
   }
