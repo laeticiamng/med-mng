@@ -190,6 +190,8 @@ async function extractEdnItems(supabase: any, username: string, password: string
 }
 
 async function authenticateCAS(username: string, password: string): Promise<string> {
+  console.log("🔐 Étape 1: Récupération du formulaire de connexion CAS...");
+  
   // Étape 1: Récupérer le formulaire de connexion CAS
   const loginPageResponse = await fetch("https://auth.uness.fr/cas/login", {
     headers: {
@@ -203,10 +205,14 @@ async function authenticateCAS(username: string, password: string): Promise<stri
 
   const loginPageHTML = await loginPageResponse.text();
   const loginCookies = extractCookies(loginPageResponse.headers);
+  console.log("📋 Cookies de session récupérés");
 
   // Extraire le token CSRF/execution du formulaire
   const executionMatch = loginPageHTML.match(/name="execution" value="([^"]+)"/);
   const execution = executionMatch ? executionMatch[1] : '';
+  console.log(`🔑 Token d'exécution CAS: ${execution ? execution.substring(0, 20) + '...' : 'NON TROUVÉ'}`);
+
+  console.log("🔐 Étape 2: Soumission des credentials...");
 
   // Étape 2: Soumettre les credentials
   const formData = new URLSearchParams({
@@ -227,10 +233,14 @@ async function authenticateCAS(username: string, password: string): Promise<stri
     redirect: 'manual'
   });
 
+  console.log(`📊 Réponse authentification CAS: ${authResponse.status}`);
+
   // Vérifier la redirection (succès de l'authentification)
   if (authResponse.status === 302 || authResponse.status === 200) {
     const authCookies = extractCookies(authResponse.headers);
-    return `${loginCookies}; ${authCookies}`;
+    const combinedCookies = `${loginCookies}; ${authCookies}`;
+    console.log("✅ Authentification CAS réussie, cookies combinés");
+    return combinedCookies;
   }
 
   throw new Error(`Échec de l'authentification CAS: ${authResponse.status}`);
