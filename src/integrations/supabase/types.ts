@@ -842,6 +842,7 @@ export type Database = {
           contenu_complet_html: string | null
           created_at: string
           date_import: string
+          html_raw: string | null
           id: string
           intitule: string
           item_id: number
@@ -853,6 +854,7 @@ export type Database = {
           contenu_complet_html?: string | null
           created_at?: string
           date_import?: string
+          html_raw?: string | null
           id?: string
           intitule: string
           item_id: number
@@ -864,6 +866,7 @@ export type Database = {
           contenu_complet_html?: string | null
           created_at?: string
           date_import?: string
+          html_raw?: string | null
           id?: string
           intitule?: string
           item_id?: number
@@ -2919,6 +2922,10 @@ export type Database = {
           quota_limit: number
           plan_name: string
         }[]
+      }
+      clean_corrupted_edn_items: {
+        Args: Record<PropertyKey, never>
+        Returns: number
       }
       cleanup_duplicates: {
         Args: Record<PropertyKey, never>

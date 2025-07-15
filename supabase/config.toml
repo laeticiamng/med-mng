@@ -44,3 +44,9 @@ verify_jwt = false
 
 [functions.compare-official-content]
 verify_jwt = false
+
+[functions.extract-edn-uness-auth]
+verify_jwt = false
+
+[functions.test-edn-extraction]
+verify_jwt = false
