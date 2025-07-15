@@ -48,14 +48,13 @@ export const EdnExtractionTest = () => {
     setExtractionResult(null);
     
     try {
-      toast.info("🚀 Démarrage du test d'extraction UNESS...");
+      toast.info("🚀 Démarrage du test d'authentification UNESS...");
       
       const { data, error } = await supabase.functions.invoke('extract-edn-uness', {
         body: {
-          action: 'test',
+          action: 'debug_auth', // Test d'authentification uniquement
           resumeFromItem: 1,
-          maxItems: 3
-          // Credentials maintenant gérés par les secrets UNESS_EMAIL et UNESS_PASSWORD
+          maxItems: 1
         }
       });
 
