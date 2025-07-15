@@ -1,5 +1,4 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { CookieJar } from "../lib/cookieJar.ts"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -12,6 +11,22 @@ serve(async (req) => {
   }
 
   const debugInfo: any[] = []
+  const jar: Record<string, string> = {}
+  
+  function addCookie(setCookie: string | null) {
+    if (!setCookie) return
+    setCookie.split(",").forEach(c => {
+      const [kv] = c.split(";")
+      const [k, v] = kv.split("=")
+      if (k && v) {
+        jar[k.trim()] = v.trim()
+      }
+    })
+  }
+  
+  function cookieHeader() {
+    return Object.entries(jar).map(([k, v]) => `${k}=${v}`).join("; ")
+  }
   
   try {
     const email = Deno.env.get('UNES_EMAIL')
@@ -28,151 +43,151 @@ serve(async (req) => {
       })
     }
 
-    const jar = new CookieJar()
+    const service = "https://livret.uness.fr/login/cas"
+    const loginURL = `https://auth.uness.fr/cas/login?service=${encodeURIComponent(service)}`
     
-    // ÉTAPE 1: Page cockpit
-    debugInfo.push({ step: 1, action: "GET cockpit" })
-    const cockpitResponse = await fetch('https://cockpit.uness.fr/', {
-      method: 'GET',
-      headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36' }
-    })
-    
-    jar.addFromResponse(cockpitResponse)
-    debugInfo.push({ 
-      step: 1, 
-      status: cockpitResponse.status, 
-      cookies: jar.toObject(),
-      url: cockpitResponse.url
-    })
-
-    // ÉTAPE 2: POST email
-    debugInfo.push({ step: 2, action: "POST email" })
-    const emailResponse = await fetch('https://cockpit.uness.fr/', {
-      method: 'POST',
+    // ÉTAPE 1: GET CAS login page directement
+    console.log('[DEBUG] step1: GET CAS login page directement')
+    let response = await fetch(loginURL, { 
+      redirect: "manual",
       headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-        'Cookie': jar.toString()
-      },
-      body: `email=${encodeURIComponent(email)}`,
-      redirect: 'manual'
-    })
-    
-    jar.addFromResponse(emailResponse)
-    debugInfo.push({ 
-      step: 2, 
-      status: emailResponse.status, 
-      location: emailResponse.headers.get('Location'),
-      cookies: jar.toObject()
-    })
-
-    // ÉTAPE 3: Suivre redirection vers CAS
-    const casLoginUrl = emailResponse.headers.get('Location')
-    if (!casLoginUrl) {
-      throw new Error('Pas de redirection vers CAS après POST email')
-    }
-
-    debugInfo.push({ step: 3, action: "GET CAS login page", url: casLoginUrl })
-    const casPageResponse = await fetch(casLoginUrl, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-        'Cookie': jar.toString()
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
       }
     })
     
-    jar.addFromResponse(casPageResponse)
-    const casHtml = await casPageResponse.text()
+    addCookie(response.headers.get("set-cookie"))
+    const html = await response.text()
     
-    // Parser les champs cachés
-    const ltMatch = casHtml.match(/name="lt" value="([^"]+)"/)
-    const executionMatch = casHtml.match(/name="execution" value="([^"]+)"/)
+    // Parser les champs CAS
+    const ltMatch = html.match(/name="lt" value="([^"]+)"/)
+    const executionMatch = html.match(/name="execution" value="([^"]+)"/)
     
+    const lt = ltMatch?.[1] ?? ""
+    const execution = executionMatch?.[1] ?? ""
+    
+    console.log(`[DEBUG] step1 ${response.status} lt=${lt.substring(0, 10)}* exec=${execution}`)
     debugInfo.push({ 
-      step: 3, 
-      status: casPageResponse.status,
-      lt: ltMatch?.[1] || 'NOT_FOUND',
-      execution: executionMatch?.[1] || 'NOT_FOUND',
-      hasPasswordField: casHtml.includes('name="password"'),
-      cookies: jar.toObject()
+      step: 1, 
+      action: "GET CAS login page directement",
+      status: response.status, 
+      lt: lt.substring(0, 20) + '...', 
+      execution: execution.substring(0, 20) + '...',
+      cookies: Object.keys(jar),
+      url: loginURL
     })
-
-    if (!ltMatch || !executionMatch) {
-      debugInfo.push({ error: "Champs lt ou execution non trouvés dans la page CAS" })
-      return new Response(JSON.stringify({
-        success: false,
-        error: 'Champs CAS manquants',
-        debug: debugInfo,
-        casHtmlPreview: casHtml.substring(0, 500)
-      }), { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-      })
+    
+    if (!lt || !execution) {
+      throw new Error(`Champs CAS manquants - lt: ${!!lt}, execution: ${!!execution}`)
     }
-
-    // ÉTAPE 4: POST login/password
-    debugInfo.push({ step: 4, action: "POST login/password" })
-    const loginData = new URLSearchParams({
+    
+    // ÉTAPE 2: POST credentials directement
+    console.log('[DEBUG] step2: POST credentials')
+    const body = new URLSearchParams({
       username: email,
       password: password,
-      lt: ltMatch[1],
-      execution: executionMatch[1],
-      _eventId: 'submit'
+      lt,
+      execution,
+      _eventId: "submit",
+      submit: "Se connecter"
     })
-
-    const loginResponse = await fetch(casLoginUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-        'Cookie': jar.toString()
+    
+    response = await fetch(loginURL, {
+      method: "POST", 
+      redirect: "manual",
+      headers: { 
+        "Content-Type": "application/x-www-form-urlencoded",
+        "Cookie": cookieHeader(),
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
       },
-      body: loginData,
-      redirect: 'manual'
+      body: body.toString()
     })
     
-    jar.addFromResponse(loginResponse)
-    const location = loginResponse.headers.get('Location')
+    addCookie(response.headers.get("set-cookie"))
+    const ticketLocation = response.headers.get("location")
+    const hasTicket = ticketLocation?.includes("ticket=ST-")
     
+    console.log(`[DEBUG] step2 ${response.status} ticket found: ${hasTicket}`)
+    debugInfo.push({ 
+      step: 2, 
+      action: "POST credentials",
+      status: response.status, 
+      hasTicket,
+      location: ticketLocation?.substring(0, 100) + '...',
+      cookies: Object.keys(jar)
+    })
+    
+    if (!ticketLocation || !hasTicket) {
+      const responseText = await response.text()
+      const hasError = responseText.includes('error') || responseText.includes('échec')
+      debugInfo.push({ 
+        loginError: hasError, 
+        responsePreview: responseText.substring(0, 500) 
+      })
+      throw new Error(`Pas de ticket à l'étape 2. Status: ${response.status}`)
+    }
+    
+    // ÉTAPE 3: Validation du ticket
+    console.log('[DEBUG] step3: Validate ticket')
+    response = await fetch(ticketLocation, { 
+      redirect: "manual", 
+      headers: { 
+        "Cookie": cookieHeader(),
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+      }
+    })
+    
+    addCookie(response.headers.get("set-cookie"))
+    const homeURL = response.headers.get("location")
+    
+    console.log(`[DEBUG] step3 ${response.status} redirect to: ${homeURL?.substring(0, 50)}...`)
+    debugInfo.push({ 
+      step: 3, 
+      action: "Validate ticket",
+      status: response.status, 
+      homeURL: homeURL?.substring(0, 100) + '...',
+      cookies: Object.keys(jar)
+    })
+    
+    if (!homeURL) {
+      throw new Error(`Pas de redirection après validation ticket. Status: ${response.status}`)
+    }
+    
+    // ÉTAPE 4: Vérification finale LiSA
+    console.log('[DEBUG] step4: Check LiSA access')
+    response = await fetch(homeURL, { 
+      headers: { 
+        "Cookie": cookieHeader(),
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+      }
+    })
+    
+    addCookie(response.headers.get("set-cookie"))
+    const finalHtml = await response.text()
+    const isAuthenticated = finalHtml.includes("<title>LiSA")
+    
+    console.log(`[DEBUG] step4 ${response.status} LiSA OK: ${isAuthenticated}`)
     debugInfo.push({ 
       step: 4, 
-      status: loginResponse.status,
-      location: location,
-      cookies: jar.toObject(),
-      hasTicket: location?.includes('ticket=') || false
+      action: "Check LiSA access",
+      status: response.status, 
+      isAuthenticated,
+      hasLisaTitle: finalHtml.includes("<title>LiSA"),
+      finalUrl: response.url,
+      htmlPreview: finalHtml.substring(0, 300),
+      cookies: Object.keys(jar)
     })
 
-    // ÉTAPE 5: Test accès LiSA
-    if (location?.includes('ticket=')) {
-      debugInfo.push({ step: 5, action: "GET LiSA with ticket", url: location })
-      const lisaResponse = await fetch(location, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-          'Cookie': jar.toString()
-        },
-        redirect: 'manual'
-      })
-      
-      jar.addFromResponse(lisaResponse)
-      const lisaHtml = await lisaResponse.text()
-      
-      debugInfo.push({ 
-        step: 5, 
-        status: lisaResponse.status,
-        hasLisaTitle: lisaHtml.includes('LiSA'),
-        hasConnexion: lisaHtml.includes('Connexion'),
-        cookies: jar.toObject(),
-        htmlPreview: lisaHtml.substring(0, 300)
-      })
-    }
-
     return new Response(JSON.stringify({
-      success: true,
-      message: 'Debug complet de l\'authentification UNESS',
+      success: isAuthenticated,
+      message: isAuthenticated ? 'Authentification CAS réussie avec approche directe!' : 'Échec authentification',
+      finalCookies: cookieHeader(),
       debug: debugInfo
     }), { 
       headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
     })
 
   } catch (error) {
+    console.error('[DEBUG] ❌ Erreur:', error.message)
     debugInfo.push({ error: error.message })
     return new Response(JSON.stringify({
       success: false,
