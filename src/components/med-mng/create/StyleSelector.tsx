@@ -103,7 +103,7 @@ export const StyleSelector: React.FC<StyleSelectorProps> = ({
             <SelectValue placeholder="Choisissez un style" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="" disabled>-- Choisir un style --</SelectItem>
+            <SelectItem value="placeholder" disabled>-- Choisir un style --</SelectItem>
             
             {/* Styles populaires */}
             <SelectItem value="popular" disabled className="font-medium text-xs uppercase tracking-wider text-gray-500">

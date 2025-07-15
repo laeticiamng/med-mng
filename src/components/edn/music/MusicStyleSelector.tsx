@@ -66,7 +66,7 @@ export const MusicStyleSelector = ({ selectedStyle, onStyleChange }: MusicStyleS
               <SelectValue placeholder="Choisissez votre style musical" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">Aucun style sélectionné</SelectItem>
+              <SelectItem value="none">Aucun style sélectionné</SelectItem>
               {musicStyles.map((style) => (
                 <SelectItem key={style.value} value={style.value}>
                   {style.label} - {style.description}
