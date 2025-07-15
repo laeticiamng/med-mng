@@ -67,26 +67,49 @@ serve(async (req) => {
     addCookie(response.headers.get("set-cookie"))
     let redirectLocation = response.headers.get("location")
     
+    console.log(`[DEBUG] Raw redirect location: "${redirectLocation}"`)
+    
     // Si l'URL de redirection est relative, la construire en absolu
     if (redirectLocation && !redirectLocation.startsWith('http')) {
+      const baseUrl = 'https://livret.uness.fr'
       if (redirectLocation.startsWith('/')) {
-        redirectLocation = 'https://livret.uness.fr' + redirectLocation
+        redirectLocation = baseUrl + redirectLocation
       } else {
-        redirectLocation = 'https://livret.uness.fr/' + redirectLocation
+        redirectLocation = baseUrl + '/' + redirectLocation
       }
+      console.log(`[DEBUG] Constructed absolute URL: "${redirectLocation}"`)
     }
     
-    console.log(`[DEBUG] step1 ${response.status} redirect: ${redirectLocation}`)
+    // Vérifier que l'URL est valide
+    let urlValid = false
+    try {
+      new URL(redirectLocation || '')
+      urlValid = true
+    } catch (e) {
+      console.log(`[DEBUG] URL invalide: ${e.message}`)
+    }
+    
+    console.log(`[DEBUG] step1 ${response.status} redirect: ${redirectLocation} (valid: ${urlValid})`)
     debugInfo.push({ 
       step: 1, 
       action: "GET livret.uness.fr",
       status: response.status, 
       redirectLocation: redirectLocation,
+      urlValid: urlValid,
       cookies: Object.keys(jar)
     })
 
-    if (!redirectLocation) {
-      throw new Error(`Pas de redirection CAS. Status: ${response.status}`)
+    if (!redirectLocation || !urlValid) {
+      throw new Error(`URL de redirection invalide: "${redirectLocation}". Status: ${response.status}`)
+    }
+    
+    // Si l'URL ne mène pas vers auth.uness.fr, c'est peut-être un problème
+    if (!redirectLocation.includes('auth.uness.fr')) {
+      console.log(`[DEBUG] WARNING: La redirection ne mène pas vers auth.uness.fr mais vers: ${redirectLocation}`)
+      debugInfo.push({
+        warning: "La redirection ne mène pas vers le serveur CAS attendu",
+        redirectDomain: new URL(redirectLocation).hostname
+      })
     }
     
     // ÉTAPE 2: Suivre la redirection vers auth.uness.fr
