@@ -66,7 +66,7 @@ serve(async (req) => {
     const truncatedStyle = style.substring(0, 200);
     const truncatedPrompt = lyrics.substring(0, 3000);
 
-    // Payload pour l'API Suno officielle
+    // Payload pour l'API Suno officielle v2
     const sunoPayload = {
       prompt: truncatedPrompt,
       tags: truncatedStyle,
@@ -75,7 +75,7 @@ serve(async (req) => {
       wait_audio: false
     };
 
-    console.log('🚀 Génération avec API Suno officielle');
+    console.log('🚀 Génération avec API Suno officielle v2');
     console.log('📤 Payload:', JSON.stringify(sunoPayload, null, 2));
 
     // Headers pour l'API Suno officielle
@@ -84,7 +84,7 @@ serve(async (req) => {
       'Content-Type': 'application/json'
     };
 
-    // Endpoint API Suno officielle
+    // Endpoint API Suno officielle v2
     const apiUrl = 'https://studio-api.suno.ai/api/generate/v2/';
     
     const generateResponse = await fetch(apiUrl, {
@@ -176,7 +176,16 @@ serve(async (req) => {
 
     console.log('✅ Données parsées:', JSON.stringify(generateData, null, 2));
 
-    // Vérifier le succès de la génération selon la structure API Suno officielle
+    // Vérifier le succès de la génération selon la structure API Suno officielle v2
+    if (generateData && Array.isArray(generateData) && generateData.length > 0) {
+      const clips = generateData;
+      console.log(`🔄 Génération créée avec succès, ${clips.length} clips`);
+      
+      // Commencer le polling pour récupérer l'audio généré
+      return await pollForAudio(clips, SUNO_API_KEY, rang, style, truncatedTitle);
+    }
+
+    // Si pas de clips ou structure différente, essayer avec la propriété clips
     if (generateData.clips && Array.isArray(generateData.clips)) {
       const clips = generateData.clips;
       console.log(`🔄 Génération créée avec succès, ${clips.length} clips`);
@@ -220,17 +229,19 @@ serve(async (req) => {
 async function pollForAudio(clips: any[], apiKey: string, rang: string, style: string, title: string) {
   console.log(`🔄 Polling pour ${clips.length} clips`);
   
-  const maxAttempts = 20; // 2 minutes max (6s * 20)
+  const maxAttempts = 30; // 3 minutes max (6s * 30)
   const clipIds = clips.map(clip => clip.id);
   
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     console.log(`🔄 Tentative ${attempt}/${maxAttempts}`);
     
-    // Attendre avant de vérifier le statut
-    await new Promise(resolve => setTimeout(resolve, 6000)); // 6 secondes
+    // Attendre avant de vérifier le statut (première tentative immédiate)
+    if (attempt > 1) {
+      await new Promise(resolve => setTimeout(resolve, 6000)); // 6 secondes
+    }
     
     try {
-      // Utiliser l'endpoint de l'API Suno officielle
+      // Utiliser l'endpoint de l'API Suno officielle pour récupérer les détails
       const detailsUrl = `https://studio-api.suno.ai/api/feed/?ids=${clipIds.join(',')}`;
       const detailsResponse = await fetch(detailsUrl, {
         method: 'GET',
@@ -244,10 +255,22 @@ async function pollForAudio(clips: any[], apiKey: string, rang: string, style: s
         const detailsData = await detailsResponse.json();
         console.log(`📥 Détails tentative ${attempt}:`, JSON.stringify(detailsData, null, 2));
         
+        // Gérer différentes structures de réponse
+        let clipsToCheck = [];
         if (Array.isArray(detailsData)) {
+          clipsToCheck = detailsData;
+        } else if (detailsData.clips && Array.isArray(detailsData.clips)) {
+          clipsToCheck = detailsData.clips;
+        } else if (detailsData.data && Array.isArray(detailsData.data)) {
+          clipsToCheck = detailsData.data;
+        }
+        
+        if (clipsToCheck.length > 0) {
           // Chercher un clip avec audio_url
-          const completedClip = detailsData.find(clip => 
-            clip.audio_url && clip.audio_url.trim() !== '' && clip.status === 'complete'
+          const completedClip = clipsToCheck.find(clip => 
+            clip.audio_url && 
+            clip.audio_url.trim() !== '' && 
+            (clip.status === 'complete' || clip.status === 'streaming')
           );
           
           if (completedClip) {
@@ -262,12 +285,12 @@ async function pollForAudio(clips: any[], apiKey: string, rang: string, style: s
                 rang: rang,
                 style: style,
                 title: title,
-                duration: completedClip.duration,
+                duration: completedClip.duration || null,
                 provider: 'suno',
                 attempts: attempt,
                 model: completedClip.model_name || 'chirp-v3-5',
-                image_url: completedClip.image_url,
-                lyric: completedClip.lyric
+                image_url: completedClip.image_url || null,
+                lyric: completedClip.lyric || null
               }),
               { 
                 headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -277,14 +300,41 @@ async function pollForAudio(clips: any[], apiKey: string, rang: string, style: s
           } else {
             console.log(`⏳ Audio pas encore prêt (tentative ${attempt})`);
             // Vérifier si des clips sont en erreur
-            const errorClips = detailsData.filter(clip => clip.status === 'error');
+            const errorClips = clipsToCheck.filter(clip => clip.status === 'error');
             if (errorClips.length > 0) {
               console.log(`❌ Clips en erreur:`, errorClips);
+              // Si tous les clips sont en erreur, arrêter le polling
+              if (errorClips.length === clipsToCheck.length) {
+                return new Response(
+                  JSON.stringify({ 
+                    error: 'Génération échouée - Tous les clips sont en erreur',
+                    status: 'error',
+                    error_code: 500,
+                    clipIds: clipIds,
+                    errorDetails: errorClips
+                  }),
+                  { 
+                    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+                    status: 500
+                  }
+                );
+              }
             }
+            
+            // Afficher le statut des clips
+            const statusSummary = clipsToCheck.map(clip => ({
+              id: clip.id,
+              status: clip.status
+            }));
+            console.log(`📊 Statut des clips:`, statusSummary);
           }
+        } else {
+          console.log(`⚠️ Aucun clip trouvé dans la réponse (tentative ${attempt})`);
         }
       } else {
         console.log(`⚠️ Erreur status API tentative ${attempt}:`, detailsResponse.status);
+        const errorText = await detailsResponse.text();
+        console.log(`⚠️ Réponse erreur:`, errorText);
       }
     } catch (pollError) {
       console.log(`⚠️ Erreur polling tentative ${attempt}:`, pollError.message);
