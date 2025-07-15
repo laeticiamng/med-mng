@@ -77,6 +77,40 @@ export const EdnExtractionTest = () => {
     }
   };
 
+  const runFullExtraction = async () => {
+    setIsExtracting(true);
+    setExtractionResult(null);
+    
+    try {
+      toast.info("🚀 Démarrage de l'extraction COMPLÈTE (367 items)...");
+      
+      const { data, error } = await supabase.functions.invoke('extract-edn-uness', {
+        body: {
+          action: 'extract',
+          resumeFromItem: 1,
+          maxItems: 367,
+          fullExtraction: true
+        }
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      setExtractionResult(data);
+      toast.success(`✅ Extraction complète terminée: ${data.stats.totalProcessed} items traités`);
+      
+      // Récupérer les items extraits depuis la base
+      await loadExtractedItems();
+      
+    } catch (error) {
+      console.error('Erreur extraction complète:', error);
+      toast.error(`❌ Erreur: ${error.message}`);
+    } finally {
+      setIsExtracting(false);
+    }
+  };
+
   const loadExtractedItems = async () => {
     try {
       const { data, error } = await supabase
@@ -124,14 +158,25 @@ export const EdnExtractionTest = () => {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <Button 
-            onClick={runExtractionTest}
-            disabled={isExtracting}
-            className="w-full"
-          >
-            {isExtracting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {isExtracting ? 'Extraction en cours...' : '🚀 Lancer le test d\'extraction'}
-          </Button>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Button 
+              onClick={runExtractionTest}
+              disabled={isExtracting}
+              variant="outline"
+            >
+              {isExtracting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {isExtracting ? 'Extraction en cours...' : '🧪 Test (3 items)'}
+            </Button>
+            
+            <Button 
+              onClick={runFullExtraction}
+              disabled={isExtracting}
+              variant="default"
+            >
+              {isExtracting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {isExtracting ? 'Extraction en cours...' : '🚀 Extraction Complète (367 items)'}
+            </Button>
+          </div>
 
           {extractionResult && (
             <Card>
