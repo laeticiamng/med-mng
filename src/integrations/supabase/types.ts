@@ -3008,6 +3008,13 @@ export type Database = {
           details: Json
         }[]
       }
+      fix_all_edn_items_complete_unique_content: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          updated_count: number
+          details: Json
+        }[]
+      }
       fix_all_edn_items_simple_correction: {
         Args: Record<PropertyKey, never>
         Returns: {
