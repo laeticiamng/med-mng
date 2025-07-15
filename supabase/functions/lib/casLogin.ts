@@ -14,7 +14,7 @@ export async function casLogin(email: string, password: string): Promise<CasLogi
   try {
     console.log('[AUTH] Step 1: GET cockpit homepage')
     
-    // ÉTAPE 1: Page cockpit d'accueil pour récupérer les détails du formulaire
+    // ÉTAPE 1: Page cockpit d'accueil
     const cockpitResponse = await fetch('https://cockpit.uness.fr/', {
       method: 'GET',
       headers: {
@@ -26,16 +26,50 @@ export async function casLogin(email: string, password: string): Promise<CasLogi
     })
     
     jar.addFromResponse(cockpitResponse)
-    const cockpitHtml = await cockpitResponse.text()
     console.log(`[AUTH] Step 1 completed: ${cockpitResponse.status}`)
     debugInfo.push({ step: 1, status: cockpitResponse.status, cookies: jar.toObject() })
 
-    // ÉTAPE 2: POST direct vers auth.uness.fr/cas/login avec l'email
-    console.log('[AUTH] Step 2: POST username to CAS')
-    const loginFormData = new URLSearchParams()
-    loginFormData.append('username', email)
+    // ÉTAPE 2: GET page CAS initiale pour récupérer lt et execution
+    console.log('[AUTH] Step 2: GET initial CAS page')
+    const initialCasResponse = await fetch('https://auth.uness.fr/cas/login', {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Accept-Language': 'fr-FR,fr;q=0.9,en;q=0.8',
+        'Cookie': jar.toString(),
+        'Referer': 'https://cockpit.uness.fr/'
+      }
+    })
+    
+    jar.addFromResponse(initialCasResponse)
+    const initialCasHtml = await initialCasResponse.text()
+    
+    // Parser les champs cachés CAS initiaux
+    const initialLtMatch = initialCasHtml.match(/name="lt" value="([^"]+)"/)
+    const initialExecutionMatch = initialCasHtml.match(/name="execution" value="([^"]+)"/)
+    
+    console.log(`[AUTH] Step 2 completed: ${initialCasResponse.status}, lt: ${!!initialLtMatch}, execution: ${!!initialExecutionMatch}`)
+    debugInfo.push({ 
+      step: 2, 
+      status: initialCasResponse.status, 
+      lt: initialLtMatch?.[1]?.substring(0, 20) + '...',
+      execution: initialExecutionMatch?.[1]?.substring(0, 20) + '...',
+      hasUsernameForm: initialCasHtml.includes('name="username"')
+    })
 
-    const casLoginResponse = await fetch('https://auth.uness.fr/cas/login', {
+    if (!initialLtMatch || !initialExecutionMatch) {
+      throw new Error(`Champs CAS initiaux manquants - lt: ${!!initialLtMatch}, execution: ${!!initialExecutionMatch}`)
+    }
+
+    // ÉTAPE 3: POST email avec les champs CAS pour aller à la page de mot de passe
+    console.log('[AUTH] Step 3: POST email to get password form')
+    const emailFormData = new URLSearchParams()
+    emailFormData.append('username', email)
+    emailFormData.append('lt', initialLtMatch[1])
+    emailFormData.append('execution', initialExecutionMatch[1])
+    emailFormData.append('_eventId', 'submit')
+
+    const emailResponse = await fetch('https://auth.uness.fr/cas/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
@@ -43,23 +77,23 @@ export async function casLogin(email: string, password: string): Promise<CasLogi
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
         'Accept-Language': 'fr-FR,fr;q=0.9,en;q=0.8',
         'Cookie': jar.toString(),
-        'Referer': 'https://cockpit.uness.fr/',
-        'Origin': 'https://cockpit.uness.fr'
+        'Referer': 'https://auth.uness.fr/cas/login',
+        'Origin': 'https://auth.uness.fr'
       },
-      body: loginFormData,
+      body: emailFormData,
       redirect: 'manual'
     })
     
-    jar.addFromResponse(casLoginResponse)
-    console.log(`[AUTH] Step 2 completed: ${casLoginResponse.status}`)
-    debugInfo.push({ step: 2, status: casLoginResponse.status, cookies: jar.toObject() })
+    jar.addFromResponse(emailResponse)
+    console.log(`[AUTH] Step 3 completed: ${emailResponse.status}`)
+    debugInfo.push({ step: 3, status: emailResponse.status })
 
-    // ÉTAPE 3: Suivre les redirections pour arriver à la page de mot de passe
-    let currentResponse = casLoginResponse
-    let currentUrl = casLoginResponse.headers.get('Location')
-    let stepCount = 3
+    // ÉTAPE 4: Suivre les redirections jusqu'à la page de mot de passe
+    let currentResponse = emailResponse
+    let currentUrl = emailResponse.headers.get('Location') || emailResponse.url
+    let stepCount = 4
     
-    while (currentUrl && stepCount < 10) {
+    while (currentUrl && currentResponse.status >= 300 && currentResponse.status < 400 && stepCount < 10) {
       console.log(`[AUTH] Step ${stepCount}: Following redirect to ${currentUrl}`)
       
       currentResponse = await fetch(currentUrl, {
@@ -84,32 +118,32 @@ export async function casLogin(email: string, password: string): Promise<CasLogi
       }
     }
 
-    // ÉTAPE 4: Parser la page finale pour les champs de mot de passe
+    // ÉTAPE 5: Parser la page finale pour les champs de mot de passe
     const finalHtml = await currentResponse.text()
     console.log(`[AUTH] Step ${stepCount}: Parsing password form`)
     
     // Chercher les champs cachés du formulaire CAS
     const ltMatch = finalHtml.match(/name="lt" value="([^"]+)"/)
     const executionMatch = finalHtml.match(/name="execution" value="([^"]+)"/)
-    const passwordFormMatch = finalHtml.match(/name="password"/)
+    const passwordFormMatch = finalHtml.includes('name="password"')
     
-    console.log(`[AUTH] Form fields found - lt: ${!!ltMatch}, execution: ${!!executionMatch}, password: ${!!passwordFormMatch}`)
+    console.log(`[AUTH] Password form fields - lt: ${!!ltMatch}, execution: ${!!executionMatch}, password: ${passwordFormMatch}`)
     debugInfo.push({ 
       step: stepCount, 
       status: currentResponse.status, 
       lt: ltMatch?.[1]?.substring(0, 20) + '...',
       execution: executionMatch?.[1]?.substring(0, 20) + '...',
-      hasPasswordForm: !!passwordFormMatch,
+      hasPasswordForm: passwordFormMatch,
       finalUrl: currentResponse.url,
       htmlPreview: finalHtml.substring(0, 500)
     })
 
     if (!ltMatch || !executionMatch || !passwordFormMatch) {
-      throw new Error(`Champs de formulaire manquants - lt: ${!!ltMatch}, execution: ${!!executionMatch}, password: ${!!passwordFormMatch}`)
+      throw new Error(`Champs de formulaire de mot de passe manquants - lt: ${!!ltMatch}, execution: ${!!executionMatch}, password: ${passwordFormMatch}`)
     }
 
-    // ÉTAPE 5: POST mot de passe
-    console.log('[AUTH] Step 5: POST password')
+    // ÉTAPE 6: POST mot de passe
+    console.log('[AUTH] Step 6: POST password')
     const passwordFormData = new URLSearchParams()
     passwordFormData.append('username', email)
     passwordFormData.append('password', password)
@@ -136,9 +170,9 @@ export async function casLogin(email: string, password: string): Promise<CasLogi
     const ticketLocation = passwordResponse.headers.get('Location')
     const hasTicket = ticketLocation?.includes('ticket=')
     
-    console.log(`[AUTH] Step 5 completed: ${passwordResponse.status}, ticket found: ${hasTicket}`)
+    console.log(`[AUTH] Step 6 completed: ${passwordResponse.status}, ticket found: ${hasTicket}`)
     debugInfo.push({ 
-      step: 5, 
+      step: 6, 
       status: passwordResponse.status, 
       hasTicket,
       location: ticketLocation?.substring(0, 100) + '...'
@@ -154,8 +188,8 @@ export async function casLogin(email: string, password: string): Promise<CasLogi
       throw new Error(`Pas de ticket CAS reçu. Status: ${passwordResponse.status}`)
     }
 
-    // ÉTAPE 6: Validation ticket avec LiSA
-    console.log('[AUTH] Step 6: Validate ticket with LiSA')
+    // ÉTAPE 7: Validation ticket avec LiSA
+    console.log('[AUTH] Step 7: Validate ticket with LiSA')
     const lisaResponse = await fetch(ticketLocation, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
@@ -187,9 +221,9 @@ export async function casLogin(email: string, password: string): Promise<CasLogi
     const lisaHtml = await finalResponse.text()
     const isAuthenticated = lisaHtml.includes('LiSA') && !lisaHtml.includes('Connexion') && !lisaHtml.includes('login')
     
-    console.log(`[AUTH] Step 6 completed: ${finalResponse.status}, authenticated: ${isAuthenticated}`)
+    console.log(`[AUTH] Step 7 completed: ${finalResponse.status}, authenticated: ${isAuthenticated}`)
     debugInfo.push({ 
-      step: 6, 
+      step: 7, 
       status: finalResponse.status, 
       isAuthenticated,
       hasLisaTitle: lisaHtml.includes('LiSA'),
