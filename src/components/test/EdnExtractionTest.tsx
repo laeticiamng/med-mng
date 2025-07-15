@@ -50,7 +50,7 @@ export const EdnExtractionTest = () => {
     try {
       toast.info("🚀 Démarrage du test d'extraction UNESS...");
       
-      const { data, error } = await supabase.functions.invoke('extract-edn-uness-complete', {
+      const { data, error } = await supabase.functions.invoke('extract-edn-uness', {
         body: {
           action: 'test',
           resumeFromItem: 1,
