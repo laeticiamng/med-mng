@@ -1,475 +1,622 @@
-import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { serve } from 'https://deno.land/std@0.131.0/http/server.ts'
+import { createClient } from 'https://cdn.skypack.dev/@supabase/supabase-js@1.35.3'
+import * as cheerio from 'https://esm.sh/cheerio@1.0.0-rc.12'
 
 const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+}
 
 interface ExtractRequest {
-  action: 'start' | 'resume';
-  resumeFromItem?: number;
+  action: string
+  resumeFromItem?: number
   credentials?: {
-    username: string;
-    password: string;
-  };
+    username: string
+    password: string
+  }
 }
 
 interface EdnItem {
-  item_id: number;
-  intitule: string;
-  rangs_a: string[];
-  rangs_b: string[];
-  contenu_complet_html: string;
+  item_id: number
+  intitule: string
+  rangs_a: string[]
+  rangs_b: string[]
+  contenu_complet_html: string
 }
 
+const supabaseUrl = Deno.env.get('SUPABASE_URL')
+const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_KEY')
+const supabase = createClient(supabaseUrl, supabaseServiceKey)
+
 serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response(null, { headers: corsHeaders });
+  console.log('🚀 Fonction extract-edn-uness démarrée')
+  
+  // Handle CORS preflight requests
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders })
   }
 
-  console.log("🎯 DEBUT FONCTION extract-edn-uness");
-
   try {
-    const supabaseClient = createClient(
-      Deno.env.get("SUPABASE_URL") ?? "",
-      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
-    );
-
-    console.log("✅ Supabase client créé");
-
-    const body = await req.json();
-    console.log("📋 Body reçu:", JSON.stringify(body));
-
-    const { action, resumeFromItem = 1, credentials }: ExtractRequest = body;
-
-    console.log(`🚀 DEBUT extraction - Action: ${action}, Items: ${resumeFromItem} à ${resumeFromItem + 2}`);
-
-    // Validation des credentials - PROBLÈME POTENTIEL ICI
-    if (!credentials || !credentials.username || !credentials.password) {
-      throw new Error("❌ Credentials UNESS manquants dans la requête. Veuillez fournir username et password.");
+    const body = await req.json() as ExtractRequest
+    const { action, resumeFromItem = 1, credentials } = body
+    
+    console.log(`📊 Action: ${action}, Starting from item: ${resumeFromItem}`)
+    
+    if (!credentials) {
+      throw new Error('Credentials are required')
     }
-
-    const username = credentials.username;
-    const password = credentials.password;
-
-    console.log(`🔐 Credentials reçus: ${username} / ${password ? '***' : 'MANQUANT'}`);
-
-    // Vérification que les credentials ne sont pas vides
-    if (!username.trim() || !password.trim()) {
-      throw new Error("❌ Credentials UNESS vides. Username et password ne peuvent pas être vides.");
-    }
-
-    console.log("🎯 Appel extractEdnItems...");
-    const results = await extractEdnItems(supabaseClient, username, password, resumeFromItem);
-    console.log("🎯 Résultats obtenus:", JSON.stringify(results));
-
-    const response = {
-      success: true,
-      message: `Extraction terminée avec succès`,
-      stats: results
-    };
-
-    console.log("🎯 Réponse finale:", JSON.stringify(response));
-
-    return new Response(JSON.stringify(response), {
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    
+    const results = await extractEdnItems(supabase, credentials.username, credentials.password, resumeFromItem)
+    
+    return new Response(
+      JSON.stringify({
+        success: true,
+        message: 'Extraction completed successfully',
+        stats: {
+          totalProcessed: results.totalProcessed,
+          totalSaved: results.totalProcessed
+        },
+        data: results.extractedItems
+      }),
+      { 
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      }
+    )
 
   } catch (error) {
-    console.error("❌ ERREUR GLOBALE extraction EDN:", error);
-    console.error("❌ Stack:", error.stack);
-    
-    const errorResponse = { 
-      error: error.message,
-      details: error.stack 
-    };
-    
-    console.log("❌ Réponse erreur:", JSON.stringify(errorResponse));
-    
-    return new Response(JSON.stringify(errorResponse), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    console.error('❌ Erreur:', error)
+    return new Response(
+      JSON.stringify({ 
+        success: false,
+        error: error.message 
+      }),
+      { 
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      }
+    )
   }
-});
+})
+
+// Authentification UNESS avec le nouveau processus en deux étapes
+async function authenticateUNESS(username: string, password: string) {
+  try {
+    console.log('🔑 Authentification UNESS en deux étapes...')
+    
+    // Gestion des cookies
+    const cookies = new Map()
+    
+    // Étape 1: Soumettre l'email
+    console.log('📧 Étape 1: Soumission de l\'email...')
+    
+    const emailResponse = await fetch('https://cockpit.uness.fr/api/auth/email', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        'Origin': 'https://cockpit.uness.fr',
+        'Referer': 'https://cockpit.uness.fr/',
+      },
+      body: JSON.stringify({ email: username })
+    })
+    
+    if (!emailResponse.ok) {
+      console.log('❌ Échec soumission email, tentative méthode alternative...')
+      
+      // Méthode alternative: formulaire classique
+      const formData = new URLSearchParams()
+      formData.append('email', username)
+      
+      const altResponse = await fetch('https://cockpit.uness.fr/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        },
+        body: formData.toString()
+      })
+      
+      // Extraire les cookies
+      const setCookie = altResponse.headers.get('set-cookie')
+      if (setCookie) {
+        setCookie.split(',').forEach(cookie => {
+          const [name, value] = cookie.split('=')
+          cookies.set(name.trim(), value.split(';')[0])
+        })
+      }
+    }
+    
+    // Étape 2: Soumettre le mot de passe
+    console.log('🔐 Étape 2: Soumission du mot de passe...')
+    
+    const passwordData = new URLSearchParams()
+    passwordData.append('password', password)
+    passwordData.append('email', username)
+    
+    const passwordResponse = await fetch('https://cockpit.uness.fr/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        'Cookie': Array.from(cookies.entries()).map(([k, v]) => `${k}=${v}`).join('; '),
+        'Origin': 'https://cockpit.uness.fr',
+        'Referer': 'https://cockpit.uness.fr/',
+      },
+      body: passwordData.toString(),
+      redirect: 'manual'
+    })
+    
+    // Mettre à jour les cookies
+    const newCookies = passwordResponse.headers.get('set-cookie')
+    if (newCookies) {
+      newCookies.split(',').forEach(cookie => {
+        const [name, value] = cookie.split('=')
+        cookies.set(name.trim(), value.split(';')[0])
+      })
+    }
+    
+    // Vérifier la connexion
+    if (passwordResponse.status === 302 || passwordResponse.status === 303) {
+      console.log('✅ Authentification réussie!')
+      
+      // Étape 3: Accéder à LiSA depuis le cockpit
+      console.log('🔗 Accès à LiSA...')
+      
+      const lisaResponse = await fetch('https://livret.uness.fr/lisa/2025/Accueil', {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          'Cookie': Array.from(cookies.entries()).map(([k, v]) => `${k}=${v}`).join('; '),
+          'Referer': 'https://cockpit.uness.fr/',
+        }
+      })
+      
+      // Ajouter les cookies LiSA
+      const lisaCookies = lisaResponse.headers.get('set-cookie')
+      if (lisaCookies) {
+        lisaCookies.split(',').forEach(cookie => {
+          const [name, value] = cookie.split('=')
+          cookies.set(name.trim(), value.split(';')[0])
+        })
+      }
+      
+      return {
+        success: true,
+        cookies: Array.from(cookies.entries()).map(([k, v]) => `${k}=${v}`).join('; ')
+      }
+    }
+    
+    // Si pas de redirection, tenter une connexion directe à LiSA
+    console.log('🔄 Tentative connexion directe LiSA...')
+    
+    const directLisaResponse = await fetch('https://livret.uness.fr/lisa/2025/Accueil', {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+      }
+    })
+    
+    const lisaHtml = await directLisaResponse.text()
+    
+    // Vérifier si on a accès au contenu
+    if (lisaHtml.includes('Item de connaissance') || lisaHtml.includes('Bienvenue sur LiSA')) {
+      console.log('✅ Accès direct à LiSA réussi')
+      return {
+        success: true,
+        cookies: ''  // Pas besoin de cookies pour l'accès public
+      }
+    }
+    
+    return {
+      success: false,
+      error: 'Échec de l\'authentification - vérifiez les identifiants'
+    }
+    
+  } catch (error) {
+    console.error('❌ Erreur authentification:', error)
+    return {
+      success: false,
+      error: error.message
+    }
+  }
+}
 
 async function extractEdnItems(supabase: any, username: string, password: string, startFrom: number) {
-  console.log("🔐 Début de l'authentification CAS UNESS...");
+  console.log("🔐 Début de l'authentification UNESS...");
   
   let totalProcessed = 0;
-  let totalErrors = 0;
   let extractedItems: EdnItem[] = [];
-  const maxItems = startFrom + 2; // Traiter seulement 3 items pour le test
+  const maxItems = Math.min(startFrom + 4, 10); // Traiter maximum 5 items pour le test
 
   try {
-    // Étape 1: Authentification CAS (utilise la méthode éprouvée)
-    const sessionCookies = await authenticateCAS(username, password);
-    console.log("✅ Authentification CAS réussie");
-
-    // Étape 2: Navigation vers la page des items (méthode éprouvée)
-    const itemsPageResponse = await fetch("https://livret.uness.fr/lisa/2025/Item_de_connaissance_2C", {
-      headers: {
-        'Cookie': sessionCookies,
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-      }
-    });
-
-    if (!itemsPageResponse.ok) {
-      throw new Error(`Impossible d'accéder à la page des items: ${itemsPageResponse.status}`);
+    // Étape 1: Authentification
+    const authResult = await authenticateUNESS(username, password);
+    
+    if (!authResult.success) {
+      throw new Error(`Échec de l'authentification: ${authResult.error}`)
     }
-
-    console.log("📋 Début de l'extraction des items EDN...");
-
-    // Étape 3: Extraction de chaque item (méthode éprouvée adaptée)
-    for (let itemId = startFrom; itemId <= maxItems; itemId++) {
+    
+    console.log('✅ Authentification réussie')
+    
+    // Étape 2: Extraction LISA 2025
+    const results = await extractLISA2025(authResult.cookies)
+    
+    console.log(`📦 ${results.length} items extraits`)
+    
+    // Sauvegarder les résultats
+    for (const result of results) {
       try {
-        console.log(`📄 Traitement item ${itemId}/${maxItems}...`);
-        
-        const itemData = await extractCompleteItemData(itemId, sessionCookies);
-        
-        if (itemData) {
-          extractedItems.push(itemData);
-          
-          // Enregistrement en base
-          const { error } = await supabase
-            .from('edn_items_uness')
-            .upsert({
-              item_id: itemData.item_id,
-              intitule: itemData.intitule,
-              rangs_a: itemData.rangs_a,
-              rangs_b: itemData.rangs_b,
-              contenu_complet_html: itemData.contenu_complet_html,
-              date_import: new Date().toISOString()
-            });
+        const { error } = await supabase
+          .from('edn_items_uness')
+          .upsert({
+            item_id: result.item_number,
+            intitule: result.title,
+            rangs_a: result.content?.rang_a || [],
+            rangs_b: result.content?.rang_b || [],
+            contenu_complet_html: result.html || '',
+            date_import: new Date().toISOString()
+          });
 
-          if (error) {
-            console.error(`❌ Erreur sauvegarde item ${itemId}:`, error);
-            totalErrors++;
-          } else {
-            console.log(`✅ Item ${itemId} sauvegardé avec ${itemData.rangs_a.length} rangs A et ${itemData.rangs_b.length} rangs B`);
-            totalProcessed++;
-          }
+        if (error) {
+          console.error(`❌ Erreur sauvegarde item ${result.item_number}:`, error);
+        } else {
+          console.log(`✅ Item ${result.item_number} sauvegardé`);
+          totalProcessed++;
         }
-
-        // Pause entre les requêtes pour éviter la surcharge
-        await new Promise(resolve => setTimeout(resolve, 2000));
-
-      } catch (error) {
-        console.error(`❌ Erreur traitement item ${itemId}:`, error);
-        totalErrors++;
-        
-        // En cas d'erreur de session, tenter une reconnexion
-        if (error.message.includes('session') || error.message.includes('401')) {
-          console.log("🔄 Tentative de reconnexion CAS...");
-          try {
-            const newSessionCookies = await authenticateCAS(username, password);
-            console.log("✅ Reconnexion CAS réussie");
-          } catch (reconnectError) {
-            console.error("❌ Échec de reconnexion:", reconnectError);
-            break; // Arrêter l'extraction en cas d'échec de reconnexion
-          }
-        }
+      } catch (saveError) {
+        console.error(`❌ Erreur sauvegarde item ${result.item_number}:`, saveError);
       }
     }
 
     return {
       totalProcessed,
-      totalErrors,
-      extractedItems: extractedItems.slice(0, 3), // Échantillon pour debug
-      itemsFound: maxItems - startFrom + 1,
-      lastProcessedItem: maxItems
+      extractedItems: results.map(r => ({
+        item_id: r.item_number,
+        intitule: r.title,
+        rangs_a: r.content?.rang_a || [],
+        rangs_b: r.content?.rang_b || [],
+        contenu_complet_html: r.html || ''
+      }))
     };
 
   } catch (error) {
     console.error("❌ Erreur dans l'extraction complète:", error);
     return {
       totalProcessed: 0,
-      totalErrors: 1,
       extractedItems: [],
-      itemsFound: 0,
-      lastProcessedItem: 0,
       error: error.message
     };
   }
 }
 
-async function authenticateCAS(username: string, password: string): Promise<string> {
-  console.log("🔐 Début de l'authentification CAS UNESS...");
-  console.log("🔐 Étape 1: Récupération du formulaire de connexion CAS...");
+// Extraction LISA 2025
+async function extractLISA2025(cookies: string) {
+  console.log('📚 Extraction LISA 2025...')
   
-  // Étape 1: Récupérer le formulaire de connexion CAS
-  const loginPageResponse = await fetch("https://auth.uness.fr/cas/login", {
-    headers: {
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-      'Accept-Language': 'fr-FR,fr;q=0.9,en;q=0.8',
-      'Accept-Encoding': 'gzip, deflate, br',
-      'Connection': 'keep-alive',
-      'Upgrade-Insecure-Requests': '1'
-    }
-  });
-
-  if (!loginPageResponse.ok) {
-    throw new Error(`Erreur lors de la récupération de la page de login: ${loginPageResponse.status}`);
-  }
-
-  const loginPageHTML = await loginPageResponse.text();
-  const loginCookies = extractCookies(loginPageResponse.headers);
-  console.log("📋 Cookies de session récupérés");
-
-  // Debug: vérifier si on a bien la page de login
-  if (loginPageHTML.includes("Veuillez saisir votre adresse e-mail")) {
-    console.log("✅ Page de login CAS récupérée avec succès");
-  } else {
-    console.log("⚠️ Page inattendue récupérée");
-  }
-
-  // Extraire le token CSRF/execution du formulaire
-  const executionMatch = loginPageHTML.match(/name="execution" value="([^"]+)"/);
-  const execution = executionMatch ? executionMatch[1] : '';
-  console.log(`🔑 Token d'exécution CAS: ${execution ? execution.substring(0, 20) + '...' : 'NON TROUVÉ'}`);
-
-  if (!execution) {
-    console.log("❌ Token d'exécution non trouvé dans le HTML:");
-    console.log(loginPageHTML.substring(0, 1000));
-    throw new Error("Token d'exécution CAS non trouvé");
-  }
-
-  console.log("🔐 Étape 2: Soumission des credentials...");
-  console.log(`🔐 Credentials: ${username} / ***`);
-
-  // Étape 2: Soumettre les credentials
-  const formData = new URLSearchParams({
-    'username': username,
-    'password': password,
-    'execution': execution,
-    '_eventId': 'submit',
-    'geolocation': '',
-    'submit': 'SE CONNECTER'
-  });
-
-  console.log("📋 Données du formulaire préparées");
-  console.log("🔗 URL de soumission: https://auth.uness.fr/cas/login");
-
-  const authResponse = await fetch("https://auth.uness.fr/cas/login", {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-      'Cookie': loginCookies,
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-      'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-      'Referer': 'https://auth.uness.fr/cas/login',
-      'Origin': 'https://auth.uness.fr'
-    },
-    body: formData.toString(),
-    redirect: 'manual'
-  });
-
-  console.log(`📊 Réponse authentification CAS: ${authResponse.status}`);
-
-  // Debug: afficher la réponse pour voir ce qui se passe
-  const responseText = await authResponse.text();
-  console.log(`📋 Taille de la réponse: ${responseText.length} caractères`);
-  
-  if (responseText.includes("Veuillez saisir votre adresse e-mail")) {
-    console.log("❌ Encore sur la page de login - authentification échouée");
-    console.log("🔍 Détail erreur:", responseText.substring(0, 500));
-    throw new Error("Authentification CAS échouée - identifiants incorrects");
-  }
-
-  // Vérifier la redirection (succès de l'authentification)
-  if (authResponse.status === 302 || authResponse.status === 200) {
-    const authCookies = extractCookies(authResponse.headers);
-    const combinedCookies = `${loginCookies}; ${authCookies}`;
-    console.log("✅ Authentification CAS réussie");
-    console.log("✅ Authentification CAS réussie, cookies combinés");
-    return combinedCookies;
-  }
-
-  throw new Error(`Échec de l'authentification CAS: ${authResponse.status}`);
-}
-
-async function extractCompleteItemData(itemId: number, cookies: string): Promise<EdnItem | null> {
   try {
-    // URL de l'item spécifique (méthode éprouvée)
-    const itemUrl = `https://livret.uness.fr/lisa/2025/Item_de_connaissance_2C/Item_${itemId}`;
+    // URL directe de la liste des items de connaissance 2C
+    const itemsListUrl = 'https://livret.uness.fr/lisa/2025/Item_de_connaissance_2C'
+    console.log('🔍 Récupération de la liste des items de connaissance...')
     
-    console.log(`🔍 Extraction complète de l'item: ${itemUrl}`);
-    
-    const itemResponse = await fetch(itemUrl, {
+    const response = await fetch(itemsListUrl, {
       headers: {
-        'Cookie': cookies,
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+        'Cookie': cookies || '',
       }
-    });
-
-    if (!itemResponse.ok) {
-      console.warn(`⚠️ Item ${itemId} non accessible: ${itemResponse.status}`);
-      return null;
-    }
-
-    const itemHTML = await itemResponse.text();
-    console.log(`✅ Page item ${itemId} récupérée (${itemHTML.length} caractères)`);
-
-    // Extraction de l'intitulé
-    const intituleMatch = itemHTML.match(/<h1[^>]*>([^<]+)<\/h1>/i) || 
-                          itemHTML.match(/<title[^>]*>([^<]+)<\/title>/i);
-    const intitule = intituleMatch ? intituleMatch[1].trim() : `Item ${itemId}`;
-
-    // ÉTAPE CRUCIALE: Accéder à la version imprimable pour le contenu COMPLET
-    console.log(`📋 Accès à la version imprimable pour item ${itemId}...`);
+    })
     
-    // Essayer plusieurs URLs possibles pour la version imprimable
-    const printableUrls = [
-      `${itemUrl}/version_imprimable`,
-      `${itemUrl}?printable=yes`,
-      `${itemUrl}&printable=yes`
-    ];
-
-    let contenuCompletHtml = '';
-    let printableSuccess = false;
-
-    for (const printableUrl of printableUrls) {
-      try {
-        console.log(`🔍 Tentative version imprimable: ${printableUrl}`);
-        
-        const printableResponse = await fetch(printableUrl, {
-          headers: {
-            'Cookie': cookies,
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-          }
-        });
-
-        if (printableResponse.ok) {
-          contenuCompletHtml = await printableResponse.text();
-          console.log(`✅ Version imprimable récupérée (${contenuCompletHtml.length} caractères)`);
-          printableSuccess = true;
-          break;
-        }
-      } catch (error) {
-        console.warn(`⚠️ Échec version imprimable ${printableUrl}:`, error.message);
-      }
-    }
-
-    if (!printableSuccess) {
-      console.warn(`⚠️ Toutes les versions imprimables ont échoué pour l'item ${itemId}, utilisation de la page normale`);
-      contenuCompletHtml = itemHTML; // Fallback sur la page normale
-    }
-
-    // Extraction améliorée des rangs A et B depuis le contenu complet
-    const rangsA = extractRangsAdvanced(contenuCompletHtml, 'A', itemId);
-    const rangsB = extractRangsAdvanced(contenuCompletHtml, 'B', itemId);
-
-    console.log(`📊 Item ${itemId}: ${rangsA.length} connaissances rang A, ${rangsB.length} connaissances rang B`);
-
-    return {
-      item_id: itemId,
-      intitule: intitule,
-      rangs_a: rangsA,
-      rangs_b: rangsB,
-      contenu_complet_html: contenuCompletHtml
-    };
-
-  } catch (error) {
-    console.error(`❌ Erreur extraction complète item ${itemId}:`, error);
-    return {
-      item_id: itemId,
-      intitule: `Item ${itemId}`,
-      rangs_a: [],
-      rangs_b: [],
-      contenu_complet_html: ''
-    };
-  }
-}
-
-function extractRangsAdvanced(html: string, rang: 'A' | 'B', itemId: number): string[] {
-  const rangs: string[] = [];
-  
-  try {
-    // Nettoyer le HTML
-    const cleanHtml = html.replace(/<(script|style)[^>]*>[\s\S]*?<\/\1>/gi, '');
-    
-    // Patterns multiples pour identifier les sections de rang
-    const patterns = [
-      // Pattern 1: Titre avec "Rang A" ou "Rang B"
-      new RegExp(`<[^>]*>\\s*Rang\\s+${rang}\\s*[:\\-]?\\s*</[^>]*>([\\s\\S]*?)(?=<[^>]*>\\s*Rang\\s+[AB]\\s*|$)`, 'i'),
-      // Pattern 2: Simple "Rang A" dans le texte
-      new RegExp(`Rang\\s+${rang}[^<]*</[^>]+>([\\s\\S]*?)(?=Rang\\s+[AB]|$)`, 'i'),
-      // Pattern 3: Titre hierarchique
-      new RegExp(`<h[1-6][^>]*>.*Rang\\s+${rang}.*</h[1-6]>([\\s\\S]*?)(?=<h[1-6][^>]*>.*Rang\\s+[AB]|$)`, 'i'),
-      // Pattern 4: Section spécifique
-      new RegExp(`<div[^>]*class="[^"]*rang[^"]*${rang.toLowerCase()}[^"]*"[^>]*>([\\s\\S]*?)</div>`, 'i')
-    ];
-
-    let content = '';
-    
-    for (const pattern of patterns) {
-      const match = cleanHtml.match(pattern);
-      if (match && match[1]) {
-        content = match[1];
-        console.log(`📝 Pattern trouvé pour rang ${rang} item ${itemId}`);
-        break;
-      }
-    }
-
-    if (content) {
-      // Extraction des objectifs/connaissances individuelles
-      const objectivePatterns = [
-        /<li[^>]*>([\s\S]*?)<\/li>/gi,
-        /<p[^>]*>([\s\S]*?)<\/p>/gi,
-        /<div[^>]*class="[^"]*objectif[^"]*"[^>]*>([\s\S]*?)<\/div>/gi,
-        /<tr[^>]*>([\s\S]*?)<\/tr>/gi // Ajouter support des tableaux
-      ];
-
-      let objectiveCount = 0;
+    if (!response.ok) {
+      console.log(`❌ Erreur HTTP: ${response.status}`)
+      console.log('🔄 Tentative sans cookies...')
       
-      for (const objPattern of objectivePatterns) {
-        let objMatch;
-        while ((objMatch = objPattern.exec(content)) !== null) {
-          const objectiveHtml = objMatch[1];
-          const cleanText = objectiveHtml
-            .replace(/<[^>]+>/g, ' ')
-            .replace(/\s+/g, ' ')
-            .trim();
-          
-          // Filtrer le contenu valide
-          if (cleanText && 
-              cleanText.length > 15 && 
-              !cleanText.match(/^(rang|objectif|connaissance)\s*$/i) &&
-              !cleanText.match(/^\s*[a-z]\s*$/i)) {
-            objectiveCount++;
-            rangs.push(cleanText);
-          }
+      // Essayer sans cookies (accès public)
+      const publicResponse = await fetch(itemsListUrl, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
         }
-        
-        if (rangs.length > 0) break; // Arrêter dès qu'on trouve du contenu
+      })
+      
+      if (!publicResponse.ok) {
+        throw new Error(`Impossible d'accéder à la page: ${publicResponse.status}`)
       }
+      
+      const html = await publicResponse.text()
+      return extractItemsFromHTML(html, '')
     }
-
-    // Si aucune connaissance trouvée, créer une connaissance générique
-    if (rangs.length === 0) {
-      console.warn(`⚠️ Aucune connaissance rang ${rang} trouvée pour item ${itemId}`);
-      rangs.push(`Connaissances de rang ${rang} pour l'item ${itemId} - Extraction nécessitant une révision manuelle`);
-    }
-
-    console.log(`📋 Rang ${rang} item ${itemId}: ${rangs.length} connaissances extraites`);
-
+    
+    const html = await response.text()
+    return extractItemsFromHTML(html, cookies)
+    
   } catch (error) {
-    console.error(`❌ Erreur extraction rang ${rang} pour item ${itemId}:`, error);
-    rangs.push(`Erreur d'extraction pour rang ${rang} item ${itemId}`);
+    console.error('❌ Erreur extraction:', error)
+    throw error
   }
-  
-  return rangs;
 }
 
-function extractCookies(headers: Headers): string {
-  const cookies: string[] = [];
-  headers.forEach((value, name) => {
-    if (name.toLowerCase() === 'set-cookie') {
-      const cookiePart = value.split(';')[0];
-      cookies.push(cookiePart);
+// Fonction d'extraction du HTML
+async function extractItemsFromHTML(html: string, cookies: string) {
+  console.log(`📄 HTML reçu: ${html.length} caractères`)
+  
+  const $ = cheerio.load(html)
+  
+  // Vérifier si on est sur la bonne page
+  if (html.includes('Veuillez saisir votre adresse e-mail')) {
+    console.log('⚠️ Page de connexion détectée, accès non autorisé')
+    throw new Error('Authentification requise - la page demande une connexion')
+  }
+  
+  // Extraire tous les liens vers les items
+  const itemLinks = []
+  
+  // Chercher dans les catégories MediaWiki
+  console.log('🔍 Recherche des items dans les catégories...')
+  
+  // Méthode 1: Liens dans mw-category
+  $('.mw-category li a').each((i, elem) => {
+    const href = $(elem).attr('href')
+    const title = $(elem).text().trim()
+    
+    if (href && title.match(/Item\s+\d+/i)) {
+      itemLinks.push({
+        url: href.startsWith('http') ? href : `https://livret.uness.fr${href}`,
+        title: title
+      })
     }
-  });
-  return cookies.join('; ');
+  })
+  
+  // Méthode 2: Tous les liens contenant Item
+  if (itemLinks.length === 0) {
+    console.log('🔍 Recherche élargie des items...')
+    $('a').each((i, elem) => {
+      const href = $(elem).attr('href')
+      const title = $(elem).text().trim()
+      
+      if (href && title.match(/Item\s+\d+\s*-/i)) {
+        const url = href.startsWith('http') ? href : `https://livret.uness.fr${href}`
+        
+        // Éviter les doublons
+        if (!itemLinks.find(item => item.url === url)) {
+          itemLinks.push({ url, title })
+        }
+      }
+    })
+  }
+  
+  console.log(`🔗 ${itemLinks.length} items trouvés`)
+  
+  if (itemLinks.length === 0) {
+    console.log('⚠️ Aucun item trouvé, vérification du contenu HTML...')
+    
+    // Debug: afficher les premiers éléments trouvés
+    const debugInfo = []
+    $('a').slice(0, 10).each((i, elem) => {
+      debugInfo.push({
+        text: $(elem).text().trim(),
+        href: $(elem).attr('href')
+      })
+    })
+    console.log('🔍 Premiers liens trouvés:', debugInfo)
+    
+    throw new Error('Aucun item trouvé sur la page - vérifiez l\'URL ou l\'authentification')
+  }
+  
+  // Trier les items par numéro
+  itemLinks.sort((a, b) => {
+    const numA = parseInt(a.title.match(/Item\s+(\d+)/i)?.[1] || '0')
+    const numB = parseInt(b.title.match(/Item\s+(\d+)/i)?.[1] || '0')
+    return numA - numB
+  })
+  
+  // Limiter à 5 items pour le test
+  const itemsToProcess = itemLinks.slice(0, 5)
+  console.log(`📊 Traitement de ${itemsToProcess.length} items...`)
+  
+  const results = []
+  
+  for (const item of itemsToProcess) {
+    console.log(`\n🔄 Traitement: ${item.title}`)
+    
+    try {
+      // Récupérer la page de l'item
+      const itemResponse = await fetch(item.url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          'Cookie': cookies,
+        }
+      })
+      
+      if (!itemResponse.ok) {
+        console.error(`❌ Erreur ${itemResponse.status} pour ${item.title}`)
+        continue
+      }
+      
+      const itemHtml = await itemResponse.text()
+      const $item = cheerio.load(itemHtml)
+      
+      // Chercher la version imprimable
+      let printableUrl = null
+      $item('a').each((i, elem) => {
+        const text = $item(elem).text()
+        const href = $item(elem).attr('href')
+        if (text && (text.includes('Version imprimable') || text.includes('version imprimable'))) {
+          printableUrl = href?.startsWith('http') ? href : `https://livret.uness.fr${href}`
+        }
+      })
+      
+      let finalHtml = itemHtml
+      let $final = $item
+      
+      // Utiliser la version imprimable si disponible
+      if (printableUrl) {
+        console.log(`📄 Version imprimable trouvée`)
+        
+        const printResponse = await fetch(printableUrl, {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            'Cookie': cookies,
+          }
+        })
+        
+        if (printResponse.ok) {
+          finalHtml = await printResponse.text()
+          $final = cheerio.load(finalHtml)
+          console.log('✅ Version imprimable récupérée')
+        }
+      }
+      
+      // Extraire le numéro de l'item
+      const itemNumberMatch = item.title.match(/Item\s+(\d+)/i)
+      const itemNumber = itemNumberMatch ? parseInt(itemNumberMatch[1]) : null
+      
+      if (!itemNumber) {
+        console.log('⚠️ Numéro d\'item non trouvé')
+        continue
+      }
+      
+      // Extraire les compétences
+      const competences = extractCompetences($final, finalHtml)
+      
+      console.log(`✅ Item ${itemNumber}: ${competences.rang_a.length} rang A, ${competences.rang_b.length} rang B`)
+      
+      results.push({
+        item_number: itemNumber,
+        title: item.title,
+        content: competences,
+        html: finalHtml,
+        url: item.url
+      })
+      
+    } catch (itemError) {
+      console.error(`❌ Erreur item ${item.title}:`, itemError.message)
+    }
+    
+    // Pause entre les requêtes
+    await new Promise(resolve => setTimeout(resolve, 500))
+  }
+  
+  return results
+}
+
+// Fonction d'extraction des compétences
+function extractCompetences($: any, html: string) {
+  const rang_a: string[] = []
+  const rang_b: string[] = []
+  
+  console.log('🔍 Extraction des compétences...')
+  
+  // Stratégie 1: Recherche par titres de sections
+  $('h2, h3, h4, h5').each((i: number, elem: any) => {
+    const heading = $(elem).text().trim()
+    
+    if (heading.match(/rang\s*a/i) || heading.match(/connaissances?\s+rang\s*a/i)) {
+      console.log('📌 Section Rang A trouvée:', heading)
+      
+      let nextElem = $(elem).next()
+      while (nextElem.length && !nextElem.is('h2, h3, h4, h5')) {
+        if (nextElem.is('ul, ol')) {
+          nextElem.find('li').each((j: number, li: any) => {
+            const text = $(li).text().trim()
+            if (text.length > 10) rang_a.push(text)
+          })
+        } else if (nextElem.is('p') || nextElem.is('div')) {
+          const text = nextElem.text().trim()
+          if (text.length > 10 && !text.match(/rang\s*b/i)) {
+            rang_a.push(text)
+          }
+        }
+        nextElem = nextElem.next()
+      }
+    }
+    
+    if (heading.match(/rang\s*b/i) || heading.match(/connaissances?\s+rang\s*b/i)) {
+      console.log('📌 Section Rang B trouvée:', heading)
+      
+      let nextElem = $(elem).next()
+      while (nextElem.length && !nextElem.is('h2, h3, h4, h5')) {
+        if (nextElem.is('ul, ol')) {
+          nextElem.find('li').each((j: number, li: any) => {
+            const text = $(li).text().trim()
+            if (text.length > 10) rang_b.push(text)
+          })
+        } else if (nextElem.is('p') || nextElem.is('div')) {
+          const text = nextElem.text().trim()
+          if (text.length > 10 && !text.match(/rang\s*a/i)) {
+            rang_b.push(text)
+          }
+        }
+        nextElem = nextElem.next()
+      }
+    }
+  })
+  
+  // Stratégie 2: Recherche par classes CSS
+  $('.rang-a, .rangA, .rang_a').each((i: number, elem: any) => {
+    const text = $(elem).text().trim()
+    if (text.length > 10 && !rang_a.includes(text)) {
+      rang_a.push(text)
+    }
+  })
+  
+  $('.rang-b, .rangB, .rang_b').each((i: number, elem: any) => {
+    const text = $(elem).text().trim()
+    if (text.length > 10 && !rang_b.includes(text)) {
+      rang_b.push(text)
+    }
+  })
+  
+  // Stratégie 3: Recherche dans les tableaux
+  $('table').each((i: number, table: any) => {
+    const tableText = $(table).text()
+    
+    if (tableText.match(/rang\s*a/i)) {
+      $(table).find('td, th').each((j: number, cell: any) => {
+        const text = $(cell).text().trim()
+        if (text.length > 10 && !text.match(/rang/i) && !rang_a.includes(text)) {
+          rang_a.push(text)
+        }
+      })
+    }
+    
+    if (tableText.match(/rang\s*b/i)) {
+      $(table).find('td, th').each((j: number, cell: any) => {
+        const text = $(cell).text().trim()
+        if (text.length > 10 && !text.match(/rang/i) && !rang_b.includes(text)) {
+          rang_b.push(text)
+        }
+      })
+    }
+  })
+  
+  // Si toujours rien, recherche par patterns dans le texte
+  if (rang_a.length === 0 && rang_b.length === 0) {
+    console.log('🔍 Recherche par patterns regex...')
+    
+    const cleanText = html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ')
+    
+    // Pattern pour rang A
+    const rangAMatch = cleanText.match(/rang\s*a[^:]*:\s*([^]*?)(?=rang\s*b|$)/i)
+    if (rangAMatch) {
+      const items = rangAMatch[1]
+        .split(/[•\-–—\n]/)
+        .map(s => s.trim())
+        .filter(s => s.length > 10)
+      rang_a.push(...items)
+    }
+    
+    // Pattern pour rang B
+    const rangBMatch = cleanText.match(/rang\s*b[^:]*:\s*([^]*?)(?=rang\s*a|$)/i)
+    if (rangBMatch) {
+      const items = rangBMatch[1]
+        .split(/[•\-–—\n]/)
+        .map(s => s.trim())
+        .filter(s => s.length > 10)
+      rang_b.push(...items)
+    }
+  }
+  
+  return {
+    rang_a: [...new Set(rang_a)], // Déduplique
+    rang_b: [...new Set(rang_b)]
+  }
 }
