@@ -86,8 +86,8 @@ serve(async (req) => {
       'Accept': 'application/json'
     };
 
-    // Endpoint officiel SunoAPI
-    const apiUrl = 'https://api.sunoapi.org/api/v1/generate';
+    // Endpoint corrigé SunoAPI
+    const apiUrl = 'https://apibox.erweima.ai/api/v1/suno/music';
     
     const generateResponse = await fetch(apiUrl, {
       method: 'POST',
@@ -231,8 +231,8 @@ async function pollForAudio(taskId: string, apiKey: string, rang: string, style:
     await new Promise(resolve => setTimeout(resolve, 6000)); // 6 secondes
     
     try {
-      // Utiliser l'endpoint de détails de SunoAPI
-      const detailsUrl = `https://api.sunoapi.org/api/v1/music/${taskId}`;
+      // Utiliser l'endpoint de détails corrigé
+      const detailsUrl = `https://apibox.erweima.ai/api/v1/suno/query?ids=${taskId}`;
       const detailsResponse = await fetch(detailsUrl, {
         method: 'GET',
         headers: {
