@@ -53,3 +53,9 @@ verify_jwt = false
 
 [functions.debug-uness-auth]
 verify_jwt = false
+
+[functions.extract-edn-uness-production]
+verify_jwt = false
+
+[functions.test-login]
+verify_jwt = false
