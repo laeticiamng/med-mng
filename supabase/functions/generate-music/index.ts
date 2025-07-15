@@ -66,14 +66,12 @@ serve(async (req) => {
     const truncatedStyle = style.substring(0, 200);
     const truncatedPrompt = lyrics.substring(0, 3000);
 
-    // Payload pour l'API SunoAPI officielle
+    // Payload pour l'API Suno corrigée
     const sunoPayload = {
-      customMode: true,
-      instrumental: false,
       prompt: truncatedPrompt,
-      style: truncatedStyle,
-      title: truncatedTitle,
-      model_name: "chirp-v3-5"
+      model: "chirp-v3-5",
+      make_instrumental: false,
+      wait_audio: false
     };
 
     console.log('🚀 Génération avec SunoAPI officielle');
