@@ -16,25 +16,13 @@ interface ExtractRequest {
   };
 }
 
-interface Connaissance {
-  id: string;
-  titre: string;
-  contenu: string;
-  rang: 'A' | 'B';
-  item_parent: string;
-}
-
-interface EdnItemComplete {
+interface EdnItem {
   item_id: number;
-  item_title: string;
-  item_url: string;
-  connaissances: {
-    rang_A: Connaissance[];
-    rang_B: Connaissance[];
-  };
-  contenu_html_complet: string;
+  intitule: string;
+  rangs_a: string[];
+  rangs_b: string[];
+  contenu_complet_html: string;
   extraction_status: 'success' | 'partial' | 'failed';
-  extraction_errors: string[];
 }
 
 serve(async (req) => {
@@ -48,7 +36,7 @@ serve(async (req) => {
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    const { action, resumeFromItem = 1, maxItems = 5, credentials }: ExtractRequest = await req.json();
+    const { action, resumeFromItem = 1, maxItems = 3, credentials }: ExtractRequest = await req.json();
 
     console.log(`🚀 Starting EDN COMPLETE extraction - Action: ${action}, Items: ${resumeFromItem} to ${resumeFromItem + maxItems - 1}`);
 
@@ -87,64 +75,48 @@ async function extractCompleteEdnItems(supabase: any, username: string, password
   
   let totalProcessed = 0;
   let totalErrors = 0;
-  let extractedItems: EdnItemComplete[] = [];
+  let extractedItems: EdnItem[] = [];
 
   try {
-    // Étape 1: Authentification CAS
+    // Étape 1: Authentification CAS (utilise la méthode éprouvée)
     const sessionCookies = await authenticateCAS(username, password);
     console.log("✅ Authentification CAS réussie");
 
-    // Étape 2: Accéder à la liste des items
-    console.log("📋 Accès à la liste des items EDN...");
-    const itemsListUrl = "https://livret.uness.fr/lisa/2025/Item_de_connaissance_2C";
-    
-    const itemsResponse = await fetch(itemsListUrl, {
+    // Étape 2: Navigation vers la page des items (méthode éprouvée)
+    const itemsPageResponse = await fetch("https://livret.uness.fr/lisa/2025/Item_de_connaissance_2C", {
       headers: {
         'Cookie': sessionCookies,
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
       }
     });
 
-    if (!itemsResponse.ok) {
-      throw new Error(`Impossible d'accéder à la liste des items: ${itemsResponse.status}`);
+    if (!itemsPageResponse.ok) {
+      throw new Error(`Impossible d'accéder à la page des items: ${itemsPageResponse.status}`);
     }
 
-    const itemsListHtml = await itemsResponse.text();
-    console.log(`✅ Liste des items récupérée (${itemsListHtml.length} caractères)`);
+    console.log("📋 Début de l'extraction des items EDN...");
 
-    // Étape 3: Extraire les liens vers chaque item
-    const itemLinks = extractItemLinks(itemsListHtml);
-    console.log(`📊 ${itemLinks.length} liens d'items trouvés`);
-
-    if (itemLinks.length === 0) {
-      console.error("❌ Aucun lien d'item trouvé dans la page");
-      throw new Error("Aucun item trouvé dans la liste");
-    }
-
-    // Étape 4: Traiter chaque item individuellement
-    const endItem = Math.min(startFrom + maxItems - 1, itemLinks.length);
+    // Étape 3: Extraction de chaque item (méthode éprouvée adaptée)
+    const endItem = startFrom + maxItems - 1;
     
-    for (let i = startFrom - 1; i < endItem; i++) {
-      const itemLink = itemLinks[i];
-      const itemId = i + 1;
-      
+    for (let itemId = startFrom; itemId <= endItem; itemId++) {
       try {
-        console.log(`\n📄 Traitement item ${itemId}/${itemLinks.length}: ${itemLink.title}`);
+        console.log(`📄 Traitement item ${itemId}/${endItem}...`);
         
-        const itemData = await extractCompleteItemData(itemLink, sessionCookies, itemId);
+        const itemData = await extractCompleteItemData(itemId, sessionCookies);
         
         if (itemData) {
           extractedItems.push(itemData);
           
-          // Sauvegarde en base avec structure complète
+          // Enregistrement en base
           const { error } = await supabase
             .from('edn_items_uness')
             .upsert({
               item_id: itemData.item_id,
-              intitule: itemData.item_title,
-              rangs_a: itemData.connaissances.rang_A.map(c => c.contenu),
-              rangs_b: itemData.connaissances.rang_B.map(c => c.contenu),
-              contenu_complet_html: itemData.contenu_html_complet,
+              intitule: itemData.intitule,
+              rangs_a: itemData.rangs_a,
+              rangs_b: itemData.rangs_b,
+              contenu_complet_html: itemData.contenu_complet_html,
               date_import: new Date().toISOString()
             });
 
@@ -152,17 +124,29 @@ async function extractCompleteEdnItems(supabase: any, username: string, password
             console.error(`❌ Erreur sauvegarde item ${itemId}:`, error);
             totalErrors++;
           } else {
-            console.log(`✅ Item ${itemId} sauvegardé avec ${itemData.connaissances.rang_A.length} connaissances rang A et ${itemData.connaissances.rang_B.length} connaissances rang B`);
+            console.log(`✅ Item ${itemId} sauvegardé avec ${itemData.rangs_a.length} rangs A et ${itemData.rangs_b.length} rangs B`);
             totalProcessed++;
           }
         }
 
-        // Pause entre les requêtes
+        // Pause entre les requêtes pour éviter la surcharge
         await new Promise(resolve => setTimeout(resolve, 2000));
 
       } catch (error) {
         console.error(`❌ Erreur traitement item ${itemId}:`, error);
         totalErrors++;
+        
+        // En cas d'erreur de session, tenter une reconnexion
+        if (error.message.includes('session') || error.message.includes('401')) {
+          console.log("🔄 Tentative de reconnexion CAS...");
+          try {
+            const newSessionCookies = await authenticateCAS(username, password);
+            console.log("✅ Reconnexion CAS réussie");
+          } catch (reconnectError) {
+            console.error("❌ Échec de reconnexion:", reconnectError);
+            break; // Arrêter l'extraction en cas d'échec de reconnexion
+          }
+        }
       }
     }
 
@@ -170,7 +154,7 @@ async function extractCompleteEdnItems(supabase: any, username: string, password
       totalProcessed,
       totalErrors,
       extractedItems: extractedItems.slice(0, 3), // Échantillon pour debug
-      itemsFound: itemLinks.length,
+      itemsFound: endItem - startFrom + 1,
       lastProcessedItem: endItem
     };
 
@@ -234,37 +218,14 @@ async function authenticateCAS(username: string, password: string): Promise<stri
   throw new Error(`Échec de l'authentification CAS: ${authResponse.status}`);
 }
 
-function extractItemLinks(html: string): Array<{title: string, url: string}> {
-  const links: Array<{title: string, url: string}> = [];
-  
-  // Pattern pour extraire les liens vers les items
-  const linkPattern = /<a[^>]+href="([^"]*Item_de_connaissance_2C[^"]*)"[^>]*>([^<]+)<\/a>/gi;
-  let match;
-  
-  while ((match = linkPattern.exec(html)) !== null) {
-    const url = match[1];
-    const title = match[2].trim();
-    
-    // Construire l'URL complète si nécessaire
-    const fullUrl = url.startsWith('http') ? url : `https://livret.uness.fr${url}`;
-    
-    // Éviter les doublons
-    if (!links.some(link => link.url === fullUrl)) {
-      links.push({ title, url: fullUrl });
-    }
-  }
-  
-  return links;
-}
-
-async function extractCompleteItemData(itemLink: {title: string, url: string}, cookies: string, itemId: number): Promise<EdnItemComplete | null> {
-  const errors: string[] = [];
-  
+async function extractCompleteItemData(itemId: number, cookies: string): Promise<EdnItem | null> {
   try {
-    console.log(`🔍 Accès à la page de l'item: ${itemLink.url}`);
+    // URL de l'item spécifique (méthode éprouvée)
+    const itemUrl = `https://livret.uness.fr/lisa/2025/Item_de_connaissance_2C/Item_${itemId}`;
     
-    // Étape 1: Récupérer la page de l'item
-    const itemResponse = await fetch(itemLink.url, {
+    console.log(`🔍 Extraction complète de l'item: ${itemUrl}`);
+    
+    const itemResponse = await fetch(itemUrl, {
       headers: {
         'Cookie': cookies,
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
@@ -272,92 +233,103 @@ async function extractCompleteItemData(itemLink: {title: string, url: string}, c
     });
 
     if (!itemResponse.ok) {
-      errors.push(`Page item non accessible: ${itemResponse.status}`);
+      console.warn(`⚠️ Item ${itemId} non accessible: ${itemResponse.status}`);
       return null;
     }
 
-    const itemHtml = await itemResponse.text();
+    const itemHTML = await itemResponse.text();
+    console.log(`✅ Page item ${itemId} récupérée (${itemHTML.length} caractères)`);
+
+    // Extraction de l'intitulé
+    const intituleMatch = itemHTML.match(/<h1[^>]*>([^<]+)<\/h1>/i) || 
+                          itemHTML.match(/<title[^>]*>([^<]+)<\/title>/i);
+    const intitule = intituleMatch ? intituleMatch[1].trim() : `Item ${itemId}`;
+
+    // ÉTAPE CRUCIALE: Accéder à la version imprimable pour le contenu COMPLET
+    console.log(`📋 Accès à la version imprimable pour item ${itemId}...`);
     
-    // Étape 2: Chercher le lien vers la version imprimable
-    const printableLinkMatch = itemHtml.match(/href="([^"]*printable[^"]*)"/i) || 
-                               itemHtml.match(/href="([^"]*version[_\s]*imprimable[^"]*)"/i);
-    
-    let printableUrl = '';
-    if (printableLinkMatch) {
-      printableUrl = printableLinkMatch[1];
-      if (!printableUrl.startsWith('http')) {
-        printableUrl = `https://livret.uness.fr${printableUrl}`;
+    // Essayer plusieurs URLs possibles pour la version imprimable
+    const printableUrls = [
+      `${itemUrl}/version_imprimable`,
+      `${itemUrl}?printable=yes`,
+      `${itemUrl}&printable=yes`
+    ];
+
+    let contenuCompletHtml = '';
+    let printableSuccess = false;
+
+    for (const printableUrl of printableUrls) {
+      try {
+        console.log(`🔍 Tentative version imprimable: ${printableUrl}`);
+        
+        const printableResponse = await fetch(printableUrl, {
+          headers: {
+            'Cookie': cookies,
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+          }
+        });
+
+        if (printableResponse.ok) {
+          contenuCompletHtml = await printableResponse.text();
+          console.log(`✅ Version imprimable récupérée (${contenuCompletHtml.length} caractères)`);
+          printableSuccess = true;
+          break;
+        }
+      } catch (error) {
+        console.warn(`⚠️ Échec version imprimable ${printableUrl}:`, error.message);
       }
-    } else {
-      // Construire l'URL de la version imprimable manuellement
-      printableUrl = `${itemLink.url}?printable=yes`;
     }
 
-    console.log(`📋 Accès à la version imprimable: ${printableUrl}`);
-
-    // Étape 3: Récupérer la version imprimable (contenu complet)
-    const printableResponse = await fetch(printableUrl, {
-      headers: {
-        'Cookie': cookies,
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-      }
-    });
-
-    let contentHtml = '';
-    if (printableResponse.ok) {
-      contentHtml = await printableResponse.text();
-      console.log(`✅ Version imprimable récupérée (${contentHtml.length} caractères)`);
-    } else {
-      errors.push(`Version imprimable non accessible: ${printableResponse.status}`);
-      contentHtml = itemHtml; // Fallback
+    if (!printableSuccess) {
+      console.warn(`⚠️ Toutes les versions imprimables ont échoué pour l'item ${itemId}, utilisation de la page normale`);
+      contenuCompletHtml = itemHTML; // Fallback sur la page normale
     }
 
-    // Étape 4: Parser le contenu pour extraire les connaissances par rang
-    const connaissancesRangA = extractConnaissancesByRang(contentHtml, 'A', itemId);
-    const connaissancesRangB = extractConnaissancesByRang(contentHtml, 'B', itemId);
+    // Extraction améliorée des rangs A et B depuis le contenu complet
+    const rangsA = extractRangsAdvanced(contenuCompletHtml, 'A', itemId);
+    const rangsB = extractRangsAdvanced(contenuCompletHtml, 'B', itemId);
 
-    console.log(`📊 Extraction terminée: ${connaissancesRangA.length} connaissances rang A, ${connaissancesRangB.length} connaissances rang B`);
+    console.log(`📊 Item ${itemId}: ${rangsA.length} connaissances rang A, ${rangsB.length} connaissances rang B`);
 
     return {
       item_id: itemId,
-      item_title: itemLink.title,
-      item_url: itemLink.url,
-      connaissances: {
-        rang_A: connaissancesRangA,
-        rang_B: connaissancesRangB
-      },
-      contenu_html_complet: contentHtml,
-      extraction_status: errors.length > 0 ? 'partial' : 'success',
-      extraction_errors: errors
+      intitule: intitule,
+      rangs_a: rangsA,
+      rangs_b: rangsB,
+      contenu_complet_html: contenuCompletHtml,
+      extraction_status: (rangsA.length > 0 || rangsB.length > 0) ? 'success' : 'partial'
     };
 
   } catch (error) {
-    console.error(`❌ Erreur extraction item ${itemId}:`, error);
-    errors.push(error.message);
+    console.error(`❌ Erreur extraction complète item ${itemId}:`, error);
     return {
       item_id: itemId,
-      item_title: itemLink.title,
-      item_url: itemLink.url,
-      connaissances: { rang_A: [], rang_B: [] },
-      contenu_html_complet: '',
-      extraction_status: 'failed',
-      extraction_errors: errors
+      intitule: `Item ${itemId}`,
+      rangs_a: [],
+      rangs_b: [],
+      contenu_complet_html: '',
+      extraction_status: 'failed'
     };
   }
 }
 
-function extractConnaissancesByRang(html: string, rang: 'A' | 'B', itemId: number): Connaissance[] {
-  const connaissances: Connaissance[] = [];
+function extractRangsAdvanced(html: string, rang: 'A' | 'B', itemId: number): string[] {
+  const rangs: string[] = [];
   
   try {
-    // Nettoyer le HTML et supprimer les balises de script/style
+    // Nettoyer le HTML
     const cleanHtml = html.replace(/<(script|style)[^>]*>[\s\S]*?<\/\1>/gi, '');
     
     // Patterns multiples pour identifier les sections de rang
     const patterns = [
+      // Pattern 1: Titre avec "Rang A" ou "Rang B"
       new RegExp(`<[^>]*>\\s*Rang\\s+${rang}\\s*[:\\-]?\\s*</[^>]*>([\\s\\S]*?)(?=<[^>]*>\\s*Rang\\s+[AB]\\s*|$)`, 'i'),
+      // Pattern 2: Simple "Rang A" dans le texte
       new RegExp(`Rang\\s+${rang}[^<]*</[^>]+>([\\s\\S]*?)(?=Rang\\s+[AB]|$)`, 'i'),
-      new RegExp(`<h[1-6][^>]*>.*Rang\\s+${rang}.*</h[1-6]>([\\s\\S]*?)(?=<h[1-6][^>]*>.*Rang\\s+[AB]|$)`, 'i')
+      // Pattern 3: Titre hierarchique
+      new RegExp(`<h[1-6][^>]*>.*Rang\\s+${rang}.*</h[1-6]>([\\s\\S]*?)(?=<h[1-6][^>]*>.*Rang\\s+[AB]|$)`, 'i'),
+      // Pattern 4: Section spécifique
+      new RegExp(`<div[^>]*class="[^"]*rang[^"]*${rang.toLowerCase()}[^"]*"[^>]*>([\\s\\S]*?)</div>`, 'i')
     ];
 
     let content = '';
@@ -366,16 +338,18 @@ function extractConnaissancesByRang(html: string, rang: 'A' | 'B', itemId: numbe
       const match = cleanHtml.match(pattern);
       if (match && match[1]) {
         content = match[1];
+        console.log(`📝 Pattern trouvé pour rang ${rang} item ${itemId}`);
         break;
       }
     }
 
     if (content) {
-      // Extraire les objectifs/connaissances individuelles
+      // Extraction des objectifs/connaissances individuelles
       const objectivePatterns = [
         /<li[^>]*>([\s\S]*?)<\/li>/gi,
         /<p[^>]*>([\s\S]*?)<\/p>/gi,
-        /<div[^>]*class="[^"]*objectif[^"]*"[^>]*>([\s\S]*?)<\/div>/gi
+        /<div[^>]*class="[^"]*objectif[^"]*"[^>]*>([\s\S]*?)<\/div>/gi,
+        /<tr[^>]*>([\s\S]*?)<\/tr>/gi // Ajouter support des tableaux
       ];
 
       let objectiveCount = 0;
@@ -389,39 +363,34 @@ function extractConnaissancesByRang(html: string, rang: 'A' | 'B', itemId: numbe
             .replace(/\s+/g, ' ')
             .trim();
           
-          if (cleanText && cleanText.length > 10) {
+          // Filtrer le contenu valide
+          if (cleanText && 
+              cleanText.length > 15 && 
+              !cleanText.match(/^(rang|objectif|connaissance)\s*$/i) &&
+              !cleanText.match(/^\s*[a-z]\s*$/i)) {
             objectiveCount++;
-            connaissances.push({
-              id: `IC-${itemId}-${objectiveCount.toString().padStart(2, '0')}-${rang}`,
-              titre: `Objectif ${objectiveCount} - Rang ${rang}`,
-              contenu: cleanText,
-              rang: rang,
-              item_parent: `IC-${itemId}`
-            });
+            rangs.push(cleanText);
           }
         }
         
-        if (connaissances.length > 0) break;
+        if (rangs.length > 0) break; // Arrêter dès qu'on trouve du contenu
       }
     }
 
-    // Si aucune connaissance trouvée avec les patterns, créer une connaissance générique
-    if (connaissances.length === 0) {
-      console.warn(`⚠️ Aucune connaissance rang ${rang} trouvée pour item ${itemId}, création d'une connaissance générique`);
-      connaissances.push({
-        id: `IC-${itemId}-01-${rang}`,
-        titre: `Connaissance générale Rang ${rang}`,
-        contenu: `Connaissances de rang ${rang} pour l'item ${itemId} - contenu à extraire manuellement`,
-        rang: rang,
-        item_parent: `IC-${itemId}`
-      });
+    // Si aucune connaissance trouvée, créer une connaissance générique
+    if (rangs.length === 0) {
+      console.warn(`⚠️ Aucune connaissance rang ${rang} trouvée pour item ${itemId}`);
+      rangs.push(`Connaissances de rang ${rang} pour l'item ${itemId} - Extraction nécessitant une révision manuelle`);
     }
+
+    console.log(`📋 Rang ${rang} item ${itemId}: ${rangs.length} connaissances extraites`);
 
   } catch (error) {
     console.error(`❌ Erreur extraction rang ${rang} pour item ${itemId}:`, error);
+    rangs.push(`Erreur d'extraction pour rang ${rang} item ${itemId}`);
   }
   
-  return connaissances;
+  return rangs;
 }
 
 function extractCookies(headers: Headers): string {
