@@ -34,7 +34,7 @@ export async function casLogin(email: string, password: string): Promise<CasLogi
     const emailFormData = new URLSearchParams()
     emailFormData.append('email', email)
 
-    const emailResponse = await fetch('https://cockpit.uness.fr/', {
+    const emailResponse = await fetch('https://cockpit.uness.fr/login/email', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
