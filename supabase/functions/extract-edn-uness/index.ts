@@ -451,7 +451,7 @@ async function extractCompletEdnItems(
           const extractedItem = await extractSingleItem(item, authResult.cookies!)
           
           if (extractedItem) {
-            // Sauvegarder en base
+            // Sauvegarder en base avec gestion des conflits
             const { error } = await supabase
               .from('edn_items_uness')
               .upsert({
@@ -461,6 +461,9 @@ async function extractCompletEdnItems(
                 rangs_a: extractedItem.rangs_a,
                 rangs_b: extractedItem.rangs_b,
                 date_import: extractedItem.date_import
+              }, {
+                onConflict: 'item_id',
+                ignoreDuplicates: false
               })
             
             if (error) {
