@@ -195,7 +195,7 @@ async function authenticateUNESS(username: string, password: string, existingSes
     const form = $('form').first()
     
     const emailFormData = new URLSearchParams()
-    emailFormData.append('username', username) // Souvent 'username' plutôt que 'email'
+    emailFormData.append('username', username) // Le champ username pour l'email
     
     // Ajouter tous les champs cachés du formulaire
     form.find('input[type="hidden"]').each((_, element) => {
@@ -203,9 +203,11 @@ async function authenticateUNESS(username: string, password: string, existingSes
       const value = $(element).attr('value')
       if (name && value) {
         emailFormData.append(name, value)
-        console.log(`🔑 Champ caché ajouté: ${name}`)
+        console.log(`🔑 Champ caché ajouté: ${name}=${value}`)
       }
     })
+    
+    console.log('📋 Données envoyées pour l\'email:', emailFormData.toString())
     
     const emailResponse = await fetch('https://cockpit.uness.fr/cas/login', {
       method: 'POST',
@@ -272,13 +274,28 @@ async function authenticateUNESS(username: string, password: string, existingSes
     
     // ÉTAPE 4: Vérifier l'authentification et accéder à LiSA
     const passwordHtml = await passwordResponse.text()
+    console.log(`📋 Taille réponse mot de passe: ${passwordHtml.length} caractères`)
+    
+    // Debug: vérifier le contenu de la réponse
+    if (passwordHtml.includes('Identifiants incorrects')) {
+      console.log('❌ Identifiants incorrects détectés')
+    }
+    if (passwordHtml.includes('Authentication failed')) {
+      console.log('❌ Authentication failed détecté')
+    }
+    if (passwordHtml.includes('Veuillez saisir')) {
+      console.log('❌ Demande de saisie détectée - échec authentification')
+    }
+    if (passwordHtml.includes('mot de passe')) {
+      console.log('⚠️ Toujours sur page mot de passe')
+    }
     
     // Vérifier si l'authentification a réussi (pas de message d'erreur)
     if (!passwordHtml.includes('Identifiants incorrects') && 
         !passwordHtml.includes('Authentication failed') &&
         !passwordHtml.includes('Veuillez saisir')) {
       
-      console.log('✅ Authentification réussie - Test accès LiSA...')
+      console.log('✅ Authentification semble réussie - Test accès LiSA...')
       
       const lisaAccess = await followRedirectionToLisa(cookies, USER_AGENT)
       
