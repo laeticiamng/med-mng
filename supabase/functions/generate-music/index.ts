@@ -66,26 +66,26 @@ serve(async (req) => {
     const truncatedStyle = style.substring(0, 200);
     const truncatedPrompt = lyrics.substring(0, 3000);
 
-    // Payload pour l'API Suno corrigée
+    // Payload pour l'API Suno officielle
     const sunoPayload = {
       prompt: truncatedPrompt,
-      model: "chirp-v3-5",
+      tags: truncatedStyle,
+      title: truncatedTitle,
       make_instrumental: false,
       wait_audio: false
     };
 
-    console.log('🚀 Génération avec SunoAPI officielle');
+    console.log('🚀 Génération avec API Suno officielle');
     console.log('📤 Payload:', JSON.stringify(sunoPayload, null, 2));
 
-    // Headers pour l'API SunoAPI
+    // Headers pour l'API Suno officielle
     const apiHeaders = {
       'Authorization': `Bearer ${SUNO_API_KEY}`,
-      'Content-Type': 'application/json',
-      'Accept': 'application/json'
+      'Content-Type': 'application/json'
     };
 
-    // Endpoint corrigé SunoAPI
-    const apiUrl = 'https://apibox.erweima.ai/api/v1/suno/music';
+    // Endpoint API Suno officielle
+    const apiUrl = 'https://studio-api.suno.ai/api/generate/v2/';
     
     const generateResponse = await fetch(apiUrl, {
       method: 'POST',
@@ -176,16 +176,16 @@ serve(async (req) => {
 
     console.log('✅ Données parsées:', JSON.stringify(generateData, null, 2));
 
-    // Vérifier le succès de la génération selon la structure SunoAPI
-    if (generateData.code === 200 && generateData.data && generateData.data.task_id) {
-      const taskId = generateData.data.task_id;
-      console.log(`🔄 Tâche créée avec succès, task_id: ${taskId}`);
+    // Vérifier le succès de la génération selon la structure API Suno officielle
+    if (generateData.clips && Array.isArray(generateData.clips)) {
+      const clips = generateData.clips;
+      console.log(`🔄 Génération créée avec succès, ${clips.length} clips`);
       
       // Commencer le polling pour récupérer l'audio généré
-      return await pollForAudio(taskId, SUNO_API_KEY, rang, style, truncatedTitle);
+      return await pollForAudio(clips, SUNO_API_KEY, rang, style, truncatedTitle);
     }
 
-    // Si pas de task_id, erreur
+    // Si pas de clips, erreur
     return new Response(
       JSON.stringify({ 
         error: 'Échec de création de la tâche de génération',
@@ -217,10 +217,11 @@ serve(async (req) => {
   }
 });
 
-async function pollForAudio(taskId: string, apiKey: string, rang: string, style: string, title: string) {
-  console.log(`🔄 Polling pour task_id: ${taskId}`);
+async function pollForAudio(clips: any[], apiKey: string, rang: string, style: string, title: string) {
+  console.log(`🔄 Polling pour ${clips.length} clips`);
   
   const maxAttempts = 20; // 2 minutes max (6s * 20)
+  const clipIds = clips.map(clip => clip.id);
   
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     console.log(`🔄 Tentative ${attempt}/${maxAttempts}`);
@@ -229,8 +230,8 @@ async function pollForAudio(taskId: string, apiKey: string, rang: string, style:
     await new Promise(resolve => setTimeout(resolve, 6000)); // 6 secondes
     
     try {
-      // Utiliser l'endpoint de détails corrigé
-      const detailsUrl = `https://apibox.erweima.ai/api/v1/suno/query?ids=${taskId}`;
+      // Utiliser l'endpoint de l'API Suno officielle
+      const detailsUrl = `https://studio-api.suno.ai/api/feed/?ids=${clipIds.join(',')}`;
       const detailsResponse = await fetch(detailsUrl, {
         method: 'GET',
         headers: {
@@ -243,31 +244,30 @@ async function pollForAudio(taskId: string, apiKey: string, rang: string, style:
         const detailsData = await detailsResponse.json();
         console.log(`📥 Détails tentative ${attempt}:`, JSON.stringify(detailsData, null, 2));
         
-        if (detailsData.code === 200 && detailsData.data && Array.isArray(detailsData.data)) {
-          // Chercher une piste avec audio_url
-          const completedTrack = detailsData.data.find(track => 
-            track.audio_url && track.audio_url.trim() !== ''
+        if (Array.isArray(detailsData)) {
+          // Chercher un clip avec audio_url
+          const completedClip = detailsData.find(clip => 
+            clip.audio_url && clip.audio_url.trim() !== '' && clip.status === 'complete'
           );
           
-          if (completedTrack) {
+          if (completedClip) {
             console.log(`✅ Audio généré avec succès après ${attempt} tentatives!`);
-            console.log(`🎧 URL audio: ${completedTrack.audio_url}`);
+            console.log(`🎧 URL audio: ${completedClip.audio_url}`);
             
             return new Response(
               JSON.stringify({ 
-                audioUrl: completedTrack.audio_url,
-                streamUrl: completedTrack.stream_audio_url || completedTrack.audio_url,
-                imageUrl: completedTrack.image_url,
+                audioUrl: completedClip.audio_url,
                 status: 'success',
-                taskId: taskId,
-                trackId: completedTrack.id,
+                trackId: completedClip.id,
                 rang: rang,
                 style: style,
                 title: title,
-                duration: completedTrack.duration,
-                provider: 'sunoapi',
+                duration: completedClip.duration,
+                provider: 'suno',
                 attempts: attempt,
-                model: completedTrack.model_name || 'chirp-v3-5'
+                model: completedClip.model_name || 'chirp-v3-5',
+                image_url: completedClip.image_url,
+                lyric: completedClip.lyric
               }),
               { 
                 headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -276,6 +276,11 @@ async function pollForAudio(taskId: string, apiKey: string, rang: string, style:
             );
           } else {
             console.log(`⏳ Audio pas encore prêt (tentative ${attempt})`);
+            // Vérifier si des clips sont en erreur
+            const errorClips = detailsData.filter(clip => clip.status === 'error');
+            if (errorClips.length > 0) {
+              console.log(`❌ Clips en erreur:`, errorClips);
+            }
           }
         }
       } else {
@@ -293,7 +298,7 @@ async function pollForAudio(taskId: string, apiKey: string, rang: string, style:
       error: 'Délai d\'attente dépassé - La génération prend plus de temps que prévu',
       status: 'error',
       error_code: 408,
-      taskId: taskId,
+      clipIds: clipIds,
       message: 'Vérifiez le statut de votre tâche plus tard'
     }),
     { 
