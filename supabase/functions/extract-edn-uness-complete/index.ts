@@ -30,40 +30,61 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  console.log("🎯 DEBUT FONCTION extract-edn-uness-complete");
+
   try {
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    const { action, resumeFromItem = 1, maxItems = 3, credentials }: ExtractRequest = await req.json();
+    console.log("✅ Supabase client créé");
 
-    console.log(`🚀 Starting EDN COMPLETE extraction - Action: ${action}, Items: ${resumeFromItem} to ${resumeFromItem + maxItems - 1}`);
+    const body = await req.json();
+    console.log("📋 Body reçu:", JSON.stringify(body));
+
+    const { action, resumeFromItem = 1, maxItems = 3, credentials }: ExtractRequest = body;
+
+    console.log(`🚀 DEBUT extraction - Action: ${action}, Items: ${resumeFromItem} à ${resumeFromItem + maxItems - 1}`);
 
     // Validation des credentials
     const username = credentials?.username || "laeticia.moto-ngane@etud.u-picardie.fr";
     const password = credentials?.password || "Aiciteal1!";
 
+    console.log(`🔐 Credentials: ${username} / ${password ? '***' : 'MANQUANT'}`);
+
     if (!username || !password) {
       throw new Error("Credentials UNESS manquants (username/password)");
     }
 
+    console.log("🎯 Appel extractCompleteEdnItems...");
     const results = await extractCompleteEdnItems(supabaseClient, username, password, resumeFromItem, maxItems);
+    console.log("🎯 Résultats obtenus:", JSON.stringify(results));
 
-    return new Response(JSON.stringify({
+    const response = {
       success: true,
       message: `Extraction complète terminée avec succès`,
       stats: results
-    }), {
+    };
+
+    console.log("🎯 Réponse finale:", JSON.stringify(response));
+
+    return new Response(JSON.stringify(response), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
 
   } catch (error) {
-    console.error("❌ Erreur extraction EDN complète:", error);
-    return new Response(JSON.stringify({ 
+    console.error("❌ ERREUR GLOBALE extraction EDN complète:", error);
+    console.error("❌ Stack:", error.stack);
+    
+    const errorResponse = { 
       error: error.message,
       details: error.stack 
-    }), {
+    };
+    
+    console.log("❌ Réponse erreur:", JSON.stringify(errorResponse));
+    
+    return new Response(JSON.stringify(errorResponse), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
