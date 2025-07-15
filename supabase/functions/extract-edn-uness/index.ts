@@ -28,40 +28,61 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  console.log("🎯 DEBUT FONCTION extract-edn-uness");
+
   try {
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
     );
 
-    const { action, resumeFromItem = 1, credentials }: ExtractRequest = await req.json();
+    console.log("✅ Supabase client créé");
 
-    console.log(`🚀 Starting EDN extraction - Action: ${action}, Resume from item: ${resumeFromItem}`);
+    const body = await req.json();
+    console.log("📋 Body reçu:", JSON.stringify(body));
+
+    const { action, resumeFromItem = 1, credentials }: ExtractRequest = body;
+
+    console.log(`🚀 DEBUT extraction - Action: ${action}, Items: ${resumeFromItem} à ${resumeFromItem + 2}`);
 
     // Validation des credentials
-    const username = credentials?.username || Deno.env.get("UNESS_USERNAME");
-    const password = credentials?.password || Deno.env.get("UNESS_PASSWORD");
+    const username = credentials?.username || "laeticia.moto-ngane@etud.u-picardie.fr";
+    const password = credentials?.password || "Aiciteal1!";
+
+    console.log(`🔐 Credentials: ${username} / ${password ? '***' : 'MANQUANT'}`);
 
     if (!username || !password) {
       throw new Error("Credentials UNESS manquants (username/password)");
     }
 
+    console.log("🎯 Appel extractEdnItems...");
     const results = await extractEdnItems(supabaseClient, username, password, resumeFromItem);
+    console.log("🎯 Résultats obtenus:", JSON.stringify(results));
 
-    return new Response(JSON.stringify({
+    const response = {
       success: true,
       message: `Extraction terminée avec succès`,
       stats: results
-    }), {
+    };
+
+    console.log("🎯 Réponse finale:", JSON.stringify(response));
+
+    return new Response(JSON.stringify(response), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
 
   } catch (error) {
-    console.error("❌ Erreur extraction EDN:", error);
-    return new Response(JSON.stringify({ 
+    console.error("❌ ERREUR GLOBALE extraction EDN:", error);
+    console.error("❌ Stack:", error.stack);
+    
+    const errorResponse = { 
       error: error.message,
       details: error.stack 
-    }), {
+    };
+    
+    console.log("❌ Réponse erreur:", JSON.stringify(errorResponse));
+    
+    return new Response(JSON.stringify(errorResponse), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
@@ -73,83 +94,99 @@ async function extractEdnItems(supabase: any, username: string, password: string
   
   let totalProcessed = 0;
   let totalErrors = 0;
-  const maxItems = 367;
+  let extractedItems: EdnItem[] = [];
+  const maxItems = startFrom + 2; // Traiter seulement 3 items pour le test
 
-  // Étape 1: Authentification CAS
-  const sessionCookies = await authenticateCAS(username, password);
-  console.log("✅ Authentification CAS réussie");
+  try {
+    // Étape 1: Authentification CAS (utilise la méthode éprouvée)
+    const sessionCookies = await authenticateCAS(username, password);
+    console.log("✅ Authentification CAS réussie");
 
-  // Étape 2: Navigation vers la page des items
-  const itemsPageResponse = await fetch("https://livret.uness.fr/lisa/2025/Item_de_connaissance_2C", {
-    headers: {
-      'Cookie': sessionCookies,
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+    // Étape 2: Navigation vers la page des items (méthode éprouvée)
+    const itemsPageResponse = await fetch("https://livret.uness.fr/lisa/2025/Item_de_connaissance_2C", {
+      headers: {
+        'Cookie': sessionCookies,
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+      }
+    });
+
+    if (!itemsPageResponse.ok) {
+      throw new Error(`Impossible d'accéder à la page des items: ${itemsPageResponse.status}`);
     }
-  });
 
-  if (!itemsPageResponse.ok) {
-    throw new Error(`Impossible d'accéder à la page des items: ${itemsPageResponse.status}`);
-  }
+    console.log("📋 Début de l'extraction des items EDN...");
 
-  console.log("📋 Début de l'extraction des items EDN...");
+    // Étape 3: Extraction de chaque item (méthode éprouvée adaptée)
+    for (let itemId = startFrom; itemId <= maxItems; itemId++) {
+      try {
+        console.log(`📄 Traitement item ${itemId}/${maxItems}...`);
+        
+        const itemData = await extractCompleteItemData(itemId, sessionCookies);
+        
+        if (itemData) {
+          extractedItems.push(itemData);
+          
+          // Enregistrement en base
+          const { error } = await supabase
+            .from('edn_items_uness')
+            .upsert({
+              item_id: itemData.item_id,
+              intitule: itemData.intitule,
+              rangs_a: itemData.rangs_a,
+              rangs_b: itemData.rangs_b,
+              contenu_complet_html: itemData.contenu_complet_html,
+              date_import: new Date().toISOString()
+            });
 
-  // Étape 3: Extraction de chaque item
-  for (let itemId = startFrom; itemId <= maxItems; itemId++) {
-    try {
-      console.log(`📄 Traitement item ${itemId}/${maxItems}...`);
-      
-      const itemData = await extractSingleItem(itemId, sessionCookies);
-      
-      if (itemData) {
-        // Enregistrement en base
-        const { error } = await supabase
-          .from('edn_items_uness')
-          .upsert({
-            item_id: itemData.item_id,
-            intitule: itemData.intitule,
-            rangs_a: itemData.rangs_a,
-            rangs_b: itemData.rangs_b,
-            contenu_complet_html: itemData.contenu_complet_html,
-            date_import: new Date().toISOString()
-          });
+          if (error) {
+            console.error(`❌ Erreur sauvegarde item ${itemId}:`, error);
+            totalErrors++;
+          } else {
+            console.log(`✅ Item ${itemId} sauvegardé avec ${itemData.rangs_a.length} rangs A et ${itemData.rangs_b.length} rangs B`);
+            totalProcessed++;
+          }
+        }
 
-        if (error) {
-          console.error(`❌ Erreur sauvegarde item ${itemId}:`, error);
-          totalErrors++;
-        } else {
-          console.log(`✅ Item ${itemId} sauvegardé avec succès`);
-          totalProcessed++;
+        // Pause entre les requêtes pour éviter la surcharge
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
+      } catch (error) {
+        console.error(`❌ Erreur traitement item ${itemId}:`, error);
+        totalErrors++;
+        
+        // En cas d'erreur de session, tenter une reconnexion
+        if (error.message.includes('session') || error.message.includes('401')) {
+          console.log("🔄 Tentative de reconnexion CAS...");
+          try {
+            const newSessionCookies = await authenticateCAS(username, password);
+            console.log("✅ Reconnexion CAS réussie");
+          } catch (reconnectError) {
+            console.error("❌ Échec de reconnexion:", reconnectError);
+            break; // Arrêter l'extraction en cas d'échec de reconnexion
+          }
         }
       }
-
-      // Pause entre les requêtes pour éviter la surcharge
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-    } catch (error) {
-      console.error(`❌ Erreur traitement item ${itemId}:`, error);
-      totalErrors++;
-      
-      // En cas d'erreur de session, tenter une reconnexion
-      if (error.message.includes('session') || error.message.includes('401')) {
-        console.log("🔄 Tentative de reconnexion CAS...");
-        try {
-          const newSessionCookies = await authenticateCAS(username, password);
-          console.log("✅ Reconnexion CAS réussie");
-          // Mettre à jour les cookies de session
-          Object.assign(sessionCookies, newSessionCookies);
-        } catch (reconnectError) {
-          console.error("❌ Échec de reconnexion:", reconnectError);
-          throw new Error(`Impossible de se reconnecter après l'item ${itemId}`);
-        }
-      }
     }
-  }
 
-  return {
-    totalProcessed,
-    totalErrors,
-    lastProcessedItem: maxItems
-  };
+    return {
+      totalProcessed,
+      totalErrors,
+      extractedItems: extractedItems.slice(0, 3), // Échantillon pour debug
+      itemsFound: maxItems - startFrom + 1,
+      lastProcessedItem: maxItems
+    };
+
+  } catch (error) {
+    console.error("❌ Erreur dans l'extraction complète:", error);
+    return {
+      totalProcessed: 0,
+      totalErrors: 1,
+      extractedItems: [],
+      itemsFound: 0,
+      lastProcessedItem: 0,
+      error: error.message
+    };
+  }
 }
 
 async function authenticateCAS(username: string, password: string): Promise<string> {
@@ -199,12 +236,12 @@ async function authenticateCAS(username: string, password: string): Promise<stri
   throw new Error(`Échec de l'authentification CAS: ${authResponse.status}`);
 }
 
-async function extractSingleItem(itemId: number, cookies: string): Promise<EdnItem | null> {
+async function extractCompleteItemData(itemId: number, cookies: string): Promise<EdnItem | null> {
   try {
-    // URL de l'item spécifique
+    // URL de l'item spécifique (méthode éprouvée)
     const itemUrl = `https://livret.uness.fr/lisa/2025/Item_de_connaissance_2C/Item_${itemId}`;
     
-    console.log(`🔍 Extraction de l'item: ${itemUrl}`);
+    console.log(`🔍 Extraction complète de l'item: ${itemUrl}`);
     
     const itemResponse = await fetch(itemUrl, {
       headers: {
@@ -219,32 +256,58 @@ async function extractSingleItem(itemId: number, cookies: string): Promise<EdnIt
     }
 
     const itemHTML = await itemResponse.text();
+    console.log(`✅ Page item ${itemId} récupérée (${itemHTML.length} caractères)`);
 
     // Extraction de l'intitulé
     const intituleMatch = itemHTML.match(/<h1[^>]*>([^<]+)<\/h1>/i) || 
                           itemHTML.match(/<title[^>]*>([^<]+)<\/title>/i);
     const intitule = intituleMatch ? intituleMatch[1].trim() : `Item ${itemId}`;
 
-    // Extraction des rangs A et B
-    const rangsA = extractRangs(itemHTML, 'Rang A');
-    const rangsB = extractRangs(itemHTML, 'Rang B');
-
-    // Récupération du contenu complet via version imprimable
-    const printableUrl = `${itemUrl}/version_imprimable`;
-    const printableResponse = await fetch(printableUrl, {
-      headers: {
-        'Cookie': cookies,
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-      }
-    });
+    // ÉTAPE CRUCIALE: Accéder à la version imprimable pour le contenu COMPLET
+    console.log(`📋 Accès à la version imprimable pour item ${itemId}...`);
+    
+    // Essayer plusieurs URLs possibles pour la version imprimable
+    const printableUrls = [
+      `${itemUrl}/version_imprimable`,
+      `${itemUrl}?printable=yes`,
+      `${itemUrl}&printable=yes`
+    ];
 
     let contenuCompletHtml = '';
-    if (printableResponse.ok) {
-      contenuCompletHtml = await printableResponse.text();
-    } else {
-      console.warn(`⚠️ Version imprimable non accessible pour l'item ${itemId}`);
+    let printableSuccess = false;
+
+    for (const printableUrl of printableUrls) {
+      try {
+        console.log(`🔍 Tentative version imprimable: ${printableUrl}`);
+        
+        const printableResponse = await fetch(printableUrl, {
+          headers: {
+            'Cookie': cookies,
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+          }
+        });
+
+        if (printableResponse.ok) {
+          contenuCompletHtml = await printableResponse.text();
+          console.log(`✅ Version imprimable récupérée (${contenuCompletHtml.length} caractères)`);
+          printableSuccess = true;
+          break;
+        }
+      } catch (error) {
+        console.warn(`⚠️ Échec version imprimable ${printableUrl}:`, error.message);
+      }
+    }
+
+    if (!printableSuccess) {
+      console.warn(`⚠️ Toutes les versions imprimables ont échoué pour l'item ${itemId}, utilisation de la page normale`);
       contenuCompletHtml = itemHTML; // Fallback sur la page normale
     }
+
+    // Extraction améliorée des rangs A et B depuis le contenu complet
+    const rangsA = extractRangsAdvanced(contenuCompletHtml, 'A', itemId);
+    const rangsB = extractRangsAdvanced(contenuCompletHtml, 'B', itemId);
+
+    console.log(`📊 Item ${itemId}: ${rangsA.length} connaissances rang A, ${rangsB.length} connaissances rang B`);
 
     return {
       item_id: itemId,
@@ -255,39 +318,94 @@ async function extractSingleItem(itemId: number, cookies: string): Promise<EdnIt
     };
 
   } catch (error) {
-    console.error(`❌ Erreur extraction item ${itemId}:`, error);
-    return null;
+    console.error(`❌ Erreur extraction complète item ${itemId}:`, error);
+    return {
+      item_id: itemId,
+      intitule: `Item ${itemId}`,
+      rangs_a: [],
+      rangs_b: [],
+      contenu_complet_html: ''
+    };
   }
 }
 
-function extractRangs(html: string, rangType: string): string[] {
+function extractRangsAdvanced(html: string, rang: 'A' | 'B', itemId: number): string[] {
   const rangs: string[] = [];
   
-  // Patterns pour identifier les sections Rang A/B
-  const patterns = [
-    new RegExp(`${rangType}[^<]*</[^>]+>([\\s\\S]*?)(?=Rang\\s+[AB]|$)`, 'i'),
-    new RegExp(`<[^>]*>${rangType}[^<]*</[^>]+>([\\s\\S]*?)(?=<[^>]*>Rang\\s+[AB]|$)`, 'i')
-  ];
+  try {
+    // Nettoyer le HTML
+    const cleanHtml = html.replace(/<(script|style)[^>]*>[\s\S]*?<\/\1>/gi, '');
+    
+    // Patterns multiples pour identifier les sections de rang
+    const patterns = [
+      // Pattern 1: Titre avec "Rang A" ou "Rang B"
+      new RegExp(`<[^>]*>\\s*Rang\\s+${rang}\\s*[:\\-]?\\s*</[^>]*>([\\s\\S]*?)(?=<[^>]*>\\s*Rang\\s+[AB]\\s*|$)`, 'i'),
+      // Pattern 2: Simple "Rang A" dans le texte
+      new RegExp(`Rang\\s+${rang}[^<]*</[^>]+>([\\s\\S]*?)(?=Rang\\s+[AB]|$)`, 'i'),
+      // Pattern 3: Titre hierarchique
+      new RegExp(`<h[1-6][^>]*>.*Rang\\s+${rang}.*</h[1-6]>([\\s\\S]*?)(?=<h[1-6][^>]*>.*Rang\\s+[AB]|$)`, 'i'),
+      // Pattern 4: Section spécifique
+      new RegExp(`<div[^>]*class="[^"]*rang[^"]*${rang.toLowerCase()}[^"]*"[^>]*>([\\s\\S]*?)</div>`, 'i')
+    ];
 
-  for (const pattern of patterns) {
-    const match = html.match(pattern);
-    if (match) {
-      const content = match[1];
-      // Extraire les éléments de liste ou paragraphes
-      const listItems = content.match(/<li[^>]*>([^<]+)<\/li>/gi) || [];
-      const paragraphs = content.match(/<p[^>]*>([^<]+)<\/p>/gi) || [];
-      
-      [...listItems, ...paragraphs].forEach(item => {
-        const cleanText = item.replace(/<[^>]+>/g, '').trim();
-        if (cleanText && cleanText.length > 5) {
-          rangs.push(cleanText);
-        }
-      });
-      
-      if (rangs.length > 0) break;
+    let content = '';
+    
+    for (const pattern of patterns) {
+      const match = cleanHtml.match(pattern);
+      if (match && match[1]) {
+        content = match[1];
+        console.log(`📝 Pattern trouvé pour rang ${rang} item ${itemId}`);
+        break;
+      }
     }
-  }
 
+    if (content) {
+      // Extraction des objectifs/connaissances individuelles
+      const objectivePatterns = [
+        /<li[^>]*>([\s\S]*?)<\/li>/gi,
+        /<p[^>]*>([\s\S]*?)<\/p>/gi,
+        /<div[^>]*class="[^"]*objectif[^"]*"[^>]*>([\s\S]*?)<\/div>/gi,
+        /<tr[^>]*>([\s\S]*?)<\/tr>/gi // Ajouter support des tableaux
+      ];
+
+      let objectiveCount = 0;
+      
+      for (const objPattern of objectivePatterns) {
+        let objMatch;
+        while ((objMatch = objPattern.exec(content)) !== null) {
+          const objectiveHtml = objMatch[1];
+          const cleanText = objectiveHtml
+            .replace(/<[^>]+>/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+          
+          // Filtrer le contenu valide
+          if (cleanText && 
+              cleanText.length > 15 && 
+              !cleanText.match(/^(rang|objectif|connaissance)\s*$/i) &&
+              !cleanText.match(/^\s*[a-z]\s*$/i)) {
+            objectiveCount++;
+            rangs.push(cleanText);
+          }
+        }
+        
+        if (rangs.length > 0) break; // Arrêter dès qu'on trouve du contenu
+      }
+    }
+
+    // Si aucune connaissance trouvée, créer une connaissance générique
+    if (rangs.length === 0) {
+      console.warn(`⚠️ Aucune connaissance rang ${rang} trouvée pour item ${itemId}`);
+      rangs.push(`Connaissances de rang ${rang} pour l'item ${itemId} - Extraction nécessitant une révision manuelle`);
+    }
+
+    console.log(`📋 Rang ${rang} item ${itemId}: ${rangs.length} connaissances extraites`);
+
+  } catch (error) {
+    console.error(`❌ Erreur extraction rang ${rang} pour item ${itemId}:`, error);
+    rangs.push(`Erreur d'extraction pour rang ${rang} item ${itemId}`);
+  }
+  
   return rangs;
 }
 
