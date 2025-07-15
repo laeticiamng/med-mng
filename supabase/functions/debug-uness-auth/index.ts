@@ -52,15 +52,41 @@ serve(async (req) => {
       })
     }
 
+    // Utiliser exactement la même logique que casLogin.ts qui fonctionne
     const service = "https://livret.uness.fr/login/cas"
-    const loginURL = `https://auth.uness.fr/cas/login?service=${encodeURIComponent(service)}`
     
-    // ÉTAPE 1: GET CAS login page directement
-    console.log('[DEBUG] step1: GET CAS login page directement')
-    let response = await fetch(loginURL, { 
+    // ÉTAPE 1: Première requête vers livret.uness.fr pour récupérer la redirection CAS
+    console.log('[DEBUG] step1: GET livret.uness.fr pour redirection CAS')
+    let response = await fetch(service, { 
       redirect: "manual",
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+      }
+    })
+    
+    addCookie(response.headers.get("set-cookie"))
+    const redirectLocation = response.headers.get("location")
+    
+    console.log(`[DEBUG] step1 ${response.status} redirect: ${redirectLocation}`)
+    debugInfo.push({ 
+      step: 1, 
+      action: "GET livret.uness.fr",
+      status: response.status, 
+      redirectLocation: redirectLocation,
+      cookies: Object.keys(jar)
+    })
+
+    if (!redirectLocation) {
+      throw new Error(`Pas de redirection CAS. Status: ${response.status}`)
+    }
+    
+    // ÉTAPE 2: Suivre la redirection vers auth.uness.fr
+    console.log('[DEBUG] step2: GET auth.uness.fr CAS login page')
+    response = await fetch(redirectLocation, { 
+      redirect: "manual",
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+        'Cookie': cookieHeader()
       }
     })
     
@@ -92,23 +118,23 @@ serve(async (req) => {
       console.log(`[DEBUG] Input ${i+1}:`, input)
     })
     
-    console.log(`[DEBUG] step1 ${response.status} lt=${lt.substring(0, 10)}* exec=${execution}`)
+    console.log(`[DEBUG] step2 ${response.status} lt=${lt.substring(0, 10)}* exec=${execution}`)
     debugInfo.push({ 
-      step: 1, 
-      action: "GET CAS login page directement",
+      step: 2, 
+      action: "GET CAS login page",
       status: response.status, 
       lt: lt.substring(0, 20) + '...', 
       execution: execution.substring(0, 20) + '...',
       cookies: Object.keys(jar),
-      url: loginURL
+      url: redirectLocation
     })
     
     if (!lt || !execution) {
       throw new Error(`Champs CAS manquants - lt: ${!!lt}, execution: ${!!execution}`)
     }
     
-    // ÉTAPE 2: POST credentials directement
-    console.log('[DEBUG] step2: POST credentials')
+    // ÉTAPE 3: POST credentials vers la page CAS
+    console.log('[DEBUG] step3: POST credentials')
     const body = new URLSearchParams({
       username: email,
       password: password,
@@ -118,7 +144,7 @@ serve(async (req) => {
       submit: "Se connecter"
     })
     
-    response = await fetch(loginURL, {
+    response = await fetch(redirectLocation, {
       method: "POST", 
       redirect: "manual",
       headers: { 
