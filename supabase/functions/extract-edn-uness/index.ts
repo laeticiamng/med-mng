@@ -70,8 +70,30 @@ serve(async (req) => {
     const username = UNESS_EMAIL || credentials?.username
     const password = UNESS_PASSWORD || credentials?.password
     
+    console.log('🔐 Secrets disponibles:')
+    console.log('- UNESS_EMAIL:', UNESS_EMAIL ? 'Configuré' : 'Manquant')
+    console.log('- UNESS_PASSWORD:', UNESS_PASSWORD ? 'Configuré' : 'Manquant')
+    console.log('- Credentials fournis:', credentials ? 'Oui' : 'Non')
+    
     if (!username || !password) {
-      throw new Error('Credentials UNESS manquants (vérifier les secrets UNESS_EMAIL et UNESS_PASSWORD)')
+      const errorMsg = `Credentials UNESS manquants - Email: ${username ? 'OK' : 'MANQUANT'}, Password: ${password ? 'OK' : 'MANQUANT'}`
+      console.error('❌', errorMsg)
+      
+      return new Response(
+        JSON.stringify({ 
+          success: false,
+          error: errorMsg,
+          debug: {
+            UNESS_EMAIL_available: !!UNESS_EMAIL,
+            UNESS_PASSWORD_available: !!UNESS_PASSWORD,
+            credentials_provided: !!credentials
+          }
+        }),
+        { 
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      )
     }
     
     console.log(`👤 Utilisation du compte: ${username.substring(0, 3)}***`)
