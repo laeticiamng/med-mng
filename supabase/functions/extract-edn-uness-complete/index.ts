@@ -89,84 +89,102 @@ async function extractCompleteEdnItems(supabase: any, username: string, password
   let totalErrors = 0;
   let extractedItems: EdnItemComplete[] = [];
 
-  // Étape 1: Authentification CAS
-  const sessionCookies = await authenticateCAS(username, password);
-  console.log("✅ Authentification CAS réussie");
+  try {
+    // Étape 1: Authentification CAS
+    const sessionCookies = await authenticateCAS(username, password);
+    console.log("✅ Authentification CAS réussie");
 
-  // Étape 2: Accéder à la liste des items
-  console.log("📋 Accès à la liste des items EDN...");
-  const itemsListUrl = "https://livret.uness.fr/lisa/2025/Item_de_connaissance_2C";
-  
-  const itemsResponse = await fetch(itemsListUrl, {
-    headers: {
-      'Cookie': sessionCookies,
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-    }
-  });
-
-  if (!itemsResponse.ok) {
-    throw new Error(`Impossible d'accéder à la liste des items: ${itemsResponse.status}`);
-  }
-
-  const itemsListHtml = await itemsResponse.text();
-  console.log("✅ Liste des items récupérée");
-
-  // Étape 3: Extraire les liens vers chaque item
-  const itemLinks = extractItemLinks(itemsListHtml);
-  console.log(`📊 ${itemLinks.length} liens d'items trouvés`);
-
-  // Étape 4: Traiter chaque item individuellement
-  const endItem = Math.min(startFrom + maxItems - 1, itemLinks.length);
-  
-  for (let i = startFrom - 1; i < endItem; i++) {
-    const itemLink = itemLinks[i];
-    const itemId = i + 1;
+    // Étape 2: Accéder à la liste des items
+    console.log("📋 Accès à la liste des items EDN...");
+    const itemsListUrl = "https://livret.uness.fr/lisa/2025/Item_de_connaissance_2C";
     
-    try {
-      console.log(`\n📄 Traitement item ${itemId}/${itemLinks.length}: ${itemLink.title}`);
-      
-      const itemData = await extractCompleteItemData(itemLink, sessionCookies, itemId);
-      
-      if (itemData) {
-        extractedItems.push(itemData);
-        
-        // Sauvegarde en base avec structure complète
-        const { error } = await supabase
-          .from('edn_items_uness')
-          .upsert({
-            item_id: itemData.item_id,
-            intitule: itemData.item_title,
-            rangs_a: itemData.connaissances.rang_A.map(c => c.contenu),
-            rangs_b: itemData.connaissances.rang_B.map(c => c.contenu),
-            contenu_complet_html: itemData.contenu_html_complet,
-            date_import: new Date().toISOString()
-          });
-
-        if (error) {
-          console.error(`❌ Erreur sauvegarde item ${itemId}:`, error);
-          totalErrors++;
-        } else {
-          console.log(`✅ Item ${itemId} sauvegardé avec ${itemData.connaissances.rang_A.length} connaissances rang A et ${itemData.connaissances.rang_B.length} connaissances rang B`);
-          totalProcessed++;
-        }
+    const itemsResponse = await fetch(itemsListUrl, {
+      headers: {
+        'Cookie': sessionCookies,
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
       }
+    });
 
-      // Pause entre les requêtes
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-    } catch (error) {
-      console.error(`❌ Erreur traitement item ${itemId}:`, error);
-      totalErrors++;
+    if (!itemsResponse.ok) {
+      throw new Error(`Impossible d'accéder à la liste des items: ${itemsResponse.status}`);
     }
-  }
 
-  return {
-    totalProcessed,
-    totalErrors,
-    extractedItems: extractedItems.slice(0, 3), // Échantillon pour debug
-    itemsFound: itemLinks.length,
-    lastProcessedItem: endItem
-  };
+    const itemsListHtml = await itemsResponse.text();
+    console.log(`✅ Liste des items récupérée (${itemsListHtml.length} caractères)`);
+
+    // Étape 3: Extraire les liens vers chaque item
+    const itemLinks = extractItemLinks(itemsListHtml);
+    console.log(`📊 ${itemLinks.length} liens d'items trouvés`);
+
+    if (itemLinks.length === 0) {
+      console.error("❌ Aucun lien d'item trouvé dans la page");
+      throw new Error("Aucun item trouvé dans la liste");
+    }
+
+    // Étape 4: Traiter chaque item individuellement
+    const endItem = Math.min(startFrom + maxItems - 1, itemLinks.length);
+    
+    for (let i = startFrom - 1; i < endItem; i++) {
+      const itemLink = itemLinks[i];
+      const itemId = i + 1;
+      
+      try {
+        console.log(`\n📄 Traitement item ${itemId}/${itemLinks.length}: ${itemLink.title}`);
+        
+        const itemData = await extractCompleteItemData(itemLink, sessionCookies, itemId);
+        
+        if (itemData) {
+          extractedItems.push(itemData);
+          
+          // Sauvegarde en base avec structure complète
+          const { error } = await supabase
+            .from('edn_items_uness')
+            .upsert({
+              item_id: itemData.item_id,
+              intitule: itemData.item_title,
+              rangs_a: itemData.connaissances.rang_A.map(c => c.contenu),
+              rangs_b: itemData.connaissances.rang_B.map(c => c.contenu),
+              contenu_complet_html: itemData.contenu_html_complet,
+              date_import: new Date().toISOString()
+            });
+
+          if (error) {
+            console.error(`❌ Erreur sauvegarde item ${itemId}:`, error);
+            totalErrors++;
+          } else {
+            console.log(`✅ Item ${itemId} sauvegardé avec ${itemData.connaissances.rang_A.length} connaissances rang A et ${itemData.connaissances.rang_B.length} connaissances rang B`);
+            totalProcessed++;
+          }
+        }
+
+        // Pause entre les requêtes
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
+      } catch (error) {
+        console.error(`❌ Erreur traitement item ${itemId}:`, error);
+        totalErrors++;
+      }
+    }
+
+    return {
+      totalProcessed,
+      totalErrors,
+      extractedItems: extractedItems.slice(0, 3), // Échantillon pour debug
+      itemsFound: itemLinks.length,
+      lastProcessedItem: endItem
+    };
+
+  } catch (error) {
+    console.error("❌ Erreur dans l'extraction complète:", error);
+    return {
+      totalProcessed: 0,
+      totalErrors: 1,
+      extractedItems: [],
+      itemsFound: 0,
+      lastProcessedItem: 0,
+      error: error.message
+    };
+  }
 }
 
 async function authenticateCAS(username: string, password: string): Promise<string> {
