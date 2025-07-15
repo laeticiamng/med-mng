@@ -80,31 +80,51 @@ serve(async (req) => {
       cookies: Object.keys(jar)
     })
 
-    // Chercher le lien vers auth.uness.fr dans la page
+    // Chercher le lien vers auth.uness.fr dans la page ou des boutons de connexion
+    console.log('[DEBUG] Recherche des liens dans la page...')
+    
+    // Chercher tous les liens et formulaires
+    const allLinks = html.match(/<a[^>]*href="([^"]*)"[^>]*>/g) || []
+    const allForms = html.match(/<form[^>]*action="([^"]*)"[^>]*>/g) || []
+    const allButtons = html.match(/<button[^>]*>/g) || []
+    const allInputs = html.match(/<input[^>]*>/g) || []
+    
+    console.log('[DEBUG] Links trouvés:', allLinks.length)
+    console.log('[DEBUG] Forms trouvés:', allForms.length)
+    console.log('[DEBUG] Buttons trouvés:', allButtons.length)
+    console.log('[DEBUG] Inputs trouvés:', allInputs.length)
+    
+    // Afficher les premiers liens pour debug
+    allLinks.slice(0, 5).forEach((link, i) => {
+      console.log(`[DEBUG] Link ${i+1}:`, link)
+    })
+    
+    // Chercher spécifiquement les liens vers auth.uness.fr ou contenant 'cas'
     const authLinkMatch = html.match(/href="([^"]*auth\.uness\.fr[^"]*)"/) ||
+                         html.match(/href="([^"]*cas[^"]*)"/) ||
                          html.match(/action="([^"]*auth\.uness\.fr[^"]*)"/) ||
                          html.match(/(https:\/\/auth\.uness\.fr[^'"\s>]+)/)
     
     let authUrl = authLinkMatch?.[1]
     
+    // Si pas de lien trouvé, chercher d'autres patterns
     if (!authUrl) {
-      // Si pas de lien direct, chercher un formulaire OAuth2 ou un bouton de login
-      const oauthMatch = html.match(/Special:OAuth2Client\/redirect/) ||
-                        html.match(/title=Special:OAuth2Client/) ||
-                        html.match(/OAuth2Client/)
-      
-      if (oauthMatch) {
-        console.log('[DEBUG] Page OAuth2 détectée, chercher le lien CAS...')
-        // Chercher les liens ou boutons dans la page
-        const casLinkMatch = html.match(/href="([^"]*cas[^"]*)"/) ||
-                            html.match(/action="([^"]*cas[^"]*)"/)
-        authUrl = casLinkMatch?.[1]
-      }
+      // Chercher des boutons ou liens de connexion
+      const loginMatch = html.match(/href="([^"]*login[^"]*)"/) ||
+                        html.match(/href="([^"]*connect[^"]*)"/) ||
+                        html.match(/href="([^"]*signin[^"]*)"/)
+      authUrl = loginMatch?.[1]
     }
     
     console.log(`[DEBUG] Auth URL trouvée: ${authUrl}`)
     
     if (!authUrl) {
+      // Sauvegarder le HTML pour debug
+      debugInfo.push({
+        error: "Aucun lien CAS trouvé",
+        htmlSample: html.substring(0, 2000),
+        finalUrl: finalUrl
+      })
       throw new Error(`Aucun lien vers auth.uness.fr trouvé dans la page. URL finale: ${finalUrl}`)
     }
     
