@@ -32,7 +32,8 @@ async function extractRangsFromHtml(html: string): Promise<RangExtraction> {
     const listItems = rangAMatch[0].match(/<li[^>]*>(.*?)<\/li>/gi) || []
     const paragraphs = rangAMatch[0].match(/<p[^>]*>(.*?)<\/p>/gi) || []
     
-    [...listItems, ...paragraphs].forEach(item => {
+    const allItems = [...listItems, ...paragraphs]
+    allItems.forEach(item => {
       const text = item.replace(/<[^>]*>/g, '').trim()
       if (text.length > 10 && !rangA.includes(text)) {
         rangA.push(text)
@@ -44,7 +45,8 @@ async function extractRangsFromHtml(html: string): Promise<RangExtraction> {
     const listItems = rangBMatch[0].match(/<li[^>]*>(.*?)<\/li>/gi) || []
     const paragraphs = rangBMatch[0].match(/<p[^>]*>(.*?)<\/p>/gi) || []
     
-    [...listItems, ...paragraphs].forEach(item => {
+    const allItems = [...listItems, ...paragraphs]
+    allItems.forEach(item => {
       const text = item.replace(/<[^>]*>/g, '').trim()
       if (text.length > 10 && !rangB.includes(text)) {
         rangB.push(text)
