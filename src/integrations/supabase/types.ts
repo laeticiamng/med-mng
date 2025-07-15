@@ -2962,6 +2962,15 @@ export type Database = {
         }
         Returns: string
       }
+      detect_and_fix_redundancies: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          item_code: string
+          issue_type: string
+          description: string
+          fixed: boolean
+        }[]
+      }
       detect_data_inconsistencies: {
         Args: Record<PropertyKey, never>
         Returns: Json
