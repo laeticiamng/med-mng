@@ -9,6 +9,8 @@ interface TableauRangBProps {
     title?: string;
     sections?: Array<{
       title: string;
+      content?: string;
+      objectif_id?: string;
       concepts?: Array<{
         competence_id: string;
         concept: string;
@@ -61,10 +63,24 @@ export const TableauRangB: React.FC<TableauRangBProps> = ({ data, itemCode }) =>
     if (!data || !data.sections) return [];
     
     return data.sections.flatMap(section => {
+      // Nouveau format OIC avec concepts/competences
       if (section.concepts && Array.isArray(section.concepts)) {
         return section.concepts;
       } else if (section.competences && Array.isArray(section.competences)) {
         return section.competences;
+      }
+      // Format simple avec contenu direct (item IC-5 par exemple)
+      else if (section.content && section.title) {
+        return [{
+          competence_id: section.objectif_id || 'N/A',
+          concept: section.title,
+          analyse: section.content,
+          cas: `Cas clinique lié à: ${section.title}`,
+          ecueil: `Attention particulière à porter sur: ${section.title}`,
+          technique: `Technique spécialisée pour: ${section.title}`,
+          maitrise: `Maîtrise experte requise pour: ${section.title}`,
+          excellence: `Excellence clinique dans: ${section.title}`
+        }];
       }
       return [];
     });
@@ -130,7 +146,9 @@ export const TableauRangB: React.FC<TableauRangBProps> = ({ data, itemCode }) =>
           </CardHeader>
           <CardContent className={isMobile ? 'p-4' : 'p-6'}>
             <div className={isMobile ? 'space-y-4' : 'space-y-6'}>
-              {concepts.length > 0 ? section.concepts?.map((concept, conceptIndex) => (
+              {concepts.length > 0 ? concepts.filter(concept => 
+                section.objectif_id ? concept.competence_id === section.objectif_id : true
+              ).map((concept, conceptIndex) => (
                 <div key={conceptIndex} className={`border border-gray-200 rounded-lg ${isMobile ? 'p-4' : 'p-6'} bg-white hover:shadow-md transition-shadow`}>
                   {/* En-tête du concept */}
                   <div className="flex items-start justify-between mb-4">
