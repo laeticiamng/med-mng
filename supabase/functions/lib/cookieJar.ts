@@ -3,17 +3,17 @@
  * Inspiré de std/http/cookie.ts mais adapté pour notre usage
  */
 
+interface CookieData {
+  value: string
+  domain?: string
+  path?: string
+  expires?: Date
+  secure?: boolean
+  httpOnly?: boolean
+}
+
 export class CookieJar {
   private cookies = new Map<string, CookieData>()
-
-  interface CookieData {
-    value: string
-    domain?: string
-    path?: string
-    expires?: Date
-    secure?: boolean
-    httpOnly?: boolean
-  }
 
   /**
    * Ajoute des cookies depuis la réponse HTTP
