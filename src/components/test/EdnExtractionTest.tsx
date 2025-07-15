@@ -112,16 +112,25 @@ export const EdnExtractionTest = () => {
 
   const loadExtractedItems = async () => {
     try {
+      toast.info("🔄 Chargement des items extraits...");
+      
       const { data, error } = await supabase
         .from('edn_items_uness')
         .select('*')
-        .order('item_id', { ascending: true })
+        .order('date_import', { ascending: false })
         .limit(10);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Erreur Supabase:', error);
+        toast.error(`❌ Erreur chargement: ${error.message}`);
+        return;
+      }
+
       setExtractedItems(data || []);
+      toast.success(`✅ ${data?.length || 0} items chargés`);
     } catch (error) {
       console.error('Erreur chargement items:', error);
+      toast.error('❌ Erreur lors du chargement');
     }
   };
 
