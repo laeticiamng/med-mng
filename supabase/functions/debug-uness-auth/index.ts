@@ -67,12 +67,30 @@ serve(async (req) => {
     addCookie(response.headers.get("set-cookie"))
     const html = await response.text()
     
-    // Parser les champs CAS
-    const ltMatch = html.match(/name="lt" value="([^"]+)"/)
-    const executionMatch = html.match(/name="execution" value="([^"]+)"/)
+    console.log('[DEBUG] HTML length:', html.length)
+    console.log('[DEBUG] HTML preview:', html.substring(0, 1000))
+    
+    // Parser les champs CAS avec plusieurs patterns
+    const ltMatch = html.match(/name="lt" value="([^"]+)"/) || 
+                   html.match(/name='lt' value='([^']+)'/) ||
+                   html.match(/<input[^>]*name=["']?lt["']?[^>]*value=["']?([^"'>\s]+)/)
+    
+    const executionMatch = html.match(/name="execution" value="([^"]+)"/) ||
+                          html.match(/name='execution' value='([^']+)'/) ||
+                          html.match(/<input[^>]*name=["']?execution["']?[^>]*value=["']?([^"'>\s]+)/)
     
     const lt = ltMatch?.[1] ?? ""
     const execution = executionMatch?.[1] ?? ""
+    
+    console.log(`[DEBUG] Parsing results - lt found: ${!!ltMatch}, execution found: ${!!executionMatch}`)
+    console.log(`[DEBUG] lt value: "${lt}", execution value: "${execution}"`)
+    
+    // Chercher tous les inputs pour debug
+    const allInputs = html.match(/<input[^>]*>/g) || []
+    console.log('[DEBUG] All inputs found:', allInputs.length)
+    allInputs.slice(0, 10).forEach((input, i) => {
+      console.log(`[DEBUG] Input ${i+1}:`, input)
+    })
     
     console.log(`[DEBUG] step1 ${response.status} lt=${lt.substring(0, 10)}* exec=${execution}`)
     debugInfo.push({ 
