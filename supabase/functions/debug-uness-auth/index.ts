@@ -55,66 +55,62 @@ serve(async (req) => {
     // Utiliser exactement la même logique que casLogin.ts qui fonctionne
     const service = "https://livret.uness.fr/login/cas"
     
-    // ÉTAPE 1: Première requête vers livret.uness.fr pour récupérer la redirection CAS
-    console.log('[DEBUG] step1: GET livret.uness.fr pour redirection CAS')
+    // ÉTAPE 1: Première requête vers livret.uness.fr pour récupérer la redirection
+    console.log('[DEBUG] step1: GET livret.uness.fr pour redirection')
     let response = await fetch(service, { 
-      redirect: "manual",
+      redirect: "follow", // Suivre automatiquement les redirections
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
       }
     })
     
     addCookie(response.headers.get("set-cookie"))
-    let redirectLocation = response.headers.get("location")
+    const finalUrl = response.url // URL finale après redirections
+    const html = await response.text()
     
-    console.log(`[DEBUG] Raw redirect location: "${redirectLocation}"`)
+    console.log(`[DEBUG] step1 ${response.status} final URL: ${finalUrl}`)
+    console.log('[DEBUG] HTML length:', html.length)
+    console.log('[DEBUG] HTML preview:', html.substring(0, 1000))
     
-    // Si l'URL de redirection est relative, la construire en absolu
-    if (redirectLocation && !redirectLocation.startsWith('http')) {
-      const baseUrl = 'https://livret.uness.fr'
-      if (redirectLocation.startsWith('/')) {
-        redirectLocation = baseUrl + redirectLocation
-      } else {
-        redirectLocation = baseUrl + '/' + redirectLocation
-      }
-      console.log(`[DEBUG] Constructed absolute URL: "${redirectLocation}"`)
-    }
-    
-    // Vérifier que l'URL est valide
-    let urlValid = false
-    try {
-      new URL(redirectLocation || '')
-      urlValid = true
-    } catch (e) {
-      console.log(`[DEBUG] URL invalide: ${e.message}`)
-    }
-    
-    console.log(`[DEBUG] step1 ${response.status} redirect: ${redirectLocation} (valid: ${urlValid})`)
     debugInfo.push({ 
       step: 1, 
-      action: "GET livret.uness.fr",
+      action: "GET livret.uness.fr avec redirections",
       status: response.status, 
-      redirectLocation: redirectLocation,
-      urlValid: urlValid,
+      finalUrl: finalUrl,
       cookies: Object.keys(jar)
     })
 
-    if (!redirectLocation || !urlValid) {
-      throw new Error(`URL de redirection invalide: "${redirectLocation}". Status: ${response.status}`)
+    // Chercher le lien vers auth.uness.fr dans la page
+    const authLinkMatch = html.match(/href="([^"]*auth\.uness\.fr[^"]*)"/) ||
+                         html.match(/action="([^"]*auth\.uness\.fr[^"]*)"/) ||
+                         html.match(/(https:\/\/auth\.uness\.fr[^'"\s>]+)/)
+    
+    let authUrl = authLinkMatch?.[1]
+    
+    if (!authUrl) {
+      // Si pas de lien direct, chercher un formulaire OAuth2 ou un bouton de login
+      const oauthMatch = html.match(/Special:OAuth2Client\/redirect/) ||
+                        html.match(/title=Special:OAuth2Client/) ||
+                        html.match(/OAuth2Client/)
+      
+      if (oauthMatch) {
+        console.log('[DEBUG] Page OAuth2 détectée, chercher le lien CAS...')
+        // Chercher les liens ou boutons dans la page
+        const casLinkMatch = html.match(/href="([^"]*cas[^"]*)"/) ||
+                            html.match(/action="([^"]*cas[^"]*)"/)
+        authUrl = casLinkMatch?.[1]
+      }
     }
     
-    // Si l'URL ne mène pas vers auth.uness.fr, c'est peut-être un problème
-    if (!redirectLocation.includes('auth.uness.fr')) {
-      console.log(`[DEBUG] WARNING: La redirection ne mène pas vers auth.uness.fr mais vers: ${redirectLocation}`)
-      debugInfo.push({
-        warning: "La redirection ne mène pas vers le serveur CAS attendu",
-        redirectDomain: new URL(redirectLocation).hostname
-      })
+    console.log(`[DEBUG] Auth URL trouvée: ${authUrl}`)
+    
+    if (!authUrl) {
+      throw new Error(`Aucun lien vers auth.uness.fr trouvé dans la page. URL finale: ${finalUrl}`)
     }
     
-    // ÉTAPE 2: Suivre la redirection vers auth.uness.fr
-    console.log('[DEBUG] step2: GET auth.uness.fr CAS login page')
-    response = await fetch(redirectLocation, { 
+    // ÉTAPE 2: Aller vers la page CAS
+    console.log('[DEBUG] step2: GET page CAS')
+    response = await fetch(authUrl, { 
       redirect: "manual",
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
@@ -123,19 +119,19 @@ serve(async (req) => {
     })
     
     addCookie(response.headers.get("set-cookie"))
-    const html = await response.text()
+    const casHtml = await response.text()
     
-    console.log('[DEBUG] HTML length:', html.length)
-    console.log('[DEBUG] HTML preview:', html.substring(0, 1000))
+    console.log('[DEBUG] CAS HTML length:', casHtml.length)
+    console.log('[DEBUG] CAS HTML preview:', casHtml.substring(0, 1000))
     
-    // Parser les champs CAS avec plusieurs patterns
-    const ltMatch = html.match(/name="lt" value="([^"]+)"/) || 
-                   html.match(/name='lt' value='([^']+)'/) ||
-                   html.match(/<input[^>]*name=["']?lt["']?[^>]*value=["']?([^"'>\s]+)/)
+    // Parser les champs CAS avec plusieurs patterns dans le HTML CAS
+    const ltMatch = casHtml.match(/name="lt" value="([^"]+)"/) || 
+                   casHtml.match(/name='lt' value='([^']+)'/) ||
+                   casHtml.match(/<input[^>]*name=["']?lt["']?[^>]*value=["']?([^"'>\s]+)/)
     
-    const executionMatch = html.match(/name="execution" value="([^"]+)"/) ||
-                          html.match(/name='execution' value='([^']+)'/) ||
-                          html.match(/<input[^>]*name=["']?execution["']?[^>]*value=["']?([^"'>\s]+)/)
+    const executionMatch = casHtml.match(/name="execution" value="([^"]+)"/) ||
+                          casHtml.match(/name='execution' value='([^']+)'/) ||
+                          casHtml.match(/<input[^>]*name=["']?execution["']?[^>]*value=["']?([^"'>\s]+)/)
     
     const lt = ltMatch?.[1] ?? ""
     const execution = executionMatch?.[1] ?? ""
@@ -143,8 +139,8 @@ serve(async (req) => {
     console.log(`[DEBUG] Parsing results - lt found: ${!!ltMatch}, execution found: ${!!executionMatch}`)
     console.log(`[DEBUG] lt value: "${lt}", execution value: "${execution}"`)
     
-    // Chercher tous les inputs pour debug
-    const allInputs = html.match(/<input[^>]*>/g) || []
+    // Chercher tous les inputs pour debug dans le HTML CAS
+    const allInputs = casHtml.match(/<input[^>]*>/g) || []
     console.log('[DEBUG] All inputs found:', allInputs.length)
     allInputs.slice(0, 10).forEach((input, i) => {
       console.log(`[DEBUG] Input ${i+1}:`, input)
@@ -158,7 +154,7 @@ serve(async (req) => {
       lt: lt.substring(0, 20) + '...', 
       execution: execution.substring(0, 20) + '...',
       cookies: Object.keys(jar),
-      url: redirectLocation
+      url: authUrl
     })
     
     if (!lt || !execution) {
@@ -176,7 +172,7 @@ serve(async (req) => {
       submit: "Se connecter"
     })
     
-    response = await fetch(redirectLocation, {
+    response = await fetch(authUrl, {
       method: "POST", 
       redirect: "manual",
       headers: { 
