@@ -32,12 +32,21 @@ serve(async (req) => {
     const email = Deno.env.get('UNES_EMAIL')
     const password = Deno.env.get('UNES_PASSWORD')
     
+    console.log('[DEBUG] Variables env - email:', email ? 'SET' : 'MISSING', 'password:', password ? 'SET' : 'MISSING')
+    
     if (!email || !password) {
-      return new Response(JSON.stringify({
+      const error = {
         success: false,
         error: 'Variables UNES_EMAIL et UNES_PASSWORD manquantes',
-        debug: debugInfo
-      }), { 
+        debug: debugInfo,
+        env_check: {
+          email_set: !!email,
+          password_set: !!password,
+          all_env_keys: Object.keys(Deno.env.toObject()).filter(k => k.includes('UNES'))
+        }
+      }
+      console.log('[DEBUG] Erreur variables env:', JSON.stringify(error, null, 2))
+      return new Response(JSON.stringify(error), { 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 400 
       })
