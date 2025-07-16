@@ -2979,6 +2979,14 @@ export type Database = {
           details: Json
         }[]
       }
+      fix_competences_mapping_correct: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          updated_items: number
+          total_competences_added: number
+          details: Json
+        }[]
+      }
       fusion_complete_finale: {
         Args: Record<PropertyKey, never>
         Returns: {
