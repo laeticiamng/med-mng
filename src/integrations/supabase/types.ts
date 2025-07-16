@@ -2852,7 +2852,7 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: {
           audit_type: string
-          item_code: string
+          item_code_result: string
           issue_description: string
           duplicate_content: string
           severity: string
