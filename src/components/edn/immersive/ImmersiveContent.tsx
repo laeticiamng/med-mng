@@ -79,6 +79,7 @@ export const ImmersiveContent: React.FC<ImmersiveContentProps> = ({
       case 2: // Tableau Rang A
         return (
           <TableauSection
+            key={`rang-a-${item.slug}-${currentSection}`}
             data={item.tableau_rang_a}
             title="Fondamentaux - Rang A"
             type="rang_a"
@@ -88,6 +89,7 @@ export const ImmersiveContent: React.FC<ImmersiveContentProps> = ({
       case 3: // Tableau Rang B
         return (
           <TableauSection
+            key={`rang-b-${item.slug}-${currentSection}`}
             data={item.tableau_rang_b}
             title="Approfondissements - Rang B"
             type="rang_b"

@@ -65,6 +65,7 @@ const EdnItemImmersive = () => {
       <div className="relative z-10 container mx-auto px-4 py-4 sm:py-8">
         <Card className="bg-white/90 backdrop-blur-sm border-amber-200 shadow-xl overflow-hidden">
           <ImmersiveContent 
+            key={`content-${item.slug}-${currentSection}`}
             currentSection={currentSection} 
             item={item} 
             sections={sections}
