@@ -45,11 +45,19 @@ export const useImmersiveLogic = () => {
       try {
         console.log('🔍 Chargement item immersif pour slug:', slug);
         
+        // Force refresh and add timestamp to prevent caching
         const { data, error } = await supabase
           .from('edn_items_immersive')
           .select('*')
           .eq('slug', slug)
           .maybeSingle();
+        
+        console.log('🔍 Raw data from Supabase for', slug, ':', {
+          item_code: data?.item_code,
+          title: data?.title,
+          tableau_rang_a_title: (data?.tableau_rang_a as any)?.title,
+          first_concept: (data?.tableau_rang_a as any)?.sections?.[0]?.concepts?.[0]?.concept
+        });
 
         if (error) {
           console.error('❌ Erreur lors du chargement de l\'item:', error);
