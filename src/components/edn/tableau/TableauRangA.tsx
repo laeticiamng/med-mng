@@ -37,28 +37,33 @@ export const TableauRangA: React.FC<TableauRangAProps> = ({ data, itemCode }) =>
     // Convertir le format sections vers le format competences attendu avec toutes les informations
     const competencesData = {
       title: data.title || `${itemCode} Rang A - Compétences OIC`,
-      competences: data.sections.map((section: any) => {
+      competences: data.sections.map((section: any, index: number) => {
+        // Extraire l'objectif_id depuis les keywords si disponible
+        const objectifId = section.keywords?.find((keyword: string) => keyword.startsWith('OIC-')) || 
+                          section.competence_id || 
+                          `OIC-${itemCode?.replace('IC-', '')}-${String(index + 1).padStart(2, '0')}-A`;
+        
         return {
           intitule: section.title || 'Compétence non définie',
           description: section.content || 'Description non disponible',
-          objectif_id: section.objectif_id || 'Non défini',
-          rubrique: section.rubrique || 'Non spécifiée',
+          objectif_id: objectifId,
+          rubrique: section.rubrique_oic || section.rubrique || (section.keywords?.[0] || 'Non spécifiée'),
           keywords: section.keywords || [],
-          // Données enrichies niveau LiSA (seront récupérées de la DB)
-          titre_complet: null,
-          sommaire: null,
-          mecanismes: null,
-          indications: null,
-          effets_indesirables: null,
-          interactions: null,
-          modalites_surveillance: null,
-          causes_echec: null,
-          contributeurs: null,
-          ordre_affichage: null
+          // Données enrichies niveau LiSA (directement depuis les sections si disponibles)
+          titre_complet: section.title || null,
+          sommaire: section.content || null,
+          mecanismes: section.mecanismes || null,
+          indications: section.indications || null,
+          effets_indesirables: section.effets_indesirables || null,
+          interactions: section.interactions || null,
+          modalites_surveillance: section.modalites_surveillance || null,
+          causes_echec: section.causes_echec || null,
+          contributeurs: section.contributeurs || null,
+          ordre_affichage: index + 1
         };
       }),
-      count: data.competences_count || data.sections.length,
-      theme: data.subtitle || 'Compétences OIC'
+      count: data.sections.length,
+      theme: data.subtitle || 'Compétences OIC fusionnées E-LiSA'
     };
     
     console.log('🔄 Données converties:', competencesData);
