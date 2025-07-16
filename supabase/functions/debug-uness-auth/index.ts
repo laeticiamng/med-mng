@@ -167,9 +167,9 @@ serve(async (req) => {
     console.log(`[DEBUG] lt value: "${lt}", execution value: "${execution}"`)
     
     // Chercher tous les inputs pour debug dans le HTML CAS
-    const allInputs = casHtml.match(/<input[^>]*>/g) || []
-    console.log('[DEBUG] All inputs found:', allInputs.length)
-    allInputs.slice(0, 10).forEach((input, i) => {
+    const casInputs = casHtml.match(/<input[^>]*>/g) || []
+    console.log('[DEBUG] All inputs found:', casInputs.length)
+    casInputs.slice(0, 10).forEach((input, i) => {
       console.log(`[DEBUG] Input ${i+1}:`, input)
     })
     
