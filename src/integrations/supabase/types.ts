@@ -2979,6 +2979,14 @@ export type Database = {
           details: Json
         }[]
       }
+      fix_all_edn_items_with_unique_content: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          updated_count: number
+          error_count: number
+          details: Json
+        }[]
+      }
       fix_competences_mapping_correct: {
         Args: Record<PropertyKey, never>
         Returns: {
