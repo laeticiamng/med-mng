@@ -8,10 +8,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { GlobalAudioProvider } from "@/contexts/GlobalAudioContext";
 import Index from "./pages/Index";
 import Generator from "./pages/Generator";
-import EdnIndex from "./pages/EdnIndex";
-
-import EdnItemImmersive from "./pages/EdnItemImmersive";
-import EdnMusicLibrary from "./pages/EdnMusicLibrary";
+// Pages EDN fusionnées dans EdnComplete
 
 import EcosIndex from "./pages/EcosIndex";
 import EcosScenario from "./pages/EcosScenario";
@@ -59,12 +56,15 @@ const App = () => (
               <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/generator" element={<Generator />} />
-               <Route path="/edn" element={<ProtectedRoute><EdnIndex /></ProtectedRoute>} />
-               
-                <Route path="/edn/:slug/immersive" element={<ProtectedRoute><EdnItemImmersive /></ProtectedRoute>} />
-                <Route path="/edn/music-library" element={<ProtectedRoute><EdnMusicLibrary /></ProtectedRoute>} />
-                <Route path="/edn-complete" element={<EdnComplete />} />
-                <Route path="/edn-complete/:slug" element={<EdnCompleteDetail />} />
+               {/* EDN Interface Unifiée - toutes les fonctionnalités fusionnées */}
+                 <Route path="/edn" element={<EdnComplete />} />
+                 <Route path="/edn-complete" element={<EdnComplete />} />
+                 <Route path="/edn-complete/:slug" element={<EdnCompleteDetail />} />
+                 <Route path="/edn/:slug" element={<EdnCompleteDetail />} />
+                 
+                 {/* Redirections vers l'interface unifiée */}
+                 <Route path="/edn/:slug/immersive" element={<Navigate to="/edn-complete" replace />} />
+                 <Route path="/edn/music-library" element={<Navigate to="/edn-complete" replace />} />
               <Route path="/ecos" element={<EcosIndex />} />
               <Route path="/ecos/:scenarioId" element={<EcosScenario />} />
               
