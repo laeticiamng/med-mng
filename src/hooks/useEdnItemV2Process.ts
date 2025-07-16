@@ -46,9 +46,20 @@ export const useEdnItemV2Process = (item: any) => {
   return useMemo(() => {
     if (!item) return null;
 
+    // Debug: Log item data to verify content
+    console.log('useEdnItemV2Process - Processing item:', item.item_code, {
+      hasPayloadV2: !!item.payload_v2,
+      hasTableauRangA: !!item.tableau_rang_a,
+      hasTableauRangB: !!item.tableau_rang_b,
+      rangAStructure: item.tableau_rang_a?.sections?.[0]?.concepts?.length || 0,
+      rangBStructure: item.tableau_rang_b?.sections?.[0]?.concepts?.length || 0
+    });
+
     // Check if item has payload_v2 (new format) with proper structure validation
     if (item.payload_v2 && item.payload_v2.content?.rang_a && item.payload_v2.content?.rang_b) {
       const v2Data = item.payload_v2 as ItemV2Data;
+      
+      console.log('Processing V2 format for:', item.item_code);
       
       // Transform V2 data to legacy format for compatibility
       const transformedItem = {
@@ -75,6 +86,7 @@ export const useEdnItemV2Process = (item: any) => {
     }
 
     // Return original item if not V2 format or if it already has the expected structure
+    console.log('Returning original item for:', item.item_code);
     return item;
   }, [item]);
 };
