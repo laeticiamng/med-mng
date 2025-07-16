@@ -2979,6 +2979,15 @@ export type Database = {
           details: Json
         }[]
       }
+      fusion_complete_finale: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          items_traites: number
+          competences_oic_integrees: number
+          items_backup_utilises: number
+          details: Json
+        }[]
+      }
       generate_audit_report: {
         Args: { report_type_param?: string }
         Returns: string
