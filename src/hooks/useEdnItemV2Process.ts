@@ -46,8 +46,8 @@ export const useEdnItemV2Process = (item: any) => {
   return useMemo(() => {
     if (!item) return null;
 
-    // Check if item has payload_v2 (new format)
-    if (item.payload_v2) {
+    // Check if item has payload_v2 (new format) with proper structure validation
+    if (item.payload_v2 && item.payload_v2.content?.rang_a && item.payload_v2.content?.rang_b) {
       const v2Data = item.payload_v2 as ItemV2Data;
       
       // Transform V2 data to legacy format for compatibility
@@ -74,7 +74,7 @@ export const useEdnItemV2Process = (item: any) => {
       return transformedItem;
     }
 
-    // Return original item if not V2 format
+    // Return original item if not V2 format or if it already has the expected structure
     return item;
   }, [item]);
 };
