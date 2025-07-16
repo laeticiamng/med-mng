@@ -115,9 +115,9 @@ export const EdnExtractionTest = () => {
       toast.info("🔄 Chargement des items extraits...");
       
       const { data, error } = await supabase
-        .from('edn_items_uness')
+        .from('edn_items_immersive')
         .select('*')
-        .order('date_import', { ascending: false })
+        .order('updated_at', { ascending: false })
         .limit(10);
 
       if (error) {
@@ -126,8 +126,18 @@ export const EdnExtractionTest = () => {
         return;
       }
 
-      setExtractedItems(data || []);
-      toast.success(`✅ ${data?.length || 0} items chargés`);
+      // Transform data to match expected interface
+      const transformedData = data?.map(item => ({
+        item_id: parseInt(item.item_code.replace('IC-', '')) || 0,
+        intitule: item.title,
+        rangs_a: [], // Legacy compatibility
+        rangs_b: [], // Legacy compatibility
+        date_import: item.updated_at,
+        contenu_complet_html: item.title
+      })) || [];
+
+      setExtractedItems(transformedData);
+      toast.success(`✅ ${transformedData.length} items chargés`);
     } catch (error) {
       console.error('Erreur chargement items:', error);
       toast.error('❌ Erreur lors du chargement');

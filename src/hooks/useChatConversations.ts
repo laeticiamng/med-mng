@@ -83,23 +83,12 @@ export const useChatConversations = () => {
   // Rechercher dans les cours pour enrichir la réponse
   const searchCourseContent = useCallback(async (query: string): Promise<string[]> => {
     try {
-      // Rechercher dans les items EDN complets
-      const { data: ednItems, error: ednError } = await supabase
-        .from('edn_items_complete')
-        .select('item_number, title, content')
-        .or(`title.ilike.%${query}%,content::text.ilike.%${query}%`)
-        .limit(3);
-
-      if (ednError) {
-        console.error('Erreur recherche EDN:', ednError);
-      }
-
-      // Rechercher dans les items immersifs
+      // Rechercher dans les items immersifs (remplace edn_items_complete)
       const { data: immersiveItems, error: immersiveError } = await supabase
         .from('edn_items_immersive')
         .select('item_code, title, payload_v2')
         .or(`title.ilike.%${query}%,payload_v2::text.ilike.%${query}%`)
-        .limit(3);
+        .limit(5);
 
       if (immersiveError) {
         console.error('Erreur recherche immersive:', immersiveError);
@@ -118,15 +107,9 @@ export const useChatConversations = () => {
 
       const citations: string[] = [];
 
-      if (ednItems?.length) {
-        ednItems.forEach(item => {
-          citations.push(`Item EDN ${item.item_number}: ${item.title}`);
-        });
-      }
-
       if (immersiveItems?.length) {
         immersiveItems.forEach(item => {
-          citations.push(`Item ${item.item_code}: ${item.title}`);
+          citations.push(`Item EDN ${item.item_code}: ${item.title}`);
         });
       }
 
