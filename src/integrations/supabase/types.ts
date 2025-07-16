@@ -747,33 +747,6 @@ export type Database = {
         }
         Relationships: []
       }
-      edn_items_complete: {
-        Row: {
-          content: Json
-          created_at: string
-          id: string
-          item_number: string
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          content: Json
-          created_at?: string
-          id?: string
-          item_number: string
-          title: string
-          updated_at?: string
-        }
-        Update: {
-          content?: Json
-          created_at?: string
-          id?: string
-          item_number?: string
-          title?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       edn_items_immersive: {
         Row: {
           audio_ambiance: Json | null
@@ -834,45 +807,6 @@ export type Database = {
           title?: string
           updated_at?: string
           visual_ambiance?: Json | null
-        }
-        Relationships: []
-      }
-      edn_items_uness: {
-        Row: {
-          contenu_complet_html: string | null
-          created_at: string
-          date_import: string
-          html_raw: string | null
-          id: string
-          intitule: string
-          item_id: number
-          rangs_a: string[] | null
-          rangs_b: string[] | null
-          updated_at: string
-        }
-        Insert: {
-          contenu_complet_html?: string | null
-          created_at?: string
-          date_import?: string
-          html_raw?: string | null
-          id?: string
-          intitule: string
-          item_id: number
-          rangs_a?: string[] | null
-          rangs_b?: string[] | null
-          updated_at?: string
-        }
-        Update: {
-          contenu_complet_html?: string | null
-          created_at?: string
-          date_import?: string
-          html_raw?: string | null
-          id?: string
-          intitule?: string
-          item_id?: number
-          rangs_a?: string[] | null
-          rangs_b?: string[] | null
-          updated_at?: string
         }
         Relationships: []
       }
