@@ -3013,6 +3013,13 @@ export type Database = {
           details: Json
         }[]
       }
+      fix_generic_content_and_complete_platform: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          fixed_count: number
+          details: Json
+        }[]
+      }
       fusion_complete_finale: {
         Args: Record<PropertyKey, never>
         Returns: {
