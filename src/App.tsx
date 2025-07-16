@@ -42,6 +42,8 @@ import EdnObjectifsExtractionPage from "./pages/EdnObjectifsExtraction";
 import OicDataQualityManager from "./pages/OicDataQualityManager";
 import AuditCompleteness from "./pages/AuditCompleteness";
 import TestExtraction from "./pages/TestExtraction";
+import EdnComplete from "./pages/EdnComplete";
+import EdnCompleteDetail from "./pages/EdnCompleteDetail";
 
 const queryClient = new QueryClient();
 
@@ -59,8 +61,10 @@ const App = () => (
               <Route path="/generator" element={<Generator />} />
                <Route path="/edn" element={<ProtectedRoute><EdnIndex /></ProtectedRoute>} />
                
-               <Route path="/edn/:slug/immersive" element={<ProtectedRoute><EdnItemImmersive /></ProtectedRoute>} />
-               <Route path="/edn/music-library" element={<ProtectedRoute><EdnMusicLibrary /></ProtectedRoute>} />
+                <Route path="/edn/:slug/immersive" element={<ProtectedRoute><EdnItemImmersive /></ProtectedRoute>} />
+                <Route path="/edn/music-library" element={<ProtectedRoute><EdnMusicLibrary /></ProtectedRoute>} />
+                <Route path="/edn-complete" element={<EdnComplete />} />
+                <Route path="/edn-complete/:slug" element={<EdnCompleteDetail />} />
               <Route path="/ecos" element={<EcosIndex />} />
               <Route path="/ecos/:scenarioId" element={<EcosScenario />} />
               

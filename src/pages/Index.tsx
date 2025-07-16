@@ -51,6 +51,16 @@ const Index = () => {
               <PremiumButton
                 variant="glass"
                 size="sm"
+                onClick={() => navigate('/edn-complete')}
+                className="hidden md:inline-flex"
+              >
+                <Brain className="h-4 w-4 mr-2" />
+                <TranslatedText text="Base EDN" />
+              </PremiumButton>
+              
+              <PremiumButton
+                variant="glass"
+                size="sm"
                 onClick={() => navigate('/chat')}
                 className="hidden sm:inline-flex"
               >
@@ -153,34 +163,64 @@ const Index = () => {
             </p>
           </div>
           
-          <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
             {/* Items EDN */}
             <PremiumCard variant="gradient" className="p-8 text-center cursor-pointer" onClick={() => navigate('/edn')}>
               <div className="mx-auto w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-blue-500/25">
                 <BookOpen className="h-10 w-10 text-white" />
               </div>
               <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                <TranslatedText text="Items EDN Complets (IC-1 à IC-367)" />
+                <TranslatedText text="Items EDN Immersifs" />
               </h3>
               <p className="text-gray-600 mb-6 leading-relaxed">
-                <TranslatedText text="Items de Connaissance complets pour l'apprentissage médical structuré - 367 items avec compétences OIC intégrées" />
+                <TranslatedText text="Expérience immersive d'apprentissage médical avec contenu interactif" />
               </p>
               <div className="space-y-3 text-sm text-gray-600 mb-8">
                 <div className="flex items-center gap-3">
                   <div className="w-3 h-3 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full"></div>
-                  <span>367 items complets (IC-1 à IC-367)</span>
+                  <span>Contenu interactif</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="w-3 h-3 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full"></div>
-                  <span>4,872 compétences OIC intégrées</span>
+                  <span>Expérience immersive</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="w-3 h-3 bg-gradient-to-r from-purple-500 to-violet-500 rounded-full"></div>
-                  <span>Tableaux Rang A et B, 50 QCM par item</span>
+                  <span>Musique et jeux</span>
                 </div>
               </div>
               <PremiumButton variant="primary" size="lg" className="w-full">
-                <TranslatedText text="Accéder aux Items" />
+                <TranslatedText text="Mode Immersif" />
+              </PremiumButton>
+            </PremiumCard>
+
+            {/* Items EDN Complete */}
+            <PremiumCard variant="gradient" className="p-8 text-center cursor-pointer" onClick={() => navigate('/edn-complete')}>
+              <div className="mx-auto w-20 h-20 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-indigo-500/25">
+                <Brain className="h-10 w-10 text-white" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                <TranslatedText text="Base EDN Complète" />
+              </h3>
+              <p className="text-gray-600 mb-6 leading-relaxed">
+                <TranslatedText text="Base de données complète IC-1 à IC-367 avec 4,872 compétences OIC intégrées" />
+              </p>
+              <div className="space-y-3 text-sm text-gray-600 mb-8">
+                <div className="flex items-center gap-3">
+                  <div className="w-3 h-3 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full"></div>
+                  <span>367 items complets</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-3 h-3 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full"></div>
+                  <span>4,872 compétences OIC</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="w-3 h-3 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full"></div>
+                  <span>Recherche et filtres</span>
+                </div>
+              </div>
+              <PremiumButton variant="glass" size="lg" className="w-full">
+                <TranslatedText text="Explorer la Base" />
               </PremiumButton>
             </PremiumCard>
 
