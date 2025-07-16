@@ -23,6 +23,14 @@ export const TableauSection: React.FC<TableauSectionProps> = ({ data, title, typ
     );
   }
 
+  console.log('🎯 TableauSection render:', {
+    title: title,
+    type: type,
+    dataTitle: data?.title,
+    sectionsCount: data?.sections?.length,
+    firstConcept: data?.sections?.[0]?.concepts?.[0]?.concept
+  });
+  
   const sections = data.sections || [];
   const theme = data.title || title;
 
