@@ -2883,6 +2883,13 @@ export type Database = {
           items_details: Json
         }[]
       }
+      complete_missing_edn_fields: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          updated_count: number
+          details: Json
+        }[]
+      }
       count_all_invitations: {
         Args: Record<PropertyKey, never>
         Returns: number
