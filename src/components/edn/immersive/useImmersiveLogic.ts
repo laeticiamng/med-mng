@@ -49,7 +49,7 @@ export const useImmersiveLogic = () => {
           .from('edn_items_immersive')
           .select('*')
           .eq('slug', slug)
-          .single();
+          .maybeSingle();
 
         if (error) {
           console.error('❌ Erreur lors du chargement de l\'item:', error);
