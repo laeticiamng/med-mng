@@ -747,6 +747,117 @@ export type Database = {
         }
         Relationships: []
       }
+      edn_items_complete: {
+        Row: {
+          audio_ambiance: Json | null
+          backup_data: Json | null
+          competences_count_rang_a: number | null
+          competences_count_rang_b: number | null
+          competences_count_total: number | null
+          competences_oic_rang_a: Json | null
+          competences_oic_rang_b: Json | null
+          completeness_score: number | null
+          created_at: string
+          domaine_medical: string | null
+          id: string
+          interaction_config: Json | null
+          is_validated: boolean | null
+          item_code: string
+          migration_notes: string | null
+          mots_cles: string[] | null
+          niveau_complexite: string | null
+          paroles_musicales: string[] | null
+          payload_v2: Json | null
+          pitch_intro: string | null
+          quiz_questions: Json | null
+          reward_messages: Json | null
+          scene_immersive: Json | null
+          slug: string
+          specialite: string | null
+          status: string | null
+          subtitle: string | null
+          tableau_rang_a: Json | null
+          tableau_rang_b: Json | null
+          tags_medicaux: string[] | null
+          title: string
+          updated_at: string
+          validation_date: string | null
+          visual_ambiance: Json | null
+        }
+        Insert: {
+          audio_ambiance?: Json | null
+          backup_data?: Json | null
+          competences_count_rang_a?: number | null
+          competences_count_rang_b?: number | null
+          competences_count_total?: number | null
+          competences_oic_rang_a?: Json | null
+          competences_oic_rang_b?: Json | null
+          completeness_score?: number | null
+          created_at?: string
+          domaine_medical?: string | null
+          id?: string
+          interaction_config?: Json | null
+          is_validated?: boolean | null
+          item_code: string
+          migration_notes?: string | null
+          mots_cles?: string[] | null
+          niveau_complexite?: string | null
+          paroles_musicales?: string[] | null
+          payload_v2?: Json | null
+          pitch_intro?: string | null
+          quiz_questions?: Json | null
+          reward_messages?: Json | null
+          scene_immersive?: Json | null
+          slug: string
+          specialite?: string | null
+          status?: string | null
+          subtitle?: string | null
+          tableau_rang_a?: Json | null
+          tableau_rang_b?: Json | null
+          tags_medicaux?: string[] | null
+          title: string
+          updated_at?: string
+          validation_date?: string | null
+          visual_ambiance?: Json | null
+        }
+        Update: {
+          audio_ambiance?: Json | null
+          backup_data?: Json | null
+          competences_count_rang_a?: number | null
+          competences_count_rang_b?: number | null
+          competences_count_total?: number | null
+          competences_oic_rang_a?: Json | null
+          competences_oic_rang_b?: Json | null
+          completeness_score?: number | null
+          created_at?: string
+          domaine_medical?: string | null
+          id?: string
+          interaction_config?: Json | null
+          is_validated?: boolean | null
+          item_code?: string
+          migration_notes?: string | null
+          mots_cles?: string[] | null
+          niveau_complexite?: string | null
+          paroles_musicales?: string[] | null
+          payload_v2?: Json | null
+          pitch_intro?: string | null
+          quiz_questions?: Json | null
+          reward_messages?: Json | null
+          scene_immersive?: Json | null
+          slug?: string
+          specialite?: string | null
+          status?: string | null
+          subtitle?: string | null
+          tableau_rang_a?: Json | null
+          tableau_rang_b?: Json | null
+          tags_medicaux?: string[] | null
+          title?: string
+          updated_at?: string
+          validation_date?: string | null
+          visual_ambiance?: Json | null
+        }
+        Relationships: []
+      }
       edn_items_immersive: {
         Row: {
           audio_ambiance: Json | null
@@ -3214,6 +3325,15 @@ export type Database = {
       med_mng_toggle_like: {
         Args: { song_id: string }
         Returns: boolean
+      }
+      merge_all_tables_into_complete: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          processed_items: number
+          integrated_competences: number
+          backup_items_restored: number
+          total_unified_records: number
+        }[]
       }
       migrate_edn_items_complete: {
         Args: Record<PropertyKey, never>
