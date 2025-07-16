@@ -146,7 +146,26 @@ serve(async (req) => {
     })
     
     addCookie(response.headers.get("set-cookie"))
-    const casHtml = await response.text()
+    let casHtml = await response.text()
+    
+    // Si on a une autre redirection, la suivre
+    if (response.status >= 300 && response.status < 400) {
+      const nextRedirect = response.headers.get("location")
+      console.log(`[DEBUG] Nouvelle redirection vers: ${nextRedirect}`)
+      
+      if (nextRedirect) {
+        const fullNextUrl = nextRedirect.startsWith('http') ? nextRedirect : 'https://auth.uness.fr' + nextRedirect
+        response = await fetch(fullNextUrl, { 
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+            'Cookie': cookieHeader()
+          }
+        })
+        addCookie(response.headers.get("set-cookie"))
+        casHtml = await response.text()
+        authUrl = fullNextUrl // Mettre à jour l'URL pour le POST
+      }
+    }
     
     console.log('[DEBUG] CAS HTML length:', casHtml.length)
     console.log('[DEBUG] CAS HTML preview:', casHtml.substring(0, 1000))
