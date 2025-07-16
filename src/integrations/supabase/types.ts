@@ -2848,6 +2848,17 @@ export type Database = {
           audit_report: Json
         }[]
       }
+      audit_tableau_duplicates: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          audit_type: string
+          item_code: string
+          issue_description: string
+          duplicate_content: string
+          severity: string
+          recommendation: string
+        }[]
+      }
       check_music_generation_quota: {
         Args: { user_uuid: string }
         Returns: {
