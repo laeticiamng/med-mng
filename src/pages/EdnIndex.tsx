@@ -78,6 +78,26 @@ const EdnIndex = () => {
     }
   };
 
+  const isItemComplete = (item: EdnItem) => {
+    const hasRangA = !!item.tableau_rang_a;
+    const hasRangB = !!item.tableau_rang_b;
+    const hasMusic = !!(item.paroles_musicales && item.paroles_musicales.length > 0);
+    const hasScene = !!item.scene_immersive;
+    const hasQuiz = !!item.quiz_questions;
+    return hasRangA && hasRangB && hasMusic && hasScene && hasQuiz;
+  };
+
+  const getCompletionPercentage = (item: EdnItem) => {
+    const features = [
+      !!item.tableau_rang_a,
+      !!item.tableau_rang_b,
+      !!(item.paroles_musicales && item.paroles_musicales.length > 0),
+      !!item.scene_immersive,
+      !!item.quiz_questions
+    ];
+    return Math.round((features.filter(Boolean).length / features.length) * 100);
+  };
+
   const filteredItems = useMemo(() => {
     return items.filter(item => {
       const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -105,26 +125,6 @@ const EdnIndex = () => {
       return numA - numB;
     });
   }, [items, searchTerm, selectedCategory]);
-
-  const isItemComplete = (item: EdnItem) => {
-    const hasRangA = !!item.tableau_rang_a;
-    const hasRangB = !!item.tableau_rang_b;
-    const hasMusic = !!(item.paroles_musicales && item.paroles_musicales.length > 0);
-    const hasScene = !!item.scene_immersive;
-    const hasQuiz = !!item.quiz_questions;
-    return hasRangA && hasRangB && hasMusic && hasScene && hasQuiz;
-  };
-
-  const getCompletionPercentage = (item: EdnItem) => {
-    const features = [
-      !!item.tableau_rang_a,
-      !!item.tableau_rang_b,
-      !!(item.paroles_musicales && item.paroles_musicales.length > 0),
-      !!item.scene_immersive,
-      !!item.quiz_questions
-    ];
-    return Math.round((features.filter(Boolean).length / features.length) * 100);
-  };
 
   const calculateStats = () => {
     const total = items.length;
