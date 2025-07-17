@@ -1,21 +1,37 @@
 name: CI
+
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18, 20]
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: pnpm/action-setup@v3
         with:
-          node-version: 20
-          cache: 'pnpm'
-      - run: corepack enable
-      - run: pnpm install --frozen-lockfile
+          version: 8
+      - run: corepack enable && pnpm install --frozen-lockfile
       - run: pnpm lint
       - run: pnpm typecheck
-      - run: pnpm test
+      - run: pnpm test -- --coverage
+      - uses: codecov/codecov-action@v4
+        if: always()
       - run: pnpm build
+
+  deploy:
+    needs: build
+    if: github.ref_type == 'tag'
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v4
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - run: supabase functions deploy --project-ref ${{ secrets.SUPABASE_PROJECT_REF }} --password ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
