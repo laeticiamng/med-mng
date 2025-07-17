@@ -1,5 +1,6 @@
 
 import { corsHeaders, CreateSongRequest } from '../types.ts';
+import { getCache, setCache } from '../../../src/lib/cache.ts';
 
 export async function handleSongs(req: Request, supabase: any, path: string) {
   // POST /songs - Create a new song
@@ -34,18 +35,24 @@ export async function handleSongs(req: Request, supabase: any, path: string) {
   // GET /songs/:id/stream - Proxy streaming
   if (path.startsWith('/songs/') && path.endsWith('/stream') && req.method === 'GET') {
     const songId = path.split('/')[2];
-    
-    const { data: song, error } = await supabase
-      .from('med_mng_songs')
-      .select('suno_audio_id')
-      .eq('id', songId)
-      .single();
 
-    if (error || !song) {
-      return new Response(
-        JSON.stringify({ error: 'Song not found' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    let song = await getCache<{ suno_audio_id: string }>(`song:${songId}`);
+    if (!song) {
+      const { data, error } = await supabase
+        .from('med_mng_songs')
+        .select('suno_audio_id')
+        .eq('id', songId)
+        .single();
+
+      if (error || !data) {
+        return new Response(
+          JSON.stringify({ error: 'Song not found' }),
+          { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      song = data;
+      await setCache(`song:${songId}`, song);
     }
 
     // Proxy to Suno with streaming support
