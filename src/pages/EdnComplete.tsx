@@ -581,21 +581,20 @@ export default function EdnComplete() {
                         </div>
                         
                         <div className="flex gap-2">
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            onClick={() => openItemModal(item)}
-                          >
-                            <Maximize2 className="h-4 w-4 mr-1" />
-                            Mode Immersif
-                          </Button>
-                          <Button 
-                            size="sm"
-                            onClick={() => openItemModal(item)}
-                          >
-                            <Eye className="h-4 w-4 mr-1" />
-                            Détails
-                          </Button>
+                          {item.slug && (
+                            <Link to={`/edn/${item.slug}/immersive`}>
+                              <Button size="sm" variant="outline">
+                                <Maximize2 className="h-4 w-4 mr-1" />
+                                Immersif
+                              </Button>
+                            </Link>
+                          )}
+                          <Link to={`/edn-complete/${item.slug}`}>
+                            <Button size="sm">
+                              <Eye className="h-4 w-4 mr-1" />
+                              Détails
+                            </Button>
+                          </Link>
                         </div>
                       </div>
                     </CardContent>

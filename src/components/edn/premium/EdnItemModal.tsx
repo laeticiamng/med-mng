@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -20,7 +20,6 @@ import { RomanNarratif } from "@/components/edn/RomanNarratif";
 import { CompetencesBadges } from "@/components/edn/CompetencesBadges";
 import { CompetenceValidation } from "@/components/edn/CompetenceValidation";
 import { useEdnItemV2Process } from "@/hooks/useEdnItemV2Process";
-import { supabase } from "@/integrations/supabase/client";
 
 interface EdnItemModalProps {
   item: any;
@@ -36,36 +35,11 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
   const [activeTab, setActiveTab] = useState('overview');
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [audioPlaying, setAudioPlaying] = useState(false);
-  const [completeItemData, setCompleteItemData] = useState<any>(null);
   const isMobile = useIsMobile();
 
   // Traitement des données V2 si nécessaire
   const processedItem = useEdnItemV2Process(item);
   const finalItem = processedItem || item;
-
-  // Récupérer les données complètes OIC quand le modal s'ouvre
-  useEffect(() => {
-    const fetchCompleteData = async () => {
-      if (!finalItem?.item_code || !isOpen) return;
-      
-      try {
-        const { data, error } = await supabase
-          .from('edn_items_complete')
-          .select('competences_oic_rang_a, competences_oic_rang_b, tableau_rang_a, tableau_rang_b')
-          .eq('item_code', finalItem.item_code)
-          .single();
-
-        if (data && !error) {
-          setCompleteItemData(data);
-          console.log('🔥 Données OIC récupérées pour', finalItem.item_code, ':', data);
-        }
-      } catch (error) {
-        console.error('Erreur récupération données OIC:', error);
-      }
-    };
-
-    fetchCompleteData();
-  }, [finalItem?.item_code, isOpen]);
 
   if (!finalItem) return null;
 
@@ -171,7 +145,7 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
 
         {/* Navigation Tabs Premium Mobile */}
         <div className="flex-shrink-0 border-b bg-white/80 backdrop-blur-sm relative">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
+          <Tabs value={activeTab} onValueChange={setActiveTab}>
             {isMobile ? (
               // Navigation mobile optimisée
               <div className="relative">
@@ -220,180 +194,181 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                 })}
               </TabsList>
             )}
+          </Tabs>
+        </div>
 
-            {/* Content avec scroll optimisé */}
-            <div className="flex-1 overflow-y-auto relative min-h-0">
-              {isMobile && (
-                // Navigation par flèches sur mobile - repositionnée
-                <div className="fixed top-1/2 left-2 right-2 z-20 flex justify-between pointer-events-none">
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm shadow-lg active:scale-95 pointer-events-auto"
-                    onClick={() => {
-                      const currentIndex = tabs.findIndex(tab => tab.id === activeTab);
-                      if (currentIndex > 0) {
-                        setActiveTab(tabs[currentIndex - 1].id);
-                      }
-                    }}
-                    disabled={tabs.findIndex(tab => tab.id === activeTab) === 0}
-                  >
-                    ←
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm shadow-lg active:scale-95 pointer-events-auto"
-                    onClick={() => {
-                      const currentIndex = tabs.findIndex(tab => tab.id === activeTab);
-                      if (currentIndex < tabs.length - 1) {
-                        setActiveTab(tabs[currentIndex + 1].id);
-                      }
-                    }}
-                    disabled={tabs.findIndex(tab => tab.id === activeTab) === tabs.length - 1}
-                  >
-                    →
-                  </Button>
-                </div>
-              )}
-
-              {/* Overview */}
-              <TabsContent value="overview" className={`${isMobile ? 'p-3' : 'p-6'} space-y-4 flex-1 overflow-y-auto`}>
-                {/* Validation complète des compétences */}
-                <CompetenceValidation item={finalItem} />
-                
-                {/* Badges de compétences */}
-                <CompetencesBadges item={finalItem} />
-                
-                <div className={`grid ${isMobile ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-2'} gap-4`}>
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <CheckCircle className="h-5 w-5 text-green-600" />
-                        Contenu Disponible
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      {finalItem.tableau_rang_a && (
-                        <div className="flex items-center gap-2 text-green-600">
-                          <CheckCircle className="h-4 w-4" />
-                          <span>Tableau Rang A - Compétences fondamentales</span>
-                        </div>
-                      )}
-                      {finalItem.tableau_rang_b && (
-                        <div className="flex items-center gap-2 text-green-600">
-                          <CheckCircle className="h-4 w-4" />
-                          <span>Tableau Rang B - Compétences avancées</span>
-                        </div>
-                      )}
-                      {finalItem.paroles_musicales && finalItem.paroles_musicales.length > 0 && (
-                        <div className="flex items-center gap-2 text-green-600">
-                          <CheckCircle className="h-4 w-4" />
-                          <span>Musique - {finalItem.paroles_musicales.length} chansons d'apprentissage</span>
-                        </div>
-                      )}
-                      {finalItem.scene_immersive && (
-                        <div className="flex items-center gap-2 text-green-600">
-                          <CheckCircle className="h-4 w-4" />
-                          <span>Scène immersive - Expérience interactive</span>
-                        </div>
-                      )}
-                      {finalItem.quiz_questions && (
-                        <div className="flex items-center gap-2 text-green-600">
-                          <CheckCircle className="h-4 w-4" />
-                          <span>Quiz interactif - Évaluation des connaissances</span>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Star className="h-5 w-5 text-yellow-500" />
-                        Actions Rapides
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      <Button className="w-full" variant="outline">
-                        <Play className="h-4 w-4 mr-2" />
-                        Commencer l'apprentissage
-                      </Button>
-                      <Button className="w-full" variant="outline">
-                        <Download className="h-4 w-4 mr-2" />
-                        Télécharger le contenu
-                      </Button>
-                      <Button className="w-full" variant="outline">
-                        <Share2 className="h-4 w-4 mr-2" />
-                        Partager
-                      </Button>
-                    </CardContent>
-                  </Card>
-                </div>
-              </TabsContent>
-
-              {/* Rang A */}
-              {finalItem.tableau_rang_a && (
-                <TabsContent value="rang-a" className={`${isMobile ? 'p-3' : 'p-6'} flex-1 overflow-y-auto`}>
-                  <TableauRangA data={finalItem.tableau_rang_a} />
-                </TabsContent>
-              )}
-
-              {/* Rang B */}
-              {finalItem.tableau_rang_b && (
-                <TabsContent value="rang-b" className={`${isMobile ? 'p-3' : 'p-6'} flex-1 overflow-y-auto`}>
-                  <TableauRangB data={finalItem.tableau_rang_b} itemCode={finalItem.item_code} />
-                </TabsContent>
-              )}
-
-              {/* Music */}
-              {finalItem.paroles_musicales && finalItem.paroles_musicales.length > 0 && (
-                <TabsContent value="music" className={`${isMobile ? 'p-3' : 'p-6'} flex-1 overflow-y-auto`}>
-                  <ParolesMusicales 
-                    paroles={finalItem.paroles_musicales}
-                    itemCode={finalItem.item_code}
-                  />
-                </TabsContent>
-              )}
-
-              {/* Scene */}
-              {finalItem.scene_immersive && (
-                <TabsContent value="scene" className={`${isMobile ? 'p-3' : 'p-6'} flex-1 overflow-y-auto`}>
-                  <SceneImmersive data={finalItem.scene_immersive} itemCode={finalItem.item_code} />
-                </TabsContent>
-              )}
-
-              {/* Quiz */}
-              {finalItem.quiz_questions && (
-                <TabsContent value="quiz" className={`${isMobile ? 'p-3' : 'p-6'} flex-1 overflow-y-auto`}>
-                  <EnhancedQuizFinal 
-                    questions={finalItem.quiz_questions}
-                    itemCode={finalItem.item_code}
-                    itemTitle={finalItem.title}
-                  />
-                </TabsContent>
-              )}
-
-              {/* BD Gallery */}
-              <TabsContent value="bd" className={`${isMobile ? 'p-3' : 'p-6'} flex-1 overflow-y-auto`}>
-                <BdGallery 
-                  itemCode={finalItem.item_code}
-                  title={finalItem.title}
-                  tableauRangA={finalItem.tableau_rang_a}
-                  tableauRangB={finalItem.tableau_rang_b}
-                />
-              </TabsContent>
-
-              {/* Roman Narratif */}
-              <TabsContent value="roman" className={`${isMobile ? 'p-3' : 'p-6'} flex-1 overflow-y-auto`}>
-                <RomanNarratif 
-                  itemCode={finalItem.item_code}
-                  title={finalItem.title}
-                  tableauRangA={finalItem.tableau_rang_a}
-                  tableauRangB={finalItem.tableau_rang_b}
-                />
-              </TabsContent>
+        {/* Content avec scroll optimisé */}
+        <div className="flex-1 overflow-y-auto relative min-h-0">
+          {isMobile && (
+            // Navigation par flèches sur mobile - repositionnée
+            <div className="fixed top-1/2 left-2 right-2 z-20 flex justify-between pointer-events-none">
+              <Button
+                size="sm"
+                variant="ghost"
+                className="w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm shadow-lg active:scale-95 pointer-events-auto"
+                onClick={() => {
+                  const currentIndex = tabs.findIndex(tab => tab.id === activeTab);
+                  if (currentIndex > 0) {
+                    setActiveTab(tabs[currentIndex - 1].id);
+                  }
+                }}
+                disabled={tabs.findIndex(tab => tab.id === activeTab) === 0}
+              >
+                ←
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm shadow-lg active:scale-95 pointer-events-auto"
+                onClick={() => {
+                  const currentIndex = tabs.findIndex(tab => tab.id === activeTab);
+                  if (currentIndex < tabs.length - 1) {
+                    setActiveTab(tabs[currentIndex + 1].id);
+                  }
+                }}
+                disabled={tabs.findIndex(tab => tab.id === activeTab) === tabs.length - 1}
+              >
+                →
+              </Button>
             </div>
+          )}
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
+            {/* Overview */}
+            <TabsContent value="overview" className={`${isMobile ? 'p-3' : 'p-6'} space-y-4 flex-1 overflow-y-auto`}>
+              {/* Validation complète des compétences */}
+              <CompetenceValidation item={finalItem} />
+              
+              {/* Badges de compétences */}
+              <CompetencesBadges item={finalItem} />
+              
+              <div className={`grid ${isMobile ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-2'} gap-4`}>
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <CheckCircle className="h-5 w-5 text-green-600" />
+                      Contenu Disponible
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    {finalItem.tableau_rang_a && (
+                      <div className="flex items-center gap-2 text-green-600">
+                        <CheckCircle className="h-4 w-4" />
+                        <span>Tableau Rang A - Compétences fondamentales</span>
+                      </div>
+                    )}
+                    {finalItem.tableau_rang_b && (
+                      <div className="flex items-center gap-2 text-green-600">
+                        <CheckCircle className="h-4 w-4" />
+                        <span>Tableau Rang B - Compétences avancées</span>
+                      </div>
+                    )}
+                    {finalItem.paroles_musicales && finalItem.paroles_musicales.length > 0 && (
+                      <div className="flex items-center gap-2 text-green-600">
+                        <CheckCircle className="h-4 w-4" />
+                        <span>Musique - {finalItem.paroles_musicales.length} chansons d'apprentissage</span>
+                      </div>
+                    )}
+                    {finalItem.scene_immersive && (
+                      <div className="flex items-center gap-2 text-green-600">
+                        <CheckCircle className="h-4 w-4" />
+                        <span>Scène immersive - Expérience interactive</span>
+                      </div>
+                    )}
+                    {finalItem.quiz_questions && (
+                      <div className="flex items-center gap-2 text-green-600">
+                        <CheckCircle className="h-4 w-4" />
+                        <span>Quiz interactif - Évaluation des connaissances</span>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Star className="h-5 w-5 text-yellow-500" />
+                      Actions Rapides
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <Button className="w-full" variant="outline">
+                      <Play className="h-4 w-4 mr-2" />
+                      Commencer l'apprentissage
+                    </Button>
+                    <Button className="w-full" variant="outline">
+                      <Download className="h-4 w-4 mr-2" />
+                      Télécharger le contenu
+                    </Button>
+                    <Button className="w-full" variant="outline">
+                      <Share2 className="h-4 w-4 mr-2" />
+                      Partager
+                    </Button>
+                  </CardContent>
+                </Card>
+              </div>
+            </TabsContent>
+
+            {/* Rang A */}
+            {finalItem.tableau_rang_a && (
+              <TabsContent value="rang-a" className={`${isMobile ? 'p-3' : 'p-6'} flex-1 overflow-y-auto`}>
+                <TableauRangA data={finalItem.tableau_rang_a} />
+              </TabsContent>
+            )}
+
+            {/* Rang B */}
+            {finalItem.tableau_rang_b && (
+              <TabsContent value="rang-b" className={`${isMobile ? 'p-3' : 'p-6'} flex-1 overflow-y-auto`}>
+                <TableauRangB data={finalItem.tableau_rang_b} itemCode={finalItem.item_code} />
+              </TabsContent>
+            )}
+
+            {/* Music */}
+            {finalItem.paroles_musicales && finalItem.paroles_musicales.length > 0 && (
+              <TabsContent value="music" className={`${isMobile ? 'p-3' : 'p-6'} flex-1 overflow-y-auto`}>
+                <ParolesMusicales 
+                  paroles={finalItem.paroles_musicales}
+                  itemCode={finalItem.item_code}
+                />
+              </TabsContent>
+            )}
+
+            {/* Scene */}
+            {finalItem.scene_immersive && (
+              <TabsContent value="scene" className={`${isMobile ? 'p-3' : 'p-6'} flex-1 overflow-y-auto`}>
+                <SceneImmersive data={finalItem.scene_immersive} itemCode={finalItem.item_code} />
+              </TabsContent>
+            )}
+
+            {/* Quiz */}
+            {finalItem.quiz_questions && (
+              <TabsContent value="quiz" className={`${isMobile ? 'p-3' : 'p-6'} flex-1 overflow-y-auto`}>
+                <EnhancedQuizFinal 
+                  questions={finalItem.quiz_questions}
+                  itemCode={finalItem.item_code}
+                  itemTitle={finalItem.title}
+                />
+              </TabsContent>
+            )}
+
+            {/* BD Gallery */}
+            <TabsContent value="bd" className={`${isMobile ? 'p-3' : 'p-6'} flex-1 overflow-y-auto`}>
+              <BdGallery 
+                itemCode={finalItem.item_code}
+                title={finalItem.title}
+                tableauRangA={finalItem.tableau_rang_a}
+                tableauRangB={finalItem.tableau_rang_b}
+              />
+            </TabsContent>
+
+            {/* Roman Narratif */}
+            <TabsContent value="roman" className={`${isMobile ? 'p-3' : 'p-6'} flex-1 overflow-y-auto`}>
+              <RomanNarratif 
+                itemCode={finalItem.item_code}
+                title={finalItem.title}
+                tableauRangA={finalItem.tableau_rang_a}
+                tableauRangB={finalItem.tableau_rang_b}
+              />
+            </TabsContent>
           </Tabs>
         </div>
       </DialogContent>
