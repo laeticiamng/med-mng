@@ -1,0 +1,9 @@
+{
+  "name": "MED-MNG",
+  "short_name": "MED-MNG",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "description": "Plateforme immersive d'apprentissage musical"
+}
