@@ -1,7 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 import { supabase } from '../integrations/supabase/client';
 
-export async function getEdnMusic(req: Request, res: Response, next: NextFunction) {
+export async function getEdnMusic(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   try {
     const { slug, rang } = req.params as { slug?: string; rang?: string };
     if (!slug || !rang) {

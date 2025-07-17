@@ -1,0 +1,158 @@
+version: '3.8'
+
+services:
+  # Supabase Services
+  supabase-db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "54322:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  supabase-auth:
+    image: supabase/gotrue:latest
+    depends_on:
+      supabase-db:
+        condition: service_healthy
+    environment:
+      API_EXTERNAL_URL: http://localhost:54321
+      GOTRUE_API_HOST: 0.0.0.0
+      GOTRUE_API_PORT: 9999
+      GOTRUE_DB_DRIVER: postgres
+      GOTRUE_DB_DATABASE_URL: postgres://postgres:postgres@supabase-db:5432/postgres
+      GOTRUE_SITE_URL: http://localhost:3000
+      GOTRUE_JWT_SECRET: ${JWT_SECRET}
+      GOTRUE_JWT_EXP: 3600
+    ports:
+      - "9999:9999"
+
+  supabase-realtime:
+    image: supabase/realtime:latest
+    depends_on:
+      supabase-db:
+        condition: service_healthy
+    environment:
+      DB_HOST: supabase-db
+      DB_PORT: 5432
+      DB_NAME: postgres
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      SLOT_NAME: supabase_realtime
+      PORT: 4000
+    ports:
+      - "4000:4000"
+
+  supabase-storage:
+    image: supabase/storage-api:latest
+    depends_on:
+      supabase-db:
+        condition: service_healthy
+    environment:
+      ANON_KEY: ${SUPABASE_ANON_KEY}
+      SERVICE_KEY: ${SUPABASE_SERVICE_KEY}
+      PROJECT_REF: local
+      DATABASE_URL: postgres://postgres:postgres@supabase-db:5432/postgres
+      FILE_SIZE_LIMIT: 52428800
+      STORAGE_BACKEND: file
+      FILE_STORAGE_BACKEND_PATH: /var/lib/storage
+    volumes:
+      - storage-data:/var/lib/storage
+    ports:
+      - "5000:5000"
+
+  supabase-kong:
+    image: kong:2.8-alpine
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /var/lib/kong/kong.yml
+    volumes:
+      - ./supabase/kong.yml:/var/lib/kong/kong.yml
+    ports:
+      - "54321:8000"
+
+  # Redis
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes
+    volumes:
+      - redis-data:/data
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # Application Services
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    depends_on:
+      - supabase-kong
+      - redis
+    environment:
+      SUPABASE_URL: http://supabase-kong:8000
+      SUPABASE_ANON_KEY: ${SUPABASE_ANON_KEY}
+      SUPABASE_SERVICE_KEY: ${SUPABASE_SERVICE_KEY}
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "54327:54327"
+    volumes:
+      - ./apps/api:/app/apps/api
+      - ./packages:/app/packages
+
+  worker:
+    build:
+      context: .
+      dockerfile: apps/worker/Dockerfile
+    depends_on:
+      - supabase-kong
+      - redis
+    environment:
+      SUPABASE_URL: http://supabase-kong:8000
+      SUPABASE_SERVICE_KEY: ${SUPABASE_SERVICE_KEY}
+      REDIS_URL: redis://redis:6379
+      SUNO_API_KEY: ${SUNO_API_KEY}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+    volumes:
+      - ./apps/worker:/app/apps/worker
+      - ./packages:/app/packages
+
+  cron:
+    build:
+      context: .
+      dockerfile: apps/cron/Dockerfile
+    depends_on:
+      - supabase-kong
+      - redis
+    environment:
+      SUPABASE_URL: http://supabase-kong:8000
+      SUPABASE_SERVICE_KEY: ${SUPABASE_SERVICE_KEY}
+      REDIS_URL: redis://redis:6379
+
+  # Development tools
+  bull-board:
+    image: deadly0/bull-board
+    environment:
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    ports:
+      - "3030:3000"
+    depends_on:
+      - redis
+
+volumes:
+  postgres-data:
+  storage-data:
+  redis-data:
