@@ -4,7 +4,7 @@ import { generateVideo } from '../utils/video';
 import { removeVocals } from '../utils/vocal-remove';
 
 export async function convertTrackToWav(
-  req: Request,
+  req: Request<{ audioId: string }>,
   res: Response,
   next: NextFunction
 ) {
@@ -17,7 +17,7 @@ export async function convertTrackToWav(
 }
 
 export async function generateTrackVideo(
-  req: Request,
+  req: Request<{ audioId: string }>,
   res: Response,
   next: NextFunction
 ) {
@@ -30,7 +30,7 @@ export async function generateTrackVideo(
 }
 
 export async function removeTrackVocals(
-  req: Request,
+  req: Request<{ audioId: string }>,
   res: Response,
   next: NextFunction
 ) {

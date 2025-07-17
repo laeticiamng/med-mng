@@ -1,5 +1,8 @@
 # MED-MNG - Medical Learning Platform
 
+[![CI](https://github.com/laeticiamng/med-mng/actions/workflows/ci.yml/badge.svg)](https://github.com/laeticiamng/med-mng/actions/workflows/ci.yml)
+[![Coverage](https://img.shields.io/badge/coverage-unknown-lightgrey.svg)](https://github.com/laeticiamng/med-mng)
+
 A platform for medical students and professionals to learn through AI-generated musical content. MED-MNG transforms complex medical concepts into memorable songs, making studying more engaging and effective.
 
 ## 🎵 Features
