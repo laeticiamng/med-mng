@@ -293,6 +293,34 @@ export default function EdnComplete() {
                   Unifié
                 </TabsTrigger>
               </TabsList>
+
+              <TabsContent value="immersive" className="mt-6">
+                <div className="text-center">
+                  <h3 className="text-lg font-semibold mb-2">Mode Immersif</h3>
+                  <p className="text-gray-600 text-sm">Explorez les items avec scènes 3D, quiz interactifs et expériences immersives</p>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="complete" className="mt-6">
+                <div className="text-center">
+                  <h3 className="text-lg font-semibold mb-2">Mode Complet</h3>
+                  <p className="text-gray-600 text-sm">Accédez aux données OIC complètes avec métriques de qualité et validation</p>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="music" className="mt-6">
+                <div className="text-center">
+                  <h3 className="text-lg font-semibold mb-2">Mode Musical</h3>
+                  <p className="text-gray-600 text-sm">Découvrez les items avec paroles musicales et contenu audio</p>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="unified" className="mt-6">
+                <div className="text-center">
+                  <h3 className="text-lg font-semibold mb-2">Mode Unifié</h3>
+                  <p className="text-gray-600 text-sm">Interface complète fusionnant toutes les fonctionnalités EDN</p>
+                </div>
+              </TabsContent>
             </Tabs>
 
             <div className="flex items-center justify-center gap-2 mt-4">
@@ -472,33 +500,6 @@ export default function EdnComplete() {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
-        <TabsContent value="immersive" className="mt-0">
-          <div className="mb-4">
-            <h2 className="text-2xl font-bold mb-2">Mode Immersif</h2>
-            <p className="text-gray-600">Explorez les items avec scènes 3D, quiz interactifs et expériences immersives</p>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="complete" className="mt-0">
-          <div className="mb-4">
-            <h2 className="text-2xl font-bold mb-2">Mode Complet</h2>
-            <p className="text-gray-600">Accédez aux données OIC complètes avec métriques de qualité et validation</p>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="music" className="mt-0">
-          <div className="mb-4">
-            <h2 className="text-2xl font-bold mb-2">Mode Musical</h2>
-            <p className="text-gray-600">Découvrez les items avec paroles musicales et contenu audio</p>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="unified" className="mt-0">
-          <div className="mb-4">
-            <h2 className="text-2xl font-bold mb-2">Mode Unifié</h2>
-            <p className="text-gray-600">Interface complète fusionnant toutes les fonctionnalités EDN</p>
-          </div>
-        </TabsContent>
 
         {/* Résultats */}
         <div className="mb-4">
