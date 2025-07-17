@@ -7,9 +7,8 @@ COPY . .
 RUN pnpm build
 
 # Production stage
-FROM node:20-alpine
+FROM gcr.io/distroless/nodejs20-debian11
 WORKDIR /app
 COPY --from=builder /app/dist ./dist
-COPY package.json ./
-RUN npm install --omit=dev && npm install ts-node
-CMD ["node", "--loader", "ts-node/esm", "src/index.ts"]
+COPY --from=builder /app/dist-server ./dist-server
+CMD ["dist-server/index.js"]
