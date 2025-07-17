@@ -43,7 +43,7 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
   const processedItem = useEdnItemV2Process(item);
   const finalItem = processedItem || item;
 
-  // Récupérer les données complètes OIC quand le modal s'ouvre
+  // Récupérer TOUTES les données de edn_items_complete pour remplacer les données génériques d'immersive
   useEffect(() => {
     const fetchCompleteData = async () => {
       if (!finalItem?.item_code || !isOpen) return;
@@ -51,16 +51,18 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
       try {
         const { data, error } = await supabase
           .from('edn_items_complete')
-          .select('competences_oic_rang_a, competences_oic_rang_b, tableau_rang_a, tableau_rang_b')
+          .select('*')
           .eq('item_code', finalItem.item_code)
           .single();
 
         if (data && !error) {
           setCompleteItemData(data);
-          console.log('🔥 Données OIC récupérées pour', finalItem.item_code, ':', data);
+          console.log('🔥 Données complètes récupérées pour', finalItem.item_code, ':', data);
+        } else {
+          console.log('⚠️ Aucune donnée complète trouvée pour', finalItem.item_code);
         }
       } catch (error) {
-        console.error('Erreur récupération données OIC:', error);
+        console.error('Erreur récupération données complètes:', error);
       }
     };
 
@@ -332,15 +334,15 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                 </div>
               </TabsContent>
 
-              {/* Rang A */}
-              {(finalItem.tableau_rang_a || completeItemData?.tableau_rang_a) && (
+              {/* Rang A - PRIORITÉ aux données complètes */}
+              {(completeItemData?.tableau_rang_a || finalItem.tableau_rang_a) && (
                 <TabsContent value="rang-a" className={`${isMobile ? 'p-3' : 'p-6'} flex-1 overflow-y-auto`}>
                   <TableauRangA data={completeItemData?.tableau_rang_a || finalItem.tableau_rang_a} />
                 </TabsContent>
               )}
 
-              {/* Rang B */}
-              {(finalItem.tableau_rang_b || completeItemData?.tableau_rang_b) && (
+              {/* Rang B - PRIORITÉ aux données complètes */}
+              {(completeItemData?.tableau_rang_b || finalItem.tableau_rang_b) && (
                 <TabsContent value="rang-b" className={`${isMobile ? 'p-3' : 'p-6'} flex-1 overflow-y-auto`}>
                   <TableauRangB data={completeItemData?.tableau_rang_b || finalItem.tableau_rang_b} itemCode={finalItem.item_code} />
                 </TabsContent>
@@ -374,23 +376,23 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                 </TabsContent>
               )}
 
-              {/* BD Gallery */}
+              {/* BD Gallery - Utilise les données complètes */}
               <TabsContent value="bd" className={`${isMobile ? 'p-3' : 'p-6'} flex-1 overflow-y-auto`}>
                 <BdGallery 
                   itemCode={finalItem.item_code}
-                  title={finalItem.title}
-                  tableauRangA={finalItem.tableau_rang_a}
-                  tableauRangB={finalItem.tableau_rang_b}
+                  title={completeItemData?.title || finalItem.title}
+                  tableauRangA={completeItemData?.tableau_rang_a || finalItem.tableau_rang_a}
+                  tableauRangB={completeItemData?.tableau_rang_b || finalItem.tableau_rang_b}
                 />
               </TabsContent>
 
-              {/* Roman Narratif */}
+              {/* Roman Narratif - Utilise les données complètes */}
               <TabsContent value="roman" className={`${isMobile ? 'p-3' : 'p-6'} flex-1 overflow-y-auto`}>
                 <RomanNarratif 
                   itemCode={finalItem.item_code}
-                  title={finalItem.title}
-                  tableauRangA={finalItem.tableau_rang_a}
-                  tableauRangB={finalItem.tableau_rang_b}
+                  title={completeItemData?.title || finalItem.title}
+                  tableauRangA={completeItemData?.tableau_rang_a || finalItem.tableau_rang_a}
+                  tableauRangB={completeItemData?.tableau_rang_b || finalItem.tableau_rang_b}
                 />
               </TabsContent>
             </div>
