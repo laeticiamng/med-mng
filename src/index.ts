@@ -5,6 +5,7 @@ import {
   generateTrackVideo,
   removeTrackVocals,
 } from './controllers/sunoController';
+import { getEdnMusic } from './controllers/ednController';
 import { errorHandler } from './middleware/errorHandler';
 
 const app = express();
@@ -17,6 +18,8 @@ app.get('/health', healthCheck);
 app.get('/suno/:audioId/wav', convertTrackToWav);
 app.post('/suno/:audioId/video', generateTrackVideo);
 app.post('/suno/:audioId/instrumental', removeTrackVocals);
+
+app.get('/edn/:slug/music/:rang', getEdnMusic);
 
 app.use(errorHandler);
 
