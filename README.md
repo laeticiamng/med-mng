@@ -76,6 +76,9 @@ The main API is served from the `med-mng-api` edge function.
 - `POST /subscriptions/checkout` – create Stripe checkout session
 - `GET /quota` – remaining generation quota
 - `GET /verify-item/:id` – validate a learning item
+- `GET /suno/:audioId/wav` – convert a track to WAV
+- `POST /suno/:audioId/video` – generate an MP4 video
+- `POST /suno/:audioId/instrumental` – create an instrumental version
 
 All routes require Supabase authentication and return JSON.
 
