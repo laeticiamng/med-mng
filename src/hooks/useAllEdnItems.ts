@@ -33,7 +33,11 @@ export const useAllEdnItems = () => {
 
         if (data) {
           console.log(`✅ ${data.length} items EDN récupérés`);
-          setItems(data);
+          const convertedData = data.map(item => ({
+            ...item,
+            subtitle: item.subtitle ?? undefined
+          }));
+          setItems(convertedData);
         }
       } catch (err) {
         console.error('❌ Erreur lors de la récupération des items:', err);

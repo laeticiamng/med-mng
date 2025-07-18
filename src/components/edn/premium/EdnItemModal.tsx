@@ -209,7 +209,7 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                 onClick={() => {
                   const currentIndex = tabs.findIndex(tab => tab.id === activeTab);
                   if (currentIndex > 0) {
-                    setActiveTab(tabs[currentIndex - 1].id);
+                    setActiveTab(tabs[currentIndex - 1]?.id || activeTab);
                   }
                 }}
                 disabled={tabs.findIndex(tab => tab.id === activeTab) === 0}
@@ -223,7 +223,7 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                 onClick={() => {
                   const currentIndex = tabs.findIndex(tab => tab.id === activeTab);
                   if (currentIndex < tabs.length - 1) {
-                    setActiveTab(tabs[currentIndex + 1].id);
+                    setActiveTab(tabs[currentIndex + 1]?.id || activeTab);
                   }
                 }}
                 disabled={tabs.findIndex(tab => tab.id === activeTab) === tabs.length - 1}
@@ -262,12 +262,12 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                         <span>Tableau Rang B - Compétences avancées</span>
                       </div>
                     )}
-                    {finalItem.paroles_musicales && finalItem.paroles_musicales.length > 0 && (
-                      <div className="flex items-center gap-2 text-green-600">
-                        <CheckCircle className="h-4 w-4" />
-                        <span>Musique - {finalItem.paroles_musicales.length} chansons d'apprentissage</span>
-                      </div>
-                    )}
+                     {finalItem.paroles_musicales && finalItem.paroles_musicales.length > 0 && (
+                       <div className="flex items-center gap-2 text-green-600">
+                         <CheckCircle className="h-4 w-4" />
+                         <span>Musique - {finalItem.paroles_musicales?.length || 0} chansons d'apprentissage</span>
+                       </div>
+                     )}
                     {finalItem.scene_immersive && (
                       <div className="flex items-center gap-2 text-green-600">
                         <CheckCircle className="h-4 w-4" />

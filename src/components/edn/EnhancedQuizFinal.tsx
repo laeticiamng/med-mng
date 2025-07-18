@@ -22,11 +22,11 @@ interface EnhancedQuizFinalProps {
     }>;
   };
   rewards?: {
-    [key: string]: string;
+    [key: string]: string | undefined;
     completion?: string;
     badge?: string;
     message?: string;
-  };
+  } | null;
   itemCode: string;
   itemTitle: string;
 }
@@ -100,7 +100,7 @@ export const EnhancedQuizFinal: React.FC<EnhancedQuizFinalProps> = ({
     return (
       <QuizFinal 
         questions={questions} 
-        rewards={rewards}
+        rewards={rewards || undefined}
         itemCode={itemCode}
         itemTitle={itemTitle}
       />

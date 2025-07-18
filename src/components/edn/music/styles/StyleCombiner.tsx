@@ -42,7 +42,7 @@ export const StyleCombiner = ({
     if (selectedStyles.length === 0) return [];
     
     const lastSelectedStyle = selectedStyles[selectedStyles.length - 1];
-    const compatible = getCompatibleStyles(lastSelectedStyle);
+    const compatible = getCompatibleStyles(lastSelectedStyle || '');
     return compatible.filter(s => !selectedStyles.includes(s.value)).slice(0, 4);
   };
 

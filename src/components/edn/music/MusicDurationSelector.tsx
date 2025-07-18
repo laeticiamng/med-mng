@@ -27,7 +27,7 @@ export const MusicDurationSelector = ({
       <div className="px-2">
         <Slider
           value={[duration]}
-          onValueChange={(values) => onDurationChange(values[0])}
+          onValueChange={(values) => onDurationChange(values[0] ?? 60)}
           min={60}
           max={600}
           step={30}

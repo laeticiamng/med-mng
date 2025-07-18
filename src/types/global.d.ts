@@ -24,23 +24,26 @@ export interface EdnItem {
   scene_immersive?: any;
   competences_oic_rang_a?: any;
   competences_oic_rang_b?: any;
+  [key: string]: any;
 }
 
 export interface CompetenceOIC {
   objectif_id: string;
   intitule: string;
-  description?: OptionalString;
-  rubrique?: OptionalString;
-  titre_complet?: OptionalString;
-  sommaire?: OptionalString;
-  mecanismes?: OptionalString;
-  indications?: OptionalString;
-  interactions?: OptionalString;
-  effets_indesirables?: OptionalString;
-  causes_echec?: OptionalString;
-  modalites_surveillance?: OptionalString;
+  description?: NullableString;
+  rubrique?: NullableString;
+  titre_complet?: NullableString;
+  sommaire?: NullableString;
+  mecanismes?: NullableString;
+  indications?: NullableString;
+  interactions?: NullableString;
+  effets_indesirables?: NullableString;
+  causes_echec?: NullableString;
+  modalites_surveillance?: NullableString;
+  contributeurs?: NullableString;
   ordre_affichage?: number;
   keywords?: string[];
+  [key: string]: any;
 }
 
 export interface Conversation {
@@ -50,6 +53,7 @@ export interface Conversation {
   created_at: string;
   updated_at: string;
   user_id: string;
+  [key: string]: any;
 }
 
 export interface EdnItemPlatform {
@@ -57,12 +61,31 @@ export interface EdnItemPlatform {
   title: string;
   tableau_rang_a: any;
   tableau_rang_b: any;
-  paroles_musicales: string[];
+  paroles_musicales: string[] | null;
+  [key: string]: any;
+}
+
+export interface EdnItemComplete {
+  id?: string;
+  item_code: string;
+  title: string;
+  subtitle?: NullableString;
+  tableau_rang_a?: any;
+  tableau_rang_b?: any;
+  paroles_musicales?: string[] | null;
+  scene_immersive?: any;
+  quiz_questions?: any;
+  audio_ambiance?: any;
+  visual_ambiance?: any;
+  created_at?: string;
+  updated_at?: string;
+  [key: string]: any;
 }
 
 // Utilitaires pour conversion des types
 export const safeString = (value: NullableString): string => value ?? '';
 export const safeArray = <T>(value: T[] | null | undefined): T[] => value ?? [];
 export const safeNumber = (value: number | undefined): number => value ?? 0;
+export const convertNull = <T>(value: T | null): T | undefined => value === null ? undefined : value;
 
 export {};

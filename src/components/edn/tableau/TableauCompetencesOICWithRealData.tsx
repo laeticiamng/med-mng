@@ -103,7 +103,7 @@ export const TableauCompetencesOICWithRealData: React.FC<TableauCompetencesOICWi
 
   return (
     <TableauCompetencesOICOptimized 
-      data={competencesData} 
+      data={competencesData as any} 
       itemCode={itemCode} 
       rang={rang} 
     />

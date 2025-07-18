@@ -44,8 +44,8 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
     return parseInt(itemCode.replace('IC-', '') || '0');
   };
 
-  const getFeatures = () => {
-    const features = [];
+  const getFeatures = (): Array<{ icon: React.ComponentType<any>; text: string; color: string }> => {
+    const features: Array<{ icon: React.ComponentType<any>; text: string; color: string }> = [];
     if (finalItem.tableau_rang_a) features.push({ icon: BookOpen, text: 'Rang A', color: 'text-blue-600' });
     if (finalItem.tableau_rang_b) features.push({ icon: BookOpen, text: 'Rang B', color: 'text-purple-600' });
     if (finalItem.paroles_musicales && finalItem.paroles_musicales.length > 0) {

@@ -61,6 +61,19 @@ export const QuizSection: React.FC<QuizSectionProps> = ({ quizData, itemCode }) 
   const currentQuestion = questions[currentQuestionIndex];
   const isLastQuestion = currentQuestionIndex === questions.length - 1;
   
+  if (!currentQuestion) {
+    return (
+      <Card className="w-full">
+        <CardHeader>
+          <CardTitle className="text-red-600">⚠️ Quiz - Question indisponible</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-gray-500">Question non trouvée.</p>
+        </CardContent>
+      </Card>
+    );
+  }
+  
   const handleAnswer = (answerIndex: number) => {
     setSelectedAnswer(answerIndex);
     setShowExplanation(true);

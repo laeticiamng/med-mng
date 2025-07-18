@@ -33,8 +33,9 @@ export const QuizErrorSongGenerator: React.FC<QuizErrorSongGeneratorProps> = ({
     if (!currentErrors.length) return '';
 
     const errorsByTheme = currentErrors.reduce((acc, error) => {
-      if (!acc[error.theme]) acc[error.theme] = [];
-      acc[error.theme].push(error);
+      const theme = error?.theme || 'general';
+      if (!acc[theme]) acc[theme] = [];
+      acc[theme].push(error);
       return acc;
     }, {} as Record<string, typeof currentErrors>);
 

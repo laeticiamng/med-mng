@@ -11,13 +11,13 @@ import {
 
 // Fonction pour déterminer les colonnes utiles selon le contenu
 export function determinerColonnesUtiles(lignes: string[][]): any[] {
-  const colonnesUtiles = [];
+  const colonnesUtiles: any[] = [];
   
   for (let colIndex = 0; colIndex < COLONNES_CONFIG.length; colIndex++) {
     const config = COLONNES_CONFIG[colIndex];
     
     // Toujours inclure les colonnes obligatoires
-    if (config.obligatoire) {
+    if (config?.obligatoire) {
       colonnesUtiles.push(config);
       continue;
     }
@@ -36,7 +36,7 @@ export function determinerColonnesUtiles(lignes: string[][]): any[] {
              cellule.length > 20; // Contenu substantiel
     });
     
-    if (aContenuPertinent) {
+    if (aContenuPertinent && config) {
       colonnesUtiles.push(config);
     }
   }
