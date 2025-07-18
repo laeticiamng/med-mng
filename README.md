@@ -72,7 +72,7 @@ cp .env.example .env
 
 ```bash
 # Start all services with Docker
-pnpm start:dev
+docker compose up -d
 
 # Or start services individually
 supabase start
