@@ -42,7 +42,10 @@ export const useMusicLibrary = () => {
         return;
       }
 
-      setSavedMusics(data || []);
+      setSavedMusics((data || []).map(music => ({
+        ...music,
+        item_code: music.item_code || undefined
+      })));
     } catch (error) {
       console.error('Erreur:', error);
     } finally {

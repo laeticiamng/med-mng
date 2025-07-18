@@ -81,7 +81,21 @@ export const useOicCompetences = (itemCode: string, rang: 'A' | 'B') => {
         }) || [];
 
         console.log(`🎯 ${realCompetences.length} compétences AUTHENTIQUES après filtrage`);
-        setCompetences(realCompetences);
+        setCompetences(realCompetences.map(comp => ({
+          ...comp,
+          description: comp.description || 'Description non disponible',
+          rubrique: comp.rubrique || 'Rubrique non définie',
+          titre_complet: comp.titre_complet || undefined,
+          sommaire: comp.sommaire || undefined,
+          mecanismes: comp.mecanismes || undefined,
+          indications: comp.indications || undefined,
+          effets_indesirables: comp.effets_indesirables || undefined,
+          interactions: comp.interactions || undefined,
+          modalites_surveillance: comp.modalites_surveillance || undefined,
+          causes_echec: comp.causes_echec || undefined,
+          contributeurs: comp.contributeurs || undefined,
+          ordre_affichage: comp.ordre_affichage || undefined
+        })));
         
       } catch (err) {
         console.error('❌ Erreur:', err);

@@ -45,7 +45,19 @@ export const useEdnItemsComplete = () => {
         .order('item_code');
 
       if (error) throw error;
-      setItems(data || []);
+      setItems((data || []).map(item => ({
+        ...item,
+        subtitle: item.subtitle || undefined,
+        specialite: item.specialite || undefined,
+        domaine_medical: item.domaine_medical || undefined,
+        niveau_complexite: item.niveau_complexite || undefined,
+        pitch_intro: item.pitch_intro || undefined,
+        validation_date: item.validation_date || undefined,
+        mots_cles: item.mots_cles || undefined,
+        tags_medicaux: item.tags_medicaux || undefined,
+        paroles_musicales: item.paroles_musicales || undefined,
+        status: item.status || undefined
+      }) as EdnItemComplete));
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Une erreur est survenue');
     } finally {
@@ -76,7 +88,19 @@ export const useEdnItemComplete = (slug: string) => {
           .single();
 
         if (error) throw error;
-        setItem(data);
+        setItem(data ? {
+          ...data,
+          subtitle: data.subtitle || undefined,
+          specialite: data.specialite || undefined,
+          domaine_medical: data.domaine_medical || undefined,
+          niveau_complexite: data.niveau_complexite || undefined,
+          pitch_intro: data.pitch_intro || undefined,
+          validation_date: data.validation_date || undefined,
+          mots_cles: data.mots_cles || undefined,
+          tags_medicaux: data.tags_medicaux || undefined,
+          paroles_musicales: data.paroles_musicales || undefined,
+          status: data.status || undefined
+        } as EdnItemComplete : null);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Item non trouvé');
       } finally {

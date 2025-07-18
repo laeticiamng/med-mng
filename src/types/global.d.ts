@@ -30,17 +30,17 @@ export interface EdnItem {
 export interface CompetenceOIC {
   objectif_id: string;
   intitule: string;
-  description?: NullableString;
-  rubrique?: NullableString;
-  titre_complet?: NullableString;
-  sommaire?: NullableString;
-  mecanismes?: NullableString;
-  indications?: NullableString;
-  interactions?: NullableString;
-  effets_indesirables?: NullableString;
-  causes_echec?: NullableString;
-  modalites_surveillance?: NullableString;
-  contributeurs?: NullableString;
+  description: string;
+  rubrique: string;
+  titre_complet?: string;
+  sommaire?: string;
+  mecanismes?: string;
+  indications?: string;
+  interactions?: string;
+  effets_indesirables?: string;
+  causes_echec?: string;
+  modalites_surveillance?: string;
+  contributeurs?: string;
   ordre_affichage?: number;
   keywords?: string[];
   [key: string]: any;

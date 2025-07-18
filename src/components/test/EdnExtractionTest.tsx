@@ -70,7 +70,7 @@ export const EdnExtractionTest = () => {
       
     } catch (error) {
       console.error('Erreur extraction:', error);
-      toast.error(`❌ Erreur: ${error.message}`);
+      toast.error(`❌ Erreur: ${error instanceof Error ? error.message : 'Erreur inconnue'}`);
     } finally {
       setIsExtracting(false);
     }
@@ -104,7 +104,7 @@ export const EdnExtractionTest = () => {
       
     } catch (error) {
       console.error('Erreur extraction complète:', error);
-      toast.error(`❌ Erreur: ${error.message}`);
+      toast.error(`❌ Erreur: ${error instanceof Error ? error.message : 'Erreur inconnue'}`);
     } finally {
       setIsExtracting(false);
     }
@@ -153,7 +153,10 @@ export const EdnExtractionTest = () => {
         .limit(10);
 
       if (error) throw error;
-      setCurrentItems(data || []);
+      setCurrentItems((data || []).map(item => ({
+        ...item,
+        paroles_musicales: item.paroles_musicales || []
+      })));
     } catch (error) {
       console.error('Erreur chargement items actuels:', error);
     }

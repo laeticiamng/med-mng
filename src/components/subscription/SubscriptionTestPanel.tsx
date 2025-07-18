@@ -65,7 +65,7 @@ export const SubscriptionTestPanel: React.FC = () => {
       }
     } catch (error) {
       console.error('Erreur création compte test:', error);
-      toast.error(`Erreur création compte ${account.plan}: ${error.message}`);
+      toast.error(`Erreur création compte ${account.plan}: ${error instanceof Error ? error.message : 'Erreur inconnue'}`);
       return false;
     }
   };
@@ -115,7 +115,7 @@ export const SubscriptionTestPanel: React.FC = () => {
       
     } catch (error) {
       console.error('Erreur test abonnement:', error);
-      toast.error(`Erreur test ${account.plan}: ${error.message}`);
+      toast.error(`Erreur test ${account.plan}: ${error instanceof Error ? error.message : 'Erreur inconnue'}`);
       
       setTestAccounts(prev => prev.map(acc => 
         acc.email === account.email ? { ...acc, status: 'error' } : acc
