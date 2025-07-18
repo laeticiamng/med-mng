@@ -16,15 +16,15 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
       rangA: {
         present: false,
         count: 0,
-        competences: []
+        competences: [] as string[]
       },
       rangB: {
         present: false,
         count: 0,
-        competences: []
+        competences: [] as string[]
       },
       complete: false,
-      issues: []
+      issues: [] as string[]
     };
 
     // Validation Rang A - logique améliorée
@@ -46,7 +46,7 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
         );
       }
     } else {
-      validation.issues.push("Tableau Rang A manquant");
+      validation.issues.push("Tableau Rang A manquant" as never);
     }
 
     // Validation Rang B - logique améliorée
@@ -68,20 +68,20 @@ export const CompetenceValidation: React.FC<CompetenceValidationProps> = ({ item
         );
       }
     } else {
-      validation.issues.push("Tableau Rang B manquant");
+      validation.issues.push("Tableau Rang B manquant" as never);
     }
 
     // Vérification des contenus complémentaires
     if (!item.paroles_musicales || item.paroles_musicales.length === 0) {
-      validation.issues.push("Paroles musicales manquantes");
+      validation.issues.push("Paroles musicales manquantes" as never);
     }
 
     if (!item.quiz_questions) {
-      validation.issues.push("Quiz manquant");
+      validation.issues.push("Quiz manquant" as never);
     }
 
     if (!item.scene_immersive) {
-      validation.issues.push("Scène immersive manquante");
+      validation.issues.push("Scène immersive manquante" as never);
     }
 
     // Déterminer si l'item est complet

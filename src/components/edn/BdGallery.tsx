@@ -26,8 +26,22 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
   const isMobile = useIsMobile();
 
   // Générer des vignettes basées sur les compétences
-  const generateVignettes = () => {
-    const vignettes = [];
+  const generateVignettes = (): Array<{
+    id: string;
+    title: string;
+    description: string;
+    image: string;
+    type: string;
+    competences?: number;
+  }> => {
+    const vignettes: Array<{
+      id: string;
+      title: string;
+      description: string;
+      image: string;
+      type: string;
+      competences?: number;
+    }> = [];
     
     // Vignette d'introduction
     vignettes.push({
@@ -123,6 +137,9 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
   }
 
   const currentVig = vignettes[currentVignette];
+  if (!currentVig) {
+    return <div>Erreur: Vignette non trouvée</div>;
+  }
 
   return (
     <div className="space-y-6">
@@ -196,7 +213,7 @@ export const BdGallery: React.FC<BdGalleryProps> = ({
             <h3 className="text-xl font-bold mb-2">{currentVig.title}</h3>
             <p className="text-gray-600 mb-4">{currentVig.description}</p>
             
-            {currentVig.competences && (
+            {currentVig.competences && currentVig.competences > 0 && (
               <div className="flex items-center gap-2 mb-4">
                 <Badge variant="outline">
                   {currentVig.competences} compétences

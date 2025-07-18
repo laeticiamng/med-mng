@@ -42,11 +42,11 @@ export const AudioPlayer = ({
   };
 
   const handleSeek = (value: number[]) => {
-    onSeek(value[0]);
+    onSeek(value[0] || 0);
   };
 
   const handleVolumeChange = (value: number[]) => {
-    const newVolume = value[0] / 100;
+    const newVolume = (value[0] || 0) / 100;
     onVolumeChange(newVolume);
     if (newVolume > 0) {
       setIsMuted(false);
@@ -101,7 +101,7 @@ export const AudioPlayer = ({
         />
         <div className="flex justify-between text-xs text-amber-600 mt-1">
           <span>{formatTime(currentTime)}</span>
-          <span>{formatTime(duration)}</span>
+          <span>{formatTime(duration || 0)}</span>
         </div>
       </div>
 

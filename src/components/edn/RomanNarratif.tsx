@@ -26,8 +26,20 @@ export const RomanNarratif: React.FC<RomanNarratifProps> = ({
   const [readingProgress, setReadingProgress] = useState(0);
 
   // Générer les chapitres basés sur les compétences
-  const generateChapters = () => {
-    const chapters = [];
+  const generateChapters = (): Array<{
+    id: string;
+    title: string;
+    content: string;
+    type: string;
+    competences: number;
+  }> => {
+    const chapters: Array<{
+      id: string;
+      title: string;
+      content: string;
+      type: string;
+      competences: number;
+    }> = [];
     
     // Chapitre d'introduction
     chapters.push({
@@ -123,6 +135,10 @@ export const RomanNarratif: React.FC<RomanNarratifProps> = ({
   }
 
   const currentChap = chapters[currentChapter];
+  
+  if (!currentChap) {
+    return <div>Erreur: Chapitre non trouvé</div>;
+  }
 
   return (
     <div className="space-y-6">

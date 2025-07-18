@@ -7,15 +7,15 @@ interface EdnItemImmersive {
   id: string;
   slug: string;
   title: string;
-  subtitle: string;
+  subtitle: string | null;
   item_code: string;
-  pitch_intro: string;
+  pitch_intro: string | null;
   visual_ambiance: any;
   audio_ambiance: any;
   tableau_rang_a: any;
   tableau_rang_b: any;
   scene_immersive: any;
-  paroles_musicales: string[];
+  paroles_musicales: string[] | null;
   interaction_config: any;
   quiz_questions: any;
   reward_messages: any;
@@ -50,7 +50,7 @@ export const useImmersiveLogic = () => {
         const { data, error } = await supabase
           .from('edn_items_immersive')
           .select('*')
-          .eq('slug', slug)
+          .eq('slug', slug || '')
           .maybeSingle();
 
         if (error) {

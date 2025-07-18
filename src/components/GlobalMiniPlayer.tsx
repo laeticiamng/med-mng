@@ -42,11 +42,11 @@ export const GlobalMiniPlayer = () => {
   };
 
   const handleSeek = (value: number[]) => {
-    seek(value[0]);
+    seek(value[0] || 0);
   };
 
   const handleVolumeChange = (value: number[]) => {
-    const newVolume = value[0] / 100;
+    const newVolume = (value[0] || 0) / 100;
     changeVolume(newVolume);
     if (newVolume > 0) {
       setIsMuted(false);
@@ -65,7 +65,7 @@ export const GlobalMiniPlayer = () => {
   };
 
   const skipForward = () => {
-    seek(Math.min(duration, currentTime + 10));
+    seek(Math.min(duration || 0, currentTime + 10));
   };
 
   const skipBackward = () => {
@@ -139,7 +139,7 @@ export const GlobalMiniPlayer = () => {
                 className="flex-1"
               />
               <span className="text-xs text-amber-600 whitespace-nowrap">
-                {formatTime(duration)}
+                {formatTime(duration || 0)}
               </span>
             </div>
 

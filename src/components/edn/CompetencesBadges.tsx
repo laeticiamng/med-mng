@@ -71,7 +71,7 @@ export const CompetencesBadges: React.FC<CompetencesBadgesProps> = ({ item }) =>
       available: !!(item.paroles_musicales && item.paroles_musicales.length > 0),
       count: item.paroles_musicales?.length || 0,
       description: 'Chansons d\'apprentissage',
-      color: item.paroles_musicales?.length > 0 ? 'text-green-600 bg-green-50 border-green-200' : 'text-gray-400 bg-gray-50 border-gray-200'
+      color: (item.paroles_musicales?.length ?? 0) > 0 ? 'text-green-600 bg-green-50 border-green-200' : 'text-gray-400 bg-gray-50 border-gray-200'
     },
     {
       id: 'scene',

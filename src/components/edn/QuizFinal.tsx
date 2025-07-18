@@ -32,7 +32,7 @@ interface QuizFinalProps {
     }>;
   };
   rewards?: {
-    [key: string]: string;
+    [key: string]: string | undefined;
     completion?: string;
     badge?: string;
     message?: string;
@@ -117,7 +117,17 @@ export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = '
   }
 
   // Questions traditionnelles QCM/QRU/etc.
-  const allQuestions = [];
+  const allQuestions: Array<{
+    type: string;
+    id: number;
+    question: string;
+    options?: string[];
+    correct?: number;
+    reponse?: string;
+    points_cles?: string[];
+    affirmation?: string;
+    justification?: string;
+  }> = [];
   
   if (questions.qcm) {
     allQuestions.push(...questions.qcm.map((q, i) => ({ ...q, type: 'qcm', id: i })));
@@ -293,7 +303,7 @@ export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = '
             Question {currentQuestion + 1}/{allQuestions.length}
           </Badge>
           <Badge variant="outline" className="text-blue-700 border-blue-300">
-            {allQuestions[currentQuestion].type.toUpperCase()}
+            {allQuestions[currentQuestion]?.type.toUpperCase()}
           </Badge>
         </div>
       </div>
@@ -314,7 +324,7 @@ export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = '
                 className={`w-2 h-2 md:w-3 md:h-3 rounded-full transition-colors flex-shrink-0 ${
                   index === currentQuestion
                     ? 'bg-amber-600'
-                    : answers[allQuestions[index].id] !== undefined
+                    : (allQuestions[index]?.id !== undefined && answers[allQuestions[index].id] !== undefined)
                     ? 'bg-green-400'
                     : 'bg-gray-200'
                 }`}
