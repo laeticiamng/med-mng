@@ -30,7 +30,7 @@ export const useMusicTransposition = () => {
 
       return audioUrl;
     } catch (error) {
-      const errorMessage = error.message || "Erreur lors de la transposition";
+      const errorMessage = (error instanceof Error ? error.message : String(error)) || "Erreur lors de la transposition";
       toast({
         title: "Erreur de transposition",
         description: errorMessage,

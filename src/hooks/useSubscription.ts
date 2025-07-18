@@ -103,6 +103,8 @@ export const useSubscription = () => {
 
       if (subData && subData.length > 0) {
         const subInfo = subData[0];
+        if (!subInfo) return;
+        
         const normalizedSubscription: SubscriptionPlan = {
           plan_id: subInfo.plan_id,
           plan_name: subInfo.plan_name,

@@ -126,7 +126,7 @@ export const useMedMngMusicGeneration = () => {
     } catch (error) {
       console.error(`❌ ERREUR GÉNÉRATION RANG ${rang}:`, error);
       
-      const errorMessage = error.message || "Impossible de générer la musique. Veuillez réessayer.";
+      const errorMessage = (error instanceof Error ? error.message : String(error)) || "Impossible de générer la musique. Veuillez réessayer.";
       setLastError(errorMessage);
       toast({
         title: "Erreur de génération",

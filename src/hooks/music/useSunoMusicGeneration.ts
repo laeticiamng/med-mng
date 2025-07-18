@@ -83,7 +83,7 @@ export const useSunoMusicGeneration = () => {
     } catch (error) {
       console.error(`❌ ERREUR GÉNÉRATION SUNO Rang ${rang}:`, error);
       
-      const errorMessage = error.message || "Impossible de générer la musique avec Suno. Veuillez réessayer.";
+      const errorMessage = (error instanceof Error ? error.message : String(error)) || "Impossible de générer la musique avec Suno. Veuillez réessayer.";
       setLastError(errorMessage);
       toast({
         title: "Erreur de génération Suno",
