@@ -43,7 +43,10 @@ export const useChatConversations = () => {
         return;
       }
 
-      setConversations(data || []);
+      setConversations((data || []).map(conv => ({
+        ...conv,
+        last_message: conv.last_message || undefined
+      })) as Conversation[]);
     } catch (error) {
       console.error('Erreur:', error);
     }
@@ -56,7 +59,8 @@ export const useChatConversations = () => {
         .from('chat_conversations')
         .insert({
           title,
-          user_id: (await supabase.auth.getUser()).data.user?.id,
+          user_id: (await supabase.auth.getUser()).data.user?.id!,
+          last_message: null
         })
         .select()
         .single();
@@ -71,7 +75,10 @@ export const useChatConversations = () => {
         return null;
       }
 
-      setCurrentConversation(data);
+      setCurrentConversation({
+        ...data,
+        last_message: data.last_message || undefined
+      } as Conversation);
       await loadConversations();
       return data;
     } catch (error) {

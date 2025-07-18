@@ -61,7 +61,7 @@ export interface EdnItemPlatform {
   title: string;
   tableau_rang_a: any;
   tableau_rang_b: any;
-  paroles_musicales: string[] | null;
+  paroles_musicales: string[];
   [key: string]: any;
 }
 
