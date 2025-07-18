@@ -2,13 +2,14 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Book, FileText, PenTool, Heart, Sparkles, Music, Scroll, BookOpen } from 'lucide-react';
+import { Book, FileText, PenTool, Heart, Sparkles, Music, Scroll, BookOpen, LucideIcon } from 'lucide-react';
+import { renderIcon } from '@/lib/typeHelper';
 
 interface ContentFormat {
   id: string;
   name: string;
   description: string;
-  icon: React.ElementType;
+  icon: LucideIcon;
   color: string;
   bgColor: string;
   borderColor: string;
@@ -175,7 +176,6 @@ export const ContentFormatSelector: React.FC<ContentFormatSelectorProps> = ({
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {contentFormats.map((format) => {
-          const Icon = format.icon;
           const isSelected = selectedFormat === format.id;
           const isPreview = previewFormat === format.id;
           
@@ -190,9 +190,9 @@ export const ContentFormatSelector: React.FC<ContentFormatSelectorProps> = ({
               onClick={() => handleFormatClick(format)}
             >
               <CardHeader className="text-center pb-3">
-                <div className={`w-12 h-12 mx-auto mb-3 rounded-lg ${format.bgColor} ${format.borderColor} border flex items-center justify-center`}>
-                  <Icon className={`h-6 w-6 ${format.color}`} />
-                </div>
+                 <div className={`w-12 h-12 mx-auto mb-3 rounded-lg ${format.bgColor} ${format.borderColor} border flex items-center justify-center`}>
+                   {renderIcon(format.icon, { className: `h-6 w-6 ${format.color}` })}
+                 </div>
                 <CardTitle className={`text-base ${format.color}`}>
                   {format.name}
                 </CardTitle>

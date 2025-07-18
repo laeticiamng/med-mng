@@ -453,9 +453,9 @@ Note de mise en scène : Cette pièce peut être adaptée avec des éléments vi
       {selectedFormat && (
         <Card className="bg-gradient-to-br from-indigo-50 to-purple-50 border-indigo-200">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 text-indigo-800">
-              <selectedFormat.icon className="h-6 w-6" />
-              Génération de contenu - {selectedFormat.name}
+             <CardTitle className="flex items-center gap-2 text-indigo-800">
+               {React.createElement(selectedFormat.icon as any, { className: "h-6 w-6" })}
+               Génération de contenu - {selectedFormat.name}
             </CardTitle>
             <CardDescription>
               Création d'un {selectedFormat.name.toLowerCase()} complet pour {itemData.title} (Rangs A & B)
