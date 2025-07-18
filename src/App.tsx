@@ -2,6 +2,9 @@
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { ErrorBoundary } from "./components/ErrorBoundary";
+import { ErrorNotification } from "./components/ErrorNotification";
+import { useErrorHandler } from "./hooks/useErrorHandler";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
@@ -44,15 +47,19 @@ import EdnCompleteDetail from "./pages/EdnCompleteDetail";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <LanguageProvider>
-      <GlobalAudioProvider>
-        <AuthProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <BrowserRouter>
+const App = () => {
+  const { error, clearError } = useErrorHandler()
+
+  return (
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <LanguageProvider>
+          <GlobalAudioProvider>
+            <AuthProvider>
+              <TooltipProvider>
+                <Toaster />
+                <Sonner />
+                <BrowserRouter>
               <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/generator" element={<Generator />} />
@@ -106,11 +113,13 @@ const App = () => (
                <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
+          <ErrorNotification error={error} onDismiss={clearError} />
         </TooltipProvider>
         </AuthProvider>
       </GlobalAudioProvider>
     </LanguageProvider>
   </QueryClientProvider>
-);
+    </ErrorBoundary>
+  );
 
 export default App;
