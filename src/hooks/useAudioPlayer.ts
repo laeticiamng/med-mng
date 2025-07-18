@@ -1,112 +1,96 @@
+import { useState, useEffect, useCallback } from 'react';
 
-import { useState, useRef, useEffect } from 'react';
+interface Song {
+  id: string;
+  title: string;
+  audio_url: string;
+  duration?: string;
+  style?: string;
+}
 
-export const useAudioPlayer = () => {
+interface UseAudioPlayerReturn {
+  currentSong: Song | null;
+  playlist: Song[];
+  isPlaying: boolean;
+  setCurrentSong: (song: Song) => void;
+  addToPlaylist: (song: Song) => void;
+  removeFromPlaylist: (songId: string) => void;
+  clearPlaylist: () => void;
+  playNext: () => void;
+  playPrevious: () => void;
+}
+
+export const useAudioPlayer = (): UseAudioPlayerReturn => {
+  const [currentSong, setCurrentSong] = useState<Song | null>(null);
+  const [playlist, setPlaylist] = useState<Song[]>([]);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const [volume, setVolume] = useState(0.8);
-  const [currentTrack, setCurrentTrack] = useState<string | null>(null);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
-
-  const play = (audioUrl: string) => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-    }
-
-    const audio = new Audio(audioUrl);
-    audioRef.current = audio;
-    setCurrentTrack(audioUrl);
-    audio.volume = volume;
-
-    audio.addEventListener('loadedmetadata', () => {
-      setDuration(audio.duration);
-    });
-
-    audio.addEventListener('timeupdate', () => {
-      setCurrentTime(audio.currentTime);
-    });
-
-    audio.addEventListener('ended', () => {
-      setIsPlaying(false);
-      setCurrentTime(0);
-    });
-
-    audio.addEventListener('error', (e) => {
-      console.error('Erreur audio:', e);
-      setIsPlaying(false);
-      setCurrentTrack(null);
-    });
-
-    audio.play().then(() => {
-      setIsPlaying(true);
-    }).catch((error) => {
-      console.error('Erreur lecture audio:', error);
-      setIsPlaying(false);
-    });
-  };
-
-  const pause = () => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      setIsPlaying(false);
-    }
-  };
-
-  const resume = () => {
-    if (audioRef.current) {
-      audioRef.current.play().then(() => {
-        setIsPlaying(true);
-      }).catch((error) => {
-        console.error('Erreur reprise audio:', error);
-        setIsPlaying(false);
-      });
-    }
-  };
-
-  const stop = () => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current.currentTime = 0;
-      setIsPlaying(false);
-      setCurrentTime(0);
-      setCurrentTrack(null);
-    }
-  };
-
-  const seek = (time: number) => {
-    if (audioRef.current) {
-      audioRef.current.currentTime = time;
-      setCurrentTime(time);
-    }
-  };
-
-  const changeVolume = (newVolume: number) => {
-    setVolume(newVolume);
-    if (audioRef.current) {
-      audioRef.current.volume = newVolume;
-    }
-  };
 
   useEffect(() => {
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause();
+    const savedPlaylist = localStorage.getItem('music-playlist');
+    if (savedPlaylist) {
+      try {
+        setPlaylist(JSON.parse(savedPlaylist));
+      } catch (err) {
+        console.error('Error loading playlist:', err);
       }
-    };
+    }
   }, []);
 
+  useEffect(() => {
+    localStorage.setItem('music-playlist', JSON.stringify(playlist));
+  }, [playlist]);
+
+  const addToPlaylist = useCallback((song: Song) => {
+    setPlaylist((prev) => {
+      const exists = prev.find((s) => s.id === song.id);
+      if (exists) return prev;
+      return [...prev, song];
+    });
+  }, []);
+
+  const removeFromPlaylist = useCallback((songId: string) => {
+    setPlaylist((prev) => prev.filter((s) => s.id !== songId));
+  }, []);
+
+  const clearPlaylist = useCallback(() => {
+    setPlaylist([]);
+    setCurrentSong(null);
+  }, []);
+
+  const playNext = useCallback(() => {
+    if (!currentSong || playlist.length === 0) return;
+
+    const currentIndex = playlist.findIndex((s) => s.id === currentSong.id);
+    const nextIndex = (currentIndex + 1) % playlist.length;
+    setCurrentSong(playlist[nextIndex]);
+  }, [currentSong, playlist]);
+
+  const playPrevious = useCallback(() => {
+    if (!currentSong || playlist.length === 0) return;
+
+    const currentIndex = playlist.findIndex((s) => s.id === currentSong.id);
+    const prevIndex =
+      currentIndex === 0 ? playlist.length - 1 : currentIndex - 1;
+    setCurrentSong(playlist[prevIndex]);
+  }, [currentSong, playlist]);
+
+  const handleSetCurrentSong = useCallback(
+    (song: Song) => {
+      setCurrentSong(song);
+      addToPlaylist(song);
+    },
+    [addToPlaylist]
+  );
+
   return {
+    currentSong,
+    playlist,
     isPlaying,
-    currentTime,
-    duration,
-    volume,
-    currentTrack,
-    play,
-    pause,
-    resume,
-    stop,
-    seek,
-    changeVolume
+    setCurrentSong: handleSetCurrentSong,
+    addToPlaylist,
+    removeFromPlaylist,
+    clearPlaylist,
+    playNext,
+    playPrevious,
   };
 };
