@@ -1,119 +1,12 @@
-
-<!DOCTYPE html>
+<!doctype html>
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <title>MED MNG par EmotionsCare - Expérience Immersive d'Apprentissage Médical</title>
-    <meta name="description" content="Plateforme immersive d'apprentissage des items EDN et situations ECOS - Médecine sensorielle et interactive" />
-    <meta name="author" content="MED MNG par EmotionsCare" />
-
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
-    <link rel="manifest" href="/manifest.json">
-
-    <meta property="og:title" content="MED MNG par EmotionsCare - Apprentissage Médical Immersif" />
-    <meta property="og:description" content="Et si la médecine devenait une expérience sensorielle ? Découvrez les items EDN et situations ECOS dans un univers immersif unique." />
-    <meta property="og:type" content="website" />
-    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:site" content="@medmng" />
-    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
-    
-    <style>
-      /* Navigation mobile premium optimisée */
-      @media (max-width: 768px) {
-        body {
-          -webkit-text-size-adjust: 100%;
-          -webkit-tap-highlight-color: transparent;
-          touch-action: manipulation;
-          overscroll-behavior: contain;
-        }
-        
-        button, [role="button"], [role="tab"] {
-          min-height: 48px;
-          min-width: 48px;
-          -webkit-user-select: none;
-          user-select: none;
-          -webkit-tap-highlight-color: transparent;
-          touch-action: manipulation;
-          transition: transform 0.15s ease;
-        }
-        
-        button:active, [role="button"]:active, [role="tab"]:active {
-          transform: scale(0.95);
-        }
-        
-        .scrollbar-hide {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-          -webkit-overflow-scrolling: touch;
-          scroll-behavior: smooth;
-        }
-        
-        .scrollbar-hide::-webkit-scrollbar {
-          display: none;
-        }
-        
-        input[type="text"], input[type="search"], textarea {
-          font-size: 16px;
-          -webkit-appearance: none;
-          border-radius: 12px;
-        }
-        
-        /* Amélioration des modales sur mobile */
-        [data-radix-portal] {
-          position: fixed !important;
-          inset: 0 !important;
-          z-index: 9999 !important;
-        }
-        
-        /* Navigation par gestes */
-        .swipe-indicator {
-          background: linear-gradient(90deg, transparent, rgba(147, 51, 234, 0.3), transparent);
-          height: 2px;
-          width: 100%;
-          position: absolute;
-          bottom: 0;
-          animation: swipe-hint 2s infinite;
-        }
-        
-        @keyframes swipe-hint {
-          0%, 100% { opacity: 0; }
-          50% { opacity: 1; }
-        }
-      }
-      
-      @supports (-webkit-touch-callout: none) {
-        .modal-content {
-          -webkit-overflow-scrolling: touch;
-          overscroll-behavior: contain;
-        }
-        
-        /* Amélioration pour Safari iOS */
-        .safe-area-inset {
-          padding-top: env(safe-area-inset-top);
-          padding-bottom: env(safe-area-inset-bottom);
-          padding-left: env(safe-area-inset-left);
-          padding-right: env(safe-area-inset-right);
-        }
-      }
-      
-      /* Animations fluides pour les interactions */
-      .premium-transition {
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      }
-      
-      .premium-hover:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-      }
-    </style>
+    <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MED-MNG par EmotionsCare - Apprentissage Médical Immersif</title>
+    <meta name="description" content="Plateforme d'apprentissage médical avec génération musicale IA" />
   </head>
-
   <body>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>

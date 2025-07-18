@@ -1,80 +1,80 @@
-import { useState } from 'react'
-import { useErrorHandler } from './useErrorHandler'
-import { apiService } from '../services/ApiService'
+import { useState, useCallback } from 'react'
+
+interface GenerateParams {
+  prompt: string
+  style: string
+  duration: string
+  title?: string
+}
+
+interface Song {
+  id: string
+  title: string
+  audio_url: string
+  status: string
+  style: string
+  duration: string
+}
 
 export const useMusicGeneration = () => {
   const [isGenerating, setIsGenerating] = useState(false)
   const [progress, setProgress] = useState(0)
-  const [songData, setSongData] = useState<any>(null)
-  const { error, setError, clearError, withErrorHandling } = useErrorHandler()
+  const [songData, setSongData] = useState<Song | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
-  const generateMusic = withErrorHandling(async (params: {
-    prompt: string
-    style: string
-    duration: string
-    title?: string
-  }) => {
+  const generateMusic = useCallback(async (params: GenerateParams) => {
     setIsGenerating(true)
     setProgress(0)
     setSongData(null)
+    setError(null)
 
-    const result = await apiService.generateSong(params)
-
-    if (!result.success) {
-      throw new Error(result.error || 'Erreur lors de la génération')
-    }
-
-    await pollSongStatus(result.data!.songId)
-  })
-
-  const pollSongStatus = async (songId: string) => {
-    const maxAttempts = 120
-    let attempts = 0
-
-    const poll = async (): Promise<void> => {
-      if (attempts >= maxAttempts) {
-        setIsGenerating(false)
-        throw new Error('Timeout: La génération prend trop de temps')
-      }
-
-      attempts++
-      setProgress(Math.min((attempts / maxAttempts) * 100, 95))
-
-      const result = await apiService.getSongStatus(songId)
-
-      if (!result.success) {
-        setTimeout(poll, 5000)
-        return
-      }
-
-      const song = result.data
-
-      if (song.status === 'complete' && song.audio_url) {
-        setIsGenerating(false)
-        setProgress(100)
-        setSongData(song)
-      } else if (song.status === 'error') {
-        setIsGenerating(false)
-        throw new Error('Erreur lors de la génération musicale')
-      } else {
-        setTimeout(poll, 5000)
-      }
-    }
-
-    poll()
-  }
-
-  const retryGeneration = () => {
-    clearError()
-    if (songData?.prompt) {
-      generateMusic({
-        prompt: songData.prompt,
-        style: songData.style,
-        duration: songData.duration,
-        title: songData.title,
+    try {
+      // Simulation d'appel API - Remplacer par vraie API Supabase
+      const response = await fetch('/api/songs', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(params),
       })
+
+      if (!response.ok) {
+        throw new Error('Erreur lors de la génération')
+      }
+
+      const { songId } = await response.json()
+
+      // Simulation de polling - Remplacer par vraie logique
+      const pollInterval = setInterval(async () => {
+        setProgress(prev => {
+          const newProgress = prev + Math.random() * 10
+          if (newProgress >= 100) {
+            clearInterval(pollInterval)
+            // Simuler une chanson générée
+            setSongData({
+              id: songId || 'demo',
+              title: params.title || 'Musique générée',
+              audio_url: 'https://www.soundjay.com/misc/sounds/bell-ringing-05.wav',
+              status: 'complete',
+              style: params.style,
+              duration: params.duration
+            })
+            setIsGenerating(false)
+            return 100
+          }
+          return newProgress
+        })
+      }, 500)
+
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Erreur inconnue')
+      setIsGenerating(false)
     }
-  }
+  }, [])
+
+  const clearError = useCallback(() => {
+    setError(null)
+  }, [])
 
   return {
     isGenerating,
@@ -82,7 +82,6 @@ export const useMusicGeneration = () => {
     songData,
     error,
     generateMusic,
-    retryGeneration,
-    clearError,
+    clearError
   }
 }
