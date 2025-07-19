@@ -1,84 +1,35 @@
-import { useState } from "react"
-import { Navigation } from './components/Navigation'
-import { MusicGenerator } from './components/MusicGenerator'
+import { Routes, Route } from 'react-router-dom'
 import { ErrorBoundary } from './components/ErrorBoundary'
-import { LoadingSpinner } from './components/LoadingStates'
-
-type PageType = 'musique' | 'rang-a' | 'rang-b' | 'quiz' | 'scene' | 'bd' | 'roman'
+import Index from './pages/Index'
+import EdnComplete from './pages/EdnComplete'
+import EdnIndex from './pages/EdnIndex'
+import EdnItemImmersive from './pages/EdnItemImmersive'
+import Generator from './pages/Generator'
+import MedMngCreate from './pages/MedMngCreate'
+import MedMngLogin from './pages/MedMngLogin'
+import MedMngProfile from './pages/MedMngProfile'
+import MedMngPlayer from './pages/MedMngPlayer'
+import EcosScenario from './pages/EcosScenario'
+import AdminAudit from './pages/AdminAudit'
+import './index.css'
 
 function App() {
-  const [currentPage, setCurrentPage] = useState<PageType>('musique')
-  const [isLoading] = useState(false)
-
-  const renderPage = () => {
-    switch (currentPage) {
-      case 'musique':
-        return <MusicGenerator />
-      case 'rang-a':
-        return (
-          <div className="text-center py-20">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Rang A - EDN</h2>
-            <p className="text-gray-600">Items de connaissance Rang A en développement</p>
-          </div>
-        )
-      case 'rang-b':
-        return (
-          <div className="text-center py-20">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Rang B</h2>
-            <p className="text-gray-600">Items de connaissance Rang B en développement</p>
-          </div>
-        )
-      case 'quiz':
-        return (
-          <div className="text-center py-20">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Quiz Médical</h2>
-            <p className="text-gray-600">Évaluations interactives en développement</p>
-          </div>
-        )
-      case 'scene':
-        return (
-          <div className="text-center py-20">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Scénarios Cliniques</h2>
-            <p className="text-gray-600">Simulations de cas cliniques en développement</p>
-          </div>
-        )
-      case 'bd':
-        return (
-          <div className="text-center py-20">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Bandes Dessinées</h2>
-            <p className="text-gray-600">BD éducatives en développement</p>
-          </div>
-        )
-      case 'roman':
-        return (
-          <div className="text-center py-20">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Romans Médicaux</h2>
-            <p className="text-gray-600">Histoires médicales en développement</p>
-          </div>
-        )
-      default:
-        return <MusicGenerator />
-    }
-  }
-
   return (
     <ErrorBoundary>
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
-        <Navigation 
-          currentPage={currentPage} 
-          onPageChange={setCurrentPage}
-          isLoading={isLoading}
-        />
-        
-        <main className="container mx-auto px-4 py-8">
-          {isLoading ? (
-            <div className="flex justify-center items-center h-64">
-              <LoadingSpinner size="large" />
-            </div>
-          ) : (
-            renderPage()
-          )}
-        </main>
+      <div className="min-h-screen">
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/edn-complete" element={<EdnComplete />} />
+          <Route path="/edn-complete/:slug" element={<EdnItemImmersive />} />
+          <Route path="/edn" element={<EdnIndex />} />
+          <Route path="/generator" element={<Generator />} />
+          <Route path="/med-mng" element={<MedMngCreate />} />
+          <Route path="/med-mng/login" element={<MedMngLogin />} />
+          <Route path="/med-mng/profile" element={<MedMngProfile />} />
+          <Route path="/med-mng/player" element={<MedMngPlayer />} />
+          <Route path="/ecos-scenario" element={<EcosScenario />} />
+          <Route path="/admin/audit" element={<AdminAudit />} />
+        </Routes>
       </div>
     </ErrorBoundary>
   )
