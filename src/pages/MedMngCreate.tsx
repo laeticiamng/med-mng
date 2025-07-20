@@ -1,123 +1,230 @@
-import { useNavigate } from 'react-router-dom';
-import { Music, ArrowLeft, User } from 'lucide-react';
-import { PremiumButton } from '@/components/ui/premium-button';
-import { PremiumCard } from '@/components/ui/premium-card';
-import { AppFooter } from '@/components/AppFooter';
 
-const MedMngCreate = () => {
+import React, { useState } from 'react';
+import { withAuth } from '@/components/med-mng/withAuth';
+import { toast } from 'sonner';
+import { useQuery } from '@tanstack/react-query';
+import { useMedMngApi } from '@/hooks/useMedMngApi';
+import { useSongGeneration } from '@/hooks/useSongGeneration';
+import { MedMngNavigation } from '@/components/med-mng/MedMngNavigation';
+import { CreateSongHeader } from '@/components/med-mng/create/CreateSongHeader';
+import { CreateSongContainer } from '@/components/med-mng/create/CreateSongContainer';
+import { InformationCard } from '@/components/med-mng/create/InformationCard';
+import { useNavigate } from 'react-router-dom';
+import { AlertCircle, CreditCard } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+
+// Simuler la récupération des items EDN (à remplacer par votre vraie source de données)
+const ednitems = [
+  { code: 'IC1', title: 'Item à Choix Multiples 1' },
+  { code: 'IC2', title: 'Item à Choix Multiples 2' },
+  { code: 'IC3', title: 'Item à Choix Multiples 3' },
+  { code: 'IC4', title: 'Item à Choix Multiples 4' },
+  { code: 'IC5', title: 'Item à Choix Multiples 5' },
+];
+
+const situations = [
+  { code: 'S1', title: 'Situation de départ 1' },
+  { code: 'S2', title: 'Situation de départ 2' },
+  { code: 'S3', title: 'Situation de départ 3' },
+];
+
+const MedMngCreateComponent = () => {
   const navigate = useNavigate();
+  const medMngApi = useMedMngApi();
+  
+  const [contentType, setContentType] = useState(''); // 'item' ou 'situation'
+  const [selectedItem, setSelectedItem] = useState('');
+  const [selectedRang, setSelectedRang] = useState(''); // 'A' ou 'B'
+  const [selectedSituation, setSelectedSituation] = useState('');
+  const [style, setStyle] = useState('');
+
+  const { data: quota, isLoading: quotaLoading, error: quotaError } = useQuery({
+    queryKey: ['med-mng-quota'],
+    queryFn: () => medMngApi.getRemainingQuota(),
+    retry: 1,
+  });
+
+  const {
+    isGenerating,
+    generatedSong,
+    generateSong,
+    playGeneratedSong,
+    addToLibrary
+  } = useSongGeneration();
+
+  const getSelectedTitle = () => {
+    if (contentType === 'item' && selectedItem && selectedRang) {
+      const item = ednitems.find(i => i.code === selectedItem);
+      return `${item?.title} - Rang ${selectedRang}`;
+    }
+    if (contentType === 'situation' && selectedSituation) {
+      const situation = situations.find(s => s.code === selectedSituation);
+      return situation?.title;
+    }
+    return '';
+  };
+
+  const canGenerate = (): boolean => {
+    if (contentType === 'item') {
+      return !!(selectedItem && selectedRang && style);
+    }
+    if (contentType === 'situation') {
+      return !!(selectedSituation && style);
+    }
+    return false;
+  };
+
+  const handleGenerate = async () => {
+    if (!canGenerate()) {
+      toast.error('Veuillez sélectionner tous les paramètres requis');
+      return;
+    }
+
+    // Vérifier les crédits avant de générer
+    if (!quota || quota.remaining_credits <= 0) {
+      toast.error('Crédits insuffisants. Veuillez souscrire à un abonnement.');
+      navigate('/med-mng/pricing');
+      return;
+    }
+
+    const title = getSelectedTitle();
+    await generateSong(
+      contentType,
+      selectedItem,
+      selectedRang,
+      selectedSituation,
+      style,
+      title,
+      quota
+    );
+  };
+
+  // Affichage d'erreur si problème de chargement des quotas
+  if (quotaError) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+        <MedMngNavigation />
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-2xl mx-auto">
+            <Card className="border-red-200 bg-red-50">
+              <CardHeader className="text-center">
+                <AlertCircle className="h-12 w-12 text-red-500 mx-auto mb-4" />
+                <CardTitle className="text-red-800">Erreur de connexion</CardTitle>
+                <CardDescription className="text-red-600">
+                  Impossible de charger vos informations d'abonnement
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-center space-y-4">
+                <p className="text-sm text-red-700">
+                  Veuillez vérifier votre connexion et réessayer
+                </p>
+                <div className="flex gap-3 justify-center">
+                  <Button 
+                    onClick={() => window.location.reload()}
+                    variant="outline"
+                  >
+                    Réessayer
+                  </Button>
+                  <Button 
+                    onClick={() => navigate('/med-mng/pricing')}
+                    className="bg-blue-600 hover:bg-blue-700"
+                  >
+                    <CreditCard className="h-4 w-4 mr-2" />
+                    Voir les abonnements
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Affichage spécial si pas d'abonnement ou crédits épuisés
+  if (!quotaLoading && (!quota || quota.remaining_credits === 0)) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+        <MedMngNavigation />
+        <div className="container mx-auto px-4 py-8">
+          <div className="max-w-2xl mx-auto">
+            <Card className="border-amber-200 bg-amber-50">
+              <CardHeader className="text-center">
+                <CreditCard className="h-12 w-12 text-amber-500 mx-auto mb-4" />
+                <CardTitle className="text-amber-800">Crédits épuisés</CardTitle>
+                <CardDescription className="text-amber-600">
+                  Vous n'avez plus de crédits pour générer de la musique
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-center space-y-4">
+                <p className="text-sm text-amber-700">
+                  Pour continuer à créer des chansons personnalisées, souscrivez à un abonnement.
+                </p>
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <h3 className="font-semibold text-blue-800 mb-2">🎵 Avec un abonnement :</h3>
+                  <ul className="text-sm text-blue-700 space-y-1">
+                    <li>• Génération musicale IA illimitée</li>
+                    <li>• Styles musicaux variés</li>
+                    <li>• Qualité audio premium</li>
+                    <li>• Sauvegarde dans votre bibliothèque</li>
+                  </ul>
+                </div>
+                <div className="flex gap-3 justify-center">
+                  <Button 
+                    onClick={() => navigate('/med-mng/library')}
+                    variant="outline"
+                  >
+                    Ma Bibliothèque
+                  </Button>
+                  <Button 
+                    onClick={() => navigate('/med-mng/pricing')}
+                    className="bg-blue-600 hover:bg-blue-700"
+                  >
+                    <CreditCard className="h-4 w-4 mr-2" />
+                    Choisir un abonnement
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-white to-green-50">
-      {/* Header */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <PremiumButton
-                variant="outline"
-                size="sm"
-                onClick={() => navigate('/')}
-              >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Retour
-              </PremiumButton>
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-teal-600 rounded-xl flex items-center justify-center">
-                  <Music className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <h1 className="text-xl font-bold text-gray-900">MED MNG</h1>
-                  <p className="text-sm text-gray-600">Générateur musical médical</p>
-                </div>
-              </div>
-            </div>
-            
-            <PremiumButton
-              variant="secondary"
-              size="sm"
-              onClick={() => navigate('/med-mng/login')}
-            >
-              <User className="w-4 h-4 mr-2" />
-              Connexion
-            </PremiumButton>
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+      <MedMngNavigation />
+      <div className="container mx-auto px-4 py-8">
+        <CreateSongHeader remainingCredits={quota?.remaining_credits} />
+
+        <div className="max-w-4xl mx-auto">
+          <CreateSongContainer
+            contentType={contentType}
+            selectedItem={selectedItem}
+            selectedRang={selectedRang}
+            selectedSituation={selectedSituation}
+            style={style}
+            isGenerating={isGenerating}
+            generatedSong={generatedSong}
+            selectedTitle={getSelectedTitle()}
+            canGenerate={canGenerate()}
+            onContentTypeChange={setContentType}
+            onItemChange={setSelectedItem}
+            onRangChange={setSelectedRang}
+            onSituationChange={setSelectedSituation}
+            onStyleChange={setStyle}
+            onGenerate={handleGenerate}
+            onPlay={playGeneratedSong}
+            onAddToLibrary={addToLibrary}
+          />
+
+          <InformationCard />
         </div>
       </div>
-
-      <div className="container mx-auto px-4 py-16">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="w-24 h-24 bg-gradient-to-br from-green-500 to-teal-600 rounded-3xl flex items-center justify-center mx-auto mb-8 shadow-xl">
-            <Music className="w-12 h-12 text-white" />
-          </div>
-          
-          <h1 className="text-5xl font-bold text-gray-900 mb-6">
-            MED MNG
-          </h1>
-          
-          <p className="text-xl text-gray-600 mb-12 max-w-2xl mx-auto">
-            Transformez vos connaissances médicales en compositions musicales mémorables avec notre IA spécialisée.
-          </p>
-
-          <div className="grid md:grid-cols-3 gap-8 mb-16">
-            <PremiumCard className="text-center">
-              <div className="p-8">
-                <div className="w-16 h-16 bg-green-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <Music className="w-8 h-8 text-green-600" />
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">IA Musicale</h3>
-                <p className="text-gray-600">
-                  Intelligence artificielle spécialisée dans la création musicale pour l'apprentissage médical.
-                </p>
-              </div>
-            </PremiumCard>
-
-            <PremiumCard className="text-center">
-              <div className="p-8">
-                <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <Music className="w-8 h-8 text-blue-600" />
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">Styles Variés</h3>
-                <p className="text-gray-600">
-                  Choisissez parmi différents styles musicaux adaptés à votre apprentissage.
-                </p>
-              </div>
-            </PremiumCard>
-
-            <PremiumCard className="text-center">
-              <div className="p-8">
-                <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <Music className="w-8 h-8 text-purple-600" />
-                </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">Mémorisation</h3>
-                <p className="text-gray-600">
-                  Améliorez votre rétention des informations médicales grâce à la musique.
-                </p>
-              </div>
-            </PremiumCard>
-          </div>
-
-          <div className="space-y-4">
-            <PremiumButton
-              variant="primary"
-              size="lg"
-              className="bg-gradient-to-r from-green-600 to-teal-600 hover:from-green-700 hover:to-teal-700"
-              onClick={() => navigate('/med-mng/login')}
-            >
-              <User className="w-5 h-5 mr-2" />
-              Se connecter pour commencer
-            </PremiumButton>
-            
-            <p className="text-sm text-gray-500">
-              Connectez-vous pour accéder au générateur musical complet
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <AppFooter />
     </div>
   );
 };
 
-export default MedMngCreate;
+export const MedMngCreate = withAuth(MedMngCreateComponent);

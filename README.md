@@ -1,203 +1,88 @@
-# MED-MNG - Medical Learning Platform
+# MED-MNG Backend
+[![CI](https://github.com/med-mng/med-mng/actions/workflows/ci.yml/badge.svg)](https://github.com/med-mng/med-mng/actions/workflows/ci.yml) ![version](https://img.shields.io/badge/version-0.1.0-blue) ![license](https://img.shields.io/badge/license-MIT-green)
 
-[![CI](https://github.com/laeticiamng/med-mng/actions/workflows/ci.yml/badge.svg)](https://github.com/laeticiamng/med-mng/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/laeticiamng/med-mng/branch/main/graph/badge.svg)](https://codecov.io/gh/laeticiamng/med-mng)
 
-A platform for medical students and professionals to learn through AI-generated musical content. MED-MNG transforms complex medical concepts into memorable songs, making studying more engaging and effective.
+This repository contains the server side of the MED-MNG platform. It exposes a set of Supabase edge functions and background workers used to manage medical learning content generated from musical AI.
 
-## 🎵 Features
+## Technologies
 
-- **AI-Powered Song Generation**: Convert medical topics into educational songs using Suno AI
-- **Adaptive Learning**: Personalized content based on your progress and learning style
-- **Spaced Repetition**: Smart review scheduling to maximize retention
-- **Interactive Quizzes**: Test your knowledge with AI-generated questions
-- **Progress Tracking**: Detailed analytics and achievement system
-- **Social Learning**: Share playlists and collaborate with peers
-- **Multi-platform**: Works on web, mobile, and desktop
+- **Supabase** for database and authentication
+- **Deno** based edge functions for the public API
+- **Node.js** worker scripts
+- **TypeScript** across the codebase
+- **pnpm** monorepo for package management
 
-## 🏗️ Architecture
+## Project Structure
 
 ```
-med-mng/
-├── apps/
-│   ├── api/          # Supabase edge functions
-│   ├── worker/       # Background job processing
-│   └── cron/         # Scheduled tasks
-├── packages/
-│   └── shared/       # Shared types and utilities
-├── supabase/         # Database migrations and functions
-└── src/              # Helper scripts
+/apps
+  api/       Supabase edge functions
+  cron/      Scheduled jobs
+  worker/    Background queue consumer
+/packages
+  shared/    Shared utilities
+/supabase    Database functions and migrations
+/src         Application specific helpers and scripts
 ```
 
-### Tech Stack
+## Setup
 
-- **Backend**: Supabase (PostgreSQL, Auth, Realtime, Storage)
-- **API**: Deno-based Edge Functions
-- **Workers**: Node.js with BullMQ
-- **AI**: Suno AI for music, OpenAI GPT-4 for content
-- **Infrastructure**: Docker, Redis, pnpm workspaces
-
-## 🚀 Getting Started
-
-### Prerequisites
-
-- Node.js 18+
-- pnpm 8+
-- Docker & Docker Compose
-- Supabase CLI
-
-### Installation
-
-1. Clone the repository:
-
-```bash
-git clone https://github.com/laeticiamng/med-mng.git
-cd med-mng
-```
-
-2. Install dependencies:
+1. Install dependencies
 
 ```bash
 pnpm install
 ```
 
-3. Set up environment variables:
+2. Copy `.env.example` to `.env` and adjust values
 
 ```bash
 cp .env.example .env
-# Edit .env with your API keys
 ```
 
-4. Start the development environment:
+3. Start Supabase locally
 
 ```bash
-# Start all services with Docker
-docker compose up -d
-
-# Or start services individually
 supabase start
+```
+
+4. Launch the development server
+
+```bash
 pnpm dev
 ```
 
-5. Run database migrations:
+To start the API server only:
 
 ```bash
-pnpm db:migrate
-pnpm db:seed
+pnpm start:server
 ```
 
-## 📚 API Documentation
-
-### Authentication
-
-All endpoints require Supabase authentication via Bearer token.
-
-### Core Endpoints
-
-#### Songs
-
-- `POST /songs` - Create a new medical song
-- `GET /songs/:id/stream` - Stream generated audio
-- `POST /songs/:id/like` - Like/unlike a song
-- `GET /songs/:id/lyrics` - Get song lyrics
-
-#### Learning
-
-- `POST /learning/sessions` - Start a learning session
-- `POST /learning/sessions/:id/complete` - Complete session
-- `GET /learning/progress` - Get user progress
-- `GET /quiz/:topicId` - Get quiz questions
-
-#### User
-
-- `GET /profile` - Get user profile
-- `PUT /profile` - Update profile
-- `GET /stats` - Get learning statistics
-- `GET /recommendations` - Get personalized recommendations
-
-### Workers
-
-The platform uses background workers for:
-
-- **Music Generation**: Process song creation with Suno AI
-- **Content Processing**: Extract medical information and generate quizzes
-- **Notifications**: Send study reminders and achievement notifications
-- **Analytics**: Aggregate usage data and calculate metrics
-
-## 🔧 Development
-
-### Running Tests
-
-```bash
-pnpm test              # Run all tests
-pnpm test:e2e         # Run E2E tests
-```
-
-### Code Quality
-
-```bash
-pnpm lint             # Run ESLint
-pnpm format           # Format with Prettier
-pnpm typecheck        # TypeScript type checking
-```
-
-### Database Management
-
-```bash
-supabase db reset     # Reset database
-supabase db push      # Apply migrations
-supabase db diff      # Generate migration
-```
-
-## 🚢 Deployment
-
-### Using Docker
+### Docker
 
 ```bash
 docker build -t med-mng .
 docker run -p 3000:3000 med-mng
 ```
 
-### Supabase Functions
+## Key Endpoints
 
-```bash
-supabase functions deploy
-```
+The main API is served from the `med-mng-api` edge function.
 
-### Production Checklist
+- `POST /songs` – create a new song
+- `GET /songs/:id/stream` – stream a generated track
+- `POST /songs/:id/like` – toggle like
+- `GET /songs/:id/lyrics` – fetch lyrics from Suno
+- `GET /library` – list saved songs and learning items
+- `POST /subscriptions/checkout` – create Stripe checkout session
+- `GET /quota` – remaining generation quota
+- `GET /verify-item/:id` – validate a learning item
 
-- [ ] Set production environment variables
-- [ ] Configure Stripe webhooks
-- [ ] Set up monitoring (Sentry)
-- [ ] Configure email service
-- [ ] Enable Supabase Row Level Security
-- [ ] Set up backup strategy
+All routes require Supabase authentication and return JSON.
 
-## 🤝 Contributing
+## Contributing
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+Issues and pull requests are welcome. Please open an issue first to discuss any major changes.
 
-Please read our contributing guidelines and code of conduct before submitting PRs.
+## Contact
 
-## 📝 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 🙏 Acknowledgments
-
-- Suno AI for music generation capabilities
-- OpenAI for content processing
-- Supabase for the backend infrastructure
-- The medical education community for feedback and support
-
-## 📧 Contact
-
-For questions or support, please open an issue on GitHub or contact the maintainers.
-
----
-
-Made with ❤️ by the MED-MNG team
+For any question about this backend, please contact the original maintainers or open an issue on the repository.

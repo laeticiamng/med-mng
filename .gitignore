@@ -24,4 +24,3 @@ dist-ssr
 *.sw?
 coverage
 __pycache__/
-dist-server
