@@ -333,16 +333,16 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
               </TabsContent>
 
               {/* Rang A */}
-              {finalItem.tableau_rang_a && (
+              {(finalItem.tableau_rang_a || completeItemData?.tableau_rang_a) && (
                 <TabsContent value="rang-a" className={`${isMobile ? 'p-3' : 'p-6'} flex-1 overflow-y-auto`}>
-                  <TableauRangA data={finalItem.tableau_rang_a} />
+                  <TableauRangA data={completeItemData?.tableau_rang_a || finalItem.tableau_rang_a} />
                 </TabsContent>
               )}
 
               {/* Rang B */}
-              {finalItem.tableau_rang_b && (
+              {(finalItem.tableau_rang_b || completeItemData?.tableau_rang_b) && (
                 <TabsContent value="rang-b" className={`${isMobile ? 'p-3' : 'p-6'} flex-1 overflow-y-auto`}>
-                  <TableauRangB data={finalItem.tableau_rang_b} itemCode={finalItem.item_code} />
+                  <TableauRangB data={completeItemData?.tableau_rang_b || finalItem.tableau_rang_b} itemCode={finalItem.item_code} />
                 </TabsContent>
               )}
 
