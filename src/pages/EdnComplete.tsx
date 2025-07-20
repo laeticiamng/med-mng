@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Brain, BookOpen, Search, Filter } from 'lucide-react';
+import { Brain, BookOpen, Search, Filter, Target, Users } from 'lucide-react';
 import { PremiumCard } from '@/components/ui/premium-card';
 import { PremiumButton } from '@/components/ui/premium-button';
+import { Badge } from '@/components/ui/badge';
 import { AppFooter } from '@/components/AppFooter';
+import { supabase } from '@/integrations/supabase/client';
 
 interface EdnItem {
   id: string;
@@ -11,6 +13,8 @@ interface EdnItem {
   title: string;
   subtitle?: string;
   slug: string;
+  tableau_rang_a?: any;
+  tableau_rang_b?: any;
 }
 
 const EdnComplete = () => {
@@ -18,26 +22,75 @@ const EdnComplete = () => {
   const [items, setItems] = useState<EdnItem[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
+  const [selectedSpecialty, setSelectedSpecialty] = useState('Tous');
 
   useEffect(() => {
-    // Simuler le chargement des items EDN
-    setTimeout(() => {
-      const mockItems: EdnItem[] = Array.from({ length: 20 }, (_, i) => ({
-        id: `item-${i + 1}`,
-        item_code: `IC-${i + 1}`,
-        title: `Item EDN ${i + 1} - Connaissances médicales essentielles`,
-        subtitle: `Compétences fondamentales pour l'item ${i + 1}`,
-        slug: `ic-${i + 1}`
-      }));
-      setItems(mockItems);
-      setLoading(false);
-    }, 1000);
+    async function fetchItems() {
+      try {
+        const { data, error } = await supabase
+          .from('edn_items_immersive')
+          .select('*')
+          .order('item_code');
+        
+        if (error) throw error;
+        setItems(data || []);
+      } catch (error) {
+        console.error('Erreur lors du chargement des items:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchItems();
   }, []);
 
-  const filteredItems = items.filter(item =>
-    item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.item_code.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const getSpecialtyFromItemCode = (itemCode: string) => {
+    const num = parseInt(itemCode.replace('IC-', ''));
+    if (num >= 1 && num <= 10) return 'Fondamentaux médicaux';
+    if (num >= 23 && num <= 42) return 'Gynécologie-Obstétrique';
+    if (num >= 47 && num <= 57) return 'Pédiatrie';
+    if (num >= 60 && num <= 80) return 'Psychiatrie';
+    if (num >= 91 && num <= 110) return 'Neurologie';
+    if (num >= 221 && num <= 239) return 'Cardiologie';
+    if (num >= 290 && num <= 320) return 'Cancérologie';
+    if (num >= 331 && num <= 367) return 'Médecine d\'urgence';
+    return 'Médecine spécialisée';
+  };
+
+  const getSpecialtyColor = (specialty: string) => {
+    switch (specialty) {
+      case 'Fondamentaux médicaux': return 'bg-blue-100 text-blue-800';
+      case 'Gynécologie-Obstétrique': return 'bg-pink-100 text-pink-800';
+      case 'Pédiatrie': return 'bg-green-100 text-green-800';
+      case 'Psychiatrie': return 'bg-purple-100 text-purple-800';
+      case 'Neurologie': return 'bg-indigo-100 text-indigo-800';
+      case 'Cardiologie': return 'bg-red-100 text-red-800';
+      case 'Cancérologie': return 'bg-orange-100 text-orange-800';
+      case 'Médecine d\'urgence': return 'bg-yellow-100 text-yellow-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const specialties = [
+    'Tous',
+    'Fondamentaux médicaux',
+    'Gynécologie-Obstétrique', 
+    'Pédiatrie',
+    'Psychiatrie',
+    'Neurologie',
+    'Cardiologie',
+    'Cancérologie',
+    'Médecine d\'urgence',
+    'Médecine spécialisée'
+  ];
+
+  const filteredItems = items.filter(item => {
+    const specialty = getSpecialtyFromItemCode(item.item_code);
+    const matchesSpecialty = selectedSpecialty === 'Tous' || specialty === selectedSpecialty;
+    const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         item.item_code.toLowerCase().includes(searchTerm.toLowerCase());
+    return matchesSpecialty && matchesSearch;
+  });
 
   if (loading) {
     return (
@@ -78,21 +131,62 @@ const EdnComplete = () => {
 
       {/* Search and Filter */}
       <div className="container mx-auto px-4 py-6">
-        <div className="flex flex-col md:flex-row gap-4 mb-8">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-            <input
-              type="text"
-              placeholder="Rechercher un item EDN..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-            />
+        {/* Statistiques */}
+        <div className="grid md:grid-cols-4 gap-4 mb-8">
+          <div className="bg-white rounded-xl p-4 text-center shadow-sm border">
+            <BookOpen className="w-6 h-6 text-blue-600 mx-auto mb-2" />
+            <div className="text-xl font-bold text-gray-900">{items.length}</div>
+            <div className="text-sm text-gray-600">Items EDN</div>
           </div>
-          <PremiumButton variant="outline" size="md">
-            <Filter className="w-4 h-4 mr-2" />
-            Filtres
-          </PremiumButton>
+          <div className="bg-white rounded-xl p-4 text-center shadow-sm border">
+            <Target className="w-6 h-6 text-green-600 mx-auto mb-2" />
+            <div className="text-xl font-bold text-gray-900">10</div>
+            <div className="text-sm text-gray-600">Spécialités</div>
+          </div>
+          <div className="bg-white rounded-xl p-4 text-center shadow-sm border">
+            <Users className="w-6 h-6 text-purple-600 mx-auto mb-2" />
+            <div className="text-xl font-bold text-gray-900">{filteredItems.length}</div>
+            <div className="text-sm text-gray-600">Items filtrés</div>
+          </div>
+          <div className="bg-white rounded-xl p-4 text-center shadow-sm border">
+            <Brain className="w-6 h-6 text-orange-600 mx-auto mb-2" />
+            <div className="text-xl font-bold text-gray-900">100%</div>
+            <div className="text-sm text-gray-600">Complétude</div>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl shadow-sm border p-6 mb-8">
+          <div className="flex flex-col md:flex-row gap-4 mb-6">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <input
+                type="text"
+                placeholder="Rechercher un item EDN..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-3 rounded-lg border border-gray-300 focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              />
+            </div>
+          </div>
+          
+          <div className="flex flex-wrap gap-2">
+            {specialties.map((specialty) => {
+              const count = specialty === 'Tous' ? items.length : items.filter(item => getSpecialtyFromItemCode(item.item_code) === specialty).length;
+              return (
+                <button
+                  key={specialty}
+                  onClick={() => setSelectedSpecialty(specialty)}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    selectedSpecialty === specialty
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  {specialty} ({count})
+                </button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Items Grid */}
@@ -108,17 +202,21 @@ const EdnComplete = () => {
                   <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg">
                     <BookOpen className="w-6 h-6 text-white" />
                   </div>
-                  <span className="text-sm font-semibold text-blue-600 bg-blue-100 px-2 py-1 rounded-lg">
+                  <Badge variant="outline">
                     {item.item_code}
-                  </span>
+                  </Badge>
                 </div>
                 
-                <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2">
+                <Badge className={getSpecialtyColor(getSpecialtyFromItemCode(item.item_code))} variant="secondary">
+                  {getSpecialtyFromItemCode(item.item_code)}
+                </Badge>
+                
+                <h3 className="text-lg font-bold text-gray-900 mb-2 mt-3 line-clamp-2">
                   {item.title}
                 </h3>
                 
                 <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                  {item.subtitle}
+                  {item.subtitle || 'Compétences médicales essentielles'}
                 </p>
                 
                 <div className="flex items-center justify-between">
