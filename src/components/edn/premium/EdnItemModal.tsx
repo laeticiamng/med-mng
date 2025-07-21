@@ -33,7 +33,7 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
   isOpen,
   onClose
 }) => {
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState('competences');
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [audioPlaying, setAudioPlaying] = useState(false);
   const [completeItemData, setCompleteItemData] = useState<any>(null);
@@ -223,8 +223,148 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
 
             {/* Content avec scroll optimisé */}
             <div className="flex-1 overflow-y-auto relative min-h-0">
+              
+              {/* Tab Content */}
+              <TabsContent value="competences" className="mt-0 p-6">
+                <div className="space-y-6">
+                  <TableauRangA data={finalItem.tableau_rang_a} />
+                  <TableauRangB data={finalItem.tableau_rang_b} itemCode={finalItem.item_code} />
+                </div>
+              </TabsContent>
+
+              <TabsContent value="contenu" className="mt-0 p-6">
+                <div className="space-y-6">
+                  {finalItem.pitch_intro && (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Introduction</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <p className="text-gray-700">{finalItem.pitch_intro}</p>
+                      </CardContent>
+                    </Card>
+                  )}
+                  
+                  {/* Afficher les données des tables complètes si disponibles */}
+                  {completeItemData && (
+                    <div className="space-y-4">
+                      <Card>
+                        <CardHeader>
+                          <CardTitle>Données EDN Complètes</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                              <h4 className="font-semibold mb-2">Compétences OIC Rang A</h4>
+                              <p className="text-sm text-gray-600">
+                                {completeItemData.competences_oic_rang_a ? 
+                                  Array.isArray(completeItemData.competences_oic_rang_a) ?
+                                    `${completeItemData.competences_oic_rang_a.length} compétences` :
+                                    'Données disponibles' :
+                                  'Non disponible'
+                                }
+                              </p>
+                            </div>
+                            <div>
+                              <h4 className="font-semibold mb-2">Compétences OIC Rang B</h4>
+                              <p className="text-sm text-gray-600">
+                                {completeItemData.competences_oic_rang_b ? 
+                                  Array.isArray(completeItemData.competences_oic_rang_b) ?
+                                    `${completeItemData.competences_oic_rang_b.length} compétences` :
+                                    'Données disponibles' :
+                                  'Non disponible'
+                                }
+                              </p>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  )}
+                </div>
+              </TabsContent>
+
+              <TabsContent value="music" className="mt-0 p-6">
+                <ParolesMusicales 
+                  paroles={finalItem.paroles_musicales || []} 
+                  itemCode={finalItem.item_code}
+                />
+              </TabsContent>
+
+              <TabsContent value="scene" className="mt-0 p-6">
+                <SceneImmersive 
+                  data={finalItem.scene_immersive || {}} 
+                  itemCode={finalItem.item_code}
+                />
+              </TabsContent>
+
+              <TabsContent value="quiz" className="mt-0 p-6">
+                <EnhancedQuizFinal 
+                  questions={finalItem.quiz_questions || []} 
+                  itemCode={finalItem.item_code}
+                  itemTitle={finalItem.title || ''}
+                />
+              </TabsContent>
+
+              <TabsContent value="bd" className="mt-0 p-6">
+                <BdGallery 
+                  itemCode={finalItem.item_code} 
+                  title={finalItem.title || ''} 
+                />
+              </TabsContent>
+
+              <TabsContent value="roman" className="mt-0 p-6">
+                <RomanNarratif 
+                  itemCode={finalItem.item_code}
+                  title={finalItem.title || ''} 
+                />
+              </TabsContent>
+
+              <TabsContent value="overview" className="mt-0 p-6">
+                <div className="space-y-6">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2">
+                        <BookOpen className="h-5 w-5" />
+                        Aperçu général - {finalItem.item_code}
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-3">
+                          <h4 className="font-semibold">Contenu disponible</h4>
+                          <div className="space-y-2">
+                            {finalItem.tableau_rang_a && (
+                              <Badge className="bg-blue-100 text-blue-800">Rang A</Badge>
+                            )}
+                            {finalItem.tableau_rang_b && (
+                              <Badge className="bg-purple-100 text-purple-800">Rang B</Badge>
+                            )}
+                            {finalItem.paroles_musicales && finalItem.paroles_musicales.length > 0 && (
+                              <Badge className="bg-pink-100 text-pink-800">Musique</Badge>
+                            )}
+                            {finalItem.scene_immersive && (
+                              <Badge className="bg-green-100 text-green-800">Scène</Badge>
+                            )}
+                            {finalItem.quiz_questions && (
+                              <Badge className="bg-orange-100 text-orange-800">Quiz</Badge>
+                            )}
+                          </div>
+                        </div>
+                        <div>
+                          <h4 className="font-semibold mb-2">Description</h4>
+                          <p className="text-gray-600 text-sm">
+                            {finalItem.pitch_intro || `Explorez l'item ${finalItem.item_code} avec tous ses contenus interactifs.`}
+                          </p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </TabsContent>
+
               {isMobile && (
-                // Navigation par flèches sur mobile - repositionnée
+                // Navigation par flèches sur mobile
                 <div className="fixed top-1/2 left-2 right-2 z-20 flex justify-between pointer-events-none">
                   <Button
                     size="sm"

@@ -1,4 +1,4 @@
-import { Card } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { TableauRangAHeader } from './tableau/TableauRangAHeader';
 import { TableauRangAGrid } from './tableau/TableauRangAGrid';
@@ -21,6 +21,7 @@ interface TableauRangAProps {
   data: {
     theme?: string;
     title?: string;
+    subtitle?: string;
     colonnes?: string[];
     lignes?: string[][];
     sections?: any[];
@@ -33,8 +34,50 @@ export const TableauRangA = ({ data }: TableauRangAProps) => {
   if (!data) {
     return (
       <div className="text-center space-y-6">
-        <h2 className="text-3xl font-serif text-amber-900">Tableau Rang A</h2>
-        <p className="text-amber-700">Aucune donnée disponible</p>
+        <h2 className="text-3xl font-serif text-blue-900">Tableau Rang A - Compétences Fondamentales</h2>
+        <p className="text-blue-700">Aucune donnée disponible</p>
+      </div>
+    );
+  }
+
+  // Nouvelle logique pour afficher les données structurées correctement
+  if (data.sections && Array.isArray(data.sections)) {
+    return (
+      <div className="space-y-6">
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold text-blue-700 mb-2 flex items-center gap-2">
+            <Badge className="bg-blue-600">Rang A</Badge>
+            {data.title || 'Compétences fondamentales'}
+          </h2>
+          {data.subtitle && (
+            <p className="text-gray-600">{data.subtitle}</p>
+          )}
+        </div>
+
+        {data.sections.map((section: any, idx: number) => (
+          <Card key={idx} className="mb-4">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                {section.title}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {section.content && (
+                <p className="text-gray-700 mb-4">{section.content}</p>
+              )}
+              
+              {section.keywords && Array.isArray(section.keywords) && (
+                <div className="flex flex-wrap gap-1">
+                  {section.keywords.map((keyword: string, keyIdx: number) => (
+                    <Badge key={keyIdx} variant="secondary" className="text-xs">
+                      {keyword}
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        ))}
       </div>
     );
   }
