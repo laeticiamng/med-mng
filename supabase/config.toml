@@ -39,6 +39,9 @@ enable_signup = true
 double_confirm_changes = true
 enable_confirmations = false
 
+[functions.suno-music-optimized]
+verify_jwt = false
+
 [functions.generate-music]
 verify_jwt = false
 
