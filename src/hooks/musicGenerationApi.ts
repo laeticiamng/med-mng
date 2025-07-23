@@ -74,8 +74,12 @@ export const callSunoApi = async (requestBody: GenerateMusicRequest) => {
     if (data.error || data.status === 'error') {
       let errorMessage = data.error || data.message || 'Erreur inconnue en mode ultra-rapide';
       
-      if (data.error_code === 429) {
-        errorMessage = '💳 Limite d\'utilisation atteinte sur l\'API Suno. Réessayez dans quelques minutes.';
+      // Détecter spécifiquement l'erreur de crédits insuffisants
+      if (data.error_code === 429 || 
+          data.details?.code === 429 || 
+          errorMessage.includes('insufficient') || 
+          errorMessage.includes('credits')) {
+        errorMessage = '💳 Crédits Suno épuisés ! Veuillez recharger votre compte API Suno pour continuer la génération musicale.';
       } else if (data.error_code === 408) {
         errorMessage = '⏰ Timeout: La génération prend trop de temps. L\'API Suno est peut-être surchargée. Réessayez plus tard.';
       } else if (data.error_code === 401) {
