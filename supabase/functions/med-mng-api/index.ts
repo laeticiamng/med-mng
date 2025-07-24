@@ -9,6 +9,8 @@ import { handleQuota } from './routes/quota.ts';
 import { handleVerify } from './routes/verify.ts';
 import { handleComplete } from './routes/complete.ts';
 import { handleHelp } from './routes/help.ts';
+import { handleEdn } from './routes/edn.ts';
+import { handleOic } from './routes/oic.ts';
 import { log } from './logger.ts';
 
 const rateMap = new Map<string, { count: number; reset: number }>();
@@ -59,6 +61,12 @@ serve(async (req) => {
     if (response) return response;
 
     response = await handleLibrary(req, supabase, path, url);
+    if (response) return response;
+
+    response = await handleEdn(req, supabase, path, url);
+    if (response) return response;
+
+    response = await handleOic(req, supabase, path, url);
     if (response) return response;
 
     response = await handleQuota(req, supabase, path);
