@@ -1,5 +1,5 @@
 
-import { corsHeaders, CreateSongRequest } from '../types.ts';
+import { corsHeaders, securityHeaders, CreateSongRequest } from '../types.ts';
 import { log } from '../logger.ts';
 
 declare const Deno: { env: { get(key: string): string | undefined } };
@@ -15,7 +15,7 @@ export async function handleSongs(req: Request, supabase: any, path: string) {
     if (!quotaData || quotaData <= 0) {
       return new Response(
         JSON.stringify({ error: 'Quota insuffisant' }),
-        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 403, headers: { ...corsHeaders, ...securityHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -30,7 +30,7 @@ export async function handleSongs(req: Request, supabase: any, path: string) {
 
     return new Response(
       JSON.stringify(data),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { headers: { ...corsHeaders, ...securityHeaders, 'Content-Type': 'application/json' } }
     );
   }
 
@@ -47,7 +47,7 @@ export async function handleSongs(req: Request, supabase: any, path: string) {
     if (error || !song) {
       return new Response(
         JSON.stringify({ error: 'Song not found' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 404, headers: { ...corsHeaders, ...securityHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -62,6 +62,7 @@ export async function handleSongs(req: Request, supabase: any, path: string) {
 
     const responseHeaders = {
       ...corsHeaders,
+      ...securityHeaders,
       'Content-Type': 'audio/mpeg',
       'Content-Disposition': 'inline',
       'Cache-Control': 'private, max-age=300',
@@ -89,7 +90,7 @@ export async function handleSongs(req: Request, supabase: any, path: string) {
 
     return new Response(
       JSON.stringify({ liked: isLiked }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { headers: { ...corsHeaders, ...securityHeaders, 'Content-Type': 'application/json' } }
     );
   }
 
@@ -106,7 +107,7 @@ export async function handleSongs(req: Request, supabase: any, path: string) {
     if (error || !song) {
       return new Response(
         JSON.stringify({ error: 'Song not found' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 404, headers: { ...corsHeaders, ...securityHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -130,21 +131,21 @@ export async function handleSongs(req: Request, supabase: any, path: string) {
           
           return new Response(
             JSON.stringify(lyricsData),
-            { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+            { headers: { ...corsHeaders, ...securityHeaders, 'Content-Type': 'application/json' } }
           );
         }
       } catch (error) {
         log('error', 'Error fetching lyrics', error);
         return new Response(
           JSON.stringify({ error: 'Erreur récupération paroles' }),
-          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          { status: 500, headers: { ...corsHeaders, ...securityHeaders, 'Content-Type': 'application/json' } }
         );
       }
     }
 
     return new Response(
       JSON.stringify(song.lyrics || {}),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { headers: { ...corsHeaders, ...securityHeaders, 'Content-Type': 'application/json' } }
     );
   }
 

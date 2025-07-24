@@ -1,4 +1,4 @@
-import { corsHeaders } from '../types.ts';
+import { corsHeaders, securityHeaders } from '../types.ts';
 import { verifyItem } from './verify.ts';
 
 export async function handleComplete(req: Request, supabase: any, path: string) {
@@ -7,7 +7,7 @@ export async function handleComplete(req: Request, supabase: any, path: string) 
     const report = await completeItem(supabase, itemId);
     return new Response(
       JSON.stringify(report),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { headers: { ...corsHeaders, ...securityHeaders, 'Content-Type': 'application/json' } }
     );
   }
 
@@ -24,7 +24,7 @@ export async function handleComplete(req: Request, supabase: any, path: string) 
 
     return new Response(
       JSON.stringify(results),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { headers: { ...corsHeaders, ...securityHeaders, 'Content-Type': 'application/json' } }
     );
   }
 

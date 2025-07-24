@@ -1,5 +1,5 @@
 
-import { corsHeaders, AddToLibraryRequest } from '../types.ts';
+import { corsHeaders, securityHeaders, AddToLibraryRequest } from '../types.ts';
 
 export async function handleLibrary(req: Request, supabase: any, path: string, url: URL) {
   // POST /library - Add to library
@@ -12,7 +12,7 @@ export async function handleLibrary(req: Request, supabase: any, path: string, u
 
     return new Response(
       JSON.stringify({ success: true }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { headers: { ...corsHeaders, ...securityHeaders, 'Content-Type': 'application/json' } }
     );
   }
 
@@ -26,7 +26,7 @@ export async function handleLibrary(req: Request, supabase: any, path: string, u
 
     return new Response(
       JSON.stringify({ success: true }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { headers: { ...corsHeaders, ...securityHeaders, 'Content-Type': 'application/json' } }
     );
   }
 
@@ -45,7 +45,7 @@ export async function handleLibrary(req: Request, supabase: any, path: string, u
 
     return new Response(
       JSON.stringify(data),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { headers: { ...corsHeaders, ...securityHeaders, 'Content-Type': 'application/json' } }
     );
   }
 
