@@ -4,8 +4,12 @@ import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import { healthCheck } from './controllers/healthController';
 import { errorHandler } from './middleware/errorHandler';
+import { loadEnv } from './config/loadEnv';
+
+loadEnv();
 
 const app = express();
+const port = process.env.PORT || import.meta.env.PORT || 3000;
 
 // Security headers
 app.use(helmet());
