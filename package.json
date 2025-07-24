@@ -12,6 +12,7 @@
     "format": "prettier --write .",
     "start:server": "node --loader ts-node/esm src/index.ts",
     "test": "jest",
+    "integrity:audit": "node --loader ts-node/esm scripts/dataIntegrityAudit.ts"
     "audit": "node scripts/run-audit.js"
   },
   "dependencies": {

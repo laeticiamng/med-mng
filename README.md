@@ -172,6 +172,10 @@ Critical data parsers such as `parseOICContent` and `EDNItemParser` are covered 
 
 Run `pnpm test` locally or push a branch to trigger the CI workflow which blocks merges if any test fails.
 
+## Data Integrity Audit
+
+Nightly jobs run `pnpm integrity:audit` to verify that the OIC extraction tables remain consistent after each import. A JSON report is produced in `audit_reports/` and the command fails on any anomaly. See [docs/data-integrity.md](docs/data-integrity.md) for details and for extending the checks.
+
 ## Monitoring
 
 Availability of critical endpoints is monitored with **UptimeRobot**. The following URLs are checked every minute:
