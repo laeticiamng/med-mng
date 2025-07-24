@@ -75,9 +75,10 @@ const RUBRIQUES_MAP: Record<string, string> = {
  */
 async function testPublicAPI(): Promise<boolean> {
   try {
+    const response = await fetch(
+      `${API_BASE}?action=query&meta=siteinfo&format=json&origin=*`
+    );
     console.log('🔍 Test d\'accès public à l\'API MediaWiki...');
-    
-    const response = await fetch(`${API_BASE}?action=query&meta=siteinfo&format=json&origin=*`);
     
     if (response.ok) {
       const data = await response.json();
