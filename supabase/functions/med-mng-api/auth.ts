@@ -1,6 +1,7 @@
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { corsHeaders } from './types.ts';
+import { errorResponse } from './response.ts';
 
 export async function validateAuth(req: Request) {
   const supabase = createClient(
@@ -11,10 +12,7 @@ export async function validateAuth(req: Request) {
   const authHeader = req.headers.get('Authorization');
   if (!authHeader) {
     return {
-      error: new Response(
-        JSON.stringify({ error: 'Authorization header required' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      ),
+      error: errorResponse(401, 'AUTH_REQUIRED', 'Authorization header required'),
       supabase: null,
       user: null
     };
@@ -26,10 +24,7 @@ export async function validateAuth(req: Request) {
 
   if (authError || !user) {
     return {
-      error: new Response(
-        JSON.stringify({ error: 'Invalid authentication' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      ),
+      error: errorResponse(401, 'INVALID_AUTH', 'Invalid authentication'),
       supabase: null,
       user: null
     };

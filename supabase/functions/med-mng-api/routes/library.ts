@@ -1,3 +1,4 @@
+import { jsonResponse, errorResponse } from "../response.ts";
 import { corsHeaders, securityHeaders, AddToLibraryRequest } from '../types.ts';
 
 export async function handleLibrary(
@@ -14,13 +15,7 @@ export async function handleLibrary(
 
     if (error) throw error;
 
-    return new Response(JSON.stringify({ success: true }), {
-      headers: {
-        ...corsHeaders,
-        ...securityHeaders,
-        'Content-Type': 'application/json',
-      },
-    });
+    return jsonResponse({ success: true });
   }
 
   // DELETE /library/:songId - Remove from library
@@ -33,13 +28,7 @@ export async function handleLibrary(
 
     if (error) throw error;
 
-    return new Response(JSON.stringify({ success: true }), {
-      headers: {
-        ...corsHeaders,
-        ...securityHeaders,
-        'Content-Type': 'application/json',
-      },
-    });
+    return jsonResponse({ success: true });
   }
 
   // GET /library - Get user library
@@ -59,16 +48,7 @@ export async function handleLibrary(
 
     if (error) throw error;
 
-    return new Response(
-      JSON.stringify({ items: data, page, limit, totalCount: count || 0 }),
-      {
-        headers: {
-          ...corsHeaders,
-          ...securityHeaders,
-          'Content-Type': 'application/json',
-        },
-      }
-    );
+    return jsonResponse({ items: data, page, limit, totalCount: count || 0 });
   }
 
   return null;
