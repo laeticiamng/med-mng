@@ -1,4 +1,4 @@
-import { corsHeaders } from '../types.ts';
+import { corsHeaders, securityHeaders } from '../types.ts';
 
 export async function handleVerify(req: Request, supabase: any, path: string) {
   // GET /verify-item/:id
@@ -7,7 +7,7 @@ export async function handleVerify(req: Request, supabase: any, path: string) {
     const report = await verifyItem(supabase, itemId);
     return new Response(
       JSON.stringify(report),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { headers: { ...corsHeaders, ...securityHeaders, 'Content-Type': 'application/json' } }
     );
   }
 
@@ -25,7 +25,7 @@ export async function handleVerify(req: Request, supabase: any, path: string) {
 
     return new Response(
       JSON.stringify(results),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { headers: { ...corsHeaders, ...securityHeaders, 'Content-Type': 'application/json' } }
     );
   }
 

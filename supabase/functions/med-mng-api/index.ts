@@ -1,6 +1,6 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { corsHeaders } from './types.ts';
+import { corsHeaders, securityHeaders } from './types.ts';
 import { validateAuth } from './auth.ts';
 import { handleSubscriptions } from './routes/subscriptions.ts';
 import { handleSongs } from './routes/songs.ts';
@@ -10,9 +10,31 @@ import { handleVerify } from './routes/verify.ts';
 import { handleComplete } from './routes/complete.ts';
 import { log } from './logger.ts';
 
+const rateMap = new Map<string, { count: number; reset: number }>();
+
+function checkRate(key: string, limit: number, windowMs: number) {
+  const now = Date.now();
+  const entry = rateMap.get(key);
+  if (entry && now < entry.reset) {
+    if (entry.count >= limit) return false;
+    entry.count++;
+    return true;
+  }
+  rateMap.set(key, { count: 1, reset: now + windowMs });
+  return true;
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return new Response(null, { headers: { ...corsHeaders, ...securityHeaders } });
+  }
+
+  const ip = req.headers.get('x-forwarded-for') ?? 'anon';
+  if (!checkRate(ip, 60, 60_000)) {
+    return new Response(
+      JSON.stringify({ error: 'Too Many Requests' }),
+      { status: 429, headers: { ...corsHeaders, ...securityHeaders, 'Content-Type': 'application/json' } }
+    );
   }
 
   const { error, supabase, user } = await validateAuth(req);
@@ -45,14 +67,14 @@ serve(async (req) => {
 
     return new Response(
       JSON.stringify({ error: 'Route not found' }),
-      { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 404, headers: { ...corsHeaders, ...securityHeaders, 'Content-Type': 'application/json' } }
     );
 
   } catch (error) {
     log('error', 'API Error', error);
     return new Response(
       JSON.stringify({ error: error.message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 500, headers: { ...corsHeaders, ...securityHeaders, 'Content-Type': 'application/json' } }
     );
   }
 });
