@@ -83,6 +83,16 @@ The main API is served from the `med-mng-api` edge function.
 
 All routes require Supabase authentication and return JSON.
 
+## Data Quality
+
+Run automatic cleaning and anomaly checks for OIC data with:
+
+```bash
+pnpm ts-node scripts/auto-clean-oic.ts
+```
+
+See [docs/data-cleaning.md](docs/data-cleaning.md) for details.
+
 ## Contributing
 
 Issues and pull requests are welcome. Please open an issue first to discuss any major changes.
