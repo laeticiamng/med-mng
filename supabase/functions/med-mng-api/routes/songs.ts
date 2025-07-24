@@ -1,5 +1,6 @@
 
 import { corsHeaders, CreateSongRequest } from '../types.ts';
+import { log } from '../logger.ts';
 
 declare const Deno: { env: { get(key: string): string | undefined } };
 
@@ -133,7 +134,11 @@ export async function handleSongs(req: Request, supabase: any, path: string) {
           );
         }
       } catch (error) {
-        console.error('Error fetching lyrics:', error);
+        log('error', 'Error fetching lyrics', error);
+        return new Response(
+          JSON.stringify({ error: 'Erreur récupération paroles' }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
       }
     }
 

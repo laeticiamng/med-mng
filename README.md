@@ -39,6 +39,10 @@ pnpm install
 cp .env.example .env
 ```
 
+## Error Handling
+
+All backend endpoints must return explicit errors with the correct HTTP status code. See [docs/errors.md](docs/errors.md) for the full policy.
+
 3. Start Supabase locally
 
 ```bash
