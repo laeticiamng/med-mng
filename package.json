@@ -11,7 +11,8 @@
     "preview": "vite preview",
     "format": "prettier --write .",
     "start:server": "node --loader ts-node/esm src/index.ts",
-    "test": "jest"
+    "test": "jest",
+    "audit": "node scripts/run-audit.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",

@@ -124,3 +124,14 @@ Availability of critical endpoints is monitored with **UptimeRobot**. The follow
 Alerts are sent by email and posted on our Discord channel via webhook as soon as a downtime is detected.
 
 [![UptimeRobot status](https://img.shields.io/uptimerobot/status/m783684319-c5c5d0aa76c3d73034ad23ef)](https://uptimerobot.com/dashboard)
+
+## Audit
+
+Run a full infrastructure and data audit with a single command:
+
+```bash
+pnpm run audit
+```
+
+The script outputs `audit-report.md` summarizing the status of secrets, endpoints,
+batch logs, data integrity tests and potential issues in scripts.
