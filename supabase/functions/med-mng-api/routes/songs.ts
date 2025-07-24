@@ -1,6 +1,8 @@
 
 import { corsHeaders, CreateSongRequest } from '../types.ts';
 
+declare const Deno: { env: { get(key: string): string | undefined } };
+
 export async function handleSongs(req: Request, supabase: any, path: string) {
   // POST /songs - Create a new song
   if (path === '/songs' && req.method === 'POST') {
