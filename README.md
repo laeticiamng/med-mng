@@ -33,11 +33,16 @@ This repository contains the server side of the MED-MNG platform. It exposes a s
 pnpm install
 ```
 
-2. Copy `.env.example` to `.env` and adjust values
+2. Create environment files from the provided templates
 
 ```bash
-cp .env.example .env
+cp .env.development.example .env.development
+cp .env.staging.example .env.staging
+cp .env.production.example .env.production
 ```
+
+Set `NODE_ENV` to `development`, `staging`, or `production` to load the
+corresponding file.
 
 ## Error Handling
 
@@ -70,6 +75,18 @@ docker build -t med-mng .
 docker run --rm -p 3000:3000 med-mng
 ```
 
+## Multi-environment workflow
+
+The backend automatically loads the `.env.<NODE_ENV>` file. Set `NODE_ENV`
+to `development`, `staging`, or `production` when running scripts or in CI.
+Example:
+
+```bash
+NODE_ENV=staging pnpm build
+```
+
+Each environment uses isolated credentials and should not share secrets.
+
 The multi-stage build installs dependencies, runs tests and copies only the
 compiled output to the final image. You can push the resulting image to any
 registry using `docker push`.
@@ -99,6 +116,7 @@ The main API is served from the `med-mng-api` edge function.
 - `POST /subscriptions/checkout` – create Stripe checkout session
 - `GET /quota` – remaining generation quota
 - `GET /verify-item/:id` – validate a learning item
+- `GET /help/onboarding` – onboarding steps (public, ?lang=xx)
 
 ### Pagination
 
