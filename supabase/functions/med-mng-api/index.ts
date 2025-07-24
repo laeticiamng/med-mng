@@ -8,6 +8,7 @@ import { handleLibrary } from './routes/library.ts';
 import { handleQuota } from './routes/quota.ts';
 import { handleVerify } from './routes/verify.ts';
 import { handleComplete } from './routes/complete.ts';
+import { log } from './logger.ts';
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -48,7 +49,7 @@ serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('API Error:', error);
+    log('error', 'API Error', error);
     return new Response(
       JSON.stringify({ error: error.message }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }

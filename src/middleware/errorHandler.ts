@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { log } from '../../supabase/functions/med-mng-api/logger';
 
 export function errorHandler(
   err: unknown,
@@ -6,6 +7,6 @@ export function errorHandler(
   res: Response,
   _next: NextFunction
 ) {
-  console.error(err);
+  log('error', 'Express error', err);
   res.status(500).json({ error: 'Internal Server Error' });
 }
