@@ -86,3 +86,14 @@ Issues and pull requests are welcome. Please open an issue first to discuss any 
 ## Contact
 
 For any question about this backend, please contact the original maintainers or open an issue on the repository.
+
+## Parser Test Guide
+
+Critical data parsers such as `parseOICContent` and `EDNItemParser` are covered by Jest tests located in the `test/` directory. To add a new parser test:
+
+1. Create a `*.test.ts` file under `test/`.
+2. Import the parser function using a relative path.
+3. Provide sample input objects that mimic the structure returned by the external APIs.
+4. Assert on the parsed output and edge cases (invalid input, missing fields, etc.).
+
+Run `pnpm test` locally or push a branch to trigger the CI workflow which blocks merges if any test fails.
