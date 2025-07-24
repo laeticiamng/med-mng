@@ -32,7 +32,7 @@ export const TranslatedText: React.FC<TranslatedTextProps> = ({
     );
   }
 
-  if (error && process.env.NODE_ENV === 'development') {
+  if (error && import.meta.env.DEV) {
     console.warn('Erreur de traduction pour:', text, error);
   }
 

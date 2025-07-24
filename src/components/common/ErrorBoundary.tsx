@@ -67,7 +67,7 @@ const ErrorFallback: React.FC<ErrorFallbackProps> = ({ error, reset }) => {
             Nous sommes désolés, quelque chose s'est mal passé. Vous pouvez essayer de recharger la page ou retourner à l'accueil.
           </p>
           
-          {error && process.env.NODE_ENV === 'development' && (
+          {error && import.meta.env.DEV && (
             <details className="bg-gray-100 p-3 rounded-lg text-sm">
               <summary className="cursor-pointer font-semibold text-red-700 mb-2">
                 Détails de l'erreur (développement)

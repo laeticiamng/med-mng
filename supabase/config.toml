@@ -65,3 +65,9 @@ verify_jwt = false
 
 [functions.test-cas-simple]
 verify_jwt = false
+
+[functions.openai-chat]
+verify_jwt = true
+
+[functions.openai-image]
+verify_jwt = true

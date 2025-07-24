@@ -1,10 +1,9 @@
 import { useState, useCallback } from 'react';
 import { 
-  createChatCompletion, 
-  generateImage,
+  secureOpenAIClient,
   type ChatCompletionRequest,
   type ImageGenerationRequest 
-} from '../openai';
+} from '../lib/secureApiClient';
 
 export const useOpenAIGeneration = () => {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -16,7 +15,7 @@ export const useOpenAIGeneration = () => {
       setIsGenerating(true);
       setError(null);
       
-      const response = await createChatCompletion(payload);
+      const response = await secureOpenAIClient.createChatCompletion(payload);
       setLastResponse(response);
       
       return response;
@@ -34,7 +33,7 @@ export const useOpenAIGeneration = () => {
       setIsGenerating(true);
       setError(null);
       
-      const response = await generateImage(payload);
+      const response = await secureOpenAIClient.generateImage(payload);
       setLastResponse(response);
       
       return response;

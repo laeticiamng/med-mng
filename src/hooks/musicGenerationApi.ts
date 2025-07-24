@@ -1,5 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
+import { secureSunoClient } from '@/lib/secureApiClient';
 
 interface GenerateMusicRequest {
   lyrics: string;
