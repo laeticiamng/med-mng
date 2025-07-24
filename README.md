@@ -101,3 +101,14 @@ Critical data parsers such as `parseOICContent` and `EDNItemParser` are covered 
 4. Assert on the parsed output and edge cases (invalid input, missing fields, etc.).
 
 Run `pnpm test` locally or push a branch to trigger the CI workflow which blocks merges if any test fails.
+
+## Monitoring
+
+Availability of critical endpoints is monitored with **UptimeRobot**. The following URLs are checked every minute:
+
+- `https://med-mng.lovable.app/health`
+- `https://med-mng.lovable.app/api/health`
+
+Alerts are sent by email and posted on our Discord channel via webhook as soon as a downtime is detected.
+
+[![UptimeRobot status](https://img.shields.io/uptimerobot/status/m783684319-c5c5d0aa76c3d73034ad23ef)](https://uptimerobot.com/dashboard)
