@@ -101,3 +101,7 @@ Critical data parsers such as `parseOICContent` and `EDNItemParser` are covered 
 4. Assert on the parsed output and edge cases (invalid input, missing fields, etc.).
 
 Run `pnpm test` locally or push a branch to trigger the CI workflow which blocks merges if any test fails.
+
+## Data Integrity Audit
+
+Nightly jobs run `pnpm integrity:audit` to verify that the OIC extraction tables remain consistent after each import. A JSON report is produced in `audit_reports/` and the command fails on any anomaly. See [docs/data-integrity.md](docs/data-integrity.md) for details and for extending the checks.
