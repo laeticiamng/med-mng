@@ -100,6 +100,15 @@ The main API is served from the `med-mng-api` edge function.
 
 All routes require Supabase authentication and return JSON.
 
+## Data Quality
+
+Run automatic cleaning and anomaly checks for OIC data with:
+
+```bash
+pnpm ts-node scripts/auto-clean-oic.ts
+```
+
+See [docs/data-cleaning.md](docs/data-cleaning.md) for details.
 ## API Security
 
 Security headers such as **Content-Security-Policy**, **Strict-Transport-Security**, **X-Frame-Options** and others are automatically applied to every response. The edge functions merge these headers with CORS settings and the Express server uses Helmet.
