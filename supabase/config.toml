@@ -71,3 +71,6 @@ verify_jwt = true
 
 [functions.openai-image]
 verify_jwt = true
+[functions.cancel-ia-task]
+verify_jwt = true
+
