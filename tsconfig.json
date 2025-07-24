@@ -21,6 +21,12 @@
     "allowJs": true,
     "noUnusedLocals": false,
     "strictNullChecks": false,
-    "esModuleInterop": true
-  }
+    "esModuleInterop": true,
+    "allowImportingTsExtensions": true
+  },
+  "include": [
+    "src",
+    "supabase",
+    "test/global.d.ts"
+  ]
 }
