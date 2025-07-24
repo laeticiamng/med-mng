@@ -1,4 +1,5 @@
 import express from 'express';
+import * as Sentry from '@sentry/node';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
 import { healthCheck } from './controllers/healthController';
@@ -19,7 +20,18 @@ const limiter = rateLimit({
 app.use(limiter);
 const port = import.meta.env.PORT || 3000;
 
+Sentry.init({
+  dsn: process.env.SENTRY_DSN,
+  environment: process.env.NODE_ENV,
+  release: `med-mng@${process.env.VERSION ?? 'dev'}`,
+  tracesSampleRate: 1.0,
+});
+
+app.use(Sentry.Handlers.requestHandler());
+
 app.get('/health', healthCheck);
+
+app.use(Sentry.Handlers.errorHandler());
 
 app.use(errorHandler);
 

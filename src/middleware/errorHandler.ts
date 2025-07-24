@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { log } from '../../supabase/functions/med-mng-api/logger';
 import { notifyIncident } from '../services/alertService';
+import * as Sentry from '@sentry/node';
 
 export function errorHandler(
   err: unknown,
@@ -9,6 +10,7 @@ export function errorHandler(
   _next: NextFunction
 ) {
   log('error', 'Express error', err);
+  Sentry.captureException(err);
   void notifyIncident({
     type: 'BACKEND_ERROR',
     message: err instanceof Error ? err.message : 'Unknown error',
