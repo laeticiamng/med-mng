@@ -1,4 +1,5 @@
 import { handleSongs } from '../supabase/functions/med-mng-api/routes/songs.ts';
+import { handleLibrary } from '../supabase/functions/med-mng-api/routes/library.ts';
 import { handleQuota } from '../supabase/functions/med-mng-api/routes/quota.ts';
 
 const createRequest = (path: string, method: string, body?: any) =>
@@ -57,5 +58,40 @@ describe('med-mng-api route handlers', () => {
     expect(res?.status).toBe(200);
     const body = await res?.json();
     expect(body.remaining_credits).toBe(5);
+  });
+
+  test('GET /library returns paginated list', async () => {
+    const range = jest
+      .fn()
+      .mockResolvedValue({ data: [{ id: '1' }], count: 10, error: null });
+    const supabase = {
+      from: jest.fn(() => ({ select: () => ({ order: () => ({ range }) }) })),
+    } as any;
+    const req = createRequest('/library?page=1&limit=1', 'GET');
+    const res = await handleLibrary(
+      req,
+      supabase,
+      '/library',
+      new URL(req.url)
+    );
+    expect(res?.status).toBe(200);
+    const body = await res?.json();
+    expect(body.items.length).toBe(1);
+    expect(body.totalCount).toBe(10);
+  });
+
+  test('GET /songs returns paginated list', async () => {
+    const range = jest
+      .fn()
+      .mockResolvedValue({ data: [{ id: '1' }], count: 5, error: null });
+    const supabase = {
+      from: jest.fn(() => ({ select: () => ({ order: () => ({ range }) }) })),
+    } as any;
+    const req = createRequest('/songs?page=2&limit=1', 'GET');
+    const res = await handleSongs(req, supabase, '/songs');
+    expect(res?.status).toBe(200);
+    const body = await res?.json();
+    expect(body.page).toBe(2);
+    expect(body.totalCount).toBe(5);
   });
 });
