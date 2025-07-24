@@ -8,6 +8,7 @@ import { handleLibrary } from './routes/library.ts';
 import { handleQuota } from './routes/quota.ts';
 import { handleVerify } from './routes/verify.ts';
 import { handleComplete } from './routes/complete.ts';
+import { handleHelp } from './routes/help.ts';
 import { log } from './logger.ts';
 
 const rateMap = new Map<string, { count: number; reset: number }>();
@@ -37,11 +38,15 @@ serve(async (req) => {
     );
   }
 
-  const { error, supabase, user } = await validateAuth(req);
-  if (error) return error;
-
   const url = new URL(req.url);
   const path = url.pathname.replace('/functions/v1/med-mng-api', '');
+
+  // Public help endpoints before auth check
+  const publicRes = await handleHelp(req, null, path, url);
+  if (publicRes) return publicRes;
+
+  const { error, supabase, user } = await validateAuth(req);
+  if (error) return error;
 
   try {
     // Route handlers

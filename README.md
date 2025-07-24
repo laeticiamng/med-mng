@@ -97,6 +97,7 @@ The main API is served from the `med-mng-api` edge function.
 - `POST /subscriptions/checkout` – create Stripe checkout session
 - `GET /quota` – remaining generation quota
 - `GET /verify-item/:id` – validate a learning item
+- `GET /help/onboarding` – onboarding steps (public, ?lang=xx)
 
 All routes require Supabase authentication and return JSON.
 
