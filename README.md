@@ -68,6 +68,18 @@ docker build -t med-mng .
 docker run -p 3000:3000 med-mng
 ```
 
+#### Docker Compose
+
+```bash
+docker compose up --build
+```
+
+Scripts for database management are available in `scripts/`:
+- `init.sh` applies migrations
+- `reset-db.sh` drops and recreates the DB
+- `seed.sh` inserts test data
+
+
 ## Key Endpoints
 
 The main API is served from the `med-mng-api` edge function.
