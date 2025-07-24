@@ -1,5 +1,5 @@
 
-import { corsHeaders, CreateSubscriptionRequest } from '../types.ts';
+import { corsHeaders, securityHeaders, CreateSubscriptionRequest } from '../types.ts';
 
 export async function handleSubscriptions(req: Request, supabase: any) {
   if (req.method === 'POST') {
@@ -15,7 +15,7 @@ export async function handleSubscriptions(req: Request, supabase: any) {
 
     return new Response(
       JSON.stringify({ success: true }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { headers: { ...corsHeaders, ...securityHeaders, 'Content-Type': 'application/json' } }
     );
   }
 

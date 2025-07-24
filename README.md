@@ -1,5 +1,5 @@
 # MED-MNG Backend
-[![CI](https://github.com/med-mng/med-mng/actions/workflows/ci.yml/badge.svg)](https://github.com/med-mng/med-mng/actions/workflows/ci.yml) ![version](https://img.shields.io/badge/version-0.1.0-blue) ![license](https://img.shields.io/badge/license-MIT-green)
+[![CI](https://github.com/med-mng/med-mng/actions/workflows/ci.yml/badge.svg)](https://github.com/med-mng/med-mng/actions/workflows/ci.yml) ![version](https://img.shields.io/badge/version-0.1.0-blue) ![license](https://img.shields.io/badge/license-MIT-green) ![Docker Image Size](https://img.shields.io/docker/image-size/medmng/backend?label=image%20size) ![Security Scan](https://img.shields.io/badge/security-passing-brightgreen)
 
 
 This repository contains the server side of the MED-MNG platform. It exposes a set of Supabase edge functions and background workers used to manage medical learning content generated from musical AI.
@@ -63,10 +63,27 @@ pnpm start:server
 
 ### Docker
 
+Build the image and run it locally:
+
 ```bash
 docker build -t med-mng .
-docker run -p 3000:3000 med-mng
+docker run --rm -p 3000:3000 med-mng
 ```
+
+The multi-stage build installs dependencies, runs tests and copies only the
+compiled output to the final image. You can push the resulting image to any
+registry using `docker push`.
+#### Docker Compose
+
+```bash
+docker compose up --build
+```
+
+Scripts for database management are available in `scripts/`:
+- `init.sh` applies migrations
+- `reset-db.sh` drops and recreates the DB
+- `seed.sh` inserts test data
+
 
 ## Key Endpoints
 
@@ -92,6 +109,11 @@ pnpm ts-node scripts/auto-clean-oic.ts
 ```
 
 See [docs/data-cleaning.md](docs/data-cleaning.md) for details.
+## API Security
+
+Security headers such as **Content-Security-Policy**, **Strict-Transport-Security**, **X-Frame-Options** and others are automatically applied to every response. The edge functions merge these headers with CORS settings and the Express server uses Helmet.
+
+A lightweight IP rate limiter caps requests to 60 per minute on the edge API and the Node server. Modify the limits in `supabase/functions/med-mng-api/index.ts` or `src/index.ts` if needed.
 
 ## Contributing
 
@@ -111,3 +133,14 @@ Critical data parsers such as `parseOICContent` and `EDNItemParser` are covered 
 4. Assert on the parsed output and edge cases (invalid input, missing fields, etc.).
 
 Run `pnpm test` locally or push a branch to trigger the CI workflow which blocks merges if any test fails.
+
+## Monitoring
+
+Availability of critical endpoints is monitored with **UptimeRobot**. The following URLs are checked every minute:
+
+- `https://med-mng.lovable.app/health`
+- `https://med-mng.lovable.app/api/health`
+
+Alerts are sent by email and posted on our Discord channel via webhook as soon as a downtime is detected.
+
+[![UptimeRobot status](https://img.shields.io/uptimerobot/status/m783684319-c5c5d0aa76c3d73034ad23ef)](https://uptimerobot.com/dashboard)

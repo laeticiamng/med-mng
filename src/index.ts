@@ -1,11 +1,37 @@
 import express from 'express';
+import * as Sentry from '@sentry/node';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
 import { healthCheck } from './controllers/healthController';
 import { errorHandler } from './middleware/errorHandler';
 
 const app = express();
+
+// Security headers
+app.use(helmet());
+
+// Basic rate limiting
+const limiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 60,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use(limiter);
 const port = import.meta.env.PORT || 3000;
 
+Sentry.init({
+  dsn: process.env.SENTRY_DSN,
+  environment: process.env.NODE_ENV,
+  release: `med-mng@${process.env.VERSION ?? 'dev'}`,
+  tracesSampleRate: 1.0,
+});
+
+app.use(Sentry.Handlers.requestHandler());
+
 app.get('/health', healthCheck);
+
+app.use(Sentry.Handlers.errorHandler());
 
 app.use(errorHandler);
 
