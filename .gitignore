@@ -24,3 +24,8 @@ dist-ssr
 *.sw?
 coverage
 __pycache__/
+.env*
+!.env.example
+!.env.development.example
+!.env.staging.example
+!.env.production.example

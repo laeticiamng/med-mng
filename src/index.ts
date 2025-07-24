@@ -1,9 +1,12 @@
 import express from 'express';
 import { healthCheck } from './controllers/healthController';
 import { errorHandler } from './middleware/errorHandler';
+import { loadEnv } from './config/loadEnv';
+
+loadEnv();
 
 const app = express();
-const port = import.meta.env.PORT || 3000;
+const port = process.env.PORT || import.meta.env.PORT || 3000;
 
 app.get('/health', healthCheck);
 

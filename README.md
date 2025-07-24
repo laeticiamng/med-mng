@@ -1,5 +1,5 @@
 # MED-MNG Backend
-[![CI](https://github.com/med-mng/med-mng/actions/workflows/ci.yml/badge.svg)](https://github.com/med-mng/med-mng/actions/workflows/ci.yml) ![version](https://img.shields.io/badge/version-0.1.0-blue) ![license](https://img.shields.io/badge/license-MIT-green)
+[![CI](https://github.com/med-mng/med-mng/actions/workflows/ci.yml/badge.svg)](https://github.com/med-mng/med-mng/actions/workflows/ci.yml) ![version](https://img.shields.io/badge/version-0.1.0-blue) ![license](https://img.shields.io/badge/license-MIT-green) ![env](https://img.shields.io/badge/env-managed-brightgreen)
 
 
 This repository contains the server side of the MED-MNG platform. It exposes a set of Supabase edge functions and background workers used to manage medical learning content generated from musical AI.
@@ -33,11 +33,16 @@ This repository contains the server side of the MED-MNG platform. It exposes a s
 pnpm install
 ```
 
-2. Copy `.env.example` to `.env` and adjust values
+2. Create environment files from the provided templates
 
 ```bash
-cp .env.example .env
+cp .env.development.example .env.development
+cp .env.staging.example .env.staging
+cp .env.production.example .env.production
 ```
+
+Set `NODE_ENV` to `development`, `staging`, or `production` to load the
+corresponding file.
 
 ## Error Handling
 
@@ -67,6 +72,18 @@ pnpm start:server
 docker build -t med-mng .
 docker run -p 3000:3000 med-mng
 ```
+
+## Multi-environment workflow
+
+The backend automatically loads the `.env.<NODE_ENV>` file. Set `NODE_ENV`
+to `development`, `staging`, or `production` when running scripts or in CI.
+Example:
+
+```bash
+NODE_ENV=staging pnpm build
+```
+
+Each environment uses isolated credentials and should not share secrets.
 
 ## Key Endpoints
 
