@@ -1,5 +1,5 @@
 # MED-MNG Backend
-[![CI](https://github.com/med-mng/med-mng/actions/workflows/ci.yml/badge.svg)](https://github.com/med-mng/med-mng/actions/workflows/ci.yml) ![version](https://img.shields.io/badge/version-0.1.0-blue) ![license](https://img.shields.io/badge/license-MIT-green)
+[![CI](https://github.com/med-mng/med-mng/actions/workflows/ci.yml/badge.svg)](https://github.com/med-mng/med-mng/actions/workflows/ci.yml) ![version](https://img.shields.io/badge/version-0.1.0-blue) ![license](https://img.shields.io/badge/license-MIT-green) ![Docker Image Size](https://img.shields.io/docker/image-size/medmng/backend?label=image%20size) ![Security Scan](https://img.shields.io/badge/security-passing-brightgreen)
 
 
 This repository contains the server side of the MED-MNG platform. It exposes a set of Supabase edge functions and background workers used to manage medical learning content generated from musical AI.
@@ -63,10 +63,16 @@ pnpm start:server
 
 ### Docker
 
+Build the image and run it locally:
+
 ```bash
 docker build -t med-mng .
-docker run -p 3000:3000 med-mng
+docker run --rm -p 3000:3000 med-mng
 ```
+
+The multi-stage build installs dependencies, runs tests and copies only the
+compiled output to the final image. You can push the resulting image to any
+registry using `docker push`.
 
 ## Key Endpoints
 
