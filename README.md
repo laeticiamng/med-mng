@@ -95,6 +95,12 @@ The main API is served from the `med-mng-api` edge function.
 
 All routes require Supabase authentication and return JSON.
 
+## API Security
+
+Security headers such as **Content-Security-Policy**, **Strict-Transport-Security**, **X-Frame-Options** and others are automatically applied to every response. The edge functions merge these headers with CORS settings and the Express server uses Helmet.
+
+A lightweight IP rate limiter caps requests to 60 per minute on the edge API and the Node server. Modify the limits in `supabase/functions/med-mng-api/index.ts` or `src/index.ts` if needed.
+
 ## Contributing
 
 Issues and pull requests are welcome. Please open an issue first to discuss any major changes.
