@@ -1,5 +1,5 @@
 
-import { corsHeaders } from '../types.ts';
+import { corsHeaders, securityHeaders } from '../types.ts';
 
 export async function handleQuota(req: Request, supabase: any, path: string) {
   // GET /quota - Get remaining quota
@@ -10,7 +10,7 @@ export async function handleQuota(req: Request, supabase: any, path: string) {
 
     return new Response(
       JSON.stringify({ remaining_credits: quota || 0 }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { headers: { ...corsHeaders, ...securityHeaders, 'Content-Type': 'application/json' } }
     );
   }
 

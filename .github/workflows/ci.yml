@@ -14,7 +14,24 @@ jobs:
           node-version: 20
           cache: 'pnpm'
       - run: corepack enable
+      - name: Select env
+        run: |
+          if [[ "$GITHUB_REF" == "refs/heads/main" ]]; then
+            echo "NODE_ENV=staging" >> "$GITHUB_ENV"
+          elif [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            echo "NODE_ENV=production" >> "$GITHUB_ENV"
+          else
+            echo "NODE_ENV=development" >> "$GITHUB_ENV"
+          fi
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint
       - run: pnpm test
       - run: pnpm build
+      - name: Build Docker image
+        run: docker build -t med-mng .
+      - name: Scan Docker image
+        uses: aquasecurity/trivy-action@v0.18.0
+        with:
+          image-ref: med-mng
+          severity: CRITICAL
+          exit-code: 1
