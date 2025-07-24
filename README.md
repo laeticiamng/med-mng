@@ -47,6 +47,7 @@ corresponding file.
 ## Error Handling
 
 All backend endpoints must return explicit errors with the correct HTTP status code. See [docs/errors.md](docs/errors.md) for the full policy.
+Responses use `{ "error": "CODE", "code": <status>, "message": "details" }`.
 
 3. Start Supabase locally
 

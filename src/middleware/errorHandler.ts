@@ -16,5 +16,5 @@ export function errorHandler(
     message: err instanceof Error ? err.message : 'Unknown error',
     details: err,
   });
-  res.status(500).json({ error: 'Internal Server Error' });
+  res.status(500).json({ error: 'SERVER_ERROR', code: 500, message: 'Internal Server Error' });
 }

@@ -1,3 +1,4 @@
+import { errorResponse } from "../response.ts";
 import { corsHeaders, securityHeaders, CreateSongRequest } from '../types.ts';
 import { log } from '../logger.ts';
 
@@ -41,14 +42,7 @@ export async function handleSongs(req: Request, supabase: any, path: string) {
     );
 
     if (!quotaData || quotaData <= 0) {
-      return new Response(JSON.stringify({ error: 'Quota insuffisant' }), {
-        status: 403,
-        headers: {
-          ...corsHeaders,
-          ...securityHeaders,
-          'Content-Type': 'application/json',
-        },
-      });
+      return errorResponse(403, 'QUOTA_EXCEEDED', 'Quota insuffisant');
     }
 
     // Insert song (trigger will decrement quota)
@@ -84,14 +78,7 @@ export async function handleSongs(req: Request, supabase: any, path: string) {
       .single();
 
     if (error || !song) {
-      return new Response(JSON.stringify({ error: 'Song not found' }), {
-        status: 404,
-        headers: {
-          ...corsHeaders,
-          ...securityHeaders,
-          'Content-Type': 'application/json',
-        },
-      });
+      return errorResponse(404, 'SONG_NOT_FOUND', 'Song not found');
     }
 
     // Proxy to Suno with streaming support
@@ -154,14 +141,7 @@ export async function handleSongs(req: Request, supabase: any, path: string) {
       .single();
 
     if (error || !song) {
-      return new Response(JSON.stringify({ error: 'Song not found' }), {
-        status: 404,
-        headers: {
-          ...corsHeaders,
-          ...securityHeaders,
-          'Content-Type': 'application/json',
-        },
-      });
+      return errorResponse(404, 'SONG_NOT_FOUND', 'Song not found');
     }
 
     // If lyrics not cached, fetch from Suno
@@ -195,17 +175,7 @@ export async function handleSongs(req: Request, supabase: any, path: string) {
         }
       } catch (error) {
         log('error', 'Error fetching lyrics', error);
-        return new Response(
-          JSON.stringify({ error: 'Erreur récupération paroles' }),
-          {
-            status: 500,
-            headers: {
-              ...corsHeaders,
-              ...securityHeaders,
-              'Content-Type': 'application/json',
-            },
-          }
-        );
+        return errorResponse(500, 'LYRICS_FETCH_ERROR', 'Erreur récupération paroles');
       }
     }
 

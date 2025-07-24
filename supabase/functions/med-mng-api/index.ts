@@ -10,6 +10,7 @@ import { handleVerify } from './routes/verify.ts';
 import { handleComplete } from './routes/complete.ts';
 import { handleHelp } from './routes/help.ts';
 import { log } from './logger.ts';
+import { errorResponse } from './response.ts';
 
 const rateMap = new Map<string, { count: number; reset: number }>();
 
@@ -32,10 +33,7 @@ serve(async (req) => {
 
   const ip = req.headers.get('x-forwarded-for') ?? 'anon';
   if (!checkRate(ip, 60, 60_000)) {
-    return new Response(
-      JSON.stringify({ error: 'Too Many Requests' }),
-      { status: 429, headers: { ...corsHeaders, ...securityHeaders, 'Content-Type': 'application/json' } }
-    );
+    return errorResponse(429, 'RATE_LIMIT', 'Too Many Requests');
   }
 
   const url = new URL(req.url);
@@ -70,16 +68,10 @@ serve(async (req) => {
     response = await handleComplete(req, supabase, path);
     if (response) return response;
 
-    return new Response(
-      JSON.stringify({ error: 'Route not found' }),
-      { status: 404, headers: { ...corsHeaders, ...securityHeaders, 'Content-Type': 'application/json' } }
-    );
+    return errorResponse(404, 'NOT_FOUND', 'Route not found');
 
   } catch (error) {
     log('error', 'API Error', error);
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 500, headers: { ...corsHeaders, ...securityHeaders, 'Content-Type': 'application/json' } }
-    );
+    return errorResponse(500, 'SERVER_ERROR', (error as Error).message);
   }
 });

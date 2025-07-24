@@ -27,6 +27,8 @@ describe('med-mng-api route handlers', () => {
     });
     const res = await handleSongs(req, supabase, '/songs');
     expect(res?.status).toBe(403);
+    const body = await res?.json();
+    expect(body).toEqual({ error: 'QUOTA_EXCEEDED', code: 403, message: 'Quota insuffisant' });
   });
 
   test('POST /songs creates song when quota ok', async () => {
