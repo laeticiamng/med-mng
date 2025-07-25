@@ -6,6 +6,7 @@ import { AlertCircle, Download, Play, Pause, RefreshCw } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { SecureCredentialsForm, useSecureCredentials } from '@/components/common/SecureCredentialsForm';
 
 const AdminExtractEcos = () => {
   const [isExtracting, setIsExtracting] = useState(false);
@@ -13,6 +14,8 @@ const AdminExtractEcos = () => {
   const [stats, setStats] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [resumeFromSD, setResumeFromSD] = useState(1);
+  
+  const { getCredentials, showCredentialsForm, handleCredentialsSubmit } = useSecureCredentials();
 
   const startExtraction = async (action: 'start' | 'resume' = 'start') => {
     setIsExtracting(true);
@@ -22,14 +25,14 @@ const AdminExtractEcos = () => {
     try {
       console.log(`🚀 Lancement de l'extraction ECOS - Action: ${action}`);
       
+      // Obtenir les credentials de manière sécurisée
+      const credentials = await getCredentials();
+      
       const { data, error } = await supabase.functions.invoke('extract-ecos-uness', {
         body: {
           action,
           resumeFromSD: action === 'resume' ? resumeFromSD : 1,
-          credentials: {
-            username: 'laeticia.moto-ngane@etud.u-picardie.fr',
-            password: 'Aiciteal1!'
-          }
+          credentials
         }
       });
 
