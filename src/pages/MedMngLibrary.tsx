@@ -109,13 +109,13 @@ const MedMngLibraryComponent = () => {
             <TranslatedText text="Erreur" as="h1" className="text-2xl font-bold text-gray-900 mb-4" />
             <TranslatedText text={errorMessage} as="p" className="text-gray-600 mb-6" />
             <div className="space-y-3">
-              <Button onClick={() => refetch()} className="w-full">
+              <Button onClick={() => refetch()} className="w-full min-h-[48px]">
                 {retryText}
               </Button>
               <Button 
                 variant="outline" 
                 onClick={() => navigate('/med-mng/create')}
-                className="w-full"
+                className="w-full min-h-[48px]"
               >
                 <Plus className="h-4 w-4 mr-2" />
                 <TranslatedText text="Créer votre première chanson" />
@@ -165,10 +165,10 @@ const MedMngLibraryComponent = () => {
         </div>
 
         {/* Actions */}
-        <div className="flex gap-4 mb-8">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-8">
           <Button 
             onClick={() => navigate('/med-mng/create')}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
+            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 min-h-[48px] w-full sm:w-auto"
           >
             <Plus className="h-4 w-4" />
             <TranslatedText text="Créer une chanson" />
@@ -176,7 +176,7 @@ const MedMngLibraryComponent = () => {
           <Button 
             variant="outline"
             onClick={() => navigate('/med-mng/pricing')}
-            className="hidden sm:flex"
+            className="min-h-[48px] w-full sm:w-auto hidden sm:flex"
           >
             <TranslatedText text="Voir les abonnements" />
           </Button>
@@ -199,13 +199,13 @@ const MedMngLibraryComponent = () => {
               className="text-gray-600 mb-6"
             />
             {(!library || library.length === 0) && (
-              <Button onClick={() => navigate('/med-mng/create')} className="bg-blue-600 hover:bg-blue-700">
+              <Button onClick={() => navigate('/med-mng/create')} className="bg-blue-600 hover:bg-blue-700 min-h-[48px] px-6">
                 <TranslatedText text="Créer ma première chanson" />
               </Button>
             )}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 animate-fade-in">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6 animate-fade-in">
             {filteredSongs.map((song) => (
               <SongCard 
                 key={song.id} 
@@ -221,17 +221,19 @@ const MedMngLibraryComponent = () => {
         {/* Pagination */}
         {library && library.length === 12 && (
           <div className="flex justify-center mt-8">
-            <div className="flex gap-2">
+            <div className="flex gap-3 sm:gap-2">
               <Button
                 variant="outline"
                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
+                className="min-h-[44px] px-4 sm:px-6 flex-1 sm:flex-none"
               >
                 <TranslatedText text="Précédent" />
               </Button>
               <Button
                 variant="outline"
                 onClick={() => setCurrentPage(p => p + 1)}
+                className="min-h-[44px] px-4 sm:px-6 flex-1 sm:flex-none"
               >
                 <TranslatedText text="Suivant" />
               </Button>
