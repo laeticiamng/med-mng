@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 import { useQuery } from '@tanstack/react-query';
 import { useMedMngApi } from '@/hooks/useMedMngApi';
 import { useSongGeneration } from '@/hooks/useSongGeneration';
-import { MedMngNavigation } from '@/components/med-mng/MedMngNavigation';
+import { MedMngLayout } from '@/components/med-mng/MedMngLayout';
 import { CreateSongHeader } from '@/components/med-mng/create/CreateSongHeader';
 import { CreateSongContainer } from '@/components/med-mng/create/CreateSongContainer';
 import { InformationCard } from '@/components/med-mng/create/InformationCard';
@@ -103,8 +103,7 @@ const MedMngCreateComponent = () => {
   // Affichage d'erreur si problème de chargement des quotas
   if (quotaError) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-        <MedMngNavigation />
+      <MedMngLayout className="bg-gradient-to-br from-blue-50 to-indigo-100">
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-2xl mx-auto">
             <Card className="border-red-200 bg-red-50">
@@ -138,15 +137,14 @@ const MedMngCreateComponent = () => {
             </Card>
           </div>
         </div>
-      </div>
+      </MedMngLayout>
     );
   }
 
   // Affichage spécial si pas d'abonnement ou crédits épuisés
   if (!quotaLoading && (!quota || quota.remaining_credits === 0)) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-        <MedMngNavigation />
+      <MedMngLayout className="bg-gradient-to-br from-blue-50 to-indigo-100">
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-2xl mx-auto">
             <Card className="border-amber-200 bg-amber-50">
@@ -189,13 +187,12 @@ const MedMngCreateComponent = () => {
             </Card>
           </div>
         </div>
-      </div>
+      </MedMngLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      <MedMngNavigation />
+    <MedMngLayout className="bg-gradient-to-br from-blue-50 to-indigo-100">
       <div className="container mx-auto px-4 py-8">
         <CreateSongHeader remainingCredits={quota?.remaining_credits} />
 
@@ -223,7 +220,7 @@ const MedMngCreateComponent = () => {
           <InformationCard />
         </div>
       </div>
-    </div>
+    </MedMngLayout>
   );
 };
 

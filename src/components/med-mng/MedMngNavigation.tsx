@@ -86,7 +86,7 @@ export const MedMngNavigation: React.FC = () => {
             </Button>
           </div>
 
-          {/* Mobile Navigation - Simplified */}
+          {/* Mobile Navigation - Simplified header */}
           <div className="md:hidden flex items-center gap-2">
             <Button
               variant="ghost"
@@ -104,51 +104,6 @@ export const MedMngNavigation: React.FC = () => {
               className="text-red-600 hover:text-red-700 hover:bg-red-50 p-2"
             >
               <LogOut className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-
-        {/* Mobile Navigation Menu */}
-        <div className="md:hidden border-t bg-gray-50 px-2 py-3">
-          <div className="flex flex-wrap gap-2">
-            <Button
-              variant={isActive('/med-mng/library') ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => navigate('/med-mng/library')}
-              className="flex items-center gap-2"
-            >
-              <Library className="h-4 w-4" />
-              <TranslatedText text="Bibliothèque" />
-            </Button>
-
-            <Button
-              variant={isActive('/med-mng/create') ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => navigate('/med-mng/create')}
-              className="flex items-center gap-2"
-            >
-              <Plus className="h-4 w-4" />
-              <TranslatedText text="Créer" />
-            </Button>
-
-            <Button
-              variant={isActive('/med-mng/pricing') ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => navigate('/med-mng/pricing')}
-              className="flex items-center gap-2"
-            >
-              <CreditCard className="h-4 w-4" />
-              <TranslatedText text="Abonnements" />
-            </Button>
-
-            <Button
-              variant={isActive('/med-mng/profile') ? 'default' : 'ghost'}
-              size="sm"
-              onClick={() => navigate('/med-mng/profile')}
-              className="flex items-center gap-2"
-            >
-              <User className="h-4 w-4" />
-              <TranslatedText text="Profil" />
             </Button>
           </div>
         </div>

@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { withAuth } from '@/components/med-mng/withAuth';
-import { MedMngNavigation } from '@/components/med-mng/MedMngNavigation';
+import { MedMngLayout } from '@/components/med-mng/MedMngLayout';
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { useMedMngApi } from '@/hooks/useMedMngApi';
 import { ProfileHeader } from '@/components/med-mng/profile/ProfileHeader';
@@ -134,8 +134,7 @@ const MedMngProfileComponent = () => {
 
   if (profileLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-        <MedMngNavigation />
+      <MedMngLayout className="bg-gradient-to-br from-slate-50 to-blue-50">
         <div className="container mx-auto px-4 py-8">
           <div className="flex items-center justify-center min-h-[400px]">
             <div className="text-center">
@@ -144,7 +143,7 @@ const MedMngProfileComponent = () => {
             </div>
           </div>
         </div>
-      </div>
+      </MedMngLayout>
     );
   }
 
@@ -160,9 +159,7 @@ const MedMngProfileComponent = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
-      <MedMngNavigation />
-      
+    <MedMngLayout className="bg-gradient-to-br from-slate-50 to-blue-50">
       <div className="container mx-auto px-4 py-8 max-w-6xl">
         {/* Profile Header */}
         <Card className="mb-8 border-0 shadow-lg bg-gradient-to-r from-blue-600 to-purple-600 text-white">
@@ -378,7 +375,7 @@ const MedMngProfileComponent = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </div>
+    </MedMngLayout>
   );
 };
 

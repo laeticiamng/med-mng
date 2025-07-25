@@ -3,7 +3,7 @@ import React from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useMedMngApi } from '@/hooks/useMedMngApi';
 import { withAuth } from '@/components/med-mng/withAuth';
-import { MedMngNavigation } from '@/components/med-mng/MedMngNavigation';
+import { MedMngLayout } from '@/components/med-mng/MedMngLayout';
 import { SongCard } from '@/components/med-mng/SongCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,12 +12,14 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TranslatedText } from '@/components/TranslatedText';
 import { useTranslation } from '@/hooks/useTranslation';
+import { SkeletonLibraryGrid } from '@/components/common/SkeletonLibraryGrid';
 
 const MedMngLibraryComponent = () => {
   const medMngApi = useMedMngApi();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
+  const [showSlowLoading, setShowSlowLoading] = useState(false);
 
   const { text: searchPlaceholder } = useTranslation('Rechercher une chanson...');
   const { text: errorMessage } = useTranslation('Impossible de charger votre bibliothèque');
@@ -41,6 +43,16 @@ const MedMngLibraryComponent = () => {
     retryDelay: 1000,
   });
 
+  // Afficher message de lenteur après 4s
+  React.useEffect(() => {
+    if (isLoading) {
+      const timer = setTimeout(() => setShowSlowLoading(true), 4000);
+      return () => clearTimeout(timer);
+    } else {
+      setShowSlowLoading(false);
+    }
+  }, [isLoading]);
+
   const { data: quota } = useQuery({
     queryKey: ['med-mng-quota'],
     queryFn: async () => {
@@ -59,24 +71,35 @@ const MedMngLibraryComponent = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-        <MedMngNavigation />
+      <MedMngLayout className="bg-gradient-to-br from-blue-50 to-indigo-100">
         <div className="container mx-auto px-4 py-8">
-          <div className="flex items-center justify-center min-h-[400px]">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto mb-4"></div>
-              <p className="text-gray-600">Chargement de votre bibliothèque...</p>
-            </div>
+          <div className="mb-8">
+            <h1 className="text-2xl sm:text-4xl font-bold text-gray-900 mb-2">
+              Ma bibliothèque musicale
+            </h1>
+            <p className="text-gray-600">Chargement de vos chansons...</p>
           </div>
+          
+          <SkeletonLibraryGrid count={12} />
+          
+          {showSlowLoading && (
+            <div className="text-center mt-8 p-4 bg-blue-50 rounded-lg">
+              <p className="text-blue-700 font-medium">
+                Chargement plus long que d'habitude ?
+              </p>
+              <p className="text-blue-600 text-sm mt-1">
+                Nous récupérons vos données...
+              </p>
+            </div>
+          )}
         </div>
-      </div>
+      </MedMngLayout>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-        <MedMngNavigation />
+      <MedMngLayout>
         <div className="container mx-auto px-4 py-8">
           <div className="text-center max-w-md mx-auto">
             <AlertCircle className="h-16 w-16 text-red-500 mx-auto mb-4" />
@@ -97,13 +120,12 @@ const MedMngLibraryComponent = () => {
             </div>
           </div>
         </div>
-      </div>
+      </MedMngLayout>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      <MedMngNavigation />
+    <MedMngLayout className="bg-gradient-to-br from-blue-50 to-indigo-100">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
@@ -111,7 +133,7 @@ const MedMngLibraryComponent = () => {
             <TranslatedText 
               text="Ma bibliothèque musicale"
               as="h1"
-              className="text-4xl font-bold text-gray-900 mb-2"
+              className="text-2xl sm:text-4xl font-bold text-gray-900 mb-2"
               showLoader
             />
             <TranslatedText 
@@ -121,9 +143,9 @@ const MedMngLibraryComponent = () => {
             />
           </div>
           <div className="text-right">
-            <div className="bg-white rounded-lg px-4 py-2 shadow-sm">
-              <TranslatedText text="Crédits restants" className="text-sm text-gray-600" />
-              <div className="text-2xl font-bold text-blue-600">
+            <div className="bg-white rounded-lg px-3 py-2 shadow-sm">
+              <TranslatedText text="Crédits restants" className="text-xs sm:text-sm text-gray-600" />
+              <div className="text-lg sm:text-2xl font-bold text-blue-600">
                 {quota?.remaining_credits || 0}
               </div>
             </div>
@@ -155,6 +177,7 @@ const MedMngLibraryComponent = () => {
           <Button 
             variant="outline"
             onClick={() => navigate('/med-mng/pricing')}
+            className="hidden sm:flex"
           >
             <TranslatedText text="Voir les abonnements" />
           </Button>
@@ -183,7 +206,7 @@ const MedMngLibraryComponent = () => {
             )}
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {filteredSongs.map((song) => (
               <SongCard 
                 key={song.id} 
@@ -217,7 +240,7 @@ const MedMngLibraryComponent = () => {
           </div>
         )}
       </div>
-    </div>
+    </MedMngLayout>
   );
 };
 

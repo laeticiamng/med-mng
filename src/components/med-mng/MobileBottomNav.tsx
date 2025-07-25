@@ -1,0 +1,118 @@
+import React from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Home, Library, Plus, CreditCard, User } from 'lucide-react';
+import { TranslatedText } from '@/components/TranslatedText';
+import { cn } from '@/lib/utils';
+
+interface BottomNavItemProps {
+  icon: React.ReactNode;
+  label: string;
+  path: string;
+  onClick: () => void;
+  isActive: boolean;
+}
+
+const BottomNavItem: React.FC<BottomNavItemProps> = ({ 
+  icon, 
+  label, 
+  path, 
+  onClick, 
+  isActive 
+}) => {
+  return (
+    <button
+      onClick={onClick}
+      role="tab"
+      aria-selected={isActive}
+      aria-label={`Navigation vers ${label}`}
+      className={cn(
+        "flex flex-col items-center justify-center p-2 transition-all duration-200 min-h-[64px] flex-1",
+        "focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 focus:ring-offset-white",
+        "active:scale-95",
+        isActive 
+          ? "text-primary bg-primary/5" 
+          : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+      )}
+    >
+      <div className={cn(
+        "transition-all duration-200 mb-1",
+        isActive && "transform scale-110"
+      )}>
+        {icon}
+      </div>
+      <span className={cn(
+        "text-xs font-medium transition-all duration-200",
+        isActive && "font-semibold"
+      )}>
+        <TranslatedText text={label} />
+      </span>
+      {isActive && (
+        <div className="absolute top-0 left-1/2 transform -translate-x-1/2 w-8 h-1 bg-primary rounded-b-full" />
+      )}
+    </button>
+  );
+};
+
+export const MobileBottomNav: React.FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const isActive = (path: string) => location.pathname === path;
+
+  const navItems = [
+    {
+      icon: <Home className="h-5 w-5" />,
+      label: "Accueil",
+      path: "/",
+      onClick: () => navigate("/")
+    },
+    {
+      icon: <Library className="h-5 w-5" />,
+      label: "Bibliothèque", 
+      path: "/med-mng/library",
+      onClick: () => navigate("/med-mng/library")
+    },
+    {
+      icon: <Plus className="h-5 w-5" />,
+      label: "Créer",
+      path: "/med-mng/create", 
+      onClick: () => navigate("/med-mng/create")
+    },
+    {
+      icon: <CreditCard className="h-5 w-5" />,
+      label: "Abonnements",
+      path: "/med-mng/pricing",
+      onClick: () => navigate("/med-mng/pricing")
+    },
+    {
+      icon: <User className="h-5 w-5" />,
+      label: "Profil",
+      path: "/med-mng/profile", 
+      onClick: () => navigate("/med-mng/profile")
+    }
+  ];
+
+  return (
+    <nav 
+      className="fixed bottom-0 inset-x-0 z-50 md:hidden bg-white border-t border-border shadow-lg"
+      role="tablist"
+      aria-label="Navigation principale mobile"
+    >
+      <div className="flex items-center justify-around h-16 max-w-md mx-auto px-2">
+        {navItems.map((item) => (
+          <BottomNavItem
+            key={item.path}
+            icon={item.icon}
+            label={item.label}
+            path={item.path}
+            onClick={item.onClick}
+            isActive={isActive(item.path)}
+          />
+        ))}
+      </div>
+      
+      {/* Safe area padding for iPhone with home indicator */}
+      <div className="h-[env(safe-area-inset-bottom)] bg-white" />
+    </nav>
+  );
+};
