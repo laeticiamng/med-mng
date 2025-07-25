@@ -2103,6 +2103,48 @@ export type Database = {
         }
         Relationships: []
       }
+      monitoring_incidents: {
+        Row: {
+          created_at: string
+          details: Json | null
+          id: string
+          incident_type: string
+          message: string
+          resolution_notes: string | null
+          resolved_at: string | null
+          service_name: string
+          severity: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          details?: Json | null
+          id?: string
+          incident_type: string
+          message: string
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          service_name: string
+          severity: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          details?: Json | null
+          id?: string
+          incident_type?: string
+          message?: string
+          resolution_notes?: string | null
+          resolved_at?: string | null
+          service_name?: string
+          severity?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       music_generation_usage: {
         Row: {
           created_at: string
