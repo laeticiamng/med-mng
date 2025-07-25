@@ -6,18 +6,18 @@ import { withAuth } from '@/components/med-mng/withAuth';
 import { MedMngLayout } from '@/components/med-mng/MedMngLayout';
 import { SongCard } from '@/components/med-mng/SongCard';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Search, Music, Heart, Plus, AlertCircle } from 'lucide-react';
+import { Music, Plus, AlertCircle } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TranslatedText } from '@/components/TranslatedText';
 import { useTranslation } from '@/hooks/useTranslation';
 import { SkeletonLibraryGrid } from '@/components/common/SkeletonLibraryGrid';
+import { AdvancedSearch } from '@/components/med-mng/AdvancedSearch';
 
 const MedMngLibraryComponent = () => {
   const medMngApi = useMedMngApi();
   const navigate = useNavigate();
-  const [searchTerm, setSearchTerm] = useState('');
+  const [filteredSongs, setFilteredSongs] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [showSlowLoading, setShowSlowLoading] = useState(false);
 
@@ -65,9 +65,12 @@ const MedMngLibraryComponent = () => {
     },
   });
 
-  const filteredSongs = library?.filter(song => 
-    song.title?.toLowerCase().includes(searchTerm.toLowerCase())
-  ) || [];
+  // Effet pour initialiser les chansons filtrées
+  React.useEffect(() => {
+    if (library) {
+      setFilteredSongs(library);
+    }
+  }, [library]);
 
   if (isLoading) {
     return (
@@ -152,17 +155,13 @@ const MedMngLibraryComponent = () => {
           </div>
         </div>
 
-        {/* Search */}
+        {/* Advanced Search */}
         <div className="mb-8">
-          <div className="relative max-w-md">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <Input
-              placeholder={searchPlaceholder}
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
-          </div>
+          <AdvancedSearch
+            songs={library || []}
+            onFilteredSongs={setFilteredSongs}
+            placeholder={searchPlaceholder}
+          />
         </div>
 
         {/* Actions */}
@@ -188,18 +187,18 @@ const MedMngLibraryComponent = () => {
           <div className="text-center py-16">
             <Music className="h-16 w-16 text-gray-400 mx-auto mb-4" />
             <TranslatedText 
-              text={searchTerm ? 'Aucun résultat' : 'Bibliothèque vide'}
+              text={library && library.length > 0 ? 'Aucun résultat' : 'Bibliothèque vide'}
               as="h3"
               className="text-xl font-semibold text-gray-900 mb-2"
             />
             <TranslatedText 
-              text={searchTerm 
+              text={library && library.length > 0
                 ? 'Aucune chanson ne correspond à votre recherche' 
                 : 'Commencez par créer votre première chanson'}
               as="p"
               className="text-gray-600 mb-6"
             />
-            {!searchTerm && (
+            {(!library || library.length === 0) && (
               <Button onClick={() => navigate('/med-mng/create')} className="bg-blue-600 hover:bg-blue-700">
                 <TranslatedText text="Créer ma première chanson" />
               </Button>
