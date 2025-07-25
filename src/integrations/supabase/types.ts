@@ -2525,6 +2525,78 @@ export type Database = {
         }
         Relationships: []
       }
+      onboarding_steps: {
+        Row: {
+          body: Json
+          created_at: string
+          id: string
+          is_active: boolean
+          key: string
+          title: Json
+          type: string
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          body?: Json
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          key: string
+          title?: Json
+          type?: string
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          body?: Json
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          key?: string
+          title?: Json
+          type?: string
+          updated_at?: string
+          version?: number
+        }
+        Relationships: []
+      }
+      operation_logs: {
+        Row: {
+          created_at: string
+          duration_ms: number | null
+          endpoint: string | null
+          id: string
+          message: string
+          meta: Json | null
+          status_code: number | null
+          type: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          duration_ms?: number | null
+          endpoint?: string | null
+          id?: string
+          message: string
+          meta?: Json | null
+          status_code?: number | null
+          type: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          duration_ms?: number | null
+          endpoint?: string | null
+          id?: string
+          message?: string
+          meta?: Json | null
+          status_code?: number | null
+          type?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       page_analytics: {
         Row: {
           id: string
@@ -3161,6 +3233,10 @@ export type Database = {
         Returns: Json
       }
       cleanup_old_imports: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      cleanup_old_operation_logs: {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
