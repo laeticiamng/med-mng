@@ -30,8 +30,14 @@ class MedMngApi {
     });
 
     if (!response.ok) {
-      const error = await response.json();
-      throw new Error(error.error || 'Échec création chanson MED-MNG');
+      let errorMessage = 'Échec création chanson MED-MNG';
+      try {
+        const error = await response.json();
+        errorMessage = error.error || error.message || errorMessage;
+      } catch {
+        errorMessage = `Erreur HTTP ${response.status}: ${response.statusText}`;
+      }
+      throw new Error(errorMessage);
     }
 
     return response.json();

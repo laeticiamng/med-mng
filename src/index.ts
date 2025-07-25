@@ -9,7 +9,7 @@ import { loadEnv } from './config/loadEnv';
 loadEnv();
 
 const app = express();
-const port = process.env.PORT || import.meta.env.PORT || 3000;
+const port = 3000;
 
 // Security headers
 app.use(helmet());
