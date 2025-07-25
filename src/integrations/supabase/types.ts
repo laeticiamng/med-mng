@@ -1329,6 +1329,104 @@ export type Database = {
         }
         Relationships: []
       }
+      extraction_events: {
+        Row: {
+          created_at: string
+          event_data: Json | null
+          event_message: string
+          event_type: string
+          extraction_log_id: string
+          id: string
+          item_reference: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_data?: Json | null
+          event_message: string
+          event_type: string
+          extraction_log_id: string
+          id?: string
+          item_reference?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_data?: Json | null
+          event_message?: string
+          event_type?: string
+          extraction_log_id?: string
+          id?: string
+          item_reference?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "extraction_events_extraction_log_id_fkey"
+            columns: ["extraction_log_id"]
+            isOneToOne: false
+            referencedRelation: "extraction_logs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      extraction_logs: {
+        Row: {
+          batch_id: string
+          batch_type: string
+          completed_at: string | null
+          created_at: string
+          created_by: string | null
+          error_details: Json | null
+          error_message: string | null
+          failed_items: number | null
+          id: string
+          performance_metrics: Json | null
+          processed_items: number | null
+          progress_percentage: number | null
+          session_data: Json | null
+          started_at: string
+          status: string
+          total_items: number | null
+          updated_at: string
+        }
+        Insert: {
+          batch_id: string
+          batch_type: string
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          error_details?: Json | null
+          error_message?: string | null
+          failed_items?: number | null
+          id?: string
+          performance_metrics?: Json | null
+          processed_items?: number | null
+          progress_percentage?: number | null
+          session_data?: Json | null
+          started_at?: string
+          status?: string
+          total_items?: number | null
+          updated_at?: string
+        }
+        Update: {
+          batch_id?: string
+          batch_type?: string
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          error_details?: Json | null
+          error_message?: string | null
+          failed_items?: number | null
+          id?: string
+          performance_metrics?: Json | null
+          processed_items?: number | null
+          progress_percentage?: number | null
+          session_data?: Json | null
+          started_at?: string
+          status?: string
+          total_items?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       google_sheets_integrations: {
         Row: {
           created_at: string
@@ -3080,6 +3178,16 @@ export type Database = {
           items_details: Json
         }[]
       }
+      complete_extraction_batch: {
+        Args: {
+          p_log_id: string
+          p_status?: string
+          p_error_message?: string
+          p_error_details?: Json
+          p_performance_metrics?: Json
+        }
+        Returns: undefined
+      }
       complete_missing_edn_fields: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -3266,6 +3374,24 @@ export type Database = {
           objectifs_extraits: number
           completude_pct: number
           manquants: string[]
+        }[]
+      }
+      get_extraction_status: {
+        Args: { p_batch_id?: string }
+        Returns: {
+          id: string
+          batch_id: string
+          batch_type: string
+          status: string
+          progress_percentage: number
+          total_items: number
+          processed_items: number
+          failed_items: number
+          error_message: string
+          started_at: string
+          completed_at: string
+          duration_minutes: number
+          recent_events: Json
         }[]
       }
       get_oic_competences_rapport: {
@@ -3506,6 +3632,14 @@ export type Database = {
           sample_finding: string
         }[]
       }
+      start_extraction_batch: {
+        Args: {
+          p_batch_type: string
+          p_total_items?: number
+          p_session_data?: Json
+        }
+        Returns: string
+      }
       update_all_edn_items_unique_content: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -3527,6 +3661,16 @@ export type Database = {
           success_count: number
           error_count: number
         }[]
+      }
+      update_extraction_progress: {
+        Args: {
+          p_log_id: string
+          p_processed_items: number
+          p_failed_items?: number
+          p_event_message?: string
+          p_event_data?: Json
+        }
+        Returns: undefined
       }
       verify_integration_success: {
         Args: Record<PropertyKey, never>
