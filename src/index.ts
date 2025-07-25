@@ -22,7 +22,6 @@ const limiter = rateLimit({
   legacyHeaders: false,
 });
 app.use(limiter);
-const port = import.meta.env.PORT || 3000;
 
 Sentry.init({
   dsn: process.env.SENTRY_DSN,

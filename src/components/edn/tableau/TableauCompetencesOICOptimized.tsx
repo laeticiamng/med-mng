@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { createSafeHtml } from '@/utils/sanitize';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ChevronDown, ChevronRight, Eye, Book, Target, AlertTriangle, Settings, Users } from 'lucide-react';
@@ -110,15 +111,15 @@ const CompetenceCard: React.FC<{
               <div className="mb-4 p-3 bg-muted/30 rounded-lg">
                 <div 
                   className="text-sm text-muted-foreground"
-                  dangerouslySetInnerHTML={{
-                    __html: competence.description
+                  dangerouslySetInnerHTML={createSafeHtml(
+                    competence.description
                       .replace(/&nbsp;/g, ' ')
                       .replace(/&lt;/g, '<')
                       .replace(/&gt;/g, '>')
                       .replace(/<br\s*\/?>/gi, '<br>')
                       .replace(/\[\[([^\]|]+)(?:\|[^\]]+)?\]\]/g, '$1')
                       .trim()
-                  }}
+                  )}
                 />
               </div>
             )}

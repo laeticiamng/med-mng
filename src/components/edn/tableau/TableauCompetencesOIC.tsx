@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { createSafeHtml, sanitizeTextWithBreaks } from '@/utils/sanitize';
 
 interface CompetenceOIC {
   intitule: string;
@@ -185,24 +186,22 @@ export const TableauCompetencesOIC: React.FC<TableauCompetencesOICProps> = ({
                             <div className="font-semibold text-amber-800 mb-1">📋 Sommaire:</div>
                             <div 
                               className="text-amber-700 text-xs"
-                              dangerouslySetInnerHTML={{
-                                __html: competence.sommaire.replace(/\n/g, '<br>')
-                              }}
+                              dangerouslySetInnerHTML={createSafeHtml(sanitizeTextWithBreaks(competence.sommaire))}
                             />
                           </div>
                         )}
                         {competence.description && (
                           <div className={`${isPlaceholder ? 'text-gray-500' : 'text-muted-foreground'} bg-muted/20 rounded p-2 border border-border/10`}>
                             <div 
-                              dangerouslySetInnerHTML={{
-                                __html: competence.description
+                              dangerouslySetInnerHTML={createSafeHtml(
+                                competence.description
                                   .replace(/&nbsp;/g, ' ')
                                   .replace(/&lt;/g, '<')
                                   .replace(/&gt;/g, '>')
                                   .replace(/<br\s*\/?>/gi, '<br>')
                                   .replace(/\[\[([^\]|]+)(?:\|[^\]]+)?\]\]/g, '$1')
                                   .trim()
-                              }}
+                              )}
                             />
                           </div>
                         )}
@@ -214,12 +213,10 @@ export const TableauCompetencesOIC: React.FC<TableauCompetencesOICProps> = ({
                       {competence.mecanismes ? (
                         <div className="bg-green-50 border border-green-200 rounded p-2">
                           <div className="font-semibold text-green-800 mb-1 text-xs">⚙️ Mécanismes:</div>
-                          <div 
-                            className="text-green-700 text-xs leading-relaxed"
-                            dangerouslySetInnerHTML={{
-                              __html: competence.mecanismes.replace(/\n/g, '<br>')
-                            }}
-                          />
+                           <div 
+                             className="text-green-700 text-xs leading-relaxed"
+                             dangerouslySetInnerHTML={createSafeHtml(sanitizeTextWithBreaks(competence.mecanismes))}
+                           />
                         </div>
                       ) : (
                         <span className="text-xs text-muted-foreground italic">En développement</span>
@@ -231,12 +228,10 @@ export const TableauCompetencesOIC: React.FC<TableauCompetencesOICProps> = ({
                       {competence.indications ? (
                         <div className="bg-blue-50 border border-blue-200 rounded p-2">
                           <div className="font-semibold text-blue-800 mb-1 text-xs">🎯 Indications:</div>
-                          <div 
-                            className="text-blue-700 text-xs leading-relaxed"
-                            dangerouslySetInnerHTML={{
-                              __html: competence.indications.replace(/\n/g, '<br>')
-                            }}
-                          />
+                           <div 
+                             className="text-blue-700 text-xs leading-relaxed"
+                             dangerouslySetInnerHTML={createSafeHtml(sanitizeTextWithBreaks(competence.indications))}
+                           />
                         </div>
                       ) : (
                         <span className="text-xs text-muted-foreground italic">En développement</span>
@@ -249,23 +244,19 @@ export const TableauCompetencesOIC: React.FC<TableauCompetencesOICProps> = ({
                         {competence.effets_indesirables && (
                           <div className="bg-red-50 border border-red-200 rounded p-2">
                             <div className="font-semibold text-red-800 mb-1 text-xs">⚠️ Effets indésirables:</div>
-                            <div 
-                              className="text-red-700 text-xs leading-relaxed"
-                              dangerouslySetInnerHTML={{
-                                __html: competence.effets_indesirables.replace(/\n/g, '<br>')
-                              }}
-                            />
+                             <div 
+                               className="text-red-700 text-xs leading-relaxed"
+                               dangerouslySetInnerHTML={createSafeHtml(sanitizeTextWithBreaks(competence.effets_indesirables))}
+                             />
                           </div>
                         )}
                         {competence.interactions && (
                           <div className="bg-orange-50 border border-orange-200 rounded p-2">
                             <div className="font-semibold text-orange-800 mb-1 text-xs">🔄 Interactions:</div>
-                            <div 
-                              className="text-orange-700 text-xs leading-relaxed"
-                              dangerouslySetInnerHTML={{
-                                __html: competence.interactions.replace(/\n/g, '<br>')
-                              }}
-                            />
+                             <div 
+                               className="text-orange-700 text-xs leading-relaxed"
+                               dangerouslySetInnerHTML={createSafeHtml(sanitizeTextWithBreaks(competence.interactions))}
+                             />
                           </div>
                         )}
                         {!competence.effets_indesirables && !competence.interactions && (
@@ -280,23 +271,19 @@ export const TableauCompetencesOIC: React.FC<TableauCompetencesOICProps> = ({
                         {competence.modalites_surveillance && (
                           <div className="bg-purple-50 border border-purple-200 rounded p-2">
                             <div className="font-semibold text-purple-800 mb-1 text-xs">🔍 Surveillance:</div>
-                            <div 
-                              className="text-purple-700 text-xs leading-relaxed"
-                              dangerouslySetInnerHTML={{
-                                __html: competence.modalites_surveillance.replace(/\n/g, '<br>')
-                              }}
-                            />
+                             <div 
+                               className="text-purple-700 text-xs leading-relaxed"
+                               dangerouslySetInnerHTML={createSafeHtml(sanitizeTextWithBreaks(competence.modalites_surveillance))}
+                             />
                           </div>
                         )}
                         {competence.causes_echec && (
                           <div className="bg-gray-50 border border-gray-200 rounded p-2">
                             <div className="font-semibold text-gray-800 mb-1 text-xs">❌ Causes échec:</div>
-                            <div 
-                              className="text-gray-700 text-xs leading-relaxed"
-                              dangerouslySetInnerHTML={{
-                                __html: competence.causes_echec.replace(/\n/g, '<br>')
-                              }}
-                            />
+                             <div 
+                               className="text-gray-700 text-xs leading-relaxed"
+                               dangerouslySetInnerHTML={createSafeHtml(sanitizeTextWithBreaks(competence.causes_echec))}
+                             />
                           </div>
                         )}
                         {!competence.modalites_surveillance && !competence.causes_echec && (
