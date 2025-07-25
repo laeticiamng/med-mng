@@ -107,7 +107,11 @@ const App = () => (
                <Route path="/test-extraction" element={<TestExtraction />} />
                <Route path="*" element={<NotFound />} />
             </Routes>
+            <OnboardingModal />
+            <HelpButton />
           </BrowserRouter>
+          <Toaster />
+          <Sonner />
         </TooltipProvider>
         </AuthProvider>
       </GlobalAudioProvider>

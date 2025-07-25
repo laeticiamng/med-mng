@@ -44,9 +44,20 @@ export const useOnboarding = () => {
 
       if (error) throw error;
 
+      // Transform database data to OnboardingStep format
+      const transformedSteps: OnboardingStep[] = (data || []).map(row => ({
+        id: row.id,
+        key: row.key,
+        title: typeof row.title === 'object' ? (row.title as any)?.fr || (row.title as any)?.en || '' : String(row.title),
+        body: typeof row.body === 'object' ? (row.body as any)?.fr || (row.body as any)?.en || '' : String(row.body),
+        type: row.type as 'onboarding' | 'tooltip' | 'help',
+        version: row.version,
+        is_active: row.is_active
+      }));
+
       setState(prev => ({
         ...prev,
-        steps: data || []
+        steps: transformedSteps
       }));
     } catch (error) {
       console.error('Error loading onboarding steps:', error);
