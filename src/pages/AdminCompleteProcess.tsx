@@ -6,6 +6,7 @@ import { AlertCircle, Download, Play, Database, Code, Palette, Zap, CheckCircle,
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { SecureCredentialsForm, useSecureCredentials } from '@/components/common/SecureCredentialsForm';
 
 const AdminCompleteProcess = () => {
   const [currentPhase, setCurrentPhase] = useState<string>('idle');
@@ -16,6 +17,8 @@ const AdminCompleteProcess = () => {
   const [isRunning, setIsRunning] = useState(false);
   const [isReimporting, setIsReimporting] = useState(false);
   const [reimportResults, setReimportResults] = useState<any>(null);
+  const { getCredentials, showCredentialsForm, handleCredentialsSubmit } = useSecureCredentials();
+  const [showCredentialsModal, setShowCredentialsModal] = useState(false);
 
   const phases = [
     { id: 'extraction', name: 'Extraction EDN (367 items)', icon: Download, duration: 15 },
@@ -32,17 +35,17 @@ const AdminCompleteProcess = () => {
     setAuditResults([]);
     
     try {
-      // Phase 1: Extraction EDN
+      // Phase 1: Extraction EDN - SÉCURISÉE
       setCurrentPhase('extraction');
       console.log('🚀 Début extraction des 367 items EDN...');
+      
+      // ✅ SÉCURISÉ: Récupération des credentials via composant sécurisé
+      const credentials = await getCredentials();
       
       const { data: extractionData, error: extractionError } = await supabase.functions.invoke('extract-edn-uness', {
         body: {
           action: 'start',
-          credentials: {
-            username: 'laeticia.moto-ngane@etud.u-picardie.fr',
-            password: 'Aiciteal1!'
-          }
+          credentials // Credentials sécurisés (pas de hardcodé)
         }
       });
 
@@ -416,6 +419,22 @@ const AdminCompleteProcess = () => {
         </Alert>
 
       </div>
+
+      {/* Formulaire de credentials sécurisé */}
+      {(showCredentialsModal || showCredentialsForm) && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div onClick={(e) => e.stopPropagation()}>
+            <SecureCredentialsForm
+              onSubmit={(creds) => {
+                handleCredentialsSubmit(creds);
+                setShowCredentialsModal(false);
+              }}
+              title="Authentification pour extraction complète"
+              description="Saisissez vos identifiants CAS pour lancer l'extraction sécurisée des données EDN"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };

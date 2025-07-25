@@ -26,9 +26,10 @@ const AdminExtractEdn = () => {
         body: {
           action,
           resumeFromItem: action === 'resume' ? resumeFromItem : 1,
+          // ✅ SÉCURISÉ: Utilisation de variables d'environnement
           credentials: {
-            username: 'laeticia.moto-ngane@etud.u-picardie.fr',
-            password: 'Aiciteal1!'
+            username: import.meta.env.VITE_CAS_USERNAME || prompt('Username CAS:'),
+            password: import.meta.env.VITE_CAS_PASSWORD || prompt('Password CAS:')
           }
         }
       });

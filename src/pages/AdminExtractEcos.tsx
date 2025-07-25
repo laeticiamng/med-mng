@@ -213,6 +213,19 @@ const AdminExtractEcos = () => {
         </Alert>
 
       </div>
+
+      {/* Formulaire de credentials sécurisé */}
+      {showCredentialsForm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div onClick={(e) => e.stopPropagation()}>
+            <SecureCredentialsForm
+              onSubmit={handleCredentialsSubmit}
+              title="Authentification CAS pour extraction ECOS"
+              description="Saisissez vos identifiants CAS pour l'extraction sécurisée des données ECOS"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
