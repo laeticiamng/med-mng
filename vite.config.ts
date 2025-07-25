@@ -10,7 +10,9 @@ export default defineConfig(({ mode }) => ({
     port: 8080,
   },
   plugins: [
-    react(),
+    react({
+      tsDecorators: true,
+    }),
     mode === 'development' &&
     componentTagger(),
   ].filter(Boolean),
@@ -21,5 +23,20 @@ export default defineConfig(({ mode }) => ({
   },
   define: {
     'process.env.NODE_ENV': JSON.stringify(mode),
+  },
+  esbuild: {
+    target: 'esnext',
+    logOverride: { 
+      'this-is-undefined-in-esm': 'silent'
+    }
+  },
+  build: {
+    target: 'esnext',
+    rollupOptions: {
+      onwarn(warning, warn) {
+        if (warning.code === 'TS6305') return;
+        warn(warning);
+      }
+    }
   }
 }));
