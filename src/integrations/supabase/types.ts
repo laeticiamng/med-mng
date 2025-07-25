@@ -2879,6 +2879,54 @@ export type Database = {
         }
         Relationships: []
       }
+      security_incidents: {
+        Row: {
+          content_preview: string
+          created_at: string
+          file_path: string
+          id: string
+          line_number: number | null
+          notes: string | null
+          pattern_matched: string
+          resolved_at: string | null
+          resolved_by: string | null
+          severity: string
+          status: string
+          type: string
+          updated_at: string
+        }
+        Insert: {
+          content_preview: string
+          created_at?: string
+          file_path: string
+          id?: string
+          line_number?: number | null
+          notes?: string | null
+          pattern_matched: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity: string
+          status?: string
+          type: string
+          updated_at?: string
+        }
+        Update: {
+          content_preview?: string
+          created_at?: string
+          file_path?: string
+          id?: string
+          line_number?: number | null
+          notes?: string | null
+          pattern_matched?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          status?: string
+          type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       starting_situations: {
         Row: {
           category: string | null
