@@ -1,4 +1,4 @@
-import { secureSunoClient as SunoApiClient } from "../../lib/secureApiClient";
+import { secureOpenAIClient as OpenAIApiClient } from "../../lib/secureApiClient";
 
 export interface Model {
   id: string;
@@ -13,11 +13,15 @@ export interface ModelsResponse {
 }
 
 export async function listModels() {
-  const client = new OpenAIApiClient();
-  return client.get<ModelsResponse>("/models");
+  return OpenAIApiClient.createChatCompletion({
+    model: 'gpt-4o-mini',
+    messages: [{ role: 'system', content: 'List available models' }]
+  });
 }
 
 export async function getModel(modelId: string) {
-  const client = new OpenAIApiClient();
-  return client.get<Model>(`/models/${modelId}`);
+  return OpenAIApiClient.createChatCompletion({
+    model: modelId,
+    messages: [{ role: 'system', content: 'Get model info' }]
+  });
 }

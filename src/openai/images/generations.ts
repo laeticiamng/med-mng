@@ -25,6 +25,5 @@ export interface ImageGenerationResponse {
 }
 
 export async function generateImage(payload: ImageGenerationRequest) {
-  const client = new OpenAIApiClient();
-  return client.post<ImageGenerationResponse>("/images/generations", payload);
+  return OpenAIApiClient.generateImage(payload);
 }

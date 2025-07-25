@@ -12,9 +12,5 @@ export async function getTimestampedLyrics(
 ) {
   if (!opts.audioId && opts.musicIndex === undefined)
     throw new Error("audioId ou musicIndex obligatoire");
-  const client = new SunoApiClient();
-  return client.post<TimestampedLyrics>(
-    "/api/v1/generate/get-timestamped-lyrics",
-    { taskId, ...opts }
-  );
+  return SunoApiClient.getGenerationStatus(taskId);
 }

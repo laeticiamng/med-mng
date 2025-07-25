@@ -45,6 +45,5 @@ export interface ChatCompletionResponse {
 }
 
 export async function createChatCompletion(payload: ChatCompletionRequest) {
-  const client = new OpenAIApiClient();
-  return client.post<ChatCompletionResponse>("/chat/completions", payload);
+  return OpenAIApiClient.createChatCompletion(payload);
 }

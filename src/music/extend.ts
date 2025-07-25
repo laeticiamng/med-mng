@@ -23,6 +23,5 @@ export async function extendMusic(p: ExtendMusicPayload) {
     if (!p.prompt || !p.style || !p.title || !p.continueAt)
       throw new Error("prompt, style, title, continueAt requis si defaultParamFlag=true");
   }
-  const client = new SunoApiClient();
-  return client.post<{ taskId: string }>("/api/v1/generate/extend", p);
+  return SunoApiClient.generateMusic(p);
 }

@@ -11,6 +11,5 @@ interface GenerateLyricsResponse {
 }
 
 export async function generateLyrics(payload: GenerateLyricsPayload) {
-  const client = new SunoApiClient();
-  return client.post<GenerateLyricsResponse>("/api/v1/lyrics", payload);
+  return SunoApiClient.generateMusic(payload);
 }

@@ -20,8 +20,7 @@ export interface GenerateMusicResponse {
 
 export async function generateMusic(p: GenerateMusicPayload) {
   validatePayload(p);
-  const client = new SunoApiClient();
-  return client.post<GenerateMusicResponse>("/api/v1/generate", p);
+  return SunoApiClient.generateMusic(p);
 }
 
 // --- helpers ---------------------------------------------------------------

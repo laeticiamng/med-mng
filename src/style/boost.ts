@@ -9,6 +9,5 @@ interface BoostResponse {
 }
 
 export async function boostStyle(content: string) {
-  const client = new SunoApiClient();
-  return client.post<BoostResponse>("/api/v1/style/generate", { content });
+  return SunoApiClient.generateMusic({ prompt: content });
 }

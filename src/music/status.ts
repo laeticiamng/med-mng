@@ -24,6 +24,5 @@ export interface MusicStatus {
 }
 
 export async function getMusicStatus(taskId: string) {
-  const client = new SunoApiClient();
-  return client.get<MusicStatus>("/api/v1/generate/record-info", { taskId });
+  return SunoApiClient.getGenerationStatus(taskId);
 }

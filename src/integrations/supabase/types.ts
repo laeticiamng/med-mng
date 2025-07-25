@@ -2979,6 +2979,15 @@ export type Database = {
           plan_name: string
         }[]
       }
+      check_rate_limit: {
+        Args: {
+          user_identifier: string
+          action_type: string
+          max_attempts?: number
+          time_window_minutes?: number
+        }
+        Returns: boolean
+      }
       clean_corrupted_edn_items: {
         Args: Record<PropertyKey, never>
         Returns: number
@@ -3215,6 +3224,10 @@ export type Database = {
           completion_percentage: number
         }[]
       }
+      get_security_headers: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
       get_user_subscription: {
         Args: { user_uuid: string }
         Returns: {
@@ -3247,6 +3260,10 @@ export type Database = {
           error_count: number
           details: Json
         }[]
+      }
+      log_security_event: {
+        Args: { event_type: string; event_details?: Json }
+        Returns: undefined
       }
       log_security_finding: {
         Args: {
@@ -3366,6 +3383,14 @@ export type Database = {
           total_rang_a: number
           total_rang_b: number
         }[]
+      }
+      run_security_health_check: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
+      sanitize_user_input: {
+        Args: { input_text: string }
+        Returns: string
       }
       scan_for_security_violations: {
         Args: Record<PropertyKey, never>

@@ -13,6 +13,5 @@ export interface LyricsStatus {
 }
 
 export async function getLyricsStatus(taskId: string) {
-  const client = new SunoApiClient();
-  return client.get<LyricsStatus>("/api/v1/lyrics/record-info", { taskId });
+  return SunoApiClient.getGenerationStatus(taskId);
 }
