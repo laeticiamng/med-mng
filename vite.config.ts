@@ -19,9 +19,7 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  // Temporarily disable TypeScript checking to bypass configuration conflict
   define: {
-    // This helps with build process
     'process.env.NODE_ENV': JSON.stringify(mode),
   },
 }));
