@@ -37,7 +37,7 @@ export const OnboardingModal: React.FC = () => {
   };
 
   return (
-    <Dialog open={isActive} onOpenChange={() => {}}>
+    <Dialog open={isActive} onOpenChange={(open) => !open && skipOnboarding()}>
       <DialogContent className="medical-card max-w-2xl">
         <DialogHeader>
           <div className="flex items-center justify-between">
