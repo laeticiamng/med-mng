@@ -128,7 +128,7 @@ jobs:
           echo "✅ Import check completed"
 
   # ===============================================
-  # JOB 3: Test Suite
+  # JOB 3: Test Suite (Unit + E2E)
   # ===============================================
   test:
     name: 🧪 Test Suite
@@ -150,12 +150,33 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Install Playwright browsers
+        run: pnpm playwright install --with-deps chromium
+
       - name: Run unit tests
         run: |
           echo "🧪 Running unit tests..."
           # Add when tests are implemented
           # pnpm test
           echo "✅ Unit tests passed (to be implemented)"
+
+      - name: Run E2E tests
+        run: |
+          echo "🚀 Running E2E tests..."
+          pnpm test:e2e
+        env:
+          E2E_BASE_URL: https://yaincoxihiqdksxgrsrk.supabase.co
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+
+      - name: Upload E2E test results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: e2e-test-results
+          path: |
+            test-results/
+            playwright-report/
+          retention-days: 7
 
       - name: Test Edge Functions compilation
         run: |
