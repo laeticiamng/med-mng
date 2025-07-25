@@ -71,11 +71,26 @@ export default function EdnComplete() {
     try {
       setLoading(true);
       
-      // Charger les items immersifs
-      const { data: immersiveData, error: immersiveError } = await supabase
-        .from('edn_items_immersive')
-        .select('*')
-        .order('item_code');
+      // Use the new edn-fix endpoint for complete competences
+      const { data: ednFixData, error: ednFixError } = await supabase.functions.invoke('edn-fix', {
+        body: { endpoint: '/items' }
+      });
+
+      let immersiveData = null;
+      let immersiveError = null;
+
+      if (ednFixData?.success && ednFixData?.data) {
+        immersiveData = ednFixData.data;
+        console.log('✅ Items chargés via edn-fix:', immersiveData.length);
+      } else {
+        // Fallback to direct database query
+        const result = await supabase
+          .from('edn_items_immersive')
+          .select('*')
+          .order('item_code');
+        immersiveData = result.data;
+        immersiveError = result.error;
+      }
 
       // Charger les items complets
       const { data: completeData, error: completeError } = await supabase

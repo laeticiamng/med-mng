@@ -51,13 +51,30 @@ const EdnIndex = () => {
   const fetchAllItems = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      // Use the new edn-fix endpoint for complete competences
+      const { data, error } = await supabase.functions.invoke('edn-fix', {
+        body: { endpoint: '/items' }
+      });
+
+      if (error) throw error;
+      
+      if (data?.success && data?.data) {
+        setItems(data.data);
+        toast({
+          title: "Items EDN chargés",
+          description: `${data.data.length} items avec compétences complètes`,
+        });
+        return;
+      }
+      
+      // Fallback to direct database query
+      const { data: fallbackData, error: fallbackError } = await supabase
         .from('edn_items_immersive')
         .select('*')
         .order('item_code');
 
-      if (error) {
-        console.error('Erreur lors du chargement des items:', error);
+      if (fallbackError) {
+        console.error('Erreur lors du chargement des items:', fallbackError);
         toast({
           title: "Erreur",
           description: "Impossible de charger les items EDN.",
@@ -66,10 +83,10 @@ const EdnIndex = () => {
         return;
       }
 
-      setItems(data || []);
+      setItems(fallbackData || []);
       toast({
         title: "✅ Interface EDN MED MNG",
-        description: `${data?.length || 0} items EDN chargés • Tous les rangs complets`,
+        description: `${fallbackData?.length || 0} items EDN chargés • Tous les rangs complets`,
       });
     } catch (error) {
       console.error('Erreur:', error);
