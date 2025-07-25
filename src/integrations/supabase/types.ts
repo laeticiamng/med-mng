@@ -1389,6 +1389,42 @@ export type Database = {
         }
         Relationships: []
       }
+      ia_usage_logs: {
+        Row: {
+          created_at: string
+          credits_used: number
+          error_details: string | null
+          id: string
+          operation_type: string
+          request_details: Json | null
+          response_status: string
+          service_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          credits_used?: number
+          error_details?: string | null
+          id?: string
+          operation_type: string
+          request_details?: Json | null
+          response_status: string
+          service_type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          credits_used?: number
+          error_details?: string | null
+          id?: string
+          operation_type?: string
+          request_details?: Json | null
+          response_status?: string
+          service_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       import_batches: {
         Row: {
           completed_at: string | null
@@ -3262,6 +3298,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
+      get_user_ia_stats: {
+        Args: { p_period_days?: number }
+        Returns: Json
+      }
       get_user_subscription: {
         Args: { user_uuid: string }
         Returns: {
@@ -3294,6 +3334,17 @@ export type Database = {
           error_count: number
           details: Json
         }[]
+      }
+      log_ia_usage: {
+        Args: {
+          p_service_type: string
+          p_operation_type: string
+          p_credits_used?: number
+          p_request_details?: Json
+          p_response_status?: string
+          p_error_details?: string
+        }
+        Returns: string
       }
       log_security_event: {
         Args:
@@ -3347,6 +3398,10 @@ export type Database = {
           subscription_id?: string
         }
         Returns: undefined
+      }
+      med_mng_decrement_quota: {
+        Args: { credits_to_use?: number }
+        Returns: Json
       }
       med_mng_get_activity_stats: {
         Args: { p_start_date?: string; p_end_date?: string }
