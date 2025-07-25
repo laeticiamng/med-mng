@@ -6,11 +6,24 @@ import { supabase } from '@/integrations/supabase/client';
 export interface ChatCompletionRequest {
   model: string;
   messages: Array<{
-    role: 'system' | 'user' | 'assistant';
+    role: 'system' | 'user' | 'assistant' | 'tool';
     content: string;
+    name?: string;
   }>;
   max_tokens?: number;
   temperature?: number;
+  top_p?: number;
+  n?: number;
+  stream?: boolean;
+  stop?: string | string[];
+  presence_penalty?: number;
+  frequency_penalty?: number;
+  logit_bias?: Record<string, number>;
+  user?: string;
+  functions?: any[];
+  function_call?: any;
+  tools?: any[];
+  tool_choice?: any;
 }
 
 export interface ImageGenerationRequest {
@@ -21,10 +34,11 @@ export interface ImageGenerationRequest {
 }
 
 export interface SunoGenerationRequest {
-  prompt: string;
+  prompt?: string;
   title?: string;
   tags?: string;
   wait_audio?: boolean;
+  [key: string]: any; // Allow additional properties for different request types
 }
 
 // Secure OpenAI API client using edge functions
