@@ -1,6 +1,7 @@
 import { handleSongs } from '../supabase/functions/med-mng-api/routes/songs.ts';
 import { handleLibrary } from '../supabase/functions/med-mng-api/routes/library.ts';
 import { handleQuota } from '../supabase/functions/med-mng-api/routes/quota.ts';
+import { handleSubscriptions } from '../supabase/functions/med-mng-api/routes/subscriptions.ts';
 
 const createRequest = (path: string, method: string, body?: any) =>
   new Request(`https://example.com${path}`, {
@@ -93,7 +94,55 @@ describe('med-mng-api route handlers', () => {
     const res = await handleSongs(req, supabase, '/songs');
     expect(res?.status).toBe(200);
     const body = await res?.json();
-    expect(body.page).toBe(2);
-    expect(body.totalCount).toBe(5);
+    expect(body.pagination.page).toBe(2);
+    expect(body.pagination.totalCount).toBe(5);
+  });
+
+  test('POST /songs validates input properly', async () => {
+    const supabase = {
+      rpc: jest.fn().mockResolvedValue({ data: 2 }),
+      from: jest.fn(),
+    };
+    
+    // Test missing title
+    const reqMissingTitle = createRequest('/songs', 'POST', {
+      suno_audio_id: '123',
+    });
+    const resMissingTitle = await handleSongs(reqMissingTitle, supabase, '/songs');
+    expect(resMissingTitle?.status).toBe(400);
+
+    // Test invalid title length
+    const reqLongTitle = createRequest('/songs', 'POST', {
+      title: 'a'.repeat(300),
+      suno_audio_id: '123',
+    });
+    const resLongTitle = await handleSongs(reqLongTitle, supabase, '/songs');
+    expect(resLongTitle?.status).toBe(400);
+  });
+
+  test('POST /subscriptions creates subscription', async () => {
+    const supabase = {
+      rpc: jest.fn().mockResolvedValue({ error: null }),
+    };
+    const req = createRequest('/subscriptions', 'POST', {
+      plan_id: 'pro',
+      gateway: 'stripe',
+      subscription_id: 'sub_123'
+    });
+    const res = await handleSubscriptions(req, supabase);
+    expect(res?.status).toBe(200);
+    const body = await res?.json();
+    expect(body.success).toBe(true);
+  });
+
+  test('POST /subscriptions validates required fields', async () => {
+    const supabase = { rpc: jest.fn() };
+    
+    // Test missing plan_id
+    const req = createRequest('/subscriptions', 'POST', {
+      gateway: 'stripe',
+    });
+    const res = await handleSubscriptions(req, supabase);
+    expect(res?.status).toBe(400);
   });
 });

@@ -13,6 +13,9 @@ import { handleEdn } from './routes/edn.ts';
 import { handleOic } from './routes/oic.ts';
 import { log } from './logger.ts';
 import { errorResponse } from './response.ts';
+import { MonitoringService } from './middleware/monitoring.ts';
+import { SecurityService } from './middleware/security.ts';
+import { RetryService } from './middleware/retry.ts';
 
 const rateMap = new Map<string, { count: number; reset: number }>();
 
@@ -29,57 +32,146 @@ function checkRate(key: string, limit: number, windowMs: number) {
 }
 
 serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: { ...corsHeaders, ...securityHeaders } });
-  }
-
-  const ip = req.headers.get('x-forwarded-for') ?? 'anon';
-  if (!checkRate(ip, 60, 60_000)) {
-    return errorResponse(429, 'RATE_LIMIT', 'Too Many Requests');
-  }
-
-  const url = new URL(req.url);
-  const path = url.pathname.replace('/functions/v1/med-mng-api', '');
-
-  // Public help endpoints before auth check
-  const publicRes = await handleHelp(req, null, path, url);
-  if (publicRes) return publicRes;
-
-  const { error, supabase, user } = await validateAuth(req);
-  if (error) return error;
+  let requestId: string | null = null;
 
   try {
-    // Route handlers
-    let response;
+    // CORS preflight
+    if (req.method === 'OPTIONS') {
+      return new Response(null, { headers: { ...corsHeaders, ...securityHeaders } });
+    }
+
+    const url = new URL(req.url);
+    const path = url.pathname.replace('/functions/v1/med-mng-api', '');
+    const ip = req.headers.get('x-forwarded-for') ?? req.headers.get('x-real-ip') ?? 'anon';
+
+    // Security checks
+    const securityCheck = SecurityService.checkSecurityThreats(req, ip);
+    if (securityCheck) return securityCheck;
+
+    const contentTypeCheck = SecurityService.validateContentType(req);
+    if (contentTypeCheck) return contentTypeCheck;
+
+    // Rate limiting
+    if (!checkRate(ip, 60, 60_000)) {
+      log('warn', `Rate limit exceeded for IP: ${ip}`);
+      return errorResponse(429, 'RATE_LIMIT', 'Too Many Requests');
+    }
+
+    // Start monitoring
+    requestId = MonitoringService.startRequest(req, path);
+
+    // Health check endpoint
+    if (path === '/health' && req.method === 'GET') {
+      const health = {
+        status: 'healthy',
+        timestamp: new Date().toISOString(),
+        version: '2.0.0',
+        metrics: MonitoringService.getHealthMetrics(),
+        security: SecurityService.getSecurityMetrics()
+      };
+      MonitoringService.endRequest(requestId, 200);
+      return new Response(JSON.stringify(health), {
+        headers: { ...corsHeaders, ...securityHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    // Public help endpoints before auth check
+    const publicRes = await handleHelp(req, null, path, url);
+    if (publicRes) {
+      MonitoringService.endRequest(requestId, publicRes.status);
+      return publicRes;
+    }
+
+    // Authentication with retry
+    const authResult = await RetryService.withRetry(
+      () => validateAuth(req),
+      { maxRetries: 2 },
+      'auth_validation'
+    );
+
+    if (authResult.error) {
+      MonitoringService.endRequest(requestId, 401);
+      return authResult.error;
+    }
+
+    const { supabase, user } = authResult;
     
-    response = await handleSubscriptions(req, supabase);
-    if (response) return response;
+    // Update monitoring with user info
+    requestId = MonitoringService.startRequest(req, path, user?.id);
 
-    response = await handleSongs(req, supabase, path);
-    if (response) return response;
+    // Route handlers with retry logic for database operations
+    let response: Response | null = null;
+    
+    try {
+      response = await RetryService.withRetry(
+        async () => {
+          let res: Response | null = null;
+          
+          res = await handleSubscriptions(req, supabase);
+          if (res) return res;
 
-    response = await handleLibrary(req, supabase, path, url);
-    if (response) return response;
+          res = await handleSongs(req, supabase, path);
+          if (res) return res;
 
-    response = await handleEdn(req, supabase, path, url);
-    if (response) return response;
+          res = await handleLibrary(req, supabase, path, url);
+          if (res) return res;
 
-    response = await handleOic(req, supabase, path, url);
-    if (response) return response;
+          res = await handleEdn(req, supabase, path, url);
+          if (res) return res;
 
-    response = await handleQuota(req, supabase, path);
-    if (response) return response;
+          res = await handleOic(req, supabase, path, url);
+          if (res) return res;
 
-    response = await handleVerify(req, supabase, path);
-    if (response) return response;
+          res = await handleQuota(req, supabase, path);
+          if (res) return res;
 
-    response = await handleComplete(req, supabase, path);
-    if (response) return response;
+          res = await handleVerify(req, supabase, path);
+          if (res) return res;
 
+          res = await handleComplete(req, supabase, path);
+          if (res) return res;
+
+          return null;
+        },
+        { maxRetries: 1, baseDelay: 500 },
+        `route_handler_${path}`
+      );
+    } catch (routeError) {
+      log('error', `Route handler error for ${path}`, routeError);
+      
+      if (RetryService.isRetryableError(routeError as Error)) {
+        MonitoringService.endRequest(requestId, 503, routeError as Error);
+        return errorResponse(503, 'SERVICE_UNAVAILABLE', 'Service temporarily unavailable');
+      }
+      
+      throw routeError;
+    }
+
+    if (response) {
+      MonitoringService.endRequest(requestId, response.status);
+      return response;
+    }
+
+    MonitoringService.endRequest(requestId, 404);
     return errorResponse(404, 'NOT_FOUND', 'Route not found');
 
   } catch (error) {
-    log('error', 'API Error', error);
-    return errorResponse(500, 'SERVER_ERROR', (error as Error).message);
+    const statusCode = error instanceof Error && error.message.includes('validation') ? 400 : 500;
+    
+    log('error', 'Unhandled API Error', {
+      error: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      requestId
+    });
+
+    if (requestId) {
+      MonitoringService.endRequest(requestId, statusCode, error as Error);
+    }
+
+    return errorResponse(
+      statusCode, 
+      statusCode === 400 ? 'VALIDATION_ERROR' : 'SERVER_ERROR', 
+      error instanceof Error ? error.message : 'An unexpected error occurred'
+    );
   }
 });

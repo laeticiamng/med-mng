@@ -1,5 +1,6 @@
-import { errorResponse } from "../response.ts";
+import { jsonResponse, errorResponse, paginatedResponse } from "../response.ts";
 import { corsHeaders, securityHeaders, CreateSongRequest } from '../types.ts';
+import { Validator, validatePagination, sanitizeInput } from '../middleware/validation.ts';
 import { log } from '../logger.ts';
 
 declare const Deno: { env: { get(key: string): string | undefined } };
@@ -7,60 +8,96 @@ declare const Deno: { env: { get(key: string): string | undefined } };
 export async function handleSongs(req: Request, supabase: any, path: string) {
   // GET /songs - List songs with pagination
   if (path === '/songs' && req.method === 'GET') {
-    const url = new URL(req.url);
-    const page = Math.max(1, parseInt(url.searchParams.get('page') || '1'));
-    const limit = Math.min(50, parseInt(url.searchParams.get('limit') || '20'));
-    const offset = (page - 1) * limit;
+    try {
+      const url = new URL(req.url);
+      const { page, limit } = validatePagination(url);
+      const offset = (page - 1) * limit;
 
-    const { data, count, error } = await supabase
-      .from('med_mng_songs')
-      .select('id,title,suno_audio_id,meta,created_at', { count: 'exact' })
-      .order('created_at', { ascending: false })
-      .range(offset, offset + limit - 1);
+      // Optional search parameter
+      const searchTerm = sanitizeInput(url.searchParams.get('search') || '');
 
-    if (error) throw error;
+      let query = supabase
+        .from('med_mng_songs')
+        .select('id,title,suno_audio_id,meta,created_at', { count: 'exact' })
+        .order('created_at', { ascending: false });
 
-    return new Response(
-      JSON.stringify({ items: data, page, limit, totalCount: count || 0 }),
-      {
-        headers: {
-          ...corsHeaders,
-          ...securityHeaders,
-          'Content-Type': 'application/json',
-        },
+      // Add search filter if provided
+      if (searchTerm) {
+        query = query.ilike('title', `%${searchTerm}%`);
       }
-    );
+
+      const { data, count, error } = await query.range(offset, offset + limit - 1);
+
+      if (error) {
+        log('error', 'Database error in songs list', error);
+        throw error;
+      }
+
+      log('info', `Retrieved ${data?.length || 0} songs (page ${page}, search: "${searchTerm}")`);
+
+      return paginatedResponse(data || [], page, limit, count || 0, {
+        search: searchTerm || undefined
+      });
+    } catch (error) {
+      log('error', 'Error in songs list endpoint', error);
+      throw error;
+    }
   }
 
   // POST /songs - Create a new song
   if (path === '/songs' && req.method === 'POST') {
-    const { title, suno_audio_id, meta }: CreateSongRequest = await req.json();
+    try {
+      const body = await req.json();
+      
+      // Validate request body
+      const validationError = Validator.validate(body, [
+        { field: 'title', required: true, type: 'string', minLength: 1, maxLength: 255 },
+        { field: 'suno_audio_id', required: true, type: 'string', minLength: 1, maxLength: 100 },
+        { field: 'meta', required: false }
+      ]);
 
-    // Check user quota first
-    const { data: quotaData } = await supabase.rpc(
-      'med_mng_get_remaining_quota'
-    );
+      if (validationError) return validationError;
 
-    if (!quotaData || quotaData <= 0) {
-      return errorResponse(403, 'QUOTA_EXCEEDED', 'Quota insuffisant');
+      const { title, suno_audio_id, meta }: CreateSongRequest = body;
+      
+      // Sanitize inputs
+      const sanitizedTitle = sanitizeInput(title);
+
+      // Check quota first
+      const { data: quota, error: quotaError } = await supabase.rpc('med_mng_get_remaining_quota');
+      if (quotaError) {
+        log('error', 'Quota check failed', quotaError);
+        throw quotaError;
+      }
+
+      if ((quota || 0) < 1) {
+        log('warn', 'Song creation blocked due to insufficient quota', { quota });
+        return errorResponse(403, 'QUOTA_EXCEEDED', 'Quota insuffisant');
+      }
+
+      // Create the song
+      const { data: song, error } = await supabase
+        .from('med_mng_songs')
+        .insert({ 
+          title: sanitizedTitle, 
+          suno_audio_id, 
+          meta: meta || {} 
+        })
+        .select()
+        .single();
+
+      if (error) {
+        log('error', 'Song creation failed', error);
+        throw error;
+      }
+
+      log('info', `Song created successfully`, { songId: song.id, title: sanitizedTitle });
+
+      return jsonResponse(song, 201);
+    } catch (error) {
+      log('error', 'Error in song creation endpoint', error);
+      throw error;
     }
-
-    // Insert song (trigger will decrement quota)
-    const { data, error } = await supabase
-      .from('med_mng_songs')
-      .insert({ title, suno_audio_id, meta })
-      .select()
-      .single();
-
-    if (error) throw error;
-
-    return new Response(JSON.stringify(data), {
-      headers: {
-        ...corsHeaders,
-        ...securityHeaders,
-        'Content-Type': 'application/json',
-      },
-    });
   }
 
   // GET /songs/:id/stream - Proxy streaming
@@ -69,46 +106,79 @@ export async function handleSongs(req: Request, supabase: any, path: string) {
     path.endsWith('/stream') &&
     req.method === 'GET'
   ) {
-    const songId = path.split('/')[2];
+    try {
+      const songId = path.split('/')[2];
 
-    const { data: song, error } = await supabase
-      .from('med_mng_songs')
-      .select('suno_audio_id')
-      .eq('id', songId)
-      .single();
+      // Validate UUID format
+      if (!songId || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(songId)) {
+        return errorResponse(400, 'INVALID_SONG_ID', 'Invalid song ID format');
+      }
 
-    if (error || !song) {
-      return errorResponse(404, 'SONG_NOT_FOUND', 'Song not found');
+      const { data: song, error } = await supabase
+        .from('med_mng_songs')
+        .select('suno_audio_id')
+        .eq('id', songId)
+        .single();
+
+      if (error || !song) {
+        log('warn', `Song not found for streaming: ${songId}`);
+        return errorResponse(404, 'SONG_NOT_FOUND', 'Song not found');
+      }
+
+      // Proxy to Suno with streaming support and timeout
+      const sunoUrl = `https://apibox.erweima.ai/api/v1/audio/${song.suno_audio_id}`;
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
+
+      try {
+        const sunoResponse = await fetch(sunoUrl, {
+          headers: {
+            Authorization: `Bearer ${Deno.env.get('SUNO_API_KEY')}`,
+            Range: req.headers.get('Range') || '',
+          },
+          signal: controller.signal,
+        });
+
+        clearTimeout(timeoutId);
+
+        if (!sunoResponse.ok) {
+          log('error', `Suno API error: ${sunoResponse.status}`, { songId, sunoAudioId: song.suno_audio_id });
+          return errorResponse(502, 'UPSTREAM_ERROR', 'Audio service unavailable');
+        }
+
+        const responseHeaders = {
+          ...corsHeaders,
+          ...securityHeaders,
+          'Content-Type': 'audio/mpeg',
+          'Content-Disposition': 'inline',
+          'Cache-Control': 'private, max-age=300',
+          'X-Song-ID': songId,
+        };
+
+        // Copy range headers for streaming
+        if (sunoResponse.headers.get('Content-Range')) {
+          responseHeaders['Content-Range'] = sunoResponse.headers.get('Content-Range')!;
+          responseHeaders['Accept-Ranges'] = 'bytes';
+        }
+
+        log('info', `Song streaming started`, { songId, status: sunoResponse.status });
+
+        return new Response(sunoResponse.body, {
+          status: sunoResponse.status,
+          headers: responseHeaders,
+        });
+      } catch (fetchError) {
+        clearTimeout(timeoutId);
+        if (fetchError.name === 'AbortError') {
+          log('error', 'Song streaming timeout', { songId });
+          return errorResponse(504, 'STREAM_TIMEOUT', 'Audio streaming timeout');
+        }
+        throw fetchError;
+      }
+    } catch (error) {
+      log('error', 'Error in song streaming endpoint', error);
+      throw error;
     }
-
-    // Proxy to Suno with streaming support
-    const sunoUrl = `https://apibox.erweima.ai/api/v1/audio/${song.suno_audio_id}`;
-    const sunoResponse = await fetch(sunoUrl, {
-      headers: {
-        Authorization: `Bearer ${Deno.env.get('SUNO_API_KEY')}`,
-        Range: req.headers.get('Range') || '',
-      },
-    });
-
-    const responseHeaders = {
-      ...corsHeaders,
-      ...securityHeaders,
-      'Content-Type': 'audio/mpeg',
-      'Content-Disposition': 'inline',
-      'Cache-Control': 'private, max-age=300',
-    };
-
-    // Copy range headers for streaming
-    if (sunoResponse.headers.get('Content-Range')) {
-      responseHeaders['Content-Range'] =
-        sunoResponse.headers.get('Content-Range')!;
-      responseHeaders['Accept-Ranges'] = 'bytes';
-    }
-
-    return new Response(sunoResponse.body, {
-      status: sunoResponse.status,
-      headers: responseHeaders,
-    });
   }
 
   // POST /songs/:id/like - Toggle like
