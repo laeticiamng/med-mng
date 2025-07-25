@@ -45,10 +45,9 @@ export const useImmersiveLogic = () => {
       try {
         console.log('🔍 Chargement item immersif pour slug:', slug);
         
-        // Force refresh and clear any potential cache
-        const timestamp = Date.now();
+        // Utiliser edn_items_complete au lieu de edn_items_immersive pour avoir les bonnes compétences OIC
         const { data, error } = await supabase
-          .from('edn_items_immersive')
+          .from('edn_items_complete')
           .select('*')
           .eq('slug', slug)
           .maybeSingle();

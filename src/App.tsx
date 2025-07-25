@@ -39,8 +39,8 @@ import EdnObjectifsExtractionPage from "./pages/EdnObjectifsExtraction";
 import OicDataQualityManager from "./pages/OicDataQualityManager";
 import AuditCompleteness from "./pages/AuditCompleteness";
 import TestExtraction from "./pages/TestExtraction";
+import EdnImmersive from "./pages/EdnImmersive";
 import EdnComplete from "./pages/EdnComplete";
-import EdnCompleteDetail from "./pages/EdnCompleteDetail";
 
 const queryClient = new QueryClient();
 
@@ -59,11 +59,11 @@ const App = () => (
                {/* EDN Interface Unifiée - toutes les fonctionnalités fusionnées */}
                  <Route path="/edn" element={<EdnComplete />} />
                  <Route path="/edn-complete" element={<EdnComplete />} />
-                 <Route path="/edn-complete/:slug" element={<EdnCompleteDetail />} />
-                 <Route path="/edn/:slug" element={<EdnCompleteDetail />} />
+                  <Route path="/edn-complete/:slug" element={<EdnComplete />} />
+                  <Route path="/edn/:slug" element={<EdnComplete />} />
                  
                  {/* Redirections vers l'interface unifiée */}
-                 <Route path="/edn/:slug/immersive" element={<Navigate to="/edn-complete" replace />} />
+                 <Route path="/edn/:slug/immersive" element={<EdnImmersive />} />
                  <Route path="/edn/music-library" element={<Navigate to="/edn-complete" replace />} />
               <Route path="/ecos" element={<EcosIndex />} />
               <Route path="/ecos/:scenarioId" element={<EcosScenario />} />
