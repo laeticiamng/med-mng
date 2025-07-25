@@ -1,17 +1,32 @@
-// Script pour lancer immédiatement l'extraction EDN
-console.log('🚀 Lancement immédiat de l\'extraction des 367 items EDN...');
+// ✅ SÉCURISÉ: Script extraction EDN avec variables d'environnement
+const SUPABASE_URL = process.env.SUPABASE_URL || 'https://yaincoxihiqdksxgrsrk.supabase.co';
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
+const CAS_USERNAME = process.env.CAS_USERNAME;
+const CAS_PASSWORD = process.env.CAS_PASSWORD;
 
-fetch('https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/extract-edn-uness', {
+if (!SUPABASE_ANON_KEY) {
+  console.error('❌ ERREUR SÉCURITÉ: SUPABASE_ANON_KEY manquant dans les variables d\'environnement');
+  process.exit(1);
+}
+
+if (!CAS_USERNAME || !CAS_PASSWORD) {
+  console.error('❌ ERREUR SÉCURITÉ: CAS_USERNAME et CAS_PASSWORD requis dans les variables d\'environnement');
+  process.exit(1);
+}
+
+console.log('🚀 Lancement sécurisé de l\'extraction des 367 items EDN...');
+
+fetch(`${SUPABASE_URL}/functions/v1/extract-edn-uness`, {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
-    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU'
+    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
   },
   body: JSON.stringify({
     action: 'start',
     credentials: {
-      username: 'laeticia.moto-ngane@etud.u-picardie.fr',
-      password: 'Aiciteal1!'
+      username: CAS_USERNAME,
+      password: CAS_PASSWORD
     }
   })
 })

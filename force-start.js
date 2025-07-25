@@ -1,9 +1,19 @@
-// 🚨 FORCE START - Démarrage forcé sans délai
-fetch('https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/auto-extract-oic', {
+// ✅ SÉCURISÉ: Force start avec variables d'environnement
+const SUPABASE_URL = process.env.SUPABASE_URL || 'https://yaincoxihiqdksxgrsrk.supabase.co';
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
+
+if (!SUPABASE_ANON_KEY) {
+  console.error('❌ ERREUR SÉCURITÉ: SUPABASE_ANON_KEY manquant dans les variables d\'environnement');
+  process.exit(1);
+}
+
+console.log('🚀 Démarrage sécurisé avec authentification...');
+
+fetch(`${SUPABASE_URL}/functions/v1/auto-extract-oic`, {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
-    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU'
+    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
   },
   body: JSON.stringify({ force_immediate: true })
 })
@@ -13,11 +23,11 @@ fetch('https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/auto-extract-oic', 
 
 // Backup: extraction directe
 setTimeout(() => {
-  fetch('https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/extract-edn-objectifs', {
+  fetch(`${SUPABASE_URL}/functions/v1/extract-edn-objectifs`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU'
+      'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
     },
     body: JSON.stringify({ action: 'start' })
   })

@@ -1,11 +1,19 @@
-// Script pour lancer l'extraction complète des 4,872 compétences OIC
-console.log('🚀 Lancement de l\'extraction complète des objectifs OIC avec authentification...');
+// ✅ SÉCURISÉ: Script extraction OIC avec variables d'environnement
+const SUPABASE_URL = process.env.SUPABASE_URL || 'https://yaincoxihiqdksxgrsrk.supabase.co';
+const SUPABASE_ANON_KEY = process.env.SUPABASE_ANON_KEY;
 
-fetch('https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/extract-edn-objectifs', {
+if (!SUPABASE_ANON_KEY) {
+  console.error('❌ ERREUR SÉCURITÉ: SUPABASE_ANON_KEY manquant dans les variables d\'environnement');
+  process.exit(1);
+}
+
+console.log('🚀 Lancement sécurisé de l\'extraction complète des objectifs OIC...');
+
+fetch(`${SUPABASE_URL}/functions/v1/extract-edn-objectifs`, {
   method: 'POST',
   headers: {
     'Content-Type': 'application/json',
-    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU'
+    'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
   },
   body: JSON.stringify({
     action: 'start'
