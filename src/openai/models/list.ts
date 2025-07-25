@@ -1,4 +1,4 @@
-import { OpenAIApiClient } from "../../lib/openaiClient";
+import { secureSunoClient as SunoApiClient } from "../../lib/secureApiClient";
 
 export interface Model {
   id: string;

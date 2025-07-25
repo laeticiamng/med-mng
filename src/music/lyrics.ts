@@ -1,5 +1,5 @@
 
-import { SunoApiClient } from "../lib/sunoClient";
+import { secureSunoClient as SunoApiClient } from "../lib/secureApiClient";
 
 export interface TimestampedLyrics {
   lyrics: Array<{ time: number; text: string }>; // time en secondes

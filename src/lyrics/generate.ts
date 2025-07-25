@@ -1,5 +1,5 @@
 
-import { SunoApiClient } from "../lib/sunoClient";
+import { secureSunoClient as SunoApiClient } from "../lib/secureApiClient";
 
 interface GenerateLyricsPayload {
   prompt: string;      // ≤ 200 mots

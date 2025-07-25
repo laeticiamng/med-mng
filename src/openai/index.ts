@@ -22,9 +22,7 @@ export {
   type ModelsResponse
 } from './models/list';
 
-// Client
+// Client - Use secure API client instead
 export { 
-  OpenAIApiClient, 
-  OpenAIRequestError,
-  type OpenAIError 
-} from '../lib/openaiClient';
+  secureOpenAIClient as OpenAIApiClient
+} from '../lib/secureApiClient';

@@ -1,4 +1,4 @@
-import { OpenAIApiClient } from "../../lib/openaiClient";
+import { secureOpenAIClient as OpenAIApiClient } from "../../lib/secureApiClient";
 
 export interface ChatCompletionMessage {
   role: 'system' | 'user' | 'assistant' | 'tool';

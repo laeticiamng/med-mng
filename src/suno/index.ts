@@ -1,6 +1,6 @@
 
-// Client de base
-export { SunoApiClient, SunoRequestError } from '../lib/sunoClient';
+// Client de base - Use secure API client instead
+export { secureSunoClient as SunoApiClient } from '../lib/secureApiClient';
 
 // Services de paroles
 export { generateLyrics } from '../lyrics/generate';

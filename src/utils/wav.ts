@@ -1,5 +1,5 @@
 
-import { SunoApiClient } from "../lib/sunoClient";
+import { secureSunoClient as SunoApiClient } from "../lib/secureApiClient";
 
 export async function convertToWav(audioId: string) {
   // TODO: implémenter dès que l'endpoint sera dispo
