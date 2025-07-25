@@ -7,9 +7,17 @@ import { parseOICContent, OicCompetence } from './oic-parser.ts'
 // @ts-ignore
 import puppeteer from "https://deno.land/x/puppeteer@16.2.0/mod.ts"
 
-// Credentials CAS depuis les variables d'environnement
-const CAS_USERNAME = Deno.env.get('CAS_USERNAME') || 'laeticia.moto-ngane@etud.u-picardie.fr'
-const CAS_PASSWORD = Deno.env.get('CAS_PASSWORD') || 'Aiciteal1!'
+// Credentials CAS depuis les variables d'environnement - SÉCURISÉ
+const CAS_USERNAME = Deno.env.get('CAS_USERNAME')
+const CAS_PASSWORD = Deno.env.get('CAS_PASSWORD')
+
+// Validation obligatoire des credentials
+if (!CAS_USERNAME) {
+  throw new Error('CAS_USERNAME manquant - variable d\'environnement requise')
+}
+if (!CAS_PASSWORD) {
+  throw new Error('CAS_PASSWORD manquant - variable d\'environnement requise')
+}
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -22,9 +30,16 @@ serve(async (req) => {
   }
 
   try {
-    // Configuration Supabase - utiliser les valeurs hardcodées pour ce projet
-    const supabaseUrl = 'https://yaincoxihiqdksxgrsrk.supabase.co'
-    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0MjgxMTgyNywiZXhwIjoyMDU4Mzg3ODI3fQ.lqvk4b1gIS3gbSFKtjQuOM4XgsnEK4aPaAVCDMkdbyM'
+    // Configuration Supabase - SÉCURISÉ
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+    
+    if (!supabaseUrl) {
+      throw new Error('SUPABASE_URL manquant - variable d\'environnement requise')
+    }
+    if (!supabaseKey) {
+      throw new Error('SUPABASE_SERVICE_ROLE_KEY manquant - variable d\'environnement requise')
+    }
     
     if (!supabaseUrl || !supabaseKey) {
       console.error('Variables Supabase manquantes')
@@ -400,8 +415,8 @@ async function authenticateAndGetCookies(): Promise<string> {
       await page.waitForSelector('#username', { visible: true, timeout: 10000 })
       await page.waitForSelector('#password', { visible: true, timeout: 10000 })
       
-      // Saisir les identifiants
-      console.log(`🔐 Saisie identifiants: ${CAS_USERNAME}`)
+      // Saisir les identifiants (masqué dans les logs)
+      console.log(`🔐 Saisie identifiants: ${CAS_USERNAME.substring(0, 3)}***@***.fr`)
       await page.type('#username', CAS_USERNAME)
       await page.type('#password', CAS_PASSWORD)
       

@@ -16,14 +16,28 @@ const CATEGORY_TITLE = 'Catégorie:Objectif_de_connaissance';
 const BATCH_SIZE = 50; // Pages par batch (limite MediaWiki)
 const LIST_LIMIT = 500; // Pages par requête de listing
 
-// Credentials CAS
-const CAS_USERNAME = process.env.CAS_USER || 'laeticia.moto-ngane@etud.u-picardie.fr';
-const CAS_PASSWORD = process.env.CAS_PASS || 'Aiciteal1!';
+// Credentials CAS - SÉCURISÉ
+const CAS_USERNAME = process.env.CAS_USER;
+const CAS_PASSWORD = process.env.CAS_PASS;
 
-// Supabase
-const SUPABASE_URL = process.env.SUPABASE_URL || 'https://yaincoxihiqdksxgrsrk.supabase.co';
+// Validation obligatoire des credentials
+if (!CAS_USERNAME) {
+  console.error('❌ CAS_USER manquant dans l\'environnement');
+  process.exit(1);
+}
+if (!CAS_PASSWORD) {
+  console.error('❌ CAS_PASS manquant dans l\'environnement');
+  process.exit(1);
+}
+
+// Supabase - SÉCURISÉ
+const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
+if (!SUPABASE_URL) {
+  console.error('❌ SUPABASE_URL manquant dans l\'environnement');
+  process.exit(1);
+}
 if (!SUPABASE_KEY) {
   console.error('❌ SUPABASE_SERVICE_ROLE_KEY manquant dans l\'environnement');
   process.exit(1);
@@ -128,6 +142,7 @@ async function authenticateWithCAS(): Promise<string> {
       
       await page.type('#username', CAS_USERNAME);
       await page.type('#password', CAS_PASSWORD);
+      console.log(`🔐 Identifiants saisis: ${CAS_USERNAME.substring(0, 3)}***@***.fr`);
       await page.click('input[name="submit"]');
       
       // Attendre redirection vers livret.uness.fr

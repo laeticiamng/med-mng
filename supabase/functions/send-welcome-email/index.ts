@@ -107,7 +107,7 @@ const handler = async (req: Request): Promise<Response> => {
             <p>Pour commencer votre expérience, connectez-vous dès maintenant :</p>
             
             <div style="text-align: center;">
-              <a href="${Deno.env.get('SUPABASE_URL') || 'https://med-mng.lovable.app'}/med-mng/login" class="button">
+              <a href="${Deno.env.get('SUPABASE_URL')}/med-mng/login" class="button">
                 Se connecter à MED-MNG
               </a>
             </div>
