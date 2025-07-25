@@ -72,9 +72,9 @@ const EdnIndex = () => {
         }
       }
       
-      // Fallback to direct database query
+      // Fallback to direct database query - use complete items with OIC competences
       const { data: fallbackData, error: fallbackError } = await supabase
-        .from('edn_items_immersive')
+        .from('edn_items_complete')
         .select('*')
         .order('item_code');
 
