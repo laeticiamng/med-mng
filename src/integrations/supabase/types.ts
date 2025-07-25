@@ -2643,6 +2643,36 @@ export type Database = {
         }
         Relationships: []
       }
+      security_audit_logs: {
+        Row: {
+          created_at: string | null
+          event_details: Json | null
+          event_type: string
+          id: string
+          ip_address: unknown | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          event_details?: Json | null
+          event_type: string
+          id?: string
+          ip_address?: unknown | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          event_details?: Json | null
+          event_type?: string
+          id?: string
+          ip_address?: unknown | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       starting_situations: {
         Row: {
           category: string | null
@@ -3153,6 +3183,10 @@ export type Database = {
         Args: { report_type_param?: string }
         Returns: string
       }
+      generate_security_audit_report: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
       generate_specific_content_all_items: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -3262,7 +3296,15 @@ export type Database = {
         }[]
       }
       log_security_event: {
-        Args: { event_type: string; event_details?: Json }
+        Args:
+          | { event_type: string; event_details?: Json }
+          | {
+              p_event_type: string
+              p_event_details?: Json
+              p_user_id?: string
+              p_ip_address?: unknown
+              p_user_agent?: string
+            }
         Returns: undefined
       }
       log_security_finding: {
