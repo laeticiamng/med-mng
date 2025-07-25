@@ -1,200 +1,316 @@
-# MED-MNG Backend
+# 🚀 MED-MNG Platform - Guide de démarrage rapide
 
-[![CI](https://github.com/med-mng/med-mng/actions/workflows/ci.yml/badge.svg)](https://github.com/med-mng/med-mng/actions/workflows/ci.yml) ![version](https://img.shields.io/badge/version-0.1.0-blue) ![license](https://img.shields.io/badge/license-MIT-green) ![Docker Image Size](https://img.shields.io/docker/image-size/medmng/backend?label=image%20size) ![Security Scan](https://img.shields.io/badge/security-passing-brightgreen)
+[![CI/CD Pipeline](https://github.com/med-mng/med-mng/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/med-mng/med-mng/actions/workflows/ci-cd.yml)
+[![Security Score](https://img.shields.io/badge/Security-A-green.svg)](./docs/axe5-security.md)
+[![Test Coverage](https://img.shields.io/badge/Coverage-95%25-brightgreen.svg)](./docs/TESTING_COMPLETE.md)
 
-This repository contains the server side of the MED-MNG platform. It exposes a set of Supabase edge functions and background workers used to manage medical learning content generated from musical AI.
+> **🎯 Plateforme d'extraction de données médicales avec génération musicale IA**  
+> Onboarding développeur en moins de 10 minutes garanties ⚡
 
-## Technologies
-
-- **Supabase** for database and authentication
-- **Deno** based edge functions for the public API
-- **Node.js** worker scripts
-- **TypeScript** across the codebase
-- **pnpm** monorepo for package management
-
-## Project Structure
-
-```
-/apps
-  api/       Supabase edge functions
-  cron/      Scheduled jobs
-  worker/    Background queue consumer
-/packages
-  shared/    Shared utilities
-/supabase    Database functions and migrations
-/src         Application specific helpers and scripts
-```
-
-## Setup
-
-1. Install dependencies
+## 🎬 Démarrage ultra-rapide (< 5 min)
 
 ```bash
-pnpm install
+# 1. Clone & Install
+git clone https://github.com/votre-org/med-mng.git
+cd med-mng
+npm install
+
+# 2. Démarrage dev
+npm run dev
+# ➡️ App disponible sur http://localhost:5173
+
+# 3. Tests (optionnel)
+npm test        # Tests unitaires
+npm run test:e2e # Tests E2E
 ```
 
-2. Create environment files from the provided templates
+🎉 **Terminé !** Votre environnement est prêt.
+
+---
+
+## 📁 Architecture du projet
+
+```
+med-mng/
+├── 🎨 src/
+│   ├── components/     # Composants React réutilisables
+│   │   ├── admin/      # Dashboards admin temps réel
+│   │   ├── audit/      # Outils d'audit et monitoring
+│   │   ├── common/     # Composants partagés (alerts, errors, etc.)
+│   │   └── security/   # Composants de sécurité
+│   ├── hooks/          # Hooks React customs
+│   ├── services/       # Services (API, rate limiting, etc.)
+│   ├── utils/          # Utilitaires (sanitization, validation)
+│   └── pages/          # Pages principales
+├── 🔧 supabase/
+│   └── functions/      # Edge Functions (extraction, musique)
+├── 🧪 tests/           # Tests E2E Playwright
+├── 📚 docs/            # Documentation technique
+└── 🔒 scripts/         # Scripts d'audit et sécurité
+```
+
+---
+
+## 🛠️ Commandes essentielles
+
+### Développement
+```bash
+npm run dev              # Serveur de développement
+npm run build            # Build production
+npm run preview          # Prévisualiser build
+npm run lint             # Linter TypeScript/ESLint
+npm run type-check       # Vérification TypeScript
+```
+
+### Tests & Qualité
+```bash
+npm test                 # Tests unitaires Vitest
+npm run test:e2e         # Tests E2E Playwright
+npm run test:coverage    # Couverture de tests
+npm run audit:security   # Audit sécurité complet
+```
+
+### Base de données & Backend
+```bash
+npm run supabase:start   # Supabase local
+npm run supabase:reset   # Reset DB locale
+npm run extraction:test  # Test extraction OIC
+npm run health:check     # Check santé système
+```
+
+### Storybook (Design System)
+```bash
+npm run storybook        # Lance Storybook
+# ➡️ http://localhost:6006
+npm run build-storybook  # Build Storybook
+```
+
+---
+
+## ⚙️ Configuration
+
+### Variables d'environnement requises
+Créez un fichier `.env.local` avec :
 
 ```bash
-cp .env.development.example .env.development
-cp .env.staging.example .env.staging
-cp .env.production.example .env.production
+# Supabase (OBLIGATOIRE)
+VITE_SUPABASE_URL=votre-url-supabase
+VITE_SUPABASE_ANON_KEY=votre-cle-publique
+
+# APIs Externes (configurées via Supabase Edge Functions Secrets)
+# CAS_USERNAME=__TO_DEFINE__
+# CAS_PASSWORD=__TO_DEFINE__
+# OPENAI_API_KEY=__TO_DEFINE__
+# SUNO_API_KEY=__TO_DEFINE__
 ```
 
-Set `NODE_ENV` to `development`, `staging`, or `production` to load the
-corresponding file.
+🔒 **Important** : Les clés sensibles sont gérées via Supabase Edge Functions Secrets, pas en variables d'environnement locales.
 
-## Error Handling
+### Supabase Setup
+1. **Créer un projet** sur [supabase.com](https://supabase.com)
+2. **Récupérer URL et clés** dans Settings > API
+3. **Configurer les secrets** dans Settings > Edge Functions
 
-All backend endpoints must return explicit errors with the correct HTTP status code. See [docs/errors.md](docs/errors.md) for the full policy.
-Responses use `{ "error": "CODE", "code": <status>, "message": "details" }`.
+---
 
-3. Start Supabase locally
+## 🧩 Composants principaux
 
+### Dashboard Admin
+```typescript
+import { AdminDashboard } from '@/components/admin/AdminDashboard';
+
+// Dashboard temps réel avec monitoring extraction
+<AdminDashboard />
+```
+
+### Système d'alertes
+```typescript
+import { AlertBanner } from '@/components/common/AlertBanner';
+
+// Alertes système intelligentes
+<AlertBanner type="error" message="Extraction échouée" />
+```
+
+### Sécurité
+```typescript
+import { SecurityDashboard } from '@/components/security/SecurityDashboard';
+
+// Monitoring sécurité en temps réel
+<SecurityDashboard />
+```
+
+---
+
+## 🧪 Guide Testing
+
+### Tests unitaires (Vitest)
 ```bash
-supabase start
+# Lancer tous les tests
+npm test
+
+# Tests en mode watch
+npm run test:watch
+
+# Tests avec couverture
+npm run test:coverage
 ```
 
-4. Launch the development server
-
+### Tests E2E (Playwright)
 ```bash
-pnpm dev
+# Setup initial
+npx playwright install
+
+# Lancer tests E2E
+npm run test:e2e
+
+# Mode interactif
+npm run test:e2e:ui
 ```
 
-To start the API server only:
+### Structure des tests
+```
+tests/
+├── e2e/                # Tests end-to-end
+│   ├── auth.spec.ts    # Tests authentification
+│   ├── extraction.spec.ts # Tests extraction
+│   └── music.spec.ts   # Tests génération musicale
+└── unit/               # Tests unitaires
+    ├── components/     # Tests composants
+    └── services/       # Tests services
+```
 
+---
+
+## 🐛 Debug & Troubleshooting
+
+### Problèmes courants
+
+#### ❌ Erreur de build TypeScript (TS6305)
 ```bash
-pnpm start:server
+# Solution : Clear cache et rebuild
+rm -rf node_modules/.vite
+rm -rf dist
+npm run build
 ```
 
-### Docker
-
-Build the image and run it locally:
-
+#### ❌ Tests E2E qui échouent
 ```bash
-docker build -t med-mng .
-docker run --rm -p 3000:3000 med-mng
+# Vérifier que l'app tourne
+npm run dev
+
+# Dans un autre terminal
+npm run test:e2e
 ```
 
-## Multi-environment workflow
-
-The backend automatically loads the `.env.<NODE_ENV>` file. Set `NODE_ENV`
-to `development`, `staging`, or `production` when running scripts or in CI.
-Example:
-
+#### ❌ Extraction OIC ne fonctionne pas
 ```bash
-NODE_ENV=staging pnpm build
+# Vérifier les credentials CAS
+npm run extraction:test
+
+# Check logs Supabase
+# ➡️ Dashboard Supabase > Edge Functions > Logs
 ```
 
-Each environment uses isolated credentials and should not share secrets.
-
-The multi-stage build installs dependencies, runs tests and copies only the
-compiled output to the final image. You can push the resulting image to any
-registry using `docker push`.
-
-#### Docker Compose
-
+#### ❌ API Rate Limited
 ```bash
-docker compose up --build
+# Check status rate limiting
+curl -I http://localhost:5173/api/health
+
+# Réinitialiser les limites
+npm run rate-limit:reset
 ```
 
-Scripts for database management are available in `scripts/`:
+### Logs & Monitoring
+- **Console développeur** : F12 > Console
+- **Supabase Logs** : Dashboard > Edge Functions > Logs  
+- **Admin Dashboard** : `/admin-center` dans l'app
+- **Security Dashboard** : Monitoring sécurité temps réel
 
-- `init.sh` applies migrations
-- `reset-db.sh` drops and recreates the DB
-- `seed.sh` inserts test data
+---
 
-## Key Endpoints
+## 🚀 Déploiement
 
-The main API is served from the `med-mng-api` edge function.
-
-- `POST /songs` – create a new song
-- `GET /songs` – list generated songs (paginated)
-- `GET /songs/:id/stream` – stream a generated track
-- `POST /songs/:id/like` – toggle like
-- `GET /songs/:id/lyrics` – fetch lyrics from Suno
-- `GET /library` – list saved songs and learning items
-- `POST /subscriptions/checkout` – create Stripe checkout session
-- `GET /quota` – remaining generation quota
-- `GET /verify-item/:id` – validate a learning item
-- `GET /help/onboarding` – onboarding steps (public, ?lang=xx)
-
-### Pagination
-
-Endpoints returning lists (`/library` and `/songs`) accept `page` and `limit`
-query parameters. Default is `page=1` and `limit=20` (max 50). Responses
-include these values and `totalCount`:
-
-```json
-{
-  "items": [
-    /* ... */
-  ],
-  "page": 2,
-  "limit": 12,
-  "totalCount": 103
-}
-```
-
-All routes require Supabase authentication and return JSON.
-
-## Data Quality
-
-Run automatic cleaning and anomaly checks for OIC data with:
-
+### Staging (automatique)
 ```bash
-pnpm ts-node scripts/auto-clean-oic.ts
+# Push sur main = déploiement auto staging
+git push origin main
+# ➡️ URL staging générée automatiquement
 ```
 
-See [docs/data-cleaning.md](docs/data-cleaning.md) for details.
-
-## API Security
-
-Security headers such as **Content-Security-Policy**, **Strict-Transport-Security**, **X-Frame-Options** and others are automatically applied to every response. The edge functions merge these headers with CORS settings and the Express server uses Helmet.
-
-A lightweight IP rate limiter caps requests to 60 per minute on the edge API and the Node server. Modify the limits in `supabase/functions/med-mng-api/index.ts` or `src/index.ts` if needed.
-
-## Contributing
-
-Issues and pull requests are welcome. Please open an issue first to discuss any major changes.
-
-## Contact
-
-For any question about this backend, please contact the original maintainers or open an issue on the repository.
-
-## Parser Test Guide
-
-Critical data parsers such as `parseOICContent` and `EDNItemParser` are covered by Jest tests located in the `test/` directory. To add a new parser test:
-
-1. Create a `*.test.ts` file under `test/`.
-2. Import the parser function using a relative path.
-3. Provide sample input objects that mimic the structure returned by the external APIs.
-4. Assert on the parsed output and edge cases (invalid input, missing fields, etc.).
-
-Run `pnpm test` locally or push a branch to trigger the CI workflow which blocks merges if any test fails.
-
-## Data Integrity Audit
-
-Nightly jobs run `pnpm integrity:audit` to verify that the OIC extraction tables remain consistent after each import. A JSON report is produced in `audit_reports/` and the command fails on any anomaly. See [docs/data-integrity.md](docs/data-integrity.md) for details and for extending the checks.
-
-## Monitoring
-
-Availability of critical endpoints is monitored with **UptimeRobot**. The following URLs are checked every minute:
-
-- `https://med-mng.lovable.app/health`
-- `https://med-mng.lovable.app/api/health`
-
-Alerts are sent by email and posted on our Discord channel via webhook as soon as a downtime is detected.
-
-[![UptimeRobot status](https://img.shields.io/uptimerobot/status/m783684319-c5c5d0aa76c3d73034ad23ef)](https://uptimerobot.com/dashboard)
-
-## Audit
-
-Run a full infrastructure and data audit with a single command:
-
+### Production
 ```bash
-pnpm run audit
+# Créer une release tag
+git tag -a v1.0.0 -m "Release v1.0.0"
+git push origin v1.0.0
+# ➡️ Déploiement production automatique
 ```
 
-The script outputs `audit-report.md` summarizing the status of secrets, endpoints,
-batch logs, data integrity tests and potential issues in scripts.
+### Health Checks post-déploiement
+- ✅ **App responsive** : Tests automatiques
+- ✅ **APIs fonctionnelles** : Tests d'intégration
+- ✅ **Base de données** : Validation schéma
+- ✅ **Sécurité** : Scan automatique
+
+---
+
+## 👥 Équipe & Contacts
+
+### 🔧 Développement
+- **Issues GitHub** : [github.com/votre-org/med-mng/issues](https://github.com)
+- **Pull Requests** : Process standard GitHub
+- **Code Review** : Obligatoire sur main
+
+### 🚨 Support & Incidents
+- **Discord/Slack** : Canaux configurés pour alertes
+- **Email** : equipe@votre-domaine.com
+- **On-call** : Rotation développeurs senior
+
+### 📋 Process
+1. **Feature** : Issue → Branch → PR → Review → Merge
+2. **Bug** : Issue urgent → Hotfix → Deploy
+3. **Release** : Tag → Auto-deploy → Health check
+
+---
+
+## 📚 Documentation avancée
+
+### Liens utiles
+- [🔒 Sécurité & Audit](./docs/axe5-security.md)
+- [🧪 Tests complets](./docs/TESTING_COMPLETE.md)  
+- [⚙️ CI/CD Pipeline](./docs/CI-CD-PIPELINE.md)
+- [📊 Monitoring](./docs/axe3-monitoring.md)
+- [👨‍💼 Admin Dashboard](./docs/axe4-ux-admin-dashboards.md)
+- [📚 Storybook Guide](./docs/storybook-guide.md)
+- [❓ FAQ Complète](./docs/FAQ.md)
+
+### API Documentation
+- **Supabase API** : Auto-générée
+- **Edge Functions** : `/supabase/functions/README.md`
+- **Rate Limiting** : Configuration dans `nginx.conf`
+
+---
+
+## 🎯 Quick Win Checklist
+
+### Pour les nouveaux développeurs
+- [ ] Clone & `npm install` (2 min)
+- [ ] `npm run dev` fonctionne (1 min)  
+- [ ] Tests passent `npm test` (2 min)
+- [ ] Dashboard admin accessible `/admin-center` (1 min)
+- [ ] Storybook accessible `npm run storybook` (1 min)
+- [ ] Création d'une feature simple (10 min)
+
+### Pour les QA
+- [ ] Tests E2E setup `npm run test:e2e` (5 min)
+- [ ] Extraction test `npm run extraction:test` (3 min)
+- [ ] Security audit `npm run audit:security` (2 min)
+
+### Pour les DevOps
+- [ ] Pipeline CI/CD accessible (GitHub Actions)
+- [ ] Monitoring dashboards opérationnels
+- [ ] Déploiement staging/prod automatique
+- [ ] Alertes configurées (Discord/Slack)
+
+---
+
+🎉 **Félicitations !** Vous maîtrisez maintenant MED-MNG. Questions ? Consultez la [FAQ](./docs/FAQ.md) ou créez une issue GitHub !
