@@ -18,7 +18,7 @@ import { Label } from '@/components/ui/label';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { toast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
 import { 
   User, 
   Settings, 
@@ -100,18 +100,11 @@ const MedMngProfileComponent = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-profile'] });
-      toast({
-        title: "Profil mis à jour",
-        description: "Vos informations ont été sauvegardées avec succès.",
-      });
+      toast.success('Profil mis à jour avec succès !');
       setIsEditing(false);
     },
     onError: (error: any) => {
-      toast({
-        title: "Erreur",
-        description: "Impossible de mettre à jour le profil.",
-        variant: "destructive",
-      });
+      toast.error('Impossible de mettre à jour le profil');
     },
   });
 

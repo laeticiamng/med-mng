@@ -115,7 +115,11 @@ export const SongCard: React.FC<SongCardProps> = ({
                   Écouter
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleToggleLike} disabled={isLikeLoading}>
-                  <Heart className={`h-4 w-4 mr-2 ${song.is_liked ? 'fill-red-500 text-red-500' : ''}`} />
+                  {isLikeLoading ? (
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2" />
+                  ) : (
+                    <Heart className={`h-4 w-4 mr-2 ${song.is_liked ? 'fill-red-500 text-red-500' : ''}`} />
+                  )}
                   {song.is_liked ? 'Retirer des favoris' : 'Ajouter aux favoris'}
                 </DropdownMenuItem>
                 <DropdownMenuItem 
@@ -123,7 +127,11 @@ export const SongCard: React.FC<SongCardProps> = ({
                   disabled={isLoading}
                   className="text-red-600 focus:text-red-600"
                 >
-                  <Trash2 className="h-4 w-4 mr-2" />
+                  {isLoading ? (
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2" />
+                  ) : (
+                    <Trash2 className="h-4 w-4 mr-2" />
+                  )}
                   Retirer de la bibliothèque
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -149,15 +157,19 @@ export const SongCard: React.FC<SongCardProps> = ({
               size="sm"
               onClick={handleToggleLike}
               disabled={isLikeLoading}
-              className={`${song.is_liked ? 'text-red-500' : 'text-gray-400'} hover:text-red-500`}
+              className={`${song.is_liked ? 'text-red-500' : 'text-gray-400'} hover:text-red-500 transition-colors`}
             >
-              <Heart className={`h-4 w-4 ${song.is_liked ? 'fill-current' : ''}`} />
+              {isLikeLoading ? (
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current" />
+              ) : (
+                <Heart className={`h-4 w-4 ${song.is_liked ? 'fill-current' : ''}`} />
+              )}
             </Button>
             
             <Button
               onClick={onPlay}
               size="sm"
-              className="bg-blue-600 hover:bg-blue-700 text-white"
+              className="bg-blue-600 hover:bg-blue-700 text-white transition-colors"
             >
               <Play className="h-4 w-4 mr-1" />
               Écouter
