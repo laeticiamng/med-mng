@@ -38,17 +38,17 @@ export const OnboardingModal: React.FC = () => {
 
   return (
     <Dialog open={isActive} onOpenChange={(open) => !open && skipOnboarding()}>
-      <DialogContent className="medical-card max-w-2xl">
+      <DialogContent className="bg-background border-border shadow-lg max-w-2xl">
         <DialogHeader>
           <div className="flex items-center justify-between">
-            <DialogTitle className="text-medical-primary">
+            <DialogTitle className="text-foreground text-lg font-semibold">
               Bienvenue ! Découvrez votre plateforme médicale
             </DialogTitle>
             <Button
               variant="ghost"
               size="sm"
               onClick={skipOnboarding}
-              className="text-medical-secondary hover:text-medical-primary"
+              className="text-muted-foreground hover:text-foreground"
             >
               <X className="h-4 w-4" />
             </Button>
@@ -57,29 +57,29 @@ export const OnboardingModal: React.FC = () => {
 
         <div className="space-y-6">
           {/* Progress */}
-          <div className="space-y-2">
-            <div className="flex justify-between text-sm text-medical-secondary">
+          <div className="space-y-3">
+            <div className="flex justify-between text-sm text-muted-foreground">
               <span>Étape {currentStep + 1} sur {steps.length}</span>
-              <span>{Math.round(progress)}%</span>
+              <span className="font-medium text-primary">{Math.round(progress)}%</span>
             </div>
             <Progress value={progress} className="h-2" />
           </div>
 
           {/* Step Content */}
           {step && (
-            <div className="space-y-4">
-              <h3 className="text-xl font-semibold text-medical-primary">
+            <div className="space-y-4 py-2">
+              <h3 className="text-xl font-semibold text-foreground">
                 {step.title}
               </h3>
               <div 
-                className="text-medical-secondary leading-relaxed"
+                className="text-muted-foreground leading-relaxed text-sm"
                 dangerouslySetInnerHTML={{ __html: step.body }}
               />
             </div>
           )}
 
           {/* Navigation */}
-          <div className="flex items-center justify-between pt-4 border-t border-medical-border">
+          <div className="flex items-center justify-between pt-4 border-t border-border">
             <Button
               variant="outline"
               onClick={previousStep}
@@ -90,17 +90,17 @@ export const OnboardingModal: React.FC = () => {
               Précédent
             </Button>
 
-            <div className="flex gap-2">
+            <div className="flex gap-3">
               <Button
                 variant="ghost"
                 onClick={skipOnboarding}
-                className="text-medical-secondary"
+                className="text-muted-foreground hover:text-foreground"
               >
                 Passer
               </Button>
               <Button
                 onClick={handleNext}
-                className="medical-btn-primary flex items-center gap-2"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground flex items-center gap-2"
               >
                 {isLastStep ? (
                   <>
