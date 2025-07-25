@@ -627,6 +627,48 @@ export type Database = {
           },
         ]
       }
+      data_integrity_reports: {
+        Row: {
+          created_at: string
+          full_report: Json
+          id: string
+          issues_count: number
+          recommendations: string[]
+          scan_id: string
+          status: string
+          summary: Json
+          tables_scanned: string[]
+          total_records: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          full_report?: Json
+          id?: string
+          issues_count?: number
+          recommendations?: string[]
+          scan_id: string
+          status: string
+          summary?: Json
+          tables_scanned?: string[]
+          total_records?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          full_report?: Json
+          id?: string
+          issues_count?: number
+          recommendations?: string[]
+          scan_id?: string
+          status?: string
+          summary?: Json
+          tables_scanned?: string[]
+          total_records?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       "Digital Medicine": {
         Row: {
           created_at: string
@@ -3325,6 +3367,10 @@ export type Database = {
       cleanup_old_imports: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      cleanup_old_integrity_reports: {
+        Args: Record<PropertyKey, never>
+        Returns: number
       }
       cleanup_old_operation_logs: {
         Args: Record<PropertyKey, never>
