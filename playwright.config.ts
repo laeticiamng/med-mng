@@ -1,83 +1,79 @@
 import { defineConfig, devices } from '@playwright/test';
 
 /**
- * Configuration Playwright pour tests E2E MED-MNG
- * Couvre extraction, génération musicale, auth, API
+ * @see https://playwright.dev/docs/test-configuration
  */
 export default defineConfig({
-  // Répertoire des tests
-  testDir: './tests/e2e',
-  
-  // Délai global pour tests E2E (certains peuvent être longs)
-  timeout: 300000, // 5 minutes pour extraction batch
-  
-  // Tests en parallèle
+  testDir: './tests',
+  /* Run tests in files in parallel */
   fullyParallel: true,
-  
-  // Pas de retry en mode CI pour éviter faux positifs
-  retries: process.env.CI ? 1 : 0,
-  
-  // Workers en parallèle
-  workers: process.env.CI ? 2 : undefined,
-  
-  // Reporter pour CI/CD
-  reporter: [
-    ['html'],
-    ['junit', { outputFile: 'test-results/junit.xml' }],
-    ['json', { outputFile: 'test-results/results.json' }]
-  ],
-  
-  // Options globales
+  /* Fail the build on CI if you accidentally left test.only in the source code. */
+  forbidOnly: !!process.env.CI,
+  /* Retry on CI only */
+  retries: process.env.CI ? 2 : 0,
+  /* Opt out of parallel tests on CI. */
+  workers: process.env.CI ? 1 : undefined,
+  /* Reporter to use. See https://playwright.dev/docs/test-reporters */
+  reporter: 'html',
+  /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
-    // URL de base - adaptation selon environnement
-    baseURL: process.env.E2E_BASE_URL || 'https://yaincoxihiqdksxgrsrk.supabase.co',
+    /* Base URL to use in actions like `await page.goto('/')`. */
+    baseURL: 'http://localhost:8080',
+
+    /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
+    trace: 'on-first-retry',
     
-    // Headers pour auth Supabase
-    extraHTTPHeaders: {
-      'Authorization': `Bearer ${process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU'}`,
-      'apikey': process.env.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU',
-      'Content-Type': 'application/json',
-      'Prefer': 'return=minimal'
-    },
-    
-    // Retry automatique pour requêtes réseau instables
-    actionTimeout: 30000,
-    navigationTimeout: 60000,
-    
-    // Traces pour debug en cas d'échec
-    trace: 'retain-on-failure',
-    video: 'retain-on-failure',
-    screenshot: 'only-on-failure'
+    /* Screenshot on failure */
+    screenshot: 'only-on-failure',
   },
 
-  // Projets de test selon environnements
+  /* Configure projects for major browsers */
   projects: [
     {
-      name: 'e2e-api',
-      testMatch: '**/api/**/*.spec.ts',
-      use: { ...devices['Desktop Chrome'] }
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
+    },
+
+    {
+      name: 'firefox',
+      use: { ...devices['Desktop Firefox'] },
+    },
+
+    {
+      name: 'webkit',
+      use: { ...devices['Desktop Safari'] },
+    },
+
+    /* Test against mobile viewports. */
+    {
+      name: 'Mobile Chrome',
+      use: { ...devices['Pixel 5'] },
     },
     {
-      name: 'e2e-extraction',
-      testMatch: '**/extraction/**/*.spec.ts',
-      use: { ...devices['Desktop Chrome'] }
+      name: 'Mobile Safari',
+      use: { ...devices['iPhone 13'] },
     },
+
+    /* Test against tablet viewports. */
     {
-      name: 'e2e-music',
-      testMatch: '**/music/**/*.spec.ts',
-      use: { ...devices['Desktop Chrome'] }
+      name: 'iPad',
+      use: { ...devices['iPad Pro'] },
     },
+
+    /* Test against specific high resolution viewports */
     {
-      name: 'e2e-auth',
-      testMatch: '**/auth/**/*.spec.ts',
-      use: { ...devices['Desktop Chrome'] }
-    }
+      name: 'Desktop 1440p',
+      use: {
+        ...devices['Desktop Chrome'],
+        viewport: { width: 1440, height: 900 },
+      },
+    },
   ],
 
-  // Serveur web pour tests locaux (optionnel)
-  webServer: process.env.CI ? undefined : {
-    command: 'pnpm dev',
-    port: 5173,
-    reuseExistingServer: !process.env.CI
-  }
+  /* Run your local dev server before starting the tests */
+  webServer: {
+    command: 'npm run dev',
+    url: 'http://localhost:8080',
+    reuseExistingServer: !process.env.CI,
+  },
 });
