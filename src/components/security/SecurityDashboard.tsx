@@ -1,0 +1,174 @@
+import { Shield, AlertTriangle, CheckCircle, Download, RefreshCw } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useSecurityValidation } from '@/hooks/useSecurityValidation';
+
+export const SecurityDashboard = () => {
+  const { validation, loading, revalidate, exportReport } = useSecurityValidation();
+
+  const getScoreColor = (score: number) => {
+    if (score >= 90) return 'text-green-600';
+    if (score >= 70) return 'text-yellow-600';
+    return 'text-red-600';
+  };
+
+  const getScoreGrade = (score: number) => {
+    if (score >= 90) return 'A';
+    if (score >= 80) return 'B';
+    if (score >= 70) return 'C';
+    if (score >= 60) return 'D';
+    return 'F';
+  };
+
+  const getIssueIcon = (type: string) => {
+    switch (type) {
+      case 'critical': return <AlertTriangle className="h-4 w-4 text-red-500" />;
+      case 'warning': return <AlertTriangle className="h-4 w-4 text-yellow-500" />;
+      default: return <Shield className="h-4 w-4 text-blue-500" />;
+    }
+  };
+
+  const getIssueVariant = (type: string) => {
+    switch (type) {
+      case 'critical': return 'destructive' as const;
+      case 'warning': return 'secondary' as const;
+      default: return 'outline' as const;
+    }
+  };
+
+  if (loading) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Shield className="h-5 w-5" />
+            Security Validation
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center gap-2">
+            <RefreshCw className="h-4 w-4 animate-spin" />
+            Analyzing security configuration...
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Security Score */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Shield className="h-5 w-5" />
+              Security Score
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={revalidate}>
+                <RefreshCw className="h-4 w-4 mr-1" />
+                Refresh
+              </Button>
+              <Button variant="outline" size="sm" onClick={exportReport}>
+                <Download className="h-4 w-4 mr-1" />
+                Export
+              </Button>
+            </div>
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center gap-4">
+            <div className={`text-4xl font-bold ${getScoreColor(validation.score)}`}>
+              {validation.score}/100
+            </div>
+            <div>
+              <Badge 
+                variant={validation.isSecure ? 'default' : 'destructive'}
+                className="text-lg px-3 py-1"
+              >
+                Grade {getScoreGrade(validation.score)}
+              </Badge>
+              <div className="text-sm text-muted-foreground mt-1">
+                {validation.isSecure ? 'Secure Configuration' : 'Security Issues Found'}
+              </div>
+            </div>
+          </div>
+          <Progress value={validation.score} className="mt-4" />
+          
+          {validation.isSecure && (
+            <Alert className="mt-4">
+              <CheckCircle className="h-4 w-4" />
+              <AlertDescription>
+                Your application meets security best practices! 🎉
+              </AlertDescription>
+            </Alert>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Security Issues */}
+      {validation.issues.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Security Issues</CardTitle>
+            <CardDescription>
+              {validation.issues.filter(i => i.type === 'critical').length} critical, {' '}
+              {validation.issues.filter(i => i.type === 'warning').length} warnings, {' '}
+              {validation.issues.filter(i => i.type === 'info').length} info
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {validation.issues.map((issue, index) => (
+                <Alert key={index} variant={issue.type === 'critical' ? 'destructive' : 'default'}>
+                  <div className="flex items-start gap-2">
+                    {getIssueIcon(issue.type)}
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">{issue.message}</span>
+                        <Badge variant={getIssueVariant(issue.type)} className="text-xs">
+                          {issue.type}
+                        </Badge>
+                      </div>
+                      {issue.details && (
+                        <p className="text-sm text-muted-foreground mt-1">
+                          {issue.details}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </Alert>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Recommendations */}
+      {validation.recommendations.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Security Recommendations</CardTitle>
+            <CardDescription>
+              Actions to improve your security posture
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-2">
+              {validation.recommendations.map((rec, index) => (
+                <li key={index} className="flex items-start gap-2">
+                  <Shield className="h-4 w-4 mt-0.5 text-blue-500 flex-shrink-0" />
+                  <span className="text-sm">{rec}</span>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+      )}
+    </div>
+  );
+};
