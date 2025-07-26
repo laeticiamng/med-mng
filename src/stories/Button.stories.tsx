@@ -1,5 +1,5 @@
+import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react';
-import { fn } from '@storybook/test';
 import { Button } from '@/components/ui/button';
 
 const meta = {
@@ -13,7 +13,6 @@ const meta = {
     variant: { control: 'select', options: ['default', 'destructive', 'outline', 'secondary', 'ghost', 'link'] },
     size: { control: 'select', options: ['default', 'sm', 'lg', 'icon'] },
   },
-  args: { onClick: fn() },
 } satisfies Meta<typeof Button>;
 
 export default meta;
