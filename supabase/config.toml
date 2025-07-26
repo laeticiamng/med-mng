@@ -86,3 +86,21 @@ verify_jwt = false
 [functions.med-mng-api]
 verify_jwt = false
 
+[functions.secure-audio-stream]
+verify_jwt = false
+
+[functions.music-generation-secure]
+verify_jwt = true
+
+[functions.playlist-manager]
+verify_jwt = true
+
+[functions.contextual-ai-chat]
+verify_jwt = true
+
+[functions.lyrics-sync-manager]
+verify_jwt = false
+
+[functions.spotify-medical-docs]
+verify_jwt = false
+

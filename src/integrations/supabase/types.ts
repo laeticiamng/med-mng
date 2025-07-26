@@ -2043,6 +2043,220 @@ export type Database = {
         }
         Relationships: []
       }
+      med_mng_audio_access_logs: {
+        Row: {
+          access_type: string
+          bytes_transferred: number | null
+          created_at: string | null
+          id: string
+          ip_address: unknown | null
+          referer: string | null
+          session_duration: number | null
+          song_id: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          access_type: string
+          bytes_transferred?: number | null
+          created_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          referer?: string | null
+          session_duration?: number | null
+          song_id: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          access_type?: string
+          bytes_transferred?: number | null
+          created_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          referer?: string | null
+          session_duration?: number | null
+          song_id?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "med_mng_audio_access_logs_song_id_fkey"
+            columns: ["song_id"]
+            isOneToOne: false
+            referencedRelation: "med_mng_songs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "med_mng_audio_access_logs_song_id_fkey"
+            columns: ["song_id"]
+            isOneToOne: false
+            referencedRelation: "med_mng_view_library"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      med_mng_chat_interactions: {
+        Row: {
+          context_used: Json | null
+          created_at: string | null
+          id: string
+          question: string
+          response: string
+          response_time_ms: number | null
+          satisfaction_rating: number | null
+          tokens_used: number | null
+          user_id: string
+        }
+        Insert: {
+          context_used?: Json | null
+          created_at?: string | null
+          id?: string
+          question: string
+          response: string
+          response_time_ms?: number | null
+          satisfaction_rating?: number | null
+          tokens_used?: number | null
+          user_id: string
+        }
+        Update: {
+          context_used?: Json | null
+          created_at?: string | null
+          id?: string
+          question?: string
+          response?: string
+          response_time_ms?: number | null
+          satisfaction_rating?: number | null
+          tokens_used?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      med_mng_lyrics_access_logs: {
+        Row: {
+          created_at: string | null
+          format: string
+          id: string
+          ip_address: unknown | null
+          song_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          format: string
+          id?: string
+          ip_address?: unknown | null
+          song_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          format?: string
+          id?: string
+          ip_address?: unknown | null
+          song_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "med_mng_lyrics_access_logs_song_id_fkey"
+            columns: ["song_id"]
+            isOneToOne: false
+            referencedRelation: "med_mng_songs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "med_mng_lyrics_access_logs_song_id_fkey"
+            columns: ["song_id"]
+            isOneToOne: false
+            referencedRelation: "med_mng_view_library"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      med_mng_playlist_songs: {
+        Row: {
+          added_at: string | null
+          added_by: string
+          id: string
+          playlist_id: string
+          position: number
+          song_id: string
+        }
+        Insert: {
+          added_at?: string | null
+          added_by: string
+          id?: string
+          playlist_id: string
+          position?: number
+          song_id: string
+        }
+        Update: {
+          added_at?: string | null
+          added_by?: string
+          id?: string
+          playlist_id?: string
+          position?: number
+          song_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "med_mng_playlist_songs_playlist_id_fkey"
+            columns: ["playlist_id"]
+            isOneToOne: false
+            referencedRelation: "med_mng_playlists"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "med_mng_playlist_songs_song_id_fkey"
+            columns: ["song_id"]
+            isOneToOne: false
+            referencedRelation: "med_mng_songs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "med_mng_playlist_songs_song_id_fkey"
+            columns: ["song_id"]
+            isOneToOne: false
+            referencedRelation: "med_mng_view_library"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      med_mng_playlists: {
+        Row: {
+          cover_image_url: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          is_public: boolean | null
+          name: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          cover_image_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          name: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          cover_image_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          name?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       med_mng_song_likes: {
         Row: {
           created_at: string
@@ -3823,6 +4037,30 @@ export type Database = {
         }
         Returns: string
       }
+      log_audio_access: {
+        Args: {
+          p_user_id: string
+          p_song_id: string
+          p_access_type: string
+          p_ip_address?: string
+          p_user_agent?: string
+          p_referer?: string
+          p_session_duration?: number
+          p_bytes_transferred?: number
+        }
+        Returns: undefined
+      }
+      log_chat_interaction: {
+        Args: {
+          p_user_id: string
+          p_question: string
+          p_response: string
+          p_context_used?: Json
+          p_tokens_used?: number
+          p_response_time_ms?: number
+        }
+        Returns: undefined
+      }
       log_ia_usage: {
         Args: {
           p_service_type: string
@@ -3833,6 +4071,15 @@ export type Database = {
           p_error_details?: string
         }
         Returns: string
+      }
+      log_lyrics_access: {
+        Args: {
+          p_user_id: string
+          p_song_id: string
+          p_format: string
+          p_ip_address?: string
+        }
+        Returns: undefined
       }
       log_security_event: {
         Args:
@@ -3919,6 +4166,10 @@ export type Database = {
       med_mng_get_remaining_quota: {
         Args: Record<PropertyKey, never>
         Returns: number
+      }
+      med_mng_increment_quota: {
+        Args: { credits_to_add: number }
+        Returns: boolean
       }
       med_mng_log_user_activity: {
         Args: { activity_type_param: string; activity_details_param?: Json }
