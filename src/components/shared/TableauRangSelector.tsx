@@ -4,7 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { TableauRangA } from '@/components/edn/tableau/TableauRangA';
 import { TableauRangB } from '@/components/edn/TableauRangB';
-import { BookOpen, Brain, Play, Plus } from 'lucide-react';
+import { MusicGenerator } from '@/components/music/MusicGenerator';
+import { BookOpen, Brain, Play, Plus, Music } from 'lucide-react';
 
 interface TableauRangSelectorProps {
   data: {
@@ -25,6 +26,7 @@ export const TableauRangSelector: React.FC<TableauRangSelectorProps> = ({
   onGenerateQCM
 }) => {
   const [activeRang, setActiveRang] = useState<'A' | 'B'>('A');
+  const [showMusicGenerator, setShowMusicGenerator] = useState(false);
 
   const getCompetencesCount = (rang: 'A' | 'B') => {
     if (rang === 'A') {
@@ -53,17 +55,15 @@ export const TableauRangSelector: React.FC<TableauRangSelectorProps> = ({
               Tableaux de compétences - {itemCode}
             </span>
             <div className="flex gap-2">
-              {onGenerateMusic && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => onGenerateMusic('Mix')}
-                  className="flex items-center gap-1"
-                >
-                  <Play className="h-4 w-4" />
-                  Musique Mix A+B
-                </Button>
-              )}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowMusicGenerator(!showMusicGenerator)}
+                className="flex items-center gap-1"
+              >
+                <Music className="h-4 w-4" />
+                {showMusicGenerator ? 'Masquer Générateur' : 'Générer Musique'}
+              </Button>
               {onGenerateQCM && (
                 <Button
                   variant="outline"
@@ -129,17 +129,6 @@ export const TableauRangSelector: React.FC<TableauRangSelectorProps> = ({
               </p>
             </div>
             <div className="flex gap-2">
-              {onGenerateMusic && hasData(activeRang) && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => onGenerateMusic(activeRang)}
-                  className="flex items-center gap-1"
-                >
-                  <Play className="h-4 w-4" />
-                  Générer Musique {activeRang}
-                </Button>
-              )}
               {onGenerateQCM && hasData(activeRang) && (
                 <Button
                   variant="outline"
@@ -155,6 +144,16 @@ export const TableauRangSelector: React.FC<TableauRangSelectorProps> = ({
           </div>
         </CardContent>
       </Card>
+
+      {/* Music Generator */}
+      {showMusicGenerator && (
+        <MusicGenerator
+          itemCode={itemCode}
+          tableauRangA={data.tableau_rang_a || data.competences_oic_rang_a}
+          tableauRangB={data.tableau_rang_b || data.competences_oic_rang_b}
+          className="mb-6"
+        />
+      )}
 
       {/* Tableau Content */}
       <div className="min-h-[400px]">

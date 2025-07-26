@@ -1,179 +1,149 @@
-
-import { useState, useRef } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { useState, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { useMusicLibrary } from './useMusicLibrary';
 
-interface GeneratingState {
-  rangA: boolean;
-  rangB: boolean;
+export type RangType = 'A' | 'B' | 'Mix';
+
+interface GenerationRequest {
+  itemCode: string;
+  rang: RangType;
+  tableauData?: any;
+}
+
+interface GenerationResponse {
+  id: string;
+  suno_audio_id: string;
+  title: string;
+  meta: {
+    itemCode: string;
+    rang: RangType;
+    structure: string;
+    style: string;
+  };
 }
 
 export const useMusicGeneration = () => {
-  const [isGenerating, setIsGenerating] = useState<GeneratingState>({
-    rangA: false,
-    rangB: false
-  });
-  const [generatedAudio, setGeneratedAudio] = useState<{ rangA?: string; rangB?: string }>({});
-  const [lastError, setLastError] = useState<string>('');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generationProgress, setGenerationProgress] = useState<string>('');
   const { toast } = useToast();
-  
-  // Protection contre les appels multiples
-  const generatingRef = useRef<Set<string>>(new Set());
+  const { loadLibrary } = useMusicLibrary();
 
-  const generateMusic = async (rang: 'A' | 'B', paroles: string[], selectedStyle: string, duration: number = 240) => {
-    const rangKey = `rang${rang}` as keyof GeneratingState;
-    
-    // Protection contre les appels multiples
-    if (generatingRef.current.has(rang)) {
-      console.log(`⚠️ Génération déjà en cours pour le Rang ${rang}, ignoré`);
-      return;
-    }
-
-    if (!selectedStyle) {
-      toast({
-        title: "Style musical requis",
-        description: "Veuillez sélectionner un style musical avant de générer la musique.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    if (!paroles || paroles.length === 0) {
-      toast({
-        title: "Paroles manquantes",
-        description: "Aucune parole disponible pour générer la musique.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    // Marquer comme en cours de génération
-    generatingRef.current.add(rang);
-    setIsGenerating(prev => ({ ...prev, [rangKey]: true }));
-    setLastError('');
-    
-    const parolesIndex = rang === 'A' ? 0 : 1;
-    const parolesText = paroles[parolesIndex];
-
-    if (!parolesText || parolesText.trim() === '') {
-      setLastError(`Aucune parole disponible pour le Rang ${rang}`);
-      toast({
-        title: "Paroles manquantes",
-        description: `Aucune parole n'est disponible pour le Rang ${rang}.`,
-        variant: "destructive"
-      });
-      // Nettoyer l'état
-      generatingRef.current.delete(rang);
-      setIsGenerating(prev => ({ ...prev, [rangKey]: false }));
-      return;
-    }
+  const generateMusic = useCallback(async ({
+    itemCode,
+    rang,
+    tableauData
+  }: GenerationRequest): Promise<GenerationResponse | null> => {
+    setIsGenerating(true);
+    setGenerationProgress('Préparation du prompt médical...');
 
     try {
-      const minutes = Math.floor(duration / 60);
-      const seconds = duration % 60;
-      const durationText = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+      // Construire le prompt basé sur le tableau et le rang
+      const prompt = buildMedicalPrompt(itemCode, rang, tableauData);
       
-      console.log(`🎵 Lancement génération RAPIDE Rang ${rang} - Style: ${selectedStyle} - Durée: ${durationText}`);
-      console.log(`📝 Paroles (${parolesText.length} caractères):`, parolesText.substring(0, 100) + '...');
-      
-      // Préparer les données pour l'Edge Function
-      const requestBody = {
-        lyrics: parolesText,
-        style: selectedStyle,
-        rang: rang,
-        duration: duration,
-        fastMode: true
-      };
+      setGenerationProgress('Génération de la musique Suno...');
 
-      console.log('📤 Données envoyées à l\'Edge Function:', requestBody);
-      
-      // Configuration corrigée - sans header Content-Type qui peut causer des problèmes
-      const { data, error } = await supabase.functions.invoke('generate-music', {
-        body: requestBody
+      const response = await fetch('/api/med-mng/songs', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          title: `${itemCode} Rang ${rang} - Compétences Médicales`,
+          suno_audio_id: `${itemCode}-${rang}-${Date.now()}`, // Temporaire, sera remplacé par Suno
+          meta: {
+            itemCode,
+            rang,
+            prompt,
+            structure: 'couplet-refrain-couplet-refrain-couplet-refrain',
+            style: 'educatif-medical',
+            generated_at: new Date().toISOString()
+          }
+        }),
       });
 
-      // Gestion des erreurs Supabase améliorée
-      if (error) {
-        console.error('❌ Erreur Supabase Functions:', error);
-        let errorMessage = 'Erreur lors de la génération musicale';
-        
-        // Gestion spécifique de l'erreur "Failed to send request"
-        if (error.message?.includes('Failed to send') || error.message?.includes('fetch')) {
-          errorMessage = '🔧 Erreur de connexion à l\'API Suno. Vérifiez votre configuration réseau et réessayez.';
-        } else if (error.message?.includes('Authorization') || error.message?.includes('401')) {
-          errorMessage = '🔑 Clé API Suno manquante ou invalide. Veuillez vérifier la configuration.';
-        } else if (error.message?.includes('timeout')) {
-          errorMessage = '⏰ Timeout: La génération prend trop de temps. Réessayez avec des paroles plus courtes.';
-        } else if (error.message?.includes('non-2xx status code')) {
-          errorMessage = '🚫 Erreur du serveur. Vérifiez la configuration de l\'API Suno dans Supabase.';
-        } else {
-          errorMessage = error.message || errorMessage;
-        }
-        
-        setLastError(errorMessage);
-        throw new Error(errorMessage);
+      if (!response.ok) {
+        throw new Error('Erreur lors de la génération musicale');
       }
 
-      if (!data) {
-        throw new Error('Aucune donnée reçue de l\'API');
-      }
+      const result = await response.json();
+      
+      setGenerationProgress('Ajout à votre bibliothèque...');
 
-      if (data.error || data.status === 'error') {
-        let errorMessage = data.error || data.message || 'Erreur inconnue lors de la génération';
-        
-        // Messages d'erreur spécifiques selon le code d'erreur
-        if (data.error_code === 429) {
-          errorMessage = '💳 Crédits Suno épuisés. Rechargez votre compte sur https://apibox.erweima.ai';
-        } else if (data.error_code === 401) {
-          errorMessage = '🔑 Clé API Suno invalide. Vérifiez votre configuration dans Supabase.';
-        } else if (data.error_code === 408) {
-          errorMessage = '⏰ Génération trop longue. Réessayez avec des paroles plus courtes.';
-        } else if (data.error_code === 400 && data.error?.includes('sensitive')) {
-          errorMessage = '🚫 Paroles non autorisées par Suno AI. Modifiez le contenu.';
-        }
-        
-        console.error('❌ Erreur API Suno:', errorMessage);
-        setLastError(errorMessage);
-        throw new Error(errorMessage);
-      }
+      // Ajouter automatiquement à la bibliothèque
+      await fetch('/api/med-mng/library', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          song_id: result.id
+        }),
+      });
 
-      if (!data.audioUrl) {
-        throw new Error('Aucune URL audio générée par l\'API');
-      }
-
-      const audioKey = rang === 'A' ? 'rangA' : 'rangB';
-      setGeneratedAudio(prev => ({
-        ...prev,
-        [audioKey]: data.audioUrl
-      }));
+      // Rafraîchir la bibliothèque
+      await loadLibrary();
 
       toast({
-        title: `🎉 Musique Rang ${rang} générée !`,
-        description: `Chanson de ${durationText} avec paroles chantées générée en mode rapide !`,
+        title: "🎵 Musique générée avec succès !",
+        description: `${itemCode} Rang ${rang} ajouté à votre bibliothèque`,
       });
 
-      console.log(`✅ Musique RAPIDE ${durationText} générée pour Rang ${rang}:`, data.audioUrl);
-      
+      return { ...result, id: result.id || result.suno_audio_id };
     } catch (error) {
-      console.error(`❌ Erreur génération RAPIDE Rang ${rang}:`, error);
-      const errorMessage = error.message || "Impossible de générer la musique. Veuillez réessayer.";
-      setLastError(errorMessage);
+      console.error('Erreur génération musicale:', error);
       toast({
-        title: "Erreur de génération rapide",
-        description: errorMessage,
-        variant: "destructive"
+        title: "Erreur de génération",
+        description: "Impossible de générer la musique. Réessayez plus tard.",
+        variant: "destructive",
       });
+      return null;
     } finally {
-      // Nettoyer l'état dans tous les cas
-      generatingRef.current.delete(rang);
-      setIsGenerating(prev => ({ ...prev, [rangKey]: false }));
+      setIsGenerating(false);
+      setGenerationProgress('');
     }
-  };
+  }, [toast, loadLibrary]);
 
   return {
+    generateMusic,
     isGenerating,
-    generatedAudio,
-    lastError,
-    generateMusic
+    generationProgress
   };
 };
+
+// Helper function pour construire le prompt médical structuré
+function buildMedicalPrompt(itemCode: string, rang: RangType, tableauData?: any): string {
+  const baseStructure = `
+Structure imposée :
+[Couplet 1] - Introduction des concepts
+[Refrain] - Points clés à retenir
+[Couplet 2] - Développement pratique
+[Refrain] - Points clés à retenir
+[Couplet 3] - Application clinique
+[Refrain] - Points clés à retenir
+`;
+
+  let contentPrompt = '';
+  
+  if (rang === 'A') {
+    contentPrompt = `Générer une chanson éducative sur les compétences fondamentales de ${itemCode}.
+Focus sur les bases essentielles, les définitions claires, et les concepts accessibles.`;
+  } else if (rang === 'B') {
+    contentPrompt = `Générer une chanson éducative sur l'expertise avancée de ${itemCode}.
+Focus sur les nuances expertes, les cas complexes, et la maîtrise approfondie.`;
+  } else { // Mix
+    contentPrompt = `Générer une chanson éducative combinant les fondamentaux et l'expertise de ${itemCode}.
+Équilibre entre bases essentielles (Rang A) et expertise avancée (Rang B).`;
+  }
+
+  // Ajouter le contenu du tableau si disponible
+  if (tableauData && tableauData.sections) {
+    const sectionsContent = tableauData.sections
+      .map((section: any) => `${section.title}: ${section.content || ''}`)
+      .join('\n');
+    contentPrompt += `\n\nContenu médical à intégrer:\n${sectionsContent}`;
+  }
+
+  return `${contentPrompt}\n\n${baseStructure}\n
+Style musical : Educatif et mémorable, rythme entraînant pour l'apprentissage médical.
+Langage : Professionnel mais accessible, termes médicaux précis.`;
+}
