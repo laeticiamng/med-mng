@@ -9,6 +9,7 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { GlobalAudioProvider } from "@/contexts/GlobalAudioContext";
 import Index from "./pages/Index";
 import Generator from "./pages/Generator";
+import LibraryPage from "./pages/LibraryPage";
 // Pages EDN fusionnées dans EdnComplete
 
 import EcosIndex from "./pages/EcosIndex";
@@ -101,6 +102,7 @@ const App = () => (
                 <Route path="/admin/oic-quality" element={<OicDataQualityManager />} />
                 <Route path="/admin/complete" element={<AdminCompleteProcess />} />
                 <Route path="/test-subscriptions" element={<SubscriptionTest />} />
+                <Route path="/library" element={<LibraryPage />} />
                 <Route path="/test-extraction" element={<TestExtraction />} />
                 <Route path="*" element={<NotFound />} />
               </Routes>
