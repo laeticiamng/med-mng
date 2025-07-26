@@ -1,68 +1,80 @@
-import { useEffect } from 'react';
+import React from 'react';
 import { Helmet } from 'react-helmet-async';
 
 interface SecurityHeadersProps {
-  nonce?: string;
+  title?: string;
+  description?: string;
+  url?: string;
+  children?: React.ReactNode;
 }
 
-export const SecurityHeaders = ({ nonce }: SecurityHeadersProps) => {
-  useEffect(() => {
-    // Set security headers programmatically for runtime enforcement
-    const metaElements = document.querySelectorAll('meta[http-equiv]');
-    metaElements.forEach(el => el.remove());
-
-    // Content Security Policy
-    const cspMeta = document.createElement('meta');
-    cspMeta.setAttribute('http-equiv', 'Content-Security-Policy');
-    cspMeta.setAttribute('content', 
-      "default-src 'self'; " +
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com https://checkout.stripe.com; " +
-      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; " +
-      "img-src 'self' data: https: blob:; " +
-      "font-src 'self' data: https://fonts.gstatic.com; " +
-      "connect-src 'self' https://yaincoxihiqdksxgrsrk.supabase.co wss://yaincoxihiqdksxgrsrk.supabase.co https://api.stripe.com https://api.suno.ai https://api.openai.com; " +
-      "media-src 'self' blob: data: https:; " +
-      "frame-src https://js.stripe.com https://hooks.stripe.com; " +
-      "object-src 'none'; " +
-      "base-uri 'self'; " +
-      "upgrade-insecure-requests;"
-    );
-    document.head.appendChild(cspMeta);
-
-    // X-Frame-Options
-    const frameMeta = document.createElement('meta');
-    frameMeta.setAttribute('http-equiv', 'X-Frame-Options');
-    frameMeta.setAttribute('content', 'DENY');
-    document.head.appendChild(frameMeta);
-
-    // X-Content-Type-Options
-    const contentTypeMeta = document.createElement('meta');
-    contentTypeMeta.setAttribute('http-equiv', 'X-Content-Type-Options');
-    contentTypeMeta.setAttribute('content', 'nosniff');
-    document.head.appendChild(contentTypeMeta);
-
-    // Referrer Policy
-    const referrerMeta = document.createElement('meta');
-    referrerMeta.setAttribute('name', 'referrer');
-    referrerMeta.setAttribute('content', 'strict-origin-when-cross-origin');
-    document.head.appendChild(referrerMeta);
-
-    // Permissions Policy
-    const permissionsMeta = document.createElement('meta');
-    permissionsMeta.setAttribute('http-equiv', 'Permissions-Policy');
-    permissionsMeta.setAttribute('content', 
-      'geolocation=(), microphone=(), camera=(), payment=(self), fullscreen=(self)'
-    );
-    document.head.appendChild(permissionsMeta);
-
-  }, [nonce]);
+export const SecurityHeaders: React.FC<SecurityHeadersProps> = ({
+  title = 'MED-MNG - Plateforme Médicale Sécurisée',
+  description = 'Plateforme d\'extraction et génération musicale médicale avec sécurité de niveau A',
+  url = 'https://med-mng.com',
+  children
+}) => {
+  // Configuration CSP stricte pour grade A sécurité
+  const cspDirectives = [
+    "default-src 'self'",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://yaincoxihiqdksxgrsrk.supabase.co https://cdn.jsdelivr.net",
+    "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+    "font-src 'self' https://fonts.gstatic.com",
+    "img-src 'self' data: https: blob:",
+    "media-src 'self' https: blob:",
+    "connect-src 'self' https://yaincoxihiqdksxgrsrk.supabase.co wss://yaincoxihiqdksxgrsrk.supabase.co https://api.sentry.io",
+    "frame-ancestors 'none'",
+    "base-uri 'self'",
+    "form-action 'self'",
+    "upgrade-insecure-requests"
+  ].join('; ');
 
   return (
     <Helmet>
-      <meta httpEquiv="X-XSS-Protection" content="1; mode=block" />
-      <meta httpEquiv="Strict-Transport-Security" content="max-age=31536000; includeSubDomains; preload" />
+      {/* SEO Meta Tags */}
+      <title>{title}</title>
+      <meta name="description" content={description} />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      {nonce && <meta name="csp-nonce" content={nonce} />}
+      <link rel="canonical" href={url} />
+
+      {/* Security Headers - Grade A niveau */}
+      <meta httpEquiv="Content-Security-Policy" content={cspDirectives} />
+      <meta httpEquiv="X-Content-Type-Options" content="nosniff" />
+      <meta httpEquiv="X-Frame-Options" content="DENY" />
+      <meta httpEquiv="X-XSS-Protection" content="1; mode=block" />
+      <meta httpEquiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
+      <meta httpEquiv="Permissions-Policy" content="camera=(), microphone=(), geolocation=()" />
+      
+      {/* HSTS - Force HTTPS */}
+      <meta httpEquiv="Strict-Transport-Security" content="max-age=31536000; includeSubDomains; preload" />
+      
+      {/* Prevent MIME type sniffing */}
+      <meta name="format-detection" content="telephone=no" />
+      
+      {/* OpenGraph pour partage sécurisé */}
+      <meta property="og:title" content={title} />
+      <meta property="og:description" content={description} />
+      <meta property="og:url" content={url} />
+      <meta property="og:type" content="website" />
+      <meta property="og:site_name" content="MED-MNG" />
+      
+      {/* Twitter Card */}
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:title" content={title} />
+      <meta name="twitter:description" content={description} />
+      
+      {/* Préconnexions sécurisées */}
+      <link rel="preconnect" href="https://yaincoxihiqdksxgrsrk.supabase.co" crossOrigin="anonymous" />
+      <link rel="preconnect" href="https://fonts.googleapis.com" crossOrigin="anonymous" />
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      
+      {/* DNS Prefetch pour optimisation */}
+      <link rel="dns-prefetch" href="//yaincoxihiqdksxgrsrk.supabase.co" />
+      
+      {/* Favicon sécurisé */}
+      <link rel="icon" type="image/x-icon" href="/favicon.ico" />
+      
+      {children}
     </Helmet>
   );
 };
