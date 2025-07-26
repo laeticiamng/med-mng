@@ -23,10 +23,7 @@
     "strictNullChecks": false,
     "esModuleInterop": true,
     "allowImportingTsExtensions": true
+    ,"noEmit": true
   },
-  "include": [
-    "src",
-    "supabase",
-    "test/global.d.ts"
-  ]
+
 }
