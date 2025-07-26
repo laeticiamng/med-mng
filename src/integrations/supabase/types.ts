@@ -56,6 +56,48 @@ export type Database = {
         }
         Relationships: []
       }
+      admin_changelog: {
+        Row: {
+          action_type: string
+          admin_user_id: string | null
+          created_at: string
+          field_name: string | null
+          id: string
+          metadata: Json | null
+          new_value: Json | null
+          old_value: Json | null
+          reason: string | null
+          record_id: string
+          table_name: string
+        }
+        Insert: {
+          action_type: string
+          admin_user_id?: string | null
+          created_at?: string
+          field_name?: string | null
+          id?: string
+          metadata?: Json | null
+          new_value?: Json | null
+          old_value?: Json | null
+          reason?: string | null
+          record_id: string
+          table_name: string
+        }
+        Update: {
+          action_type?: string
+          admin_user_id?: string | null
+          created_at?: string
+          field_name?: string | null
+          id?: string
+          metadata?: Json | null
+          new_value?: Json | null
+          old_value?: Json | null
+          reason?: string | null
+          record_id?: string
+          table_name?: string
+        }
+        Relationships: []
+      }
       ai_generated_content: {
         Row: {
           content: Json
@@ -626,6 +668,54 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      data_integrity_checks: {
+        Row: {
+          batch_id: string | null
+          check_type: string
+          completed_at: string | null
+          created_at: string
+          created_by: string | null
+          critical_issues: number | null
+          id: string
+          issues_found: number | null
+          results: Json | null
+          should_block: boolean | null
+          started_at: string | null
+          status: string
+          tables_checked: string[]
+        }
+        Insert: {
+          batch_id?: string | null
+          check_type: string
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          critical_issues?: number | null
+          id?: string
+          issues_found?: number | null
+          results?: Json | null
+          should_block?: boolean | null
+          started_at?: string | null
+          status?: string
+          tables_checked: string[]
+        }
+        Update: {
+          batch_id?: string | null
+          check_type?: string
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string | null
+          critical_issues?: number | null
+          id?: string
+          issues_found?: number | null
+          results?: Json | null
+          should_block?: boolean | null
+          started_at?: string | null
+          status?: string
+          tables_checked?: string[]
+        }
+        Relationships: []
       }
       data_integrity_reports: {
         Row: {
@@ -2708,6 +2798,54 @@ export type Database = {
         }
         Relationships: []
       }
+      pending_corrections: {
+        Row: {
+          applied_at: string | null
+          correction_reason: string | null
+          created_at: string
+          current_value: Json | null
+          field_name: string
+          id: string
+          priority: string | null
+          proposed_value: Json
+          record_id: string
+          requested_by: string | null
+          reviewed_by: string | null
+          status: string | null
+          table_name: string
+        }
+        Insert: {
+          applied_at?: string | null
+          correction_reason?: string | null
+          created_at?: string
+          current_value?: Json | null
+          field_name: string
+          id?: string
+          priority?: string | null
+          proposed_value: Json
+          record_id: string
+          requested_by?: string | null
+          reviewed_by?: string | null
+          status?: string | null
+          table_name: string
+        }
+        Update: {
+          applied_at?: string | null
+          correction_reason?: string | null
+          created_at?: string
+          current_value?: Json | null
+          field_name?: string
+          id?: string
+          priority?: string | null
+          proposed_value?: Json
+          record_id?: string
+          requested_by?: string | null
+          reviewed_by?: string | null
+          status?: string | null
+          table_name?: string
+        }
+        Relationships: []
+      }
       posts: {
         Row: {
           content: string
@@ -3672,6 +3810,18 @@ export type Database = {
           error_count: number
           details: Json
         }[]
+      }
+      log_admin_change: {
+        Args: {
+          p_table_name: string
+          p_record_id: string
+          p_field_name?: string
+          p_old_value?: Json
+          p_new_value?: Json
+          p_action_type?: string
+          p_reason?: string
+        }
+        Returns: string
       }
       log_ia_usage: {
         Args: {

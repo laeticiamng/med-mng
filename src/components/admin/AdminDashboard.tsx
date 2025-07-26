@@ -17,6 +17,8 @@ import { SecurityDashboard } from './SecurityDashboard';
 import { ExtractionMonitoringDashboard } from './ExtractionMonitoringDashboard';
 import { ExportDashboard } from './ExportDashboard';
 import { RealTimeDashboard } from './RealTimeDashboard';
+import { ChangelogDashboard } from './ChangelogDashboard';
+import { IntegrityCheckDashboard } from './IntegrityCheckDashboard';
 
 interface AdminMetrics {
   activeUsers: number;
@@ -174,12 +176,14 @@ export function AdminDashboard() {
 
       {/* Main Dashboard Tabs */}
       <Tabs defaultValue="realtime" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-8">
           <TabsTrigger value="realtime">Temps Réel</TabsTrigger>
           <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
           <TabsTrigger value="security">Sécurité</TabsTrigger>
           <TabsTrigger value="monitoring">Surveillance</TabsTrigger>
           <TabsTrigger value="export">Export</TabsTrigger>
+          <TabsTrigger value="changelog">Changelog</TabsTrigger>
+          <TabsTrigger value="integrity">Intégrité</TabsTrigger>
           <TabsTrigger value="logs">Logs</TabsTrigger>
         </TabsList>
 
@@ -245,6 +249,14 @@ export function AdminDashboard() {
 
         <TabsContent value="export" className="space-y-6">
           <ExportDashboard />
+        </TabsContent>
+
+        <TabsContent value="changelog" className="space-y-6">
+          <ChangelogDashboard />
+        </TabsContent>
+
+        <TabsContent value="integrity" className="space-y-6">
+          <IntegrityCheckDashboard />
         </TabsContent>
 
         <TabsContent value="logs" className="space-y-4">

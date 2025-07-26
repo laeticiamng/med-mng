@@ -1,463 +1,351 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+// ✅ DATA INTEGRITY CHECK - Automatisation check intégrité post-import
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.3';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-interface IntegrityIssue {
+interface IntegrityCheckRequest {
+  action: 'run_check' | 'get_status' | 'get_latest_reports';
+  check_type?: 'post_import' | 'scheduled' | 'manual';
+  batch_id?: string;
+  tables?: string[];
+}
+
+interface CheckResult {
   table: string;
-  item_id: string;
-  issue_type: 'missing_field' | 'invalid_json' | 'empty_value' | 'duplicate_key' | 'corrupted_data';
-  severity: 'low' | 'medium' | 'high' | 'critical';
-  field_name?: string;
-  description: string;
-  current_value?: any;
-  expected_format?: string;
-}
-
-interface IntegrityReport {
-  scan_id: string;
-  timestamp: string;
-  tables_scanned: string[];
   total_records: number;
-  issues_found: IntegrityIssue[];
-  summary: {
-    critical: number;
-    high: number;
-    medium: number;
-    low: number;
-  };
-  status: 'passed' | 'warnings' | 'critical';
-  recommendations: string[];
+  issues: {
+    type: string;
+    severity: 'low' | 'medium' | 'high' | 'critical';
+    count: number;
+    sample_records?: string[];
+    description: string;
+  }[];
 }
 
-const supabase = createClient(
-  Deno.env.get('SUPABASE_URL') ?? '',
-  Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-);
-
-function validateJSONField(value: any, fieldName: string): IntegrityIssue | null {
-  if (!value) return null;
-  
-  try {
-    if (typeof value === 'string') {
-      JSON.parse(value);
-    }
-    return null;
-  } catch (error) {
-    return {
-      table: 'unknown',
-      item_id: 'unknown',
-      issue_type: 'invalid_json',
-      severity: 'high',
-      field_name: fieldName,
-      description: `Invalid JSON in field ${fieldName}: ${error.message}`,
-      current_value: value
-    };
-  }
-}
-
-function checkRequiredFields(item: any, requiredFields: string[], tableName: string): IntegrityIssue[] {
-  const issues: IntegrityIssue[] = [];
-  
-  for (const field of requiredFields) {
-    if (!item[field] || item[field] === null || item[field] === undefined) {
-      issues.push({
-        table: tableName,
-        item_id: item.id || 'unknown',
-        issue_type: 'missing_field',
-        severity: 'critical',
-        field_name: field,
-        description: `Required field '${field}' is missing or null`,
-        current_value: item[field]
-      });
-    }
-  }
-  
-  return issues;
-}
-
-function checkEmptyValues(item: any, tableName: string): IntegrityIssue[] {
-  const issues: IntegrityIssue[] = [];
-  const suspiciousFields = ['title', 'item_code', 'content', 'message'];
-  
-  for (const field of suspiciousFields) {
-    if (item[field] !== undefined) {
-      const value = item[field];
-      if (typeof value === 'string' && value.trim().length === 0) {
-        issues.push({
-          table: tableName,
-          item_id: item.id || 'unknown',
-          issue_type: 'empty_value',
-          severity: 'medium',
-          field_name: field,
-          description: `Field '${field}' contains empty string`,
-          current_value: value
-        });
-      }
-    }
-  }
-  
-  return issues;
-}
-
-function checkDataCorruption(item: any, tableName: string): IntegrityIssue[] {
-  const issues: IntegrityIssue[] = [];
-  
-  // Check for suspicious patterns that might indicate corruption
-  const textFields = Object.keys(item).filter(key => typeof item[key] === 'string');
-  
-  for (const field of textFields) {
-    const value = item[field] as string;
-    
-    // Check for control characters or weird encoding
-    if (/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/.test(value)) {
-      issues.push({
-        table: tableName,
-        item_id: item.id || 'unknown',
-        issue_type: 'corrupted_data',
-        severity: 'high',
-        field_name: field,
-        description: `Field '${field}' contains control characters or corrupted data`,
-        current_value: value.substring(0, 100) + '...'
-      });
-    }
-    
-    // Check for extremely long strings that might be corrupted
-    if (value.length > 50000) {
-      issues.push({
-        table: tableName,
-        item_id: item.id || 'unknown',
-        issue_type: 'corrupted_data',
-        severity: 'medium',
-        field_name: field,
-        description: `Field '${field}' is suspiciously long (${value.length} chars)`,
-        current_value: `Length: ${value.length}`
-      });
-    }
-  }
-  
-  return issues;
-}
-
-async function checkTableIntegrity(tableName: string, config: any): Promise<IntegrityIssue[]> {
-  const issues: IntegrityIssue[] = [];
-  
-  try {
-    console.log(`🔍 Scanning table: ${tableName}`);
-    
-    const { data, error } = await supabase
-      .from(tableName)
-      .select('*')
-      .limit(1000); // Process in batches for large tables
-    
-    if (error) {
-      console.error(`Error fetching ${tableName}:`, error);
-      issues.push({
-        table: tableName,
-        item_id: 'table_error',
-        issue_type: 'corrupted_data',
-        severity: 'critical',
-        description: `Unable to fetch data from table ${tableName}: ${error.message}`
-      });
-      return issues;
-    }
-    
-    if (!data || data.length === 0) {
-      issues.push({
-        table: tableName,
-        item_id: 'table_empty',
-        issue_type: 'missing_field',
-        severity: 'low',
-        description: `Table ${tableName} is empty`
-      });
-      return issues;
-    }
-    
-    // Check for duplicate keys if specified
-    if (config.uniqueFields) {
-      for (const field of config.uniqueFields) {
-        const values = data.map(item => item[field]).filter(v => v);
-        const duplicates = values.filter((item, index) => values.indexOf(item) !== index);
-        
-        if (duplicates.length > 0) {
-          issues.push({
-            table: tableName,
-            item_id: 'duplicate_check',
-            issue_type: 'duplicate_key',
-            severity: 'high',
-            field_name: field,
-            description: `Duplicate values found in field '${field}': ${duplicates.slice(0, 5).join(', ')}`,
-            current_value: duplicates.length
-          });
-        }
-      }
-    }
-    
-    // Check each record
-    for (const item of data) {
-      // Required fields validation
-      if (config.requiredFields) {
-        issues.push(...checkRequiredFields(item, config.requiredFields, tableName));
-      }
-      
-      // Empty values check
-      issues.push(...checkEmptyValues(item, tableName));
-      
-      // Data corruption check
-      issues.push(...checkDataCorruption(item, tableName));
-      
-      // JSON fields validation
-      if (config.jsonFields) {
-        for (const jsonField of config.jsonFields) {
-          const jsonIssue = validateJSONField(item[jsonField], jsonField);
-          if (jsonIssue) {
-            jsonIssue.table = tableName;
-            jsonIssue.item_id = item.id || 'unknown';
-            issues.push(jsonIssue);
-          }
-        }
-      }
-    }
-    
-  } catch (error) {
-    console.error(`Unexpected error scanning ${tableName}:`, error);
-    issues.push({
-      table: tableName,
-      item_id: 'scan_error',
-      issue_type: 'corrupted_data',
-      severity: 'critical',
-      description: `Unexpected error during scan: ${error.message}`
-    });
-  }
-  
-  return issues;
-}
-
-async function generateIntegrityReport(): Promise<IntegrityReport> {
-  const scanId = crypto.randomUUID();
-  const timestamp = new Date().toISOString();
-  
-  // Configuration for each table to check
-  const tableConfigs = {
-    'edn_items_immersive': {
-      requiredFields: ['id', 'item_code', 'title'],
-      uniqueFields: ['item_code', 'slug'],
-      jsonFields: ['tableau_rang_a', 'tableau_rang_b', 'quiz_questions', 'scene_immersive']
-    },
-    'edn_items_complete': {
-      requiredFields: ['id', 'item_code', 'title'],
-      uniqueFields: ['item_code', 'slug'],
-      jsonFields: ['competences_oic_rang_a', 'competences_oic_rang_b', 'tableau_rang_a', 'tableau_rang_b']
-    },
-    'extraction_logs': {
-      requiredFields: ['id', 'batch_id', 'batch_type', 'status'],
-      uniqueFields: ['batch_id'],
-      jsonFields: ['performance_metrics', 'error_details', 'session_data']
-    },
-    'security_incidents': {
-      requiredFields: ['id', 'type', 'severity', 'file_path', 'pattern_matched'],
-      uniqueFields: [],
-      jsonFields: []
-    },
-    'monitoring_incidents': {
-      requiredFields: ['id', 'incident_type', 'service_name', 'message', 'severity'],
-      uniqueFields: [],
-      jsonFields: ['details']
-    }
-  };
-  
-  const allIssues: IntegrityIssue[] = [];
-  const tablesScanned: string[] = [];
-  let totalRecords = 0;
-  
-  for (const [tableName, config] of Object.entries(tableConfigs)) {
-    try {
-      const tableIssues = await checkTableIntegrity(tableName, config);
-      allIssues.push(...tableIssues);
-      tablesScanned.push(tableName);
-      
-      // Count records for summary
-      const { count } = await supabase
-        .from(tableName)
-        .select('*', { count: 'exact', head: true });
-      totalRecords += count || 0;
-      
-    } catch (error) {
-      console.error(`Failed to check table ${tableName}:`, error);
-      allIssues.push({
-        table: tableName,
-        item_id: 'table_error',
-        issue_type: 'corrupted_data',
-        severity: 'critical',
-        description: `Failed to scan table: ${error.message}`
-      });
-    }
-  }
-  
-  // Generate summary
-  const summary = {
-    critical: allIssues.filter(i => i.severity === 'critical').length,
-    high: allIssues.filter(i => i.severity === 'high').length,
-    medium: allIssues.filter(i => i.severity === 'medium').length,
-    low: allIssues.filter(i => i.severity === 'low').length
-  };
-  
-  const status = summary.critical > 0 ? 'critical' : 
-                 summary.high > 0 ? 'warnings' : 'passed';
-  
-  // Generate recommendations
-  const recommendations: string[] = [];
-  if (summary.critical > 0) {
-    recommendations.push('🚨 Action immédiate requise: anomalies critiques détectées');
-    recommendations.push('Bloquer les mises en production jusqu\'à résolution');
-  }
-  if (summary.high > 0) {
-    recommendations.push('⚠️ Corriger les anomalies de haute priorité avant le prochain déploiement');
-  }
-  if (summary.medium > 0) {
-    recommendations.push('📋 Planifier la correction des anomalies moyennes');
-  }
-  if (allIssues.length === 0) {
-    recommendations.push('✅ Toutes les données sont intègres et exploitables');
-  }
-  
-  return {
-    scan_id: scanId,
-    timestamp,
-    tables_scanned: tablesScanned,
-    total_records: totalRecords,
-    issues_found: allIssues,
-    summary,
-    status,
-    recommendations
-  };
-}
-
-serve(async (req) => {
+Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const url = new URL(req.url);
-    const action = url.searchParams.get('action');
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
+
+    const { action, check_type = 'manual', batch_id, tables = [] } = await req.json() as IntegrityCheckRequest;
 
     switch (action) {
       case 'run_check': {
-        console.log('🔍 Starting data integrity check...');
-        
-        const report = await generateIntegrityReport();
-        
-        // Store the report in database
-        const { error: insertError } = await supabase
-          .from('data_integrity_reports')
+        const checkId = crypto.randomUUID();
+        const tablesToCheck = tables.length > 0 ? tables : [
+          'edn_items_immersive',
+          'ecos_situations_complete', 
+          'oic_competences',
+          'extraction_logs'
+        ];
+
+        // 1. Créer l'entrée de check
+        const { error: createError } = await supabase
+          .from('data_integrity_checks')
           .insert({
-            scan_id: report.scan_id,
-            status: report.status,
-            summary: report.summary,
-            tables_scanned: report.tables_scanned,
-            total_records: report.total_records,
-            issues_count: report.issues_found.length,
-            recommendations: report.recommendations,
-            full_report: report,
-            created_at: report.timestamp
+            id: checkId,
+            check_type,
+            batch_id: batch_id || `manual-${Date.now()}`,
+            status: 'running',
+            tables_checked: tablesToCheck
           });
 
-        if (insertError) {
-          console.error('Failed to store report:', insertError);
+        if (createError) throw createError;
+
+        const results: CheckResult[] = [];
+        let totalIssues = 0;
+        let criticalIssues = 0;
+
+        // 2. Vérifier chaque table
+        for (const table of tablesToCheck) {
+          const checkResult = await performTableCheck(supabase, table);
+          results.push(checkResult);
+
+          totalIssues += checkResult.issues.reduce((sum, issue) => sum + issue.count, 0);
+          criticalIssues += checkResult.issues
+            .filter(issue => issue.severity === 'critical')
+            .reduce((sum, issue) => sum + issue.count, 0);
         }
 
-        // Send alert if critical issues found
-        if (report.status === 'critical') {
-          await supabase.functions.invoke('monitoring-alerts', {
-            body: {
-              action: 'send_alert',
-              type: 'critical',
-              service: 'Data Integrity',
-              message: `Critical data integrity issues detected: ${report.summary.critical} critical, ${report.summary.high} high priority`,
-              severity: 'critical',
-              details: { scan_id: report.scan_id, summary: report.summary }
+        // 3. Déterminer si on doit bloquer
+        const shouldBlock = criticalIssues > 0;
+
+        // 4. Mettre à jour le statut
+        const finalStatus = shouldBlock ? 'blocked' : 'completed';
+        
+        const { error: updateError } = await supabase
+          .from('data_integrity_checks')
+          .update({
+            status: finalStatus,
+            issues_found: totalIssues,
+            critical_issues: criticalIssues,
+            should_block: shouldBlock,
+            results: { checks: results },
+            completed_at: new Date().toISOString()
+          })
+          .eq('id', checkId);
+
+        if (updateError) throw updateError;
+
+        // 5. Alertes si critique
+        if (shouldBlock) {
+          console.error(`🚨 BLOCAGE INTÉGRITÉ: ${criticalIssues} problèmes critiques détectés`);
+          
+          // Log dans operation_logs
+          await supabase.from('operation_logs').insert({
+            type: 'integrity_check_blocked',
+            message: `Check d'intégrité BLOQUÉ: ${criticalIssues} problèmes critiques`,
+            meta: {
+              check_id: checkId,
+              critical_issues: criticalIssues,
+              total_issues: totalIssues,
+              tables_checked: tablesToCheck,
+              batch_id: batch_id
             }
           });
         }
 
-        return new Response(JSON.stringify({
-          status: 'completed',
-          report: report,
-          timestamp: new Date().toISOString()
-        }), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        });
+        return new Response(
+          JSON.stringify({
+            success: true,
+            check_id: checkId,
+            status: finalStatus,
+            should_block: shouldBlock,
+            summary: {
+              total_issues: totalIssues,
+              critical_issues: criticalIssues,
+              tables_checked: tablesToCheck.length
+            },
+            results
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
       }
 
-      case 'get_reports': {
+      case 'get_status': {
         const { data, error } = await supabase
-          .from('data_integrity_reports')
+          .from('data_integrity_checks')
           .select('*')
           .order('created_at', { ascending: false })
           .limit(20);
 
-        if (error) {
-          throw error;
-        }
+        if (error) throw error;
 
-        return new Response(JSON.stringify({
-          reports: data || [],
-          timestamp: new Date().toISOString()
-        }), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        });
+        return new Response(
+          JSON.stringify({ success: true, data }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
       }
 
-      case 'get_report': {
-        const reportId = url.searchParams.get('report_id');
-        if (!reportId) {
-          return new Response(JSON.stringify({ error: 'Missing report_id parameter' }), {
-            status: 400,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-          });
-        }
-
+      case 'get_latest_reports': {
         const { data, error } = await supabase
-          .from('data_integrity_reports')
+          .from('data_integrity_checks')
           .select('*')
-          .eq('scan_id', reportId)
-          .single();
+          .eq('status', 'completed')
+          .order('completed_at', { ascending: false })
+          .limit(10);
 
-        if (error) {
-          throw error;
-        }
+        if (error) throw error;
 
-        return new Response(JSON.stringify({
-          report: data,
-          timestamp: new Date().toISOString()
-        }), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        });
+        return new Response(
+          JSON.stringify({ success: true, data }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
       }
 
       default:
-        return new Response(JSON.stringify({
-          error: 'Invalid action',
-          available_actions: ['run_check', 'get_reports', 'get_report']
-        }), {
-          status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        });
+        throw new Error(`Action non supportée: ${action}`);
     }
+
   } catch (error) {
-    console.error('❌ Data integrity check error:', error);
-    
-    return new Response(JSON.stringify({
-      error: 'Internal server error',
-      message: error.message,
-      timestamp: new Date().toISOString()
-    }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-    });
+    console.error('Erreur integrity check:', error);
+    return new Response(
+      JSON.stringify({
+        error: 'Erreur lors du check d\'intégrité',
+        details: error.message
+      }),
+      {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      }
+    );
   }
 });
+
+async function performTableCheck(supabase: any, tableName: string): Promise<CheckResult> {
+  const result: CheckResult = {
+    table: tableName,
+    total_records: 0,
+    issues: []
+  };
+
+  try {
+    // Compter les enregistrements totaux
+    const { count, error: countError } = await supabase
+      .from(tableName)
+      .select('*', { count: 'exact', head: true });
+
+    if (countError) throw countError;
+    result.total_records = count || 0;
+
+    // Checks spécifiques par table
+    switch (tableName) {
+      case 'edn_items_immersive':
+        await checkEdnItems(supabase, result);
+        break;
+      case 'ecos_situations_complete':
+        await checkEcosSituations(supabase, result);
+        break;
+      case 'oic_competences':
+        await checkOicCompetences(supabase, result);
+        break;
+      case 'extraction_logs':
+        await checkExtractionLogs(supabase, result);
+        break;
+      default:
+        await performGenericChecks(supabase, tableName, result);
+    }
+
+  } catch (error) {
+    result.issues.push({
+      type: 'check_failed',
+      severity: 'critical',
+      count: 1,
+      description: `Échec du check pour ${tableName}: ${error.message}`
+    });
+  }
+
+  return result;
+}
+
+async function checkEdnItems(supabase: any, result: CheckResult) {
+  // 1. Items sans title
+  const { data: noTitle } = await supabase
+    .from('edn_items_immersive')
+    .select('id')
+    .or('title.is.null,title.eq.')
+    .limit(10);
+
+  if (noTitle?.length > 0) {
+    result.issues.push({
+      type: 'missing_title',
+      severity: 'critical',
+      count: noTitle.length,
+      sample_records: noTitle.map((r: any) => r.id),
+      description: 'Items EDN sans titre'
+    });
+  }
+
+  // 2. Items sans item_code
+  const { data: noCode } = await supabase
+    .from('edn_items_immersive')
+    .select('id')
+    .or('item_code.is.null,item_code.eq.')
+    .limit(10);
+
+  if (noCode?.length > 0) {
+    result.issues.push({
+      type: 'missing_item_code',
+      severity: 'critical',
+      count: noCode.length,
+      description: 'Items EDN sans code'
+    });
+  }
+
+  // 3. Tableaux vides
+  const { data: emptyTableaux } = await supabase
+    .from('edn_items_immersive')
+    .select('id, item_code')
+    .or('tableau_rang_a.is.null,tableau_rang_b.is.null')
+    .limit(5);
+
+  if (emptyTableaux?.length > 0) {
+    result.issues.push({
+      type: 'empty_tableaux',
+      severity: 'high',
+      count: emptyTableaux.length,
+      description: 'Items avec tableaux Rang A ou B vides'
+    });
+  }
+}
+
+async function checkEcosSituations(supabase: any, result: CheckResult) {
+  // Situations sans contenu
+  const { data: noContent } = await supabase
+    .from('ecos_situations_complete')
+    .select('id')
+    .or('content.is.null,title.is.null')
+    .limit(10);
+
+  if (noContent?.length > 0) {
+    result.issues.push({
+      type: 'missing_content',
+      severity: 'critical',
+      count: noContent.length,
+      description: 'Situations ECOS sans contenu ou titre'
+    });
+  }
+}
+
+async function checkOicCompetences(supabase: any, result: CheckResult) {
+  // Compétences sans intitulé
+  const { data: noIntitule } = await supabase
+    .from('oic_competences')
+    .select('objectif_id')
+    .or('intitule.is.null,intitule.eq.')
+    .limit(10);
+
+  if (noIntitule?.length > 0) {
+    result.issues.push({
+      type: 'missing_intitule',
+      severity: 'high',
+      count: noIntitule.length,
+      description: 'Compétences OIC sans intitulé'
+    });
+  }
+}
+
+async function checkExtractionLogs(supabase: any, result: CheckResult) {
+  // Logs d'extraction en erreur
+  const { data: failed } = await supabase
+    .from('extraction_logs')
+    .select('id')
+    .eq('status', 'failed')
+    .gte('started_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString())
+    .limit(5);
+
+  if (failed?.length > 0) {
+    result.issues.push({
+      type: 'recent_failures',
+      severity: 'medium',
+      count: failed.length,
+      description: 'Extractions échouées dans les 24h'
+    });
+  }
+}
+
+async function performGenericChecks(supabase: any, tableName: string, result: CheckResult) {
+  // Check générique pour les tables inconnues
+  const { data: sample } = await supabase
+    .from(tableName)
+    .select('*')
+    .limit(1);
+
+  if (!sample || sample.length === 0) {
+    result.issues.push({
+      type: 'empty_table',
+      severity: 'medium',
+      count: 0,
+      description: `Table ${tableName} vide`
+    });
+  }
+}
