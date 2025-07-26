@@ -2097,6 +2097,36 @@ export type Database = {
           },
         ]
       }
+      med_mng_cancellations: {
+        Row: {
+          cancelled_at: string
+          credits_refunded: number | null
+          id: string
+          reason: string | null
+          task_id: string
+          task_type: string
+          user_id: string
+        }
+        Insert: {
+          cancelled_at?: string
+          credits_refunded?: number | null
+          id?: string
+          reason?: string | null
+          task_id: string
+          task_type: string
+          user_id: string
+        }
+        Update: {
+          cancelled_at?: string
+          credits_refunded?: number | null
+          id?: string
+          reason?: string | null
+          task_id?: string
+          task_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       med_mng_chat_interactions: {
         Row: {
           context_used: Json | null
@@ -2130,6 +2160,42 @@ export type Database = {
           satisfaction_rating?: number | null
           tokens_used?: number | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      med_mng_content_ai: {
+        Row: {
+          comic_panels: Json | null
+          created_at: string
+          generated_at: string | null
+          generation_status: string
+          id: string
+          item_id: string
+          novel_text: string | null
+          poem_text: string | null
+          updated_at: string
+        }
+        Insert: {
+          comic_panels?: Json | null
+          created_at?: string
+          generated_at?: string | null
+          generation_status?: string
+          id?: string
+          item_id: string
+          novel_text?: string | null
+          poem_text?: string | null
+          updated_at?: string
+        }
+        Update: {
+          comic_panels?: Json | null
+          created_at?: string
+          generated_at?: string | null
+          generation_status?: string
+          id?: string
+          item_id?: string
+          novel_text?: string | null
+          poem_text?: string | null
+          updated_at?: string
         }
         Relationships: []
       }
@@ -2253,6 +2319,48 @@ export type Database = {
           is_public?: boolean | null
           name?: string
           updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      med_mng_qcm_sessions: {
+        Row: {
+          answers: Json
+          completed_at: string | null
+          created_at: string
+          errors: Json
+          id: string
+          item_id: string
+          questions: Json
+          score: number | null
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          answers?: Json
+          completed_at?: string | null
+          created_at?: string
+          errors?: Json
+          id?: string
+          item_id: string
+          questions?: Json
+          score?: number | null
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          answers?: Json
+          completed_at?: string | null
+          created_at?: string
+          errors?: Json
+          id?: string
+          item_id?: string
+          questions?: Json
+          score?: number | null
+          type?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
@@ -4138,6 +4246,10 @@ export type Database = {
         Args: { credits_to_use?: number }
         Returns: Json
       }
+      med_mng_generate_qcm: {
+        Args: { p_item_id: string; p_type: string; p_difficulty?: number }
+        Returns: Json
+      }
       med_mng_get_activity_stats: {
         Args: { p_start_date?: string; p_end_date?: string }
         Returns: {
@@ -4178,6 +4290,10 @@ export type Database = {
       med_mng_refresh_monthly_quota: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      med_mng_refund_credits: {
+        Args: { p_user_id: string; p_credits: number }
+        Returns: boolean
       }
       med_mng_remove_from_library: {
         Args: { song_id: string }
