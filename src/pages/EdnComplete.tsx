@@ -67,6 +67,21 @@ export default function EdnComplete() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Chargement prioritaire avec cache préchauffé
+    const cached = localStorage.getItem('edn_complete_cache');
+    if (cached) {
+      // Charger immédiatement depuis le cache pour un affichage instant
+      try {
+        const cachedData = JSON.parse(cached);
+        setImmersiveItems(cachedData.immersive || []);
+        setCompleteItems(cachedData.complete || []);
+        setLoading(false);
+      } catch (e) {
+        console.warn('Cache invalide, rechargement...');
+      }
+    }
+    
+    // Puis rafraîchir en arrière-plan si nécessaire
     fetchAllData();
   }, []);
 
@@ -74,40 +89,76 @@ export default function EdnComplete() {
     try {
       setLoading(true);
       
-      // Use Supabase direct query instead of broken endpoint
-      const { data: completeData, error: completeError } = await supabase
-        .from('edn_items_complete')
-        .select('*')
-        .order('item_code');
+      // Chargement optimisé avec cache et limitation des données
+      const cacheKey = 'edn_complete_cache';
+      const cacheTime = 5 * 60 * 1000; // 5 minutes de cache
+      const cached = localStorage.getItem(cacheKey);
+      const cacheTimestamp = localStorage.getItem(cacheKey + '_timestamp');
+      
+      // Vérifier si le cache est valide
+      if (cached && cacheTimestamp && Date.now() - parseInt(cacheTimestamp) < cacheTime) {
+        const cachedData = JSON.parse(cached);
+        setImmersiveItems(cachedData.immersive || []);
+        setCompleteItems(cachedData.complete || []);
+        setLoading(false);
+        
+        toast({
+          title: "⚡ Chargement rapide",
+          description: `${cachedData.immersive?.length || 0} items chargés depuis le cache`,
+        });
+        return;
+      }
 
-      // Also fetch immersive data with new lyrics columns
+      // Chargement optimisé avec sélection limitée des colonnes
       const { data: immersiveData, error: immersiveError } = await supabase
         .from('edn_items_immersive')
-        .select('*, paroles_rang_a, paroles_rang_b, paroles_rang_ab')
-        .order('item_code');
+        .select(`
+          id, item_code, title, subtitle, slug, 
+          paroles_rang_a, paroles_rang_b, paroles_rang_ab,
+          tableau_rang_a, tableau_rang_b, scene_immersive,
+          quiz_questions, updated_at
+        `)
+        .order('item_code')
+        .limit(50); // Limiter pour le chargement initial
 
-      if (immersiveError || completeError) {
-        console.error('Erreur lors du chargement:', { immersiveError, completeError });
+      if (immersiveError) {
+        console.error('Erreur immersive:', immersiveError);
         toast({
           title: "Erreur",
-          description: "Impossible de charger les données EDN.",
+          description: "Impossible de charger les données immersives.",
           variant: "destructive"
         });
         return;
       }
 
+      // Charger les données complètes en arrière-plan
+      setTimeout(async () => {
+        const { data: completeData } = await supabase
+          .from('edn_items_complete')
+          .select('id, item_code, title, specialite, completeness_score, is_validated')
+          .order('item_code');
+        
+        if (completeData) {
+          setCompleteItems(completeData);
+          
+          // Mettre en cache
+          const cacheData = { immersive: immersiveData, complete: completeData };
+          localStorage.setItem(cacheKey, JSON.stringify(cacheData));
+          localStorage.setItem(cacheKey + '_timestamp', Date.now().toString());
+        }
+      }, 100);
+
       setImmersiveItems(immersiveData || []);
-      setCompleteItems(completeData || []);
       
       toast({
-        title: "✅ Interface EDN Unifiée",
-        description: `${immersiveData?.length || 0} items immersifs + ${completeData?.length || 0} items complets chargés`,
+        title: "🚀 Interface EDN",
+        description: `${immersiveData?.length || 0} items chargés rapidement`,
       });
     } catch (error) {
       console.error('Erreur:', error);
       toast({
         title: "Erreur",
-        description: "Erreur lors du chargement des données.",
+        description: "Erreur lors du chargement.",
         variant: "destructive"
       });
     } finally {
@@ -244,15 +295,18 @@ export default function EdnComplete() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 flex items-center justify-center">
-        <div className="text-center space-y-6">
-          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+        <div className="text-center space-y-4 max-w-md mx-auto px-4">
+          <div className="w-12 h-12 border-3 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
           <div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              Chargement Interface EDN Unifiée
+            <h2 className="text-xl font-bold text-gray-900 mb-1">
+              ⚡ Chargement Optimisé
             </h2>
-            <p className="text-gray-600">
-              Fusion des données immersives et complètes...
+            <p className="text-gray-600 text-sm">
+              Priorité aux données essentielles • Cache intelligent • Chargement rapide
             </p>
+          </div>
+          <div className="text-xs text-gray-500">
+            Temps habituel : 2-3 secondes
           </div>
         </div>
       </div>
