@@ -437,8 +437,8 @@ serve(async (req) => {
         instrumental: instrumental || false,
         style: finalStyle,
         title: finalTitle,
-        model: getCorrectSunoModel(userModel) // Fonction pour format correct
-        // callBackUrl retiré car il cause des erreurs avec l'API
+        model: getCorrectSunoModel(userModel), // Fonction pour format correct
+        callBackUrl: `${Deno.env.get('SUPABASE_URL')}/functions/v1/suno-callback`
       };
 
       console.log('🚀 APPEL API SUNO RÉEL avec payload CORRIGÉ:', {
