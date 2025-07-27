@@ -152,7 +152,8 @@ serve(async (req) => {
 
     console.log('🔧 Debug environnement:', {
       SUNO_API_KEY_exists: !!SUNO_API_KEY,
-      SUNO_API_KEY_length: SUNO_API_KEY?.length || 0
+      SUNO_API_KEY_length: SUNO_API_KEY?.length || 0,
+      SUNO_API_KEY_preview: SUNO_API_KEY ? `${SUNO_API_KEY.substring(0, 10)}...` : 'null'
     });
 
     console.log('🎵 Génération de musique avec API Suno:', { 
@@ -166,7 +167,7 @@ serve(async (req) => {
       apiMode: SUNO_API_KEY ? 'REAL_SUNO' : 'SIMULATION'
     });
     
-    if (SUNO_API_KEY) {
+    if (SUNO_API_KEY && SUNO_API_KEY.trim().length > 0) {
       const sunoApi = new SunoAPI(SUNO_API_KEY);
       
       // Préparer le payload selon la documentation Suno
@@ -176,8 +177,7 @@ serve(async (req) => {
         title: title || `${rang ? `Rang ${rang} - ` : ''}${itemCode || 'Contenu'} - ${style}`,
         customMode: customMode,
         instrumental: instrumental || (!lyrics || !lyrics.trim()),
-        model: model,
-        callBackUrl: `${Deno.env.get('SUPABASE_URL')}/functions/v1/suno-callback`
+        model: model
       };
 
       console.log('🚀 APPEL API SUNO RÉEL avec payload:', {
