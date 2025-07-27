@@ -326,11 +326,48 @@ export default function EdnComplete() {
               </TabsContent>
             </Tabs>
 
-            <div className="flex items-center justify-center gap-2 mt-4">
-              <CheckCircle className="h-5 w-5 text-green-500" />
-              <span className="text-sm text-green-600 font-medium">
-                100% des fonctionnalités EDN fusionnées • Interface premium unifiée
-              </span>
+            <div className="flex flex-col items-center gap-4 mt-4">
+              <div className="flex items-center justify-center gap-2">
+                <CheckCircle className="h-5 w-5 text-green-500" />
+                <span className="text-sm text-green-600 font-medium">
+                  100% des fonctionnalités EDN fusionnées • Interface premium unifiée
+                </span>
+              </div>
+              
+              {/* Bouton de génération des paroles */}
+              <div className="flex gap-2">
+                <Button 
+                  onClick={async () => {
+                    try {
+                      toast({
+                        title: "🚀 Génération en cours",
+                        description: "Génération des paroles pour tous les items EDN..."
+                      });
+                      
+                      const { data, error } = await supabase.functions.invoke('update-edn-unique-content');
+                      
+                      if (error) throw error;
+                      
+                      toast({
+                        title: "✅ Paroles générées",
+                        description: `Paroles créées pour ${data?.successful || 0} items`
+                      });
+                      
+                      // Recharger les données
+                      fetchAllData();
+                    } catch (error) {
+                      toast({
+                        title: "❌ Erreur",
+                        description: "Échec de la génération",
+                        variant: "destructive"
+                      });
+                    }
+                  }}
+                  className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white"
+                >
+                  🎵 Générer toutes les paroles (367 items)
+                </Button>
+              </div>
             </div>
           </div>
 
