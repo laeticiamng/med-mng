@@ -1,5 +1,6 @@
-import { jsonResponse, errorResponse } from "../response.ts";
-import { corsHeaders, securityHeaders, AddToLibraryRequest } from '../types.ts';
+import { jsonResponse, errorResponse, paginatedResponse } from "../response.ts";
+import { corsHeaders, securityHeaders, AddToLibraryRequest, ApiErrorCode } from '../types.ts';
+import { log } from '../logger.ts';
 
 export async function handleLibrary(
   req: Request,
@@ -31,24 +32,36 @@ export async function handleLibrary(
     return jsonResponse({ success: true });
   }
 
-  // GET /library - Get user library
+  // GET /library - Get user library (✅ PAGINATION STANDARDISÉE)
   if (path === '/library' && req.method === 'GET') {
-    const page = Math.max(1, parseInt(url.searchParams.get('page') || '1'));
-    const limit = Math.min(50, parseInt(url.searchParams.get('limit') || '20'));
-    const offset = (page - 1) * limit;
+    try {
+      const page = Math.max(1, parseInt(url.searchParams.get('page') || '1'));
+      const limit = Math.min(50, Math.max(1, parseInt(url.searchParams.get('limit') || '20')));
+      const offset = (page - 1) * limit;
 
-    const { data, count, error } = await supabase
-      .from('med_mng_view_library')
-      .select(
-        'id,title,suno_audio_id,meta,created_at,added_to_library_at,is_liked',
-        { count: 'exact' }
-      )
-      .order('added_to_library_at', { ascending: false })
-      .range(offset, offset + limit - 1);
+      // ✅ Performance: Index sur added_to_library_at + limit serveur
+      const { data, count, error } = await supabase
+        .from('med_mng_view_library')
+        .select(
+          'id,title,suno_audio_id,meta,created_at,added_to_library_at,is_liked',
+          { count: 'exact' }
+        )
+        .order('added_to_library_at', { ascending: false })
+        .range(offset, offset + limit - 1);
 
-    if (error) throw error;
+      if (error) {
+        log('error', 'Library fetch error', error);
+        throw error;
+      }
 
-    return jsonResponse({ items: data, page, limit, totalCount: count || 0 });
+      log('info', `Library retrieved: ${data?.length || 0} items (page ${page})`);
+
+      // ✅ Response paginée standardisée
+      return paginatedResponse(data || [], page, limit, count || 0);
+    } catch (error) {
+      log('error', 'Library endpoint error', error);
+      throw error;
+    }
   }
 
   return null;

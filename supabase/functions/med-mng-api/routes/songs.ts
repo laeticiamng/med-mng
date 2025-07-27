@@ -1,5 +1,5 @@
 import { jsonResponse, errorResponse, paginatedResponse } from "../response.ts";
-import { corsHeaders, securityHeaders, CreateSongRequest } from '../types.ts';
+import { corsHeaders, securityHeaders, CreateSongRequest, ApiErrorCode } from '../types.ts';
 import { Validator, validatePagination, sanitizeInput } from '../middleware/validation.ts';
 import { log } from '../logger.ts';
 
@@ -72,7 +72,7 @@ export async function handleSongs(req: Request, supabase: any, path: string) {
 
       if ((quota || 0) < 1) {
         log('warn', 'Song creation blocked due to insufficient quota', { quota });
-        return errorResponse(403, 'QUOTA_EXCEEDED', 'Quota insuffisant');
+        return errorResponse(409, ApiErrorCode.QUOTA_EXCEEDED, 'Quota insuffisant pour créer une chanson');
       }
 
       // Create the song
@@ -111,7 +111,7 @@ export async function handleSongs(req: Request, supabase: any, path: string) {
 
       // Validate UUID format
       if (!songId || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(songId)) {
-        return errorResponse(400, 'INVALID_SONG_ID', 'Invalid song ID format');
+        return errorResponse(400, ApiErrorCode.INVALID_SONG_ID, 'Format d\'ID de chanson invalide');
       }
 
       const { data: song, error } = await supabase
@@ -122,7 +122,7 @@ export async function handleSongs(req: Request, supabase: any, path: string) {
 
       if (error || !song) {
         log('warn', `Song not found for streaming: ${songId}`);
-        return errorResponse(404, 'SONG_NOT_FOUND', 'Song not found');
+        return errorResponse(404, ApiErrorCode.SONG_NOT_FOUND, 'Chanson introuvable');
       }
 
       // Proxy to Suno with streaming support and timeout
@@ -143,7 +143,7 @@ export async function handleSongs(req: Request, supabase: any, path: string) {
 
         if (!sunoResponse.ok) {
           log('error', `Suno API error: ${sunoResponse.status}`, { songId, sunoAudioId: song.suno_audio_id });
-          return errorResponse(502, 'UPSTREAM_ERROR', 'Audio service unavailable');
+          return errorResponse(502, ApiErrorCode.UPSTREAM_ERROR, 'Service audio indisponible');
         }
 
         const responseHeaders = {
@@ -171,7 +171,7 @@ export async function handleSongs(req: Request, supabase: any, path: string) {
         clearTimeout(timeoutId);
         if (fetchError.name === 'AbortError') {
           log('error', 'Song streaming timeout', { songId });
-          return errorResponse(504, 'STREAM_TIMEOUT', 'Audio streaming timeout');
+          return errorResponse(504, ApiErrorCode.STREAM_TIMEOUT, 'Timeout lors du streaming audio');
         }
         throw fetchError;
       }
@@ -211,7 +211,7 @@ export async function handleSongs(req: Request, supabase: any, path: string) {
       .single();
 
     if (error || !song) {
-      return errorResponse(404, 'SONG_NOT_FOUND', 'Song not found');
+      return errorResponse(404, ApiErrorCode.SONG_NOT_FOUND, 'Chanson introuvable');
     }
 
     // If lyrics not cached, fetch from Suno
@@ -245,7 +245,7 @@ export async function handleSongs(req: Request, supabase: any, path: string) {
         }
       } catch (error) {
         log('error', 'Error fetching lyrics', error);
-        return errorResponse(500, 'LYRICS_FETCH_ERROR', 'Erreur récupération paroles');
+        return errorResponse(500, ApiErrorCode.LYRICS_FETCH_ERROR, 'Erreur lors de la récupération des paroles');
       }
     }
 

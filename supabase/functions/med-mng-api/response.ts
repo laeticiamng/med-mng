@@ -11,11 +11,20 @@ export function jsonResponse(data: unknown, status = 200) {
   });
 }
 
+// ✅ STANDARD ERROR RESPONSE - Conforme au ticket global backend
 export function errorResponse(status: number, error: string, message: string, details?: any) {
-  const responseData: any = { error, code: status, message };
+  const responseData: any = { 
+    error,           // Clé unique pour i18n frontend
+    code: status,    // Code HTTP standard
+    message,         // Message lisible
+    timestamp: new Date().toISOString(),
+    path: globalThis.currentPath || 'unknown'  // Pour debug
+  };
+  
   if (details) {
     responseData.details = details;
   }
+  
   return jsonResponse(responseData, status);
 }
 
