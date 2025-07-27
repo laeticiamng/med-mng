@@ -65,6 +65,13 @@ serve(async (req) => {
     // ✅ CORRECTION: Initialiser la clé API AVANT utilisation
     const SUNO_API_KEY = Deno.env.get('SUNO_API_KEY');
 
+    console.log('🔧 Debug environnement:', {
+      SUNO_API_KEY_exists: !!SUNO_API_KEY,
+      SUNO_API_KEY_length: SUNO_API_KEY?.length || 0,
+      SUNO_API_KEY_preview: SUNO_API_KEY ? SUNO_API_KEY.substring(0, 8) + '...' : 'null',
+      allEnvKeys: Object.keys(Deno.env.toObject()).filter(k => k.includes('SUNO'))
+    });
+
     console.log('🎵 Génération de musique OPTIMISÉE:', { 
       hasLyrics: !!lyrics,
       lyricsLength: lyrics?.length || 0,
