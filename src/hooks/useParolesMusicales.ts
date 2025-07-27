@@ -4,6 +4,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useMusicGenerationWithTranslation } from '@/hooks/useMusicGenerationWithTranslation';
 import { useGlobalAudio } from '@/contexts/GlobalAudioContext';
 import { generateComprehensiveLyrics, generateMixedLyrics } from '@/utils/generateComprehensiveLyrics';
+import { useSunoPolling } from './useSunoPolling';
 
 export const useParolesMusicales = (
   paroles: string[] = [], 
@@ -27,6 +28,8 @@ export const useParolesMusicales = (
     currentLanguage
   } = useMusicGenerationWithTranslation();
 
+  const { startPolling, completedAudio } = useSunoPolling();
+
   const {
     currentTrack,
     isPlaying,
@@ -39,6 +42,14 @@ export const useParolesMusicales = (
     changeVolume,
     stop
   } = useGlobalAudio();
+
+  // Fusionner l'audio généré du hook existant avec l'audio des callbacks Suno
+  const mergedGeneratedAudio = {
+    ...generatedAudio,
+    rangA: completedAudio.A || generatedAudio.rangA,
+    rangB: completedAudio.B || generatedAudio.rangB,
+    rangAB: completedAudio.AB || generatedAudio.rangAB,
+  };
 
   const handleGenerate = async (rang: 'A' | 'B') => {
     console.log(`🎵 GÉNÉRATION COMPLÈTE - Rang ${rang}`);
@@ -87,19 +98,24 @@ export const useParolesMusicales = (
       });
 
       // Appel génération musicale avec les paroles complètes
-      const audioUrl = await generateMusicInLanguage(rang, parolesCompletes, selectedStyle, musicDuration);
+      const trackId = await generateMusicInLanguage(rang, parolesCompletes, selectedStyle, musicDuration);
       
-      console.log(`✅ GÉNÉRATION TERMINÉE - ${itemData.item_code} Rang ${rang}, URL:`, audioUrl);
+      console.log(`✅ GÉNÉRATION DÉMARRÉE - ${itemData.item_code} Rang ${rang}, trackId:`, trackId);
       
-      // Toast de succès
+      // Le hook ne retourne plus l'URL immédiatement car Suno est asynchrone
+      // L'URL sera récupérée via polling ou callback
+      
+      // Toast de succès pour le démarrage
       toast({
-        title: `🎉 ${itemData.item_code} Rang ${rang} généré !`,
-        description: `Toutes les compétences intégrées avec assonances`,
+        title: `🎵 ${itemData.item_code} Rang ${rang} en cours...`,
+        description: `La génération a été lancée, l'audio sera disponible dans quelques minutes`,
       });
       
-      setTimeout(() => {
-        console.log('🎵 VÉRIFICATION ÉTAT RETARDÉE generatedAudio:', generatedAudio);
-      }, 100);
+      console.log('🎵 POLLING POUR RÉCUPÉRER L\'URL AUDIO...');
+      // Démarrer le polling pour ce trackId
+      if (trackId) {
+        startPolling(trackId, rang, itemData.item_code);
+      }
       
     } catch (error) {
       console.error(`❌ ERREUR GÉNÉRATION COMPLÈTE ${rang}:`, error);
@@ -179,6 +195,7 @@ export const useParolesMusicales = (
   const handlePlayAudio = (audioUrl: string, title: string) => {
     console.log('🔴 === DEBUT handlePlayAudio ===');
     console.log('🎵 URL reçue:', audioUrl);
+    console.log('🎵 generatedAudio actuel:', generatedAudio);
     
     // ✅ Bloquer les URLs de simulation non fonctionnelles
     if (audioUrl.includes('soundjay.com') || audioUrl.includes('fail-buzzer')) {
@@ -273,7 +290,7 @@ export const useParolesMusicales = (
     musicDuration,
     setMusicDuration,
     isGenerating,
-    generatedAudio,
+    generatedAudio: mergedGeneratedAudio,
     generationProgress,
     lastError,
     currentLanguage,
