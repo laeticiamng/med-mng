@@ -173,7 +173,7 @@ export const musicStyles: MusicStyle[] = [
   { value: 'k-pop', label: 'K-Pop', description: 'Coréen et moderne', voiceType: 'both', energy: 'high', genre: 'World' },
   { value: 'j-pop', label: 'J-Pop', description: 'Japonais et mélodique', voiceType: 'both', energy: 'medium', genre: 'World' },
   { value: 'cumbia', label: 'Cumbia', description: 'Colombien et festif', voiceType: 'both', energy: 'high', genre: 'World' },
-  { value: 'bossa-nova', label: 'Bossa Nova', description: 'Brésilien et doux', voiceType: 'both', energy: 'low', genre: 'World' },
+  { value: 'bossa-nova-world', label: 'Bossa Nova World', description: 'Brésilien et doux', voiceType: 'both', energy: 'low', genre: 'World' },
   { value: 'samba', label: 'Samba', description: 'Brésilien et festif', voiceType: 'both', energy: 'high', genre: 'World' },
   { value: 'fado', label: 'Fado', description: 'Portugais et mélancolique', voiceType: 'both', energy: 'low', genre: 'World' },
   { value: 'mariachi', label: 'Mariachi', description: 'Mexicain et traditionnel', voiceType: 'both', energy: 'high', genre: 'World' },
