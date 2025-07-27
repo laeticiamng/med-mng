@@ -78,51 +78,11 @@ interface SunoStatusResponse {
   };
 }
 
-// Fonction pour déterminer le modèle Suno selon l'abonnement utilisateur
+// Fonction pour déterminer le modèle Suno - TOUJOURS V4_5 comme demandé
 async function getSunoModelForUser(userId: string | null, supabase: any): Promise<string> {
-  if (!userId) {
-    // Plan gratuit = modèle premium pour découverte (V4.5)
-    return 'chirp-v4-5';
-  }
-
-  try {
-    // Récupérer l'abonnement de l'utilisateur
-    const { data: subscription, error } = await supabase
-      .from('user_subscriptions')
-      .select('plan_name')
-      .eq('user_id', userId)
-      .eq('status', 'active')
-      .single();
-
-    if (error || !subscription) {
-      console.log('Aucun abonnement actif trouvé, utilisation du modèle gratuit');
-      return 'chirp-v4-5'; // Plan gratuit = V4.5
-    }
-
-    const planName = subscription.plan_name?.toLowerCase();
-    
-    switch (planName) {
-      case 'plan standard':
-      case 'basic':
-      case 'standard':
-        return 'chirp-v3-5'; // 19€ = V3.5
-      
-      case 'plan pro':
-      case 'pro':
-        return 'chirp-v4';   // 29€ = V4
-      
-      case 'plan premium':
-      case 'premium':
-        return 'chirp-v4-5'; // 39€ = V4.5
-      
-      default:
-        console.log(`Plan non reconnu: ${planName}, utilisation V3.5 par défaut`);
-        return 'chirp-v3-5';
-    }
-  } catch (error) {
-    console.error('Erreur lors de la récupération de l\'abonnement:', error);
-    return 'chirp-v3-5'; // Valeur par défaut en cas d'erreur
-  }
+  // Toujours retourner V4_5 pour tous les utilisateurs
+  console.log('🎯 Modèle fixé: V4_5 pour tous les utilisateurs');
+  return 'V4_5';
 }
 
 // Classe pour interagir avec l'API Suno officielle selon la documentation
@@ -319,6 +279,46 @@ function buildExpressiveTitle(itemCode: string, rang: string, style: string): st
   return `${itemCode || 'Medical'} Mastery${rangeSuffix} - ${styleCapitalized} Education`;
 }
 
+// Fonction pour créer un prompt synthétique avec toutes les compétences et assonances
+function buildSyntheticPromptWithAssonances(itemCode: string, rang: string, style: string, competences: any[]): string {
+  const rangText = rang === 'A' ? 'fondamental' : 'expert';
+  
+  // Créer des vers avec assonances basés sur les compétences
+  let verses = [];
+  
+  // Vers d'introduction avec assonance
+  verses.push(`${itemCode} ${rangText}, compétences à maîtriser`);
+  
+  // Intégrer les compétences avec assonances et rimes
+  if (competences && competences.length > 0) {
+    // Prendre un échantillon représentatif des compétences
+    const sampledCompetences = competences.slice(0, Math.min(5, competences.length));
+    
+    sampledCompetences.forEach((comp, index) => {
+      const intitule = comp.intitule || comp.concept || 'Compétence médicale';
+      const shortIntitule = intitule.substring(0, 80); // Limiter la longueur
+      
+      if (index % 2 === 0) {
+        verses.push(`${shortIntitule}, essentiel médical`);
+        verses.push(`Diagnostic précis à bien définir`);
+        verses.push(`Traitement adapté pour guérir`);
+      } else {
+        verses.push(`${shortIntitule}, fondamental`);
+        verses.push(`Signes cliniques à observer, pronostic certain`);
+        verses.push(`Prise en charge optimale, résultat sain`);
+      }
+      verses.push('---'); // Séparateur pour structure musicale
+    });
+  }
+  
+  // Conclusion avec assonance
+  verses.push(`${itemCode} maîtrisé, excellence atteinte`);
+  verses.push(`Compétences solides, réussite certaine`);
+  verses.push(`Formation complète, expertise validée`);
+  
+  return verses.join('\n').substring(0, 4800); // Laisser marge pour 5000 caractères max
+}
+
 // Fonction pour créer un prompt simplifié (réduction de taille)
 function buildSimplifiedPrompt(itemCode: string, rang: string, style: string): string {
   return `Educational song for ${itemCode || 'medical content'}, ${rang ? `level ${rang}` : 'medical training'}, ${style} style, clear melody, memorable, professional medical education music.`;
@@ -413,9 +413,20 @@ serve(async (req) => {
       console.log('⚠️ Ignoré: Vérification des crédits Suno désactivée pour éviter les blocages');
       // La vérification des crédits peut échouer, on continue directement avec la génération
       
-      // Créer un prompt musical éducatif RÉDUIT (selon les instructions étape par étape)
-      // Utiliser directement les paroles fournies ou un prompt simplifié
-      const richPrompt = lyrics || prompt || buildSimplifiedPrompt(itemCode, rang, style);
+      // Récupérer les compétences pour intégration synthétique
+      const { data: competencesData } = await supabase
+        .from('edn_items_complete')
+        .select(`
+          competences_oic_rang_${rang.toLowerCase()},
+          tableau_rang_${rang.toLowerCase()}
+        `)
+        .eq('item_code', itemCode)
+        .single();
+      
+      const competencesList = competencesData?.[`competences_oic_rang_${rang.toLowerCase()}`] || [];
+      
+      // Créer un prompt synthétique avec TOUTES les compétences intégrées avec assonances
+      const richPrompt = lyrics || prompt || buildSyntheticPromptWithAssonances(itemCode, rang, style, competencesList);
       
       // Créer un style musical détaillé et expressif
       const richStyle = buildRichStyle(style, mood, tempo, instruments);
@@ -423,11 +434,10 @@ serve(async (req) => {
       // Créer un titre expressif
       const expressiveTitle = title || buildExpressiveTitle(itemCode, rang, style);
       
-      // Limiter selon les capacités du modèle selon le ticket de support officiel
-      const convertedModel = getCorrectSunoModel(userModel);
-      const isV4Plus = convertedModel === 'V4_5' || convertedModel === 'V4_5PLUS';
-      const maxPromptLength = isV4Plus ? 3000 : 2000; // RÉDUIRE encore plus les limites
-      const maxStyleLength = isV4Plus ? 1000 : 200;
+      // Limites fixées à 5000 caractères pour V4_5 (comme demandé)
+      const convertedModel = 'V4_5'; // Fixé comme demandé
+      const maxPromptLength = 5000; // Fixé comme demandé
+      const maxStyleLength = 1000;
       
       const finalPrompt = richPrompt.length > maxPromptLength ? 
         richPrompt.substring(0, maxPromptLength - 3) + '...' : richPrompt;
@@ -445,7 +455,7 @@ serve(async (req) => {
         instrumental: instrumental || false,
         style: finalStyle,
         title: finalTitle,
-        model: userModel === 'V4_5' ? 'V4_5PLUS' : getCorrectSunoModel(userModel), // Tester V4_5PLUS
+        model: 'V4_5', // Fixé comme demandé
         callBackUrl: `${Deno.env.get('SUPABASE_URL')}/functions/v1/suno-callback`
       };
 
@@ -470,7 +480,7 @@ serve(async (req) => {
         }
         
         if (sunoPayload.prompt.length > maxPromptLength) {
-          throw new Error(`Prompt trop long: ${sunoPayload.prompt.length} > ${maxPromptLength} caractères pour modèle ${convertedModel}`);
+          throw new Error(`Prompt trop long: ${sunoPayload.prompt.length} > ${maxPromptLength} caractères pour modèle V4_5`);
         }
         
         const taskId = await sunoApi.generateMusic(sunoPayload);
