@@ -33,7 +33,17 @@ serve(async (req) => {
 
     // Extract taskId from request
     const url = new URL(req.url);
-    const taskId = url.searchParams.get('taskId') || (await req.json()).taskId;
+    let taskId = url.searchParams.get('taskId');
+    
+    // Si pas de taskId dans l'URL, essayer de le récupérer du body
+    if (!taskId && req.method === 'POST') {
+      try {
+        const body = await req.json();
+        taskId = body.taskId;
+      } catch (e) {
+        // Ignore JSON parsing errors
+      }
+    }
     
     if (!taskId) {
       return new Response(JSON.stringify({
@@ -90,25 +100,67 @@ serve(async (req) => {
       });
     }
 
-    // Call Suno API to get current status selon documentation officielle v1
+    // Call Suno API to get current status
+    // CORRECTION 1: Utiliser l'endpoint correct selon la documentation
     console.log('📡 Vérification statut via API Suno pour taskId:', taskId);
     
-    const sunoResponse = await fetch(`https://api.sunoapi.org/api/v1/generate/record-info?taskId=${taskId}`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${SUNO_API_KEY}`
+    // CORRECTION 2: Essayer plusieurs endpoints possibles selon différentes implémentations
+    let sunoResponse;
+    let sunoData;
+    
+    // Essayer d'abord l'endpoint principal (selon sunoapi.org)
+    try {
+      sunoResponse = await fetch(`https://api.sunoapi.org/api/v1/music/fetch`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${SUNO_API_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          taskId: taskId
+        })
+      });
+      
+      sunoData = await sunoResponse.json();
+      console.log('📊 Réponse statut Suno (v1/music/fetch):', sunoData);
+      
+    } catch (error) {
+      console.log('⚠️ Erreur avec v1/music/fetch, essai endpoint alternatif');
+      
+      // CORRECTION 3: Essayer un endpoint alternatif
+      try {
+        sunoResponse = await fetch(`https://api.sunoapi.org/api/v1/generate/record-info?taskId=${taskId}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${SUNO_API_KEY}`
+          }
+        });
+        
+        sunoData = await sunoResponse.json();
+        console.log('📊 Réponse statut Suno (v1/generate/record-info):', sunoData);
+        
+      } catch (error2) {
+        console.error('❌ Erreur avec tous les endpoints Suno:', error2);
+        
+        const response: MusicStatusResponse = {
+          success: false,
+          error: `Erreur de connexion à l'API Suno: ${error2.message}`
+        };
+
+        return new Response(JSON.stringify(response), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
       }
-    });
+    }
 
-    const sunoData = await sunoResponse.json();
-    console.log('📊 Réponse statut Suno:', sunoData);
-
-    if (!sunoResponse.ok || sunoData.code !== 200) {
+    // CORRECTION 4: Gérer différents formats de réponse selon l'API utilisée
+    if (!sunoResponse.ok) {
       console.error('❌ Erreur API Suno pour statut:', sunoData);
       
       const response: MusicStatusResponse = {
         success: false,
-        error: `Erreur API Suno ${sunoResponse.status}: ${sunoData.msg || 'Erreur inconnue'}`
+        error: `Erreur API Suno ${sunoResponse.status}: ${sunoData?.message || sunoData?.msg || 'Erreur inconnue'}`
       };
 
       return new Response(JSON.stringify(response), {
@@ -117,35 +169,64 @@ serve(async (req) => {
       });
     }
 
-    // Parse Suno response according to official documentation
-    const sunoTaskData = sunoData.data;
+    // CORRECTION 5: Parser la réponse selon le format correct
     let mappedStatus: 'generating' | 'completed' | 'failed' = 'generating';
     let audioUrl: string | undefined;
     let streamUrl: string | undefined;
     let imageUrl: string | undefined;
+    let sunoTaskData: any;
 
-    // Map Suno status selon la documentation officielle
-    switch (sunoTaskData.status) {
-      case 'GENERATING':
-      case 'PENDING':
-        mappedStatus = 'generating';
-        break;
-      case 'SUCCESS':
+    // Gérer les différents formats de réponse
+    if (sunoData.code === 200 && sunoData.data) {
+      // Format sunoapi.org
+      sunoTaskData = sunoData.data;
+      
+      // Map status selon la documentation
+      switch (sunoTaskData.status) {
+        case 'processing':
+        case 'pending':
+        case 'GENERATING':
+        case 'PENDING':
+          mappedStatus = 'generating';
+          break;
+        case 'completed':
+        case 'SUCCESS':
+          mappedStatus = 'completed';
+          // CORRECTION 6: Extraire les URLs selon la structure correcte
+          if (sunoTaskData.output && sunoTaskData.output.clips) {
+            const clips = Object.values(sunoTaskData.output.clips);
+            if (clips.length > 0) {
+              const firstClip = clips[0] as any;
+              audioUrl = firstClip.audio_url;
+              streamUrl = firstClip.stream_url;
+              imageUrl = firstClip.image_url || firstClip.image_large_url;
+            }
+          }
+          break;
+        case 'failed':
+        case 'FAILED':
+          mappedStatus = 'failed';
+          break;
+        default:
+          mappedStatus = 'generating';
+      }
+    } else if (sunoData.data && Array.isArray(sunoData.data)) {
+      // Format alternatif
+      sunoTaskData = sunoData.data[0] || sunoData;
+      
+      if (sunoTaskData.audio_url) {
         mappedStatus = 'completed';
-        // Extract audio URLs from response.data array selon la doc
-        if (sunoTaskData.response?.data && sunoTaskData.response.data.length > 0) {
-          const firstTrack = sunoTaskData.response.data[0];
-          audioUrl = firstTrack.audio_url;
-          streamUrl = firstTrack.stream_url;
-          imageUrl = firstTrack.image_url;
-        }
-        break;
-      case 'FAILED':
-        mappedStatus = 'failed';
-        break;
-      default:
-        // Si le statut n'est pas reconnu, on considère comme en cours
+        audioUrl = sunoTaskData.audio_url;
+        streamUrl = sunoTaskData.stream_url;
+        imageUrl = sunoTaskData.image_url;
+      } else {
         mappedStatus = 'generating';
+      }
+    } else {
+      // Format de réponse non reconnu
+      console.log('⚠️ Format de réponse Suno non reconnu:', sunoData);
+      mappedStatus = 'generating';
+      sunoTaskData = sunoData;
     }
 
     // Update database if completed
@@ -176,7 +257,7 @@ serve(async (req) => {
       imageUrl: imageUrl,
       metadata: {
         ...dbTrack?.metadata,
-        suno_status: sunoTaskData.response?.status || sunoTaskData.status,
+        suno_status: sunoTaskData?.status,
         suno_response: sunoTaskData
       }
     };
