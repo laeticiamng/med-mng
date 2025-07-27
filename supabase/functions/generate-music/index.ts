@@ -307,18 +307,10 @@ function buildSimplifiedPrompt(itemCode: string, rang: string, style: string): s
 function getCorrectSunoModel(userModel: string): string {
   console.log('🔧 Conversion modèle selon doc officielle:', userModel);
   
-  // D'après le ticket de support officiel : "V4_5", "V4_5PLUS", "V4", "V3_5"
-  switch (userModel) {
-    case 'chirp-v3-5':
-      return 'V3_5'; // Format officiel selon le ticket
-    case 'chirp-v4':
-      return 'V4';   // Format officiel selon le ticket
-    case 'chirp-v4-5':
-      return 'V4_5'; // Format officiel selon le ticket
-    default:
-      console.log('⚠️ Modèle non reconnu, utilisation de V4_5 par défaut');
-      return 'V4_5'; // Défaut recommandé dans le ticket
-  }
+  // ✅ OPTIMISATION MAXIMALE: Toujours utiliser V4_5PLUS pour vitesse optimale
+  // D'après le ticket de support officiel : "V4_5PLUS" offre la meilleure performance
+  console.log('🚀 MODÈLE OPTIMISÉ: V4_5PLUS sélectionné pour génération ultra-rapide');
+  return 'V4_5PLUS'; // Modèle le plus rapide selon ticket support Lovable
 }
 
 serve(async (req) => {
