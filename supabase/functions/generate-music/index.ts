@@ -363,8 +363,7 @@ serve(async (req) => {
         instrumental: instrumental || false, // False pour inclure les paroles
         style: truncatedStyle || 'educational, ambient',
         title: truncatedTitle,
-        model: userModel.replace('chirp-', ''), // Convertir "chirp-v3-5" en "V3_5"
-        callBackUrl: 'https://webhook.site/temp-endpoint' // Requis par l'API
+        model: userModel.replace('chirp-', '').replace('-', '_').toUpperCase(), // Convertir "chirp-v4-5" en "V4_5"
       };
 
       console.log('🚀 APPEL API SUNO RÉEL avec payload CORRIGÉ:', {
