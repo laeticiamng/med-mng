@@ -97,7 +97,16 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
             <ParolesMusicalesErrorSection lastError={lastError} />
 
             <ParolesMusicalesMainContent
-              paroles={paroles}
+              paroles={
+                // Utiliser les nouvelles paroles structurées en priorité
+                paroles_rang_a && paroles_rang_b 
+                  ? [paroles_rang_a.join('\n'), paroles_rang_b.join('\n')]
+                  : paroles_rang_a 
+                    ? [paroles_rang_a.join('\n'), '']
+                    : paroles_rang_b
+                      ? ['', paroles_rang_b.join('\n')]
+                      : paroles || []
+              }
               itemCode={itemCode}
               musicDuration={musicDuration}
               selectedStyle={selectedStyle}
