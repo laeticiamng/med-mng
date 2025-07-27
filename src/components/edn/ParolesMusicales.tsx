@@ -98,14 +98,14 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
 
             <ParolesMusicalesMainContent
               paroles={
-                // Utiliser les nouvelles paroles structurées en priorité
+                // Utiliser uniquement les nouvelles paroles structurées
                 paroles_rang_a && paroles_rang_b 
                   ? [paroles_rang_a.join('\n'), paroles_rang_b.join('\n')]
                   : paroles_rang_a 
                     ? [paroles_rang_a.join('\n'), '']
                     : paroles_rang_b
                       ? ['', paroles_rang_b.join('\n')]
-                      : paroles || []
+                      : []
               }
               itemCode={itemCode}
               musicDuration={musicDuration}
