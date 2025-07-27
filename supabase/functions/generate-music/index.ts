@@ -397,10 +397,8 @@ serve(async (req) => {
       
       const sunoApi = new SunoAPI(SUNO_API_KEY);
       
-      try {
-        console.log('⚠️ Ignoré: Vérification des crédits Suno désactivée pour éviter les blocages');
-        // La vérification des crédits peut échouer, on continue directement avec la génération
-      }
+      console.log('⚠️ Ignoré: Vérification des crédits Suno désactivée pour éviter les blocages');
+      // La vérification des crédits peut échouer, on continue directement avec la génération
       
       // Créer un prompt musical éducatif riche et détaillé
       const richPrompt = lyrics || prompt || buildRichEducationalPrompt(itemCode, rang, style, mood, tempo);
