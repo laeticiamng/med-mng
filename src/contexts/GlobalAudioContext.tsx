@@ -4,7 +4,7 @@ import React, { createContext, useContext, useState, useRef, useEffect } from 'r
 interface AudioTrack {
   url: string;
   title: string;
-  rang: 'A' | 'B';
+  rang: 'A' | 'B' | 'AB';
 }
 
 interface GlobalAudioContextType {

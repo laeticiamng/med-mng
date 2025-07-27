@@ -240,7 +240,7 @@ export const useParolesMusicales = (
         play({
           url: audioUrl,
           title: title,
-          rang: audioUrl.includes('rangA') ? 'A' : 'B'
+          rang: audioUrl.includes('rangA') ? 'A' : audioUrl.includes('rangB') ? 'B' : 'AB'
         });
       } catch (playError) {
         console.error('❌ Erreur lors de la lecture audio:', playError);
