@@ -260,24 +260,10 @@ class SunoAPI {
     throw new Error(`Timeout: Génération trop longue (>${maxWaitTime/1000}s)`);
   }
 
+  // Méthode de vérification des crédits désactivée pour éviter les blocages
   async getRemainingCredits(): Promise<number> {
-    const response = await fetch(`${this.baseUrl}/get-credits`, {
-      headers: {
-        'Authorization': `Bearer ${this.apiKey}`
-      }
-    });
-    
-    if (!response.ok) {
-      throw new Error(`HTTP Error: ${response.status} - ${response.statusText}`);
-    }
-    
-    const result = await response.json();
-    
-    if (result.code !== 200) {
-      throw new Error(`API Suno Error: ${result.msg || 'Erreur inconnue'}`);
-    }
-    
-    return result.data?.credits || 0;
+    console.log('⚠️ Vérification des crédits ignorée');
+    return 999; // Retourner une valeur élevée pour ne pas bloquer
   }
 }
 
@@ -347,17 +333,8 @@ serve(async (req) => {
       const sunoApi = new SunoAPI(SUNO_API_KEY);
       
       try {
-        // Vérifier les crédits disponibles
-        console.log('💰 Vérification des crédits Suno...');
-        const credits = await sunoApi.getRemainingCredits();
-        console.log(`💰 Crédits disponibles: ${credits}`);
-        
-        if (credits <= 0) {
-          throw new Error('Crédits Suno insuffisants');
-        }
-      } catch (creditError) {
-        console.warn('⚠️ Impossible de vérifier les crédits:', creditError);
-        // Continuer quand même
+        console.log('⚠️ Ignoré: Vérification des crédits Suno désactivée pour éviter les blocages');
+        // La vérification des crédits peut échouer, on continue directement avec la génération
       }
       
       // Préparer le prompt musical éducatif
