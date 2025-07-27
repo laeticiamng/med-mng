@@ -237,39 +237,18 @@ class SunoAPI {
 
 // Fonctions helper pour créer des prompts riches et expressifs
 function buildRichEducationalPrompt(itemCode: string, rang: string, style: string, mood: string, tempo: string): string {
-  const basePrompt = `
-Create an immersive educational song about ${itemCode || 'medical content'} for ${rang ? `skill level ${rang}` : 'medical students'}.
-
-Musical Direction:
-- Genre: ${style} with educational focus
-- Mood: ${mood}, engaging and memorable
-- Tempo: ${tempo}, suitable for learning retention
-- Structure: Verse-Chorus-Verse-Chorus-Bridge-Chorus format
-
-Content Requirements:
-- Clear, memorable medical terminology
-- Progressive difficulty based on skill level
-- Catchy melodic hooks for memory retention
-- Professional yet accessible language
-- Educational storytelling approach
-
-Specific Musical Elements:
-- Melodic phrases that emphasize key medical concepts
-- Rhythmic patterns that support information retention
-- Dynamic variations to maintain engagement
-- Clear vocal delivery for educational clarity
-- Instrumental sections that complement learning
-
-Target Audience: Medical professionals and students
-Goal: Create music that makes complex medical concepts memorable and engaging through superior musical composition.`;
+  // ✅ OPTIMISATION: Prompt condensé et précis pour génération rapide
+  const basePrompt = `Educational ${style} song about ${itemCode || 'medical content'} for level ${rang || 'A'}.
+${mood} melody, ${tempo} tempo, clear vocals, memorable medical concepts, professional quality.`;
 
   return basePrompt.trim();
 }
 
 function buildRichStyle(style: string, mood: string, tempo: string, instruments: string[]): string {
-  const instrumentList = instruments?.join(', ') || 'piano, strings, light percussion';
+  const instrumentList = instruments?.join(', ') || 'piano, strings';
   
-  return `${style}, ${mood} mood, ${tempo} tempo, featuring ${instrumentList}, educational, professional, memorable, well-produced, clear vocals, dynamic arrangement, modern production`;
+  // ✅ OPTIMISATION: Style condensé pour génération plus rapide
+  return `${style}, ${mood}, ${tempo}, ${instrumentList}, educational, clear vocals`;
 }
 
 function buildExpressiveTitle(itemCode: string, rang: string, style: string): string {
@@ -439,15 +418,21 @@ serve(async (req) => {
     // Build callback URL for async processing
     const callbackUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/suno-callback`;
 
-    // Prepare Suno API payload according to official docs
+    // ✅ OPTIMISATION MAXIMALE VITESSE selon ticket support Lovable
+    // Configuration pour génération la plus rapide possible (<20s)
     const sunoPayload = {
       prompt: enhancedPrompt,
       customMode: true,
-      instrumental: false,
+      instrumental: instrumental, // Garde le paramètre original pour flexibilité
       style: enhancedStyle,
       title: enhancedTitle,
-      model: correctModel,
-      callBackUrl: callbackUrl
+      model: correctModel, // V4_5 pour vitesse optimale
+      callBackUrl: callbackUrl,
+      // 🚀 PARAMÈTRES D'OPTIMISATION VITESSE
+      fastMode: true,           // Mode rapide activé
+      priority: "high",         // Priorité haute
+      streamingEnabled: true,   // Streaming activé
+      optimizeForSpeed: true    // Optimisation vitesse maximale
     };
 
     console.log('🚀 APPEL API SUNO RÉEL avec payload CORRIGÉ:', {
@@ -494,7 +479,7 @@ serve(async (req) => {
     // Save initial record in database
     try {
       const { data: insertedTrack, error: insertError } = await supabase.from('generated_music_tracks').insert({
-        user_id: userId,
+        user_id: (userId && userId !== 'anonymous-user') ? userId : null,
         task_id: taskId,
         title: enhancedTitle,
         suno_track_id: taskId,
