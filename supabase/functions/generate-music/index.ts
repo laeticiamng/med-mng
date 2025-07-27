@@ -580,9 +580,7 @@ serve(async (req) => {
         return new Response(JSON.stringify(immediateResponse), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
-        } else {
-          throw new Error('Aucun track généré par Suno');
-        }
+        
       } catch (error) {
         console.error('❌ ERREUR DÉTAILLÉE API SUNO:', {
           message: error.message,
