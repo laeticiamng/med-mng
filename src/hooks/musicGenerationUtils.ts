@@ -50,7 +50,8 @@ export const createRequestBody = (
   rang: 'A' | 'B' | 'TRANSPOSE',
   adjustedDuration: number,
   currentLanguage: string,
-  isComposition: boolean
+  isComposition: boolean,
+  itemCode?: string
 ) => {
   return {
     lyrics: parolesText,
@@ -59,6 +60,7 @@ export const createRequestBody = (
     duration: adjustedDuration,
     language: currentLanguage,
     fastMode: true,
+    itemCode: itemCode || 'EDN',
     composition: isComposition ? {
       styles: selectedStyle.split('+'),
       fusion_mode: true,

@@ -14,6 +14,7 @@ interface GenerateMusicRequest {
     fusion_mode: boolean;
     enhanced_duration: true;
   };
+  itemCode?: string;
 }
 
 export const callSunoApi = async (requestBody: GenerateMusicRequest) => {
@@ -26,7 +27,8 @@ export const callSunoApi = async (requestBody: GenerateMusicRequest) => {
   const optimizedRequest = {
     ...requestBody,
     fastMode: true, // Toujours en mode rapide
-    optimized: true // Flag pour indiquer l'optimisation
+    optimized: true, // Flag pour indiquer l'optimisation
+    itemCode: requestBody.itemCode || 'EDN' // Ajouter itemCode
   };
 
   try {

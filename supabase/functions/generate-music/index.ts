@@ -18,6 +18,7 @@ interface MusicGenerationRequest {
   rang?: string;
   language?: string;
   fastMode?: boolean;
+  itemCode?: string; // Ajouter pour le titre
 }
 
 interface MusicGenerationResponse {
@@ -57,7 +58,8 @@ serve(async (req) => {
       tempo = 'moderate',
       userId,
       rang,
-      language = 'fr'
+      language = 'fr',
+      itemCode // Ajouter itemCode pour le titre
     }: MusicGenerationRequest = await req.json();
 
     console.log('🎵 Génération de musique:', { 
@@ -97,18 +99,21 @@ IMPORTANT:
         detailedPrompt = prompt || `Create a ${duration} second ${style} instrumental track with ${mood} mood, ${tempo} tempo, featuring ${instruments.join(', ')}. ${duration > 180 ? 'This should be a longer, more developed composition.' : 'Keep it concise and focused.'}`;
       }
 
+      // Payload conforme à l'API Suno officielle
       const sunoPayload = {
         prompt: detailedPrompt,
-        lyrics: lyrics && lyrics.trim() ? lyrics : undefined, // Envoyer les paroles séparément
         style: style,
-        title: `${rang ? `Rang ${rang} - ` : ''}${style.charAt(0).toUpperCase() + style.slice(1)} avec paroles`,
+        title: `${rang ? `Rang ${rang} - ` : ''}${itemCode || 'Contenu'} - ${style}`,
         customMode: true,
-        instrumental: false, // Toujours avec paroles si on a du texte
+        instrumental: false,
         model: "V4",
-        duration: duration // S'assurer que la durée est respectée
+        callBackUrl: `${Deno.env.get('SUPABASE_URL')}/functions/v1/suno-callback`,
+        // Autres paramètres selon la doc Suno
+        lyrics: lyrics && lyrics.trim() ? lyrics : undefined,
+        duration: duration
       };
 
-      console.log('🚀 Utilisation de l\'API Suno avec payload:', sunoPayload);
+      console.log('🚀 Utilisation de l\'API Suno avec payload:', JSON.stringify(sunoPayload, null, 2));
       
       const sunoResponse = await fetch('https://api.sunoapi.org/api/v1/generate', {
         method: 'POST',
