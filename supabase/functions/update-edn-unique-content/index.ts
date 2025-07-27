@@ -608,13 +608,86 @@ serve(async (req) => {
           ]
         };
         
-        // Mettre à jour l'item dans la base de données
+        // Générer des paroles structurées pour chaque rang
+        function generateStructuredLyrics(itemCode: string, title: string) {
+          const domain = getDomainForItem(itemNumber)
+          const specializedData = SPECIALIZED_CONTENT[domain] || SPECIALIZED_CONTENT["fondamentaux"]
+          
+          const parolesRangA = [
+            '[Couplet 1 - Rang A]',
+            `Item ${itemCode} je vais maîtriser`,
+            `${title.substring(0, 40)} étudier`,
+            `${specializedData.rangA[0].substring(0, 40)} développer`,
+            'Les bases solides pour réussir',
+            '',
+            '[Refrain]',
+            `EDN ${itemCode} chantons ensemble`,
+            'Compétences Rang A qui se rassemblent',
+            'Pour l\'examen on se prépare',
+            'Avec la musique tout devient plus claire',
+            '',
+            '[Couplet 2 - Rang A]',
+            'Chaque concept je vais comprendre',
+            'Les définitions bien apprendre',
+            'Diagnostic et traitement savoir',
+            'Pour mes patients tout donner',
+            '',
+            '[Refrain Final]',
+            `Item ${itemCode} Rang A validé`,
+            'Connaissances solides intégrées',
+            'Vers le rang B je vais progresser',
+            'En musique médecine et réussite mélangées'
+          ]
+          
+          const parolesRangB = [
+            '[Couplet 1 - Rang B]',
+            `Rang B de l'item ${itemCode} expert je deviens`,
+            `${title.substring(0, 40)} je maîtrise enfin`,
+            `${specializedData.rangB[0].substring(0, 40)} maîtriser`,
+            'Cas complexes je vais gérer',
+            '',
+            '[Refrain]',
+            `Expertise ${itemCode} niveau supérieur`,
+            'Compétences avancées pour aller de l\'avant',
+            'Rang B c\'est la maîtrise parfaite',
+            'Excellence clinique qui se reflète',
+            '',
+            '[Refrain Final]',
+            `Item ${itemCode} expertise atteinte`,
+            'Rang B validé, compétence certaine',
+            'Excellence clinique démontrée',
+            'Médecine et musique réconciliées'
+          ]
+          
+          const parolesRangAB = [
+            '[Couplet 1 - Fusion A+B]',
+            `Item ${itemCode} du rang A au rang B`,
+            'Parcours complet de A à Z',
+            'Des bases jusqu\'à l\'expertise',
+            'Maîtrise totale garantie',
+            '',
+            '[Refrain Final]',
+            `Item ${itemCode} maîtrise totale`,
+            'A+B fusion magistrale',
+            'Excellence complète atteinte',
+            'Succès EDN mérité'
+          ]
+          
+          return { parolesRangA, parolesRangB, parolesRangAB }
+        }
+
+        const structuredLyrics = generateStructuredLyrics(existingItem.item_code, existingItem.title)
+
+        // Mettre à jour l'item dans la base de données avec paroles structurées
         const { error: updateError } = await supabase
           .from('edn_items_immersive')
           .update({
             tableau_rang_a: tableauRangA,
             tableau_rang_b: tableauRangB,
-            paroles_musicales: uniqueContent.uniqueLyrics,
+            paroles_musicales: structuredLyrics.parolesRangA,
+            paroles_rang_a: structuredLyrics.parolesRangA,
+            paroles_rang_b: structuredLyrics.parolesRangB,
+            paroles_rang_ab: structuredLyrics.parolesRangAB,
             scene_immersive: sceneImmersive,
             quiz_questions: uniqueContent.uniqueQuiz,
             updated_at: new Date().toISOString()
