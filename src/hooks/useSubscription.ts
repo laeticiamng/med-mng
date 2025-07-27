@@ -230,21 +230,21 @@ export const useSubscription = () => {
   }, [musicQuota]);
 
   const getSunoModel = useCallback((): "V3_5" | "V4" | "V4_5" => {
-    if (!subscription) return "V3_5"; // Plan gratuit = modèle basique
+    if (!subscription) return "V4_5"; // Plan gratuit = modèle premium pour découverte
     
     switch (subscription.plan_name) {
-      case 'Plan Découverte':
+      case 'Plan Standard':
       case 'Basic':
       case 'basic':
-        return "V3_5";
-      case 'Plan Standard':
+        return "V3_5"; // 19€ = V3.5
+      case 'Plan Pro':
+      case 'Pro':
+      case 'pro':
+        return "V4"; // 29€ = V4
+      case 'Plan Premium':
       case 'Premium':
       case 'premium':
-        return "V4";
-      case 'Plan Expert':
-      case 'Enterprise':
-      case 'enterprise':
-        return "V4_5";
+        return "V4_5"; // 39€ = V4.5
       default:
         return "V3_5";
     }
