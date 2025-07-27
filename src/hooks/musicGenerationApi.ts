@@ -98,15 +98,19 @@ export const callSunoApi = async (requestBody: GenerateMusicRequest) => {
       throw new Error(errorMessage);
     }
 
-    if (!data.audioUrl) {
-      console.error('❌ AUCUNE URL AUDIO en mode ultra-rapide:', data);
+    // L'API Suno peut retourner soit directement audioUrl, soit trackId pour polling
+    if (data.audioUrl) {
+      console.log(`🎧 URL AUDIO ULTRA-RAPIDE REÇUE: ${data.audioUrl}`);
+      console.log(`⚡ Validation ultra-rapide: ${data.audioUrl.startsWith('http') ? '✅ Valide' : '❌ Invalide'}`);
+      return { audioUrl: data.audioUrl, callDuration };
+    } else if (data.trackId) {
+      console.log(`🆔 TRACK ID REÇU pour polling: ${data.trackId}`);
+      // Retourner le trackId pour que le polling puisse récupérer l'audio plus tard
+      return { trackId: data.trackId, callDuration };
+    } else {
+      console.error('❌ AUCUNE URL AUDIO ni TRACK ID en mode ultra-rapide:', data);
       throw new Error('Aucune URL audio générée en mode ultra-rapide');
     }
-
-    console.log(`🎧 URL AUDIO ULTRA-RAPIDE REÇUE: ${data.audioUrl}`);
-    console.log(`⚡ Validation ultra-rapide: ${data.audioUrl.startsWith('http') ? '✅ Valide' : '❌ Invalide'}`);
-
-    return { audioUrl: data.audioUrl, callDuration };
     
   } catch (supabaseError) {
     const callDuration = Math.floor((Date.now() - startTime) / 1000);
