@@ -178,6 +178,19 @@ export const useParolesMusicales = (
 
   const handlePlayAudio = (audioUrl: string, title: string) => {
     console.log('🔴 === DEBUT handlePlayAudio ===');
+    console.log('🎵 URL reçue:', audioUrl);
+    
+    // ✅ Bloquer les URLs de simulation non fonctionnelles
+    if (audioUrl.includes('soundjay.com') || audioUrl.includes('fail-buzzer')) {
+      console.log('⚠️ URL de simulation détectée, pas de lecture possible');
+      toast({
+        title: "Mode simulation",
+        description: "Aucun audio généré disponible. Veuillez d'abord générer de la musique.",
+        variant: "default"
+      });
+      return;
+    }
+    
     console.log('🎵 BOUTON PLAY CLIQUÉ:', {
       audioUrl: audioUrl?.substring(0, 100) + '...',
       title,
