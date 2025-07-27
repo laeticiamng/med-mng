@@ -320,12 +320,14 @@ serve(async (req) => {
       duration: duration + 's',
       language,
       itemCode,
-      apiMode: isValidApiKey ? 'REAL_SUNO' : 'SIMULATION'
+      apiMode: isValidApiKey ? 'REAL_SUNO' : 'SIMULATION',
+      willCallRealAPI: isValidApiKey
     });
     
     if (isValidApiKey) {
       console.log('🎵 GENERATION SUNO ACTIVÉE - Mode production avec API réelle');
       console.log('🔑 Clé API Suno confirmée valide, appel réel en cours...');
+      console.log('🚨 SI VOUS VOYEZ CE MESSAGE, L\'API RÉELLE DOIT ÊTRE APPELÉE');
       
       // Déterminer le modèle selon l'abonnement utilisateur
       const userModel = await getSunoModelForUser(userId, supabase);
