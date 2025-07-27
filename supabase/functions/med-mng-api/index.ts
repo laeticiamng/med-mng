@@ -11,11 +11,17 @@ import { handleComplete } from './routes/complete.ts';
 import { handleHelp } from './routes/help.ts';
 import { handleEdn } from './routes/edn.ts';
 import { handleOic } from './routes/oic.ts';
+import { handleStatus } from './routes/status.ts';
+import { handleAudit } from './routes/audit.ts';
+import { handleRGPD } from './routes/rgpd.ts';
+import { handleDocs } from './routes/docs.ts';
 import { log } from './logger.ts';
 import { errorResponse } from './response.ts';
 import { MonitoringService } from './middleware/monitoring.ts';
 import { SecurityService } from './middleware/security.ts';
 import { RetryService } from './middleware/retry.ts';
+import { csrfProtection, generateCSRFToken } from './middleware/csrf.ts';
+import { alertingService, alertCriticalError } from './middleware/alerting.ts';
 
 const rateMap = new Map<string, { count: number; reset: number }>();
 
@@ -65,9 +71,10 @@ serve(async (req) => {
       const health = {
         status: 'healthy',
         timestamp: new Date().toISOString(),
-        version: '2.0.0',
+        version: '2.1.0',
         metrics: MonitoringService.getHealthMetrics(),
-        security: SecurityService.getSecurityMetrics()
+        security: SecurityService.getSecurityMetrics(),
+        alerts: alertingService.getAlertStats()
       };
       MonitoringService.endRequest(requestId, 200);
       return new Response(JSON.stringify(health), {
@@ -75,8 +82,48 @@ serve(async (req) => {
       });
     }
 
-    // Public help endpoints before auth check
-    const publicRes = await handleHelp(req, null, path, url);
+    // CSRF Token endpoint (public)
+    if (path === '/csrf-token' && req.method === 'POST') {
+      try {
+        const { user_id } = await req.json();
+        if (!user_id) {
+          return errorResponse(400, 'MISSING_USER_ID', 'User ID required for CSRF token');
+        }
+        const token = generateCSRFToken(user_id);
+        return new Response(JSON.stringify({ csrf_token: token }), {
+          headers: { ...corsHeaders, ...securityHeaders, 'Content-Type': 'application/json' }
+        });
+      } catch (error) {
+        return errorResponse(400, 'INVALID_REQUEST', 'Invalid request body');
+      }
+    }
+
+    // Public endpoints before auth check
+    let publicRes = await handleHelp(req, null, path, url);
+    if (publicRes) {
+      MonitoringService.endRequest(requestId, publicRes.status);
+      return publicRes;
+    }
+
+    publicRes = await handleStatus(req, null, path, url);
+    if (publicRes) {
+      MonitoringService.endRequest(requestId, publicRes.status);
+      return publicRes;
+    }
+
+    publicRes = await handleAudit(req, null, path, url);
+    if (publicRes) {
+      MonitoringService.endRequest(requestId, publicRes.status);
+      return publicRes;
+    }
+
+    publicRes = await handleRGPD(req, null, path, url);
+    if (publicRes) {
+      MonitoringService.endRequest(requestId, publicRes.status);
+      return publicRes;
+    }
+
+    publicRes = await handleDocs(req, null, path);
     if (publicRes) {
       MonitoringService.endRequest(requestId, publicRes.status);
       return publicRes;
@@ -95,6 +142,13 @@ serve(async (req) => {
     }
 
     const { supabase, user } = authResult;
+    
+    // CSRF Protection for authenticated routes
+    const csrfError = csrfProtection(req, user?.id || '');
+    if (csrfError) {
+      MonitoringService.endRequest(requestId, 403);
+      return csrfError;
+    }
     
     // Update monitoring with user info
     requestId = MonitoringService.startRequest(req, path, user?.id);
@@ -163,6 +217,15 @@ serve(async (req) => {
       stack: error instanceof Error ? error.stack : undefined,
       requestId
     });
+
+    // Send critical alert for 500 errors
+    if (statusCode >= 500) {
+      await alertCriticalError('api_handler', `Unhandled server error: ${error instanceof Error ? error.message : 'Unknown error'}`, {
+        path,
+        requestId,
+        statusCode
+      });
+    }
 
     if (requestId) {
       MonitoringService.endRequest(requestId, statusCode, error as Error);

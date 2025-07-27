@@ -1,0 +1,577 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "MED-MNG API",
+    "description": "API complète pour la plateforme MED-MNG - Spotify IA médicale avec streaming sécurisé, génération musicale, tableaux rang A/B, playlists, QCM, chat contextuel",
+    "version": "2.1.0",
+    "contact": {
+      "name": "MED-MNG Support",
+      "email": "support@medmng.com"
+    },
+    "license": {
+      "name": "Proprietary",
+      "url": "https://medmng.com/license"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/med-mng-api",
+      "description": "Production API"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": {
+            "type": "string",
+            "description": "Code d'erreur standardisé"
+          },
+          "code": {
+            "type": "integer",
+            "description": "Code de statut HTTP"
+          },
+          "message": {
+            "type": "string",
+            "description": "Message d'erreur explicite"
+          },
+          "details": {
+            "type": "object",
+            "description": "Détails supplémentaires de l'erreur"
+          }
+        },
+        "required": ["error", "code", "message"]
+      },
+      "HealthStatus": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["healthy", "degraded", "down"]
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "version": {
+            "type": "string"
+          },
+          "metrics": {
+            "type": "object"
+          },
+          "security": {
+            "type": "object"
+          },
+          "alerts": {
+            "type": "object"
+          }
+        }
+      },
+      "SystemStatus": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": ["operational", "degraded", "maintenance"]
+          },
+          "version": {
+            "type": "string"
+          },
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "features": {
+            "type": "object",
+            "properties": {
+              "csrf_protection": {"type": "boolean"},
+              "rate_limiting": {"type": "boolean"},
+              "monitoring": {"type": "boolean"},
+              "security_scanning": {"type": "boolean"},
+              "quota_management": {"type": "boolean"},
+              "audit_logging": {"type": "boolean"},
+              "streaming_security": {"type": "boolean"},
+              "rgpd_compliance": {"type": "boolean"}
+            }
+          },
+          "compatibility": {
+            "type": "object",
+            "properties": {
+              "frontendMinVersion": {"type": "string"},
+              "frontendShouldUpgrade": {"type": "boolean"},
+              "breaking_changes": {"type": "array", "items": {"type": "string"}}
+            }
+          }
+        }
+      },
+      "CSRFToken": {
+        "type": "object",
+        "properties": {
+          "csrf_token": {
+            "type": "string",
+            "description": "Token CSRF à inclure dans les headers X-CSRF-Token"
+          }
+        }
+      },
+      "AuditReport": {
+        "type": "object",
+        "properties": {
+          "generated_at": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "period": {
+            "type": "object",
+            "properties": {
+              "start": {"type": "string", "format": "date-time"},
+              "end": {"type": "string", "format": "date-time"},
+              "days": {"type": "integer"}
+            }
+          },
+          "summary": {
+            "type": "object",
+            "properties": {
+              "total_errors": {"type": "integer"},
+              "total_activities": {"type": "integer"},
+              "total_operations": {"type": "integer"},
+              "active_users": {"type": "integer"}
+            }
+          },
+          "recommendations": {
+            "type": "array",
+            "items": {"type": "string"}
+          }
+        }
+      },
+      "DataCompleteness": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "edn_items": {
+            "type": "object",
+            "properties": {
+              "total": {"type": "integer"},
+              "with_rang_a": {"type": "integer"},
+              "with_rang_b": {"type": "integer"},
+              "with_quiz": {"type": "integer"},
+              "with_scene": {"type": "integer"}
+            }
+          },
+          "oic_competences": {
+            "type": "object",
+            "properties": {
+              "total": {"type": "integer"},
+              "rang_a": {"type": "integer"},
+              "rang_b": {"type": "integer"},
+              "unique_items": {"type": "integer"}
+            }
+          },
+          "completeness_score": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "gaps": {
+            "type": "array",
+            "items": {"type": "string"}
+          }
+        }
+      },
+      "GDPRExport": {
+        "type": "object",
+        "properties": {
+          "export_id": {"type": "string"},
+          "exported_at": {"type": "string", "format": "date-time"},
+          "user_data": {
+            "type": "object",
+            "description": "Toutes les données utilisateur"
+          },
+          "retention_info": {
+            "type": "object",
+            "properties": {
+              "data_retention_period": {"type": "string"},
+              "automatic_deletion": {"type": "string"},
+              "contact_for_questions": {"type": "string"}
+            }
+          }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/health": {
+      "get": {
+        "summary": "Santé du système",
+        "description": "Endpoint de vérification de l'état de santé du système",
+        "tags": ["System"],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "État de santé du système",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/csrf-token": {
+      "post": {
+        "summary": "Générer un token CSRF",
+        "description": "Génère un token CSRF pour sécuriser les requêtes authentifiées",
+        "tags": ["Security"],
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "user_id": {
+                    "type": "string",
+                    "description": "ID de l'utilisateur"
+                  }
+                },
+                "required": ["user_id"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Token CSRF généré",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CSRFToken"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Requête invalide",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/status": {
+      "get": {
+        "summary": "État du système et feature flags",
+        "description": "Retourne l'état du système, les fonctionnalités activées et la compatibilité frontend",
+        "tags": ["System"],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "État du système",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SystemStatus"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/status/data-completeness": {
+      "get": {
+        "summary": "Rapport de complétude des données",
+        "description": "Analyse la complétude des données EDN et OIC",
+        "tags": ["System", "Monitoring"],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Rapport de complétude",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DataCompleteness"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/audit/logs": {
+      "get": {
+        "summary": "Export des logs d'audit",
+        "description": "Exporte les logs d'audit en JSON ou CSV",
+        "tags": ["Audit"],
+        "security": [],
+        "parameters": [
+          {
+            "name": "format",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["json", "csv"],
+              "default": "json"
+            }
+          },
+          {
+            "name": "start_date",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Logs d'audit exportés",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                }
+              },
+              "text/csv": {
+                "schema": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/audit/activity": {
+      "get": {
+        "summary": "Export de l'activité utilisateur",
+        "description": "Exporte l'activité utilisateur en JSON ou CSV",
+        "tags": ["Audit"],
+        "security": [],
+        "parameters": [
+          {
+            "name": "format",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["json", "csv"]
+            }
+          },
+          {
+            "name": "user_id",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "start_date",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "end_date",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Activité utilisateur exportée"
+          }
+        }
+      }
+    },
+    "/audit/report": {
+      "get": {
+        "summary": "Rapport d'audit complet",
+        "description": "Génère un rapport d'audit complet des 30 derniers jours",
+        "tags": ["Audit"],
+        "security": [],
+        "responses": {
+          "200": {
+            "description": "Rapport d'audit",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuditReport"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rgpd/export": {
+      "post": {
+        "summary": "Export RGPD des données utilisateur",
+        "description": "Exporte toutes les données d'un utilisateur (Article 20 RGPD)",
+        "tags": ["RGPD"],
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "user_id": {"type": "string"},
+                  "email": {"type": "string"}
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Données utilisateur exportées",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GDPRExport"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Identifiant manquant",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/rgpd/purge": {
+      "delete": {
+        "summary": "Suppression RGPD des données",
+        "description": "Supprime définitivement toutes les données d'un utilisateur (Article 17 RGPD)",
+        "tags": ["RGPD"],
+        "security": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "user_id": {"type": "string"},
+                  "confirmation_token": {"type": "string"}
+                },
+                "required": ["user_id", "confirmation_token"]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Données supprimées avec succès"
+          },
+          "400": {
+            "description": "Données manquantes"
+          },
+          "403": {
+            "description": "Token de confirmation invalide"
+          }
+        }
+      }
+    },
+    "/rgpd/status/{user_id}": {
+      "get": {
+        "summary": "État des données utilisateur",
+        "description": "Vérifie l'état des données d'un utilisateur",
+        "tags": ["RGPD"],
+        "security": [],
+        "parameters": [
+          {
+            "name": "user_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "État des données utilisateur"
+          },
+          "400": {
+            "description": "ID utilisateur manquant"
+          }
+        }
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "System",
+      "description": "Endpoints système et monitoring"
+    },
+    {
+      "name": "Security", 
+      "description": "Sécurité et protection CSRF"
+    },
+    {
+      "name": "Audit",
+      "description": "Audit, logs et exports"
+    },
+    {
+      "name": "RGPD",
+      "description": "Conformité RGPD et gestion des données"
+    },
+    {
+      "name": "Monitoring",
+      "description": "Surveillance et métriques"
+    }
+  ]
+}
