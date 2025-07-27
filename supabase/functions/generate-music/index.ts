@@ -267,6 +267,50 @@ class SunoAPI {
   }
 }
 
+// Fonctions helper pour créer des prompts riches et expressifs
+function buildRichEducationalPrompt(itemCode: string, rang: string, style: string, mood: string, tempo: string): string {
+  const basePrompt = `
+Create an immersive educational song about ${itemCode || 'medical content'} for ${rang ? `skill level ${rang}` : 'medical students'}.
+
+Musical Direction:
+- Genre: ${style} with educational focus
+- Mood: ${mood}, engaging and memorable
+- Tempo: ${tempo}, suitable for learning retention
+- Structure: Verse-Chorus-Verse-Chorus-Bridge-Chorus format
+
+Content Requirements:
+- Clear, memorable medical terminology
+- Progressive difficulty based on skill level
+- Catchy melodic hooks for memory retention
+- Professional yet accessible language
+- Educational storytelling approach
+
+Specific Musical Elements:
+- Melodic phrases that emphasize key medical concepts
+- Rhythmic patterns that support information retention
+- Dynamic variations to maintain engagement
+- Clear vocal delivery for educational clarity
+- Instrumental sections that complement learning
+
+Target Audience: Medical professionals and students
+Goal: Create music that makes complex medical concepts memorable and engaging through superior musical composition.`;
+
+  return basePrompt.trim();
+}
+
+function buildRichStyle(style: string, mood: string, tempo: string, instruments: string[]): string {
+  const instrumentList = instruments?.join(', ') || 'piano, strings, light percussion';
+  
+  return `${style}, ${mood} mood, ${tempo} tempo, featuring ${instrumentList}, educational, professional, memorable, well-produced, clear vocals, dynamic arrangement, modern production`;
+}
+
+function buildExpressiveTitle(itemCode: string, rang: string, style: string): string {
+  const styleCapitalized = style.charAt(0).toUpperCase() + style.slice(1);
+  const rangeSuffix = rang ? ` (${rang} Level)` : '';
+  
+  return `${itemCode || 'Medical'} Mastery${rangeSuffix} - ${styleCapitalized} Education`;
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -340,30 +384,34 @@ serve(async (req) => {
         // La vérification des crédits peut échouer, on continue directement avec la génération
       }
       
-      // Préparer le prompt musical éducatif complet
-      const educationalPrompt = lyrics || prompt || `Create an educational ${style} song about medical content. Mood: ${mood}, Tempo: ${tempo}. The song should be suitable for medical education and learning.`;
+      // Créer un prompt musical éducatif riche et détaillé
+      const richPrompt = lyrics || prompt || buildRichEducationalPrompt(itemCode, rang, style, mood, tempo);
       
-      // Limiter la longueur du prompt selon la documentation
-      const truncatedPrompt = educationalPrompt.length > 3000 ? 
-        educationalPrompt.substring(0, 2997) + '...' : educationalPrompt;
+      // Créer un style musical détaillé et expressif
+      const richStyle = buildRichStyle(style, mood, tempo, instruments);
       
-      // Limiter le style
-      const truncatedStyle = style && style.length > 200 ? 
-        style.substring(0, 197) + '...' : style;
+      // Créer un titre expressif
+      const expressiveTitle = title || buildExpressiveTitle(itemCode, rang, style);
       
-      // Limiter le titre
-      const generatedTitle = title || `${rang ? `Rang ${rang} - ` : ''}${itemCode || 'Contenu Médical'}`;
-      const truncatedTitle = generatedTitle.length > 80 ? 
-        generatedTitle.substring(0, 77) + '...' : generatedTitle;
+      // Limiter selon les capacités du modèle (V4_5 supporte jusqu'à 5000 caractères)
+      const maxPromptLength = userModel.includes('v4-5') ? 5000 : 3000;
+      const finalPrompt = richPrompt.length > maxPromptLength ? 
+        richPrompt.substring(0, maxPromptLength - 3) + '...' : richPrompt;
       
-      // Payload conforme à la documentation Suno avec modèle selon abonnement
+      const finalStyle = richStyle.length > 200 ? 
+        richStyle.substring(0, 197) + '...' : richStyle;
+      
+      const finalTitle = expressiveTitle.length > 80 ? 
+        expressiveTitle.substring(0, 77) + '...' : expressiveTitle;
+      
+      // Payload optimisé selon la documentation Suno
       const sunoPayload = {
-        prompt: truncatedPrompt,
-        customMode: true, // Mode custom pour contrôle complet
-        instrumental: instrumental || false, // False pour inclure les paroles
-        style: truncatedStyle || 'educational, ambient',
-        title: truncatedTitle,
-        model: userModel.replace('chirp-', '').replace('-', '_').toUpperCase(), // Convertir "chirp-v4-5" en "V4_5"
+        prompt: finalPrompt,
+        customMode: true, // OBLIGATOIRE pour qualité et contrôle
+        instrumental: instrumental || false,
+        style: finalStyle,
+        title: finalTitle,
+        model: userModel.replace('chirp-', '').replace('-', '_').toUpperCase(),
       };
 
       console.log('🚀 APPEL API SUNO RÉEL avec payload CORRIGÉ:', {
