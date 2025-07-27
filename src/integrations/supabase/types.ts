@@ -2506,6 +2506,48 @@ export type Database = {
         }
         Relationships: []
       }
+      med_mng_synchronized_lyrics: {
+        Row: {
+          created_at: string
+          id: string
+          lyrics_data: Json
+          song_id: string
+          source: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          lyrics_data: Json
+          song_id: string
+          source?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lyrics_data?: Json
+          song_id?: string
+          source?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "med_mng_synchronized_lyrics_song_id_fkey"
+            columns: ["song_id"]
+            isOneToOne: true
+            referencedRelation: "med_mng_songs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "med_mng_synchronized_lyrics_song_id_fkey"
+            columns: ["song_id"]
+            isOneToOne: true
+            referencedRelation: "med_mng_view_library"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       med_mng_user_settings: {
         Row: {
           created_at: string
@@ -4373,6 +4415,10 @@ export type Database = {
         Args: { user_id_param: string; notification_ids?: string[] }
         Returns: number
       }
+      med_mng_add_song_to_playlist: {
+        Args: { playlist_id: string; song_id: string }
+        Returns: undefined
+      }
       med_mng_add_to_library: {
         Args: { song_id: string }
         Returns: undefined
@@ -4380,6 +4426,14 @@ export type Database = {
       med_mng_create_activity_log_cleanup_job: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      med_mng_create_playlist: {
+        Args: {
+          playlist_name: string
+          playlist_description?: string
+          is_public?: boolean
+        }
+        Returns: string
       }
       med_mng_create_user_sub: {
         Args: {
