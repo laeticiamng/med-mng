@@ -66,6 +66,45 @@ export const TableauRangA = ({ data }: TableauRangAProps) => {
                 <p className="text-gray-700 mb-4">{section.content}</p>
               )}
               
+              {/* Affichage des compétences détaillées */}
+              {section.competences && Array.isArray(section.competences) && (
+                <div className="space-y-4 mb-4">
+                  <h4 className="font-semibold text-blue-700">Compétences :</h4>
+                  {section.competences.map((competence: any, compIdx: number) => (
+                    <Card key={compIdx} className="border-l-4 border-l-blue-500 bg-blue-50/50">
+                      <CardContent className="p-4">
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2">
+                            <Badge variant="outline" className="text-xs">
+                              {competence.competence_id}
+                            </Badge>
+                            <h5 className="font-medium text-blue-800">
+                              {competence.concept || competence.title}
+                            </h5>
+                          </div>
+                          
+                          {competence.definition && (
+                            <p className="text-sm text-gray-700">{competence.definition}</p>
+                          )}
+                          
+                          {competence.exemple && (
+                            <div className="bg-green-50 p-2 rounded text-sm">
+                              <strong className="text-green-700">Exemple :</strong> {competence.exemple}
+                            </div>
+                          )}
+                          
+                          {competence.application && (
+                            <div className="bg-blue-50 p-2 rounded text-sm">
+                              <strong className="text-blue-700">Application :</strong> {competence.application}
+                            </div>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+              
               {section.keywords && Array.isArray(section.keywords) && (
                 <div className="flex flex-wrap gap-1">
                   {section.keywords.map((keyword: string, keyIdx: number) => (
