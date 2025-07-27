@@ -75,8 +75,9 @@ serve(async (req) => {
       apiMode: SUNO_API_KEY ? 'REAL_SUNO' : 'SIMULATION'
     });
 
-    // Vérifier si SUNO_API_KEY est configurée pour utiliser Suno
+    // ✅ CORRECTION: Initialiser la clé API de façon sécurisée
     const SUNO_API_KEY = Deno.env.get('SUNO_API_KEY');
+    console.log('🔑 Vérification SUNO_API_KEY:', SUNO_API_KEY ? 'PRÉSENTE' : 'MANQUANTE');
     
     if (SUNO_API_KEY) {
       // ✅ CORRECTION 4: Optimiser le prompt selon la documentation Suno
