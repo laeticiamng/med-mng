@@ -144,12 +144,18 @@ class SunoAPI {
   }): Promise<string> {
     console.log('🎵 Appel API Suno generate avec options:', options);
     
-    // Valider les limites selon la documentation
-    if (options.prompt && options.prompt.length > 3000) {
-      throw new Error('Prompt trop long (max 3000 caractères)');
+    // Valider les limites selon le ticket de support officiel
+    // V4_5/V4_5PLUS: prompt max 5000 chars, style max 1000 chars
+    // V3_5/V4: prompt max 3000 chars, style max 200 chars
+    const isV4Plus = options.model === 'V4_5' || options.model === 'V4_5PLUS';
+    const maxPromptLength = isV4Plus ? 5000 : 3000;
+    const maxStyleLength = isV4Plus ? 1000 : 200;
+    
+    if (options.prompt && options.prompt.length > maxPromptLength) {
+      throw new Error(`Prompt trop long (max ${maxPromptLength} caractères pour ${options.model})`);
     }
-    if (options.style && options.style.length > 200) {
-      throw new Error('Style trop long (max 200 caractères)');
+    if (options.style && options.style.length > maxStyleLength) {
+      throw new Error(`Style trop long (max ${maxStyleLength} caractères pour ${options.model})`);
     }
     if (options.title && options.title.length > 80) {
       throw new Error('Titre trop long (max 80 caractères)');
@@ -311,23 +317,21 @@ function buildExpressiveTitle(itemCode: string, rang: string, style: string): st
   return `${itemCode || 'Medical'} Mastery${rangeSuffix} - ${styleCapitalized} Education`;
 }
 
-// Fonction pour garder le modèle au format Suno correct selon la vraie documentation
+// Fonction pour convertir vers le format correct selon le ticket de support officiel
 function getCorrectSunoModel(userModel: string): string {
-  console.log('🔧 Modèle utilisé directement:', userModel);
+  console.log('🔧 Conversion modèle selon doc officielle:', userModel);
   
-  // D'après la vraie doc et les réponses API, Suno attend "chirp-v3-5", pas "V3_5"
-  // Les exemples de la doc montrent: "modelName": "chirp-v3-5"
-  // Donc on garde le format original chirp-v3-5, chirp-v4, chirp-v4-5
+  // D'après le ticket de support officiel : "V4_5", "V4_5PLUS", "V4", "V3_5"
   switch (userModel) {
     case 'chirp-v3-5':
-      return 'chirp-v3-5'; // Format réel attendu par l'API
+      return 'V3_5'; // Format officiel selon le ticket
     case 'chirp-v4':
-      return 'chirp-v4';   // Format réel attendu par l'API
+      return 'V4';   // Format officiel selon le ticket
     case 'chirp-v4-5':
-      return 'chirp-v4-5'; // Format réel attendu par l'API
+      return 'V4_5'; // Format officiel selon le ticket
     default:
-      console.log('⚠️ Modèle non reconnu, utilisation de chirp-v3-5 par défaut');
-      return 'chirp-v3-5'; // Défaut selon les vrais exemples
+      console.log('⚠️ Modèle non reconnu, utilisation de V4_5 par défaut');
+      return 'V4_5'; // Défaut recommandé dans le ticket
   }
 }
 
@@ -411,13 +415,17 @@ serve(async (req) => {
       // Créer un titre expressif
       const expressiveTitle = title || buildExpressiveTitle(itemCode, rang, style);
       
-      // Limiter selon les capacités du modèle (V4_5 supporte jusqu'à 5000 caractères)
-      const maxPromptLength = userModel.includes('v4-5') ? 5000 : 3000;
+      // Limiter selon les capacités du modèle selon le ticket de support officiel
+      const convertedModel = getCorrectSunoModel(userModel);
+      const isV4Plus = convertedModel === 'V4_5' || convertedModel === 'V4_5PLUS';
+      const maxPromptLength = isV4Plus ? 5000 : 3000;
+      const maxStyleLength = isV4Plus ? 1000 : 200;
+      
       const finalPrompt = richPrompt.length > maxPromptLength ? 
         richPrompt.substring(0, maxPromptLength - 3) + '...' : richPrompt;
       
-      const finalStyle = richStyle.length > 200 ? 
-        richStyle.substring(0, 197) + '...' : richStyle;
+      const finalStyle = richStyle.length > maxStyleLength ? 
+        richStyle.substring(0, maxStyleLength - 3) + '...' : richStyle;
       
       const finalTitle = expressiveTitle.length > 80 ? 
         expressiveTitle.substring(0, 77) + '...' : expressiveTitle;
