@@ -66,7 +66,7 @@ serve(async (req) => {
       });
     }
 
-    // Vérifier via l'API Suno directement
+    // Vérifier via l'API Suno directement avec le bon endpoint
     const SUNO_API_KEY = Deno.env.get('SUNO_API_KEY');
     
     if (!SUNO_API_KEY) {
@@ -82,8 +82,8 @@ serve(async (req) => {
 
     console.log('📡 Vérification via API Suno pour taskId:', taskId);
     
-    // Essayer l'endpoint de récupération des données
-    const sunoResponse = await fetch(`https://api.sunoapi.org/api/v1/music/fetch`, {
+    // Utiliser l'endpoint de statut correct
+    const sunoResponse = await fetch(`https://api.sunoapi.org/api/v1/music/status`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${SUNO_API_KEY}`,
@@ -95,7 +95,19 @@ serve(async (req) => {
     });
     
     if (!sunoResponse.ok) {
-      console.error('❌ Erreur API Suno:', sunoResponse.status);
+      console.error('❌ Erreur API Suno:', sunoResponse.status, sunoResponse.statusText);
+      
+      // Si 404, c'est que le task n'existe pas encore ou est en cours
+      if (sunoResponse.status === 404) {
+        return new Response(JSON.stringify({
+          success: true,
+          status: 'generating',
+          taskId: taskId
+        }), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+      
       return new Response(JSON.stringify({
         success: false,
         error: `Erreur API Suno: ${sunoResponse.status}`
@@ -113,7 +125,7 @@ serve(async (req) => {
     let streamUrl: string | undefined;
     let imageUrl: string | undefined;
 
-    // Parser la réponse selon le format de l'API
+    // Parser la réponse selon le format réel de l'API
     if (sunoData.code === 200 && sunoData.data) {
       const taskData = sunoData.data;
       
@@ -121,14 +133,11 @@ serve(async (req) => {
         mappedStatus = 'completed';
         
         // Extraire les URLs des clips générés
-        if (taskData.output && taskData.output.clips) {
-          const clips = Object.values(taskData.output.clips);
-          if (clips.length > 0) {
-            const firstClip = clips[0] as any;
-            audioUrl = firstClip.audio_url;
-            streamUrl = firstClip.stream_url;
-            imageUrl = firstClip.image_url;
-          }
+        if (taskData.clips && taskData.clips.length > 0) {
+          const firstClip = taskData.clips[0];
+          audioUrl = firstClip.audio_url;
+          streamUrl = firstClip.stream_url;
+          imageUrl = firstClip.image_url;
         }
       } else if (taskData.status === 'failed' || taskData.status === 'FAILED') {
         mappedStatus = 'failed';

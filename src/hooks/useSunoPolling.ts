@@ -74,18 +74,21 @@ export const useSunoPolling = () => {
         if (statusData.status === 'completed' && statusData.audioUrl) {
           console.log('✅ Track complété via API Suno:', track.trackId, 'URL:', statusData.audioUrl);
           
-          // Mettre à jour la BDD avec le résultat
+          // Mettre à jour la BDD avec le résultat - correction du spread
+          const existingMetadata = dbTrack?.metadata || {};
+          const newMetadata = {
+            ...existingMetadata,
+            stream_url: statusData.streamUrl,
+            image_url: statusData.imageUrl,
+            completed_at: new Date().toISOString()
+          };
+
           await supabase
             .from('generated_music_tracks')
             .update({
               generation_status: 'completed',
               audio_url: statusData.audioUrl,
-              metadata: {
-                ...dbTrack?.metadata,
-                stream_url: statusData.streamUrl,
-                image_url: statusData.imageUrl,
-                completed_at: new Date().toISOString()
-              }
+              metadata: newMetadata
             })
             .eq('task_id', track.trackId);
 
@@ -113,6 +116,8 @@ export const useSunoPolling = () => {
 
           return true; // Arrêter le polling
         }
+      } else {
+        console.error('❌ Erreur lors de la vérification API Suno:', statusError);
       }
 
       console.log('⏳ Track pas encore prêt:', track.trackId);
@@ -124,7 +129,7 @@ export const useSunoPolling = () => {
     }
   }, [toast]);
 
-  // Polling automatique toutes les 5 secondes (plus rapide)
+  // Polling automatique toutes les 3 secondes (encore plus rapide)
   useEffect(() => {
     if (pollingTracks.length === 0) return;
 
@@ -139,14 +144,14 @@ export const useSunoPolling = () => {
       
       for (const track of pollingTracks) {
         const elapsed = Date.now() - track.startTime;
-        const maxWait = 5 * 60 * 1000; // 5 minutes max (réduit de 10 min)
+        const maxWait = 3 * 60 * 1000; // 3 minutes max (encore plus court)
         
         if (elapsed > maxWait) {
           console.log('⏰ Timeout pour track:', track.trackId);
           stopPolling(track.trackId);
           toast({
             title: "⏰ Timeout de génération",
-            description: `${track.itemCode} Rang ${track.rang} prend trop de temps. Réessayez.`,
+            description: `${track.itemCode} Rang ${track.rang} prend trop de temps. L'API Suno est peut-être surchargée.`,
             variant: "destructive"
           });
           continue;
@@ -157,7 +162,7 @@ export const useSunoPolling = () => {
           stopPolling(track.trackId);
         }
       }
-    }, 5000); // Check toutes les 5 secondes (plus rapide)
+    }, 3000); // Check toutes les 3 secondes (plus agressif)
 
     return () => clearInterval(interval);
   }, [pollingTracks, checkTrackStatus, stopPolling, toast]);
