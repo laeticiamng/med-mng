@@ -102,7 +102,7 @@ export const AdvancedSettings = () => {
         study_schedule: {
           preferred_duration: settings.general.defaultVolume,
           break_frequency: 25,
-          notification_enabled: settings.notifications.sessionReminders
+          notification_enabled: settings.general.sessionReminders
         }
       });
 
