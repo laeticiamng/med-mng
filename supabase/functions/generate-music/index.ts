@@ -62,6 +62,9 @@ serve(async (req) => {
       itemCode // Ajouter itemCode pour le titre
     }: MusicGenerationRequest = await req.json();
 
+    // ✅ CORRECTION: Initialiser la clé API AVANT utilisation
+    const SUNO_API_KEY = Deno.env.get('SUNO_API_KEY');
+
     console.log('🎵 Génération de musique OPTIMISÉE:', { 
       hasLyrics: !!lyrics,
       lyricsLength: lyrics?.length || 0,
@@ -74,9 +77,6 @@ serve(async (req) => {
       itemCode,
       apiMode: SUNO_API_KEY ? 'REAL_SUNO' : 'SIMULATION'
     });
-
-    // ✅ CORRECTION: Initialiser la clé API de façon sécurisée
-    const SUNO_API_KEY = Deno.env.get('SUNO_API_KEY');
     console.log('🔑 Vérification SUNO_API_KEY:', SUNO_API_KEY ? 'PRÉSENTE' : 'MANQUANTE');
     
     if (SUNO_API_KEY) {
