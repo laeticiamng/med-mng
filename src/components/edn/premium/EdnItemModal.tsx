@@ -491,6 +491,9 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                 <TabsContent value="music" className={`${isMobile ? 'p-3' : 'p-6'} flex-1 overflow-y-auto`}>
                   <ParolesMusicales 
                     paroles={finalItem.paroles_musicales}
+                    paroles_rang_a={finalItem.paroles_rang_a}
+                    paroles_rang_b={finalItem.paroles_rang_b}
+                    paroles_rang_ab={finalItem.paroles_rang_ab}
                     itemCode={finalItem.item_code}
                   />
                 </TabsContent>

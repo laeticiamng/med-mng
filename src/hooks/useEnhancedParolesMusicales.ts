@@ -3,7 +3,10 @@ import { useToast } from '@/hooks/use-toast';
 import { useMusicGenerationWithTranslation } from '@/hooks/useMusicGenerationWithTranslation';
 import { useGlobalAudio } from '@/contexts/GlobalAudioContext';
 
-export const useEnhancedParolesMusicales = (paroles: string[] = []) => {
+export const useEnhancedParolesMusicales = (
+  paroles: string[] = [], 
+  itemData?: { paroles_rang_a?: string[], paroles_rang_b?: string[], paroles_rang_ab?: string[] }
+) => {
   const [selectedStyle, setSelectedStyle] = useState<string>('lofi-piano');
   const [musicDuration, setMusicDuration] = useState<number>(240);
   const [selectedVersion, setSelectedVersion] = useState<'A' | 'B' | 'AB'>('A');
@@ -31,13 +34,24 @@ export const useEnhancedParolesMusicales = (paroles: string[] = []) => {
     stop
   } = useGlobalAudio();
 
-  // Génération des paroles combinées pour la version A+B
+  // Utiliser les vraies paroles de la base de données pour chaque rang
   const generateCombinedLyrics = (): string[] => {
+    // Si on a accès aux vraies paroles par rang depuis la base de données
+    if (itemData?.paroles_rang_a && itemData?.paroles_rang_b && itemData?.paroles_rang_ab) {
+      console.log('🎵 Utilisation des vraies paroles structurées de la base de données');
+      return [
+        itemData.paroles_rang_a.join('\n'),
+        itemData.paroles_rang_b.join('\n'),
+        itemData.paroles_rang_ab.join('\n')
+      ];
+    }
+    
+    // Fallback vers les paroles originales si pas de données structurées
     if (!paroles || paroles.length < 2) {
       return paroles || [];
     }
 
-    // Créer une version combinée intelligente des rangs A et B
+    // Créer une version combinée intelligente des rangs A et B comme fallback
     const combinedLyrics = `[Version Complète - Rang A & B Combinés]
 
 [Rang A - Compétences Fondamentales]

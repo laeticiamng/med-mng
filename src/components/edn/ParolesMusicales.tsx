@@ -10,6 +10,9 @@ import { ParolesMusicalesMainContent } from './music/ParolesMusicalesMainContent
 
 interface ParolesMusicalesProps {
   paroles?: string[];
+  paroles_rang_a?: string[];
+  paroles_rang_b?: string[];
+  paroles_rang_ab?: string[];
   itemCode: string;
   tableauRangA?: any;
   tableauRangB?: any;
@@ -17,12 +20,18 @@ interface ParolesMusicalesProps {
 
 export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
   paroles = [],
+  paroles_rang_a,
+  paroles_rang_b,
+  paroles_rang_ab,
   itemCode,
   tableauRangA,
   tableauRangB
 }) => {
   console.log('🎵 ParolesMusicales - Rendu avec props:', { 
-    paroles: paroles?.length, 
+    paroles: paroles?.length,
+    paroles_rang_a: paroles_rang_a?.length,
+    paroles_rang_b: paroles_rang_b?.length,
+    paroles_rang_ab: paroles_rang_ab?.length,
     itemCode, 
     hasTableauA: !!tableauRangA, 
     hasTableauB: !!tableauRangB 
@@ -48,7 +57,7 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
     seek,
     changeVolume,
     stop
-  } = useParolesMusicales(paroles);
+  } = useParolesMusicales(paroles, { paroles_rang_a, paroles_rang_b, paroles_rang_ab });
 
   console.log('🎵 ÉTAT ACTUEL generatedAudio:', generatedAudio);
   console.log('🎵 ÉTAT ACTUEL generationProgress:', generationProgress);

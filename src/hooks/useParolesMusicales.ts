@@ -4,7 +4,10 @@ import { useToast } from '@/hooks/use-toast';
 import { useMusicGenerationWithTranslation } from '@/hooks/useMusicGenerationWithTranslation';
 import { useGlobalAudio } from '@/contexts/GlobalAudioContext';
 
-export const useParolesMusicales = (paroles: string[] = []) => {
+export const useParolesMusicales = (
+  paroles: string[] = [], 
+  itemData?: { paroles_rang_a?: string[], paroles_rang_b?: string[], paroles_rang_ab?: string[] }
+) => {
   const [selectedStyle, setSelectedStyle] = useState<string>('lofi-piano');
   const [musicDuration, setMusicDuration] = useState<number>(240);
   const { toast } = useToast();
@@ -33,28 +36,56 @@ export const useParolesMusicales = (paroles: string[] = []) => {
 
   const handleGenerate = async (rang: 'A' | 'B') => {
     console.log(`🎵 BOUTON GÉNÉRER CLIQUÉ - Rang ${rang}`);
+    
+    // Utiliser les vraies paroles structurées si disponibles
+    let parolesAUtiliser: string[] = [];
+    
+    if (itemData) {
+      console.log('🎵 Utilisation des paroles structurées de la base de données');
+      if (rang === 'A' && itemData.paroles_rang_a) {
+        parolesAUtiliser = itemData.paroles_rang_a;
+      } else if (rang === 'B' && itemData.paroles_rang_b) {
+        parolesAUtiliser = itemData.paroles_rang_b;
+      }
+    }
+    
+    // Fallback vers les paroles originales si pas de données structurées
+    if (parolesAUtiliser.length === 0) {
+      console.log('🎵 Fallback vers les paroles originales');
+      if (!paroles || paroles.length === 0) {
+        console.error('❌ AUCUNE PAROLE DISPONIBLE');
+        toast({
+          title: "Erreur de génération",
+          description: "Aucune parole disponible pour ce rang",
+          variant: "destructive"
+        });
+        return;
+      }
+      
+      const parolesIndex = rang === 'A' ? 0 : 1;
+      if (!paroles[parolesIndex]) {
+        console.error(`❌ AUCUNE PAROLE POUR LE RANG ${rang}`);
+        toast({
+          title: "Erreur de génération", 
+          description: `Aucune parole disponible pour le rang ${rang}`,
+          variant: "destructive"
+        });
+        return;
+      }
+      parolesAUtiliser = [paroles[parolesIndex]];
+    }
+
     console.log(`🎵 Configuration:`, {
       selectedStyle,
       musicDuration,
-      parolesLength: paroles?.length || 0,
+      parolesLength: parolesAUtiliser.length,
       currentLanguage,
-      parolesPreview: paroles?.[rang === 'A' ? 0 : 1]?.substring(0, 50) + '...' || 'Aucune'
+      parolesPreview: parolesAUtiliser[0]?.substring(0, 100) + '...' || 'Aucune'
     });
-
-    if (!paroles || paroles.length === 0) {
-      console.error('❌ AUCUNE PAROLE DISPONIBLE');
-      return;
-    }
-
-    const parolesIndex = rang === 'A' ? 0 : 1;
-    if (!paroles[parolesIndex]) {
-      console.error(`❌ AUCUNE PAROLE POUR LE RANG ${rang}`);
-      return;
-    }
 
     try {
       console.log('🚀 APPEL generateMusicInLanguage...');
-      const audioUrl = await generateMusicInLanguage(rang, paroles, selectedStyle, musicDuration);
+      const audioUrl = await generateMusicInLanguage(rang, parolesAUtiliser, selectedStyle, musicDuration);
       console.log(`✅ GÉNÉRATION TERMINÉE POUR RANG ${rang}, URL:`, audioUrl);
       
       setTimeout(() => {
@@ -63,6 +94,11 @@ export const useParolesMusicales = (paroles: string[] = []) => {
       
     } catch (error) {
       console.error(`❌ ERREUR GÉNÉRATION RANG ${rang}:`, error);
+      toast({
+        title: "Erreur de génération",
+        description: `Impossible de générer la musique pour le rang ${rang}`,
+        variant: "destructive"
+      });
     }
   };
 

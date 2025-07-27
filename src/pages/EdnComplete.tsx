@@ -28,6 +28,9 @@ interface EdnItem {
   tableau_rang_a?: any;
   tableau_rang_b?: any;
   paroles_musicales?: string[];
+  paroles_rang_a?: string[];
+  paroles_rang_b?: string[];
+  paroles_rang_ab?: string[];
   scene_immersive?: any;
   quiz_questions?: any;
   audio_ambiance?: any;
@@ -77,10 +80,10 @@ export default function EdnComplete() {
         .select('*')
         .order('item_code');
 
-      // Also fetch immersive data
+      // Also fetch immersive data with new lyrics columns
       const { data: immersiveData, error: immersiveError } = await supabase
         .from('edn_items_immersive')
-        .select('*')
+        .select('*, paroles_rang_a, paroles_rang_b, paroles_rang_ab')
         .order('item_code');
 
       if (immersiveError || completeError) {

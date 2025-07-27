@@ -9,6 +9,9 @@ import { MusicCardsSection } from './music/MusicCardsSection';
 
 interface EnhancedParolesMusicalesProps {
   paroles?: string[];
+  paroles_rang_a?: string[];
+  paroles_rang_b?: string[];
+  paroles_rang_ab?: string[];
   itemCode: string;
   tableauRangA?: any;
   tableauRangB?: any;
@@ -16,6 +19,9 @@ interface EnhancedParolesMusicalesProps {
 
 export const EnhancedParolesMusicales: React.FC<EnhancedParolesMusicalesProps> = ({
   paroles = [],
+  paroles_rang_a,
+  paroles_rang_b,
+  paroles_rang_ab,
   itemCode,
   tableauRangA,
   tableauRangB
@@ -50,7 +56,7 @@ export const EnhancedParolesMusicales: React.FC<EnhancedParolesMusicalesProps> =
     seek,
     changeVolume,
     stop
-  } = useEnhancedParolesMusicales(paroles);
+  } = useEnhancedParolesMusicales(paroles, { paroles_rang_a, paroles_rang_b, paroles_rang_ab });
 
   console.log('🎵 ÉTAT ACTUEL generatedAudio:', generatedAudio);
   console.log('🎵 ÉTAT ACTUEL enhancedParoles:', enhancedParoles?.length);
