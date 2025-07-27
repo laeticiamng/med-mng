@@ -84,8 +84,22 @@ export function useUserPreferences() {
       // Puis charger depuis Supabase si connecté
       const { data: user } = await supabase.auth.getUser();
       if (user.user) {
-        // Table user_preferences pas encore créée - utiliser localStorage seulement
-        console.log('Using localStorage for preferences storage');
+        // Maintenant que les tables existent, charger depuis Supabase
+        const { data, error } = await supabase
+          .from('user_preferences')
+          .select('preferences')
+          .eq('user_id', user.user.id)
+          .single();
+
+        if (error && error.code !== 'PGRST116') { // Ignore "not found" error
+          throw error;
+        }
+
+        if (data?.preferences) {
+          const serverPrefs = { ...defaultPreferences, ...(data.preferences as any) };
+          setPreferences(serverPrefs);
+          localStorage.setItem('user-preferences', JSON.stringify(serverPrefs));
+        }
       }
     } catch (error) {
       console.error('Erreur chargement préférences:', error);
@@ -102,8 +116,18 @@ export function useUserPreferences() {
       setPreferences(updatedPrefs);
       localStorage.setItem('user-preferences', JSON.stringify(updatedPrefs));
 
-      // Table user_preferences pas encore créée - localStorage seulement
-      console.log('Preferences saved to localStorage only');
+      // Sync avec Supabase maintenant que les tables existent
+      const { data: user } = await supabase.auth.getUser();
+      if (user.user) {
+        const { error } = await supabase
+          .from('user_preferences')
+          .upsert({
+            user_id: user.user.id,
+            preferences: updatedPrefs as any
+          });
+
+        if (error) throw error;
+      }
 
       toast({
         title: "Préférences sauvegardées",
@@ -127,8 +151,17 @@ export function useUserPreferences() {
       setPreferences(defaultPreferences);
       localStorage.setItem('user-preferences', JSON.stringify(defaultPreferences));
 
-      // Table user_preferences pas encore créée - localStorage seulement
-      console.log('Preferences reset in localStorage only');
+      const { data: user } = await supabase.auth.getUser();
+      if (user.user) {
+        const { error } = await supabase
+          .from('user_preferences')
+          .upsert({
+            user_id: user.user.id,
+            preferences: defaultPreferences as any
+          });
+
+        if (error) throw error;
+      }
 
       toast({
         title: "Préférences réinitialisées",
