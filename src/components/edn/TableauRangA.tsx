@@ -66,42 +66,72 @@ export const TableauRangA = ({ data }: TableauRangAProps) => {
                 <p className="text-gray-700 mb-4">{section.content}</p>
               )}
               
-              {/* Affichage des compétences détaillées */}
+              {/* Affichage des compétences détaillées avec accessibilité */}
               {section.competences && Array.isArray(section.competences) && (
-                <div className="space-y-4 mb-4">
-                  <h4 className="font-semibold text-blue-700">Compétences :</h4>
-                  {section.competences.map((competence: any, compIdx: number) => (
-                    <Card key={compIdx} className="border-l-4 border-l-blue-500 bg-blue-50/50">
-                      <CardContent className="p-4">
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-2">
-                            <Badge variant="outline" className="text-xs">
-                              {competence.competence_id}
-                            </Badge>
-                            <h5 className="font-medium text-blue-800">
-                              {competence.concept || competence.title}
-                            </h5>
+                 <div className="space-y-4 mb-4" role="region" aria-labelledby={`competences-${idx}`}>
+                  <h4 
+                    id={`competences-${idx}`} 
+                    className="font-semibold text-blue-700"
+                  >
+                    Compétences ({section.competences.length})
+                  </h4>
+                  {section.competences.map((competence: any, compIdx: number) => {
+                    const competenceId = `competence-${idx}-${compIdx}`;
+                    return (
+                      <Card 
+                        key={competence.competence_id || compIdx} 
+                        className="border-l-4 border-l-blue-500 bg-blue-50/50"
+                        role="article"
+                        aria-labelledby={competenceId}
+                      >
+                        <CardContent className="p-4">
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2">
+                              <Badge 
+                                variant="outline" 
+                                className="text-xs"
+                                aria-label={`Code de compétence ${competence.competence_id}`}
+                              >
+                                {competence.competence_id}
+                              </Badge>
+                              <h5 
+                                id={competenceId}
+                                className="font-medium text-blue-800"
+                              >
+                                {competence.concept || competence.title}
+                              </h5>
+                            </div>
+                            
+                            {competence.definition && (
+                              <p className="text-sm text-gray-700" role="definition">
+                                {competence.definition}
+                              </p>
+                            )}
+                            
+                            {competence.exemple && (
+                              <div 
+                                className="bg-green-50 p-2 rounded text-sm"
+                                role="note"
+                                aria-label="Exemple pratique"
+                              >
+                                <strong className="text-green-700">Exemple :</strong> {competence.exemple}
+                              </div>
+                            )}
+                            
+                            {competence.application && (
+                              <div 
+                                className="bg-blue-50 p-2 rounded text-sm"
+                                role="note"
+                                aria-label="Application clinique"
+                              >
+                                <strong className="text-blue-700">Application :</strong> {competence.application}
+                              </div>
+                            )}
                           </div>
-                          
-                          {competence.definition && (
-                            <p className="text-sm text-gray-700">{competence.definition}</p>
-                          )}
-                          
-                          {competence.exemple && (
-                            <div className="bg-green-50 p-2 rounded text-sm">
-                              <strong className="text-green-700">Exemple :</strong> {competence.exemple}
-                            </div>
-                          )}
-                          
-                          {competence.application && (
-                            <div className="bg-blue-50 p-2 rounded text-sm">
-                              <strong className="text-blue-700">Application :</strong> {competence.application}
-                            </div>
-                          )}
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
                 </div>
               )}
               

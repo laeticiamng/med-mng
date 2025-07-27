@@ -71,39 +71,15 @@ export default function EdnComplete() {
     try {
       setLoading(true);
       
-      // Use the new edn-fix endpoint for complete competences
-      const response = await fetch('https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/edn-fix/items', {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      let immersiveData = null;
-      let immersiveError = null;
-
-      if (response.ok) {
-        const data = await response.json();
-        if (data?.success && data?.data) {
-          immersiveData = data.data;
-          console.log('✅ Items chargés via edn-fix:', immersiveData.length);
-        }
-      }
-      
-      if (!immersiveData) {
-        // Fallback to direct database query
-        const result = await supabase
-          .from('edn_items_immersive')
-          .select('*')
-          .order('item_code');
-        immersiveData = result.data;
-        immersiveError = result.error;
-      }
-
-      // Charger les items complets
+      // Use Supabase direct query instead of broken endpoint
       const { data: completeData, error: completeError } = await supabase
         .from('edn_items_complete')
+        .select('*')
+        .order('item_code');
+
+      // Also fetch immersive data
+      const { data: immersiveData, error: immersiveError } = await supabase
+        .from('edn_items_immersive')
         .select('*')
         .order('item_code');
 

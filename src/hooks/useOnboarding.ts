@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useQueryCache } from './useQueryCache';
 
 export interface OnboardingStep {
   id: string;
@@ -29,12 +30,13 @@ export const useOnboarding = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadOnboardingSteps();
     loadUserProgress();
   }, []);
 
-  const loadOnboardingSteps = async () => {
-    try {
+  // Use cached query to prevent duplicates
+  const { data: stepsData, loading: stepsLoading } = useQueryCache(
+    'onboarding_steps',
+    async () => {
       const { data, error } = await supabase
         .from('onboarding_steps')
         .select('*')
@@ -45,7 +47,7 @@ export const useOnboarding = () => {
       if (error) throw error;
 
       // Transform database data to OnboardingStep format
-      const transformedSteps: OnboardingStep[] = (data || []).map(row => ({
+      return (data || []).map(row => ({
         id: row.id,
         key: row.key,
         title: typeof row.title === 'object' ? (row.title as any)?.fr || (row.title as any)?.en || '' : String(row.title),
@@ -53,18 +55,17 @@ export const useOnboarding = () => {
         type: row.type as 'onboarding' | 'tooltip' | 'help',
         version: row.version,
         is_active: row.is_active
-      }));
+      })) as OnboardingStep[];
+    },
+    { ttl: 10 * 60 * 1000 } // 10 minutes cache
+  );
 
-      setState(prev => ({
-        ...prev,
-        steps: transformedSteps
-      }));
-    } catch (error) {
-      console.error('Error loading onboarding steps:', error);
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+    if (stepsData) {
+      setState(prev => ({ ...prev, steps: stepsData }));
     }
-  };
+    setLoading(stepsLoading);
+  }, [stepsData, stepsLoading]);
 
   const loadUserProgress = () => {
     const completed = JSON.parse(localStorage.getItem('onboarding_completed') || '[]');

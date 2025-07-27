@@ -63,17 +63,16 @@ export const MobileBottomNav = () => {
                 to={item.to}
                 className={({ isActive: linkActive }) => 
                   cn(
-                    "flex flex-col items-center justify-center px-3 py-2 rounded-xl transition-all duration-200 min-w-0 flex-1 relative group",
+                    "flex flex-col items-center justify-center px-3 py-2 rounded-xl transition-all duration-200 min-w-0 flex-1 relative group touch-feedback",
                     "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2",
-                    "active:scale-95",
+                    "mobile-touch-target",
                     (linkActive || isActive) 
                       ? "text-primary bg-primary/10 shadow-sm" 
                       : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                   )
                 }
-                aria-label={`Aller à ${item.label}`}
-                role="button"
-                tabIndex={0}
+                aria-label={`Naviguer vers ${item.label}`}
+                aria-current={isActive ? 'page' : undefined}
               >
                 {/* Icône avec animation */}
                 <div className={cn(

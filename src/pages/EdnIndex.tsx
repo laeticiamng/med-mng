@@ -51,28 +51,7 @@ const EdnIndex = () => {
   const fetchAllItems = async () => {
     try {
       setLoading(true);
-      // Use the new edn-fix endpoint for complete competences
-      const response = await fetch('https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/edn-fix/items', {
-        method: 'GET',
-        headers: {
-          'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        if (data?.success && data?.data) {
-          setItems(data.data);
-          toast({
-            title: "Items EDN chargés",
-            description: `${data.data.length} items avec compétences complètes`,
-          });
-          return;
-        }
-      }
-      
-      // Fallback to direct database query - use complete items with OIC competences
+      // Use Supabase direct query instead of broken endpoint
       const { data: fallbackData, error: fallbackError } = await supabase
         .from('edn_items_complete')
         .select('*')
