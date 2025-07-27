@@ -266,11 +266,13 @@ IMPORTANT:
 });
 
 async function pollForSunoCompletion(taskId: string, apiKey: string) {
-  const maxAttempts = 30;
+  const maxAttempts = 20; // Réduit de 30 à 20
   
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     if (attempt > 1) {
-      await new Promise(resolve => setTimeout(resolve, 6000));
+      // Polling adaptatif : plus fréquent au début, puis plus espacé
+      const delay = attempt <= 5 ? 2000 : attempt <= 10 ? 3000 : 4000;
+      await new Promise(resolve => setTimeout(resolve, delay));
     }
     
     try {

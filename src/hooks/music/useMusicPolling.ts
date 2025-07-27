@@ -20,8 +20,8 @@ export const useMusicPolling = () => {
   const startPolling = ({ 
     rang, 
     requestBody, 
-    maxPolls = 18, // Réduit à 18 (3 minutes max au lieu de 5)
-    pollInterval = 5000, // Réduit à 5s pour plus de réactivité
+    maxPolls = 12, // Réduit à 12 (2 minutes max)
+    pollInterval = 3000, // Réduit à 3s pour plus de réactivité
     onProgress,
     onSuccess,
     onError
@@ -34,20 +34,20 @@ export const useMusicPolling = () => {
       try {
         pollCount++;
         
-        // Progression plus rapide et réaliste
+        // Progression plus rapide et réaliste (ajustée pour 12 polls max)
         let baseProgress;
-        if (pollCount <= 3) {
-          // Première phase : progression rapide (0-30%)
-          baseProgress = Math.min(Math.round((pollCount / 3) * 30), 30);
-        } else if (pollCount <= 8) {
-          // Deuxième phase : progression normale (30-70%)
-          baseProgress = 30 + Math.min(Math.round(((pollCount - 3) / 5) * 40), 40);
-        } else if (pollCount <= 15) {
-          // Troisième phase : progression modérée (70-95%)
-          baseProgress = 70 + Math.min(Math.round(((pollCount - 8) / 7) * 25), 25);
+        if (pollCount <= 2) {
+          // Première phase : progression rapide (0-40%)
+          baseProgress = Math.min(Math.round((pollCount / 2) * 40), 40);
+        } else if (pollCount <= 6) {
+          // Deuxième phase : progression normale (40-80%)
+          baseProgress = 40 + Math.min(Math.round(((pollCount - 2) / 4) * 40), 40);
+        } else if (pollCount <= 10) {
+          // Troisième phase : progression modérée (80-95%)
+          baseProgress = 80 + Math.min(Math.round(((pollCount - 6) / 4) * 15), 15);
         } else {
           // Phase finale : progression très lente (95-98%)
-          baseProgress = 95 + Math.min(Math.round(((pollCount - 15) / 3) * 3), 3);
+          baseProgress = 95 + Math.min(Math.round(((pollCount - 10) / 2) * 3), 3);
         }
         
         const estimatedTimeRemaining = Math.max(Math.round(((maxPolls - pollCount) * pollInterval) / 60000), 0);
@@ -80,7 +80,7 @@ export const useMusicPolling = () => {
           // Sinon on continue mais on vérifie si on a atteint le maximum de tentatives
           if (pollCount >= maxPolls) {
             clearInterval(intervalId);
-            onError(new Error('La génération prend plus de temps que prévu (2 minutes). Réessayez.'));
+            onError(new Error('La génération prend plus de temps que prévu (90 secondes). Réessayez.'));
             return;
           }
           return;
@@ -123,7 +123,7 @@ export const useMusicPolling = () => {
         // Timeout atteint plus rapidement
         if (pollCount >= maxPolls) {
           clearInterval(intervalId);
-          onError(new Error('La génération prend plus de temps que prévu. Suno est peut-être occupé. Réessayez dans quelques minutes.'));
+          onError(new Error('Génération optimisée: timeout après 90s. Suno pourrait être occupé. Réessayez.'));
           return;
         }
         
