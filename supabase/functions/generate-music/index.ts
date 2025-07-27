@@ -427,8 +427,8 @@ serve(async (req) => {
         instrumental: instrumental || false,
         style: finalStyle,
         title: finalTitle,
-        model: getCorrectSunoModel(userModel), // Fonction pour format correct
-        callBackUrl: 'https://webhook.site/generate-music-callback' // OBLIGATOIRE selon la doc
+        model: getCorrectSunoModel(userModel) // Fonction pour format correct
+        // callBackUrl retiré car il cause des erreurs avec l'API
       };
 
       console.log('🚀 APPEL API SUNO RÉEL avec payload CORRIGÉ:', {
