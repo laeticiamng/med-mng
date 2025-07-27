@@ -338,11 +338,8 @@ serve(async (req) => {
         // La vérification des crédits peut échouer, on continue directement avec la génération
       }
       
-      // Préparer le prompt musical éducatif
-      const educationalPrompt = lyrics || prompt || 
-        `Create an educational ${style} song about medical content. 
-         Mood: ${mood}, Tempo: ${tempo}.
-         The song should be suitable for medical education and learning.`;
+      // Préparer le prompt musical éducatif complet
+      const educationalPrompt = lyrics || prompt || `Create an educational ${style} song about medical content. Mood: ${mood}, Tempo: ${tempo}. The song should be suitable for medical education and learning.`;
       
       // Limiter la longueur du prompt selon la documentation
       const truncatedPrompt = educationalPrompt.length > 3000 ? 
