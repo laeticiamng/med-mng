@@ -48,7 +48,9 @@ export const MobileBottomNav = () => {
       
       {/* Bottom Navigation */}
       <nav 
-        className="fixed bottom-0 inset-x-0 z-50 md:hidden bg-background/95 backdrop-blur-md border-t border-border"
+        id="main-navigation"
+        data-testid="mobile-bottom-nav"
+        className="fixed bottom-0 inset-x-0 z-50 md:hidden bg-background/95 backdrop-blur-md border-t border-border glass-medical"
         role="navigation"
         aria-label="Navigation mobile principale"
       >
