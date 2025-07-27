@@ -311,21 +311,21 @@ function buildExpressiveTitle(itemCode: string, rang: string, style: string): st
   return `${itemCode || 'Medical'} Mastery${rangeSuffix} - ${styleCapitalized} Education`;
 }
 
-// Fonction pour convertir le modèle au format Suno correct
+// Fonction pour convertir le modèle au format Suno correct selon la doc officielle
 function getCorrectSunoModel(userModel: string): string {
-  // Selon les logs, l'API rejette "V4_5" - testons différents formats
   console.log('🔧 Conversion modèle de:', userModel);
   
+  // Selon la doc officielle : "V3_5", "V4", "V4_5" (avec underscore)
   switch (userModel) {
     case 'chirp-v3-5':
-      return 'chirp-v3.5'; // Essayer avec point au lieu de tiret
+      return 'V3_5'; // Format officiel avec underscore
     case 'chirp-v4':
-      return 'chirp-v4';
+      return 'V4';   // Format officiel
     case 'chirp-v4-5':
-      return 'chirp-v4.5'; // Essayer avec point au lieu de tiret
+      return 'V4_5'; // Format officiel avec underscore
     default:
-      console.log('⚠️ Modèle non reconnu, utilisation de chirp-v3.5 par défaut');
-      return 'chirp-v3.5';
+      console.log('⚠️ Modèle non reconnu, utilisation de V3_5 par défaut');
+      return 'V3_5'; // Défaut selon la doc
   }
 }
 
