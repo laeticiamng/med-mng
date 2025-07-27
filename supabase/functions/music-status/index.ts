@@ -90,7 +90,7 @@ serve(async (req) => {
       });
     }
 
-    // Call Suno API to get current status
+    // Call Suno API to get current status selon documentation officielle v1
     console.log('📡 Vérification statut via API Suno pour taskId:', taskId);
     
     const sunoResponse = await fetch(`https://api.sunoapi.org/api/v1/generate/record-info?taskId=${taskId}`, {
@@ -108,7 +108,7 @@ serve(async (req) => {
       
       const response: MusicStatusResponse = {
         success: false,
-        error: `Erreur API Suno: ${sunoData.msg || 'Erreur inconnue'}`
+        error: `Erreur API Suno ${sunoResponse.status}: ${sunoData.msg || 'Erreur inconnue'}`
       };
 
       return new Response(JSON.stringify(response), {
@@ -117,37 +117,34 @@ serve(async (req) => {
       });
     }
 
-    // Parse Suno response according to official docs
+    // Parse Suno response according to official documentation
     const sunoTaskData = sunoData.data;
     let mappedStatus: 'generating' | 'completed' | 'failed' = 'generating';
     let audioUrl: string | undefined;
     let streamUrl: string | undefined;
     let imageUrl: string | undefined;
 
-    // Map Suno status to our status according to docs
-    switch (sunoTaskData.response?.status || sunoTaskData.status) {
+    // Map Suno status selon la documentation officielle
+    switch (sunoTaskData.status) {
+      case 'GENERATING':
       case 'PENDING':
-      case 'TEXT_SUCCESS':
-      case 'FIRST_SUCCESS':
         mappedStatus = 'generating';
         break;
       case 'SUCCESS':
         mappedStatus = 'completed';
-        // Extract audio URLs from sunoData array
-        if (sunoTaskData.response?.sunoData && sunoTaskData.response.sunoData.length > 0) {
-          const firstTrack = sunoTaskData.response.sunoData[0];
-          audioUrl = firstTrack.audioUrl || firstTrack.audio_url;
-          streamUrl = firstTrack.streamAudioUrl || firstTrack.stream_audio_url;
-          imageUrl = firstTrack.imageUrl || firstTrack.image_url;
+        // Extract audio URLs from response.data array selon la doc
+        if (sunoTaskData.response?.data && sunoTaskData.response.data.length > 0) {
+          const firstTrack = sunoTaskData.response.data[0];
+          audioUrl = firstTrack.audio_url;
+          streamUrl = firstTrack.stream_url;
+          imageUrl = firstTrack.image_url;
         }
         break;
-      case 'CREATE_TASK_FAILED':
-      case 'GENERATE_AUDIO_FAILED':
-      case 'CALLBACK_EXCEPTION':
-      case 'SENSITIVE_WORD_ERROR':
+      case 'FAILED':
         mappedStatus = 'failed';
         break;
       default:
+        // Si le statut n'est pas reconnu, on considère comme en cours
         mappedStatus = 'generating';
     }
 
