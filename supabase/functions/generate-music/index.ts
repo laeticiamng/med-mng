@@ -311,6 +311,24 @@ function buildExpressiveTitle(itemCode: string, rang: string, style: string): st
   return `${itemCode || 'Medical'} Mastery${rangeSuffix} - ${styleCapitalized} Education`;
 }
 
+// Fonction pour convertir le modèle au format Suno correct
+function getCorrectSunoModel(userModel: string): string {
+  // Selon les logs, l'API rejette "V4_5" - testons différents formats
+  console.log('🔧 Conversion modèle de:', userModel);
+  
+  switch (userModel) {
+    case 'chirp-v3-5':
+      return 'chirp-v3.5'; // Essayer avec point au lieu de tiret
+    case 'chirp-v4':
+      return 'chirp-v4';
+    case 'chirp-v4-5':
+      return 'chirp-v4.5'; // Essayer avec point au lieu de tiret
+    default:
+      console.log('⚠️ Modèle non reconnu, utilisation de chirp-v3.5 par défaut');
+      return 'chirp-v3.5';
+  }
+}
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -411,7 +429,7 @@ serve(async (req) => {
         instrumental: instrumental || false,
         style: finalStyle,
         title: finalTitle,
-        model: userModel.replace('chirp-', '').replace('-', '_').toUpperCase(),
+        model: getCorrectSunoModel(userModel), // Fonction pour format correct
       };
 
       console.log('🚀 APPEL API SUNO RÉEL avec payload CORRIGÉ:', {
