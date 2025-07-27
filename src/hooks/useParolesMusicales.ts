@@ -205,6 +205,8 @@ export const useParolesMusicales = (
     testAudio.addEventListener('error', (e) => {
       console.error('❌ ERREUR DE TEST AUDIO:', e);
       console.error('❌ PROBLÈME AVEC L\'URL:', audioUrl);
+      // ✅ CORRECTION: Continuer malgré l'erreur de test, le player principal peut fonctionner
+      console.log('⚠️ Tentative de lecture directe malgré l\'erreur de test...');
     });
     
     testAudio.addEventListener('loadstart', () => {
@@ -215,24 +217,39 @@ export const useParolesMusicales = (
       console.log('✅ DONNÉES AUDIO CHARGÉES');
     });
     
-    testAudio.src = audioUrl;
+    // ✅ CORRECTION: Ne pas bloquer si l'URL est une simulation
+    try {
+      testAudio.src = audioUrl;
+    } catch (error) {
+      console.warn('⚠️ Erreur lors du test de l\'URL, mais on continue:', error);
+    }
 
     if (currentTrack?.url === audioUrl && isPlaying) {
       console.log('⏸️ PAUSE DE L\'AUDIO EN COURS');
       pause();
     } else {
-      console.log('▶️ LECTURE DU NOUVEL AUDIO');
+      // ✅ CORRECTION: Lecture forcée même si test de connectivité échoue
+      console.log('▶️ LECTURE DU NOUVEL AUDIO (forcée)');
       console.log('🎵 Données transmises au contexte audio:', {
         url: audioUrl,
         title: title,
         rang: audioUrl.includes('rangA') ? 'A' : 'B'
       });
       
-      play({
-        url: audioUrl,
-        title: title,
-        rang: audioUrl.includes('rangA') ? 'A' : 'B'
-      });
+      try {
+        play({
+          url: audioUrl,
+          title: title,
+          rang: audioUrl.includes('rangA') ? 'A' : 'B'
+        });
+      } catch (playError) {
+        console.error('❌ Erreur lors de la lecture audio:', playError);
+        toast({
+          title: "Erreur de lecture",
+          description: "Impossible de lire l'audio. Veuillez réessayer.",
+          variant: "destructive"
+        });
+      }
     }
   };
 
