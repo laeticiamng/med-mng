@@ -484,69 +484,102 @@ serve(async (req) => {
         }
         
         const taskId = await sunoApi.generateMusic(sunoPayload);
-        console.log('🆔 TaskID reçu:', taskId);
+        console.log('🆔 TaskID reçu immédiatement:', taskId);
         
-        // Attendre la completion avec polling selon la doc
-        const completedTracks = await sunoApi.waitForCompletion(taskId, 180000); // 3 minutes max
-        
-        if (completedTracks && completedTracks.length > 0) {
-          const track = completedTracks[0]; // Prendre le premier track
-          console.log('✅ Track généré:', track);
-          
-          // Extraire toutes les URLs selon la VRAIE structure Suno
-          const audioUrl = track.audioUrl; // URL téléchargeable
-          const streamUrl = track.streamAudioUrl; // URL streaming (disponible plus tôt)
-          const imageUrl = track.imageUrl;
-          
-          if (!audioUrl && !streamUrl) {
-            throw new Error('Aucune URL audio trouvée dans la réponse Suno');
-          }
-          
-          // Sauvegarder dans la base de données avec les vraies données Suno
-          if (userId) {
-            await supabase.from('generated_music_tracks').insert({
-              user_id: userId,
-              title: track.title || sunoPayload.title,
-              audio_url: audioUrl || streamUrl, // Préférer audioUrl, fallback sur streamUrl
-              metadata: {
-                style: track.tags || style,
-                mood,
-                tempo,
-                instruments,
-                duration: track.duration || duration,
-                prompt: track.prompt || sunoPayload.prompt,
-                model: track.modelName || userModel,
-                provider: 'suno',
-                stream_url: streamUrl,
-                image_url: imageUrl,
-                suno_track_id: track.id,
-                created_at: track.createTime
-              },
-              generation_status: 'completed'
-            });
-          }
-
-          const response: MusicGenerationResponse = {
-            success: true,
-            trackId: track.id,
-            audioUrl: audioUrl || streamUrl, // URL principale pour le lecteur
-            streamUrl: streamUrl, // URL streaming pour écoute immédiate
-            imageUrl: imageUrl,
-            metadata: {
-              title: track.title || sunoPayload.title,
-              style: track.style || style,
-              duration: track.duration || duration,
-              mood,
-              tempo,
-              model: track.model || userModel,
-              prompt: track.prompt || sunoPayload.prompt,
-              generatedAt: track.created_at || new Date().toISOString()
+        // 🎯 TRAITEMENT EN ARRIÈRE-PLAN - NE PAS ATTENDRE (optimisation vitesse)
+        const backgroundTask = async () => {
+          try {
+            console.log('🔄 Démarrage polling en arrière-plan pour taskId:', taskId);
+            
+            // Attendre la completion avec polling selon la doc
+            const completedTracks = await sunoApi.waitForCompletion(taskId, 180000); // 3 minutes max
+            
+            if (completedTracks && completedTracks.length > 0) {
+              const track = completedTracks[0]; // Prendre le premier track
+              console.log('✅ Track généré en arrière-plan:', track);
+              
+              // Extraire toutes les URLs selon la VRAIE structure Suno
+              const audioUrl = track.audioUrl; // URL téléchargeable
+              const streamUrl = track.streamAudioUrl; // URL streaming (disponible plus tôt)
+              const imageUrl = track.imageUrl;
+              
+              if (audioUrl || streamUrl) {
+                // Sauvegarder dans la base de données avec les vraies données Suno
+                if (userId) {
+                  await supabase.from('generated_music_tracks').insert({
+                    user_id: userId,
+                    title: track.title || sunoPayload.title,
+                    audio_url: audioUrl || streamUrl, // Préférer audioUrl, fallback sur streamUrl
+                    metadata: {
+                      style: track.tags || style,
+                      mood,
+                      tempo,
+                      instruments,
+                      duration: track.duration || duration,
+                      prompt: track.prompt || sunoPayload.prompt,
+                      model: track.modelName || userModel,
+                      provider: 'suno',
+                      stream_url: streamUrl,
+                      image_url: imageUrl,
+                      suno_track_id: track.id,
+                      created_at: track.createTime,
+                      task_id: taskId
+                    },
+                    generation_status: 'completed'
+                  });
+                  console.log('💾 Track sauvegardé en BDD avec taskId:', taskId);
+                }
+              }
             }
-          };
+          } catch (error) {
+            console.error('❌ Erreur dans le traitement en arrière-plan:', error);
+            
+            // Marquer comme échoué en BDD si possible
+            if (userId) {
+              await supabase.from('generated_music_tracks').insert({
+                user_id: userId,
+                title: sunoPayload.title,
+                audio_url: null,
+                metadata: {
+                  error: error.message,
+                  task_id: taskId,
+                  status: 'failed'
+                },
+                generation_status: 'failed'
+              }).catch(dbError => {
+                console.error('❌ Erreur sauvegarde échec:', dbError);
+              });
+            }
+          }
+        };
+        
+        // 🚀 DÉMARRER EN ARRIÈRE-PLAN SANS ATTENDRE (EdgeRuntime.waitUntil)
+        EdgeRuntime.waitUntil(backgroundTask());
+        
+        // ⚡ RETOUR IMMÉDIAT AU CLIENT AVEC TASKID
+        const immediateResponse: MusicGenerationResponse = {
+          success: true,
+          trackId: taskId,
+          audioUrl: null, // Sera disponible après génération
+          streamUrl: null,
+          imageUrl: null,
+          metadata: {
+            title: sunoPayload.title,
+            style: style,
+            duration: duration,
+            mood,
+            tempo,
+            model: userModel,
+            prompt: sunoPayload.prompt,
+            generatedAt: new Date().toISOString(),
+            status: 'generating',
+            estimated_duration: '2-3 minutes'
+          }
+        };
 
-          return new Response(JSON.stringify(response), {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          });
+        return new Response(JSON.stringify(immediateResponse), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
         } else {
           throw new Error('Aucun track généré par Suno');
         }
