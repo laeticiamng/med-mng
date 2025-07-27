@@ -62,58 +62,83 @@ serve(async (req) => {
       itemCode // Ajouter itemCode pour le titre
     }: MusicGenerationRequest = await req.json();
 
-    console.log('🎵 Génération de musique:', { 
+    console.log('🎵 Génération de musique OPTIMISÉE:', { 
       hasLyrics: !!lyrics,
       lyricsLength: lyrics?.length || 0,
+      lyricsPreview: lyrics ? lyrics.substring(0, 100) + '...' : 'aucune',
       prompt: prompt?.substring(0, 50) + '...' || 'undefined',
       style, 
       rang,
       duration: duration + 's',
-      language
+      language,
+      itemCode,
+      apiMode: SUNO_API_KEY ? 'REAL_SUNO' : 'SIMULATION'
     });
 
     // Vérifier si SUNO_API_KEY est configurée pour utiliser Suno
     const SUNO_API_KEY = Deno.env.get('SUNO_API_KEY');
     
     if (SUNO_API_KEY) {
-      // Construire un prompt détaillé incluant les paroles si disponibles
+      // ✅ CORRECTION 4: Optimiser le prompt selon la documentation Suno
       let detailedPrompt = '';
+      let sunoTitle = '';
       
       if (lyrics && lyrics.trim()) {
-        // Si on a des paroles, les inclure dans le prompt avec instruction de les chanter
-        detailedPrompt = `Create a ${duration} second ${style} song where every word of these lyrics MUST be sung clearly and completely:
+        // Prompt optimisé pour chanter les paroles exactes
+        detailedPrompt = `${lyrics}
 
-[LYRICS TO SING - MANDATORY]
-${lyrics}
-
-IMPORTANT: 
-- Sing ALL the provided lyrics word by word
-- Do NOT skip any lines
-- Make sure the song duration covers all lyrics (${duration} seconds)
+[Song Details]
 - Style: ${style}
+- Duration: ${duration} seconds
+- Language: ${language}
 - Mood: ${mood}
-- Tempo: ${tempo}
-- The song must be exactly ${duration} seconds long and include ALL provided lyrics`;
+- Tempo: ${tempo}`;
+
+        // Titre descriptif pour Suno
+        sunoTitle = `${rang ? `Rang ${rang} - ` : ''}${itemCode || 'Contenu'} - ${style}`;
+        
+        console.log('🎵 Mode LYRICS - Génération avec paroles chantées:', {
+          lyricsLength: lyrics.length,
+          style,
+          duration,
+          rang
+        });
       } else {
-        // Sinon, utiliser le prompt existant ou créer un instrumental
+        // Mode instrumental
         detailedPrompt = prompt || `Create a ${duration} second ${style} instrumental track with ${mood} mood, ${tempo} tempo, featuring ${instruments.join(', ')}. ${duration > 180 ? 'This should be a longer, more developed composition.' : 'Keep it concise and focused.'}`;
+        sunoTitle = `${style} Instrumental - ${duration}s`;
+        
+        console.log('🎵 Mode INSTRUMENTAL - Génération sans paroles');
       }
 
-      // Payload conforme à l'API Suno officielle
+      // ✅ CORRECTION 5: Payload optimisé selon documentation Suno officielle
       const sunoPayload = {
         prompt: detailedPrompt,
         style: style,
-        title: `${rang ? `Rang ${rang} - ` : ''}${itemCode || 'Contenu'} - ${style}`,
+        title: sunoTitle,
         customMode: true,
-        instrumental: false,
-        model: "V4",
+        instrumental: !lyrics || !lyrics.trim(), // Instrumental si pas de paroles
+        model: "V4", // Modèle le plus récent
         callBackUrl: `${Deno.env.get('SUPABASE_URL')}/functions/v1/suno-callback`,
-        // Autres paramètres selon la doc Suno
-        lyrics: lyrics && lyrics.trim() ? lyrics : undefined,
-        duration: duration
+        // Paramètres additionnels optimisés
+        ...(lyrics && lyrics.trim() && {
+          lyrics: lyrics
+        }),
+        duration: duration,
+        // Tags négatifs pour éviter les styles indésirables
+        negativeTags: rang === 'AB' ? 'monotone, repetitive' : undefined
       };
 
-      console.log('🚀 Utilisation de l\'API Suno avec payload:', JSON.stringify(sunoPayload, null, 2));
+      console.log('🚀 APPEL API SUNO RÉEL avec payload optimisé:', {
+        customMode: sunoPayload.customMode,
+        instrumental: sunoPayload.instrumental,
+        model: sunoPayload.model,
+        style: sunoPayload.style,
+        title: sunoPayload.title,
+        hasLyrics: !!sunoPayload.lyrics,
+        lyricsLength: sunoPayload.lyrics?.length || 0,
+        duration: sunoPayload.duration
+      });
       
       const sunoResponse = await fetch('https://api.sunoapi.org/api/v1/generate', {
         method: 'POST',
@@ -184,8 +209,9 @@ IMPORTANT:
       }
     }
 
-    // Fallback : Simulation de génération de musique avec URL de test fonctionnelle
-    console.log('📦 Mode simulation - Configuration Suno manquante');
+    // ✅ CORRECTION 7: Améliorer le mode simulation avec vraies URLs
+    console.log('📦 Mode simulation - Configuration Suno manquante, utilisation URLs de test');
+    console.log('⚠️ Pour utiliser l\'API Suno réelle, configurez SUNO_API_KEY dans les secrets Supabase');
     
     // Utiliser une URL audio de test réelle pour que le player fonctionne
     const testAudioUrls = [
@@ -297,15 +323,50 @@ async function pollForSunoCompletion(taskId: string, apiKey: string) {
           const status = detailsData.data.status;
           console.log(`📊 Status de génération: ${status}`);
           
-          if (status === 'SUCCESS' || status === 'FIRST_SUCCESS' || status === 'COMPLETE') {
-            const tracks = detailsData.data.response?.sunoData || [];
-            const completedTrack = tracks.find(track => 
-              track.audioUrl && track.audioUrl.trim() !== ''
-            );
+          // ✅ CORRECTION 6: Améliorer la gestion des statuts Suno
+          if (status === 'SUCCESS' || status === 'COMPLETE') {
+            // Chercher dans response.data ou directement dans data
+            const tracks = detailsData.data.response?.data || detailsData.data.data || [];
+            
+            let completedTrack = null;
+            if (Array.isArray(tracks)) {
+              completedTrack = tracks.find(track => 
+                track.audio_url && track.audio_url.trim() !== ''
+              );
+            }
             
             if (completedTrack) {
-              console.log(`✅ Track complété trouvé:`, completedTrack);
-              return completedTrack;
+              console.log(`✅ Track complété trouvé:`, {
+                id: completedTrack.id,
+                title: completedTrack.title,
+                duration: completedTrack.duration,
+                audioUrl: completedTrack.audio_url
+              });
+              return {
+                id: completedTrack.id,
+                title: completedTrack.title,
+                audioUrl: completedTrack.audio_url,
+                duration: completedTrack.duration
+              };
+            }
+          } else if (status === 'FIRST_SUCCESS') {
+            // Premier audio prêt, on peut l'utiliser
+            const tracks = detailsData.data.response?.data || detailsData.data.data || [];
+            
+            if (Array.isArray(tracks)) {
+              const firstTrack = tracks.find(track => 
+                track.audio_url && track.audio_url.trim() !== ''
+              );
+              
+              if (firstTrack) {
+                console.log(`🎵 Premier track prêt:`, firstTrack.title);
+                return {
+                  id: firstTrack.id,
+                  title: firstTrack.title,
+                  audioUrl: firstTrack.audio_url,
+                  duration: firstTrack.duration
+                };
+              }
             }
           } else if (status === 'TEXT_SUCCESS') {
             // Audio en cours de génération, on continue à attendre

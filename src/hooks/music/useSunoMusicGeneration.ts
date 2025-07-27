@@ -32,7 +32,7 @@ export const useSunoMusicGeneration = () => {
   const { validateAndNormalizeAudioUrl } = useMusicValidation();
 
   const generateMusicInLanguage = async (
-    rang: 'A' | 'B', 
+    rang: 'A' | 'B' | 'AB', 
     paroles: string[], 
     selectedStyle: string, 
     duration: number = 240

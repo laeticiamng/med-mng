@@ -5,7 +5,7 @@ import { secureSunoClient } from '@/lib/secureApiClient';
 interface GenerateMusicRequest {
   lyrics: string;
   style: string;
-  rang: 'A' | 'B' | 'TRANSPOSE';
+  rang: 'A' | 'B' | 'AB' | 'TRANSPOSE';
   duration: number;
   language: string;
   fastMode: boolean;
@@ -15,6 +15,11 @@ interface GenerateMusicRequest {
     enhanced_duration: true;
   };
   itemCode?: string;
+  // Paramètres Suno optimisés
+  customMode?: boolean;
+  instrumental?: boolean;
+  model?: string;
+  title?: string;
 }
 
 export const callSunoApi = async (requestBody: GenerateMusicRequest) => {

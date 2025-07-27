@@ -144,21 +144,21 @@ export const useParolesMusicales = (
       // Toast de démarrage
       toast({
         title: `🎵 Génération Mix A+B lancée`,
-        description: `${parolesMix.length} vers - Compétences complètes ${itemData.item_code}`,
+        description: `${parolesMix.length} vers - Fusion complète ${itemData.item_code}`,
       });
 
-      // Durée adaptée pour le mix (plus long)
-      const mixDuration = Math.max(musicDuration, 180); // Minimum 3 minutes pour le mix
+      // Durée adaptée pour le mix (plus long pour inclure A+B)
+      const mixDuration = Math.max(musicDuration, 300); // Minimum 5 minutes pour le mix A+B
       
-      // Appel génération musicale avec les paroles Mix
-      const audioUrl = await generateMusicInLanguage('A', parolesMix, selectedStyle, mixDuration);
+      // ✅ CORRECTION 1: Utiliser rang 'AB' spécial pour le Mix au lieu de 'A'
+      const audioUrl = await generateMusicInLanguage('AB' as any, parolesMix, selectedStyle, mixDuration);
       
       console.log(`✅ GÉNÉRATION MIX TERMINÉE - ${itemData.item_code}, URL:`, audioUrl);
       
       // Toast de succès
       toast({
         title: `🎉 ${itemData.item_code} Mix A+B généré !`,
-        description: `Compétences Rang A et B intégrées - Excellence complète`,
+        description: `Fusion Rang A et B complète - ${Math.floor(mixDuration/60)}min${mixDuration%60}s`,
       });
       
     } catch (error) {
