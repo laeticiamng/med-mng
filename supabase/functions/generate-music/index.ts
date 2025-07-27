@@ -300,7 +300,7 @@ serve(async (req) => {
 });
 
 async function pollForSunoCompletion(taskId: string, apiKey: string) {
-  const maxAttempts = 12; // Réduit à 12 pour une meilleure réactivité
+  const maxAttempts = 24; // ✅ CORRECTION: Augmenté à 24 pour Suno (8 minutes max)
   
   
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {

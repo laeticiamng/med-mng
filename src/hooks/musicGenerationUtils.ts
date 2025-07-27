@@ -12,21 +12,24 @@ export const validateGenerationInput = (
     throw new Error('Paroles manquantes');
   }
 
-  // ✅ CORRECTION 2: Gérer correctement le format des paroles
+  // ✅ CORRECTION : Gérer correctement le format des paroles avec limite Suno
   let parolesText: string;
   
   if (rang === 'AB') {
-    // Pour le Mix A+B, utiliser toutes les paroles
-    parolesText = Array.isArray(paroles) ? paroles.join('\n') : String(paroles);
+    // Pour le Mix A+B, combiner mais limiter
+    const allParoles = Array.isArray(paroles) ? paroles.join('\n') : String(paroles);
+    parolesText = allParoles.length > 2800 ? allParoles.substring(0, 2800) + '\n...' : allParoles;
   } else {
     // Pour A ou B, vérifier si c'est un tableau indexé ou un tableau de lignes
     if (typeof paroles[0] === 'string' && paroles.length > 2) {
       // C'est un tableau de lignes de paroles (format generateComprehensiveLyrics)
-      parolesText = paroles.join('\n');
+      const fullText = paroles.join('\n');
+      parolesText = fullText.length > 2800 ? fullText.substring(0, 2800) + '\n...' : fullText;
     } else {
       // C'est un tableau indexé [parolesA, parolesB]
       const parolesIndex = rang === 'A' ? 0 : 1;
-      parolesText = paroles[parolesIndex];
+      const rawText = paroles[parolesIndex];
+      parolesText = rawText?.length > 2800 ? rawText.substring(0, 2800) + '\n...' : rawText;
     }
   }
 
@@ -36,7 +39,8 @@ export const validateGenerationInput = (
 
   console.log(`✅ Paroles validées pour Rang ${rang}:`, {
     length: parolesText.length,
-    preview: parolesText.substring(0, 100) + '...'
+    preview: parolesText.substring(0, 100) + '...',
+    truncated: parolesText.includes('...')
   });
 
   return parolesText;

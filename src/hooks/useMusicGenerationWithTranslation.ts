@@ -11,9 +11,8 @@ export const useMusicGenerationWithTranslation = () => {
     duration: number = 240
   ) => {
     try {
-      // Pour la version AB, utiliser le rang A avec des paroles combinées 
-      const effectiveRang = rang === 'AB' ? 'A' : rang;
-      const audioUrl = await sunoGeneration.generateMusicInLanguage(effectiveRang, paroles, selectedStyle, duration);
+      // ✅ CORRECTION : Utiliser le rang exact sans transformation
+      const audioUrl = await sunoGeneration.generateMusicInLanguage(rang, paroles, selectedStyle, duration);
       
       // Retourner l'URL audio pour le lecteur
       return audioUrl;
