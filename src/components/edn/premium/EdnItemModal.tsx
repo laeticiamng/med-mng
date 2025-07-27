@@ -86,7 +86,8 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
       tabs.push({ id: 'rang-b', label: 'Rang B', icon: Brain, available: true });
     }
     
-    if (finalItem.paroles_musicales && finalItem.paroles_musicales.length > 0) {
+    if ((finalItem.paroles_musicales && finalItem.paroles_musicales.length > 0) || 
+        finalItem.paroles_rang_a || finalItem.paroles_rang_b || finalItem.paroles_rang_ab) {
       tabs.push({ id: 'music', label: 'Musique', icon: Music, available: true });
     }
     
@@ -487,7 +488,8 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
               )}
 
               {/* Music */}
-              {finalItem.paroles_musicales && finalItem.paroles_musicales.length > 0 && (
+              {((finalItem.paroles_musicales && finalItem.paroles_musicales.length > 0) || 
+                finalItem.paroles_rang_a || finalItem.paroles_rang_b || finalItem.paroles_rang_ab) && (
                 <TabsContent value="music" className={`${isMobile ? 'p-3' : 'p-6'} flex-1 overflow-y-auto`}>
                   <ParolesMusicales 
                     paroles={finalItem.paroles_musicales}
