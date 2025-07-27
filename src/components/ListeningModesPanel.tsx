@@ -1,0 +1,237 @@
+import { useState, useEffect } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { 
+  Play, 
+  Pause, 
+  Square, 
+  Timer, 
+  Settings, 
+  Music,
+  Brain,
+  Zap,
+  Leaf,
+  Rocket,
+  Palette,
+  Target
+} from 'lucide-react';
+import { useListeningModes, type ListeningMode } from '@/hooks/useListeningModes';
+
+const getModeIcon = (iconName: string) => {
+  const iconMap: Record<string, any> = {
+    '🎯': Target,
+    '⚡': Zap,
+    '🧠': Brain,
+    '🌿': Leaf,
+    '🚀': Rocket,
+    '🎨': Palette
+  };
+  
+  return iconMap[iconName] || Target;
+};
+
+const getModeColor = (color: string) => {
+  const colorMap: Record<string, string> = {
+    blue: 'bg-blue-100 text-blue-800 border-blue-200',
+    orange: 'bg-orange-100 text-orange-800 border-orange-200',
+    purple: 'bg-purple-100 text-purple-800 border-purple-200',
+    green: 'bg-green-100 text-green-800 border-green-200',
+    red: 'bg-red-100 text-red-800 border-red-200',
+    pink: 'bg-pink-100 text-pink-800 border-pink-200'
+  };
+  
+  return colorMap[color] || colorMap.blue;
+};
+
+export const ListeningModesPanel = () => {
+  const {
+    predefinedModes,
+    activeMode,
+    timeRemaining,
+    isSessionActive,
+    startMode,
+    endSession,
+    pauseSession,
+    resumeSession,
+    getRecommendedPlaylist
+  } = useListeningModes();
+
+  const [selectedMode, setSelectedMode] = useState<ListeningMode | null>(null);
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const progressPercentage = activeMode 
+    ? ((activeMode.duration_minutes * 60 - timeRemaining) / (activeMode.duration_minutes * 60)) * 100
+    : 0;
+
+  return (
+    <div className="space-y-6">
+      {/* Session active */}
+      {activeMode && (
+        <Card className="border-primary/20 bg-primary/5">
+          <CardHeader>
+            <CardTitle className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="text-2xl">{activeMode.icon}</div>
+                <div>
+                  <h3 className="font-semibold">{activeMode.name}</h3>
+                  <p className="text-sm text-muted-foreground">Session en cours</p>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-2xl font-mono">{formatTime(timeRemaining)}</div>
+                <div className="text-xs text-muted-foreground">restant</div>
+              </div>
+            </CardTitle>
+          </CardHeader>
+          
+          <CardContent className="space-y-4">
+            <Progress value={progressPercentage} className="h-2" />
+            
+            <div className="flex gap-2">
+              {isSessionActive ? (
+                <Button variant="outline" size="sm" onClick={pauseSession}>
+                  <Pause className="h-4 w-4 mr-1" />
+                  Pause
+                </Button>
+              ) : (
+                <Button variant="outline" size="sm" onClick={resumeSession}>
+                  <Play className="h-4 w-4 mr-1" />
+                  Reprendre
+                </Button>
+              )}
+              
+              <Button variant="destructive" size="sm" onClick={endSession}>
+                <Square className="h-4 w-4 mr-1" />
+                Terminer
+              </Button>
+              
+              <Button variant="ghost" size="sm">
+                <Music className="h-4 w-4 mr-1" />
+                Playlist adaptée
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Sélection des modes */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Brain className="h-5 w-5 text-primary" />
+            Modes d'Écoute Spécialisés
+          </CardTitle>
+          <CardDescription>
+            Choisissez un mode optimisé pour votre objectif d'apprentissage
+          </CardDescription>
+        </CardHeader>
+        
+        <CardContent>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {predefinedModes.map((mode) => {
+              const IconComponent = getModeIcon(mode.icon);
+              const isSelected = selectedMode?.id === mode.id;
+              
+              return (
+                <Card 
+                  key={mode.id}
+                  className={`cursor-pointer transition-all hover:shadow-md ${
+                    isSelected ? 'ring-2 ring-primary' : ''
+                  }`}
+                  onClick={() => setSelectedMode(isSelected ? null : mode)}
+                >
+                  <CardContent className="p-4">
+                    <div className="flex items-start justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <div className="text-xl">{mode.icon}</div>
+                        <div>
+                          <h4 className="font-medium text-sm">{mode.name}</h4>
+                          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                            <Timer className="h-3 w-3" />
+                            {mode.duration_minutes}min
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <Badge 
+                        variant="secondary" 
+                        className={`text-xs ${getModeColor(mode.color)}`}
+                      >
+                        {mode.playlist_criteria.energy_level * 100}%
+                      </Badge>
+                    </div>
+                    
+                    <p className="text-xs text-muted-foreground mb-3">
+                      {mode.description}
+                    </p>
+                    
+                    <div className="space-y-2">
+                      <div className="flex flex-wrap gap-1">
+                        {mode.playlist_criteria.mood.slice(0, 2).map(mood => (
+                          <Badge key={mood} variant="outline" className="text-xs">
+                            {mood}
+                          </Badge>
+                        ))}
+                      </div>
+                      
+                      {isSelected && (
+                        <div className="pt-2 border-t">
+                          <div className="space-y-1 text-xs text-muted-foreground">
+                            <div>Tempo: {mode.playlist_criteria.tempo_range.join('-')} BPM</div>
+                            <div>Pauses: toutes les {mode.effects.break_intervals}min</div>
+                            <div>Ambiance: {mode.effects.background_sounds}</div>
+                          </div>
+                          
+                          <Button 
+                            size="sm" 
+                            className="w-full mt-3"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              startMode(mode);
+                            }}
+                            disabled={!!activeMode}
+                          >
+                            <Play className="h-3 w-3 mr-1" />
+                            Commencer la session
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Historique des sessions */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            <span>Historique des Sessions</span>
+            <Button variant="outline" size="sm">
+              <Settings className="h-4 w-4 mr-1" />
+              Personnaliser
+            </Button>
+          </CardTitle>
+        </CardHeader>
+        
+        <CardContent>
+          <div className="text-center text-muted-foreground py-8">
+            <Brain className="h-12 w-12 mx-auto mb-2 opacity-50" />
+            <p>Vos sessions d'écoute apparaîtront ici</p>
+            <p className="text-sm">Commencez votre première session !</p>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
