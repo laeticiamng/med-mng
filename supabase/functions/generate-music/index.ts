@@ -325,6 +325,7 @@ serve(async (req) => {
     
     if (isValidApiKey) {
       console.log('🎵 GENERATION SUNO ACTIVÉE - Mode production avec API réelle');
+      console.log('🔑 Clé API Suno confirmée valide, appel réel en cours...');
       
       // Déterminer le modèle selon l'abonnement utilisateur
       const userModel = await getSunoModelForUser(userId, supabase);
@@ -379,7 +380,8 @@ serve(async (req) => {
       });
       
       try {
-        console.log('🚀 APPEL API SUNO RÉEL avec payload:', sunoPayload);
+        console.log('🚀 TENTATIVE APPEL API SUNO RÉEL...');
+        console.log('📝 Payload complet envoyé:', JSON.stringify(sunoPayload, null, 2));
         
         const taskId = await sunoApi.generateMusic(sunoPayload);
         console.log('🆔 TaskID reçu:', taskId);
@@ -449,10 +451,16 @@ serve(async (req) => {
           throw new Error('Aucun track généré par Suno');
         }
       } catch (error) {
-        console.error('❌ Erreur API Suno:', error);
+        console.error('❌ ERREUR DÉTAILLÉE API SUNO:', {
+          message: error.message,
+          stack: error.stack,
+          name: error.name,
+          cause: error.cause
+        });
+        console.log('🔍 Détails de l\'erreur pour debugging:', error);
         
-        // En cas d'erreur, utiliser le mode simulation comme fallback
-        console.log('🔄 Basculement vers mode simulation suite à erreur API');
+        // Ne pas basculer en simulation, montrer l'erreur réelle
+        throw new Error(`Erreur API Suno: ${error.message}`);
       }
     }
 
