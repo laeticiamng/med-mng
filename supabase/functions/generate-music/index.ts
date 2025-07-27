@@ -266,12 +266,13 @@ IMPORTANT:
 });
 
 async function pollForSunoCompletion(taskId: string, apiKey: string) {
-  const maxAttempts = 20; // Réduit de 30 à 20
+  const maxAttempts = 12; // Réduit à 12 pour une meilleure réactivité
+  
   
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     if (attempt > 1) {
-      // Polling adaptatif : plus fréquent au début, puis plus espacé
-      const delay = attempt <= 5 ? 2000 : attempt <= 10 ? 3000 : 4000;
+      // Polling ultra-optimisé : démarrage rapide puis espacement
+      const delay = attempt <= 3 ? 1000 : attempt <= 6 ? 1500 : 2000;
       await new Promise(resolve => setTimeout(resolve, delay));
     }
     
@@ -296,8 +297,8 @@ async function pollForSunoCompletion(taskId: string, apiKey: string) {
           const status = detailsData.data.status;
           console.log(`📊 Status de génération: ${status}`);
           
-          if (status === 'SUCCESS' && detailsData.data.response && detailsData.data.response.sunoData) {
-            const tracks = detailsData.data.response.sunoData;
+          if (status === 'SUCCESS' || status === 'FIRST_SUCCESS' || status === 'COMPLETE') {
+            const tracks = detailsData.data.response?.sunoData || [];
             const completedTrack = tracks.find(track => 
               track.audioUrl && track.audioUrl.trim() !== ''
             );
@@ -306,7 +307,10 @@ async function pollForSunoCompletion(taskId: string, apiKey: string) {
               console.log(`✅ Track complété trouvé:`, completedTrack);
               return completedTrack;
             }
-          } else if (status === 'FAILED' || status.includes('FAIL')) {
+          } else if (status === 'TEXT_SUCCESS') {
+            // Audio en cours de génération, on continue à attendre
+            console.log(`🎵 Texte prêt, audio en cours...`);
+          } else if (status === 'FAILED' || status.includes('FAIL') || status === 'ERROR') {
             console.error(`❌ Génération échouée avec status: ${status}`);
             return null;
           }
