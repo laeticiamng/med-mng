@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -34,43 +35,96 @@ export const useSunoPolling = () => {
 
   const checkTrackStatus = useCallback(async (track: PollingState) => {
     try {
-      const { data, error } = await supabase
+      console.log('🔍 Vérification statut pour trackId:', track.trackId);
+      
+      // 1. D'abord vérifier en BDD locale
+      const { data: dbTrack, error: dbError } = await supabase
         .from('generated_music_tracks')
         .select('*')
         .eq('task_id', track.trackId)
-        .eq('generation_status', 'completed')
         .single();
 
-      if (error) {
-        console.log('🔍 Track pas encore prêt:', track.trackId);
-        return false;
-      }
-
-      if (data?.audio_url) {
-        console.log('✅ Track complété trouvé:', track.trackId, 'URL:', data.audio_url);
+      if (dbTrack && dbTrack.audio_url && dbTrack.generation_status === 'completed') {
+        console.log('✅ Track complété trouvé en BDD:', track.trackId, 'URL:', dbTrack.audio_url);
         
-        // Stocker l'URL audio complétée
         setCompletedAudio(prev => ({
           ...prev,
-          [`${track.rang}`]: data.audio_url
+          [track.rang]: dbTrack.audio_url
         }));
 
         toast({
           title: `🎉 ${track.itemCode} Rang ${track.rang} prêt !`,
-          description: `🎵 Votre musique est maintenant disponible pour écoute`,
-          duration: 8000, // Durée plus longue pour être sûr de voir le toast
+          description: `🎵 Votre musique est maintenant disponible`,
+          duration: 5000,
         });
 
         return true;
       }
+
+      // 2. Si pas trouvé en BDD, vérifier directement via l'API Suno
+      console.log('📡 Vérification directe via API Suno pour:', track.trackId);
+      
+      const { data: statusData, error: statusError } = await supabase.functions.invoke('music-status', {
+        body: { taskId: track.trackId }
+      });
+
+      if (statusData && !statusError) {
+        console.log('📊 Statut API Suno:', statusData);
+        
+        if (statusData.status === 'completed' && statusData.audioUrl) {
+          console.log('✅ Track complété via API Suno:', track.trackId, 'URL:', statusData.audioUrl);
+          
+          // Mettre à jour la BDD avec le résultat
+          await supabase
+            .from('generated_music_tracks')
+            .update({
+              generation_status: 'completed',
+              audio_url: statusData.audioUrl,
+              metadata: {
+                ...dbTrack?.metadata,
+                stream_url: statusData.streamUrl,
+                image_url: statusData.imageUrl,
+                completed_at: new Date().toISOString()
+              }
+            })
+            .eq('task_id', track.trackId);
+
+          setCompletedAudio(prev => ({
+            ...prev,
+            [track.rang]: statusData.audioUrl
+          }));
+
+          toast({
+            title: `🎉 ${track.itemCode} Rang ${track.rang} prêt !`,
+            description: `🎵 Votre musique est maintenant disponible`,
+            duration: 5000,
+          });
+
+          return true;
+        } else if (statusData.status === 'failed') {
+          console.error('❌ Génération échouée pour:', track.trackId);
+          
+          toast({
+            title: `❌ ${track.itemCode} Rang ${track.rang} échoué`,
+            description: `La génération a échoué. Veuillez réessayer.`,
+            variant: "destructive",
+            duration: 5000,
+          });
+
+          return true; // Arrêter le polling
+        }
+      }
+
+      console.log('⏳ Track pas encore prêt:', track.trackId);
+      return false;
+      
     } catch (error) {
       console.error('❌ Erreur polling:', error);
+      return false;
     }
-    
-    return false;
   }, [toast]);
 
-  // Polling automatique toutes les 10 secondes
+  // Polling automatique toutes les 5 secondes (plus rapide)
   useEffect(() => {
     if (pollingTracks.length === 0) return;
 
@@ -85,14 +139,14 @@ export const useSunoPolling = () => {
       
       for (const track of pollingTracks) {
         const elapsed = Date.now() - track.startTime;
-        const maxWait = 10 * 60 * 1000; // 10 minutes max
+        const maxWait = 5 * 60 * 1000; // 5 minutes max (réduit de 10 min)
         
         if (elapsed > maxWait) {
           console.log('⏰ Timeout pour track:', track.trackId);
           stopPolling(track.trackId);
           toast({
-            title: "Timeout de génération",
-            description: `${track.itemCode} Rang ${track.rang} prend trop de temps`,
+            title: "⏰ Timeout de génération",
+            description: `${track.itemCode} Rang ${track.rang} prend trop de temps. Réessayez.`,
             variant: "destructive"
           });
           continue;
@@ -103,7 +157,7 @@ export const useSunoPolling = () => {
           stopPolling(track.trackId);
         }
       }
-    }, 10000); // Check toutes les 10 secondes
+    }, 5000); // Check toutes les 5 secondes (plus rapide)
 
     return () => clearInterval(interval);
   }, [pollingTracks, checkTrackStatus, stopPolling, toast]);
