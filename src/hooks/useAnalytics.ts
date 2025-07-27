@@ -1,192 +1,116 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/components/med-mng/AuthProvider';
 
-export interface AnalyticsData {
-  userActivity: {
-    totalSessions: number;
-    averageSessionDuration: number;
-    bounceRate: number;
-    newUsers: number;
-    returningUsers: number;
-  };
-  contentMetrics: {
-    totalGenerations: number;
-    successfulGenerations: number;
-    popularStyles: string[];
-    averageRating: number;
-  };
-  performanceMetrics: {
-    averageLoadTime: number;
-    errorRate: number;
-    apiResponseTime: number;
-  };
-  revenueMetrics: {
-    totalRevenue: number;
-    activeSubscriptions: number;
-    churnRate: number;
-    conversionRate: number;
-  };
-}
-
-export function useAnalytics() {
-  const [data, setData] = useState<AnalyticsData | null>(null);
+export const useAnalytics = () => {
+  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  const trackEvent = useCallback(async (
-    eventName: string,
-    properties: Record<string, any> = {},
-    userId?: string
-  ) => {
+  const trackListening = async (songId: string, duration: number = 0) => {
+    if (!user) return;
+    
     try {
-      await supabase.functions.invoke('analytics-tracker', {
-        body: {
-          event: eventName,
-          properties: {
-            ...properties,
-            timestamp: new Date().toISOString(),
-            url: window.location.pathname,
-            userAgent: navigator.userAgent
-          },
-          userId: userId || (await supabase.auth.getUser()).data.user?.id
-        }
-      });
+      const { error } = await supabase
+        .rpc('med_mng_track_listening', {
+          p_song_id: songId,
+          p_listen_duration: duration
+        });
+      
+      if (error) throw error;
     } catch (error) {
-      console.error('Erreur tracking événement:', error);
+      console.error('Erreur tracking écoute:', error);
     }
-  }, []);
+  };
 
-  const trackPageView = useCallback(async (page: string) => {
-    await trackEvent('page_view', { page });
-  }, [trackEvent]);
-
-  const trackMusicGeneration = useCallback(async (style: string, duration: number, success: boolean) => {
-    await trackEvent('music_generation', {
-      style,
-      duration,
-      success,
-      category: 'content_creation'
-    });
-  }, [trackEvent]);
-
-  const trackUserAction = useCallback(async (action: string, context?: string) => {
-    await trackEvent('user_action', {
-      action,
-      context,
-      category: 'user_interaction'
-    });
-  }, [trackEvent]);
-
-  const trackError = useCallback(async (error: Error, context?: string) => {
-    await trackEvent('error', {
-      message: error.message,
-      stack: error.stack,
-      context,
-      category: 'error'
-    });
-  }, [trackEvent]);
-
-  const trackPerformance = useCallback(async (metric: string, value: number, context?: string) => {
-    await trackEvent('performance', {
-      metric,
-      value,
-      context,
-      category: 'performance'
-    });
-  }, [trackEvent]);
-
-  const fetchAnalytics = useCallback(async (
-    startDate?: Date,
-    endDate?: Date,
-    filters?: Record<string, any>
+  const logEvent = async (
+    songId: string, 
+    eventType: 'play' | 'pause' | 'skip' | 'complete',
+    duration?: number,
+    metadata: Record<string, any> = {}
   ) => {
+    if (!user) return;
+    
+    try {
+      const { error } = await supabase
+        .rpc('med_mng_log_listening_event', {
+          p_song_id: songId,
+          p_event_type: eventType,
+          p_listen_duration: duration,
+          p_metadata: metadata
+        });
+      
+      if (error) throw error;
+    } catch (error) {
+      console.error('Erreur log event:', error);
+    }
+  };
+
+  const toggleFavorite = async (songId: string) => {
+    if (!user) return false;
+    
     try {
       setLoading(true);
-      setError(null);
-
-      const { data: analyticsData, error } = await supabase.functions.invoke('analytics-aggregator', {
-        body: {
-          startDate: startDate?.toISOString(),
-          endDate: endDate?.toISOString(),
-          filters
-        }
-      });
-
+      const { data, error } = await supabase
+        .rpc('med_mng_toggle_favorite', {
+          p_song_id: songId
+        });
+      
       if (error) throw error;
-
-      setData(analyticsData);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erreur inconnue');
-      console.error('Erreur récupération analytics:', err);
+      return data;
+    } catch (error) {
+      console.error('Erreur toggle favorite:', error);
+      return false;
     } finally {
       setLoading(false);
     }
-  }, []);
+  };
 
-  const exportData = useCallback(async (
-    format: 'csv' | 'json' | 'xlsx',
-    startDate?: Date,
-    endDate?: Date
-  ) => {
+  const getFavorites = async () => {
+    if (!user) return [];
+    
     try {
-      const { data, error } = await supabase.functions.invoke('analytics-export', {
-        body: {
-          format,
-          startDate: startDate?.toISOString(),
-          endDate: endDate?.toISOString()
-        }
-      });
-
+      const { data, error } = await supabase
+        .from('med_mng_user_favorites')
+        .select(`
+          song_id,
+          created_at,
+          med_mng_songs(id, title, artist, duration, audio_url)
+        `)
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+      
       if (error) throw error;
-
-      // Créer et télécharger le fichier
-      const blob = new Blob([data], { type: getContentType(format) });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `analytics-${new Date().toISOString().split('T')[0]}.${format}`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      return data || [];
     } catch (error) {
-      console.error('Erreur export analytics:', error);
-    }
-  }, []);
-
-  const getContentType = (format: string) => {
-    switch (format) {
-      case 'csv': return 'text/csv';
-      case 'json': return 'application/json';
-      case 'xlsx': return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-      default: return 'text/plain';
+      console.error('Erreur récupération favoris:', error);
+      return [];
     }
   };
 
-  useEffect(() => {
-    // Tracking automatique de la page courante
-    trackPageView(window.location.pathname);
-
-    // Tracking des erreurs globales
-    const handleError = (event: ErrorEvent) => {
-      trackError(new Error(event.message), event.filename);
-    };
-
-    window.addEventListener('error', handleError);
-    return () => window.removeEventListener('error', handleError);
-  }, [trackPageView, trackError]);
+  const trackPerformance = async (metric: string, value: number, category: string = 'performance') => {
+    if (!user) return;
+    
+    try {
+      const { error } = await supabase
+        .rpc('med_mng_log_listening_event', {
+          p_song_id: '00000000-0000-0000-0000-000000000000', // UUID null pour les métriques de performance
+          p_event_type: 'performance',
+          p_listen_duration: Math.round(value),
+          p_metadata: { metric, category }
+        });
+      
+      if (error) throw error;
+    } catch (error) {
+      console.error('Erreur tracking performance:', error);
+    }
+  };
 
   return {
-    data,
-    loading,
-    error,
-    trackEvent,
-    trackPageView,
-    trackMusicGeneration,
-    trackUserAction,
-    trackError,
+    trackListening,
+    logEvent,
+    toggleFavorite,
+    getFavorites,
     trackPerformance,
-    fetchAnalytics,
-    exportData
+    loading
   };
-}
+};

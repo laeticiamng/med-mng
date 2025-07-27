@@ -32,6 +32,7 @@ import { MedMngSuccess } from "./pages/MedMngSuccess";
 import { MedMngProfile } from "./pages/MedMngProfile";
 import { PlaylistManager } from "./components/playlists/PlaylistManager";
 import { PlaylistDetail } from "./components/playlists/PlaylistDetail";
+import { MusicAnalytics } from "./components/analytics/MusicAnalytics";
 import { MedChat } from "./pages/MedChat";
 import { SubscriptionTest } from "./pages/SubscriptionTest";
 import AdminImport from "./pages/AdminImport";
@@ -97,6 +98,7 @@ const App = () => (
                 <Route path="/med-mng/player/:songId" element={<ProtectedRoute><MedMngPlayer /></ProtectedRoute>} />
                 <Route path="/med-mng/playlists" element={<ProtectedRoute><PlaylistManager /></ProtectedRoute>} />
                 <Route path="/med-mng/playlists/:playlistId" element={<ProtectedRoute><PlaylistDetail /></ProtectedRoute>} />
+                <Route path="/med-mng/analytics" element={<ProtectedRoute><MusicAnalytics /></ProtectedRoute>} />
                 <Route path="/chat" element={<MedChat />} />
                 <Route path="/admin/import" element={<AdminImport />} />
                 <Route path="/admin/audit" element={<AdminAudit />} />
