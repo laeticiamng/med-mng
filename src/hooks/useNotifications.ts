@@ -12,8 +12,10 @@ interface Notification {
   category: 'system' | 'extraction' | 'quota' | 'security' | 'maintenance';
   priority: 'low' | 'medium' | 'high' | 'urgent';
   actionable?: boolean;
-  action?: () => void;
-  actionLabel?: string;
+  action?: {
+    label: string;
+    url: string;
+  };
 }
 
 export function useNotifications() {
@@ -33,8 +35,10 @@ export function useNotifications() {
         category: 'extraction',
         priority: 'urgent',
         actionable: true,
-        actionLabel: 'Redémarrer',
-        action: () => toast.success('Extraction redémarrée')
+        action: {
+          label: 'Redémarrer',
+          url: '/admin/extractions'
+        }
       },
       {
         id: '2',
@@ -46,8 +50,10 @@ export function useNotifications() {
         category: 'quota',
         priority: 'high',
         actionable: true,
-        actionLabel: 'Voir détails',
-        action: () => toast.info('Redirection vers la page quotas')
+        action: {
+          label: 'Voir détails',
+          url: '/quota'
+        }
       },
       {
         id: '3',
@@ -79,8 +85,10 @@ export function useNotifications() {
         category: 'security',
         priority: 'high',
         actionable: true,
-        actionLabel: 'Investiguer',
-        action: () => toast.info('Ouverture des logs de sécurité')
+        action: {
+          label: 'Investiguer',
+          url: '/admin/security'
+        }
       },
       {
         id: '6',
