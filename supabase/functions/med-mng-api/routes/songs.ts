@@ -75,13 +75,14 @@ export async function handleSongs(req: Request, supabase: any, path: string) {
         return errorResponse(409, ApiErrorCode.QUOTA_EXCEEDED, 'Quota insuffisant pour créer une chanson');
       }
 
-      // Create the song
+      // ✅ AXE 1: User_id requis après ajout colonne
       const { data: song, error } = await supabase
         .from('med_mng_songs')
         .insert({ 
           title: sanitizedTitle, 
           suno_audio_id, 
-          meta: meta || {} 
+          meta: meta || {},
+          user_id: supabase.auth.getUser().data.user?.id // ✅ Respect RLS
         })
         .select()
         .single();
