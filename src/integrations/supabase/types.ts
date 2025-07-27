@@ -1641,9 +1641,14 @@ export type Database = {
         Row: {
           audio_url: string | null
           created_at: string
+          duration: number | null
           generation_status: string | null
           id: string
+          image_url: string | null
           metadata: Json | null
+          stream_url: string | null
+          suno_track_id: string | null
+          task_id: string | null
           title: string
           updated_at: string
           user_id: string
@@ -1651,9 +1656,14 @@ export type Database = {
         Insert: {
           audio_url?: string | null
           created_at?: string
+          duration?: number | null
           generation_status?: string | null
           id?: string
+          image_url?: string | null
           metadata?: Json | null
+          stream_url?: string | null
+          suno_track_id?: string | null
+          task_id?: string | null
           title: string
           updated_at?: string
           user_id: string
@@ -1661,9 +1671,14 @@ export type Database = {
         Update: {
           audio_url?: string | null
           created_at?: string
+          duration?: number | null
           generation_status?: string | null
           id?: string
+          image_url?: string | null
           metadata?: Json | null
+          stream_url?: string | null
+          suno_track_id?: string | null
+          task_id?: string | null
           title?: string
           updated_at?: string
           user_id?: string
