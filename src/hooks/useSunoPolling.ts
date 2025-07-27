@@ -83,14 +83,19 @@ export const useSunoPolling = () => {
             completed_at: new Date().toISOString()
           };
 
-          await supabase
-            .from('generated_music_tracks')
-            .update({
-              generation_status: 'completed',
-              audio_url: statusData.audioUrl,
-              metadata: newMetadata
-            })
-            .eq('task_id', track.trackId);
+          // Essayer de mettre à jour la BDD, mais continuer même si ça échoue
+          try {
+            await supabase
+              .from('generated_music_tracks')
+              .update({
+                generation_status: 'completed',
+                audio_url: statusData.audioUrl,
+                metadata: newMetadata
+              })
+              .eq('task_id', track.trackId);
+          } catch (updateError) {
+            console.warn('⚠️ Erreur mise à jour BDD, mais on continue:', updateError);
+          }
 
           setCompletedAudio(prev => ({
             ...prev,
@@ -158,7 +163,7 @@ export const useSunoPolling = () => {
       
       for (const track of pollingTracks) {
         const elapsed = Date.now() - track.startTime;
-        const maxWait = 2 * 60 * 1000; // 2 minutes max (encore plus court)
+        const maxWait = 2 * 60 * 1000; // 2 minutes max
         
         if (elapsed > maxWait) {
           console.log('⏰ Timeout pour track:', track.trackId);

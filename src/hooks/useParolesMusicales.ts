@@ -1,10 +1,10 @@
-
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useMusicGenerationWithTranslation } from '@/hooks/useMusicGenerationWithTranslation';
 import { useGlobalAudio } from '@/contexts/GlobalAudioContext';
 import { generateComprehensiveLyrics, generateMixedLyrics } from '@/utils/generateComprehensiveLyrics';
 import { useSunoPolling } from './useSunoPolling';
+import { useSunoCallbackListener } from './useSunoCallbackListener';
 
 export const useParolesMusicales = (
   paroles: string[] = [], 
@@ -28,7 +28,8 @@ export const useParolesMusicales = (
     currentLanguage
   } = useMusicGenerationWithTranslation();
 
-  const { startPolling, completedAudio, pollingTracks } = useSunoPolling();
+  const { startPolling, completedAudio: pollingAudio, pollingTracks } = useSunoPolling();
+  const { completedAudio: callbackAudio } = useSunoCallbackListener();
 
   const {
     currentTrack,
@@ -43,14 +44,15 @@ export const useParolesMusicales = (
     stop
   } = useGlobalAudio();
 
-  // Fusionner l'audio généré du hook existant avec l'audio des callbacks Suno
+  // Fusionner l'audio des différentes sources
   const mergedGeneratedAudio = {
     ...generatedAudio,
-    rangA: completedAudio.A || generatedAudio.rangA,
-    rangB: completedAudio.B || generatedAudio.rangB,
-    rangAB: completedAudio.AB || generatedAudio.rangAB,
+    rangA: pollingAudio.A || callbackAudio.A || generatedAudio.rangA,
+    rangB: pollingAudio.B || callbackAudio.B || generatedAudio.rangB,
+    rangAB: pollingAudio.AB || callbackAudio.AB || generatedAudio.rangAB,
   };
 
+  
   const handleGenerate = async (rang: 'A' | 'B') => {
     console.log(`🎵 GÉNÉRATION COMPLÈTE - Rang ${rang}`);
     
@@ -102,9 +104,6 @@ export const useParolesMusicales = (
       
       console.log(`✅ GÉNÉRATION DÉMARRÉE - ${itemData.item_code} Rang ${rang}, trackId:`, trackId);
       
-      // Le hook ne retourne plus l'URL immédiatement car Suno est asynchrone
-      // L'URL sera récupérée via polling ou callback
-      
       // Toast de succès pour le démarrage
       toast({
         title: `🎵 ${itemData.item_code} Rang ${rang} en cours...`,
@@ -127,7 +126,6 @@ export const useParolesMusicales = (
     }
   };
 
-  // Fonction pour générer Mix A+B avec toutes les compétences
   const handleGenerateMix = async () => {
     console.log('🎵 GÉNÉRATION MIX A+B COMPLÈTE');
     
@@ -166,7 +164,6 @@ export const useParolesMusicales = (
       // Durée adaptée pour le mix (plus long pour inclure A+B)
       const mixDuration = Math.max(musicDuration, 300); // Minimum 5 minutes pour le mix A+B
       
-      // ✅ CORRECTION 1: Utiliser rang 'AB' spécial pour le Mix au lieu de 'A'
       const audioUrl = await generateMusicInLanguage('AB' as any, parolesMix, selectedStyle, mixDuration);
       
       console.log(`✅ GÉNÉRATION MIX TERMINÉE - ${itemData.item_code}, URL:`, audioUrl);
@@ -291,7 +288,7 @@ export const useParolesMusicales = (
     setMusicDuration,
     isGenerating,
     generatedAudio: mergedGeneratedAudio,
-    pollingTracks, // Exposer le count de polling
+    pollingTracks,
     generationProgress,
     lastError,
     currentLanguage,
