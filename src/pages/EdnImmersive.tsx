@@ -44,7 +44,7 @@ const EdnImmersive = () => {
   const hasPrev = currentSection > 0;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50">
+    <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 overflow-auto">
       {/* Header */}
       <div className="bg-white/90 backdrop-blur-sm border-b border-amber-200 sticky top-0 z-10">
         <div className="container mx-auto px-4 py-4">
@@ -87,8 +87,8 @@ const EdnImmersive = () => {
         </div>
       </div>
       
-      {/* Content */}
-      <div className="container mx-auto px-4 py-8">
+      {/* Content - Suppression overflow issues */}
+      <div className="container mx-auto px-4 py-8 min-h-screen">
         <div className="grid lg:grid-cols-4 gap-8">
           {/* Navigation */}
           <div className="lg:col-span-1">
@@ -146,7 +146,7 @@ const EdnImmersive = () => {
             </div>
           </div>
           
-          {/* Main content */}
+          {/* Main content - Scroll enabled */}
           <div className="lg:col-span-3">
             <div className="bg-white/90 backdrop-blur-sm rounded-xl p-8 shadow-lg">
               <ImmersiveContent

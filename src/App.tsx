@@ -7,6 +7,7 @@ import { AccessibilityProvider } from "@/components/accessibility/AccessibilityP
 import { ToastProvider } from "@/components/feedback/ToastProvider";
 import { ViewportProvider } from "@/components/responsive/ViewportProvider";
 import { SkipLinks } from "@/components/navigation/SkipLinks";
+import { AudioDebugger } from "@/components/debug/AudioDebugger";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
@@ -127,6 +128,8 @@ const App = () => (
                       {/* Global UI Components */}
                       <DynamicOnboarding />
                       <HelpButton />
+                      {/* Debug Audio en développement */}
+                      <AudioDebugger enabled={import.meta.env.DEV} />
                     </div>
                     <Toaster />
                     <Sonner />

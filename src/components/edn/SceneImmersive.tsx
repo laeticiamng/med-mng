@@ -43,7 +43,7 @@ export const SceneImmersive = ({ data, itemCode = "default" }: SceneImmersivePro
   const theme = getUniqueSpectacularTheme(itemCode);
 
   return (
-    <div className="space-y-16 min-h-screen relative overflow-hidden">
+    <div className="space-y-16 min-h-screen relative overflow-auto">{/* Fix scroll immersif */}
       <SceneBackground theme={theme} itemCode={itemCode} />
       
       <SceneHeader 

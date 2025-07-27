@@ -28,7 +28,7 @@ export const SceneCentralArea = ({
   effet 
 }: SceneCentralAreaProps) => {
   return (
-    <div className={`relative bg-gradient-to-br ${theme.secondary} rounded-3xl mx-8 p-20 min-h-[700px] flex items-center justify-center overflow-hidden ${theme.glowColor} shadow-2xl border-4 border-white/40`}>
+    <div className={`relative bg-gradient-to-br ${theme.secondary} rounded-3xl mx-8 p-20 min-h-[700px] flex items-center justify-center ${theme.glowColor} shadow-2xl border-4 border-white/40`}>{/* Removed overflow-hidden */}
       
       {/* Effet de profondeur avec anneaux concentriques animés */}
       <div className="absolute inset-0">

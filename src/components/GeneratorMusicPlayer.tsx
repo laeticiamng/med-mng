@@ -22,6 +22,19 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
   const isCurrentlyPlaying = isCurrentTrack && isPlaying;
 
   const handlePlay = () => {
+    console.log('🎵 GeneratorMusicPlayer: Tentative de lecture', {
+      audioUrl: generatedSong.audioUrl,
+      title: generatedSong.title,
+      isCurrentTrack,
+      isPlaying
+    });
+
+    // Vérifier que l'URL audio est valide
+    if (!generatedSong.audioUrl || generatedSong.audioUrl === '' || generatedSong.audioUrl === 'undefined') {
+      console.error('❌ URL audio invalide dans GeneratorMusicPlayer:', generatedSong.audioUrl);
+      return;
+    }
+
     if (isCurrentTrack) {
       if (isPlaying) {
         pause();
