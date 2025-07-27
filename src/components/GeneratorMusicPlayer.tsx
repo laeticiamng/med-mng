@@ -34,7 +34,9 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
       audioUrl: generatedSong.audioUrl,
       title: generatedSong.title,
       isCurrentTrack,
-      isPlaying
+      isPlaying,
+      hasGeneratedSong: !!generatedSong,
+      urlType: generatedSong.audioUrl?.startsWith('http') ? 'http' : 'relative'
     });
 
     // Vérifier que l'URL audio est valide
@@ -43,13 +45,24 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
       return;
     }
 
+    // Test direct de l'URL pour debug
+    console.log('🔍 Test direct de l\'URL:', generatedSong.audioUrl);
+    
+    // Vérifier que l'URL ne pointe pas vers example.com (mode simulation défaillant)
+    if (generatedSong.audioUrl.includes('example.com')) {
+      console.warn('⚠️ URL de simulation détectée (example.com) - risque de non-fonctionnement');
+    }
+
     if (isCurrentTrack) {
       if (isPlaying) {
+        console.log('⏸️ Pause audio en cours');
         pause();
       } else {
+        console.log('▶️ Reprise audio');
         resume();
       }
     } else {
+      console.log('🎵 Démarrage nouveau track');
       play({
         url: generatedSong.audioUrl,
         title: generatedSong.title,

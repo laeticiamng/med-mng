@@ -131,13 +131,20 @@ serve(async (req) => {
       }
     }
 
-    // Fallback : Simulation de génération de musique
+    // Fallback : Simulation de génération de musique avec URL de test fonctionnelle
     console.log('📦 Mode simulation - Configuration Suno manquante');
+    
+    // Utiliser une URL audio de test réelle pour que le player fonctionne
+    const testAudioUrls = [
+      'https://www.soundjay.com/misc/sounds/fail-buzzer-02.mp3',
+      'https://actions.google.com/sounds/v1/alarms/bugle_tune.ogg',
+      'https://file-examples.com/storage/fe86c5d5c2b0f95ef5a35b8/2017/11/file_example_MP3_700KB.mp3'
+    ];
     
     const simulatedTrack = {
       id: crypto.randomUUID(),
-      title: `${style.charAt(0).toUpperCase() + style.slice(1)} ${mood} Track`,
-      audioUrl: `https://example.com/generated-music/${crypto.randomUUID()}.mp3`,
+      title: `${style.charAt(0).toUpperCase() + style.slice(1)} ${mood} Track (Demo)`,
+      audioUrl: testAudioUrls[Math.floor(Math.random() * testAudioUrls.length)],
       duration,
       style,
       mood,
@@ -146,6 +153,8 @@ serve(async (req) => {
       prompt,
       generatedAt: new Date().toISOString()
     };
+    
+    console.log('🎵 Audio de simulation généré:', simulatedTrack.audioUrl);
 
     // Sauvegarder dans la base de données
     if (userId) {
