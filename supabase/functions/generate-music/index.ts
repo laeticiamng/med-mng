@@ -372,9 +372,20 @@ serve(async (req) => {
     // Get auth user
     const authHeader = req.headers.get('authorization');
     let userId = null;
+    console.log('🔐 AuthHeader présent:', !!authHeader);
+    
     if (authHeader) {
-      const { data: { user } } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''));
-      userId = user?.id;
+      try {
+        const { data: { user }, error } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''));
+        userId = user?.id;
+        console.log('👤 User authentifié:', { userId, hasUser: !!user, error });
+      } catch (authError) {
+        console.error('❌ Erreur authentification:', authError);
+      }
+    } else {
+      console.log('⚠️ Aucun header d\'authentification - génération anonyme');
+      // Pour le debug, on peut utiliser un userId factice
+      userId = 'anonymous-user';
     }
 
     // Extract and validate parameters
@@ -476,8 +487,8 @@ serve(async (req) => {
     console.log('🆔 TaskID reçu immédiatement:', taskId);
     
     // Save initial record in database
-    if (userId) {
-      await supabase.from('generated_music_tracks').insert({
+    try {
+      const { data: insertedTrack, error: insertError } = await supabase.from('generated_music_tracks').insert({
         user_id: userId,
         task_id: taskId,
         title: enhancedTitle,
@@ -494,7 +505,15 @@ serve(async (req) => {
           generatedAt: new Date().toISOString()
         },
         generation_status: 'generating'
-      });
+      }).select().single();
+      
+      if (insertError) {
+        console.error('❌ Erreur insertion BDD:', insertError);
+      } else {
+        console.log('✅ Track enregistrée en BDD:', insertedTrack?.id);
+      }
+    } catch (dbError) {
+      console.error('❌ Erreur critique BDD:', dbError);
     }
 
     // Start background polling task (non-blocking)
