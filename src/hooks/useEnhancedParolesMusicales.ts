@@ -77,7 +77,7 @@ Pour une expertise qui se rassemble`;
 
     try {
       console.log('🚀 APPEL generateMusicInLanguage...');
-      const rang = version === 'AB' ? 'A' : version; // Utiliser 'A' pour la version combinée
+      const rang = version === 'AB' ? 'AB' : version; // Utiliser 'AB' pour la version combinée
       const audioUrl = await generateMusicInLanguage(rang, [enhancedParoles[parolesIndex]], selectedStyle, musicDuration);
       console.log(`✅ GÉNÉRATION TERMINÉE POUR VERSION ${version}, URL:`, audioUrl);
       

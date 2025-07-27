@@ -7,13 +7,17 @@ const corsHeaders = {
 };
 
 interface MusicGenerationRequest {
-  prompt: string;
+  lyrics?: string;
+  prompt?: string;
   style?: string;
   duration?: number;
   mood?: string;
   instruments?: string[];
   tempo?: string;
   userId?: string;
+  rang?: string;
+  language?: string;
+  fastMode?: boolean;
 }
 
 interface MusicGenerationResponse {
@@ -44,28 +48,58 @@ serve(async (req) => {
     );
 
     const {
+      lyrics,
       prompt,
       style = 'ambient',
       duration = 120,
       mood = 'relaxing',
       instruments = ['piano', 'strings'],
       tempo = 'moderate',
-      userId
+      userId,
+      rang,
+      language = 'fr'
     }: MusicGenerationRequest = await req.json();
 
-    console.log('🎵 Génération de musique:', { prompt, style, mood, tempo });
+    console.log('🎵 Génération de musique:', { 
+      hasLyrics: !!lyrics,
+      lyricsLength: lyrics?.length || 0,
+      prompt: prompt?.substring(0, 50) + '...' || 'undefined',
+      style, 
+      rang,
+      duration: duration + 's',
+      language
+    });
 
     // Vérifier si SUNO_API_KEY est configurée pour utiliser Suno
     const SUNO_API_KEY = Deno.env.get('SUNO_API_KEY');
     
     if (SUNO_API_KEY) {
-      // Utiliser l'API Suno pour la génération musicale
+      // Construire un prompt détaillé incluant les paroles si disponibles
+      let detailedPrompt = '';
+      
+      if (lyrics && lyrics.trim()) {
+        // Si on a des paroles, les inclure dans le prompt
+        detailedPrompt = `Create a ${duration} second ${style} song with the following lyrics and structure:
+
+[Lyrics]
+${lyrics}
+
+Style: ${style}
+Mood: ${mood}
+Tempo: ${tempo}
+Duration: ${duration} seconds
+${duration > 180 ? 'Make this a longer, more developed composition with multiple verses and choruses.' : 'Keep it concise but complete.'}`;
+      } else {
+        // Sinon, utiliser le prompt existant ou créer un instrumental
+        detailedPrompt = prompt || `Create a ${duration} second ${style} instrumental track with ${mood} mood, ${tempo} tempo, featuring ${instruments.join(', ')}. ${duration > 180 ? 'This should be a longer, more developed composition.' : 'Keep it concise and focused.'}`;
+      }
+
       const sunoPayload = {
-        prompt: prompt || `Generate ${style} music with ${mood} mood, ${tempo} tempo, featuring ${instruments.join(', ')}`,
+        prompt: detailedPrompt,
         style: style,
-        title: `${style.charAt(0).toUpperCase() + style.slice(1)} ${mood} Track`,
+        title: `${rang ? `Rang ${rang} - ` : ''}${style.charAt(0).toUpperCase() + style.slice(1)} Track`,
         customMode: true,
-        instrumental: false,
+        instrumental: !lyrics || lyrics.trim() === '', // Instrumental si pas de paroles
         model: "V4"
       };
 
