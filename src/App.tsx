@@ -1,14 +1,15 @@
+import React, { Suspense, lazy } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { DynamicOnboarding } from "@/components/onboarding/DynamicOnboarding";
 import { HelpButton } from "@/components/onboarding/HelpButton";
 import { AccessibilityProvider } from "@/components/accessibility/AccessibilityProvider";
 import { ToastProvider } from "@/components/feedback/ToastProvider";
 import { ViewportProvider } from "@/components/responsive/ViewportProvider";
 import { SkipLinks } from "@/components/navigation/SkipLinks";
-import { AudioDebugger } from "@/components/debug/AudioDebugger";
-import { ScrollTester } from "@/components/debug/ScrollTester";
+
+// ⚡ LAZY LOADING - Composants non-critiques chargés à la demande
+const DynamicOnboarding = lazy(() => import("@/components/onboarding/DynamicOnboarding").then(module => ({ default: module.DynamicOnboarding })));
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
@@ -53,11 +54,15 @@ import TestExtraction from "./pages/TestExtraction";
 import EdnImmersive from "./pages/EdnImmersive";
 import EdnComplete from "./pages/EdnComplete";
 
+// ⚡ OPTIMISATION QueryClient - Configuration pour chargement rapide
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: 1,
-      staleTime: 5 * 60 * 1000,
+      retry: false, // Pas de retry au chargement initial pour plus de rapidité
+      staleTime: 10 * 60 * 1000, // 10 minutes - Garde les données plus longtemps
+      gcTime: 15 * 60 * 1000, // 15 minutes - Garde en cache plus longtemps
+      refetchOnWindowFocus: false, // Évite les requêtes inutiles
+      refetchOnMount: false, // Ne pas refetch si les données sont récentes
     },
   },
 });
@@ -134,12 +139,11 @@ const App = () => {
                         </Routes>
                       </main>
                       
-                      {/* Global UI Components */}
-                      <DynamicOnboarding />
+                      {/* Global UI Components - LAZY LOADED */}
+                      <Suspense fallback={null}>
+                        <DynamicOnboarding />
+                      </Suspense>
                       <HelpButton />
-                       {/* Debug tools - disabled */}
-                       <AudioDebugger enabled={false} />
-                       <ScrollTester enabled={false} />
                     </div>
                     <Toaster />
                     <Sonner />

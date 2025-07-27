@@ -1,9 +1,5 @@
 
-import { HeroSection } from "@/components/HeroSection";
-import { MngPresentationBrief } from "@/components/MngPresentationBrief";
-import MainSections from "@/components/MainSections";
-import { MusicGenerationSection } from "@/components/MusicGenerationSection";
-import { AppFooter } from "@/components/AppFooter";
+import React, { Suspense, lazy } from "react";
 import { Button } from "@/components/ui/button";
 import { PremiumBackground } from "@/components/ui/premium-background";
 import { PremiumCard } from "@/components/ui/premium-card";
@@ -11,6 +7,19 @@ import { PremiumButton } from "@/components/ui/premium-button";
 import { useNavigate } from "react-router-dom";
 import { LogIn, CreditCard, BarChart3, Music, BookOpen, MessageSquare, Users, Zap, Target, Award, TrendingUp, Sparkles, Star, Wand2, Brain, Settings } from "lucide-react";
 import { TranslatedText } from "@/components/TranslatedText";
+
+// ⚡ LAZY LOADING - Charger les composants lourds seulement quand nécessaire
+const MngPresentationBrief = lazy(() => import("@/components/MngPresentationBrief").then(module => ({ default: module.MngPresentationBrief })));
+const MainSections = lazy(() => import("@/components/MainSections"));
+const MusicGenerationSection = lazy(() => import("@/components/MusicGenerationSection").then(module => ({ default: module.MusicGenerationSection })));
+const AppFooter = lazy(() => import("@/components/AppFooter").then(module => ({ default: module.AppFooter })));
+
+// Composant de loading léger
+const LazyLoadSpinner = () => (
+  <div className="flex justify-center items-center py-8">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+  </div>
+);
 
 const Index = () => {
   const navigate = useNavigate();
@@ -323,23 +332,31 @@ const Index = () => {
           </PremiumCard>
         </div>
 
-        {/* Section MNG premium */}
-        <div className="pb-20">
-          <MngPresentationBrief />
-        </div>
+        {/* Section MNG premium - LAZY LOADED */}
+        <Suspense fallback={<LazyLoadSpinner />}>
+          <div className="pb-20">
+            <MngPresentationBrief />
+          </div>
+        </Suspense>
         
-        {/* Section Génération Musicale premium */}
-        <div className="pb-20">
-          <MusicGenerationSection />
-        </div>
+        {/* Section Génération Musicale premium - LAZY LOADED */}
+        <Suspense fallback={<LazyLoadSpinner />}>
+          <div className="pb-20">
+            <MusicGenerationSection />
+          </div>
+        </Suspense>
         
-        {/* Sections principales premium */}
-        <div className="pb-20">
-          <MainSections />
-        </div>
+        {/* Sections principales premium - LAZY LOADED */}
+        <Suspense fallback={<LazyLoadSpinner />}>
+          <div className="pb-20">
+            <MainSections />
+          </div>
+        </Suspense>
         
-        {/* Footer */}
-        <AppFooter />
+        {/* Footer - LAZY LOADED */}
+        <Suspense fallback={<LazyLoadSpinner />}>
+          <AppFooter />
+        </Suspense>
       </div>
 
       {/* Admin Audit Button premium */}

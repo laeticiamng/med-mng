@@ -31,7 +31,11 @@ export const DynamicOnboarding: React.FC = () => {
 
   const loadDynamicOnboarding = async () => {
     try {
-      // First try to load from API
+      // ⚡ OPTIMISATION : Pas d'attente pour l'API - démarrer avec le static d'abord
+      loadStaticOnboarding();
+      setIsLoading(false);
+      
+      // Charger l'API en arrière-plan sans bloquer l'interface
       const response = await fetch('/api/med-mng/help/onboarding', {
         method: 'GET',
         headers: {
@@ -41,10 +45,9 @@ export const DynamicOnboarding: React.FC = () => {
 
       if (response.ok) {
         const data = await response.json();
-        setOnboardingData(data.steps || []);
-      } else {
-        // Fallback to static content
-        loadStaticOnboarding();
+        if (data.steps && data.steps.length > 0) {
+          setOnboardingData(data.steps); // Mettre à jour seulement si l'API a du contenu
+        }
       }
     } catch (error) {
       console.warn('Failed to load dynamic onboarding, using static fallback:', error);
