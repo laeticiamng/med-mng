@@ -30,6 +30,8 @@ import { AuthProvider } from "./components/med-mng/AuthProvider";
 import { ProtectedRoute } from "./components/med-mng/withAuth";
 import { MedMngSuccess } from "./pages/MedMngSuccess";
 import { MedMngProfile } from "./pages/MedMngProfile";
+import { PlaylistManager } from "./components/playlists/PlaylistManager";
+import { PlaylistDetail } from "./components/playlists/PlaylistDetail";
 import { MedChat } from "./pages/MedChat";
 import { SubscriptionTest } from "./pages/SubscriptionTest";
 import AdminImport from "./pages/AdminImport";
@@ -93,6 +95,8 @@ const App = () => (
                 <Route path="/med-mng/library" element={<ProtectedRoute><MedMngLibrary /></ProtectedRoute>} />
                 <Route path="/med-mng/profile" element={<ProtectedRoute><MedMngProfile /></ProtectedRoute>} />
                 <Route path="/med-mng/player/:songId" element={<ProtectedRoute><MedMngPlayer /></ProtectedRoute>} />
+                <Route path="/med-mng/playlists" element={<ProtectedRoute><PlaylistManager /></ProtectedRoute>} />
+                <Route path="/med-mng/playlists/:playlistId" element={<ProtectedRoute><PlaylistDetail /></ProtectedRoute>} />
                 <Route path="/chat" element={<MedChat />} />
                 <Route path="/admin/import" element={<AdminImport />} />
                 <Route path="/admin/audit" element={<AdminAudit />} />

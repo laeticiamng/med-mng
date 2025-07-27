@@ -11,6 +11,7 @@ import { Label } from '@/components/ui/label';
 import { usePlaylists, type Playlist } from '@/hooks/usePlaylists';
 import { TranslatedText } from '@/components/TranslatedText';
 import { useNavigate } from 'react-router-dom';
+import { PlaylistSearch } from './PlaylistSearch';
 
 export const PlaylistManager = () => {
   const { playlists, loading, createPlaylist, updatePlaylist, deletePlaylist } = usePlaylists();
@@ -18,11 +19,68 @@ export const PlaylistManager = () => {
   
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [editingPlaylist, setEditingPlaylist] = useState<Playlist | null>(null);
+  const [filteredPlaylists, setFilteredPlaylists] = useState<Playlist[]>([]);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     is_public: false
   });
+
+  // Mettre à jour les playlists filtrées quand les playlists changent
+  React.useEffect(() => {
+    setFilteredPlaylists(playlists);
+  }, [playlists]);
+
+  // Fonction de recherche et filtrage
+  const handleSearch = (query: string, filters: any) => {
+    let filtered = [...playlists];
+
+    // Filtrer par texte de recherche
+    if (query.trim()) {
+      filtered = filtered.filter(playlist =>
+        playlist.name.toLowerCase().includes(query.toLowerCase()) ||
+        (playlist.description && playlist.description.toLowerCase().includes(query.toLowerCase()))
+      );
+    }
+
+    // Filtrer par confidentialité
+    if (filters.privacy !== 'all') {
+      filtered = filtered.filter(playlist =>
+        filters.privacy === 'public' ? playlist.is_public : !playlist.is_public
+      );
+    }
+
+    // Trier
+    filtered.sort((a, b) => {
+      let aValue: any, bValue: any;
+      
+      switch (filters.sortBy) {
+        case 'name':
+          aValue = a.name.toLowerCase();
+          bValue = b.name.toLowerCase();
+          break;
+        case 'song_count':
+          aValue = a.song_count;
+          bValue = b.song_count;
+          break;
+        case 'created_at':
+          aValue = new Date(a.created_at);
+          bValue = new Date(b.created_at);
+          break;
+        default:
+          aValue = new Date(a.updated_at);
+          bValue = new Date(b.updated_at);
+      }
+
+      if (filters.sortOrder === 'asc') {
+        return aValue > bValue ? 1 : -1;
+      } else {
+        return aValue < bValue ? 1 : -1;
+      }
+    });
+
+    setFilteredPlaylists(filtered);
+  };
 
   const handleCreatePlaylist = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -95,7 +153,7 @@ export const PlaylistManager = () => {
             <TranslatedText text="Mes Playlists" />
           </h2>
           <p className="text-gray-600">
-            <TranslatedText text={`${playlists.length} playlist${playlists.length > 1 ? 's' : ''} créée${playlists.length > 1 ? 's' : ''}`} />
+            <TranslatedText text={`${filteredPlaylists.length} playlist${filteredPlaylists.length > 1 ? 's' : ''} trouvée${filteredPlaylists.length > 1 ? 's' : ''} sur ${playlists.length}`} />
           </p>
         </div>
         
@@ -160,8 +218,14 @@ export const PlaylistManager = () => {
         </Dialog>
       </div>
 
+      {/* Barre de recherche */}
+      <PlaylistSearch
+        onSearch={handleSearch}
+        className="mb-6"
+      />
+
       {/* Liste des playlists */}
-      {playlists.length === 0 ? (
+      {filteredPlaylists.length === 0 && playlists.length === 0 ? (
         <Card className="p-12 text-center">
           <Music className="h-16 w-16 text-gray-400 mx-auto mb-4" />
           <h3 className="text-xl font-semibold text-gray-900 mb-2">
@@ -175,9 +239,19 @@ export const PlaylistManager = () => {
             <TranslatedText text="Créer ma première playlist" />
           </Button>
         </Card>
+      ) : filteredPlaylists.length === 0 ? (
+        <Card className="p-12 text-center">
+          <Music className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">
+            <TranslatedText text="Aucune playlist trouvée" />
+          </h3>
+          <p className="text-gray-600 mb-6">
+            <TranslatedText text="Modifiez vos critères de recherche ou créez une nouvelle playlist" />
+          </p>
+        </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {playlists.map((playlist) => (
+          {filteredPlaylists.map((playlist) => (
             <Card key={playlist.id} className="hover:shadow-lg transition-shadow cursor-pointer">
               <CardHeader className="pb-2">
                 <div className="flex items-start justify-between">
