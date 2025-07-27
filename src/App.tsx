@@ -137,9 +137,9 @@ const App = () => {
                       {/* Global UI Components */}
                       <DynamicOnboarding />
                       <HelpButton />
-                      {/* Debug tools en développement */}
-                      <AudioDebugger enabled={import.meta.env.DEV} />
-                      <ScrollTester enabled={import.meta.env.DEV} />
+                       {/* Debug tools - disabled */}
+                       <AudioDebugger enabled={false} />
+                       <ScrollTester enabled={false} />
                     </div>
                     <Toaster />
                     <Sonner />
