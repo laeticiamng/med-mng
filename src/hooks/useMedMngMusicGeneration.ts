@@ -78,7 +78,16 @@ export const useMedMngMusicGeneration = () => {
       const requestBody = createRequestBody(translatedLyrics, selectedStyle, rang, adjustedDuration, currentLanguage, isComposition, "V3_5", itemCode);
 
       // 1. Générer avec Suno API
-      const { audioUrl: sunoAudioId, callDuration } = await callSunoApi(requestBody);
+      const sunoResponse = await callSunoApi(requestBody);
+      console.log('🎵 Réponse Suno reçue:', sunoResponse);
+
+      // Gérer le cas où on reçoit un trackId au lieu d'une audioUrl immédiate
+      if (sunoResponse.trackId && !sunoResponse.audioUrl) {
+        console.log('⏳ Génération en cours avec trackId:', sunoResponse.trackId);
+        throw new Error(`🎵 Génération en cours... Veuillez patienter quelques minutes et reessayer. L'IA Suno génère votre chanson en arrière-plan.`);
+      }
+
+      const sunoAudioId = sunoResponse.audioUrl;
       console.log('🎵 SUNO_AUDIO_ID reçu:', sunoAudioId);
 
       // 2. Créer la chanson dans med-mng
@@ -115,7 +124,7 @@ export const useMedMngMusicGeneration = () => {
         description: `${successMessage.description} Ajoutée à votre bibliothèque.`
       });
 
-      console.log(`✅ GÉNÉRATION COMPLÈTE pour Rang ${rang} (${callDuration}s)`);
+      console.log(`✅ GÉNÉRATION COMPLÈTE pour Rang ${rang}`);
       
       return {
         songId: songData.id,
