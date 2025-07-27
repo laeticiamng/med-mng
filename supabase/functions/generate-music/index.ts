@@ -382,20 +382,22 @@ serve(async (req) => {
       // Payload conforme à la documentation Suno avec modèle selon abonnement
       const sunoPayload = {
         prompt: truncatedPrompt,
-        customMode: true,
-        instrumental: instrumental || (!lyrics || !lyrics.trim()),
+        customMode: true, // Mode custom pour contrôle complet
+        instrumental: instrumental || false, // False pour inclure les paroles
         style: truncatedStyle || 'educational, ambient',
         title: truncatedTitle,
-        model: userModel // Utilisation du modèle selon l'abonnement
+        model: userModel.replace('chirp-', ''), // Convertir "chirp-v3-5" en "V3_5"
+        callBackUrl: 'https://webhook.site/temp-endpoint' // Requis par l'API
       };
 
-      console.log('🚀 APPEL API SUNO RÉEL avec payload:', {
+      console.log('🚀 APPEL API SUNO RÉEL avec payload CORRIGÉ:', {
         hasPrompt: !!sunoPayload.prompt,
         promptLength: sunoPayload.prompt?.length || 0,
         style: sunoPayload.style,
         title: sunoPayload.title,
         instrumental: sunoPayload.instrumental,
         model: sunoPayload.model,
+        customMode: sunoPayload.customMode,
         userSubscriptionModel: userModel
       });
       
@@ -405,41 +407,41 @@ serve(async (req) => {
         const taskId = await sunoApi.generateMusic(sunoPayload);
         console.log('🆔 TaskID reçu:', taskId);
         
-        // Attendre la completion avec un timeout plus court pour tests
-        const completedResult = await sunoApi.waitForCompletion(taskId, 120000); // 2 minutes
+        // Attendre la completion avec polling selon la doc
+        const completedTracks = await sunoApi.waitForCompletion(taskId, 180000); // 3 minutes max
         
-        if (completedResult && completedResult.data && completedResult.data.length > 0) {
-          const track = completedResult.data[0];
-          console.log('✅ Track complété:', track);
+        if (completedTracks && completedTracks.length > 0) {
+          const track = completedTracks[0]; // Prendre le premier track
+          console.log('✅ Track généré:', track);
           
-          // Extraire toutes les URLs selon la documentation Suno
-          const audioUrl = track.audio_url;
-          const videoUrl = track.video_url;
-          const imageUrl = track.image_url;
+          // Extraire toutes les URLs selon la VRAIE structure Suno
+          const audioUrl = track.audioUrl; // URL téléchargeable
+          const streamUrl = track.streamAudioUrl; // URL streaming (disponible plus tôt)
+          const imageUrl = track.imageUrl;
           
-          if (!audioUrl) {
-            throw new Error('URL audio manquante dans la réponse Suno');
+          if (!audioUrl && !streamUrl) {
+            throw new Error('Aucune URL audio trouvée dans la réponse Suno');
           }
           
-          // Sauvegarder dans la base de données avec toutes les informations
+          // Sauvegarder dans la base de données avec les vraies données Suno
           if (userId) {
             await supabase.from('generated_music_tracks').insert({
               user_id: userId,
               title: track.title || sunoPayload.title,
-              audio_url: audioUrl,
+              audio_url: audioUrl || streamUrl, // Préférer audioUrl, fallback sur streamUrl
               metadata: {
-                style: track.style || style,
+                style: track.tags || style,
                 mood,
                 tempo,
                 instruments,
                 duration: track.duration || duration,
                 prompt: track.prompt || sunoPayload.prompt,
-                model: track.model || userModel,
+                model: track.modelName || userModel,
                 provider: 'suno',
-                video_url: videoUrl,
+                stream_url: streamUrl,
                 image_url: imageUrl,
                 suno_track_id: track.id,
-                created_at: track.created_at
+                created_at: track.createTime
               },
               generation_status: 'completed'
             });
@@ -448,8 +450,8 @@ serve(async (req) => {
           const response: MusicGenerationResponse = {
             success: true,
             trackId: track.id,
-            audioUrl: audioUrl,
-            videoUrl: videoUrl,
+            audioUrl: audioUrl || streamUrl, // URL principale pour le lecteur
+            streamUrl: streamUrl, // URL streaming pour écoute immédiate
             imageUrl: imageUrl,
             metadata: {
               title: track.title || sunoPayload.title,
