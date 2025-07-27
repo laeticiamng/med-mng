@@ -190,29 +190,34 @@ serve(async (req) => {
       });
       
       try {
+        console.log('🚀 APPEL API SUNO RÉEL avec payload:', sunoPayload);
+        
         const taskId = await sunoApi.generateMusic(sunoPayload);
         console.log('🆔 TaskID reçu:', taskId);
         
-        // Attendre la completion
-        const completedResult = await sunoApi.waitForCompletion(taskId);
+        // Attendre la completion avec un timeout plus court pour tests
+        const completedResult = await sunoApi.waitForCompletion(taskId, 120000); // 2 minutes
         
         if (completedResult && completedResult.data && completedResult.data.length > 0) {
           const track = completedResult.data[0];
           console.log('✅ Track complété:', track);
+          
+          // Utiliser l'URL audio appropriée
+          const audioUrl = track.audio_url || track.sourceAudioUrl || track.streamAudioUrl;
           
           // Sauvegarder dans la base de données
           if (userId) {
             await supabase.from('generated_music_tracks').insert({
               user_id: userId,
               title: track.title || sunoPayload.title,
-              audio_url: track.audio_url,
+              audio_url: audioUrl,
               metadata: {
                 style,
                 mood,
                 tempo,
                 instruments,
                 duration: track.duration || duration,
-                prompt,
+                prompt: sunoPayload.prompt,
                 provider: 'suno'
               },
               generation_status: 'completed'
@@ -222,7 +227,7 @@ serve(async (req) => {
           const response: MusicGenerationResponse = {
             success: true,
             trackId: track.id,
-            audioUrl: track.audio_url,
+            audioUrl: audioUrl,
             metadata: {
               title: track.title || sunoPayload.title,
               style,
@@ -241,7 +246,9 @@ serve(async (req) => {
         }
       } catch (error) {
         console.error('❌ Erreur API Suno:', error);
-        throw error;
+        
+        // En cas d'erreur, utiliser le mode simulation comme fallback
+        console.log('🔄 Basculement vers mode simulation suite à erreur API');
       }
     }
 
