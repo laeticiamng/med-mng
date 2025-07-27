@@ -89,7 +89,7 @@ export const createRequestBody = (
     // Paramètres Suno optimisés
     customMode: true,
     instrumental: false, // Car on a des paroles
-    model: "V4", // Utiliser le modèle le plus récent
+    model: "V4.5", // ✅ CORRECTION: Version 4.5 pour plus de caractères
     title: `${rang === 'AB' ? 'Mix A+B' : `Rang ${rang}`} - ${itemCode || 'EDN'} - ${selectedStyle}`,
     composition: isComposition ? {
       styles: selectedStyle.split('+'),

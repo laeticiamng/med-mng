@@ -126,7 +126,7 @@ serve(async (req) => {
         title: sunoTitle,
         customMode: true,
         instrumental: !lyrics || !lyrics.trim(), // Instrumental si pas de paroles
-        model: "V4", // Modèle le plus récent
+        model: "V4.5", // ✅ CORRECTION: Version 4.5 pour plus de caractères
         callBackUrl: `${Deno.env.get('SUPABASE_URL')}/functions/v1/suno-callback`,
         // Paramètres additionnels optimisés
         ...(lyrics && lyrics.trim() && {
