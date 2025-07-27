@@ -141,6 +141,7 @@ class SunoAPI {
     style?: string;
     title?: string;
     model?: string;
+    callBackUrl?: string;
   }): Promise<string> {
     console.log('🎵 Appel API Suno generate avec options:', options);
     
@@ -173,7 +174,8 @@ class SunoAPI {
         instrumental: options.instrumental || false,
         style: options.style || '',
         title: options.title || '',
-        model: options.model || 'chirp-v3-5' // Modèle par défaut recommandé
+        model: options.model || 'chirp-v3-5', // Modèle par défaut recommandé
+        callBackUrl: options.callBackUrl // OBLIGATOIRE selon la doc Suno
       })
     });
     
@@ -317,6 +319,11 @@ function buildExpressiveTitle(itemCode: string, rang: string, style: string): st
   return `${itemCode || 'Medical'} Mastery${rangeSuffix} - ${styleCapitalized} Education`;
 }
 
+// Fonction pour créer un prompt simplifié (réduction de taille)
+function buildSimplifiedPrompt(itemCode: string, rang: string, style: string): string {
+  return `Educational song for ${itemCode || 'medical content'}, ${rang ? `level ${rang}` : 'medical training'}, ${style} style, clear melody, memorable, professional medical education music.`;
+}
+
 // Fonction pour convertir vers le format correct selon le ticket de support officiel
 function getCorrectSunoModel(userModel: string): string {
   console.log('🔧 Conversion modèle selon doc officielle:', userModel);
@@ -406,8 +413,9 @@ serve(async (req) => {
       console.log('⚠️ Ignoré: Vérification des crédits Suno désactivée pour éviter les blocages');
       // La vérification des crédits peut échouer, on continue directement avec la génération
       
-      // Créer un prompt musical éducatif riche et détaillé
-      const richPrompt = lyrics || prompt || buildRichEducationalPrompt(itemCode, rang, style, mood, tempo);
+      // Créer un prompt musical éducatif RÉDUIT (selon les instructions étape par étape)
+      // Utiliser directement les paroles fournies ou un prompt simplifié
+      const richPrompt = lyrics || prompt || buildSimplifiedPrompt(itemCode, rang, style);
       
       // Créer un style musical détaillé et expressif
       const richStyle = buildRichStyle(style, mood, tempo, instruments);
@@ -418,7 +426,7 @@ serve(async (req) => {
       // Limiter selon les capacités du modèle selon le ticket de support officiel
       const convertedModel = getCorrectSunoModel(userModel);
       const isV4Plus = convertedModel === 'V4_5' || convertedModel === 'V4_5PLUS';
-      const maxPromptLength = isV4Plus ? 5000 : 3000;
+      const maxPromptLength = isV4Plus ? 3000 : 2000; // RÉDUIRE encore plus les limites
       const maxStyleLength = isV4Plus ? 1000 : 200;
       
       const finalPrompt = richPrompt.length > maxPromptLength ? 
