@@ -437,7 +437,7 @@ serve(async (req) => {
         instrumental: instrumental || false,
         style: finalStyle,
         title: finalTitle,
-        model: getCorrectSunoModel(userModel), // Fonction pour format correct
+        model: userModel === 'V4_5' ? 'V4_5PLUS' : getCorrectSunoModel(userModel), // Tester V4_5PLUS
         callBackUrl: `${Deno.env.get('SUPABASE_URL')}/functions/v1/suno-callback`
       };
 
@@ -455,6 +455,15 @@ serve(async (req) => {
       try {
         console.log('🚀 TENTATIVE APPEL API SUNO RÉEL...');
         console.log('📝 Payload complet envoyé:', JSON.stringify(sunoPayload, null, 2));
+        
+        // Validation finale selon les instructions étape par étape
+        if (!sunoPayload.style || !sunoPayload.title) {
+          throw new Error('customMode=true requiert obligatoirement style ET title');
+        }
+        
+        if (sunoPayload.prompt.length > maxPromptLength) {
+          throw new Error(`Prompt trop long: ${sunoPayload.prompt.length} > ${maxPromptLength} caractères pour modèle ${convertedModel}`);
+        }
         
         const taskId = await sunoApi.generateMusic(sunoPayload);
         console.log('🆔 TaskID reçu:', taskId);
