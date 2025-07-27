@@ -53,11 +53,17 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
     duration,
     volume,
     handleGenerate,
+    handleGenerateMix,
     handlePlayAudio,
     seek,
     changeVolume,
     stop
-  } = useParolesMusicales(paroles, { paroles_rang_a, paroles_rang_b, paroles_rang_ab });
+  } = useParolesMusicales(paroles, { 
+    paroles_rang_a, 
+    paroles_rang_b, 
+    paroles_rang_ab, 
+    item_code: itemCode 
+  });
 
   console.log('🎵 ÉTAT ACTUEL generatedAudio:', generatedAudio);
   console.log('🎵 ÉTAT ACTUEL generationProgress:', generationProgress);
@@ -119,6 +125,7 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
               volume={volume}
               generationProgress={generationProgress}
               onGenerate={handleGenerate}
+              onGenerateMix={handleGenerateMix}
               onPlayAudio={handlePlayAudio}
               onSeek={seek}
               onVolumeChange={changeVolume}

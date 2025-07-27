@@ -30,6 +30,7 @@ interface ParolesMusicalesMainContentProps {
     };
   };
   onGenerate: (rang: 'A' | 'B') => void;
+  onGenerateMix: () => void;
   onPlayAudio: (audioUrl: string, title: string) => void;
   onSeek: (time: number) => void;
   onVolumeChange: (volume: number) => void;
@@ -50,6 +51,7 @@ export const ParolesMusicalesMainContent: React.FC<ParolesMusicalesMainContentPr
   volume,
   generationProgress,
   onGenerate,
+  onGenerateMix,
   onPlayAudio,
   onSeek,
   onVolumeChange,
@@ -138,9 +140,8 @@ export const ParolesMusicalesMainContent: React.FC<ParolesMusicalesMainContentPr
             duration={duration}
             volume={volume}
             onGenerate={() => {
-              // Pour l'instant, générer le Rang A puis B
-              onGenerate('A');
-              setTimeout(() => onGenerate('B'), 1000);
+              // Générer Mix A+B avec toutes les compétences
+              onGenerateMix();
             }}
             onPlayAudio={onPlayAudio}
             onSeek={onSeek}

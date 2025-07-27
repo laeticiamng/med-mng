@@ -3,10 +3,16 @@ import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useMusicGenerationWithTranslation } from '@/hooks/useMusicGenerationWithTranslation';
 import { useGlobalAudio } from '@/contexts/GlobalAudioContext';
+import { generateComprehensiveLyrics, generateMixedLyrics } from '@/utils/generateComprehensiveLyrics';
 
 export const useParolesMusicales = (
   paroles: string[] = [], 
-  itemData?: { paroles_rang_a?: string[], paroles_rang_b?: string[], paroles_rang_ab?: string[] }
+  itemData?: { 
+    paroles_rang_a?: string[], 
+    paroles_rang_b?: string[], 
+    paroles_rang_ab?: string[],
+    item_code?: string 
+  }
 ) => {
   const [selectedStyle, setSelectedStyle] = useState<string>('lofi-piano');
   const [musicDuration, setMusicDuration] = useState<number>(240);
@@ -35,68 +41,131 @@ export const useParolesMusicales = (
   } = useGlobalAudio();
 
   const handleGenerate = async (rang: 'A' | 'B') => {
-    console.log(`🎵 BOUTON GÉNÉRER CLIQUÉ - Rang ${rang}`);
+    console.log(`🎵 GÉNÉRATION COMPLÈTE - Rang ${rang}`);
     
-    // Utiliser les vraies paroles structurées si disponibles
-    let parolesAUtiliser: string[] = [];
-    
-    if (itemData) {
-      console.log('🎵 Utilisation des paroles structurées de la base de données');
-      if (rang === 'A' && itemData.paroles_rang_a) {
-        parolesAUtiliser = itemData.paroles_rang_a;
-      } else if (rang === 'B' && itemData.paroles_rang_b) {
-        parolesAUtiliser = itemData.paroles_rang_b;
-      }
+    if (!itemData?.item_code) {
+      console.error('❌ CODE ITEM MANQUANT');
+      toast({
+        title: "Erreur de génération",
+        description: "Code item manquant pour la génération complète",
+        variant: "destructive"
+      });
+      return;
     }
-    
-    // Fallback vers les paroles originales si pas de données structurées
-    if (parolesAUtiliser.length === 0) {
-      console.log('🎵 Fallback vers les paroles originales');
-      if (!paroles || paroles.length === 0) {
-        console.error('❌ AUCUNE PAROLE DISPONIBLE');
-        toast({
-          title: "Erreur de génération",
-          description: "Aucune parole disponible pour ce rang",
-          variant: "destructive"
-        });
-        return;
-      }
-      
-      const parolesIndex = rang === 'A' ? 0 : 1;
-      if (!paroles[parolesIndex]) {
-        console.error(`❌ AUCUNE PAROLE POUR LE RANG ${rang}`);
-        toast({
-          title: "Erreur de génération", 
-          description: `Aucune parole disponible pour le rang ${rang}`,
-          variant: "destructive"
-        });
-        return;
-      }
-      parolesAUtiliser = [paroles[parolesIndex]];
-    }
-
-    console.log(`🎵 Configuration:`, {
-      selectedStyle,
-      musicDuration,
-      parolesLength: parolesAUtiliser.length,
-      currentLanguage,
-      parolesPreview: parolesAUtiliser[0]?.substring(0, 100) + '...' || 'Aucune'
-    });
 
     try {
-      console.log('🚀 APPEL generateMusicInLanguage...');
-      const audioUrl = await generateMusicInLanguage(rang, parolesAUtiliser, selectedStyle, musicDuration);
-      console.log(`✅ GÉNÉRATION TERMINÉE POUR RANG ${rang}, URL:`, audioUrl);
+      // 🚀 GÉNÉRATION COMPLÈTE AVEC TOUTES LES COMPÉTENCES
+      console.log(`🎯 Génération complète pour ${itemData.item_code} Rang ${rang}`);
+      
+      // Générer les paroles complètes avec assonances et toutes les compétences
+      const parolesCompletes = await generateComprehensiveLyrics(itemData.item_code, rang);
+      
+      console.log(`✅ ${parolesCompletes.length} lignes générées avec assonances:`, {
+        preview: parolesCompletes.slice(0, 3),
+        total: parolesCompletes.length,
+        itemCode: itemData.item_code,
+        rang
+      });
+      
+      if (parolesCompletes.length === 0) {
+        throw new Error('Aucune parole générée');
+      }
+
+      // Toast de démarrage avec détails
+      toast({
+        title: `🎵 Génération ${rang} lancée`,
+        description: `${parolesCompletes.length} vers avec assonances - ${itemData.item_code}`,
+      });
+
+      console.log(`🎵 Configuration génération:`, {
+        selectedStyle,
+        musicDuration,
+        parolesCount: parolesCompletes.length,
+        currentLanguage,
+        itemCode: itemData.item_code,
+        rang
+      });
+
+      // Appel génération musicale avec les paroles complètes
+      const audioUrl = await generateMusicInLanguage(rang, parolesCompletes, selectedStyle, musicDuration);
+      
+      console.log(`✅ GÉNÉRATION TERMINÉE - ${itemData.item_code} Rang ${rang}, URL:`, audioUrl);
+      
+      // Toast de succès
+      toast({
+        title: `🎉 ${itemData.item_code} Rang ${rang} généré !`,
+        description: `Toutes les compétences intégrées avec assonances`,
+      });
       
       setTimeout(() => {
         console.log('🎵 VÉRIFICATION ÉTAT RETARDÉE generatedAudio:', generatedAudio);
       }, 100);
       
     } catch (error) {
-      console.error(`❌ ERREUR GÉNÉRATION RANG ${rang}:`, error);
+      console.error(`❌ ERREUR GÉNÉRATION COMPLÈTE ${rang}:`, error);
       toast({
-        title: "Erreur de génération",
-        description: `Impossible de générer la musique pour le rang ${rang}`,
+        title: "❌ Échec génération complète",
+        description: `Impossible de générer ${itemData.item_code} Rang ${rang} avec toutes les compétences`,
+        variant: "destructive"
+      });
+    }
+  };
+
+  // Fonction pour générer Mix A+B avec toutes les compétences
+  const handleGenerateMix = async () => {
+    console.log('🎵 GÉNÉRATION MIX A+B COMPLÈTE');
+    
+    if (!itemData?.item_code) {
+      console.error('❌ CODE ITEM MANQUANT POUR MIX');
+      toast({
+        title: "Erreur génération Mix",
+        description: "Code item manquant pour la génération Mix complète",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    try {
+      console.log(`🎯 Génération Mix complète pour ${itemData.item_code}`);
+      
+      // Générer les paroles mixtes avec toutes les compétences A+B
+      const parolesMix = await generateMixedLyrics(itemData.item_code);
+      
+      console.log(`✅ ${parolesMix.length} lignes Mix générées:`, {
+        preview: parolesMix.slice(0, 3),
+        total: parolesMix.length,
+        itemCode: itemData.item_code
+      });
+      
+      if (parolesMix.length === 0) {
+        throw new Error('Aucune parole Mix générée');
+      }
+
+      // Toast de démarrage
+      toast({
+        title: `🎵 Génération Mix A+B lancée`,
+        description: `${parolesMix.length} vers - Compétences complètes ${itemData.item_code}`,
+      });
+
+      // Durée adaptée pour le mix (plus long)
+      const mixDuration = Math.max(musicDuration, 180); // Minimum 3 minutes pour le mix
+      
+      // Appel génération musicale avec les paroles Mix
+      const audioUrl = await generateMusicInLanguage('A', parolesMix, selectedStyle, mixDuration);
+      
+      console.log(`✅ GÉNÉRATION MIX TERMINÉE - ${itemData.item_code}, URL:`, audioUrl);
+      
+      // Toast de succès
+      toast({
+        title: `🎉 ${itemData.item_code} Mix A+B généré !`,
+        description: `Compétences Rang A et B intégrées - Excellence complète`,
+      });
+      
+    } catch (error) {
+      console.error(`❌ ERREUR GÉNÉRATION MIX:`, error);
+      toast({
+        title: "❌ Échec génération Mix",
+        description: `Impossible de générer ${itemData.item_code} Mix A+B complet`,
         variant: "destructive"
       });
     }
@@ -183,6 +252,7 @@ export const useParolesMusicales = (
     duration,
     volume,
     handleGenerate,
+    handleGenerateMix,
     handlePlayAudio,
     seek,
     changeVolume,
