@@ -55,7 +55,7 @@ export const useMusicGenerationStatus = (taskId: string | null) => {
         return statusData;
       }
 
-      // Si pas trouvé en BDD, vérifier via l'API de statut
+      // Si pas trouvé en BDD ou pas complété, vérifier via l'API de statut
       console.log('📡 Vérification via API de statut...');
       const { data, error } = await supabase.functions.invoke('music-status', {
         body: { taskId }
@@ -63,13 +63,28 @@ export const useMusicGenerationStatus = (taskId: string | null) => {
 
       if (data && !error) {
         console.log('📊 Statut reçu via API:', data);
-        setStatus(data);
+        
+        const statusData: MusicGenerationStatus = {
+          taskId: taskId,
+          status: data.status,
+          audioUrl: data.audioUrl,
+          streamUrl: data.streamUrl,
+          imageUrl: data.imageUrl,
+          progress: getProgressFromStatus(data.status, data.metadata?.progress),
+          metadata: data.metadata
+        };
+        
+        setStatus(statusData);
         
         if (data.status === 'completed' || data.status === 'failed') {
           setIsPolling(false);
+          console.log('🏁 Génération terminée via API, arrêt du polling');
         }
         
-        return data;
+        return statusData;
+      } else {
+        console.error('❌ Erreur lors de l\'appel API de statut:', error);
+        // Continuer le polling même en cas d'erreur temporaire
       }
 
     } catch (error) {

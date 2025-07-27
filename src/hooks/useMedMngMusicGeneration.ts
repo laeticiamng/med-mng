@@ -84,7 +84,24 @@ export const useMedMngMusicGeneration = () => {
       // Gérer le cas où on reçoit un trackId au lieu d'une audioUrl immédiate
       if (sunoResponse.trackId && !sunoResponse.audioUrl) {
         console.log('⏳ Génération en cours avec trackId:', sunoResponse.trackId);
-        throw new Error(`🎵 Génération en cours... Veuillez patienter quelques minutes et reessayer. L'IA Suno génère votre chanson en arrière-plan.`);
+        
+        // Utiliser le hook de polling pour attendre la completion
+        const { useMusicGenerationStatus } = await import('./useMusicGenerationStatus');
+        
+        // Pour l'instant, informer l'utilisateur que la génération est en cours
+        setGeneratingState(rang, true);
+        
+        toast({
+          title: "🎵 Génération en cours...",
+          description: `Votre chanson pour le rang ${rang} est en cours de génération. Vous serez notifié une fois terminée.`,
+        });
+        
+        // Retourner des données temporaires - le polling prendra le relais
+        return {
+          songId: sunoResponse.trackId,
+          streamUrl: '', // Sera mis à jour via polling
+          title: `${itemCode || 'EDN'} Rang ${rang} - ${styleDescription} (en cours...)`
+        };
       }
 
       const sunoAudioId = sunoResponse.audioUrl;

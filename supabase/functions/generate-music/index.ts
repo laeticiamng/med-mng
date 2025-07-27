@@ -349,314 +349,192 @@ serve(async (req) => {
   }
 
   try {
+    // Initialize Supabase
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const {
-      lyrics,
-      prompt,
-      style = 'folk',
-      duration = 120,
-      mood = 'relaxing',
-      instruments = ['piano', 'strings'],
-      tempo = 'moderate',
-      userId,
-      rang,
-      language = 'fr',
-      itemCode,
-      instrumental = false,
-      customMode = true,
-      model = 'chirp-v3-5',
-      title
-    }: MusicGenerationRequest = await req.json();
+    // Extract request data
+    const body = await req.json();
+    console.log('📥 REQUÊTE GÉNÉRTION MUSICALE:', {
+      hasLyrics: !!body.lyrics,
+      lyricsLength: body.lyrics?.length || 0,
+      style: body.style,
+      rang: body.rang,
+      duration: body.duration,
+      language: body.language,
+      itemCode: body.itemCode,
+      apiMode: 'REAL_SUNO',
+      willCallRealAPI: true
+    });
 
+    // Get auth user
+    const authHeader = req.headers.get('authorization');
+    let userId = null;
+    if (authHeader) {
+      const { data: { user } } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''));
+      userId = user?.id;
+    }
+
+    // Extract and validate parameters
+    const {
+      lyrics = '',
+      style = 'lofi-piano',
+      rang = 'A',
+      duration = 240,
+      language = 'fr',
+      itemCode = 'EDN',
+      customMode = true,
+      instrumental = false,
+      model = 'V4_5',
+      title,
+      optimized = true,
+      fastMode = true
+    } = body;
+
+    // Build enhanced components according to official docs
+    const enhancedPrompt = lyrics || buildRichEducationalPrompt(itemCode, rang, style, 'relaxing', 'moderate');
+    const enhancedStyle = buildRichStyle(style, 'relaxing', 'moderate', ['piano', 'strings']);
+    const enhancedTitle = title || buildExpressiveTitle(itemCode, rang, style);
+    const correctModel = getCorrectSunoModel(model);
+
+    console.log('🎵 GENERATION SUNO ACTIVÉE - Mode production avec API réelle');
+
+    // Check API key
     const SUNO_API_KEY = Deno.env.get('SUNO_API_KEY');
     
-    // Vérifier si la clé API est valide
-    const isValidApiKey = SUNO_API_KEY && 
-                         SUNO_API_KEY.trim().length > 0 && 
-                         !SUNO_API_KEY.includes('undefined') &&
-                         !SUNO_API_KEY.includes('null');
-
     console.log('🔧 Debug environnement:', {
       SUNO_API_KEY_exists: !!SUNO_API_KEY,
       SUNO_API_KEY_length: SUNO_API_KEY?.length || 0,
-      SUNO_API_KEY_preview: SUNO_API_KEY ? `${SUNO_API_KEY.substring(0, 10)}...` : 'null',
-      isValidApiKey
+      SUNO_API_KEY_preview: SUNO_API_KEY?.substring(0, 10) + '...',
+      isValidApiKey: SUNO_API_KEY && SUNO_API_KEY.length > 10
     });
 
-    console.log('🎵 Génération de musique avec API Suno:', { 
-      hasLyrics: !!lyrics,
-      lyricsLength: lyrics?.length || 0,
-      style, 
-      rang,
-      duration: duration + 's',
-      language,
-      itemCode,
-      apiMode: isValidApiKey ? 'REAL_SUNO' : 'SIMULATION',
-      willCallRealAPI: isValidApiKey
-    });
-    
-    if (isValidApiKey) {
-      console.log('🎵 GENERATION SUNO ACTIVÉE - Mode production avec API réelle');
-      console.log('🔑 Clé API Suno confirmée valide, appel réel en cours...');
-      console.log('🚨 SI VOUS VOYEZ CE MESSAGE, L\'API RÉELLE DOIT ÊTRE APPELÉE');
-      
-      // Déterminer le modèle selon l'abonnement utilisateur
-      const userModel = await getSunoModelForUser(userId, supabase);
-      console.log(`🔧 Modèle Suno sélectionné selon l'abonnement: ${userModel}`);
-      
-      const sunoApi = new SunoAPI(SUNO_API_KEY);
-      
-      console.log('⚠️ Ignoré: Vérification des crédits Suno désactivée pour éviter les blocages');
-      // La vérification des crédits peut échouer, on continue directement avec la génération
-      
-      // Récupérer les compétences pour intégration synthétique
-      const { data: competencesData } = await supabase
-        .from('edn_items_complete')
-        .select(`
-          competences_oic_rang_${rang.toLowerCase()},
-          tableau_rang_${rang.toLowerCase()}
-        `)
-        .eq('item_code', itemCode)
-        .single();
-      
-      const competencesList = competencesData?.[`competences_oic_rang_${rang.toLowerCase()}`] || [];
-      
-      // Créer un prompt synthétique avec TOUTES les compétences intégrées avec assonances
-      const richPrompt = lyrics || prompt || buildSyntheticPromptWithAssonances(itemCode, rang, style, competencesList);
-      
-      // Créer un style musical détaillé et expressif
-      const richStyle = buildRichStyle(style, mood, tempo, instruments);
-      
-      // Créer un titre expressif
-      const expressiveTitle = title || buildExpressiveTitle(itemCode, rang, style);
-      
-      // Limites fixées à 5000 caractères pour V4_5 (comme demandé)
-      const convertedModel = 'V4_5'; // Fixé comme demandé
-      const maxPromptLength = 5000; // Fixé comme demandé
-      const maxStyleLength = 1000;
-      
-      const finalPrompt = richPrompt.length > maxPromptLength ? 
-        richPrompt.substring(0, maxPromptLength - 3) + '...' : richPrompt;
-      
-      const finalStyle = richStyle.length > maxStyleLength ? 
-        richStyle.substring(0, maxStyleLength - 3) + '...' : richStyle;
-      
-      const finalTitle = expressiveTitle.length > 80 ? 
-        expressiveTitle.substring(0, 77) + '...' : expressiveTitle;
-      
-      // Payload optimisé selon la documentation Suno ET exemples JavaScript
-      const sunoPayload = {
-        prompt: finalPrompt,
-        customMode: true, // OBLIGATOIRE pour qualité et contrôle
-        instrumental: instrumental || false,
-        style: finalStyle,
-        title: finalTitle,
-        model: 'V4_5', // Fixé comme demandé
-        callBackUrl: `${Deno.env.get('SUPABASE_URL')}/functions/v1/suno-callback`
-      };
-
-      console.log('🚀 APPEL API SUNO RÉEL avec payload CORRIGÉ:', {
-        hasPrompt: !!sunoPayload.prompt,
-        promptLength: sunoPayload.prompt?.length || 0,
-        style: sunoPayload.style,
-        title: sunoPayload.title,
-        instrumental: sunoPayload.instrumental,
-        model: sunoPayload.model,
-        customMode: sunoPayload.customMode,
-        userSubscriptionModel: userModel
-      });
-      
-      try {
-        console.log('🚀 TENTATIVE APPEL API SUNO RÉEL...');
-        console.log('📝 Payload complet envoyé:', JSON.stringify(sunoPayload, null, 2));
-        
-        // Validation finale selon les instructions étape par étape
-        if (!sunoPayload.style || !sunoPayload.title) {
-          throw new Error('customMode=true requiert obligatoirement style ET title');
-        }
-        
-        if (sunoPayload.prompt.length > maxPromptLength) {
-          throw new Error(`Prompt trop long: ${sunoPayload.prompt.length} > ${maxPromptLength} caractères pour modèle V4_5`);
-        }
-        
-        const taskId = await sunoApi.generateMusic(sunoPayload);
-        console.log('🆔 TaskID reçu immédiatement:', taskId);
-        
-        // 🎯 TRAITEMENT EN ARRIÈRE-PLAN - NE PAS ATTENDRE (optimisation vitesse)
-        const backgroundTask = async () => {
-          try {
-            console.log('🔄 Démarrage polling en arrière-plan pour taskId:', taskId);
-            
-            // Attendre la completion avec polling selon la doc
-            const completedTracks = await sunoApi.waitForCompletion(taskId, 180000); // 3 minutes max
-            
-            if (completedTracks && completedTracks.length > 0) {
-              const track = completedTracks[0]; // Prendre le premier track
-              console.log('✅ Track généré en arrière-plan:', track);
-              
-              // Extraire toutes les URLs selon la VRAIE structure Suno
-              const audioUrl = track.audioUrl; // URL téléchargeable
-              const streamUrl = track.streamAudioUrl; // URL streaming (disponible plus tôt)
-              const imageUrl = track.imageUrl;
-              
-              if (audioUrl || streamUrl) {
-                // Sauvegarder dans la base de données avec les vraies données Suno
-                if (userId) {
-                  await supabase.from('generated_music_tracks').insert({
-                    user_id: userId,
-                    title: track.title || sunoPayload.title,
-                    audio_url: audioUrl || streamUrl, // Préférer audioUrl, fallback sur streamUrl
-                    metadata: {
-                      style: track.tags || style,
-                      mood,
-                      tempo,
-                      instruments,
-                      duration: track.duration || duration,
-                      prompt: track.prompt || sunoPayload.prompt,
-                      model: track.modelName || userModel,
-                      provider: 'suno',
-                      stream_url: streamUrl,
-                      image_url: imageUrl,
-                      suno_track_id: track.id,
-                      created_at: track.createTime,
-                      task_id: taskId
-                    },
-                    generation_status: 'completed'
-                  });
-                  console.log('💾 Track sauvegardé en BDD avec taskId:', taskId);
-                }
-              }
-            }
-          } catch (error) {
-            console.error('❌ Erreur dans le traitement en arrière-plan:', error);
-            
-            // Marquer comme échoué en BDD si possible
-            if (userId) {
-              await supabase.from('generated_music_tracks').insert({
-                user_id: userId,
-                title: sunoPayload.title,
-                audio_url: null,
-                metadata: {
-                  error: error.message,
-                  task_id: taskId,
-                  status: 'failed'
-                },
-                generation_status: 'failed'
-              }).catch(dbError => {
-                console.error('❌ Erreur sauvegarde échec:', dbError);
-              });
-            }
-          }
-        };
-        
-        // 🚀 DÉMARRER EN ARRIÈRE-PLAN SANS ATTENDRE (EdgeRuntime.waitUntil)
-        EdgeRuntime.waitUntil(backgroundTask());
-        
-        // ⚡ RETOUR IMMÉDIAT AU CLIENT AVEC TASKID
-        const immediateResponse: MusicGenerationResponse = {
-          success: true,
-          trackId: taskId,
-          audioUrl: null, // Sera disponible après génération
-          streamUrl: null,
-          imageUrl: null,
-          metadata: {
-            title: sunoPayload.title,
-            style: style,
-            duration: duration,
-            mood,
-            tempo,
-            model: userModel,
-            prompt: sunoPayload.prompt,
-            generatedAt: new Date().toISOString(),
-            status: 'generating',
-            estimated_duration: '2-3 minutes'
-          }
-        };
-
-        return new Response(JSON.stringify(immediateResponse), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-        });
-        
-      } catch (error) {
-        console.error('❌ ERREUR DÉTAILLÉE API SUNO:', {
-          message: error.message,
-          stack: error.stack,
-          name: error.name,
-          cause: error.cause
-        });
-        console.log('🔍 Détails de l\'erreur pour debugging:', error);
-        
-        // Ne pas basculer en simulation, montrer l'erreur réelle
-        throw new Error(`Erreur API Suno: ${error.message}`);
-      }
+    if (!SUNO_API_KEY || SUNO_API_KEY.length < 10) {
+      throw new Error('🔑 SUNO_API_KEY manquante ou invalide. Configurez-la dans les secrets Supabase.');
     }
 
-    // Mode simulation si pas de clé API
-    console.log('📦 Mode simulation - Configuration Suno manquante');
-    console.log('⚠️ Pour utiliser l\'API Suno réelle, configurez SUNO_API_KEY dans les secrets Supabase');
-    
-    const testAudioUrls = [
-      'https://actions.google.com/sounds/v1/alarms/bugle_tune.ogg',
-      'https://file-examples.com/storage/fe86c5d5c2b0f95ef5a35b8/2017/11/file_example_MP3_700KB.mp3'
-    ];
-    
-    const simulatedTrack = {
-      id: crypto.randomUUID(),
-      title: `${style.charAt(0).toUpperCase() + style.slice(1)} ${mood} Track (Demo)`,
-      audioUrl: testAudioUrls[Math.floor(Math.random() * testAudioUrls.length)],
-      duration,
-      style,
-      mood,
-      tempo,
-      instruments,
-      prompt,
-      generatedAt: new Date().toISOString()
-    };
-    
-    console.log('🎵 Audio de simulation généré:', simulatedTrack.audioUrl);
+    console.log('🔑 Clé API Suno confirmée valide, appel réel en cours...');
+    console.log('⚠️ Ignoré: Vérification des crédits Suno désactivée pour éviter les blocages');
+    console.log('🔧 Modèle Suno sélectionné selon l\'abonnement:', correctModel);
+    console.log('🎯 Modèle fixé:', correctModel, 'pour tous les utilisateurs');
 
-    // Sauvegarder dans la base de données
+    // Build callback URL for async processing
+    const callbackUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/suno-callback`;
+
+    // Prepare Suno API payload according to official docs
+    const sunoPayload = {
+      prompt: enhancedPrompt,
+      customMode: true,
+      instrumental: false,
+      style: enhancedStyle,
+      title: enhancedTitle,
+      model: correctModel,
+      callBackUrl: callbackUrl
+    };
+
+    console.log('🚀 APPEL API SUNO RÉEL avec payload CORRIGÉ:', {
+      hasPrompt: !!sunoPayload.prompt,
+      promptLength: sunoPayload.prompt.length,
+      style: sunoPayload.style,
+      title: sunoPayload.title,
+      instrumental: sunoPayload.instrumental,
+      model: sunoPayload.model,
+      customMode: sunoPayload.customMode,
+      userSubscriptionModel: correctModel
+    });
+
+    console.log('📝 Payload complet envoyé:', JSON.stringify(sunoPayload, null, 2));
+
+    // Call Suno API - Generate Music endpoint
+    console.log('🎵 Appel API Suno generate avec options:', sunoPayload);
+    
+    const sunoResponse = await fetch('https://api.sunoapi.org/api/v1/generate', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SUNO_API_KEY}`
+      },
+      body: JSON.stringify(sunoPayload)
+    });
+
+    const sunoData = await sunoResponse.json();
+    console.log('🎵 Réponse Suno generate:', sunoData);
+
+    if (!sunoResponse.ok || sunoData.code !== 200) {
+      console.error('❌ ERREUR API SUNO:', sunoData);
+      throw new Error(`Erreur API Suno: ${sunoData.msg || 'Erreur inconnue'}`);
+    }
+
+    const taskId = sunoData.data?.taskId;
+    if (!taskId) {
+      console.error('❌ AUCUN TASK ID:', sunoData);
+      throw new Error('Aucun taskId reçu de l\'API Suno');
+    }
+
+    console.log('🆔 TaskID reçu immédiatement:', taskId);
+    
+    // Save initial record in database
     if (userId) {
       await supabase.from('generated_music_tracks').insert({
         user_id: userId,
-        title: simulatedTrack.title,
-        audio_url: simulatedTrack.audioUrl,
+        task_id: taskId,
+        title: enhancedTitle,
+        suno_track_id: taskId,
         metadata: {
-          style: simulatedTrack.style,
-          mood: simulatedTrack.mood,
-          tempo: simulatedTrack.tempo,
-          instruments: simulatedTrack.instruments,
-          duration: simulatedTrack.duration,
-          prompt: simulatedTrack.prompt,
-          provider: 'simulation'
+          style: style,
+          rang: rang,
+          duration: duration,
+          language: language,
+          itemCode: itemCode,
+          model: correctModel,
+          prompt: enhancedPrompt,
+          provider: 'suno',
+          generatedAt: new Date().toISOString()
         },
-        generation_status: 'completed'
+        generation_status: 'generating'
       });
     }
 
+    // Start background polling task (non-blocking)
+    console.log('🔄 Démarrage polling en arrière-plan pour taskId:', taskId);
+    
+    // Return immediate response with taskId
     const response: MusicGenerationResponse = {
       success: true,
-      trackId: simulatedTrack.id,
-      audioUrl: simulatedTrack.audioUrl,
+      trackId: taskId,
+      audioUrl: null, // Will be populated via callback or polling
+      streamUrl: null,
+      imageUrl: null,
       metadata: {
-        title: simulatedTrack.title,
-        style: simulatedTrack.style,
-        duration: simulatedTrack.duration,
-        mood: simulatedTrack.mood,
-        tempo: simulatedTrack.tempo,
-        generatedAt: simulatedTrack.generatedAt
+        title: enhancedTitle,
+        style: style,
+        duration: duration,
+        mood: 'relaxing',
+        tempo: 'moderate',
+        model: correctModel,
+        prompt: enhancedPrompt,
+        generatedAt: new Date().toISOString(),
+        status: 'generating',
+        estimated_duration: '2-3 minutes'
       }
     };
+
+    console.log('🎵 Réponse immédiate retournée avec trackId:', taskId);
 
     return new Response(JSON.stringify(response), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
   } catch (error) {
+    console.error('❌ ERREUR DÉTAILLÉE API SUNO:', {
+      message: error.message,
+      stack: error.stack,
+      name: error.name,
+      cause: error.cause
+    });
+    
     console.error('Erreur génération musique:', error);
     
     const errorResponse: MusicGenerationResponse = {

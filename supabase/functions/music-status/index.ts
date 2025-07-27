@@ -25,148 +25,180 @@ serve(async (req) => {
   }
 
   try {
+    // Initialize Supabase
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
+    // Extract taskId from request
     const url = new URL(req.url);
-    const taskId = url.pathname.split('/').pop();
-
+    const taskId = url.searchParams.get('taskId') || (await req.json()).taskId;
+    
     if (!taskId) {
       return new Response(JSON.stringify({
         success: false,
-        error: 'TaskID manquant'
+        error: 'TaskId is required'
       }), {
         status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
     console.log('🔍 Vérification statut pour taskId:', taskId);
 
-    // Chercher dans la base de données d'abord
+    // First check our database
     const { data: dbTrack, error: dbError } = await supabase
       .from('generated_music_tracks')
       .select('*')
-      .eq('metadata->>task_id', taskId)
+      .or(`task_id.eq.${taskId},suno_track_id.eq.${taskId}`)
       .single();
 
-    if (dbTrack && !dbError) {
-      console.log('✅ Track trouvé en BDD:', dbTrack.generation_status);
+    if (dbTrack && !dbError && dbTrack.generation_status === 'completed' && dbTrack.audio_url) {
+      console.log('✅ Statut trouvé en BDD - Complété:', dbTrack.generation_status);
       
       const response: MusicStatusResponse = {
         success: true,
-        status: dbTrack.generation_status as 'generating' | 'completed' | 'failed',
+        status: 'completed',
         taskId: taskId,
         audioUrl: dbTrack.audio_url,
         streamUrl: dbTrack.metadata?.stream_url,
         imageUrl: dbTrack.metadata?.image_url,
-        metadata: dbTrack.metadata,
-        progress: dbTrack.generation_status === 'completed' ? 100 : 
-                 dbTrack.generation_status === 'failed' ? 0 : 75
+        metadata: dbTrack.metadata
       };
 
       return new Response(JSON.stringify(response), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
 
-    // Si pas trouvé en BDD, vérifier avec l'API Suno directement
+    // If not completed in DB, check Suno API directly
     const SUNO_API_KEY = Deno.env.get('SUNO_API_KEY');
     
-    if (SUNO_API_KEY) {
-      console.log('🔄 Vérification directe avec API Suno...');
+    if (!SUNO_API_KEY) {
+      console.log('⚠️ Clé API Suno manquante, retour statut depuis DB seulement');
       
-      const response = await fetch(`https://api.sunoapi.org/api/v1/generate/record-info?taskId=${taskId}`, {
-        headers: {
-          'Authorization': `Bearer ${SUNO_API_KEY}`
-        }
+      const response: MusicStatusResponse = {
+        success: true,
+        status: dbTrack?.generation_status as any || 'generating',
+        taskId: taskId,
+        metadata: dbTrack?.metadata
+      };
+
+      return new Response(JSON.stringify(response), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
-
-      if (response.ok) {
-        const result = await response.json();
-        console.log('📊 Statut Suno reçu:', result);
-
-        if (result.code === 200) {
-          const sunoStatus = result.data.status;
-          let mappedStatus: 'generating' | 'completed' | 'failed';
-          let progress = 0;
-
-          switch (sunoStatus) {
-            case 'SUCCESS':
-            case 'COMPLETE':
-              mappedStatus = 'completed';
-              progress = 100;
-              break;
-            case 'FAILED':
-            case 'ERROR':
-              mappedStatus = 'failed';
-              progress = 0;
-              break;
-            default:
-              mappedStatus = 'generating';
-              progress = sunoStatus === 'PENDING' ? 25 : 
-                       sunoStatus === 'PROCESSING' ? 50 : 75;
-          }
-
-          const statusResponse: MusicStatusResponse = {
-            success: true,
-            status: mappedStatus,
-            taskId: taskId,
-            progress: progress,
-            metadata: {
-              suno_status: sunoStatus,
-              last_checked: new Date().toISOString()
-            }
-          };
-
-          // Si completed, extraire les URLs
-          if (mappedStatus === 'completed' && result.data.response?.data?.[0]) {
-            const track = result.data.response.data[0];
-            statusResponse.audioUrl = track.audio_url;
-            statusResponse.streamUrl = track.stream_audio_url;
-            statusResponse.imageUrl = track.image_url;
-            statusResponse.metadata = {
-              ...statusResponse.metadata,
-              title: track.title,
-              duration: track.duration,
-              style: track.style
-            };
-          }
-
-          return new Response(JSON.stringify(statusResponse), {
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-          });
-        }
-      }
     }
 
-    // Statut par défaut si rien trouvé
-    const defaultResponse: MusicStatusResponse = {
+    // Call Suno API to get current status
+    console.log('📡 Vérification statut via API Suno pour taskId:', taskId);
+    
+    const sunoResponse = await fetch(`https://api.sunoapi.org/api/v1/generate/record-info?taskId=${taskId}`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${SUNO_API_KEY}`
+      }
+    });
+
+    const sunoData = await sunoResponse.json();
+    console.log('📊 Réponse statut Suno:', sunoData);
+
+    if (!sunoResponse.ok || sunoData.code !== 200) {
+      console.error('❌ Erreur API Suno pour statut:', sunoData);
+      
+      const response: MusicStatusResponse = {
+        success: false,
+        error: `Erreur API Suno: ${sunoData.msg || 'Erreur inconnue'}`
+      };
+
+      return new Response(JSON.stringify(response), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Parse Suno response according to official docs
+    const sunoTaskData = sunoData.data;
+    let mappedStatus: 'generating' | 'completed' | 'failed' = 'generating';
+    let audioUrl: string | undefined;
+    let streamUrl: string | undefined;
+    let imageUrl: string | undefined;
+
+    // Map Suno status to our status according to docs
+    switch (sunoTaskData.response?.status || sunoTaskData.status) {
+      case 'PENDING':
+      case 'TEXT_SUCCESS':
+      case 'FIRST_SUCCESS':
+        mappedStatus = 'generating';
+        break;
+      case 'SUCCESS':
+        mappedStatus = 'completed';
+        // Extract audio URLs from sunoData array
+        if (sunoTaskData.response?.sunoData && sunoTaskData.response.sunoData.length > 0) {
+          const firstTrack = sunoTaskData.response.sunoData[0];
+          audioUrl = firstTrack.audioUrl || firstTrack.audio_url;
+          streamUrl = firstTrack.streamAudioUrl || firstTrack.stream_audio_url;
+          imageUrl = firstTrack.imageUrl || firstTrack.image_url;
+        }
+        break;
+      case 'CREATE_TASK_FAILED':
+      case 'GENERATE_AUDIO_FAILED':
+      case 'CALLBACK_EXCEPTION':
+      case 'SENSITIVE_WORD_ERROR':
+        mappedStatus = 'failed';
+        break;
+      default:
+        mappedStatus = 'generating';
+    }
+
+    // Update database if completed
+    if (mappedStatus === 'completed' && audioUrl && dbTrack) {
+      await supabase
+        .from('generated_music_tracks')
+        .update({
+          generation_status: 'completed',
+          audio_url: audioUrl,
+          metadata: {
+            ...dbTrack.metadata,
+            stream_url: streamUrl,
+            image_url: imageUrl,
+            suno_response: sunoTaskData
+          }
+        })
+        .eq('id', dbTrack.id);
+      
+      console.log('✅ Base de données mise à jour avec audio URL:', audioUrl);
+    }
+
+    const response: MusicStatusResponse = {
       success: true,
-      status: 'generating',
+      status: mappedStatus,
       taskId: taskId,
-      progress: 50,
+      audioUrl: audioUrl,
+      streamUrl: streamUrl,
+      imageUrl: imageUrl,
       metadata: {
-        message: 'Génération en cours...',
-        estimated_completion: '1-2 minutes restantes'
+        ...dbTrack?.metadata,
+        suno_status: sunoTaskData.response?.status || sunoTaskData.status,
+        suno_response: sunoTaskData
       }
     };
 
-    return new Response(JSON.stringify(defaultResponse), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    return new Response(JSON.stringify(response), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
   } catch (error) {
-    console.error('Erreur vérification statut:', error);
+    console.error('❌ Erreur lors de la vérification du statut:', error);
     
-    return new Response(JSON.stringify({
+    const response: MusicStatusResponse = {
       success: false,
       error: error.message
-    }), {
+    };
+
+    return new Response(JSON.stringify(response), {
       status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 });

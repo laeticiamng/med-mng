@@ -105,11 +105,11 @@ export const callSunoApi = async (requestBody: GenerateMusicRequest) => {
       return { audioUrl: data.audioUrl, callDuration };
     } else if (data.trackId) {
       console.log(`🆔 TRACK ID REÇU pour polling: ${data.trackId}`);
-      // Retourner le trackId pour que le polling puisse récupérer l'audio plus tard
+      // Retourner le trackId pour que le système de polling puisse récupérer l'audio plus tard
       return { trackId: data.trackId, callDuration };
     } else {
       console.error('❌ AUCUNE URL AUDIO ni TRACK ID en mode ultra-rapide:', data);
-      throw new Error('Aucune URL audio générée en mode ultra-rapide');
+      throw new Error('Aucune URL audio ni trackId généré par l\'API Suno');
     }
     
   } catch (supabaseError) {
