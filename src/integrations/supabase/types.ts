@@ -1595,6 +1595,111 @@ export type Database = {
         }
         Relationships: []
       }
+      generated_ambient_images: {
+        Row: {
+          created_at: string
+          generation_status: string | null
+          id: string
+          image_base64: string | null
+          metadata: Json | null
+          prompt: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          generation_status?: string | null
+          id?: string
+          image_base64?: string | null
+          metadata?: Json | null
+          prompt: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          generation_status?: string | null
+          id?: string
+          image_base64?: string | null
+          metadata?: Json | null
+          prompt?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      generated_music_tracks: {
+        Row: {
+          audio_url: string | null
+          created_at: string
+          generation_status: string | null
+          id: string
+          metadata: Json | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          audio_url?: string | null
+          created_at?: string
+          generation_status?: string | null
+          id?: string
+          metadata?: Json | null
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          audio_url?: string | null
+          created_at?: string
+          generation_status?: string | null
+          id?: string
+          metadata?: Json | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      generated_voice_tracks: {
+        Row: {
+          audio_base64: string | null
+          created_at: string
+          generation_status: string | null
+          id: string
+          metadata: Json | null
+          model: string
+          text: string
+          updated_at: string
+          user_id: string
+          voice_id: string
+        }
+        Insert: {
+          audio_base64?: string | null
+          created_at?: string
+          generation_status?: string | null
+          id?: string
+          metadata?: Json | null
+          model: string
+          text: string
+          updated_at?: string
+          user_id: string
+          voice_id: string
+        }
+        Update: {
+          audio_base64?: string | null
+          created_at?: string
+          generation_status?: string | null
+          id?: string
+          metadata?: Json | null
+          model?: string
+          text?: string
+          updated_at?: string
+          user_id?: string
+          voice_id?: string
+        }
+        Relationships: []
+      }
       google_sheets_integrations: {
         Row: {
           created_at: string
