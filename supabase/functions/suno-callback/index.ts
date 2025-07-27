@@ -34,13 +34,10 @@ serve(async (req) => {
           console.log(`✅ Track finalisé: ${track.id} - ${track.audio_url}`);
           
           try {
-            // Mettre à jour ou insérer le track dans la BDD
+            // Mettre à jour le track existant dans la BDD
             const { error } = await supabase
               .from('generated_music_tracks')
-              .upsert({
-                suno_track_id: track.id,
-                task_id: task_id,
-                title: track.title,
+              .update({
                 audio_url: track.audio_url || track.source_audio_url,
                 stream_url: track.stream_audio_url || track.source_stream_audio_url,
                 image_url: track.image_url || track.source_image_url,
@@ -54,9 +51,8 @@ serve(async (req) => {
                   suno_complete_data: track
                 },
                 updated_at: new Date().toISOString()
-              }, {
-                onConflict: 'suno_track_id'
-              });
+              })
+              .eq('task_id', task_id);
               
             if (error) {
               console.error('❌ Erreur mise à jour BDD:', error);
@@ -76,10 +72,7 @@ serve(async (req) => {
           try {
             await supabase
               .from('generated_music_tracks')
-              .upsert({
-                suno_track_id: track.id,
-                task_id: task_id,
-                title: track.title,
+              .update({
                 generation_status: 'text_complete',
                 metadata: {
                   model_name: track.model_name,
@@ -89,9 +82,8 @@ serve(async (req) => {
                   progress: 75
                 },
                 updated_at: new Date().toISOString()
-              }, {
-                onConflict: 'suno_track_id'
-              });
+              })
+              .eq('task_id', task_id);
               
             console.log(`📝 Statut texte mis à jour pour track ${track.id}`);
           } catch (dbError) {

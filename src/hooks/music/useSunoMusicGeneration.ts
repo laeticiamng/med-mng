@@ -60,26 +60,33 @@ export const useSunoMusicGeneration = () => {
       
       const requestBody = createRequestBody(translatedLyrics, selectedStyle, rang, adjustedDuration, currentLanguage, isComposition, model);
 
-      const { audioUrl, callDuration } = await callSunoApi(requestBody);
+      const response = await callSunoApi(requestBody);
 
       console.log('🎵 RÉPONSE API SUNO REÇUE:', {
-        audioUrl,
-        callDuration,
+        response,
+        callDuration: response.callDuration,
         rang,
-        urlType: audioUrl?.startsWith('/') ? 'relative' : audioUrl?.startsWith('http') ? 'absolute' : 'unknown'
+        trackId: response.trackId
       });
 
-      const validatedAudioUrl = validateAndNormalizeAudioUrl(audioUrl);
+      // La génération Suno est maintenant asynchrone - on attend le callback
+      if (response.trackId) {
+        console.log(`🎵 GÉNÉRATION DÉMARRÉE pour Rang ${rang}, trackId: ${response.trackId}`);
+        
+        const successMessage = getSuccessMessage(rang, durationText, currentLanguage, isComposition);
+        toast({
+          title: "Génération démarrée",
+          description: `Musique Rang ${rang} en cours de génération...`,
+          variant: "default"
+        });
 
-      console.log(`🎵 STOCKAGE URL AUDIO pour Rang ${rang}:`, validatedAudioUrl);
-      setAudioUrl(rang, validatedAudioUrl);
+        console.log(`✅ GÉNÉRATION SUNO DÉMARRÉE pour Rang ${rang} en ${currentLanguage}`);
+        
+        return response.trackId;
+      } else {
+        throw new Error('Aucun trackId reçu de l\'API Suno');
+      }
 
-      const successMessage = getSuccessMessage(rang, durationText, currentLanguage, isComposition);
-      toast(successMessage);
-
-      console.log(`✅ GÉNÉRATION SUNO RÉUSSIE pour Rang ${rang} en ${currentLanguage} (${callDuration}s):`, validatedAudioUrl);
-      
-      return validatedAudioUrl;
       
     } catch (error) {
       console.error(`❌ ERREUR GÉNÉRATION SUNO Rang ${rang}:`, error);

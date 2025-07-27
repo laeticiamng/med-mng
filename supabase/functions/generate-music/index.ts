@@ -377,14 +377,19 @@ serve(async (req) => {
     if (authHeader) {
       try {
         const { data: { user }, error } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''));
-        userId = user?.id;
-        console.log('👤 User authentifié:', { userId, hasUser: !!user, error });
+        if (user?.id) {
+          userId = user.id;
+          console.log('👤 User authentifié:', { userId, hasUser: !!user });
+        } else {
+          console.log('⚠️ Token invalide - génération anonyme');
+          userId = 'anonymous-user';
+        }
       } catch (authError) {
-        console.error('❌ Erreur authentification:', authError);
+        console.error('❌ Erreur authentification - génération anonyme:', authError);
+        userId = 'anonymous-user';
       }
     } else {
       console.log('⚠️ Aucun header d\'authentification - génération anonyme');
-      // Pour le debug, on peut utiliser un userId factice
       userId = 'anonymous-user';
     }
 
