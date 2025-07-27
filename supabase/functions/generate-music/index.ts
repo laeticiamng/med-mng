@@ -422,7 +422,7 @@ serve(async (req) => {
       const finalTitle = expressiveTitle.length > 80 ? 
         expressiveTitle.substring(0, 77) + '...' : expressiveTitle;
       
-      // Payload optimisé selon la documentation Suno
+      // Payload optimisé selon la documentation Suno ET exemples JavaScript
       const sunoPayload = {
         prompt: finalPrompt,
         customMode: true, // OBLIGATOIRE pour qualité et contrôle
@@ -430,6 +430,7 @@ serve(async (req) => {
         style: finalStyle,
         title: finalTitle,
         model: getCorrectSunoModel(userModel), // Fonction pour format correct
+        callBackUrl: 'https://webhook.site/generate-music-callback' // OBLIGATOIRE selon la doc
       };
 
       console.log('🚀 APPEL API SUNO RÉEL avec payload CORRIGÉ:', {
