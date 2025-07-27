@@ -78,17 +78,20 @@ serve(async (req) => {
       let detailedPrompt = '';
       
       if (lyrics && lyrics.trim()) {
-        // Si on a des paroles, les inclure dans le prompt
-        detailedPrompt = `Create a ${duration} second ${style} song with the following lyrics and structure:
+        // Si on a des paroles, les inclure dans le prompt avec instruction de les chanter
+        detailedPrompt = `Create a ${duration} second ${style} song where every word of these lyrics MUST be sung clearly and completely:
 
-[Lyrics]
+[LYRICS TO SING - MANDATORY]
 ${lyrics}
 
-Style: ${style}
-Mood: ${mood}
-Tempo: ${tempo}
-Duration: ${duration} seconds
-${duration > 180 ? 'Make this a longer, more developed composition with multiple verses and choruses.' : 'Keep it concise but complete.'}`;
+IMPORTANT: 
+- Sing ALL the provided lyrics word by word
+- Do NOT skip any lines
+- Make sure the song duration covers all lyrics (${duration} seconds)
+- Style: ${style}
+- Mood: ${mood}
+- Tempo: ${tempo}
+- The song must be exactly ${duration} seconds long and include ALL provided lyrics`;
       } else {
         // Sinon, utiliser le prompt existant ou créer un instrumental
         detailedPrompt = prompt || `Create a ${duration} second ${style} instrumental track with ${mood} mood, ${tempo} tempo, featuring ${instruments.join(', ')}. ${duration > 180 ? 'This should be a longer, more developed composition.' : 'Keep it concise and focused.'}`;
@@ -96,11 +99,13 @@ ${duration > 180 ? 'Make this a longer, more developed composition with multiple
 
       const sunoPayload = {
         prompt: detailedPrompt,
+        lyrics: lyrics && lyrics.trim() ? lyrics : undefined, // Envoyer les paroles séparément
         style: style,
-        title: `${rang ? `Rang ${rang} - ` : ''}${style.charAt(0).toUpperCase() + style.slice(1)} Track`,
+        title: `${rang ? `Rang ${rang} - ` : ''}${style.charAt(0).toUpperCase() + style.slice(1)} avec paroles`,
         customMode: true,
-        instrumental: !lyrics || lyrics.trim() === '', // Instrumental si pas de paroles
-        model: "V4"
+        instrumental: false, // Toujours avec paroles si on a du texte
+        model: "V4",
+        duration: duration // S'assurer que la durée est respectée
       };
 
       console.log('🚀 Utilisation de l\'API Suno avec payload:', sunoPayload);
