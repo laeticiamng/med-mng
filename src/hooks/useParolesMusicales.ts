@@ -28,7 +28,7 @@ export const useParolesMusicales = (
     currentLanguage
   } = useMusicGenerationWithTranslation();
 
-  const { startPolling, completedAudio } = useSunoPolling();
+  const { startPolling, completedAudio, pollingTracks } = useSunoPolling();
 
   const {
     currentTrack,
@@ -291,6 +291,7 @@ export const useParolesMusicales = (
     setMusicDuration,
     isGenerating,
     generatedAudio: mergedGeneratedAudio,
+    pollingTracks, // Exposer le count de polling
     generationProgress,
     lastError,
     currentLanguage,

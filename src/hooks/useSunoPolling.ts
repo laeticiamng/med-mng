@@ -57,7 +57,8 @@ export const useSunoPolling = () => {
 
         toast({
           title: `🎉 ${track.itemCode} Rang ${track.rang} prêt !`,
-          description: `Votre musique est disponible pour écoute`,
+          description: `🎵 Votre musique est maintenant disponible pour écoute`,
+          duration: 8000, // Durée plus longue pour être sûr de voir le toast
         });
 
         return true;
@@ -75,6 +76,12 @@ export const useSunoPolling = () => {
 
     const interval = setInterval(async () => {
       console.log('🔄 Polling check pour', pollingTracks.length, 'tracks');
+      
+      // Log l'état actuel du polling
+      pollingTracks.forEach(track => {
+        const elapsed = Math.floor((Date.now() - track.startTime) / 1000);
+        console.log(`⏱️ Track ${track.trackId} - ${track.rang}: ${elapsed}s écoulées`);
+      });
       
       for (const track of pollingTracks) {
         const elapsed = Date.now() - track.startTime;

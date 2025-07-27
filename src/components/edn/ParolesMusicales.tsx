@@ -44,6 +44,7 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
     setMusicDuration,
     isGenerating,
     generatedAudio,
+    pollingTracks,
     generationProgress,
     lastError,
     currentLanguage,
@@ -130,6 +131,7 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
               onSeek={seek}
               onVolumeChange={changeVolume}
               onStop={stop}
+              pollingTracks={pollingTracks}
             />
           </div>
         </CardContent>

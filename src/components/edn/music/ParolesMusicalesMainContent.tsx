@@ -2,6 +2,7 @@
 import React from 'react';
 import { AlertTriangle } from 'lucide-react';
 import { ParolesMusicalesRangSection } from './ParolesMusicalesRangSection';
+import { SunoGenerationStatus } from './SunoGenerationStatus';
 
 interface ParolesMusicalesMainContentProps {
   paroles: string[];
@@ -35,6 +36,7 @@ interface ParolesMusicalesMainContentProps {
   onSeek: (time: number) => void;
   onVolumeChange: (volume: number) => void;
   onStop: () => void;
+  pollingTracks?: number; // Ajout pour le status
 }
 
 export const ParolesMusicalesMainContent: React.FC<ParolesMusicalesMainContentProps> = ({
@@ -55,7 +57,8 @@ export const ParolesMusicalesMainContent: React.FC<ParolesMusicalesMainContentPr
   onPlayAudio,
   onSeek,
   onVolumeChange,
-  onStop
+  onStop,
+  pollingTracks = 0
 }) => {
   if (!paroles || paroles.length === 0) {
     return (
@@ -76,49 +79,65 @@ export const ParolesMusicalesMainContent: React.FC<ParolesMusicalesMainContentPr
       <h3 className="font-semibold">Paroles disponibles pour génération musicale Suno :</h3>
       
       {paroles[0] && (
-        <ParolesMusicalesRangSection
-          rang="A"
-          paroles={paroles[0]}
-          musicDuration={musicDuration}
-          selectedStyle={selectedStyle}
-          isGenerating={isGenerating.rangA}
-          generatedAudio={generatedAudio.rangA}
-          itemCode={itemCode}
-          currentTrack={currentTrack}
-          isPlaying={isPlaying}
-          currentTime={currentTime}
-          duration={duration}
-          volume={volume}
-          onGenerate={() => onGenerate('A')}
-          onPlayAudio={onPlayAudio}
-          onSeek={onSeek}
-          onVolumeChange={onVolumeChange}
-          onStop={onStop}
-          generationProgress={generationProgress?.rangA}
-        />
+        <div className="space-y-2">
+          <SunoGenerationStatus 
+            isPolling={isGenerating.rangA}
+            pollingCount={pollingTracks}
+            hasAudio={!!generatedAudio.rangA}
+            rang="A"
+          />
+          <ParolesMusicalesRangSection
+            rang="A"
+            paroles={paroles[0]}
+            musicDuration={musicDuration}
+            selectedStyle={selectedStyle}
+            isGenerating={isGenerating.rangA}
+            generatedAudio={generatedAudio.rangA}
+            itemCode={itemCode}
+            currentTrack={currentTrack}
+            isPlaying={isPlaying}
+            currentTime={currentTime}
+            duration={duration}
+            volume={volume}
+            onGenerate={() => onGenerate('A')}
+            onPlayAudio={onPlayAudio}
+            onSeek={onSeek}
+            onVolumeChange={onVolumeChange}
+            onStop={onStop}
+            generationProgress={generationProgress?.rangA}
+          />
+        </div>
       )}
 
       {paroles[1] && (
-        <ParolesMusicalesRangSection
-          rang="B"
-          paroles={paroles[1]}
-          musicDuration={musicDuration}
-          selectedStyle={selectedStyle}
-          isGenerating={isGenerating.rangB}
-          generatedAudio={generatedAudio.rangB}
-          itemCode={itemCode}
-          currentTrack={currentTrack}
-          isPlaying={isPlaying}
-          currentTime={currentTime}
-          duration={duration}
-          volume={volume}
-          onGenerate={() => onGenerate('B')}
-          onPlayAudio={onPlayAudio}
-          onSeek={onSeek}
-          onVolumeChange={onVolumeChange}
-          onStop={onStop}
-          generationProgress={generationProgress?.rangB}
-        />
+        <div className="space-y-2">
+          <SunoGenerationStatus 
+            isPolling={isGenerating.rangB}
+            pollingCount={pollingTracks}
+            hasAudio={!!generatedAudio.rangB}
+            rang="B"
+          />
+          <ParolesMusicalesRangSection
+            rang="B"
+            paroles={paroles[1]}
+            musicDuration={musicDuration}
+            selectedStyle={selectedStyle}
+            isGenerating={isGenerating.rangB}
+            generatedAudio={generatedAudio.rangB}
+            itemCode={itemCode}
+            currentTrack={currentTrack}
+            isPlaying={isPlaying}
+            currentTime={currentTime}
+            duration={duration}
+            volume={volume}
+            onGenerate={() => onGenerate('B')}
+            onPlayAudio={onPlayAudio}
+            onSeek={onSeek}
+            onVolumeChange={onVolumeChange}
+            onStop={onStop}
+            generationProgress={generationProgress?.rangB}
+          />
+        </div>
       )}
 
       {paroles[0] && paroles[1] && (
