@@ -78,6 +78,53 @@ interface SunoStatusResponse {
   };
 }
 
+// Fonction pour déterminer le modèle Suno selon l'abonnement utilisateur
+async function getSunoModelForUser(userId: string | null, supabase: any): Promise<string> {
+  if (!userId) {
+    // Plan gratuit = modèle premium pour découverte (V4.5)
+    return 'chirp-v4-5';
+  }
+
+  try {
+    // Récupérer l'abonnement de l'utilisateur
+    const { data: subscription, error } = await supabase
+      .from('user_subscriptions')
+      .select('plan_name')
+      .eq('user_id', userId)
+      .eq('status', 'active')
+      .single();
+
+    if (error || !subscription) {
+      console.log('Aucun abonnement actif trouvé, utilisation du modèle gratuit');
+      return 'chirp-v4-5'; // Plan gratuit = V4.5
+    }
+
+    const planName = subscription.plan_name?.toLowerCase();
+    
+    switch (planName) {
+      case 'plan standard':
+      case 'basic':
+      case 'standard':
+        return 'chirp-v3-5'; // 19€ = V3.5
+      
+      case 'plan pro':
+      case 'pro':
+        return 'chirp-v4';   // 29€ = V4
+      
+      case 'plan premium':
+      case 'premium':
+        return 'chirp-v4-5'; // 39€ = V4.5
+      
+      default:
+        console.log(`Plan non reconnu: ${planName}, utilisation V3.5 par défaut`);
+        return 'chirp-v3-5';
+    }
+  } catch (error) {
+    console.error('Erreur lors de la récupération de l\'abonnement:', error);
+    return 'chirp-v3-5'; // Valeur par défaut en cas d'erreur
+  }
+}
+
 // Classe pour interagir avec l'API Suno officielle selon la documentation
 class SunoAPI {
   private apiKey: string;
@@ -291,6 +338,12 @@ serve(async (req) => {
     });
     
     if (isValidApiKey) {
+      console.log('🎵 GENERATION SUNO ACTIVÉE - Mode production avec API réelle');
+      
+      // Déterminer le modèle selon l'abonnement utilisateur
+      const userModel = await getSunoModelForUser(userId, supabase);
+      console.log(`🔧 Modèle Suno sélectionné selon l'abonnement: ${userModel}`);
+      
       const sunoApi = new SunoAPI(SUNO_API_KEY);
       
       try {
@@ -326,14 +379,14 @@ serve(async (req) => {
       const truncatedTitle = generatedTitle.length > 80 ? 
         generatedTitle.substring(0, 77) + '...' : generatedTitle;
       
-      // Payload conforme à la documentation Suno
+      // Payload conforme à la documentation Suno avec modèle selon abonnement
       const sunoPayload = {
         prompt: truncatedPrompt,
         customMode: true,
         instrumental: instrumental || (!lyrics || !lyrics.trim()),
         style: truncatedStyle || 'educational, ambient',
         title: truncatedTitle,
-        model: 'chirp-v3-5' // Modèle recommandé dans la documentation
+        model: userModel // Utilisation du modèle selon l'abonnement
       };
 
       console.log('🚀 APPEL API SUNO RÉEL avec payload:', {
@@ -342,7 +395,8 @@ serve(async (req) => {
         style: sunoPayload.style,
         title: sunoPayload.title,
         instrumental: sunoPayload.instrumental,
-        model: sunoPayload.model
+        model: sunoPayload.model,
+        userSubscriptionModel: userModel
       });
       
       try {
@@ -380,7 +434,7 @@ serve(async (req) => {
                 instruments,
                 duration: track.duration || duration,
                 prompt: track.prompt || sunoPayload.prompt,
-                model: track.model || 'chirp-v3-5',
+                model: track.model || userModel,
                 provider: 'suno',
                 video_url: videoUrl,
                 image_url: imageUrl,
@@ -403,7 +457,7 @@ serve(async (req) => {
               duration: track.duration || duration,
               mood,
               tempo,
-              model: track.model || 'chirp-v3-5',
+              model: track.model || userModel,
               prompt: track.prompt || sunoPayload.prompt,
               generatedAt: track.created_at || new Date().toISOString()
             }
