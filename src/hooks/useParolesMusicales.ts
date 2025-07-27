@@ -177,6 +177,7 @@ export const useParolesMusicales = (
   };
 
   const handlePlayAudio = (audioUrl: string, title: string) => {
+    console.log('🔴 === DEBUT handlePlayAudio ===');
     console.log('🎵 BOUTON PLAY CLIQUÉ:', {
       audioUrl: audioUrl?.substring(0, 100) + '...',
       title,
