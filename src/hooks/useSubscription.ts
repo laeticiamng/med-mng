@@ -229,6 +229,27 @@ export const useSubscription = () => {
     return `${musicQuota.current_usage}/${musicQuota.quota_limit} générations ce mois`;
   }, [musicQuota]);
 
+  const getSunoModel = useCallback((): "V3_5" | "V4" | "V4_5" => {
+    if (!subscription) return "V3_5"; // Plan gratuit = modèle basique
+    
+    switch (subscription.plan_name) {
+      case 'Plan Découverte':
+      case 'Basic':
+      case 'basic':
+        return "V3_5";
+      case 'Plan Standard':
+      case 'Premium':
+      case 'premium':
+        return "V4";
+      case 'Plan Expert':
+      case 'Enterprise':
+      case 'enterprise':
+        return "V4_5";
+      default:
+        return "V3_5";
+    }
+  }, [subscription]);
+
   // Reset state when user changes
   useEffect(() => {
     if (!user) {
@@ -254,5 +275,6 @@ export const useSubscription = () => {
     canGenerateMusic,
     canSaveMusic,
     getUsageDisplay,
+    getSunoModel,
   };
 };

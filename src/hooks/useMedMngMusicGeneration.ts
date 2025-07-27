@@ -75,7 +75,7 @@ export const useMedMngMusicGeneration = () => {
       
       console.log(`🎵 DÉMARRAGE GÉNÉRATION SUNO ${isComposition ? 'COMPOSITION PREMIUM' : 'STANDARD'} Rang ${rang} en ${currentLanguage}`);
       
-      const requestBody = createRequestBody(translatedLyrics, selectedStyle, rang, adjustedDuration, currentLanguage, isComposition, itemCode);
+      const requestBody = createRequestBody(translatedLyrics, selectedStyle, rang, adjustedDuration, currentLanguage, isComposition, "V3_5", itemCode);
 
       // 1. Générer avec Suno API
       const { audioUrl: sunoAudioId, callDuration } = await callSunoApi(requestBody);

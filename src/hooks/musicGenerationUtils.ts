@@ -75,6 +75,7 @@ export const createRequestBody = (
   adjustedDuration: number,
   currentLanguage: string,
   isComposition: boolean,
+  model: "V3_5" | "V4" | "V4_5" = "V3_5",
   itemCode?: string
 ) => {
   // ✅ CORRECTION 3: Améliorer la structure pour l'API Suno
@@ -89,7 +90,7 @@ export const createRequestBody = (
     // Paramètres Suno optimisés
     customMode: true,
     instrumental: false, // Car on a des paroles
-    model: "V4.5", // ✅ CORRECTION: Version 4.5 pour plus de caractères
+    model: model, // ✅ Utilisation du modèle selon l'abonnement
     title: `${rang === 'AB' ? 'Mix A+B' : `Rang ${rang}`} - ${itemCode || 'EDN'} - ${selectedStyle}`,
     composition: isComposition ? {
       styles: selectedStyle.split('+'),

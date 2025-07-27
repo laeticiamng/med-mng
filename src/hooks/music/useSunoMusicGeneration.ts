@@ -35,7 +35,8 @@ export const useSunoMusicGeneration = () => {
     rang: 'A' | 'B' | 'AB', 
     paroles: string[], 
     selectedStyle: string, 
-    duration: number = 240
+    duration: number = 240,
+    model: "V3_5" | "V4" | "V4_5" = "V3_5"
   ) => {
     console.log('🎵 HOOK - generateMusicInLanguage appelé:', { rang, paroles, selectedStyle, duration });
     
@@ -57,7 +58,7 @@ export const useSunoMusicGeneration = () => {
       
       console.log(`🎵 DÉMARRAGE GÉNÉRATION SUNO ${isComposition ? 'COMPOSITION PREMIUM' : 'STANDARD'} Rang ${rang} en ${currentLanguage}`);
       
-      const requestBody = createRequestBody(translatedLyrics, selectedStyle, rang, adjustedDuration, currentLanguage, isComposition);
+      const requestBody = createRequestBody(translatedLyrics, selectedStyle, rang, adjustedDuration, currentLanguage, isComposition, model);
 
       const { audioUrl, callDuration } = await callSunoApi(requestBody);
 
