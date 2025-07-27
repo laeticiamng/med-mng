@@ -16,6 +16,14 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
 }) => {
   const { currentTrack, isPlaying, play, pause, resume } = useGlobalAudio();
 
+  console.log('🎵 GeneratorMusicPlayer render:', {
+    hasGeneratedSong: !!generatedSong,
+    audioUrl: generatedSong?.audioUrl,
+    isCurrentTrack: currentTrack?.url === generatedSong?.audioUrl,
+    isPlaying,
+    currentTrack
+  });
+
   if (!generatedSong) return null;
 
   const isCurrentTrack = currentTrack?.url === generatedSong.audioUrl;

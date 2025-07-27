@@ -112,7 +112,7 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent 
         className={`${isFullscreen || isMobile ? 'max-w-[100vw] max-h-[100vh] w-full h-full m-0 rounded-none' : 'max-w-6xl max-h-[90vh]'} 
-                   overflow-hidden p-0 bg-gradient-to-br from-purple-50 to-indigo-50 flex flex-col`}
+                   p-0 bg-gradient-to-br from-purple-50 to-indigo-50 flex flex-col overflow-auto`}
       >
         {/* Header */}
         <DialogHeader className={`bg-gradient-to-r from-purple-600 to-indigo-600 text-white ${isMobile ? 'p-4' : 'p-6'} flex-shrink-0`}>
@@ -221,8 +221,8 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
               </TabsList>
             )}
 
-            {/* Content avec scroll optimisé */}
-            <div className="flex-1 overflow-y-auto relative min-h-0">
+            {/* Content avec scroll optimisé - FIX SCROLL */}
+            <div className="flex-1 overflow-y-auto relative min-h-0 max-h-full">
               
               {/* Tab Content */}
               <TabsContent value="competences" className="mt-0 p-6">
