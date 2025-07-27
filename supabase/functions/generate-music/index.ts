@@ -61,15 +61,15 @@ serve(async (req) => {
     if (SUNO_API_KEY) {
       // Utiliser l'API Suno pour la génération musicale
       const sunoPayload = {
-        prompt: `${prompt} in ${style} style, ${mood} mood, with ${instruments.join(', ')}, ${tempo} tempo`,
+        prompt: prompt || `Generate ${style} music with ${mood} mood, ${tempo} tempo, featuring ${instruments.join(', ')}`,
         style: style,
-        title: `Generated ${style} Track`,
+        title: `${style.charAt(0).toUpperCase() + style.slice(1)} ${mood} Track`,
         customMode: true,
         instrumental: false,
         model: "V4"
       };
 
-      console.log('🚀 Utilisation de l\'API Suno');
+      console.log('🚀 Utilisation de l\'API Suno avec payload:', sunoPayload);
       
       const sunoResponse = await fetch('https://api.sunoapi.org/api/v1/generate', {
         method: 'POST',
@@ -80,22 +80,28 @@ serve(async (req) => {
         body: JSON.stringify(sunoPayload)
       });
 
+      console.log('📡 Réponse Suno status:', sunoResponse.status);
+      
       if (sunoResponse.ok) {
         const sunoData = await sunoResponse.json();
+        console.log('📨 Données Suno reçues:', sunoData);
         
         if (sunoData.code === 200 && sunoData.data && sunoData.data.taskId) {
           const taskId = sunoData.data.taskId;
+          console.log('🆔 TaskID reçu:', taskId);
           
           // Polling pour récupérer l'audio généré
           const completedTrack = await pollForSunoCompletion(taskId, SUNO_API_KEY);
           
           if (completedTrack) {
+            console.log('✅ Track complété:', completedTrack);
+            
             // Sauvegarder dans la base de données
             if (userId) {
               await supabase.from('generated_music_tracks').insert({
                 user_id: userId,
                 title: completedTrack.title || `${style} Track`,
-                audio_url: completedTrack.audio_url,
+                audio_url: completedTrack.audioUrl,
                 metadata: {
                   style,
                   mood,
@@ -112,7 +118,7 @@ serve(async (req) => {
             const response: MusicGenerationResponse = {
               success: true,
               trackId: completedTrack.id,
-              audioUrl: completedTrack.audio_url,
+              audioUrl: completedTrack.audioUrl,
               metadata: {
                 title: completedTrack.title || `${style} Track`,
                 style,
@@ -128,6 +134,9 @@ serve(async (req) => {
             });
           }
         }
+      } else {
+        const errorText = await sunoResponse.text();
+        console.error('❌ Erreur API Suno:', sunoResponse.status, errorText);
       }
     }
 
@@ -221,7 +230,9 @@ async function pollForSunoCompletion(taskId: string, apiKey: string) {
     }
     
     try {
-      const detailsResponse = await fetch(`https://api.sunoapi.org/api/v1/music/${taskId}`, {
+      console.log(`🔄 Polling tentative ${attempt}/${maxAttempts} pour taskId: ${taskId}`);
+      
+      const detailsResponse = await fetch(`https://api.sunoapi.org/api/v1/generate/record-info?taskId=${taskId}`, {
         method: 'GET',
         headers: {
           'Authorization': `Bearer ${apiKey}`,
@@ -229,23 +240,41 @@ async function pollForSunoCompletion(taskId: string, apiKey: string) {
         }
       });
 
+      console.log(`📡 Status polling response: ${detailsResponse.status}`);
+
       if (detailsResponse.ok) {
         const detailsData = await detailsResponse.json();
+        console.log(`📨 Données polling reçues:`, detailsData);
         
-        if (detailsData.code === 200 && detailsData.data && Array.isArray(detailsData.data)) {
-          const completedTrack = detailsData.data.find(track => 
-            track.audio_url && track.audio_url.trim() !== ''
-          );
+        if (detailsData.code === 200 && detailsData.data) {
+          const status = detailsData.data.status;
+          console.log(`📊 Status de génération: ${status}`);
           
-          if (completedTrack) {
-            return completedTrack;
+          if (status === 'SUCCESS' && detailsData.data.response && detailsData.data.response.sunoData) {
+            const tracks = detailsData.data.response.sunoData;
+            const completedTrack = tracks.find(track => 
+              track.audioUrl && track.audioUrl.trim() !== ''
+            );
+            
+            if (completedTrack) {
+              console.log(`✅ Track complété trouvé:`, completedTrack);
+              return completedTrack;
+            }
+          } else if (status === 'FAILED' || status.includes('FAIL')) {
+            console.error(`❌ Génération échouée avec status: ${status}`);
+            return null;
           }
+          // Si status est PENDING ou autre, on continue le polling
         }
+      } else {
+        const errorText = await detailsResponse.text();
+        console.error(`❌ Erreur polling:`, detailsResponse.status, errorText);
       }
     } catch (error) {
       console.log(`Erreur polling tentative ${attempt}:`, error.message);
     }
   }
   
+  console.log(`⏰ Timeout atteint après ${maxAttempts} tentatives`);
   return null;
 }
