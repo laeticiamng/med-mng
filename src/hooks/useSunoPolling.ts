@@ -77,7 +77,7 @@ export const useSunoPolling = () => {
           // Mettre à jour la BDD avec le résultat - correction de l'erreur spread
           const existingMetadata = dbTrack?.metadata || {};
           const newMetadata = {
-            ...existingMetadata,
+            ...(typeof existingMetadata === 'object' && existingMetadata !== null ? existingMetadata : {}),
             stream_url: statusData.streamUrl,
             image_url: statusData.imageUrl,
             completed_at: new Date().toISOString()
