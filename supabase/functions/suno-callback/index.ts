@@ -21,14 +21,101 @@ serve(async (req) => {
     const callbackData = await req.json();
     console.log('🔔 Callback Suno reçu:', JSON.stringify(callbackData, null, 2));
 
-    // Traiter les données du callback
-    if (callbackData.status === 'SUCCESS' && callbackData.audioUrl) {
-      console.log('✅ Audio Suno généré avec succès:', callbackData.audioUrl);
+    // Traiter les vrais callbacks Suno selon la structure des logs
+    if (callbackData.code === 200 && callbackData.data) {
+      const { callbackType, data: tracks, task_id } = callbackData.data;
       
-      // Optionnel : sauvegarder ou mettre à jour les données en base
-      // await supabase.from('generated_music_tracks')...
+      console.log(`📋 Type callback: ${callbackType}, TaskID: ${task_id}, Tracks: ${tracks?.length || 0}`);
+      
+      // Traitement selon le type de callback
+      if (callbackType === 'complete' && tracks && tracks.length > 0) {
+        // 🎵 GÉNÉRATION TERMINÉE - Mettre à jour la BDD immédiatement
+        for (const track of tracks) {
+          console.log(`✅ Track finalisé: ${track.id} - ${track.audio_url}`);
+          
+          try {
+            // Mettre à jour ou insérer le track dans la BDD
+            const { error } = await supabase
+              .from('generated_music_tracks')
+              .upsert({
+                suno_track_id: track.id,
+                task_id: task_id,
+                title: track.title,
+                audio_url: track.audio_url || track.source_audio_url,
+                stream_url: track.stream_audio_url || track.source_stream_audio_url,
+                image_url: track.image_url || track.source_image_url,
+                generation_status: 'completed',
+                metadata: {
+                  duration: track.duration,
+                  model_name: track.model_name,
+                  tags: track.tags,
+                  prompt: track.prompt,
+                  created_at: new Date(track.createTime).toISOString(),
+                  suno_complete_data: track
+                },
+                updated_at: new Date().toISOString()
+              }, {
+                onConflict: 'suno_track_id'
+              });
+              
+            if (error) {
+              console.error('❌ Erreur mise à jour BDD:', error);
+            } else {
+              console.log(`💾 Track ${track.id} sauvegardé avec succès en BDD`);
+            }
+          } catch (dbError) {
+            console.error('❌ Erreur BDD complète:', dbError);
+          }
+        }
+        
+      } else if (callbackType === 'text' && tracks && tracks.length > 0) {
+        // 📝 TEXTE GÉNÉRÉ - Mettre à jour le statut intermédiaire
+        console.log('📝 Phase texte terminée, audio en cours de génération...');
+        
+        for (const track of tracks) {
+          try {
+            await supabase
+              .from('generated_music_tracks')
+              .upsert({
+                suno_track_id: track.id,
+                task_id: task_id,
+                title: track.title,
+                generation_status: 'text_complete',
+                metadata: {
+                  model_name: track.model_name,
+                  tags: track.tags,
+                  prompt: track.prompt,
+                  image_url: track.image_url,
+                  progress: 75
+                },
+                updated_at: new Date().toISOString()
+              }, {
+                onConflict: 'suno_track_id'
+              });
+              
+            console.log(`📝 Statut texte mis à jour pour track ${track.id}`);
+          } catch (dbError) {
+            console.error('❌ Erreur mise à jour statut texte:', dbError);
+          }
+        }
+      }
+      
     } else if (callbackData.status === 'FAILED') {
       console.error('❌ Génération Suno échouée:', callbackData.error || 'Erreur inconnue');
+      
+      // Marquer comme échoué en BDD
+      if (callbackData.task_id) {
+        await supabase
+          .from('generated_music_tracks')
+          .update({
+            generation_status: 'failed',
+            metadata: {
+              error: callbackData.error || 'Génération échouée',
+              failed_at: new Date().toISOString()
+            }
+          })
+          .eq('task_id', callbackData.task_id);
+      }
     }
 
     return new Response(JSON.stringify({ received: true }), {

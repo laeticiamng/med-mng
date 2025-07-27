@@ -1,66 +1,85 @@
 
 import { useState, useCallback } from 'react';
-import { generateMusic, getMusicStatus, type GenerateMusicPayload, type MusicStatus } from '../suno';
+import { generateMusic, type GenerateMusicPayload } from '../music/generate';
+import { useMusicGenerationStatus } from './useMusicGenerationStatus';
 
 export const useSunoGeneration = () => {
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [currentTask, setCurrentTask] = useState<string | null>(null);
-  const [status, setStatus] = useState<MusicStatus | null>(null);
+  const [currentTaskId, setCurrentTaskId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  
+  // Utiliser le nouveau hook de polling
+  const {
+    status,
+    isPolling,
+    startPolling,
+    stopPolling,
+    isGenerating,
+    isCompleted,
+    isFailed,
+    progress,
+    audioUrl,
+    streamUrl,
+    imageUrl
+  } = useMusicGenerationStatus(currentTaskId);
 
   const generateSong = useCallback(async (payload: GenerateMusicPayload) => {
     try {
-      setIsGenerating(true);
       setError(null);
       
+      console.log('🚀 Démarrage génération avec payload:', payload);
+      
+      // Appeler l'API qui retourne immédiatement un taskId
       const response = await generateMusic(payload);
-      setCurrentTask(response.taskId);
       
-      // Polling du statut
-      const pollStatus = async () => {
-        try {
-          const statusResponse = await getMusicStatus(response.taskId);
-          setStatus(statusResponse);
-          
-          if (statusResponse.status === 'SUCCESS' || statusResponse.status.includes('FAILED')) {
-            setIsGenerating(false);
-            return;
-          }
-          
-          // Continuer le polling
-          setTimeout(pollStatus, 3000);
-        } catch (err) {
-          setError(err instanceof Error ? err.message : 'Erreur de statut');
-          setIsGenerating(false);
-        }
-      };
-      
-      pollStatus();
+      if (response?.trackId) {
+        console.log('✅ TaskID reçu:', response.trackId);
+        setCurrentTaskId(response.trackId);
+        
+        // Démarrer le polling automatique
+        setTimeout(() => startPolling(), 100); // Petit délai pour que le hook soit prêt
+        
+        return response.trackId;
+      } else {
+        throw new Error('Aucun taskId reçu de l\'API');
+      }
       
     } catch (err) {
+      console.error('❌ Erreur génération:', err);
       setError(err instanceof Error ? err.message : 'Erreur de génération');
-      setIsGenerating(false);
+      throw err;
     }
-  }, []);
+  }, [startPolling]);
 
   const resetGeneration = useCallback(() => {
-    setIsGenerating(false);
-    setCurrentTask(null);
-    setStatus(null);
+    setCurrentTaskId(null);
     setError(null);
-  }, []);
+    stopPolling();
+  }, [stopPolling]);
 
   return {
     generateSong,
     resetGeneration,
-    isGenerating,
-    currentTask,
-    status,
+    
+    // Statuts principaux
+    isGenerating: isGenerating && !error,
+    currentTask: currentTaskId,
     error,
-    audioUrl: status?.data?.audio?.[0]?.audio_url,
-    progress: status?.status === 'PENDING' ? 0 : 
-              status?.status === 'TEXT_SUCCESS' ? 25 :
-              status?.status === 'FIRST_SUCCESS' ? 75 :
-              status?.status === 'SUCCESS' ? 100 : 0
+    
+    // Données de la génération
+    audioUrl,
+    streamUrl, 
+    imageUrl,
+    progress,
+    
+    // Statuts détaillés
+    isCompleted,
+    isFailed,
+    isPolling,
+    status: status?.status,
+    metadata: status?.metadata,
+    
+    // Actions
+    startPolling,
+    stopPolling
   };
 };
