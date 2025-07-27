@@ -53,22 +53,30 @@ import TestExtraction from "./pages/TestExtraction";
 import EdnImmersive from "./pages/EdnImmersive";
 import EdnComplete from "./pages/EdnComplete";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      staleTime: 5 * 60 * 1000,
+    },
+  },
+});
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AccessibilityProvider>
-      <ViewportProvider>
-        <LanguageProvider>
-          <GlobalAudioProvider>
-            <AuthProvider>
-              <ToastProvider>
-                <TooltipProvider>
-                  <BrowserRouter>
-                    <SkipLinks />
-                    <div id="app-root" className="min-h-screen">
-                      <main id="main-content" tabIndex={-1}>
-                        <Routes>
+const App = () => {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AccessibilityProvider>
+        <ViewportProvider>
+          <LanguageProvider>
+            <GlobalAudioProvider>
+              <AuthProvider>
+                <ToastProvider>
+                  <TooltipProvider>
+                    <BrowserRouter>
+                      <SkipLinks />
+                      <div id="app-root" className="min-h-screen">
+                        <main id="main-content" tabIndex={-1}>
+                          <Routes>
                           <Route path="/" element={<Index />} />
                           <Route path="/generator" element={<Generator />} />
                           {/* EDN Interface Unifiée - toutes les fonctionnalités fusionnées */}
@@ -144,6 +152,7 @@ const App = () => (
       </ViewportProvider>
     </AccessibilityProvider>
   </QueryClientProvider>
-);
+  );
+};
 
 export default App;
