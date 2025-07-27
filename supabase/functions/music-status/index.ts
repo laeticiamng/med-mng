@@ -66,7 +66,7 @@ serve(async (req) => {
       });
     }
 
-    // Vérifier via l'API Suno directement avec le bon endpoint
+    // Vérifier via l'API Suno directement
     const SUNO_API_KEY = Deno.env.get('SUNO_API_KEY');
     
     if (!SUNO_API_KEY) {
@@ -82,28 +82,26 @@ serve(async (req) => {
 
     console.log('📡 Vérification via API Suno pour taskId:', taskId);
     
-    // Utiliser l'endpoint de statut correct
-    const sunoResponse = await fetch(`https://api.sunoapi.org/api/v1/music/status`, {
-      method: 'POST',
+    // Utiliser l'endpoint de statut correct avec la méthode GET
+    const sunoResponse = await fetch(`https://api.sunoapi.org/api/v1/music/${taskId}`, {
+      method: 'GET',
       headers: {
         'Authorization': `Bearer ${SUNO_API_KEY}`,
         'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        taskId: taskId
-      })
+      }
     });
     
     if (!sunoResponse.ok) {
       console.error('❌ Erreur API Suno:', sunoResponse.status, sunoResponse.statusText);
       
-      // Si 404, c'est que le task n'existe pas encore ou est en cours
+      // Si 404, c'est que le task n'existe pas
       if (sunoResponse.status === 404) {
         return new Response(JSON.stringify({
-          success: true,
-          status: 'generating',
-          taskId: taskId
+          success: false,
+          error: 'Track not found in Suno API',
+          status: 'failed'
         }), {
+          status: 404,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
       }

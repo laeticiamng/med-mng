@@ -74,7 +74,7 @@ export const useSunoPolling = () => {
         if (statusData.status === 'completed' && statusData.audioUrl) {
           console.log('✅ Track complété via API Suno:', track.trackId, 'URL:', statusData.audioUrl);
           
-          // Mettre à jour la BDD avec le résultat - correction du spread
+          // Mettre à jour la BDD avec le résultat - correction de l'erreur spread
           const existingMetadata = dbTrack?.metadata || {};
           const newMetadata = {
             ...existingMetadata,
@@ -118,6 +118,20 @@ export const useSunoPolling = () => {
         }
       } else {
         console.error('❌ Erreur lors de la vérification API Suno:', statusError);
+        
+        // Si c'est une erreur 404, c'est que le track n'existe pas
+        if (statusError?.message?.includes('404')) {
+          console.error('❌ TrackId introuvable côté Suno:', track.trackId);
+          
+          toast({
+            title: `❌ Erreur génération ${track.itemCode} Rang ${track.rang}`,
+            description: `Le track n'existe pas côté Suno. Problème lors de la génération initiale.`,
+            variant: "destructive",
+            duration: 8000,
+          });
+
+          return true; // Arrêter le polling
+        }
       }
 
       console.log('⏳ Track pas encore prêt:', track.trackId);
@@ -129,7 +143,7 @@ export const useSunoPolling = () => {
     }
   }, [toast]);
 
-  // Polling automatique toutes les 3 secondes (encore plus rapide)
+  // Polling automatique toutes les 3 secondes
   useEffect(() => {
     if (pollingTracks.length === 0) return;
 
@@ -144,14 +158,14 @@ export const useSunoPolling = () => {
       
       for (const track of pollingTracks) {
         const elapsed = Date.now() - track.startTime;
-        const maxWait = 3 * 60 * 1000; // 3 minutes max (encore plus court)
+        const maxWait = 2 * 60 * 1000; // 2 minutes max (encore plus court)
         
         if (elapsed > maxWait) {
           console.log('⏰ Timeout pour track:', track.trackId);
           stopPolling(track.trackId);
           toast({
             title: "⏰ Timeout de génération",
-            description: `${track.itemCode} Rang ${track.rang} prend trop de temps. L'API Suno est peut-être surchargée.`,
+            description: `${track.itemCode} Rang ${track.rang} prend trop de temps. Vérifiez que l'API Suno fonctionne correctement.`,
             variant: "destructive"
           });
           continue;
@@ -162,7 +176,7 @@ export const useSunoPolling = () => {
           stopPolling(track.trackId);
         }
       }
-    }, 3000); // Check toutes les 3 secondes (plus agressif)
+    }, 3000); // Check toutes les 3 secondes
 
     return () => clearInterval(interval);
   }, [pollingTracks, checkTrackStatus, stopPolling, toast]);
