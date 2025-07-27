@@ -34,15 +34,18 @@ interface ListeningStats {
   streakDays: number;
 }
 
-interface UserAnalytics {
+// Use the actual database types
+type UserAnalytics = {
   user_id: string;
   song_id: string;
   play_count: number;
   total_listen_time: number;
   last_played: string;
   created_at: string;
-  song_title?: string;
-}
+  med_mng_songs?: {
+    title: string;
+  };
+};
 
 export const MusicAnalytics: React.FC = () => {
   const [stats, setStats] = useState<ListeningStats | null>(null);
@@ -62,17 +65,27 @@ export const MusicAnalytics: React.FC = () => {
     try {
       setLoading(true);
 
-      // Récupérer les données d'écoute utilisateur
+      // Récupérer les données d'écoute utilisateur sans la relation
       const { data: analyticsData, error } = await supabase
         .from('med_mng_user_analytics')
-        .select(`
-          *,
-          med_mng_songs(title)
-        `)
+        .select('*')
         .eq('user_id', user.id)
         .order('last_played', { ascending: false });
 
       if (error) throw error;
+
+      // Récupérer les titres des chansons séparément
+      const songIds = analyticsData?.map(item => item.song_id) || [];
+      const { data: songsData } = await supabase
+        .from('med_mng_songs')
+        .select('id, title')
+        .in('id', songIds);
+
+      // Combiner les données
+      const analyticsWithSongs = analyticsData?.map(item => ({
+        ...item,
+        song_title: songsData?.find(song => song.id === item.song_id)?.title || 'Titre inconnu'
+      })) || [];
 
       // Récupérer les statistiques de playlists
       const { data: playlistsData, error: playlistsError } = await supabase
@@ -83,7 +96,7 @@ export const MusicAnalytics: React.FC = () => {
       if (playlistsError) throw playlistsError;
 
       // Calculer les statistiques
-      const calculatedStats = calculateStats(analyticsData || [], playlistsData || []);
+      const calculatedStats = calculateStats(analyticsWithSongs, playlistsData || []);
       setStats(calculatedStats);
 
     } catch (error) {
@@ -122,7 +135,7 @@ export const MusicAnalytics: React.FC = () => {
       .slice(0, 5)
       .map(item => ({
         id: item.song_id,
-        title: (item as any).med_mng_songs?.title || 'Titre inconnu',
+        title: (item as any).song_title || 'Titre inconnu',
         playCount: item.play_count,
         totalTime: item.total_listen_time
       }));

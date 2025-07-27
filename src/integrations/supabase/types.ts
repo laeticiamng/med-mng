@@ -2235,6 +2235,36 @@ export type Database = {
         }
         Relationships: []
       }
+      med_mng_listening_events: {
+        Row: {
+          event_type: string
+          id: string
+          listen_duration: number | null
+          metadata: Json | null
+          song_id: string
+          timestamp: string
+          user_id: string
+        }
+        Insert: {
+          event_type: string
+          id?: string
+          listen_duration?: number | null
+          metadata?: Json | null
+          song_id: string
+          timestamp?: string
+          user_id: string
+        }
+        Update: {
+          event_type?: string
+          id?: string
+          listen_duration?: number | null
+          metadata?: Json | null
+          song_id?: string
+          timestamp?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       med_mng_lyrics_access_logs: {
         Row: {
           created_at: string | null
@@ -2276,6 +2306,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      med_mng_playlist_analytics: {
+        Row: {
+          created_at: string
+          id: string
+          last_played: string | null
+          playlist_id: string
+          total_listen_time: number
+          total_plays: number
+          unique_listeners: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_played?: string | null
+          playlist_id: string
+          total_listen_time?: number
+          total_plays?: number
+          unique_listeners?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_played?: string | null
+          playlist_id?: string
+          total_listen_time?: number
+          total_plays?: number
+          unique_listeners?: number
+          updated_at?: string
+        }
+        Relationships: []
       }
       med_mng_playlist_songs: {
         Row: {
@@ -2547,6 +2610,57 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      med_mng_user_analytics: {
+        Row: {
+          created_at: string
+          id: string
+          last_played: string
+          play_count: number
+          song_id: string
+          total_listen_time: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_played?: string
+          play_count?: number
+          song_id: string
+          total_listen_time?: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_played?: string
+          play_count?: number
+          song_id?: string
+          total_listen_time?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      med_mng_user_favorites: {
+        Row: {
+          created_at: string
+          id: string
+          song_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          song_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          song_id?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       med_mng_user_settings: {
         Row: {
@@ -4484,6 +4598,15 @@ export type Database = {
         Args: { credits_to_add: number }
         Returns: boolean
       }
+      med_mng_log_listening_event: {
+        Args: {
+          p_song_id: string
+          p_event_type: string
+          p_listen_duration?: number
+          p_metadata?: Json
+        }
+        Returns: undefined
+      }
       med_mng_log_user_activity: {
         Args: { activity_type_param: string; activity_details_param?: Json }
         Returns: undefined
@@ -4504,9 +4627,17 @@ export type Database = {
         Args: { theme_json: Json }
         Returns: undefined
       }
+      med_mng_toggle_favorite: {
+        Args: { p_song_id: string }
+        Returns: boolean
+      }
       med_mng_toggle_like: {
         Args: { song_id: string }
         Returns: boolean
+      }
+      med_mng_track_listening: {
+        Args: { p_song_id: string; p_listen_duration?: number }
+        Returns: undefined
       }
       merge_all_tables_into_complete: {
         Args: Record<PropertyKey, never>
