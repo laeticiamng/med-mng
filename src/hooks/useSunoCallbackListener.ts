@@ -19,18 +19,14 @@ export const useSunoCallbackListener = () => {
     // Écouter les callbacks Suno via un endpoint spécial
     const pollForCallbacks = async () => {
       try {
-        // Vérifier s'il y a des musiques disponibles dans les dernières heures pour inclure les existantes
-        const twoHoursAgo = new Date(Date.now() - 2 * 60 * 60 * 1000).toISOString();
-        
-        // Chercher les tracks récents avec un audio_url non vide
+        // Chercher tous les tracks récents avec un audio_url valide (sans filtre de temps)
         const { data: recentTracks } = await supabase
           .from('generated_music_tracks')
           .select('*')
           .not('audio_url', 'is', null)
           .neq('audio_url', '')
-          .gte('updated_at', twoHoursAgo)
           .order('updated_at', { ascending: false })
-          .limit(30);
+          .limit(50);
 
         if (recentTracks && recentTracks.length > 0) {
           console.log(`🔍 ${recentTracks.length} tracks récents trouvés`);
