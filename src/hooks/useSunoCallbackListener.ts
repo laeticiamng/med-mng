@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -10,10 +10,11 @@ interface CallbackAudio {
 export const useSunoCallbackListener = () => {
   const [completedAudio, setCompletedAudio] = useState<CallbackAudio>({});
   const { toast } = useToast();
+  
+  // Utiliser useRef pour persister entre les re-renders
+  const processedTracksRef = useRef(new Set<string>());
 
   useEffect(() => {
-    // Utiliser une ref pour éviter la dépendance circulaire
-    let processedTracks = new Set();
     
     // Écouter les callbacks Suno via un endpoint spécial
     const pollForCallbacks = async () => {
@@ -58,9 +59,9 @@ export const useSunoCallbackListener = () => {
               const trackId = track.id;
               
               // Vérifier si c'est un nouveau track (pas encore traité)
-              if (!processedTracks.has(trackId)) {
+              if (!processedTracksRef.current.has(trackId)) {
                 console.log(`🎵 NOUVELLE MUSIQUE ${rang} Version ${index + 1}:`, track.audio_url);
-                processedTracks.add(trackId);
+                processedTracksRef.current.add(trackId);
                 
                 setCompletedAudio(prev => {
                   const newState = { ...prev };
