@@ -123,7 +123,7 @@ export const useMusicGenerationStatus = (taskId: string | null) => {
     const interval = setInterval(() => {
       console.log('⏰ Polling check automatique...');
       checkStatus();
-    }, 5000); // Vérification toutes les 5 secondes
+    }, 10000); // Vérification toutes les 10 secondes (réduit la fréquence)
 
     return () => {
       clearInterval(interval);
