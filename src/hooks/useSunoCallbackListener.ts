@@ -8,6 +8,7 @@ interface CallbackAudio {
 }
 
 export const useSunoCallbackListener = () => {
+  console.log('🚀 [useSunoCallbackListener] Hook initialisé !');
   const [completedAudio, setCompletedAudio] = useState<CallbackAudio>({});
   const { toast } = useToast();
   
@@ -15,6 +16,7 @@ export const useSunoCallbackListener = () => {
   const processedTracksRef = useRef(new Set<string>());
 
   useEffect(() => {
+    console.log('🔥 [useSunoCallbackListener] useEffect démarré - le hook est actif !');
     
     // Écouter les callbacks Suno via un endpoint spécial
     const pollForCallbacks = async () => {
