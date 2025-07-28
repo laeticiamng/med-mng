@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { SPEED_OPTIMIZATIONS } from '@/config/speedOptimizations';
 
 interface PollingState {
   trackId: string;
@@ -154,13 +155,13 @@ export const useSunoPolling = () => {
       
       for (const track of pollingTracks) {
         const elapsed = Date.now() - track.startTime;
-        const maxWait = 5 * 60 * 1000; // 5 minutes max (augmenté de 2 à 5 minutes)
+        const maxWait = SPEED_OPTIMIZATIONS.polling.timeoutMinutes * 60 * 1000; // Configuration centralisée
         
         if (elapsed > maxWait) {
           console.log('⏰ Timeout pour track:', track.trackId, 'après', Math.round(elapsed / 1000), 'secondes');
           stopPolling(track.trackId);
           toast({
-            title: "⏰ Génération en cours...",
+            title: SPEED_OPTIMIZATIONS.notifications.timeoutTitle,
             description: `${track.itemCode} Rang ${track.rang} prend plus de temps que prévu. La musique sera disponible dans votre bibliothèque dès qu'elle sera terminée.`,
             variant: "default"
           });

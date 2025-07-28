@@ -411,21 +411,22 @@ serve(async (req) => {
     // Build callback URL for async processing
     const callbackUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/suno-callback`;
 
-    // ✅ OPTIMISATION MAXIMALE VITESSE selon ticket support Lovable
-    // Configuration pour génération la plus rapide possible (<20s)
+    // ✅ OPTIMISATION MAXIMALE VITESSE - Configuration ultra-rapide (<30s)
     const sunoPayload = {
-      prompt: enhancedPrompt,
+      prompt: enhancedPrompt.substring(0, 2800), // Prompt plus court pour vitesse
       customMode: true,
-      instrumental: instrumental, // Garde le paramètre original pour flexibilité
-      style: enhancedStyle,
+      instrumental: instrumental, 
+      style: enhancedStyle.substring(0, 800), // Style condensé
       title: enhancedTitle,
-      model: correctModel, // V4_5PLUS pour vitesse optimale
+      model: "chirp-v4.5", // Modèle le plus rapide selon la doc
       callBackUrl: callbackUrl,
-      // 🚀 PARAMÈTRES D'OPTIMISATION VITESSE
-      fastMode: true,           // Mode rapide activé
-      priority: "high",         // Priorité haute
-      streamingEnabled: true,   // Streaming activé
-      optimizeForSpeed: true    // Optimisation vitesse maximale
+      // 🚀 PARAMÈTRES D'OPTIMISATION VITESSE MAXIMALE
+      fastMode: true,                 // Mode rapide activé
+      priority: "high",               // Priorité haute dans la queue
+      streamingEnabled: true,         // Streaming pour résultats rapides
+      optimizeForSpeed: true,         // Flag optimisation vitesse
+      duration: Math.min(duration, 180), // Maximum 3 minutes pour vitesse
+      quality: "balanced"             // Équilibre vitesse/qualité
     };
 
     console.log('🚀 APPEL API SUNO RÉEL avec payload CORRIGÉ:', {

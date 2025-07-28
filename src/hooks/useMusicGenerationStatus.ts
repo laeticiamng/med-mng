@@ -116,14 +116,25 @@ export const useMusicGenerationStatus = (taskId: string | null) => {
     setIsPolling(false);
   }, []);
 
-  // Effect pour le polling automatique
+  // Effect pour le polling automatique optimisé
   useEffect(() => {
     if (!isPolling || !taskId) return;
 
+    let pollCount = 0;
+    const maxPolls = 60; // 5 minutes max
+
     const interval = setInterval(() => {
-      console.log('⏰ Polling check automatique...');
+      pollCount++;
+      console.log(`⚡ Polling rapide check ${pollCount}/${maxPolls}...`);
+      
+      if (pollCount >= maxPolls) {
+        console.log('⏰ Timeout polling atteint');
+        setIsPolling(false);
+        return;
+      }
+      
       checkStatus();
-    }, 10000); // Vérification toutes les 10 secondes (réduit la fréquence)
+    }, 5000); // Vérification toutes les 5 secondes (plus agressif)
 
     return () => {
       clearInterval(interval);

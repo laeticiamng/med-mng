@@ -16,6 +16,7 @@ import { useAllEdnItems } from '@/hooks/useAllEdnItems';
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { QuotaDisplay } from '@/components/generator/QuotaDisplay';
 import { GeneratorForm } from '@/components/generator/GeneratorForm';
+import { FastMusicGenerator } from '@/components/music/FastMusicGenerator';
 
 const Generator = () => {
   const navigate = useNavigate();
@@ -257,6 +258,30 @@ const Generator = () => {
             remainingFree={remainingFree}
             canGenerateMusic={canGenerateMusic}
           />
+
+          {/* Générateur Ultra-Rapide - Nouveau */}
+          <div className="mb-8">
+            <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
+              <Sparkles className="h-5 w-5" />
+              Mode Génération Ultra-Rapide
+            </h2>
+            <FastMusicGenerator 
+              onMusicGenerated={(audioUrl, taskId) => {
+                const fastSong = {
+                  id: Date.now(),
+                  title: 'Musique générée rapidement',
+                  audioUrl,
+                  style: 'Ultra-rapide',
+                  rang: 'A',
+                  duration: 180,
+                  itemCode: 'FAST',
+                  lyrics: 'Génération ultra-rapide'
+                };
+                setGeneratedSong(fastSong);
+              }}
+              className="w-full"
+            />
+          </div>
 
           {/* Lecteur de musique générée premium */}
           <GeneratorMusicPlayer
