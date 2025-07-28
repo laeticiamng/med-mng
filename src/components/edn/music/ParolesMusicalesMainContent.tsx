@@ -1,11 +1,10 @@
-
 import React from 'react';
 import { AlertTriangle } from 'lucide-react';
 import { ParolesMusicalesRangSection } from './ParolesMusicalesRangSection';
 import { SunoGenerationStatus } from './SunoGenerationStatus';
 
 interface ParolesMusicalesMainContentProps {
-  paroles: string[];
+  paroles: string[] | string[][];
   itemCode: string;
   musicDuration: number;
   selectedStyle: string; // Add this prop
@@ -60,7 +59,16 @@ export const ParolesMusicalesMainContent: React.FC<ParolesMusicalesMainContentPr
   onStop,
   pollingTracks = 0
 }) => {
-  if (!paroles || paroles.length === 0) {
+  console.log('🎵 ParolesMusicalesMainContent - Received paroles:', paroles);
+  
+  // Normaliser les paroles en format attendu
+  const normalizedParoles = Array.isArray(paroles[0]) 
+    ? (paroles as string[][]).map(section => section.join('\n'))
+    : paroles as string[];
+
+  console.log('🎵 ParolesMusicalesMainContent - Normalized paroles:', normalizedParoles);
+
+  if (!normalizedParoles || normalizedParoles.length === 0) {
     return (
       <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
         <div className="flex items-center gap-2 text-yellow-800">
@@ -78,7 +86,7 @@ export const ParolesMusicalesMainContent: React.FC<ParolesMusicalesMainContentPr
     <div className="space-y-4">
       <h3 className="font-semibold">Paroles disponibles pour génération musicale Suno :</h3>
       
-      {paroles[0] && (
+      {normalizedParoles[0] && (
         <div className="space-y-2">
           <SunoGenerationStatus 
             isPolling={isGenerating.rangA}
@@ -88,7 +96,7 @@ export const ParolesMusicalesMainContent: React.FC<ParolesMusicalesMainContentPr
           />
           <ParolesMusicalesRangSection
             rang="A"
-            paroles={paroles[0]}
+            paroles={normalizedParoles[0]}
             musicDuration={musicDuration}
             selectedStyle={selectedStyle}
             isGenerating={isGenerating.rangA}
@@ -109,7 +117,7 @@ export const ParolesMusicalesMainContent: React.FC<ParolesMusicalesMainContentPr
         </div>
       )}
 
-      {paroles[1] && (
+      {normalizedParoles[1] && (
         <div className="space-y-2">
           <SunoGenerationStatus 
             isPolling={isGenerating.rangB}
@@ -119,7 +127,7 @@ export const ParolesMusicalesMainContent: React.FC<ParolesMusicalesMainContentPr
           />
           <ParolesMusicalesRangSection
             rang="B"
-            paroles={paroles[1]}
+            paroles={normalizedParoles[1]}
             musicDuration={musicDuration}
             selectedStyle={selectedStyle}
             isGenerating={isGenerating.rangB}
@@ -140,14 +148,14 @@ export const ParolesMusicalesMainContent: React.FC<ParolesMusicalesMainContentPr
         </div>
       )}
 
-      {paroles[0] && paroles[1] && (
+      {normalizedParoles[0] && normalizedParoles[1] && (
         <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg">
           <h4 className="font-semibold text-blue-800 mb-3 flex items-center gap-2">
             🎵 Section Combinée Rang A+B - Fusion des compétences
           </h4>
           <ParolesMusicalesRangSection
             rang="A"
-            paroles={`${paroles[0]}\n\n--- TRANSITION RANG B ---\n\n${paroles[1]}`}
+            paroles={`${normalizedParoles[0]}\n\n--- TRANSITION RANG B ---\n\n${normalizedParoles[1]}`}
             musicDuration={musicDuration * 1.5} // Durée augmentée pour la fusion
             selectedStyle={selectedStyle}
             isGenerating={isGenerating.rangA || isGenerating.rangB}
