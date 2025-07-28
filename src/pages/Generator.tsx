@@ -10,20 +10,19 @@ import { PremiumCard } from '@/components/ui/premium-card';
 import { PremiumButton } from '@/components/ui/premium-button';
 import { useFreeTrialLimit } from '@/hooks/useFreeTrialLimit';
 import { useSubscription } from '@/hooks/useSubscription';
-import { useMusicGenerationWithTranslation } from '@/hooks/useMusicGenerationWithTranslation';
+import { useFastMusicGeneration } from '@/hooks/useFastMusicGeneration';
 import { useEdnItemLyrics } from '@/hooks/useEdnItemLyrics';
 import { useAllEdnItems } from '@/hooks/useAllEdnItems';
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { QuotaDisplay } from '@/components/generator/QuotaDisplay';
 import { GeneratorForm } from '@/components/generator/GeneratorForm';
-import { FastMusicGenerator } from '@/components/music/FastMusicGenerator';
 
 const Generator = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { getRemainingGenerations, maxFreeGenerations } = useFreeTrialLimit();
   const { subscription, musicQuota, incrementMusicUsage, canGenerateMusic, canSaveMusic, getUsageDisplay } = useSubscription();
-  const musicGeneration = useMusicGenerationWithTranslation();
+  const { generateMusic, isGenerating, progress, audioUrl, error, isCompleted } = useFastMusicGeneration();
   
   const [contentType, setContentType] = useState('');
   const [selectedItem, setSelectedItem] = useState('');
@@ -39,8 +38,25 @@ const Generator = () => {
   
   const remainingFree = getRemainingGenerations();
 
-  // Check if any generation is in progress
-  const isGenerating = musicGeneration.isGenerating?.rangA || musicGeneration.isGenerating?.rangB;
+  // Gestion automatique de la musique générée
+  React.useEffect(() => {
+    if (isCompleted && audioUrl) {
+      const song = {
+        id: Date.now(),
+        title: `${contentType === 'edn' ? selectedItem : selectedSituation} - ${selectedStyle}`,
+        audioUrl: audioUrl,
+        style: selectedStyle,
+        rang: selectedRang,
+        duration: 180,
+        itemCode: contentType === 'edn' ? selectedItem : selectedSituation,
+        lyrics: contentType === 'edn' ? ednLyrics?.paroles_musicales?.[selectedRang === 'A' ? 0 : selectedRang === 'B' ? 1 : 2] : 'Génération rapide'
+      };
+      setGeneratedSong(song);
+      toast.success('Musique générée avec succès !');
+    }
+  }, [isCompleted, audioUrl, contentType, selectedItem, selectedSituation, selectedStyle, selectedRang, ednLyrics]);
+
+  // isGenerating is already defined from useFastMusicGeneration hook
 
   // Hook pour charger tous les 367 items EDN depuis la base de données
   const { items: allEdnItems, loading: itemsLoading, error: itemsError } = useAllEdnItems();
@@ -132,7 +148,13 @@ const Generator = () => {
         lyricsIndex = 2; // Index 2 = paroles mixtes (A+B)
       }
       
-      const audioUrl = await musicGeneration.generateMusicInLanguage(actualRang, lyricsToUse, selectedStyle, 240);
+      const taskId = await generateMusic({
+        prompt: lyricsToUse[lyricsIndex],
+        title: `${titlePrefix} - ${selectedStyle}`,
+        tags: `${selectedStyle}, educational, clear vocals`,
+        rang: actualRang,
+        itemCode: contentType === 'edn' ? selectedItem : selectedSituation
+      });
       
       // Incrémenter l'usage après génération réussie
       if (user) {
@@ -142,20 +164,8 @@ const Generator = () => {
         }
       }
       
-      // Créer un objet chanson avec les vraies données
-      const song = {
-        id: Date.now(),
-        title: `${titlePrefix} - ${selectedStyle}`,
-        audioUrl: audioUrl,
-        style: selectedStyle,
-        rang: rang,
-        duration: 240,
-        itemCode: contentType === 'edn' ? selectedItem : selectedSituation,
-        lyrics: lyricsToUse[lyricsIndex]
-      };
-
-      setGeneratedSong(song);
-      toast.success('Génération musicale réussie avec les paroles de l\'item !');
+      console.log('🚀 Génération ultra-rapide démarrée:', taskId);
+      toast.success('Génération ultra-rapide démarrée ! Résultat attendu en 20-60 secondes.');
       
     } catch (error) {
       console.error('Erreur génération:', error);
@@ -259,29 +269,6 @@ const Generator = () => {
             canGenerateMusic={canGenerateMusic}
           />
 
-          {/* Générateur Ultra-Rapide - Nouveau */}
-          <div className="mb-8">
-            <h2 className="text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-              <Sparkles className="h-5 w-5" />
-              Mode Génération Ultra-Rapide
-            </h2>
-            <FastMusicGenerator 
-              onMusicGenerated={(audioUrl, taskId) => {
-                const fastSong = {
-                  id: Date.now(),
-                  title: 'Musique générée rapidement',
-                  audioUrl,
-                  style: 'Ultra-rapide',
-                  rang: 'A',
-                  duration: 180,
-                  itemCode: 'FAST',
-                  lyrics: 'Génération ultra-rapide'
-                };
-                setGeneratedSong(fastSong);
-              }}
-              className="w-full"
-            />
-          </div>
 
           {/* Lecteur de musique générée premium */}
           <GeneratorMusicPlayer
