@@ -12,6 +12,9 @@ export const useSunoCallbackListener = () => {
   const { toast } = useToast();
 
   useEffect(() => {
+    // Utiliser une ref pour éviter la dépendance circulaire
+    let processedTracks = new Set();
+    
     // Écouter les callbacks Suno via un endpoint spécial
     const pollForCallbacks = async () => {
       try {
@@ -52,14 +55,16 @@ export const useSunoCallbackListener = () => {
             
             // Pour chaque task_id, nous devons avoir 2 versions selon la doc officielle
             tracks.forEach((track, index) => {
-              const versionKey = `${rang}_v${index + 1}_${taskId}`;
+              const trackId = track.id;
               
-              // Vérifier si c'est un nouveau track (pas encore notifié)
-              if (!completedAudio[versionKey]) {
+              // Vérifier si c'est un nouveau track (pas encore traité)
+              if (!processedTracks.has(trackId)) {
                 console.log(`🎵 NOUVELLE MUSIQUE ${rang} Version ${index + 1}:`, track.audio_url);
+                processedTracks.add(trackId);
                 
                 setCompletedAudio(prev => {
                   const newState = { ...prev };
+                  const versionKey = `${rang}_v${index + 1}_${taskId}`;
                   
                   // Ajouter cette version spécifique
                   newState[versionKey] = track.audio_url;
@@ -113,7 +118,7 @@ export const useSunoCallbackListener = () => {
     pollForCallbacks();
 
     return () => clearInterval(interval);
-  }, [completedAudio, toast]);
+  }, [toast]);
 
   return {
     completedAudio,
