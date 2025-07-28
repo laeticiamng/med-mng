@@ -4184,12 +4184,9 @@ export type Database = {
     Views: {
       med_mng_view_library: {
         Row: {
-          added_to_library_at: string | null
           created_at: string | null
           id: string | null
-          is_liked: boolean | null
-          meta: Json | null
-          suno_audio_id: string | null
+          in_library: boolean | null
           title: string | null
         }
         Relationships: []
@@ -4273,6 +4270,10 @@ export type Database = {
       cleanup_old_operation_logs: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      cleanup_security_issues: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
       }
       cleanup_security_scan_false_positives: {
         Args: Record<PropertyKey, never>
