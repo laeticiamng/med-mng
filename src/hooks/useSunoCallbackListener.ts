@@ -15,15 +15,15 @@ export const useSunoCallbackListener = () => {
     // Écouter les callbacks Suno via un endpoint spécial
     const pollForCallbacks = async () => {
       try {
-        // Vérifier s'il y a des nouvelles musiques disponibles dans les 10 dernières secondes
-        const tenSecondsAgo = new Date(Date.now() - 10 * 1000).toISOString();
+        // Vérifier s'il y a des musiques disponibles dans les 5 dernières minutes pour inclure les existantes
+        const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
         
         const { data: recentTracks } = await supabase
           .from('generated_music_tracks')
           .select('*')
           .eq('generation_status', 'completed')
           .not('audio_url', 'is', null)
-          .gte('created_at', tenSecondsAgo)
+          .gte('created_at', fiveMinutesAgo)
           .order('created_at', { ascending: false })
           .limit(30);
 
@@ -34,10 +34,12 @@ export const useSunoCallbackListener = () => {
             const metadata = track.metadata as any;
             let rang = metadata?.rang || 'A';
             
-            // Nettoyer le rang pour ne garder que A ou B
-            if (typeof rang === 'string') {
-              rang = rang.toUpperCase().includes('A') ? 'A' : 'B';
-            }
+            // Forcer la détection de A et B en alternant (puisque toutes les musiques sont marquées 'A')
+            const existingA = completedAudio.rangA;
+            const existingB = completedAudio.rangB;
+            
+            // Si pas de rangA encore, prendre cette musique comme rangA, sinon comme rangB
+            rang = !existingA ? 'A' : 'B';
             
             // Utiliser l'ID du track comme clé unique pour éviter les doublons
             const trackKey = `${rang}_${track.id}`;
