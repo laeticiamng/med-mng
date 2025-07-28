@@ -6,8 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
 import { 
   Search, Music, CheckCircle, XCircle, Clock, 
-  Eye, BarChart3, Filter, Grid, List 
+  Eye, BarChart3
 } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -142,157 +143,105 @@ export const LyricsCompletionStatus: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
-      {/* En-tête avec statistiques */}
+    <div className="space-y-4">
+      {/* Statistiques compactes */}
       <Card>
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="flex items-center gap-2">
-                <Music className="h-5 w-5" />
-                Statut des Paroles EDN
-              </CardTitle>
-              <CardDescription>
-                Suivi de la génération des paroles style Nekfeu pour tous les items
-              </CardDescription>
-            </div>
-            <Button onClick={fetchLyricsStatus} variant="outline" size="sm">
-              <BarChart3 className="h-4 w-4 mr-2" />
-              Actualiser
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-semibold">Paroles EDN</h3>
+            <Button onClick={fetchLyricsStatus} variant="ghost" size="sm">
+              <BarChart3 className="h-4 w-4" />
             </Button>
           </div>
-        </CardHeader>
-        <CardContent>
-          {/* Statistiques globales */}
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
+          
+          <div className="grid grid-cols-4 gap-4 mb-3">
             <div className="text-center">
-              <div className="text-2xl font-bold text-primary">{stats.complete}</div>
-              <div className="text-sm text-muted-foreground">Complets</div>
+              <div className="text-lg font-bold text-primary">{stats.complete}</div>
+              <div className="text-xs text-muted-foreground">Complets</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-green-600">{stats.withRangA}</div>
-              <div className="text-sm text-muted-foreground">Rang A</div>
+              <div className="text-lg font-bold">{stats.withRangA}</div>
+              <div className="text-xs text-muted-foreground">Rang A</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-blue-600">{stats.withRangB}</div>
-              <div className="text-sm text-muted-foreground">Rang B</div>
+              <div className="text-lg font-bold">{stats.withRangB}</div>
+              <div className="text-xs text-muted-foreground">Rang B</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-purple-600">{stats.withRangAB}</div>
-              <div className="text-sm text-muted-foreground">Rang A+B</div>
-            </div>
-            <div className="text-center">
-              <div className="text-2xl font-bold text-orange-600">{stats.withMusic}</div>
-              <div className="text-sm text-muted-foreground">Musicales</div>
+              <div className="text-lg font-bold">{stats.withMusic}</div>
+              <div className="text-xs text-muted-foreground">Musical</div>
             </div>
           </div>
 
-          {/* Barre de progression globale */}
           <div className="space-y-2">
-            <div className="flex justify-between text-sm">
-              <span>Progression globale</span>
-              <span className="font-medium">{completionPercentage}%</span>
-            </div>
-            <Progress value={completionPercentage} className="h-2" />
+            <Progress value={completionPercentage} className="h-1" />
             <div className="text-xs text-muted-foreground text-center">
-              {stats.complete} items complets sur {stats.total} • Style Nekfeu avec contenu médical dense
+              {completionPercentage}% complet ({stats.complete}/{stats.total})
             </div>
           </div>
 
-          {/* Contrôles de recherche et filtrage */}
-          <div className="flex flex-col sm:flex-row gap-4 mt-6">
+          <div className="flex gap-2 mt-3">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 text-muted-foreground h-3 w-3" />
               <Input
-                placeholder="Rechercher un item..."
+                placeholder="Rechercher..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
+                className="pl-7 h-8 text-xs"
               />
             </div>
-            <div className="flex gap-2">
-              <Button
-                variant={filterStatus === 'all' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setFilterStatus('all')}
-              >
-                Tous ({items.length})
-              </Button>
-              <Button
-                variant={filterStatus === 'complete' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setFilterStatus('complete')}
-              >
-                Complets ({stats.complete})
-              </Button>
-              <Button
-                variant={filterStatus === 'partial' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setFilterStatus('partial')}
-              >
-                Partiels
-              </Button>
-              <Button
-                variant={filterStatus === 'missing' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setFilterStatus('missing')}
-              >
-                Manquants
-              </Button>
-            </div>
+            <Select value={filterStatus} onValueChange={(value: any) => setFilterStatus(value)}>
+              <SelectTrigger className="w-20 h-8 text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Tous</SelectItem>
+                <SelectItem value="complete">Complets</SelectItem>
+                <SelectItem value="partial">Partiels</SelectItem>
+                <SelectItem value="missing">Manquants</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </CardContent>
       </Card>
 
-      {/* Liste des items */}
-      <div className="grid gap-4">
+      {/* Liste compacte */}
+      <div className="space-y-2">
         {filteredItems.map((item) => {
           const status = getLyricsStatus(item);
           const hasRangA = item.paroles_rang_a && item.paroles_rang_a.length > 0;
           const hasRangB = item.paroles_rang_b && item.paroles_rang_b.length > 0;
-          const hasRangAB = item.paroles_rang_ab && item.paroles_rang_ab.length > 0;
           const hasMusic = item.paroles_musicales && item.paroles_musicales.length > 0;
 
           return (
-            <Card key={item.id} className="hover:shadow-md transition-shadow">
-              <CardContent className="p-4">
+            <Card key={item.id} className="hover:shadow-sm transition-shadow">
+              <CardContent className="p-3">
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
+                    <div className="flex items-center gap-2 mb-1">
                       {getStatusIcon(status)}
-                      <div>
-                        <h3 className="font-semibold text-sm">{item.item_code}</h3>
-                        <p className="text-sm text-muted-foreground line-clamp-1">
-                          {item.title}
-                        </p>
-                      </div>
+                      <span className="font-medium text-sm">{item.item_code}</span>
+                      <span className="text-xs text-muted-foreground truncate">
+                        {item.title}
+                      </span>
                     </div>
                     
-                    <div className="flex gap-2 flex-wrap">
-                      <Badge variant={hasRangA ? "default" : "outline"} className="text-xs">
-                        Rang A {hasRangA && `(${item.paroles_rang_a?.length} lignes)`}
+                    <div className="flex gap-1">
+                      <Badge variant={hasRangA ? "default" : "secondary"} className="text-xs px-1 py-0">
+                        A
                       </Badge>
-                      <Badge variant={hasRangB ? "default" : "outline"} className="text-xs">
-                        Rang B {hasRangB && `(${item.paroles_rang_b?.length} lignes)`}
+                      <Badge variant={hasRangB ? "default" : "secondary"} className="text-xs px-1 py-0">
+                        B
                       </Badge>
-                      <Badge variant={hasRangAB ? "default" : "outline"} className="text-xs">
-                        A+B {hasRangAB && `(${item.paroles_rang_ab?.length} lignes)`}
-                      </Badge>
-                      <Badge variant={hasMusic ? "default" : "outline"} className="text-xs">
-                        Musicales {hasMusic && `(${item.paroles_musicales?.length} lignes)`}
+                      <Badge variant={hasMusic ? "default" : "secondary"} className="text-xs px-1 py-0">
+                        M
                       </Badge>
                     </div>
                   </div>
                   
-                  <div className="flex items-center gap-2">
-                    <Badge className={getStatusColor(status)}>
-                      {status === 'complete' ? 'Complet' : 
-                       status === 'partial' ? 'Partiel' : 'Manquant'}
-                    </Badge>
-                    <Button variant="ghost" size="sm">
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                  </div>
+                  <Badge variant="outline" className="text-xs">
+                    {status === 'complete' ? '✓' : status === 'partial' ? '○' : '✗'}
+                  </Badge>
                 </div>
               </CardContent>
             </Card>
