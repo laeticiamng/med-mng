@@ -129,87 +129,9 @@ export const useSunoPolling = () => {
         }
       }
 
-      // 2. Si pas trouvé en BDD, vérifier directement via l'API Suno
-      console.log('📡 Vérification directe via API Suno pour:', track.trackId);
-      
-      const { data: statusData, error: statusError } = await supabase.functions.invoke('music-status', {
-        body: { taskId: track.trackId }
-      });
-
-      if (statusData && !statusError) {
-        console.log('📊 Statut API Suno:', statusData);
-        
-        if (statusData.status === 'completed' && statusData.audioUrl) {
-          console.log('✅ Track complété via API Suno:', track.trackId, 'URL:', statusData.audioUrl);
-          
-          // Mettre à jour la BDD avec le résultat - correction de l'erreur spread
-          const existingTrack = dbTracks?.[0];
-          const existingMetadata = existingTrack?.metadata || {};
-          const newMetadata = {
-            ...(typeof existingMetadata === 'object' && existingMetadata !== null ? existingMetadata : {}),
-            stream_url: statusData.streamUrl,
-            image_url: statusData.imageUrl,
-            completed_at: new Date().toISOString()
-          };
-
-          // Essayer de mettre à jour la BDD, mais continuer même si ça échoue
-          try {
-            await supabase
-              .from('generated_music_tracks')
-              .update({
-                generation_status: 'completed',
-                audio_url: statusData.audioUrl,
-                metadata: newMetadata
-              })
-              .eq('task_id', track.trackId);
-          } catch (updateError) {
-            console.warn('⚠️ Erreur mise à jour BDD, mais on continue:', updateError);
-          }
-
-          setCompletedAudio(prev => ({
-            ...prev,
-            [track.rang]: statusData.audioUrl
-          }));
-
-          toast({
-            title: `🎉 ${track.itemCode} Rang ${track.rang} prêt !`,
-            description: `🎵 Votre musique est maintenant disponible`,
-            duration: 5000,
-          });
-
-          return true;
-        } else if (statusData.status === 'failed') {
-          console.error('❌ Génération échouée pour:', track.trackId);
-          
-          toast({
-            title: `❌ ${track.itemCode} Rang ${track.rang} échoué`,
-            description: `La génération a échoué. Veuillez réessayer.`,
-            variant: "destructive",
-            duration: 5000,
-          });
-
-          return true; // Arrêter le polling
-        }
-      } else {
-        console.error('❌ Erreur lors de la vérification API Suno:', statusError);
-        
-        // Si c'est une erreur 404, c'est que le track n'existe pas
-        if (statusError?.message?.includes('404')) {
-          console.error('❌ TrackId introuvable côté Suno:', track.trackId);
-          
-          toast({
-            title: `❌ Erreur génération ${track.itemCode} Rang ${track.rang}`,
-            description: `Le track n'existe pas côté Suno. Problème lors de la génération initiale.`,
-            variant: "destructive",
-            duration: 8000,
-          });
-
-          return true; // Arrêter le polling
-        }
-      }
-
-      console.log('⏳ Track pas encore prêt:', track.trackId);
-      return false;
+      // 2. DÉSACTIVÉ: Le polling API direct car les callbacks Suno gèrent mieux la détection
+      console.log('⚠️ Track pas trouvé dans la DB, les callbacks Suno se chargent de la détection:', track.trackId);
+      return false; // Continue le polling un moment au cas où
       
     } catch (error) {
       console.error('❌ Erreur polling:', error);
