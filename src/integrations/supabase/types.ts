@@ -4840,6 +4840,10 @@ export type Database = {
           sample_finding: string
         }[]
       }
+      security_validation_final: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
       start_extraction_batch: {
         Args: {
           p_batch_type: string
