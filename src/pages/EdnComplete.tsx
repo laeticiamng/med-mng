@@ -18,6 +18,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EdnItemModal } from "@/components/edn/premium/EdnItemModal";
 import { EdnItemCard } from "@/components/edn/premium/EdnItemCard";
+import { LyricsCompletionStatus } from "@/components/LyricsCompletionStatus";
 
 interface EdnItem {
   id: string;
@@ -343,7 +344,7 @@ export default function EdnComplete() {
                 </TabsTrigger>
                 <TabsTrigger value="music">
                   <Music className="h-4 w-4 mr-2" />
-                  Musique
+                  Paroles
                 </TabsTrigger>
                 <TabsTrigger value="unified">
                   <Sparkles className="h-4 w-4 mr-2" />
@@ -594,107 +595,113 @@ export default function EdnComplete() {
 
       {/* Main Content */}
       <div className="container mx-auto px-4 py-8">
-
-        {/* Résultats */}
-        <div className="mb-4">
-          <p className="text-sm text-gray-600">
-            {filteredItems.length} item{filteredItems.length > 1 ? 's' : ''} trouvé{filteredItems.length > 1 ? 's' : ''} sur {stats.total}
-          </p>
-        </div>
-
-        {filteredItems.length === 0 ? (
-          <div className="text-center py-16">
-            <BookOpen className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">Aucun item trouvé</h3>
-            <p className="text-gray-600">Essayez de modifier vos critères de recherche ou de filtrage.</p>
-          </div>
+        {/* Contenu selon l'onglet actif */}
+        {activeTab === 'music' ? (
+          <LyricsCompletionStatus />
         ) : (
           <>
-            {viewMode === 'grid' ? (
-              <div className={`grid ${isMobile ? 'grid-cols-1 gap-4' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'}`}>
-                {filteredItems.map((item) => (
-                  <EdnItemCard
-                    key={item.id}
-                    item={item}
-                    completionPercentage={item.completeness_score || getCompletionPercentage(item)}
-                    onOpen={() => openItemModal(item)}
-                  />
-                ))}
+            {/* Résultats */}
+            <div className="mb-4">
+              <p className="text-sm text-gray-600">
+                {filteredItems.length} item{filteredItems.length > 1 ? 's' : ''} trouvé{filteredItems.length > 1 ? 's' : ''} sur {stats.total}
+              </p>
+            </div>
+
+            {filteredItems.length === 0 ? (
+              <div className="text-center py-16">
+                <BookOpen className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-gray-900 mb-2">Aucun item trouvé</h3>
+                <p className="text-gray-600">Essayez de modifier vos critères de recherche ou de filtrage.</p>
               </div>
             ) : (
-              <div className="space-y-4">
-                {filteredItems.map((item) => (
-                  <Card key={item.id} className="hover:shadow-lg transition-shadow">
-                    <CardContent className="p-6">
-                      <div className="flex items-center justify-between">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-4 mb-2">
-                            <Badge variant="outline" className="font-mono">{item.item_code}</Badge>
-                            <h3 className="text-lg font-semibold line-clamp-1">{item.title}</h3>
-                            <div className="flex items-center gap-2">
-                              <div className={`w-3 h-3 rounded-full ${getCompletenessColor(item.completeness_score || getCompletionPercentage(item))}`} />
-                              <span className="text-sm text-gray-600">
-                                {item.completeness_score || getCompletionPercentage(item)}%
-                              </span>
+              <>
+                {viewMode === 'grid' ? (
+                  <div className={`grid ${isMobile ? 'grid-cols-1 gap-4' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'}`}>
+                    {filteredItems.map((item) => (
+                      <EdnItemCard
+                        key={item.id}
+                        item={item}
+                        completionPercentage={item.completeness_score || getCompletionPercentage(item)}
+                        onOpen={() => openItemModal(item)}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {filteredItems.map((item) => (
+                      <Card key={item.id} className="hover:shadow-lg transition-shadow">
+                        <CardContent className="p-6">
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-4 mb-2">
+                                <Badge variant="outline" className="font-mono">{item.item_code}</Badge>
+                                <h3 className="text-lg font-semibold line-clamp-1">{item.title}</h3>
+                                <div className="flex items-center gap-2">
+                                  <div className={`w-3 h-3 rounded-full ${getCompletenessColor(item.completeness_score || getCompletionPercentage(item))}`} />
+                                  <span className="text-sm text-gray-600">
+                                    {item.completeness_score || getCompletionPercentage(item)}%
+                                  </span>
+                                </div>
+                              </div>
+                              
+                              <div className="flex items-center gap-4 text-sm text-gray-500 mb-2">
+                                {item.specialite && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">{item.specialite}</span>}
+                                <span>Rang A: {item.competences_count_rang_a || 0}</span>
+                                <span>Rang B: {item.competences_count_rang_b || 0}</span>
+                                <span>Total: {item.competences_count_total || 0} compétences</span>
+                              </div>
+
+                              <div className="flex gap-2 flex-wrap">
+                                {item.paroles_musicales && item.paroles_musicales.length > 0 && (
+                                  <Badge variant="secondary" className="text-xs bg-pink-100 text-pink-700">
+                                    <Music className="h-3 w-3 mr-1" />
+                                    Musique
+                                  </Badge>
+                                )}
+                                {item.scene_immersive && (
+                                  <Badge variant="secondary" className="text-xs bg-orange-100 text-orange-700">
+                                    <Gamepad2 className="h-3 w-3 mr-1" />
+                                    3D
+                                  </Badge>
+                                )}
+                                {item.quiz_questions && (
+                                  <Badge variant="secondary" className="text-xs bg-purple-100 text-purple-700">
+                                    <Brain className="h-3 w-3 mr-1" />
+                                    Quiz
+                                  </Badge>
+                                )}
+                                {item.is_validated && (
+                                  <Badge variant="secondary" className="text-xs bg-green-100 text-green-700">
+                                    <CheckCircle className="h-3 w-3 mr-1" />
+                                    Validé
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
+                            
+                            <div className="flex gap-2">
+                              {item.slug && (
+                                <Link to={`/edn/${item.slug}/immersive`}>
+                                  <Button size="sm" variant="outline">
+                                    <Maximize2 className="h-4 w-4 mr-1" />
+                                    Immersif
+                                  </Button>
+                                </Link>
+                              )}
+                              <Link to={`/edn-complete/${item.slug}`}>
+                                <Button size="sm">
+                                  <Eye className="h-4 w-4 mr-1" />
+                                  Détails
+                                </Button>
+                              </Link>
                             </div>
                           </div>
-                          
-                          <div className="flex items-center gap-4 text-sm text-gray-500 mb-2">
-                            {item.specialite && <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs">{item.specialite}</span>}
-                            <span>Rang A: {item.competences_count_rang_a || 0}</span>
-                            <span>Rang B: {item.competences_count_rang_b || 0}</span>
-                            <span>Total: {item.competences_count_total || 0} compétences</span>
-                          </div>
-
-                          <div className="flex gap-2 flex-wrap">
-                            {item.paroles_musicales && item.paroles_musicales.length > 0 && (
-                              <Badge variant="secondary" className="text-xs bg-pink-100 text-pink-700">
-                                <Music className="h-3 w-3 mr-1" />
-                                Musique
-                              </Badge>
-                            )}
-                            {item.scene_immersive && (
-                              <Badge variant="secondary" className="text-xs bg-orange-100 text-orange-700">
-                                <Gamepad2 className="h-3 w-3 mr-1" />
-                                3D
-                              </Badge>
-                            )}
-                            {item.quiz_questions && (
-                              <Badge variant="secondary" className="text-xs bg-purple-100 text-purple-700">
-                                <Brain className="h-3 w-3 mr-1" />
-                                Quiz
-                              </Badge>
-                            )}
-                            {item.is_validated && (
-                              <Badge variant="secondary" className="text-xs bg-green-100 text-green-700">
-                                <CheckCircle className="h-3 w-3 mr-1" />
-                                Validé
-                              </Badge>
-                            )}
-                          </div>
-                        </div>
-                        
-                        <div className="flex gap-2">
-                          {item.slug && (
-                            <Link to={`/edn/${item.slug}/immersive`}>
-                              <Button size="sm" variant="outline">
-                                <Maximize2 className="h-4 w-4 mr-1" />
-                                Immersif
-                              </Button>
-                            </Link>
-                          )}
-                          <Link to={`/edn-complete/${item.slug}`}>
-                            <Button size="sm">
-                              <Eye className="h-4 w-4 mr-1" />
-                              Détails
-                            </Button>
-                          </Link>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </>
             )}
           </>
         )}
