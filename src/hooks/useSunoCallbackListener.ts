@@ -22,13 +22,14 @@ export const useSunoCallbackListener = () => {
         // Vérifier s'il y a des musiques disponibles dans les 5 dernières minutes pour inclure les existantes
         const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
         
+        // Chercher les tracks récents avec un audio_url non vide
         const { data: recentTracks } = await supabase
           .from('generated_music_tracks')
           .select('*')
-          .eq('generation_status', 'completed')
           .not('audio_url', 'is', null)
-          .gte('created_at', fiveMinutesAgo)
-          .order('created_at', { ascending: false })
+          .neq('audio_url', '')
+          .gte('updated_at', fiveMinutesAgo)
+          .order('updated_at', { ascending: false })
           .limit(30);
 
         if (recentTracks && recentTracks.length > 0) {
