@@ -97,10 +97,45 @@ export const useSupabaseMusicTracks = () => {
     };
   }, [toast]);
 
+  // Test de connectivité amélioré
+  const testDatabaseConnectivity = async () => {
+    try {
+      console.log('🔧 Test de connectivité base de données...');
+      
+      // Test: Utiliser la fonction debug SQL créée
+      const { data: allTracks, error: rpcError } = await supabase
+        .rpc('get_all_music_tracks');
+
+      console.log('📊 Test fonction RPC:', allTracks?.length, 'Erreur:', rpcError);
+
+      // Test alternatif: Compter tous les tracks
+      const { count: totalCount, error: countError } = await supabase
+        .from('generated_music_tracks')
+        .select('*', { count: 'exact', head: true });
+
+      console.log('📊 Total tracks dans DB:', totalCount, 'Erreur:', countError);
+
+      toast({
+        title: "Test connectivité",
+        description: `RPC: ${allTracks?.length || 0} tracks, Total: ${totalCount || 0}`,
+        duration: 3000,
+      });
+
+    } catch (error) {
+      console.error('❌ Erreur test connectivité:', error);
+      toast({
+        title: "Erreur test",
+        description: "Problème de connectivité base de données",
+        variant: "destructive",
+      });
+    }
+  };
+
   return {
     tracks,
     loading,
     error,
-    reload: loadTracks
+    reload: loadTracks,
+    testConnectivity: testDatabaseConnectivity
   };
 };

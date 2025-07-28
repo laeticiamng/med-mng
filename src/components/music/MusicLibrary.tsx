@@ -7,8 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 export const MusicLibrary: React.FC = () => {
-  const { tracks, loading, error, reload } = useSupabaseMusicTracks();
+  const { tracks, loading, error, reload, testConnectivity } = useSupabaseMusicTracks();
   const [currentTrackIndex, setCurrentTrackIndex] = useState(0);
+  const [debugMode, setDebugMode] = useState(false);
 
   const handleNext = () => {
     setCurrentTrackIndex((prev) => 
@@ -58,14 +59,19 @@ export const MusicLibrary: React.FC = () => {
       <Card>
         <CardContent className="text-center p-8">
           <Music size={48} className="mx-auto text-muted-foreground mb-4" />
-          <p className="text-muted-foreground mb-4">Aucune musique disponible pour le moment</p>
+          <p className="text-muted-foreground mb-4">🚨 Aucune musique disponible</p>
           <p className="text-sm text-muted-foreground mb-4">
-            Vos musiques générées apparaîtront ici automatiquement
+            ⚠️ Problème d'accès aux données (19 musiques attendues après correction RLS)
           </p>
-          <Button onClick={reload} variant="outline">
-            <RefreshCw size={16} className="mr-2" />
-            Actualiser
-          </Button>
+          <div className="flex justify-center space-x-2">
+            <Button onClick={reload} variant="outline">
+              <RefreshCw size={16} className="mr-2" />
+              Actualiser
+            </Button>
+            <Button onClick={testConnectivity} variant="secondary">
+              🔧 Test DB
+            </Button>
+          </div>
         </CardContent>
       </Card>
     );
@@ -87,8 +93,22 @@ export const MusicLibrary: React.FC = () => {
         </div>
         <div className="flex items-center space-x-2">
           <span className="text-sm text-muted-foreground">
-            {tracks.length} musique{tracks.length > 1 ? 's' : ''} disponible{tracks.length > 1 ? 's' : ''}
+            ✅ {tracks.length} musique{tracks.length > 1 ? 's' : ''} disponible{tracks.length > 1 ? 's' : ''} 
+            {tracks.length >= 19 && " (Problème RLS résolu!)"}
           </span>
+          {debugMode && (
+            <span className="text-xs bg-yellow-100 px-2 py-1 rounded">
+              🐛 Debug: {new Date().toLocaleTimeString()}
+            </span>
+          )}
+          <Button 
+            onClick={() => setDebugMode(!debugMode)} 
+            variant="ghost" 
+            size="sm"
+            title="Toggle debug mode"
+          >
+            🐛
+          </Button>
           <Button onClick={reload} variant="outline" size="sm">
             <RefreshCw size={16} />
           </Button>

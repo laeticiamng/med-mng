@@ -4455,6 +4455,17 @@ export type Database = {
           percentage: number
         }[]
       }
+      get_all_music_tracks: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: string
+          title: string
+          generation_status: string
+          audio_url: string
+          user_id: string
+          created_at: string
+        }[]
+      }
       get_anonymous_activity_logs: {
         Args: {
           p_start_date?: string
