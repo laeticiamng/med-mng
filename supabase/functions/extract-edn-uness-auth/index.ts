@@ -269,6 +269,7 @@ async function authenticateWithCAS(email: string, password: string) {
       redirect: 'manual'
     })
     
+    // ✅ SÉCURISÉ - Ticket 1.2: Log sans credential
     console.log(`[AUTH] Réponse mot de passe: ${passwordResponse.status}`)
     cookieJar.addFromResponse(passwordResponse)
     

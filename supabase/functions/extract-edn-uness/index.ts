@@ -70,6 +70,7 @@ serve(async (req) => {
     const username = UNESS_EMAIL || credentials?.username
     const password = UNESS_PASSWORD || credentials?.password
     
+    // ✅ SÉCURISÉ - Ticket 1.2: Logs masqués des credentials
     console.log('🔐 Secrets disponibles:')
     console.log('- UNESS_EMAIL:', UNESS_EMAIL ? 'Configuré' : 'Manquant')
     console.log('- UNESS_PASSWORD:', UNESS_PASSWORD ? 'Configuré' : 'Manquant')
@@ -270,7 +271,8 @@ async function authenticateUNESS(username: string, password: string, existingSes
     })
     
     extractCookies(passwordResponse, cookies)
-    console.log(`🔐 Réponse mot de passe: ${passwordResponse.status}`)
+    // ✅ SÉCURISÉ - Ticket 1.2: Log status uniquement
+    console.log(`🔐 Réponse auth: ${passwordResponse.status}`)
     
     // ÉTAPE 4: Vérifier l'authentification et accéder à LiSA
     const passwordHtml = await passwordResponse.text()

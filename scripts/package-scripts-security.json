@@ -1,0 +1,9 @@
+{
+  "scripts": {
+    "security:audit": "node scripts/security-audit.ts",
+    "security:validate": "node scripts/security-validation.js",
+    "security:scan": "node scripts/security-audit.ts && node scripts/security-validation.js",
+    "security:pre-push": "bash scripts/pre-push-security.sh",
+    "security:install-hooks": "husky install && husky add .husky/pre-commit \"npm run security:audit\""
+  }
+}

@@ -47,11 +47,11 @@ serve(async (req) => {
 
     console.log(`🚀 DEBUT extraction - Action: ${action}, Items: ${resumeFromItem} à ${resumeFromItem + maxItems - 1}`);
 
-    // Validation des credentials
-    const username = credentials?.username || "laeticia.moto-ngane@etud.u-picardie.fr";
-    const password = credentials?.password || "Aiciteal1!";
+    // ✅ SÉCURISÉ - Ticket 1.1: Suppression des credentials en dur
+    const username = credentials?.username || Deno.env.get('UNES_EMAIL');
+    const password = credentials?.password || Deno.env.get('UNES_PASSWORD');
 
-    console.log(`🔐 Credentials: ${username} / ${password ? '***' : 'MANQUANT'}`);
+    console.log(`🔐 Credentials: ${username ? 'SET' : 'MISSING'} / ${password ? 'SET' : 'MISSING'}`);
 
     if (!username || !password) {
       throw new Error("Credentials UNESS manquants (username/password)");

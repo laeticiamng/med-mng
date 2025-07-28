@@ -15,9 +15,9 @@ interface SecurityIncident {
   timestamp: string
 }
 
-// Patterns pour détecter les secrets
+// Patterns pour détecter les secrets - AMÉLIORÉS pour Ticket 1.1
 const SECRET_PATTERNS = [
-  // API Keys
+  // API Keys spécifiques
   { name: 'OpenAI API Key', pattern: /sk-[A-Za-z0-9]{48}/, severity: 'critical' as const },
   { name: 'Supabase Anon Key', pattern: /eyJ[A-Za-z0-9-_]{100,}/, severity: 'high' as const },
   { name: 'Stripe Secret Key', pattern: /sk_live_[A-Za-z0-9]{24}/, severity: 'critical' as const },
@@ -25,12 +25,21 @@ const SECRET_PATTERNS = [
   { name: 'AWS Access Key', pattern: /AKIA[0-9A-Z]{16}/, severity: 'critical' as const },
   { name: 'Google API Key', pattern: /AIza[0-9A-Za-z-_]{35}/, severity: 'high' as const },
   
-  // Generic patterns
+  // Patterns génériques
   { name: 'Generic API Key', pattern: /[Aa][Pp][Ii][_]?[Kk][Ee][Yy]["\s]*[:=]["\s]*[A-Za-z0-9]{20,}/, severity: 'medium' as const },
   { name: 'Secret Token', pattern: /[Ss][Ee][Cc][Rr][Ee][Tt]["\s]*[:=]["\s]*[A-Za-z0-9]{20,}/, severity: 'medium' as const },
   { name: 'Password in Code', pattern: /[Pp][Aa][Ss][Ss][Ww][Oo][Rr][Dd]["\s]*[:=]["\s]*[A-Za-z0-9]{8,}/, severity: 'high' as const },
   
-  // Environment variables exposées
+  // ⚠️ CRITIQUE: Fallbacks avec credentials en dur - Ticket 1.1
+  { name: 'Hardcoded Credential Fallback', pattern: /Deno\.env\.get\([^)]+\)\s*\|\|\s*['""][^'"]*['""]/, severity: 'critical' as const },
+  { name: 'Hardcoded Email/Username', pattern: /['""][a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}['""]/, severity: 'high' as const },
+  { name: 'Hardcoded Password Pattern', pattern: /['""]\w*[A-Z]\w*[!@#$%^&*]\w*[0-9]\w*['""]/g, severity: 'critical' as const },
+  
+  // Logs sensibles - Ticket 1.2
+  { name: 'Credential in Log', pattern: /console\.log.*(?:password|key|token|secret|credential)/i, severity: 'high' as const },
+  { name: 'Sensitive Data Log', pattern: /console\.log.*Deno\.env\.get/i, severity: 'medium' as const },
+  
+  // Variables d'environnement exposées
   { name: 'Exposed Env Var', pattern: /process\.env\.[A-Z_]+["\s]*[:=]/, severity: 'low' as const },
   { name: 'Vite Env Var', pattern: /import\.meta\.env\.VITE_[A-Z_]+/, severity: 'medium' as const },
 ]

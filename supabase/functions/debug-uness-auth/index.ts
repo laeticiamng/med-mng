@@ -32,6 +32,7 @@ serve(async (req) => {
     const email = Deno.env.get('UNES_EMAIL')
     const password = Deno.env.get('UNES_PASSWORD')
     
+    // ✅ SÉCURISÉ - Ticket 1.2: Log masqué des credentials
     console.log('[DEBUG] Variables env - email:', email ? 'SET' : 'MISSING', 'password:', password ? 'SET' : 'MISSING')
     
     if (!email || !password) {
