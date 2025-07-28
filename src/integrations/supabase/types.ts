@@ -4191,6 +4191,14 @@ export type Database = {
         }
         Relationships: []
       }
+      secure_platform_stats: {
+        Row: {
+          metric: string | null
+          unit: string | null
+          value: string | null
+        }
+        Relationships: []
+      }
       security_violations_summary: {
         Row: {
           affected_locations: string[] | null
@@ -4851,6 +4859,10 @@ export type Database = {
           p_session_data?: Json
         }
         Returns: string
+      }
+      ultimate_security_validation: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
       }
       update_all_edn_items_unique_content: {
         Args: Record<PropertyKey, never>
