@@ -20,6 +20,7 @@ export const useSunoCallbackListener = () => {
     const pollForCallbacks = async () => {
       try {
         // Chercher tous les tracks récents avec un audio_url valide (sans filtre de temps)
+        console.log('🎯 [CallbackListener] Recherche de ALL tracks avec audio_url...');
         const { data: recentTracks } = await supabase
           .from('generated_music_tracks')
           .select('*')
