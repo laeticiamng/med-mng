@@ -81,8 +81,7 @@ export default function EdnComplete() {
           tableau_rang_a, tableau_rang_b, scene_immersive,
           quiz_questions, updated_at
         `)
-        .order('item_code')
-        .limit(50);
+        .order('item_code');
 
       if (immersiveError) {
         console.error('Erreur immersive:', immersiveError);
