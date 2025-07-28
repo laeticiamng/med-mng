@@ -338,6 +338,13 @@ const Index = () => {
             <MngPresentationBrief />
           </div>
         </Suspense>
+
+        {/* Section Bibliothèque Musicale - Nouveau composant */}
+        <Suspense fallback={<LazyLoadSpinner />}>
+          <div className="pb-20">
+            {React.createElement(React.lazy(() => import('@/components/music/MusicLibrary').then(module => ({ default: module.MusicLibrary }))))}
+          </div>
+        </Suspense>
         
         {/* Section Génération Musicale premium - LAZY LOADED */}
         <Suspense fallback={<LazyLoadSpinner />}>
