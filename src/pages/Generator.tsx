@@ -150,7 +150,7 @@ const Generator = () => {
       
       const taskId = await generateMusic({
         prompt: lyricsToUse[lyricsIndex],
-        title: `${titlePrefix} - ${selectedStyle}`,
+        title: `${selectedItem} - ${selectedStyle}`, // Titre raccourci pour respecter la limite de 80 caractères
         tags: `${selectedStyle}, educational, clear vocals`,
         rang: actualRang,
         itemCode: contentType === 'edn' ? selectedItem : selectedSituation
