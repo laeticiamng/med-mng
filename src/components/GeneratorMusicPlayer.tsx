@@ -1,10 +1,12 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Music, Play, Pause, Download, Library, Bug } from 'lucide-react';
+import { Music, Play, Pause, Download, Library, Bug, Loader2 } from 'lucide-react';
 import { useGlobalAudio } from '@/contexts/GlobalAudioContext';
 import { DebugAudioButton } from './DebugAudioButton';
+import { useMusicGenerationStatus } from '@/hooks/useMusicGenerationStatus';
+import { Progress } from '@/components/ui/progress';
 
 interface GeneratorMusicPlayerProps {
   generatedSong: any;
@@ -18,6 +20,21 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
   const { currentTrack, isPlaying, play, pause, resume } = useGlobalAudio();
   const [showDebug, setShowDebug] = useState(false);
 
+  // Détecter si c'est une génération en cours (trackId sans audioUrl)
+  const isGenerating = generatedSong?.audioUrl && !generatedSong.audioUrl.startsWith('http');
+  const trackIdForPolling = isGenerating ? generatedSong.audioUrl : null;
+  
+  // Utiliser le hook de statut pour suivre la génération
+  const { status, isPolling, startPolling, audioUrl, progress } = useMusicGenerationStatus(trackIdForPolling);
+
+  // Démarrer le polling automatiquement si nécessaire
+  useEffect(() => {
+    if (trackIdForPolling && !isPolling) {
+      console.log('🚀 Démarrage du polling pour trackId:', trackIdForPolling);
+      startPolling();
+    }
+  }, [trackIdForPolling, isPolling, startPolling]);
+
   console.log('🎵 GeneratorMusicPlayer render:', {
     hasGeneratedSong: !!generatedSong,
     audioUrl: generatedSong?.audioUrl,
@@ -28,10 +45,17 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
 
   if (!generatedSong) return null;
 
-  const isCurrentTrack = currentTrack?.url === generatedSong.audioUrl;
+  // Utiliser l'audioUrl du statut si disponible, sinon l'URL originale
+  const finalAudioUrl = audioUrl || generatedSong.audioUrl;
+  const isCurrentTrack = currentTrack?.url === finalAudioUrl;
   const isCurrentlyPlaying = isCurrentTrack && isPlaying;
 
   const handlePlay = () => {
+    // Si la génération est en cours, afficher un message
+    if (isGenerating && !audioUrl) {
+      alert('🎵 Votre musique est en cours de génération. Veuillez patienter quelques instants...');
+      return;
+    }
     console.log('🎵 GeneratorMusicPlayer: Tentative de lecture', {
       audioUrl: generatedSong.audioUrl,
       title: generatedSong.title,
@@ -42,44 +66,15 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
       generatedSongObject: generatedSong
     });
 
-    // CORRECTION 1: Vérifier que l'URL audio est valide
-    if (!generatedSong.audioUrl || 
-        generatedSong.audioUrl === '' || 
-        generatedSong.audioUrl === 'undefined' ||
-        generatedSong.audioUrl === null) {
-      console.error('❌ URL audio invalide dans GeneratorMusicPlayer:', generatedSong.audioUrl);
+    // Vérifier que l'URL audio finale est valide
+    if (!finalAudioUrl || 
+        finalAudioUrl === '' || 
+        finalAudioUrl === 'undefined' ||
+        finalAudioUrl === null) {
+      console.error('❌ URL audio invalide dans GeneratorMusicPlayer:', finalAudioUrl);
       alert('❌ Erreur: URL audio manquante ou invalide. Veuillez regénérer la musique.');
       return;
     }
-
-    // CORRECTION 2: Vérifier que l'URL ne pointe pas vers example.com
-    if (generatedSong.audioUrl.includes('example.com')) {
-      console.error('⚠️ URL de simulation détectée (example.com) - fonctionnement impossible');
-      alert('⚠️ Mode simulation détecté. Cette fonctionnalité nécessite une vraie URL audio.');
-      return;
-    }
-
-    // CORRECTION 3: Vérifier que l'URL est accessible
-    console.log('🔍 Test de l\'URL audio:', generatedSong.audioUrl);
-    
-    // Test simple de connectivité de l'URL
-    const testAudioAccess = () => {
-      const audio = new Audio();
-      audio.preload = 'metadata';
-      
-      audio.addEventListener('loadedmetadata', () => {
-        console.log('✅ URL audio accessible, durée:', audio.duration);
-      });
-      
-      audio.addEventListener('error', (e) => {
-        console.error('❌ Erreur accès URL audio:', e);
-        alert('❌ Impossible d\'accéder à l\'audio. Vérifiez la connectivité.');
-      });
-      
-      audio.src = generatedSong.audioUrl;
-    };
-
-    testAudioAccess();
 
     if (isCurrentTrack) {
       if (isPlaying) {
@@ -90,9 +85,9 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
         resume();
       }
     } else {
-      console.log('🎵 Démarrage nouveau track avec URL:', generatedSong.audioUrl);
+      console.log('🎵 Démarrage nouveau track avec URL:', finalAudioUrl);
       play({
-        url: generatedSong.audioUrl,
+        url: finalAudioUrl,
         title: generatedSong.title || 'Musique générée',
         rang: 'A'
       });
@@ -103,13 +98,26 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
     <Card className="mt-6 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-green-800">
-          <Music className="h-6 w-6" />
-          Musique générée avec succès !
+          {isGenerating && !audioUrl ? (
+            <>
+              <Loader2 className="h-6 w-6 animate-spin" />
+              Génération en cours...
+            </>
+          ) : (
+            <>
+              <Music className="h-6 w-6" />
+              Musique générée avec succès !
+            </>
+          )}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="aspect-square bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center mb-4 max-w-xs mx-auto">
-          <Music className="h-16 w-16 text-white/80" />
+          {isGenerating && !audioUrl ? (
+            <Loader2 className="h-16 w-16 text-white/80 animate-spin" />
+          ) : (
+            <Music className="h-16 w-16 text-white/80" />
+          )}
         </div>
         
         <div className="text-center">
@@ -119,6 +127,16 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
           <p className="text-gray-600 mb-4">
             Style: {generatedSong.style || 'Personnalisé'}
           </p>
+          
+          {/* Barre de progression si génération en cours */}
+          {isGenerating && !audioUrl && (
+            <div className="space-y-2">
+              <Progress value={progress} className="w-full" />
+              <p className="text-sm text-blue-600">
+                Génération en cours... {progress}% complété
+              </p>
+            </div>
+          )}
         </div>
 
         <div className="flex gap-2">
@@ -126,8 +144,14 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
             onClick={handlePlay}
             className="flex-1 bg-green-600 hover:bg-green-700"
             size="lg"
+            disabled={isGenerating && !audioUrl}
           >
-            {isCurrentlyPlaying ? (
+            {isGenerating && !audioUrl ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                En cours...
+              </>
+            ) : isCurrentlyPlaying ? (
               <>
                 <Pause className="h-4 w-4 mr-2" />
                 Pause
@@ -144,6 +168,7 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
             variant="outline"
             className="flex-1 border-green-300 text-green-700 hover:bg-green-50"
             size="lg"
+            disabled={isGenerating && !audioUrl}
           >
             <Library className="h-4 w-4 mr-2" />
             Bibliothèque
@@ -176,9 +201,13 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
         )}
 
         <div className="text-xs text-gray-500 text-center mt-4 space-y-1">
-          <p>🎵 Votre musique est prête ! Utilisez les contrôles pour l'écouter.</p>
-          {generatedSong.audioUrl && (
-            <p className="break-all">🔗 URL: {generatedSong.audioUrl.substring(0, 80)}...</p>
+          {isGenerating && !audioUrl ? (
+            <p>⏳ Votre musique est en cours de génération. Le processus peut prendre 1-2 minutes...</p>
+          ) : (
+            <p>🎵 Votre musique est prête ! Utilisez les contrôles pour l'écouter.</p>
+          )}
+          {(finalAudioUrl || generatedSong.audioUrl) && (
+            <p className="break-all">🔗 URL: {(finalAudioUrl || generatedSong.audioUrl).substring(0, 80)}...</p>
           )}
         </div>
       </CardContent>
