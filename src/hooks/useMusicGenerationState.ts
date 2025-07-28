@@ -20,7 +20,12 @@ export const useMusicGenerationState = () => {
     rangB: false,
     rangAB: false
   });
-  const [generatedAudio, setGeneratedAudio] = useState<{ rangA?: string; rangB?: string; rangAB?: string }>({});
+  const [generatedAudio, setGeneratedAudio] = useState<{ 
+    rangA?: string; rangB?: string; rangAB?: string;
+    rangA_v1?: string; rangA_v2?: string;
+    rangB_v1?: string; rangB_v2?: string; 
+    rangAB_v1?: string; rangAB_v2?: string;
+  }>({});
   const [generationProgress, setGenerationProgress] = useState<{ 
     rangA?: GenerationProgress; 
     rangB?: GenerationProgress;

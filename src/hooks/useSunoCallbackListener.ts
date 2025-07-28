@@ -30,54 +30,73 @@ export const useSunoCallbackListener = () => {
         if (recentTracks && recentTracks.length > 0) {
           console.log(`🔍 ${recentTracks.length} tracks récents trouvés`);
           
+          // Regrouper les musiques par task_id (chaque génération = 2 versions)
+          const tracksByTaskId = new Map();
+          
           recentTracks.forEach(track => {
             const metadata = track.metadata as any;
-            let rang = metadata?.rang || 'A';
+            const taskId = metadata?.original_task_id;
+            const rang = metadata?.rang || 'A';
             
-            // Forcer la détection de A et B en alternant (puisque toutes les musiques sont marquées 'A')
-            const existingA = completedAudio.rangA;
-            const existingB = completedAudio.rangB;
+            if (!taskId) return;
             
-            // Si pas de rangA encore, prendre cette musique comme rangA, sinon comme rangB
-            rang = !existingA ? 'A' : 'B';
-            
-            // Utiliser l'ID du track comme clé unique pour éviter les doublons
-            const trackKey = `${rang}_${track.id}`;
-            
-            // Vérifier si c'est un nouveau track (pas encore notifié)
-            if (track.audio_url && !completedAudio[trackKey]) {
-              console.log(`🎵 NOUVELLE MUSIQUE DÉTECTÉE! Rang ${rang}:`, track.audio_url);
-              console.log('📋 Track complet:', {
-                id: track.id,
-                title: track.title,
-                audio_url: track.audio_url,
-                task_id: track.task_id,
-                suno_track_id: track.suno_track_id,
-                rang: rang
-              });
-              
-              setCompletedAudio(prev => {
-                const newState = {
-                  ...prev,
-                  [trackKey]: track.audio_url,
-                  [rang]: track.audio_url, // Clé simple pour compatibilité
-                  // AJOUT CRUCIAL : aussi avec la clé simple A/B pour l'interface
-                  rangA: rang === 'A' ? track.audio_url : prev.rangA,
-                  rangB: rang === 'B' ? track.audio_url : prev.rangB
-                };
-                console.log('🔄 État completedAudio mis à jour:', newState);
-                return newState;
-              });
-
-              // Notification de succès
-              toast({
-                title: `🎉 Musique Rang ${rang} terminée !`,
-                description: `🎵 ${track.title} est maintenant disponible`,
-                duration: 8000,
-              });
-            } else if (completedAudio[trackKey]) {
-              console.log(`⚠️ Track déjà notifié: ${trackKey}`);
+            if (!tracksByTaskId.has(taskId)) {
+              tracksByTaskId.set(taskId, { rang, tracks: [] });
             }
+            tracksByTaskId.get(taskId).tracks.push(track);
+          });
+          
+          // Traiter chaque groupe de task_id
+          tracksByTaskId.forEach((group, taskId) => {
+            const { rang, tracks } = group;
+            
+            // Pour chaque task_id, nous devons avoir 2 versions selon la doc officielle
+            tracks.forEach((track, index) => {
+              const versionKey = `${rang}_v${index + 1}_${taskId}`;
+              
+              // Vérifier si c'est un nouveau track (pas encore notifié)
+              if (!completedAudio[versionKey]) {
+                console.log(`🎵 NOUVELLE MUSIQUE ${rang} Version ${index + 1}:`, track.audio_url);
+                
+                setCompletedAudio(prev => {
+                  const newState = { ...prev };
+                  
+                  // Ajouter cette version spécifique
+                  newState[versionKey] = track.audio_url;
+                  
+                  // Mettre à jour les clés par rang pour l'interface
+                  if (rang === 'A') {
+                    if (!newState.rangA_v1) newState.rangA_v1 = track.audio_url;
+                    else if (!newState.rangA_v2) newState.rangA_v2 = track.audio_url;
+                    
+                    // Compatibilité: première version devient la version principale
+                    if (!newState.rangA) newState.rangA = track.audio_url;
+                  } else if (rang === 'B') {
+                    if (!newState.rangB_v1) newState.rangB_v1 = track.audio_url;
+                    else if (!newState.rangB_v2) newState.rangB_v2 = track.audio_url;
+                    
+                    // Compatibilité: première version devient la version principale  
+                    if (!newState.rangB) newState.rangB = track.audio_url;
+                  } else if (rang === 'AB' || rang === 'Mix') {
+                    if (!newState.rangAB_v1) newState.rangAB_v1 = track.audio_url;
+                    else if (!newState.rangAB_v2) newState.rangAB_v2 = track.audio_url;
+                    
+                    // Compatibilité: première version devient la version principale
+                    if (!newState.rangAB) newState.rangAB = track.audio_url;
+                  }
+                  
+                  console.log('🔄 État completedAudio mis à jour:', newState);
+                  return newState;
+                });
+
+                // Notification de succès avec numéro de version
+                toast({
+                  title: `🎉 Musique ${rang} Version ${index + 1} terminée !`,
+                  description: `🎵 ${track.title} est maintenant disponible`,
+                  duration: 6000,
+                });
+              }
+            });
           });
         } else {
           console.log('🔍 Aucun track récent trouvé');

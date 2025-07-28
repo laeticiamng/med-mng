@@ -1,5 +1,6 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { MusicVersionDisplay } from '@/components/music/MusicVersionDisplay';
 import { Music } from 'lucide-react';
 import { useEnhancedParolesMusicales } from '@/hooks/useEnhancedParolesMusicales';
 import { MusicVersionSelector } from './music/MusicVersionSelector';
@@ -100,67 +101,62 @@ export const EnhancedParolesMusicales: React.FC<EnhancedParolesMusicalesProps> =
             {/* Section d'erreur */}
             <ParolesMusicalesErrorSection lastError={lastError} />
 
-            {/* Cartes de musique générée */}
-            {(generatedAudio.rangA || generatedAudio.rangB || generatedAudio.rangAB) && (
-              <div className="space-y-4">
-                <h3 className="text-lg font-semibold text-gray-900">Musiques générées</h3>
-                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-                  
-                  {/* Version Rang A */}
-                  {generatedAudio.rangA && (
-                    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 rounded-lg p-4">
-                      <h4 className="font-semibold text-blue-800 mb-2">🎵 Version Rang A</h4>
-                      <p className="text-sm text-blue-600 mb-3">Compétences fondamentales</p>
-                      <div className="space-y-2">
-                        <button 
-                          onClick={() => handlePlayAudio(generatedAudio.rangA!, `${itemCode} - Rang A`)}
-                          className="w-full p-2 bg-blue-600 text-white rounded hover:bg-blue-700"
-                        >
-                          {currentTrack?.url === generatedAudio.rangA && isPlaying ? 'Pause' : 'Écouter'}
-                        </button>
-                      </div>
-                    </div>
+            {/* Musiques générées - Affichage selon documentation Suno (2 versions par génération) */}
+            {(generatedAudio.rangA_v1 || generatedAudio.rangB_v1 || generatedAudio.rangAB_v1 || 
+              generatedAudio.rangA || generatedAudio.rangB || generatedAudio.rangAB) && (
+              <div className="space-y-6">
+                <div className="flex items-center gap-2">
+                  <h3 className="text-lg font-semibold text-gray-900">🎵 Musiques générées</h3>
+                  <span className="text-sm text-muted-foreground bg-blue-50 px-2 py-1 rounded">
+                    📖 Suno API: 2 versions par génération
+                  </span>
+                </div>
+                
+                <div className="space-y-4">
+                  {/* Rang A - 2 versions */}
+                  {(generatedAudio.rangA_v1 || generatedAudio.rangA) && (
+                    <MusicVersionDisplay
+                      rang="A"
+                      title={`${itemCode} - Rang A (Compétences fondamentales)`}
+                      version1Url={generatedAudio.rangA_v1 || generatedAudio.rangA}
+                      version2Url={generatedAudio.rangA_v2}
+                      currentTrack={currentTrack?.url}
+                      isPlaying={isPlaying}
+                      onPlayPause={handlePlayAudio}
+                      style={selectedStyle}
+                      duration={musicDuration}
+                    />
                   )}
 
-                  {/* Version Rang B */}
-                  {generatedAudio.rangB && (
-                    <div className="bg-gradient-to-br from-purple-50 to-violet-50 border border-purple-200 rounded-lg p-4">
-                      <h4 className="font-semibold text-purple-800 mb-2">🎵 Version Rang B</h4>
-                      <p className="text-sm text-purple-600 mb-3">Compétences avancées</p>
-                      <div className="space-y-2">
-                        <button 
-                          onClick={() => handlePlayAudio(generatedAudio.rangB!, `${itemCode} - Rang B`)}
-                          className="w-full p-2 bg-purple-600 text-white rounded hover:bg-purple-700"
-                        >
-                          {currentTrack?.url === generatedAudio.rangB && isPlaying ? 'Pause' : 'Écouter'}
-                        </button>
-                      </div>
-                    </div>
+                  {/* Rang B - 2 versions */}
+                  {(generatedAudio.rangB_v1 || generatedAudio.rangB) && (
+                    <MusicVersionDisplay
+                      rang="B"
+                      title={`${itemCode} - Rang B (Compétences avancées)`}
+                      version1Url={generatedAudio.rangB_v1 || generatedAudio.rangB}
+                      version2Url={generatedAudio.rangB_v2}
+                      currentTrack={currentTrack?.url}
+                      isPlaying={isPlaying}
+                      onPlayPause={handlePlayAudio}
+                      style={selectedStyle}
+                      duration={musicDuration}
+                    />
                   )}
 
-                  {/* Version Rang A+B - Générer la version combinée */}
-                  <div className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 rounded-lg p-4">
-                    <h4 className="font-semibold text-green-800 mb-2">🎵 Version Rang A+B</h4>
-                    <p className="text-sm text-green-600 mb-3">Compétences complètes combinées</p>
-                    <div className="space-y-2">
-                      {generatedAudio.rangAB ? (
-                        <button 
-                          onClick={() => handlePlayAudio(generatedAudio.rangAB!, `${itemCode} - Rang A+B`)}
-                          className="w-full p-2 bg-green-600 text-white rounded hover:bg-green-700"
-                        >
-                          {currentTrack?.url === generatedAudio.rangAB && isPlaying ? 'Pause' : 'Écouter'}
-                        </button>
-                      ) : (
-                        <button 
-                          onClick={() => handleGenerate('AB')}
-                          disabled={isGenerating.rangA || isGenerating.rangB || !enhancedParoles[2]}
-                          className="w-full p-2 bg-green-600 text-white rounded hover:bg-green-700 disabled:bg-gray-400"
-                        >
-                          {isGenerating.rangA || isGenerating.rangB ? 'Génération...' : 'Générer Version A+B'}
-                        </button>
-                      )}
-                    </div>
-                  </div>
+                  {/* Rang A+B Mix - 2 versions */}
+                  {(generatedAudio.rangAB_v1 || generatedAudio.rangAB) && (
+                    <MusicVersionDisplay
+                      rang="AB"
+                      title={`${itemCode} - Rang A+B (Compétences complètes)`}
+                      version1Url={generatedAudio.rangAB_v1 || generatedAudio.rangAB}
+                      version2Url={generatedAudio.rangAB_v2}
+                      currentTrack={currentTrack?.url}
+                      isPlaying={isPlaying}
+                      onPlayPause={handlePlayAudio}
+                      style={selectedStyle}
+                      duration={musicDuration}
+                    />
+                  )}
                 </div>
               </div>
             )}

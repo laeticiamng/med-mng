@@ -132,17 +132,35 @@ Pour une expertise qui se rassemble`;
     }
   };
 
-  // Organiser les audios générés par version en fusionnant avec les callbacks
+  // Organiser les audios générés par version avec les 2 versions selon la doc Suno
   const organizedAudio = {
-    rangA: generatedAudio.rangA || callbackAudio.A || null,
-    rangB: generatedAudio.rangB || callbackAudio.B || null,
-    rangAB: generatedAudio.rangAB || callbackAudio.AB || null
+    // Rang A - 2 versions
+    rangA_v1: generatedAudio.rangA || callbackAudio.rangA_v1 || callbackAudio.rangA || null,
+    rangA_v2: generatedAudio.rangA_v2 || callbackAudio.rangA_v2 || null,
+    
+    // Rang B - 2 versions  
+    rangB_v1: generatedAudio.rangB || callbackAudio.rangB_v1 || callbackAudio.rangB || null,
+    rangB_v2: generatedAudio.rangB_v2 || callbackAudio.rangB_v2 || null,
+    
+    // Rang A+B Mix - 2 versions
+    rangAB_v1: generatedAudio.rangAB || callbackAudio.rangAB_v1 || callbackAudio.rangAB || null,
+    rangAB_v2: generatedAudio.rangAB_v2 || callbackAudio.rangAB_v2 || null,
+    
+    // Compatibilité avec l'ancienne interface (première version)
+    rangA: generatedAudio.rangA || callbackAudio.rangA_v1 || callbackAudio.rangA || null,
+    rangB: generatedAudio.rangB || callbackAudio.rangB_v1 || callbackAudio.rangB || null,
+    rangAB: generatedAudio.rangAB || callbackAudio.rangAB_v1 || callbackAudio.rangAB || null
   };
 
-  console.log('🎵 AUDIT AUDIO FINAL:', {
+  console.log('🎵 AUDIT AUDIO FINAL (2 versions par rang):', {
     generatedAudio,
     callbackAudio, 
-    organizedAudio
+    organizedAudio,
+    '📊 Status': {
+      'Rang A': { v1: !!organizedAudio.rangA_v1, v2: !!organizedAudio.rangA_v2 },
+      'Rang B': { v1: !!organizedAudio.rangB_v1, v2: !!organizedAudio.rangB_v2 },
+      'Rang A+B': { v1: !!organizedAudio.rangAB_v1, v2: !!organizedAudio.rangAB_v2 }
+    }
   });
 
   return {
