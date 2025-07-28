@@ -1,9 +1,10 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Music, Play, Pause, Download, Library } from 'lucide-react';
+import { Music, Play, Pause, Download, Library, Bug } from 'lucide-react';
 import { useGlobalAudio } from '@/contexts/GlobalAudioContext';
+import { DebugAudioButton } from './DebugAudioButton';
 
 interface GeneratorMusicPlayerProps {
   generatedSong: any;
@@ -15,6 +16,7 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
   onAddToLibrary
 }) => {
   const { currentTrack, isPlaying, play, pause, resume } = useGlobalAudio();
+  const [showDebug, setShowDebug] = useState(false);
 
   console.log('🎵 GeneratorMusicPlayer render:', {
     hasGeneratedSong: !!generatedSong,
@@ -36,22 +38,48 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
       isCurrentTrack,
       isPlaying,
       hasGeneratedSong: !!generatedSong,
-      urlType: generatedSong.audioUrl?.startsWith('http') ? 'http' : 'relative'
+      urlType: generatedSong.audioUrl?.startsWith('http') ? 'http' : 'relative',
+      generatedSongObject: generatedSong
     });
 
-    // Vérifier que l'URL audio est valide
-    if (!generatedSong.audioUrl || generatedSong.audioUrl === '' || generatedSong.audioUrl === 'undefined') {
+    // CORRECTION 1: Vérifier que l'URL audio est valide
+    if (!generatedSong.audioUrl || 
+        generatedSong.audioUrl === '' || 
+        generatedSong.audioUrl === 'undefined' ||
+        generatedSong.audioUrl === null) {
       console.error('❌ URL audio invalide dans GeneratorMusicPlayer:', generatedSong.audioUrl);
+      alert('❌ Erreur: URL audio manquante ou invalide. Veuillez regénérer la musique.');
       return;
     }
 
-    // Test direct de l'URL pour debug
-    console.log('🔍 Test direct de l\'URL:', generatedSong.audioUrl);
-    
-    // Vérifier que l'URL ne pointe pas vers example.com (mode simulation défaillant)
+    // CORRECTION 2: Vérifier que l'URL ne pointe pas vers example.com
     if (generatedSong.audioUrl.includes('example.com')) {
-      console.warn('⚠️ URL de simulation détectée (example.com) - risque de non-fonctionnement');
+      console.error('⚠️ URL de simulation détectée (example.com) - fonctionnement impossible');
+      alert('⚠️ Mode simulation détecté. Cette fonctionnalité nécessite une vraie URL audio.');
+      return;
     }
+
+    // CORRECTION 3: Vérifier que l'URL est accessible
+    console.log('🔍 Test de l\'URL audio:', generatedSong.audioUrl);
+    
+    // Test simple de connectivité de l'URL
+    const testAudioAccess = () => {
+      const audio = new Audio();
+      audio.preload = 'metadata';
+      
+      audio.addEventListener('loadedmetadata', () => {
+        console.log('✅ URL audio accessible, durée:', audio.duration);
+      });
+      
+      audio.addEventListener('error', (e) => {
+        console.error('❌ Erreur accès URL audio:', e);
+        alert('❌ Impossible d\'accéder à l\'audio. Vérifiez la connectivité.');
+      });
+      
+      audio.src = generatedSong.audioUrl;
+    };
+
+    testAudioAccess();
 
     if (isCurrentTrack) {
       if (isPlaying) {
@@ -62,10 +90,10 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
         resume();
       }
     } else {
-      console.log('🎵 Démarrage nouveau track');
+      console.log('🎵 Démarrage nouveau track avec URL:', generatedSong.audioUrl);
       play({
         url: generatedSong.audioUrl,
-        title: generatedSong.title,
+        title: generatedSong.title || 'Musique générée',
         rang: 'A'
       });
     }
@@ -120,10 +148,38 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
             <Library className="h-4 w-4 mr-2" />
             Bibliothèque
           </Button>
+          <Button
+            onClick={() => setShowDebug(!showDebug)}
+            variant="ghost"
+            size="lg"
+            className="text-gray-500 hover:text-gray-700"
+            title="Debug audio"
+          >
+            <Bug className="h-4 w-4" />
+          </Button>
         </div>
 
-        <div className="text-xs text-gray-500 text-center mt-4">
-          🎵 Votre musique est prête ! Utilisez les contrôles pour l'écouter.
+        {/* Debug Panel */}
+        {showDebug && (
+          <div className="mt-4 space-y-2">
+            <h4 className="font-semibold text-sm text-gray-700">🐛 Debug Audio</h4>
+            <DebugAudioButton 
+              audioUrl={generatedSong.audioUrl} 
+              title={generatedSong.title}
+            />
+            <div className="text-xs text-gray-500 space-y-1">
+              <div>Object: {JSON.stringify(generatedSong, null, 2).substring(0, 200)}...</div>
+              <div>Current Track: {currentTrack?.url}</div>
+              <div>Is Playing: {isPlaying ? 'Yes' : 'No'}</div>
+            </div>
+          </div>
+        )}
+
+        <div className="text-xs text-gray-500 text-center mt-4 space-y-1">
+          <p>🎵 Votre musique est prête ! Utilisez les contrôles pour l'écouter.</p>
+          {generatedSong.audioUrl && (
+            <p className="break-all">🔗 URL: {generatedSong.audioUrl.substring(0, 80)}...</p>
+          )}
         </div>
       </CardContent>
     </Card>
