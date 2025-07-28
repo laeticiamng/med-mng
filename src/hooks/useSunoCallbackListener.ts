@@ -40,8 +40,17 @@ export const useSunoCallbackListener = () => {
           
           recentTracks.forEach(track => {
             const metadata = track.metadata as any;
-            const taskId = metadata?.original_task_id;
-            const rang = metadata?.rang || 'A';
+            const taskId = metadata?.original_task_id || track.task_id;
+            
+            // Déterminer le rang à partir du titre ou des métadonnées
+            let rang = 'A'; // par défaut
+            if (track.title?.includes('Rang B') || metadata?.rang === 'B') {
+              rang = 'B';
+            } else if (track.title?.includes('Rang A') || metadata?.rang === 'A') {
+              rang = 'A';
+            } else if (track.title?.includes('Mix') || metadata?.rang === 'AB') {
+              rang = 'AB';
+            }
             
             if (!taskId) return;
             
