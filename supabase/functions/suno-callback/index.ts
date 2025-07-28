@@ -29,122 +29,111 @@ serve(async (req) => {
       console.log(`📋 Type callback: ${callbackType}, TaskID: ${task_id}, Tracks: ${tracks?.length || 0}`);
       
       // Traitement selon le type de callback
-      if (callbackType === 'complete' && tracks && tracks.length > 0) {
-        // 🎵 GÉNÉRATION TERMINÉE - Mettre à jour la BDD immédiatement
+      if ((callbackType === 'text' || callbackType === 'complete') && tracks && tracks.length > 0) {
+        // 🎵 GÉNÉRATION EN COURS - Créer ou mettre à jour la BDD
         for (const track of tracks) {
-          console.log(`✅ Track finalisé: ${track.id} - ${track.audio_url}`);
+          console.log(`🎵 Processing track: ${track.id} - Type: ${callbackType}`);
           
           try {
-            // D'abord essayer de mettre à jour avec le task_id original
+            // D'abord essayer de trouver un track existant par suno_track_id
             const { data: existingTrack, error: findError } = await supabase
               .from('generated_music_tracks')
               .select('*')
-              .eq('task_id', task_id)
-              .single();
+              .eq('suno_track_id', track.id)
+              .maybeSingle();
 
             if (existingTrack) {
-              // Mettre à jour le track existant avec les vraies données
+              // Mettre à jour le track existant
+              const updateData: any = {
+                generation_status: callbackType === 'complete' ? 'completed' : 'generating',
+                metadata: {
+                  ...(typeof existingTrack.metadata === 'object' && existingTrack.metadata !== null ? existingTrack.metadata : {}),
+                  duration: track.duration,
+                  model_name: track.model_name,
+                  tags: track.tags,
+                  prompt: track.prompt,
+                  created_at: new Date(track.createTime).toISOString(),
+                  suno_complete_data: track,
+                  real_track_id: track.id,
+                  original_task_id: task_id,
+                  rang: track.title?.includes('Rang B') ? 'B' : 'A'
+                },
+                updated_at: new Date().toISOString()
+              };
+
+              // Ajouter les URLs seulement si disponibles (callbackType === 'complete')
+              if (track.audio_url || track.source_audio_url) {
+                updateData.audio_url = track.audio_url || track.source_audio_url;
+                updateData.generation_status = 'completed';
+              }
+              if (track.stream_audio_url || track.source_stream_audio_url) {
+                updateData.stream_url = track.stream_audio_url || track.source_stream_audio_url;
+              }
+              if (track.image_url || track.source_image_url) {
+                updateData.image_url = track.image_url || track.source_image_url;
+              }
+
               const { error: updateError } = await supabase
                 .from('generated_music_tracks')
-                .update({
-                  suno_track_id: track.id, // Vrai ID du track
-                  audio_url: track.audio_url || track.source_audio_url,
-                  stream_url: track.stream_audio_url || track.source_stream_audio_url,
-                  image_url: track.image_url || track.source_image_url,
-                  generation_status: 'completed',
-                  metadata: {
-                    ...(typeof existingTrack.metadata === 'object' && existingTrack.metadata !== null ? existingTrack.metadata : {}),
-                    duration: track.duration,
-                    model_name: track.model_name,
-                    tags: track.tags,
-                    prompt: track.prompt,
-                    created_at: new Date(track.createTime).toISOString(),
-                    suno_complete_data: track,
-                    real_track_id: track.id,
-                    original_task_id: task_id
-                  },
-                  updated_at: new Date().toISOString()
-                })
+                .update(updateData)
                 .eq('id', existingTrack.id);
                 
               if (updateError) {
                 console.error('❌ Erreur mise à jour BDD:', updateError);
               } else {
-                console.log(`💾 Track ${track.id} mis à jour avec succès en BDD`);
+                console.log(`📝 Statut ${callbackType} mis à jour pour track ${track.id}`);
               }
             } else {
-              // Si pas trouvé par task_id, créer un nouveau record
-              console.log('⚠️ Aucun track trouvé avec task_id, création d\'un nouveau record');
+              // Créer un nouveau record avec user_id par défaut
+              console.log('💾 Création nouveau track en BDD');
               
-              const { error: insertError } = await supabase
-                .from('generated_music_tracks')
-                .insert({
-                  task_id: task_id,
-                  suno_track_id: track.id,
-                  title: track.title || 'Musique générée',
-                  audio_url: track.audio_url || track.source_audio_url,
-                  stream_url: track.stream_audio_url || track.source_stream_audio_url,
-                  image_url: track.image_url || track.source_image_url,
-                  generation_status: 'completed',
-                  duration: 240,
-                  user_id: '00000000-0000-0000-0000-000000000000', // User anonyme par défaut
-                  metadata: {
-                    duration: track.duration,
-                    model_name: track.model_name,
-                    tags: track.tags,
-                    prompt: track.prompt,
-                    created_at: new Date(track.createTime).toISOString(),
-                    suno_complete_data: track,
-                    real_track_id: track.id,
-                    original_task_id: task_id,
-                    created_via_callback: true,
-                    rang: 'A' // Par défaut, sera affiné plus tard
-                  }
-                });
-                
-              if (insertError) {
-                console.error('❌ Erreur insertion callback:', insertError);
-              } else {
-                console.log(`💾 Nouveau track ${track.id} créé via callback`);
-              }
-            }
-          } catch (dbError) {
-            console.error('❌ Erreur BDD complète:', dbError);
-          }
-        }
-        
-      } else if (callbackType === 'text' && tracks && tracks.length > 0) {
-        // 📝 TEXTE GÉNÉRÉ - Mettre à jour le statut intermédiaire
-        console.log('📝 Phase texte terminée, audio en cours de génération...');
-        
-        for (const track of tracks) {
-          try {
-            const { error: updateError } = await supabase
-              .from('generated_music_tracks')
-              .update({
-                generation_status: 'text_complete',
+              const insertData: any = {
+                task_id: task_id,
+                suno_track_id: track.id,
+                title: track.title || 'Musique générée',
+                generation_status: callbackType === 'complete' ? 'completed' : 'generating',
+                duration: 240,
+                user_id: null, // Permettre les utilisateurs anonymes
                 metadata: {
+                  duration: track.duration,
                   model_name: track.model_name,
                   tags: track.tags,
                   prompt: track.prompt,
-                  image_url: track.image_url,
-                  progress: 75,
-                  text_phase_complete: true
-                },
-                updated_at: new Date().toISOString()
-              })
-              .eq('task_id', task_id);
-              
-            if (updateError) {
-              console.error('❌ Erreur mise à jour statut texte:', updateError);
-            } else {
-              console.log(`📝 Statut texte mis à jour pour track ${track.id}`);
+                  created_at: new Date(track.createTime).toISOString(),
+                  suno_complete_data: track,
+                  real_track_id: track.id,
+                  original_task_id: task_id,
+                  created_via_callback: true,
+                  rang: track.title?.includes('Rang B') ? 'B' : 'A'
+                }
+              };
+
+              // Ajouter les URLs seulement si disponibles
+              if (track.audio_url || track.source_audio_url) {
+                insertData.audio_url = track.audio_url || track.source_audio_url;
+                insertData.generation_status = 'completed';
+              }
+              if (track.stream_audio_url || track.source_stream_audio_url) {
+                insertData.stream_url = track.stream_audio_url || track.source_stream_audio_url;
+              }
+              if (track.image_url || track.source_image_url) {
+                insertData.image_url = track.image_url || track.source_image_url;
+              }
+
+              const { error: insertError } = await supabase
+                .from('generated_music_tracks')
+                .insert(insertData);
+                
+              if (insertError) {
+                console.error('❌ Erreur insertion BDD:', insertError);
+              } else {
+                console.log(`💾 Track ${track.id} créé avec succès en BDD`);
+              }
             }
-          } catch (dbError) {
-            console.error('❌ Erreur mise à jour statut texte:', dbError);
+          } catch (error) {
+            console.error(`❌ Erreur traitement track ${track.id}:`, error);
           }
         }
-      }
       
     } else if (callbackData.status === 'FAILED') {
       console.error('❌ Génération Suno échouée:', callbackData.error || 'Erreur inconnue');
