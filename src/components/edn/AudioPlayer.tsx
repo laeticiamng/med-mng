@@ -3,6 +3,8 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Play, Pause, Volume2, VolumeX, SkipBack, SkipForward, Square } from 'lucide-react';
+import { AudioLoadingIndicator } from '@/components/ui/AudioLoadingIndicator';
+import { useAudioBuffering } from '@/hooks/useAudioBuffering';
 
 interface AudioPlayerProps {
   audioUrl: string;
@@ -16,6 +18,7 @@ interface AudioPlayerProps {
   onVolumeChange: (volume: number) => void;
   onStop: () => void;
   onClose?: () => void;
+  audioElement?: HTMLAudioElement | null;
 }
 
 export const AudioPlayer = ({ 
@@ -29,10 +32,14 @@ export const AudioPlayer = ({
   onSeek,
   onVolumeChange,
   onStop,
-  onClose 
+  onClose,
+  audioElement 
 }: AudioPlayerProps) => {
   const [isMuted, setIsMuted] = useState(false);
   const [previousVolume, setPreviousVolume] = useState(volume);
+  
+  // Hook de buffering pour optimiser l'affichage
+  const bufferingState = useAudioBuffering(audioElement || null);
 
   const formatTime = (time: number) => {
     if (isNaN(time)) return '0:00';
@@ -89,6 +96,23 @@ export const AudioPlayer = ({
           </Button>
         )}
       </div>
+
+      {/* Indicateur de chargement optimisé */}
+      {(bufferingState.isBuffering || !bufferingState.readyToPlay) && (
+        <div className="mb-4">
+          <AudioLoadingIndicator
+            isBuffering={bufferingState.isBuffering}
+            bufferPercent={bufferingState.bufferPercent}
+            readyToPlay={bufferingState.readyToPlay}
+            estimatedLoadTime={bufferingState.estimatedLoadTime}
+            onRetry={() => {
+              console.log('🔄 Retry audio loading...');
+              onStop();
+              setTimeout(() => onPlayPause(), 500);
+            }}
+          />
+        </div>
+      )}
 
       {/* Barre de progression */}
       <div className="mb-4">

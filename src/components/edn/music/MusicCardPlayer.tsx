@@ -1,6 +1,7 @@
 
 import { AudioPlayer } from '../AudioPlayer';
 import { SaveMusicButton } from './SaveMusicButton';
+import { useGlobalAudio } from '@/contexts/GlobalAudioContext';
 
 interface MusicCardPlayerProps {
   generatedAudio: string;
@@ -41,6 +42,8 @@ export const MusicCardPlayer = ({
   onStop,
   onMinimize
 }: MusicCardPlayerProps) => {
+  const { audioElement } = useGlobalAudio();
+  
   if (!generatedAudio || isMinimized) {
     return null;
   }
@@ -54,6 +57,7 @@ export const MusicCardPlayer = ({
         currentTime={isCurrentTrack ? currentTime : 0}
         duration={isCurrentTrack ? duration : musicDuration}
         volume={volume}
+        audioElement={isCurrentTrack ? audioElement : null}
         onPlayPause={onPlayPause}
         onSeek={onSeek}
         onVolumeChange={onVolumeChange}

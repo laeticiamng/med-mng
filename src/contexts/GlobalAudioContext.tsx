@@ -1,5 +1,6 @@
 
 import React, { createContext, useContext, useState, useRef, useEffect } from 'react';
+import { useAudioMetrics } from '@/hooks/useAudioMetrics';
 
 interface AudioTrack {
   url: string;
@@ -14,6 +15,7 @@ interface GlobalAudioContextType {
   duration: number;
   volume: number;
   isMinimized: boolean;
+  audioElement: HTMLAudioElement | null;
   play: (track: AudioTrack) => void;
   pause: () => void;
   resume: () => void;
@@ -46,13 +48,21 @@ export const GlobalAudioProvider = ({ children }: GlobalAudioProviderProps) => {
   const [volume, setVolume] = useState(0.8);
   const [isMinimized, setIsMinimized] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  
+  // Hook de métriques pour le monitoring
+  const { startTracking, updateMetric, calculateBufferHealth, logFinalMetrics } = useAudioMetrics();
 
   const play = (track: AudioTrack) => {
-    console.log('🎵 Tentative de lecture audio:', track.url);
+    const startTime = performance.now();
+    console.log('🎵 [PERF] Démarrage lecture - URL:', track.url);
+    
+    // Démarrer le tracking des métriques
+    const metrics = startTracking(track.url);
     
     // Vérifier si l'URL est valide
     if (!track.url || track.url === '' || track.url === 'undefined') {
       console.error('❌ URL audio invalide:', track.url);
+      updateMetric(track.url, { errors: ['URL invalide'] });
       setIsPlaying(false);
       return;
     }
@@ -70,12 +80,17 @@ export const GlobalAudioProvider = ({ children }: GlobalAudioProviderProps) => {
     audioRef.current = audio;
     setCurrentTrack(track);
     audio.volume = volume;
-    audio.crossOrigin = 'anonymous'; // Fix CORS potentiel
+    audio.crossOrigin = 'anonymous';
+    
+    // OPTIMISATION 1: Précharger avec hints
+    audio.preload = 'auto'; // Force le préchargement
     
     // Configuration des événements AVANT de définir la source
     const handleLoadedMetadata = () => {
-      console.log('📊 Métadonnées chargées - Durée:', audio.duration);
-      setDuration(audio.duration || 348); // Fallback durée par défaut
+      const metadataTime = performance.now() - startTime;
+      console.log(`📊 [PERF] Métadonnées chargées en ${metadataTime.toFixed(2)}ms - Durée:`, audio.duration);
+      updateMetric(track.url, { metadataLoadTime: metadataTime });
+      setDuration(audio.duration || 348);
     };
 
     const handleTimeUpdate = () => {
@@ -89,7 +104,8 @@ export const GlobalAudioProvider = ({ children }: GlobalAudioProviderProps) => {
     };
 
     const handleError = (e: any) => {
-      console.error('❌ Erreur audio globale:', e);
+      const errorTime = performance.now() - startTime;
+      console.error(`❌ [PERF] Erreur audio après ${errorTime.toFixed(2)}ms:`, e);
       console.error('❌ Code erreur:', audio.error?.code, 'Message:', audio.error?.message);
       console.error('❌ URL problématique:', track.url);
       setIsPlaying(false);
@@ -97,11 +113,61 @@ export const GlobalAudioProvider = ({ children }: GlobalAudioProviderProps) => {
     };
 
     const handleCanPlay = () => {
-      console.log('✅ Audio prêt à être lu');
+      const canPlayTime = performance.now() - startTime;
+      console.log(`✅ [PERF] Audio prêt à être lu en ${canPlayTime.toFixed(2)}ms`);
+      updateMetric(track.url, { canPlayTime });
+      
+      // OPTIMISATION 2: Démarrage immédiat dès que possible
+      if (!audio.paused) return; // Déjà en cours
+      
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise.then(() => {
+          const playTime = performance.now() - startTime;
+          console.log(`✅ [PERF] Lecture démarrée avec succès en ${playTime.toFixed(2)}ms`);
+          updateMetric(track.url, { 
+            playStartTime: playTime,
+            totalLoadTime: playTime
+          });
+          setIsPlaying(true);
+          
+          // Log final des métriques après démarrage réussi
+          setTimeout(() => logFinalMetrics(track.url), 1000);
+        }).catch((error) => {
+          console.error('❌ Erreur lors du démarrage de la lecture:', error);
+          
+          const errorMsg = `${error.name}: ${error.message}`;
+          updateMetric(track.url, { errors: [errorMsg] });
+          
+          if (error.name === 'NotAllowedError') {
+            console.warn('⚠️ Autoplay bloqué - interaction utilisateur requise');
+            setIsPlaying(false);
+          } else if (error.name === 'NotSupportedError') {
+            console.error('❌ Format audio non supporté');
+            setCurrentTrack(null);
+          } else {
+            setIsPlaying(false);
+          }
+        });
+      }
     };
 
     const handleLoadStart = () => {
-      console.log('🔄 Début du chargement audio');
+      const loadStartTime = performance.now() - startTime;
+      console.log(`🔄 [PERF] Début du chargement audio en ${loadStartTime.toFixed(2)}ms`);
+    };
+    
+    // OPTIMISATION 3: Buffer pour réduire les interruptions
+    const handleProgress = () => {
+      if (audio.buffered.length > 0) {
+        const buffered = audio.buffered.end(audio.buffered.length - 1);
+        const duration = audio.duration || 0;
+        const bufferPercent = duration > 0 ? (buffered / duration) * 100 : 0;
+        const bufferHealth = calculateBufferHealth(audio.buffered, duration, audio.currentTime);
+        
+        updateMetric(track.url, { bufferHealthScore: bufferHealth });
+        console.log(`📦 [PERF] Buffer: ${bufferPercent.toFixed(1)}% - Santé: ${bufferHealth.toFixed(0)}%`);
+      }
     };
 
     // Ajouter les événements
@@ -111,34 +177,11 @@ export const GlobalAudioProvider = ({ children }: GlobalAudioProviderProps) => {
     audio.addEventListener('error', handleError);
     audio.addEventListener('canplay', handleCanPlay);
     audio.addEventListener('loadstart', handleLoadStart);
+    audio.addEventListener('progress', handleProgress);
 
-    // Définir la source APRÈS avoir configuré les événements
+    // OPTIMISATION 4: Définir la source avec optimisations réseau
     audio.src = track.url;
-    audio.load(); // Force le chargement
-
-    // Tentative de lecture avec gestion d'erreur + autoplay policy
-    const playPromise = audio.play();
-    
-    if (playPromise !== undefined) {
-      playPromise.then(() => {
-        console.log('✅ Lecture audio démarrée avec succès');
-        setIsPlaying(true);
-      }).catch((error) => {
-        console.error('❌ Erreur lors du démarrage de la lecture:', error);
-        
-        // Gestion spécifique pour autoplay policy
-        if (error.name === 'NotAllowedError') {
-          console.warn('⚠️ Autoplay bloqué - interaction utilisateur requise');
-          // On garde l'état prêt mais pas en lecture
-          setIsPlaying(false);
-        } else if (error.name === 'NotSupportedError') {
-          console.error('❌ Format audio non supporté');
-          setCurrentTrack(null);
-        } else {
-          setIsPlaying(false);
-        }
-      });
-    }
+    audio.load(); // Force le chargement immédiat
   };
 
   const pause = () => {
@@ -217,6 +260,7 @@ export const GlobalAudioProvider = ({ children }: GlobalAudioProviderProps) => {
         duration,
         volume,
         isMinimized,
+        audioElement: audioRef.current,
         play,
         pause,
         resume,
