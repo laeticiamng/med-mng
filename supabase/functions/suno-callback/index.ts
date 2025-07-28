@@ -134,6 +134,7 @@ serve(async (req) => {
             console.error(`❌ Erreur traitement track ${track.id}:`, error);
           }
         }
+      }
       
     } else if (callbackData.status === 'FAILED') {
       console.error('❌ Génération Suno échouée:', callbackData.error || 'Erreur inconnue');
