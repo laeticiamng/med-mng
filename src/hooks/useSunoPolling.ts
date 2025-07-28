@@ -37,12 +37,13 @@ export const useSunoPolling = () => {
     try {
       console.log('🔍 Vérification statut pour trackId:', track.trackId);
       
-      // 1. D'abord vérifier en BDD locale
-      const { data: dbTrack, error: dbError } = await supabase
+      // 1. D'abord vérifier en BDD locale avec plusieurs critères
+      const { data: dbTracks, error: dbError } = await supabase
         .from('generated_music_tracks')
         .select('*')
-        .eq('task_id', track.trackId)
-        .single();
+        .or(`task_id.eq.${track.trackId},suno_track_id.eq.${track.trackId},original_task_id.eq.${track.trackId}`);
+        
+      const dbTrack = dbTracks?.[0];
 
       if (dbTrack && dbTrack.audio_url && dbTrack.generation_status === 'completed') {
         console.log('✅ Track complété trouvé en BDD:', track.trackId, 'URL:', dbTrack.audio_url);

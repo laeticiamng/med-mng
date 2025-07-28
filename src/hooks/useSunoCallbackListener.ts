@@ -25,33 +25,33 @@ export const useSunoCallbackListener = () => {
           .limit(10);
 
         if (recentTracks) {
-          recentTracks.forEach(track => {
-            const metadata = track.metadata as any;
-            const rang = metadata?.rang || 'A';
+        recentTracks.forEach(track => {
+          const metadata = track.metadata as any;
+          let rang = metadata?.rang || 'A';
+          
+          // Nettoyer le rang pour ne garder que A ou B
+          if (typeof rang === 'string') {
+            rang = rang.toUpperCase().includes('A') ? 'A' : 'B';
+          }
+          
+          // Vérifier si c'est un nouveau track (pas encore dans completedAudio)
+          if (track.audio_url && !completedAudio[rang]) {
+            console.log(`🎵 Nouvelle musique détectée Rang ${rang}:`, track.audio_url);
+            console.log('📋 Track complet:', track);
             
-            // Vérifier si c'est un nouveau track (pas encore dans completedAudio)
-            if (track.audio_url && !completedAudio[rang]) {
-              console.log('🎵 Nouvelle musique détectée:', track.audio_url);
-              console.log('🎵 Track metadata:', metadata);
-              
-              setCompletedAudio(prev => ({
-                ...prev,
-                [rang]: track.audio_url
-              }));
+            setCompletedAudio(prev => ({
+              ...prev,
+              [rang]: track.audio_url
+            }));
 
-              // Afficher notification seulement si c'est vraiment nouveau
-              const isNewTrack = metadata?.created_via_callback || 
-                                (track.updated_at && new Date(track.updated_at) > new Date(Date.now() - 30000));
-              
-              if (isNewTrack) {
-                toast({
-                  title: `🎉 Musique Rang ${rang} prête !`,
-                  description: `🎵 Votre musique est maintenant disponible`,
-                  duration: 5000,
-                });
-              }
-            }
-          });
+            // Toujours afficher la notification pour les tracks complétés
+            toast({
+              title: `🎉 Musique Rang ${rang} terminée !`,
+              description: `🎵 Votre génération est maintenant disponible`,
+              duration: 6000,
+            });
+          }
+        });
         }
       } catch (error) {
         console.error('❌ Erreur lors de la vérification des callbacks:', error);

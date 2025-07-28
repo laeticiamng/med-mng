@@ -86,6 +86,8 @@ serve(async (req) => {
                   stream_url: track.stream_audio_url || track.source_stream_audio_url,
                   image_url: track.image_url || track.source_image_url,
                   generation_status: 'completed',
+                  duration: 240,
+                  user_id: '00000000-0000-0000-0000-000000000000', // User anonyme par défaut
                   metadata: {
                     duration: track.duration,
                     model_name: track.model_name,
@@ -95,7 +97,8 @@ serve(async (req) => {
                     suno_complete_data: track,
                     real_track_id: track.id,
                     original_task_id: task_id,
-                    created_via_callback: true
+                    created_via_callback: true,
+                    rang: 'A' // Par défaut, sera affiné plus tard
                   }
                 });
                 
