@@ -1,203 +1,362 @@
-# 🚀 MED-MNG Frontend
+# 🏥 MED-MNG - Plateforme Médicale Intelligente
+**Dernière mise à jour : 28 Juillet 2025**
 
 [![CI/CD Pipeline](https://github.com/med-mng/med-mng/actions/workflows/ci.yml/badge.svg)](https://github.com/med-mng/med-mng/actions/workflows/ci.yml)
-[![Performance](https://img.shields.io/badge/Performance-A-green)](https://lighthouse.com)
-[![Security](https://img.shields.io/badge/Security-A-green)](https://securityheaders.com)
-[![Web Vitals](https://img.shields.io/badge/Web%20Vitals-Good-green)](https://web.dev/vitals/)
-[![Uptime](https://img.shields.io/badge/Uptime-99.9%25-green)](https://status.med-mng.com)
-[![Storybook](https://img.shields.io/badge/Storybook-Ready-orange)](https://storybook.med-mng.com)
+[![Performance](https://img.shields.io/badge/Performance-B+-green)](https://lighthouse.com)
+[![Security](https://img.shields.io/badge/Security-B-orange)](https://securityheaders.com)
+[![Audit Score](https://img.shields.io/badge/Audit%20Score-85%2F100-green)](./docs/AUDIT-PLATEFORME-28-JUILLET-2025.md)
+[![Database](https://img.shields.io/badge/Database-110%20Issues-red)](https://supabase.com/dashboard/project/yaincoxihiqdksxgrsrk)
 
-## 🎯 **TICKET FRONTEND 100% TERMINÉ**
+## 🎯 **PLATEFORME PRODUCTION-READY - GRADE B+**
 
-### ✅ **PRIORITÉ 1 - PRODUCTION READY**
-- **🚀 Pipeline CI/CD** : 9 étapes complètes (sécurité → tests → deploy)
-- **🔍 Monitoring Sentry** : Erreurs JS + dashboard temps réel
-- **⚡ Web Vitals** : CLS, INP, LCP, FCP, TTFB + recommandations auto
-- **🧪 Tests E2E** : Extraction, musique, auth, API complets
-- **📊 Dashboard admin** : Monitoring extraction temps réel
+### ✅ **ÉTAT ACTUEL (28 Juillet 2025)**
+- 🏗️ **Architecture** : React + TypeScript + Supabase (Solide)
+- 🎵 **Fonctionnalités Core** : Chat IA + Génération Musicale + EDN/ECOS (Opérationnelles)
+- 🔐 **Sécurité** : Headers + Rate Limiting + Pipeline CI/CD (Configuré)
+- 🗄️ **Base de Données** : 95 tables + RLS partiel (**110 problèmes détectés** ⚠️)
+- 📚 **Documentation** : Complète et structurée
+- ⚡ **Edge Functions** : Structure présente (code non accessible actuellement)
 
-### ✅ **PRIORITÉ 2 - SÉCURITÉ & DOCS**
-- **🔒 Sécurité Grade A** : CSP strict, headers sécurisé, HSTS
-- **📚 Storybook** : Documentation composants + variantes
-- **📝 README complet** : Setup, CI/CD, badges, troubleshooting
-
-### ✅ **PRIORITÉ 3 - FINALISATION (NOUVEAU)**
-- **📡 Uptime Monitoring** : Surveillance synthétique + badges
-- **🛡️ Rate Limiting UI** : Protection brute force client-side
-- **❓ FAQ Troubleshooting** : Guide complet 9 sections
-- **🔧 Composants finaux** : `UptimeMonitor`, `ClientRateLimiter`, `TroubleshootingFAQ`
+### 🚨 **ACTIONS URGENTES REQUISES**
+- **Critique** : Corriger 2 vues Security Definer + 7 politiques RLS manquantes
+- **Important** : Sécuriser 101 fonctions SQL sans search_path
+- **Monitoring** : Vérifier accès Edge Functions
 
 ---
 
-## 🏗️ Architecture Frontend Complète
+## 🚀 Démarrage Rapide (< 5 minutes)
 
-### Monitoring & Qualité
+### 📋 Prérequis
+```bash
+Node.js 20+, pnpm 8+, Git
+```
+
+### ⚡ Installation
+```bash
+# 1. Cloner le projet
+git clone https://github.com/med-mng/med-mng.git
+cd med-mng
+
+# 2. Installer les dépendances
+pnpm install
+
+# 3. Configurer l'environnement
+cp .env.example .env
+# ➜ Éditer .env avec vos clés Supabase
+
+# 4. Lancer en développement
+pnpm dev
+```
+
+### 🌐 Accès
+- **Application** : http://localhost:5173
+- **Supabase Dashboard** : https://supabase.com/dashboard/project/yaincoxihiqdksxgrsrk
+- **Documentation** : `/docs` répertoire
+
+---
+
+## 🏗️ Architecture Technique
+
+### 📱 Frontend (React + TypeScript)
 ```
 src/
-├── components/
-│   ├── monitoring/
-│   │   ├── PerformanceMonitor.tsx     # Dashboard Web Vitals
-│   │   ├── SentryErrorMonitor.tsx     # Dashboard erreurs Sentry
-│   │   └── UptimeMonitor.tsx          # Surveillance services ⭐
-│   ├── security/
-│   │   ├── SecurityHeaders.tsx        # CSP + headers sécurisé
-│   │   └── ClientRateLimiter.tsx      # Rate limiting UI ⭐
-│   ├── documentation/
-│   │   └── TroubleshootingFAQ.tsx     # FAQ complète 9 sections ⭐
-│   └── notifications/
-│       ├── SystemAlertManager.tsx     # Alertes système
-│       ├── ExtractionFeedback.tsx     # Feedback extraction
-│       └── DataQualityMonitor.tsx     # Qualité données
-├── utils/
-│   ├── sentry.ts                      # Configuration monitoring
-│   └── webVitals.ts                   # Métriques performance
-└── stories/                           # Documentation Storybook
-    ├── Button.stories.tsx
-    └── Card.stories.tsx
+├── 📄 pages/                    # 15+ pages fonctionnelles
+│   ├── MedChat.tsx             # 💬 Chat IA médical avec sources
+│   ├── EdnComplete.tsx         # 📚 Interface EDN unifiée
+│   ├── MedMngCreate.tsx        # 🎵 Génération musicale
+│   └── Admin*.tsx              # 🛡️ Dashboards administration
+├── 🧩 components/              # Composants modulaires
+│   ├── edn/                    # Composants EDN/ECOS
+│   ├── med-mng/               # Système musical
+│   ├── admin/                  # Administration
+│   └── ui/                     # Design system (shadcn)
+├── 🔧 hooks/                   # Hooks métier spécialisés
+├── 📚 lib/                     # Utilitaires + clients sécurisés
+└── 🎨 styles/                  # Design system + Tailwind
 ```
 
-### Pipeline & Tests
+### 🗄️ Base de Données (Supabase)
+**95 tables organisées par domaine :**
+```sql
+-- 📚 Contenu Éducatif
+edn_items, edn_items_complete, ecos_situations, oic_competences
+
+-- 🎵 Système Musical MED-MNG  
+med_mng_songs, med_mng_playlists, audio_tracks, generated_music_tracks
+
+-- 👥 Gestion Utilisateurs
+profiles, med_mng_subscriptions, user_preferences, chat_conversations
+
+-- 🔐 Sécurité & Audit
+security_audit_logs, operation_logs, extraction_logs
+
+-- 📊 Analytics & Monitoring
+med_mng_user_analytics, page_analytics, monitoring_incidents
 ```
-.github/workflows/ci.yml    # Pipeline 9 étapes complet
-tests/e2e/                  # Tests End-to-End critiques
-├── extraction/             # Tests OIC/EDN/ECOS
-├── music/                  # Tests génération Suno API
-├── auth/                   # Tests RLS + JWT
-└── api/                    # Tests performance + intégrations
+
+### ⚡ Edge Functions (Supabase)
+```typescript
+// Structure configurée - Code à vérifier
+supabase/functions/
+├── med-mng-api/           # API principale
+├── openai-chat/           # Proxy IA sécurisé
+├── extract-edn-objectifs/ # Extraction OIC
+└── send-welcome-email/    # Notifications
 ```
 
 ---
 
-## 🧪 Tests & Qualité (100% Coverage)
+## 🎵 Fonctionnalités Principales
 
-### Tests E2E Complets ✅
-- **Extraction** : OIC/EDN/ECOS edge functions + UI validation
-- **Musique** : Génération Suno API + pipeline complet + erreurs
-- **Auth** : RLS, JWT, permissions Supabase + flows UI
-- **API** : Performance < 3s, intégrations, CORS, rate limiting
+### 💬 Chat IA Médical Intelligent
+- **IA Conversationnelle** : Questions médicales avec sources automatiques
+- **Sources Officielles** : Référentiels EDN/ECOS intégrés
+- **Interface Moderne** : Design glassmorphism + animations Framer Motion
+- **Historique** : Sauvegarde des conversations
 
-### Pipeline CI/CD 9 Étapes ✅
-1. **🔒 Security Audit** - TruffleHog secrets scan
-2. **🧹 Lint & TypeCheck** - ESLint + TypeScript strict
-3. **🧪 Frontend Tests** - Jest + coverage Codecov
-4. **🎭 E2E Tests** - Playwright tous navigateurs
-5. **🏗️ Build Validation** - Vite build + bundle analysis
-6. **⚡ Performance Audit** - Lighthouse CI (scores min 80/90%)
-7. **🐳 Docker Security** - Trivy scan CRITICAL/HIGH
-8. **🚀 Deploy Auto** - Staging (main) + Production (release)
-9. **🏥 Health Checks** - Post-deploy validation
+### 🎼 Génération Musicale Thérapeutique
+- **Suno API** : Génération musicale IA de qualité professionnelle
+- **Playlists Médicales** : Organisation par spécialités
+- **Analytics d'Écoute** : Suivi détaillé des habitudes
+- **Système d'Abonnements** : Plans freemium et premium
 
----
+### 📚 Contenu Éducatif EDN/ECOS
+- **Interface Unifiée** : Navigation fluide entre les items
+- **Paroles Musicales** : Transformation des cours en chansons
+- **Mode Immersif** : Apprentissage gamifié
+- **Audit Automatique** : Validation qualité du contenu
 
-## 🔒 Sécurité Grade A
-
-### Headers Sécurisé ✅
-- **CSP Strict** : Content-Security-Policy configuré
-- **HSTS** : Force HTTPS + preload
-- **Anti-XSS** : X-XSS-Protection + X-Frame-Options DENY
-- **Anti-Sniffing** : X-Content-Type-Options nosniff
-- **Permissions** : Camera/Microphone/Geolocation disabled
-
-### Rate Limiting Client ✅
-- **Protection Brute Force** : 3 tentatives connexion/15min
-- **API Quotas** : Génération musicale 5/min, extraction 10/5min
-- **UI Feedback** : Alertes temps réel + countdown reset
-- **Monitoring** : Historique tentatives + statistiques
+### 🛡️ Administration Complète
+- **Dashboards Temps Réel** : Monitoring extraction + utilisateurs
+- **Système d'Alertes** : Notifications intelligentes
+- **Audit de Sécurité** : Scan automatique + rapports
+- **Gestion des Quotas** : Rate limiting + métriques
 
 ---
 
-## 📊 Monitoring Production
+## 🔐 Sécurité & Conformité
 
-### Performance Temps Réel ✅
-- **Web Vitals** : CLS < 0.1, INP < 200ms, LCP < 2.5s, FCP < 1.8s, TTFB < 800ms
-- **Score Global** : Calcul automatique + recommandations
-- **Lighthouse CI** : Validation automatique scores min
-- **Bundle Analysis** : Contrôle taille + tree-shaking
+### 🛡️ Mesures Implémentées ✅
+```typescript
+// Headers de sécurité configurés
+Content-Security-Policy: "default-src 'self'"
+X-Frame-Options: DENY
+Strict-Transport-Security: max-age=31536000
 
-### Surveillance Services ✅
-- **Uptime Monitor** : Frontend, Supabase, Edge Functions, Sentry
-- **Health Checks** : Response time + disponibilité 99.9%
-- **Incidents** : Historique + alertes dégradations
-- **Badges Statut** : Intégration README + page publique
+// Rate limiting multi-niveaux
+Auth: 3 tentatives/15min
+API: 100 req/min
+Music: 5 générations/min
+```
 
-### Erreurs & Debug ✅
-- **Sentry Integration** : Capture JS errors + tracing
-- **Error Dashboard** : Classification + context utilisateur
-- **Breadcrumbs** : Traçage actions utilisateur
-- **FAQ Debug** : 9 sections troubleshooting complet
+### 🚨 Problèmes Identifiés (110 Issues Supabase)
+- **2 CRITIQUES** : Security Definer Views non sécurisées
+- **7 RLS** : Tables sans politiques d'accès
+- **101 FONCTIONS** : search_path non sécurisé
+- **Autres** : OTP expiry + protection mots de passe
+
+### 📋 Plan de Correction
+1. **Semaine 1** : Corriger vues critiques + RLS manquantes
+2. **Semaine 2** : Sécuriser toutes les fonctions SQL
+3. **Semaine 3** : Audit complet + tests de pénétration
 
 ---
 
-## 📚 Documentation Développeur
+## 🧪 Tests & Qualité
 
-### Storybook Complet ✅
-- **Components** : Button, Card + toutes variantes
-- **Stories** : Cas d'usage MED-MNG spécifiques
-- **Documentation** : Auto-générée + exemples interactifs
-- **Addons** : Essentials, A11y, Interactions
+### 🎭 Tests E2E (Playwright)
+```bash
+# Lancer tous les tests
+pnpm test:e2e
 
-### FAQ Troubleshooting ✅
-- **9 Sections** : Installation, Development, Debugging, Deployment
-- **Priorités** : High/Medium/Low + filtres catégories
-- **Recherche** : Full-text + tags
-- **Liens Utiles** : GitHub Issues, Supabase Dashboard, Lovable Docs
+# Tests par domaine
+pnpm test:e2e:extraction    # Tests extraction OIC/EDN
+pnpm test:e2e:music        # Tests génération Suno
+pnpm test:e2e:auth         # Tests authentification
+pnpm test:e2e:admin        # Tests dashboards admin
+```
 
-### Guides Complets ✅
-- **Setup Local** : Node.js 20+, pnpm 8+, variables env
-- **Debug Pipeline** : Étapes diagnostic CI/CD + logs
-- **Performance** : Web Vitals optimization + Lighthouse
-- **Sécurité** : CSP configuration + headers audit
+### 🔍 Audit & Monitoring
+```bash
+# Audit complet automatisé
+./scripts/audit-global.sh
+
+# Monitoring sécurité temps réel
+./scripts/security-validation.js
+
+# Performance & métriques
+./scripts/performance-tests.sh
+```
+
+### 📊 Pipeline CI/CD (9 Étapes)
+1. 🔒 **Security Scan** : TruffleHog + secrets
+2. 🧹 **Lint & Type** : ESLint + TypeScript strict
+3. 🧪 **Unit Tests** : Jest + coverage
+4. 🎭 **E2E Tests** : Playwright multi-navigateurs
+5. 🏗️ **Build** : Vite + bundle analysis
+6. ⚡ **Performance** : Lighthouse CI
+7. 🐳 **Security** : Trivy Docker scan
+8. 🚀 **Deploy** : Auto staging/production
+9. 🏥 **Health Check** : Post-deploy validation
+
+---
+
+## 📊 Monitoring & Analytics
+
+### 📈 Métriques Temps Réel
+- **Performance** : Web Vitals + Core metrics
+- **Utilisateurs** : Analytics d'engagement
+- **Sécurité** : Tentatives d'intrusion + violations
+- **Business** : Conversions + rétention
+
+### 🔔 Système d'Alertes
+- **Sentry** : Erreurs JavaScript + tracing
+- **Discord/Slack** : Notifications incidents
+- **Email** : Rapports hebdomadaires
+- **Dashboard** : Monitoring centralisé
+
+### 📊 Dashboards Disponibles
+- **`/admin`** : Administration générale
+- **`/admin/audit`** : Audit système complet
+- **`/admin/extract-edn`** : Monitoring extractions
+- **`/med-mng/analytics`** : Analytics musicales
 
 ---
 
 ## 🚀 Déploiement & Environnements
 
-### Auto-Déploiement ✅
-- **Development** : Local hot reload
-- **Staging** : Auto-deploy push `main` + health checks
-- **Production** : Auto-deploy `release` + monitoring
+### 🌍 Environnements
+```bash
+# Development (Local)
+pnpm dev                    # http://localhost:5173
 
-### Badges README ✅
-- **Pipeline** : Build status temps réel
-- **Performance** : Score Lighthouse
-- **Sécurité** : Grade securityheaders.com
-- **Uptime** : Disponibilité services
-- **Storybook** : Documentation à jour
+# Staging (Auto-deploy main)
+git push origin main        # Deploy automatique
 
----
+# Production (Release tags)
+git tag v1.x.x && git push  # Deploy production
+```
 
-## 📈 Métriques & KPIs
+### 📦 Variables d'Environnement
+```bash
+# Supabase (Obligatoire)
+VITE_SUPABASE_URL=https://yaincoxihiqdksxgrsrk.supabase.co
+VITE_SUPABASE_ANON_KEY=eyJhbGc...
 
-### Critères de Succès 100% ✅
-- ✅ Pipeline CI/CD auto + blocking + badges visibles
-- ✅ Aucun merge sans tests/lint/build OK
-- ✅ Monitoring live Sentry + Web Vitals + Uptime
-- ✅ Dashboard admin extraction temps réel production-ready
-- ✅ README + Storybook + FAQ complète + troubleshooting
-- ✅ UX robuste, zero bugs silencieux
-- ✅ Sécurité Grade A, CSP + headers optimaux
-- ✅ Rate limiting protection + FAQ troubleshooting
+# APIs Externes
+SUNO_API_KEY=your_suno_key              # Génération musicale
+OPENAI_API_KEY=your_openai_key          # Chat IA
+RESEND_API_KEY=your_resend_key          # Emails
 
-### Livrables Finaux ✅
-- ✅ Workflow CI/CD 9 étapes + badges README
-- ✅ Tests E2E + unitaires frontend complets
-- ✅ Dashboard admin React extraction + logs + alertes
-- ✅ Monitoring Sentry + Web Vitals + Uptime synthétique
-- ✅ README + Storybook + FAQ troubleshooting complet
-- ✅ Composants Alert/Error réutilisables + reporting
-- ✅ Rate limiting client + protection brute force
-- ✅ Documentation développeur complète
+# Authentification CAS (Extraction)
+CAS_USERNAME=your_cas_user
+CAS_PASSWORD=your_cas_pass
+
+# Monitoring (Optionnel)
+SENTRY_DSN=your_sentry_dsn
+DISCORD_WEBHOOK_URL=your_discord_webhook
+```
 
 ---
 
-## 🎉 **TICKET FRONTEND 100% TERMINÉ !**
+## 📚 Documentation Complète
 
-**Frontend MED-MNG est maintenant PRODUCTION-READY niveau SaaS Premium :**
-- ✅ Qualité UI/UX/QA irréprochable
-- ✅ Monitoring et feedback live complet
-- ✅ Onboarding express avec FAQ troubleshooting
-- ✅ Documentation à jour (README + Storybook + FAQ)
-- ✅ Sécurité frontend Grade A exemplaire
-- ✅ Automatisation et industrialisation totale pipeline
+### 📖 Guides Développeur
+- [`docs/AUDIT-PLATEFORME-28-JUILLET-2025.md`](./docs/AUDIT-PLATEFORME-28-JUILLET-2025.md) - Audit complet actuel
+- [`docs/CI-CD-PIPELINE.md`](./docs/CI-CD-PIPELINE.md) - Configuration pipeline
+- [`docs/axe5-security.md`](./docs/axe5-security.md) - Guide sécurité
+- [`docs/E2E-TESTS.md`](./docs/E2E-TESTS.md) - Tests end-to-end
 
-**Tous les sous-tickets et actions réalisés - Objectif atteint !** 🚀
+### 🔧 Scripts Utilitaires
+- [`scripts/audit-global.sh`](./scripts/audit-global.sh) - Audit automatisé complet
+- [`scripts/security-validation.js`](./scripts/security-validation.js) - Validation sécurité
+- [`scripts/performance-tests.sh`](./scripts/performance-tests.sh) - Tests performance
+
+### 📋 Troubleshooting
+- [`docs/FAQ.md`](./docs/FAQ.md) - Questions fréquentes
+- **Component Storybook** : Documentation composants interactifs
+- **Debug Pipeline** : Guides diagnostique CI/CD
+
+---
+
+## 🤝 Contribution & Support
+
+### 🐛 Signaler un Bug
+1. **Vérifier** : Issues existantes GitHub
+2. **Reproduire** : Steps détaillés
+3. **Logs** : Console + network + Sentry
+4. **Environnement** : Browser + OS + version
+
+### 💡 Proposer une Feature
+1. **Discussion** : GitHub Discussions
+2. **RFC** : Document détaillé
+3. **Prototype** : POC si possible
+4. **Pull Request** : Code + tests + docs
+
+### 📞 Contacts
+- **GitHub Issues** : Bugs + features
+- **Discord** : Community support
+- **Email** : Security issues
+- **Supabase Dashboard** : Database monitoring
+
+---
+
+## 🎯 Roadmap 2025
+
+### 🚨 Q3 2025 (Critique - 90 jours)
+- [ ] **Sécurité** : Correction 110 problèmes Supabase
+- [ ] **Edge Functions** : Diagnostic + réparation accès
+- [ ] **Performance** : Optimisation + monitoring avancé
+- [ ] **Tests** : Couverture E2E complète
+
+### 🚀 Q4 2025 (Innovation)
+- [ ] **IA Avancée** : GPT-4 + vision + multimodal
+- [ ] **Mobile App** : React Native + push notifications
+- [ ] **API Publique** : RESTful + GraphQL
+- [ ] **Marketplace** : Plugins + extensions
+
+### 🌍 2026 (Expansion)
+- [ ] **Internationalisation** : Multi-langues + locales
+- [ ] **Institutions** : Déploiement universités
+- [ ] **Certifications** : Conformité médicale
+- [ ] **Scale** : Architecture microservices
+
+---
+
+## 📈 Métriques de Succès
+
+### 🎯 KPIs Techniques
+- **Uptime** : > 99.9%
+- **Performance** : Lighthouse > 90
+- **Security** : 0 vulnérabilités critiques
+- **Coverage** : Tests > 80%
+
+### 👥 KPIs Utilisateurs  
+- **Engagement** : Temps session > 15min
+- **Rétention** : 7 jours > 40%
+- **Satisfaction** : NPS > 50
+- **Conversion** : Free to paid > 15%
+
+### 💼 KPIs Business
+- **ARR** : Annual Recurring Revenue
+- **CAC** : Customer Acquisition Cost
+- **LTV** : Lifetime Value
+- **Churn** : Monthly < 5%
+
+---
+
+## 🏆 **RÉSUMÉ PLATEFORME**
+
+**MED-MNG est une plateforme médicale intelligente production-ready avec :**
+- ✅ **Architecture robuste** : React + TypeScript + Supabase
+- ✅ **Fonctionnalités complètes** : Chat IA + Musique + EDN/ECOS + Admin
+- ✅ **Sécurité configurée** : Headers + Rate limiting + Pipeline CI/CD
+- ⚠️ **Base de données** : 110 problèmes de sécurité à corriger rapidement
+- ✅ **Documentation** : Complète et maintenue à jour
+- ✅ **Monitoring** : Dashboards temps réel + alertes intelligentes
+
+**Grade actuel : B+ (85/100) - Correction sécurité BDD urgente pour Grade A**
+
+---
+
+*Dernière mise à jour : 28 Juillet 2025 - [Audit complet](./docs/AUDIT-PLATEFORME-28-JUILLET-2025.md)*
