@@ -1646,6 +1646,7 @@ export type Database = {
           id: string
           image_url: string | null
           metadata: Json | null
+          original_task_id: string | null
           stream_url: string | null
           suno_track_id: string | null
           task_id: string | null
@@ -1661,6 +1662,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           metadata?: Json | null
+          original_task_id?: string | null
           stream_url?: string | null
           suno_track_id?: string | null
           task_id?: string | null
@@ -1676,6 +1678,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           metadata?: Json | null
+          original_task_id?: string | null
           stream_url?: string | null
           suno_track_id?: string | null
           task_id?: string | null
