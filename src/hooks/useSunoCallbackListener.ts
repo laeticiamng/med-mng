@@ -15,15 +15,15 @@ export const useSunoCallbackListener = () => {
     // Écouter les callbacks Suno via un endpoint spécial
     const pollForCallbacks = async () => {
       try {
-        // Vérifier s'il y a des nouvelles musiques disponibles dans les 2 dernières minutes
-        const twoMinutesAgo = new Date(Date.now() - 2 * 60 * 1000).toISOString();
+        // Vérifier s'il y a des nouvelles musiques disponibles dans les 30 dernières minutes
+        const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000).toISOString();
         
         const { data: recentTracks } = await supabase
           .from('generated_music_tracks')
           .select('*')
           .eq('generation_status', 'completed')
           .not('audio_url', 'is', null)
-          .gte('created_at', twoMinutesAgo)
+          .gte('created_at', thirtyMinutesAgo)
           .order('created_at', { ascending: false })
           .limit(30);
 
