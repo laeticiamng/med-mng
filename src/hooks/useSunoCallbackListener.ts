@@ -15,15 +15,15 @@ export const useSunoCallbackListener = () => {
     // Écouter les callbacks Suno via un endpoint spécial
     const pollForCallbacks = async () => {
       try {
-        // Vérifier s'il y a des nouvelles musiques disponibles dans les 30 dernières minutes
-        const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000).toISOString();
+        // Vérifier s'il y a des nouvelles musiques disponibles dans les 10 dernières secondes
+        const tenSecondsAgo = new Date(Date.now() - 10 * 1000).toISOString();
         
         const { data: recentTracks } = await supabase
           .from('generated_music_tracks')
           .select('*')
           .eq('generation_status', 'completed')
           .not('audio_url', 'is', null)
-          .gte('created_at', thirtyMinutesAgo)
+          .gte('created_at', tenSecondsAgo)
           .order('created_at', { ascending: false })
           .limit(30);
 
@@ -58,7 +58,10 @@ export const useSunoCallbackListener = () => {
                 const newState = {
                   ...prev,
                   [trackKey]: track.audio_url,
-                  [rang]: track.audio_url // Clé simple pour compatibilité
+                  [rang]: track.audio_url, // Clé simple pour compatibilité
+                  // AJOUT CRUCIAL : aussi avec la clé simple A/B pour l'interface
+                  rangA: rang === 'A' ? track.audio_url : prev.rangA,
+                  rangB: rang === 'B' ? track.audio_url : prev.rangB
                 };
                 console.log('🔄 État completedAudio mis à jour:', newState);
                 return newState;
@@ -82,8 +85,8 @@ export const useSunoCallbackListener = () => {
       }
     };
 
-    // Vérifier toutes les 3 secondes (plus rapide pour détecter les nouveaux tracks)
-    const interval = setInterval(pollForCallbacks, 3000);
+    // Vérifier TRÈS fréquemment (toutes les secondes) pour un affichage quasi-immédiat
+    const interval = setInterval(pollForCallbacks, 1000);
     
     // Vérification initiale
     pollForCallbacks();
