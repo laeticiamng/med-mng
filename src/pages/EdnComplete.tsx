@@ -395,16 +395,16 @@ export default function EdnComplete() {
                     try {
                       toast({
                         title: "🚀 Génération en cours",
-                        description: "Génération des paroles pour tous les items EDN..."
+                        description: "Génération des paroles style Nekfeu pour tous les items EDN..."
                       });
                       
-                      const { data, error } = await supabase.functions.invoke('update-edn-unique-content');
-                      
-                      if (error) throw error;
+                      // Utiliser notre système de génération avancée
+                      const { generateAllAdvancedLyrics } = await import('@/utils/generateAllAdvancedLyrics');
+                      const result = await generateAllAdvancedLyrics();
                       
                       toast({
                         title: "✅ Paroles générées",
-                        description: `Paroles créées pour ${data?.successful || 0} items`
+                        description: `${result.successful} paroles créées sur ${result.processed} items (${result.failed} échecs)`
                       });
                       
                       // Recharger les données
@@ -412,14 +412,14 @@ export default function EdnComplete() {
                     } catch (error) {
                       toast({
                         title: "❌ Erreur",
-                        description: "Échec de la génération",
+                        description: "Échec de la génération des paroles",
                         variant: "destructive"
                       });
                     }
                   }}
                   className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white"
                 >
-                  🎵 Générer toutes les paroles (367 items)
+                  🎵 Générer toutes les paroles style Nekfeu (367 items)
                 </Button>
               </div>
             </div>
