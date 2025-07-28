@@ -38,28 +38,95 @@ export const useSunoPolling = () => {
       console.log('🔍 Vérification statut pour trackId:', track.trackId);
       
       // 1. D'abord vérifier en BDD locale avec plusieurs critères
+      console.log(`🔍 Recherche du track ${track.trackId} dans la DB...`);
       const { data: dbTracks, error: dbError } = await supabase
         .from('generated_music_tracks')
         .select('*')
         .or(`task_id.eq.${track.trackId},suno_track_id.eq.${track.trackId},original_task_id.eq.${track.trackId}`);
         
-      const dbTrack = dbTracks?.[0];
+      console.log(`📋 ${dbTracks?.length || 0} tracks trouvés dans la DB pour ${track.trackId}`);
+      
+      if (dbTracks && dbTracks.length > 0) {
+        const completedTrack = dbTracks.find(t => t.generation_status === 'completed' && t.audio_url);
+        if (completedTrack) {
+          console.log('✅ Track terminé trouvé dans la DB:', track.trackId, '-> URL:', completedTrack.audio_url);
+          
+          setCompletedAudio(prev => ({
+            ...prev,
+            [track.rang]: completedTrack.audio_url
+          }));
 
-      if (dbTrack && dbTrack.audio_url && dbTrack.generation_status === 'completed') {
-        console.log('✅ Track complété trouvé en BDD:', track.trackId, 'URL:', dbTrack.audio_url);
+          toast({
+            title: `🎉 ${track.itemCode} Rang ${track.rang} prêt !`,
+            description: `🎵 Votre musique est maintenant disponible`,
+            duration: 5000,
+          });
+
+          return true;
+        } else {
+          console.log(`⏳ Track trouvé mais pas encore terminé: ${track.trackId}`);
+          const pendingTrack = dbTracks[0];
+          if (pendingTrack.generation_status) {
+            console.log(`📊 Statut actuel: ${pendingTrack.generation_status}`);
+          }
+          // Vérifier si on a des tracks récents avec le même rang et item_code
+          const recentCompletedTrack = dbTracks.find(t => 
+            t.generation_status === 'completed' && 
+            t.audio_url && 
+            new Date(t.created_at).getTime() > Date.now() - 10 * 60 * 1000 // 10 minutes
+          );
+          if (recentCompletedTrack) {
+            console.log('🎯 Track récent complété trouvé, on l\'utilise');
+            setCompletedAudio(prev => ({
+              ...prev,
+              [track.rang]: recentCompletedTrack.audio_url
+            }));
+
+            toast({
+              title: `🎉 ${track.itemCode} Rang ${track.rang} prêt !`,
+              description: `🎵 Votre musique est maintenant disponible`,
+              duration: 5000,
+            });
+
+            return true;
+          }
+        }
+      } else {
+        console.log(`❌ Aucun track trouvé dans la DB pour: ${track.trackId}`);
         
-        setCompletedAudio(prev => ({
-          ...prev,
-          [track.rang]: dbTrack.audio_url
-        }));
+        // Chercher des tracks récents du même item_code et rang
+        const { data: recentTracks } = await supabase
+          .from('generated_music_tracks')
+          .select('*')
+          .eq('generation_status', 'completed')
+          .not('audio_url', 'is', null)
+          .gte('created_at', new Date(Date.now() - 10 * 60 * 1000).toISOString())
+          .order('created_at', { ascending: false })
+          .limit(5);
+          
+        if (recentTracks && recentTracks.length > 0) {
+          console.log(`🔍 ${recentTracks.length} tracks récents trouvés, recherche de correspondance pour ${track.rang}`);
+          const matchingTrack = recentTracks.find(t => {
+            const metadata = t.metadata as any;
+            return metadata?.rang === track.rang || metadata?.title?.includes(`Rang ${track.rang}`);
+          });
+          
+          if (matchingTrack) {
+            console.log('🎯 Track correspondant trouvé via recherche récente !');
+            setCompletedAudio(prev => ({
+              ...prev,
+              [track.rang]: matchingTrack.audio_url
+            }));
 
-        toast({
-          title: `🎉 ${track.itemCode} Rang ${track.rang} prêt !`,
-          description: `🎵 Votre musique est maintenant disponible`,
-          duration: 5000,
-        });
+            toast({
+              title: `🎉 ${track.itemCode} Rang ${track.rang} prêt !`,
+              description: `🎵 Votre musique est maintenant disponible`,
+              duration: 5000,
+            });
 
-        return true;
+            return true;
+          }
+        }
       }
 
       // 2. Si pas trouvé en BDD, vérifier directement via l'API Suno
@@ -76,7 +143,8 @@ export const useSunoPolling = () => {
           console.log('✅ Track complété via API Suno:', track.trackId, 'URL:', statusData.audioUrl);
           
           // Mettre à jour la BDD avec le résultat - correction de l'erreur spread
-          const existingMetadata = dbTrack?.metadata || {};
+          const existingTrack = dbTracks?.[0];
+          const existingMetadata = existingTrack?.metadata || {};
           const newMetadata = {
             ...(typeof existingMetadata === 'object' && existingMetadata !== null ? existingMetadata : {}),
             stream_url: statusData.streamUrl,
