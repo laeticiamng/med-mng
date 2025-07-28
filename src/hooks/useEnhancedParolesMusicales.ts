@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useMusicGenerationWithTranslation } from '@/hooks/useMusicGenerationWithTranslation';
 import { useGlobalAudio } from '@/contexts/GlobalAudioContext';
+import { useSunoCallbackListener } from '@/hooks/useSunoCallbackListener';
 
 export const useEnhancedParolesMusicales = (
   paroles: string[] = [], 
@@ -33,6 +34,9 @@ export const useEnhancedParolesMusicales = (
     changeVolume,
     stop
   } = useGlobalAudio();
+
+  // Écouter les musiques terminées via callbacks Suno
+  const { completedAudio: callbackAudio } = useSunoCallbackListener();
 
   // Utiliser les vraies paroles de la base de données pour chaque rang
   const generateCombinedLyrics = (): string[] => {
@@ -128,12 +132,18 @@ Pour une expertise qui se rassemble`;
     }
   };
 
-  // Organiser les audios générés par version
+  // Organiser les audios générés par version en fusionnant avec les callbacks
   const organizedAudio = {
-    rangA: generatedAudio.rangA,
-    rangB: generatedAudio.rangB,
-    rangAB: generatedAudio.rangAB || null // Utiliser la version AB spécifique
+    rangA: generatedAudio.rangA || callbackAudio.A || null,
+    rangB: generatedAudio.rangB || callbackAudio.B || null,
+    rangAB: generatedAudio.rangAB || callbackAudio.AB || null
   };
+
+  console.log('🎵 AUDIT AUDIO FINAL:', {
+    generatedAudio,
+    callbackAudio, 
+    organizedAudio
+  });
 
   return {
     selectedStyle,
