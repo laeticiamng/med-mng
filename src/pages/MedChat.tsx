@@ -299,7 +299,7 @@ Posez-moi n'importe quelle question ou choisissez une suggestion ci-dessous !`,
                             <>
                               <p className="whitespace-pre-wrap leading-relaxed">{message.content}</p>
                               
-                              {/* Citations Enhanced */}
+                              {/* Citations Enhanced - TOUJOURS AFFICHÉES */}
                               {message.courseCitations && message.courseCitations.length > 0 && (
                                 <div className="mt-4 pt-4 border-t border-gray-200">
                                   <p className="text-xs font-medium text-gray-600 mb-2 flex items-center gap-1">
@@ -308,7 +308,8 @@ Posez-moi n'importe quelle question ou choisissez une suggestion ci-dessous !`,
                                   </p>
                                   <div className="space-y-2">
                                     {message.courseCitations.map((citation, index) => (
-                                      <div key={index} className="text-xs bg-blue-50 text-blue-700 px-3 py-1 rounded-full border border-blue-200">
+                                      <div key={index} className="text-xs bg-blue-50 text-blue-700 px-3 py-1 rounded-full border border-blue-200 flex items-center gap-2">
+                                        <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
                                         {citation}
                                       </div>
                                     ))}

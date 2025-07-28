@@ -162,9 +162,14 @@ Réponds en français et de manière structurée.`;
         throw error;
       }
 
+      // S'assurer qu'il y a toujours au moins une source
+      const finalCitations = courseCitations.length > 0 
+        ? courseCitations 
+        : ['MED-MNG IA - Assistant médical basé sur les référentiels officiels EDN/ECOS'];
+
       const response: ChatResponse = {
         content: data.content || "Je n'ai pas pu générer une réponse. Veuillez réessayer.",
-        courseCitations: courseCitations.length > 0 ? courseCitations : undefined
+        courseCitations: finalCitations
       };
 
       // Sauvegarder les messages dans la base de données si une conversation est active
