@@ -29,19 +29,27 @@ export const useSunoCallbackListener = () => {
             const metadata = track.metadata as any;
             const rang = metadata?.rang || 'A';
             
+            // Vérifier si c'est un nouveau track (pas encore dans completedAudio)
             if (track.audio_url && !completedAudio[rang]) {
               console.log('🎵 Nouvelle musique détectée:', track.audio_url);
+              console.log('🎵 Track metadata:', metadata);
               
               setCompletedAudio(prev => ({
                 ...prev,
                 [rang]: track.audio_url
               }));
 
-              toast({
-                title: `🎉 Musique Rang ${rang} prête !`,
-                description: `🎵 Votre musique est maintenant disponible`,
-                duration: 5000,
-              });
+              // Afficher notification seulement si c'est vraiment nouveau
+              const isNewTrack = metadata?.created_via_callback || 
+                                (track.updated_at && new Date(track.updated_at) > new Date(Date.now() - 30000));
+              
+              if (isNewTrack) {
+                toast({
+                  title: `🎉 Musique Rang ${rang} prête !`,
+                  description: `🎵 Votre musique est maintenant disponible`,
+                  duration: 5000,
+                });
+              }
             }
           });
         }
@@ -50,8 +58,8 @@ export const useSunoCallbackListener = () => {
       }
     };
 
-    // Vérifier toutes les 5 secondes
-    const interval = setInterval(pollForCallbacks, 5000);
+    // Vérifier toutes les 3 secondes (plus rapide pour détecter les nouveaux tracks)
+    const interval = setInterval(pollForCallbacks, 3000);
     
     // Vérification initiale
     pollForCallbacks();
