@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { generateAllLyrics } from '@/utils/generateAllLyrics'
+import { generateAllAdvancedLyrics } from '@/utils/generateAllAdvancedLyrics'
 import { useToast } from '@/hooks/use-toast'
 
 export const GenerateLyricsButton = () => {
@@ -10,7 +10,7 @@ export const GenerateLyricsButton = () => {
   const handleGenerate = async () => {
     setIsGenerating(true)
     try {
-      const result = await generateAllLyrics()
+      const result = await generateAllAdvancedLyrics()
       toast({
         title: "✅ Génération terminée",
         description: `Paroles générées pour ${result.successful || 0} items sur ${result.processed || 0}`,
@@ -32,7 +32,7 @@ export const GenerateLyricsButton = () => {
       disabled={isGenerating}
       className="bg-primary text-primary-foreground"
     >
-      {isGenerating ? "🔄 Génération en cours..." : "🎵 Générer toutes les paroles (367 items)"}
+      {isGenerating ? "🔄 Génération en cours..." : "🎵 Générer paroles style Nekfeu (367 items)"}
     </Button>
   )
 }
