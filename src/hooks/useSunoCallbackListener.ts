@@ -44,21 +44,34 @@ export const useSunoCallbackListener = () => {
             
             // Vérifier si c'est un nouveau track (pas encore notifié)
             if (track.audio_url && !completedAudio[trackKey]) {
-              console.log(`🎵 Nouvelle musique détectée Rang ${rang}:`, track.audio_url);
-              console.log('📋 Track complet:', track);
+              console.log(`🎵 NOUVELLE MUSIQUE DÉTECTÉE! Rang ${rang}:`, track.audio_url);
+              console.log('📋 Track complet:', {
+                id: track.id,
+                title: track.title,
+                audio_url: track.audio_url,
+                task_id: track.task_id,
+                suno_track_id: track.suno_track_id,
+                rang: rang
+              });
               
-              setCompletedAudio(prev => ({
-                ...prev,
-                [trackKey]: track.audio_url,
-                [rang]: track.audio_url // Aussi garder la clé simple pour compatibilité
-              }));
+              setCompletedAudio(prev => {
+                const newState = {
+                  ...prev,
+                  [trackKey]: track.audio_url,
+                  [rang]: track.audio_url // Clé simple pour compatibilité
+                };
+                console.log('🔄 État completedAudio mis à jour:', newState);
+                return newState;
+              });
 
-              // Toujours afficher la notification pour les tracks complétés
+              // Notification de succès
               toast({
                 title: `🎉 Musique Rang ${rang} terminée !`,
-                description: `🎵 Votre génération est maintenant disponible`,
-                duration: 6000,
+                description: `🎵 ${track.title} est maintenant disponible`,
+                duration: 8000,
               });
+            } else if (completedAudio[trackKey]) {
+              console.log(`⚠️ Track déjà notifié: ${trackKey}`);
             }
           });
         } else {
