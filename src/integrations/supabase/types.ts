@@ -2653,6 +2653,65 @@ export type Database = {
         }
         Relationships: []
       }
+      med_mng_generation_alerts: {
+        Row: {
+          acknowledged: boolean | null
+          acknowledged_at: string | null
+          acknowledged_by: string | null
+          actual_value: number | null
+          alert_type: string
+          created_at: string | null
+          generation_log_id: string | null
+          id: string
+          message: string
+          metadata: Json | null
+          resolved: boolean | null
+          resolved_at: string | null
+          severity: string
+          threshold_value: number | null
+        }
+        Insert: {
+          acknowledged?: boolean | null
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          actual_value?: number | null
+          alert_type: string
+          created_at?: string | null
+          generation_log_id?: string | null
+          id?: string
+          message: string
+          metadata?: Json | null
+          resolved?: boolean | null
+          resolved_at?: string | null
+          severity?: string
+          threshold_value?: number | null
+        }
+        Update: {
+          acknowledged?: boolean | null
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          actual_value?: number | null
+          alert_type?: string
+          created_at?: string | null
+          generation_log_id?: string | null
+          id?: string
+          message?: string
+          metadata?: Json | null
+          resolved?: boolean | null
+          resolved_at?: string | null
+          severity?: string
+          threshold_value?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "med_mng_generation_alerts_generation_log_id_fkey"
+            columns: ["generation_log_id"]
+            isOneToOne: false
+            referencedRelation: "med_mng_music_generation_logs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       med_mng_listening_events: {
         Row: {
           event_type: string
@@ -2682,6 +2741,84 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      med_mng_listening_sessions: {
+        Row: {
+          browser_info: Json | null
+          buffer_events: number | null
+          bytes_streamed: number | null
+          completion_percentage: number | null
+          connection_quality: string | null
+          created_at: string | null
+          device_type: string | null
+          duration_seconds: number | null
+          id: string
+          next_song_id: string | null
+          playback_source: string | null
+          playlist_id: string | null
+          previous_song_id: string | null
+          seek_events: number | null
+          session_end: string | null
+          session_start: string | null
+          song_id: string
+          user_id: string | null
+        }
+        Insert: {
+          browser_info?: Json | null
+          buffer_events?: number | null
+          bytes_streamed?: number | null
+          completion_percentage?: number | null
+          connection_quality?: string | null
+          created_at?: string | null
+          device_type?: string | null
+          duration_seconds?: number | null
+          id?: string
+          next_song_id?: string | null
+          playback_source?: string | null
+          playlist_id?: string | null
+          previous_song_id?: string | null
+          seek_events?: number | null
+          session_end?: string | null
+          session_start?: string | null
+          song_id: string
+          user_id?: string | null
+        }
+        Update: {
+          browser_info?: Json | null
+          buffer_events?: number | null
+          bytes_streamed?: number | null
+          completion_percentage?: number | null
+          connection_quality?: string | null
+          created_at?: string | null
+          device_type?: string | null
+          duration_seconds?: number | null
+          id?: string
+          next_song_id?: string | null
+          playback_source?: string | null
+          playlist_id?: string | null
+          previous_song_id?: string | null
+          seek_events?: number | null
+          session_end?: string | null
+          session_start?: string | null
+          song_id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "med_mng_listening_sessions_song_id_fkey"
+            columns: ["song_id"]
+            isOneToOne: false
+            referencedRelation: "med_mng_songs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "med_mng_listening_sessions_song_id_fkey"
+            columns: ["song_id"]
+            isOneToOne: false
+            referencedRelation: "med_mng_view_library"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       med_mng_lyrics_access_logs: {
         Row: {
@@ -2718,6 +2855,99 @@ export type Database = {
           },
           {
             foreignKeyName: "med_mng_lyrics_access_logs_song_id_fkey"
+            columns: ["song_id"]
+            isOneToOne: false
+            referencedRelation: "med_mng_view_library"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      med_mng_music_generation_logs: {
+        Row: {
+          audio_url: string | null
+          completed_at: string | null
+          created_at: string | null
+          credits_consumed: number | null
+          error_message: string | null
+          generation_duration_seconds: number | null
+          generation_status: string | null
+          generation_type: string
+          id: string
+          item_code: string
+          processing_time_seconds: number | null
+          prompt_used: string | null
+          queue_time_seconds: number | null
+          request_ip: unknown | null
+          request_metadata: Json | null
+          song_id: string | null
+          started_at: string | null
+          style_tags: string | null
+          success: boolean | null
+          suno_model_used: string | null
+          suno_task_id: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          audio_url?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          credits_consumed?: number | null
+          error_message?: string | null
+          generation_duration_seconds?: number | null
+          generation_status?: string | null
+          generation_type: string
+          id?: string
+          item_code: string
+          processing_time_seconds?: number | null
+          prompt_used?: string | null
+          queue_time_seconds?: number | null
+          request_ip?: unknown | null
+          request_metadata?: Json | null
+          song_id?: string | null
+          started_at?: string | null
+          style_tags?: string | null
+          success?: boolean | null
+          suno_model_used?: string | null
+          suno_task_id?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          audio_url?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          credits_consumed?: number | null
+          error_message?: string | null
+          generation_duration_seconds?: number | null
+          generation_status?: string | null
+          generation_type?: string
+          id?: string
+          item_code?: string
+          processing_time_seconds?: number | null
+          prompt_used?: string | null
+          queue_time_seconds?: number | null
+          request_ip?: unknown | null
+          request_metadata?: Json | null
+          song_id?: string | null
+          started_at?: string | null
+          style_tags?: string | null
+          success?: boolean | null
+          suno_model_used?: string | null
+          suno_task_id?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "med_mng_music_generation_logs_song_id_fkey"
+            columns: ["song_id"]
+            isOneToOne: false
+            referencedRelation: "med_mng_songs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "med_mng_music_generation_logs_song_id_fkey"
             columns: ["song_id"]
             isOneToOne: false
             referencedRelation: "med_mng_view_library"
@@ -4923,6 +5153,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      check_slow_generations: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       clean_corrupted_edn_items: {
         Args: Record<PropertyKey, never>
         Returns: number
@@ -4993,6 +5227,18 @@ export type Database = {
       create_activity_log_cleanup_job: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      create_generation_alert: {
+        Args: {
+          p_alert_type: string
+          p_severity: string
+          p_message: string
+          p_generation_log_id?: string
+          p_threshold_value?: number
+          p_actual_value?: number
+          p_metadata?: Json
+        }
+        Returns: string
       }
       create_notification_from_template: {
         Args: {

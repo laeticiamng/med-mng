@@ -3,10 +3,11 @@ import { BandeDessineeComplete } from './BandeDessineeComplete';
 import { ValeursProfessionnellesBD } from './ValeursProfessionnellesBD';
 import { AlternativeContentFormats } from './content/AlternativeContentFormats';
 import { MasterContentViewer } from '@/components/content/MasterContentViewer';
+import { SpotifyAIPlayer } from '@/components/music/SpotifyAIPlayer';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BookOpen, FileText, Wand2, Star } from 'lucide-react';
+import { BookOpen, FileText, Wand2, Star, Music } from 'lucide-react';
 
 interface EnhancedBandeDessineeProps {
   itemData: {
@@ -48,10 +49,14 @@ export const EnhancedBandeDessinee: React.FC<EnhancedBandeDessineeProps> = ({ it
       </Card>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="contenu-master" className="flex items-center gap-2">
             <Star className="h-4 w-4" />
             Contenu Premium
+          </TabsTrigger>
+          <TabsTrigger value="spotify-ai" className="flex items-center gap-2">
+            <Music className="h-4 w-4" />
+            Spotify IA
           </TabsTrigger>
           <TabsTrigger value="bande-dessinee" className="flex items-center gap-2">
             <BookOpen className="h-4 w-4" />
@@ -65,6 +70,10 @@ export const EnhancedBandeDessinee: React.FC<EnhancedBandeDessineeProps> = ({ it
 
         <TabsContent value="contenu-master" className="space-y-6">
           <MasterContentViewer itemData={itemData} />
+        </TabsContent>
+
+        <TabsContent value="spotify-ai" className="space-y-6">
+          <SpotifyAIPlayer itemData={itemData} />
         </TabsContent>
 
         <TabsContent value="bande-dessinee" className="space-y-6">
