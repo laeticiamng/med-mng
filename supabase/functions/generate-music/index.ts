@@ -134,20 +134,23 @@ class SunoAPI {
         instrumental: options.instrumental || false,
         style: options.style || '',
         title: options.title || '',
-        model: options.model || 'chirp-v3-5', // Modèle par défaut recommandé
+        model: options.model || 'V4_5', // Modèle correct selon doc officielle
         callBackUrl: options.callBackUrl // OBLIGATOIRE selon la doc Suno
       })
     });
     
     if (!response.ok) {
-      throw new Error(`HTTP Error: ${response.status} - ${response.statusText}`);
+      const errorText = await response.text();
+      console.error('❌ Erreur HTTP Suno:', response.status, errorText);
+      throw new Error(`Erreur API Suno HTTP ${response.status}: ${errorText}`);
     }
     
     const result: SunoGenerationResponse = await response.json();
     console.log('🎵 Réponse Suno generate:', result);
     
     if (result.code !== 200) {
-      throw new Error(`API Suno Error: ${result.msg || 'Erreur inconnue'}`);
+      console.error('❌ ERREUR API SUNO:', result);
+      throw new Error(`Erreur API Suno: ${result.msg || 'Erreur inconnue'}`);
     }
     
     if (!result.data?.taskId) {
@@ -442,7 +445,7 @@ serve(async (req) => {
       // ✅ CORRECTION: Insérer seulement si userId n'est pas null
       const insertData = {
         task_id: taskId,
-        title: enhancedTitle,
+        title: optimizedTitle,
         suno_track_id: taskId,
         metadata: {
           style: style,
@@ -451,7 +454,7 @@ serve(async (req) => {
           language: language,
           itemCode: itemCode,
           model: correctModel,
-          prompt: enhancedPrompt,
+          prompt: optimizedPrompt,
           provider: 'suno',
           generatedAt: new Date().toISOString()
         },
@@ -492,13 +495,13 @@ serve(async (req) => {
       streamUrl: null,
       imageUrl: null,
       metadata: {
-        title: enhancedTitle,
+        title: optimizedTitle,
         style: style,
         duration: duration,
         mood: 'relaxing',
         tempo: 'moderate',
         model: correctModel,
-        prompt: enhancedPrompt,
+        prompt: optimizedPrompt,
         generatedAt: new Date().toISOString(),
         status: 'generating',
         estimated_duration: '2-3 minutes'
