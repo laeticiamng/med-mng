@@ -5191,6 +5191,15 @@ export type Database = {
         Args: { credits_to_add: number }
         Returns: boolean
       }
+      med_mng_log_listen: {
+        Args: {
+          song_id: string
+          duration_seconds?: number
+          completion_percentage?: number
+          device_type?: string
+        }
+        Returns: undefined
+      }
       med_mng_log_listening_event: {
         Args: {
           p_song_id: string
@@ -5221,7 +5230,7 @@ export type Database = {
         Returns: undefined
       }
       med_mng_toggle_favorite: {
-        Args: { p_song_id: string }
+        Args: { song_id: string }
         Returns: boolean
       }
       med_mng_toggle_like: {

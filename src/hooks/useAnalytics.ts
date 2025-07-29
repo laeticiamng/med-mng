@@ -52,7 +52,7 @@ export const useAnalytics = () => {
       setLoading(true);
       const { data, error } = await supabase
         .rpc('med_mng_toggle_favorite', {
-          p_song_id: songId
+          song_id: songId
         });
       
       if (error) throw error;
