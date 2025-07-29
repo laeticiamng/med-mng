@@ -5,12 +5,14 @@ export type IncidentType =
   | 'PAYMENT_FAILURE'
   | 'BACKEND_ERROR'
   | 'QUOTA_EXCEEDED'
-  | 'SUPABASE_DOWN';
+  | 'SUPABASE_DOWN'
+  | 'ERROR_PATTERN_DETECTED';
 
 export interface Incident {
   type: IncidentType;
   message: string;
   details?: unknown;
+  severity?: string;
 }
 
 const discordWebhook = process.env.DISCORD_WEBHOOK_URL;

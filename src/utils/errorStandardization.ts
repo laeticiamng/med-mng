@@ -19,6 +19,9 @@ export interface ErrorContext {
   url?: string;
   component?: string;
   action?: string;
+  method?: string;
+  ip?: string;
+  requestId?: string;
   metadata?: Record<string, any>;
 }
 
@@ -115,8 +118,8 @@ export class AuthorizationError extends AppError {
 export class ValidationError extends AppError {
   constructor(message: string, fields?: string[], context?: ErrorContext) {
     super(message, 400, ErrorCategory.VALIDATION, ErrorSeverity.LOW, context);
-    if (fields) {
-      this.context = { ...this.context, metadata: { invalidFields: fields } };
+    if (fields && this.context) {
+      (this as any).context = { ...this.context, metadata: { invalidFields: fields } };
     }
   }
 }
