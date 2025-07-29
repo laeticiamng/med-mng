@@ -519,7 +519,7 @@ serve(async (req) => {
           language: language,
           itemCode: itemCode,
           model: correctModel,
-          prompt: enhancedPrompt,
+          prompt: optimizedPrompt,
           provider: 'suno',
           generatedAt: new Date().toISOString()
         },
@@ -560,13 +560,13 @@ serve(async (req) => {
       streamUrl: null,
       imageUrl: null,
       metadata: {
-        title: enhancedTitle,
+        title: optimizedTitle,
         style: style,
         duration: duration,
         mood: 'relaxing',
         tempo: 'moderate',
         model: correctModel,
-        prompt: enhancedPrompt,
+        prompt: optimizedPrompt,
         generatedAt: new Date().toISOString(),
         status: 'generating',
         estimated_duration: '2-3 minutes'
