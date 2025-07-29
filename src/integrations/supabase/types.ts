@@ -4613,6 +4613,39 @@ export type Database = {
         }
         Relationships: []
       }
+      streaming_access_logs: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          ip_address: string | null
+          session_token: string
+          song_id: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          session_token: string
+          song_id: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          ip_address?: string | null
+          session_token?: string
+          song_id?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       subscription_plans: {
         Row: {
           created_at: string
@@ -5178,6 +5211,10 @@ export type Database = {
         Returns: undefined
       }
       cleanup_old_performance_metrics: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      cleanup_old_streaming_logs: {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }

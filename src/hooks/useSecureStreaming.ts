@@ -86,7 +86,7 @@ export const useSecureStreaming = (): UseSecureStreamingReturn => {
       }, session.expiresAt - Date.now());
 
       // Construire l'URL de stream sécurisée
-      const streamUrl = `${supabase.supabaseUrl}/functions/v1/secure-streaming-proxy${session.streamUrl}`;
+      const streamUrl = `https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/secure-streaming-proxy${session.streamUrl}`;
       
       return streamUrl;
 

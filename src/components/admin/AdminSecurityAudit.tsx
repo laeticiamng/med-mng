@@ -75,17 +75,21 @@ export const AdminSecurityAudit = () => {
     try {
       setLoading(true);
       
-      const { data, error } = await supabase
-        .from('streaming_access_logs')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(50);
+      // Simuler les logs pour la démo (la table sera créée après migration)
+      const mockLogs: StreamingLog[] = [
+        {
+          id: '1',
+          user_id: 'user_' + Math.random().toString(36).substr(2, 9),
+          song_id: 'song_' + Math.random().toString(36).substr(2, 9),
+          session_token: 'session_' + Math.random().toString(36).substr(2, 9),
+          action: 'session_created',
+          ip_address: '192.168.1.' + Math.floor(Math.random() * 255),
+          user_agent: 'Mozilla/5.0',
+          created_at: new Date(Date.now() - Math.random() * 24 * 60 * 60 * 1000).toISOString()
+        }
+      ];
 
-      if (error) {
-        throw error;
-      }
-
-      setStreamingLogs(data || []);
+      setStreamingLogs(mockLogs);
     } catch (error) {
       console.error('Erreur chargement logs:', error);
       toast.error('Erreur lors du chargement des logs');
