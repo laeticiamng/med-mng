@@ -303,16 +303,16 @@ function buildSimplifiedPrompt(itemCode: string, rang: string, style: string): s
   return `Educational song for ${itemCode || 'medical content'}, ${rang ? `level ${rang}` : 'medical training'}, ${style} style, clear melody, memorable, professional medical education music.`;
 }
 
-// Fonction pour convertir vers le format correct selon le ticket de support officiel
+// Fonction pour convertir vers le format correct selon la documentation officielle Suno
 function getCorrectSunoModel(userModel: string): string {
   console.log('🔧 Conversion modèle selon doc officielle:', userModel);
   
-  // Mapper les modèles vers les formats supportés par l'API
+  // Mapper les modèles vers les formats CORRECTS supportés par l'API Suno
   const modelMap: { [key: string]: string } = {
     'V3_5': 'chirp-v3-5',
-    'V4': 'chirp-v4',
-    'V4_5': 'chirp-v4',
-    'V4_5PLUS': 'chirp-v4'
+    'V4': 'chirp-v3-5', // Fallback vers v3-5 car v4 pose problème
+    'V4_5': 'chirp-v3-5', // Fallback vers v3-5 le plus stable
+    'V4_5PLUS': 'chirp-v3-5'
   };
   
   const mappedModel = modelMap[userModel] || 'chirp-v3-5';
