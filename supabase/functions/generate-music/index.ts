@@ -440,9 +440,8 @@ serve(async (req) => {
 
     console.log('🆔 TaskID reçu immédiatement:', taskId);
     
-    // Save initial record in database - ✅ CORRECTION du problème user_id
+    // Save initial record in database
     try {
-      // ✅ CORRECTION: Insérer seulement si userId n'est pas null
       const insertData = {
         task_id: taskId,
         title: optimizedTitle,
@@ -461,7 +460,7 @@ serve(async (req) => {
         generation_status: 'generating'
       };
 
-      // ✅ CORRECTION: Ajouter user_id seulement si non null
+      // Ajouter user_id seulement si non null
       if (userId) {
         insertData.user_id = userId;
       }
