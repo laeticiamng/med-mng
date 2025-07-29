@@ -407,7 +407,14 @@ serve(async (req) => {
     });
 
     if (!SUNO_API_KEY || SUNO_API_KEY.length < 10) {
-      throw new Error('🔑 SUNO_API_KEY manquante ou invalide. Configurez-la dans les secrets Supabase.');
+      return new Response(JSON.stringify({
+        success: false,
+        error: '🔑 SUNO_API_KEY manquante ou invalide. Configurez-la dans les secrets Supabase.',
+        code: 'MISSING_API_KEY'
+      }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
     }
 
     console.log('🔑 Clé API Suno confirmée valide, appel réel en cours...');
@@ -476,7 +483,16 @@ serve(async (req) => {
         });
       }
       
-      throw new Error(`Erreur HTTP Suno (${sunoResponse.status}): ${sunoData?.msg || sunoResponse.statusText}`);
+      // Retourner une réponse d'erreur HTTP au lieu de lancer une exception
+      return new Response(JSON.stringify({
+        success: false,
+        error: `Erreur HTTP Suno (${sunoResponse.status}): ${sunoData?.msg || sunoResponse.statusText}`,
+        code: 'HTTP_ERROR',
+        details: { status: sunoResponse.status, data: sunoData }
+      }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
     }
     
     if (sunoData.code !== 200) {
@@ -494,13 +510,30 @@ serve(async (req) => {
         });
       }
       
-      throw new Error(`Erreur API Suno: ${sunoData.msg || 'Erreur inconnue'}`);
+      // Retourner une réponse d'erreur au lieu de lancer une exception
+      return new Response(JSON.stringify({
+        success: false,
+        error: `Erreur API Suno: ${sunoData.msg || 'Erreur inconnue'}`,
+        code: 'SUNO_API_ERROR',
+        details: sunoData
+      }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
     }
 
     const taskId = sunoData.data?.taskId;
     if (!taskId) {
       console.error('❌ AUCUN TASK ID:', sunoData);
-      throw new Error('Aucun taskId reçu de l\'API Suno');
+      return new Response(JSON.stringify({
+        success: false,
+        error: 'Aucun taskId reçu de l\'API Suno',
+        code: 'MISSING_TASK_ID',
+        details: sunoData
+      }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
     }
 
     console.log('🆔 TaskID reçu immédiatement:', taskId);
