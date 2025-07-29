@@ -187,6 +187,16 @@ jobs:
         env:
           TEST_USER_TOKEN: ${{ secrets.TEST_USER_TOKEN }}
 
+      - name: 🔧 Run API client tests
+        run: |
+          echo "🔧 Tests du client API..."
+          pnpm test test/api/api-client.test.ts --verbose
+
+      - name: 📚 Validate API documentation
+        run: |
+          echo "📚 Validation documentation OpenAPI..."
+          npm run api:validate-docs
+
       - name: ⚡ Run API endpoint tests
         run: |
           echo "⚡ Tests rapides endpoints..."

@@ -1,0 +1,873 @@
+openapi: 3.0.3
+info:
+  title: E-LiSA Backend API
+  description: |
+    API complète pour la plateforme E-LiSA (Éducation Ludique et Interactive pour la Santé et l'Apprentissage).
+    
+    Cette API fournit des services pour :
+    - Gestion des abonnements et paiements
+    - Extraction et traitement de contenu médical
+    - Gestion des erreurs et monitoring
+    - Authentification et autorisation
+    - Services de médecine musicale
+    
+    ## Authentification
+    La plupart des endpoints nécessitent une authentification via Supabase Auth.
+    Utilisez le header `Authorization: Bearer <token>` avec votre JWT token.
+    
+    ## Gestion des erreurs
+    Toutes les erreurs suivent un format standardisé :
+    ```json
+    {
+      "error": "ERROR_CODE",
+      "code": 400,
+      "message": "Human readable message", 
+      "timestamp": "2024-01-01T00:00:00.000Z",
+      "requestId": "req_123456_abc"
+    }
+    ```
+    
+  version: 1.0.0
+  contact:
+    name: E-LiSA API Support
+    email: support@e-lisa.fr
+  license:
+    name: Proprietary
+    url: https://e-lisa.fr/license
+
+servers:
+  - url: https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1
+    description: Production Supabase Edge Functions
+  - url: http://localhost:54321/functions/v1
+    description: Local Development
+
+paths:
+  # Med-Mng-API Endpoints
+  /med-mng-api/subscriptions:
+    get:
+      tags: [Medical Music Management]
+      summary: Récupérer les abonnements utilisateur
+      description: Obtient la liste des abonnements actifs pour l'utilisateur authentifié
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: Liste des abonnements récupérée avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Subscription'
+                  pagination:
+                    $ref: '#/components/schemas/PaginationInfo'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+    post:
+      tags: [Medical Music Management]
+      summary: Créer un nouvel abonnement
+      description: Crée un nouvel abonnement pour l'utilisateur authentifié
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSubscriptionRequest'
+      responses:
+        '201':
+          description: Abonnement créé avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    $ref: '#/components/schemas/Subscription'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /med-mng-api/songs:
+    get:
+      tags: [Medical Music Management]
+      summary: Récupérer les musiques médicales
+      description: Obtient la liste des musiques générées pour l'apprentissage médical
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: genre
+          in: query
+          schema:
+            type: string
+            enum: [classical, jazz, electronic, acoustic, rock]
+        - name: category
+          in: query
+          schema:
+            type: string
+            enum: [cardiology, neurology, pediatrics, general]
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+        - name: search
+          in: query
+          schema:
+            type: string
+            description: Recherche par titre ou contenu
+      responses:
+        '200':
+          description: Liste des musiques récupérée avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/MedicalSong'
+                  pagination:
+                    $ref: '#/components/schemas/PaginationInfo'
+
+    post:
+      tags: [Medical Music Management]
+      summary: Générer une nouvelle musique médicale
+      description: Génère une nouvelle musique basée sur du contenu médical
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateSongRequest'
+      responses:
+        '201':
+          description: Musique générée avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    $ref: '#/components/schemas/MedicalSong'
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/RateLimitError'
+
+  /med-mng-api/library/{songId}:
+    post:
+      tags: [Medical Music Management]
+      summary: Ajouter à la bibliothèque
+      description: Ajoute une musique à la bibliothèque personnelle de l'utilisateur
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: songId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Musique ajoutée à la bibliothèque
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+
+    delete:
+      tags: [Medical Music Management]
+      summary: Retirer de la bibliothèque
+      description: Retire une musique de la bibliothèque personnelle
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: songId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Musique retirée de la bibliothèque
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  # Error Handling Service
+  /error-handling-service:
+    post:
+      tags: [Error Management]
+      summary: Logger une erreur
+      description: Enregistre une erreur dans le système de logging centralisé
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ErrorLogRequest'
+      responses:
+        '200':
+          description: Erreur loggée avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  errorId:
+                    type: string
+                    format: uuid
+                  patternAnalysis:
+                    $ref: '#/components/schemas/ErrorPatternAnalysis'
+
+    get:
+      tags: [Error Management]
+      summary: Récupérer les erreurs ou statistiques
+      description: Query pour récupérer les patterns d'erreur, statistiques ou erreurs récentes
+      parameters:
+        - name: action
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [patterns, stats, recent]
+        - name: timeframe
+          in: query
+          schema:
+            type: string
+            enum: [1h, 6h, 24h, 7d, 30d]
+            default: 24h
+        - name: category
+          in: query
+          schema:
+            type: string
+            enum: [auth, authz, validation, network, database, external_api, business, system, user_input]
+        - name: severity
+          in: query
+          schema:
+            type: string
+            enum: [low, medium, high, critical]
+      responses:
+        '200':
+          description: Données récupérées avec succès
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/ErrorPatternsResponse'
+                  - $ref: '#/components/schemas/ErrorStatsResponse'
+                  - $ref: '#/components/schemas/RecentErrorsResponse'
+
+  # Content Extraction
+  /extract-edn-uness-complete:
+    post:
+      tags: [Content Extraction]
+      summary: Extraction complète EDN-UNESS
+      description: Lance une extraction complète du contenu EDN depuis UNESS
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                startItem:
+                  type: integer
+                  minimum: 1
+                  maximum: 367
+                  default: 1
+                endItem:
+                  type: integer
+                  minimum: 1
+                  maximum: 367
+                  default: 367
+                forceRefresh:
+                  type: boolean
+                  default: false
+      responses:
+        '200':
+          description: Extraction lancée avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  extractionId:
+                    type: string
+                  status:
+                    type: string
+                    enum: [started, running, completed, failed]
+                  progress:
+                    $ref: '#/components/schemas/ExtractionProgress'
+
+  # Payment and Subscription
+  /create-subscription-checkout:
+    post:
+      tags: [Payments]
+      summary: Créer une session de paiement
+      description: Crée une session Stripe pour l'abonnement
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCheckoutRequest'
+      responses:
+        '200':
+          description: Session créée avec succès
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sessionId:
+                    type: string
+                  url:
+                    type: string
+                    format: uri
+
+  /stripe-webhook:
+    post:
+      tags: [Payments]
+      summary: Webhook Stripe
+      description: Endpoint pour recevoir les webhooks Stripe
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              description: Stripe webhook payload
+      responses:
+        '200':
+          description: Webhook traité avec succès
+        '400':
+          description: Webhook invalide
+
+  # Public endpoints
+  /health:
+    get:
+      tags: [System]
+      summary: Vérification de santé
+      description: Endpoint de health check pour monitoring
+      responses:
+        '200':
+          description: Service en bonne santé
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "ok"
+                  timestamp:
+                    type: string
+                    format: date-time
+                  version:
+                    type: string
+
+  /csrf-token:
+    get:
+      tags: [Security]
+      summary: Récupérer un token CSRF
+      description: Génère un token CSRF pour la protection des formulaires
+      responses:
+        '200':
+          description: Token CSRF généré
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                  expiresAt:
+                    type: string
+                    format: date-time
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token from Supabase Auth
+
+  schemas:
+    # Common schemas
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Code d'erreur unique pour i18n
+        code:
+          type: integer
+          description: Code de statut HTTP
+        message:
+          type: string
+          description: Message lisible par l'utilisateur
+        timestamp:
+          type: string
+          format: date-time
+        requestId:
+          type: string
+          description: Identifiant unique de la requête
+        details:
+          type: object
+          description: Détails additionnels sur l'erreur
+
+    PaginationInfo:
+      type: object
+      properties:
+        page:
+          type: integer
+        limit:
+          type: integer
+        totalCount:
+          type: integer
+        totalPages:
+          type: integer
+        hasNext:
+          type: boolean
+        hasPrev:
+          type: boolean
+
+    # Medical Music Management schemas
+    Subscription:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        type:
+          type: string
+          enum: [basic, premium, professional]
+        status:
+          type: string
+          enum: [active, inactive, cancelled, expired]
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+        features:
+          type: array
+          items:
+            type: string
+        metadata:
+          type: object
+
+    CreateSubscriptionRequest:
+      type: object
+      required: [type]
+      properties:
+        type:
+          type: string
+          enum: [basic, premium, professional]
+        paymentMethodId:
+          type: string
+        promoCode:
+          type: string
+
+    MedicalSong:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        title:
+          type: string
+        genre:
+          type: string
+          enum: [classical, jazz, electronic, acoustic, rock]
+        category:
+          type: string
+          enum: [cardiology, neurology, pediatrics, general]
+        duration:
+          type: integer
+          description: Durée en secondes
+        audioUrl:
+          type: string
+          format: uri
+        lyrics:
+          type: object
+          properties:
+            synchronized:
+              type: array
+              items:
+                type: object
+                properties:
+                  start:
+                    type: number
+                  end:
+                    type: number
+                  text:
+                    type: string
+            full:
+              type: string
+        medicalContent:
+          type: object
+          properties:
+            itemCode:
+              type: string
+            concepts:
+              type: array
+              items:
+                type: string
+            competencies:
+              type: array
+              items:
+                type: string
+        metadata:
+          type: object
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    CreateSongRequest:
+      type: object
+      required: [itemCode, genre]
+      properties:
+        itemCode:
+          type: string
+          pattern: '^IC-[0-9]+$'
+          example: "IC-42"
+        genre:
+          type: string
+          enum: [classical, jazz, electronic, acoustic, rock]
+        customPrompt:
+          type: string
+          maxLength: 500
+        targetDuration:
+          type: integer
+          minimum: 30
+          maximum: 300
+          description: Durée souhaitée en secondes
+
+    # Error Management schemas
+    ErrorLogRequest:
+      type: object
+      required: [error, context, timestamp]
+      properties:
+        error:
+          type: object
+          required: [message, category, severity, code]
+          properties:
+            message:
+              type: string
+            stack:
+              type: string
+            name:
+              type: string
+            category:
+              type: string
+              enum: [auth, authz, validation, network, database, external_api, business, system, user_input]
+            severity:
+              type: string
+              enum: [low, medium, high, critical]
+            code:
+              type: integer
+            retryable:
+              type: boolean
+            requestId:
+              type: string
+        context:
+          type: object
+          properties:
+            userId:
+              type: string
+              format: uuid
+            userAgent:
+              type: string
+            url:
+              type: string
+            component:
+              type: string
+            action:
+              type: string
+            metadata:
+              type: object
+        timestamp:
+          type: string
+          format: date-time
+
+    ErrorPatternAnalysis:
+      type: object
+      properties:
+        isPattern:
+          type: boolean
+        occurrenceCount:
+          type: integer
+        uniqueUsers:
+          type: integer
+        uniqueUrls:
+          type: integer
+        timeWindow:
+          type: string
+
+    ErrorPatternsResponse:
+      type: object
+      properties:
+        patterns:
+          type: array
+          items:
+            type: object
+            properties:
+              pattern_key:
+                type: string
+              error_category:
+                type: string
+              error_message:
+                type: string
+              severity:
+                type: string
+              occurrence_count:
+                type: integer
+              unique_users:
+                type: integer
+              first_seen:
+                type: string
+                format: date-time
+              last_seen:
+                type: string
+                format: date-time
+        timeframe:
+          type: string
+
+    ErrorStatsResponse:
+      type: object
+      properties:
+        stats:
+          type: object
+          properties:
+            total:
+              type: integer
+            by_category:
+              type: object
+              additionalProperties:
+                type: integer
+            by_severity:
+              type: object
+              additionalProperties:
+                type: integer
+            by_hour:
+              type: object
+              additionalProperties:
+                type: integer
+        timeframe:
+          type: string
+
+    RecentErrorsResponse:
+      type: object
+      properties:
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                format: uuid
+              error_message:
+                type: string
+              category:
+                type: string
+              severity:
+                type: string
+              component:
+                type: string
+              created_at:
+                type: string
+                format: date-time
+        timeframe:
+          type: string
+        filters:
+          type: object
+
+    # Content Extraction schemas
+    ExtractionProgress:
+      type: object
+      properties:
+        total:
+          type: integer
+        completed:
+          type: integer
+        failed:
+          type: integer
+        percentage:
+          type: number
+          format: float
+        currentItem:
+          type: string
+        estimatedTimeRemaining:
+          type: integer
+          description: Temps restant estimé en secondes
+
+    # Payment schemas
+    CreateCheckoutRequest:
+      type: object
+      required: [subscriptionType]
+      properties:
+        subscriptionType:
+          type: string
+          enum: [basic, premium, professional]
+        successUrl:
+          type: string
+          format: uri
+        cancelUrl:
+          type: string
+          format: uri
+        customerEmail:
+          type: string
+          format: email
+
+  responses:
+    UnauthorizedError:
+      description: Token d'authentification manquant ou invalide
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: "AUTHENTICATION_ERROR"
+            code: 401
+            message: "Token d'authentification requis"
+            timestamp: "2024-01-01T00:00:00.000Z"
+            requestId: "req_123456_abc"
+
+    ValidationError:
+      description: Erreur de validation des données d'entrée
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: "VALIDATION_ERROR"
+            code: 400
+            message: "Données invalides"
+            timestamp: "2024-01-01T00:00:00.000Z"
+            requestId: "req_123456_abc"
+            details:
+              invalidFields: ["email", "subscriptionType"]
+
+    NotFoundError:
+      description: Ressource non trouvée
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: "NOT_FOUND"
+            code: 404
+            message: "Ressource non trouvée"
+            timestamp: "2024-01-01T00:00:00.000Z"
+            requestId: "req_123456_abc"
+
+    RateLimitError:
+      description: Limite de taux dépassée
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: "RATE_LIMIT_EXCEEDED"
+            code: 429
+            message: "Trop de requêtes, veuillez réessayer plus tard"
+            timestamp: "2024-01-01T00:00:00.000Z"
+            requestId: "req_123456_abc"
+
+    InternalServerError:
+      description: Erreur interne du serveur
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+          example:
+            error: "INTERNAL_SERVER_ERROR"
+            code: 500
+            message: "Erreur interne du serveur"
+            timestamp: "2024-01-01T00:00:00.000Z"
+            requestId: "req_123456_abc"
+
+tags:
+  - name: Medical Music Management
+    description: API pour la gestion des musiques médicales et abonnements
+  - name: Error Management
+    description: Système centralisé de gestion et monitoring des erreurs
+  - name: Content Extraction
+    description: Services d'extraction et traitement de contenu médical
+  - name: Payments
+    description: Gestion des paiements et abonnements via Stripe
+  - name: Security
+    description: Endpoints de sécurité et authentification
+  - name: System
+    description: Endpoints système et monitoring
