@@ -307,10 +307,17 @@ function buildSimplifiedPrompt(itemCode: string, rang: string, style: string): s
 function getCorrectSunoModel(userModel: string): string {
   console.log('🔧 Conversion modèle selon doc officielle:', userModel);
   
-  // ✅ OPTIMISATION MAXIMALE: Toujours utiliser V4_5PLUS pour vitesse optimale
-  // D'après le ticket de support officiel : "V4_5PLUS" offre la meilleure performance
-  console.log('🚀 MODÈLE OPTIMISÉ: V4_5PLUS sélectionné pour génération ultra-rapide');
-  return 'V4_5PLUS'; // Modèle le plus rapide selon ticket support Lovable
+  // Mapper les modèles vers les formats supportés par l'API
+  const modelMap: { [key: string]: string } = {
+    'V3_5': 'chirp-v3-5',
+    'V4': 'chirp-v4',
+    'V4_5': 'chirp-v4',
+    'V4_5PLUS': 'chirp-v4'
+  };
+  
+  const mappedModel = modelMap[userModel] || 'chirp-v3-5';
+  console.log(`🔧 Modèle ${userModel} mappé vers ${mappedModel}`);
+  return mappedModel;
 }
 
 serve(async (req) => {
@@ -382,9 +389,9 @@ serve(async (req) => {
     } = body;
 
     // Build enhanced components according to official docs
-    const enhancedPrompt = lyrics || buildRichEducationalPrompt(itemCode, rang, style, 'relaxing', 'moderate');
-    const enhancedStyle = buildRichStyle(style, 'relaxing', 'moderate', ['piano', 'strings']);
-    const enhancedTitle = title || buildExpressiveTitle(itemCode, rang, style);
+    const optimizedPrompt = lyrics || buildRichEducationalPrompt(itemCode, rang, style, 'relaxing', 'moderate');
+    const optimizedStyle = buildRichStyle(style, 'relaxing', 'moderate', ['piano', 'strings']);
+    const optimizedTitle = title || buildExpressiveTitle(itemCode, rang, style);
     const correctModel = getCorrectSunoModel(model);
 
     console.log('🎵 GENERATION SUNO ACTIVÉE - Mode production avec API réelle');
@@ -411,21 +418,15 @@ serve(async (req) => {
     // Build callback URL for async processing
     const callbackUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/suno-callback`;
 
-    // ✅ OPTIMISATION MAXIMALE VITESSE selon ticket support Lovable
-    // Configuration pour génération la plus rapide possible (<20s)
+    // Configuration optimisée pour l'API Suno
     const sunoPayload = {
-      prompt: enhancedPrompt,
+      prompt: optimizedPrompt,
       customMode: true,
-      instrumental: instrumental, // Garde le paramètre original pour flexibilité
-      style: enhancedStyle,
-      title: enhancedTitle,
-      model: correctModel, // V4_5PLUS pour vitesse optimale
-      callBackUrl: callbackUrl,
-      // 🚀 PARAMÈTRES D'OPTIMISATION VITESSE
-      fastMode: true,           // Mode rapide activé
-      priority: "high",         // Priorité haute
-      streamingEnabled: true,   // Streaming activé
-      optimizeForSpeed: true    // Optimisation vitesse maximale
+      instrumental: instrumental,
+      style: optimizedStyle,
+      title: optimizedTitle,
+      model: correctModel,
+      callBackUrl: callbackUrl
     };
 
     console.log('🚀 APPEL API SUNO RÉEL avec payload CORRIGÉ:', {
@@ -456,8 +457,43 @@ serve(async (req) => {
     const sunoData = await sunoResponse.json();
     console.log('🎵 Réponse Suno generate:', sunoData);
 
-    if (!sunoResponse.ok || sunoData.code !== 200) {
+    if (!sunoResponse.ok) {
+      console.error('❌ ERREUR HTTP SUNO:', {
+        status: sunoResponse.status,
+        statusText: sunoResponse.statusText,
+        response: sunoData
+      });
+      
+      // Gestion des erreurs spécifiques
+      if (sunoResponse.status === 429) {
+        return new Response(JSON.stringify({
+          success: false,
+          error: 'Crédits Suno insuffisants. Veuillez recharger votre compte.',
+          code: 'INSUFFICIENT_CREDITS'
+        }), {
+          status: 429,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+      
+      throw new Error(`Erreur HTTP Suno (${sunoResponse.status}): ${sunoData?.msg || sunoResponse.statusText}`);
+    }
+    
+    if (sunoData.code !== 200) {
       console.error('❌ ERREUR API SUNO:', sunoData);
+      
+      // Gestion des erreurs de crédits
+      if (sunoData.code === 429 || sunoData.msg?.includes('credits')) {
+        return new Response(JSON.stringify({
+          success: false,
+          error: 'Crédits Suno insuffisants. Veuillez recharger votre compte.',
+          code: 'INSUFFICIENT_CREDITS'
+        }), {
+          status: 429,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+      
       throw new Error(`Erreur API Suno: ${sunoData.msg || 'Erreur inconnue'}`);
     }
 
@@ -471,10 +507,10 @@ serve(async (req) => {
     
     // Save initial record in database - ✅ CORRECTION du problème user_id
     try {
-      // ✅ CORRECTION: Insérer seulement si userId n'est pas null
+      // Préparer les données d'insertion
       const insertData = {
         task_id: taskId,
-        title: enhancedTitle,
+        title: optimizedTitle,
         suno_track_id: taskId,
         metadata: {
           style: style,
