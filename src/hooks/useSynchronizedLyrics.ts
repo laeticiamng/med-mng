@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { checkAndUseCredits } from '@/hooks/useIAQuota';
 
 export interface LyricsLine {
   time: number; // Temps en secondes
@@ -56,6 +57,16 @@ export const useSynchronizedLyrics = (songId?: string) => {
   // Générer automatiquement les paroles depuis les métadonnées de la chanson
   const generateLyricsFromSongMeta = async (targetSongId: string) => {
     try {
+      // Vérifier et utiliser les crédits IA
+      const canProceed = await checkAndUseCredits('music', 'generation', { song_id: targetSongId });
+      if (!canProceed) {
+        toast({
+          title: "Quota insuffisant",
+          description: "Pas assez de crédits pour générer les paroles synchronisées",
+          variant: "destructive",
+        });
+        return;
+      }
       // Récupérer les métadonnées de la chanson
       const { data: song, error } = await supabase
         .from('med_mng_songs')

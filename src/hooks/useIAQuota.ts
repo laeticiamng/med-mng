@@ -1,35 +1,50 @@
-// ✅ HOOK POUR GESTION QUOTA IA - Utilisation dans les composants React
-
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { useState, useEffect } from 'react';
 
-/**
- * Hook personnalisé pour gérer les quotas IA
- */
-export function useIAQuota() {
+interface QuotaStats {
+  by_service: Array<{
+    service_type: string;
+    total_operations: number;
+    total_credits: number;
+    avg_response_time: number;
+    error_count: number;
+  }>;
+  daily_usage: Array<{
+    usage_date: string;
+    daily_credits: number;
+  }>;
+  period_days: number;
+  total_operations: number;
+  total_credits_used: number;
+}
+
+export const useIAQuota = () => {
   const [quota, setQuota] = useState<number>(0);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  // Récupérer le quota actuel
   const fetchQuota = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase.functions.invoke('ia-quota', {
-        body: { action: 'get_quota' }
+      const { data, error } = await supabase.functions.invoke('med-mng-api/quota', {
+        body: {},
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        }
       });
 
       if (error) throw error;
-      
-      setQuota(data.remaining_credits || 0);
-      return data.remaining_credits || 0;
+
+      setQuota(data?.remaining_credits || 0);
+      return data?.remaining_credits || 0;
     } catch (error) {
-      console.error('Erreur récupération quota:', error);
+      console.error('Erreur lors de la récupération du quota:', error);
       toast({
-        title: "Erreur quota",
-        description: "Impossible de récupérer le quota restant",
-        variant: "destructive"
+        title: "Erreur",
+        description: "Impossible de récupérer le quota IA",
+        variant: "destructive",
       });
       return 0;
     } finally {
@@ -37,92 +52,126 @@ export function useIAQuota() {
     }
   };
 
-  // Vérifier si assez de crédits pour une opération
   const checkQuota = async (serviceType: string, operationType: string) => {
     try {
-      const { data, error } = await supabase.functions.invoke('ia-quota', {
+      const credits_required = getCreditsRequired(serviceType, operationType);
+      
+      const { data, error } = await supabase.functions.invoke('med-mng-api/quota/check', {
         body: { 
-          action: 'check_quota',
+          credits_required,
           service_type: serviceType,
           operation_type: operationType
+        },
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         }
       });
 
       if (error) throw error;
-      
+
       return {
-        canProceed: data.has_enough_credits,
-        required: data.required_credits,
-        remaining: data.remaining_credits
+        canProceed: data?.has_enough_credits || false,
+        required: credits_required,
+        remaining: data?.remaining_credits || 0
       };
     } catch (error) {
-      console.error('Erreur vérification quota:', error);
-      return { canProceed: false, required: 0, remaining: 0 };
+      console.error('Erreur lors de la vérification du quota:', error);
+      return {
+        canProceed: false,
+        required: 0,
+        remaining: 0
+      };
     }
   };
 
-  // Utiliser des crédits pour une opération
-  const useQuota = async (
-    serviceType: string, 
-    operationType: string, 
-    requestDetails: any = {}
-  ) => {
+  const useQuota = async (serviceType: string, operationType: string, requestDetails?: any) => {
     try {
-      const { data, error } = await supabase.functions.invoke('ia-quota', {
+      const credits_to_use = getCreditsRequired(serviceType, operationType);
+      
+      const { data, error } = await supabase.functions.invoke('med-mng-api/quota/use', {
         body: { 
-          action: 'use_quota',
+          credits_to_use,
           service_type: serviceType,
           operation_type: operationType,
-          request_details: requestDetails
+          request_details: requestDetails || {}
+        },
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         }
       });
 
       if (error) throw error;
 
-      if (!data.success) {
+      if (data?.success) {
+        setQuota(data.remaining_credits || 0);
+        return true;
+      } else {
         toast({
           title: "Quota insuffisant",
-          description: `Il vous faut ${data.required_credits} crédits mais il ne vous en reste que ${data.remaining_credits}`,
-          variant: "destructive"
+          description: `Il vous faut ${data?.required_credits || 0} crédits mais vous n'en avez que ${data?.remaining_credits || 0}`,
+          variant: "destructive",
         });
         return false;
       }
-
-      setQuota(data.remaining_credits);
-      
-      toast({
-        title: "Crédits utilisés",
-        description: `${data.used_credits} crédits utilisés. Reste: ${data.remaining_credits}`,
-      });
-
-      return true;
     } catch (error) {
-      console.error('Erreur utilisation quota:', error);
+      console.error('Erreur lors de l\'utilisation du quota:', error);
       toast({
-        title: "Erreur quota",
-        description: "Impossible d'utiliser les crédits",
-        variant: "destructive"
+        title: "Erreur",
+        description: "Impossible d'utiliser les crédits IA",
+        variant: "destructive",
       });
       return false;
     }
   };
 
-  // Récupérer les statistiques d'usage
-  const getStats = async (periodDays: number = 30) => {
+  const getStats = async (periodDays = 30): Promise<QuotaStats | null> => {
     try {
-      const { data, error } = await supabase.functions.invoke('ia-quota', {
-        body: { 
-          action: 'get_stats',
-          period: periodDays
+      const { data, error } = await supabase.functions.invoke(`med-mng-api/quota/stats?period=${periodDays}`, {
+        body: {},
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
         }
       });
 
       if (error) throw error;
-      return data.stats;
+      return data as QuotaStats;
     } catch (error) {
-      console.error('Erreur statistiques:', error);
+      console.error('Erreur lors de la récupération des stats:', error);
       return null;
     }
+  };
+
+  // Définir les coûts en crédits pour chaque operation
+  const getCreditsRequired = (serviceType: string, operationType: string): number => {
+    const costs = {
+      music: {
+        generation: 5,
+        stream: 1,
+        download: 2
+      },
+      qcm: {
+        generation: 2,
+        correction: 1
+      },
+      chat: {
+        message: 1,
+        context: 2
+      },
+      bd: {
+        generation: 10
+      },
+      roman: {
+        generation: 15
+      },
+      image: {
+        generation: 3
+      }
+    };
+
+    return costs[serviceType as keyof typeof costs]?.[operationType as keyof any] || 1;
   };
 
   useEffect(() => {
@@ -138,39 +187,46 @@ export function useIAQuota() {
     getStats,
     refreshQuota: fetchQuota
   };
-}
+};
 
-/**
- * Utilitaire pour vérifier quota avant opération (version simplifiée)
- */
-export async function checkAndUseCredits(
-  serviceType: string,
-  operationType: string,
-  requestDetails: any = {}
-): Promise<boolean> {
+// Fonction utilitaire pour vérifier et utiliser les crédits en une seule fois
+export const checkAndUseCredits = async (
+  serviceType: string, 
+  operationType: string, 
+  requestDetails?: any
+): Promise<boolean> => {
   try {
-    // Vérifier puis utiliser en une seule requête
-    const { data, error } = await supabase.functions.invoke('ia-quota', {
+    const getCreditsRequired = (serviceType: string, operationType: string): number => {
+      const costs = {
+        music: { generation: 5, stream: 1, download: 2 },
+        qcm: { generation: 2, correction: 1 },
+        chat: { message: 1, context: 2 },
+        bd: { generation: 10 },
+        roman: { generation: 15 },
+        image: { generation: 3 }
+      };
+      return costs[serviceType as keyof typeof costs]?.[operationType as keyof any] || 1;
+    };
+
+    const credits_to_use = getCreditsRequired(serviceType, operationType);
+    
+    const { data, error } = await supabase.functions.invoke('med-mng-api/quota/use', {
       body: { 
-        action: 'use_quota',
+        credits_to_use,
         service_type: serviceType,
         operation_type: operationType,
-        request_details: requestDetails
+        request_details: requestDetails || {}
+      },
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
       }
     });
 
     if (error) throw error;
-
-    if (!data.success) {
-      console.warn('Quota insuffisant:', data);
-      return false;
-    }
-
-    console.log(`Crédits utilisés: ${data.used_credits}, restants: ${data.remaining_credits}`);
-    return true;
-
+    return data?.success || false;
   } catch (error) {
-    console.error('Erreur quota:', error);
+    console.error('Erreur lors de la vérification et utilisation des crédits:', error);
     return false;
   }
-}
+};

@@ -5056,15 +5056,25 @@ export type Database = {
         Returns: undefined
       }
       log_ia_usage: {
-        Args: {
-          p_service_type: string
-          p_operation_type: string
-          p_credits_used?: number
-          p_request_details?: Json
-          p_response_status?: string
-          p_error_details?: string
-        }
-        Returns: string
+        Args:
+          | {
+              p_service_type: string
+              p_operation_type: string
+              p_credits_used?: number
+              p_request_details?: Json
+              p_response_status?: string
+              p_error_details?: string
+            }
+          | {
+              p_service_type: string
+              p_operation_type: string
+              p_credits_used?: number
+              p_request_details?: Json
+              p_response_status?: string
+              p_response_time_ms?: number
+              p_error_details?: string
+            }
+        Returns: undefined
       }
       log_lyrics_access: {
         Args: {
@@ -5141,7 +5151,7 @@ export type Database = {
         Returns: undefined
       }
       med_mng_decrement_quota: {
-        Args: { credits_to_use?: number }
+        Args: { credits_to_use: number }
         Returns: Json
       }
       med_mng_generate_qcm: {
