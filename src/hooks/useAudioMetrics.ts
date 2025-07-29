@@ -3,7 +3,15 @@ import { useCallback, useRef } from 'react';
 interface AudioMetrics {
   loadStartTime: number;
   metadataLoadTime?: number;
+  metadataDelay?: number;
   canPlayTime?: number;
+  canPlayDelay?: number;
+  canPlayThroughTime?: number;
+  totalLoadDelay?: number;
+  actualPlayTime?: number;
+  streamingDelay?: number;
+  errorTime?: number;
+  errorCount?: number;
   playStartTime?: number;
   totalLoadTime?: number;
   bufferHealthScore: number;
