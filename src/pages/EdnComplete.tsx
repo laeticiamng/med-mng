@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { 
   Search, BookOpen, Award, Users, TrendingUp, Filter, Grid, List, Eye,
   Music, Brain, Play, Headphones, CheckCircle, Sparkles, ArrowRight,
-  Volume2, Gamepad2, Maximize2, Star, Target, Image, FileText
+  Volume2, Gamepad2, Maximize2, Star, Target, Image, FileText, AlertTriangle
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -19,6 +19,11 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { EdnItemModal } from "@/components/edn/premium/EdnItemModal";
 import { EdnItemCard } from "@/components/edn/premium/EdnItemCard";
 import { LyricsCompletionStatus } from "@/components/LyricsCompletionStatus";
+import { RevisionDashboard } from "@/components/revision/RevisionDashboard";
+import { QuotaIndicator } from "@/components/quota/QuotaIndicator";
+import { PricingPlans } from "@/components/med-mng/PricingPlans";
+import { useIAQuota } from "@/hooks/useIAQuota";
+import { useSubscription } from "@/hooks/useSubscription";
 
 interface EdnItem {
   id: string;
@@ -60,6 +65,10 @@ export default function EdnComplete() {
   const [selectedItem, setSelectedItem] = useState<EdnItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('immersive');
+  const [showPricing, setShowPricing] = useState(false);
+  
+  const { quota } = useIAQuota();
+  const { subscription, canGenerateMusic } = useSubscription();
   
   const { toast } = useToast();
   const isMobile = useIsMobile();
@@ -232,14 +241,18 @@ export default function EdnComplete() {
               </div>
             </div>
             
-            <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="bg-muted">
-                <TabsTrigger value="immersive" className="text-xs">Immersif</TabsTrigger>
-                <TabsTrigger value="complete" className="text-xs">Complet</TabsTrigger>
-                <TabsTrigger value="music" className="text-xs">Paroles</TabsTrigger>
-                <TabsTrigger value="unified" className="text-xs">Unifié</TabsTrigger>
-              </TabsList>
-            </Tabs>
+            <div className="flex items-center gap-4">
+              <QuotaIndicator compact />
+              <Tabs value={activeTab} onValueChange={setActiveTab}>
+                <TabsList className="bg-muted">
+                  <TabsTrigger value="immersive" className="text-xs">Immersif</TabsTrigger>
+                  <TabsTrigger value="complete" className="text-xs">Complet</TabsTrigger>
+                  <TabsTrigger value="music" className="text-xs">Paroles</TabsTrigger>
+                  <TabsTrigger value="revision" className="text-xs">Révisions</TabsTrigger>
+                  <TabsTrigger value="subscription" className="text-xs">Abonnement</TabsTrigger>
+                </TabsList>
+              </Tabs>
+            </div>
           </div>
         </div>
       </div>
@@ -409,6 +422,130 @@ export default function EdnComplete() {
 
           <TabsContent value="music">
             <LyricsCompletionStatus />
+          </TabsContent>
+
+          <TabsContent value="revision">
+            <RevisionDashboard />
+          </TabsContent>
+
+          <TabsContent value="subscription">
+            <div className="space-y-6">
+              {/* Quota Overview */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <QuotaIndicator showDetails />
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Plan actuel</CardTitle>
+                    <CardDescription>Votre abonnement et fonctionnalités</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium">
+                          {subscription?.plan_name || 'Plan Gratuit'}
+                        </span>
+                        <Badge variant={subscription ? 'default' : 'secondary'}>
+                          {subscription ? 'Actif' : 'Gratuit'}
+                        </Badge>
+                      </div>
+                      {subscription && (
+                        <div className="text-sm text-muted-foreground">
+                          <p>Quota mensuel: {subscription.monthly_quota} crédits</p>
+                          <p>Statut: {subscription.status}</p>
+                        </div>
+                      )}
+                      {!subscription && (
+                        <div className="space-y-2">
+                          <p className="text-sm text-muted-foreground">
+                            Vous utilisez le plan gratuit avec des fonctionnalités limitées.
+                          </p>
+                          <Button 
+                            onClick={() => setShowPricing(true)}
+                            className="w-full"
+                          >
+                            Découvrir nos plans
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Pricing Plans */}
+              {showPricing && (
+                <div>
+                  <h3 className="text-lg font-semibold mb-4">Choisissez votre plan</h3>
+                  <PricingPlans 
+                    onSelectPlan={(planId) => {
+                      navigate(`/med-mng/subscribe/${planId}`);
+                    }}
+                  />
+                </div>
+              )}
+
+              {/* Usage Stats */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Utilisation des fonctionnalités</CardTitle>
+                  <CardDescription>
+                    Découvrez comment optimiser votre apprentissage avec nos outils IA
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="p-4 bg-blue-50 rounded-lg">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Music className="h-5 w-5 text-blue-600" />
+                        <span className="font-medium">Musique IA</span>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Générez des chansons mnémotechniques personnalisées
+                      </p>
+                      <p className="text-xs mt-2 text-blue-600">
+                        Coût: 5 crédits par génération
+                      </p>
+                    </div>
+                    
+                    <div className="p-4 bg-green-50 rounded-lg">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Brain className="h-5 w-5 text-green-600" />
+                        <span className="font-medium">QCM IA</span>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Créez des QCM adaptatifs intelligents
+                      </p>
+                      <p className="text-xs mt-2 text-green-600">
+                        Coût: 2 crédits par QCM
+                      </p>
+                    </div>
+                    
+                    <div className="p-4 bg-purple-50 rounded-lg">
+                      <div className="flex items-center gap-2 mb-2">
+                        <FileText className="h-5 w-5 text-purple-600" />
+                        <span className="font-medium">Bandes Dessinées</span>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Transformez les concepts en BD éducatives
+                      </p>
+                      <p className="text-xs mt-2 text-purple-600">
+                        Coût: 10 crédits par BD
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {quota <= 5 && (
+                <Alert>
+                  <AlertTriangle className="h-4 w-4" />
+                  <AlertDescription>
+                    Attention: Il vous reste seulement {quota} crédits. 
+                    Considérez un abonnement pour continuer à utiliser nos fonctionnalités IA.
+                  </AlertDescription>
+                </Alert>
+              )}
+            </div>
           </TabsContent>
 
           <TabsContent value="unified">
