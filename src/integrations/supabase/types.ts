@@ -1509,6 +1509,48 @@ export type Database = {
         }
         Relationships: []
       }
+      enhanced_chat_logs: {
+        Row: {
+          conversation_id: string
+          created_at: string
+          edn_context_items: string[]
+          id: string
+          question: string
+          response: string
+          response_quality_score: number | null
+          response_source: string
+          updated_at: string
+          user_id: string
+          web_fallback_used: boolean
+        }
+        Insert: {
+          conversation_id: string
+          created_at?: string
+          edn_context_items?: string[]
+          id?: string
+          question: string
+          response: string
+          response_quality_score?: number | null
+          response_source: string
+          updated_at?: string
+          user_id: string
+          web_fallback_used?: boolean
+        }
+        Update: {
+          conversation_id?: string
+          created_at?: string
+          edn_context_items?: string[]
+          id?: string
+          question?: string
+          response?: string
+          response_quality_score?: number | null
+          response_source?: string
+          updated_at?: string
+          user_id?: string
+          web_fallback_used?: boolean
+        }
+        Relationships: []
+      }
       error_logs: {
         Row: {
           context: string | null
@@ -5197,6 +5239,10 @@ export type Database = {
       cleanup_duplicates: {
         Args: Record<PropertyKey, never>
         Returns: Json
+      }
+      cleanup_old_chat_logs: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       cleanup_old_imports: {
         Args: Record<PropertyKey, never>

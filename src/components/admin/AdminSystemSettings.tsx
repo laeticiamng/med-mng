@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { 
   Settings, Shield, Database, Mail, Zap, 
-  AlertTriangle, CheckCircle, RefreshCw, Save
+  AlertTriangle, CheckCircle, RefreshCw, Save, MessageSquare
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -15,6 +15,7 @@ import { Separator } from '@/components/ui/separator';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { AdminSecurityAudit } from './AdminSecurityAudit';
+import { AdminChatMonitoring } from './AdminChatMonitoring';
 
 interface SystemSettings {
   maintenance_mode: boolean;
@@ -205,13 +206,18 @@ export const AdminSystemSettings = () => {
       <Tabs defaultValue="security" className="space-y-6">
         <TabsList>
           <TabsTrigger value="security">Sécurité Streaming</TabsTrigger>
+          <TabsTrigger value="chat">Chat IA</TabsTrigger>
           <TabsTrigger value="settings">Configuration</TabsTrigger>
           <TabsTrigger value="health">Santé Système</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="security">
-          <AdminSecurityAudit />
-        </TabsContent>
+          <TabsContent value="security">
+            <AdminSecurityAudit />
+          </TabsContent>
+
+          <TabsContent value="chat">
+            <AdminChatMonitoring />
+          </TabsContent>
 
         <TabsContent value="settings">
           {/* Mode maintenance alerte */}
