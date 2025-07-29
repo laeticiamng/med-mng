@@ -47,6 +47,7 @@ import AdminAudit from "./pages/AdminAudit";
 import AdminExtractEdn from "./pages/AdminExtractEdn";
 import AdminCompleteProcess from "./pages/AdminCompleteProcess";
 import AdminExtractEcos from "./pages/AdminExtractEcos";
+import { AdminPanel } from "./pages/AdminPanel"; // Nouveau panel admin unifié Point X
 import EdnObjectifsExtractionPage from "./pages/EdnObjectifsExtraction";
 import OicDataQualityManager from "./pages/OicDataQualityManager";
 import AuditCompleteness from "./pages/AuditCompleteness";
@@ -125,13 +126,14 @@ const App = () => {
                           <Route path="/med-mng/playlists/:playlistId" element={<ProtectedRoute><PlaylistDetail /></ProtectedRoute>} />
                           <Route path="/med-mng/analytics" element={<ProtectedRoute><MusicAnalytics /></ProtectedRoute>} />
                           <Route path="/chat" element={<MedChat />} />
-                          <Route path="/admin/import" element={<AdminImport />} />
-                          <Route path="/admin/audit" element={<AdminAudit />} />
-                          <Route path="/admin/extract-edn" element={<AdminExtractEdn />} />
-                          <Route path="/admin/extract-ecos" element={<AdminExtractEcos />} />
-                          <Route path="/admin/extract-objectifs" element={<EdnObjectifsExtractionPage />} />
-                          <Route path="/admin/oic-quality" element={<OicDataQualityManager />} />
-                          <Route path="/admin/complete" element={<AdminCompleteProcess />} />
+                           <Route path="/admin/import" element={<AdminImport />} />
+                           <Route path="/admin/audit" element={<AdminAudit />} />
+                           <Route path="/admin/extract-edn" element={<AdminExtractEdn />} />
+                           <Route path="/admin/extract-ecos" element={<AdminExtractEcos />} />
+                           <Route path="/admin/extract-objectifs" element={<EdnObjectifsExtractionPage />} />
+                           <Route path="/admin/oic-quality" element={<OicDataQualityManager />} />
+                           <Route path="/admin/complete" element={<AdminCompleteProcess />} />
+                           <Route path="/admin-panel" element={<AdminPanel />} /> {/* Panel admin unifié Point X */}
                           <Route path="/test-subscriptions" element={<SubscriptionTest />} />
                           <Route path="/library" element={<LibraryPage />} />
                           <Route path="/test-extraction" element={<TestExtraction />} />

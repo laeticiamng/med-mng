@@ -87,17 +87,29 @@ const Index = () => {
                   <BarChart3 className="h-4 w-4 mr-2" />
                   <TranslatedText text="Admin Import" />
                 </PremiumButton>
-              )}
-              
-              {isAdmin && (
-                <PremiumButton
-                  variant="glass"
-                  size="sm"
-                  onClick={() => navigate('/admin/audit')}
-                  className="hidden xl:inline-flex"
-                >
-                  <Settings className="h-4 w-4 mr-2" />
-                  <TranslatedText text="Audit" />
+               )}
+               
+               {isAdmin && (
+                 <PremiumButton
+                   variant="glass"
+                   size="sm"
+                   onClick={() => navigate('/admin-panel')}
+                   className="hidden lg:inline-flex"
+                 >
+                   <Settings className="h-4 w-4 mr-2" />
+                   <TranslatedText text="Admin Panel" />
+                 </PremiumButton>
+               )}
+               
+               {isAdmin && (
+                 <PremiumButton
+                   variant="glass"
+                   size="sm"
+                   onClick={() => navigate('/admin/audit')}
+                   className="hidden xl:inline-flex"
+                 >
+                   <BarChart3 className="h-4 w-4 mr-2" />
+                   <TranslatedText text="Audit" />
                 </PremiumButton>
               )}
               

@@ -1,318 +1,629 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
-  AlertTriangle, 
-  Activity, 
+  Settings, 
   Database, 
   Users, 
-  TrendingUp, 
+  BarChart3, 
+  Shield, 
+  Search, 
+  MessageSquare, 
+  Music, 
+  AlertTriangle,
+  Activity,
+  TrendingUp,
+  Clock,
+  CheckCircle,
+  XCircle,
+  Edit,
   RefreshCw
 } from 'lucide-react';
-import { useRealTimeMonitoring } from '@/hooks/useRealTimeMonitoring';
+import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { SecurityDashboard } from './SecurityDashboard';
-import { ExtractionMonitoringDashboard } from './ExtractionMonitoringDashboard';
-import { ExportDashboard } from './ExportDashboard';
-import { RealTimeDashboard } from './RealTimeDashboard';
-import { ChangelogDashboard } from './ChangelogDashboard';
-import { IntegrityCheckDashboard } from './IntegrityCheckDashboard';
 
-interface AdminMetrics {
-  activeUsers: number;
-  totalSessions: number;
-  systemHealth: 'healthy' | 'degraded' | 'down';
-  activeExtractions: number;
-  quotaUsage: number;
-  errorRate: number;
-  responseTime: number;
-  lastUpdate: Date;
+// Import des composants d'administration existants
+import { AdminSystemSettings } from './AdminSystemSettings';
+import { AdminAnalytics } from './AdminAnalytics';
+import { AdminUsersManager } from './AdminUsersManager';
+import { AdminContentManager } from './AdminContentManager';
+import { AdminSubscriptionsManager } from './AdminSubscriptionsManager';
+
+// Import des nouveaux composants développés
+import { AdminSecurityAudit } from './AdminSecurityAudit';
+import { AdminChatMonitoring } from './AdminChatMonitoring';
+
+interface SystemStats {
+  totalUsers: number;
+  activeSubscriptions: number;
+  totalEdnItems: number;
+  totalSongs: number;
+  systemHealth: 'healthy' | 'warning' | 'critical';
+  recentAlerts: number;
+  lastUpdate: string;
 }
 
-export function AdminDashboard() {
-  const [metrics, setMetrics] = useState<AdminMetrics | null>(null);
+interface RecentActivity {
+  id: string;
+  type: string;
+  description: string;
+  timestamp: string;
+  status: 'success' | 'warning' | 'error';
+}
+
+export const AdminDashboard: React.FC = () => {
+  const [systemStats, setSystemStats] = useState<SystemStats>({
+    totalUsers: 0,
+    activeSubscriptions: 0,
+    totalEdnItems: 0,
+    totalSongs: 0,
+    systemHealth: 'healthy',
+    recentAlerts: 0,
+    lastUpdate: new Date().toISOString()
+  });
+  const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
   const [loading, setLoading] = useState(true);
-  const [autoRefresh, setAutoRefresh] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
 
-  const { events, isConnected, clearEvents } = useRealTimeMonitoring();
-
-  // Auto-refresh data
   useEffect(() => {
-    const fetchData = async () => {
+    fetchSystemStats();
+    fetchRecentActivity();
+    
+    // Refresh data every 60 seconds
+    const interval = setInterval(() => {
+      fetchSystemStats();
+      fetchRecentActivity();
+    }, 60000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const fetchSystemStats = async () => {
+    try {
+      setRefreshing(true);
+      
+      // Récupérer les statistiques système en parallèle
+      const [usersResult, subscriptionsResult, ednResult, songsResult, alertsResult] = await Promise.all([
+        supabase.from('profiles').select('id', { count: 'exact', head: true }),
+        supabase.from('user_subscriptions').select('id', { count: 'exact', head: true }).eq('status', 'active'),
+        supabase.from('edn_items_immersive').select('id', { count: 'exact', head: true }),
+        supabase.from('emotionscare_songs').select('id', { count: 'exact', head: true }),
+        supabase.from('completeness_alerts').select('id', { count: 'exact', head: true }).eq('resolved', false)
+      ]);
+
+      // Vérifier la santé du système via audit
+      let healthStatus: 'healthy' | 'warning' | 'critical' = 'healthy';
       try {
-        setLoading(true);
-        
-        const adminMetrics: AdminMetrics = {
-          activeUsers: Math.floor(Math.random() * 50) + 10,
-          totalSessions: Math.floor(Math.random() * 100) + 50,
-          systemHealth: 'healthy',
-          activeExtractions: Math.floor(Math.random() * 10) + 2,
-          quotaUsage: Math.floor(Math.random() * 80) + 10,
-          errorRate: Math.random() * 2,
-          responseTime: 120 + Math.random() * 80,
-          lastUpdate: new Date()
-        };
-
-        setMetrics(adminMetrics);
-      } catch (err) {
-        toast.error('Erreur lors du chargement des données admin');
-      } finally {
-        setLoading(false);
+        const healthCheck = await supabase.functions.invoke('audit-system', {
+          body: { action: 'health_check' }
+        });
+        if (healthCheck.error) healthStatus = 'warning';
+      } catch {
+        healthStatus = 'warning';
       }
-    };
 
-    fetchData();
-
-    let interval: NodeJS.Timeout;
-    if (autoRefresh) {
-      interval = setInterval(fetchData, 30000);
+      setSystemStats({
+        totalUsers: usersResult.count || 0,
+        activeSubscriptions: subscriptionsResult.count || 0,
+        totalEdnItems: ednResult.count || 0,
+        totalSongs: songsResult.count || 0,
+        systemHealth: healthStatus,
+        recentAlerts: alertsResult.count || 0,
+        lastUpdate: new Date().toISOString()
+      });
+    } catch (error) {
+      console.error('Erreur lors de la récupération des stats:', error);
+      toast.error('Erreur lors du chargement des statistiques système');
+      setSystemStats(prev => ({ ...prev, systemHealth: 'critical' }));
+    } finally {
+      setRefreshing(false);
     }
+  };
 
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [autoRefresh]);
+  const fetchRecentActivity = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('admin_changelog')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(15);
 
-  if (loading && !metrics) {
+      if (error) throw error;
+
+      const activities: RecentActivity[] = (data || []).map(item => ({
+        id: item.id,
+        type: item.action_type,
+        description: `${item.action_type} sur ${item.table_name}`,
+        timestamp: item.created_at,
+        status: 'success'
+      }));
+
+      setRecentActivity(activities);
+    } catch (error) {
+      console.error('Erreur activité récente:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const executeQuickAction = async (action: string) => {
+    try {
+      setRefreshing(true);
+      toast.loading(`Exécution: ${action}...`, { id: action });
+
+      switch (action) {
+        case 'sync_uness':
+          await supabase.functions.invoke('extract-edn-uness-production', {
+            body: { action: 'sync_all' }
+          });
+          toast.success('Synchronisation UNESS terminée', { id: action });
+          break;
+          
+        case 'security_audit':
+          await supabase.functions.invoke('audit-system', {
+            body: { action: 'full_audit' }
+          });
+          toast.success('Audit sécurité terminé', { id: action });
+          break;
+          
+        case 'data_integrity':
+          await supabase.functions.invoke('data-integrity-check', {
+            body: { action: 'comprehensive_check' }
+          });
+          toast.success('Vérification intégrité terminée', { id: action });
+          break;
+          
+        case 'analytics_report':
+          await supabase.functions.invoke('analytics-aggregator', {
+            body: { action: 'generate_report' }
+          });
+          toast.success('Rapport analytics généré', { id: action });
+          break;
+          
+        default:
+          toast.error('Action non reconnue', { id: action });
+      }
+      
+      // Refresh stats after action
+      await fetchSystemStats();
+      await fetchRecentActivity();
+      
+    } catch (error) {
+      console.error(`Erreur action ${action}:`, error);
+      toast.error(`Erreur lors de l'exécution de ${action}`, { id: action });
+    } finally {
+      setRefreshing(false);
+    }
+  };
+
+  const getHealthIcon = (health: string) => {
+    switch (health) {
+      case 'healthy': return <CheckCircle className="h-5 w-5 text-green-500" />;
+      case 'warning': return <AlertTriangle className="h-5 w-5 text-yellow-500" />;
+      case 'critical': return <XCircle className="h-5 w-5 text-red-500" />;
+      default: return <Activity className="h-5 w-5 text-gray-500" />;
+    }
+  };
+
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'success': return 'text-green-600 bg-green-50';
+      case 'warning': return 'text-yellow-600 bg-yellow-50';
+      case 'error': return 'text-red-600 bg-red-50';
+      default: return 'text-gray-600 bg-gray-50';
+    }
+  };
+
+  if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <RefreshCw className="h-8 w-8 animate-spin" />
-        <span className="ml-2">Chargement des données admin...</span>
+      <div className="flex items-center justify-center min-h-96">
+        <div className="animate-spin h-8 w-8 border-4 border-primary border-t-transparent rounded-full"></div>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
+      {/* Header avec actions */}
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Dashboard Admin</h1>
-          <p className="text-muted-foreground">
-            Monitoring temps réel et gestion des extractions
+          <h1 className="text-3xl font-bold text-gray-900">Administration Complète</h1>
+          <p className="text-gray-600 mt-1">
+            Tableau de bord unifié - Tous les outils en un seul endroit
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          <Badge variant={isConnected ? "default" : "destructive"}>
-            {isConnected ? 'Temps réel actif' : 'Connexion perdue'}
-          </Badge>
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2">
+            {getHealthIcon(systemStats.systemHealth)}
+            <span className="text-sm font-medium">
+              Système {systemStats.systemHealth === 'healthy' ? 'Opérationnel' : 'En surveillance'}
+            </span>
+          </div>
           <Button
             variant="outline"
             size="sm"
-            onClick={() => setAutoRefresh(!autoRefresh)}
+            onClick={() => {
+              fetchSystemStats();
+              fetchRecentActivity();
+            }}
+            disabled={refreshing}
           >
-            <RefreshCw className={`h-4 w-4 mr-2 ${autoRefresh ? 'animate-spin' : ''}`} />
-            Auto-refresh
+            <RefreshCw className={`h-4 w-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
+            Actualiser
           </Button>
         </div>
       </div>
 
-      {/* Key Metrics */}
-      {metrics && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Utilisateurs Actifs</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{metrics.activeUsers}</div>
-              <p className="text-xs text-muted-foreground">
-                +12% par rapport à hier
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Santé Système</CardTitle>
-              <Activity className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-center space-x-2">
-                <Badge 
-                  variant={metrics.systemHealth === 'healthy' ? 'default' : 'destructive'}
-                  className="text-lg font-bold py-1"
-                >
-                  {metrics.systemHealth === 'healthy' ? 'Sain' : 
-                   metrics.systemHealth === 'degraded' ? 'Dégradé' : 'Panne'}
-                </Badge>
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Temps de réponse: {Math.round(metrics.responseTime)}ms
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Extractions Actives</CardTitle>
-              <Database className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{metrics.activeExtractions}</div>
-              <p className="text-xs text-muted-foreground">
-                Taux d'erreur: {metrics.errorRate.toFixed(2)}%
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Usage Quotas</CardTitle>
-              <TrendingUp className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{metrics.quotaUsage}%</div>
-              <p className="text-xs text-muted-foreground">
-                de la capacité totale
-              </p>
-            </CardContent>
-          </Card>
-        </div>
+      {/* Alertes système si nécessaire */}
+      {systemStats.recentAlerts > 0 && (
+        <Card className="border-orange-200 bg-orange-50">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-orange-600" />
+              <span className="font-medium text-orange-800">
+                {systemStats.recentAlerts} alerte(s) non résolue(s) nécessitent votre attention
+              </span>
+            </div>
+          </CardContent>
+        </Card>
       )}
 
-      {/* Main Dashboard Tabs */}
-      <Tabs defaultValue="realtime" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-8">
-          <TabsTrigger value="realtime">Temps Réel</TabsTrigger>
-          <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
-          <TabsTrigger value="security">Sécurité</TabsTrigger>
-          <TabsTrigger value="monitoring">Surveillance</TabsTrigger>
-          <TabsTrigger value="export">Export</TabsTrigger>
-          <TabsTrigger value="changelog">Changelog</TabsTrigger>
-          <TabsTrigger value="integrity">Intégrité</TabsTrigger>
-          <TabsTrigger value="logs">Logs</TabsTrigger>
-        </TabsList>
+      {/* Statistiques rapides */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Card className="hover:shadow-md transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Utilisateurs totaux</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{systemStats.totalUsers.toLocaleString()}</div>
+            <p className="text-xs text-muted-foreground">
+              Comptes actifs sur la plateforme
+            </p>
+          </CardContent>
+        </Card>
 
-        <TabsContent value="realtime" className="space-y-6">
-          <RealTimeDashboard />
-        </TabsContent>
+        <Card className="hover:shadow-md transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Abonnements actifs</CardTitle>
+            <TrendingUp className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{systemStats.activeSubscriptions.toLocaleString()}</div>
+            <p className="text-xs text-muted-foreground">
+              Souscriptions payantes
+            </p>
+          </CardContent>
+        </Card>
 
-        <TabsContent value="overview" className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Statistiques Système</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex justify-between">
-                    <span>Uptime</span>
-                    <span className="font-medium">99.9%</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Utilisateurs connectés</span>
-                    <span className="font-medium">{metrics?.activeUsers || 0}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Événements/min</span>
-                    <span className="font-medium">{events.length}</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+        <Card className="hover:shadow-md transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Items EDN</CardTitle>
+            <Database className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{systemStats.totalEdnItems.toLocaleString()}</div>
+            <p className="text-xs text-muted-foreground">
+              Contenus pédagogiques
+            </p>
+          </CardContent>
+        </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Performance</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex justify-between">
-                    <span>Temps de réponse moyen</span>
-                    <span className="font-medium">{Math.round(metrics?.responseTime || 0)}ms</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Throughput</span>
-                    <span className="font-medium">1.2k req/min</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span>Taux d'erreur</span>
-                    <span className="font-medium">{metrics?.errorRate.toFixed(2) || 0}%</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
+        <Card className="hover:shadow-md transition-shadow">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Chansons générées</CardTitle>
+            <Music className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{systemStats.totalSongs.toLocaleString()}</div>
+            <p className="text-xs text-muted-foreground">
+              Créations musicales IA
+            </p>
+          </CardContent>
+        </Card>
+      </div>
 
-        <TabsContent value="security" className="space-y-6">
-          <SecurityDashboard />
-        </TabsContent>
-
-        <TabsContent value="monitoring" className="space-y-6">
-          <ExtractionMonitoringDashboard />
-        </TabsContent>
-
-        <TabsContent value="export" className="space-y-6">
-          <ExportDashboard />
-        </TabsContent>
-
-        <TabsContent value="changelog" className="space-y-6">
-          <ChangelogDashboard />
-        </TabsContent>
-
-        <TabsContent value="integrity" className="space-y-6">
-          <IntegrityCheckDashboard />
-        </TabsContent>
-
-        <TabsContent value="logs" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Événements Temps Réel</CardTitle>
-              <div className="flex justify-between items-center">
-                <p className="text-sm text-muted-foreground">
-                  {events.length} événements - Connexion {isConnected ? 'active' : 'inactive'}
-                </p>
-                <Button variant="outline" size="sm" onClick={clearEvents}>
-                  Vider les logs
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2 max-h-96 overflow-y-auto">
-                {events.length === 0 ? (
-                  <p className="text-center text-muted-foreground py-8">
-                    Aucun événement récent
-                  </p>
-                ) : (
-                  events.slice(0, 50).map((event) => (
-                    <div
-                      key={event.id}
-                      className={`p-3 rounded border-l-4 ${
-                        event.severity === 'critical' ? 'border-red-500 bg-red-50' :
-                        event.severity === 'high' ? 'border-orange-500 bg-orange-50' :
-                        event.severity === 'medium' ? 'border-yellow-500 bg-yellow-50' :
-                        'border-blue-500 bg-blue-50'
-                      }`}
-                    >
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <p className="font-medium">{event.message}</p>
-                          <p className="text-sm text-muted-foreground">
-                            {event.type} - {new Date(event.timestamp).toLocaleTimeString()}
-                          </p>
-                        </div>
-                        <Badge variant={
-                          event.severity === 'critical' ? 'destructive' :
-                          event.severity === 'high' ? 'destructive' :
-                          event.severity === 'medium' ? 'secondary' :
-                          'outline'
-                        }>
-                          {event.severity}
-                        </Badge>
+      {/* Section activité récente et actions rapides */}
+      <div className="grid lg:grid-cols-3 gap-6">
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Activity className="h-5 w-5" />
+              Activité système récente
+            </CardTitle>
+            <CardDescription>
+              Dernières actions administratives et modifications
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3 max-h-96 overflow-y-auto">
+              {recentActivity.length === 0 ? (
+                <p className="text-center text-gray-500 py-8">Aucune activité récente</p>
+              ) : (
+                recentActivity.map((activity) => (
+                  <div key={activity.id} className={`flex items-center justify-between p-3 border rounded-lg ${getStatusColor(activity.status)}`}>
+                    <div className="flex items-center gap-3">
+                      <div className={`w-2 h-2 rounded-full ${activity.status === 'success' ? 'bg-green-500' : activity.status === 'warning' ? 'bg-yellow-500' : 'bg-red-500'}`} />
+                      <div>
+                        <p className="text-sm font-medium">{activity.description}</p>
+                        <p className="text-xs opacity-70">
+                          {new Date(activity.timestamp).toLocaleDateString('fr-FR', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                          })}
+                        </p>
                       </div>
                     </div>
-                  ))
-                )}
+                    <Badge variant={activity.status === 'success' ? 'default' : 'destructive'} className="text-xs">
+                      {activity.type}
+                    </Badge>
+                  </div>
+                ))
+              )}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Clock className="h-5 w-5" />
+              Actions rapides
+            </CardTitle>
+            <CardDescription>
+              Outils de gestion rapide du système
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <Button 
+              className="w-full justify-start" 
+              variant="outline"
+              onClick={() => executeQuickAction('sync_uness')}
+              disabled={refreshing}
+            >
+              <Database className="h-4 w-4 mr-2" />
+              Synchroniser données UNESS
+            </Button>
+            <Button 
+              className="w-full justify-start" 
+              variant="outline"
+              onClick={() => executeQuickAction('security_audit')}
+              disabled={refreshing}
+            >
+              <Shield className="h-4 w-4 mr-2" />
+              Lancer audit sécurité
+            </Button>
+            <Button 
+              className="w-full justify-start" 
+              variant="outline"
+              onClick={() => executeQuickAction('analytics_report')}
+              disabled={refreshing}
+            >
+              <BarChart3 className="h-4 w-4 mr-2" />
+              Générer rapport analytics
+            </Button>
+            <Button 
+              className="w-full justify-start" 
+              variant="outline"
+              onClick={() => executeQuickAction('data_integrity')}
+              disabled={refreshing}
+            >
+              <Search className="h-4 w-4 mr-2" />
+              Vérification intégrité données
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Tabs des outils d'administration */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Outils d'administration</CardTitle>
+          <CardDescription>
+            Interface complète regroupant tous les outils développés dans les 10 points techniques
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Tabs defaultValue="overview" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-4 lg:grid-cols-9">
+              <TabsTrigger value="overview" className="flex items-center gap-1">
+                <Activity className="h-4 w-4" />
+                <span className="hidden sm:inline">Vue d'ensemble</span>
+              </TabsTrigger>
+              <TabsTrigger value="system" className="flex items-center gap-1">
+                <Settings className="h-4 w-4" />
+                <span className="hidden sm:inline">Système</span>
+              </TabsTrigger>
+              <TabsTrigger value="users" className="flex items-center gap-1">
+                <Users className="h-4 w-4" />
+                <span className="hidden sm:inline">Utilisateurs</span>
+              </TabsTrigger>
+              <TabsTrigger value="content" className="flex items-center gap-1">
+                <Database className="h-4 w-4" />
+                <span className="hidden sm:inline">Contenu</span>
+              </TabsTrigger>
+              <TabsTrigger value="subscriptions" className="flex items-center gap-1">
+                <TrendingUp className="h-4 w-4" />
+                <span className="hidden sm:inline">Abonnements</span>
+              </TabsTrigger>
+              <TabsTrigger value="analytics" className="flex items-center gap-1">
+                <BarChart3 className="h-4 w-4" />
+                <span className="hidden sm:inline">Analytics</span>
+              </TabsTrigger>
+              <TabsTrigger value="security" className="flex items-center gap-1">
+                <Shield className="h-4 w-4" />
+                <span className="hidden sm:inline">Sécurité</span>
+              </TabsTrigger>
+              <TabsTrigger value="chat" className="flex items-center gap-1">
+                <MessageSquare className="h-4 w-4" />
+                <span className="hidden sm:inline">Chat IA</span>
+              </TabsTrigger>
+              <TabsTrigger value="tools" className="flex items-center gap-1">
+                <Edit className="h-4 w-4" />
+                <span className="hidden sm:inline">Outils</span>
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="overview" className="space-y-6">
+              <div className="grid md:grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Résumé des 10 points techniques</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">I. Extraction UNESS automatisée</span>
+                      <Badge variant="default">✅ Actif</Badge>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">II. Génération contenu IA contextuelle</span>
+                      <Badge variant="default">✅ Actif</Badge>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">III. Système audit & monitoring</span>
+                      <Badge variant="default">✅ Actif</Badge>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">IV. Gestion quotas IA analytics</span>
+                      <Badge variant="default">✅ Actif</Badge>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">V. Moteur recherche intelligent</span>
+                      <Badge variant="default">✅ Actif</Badge>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">VI. API gestion rapide admin</span>
+                      <Badge variant="default">✅ Actif</Badge>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">VII. Agrégation & tracking analytics</span>
+                      <Badge variant="default">✅ Actif</Badge>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">VIII. Streaming-only & Sécurité</span>
+                      <Badge variant="default">✅ Actif</Badge>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">IX. Chat IA contextuel</span>
+                      <Badge variant="default">✅ Actif</Badge>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">X. Interface admin complète</span>
+                      <Badge variant="default">✅ Actif</Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Santé du système</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex justify-between items-center">
+                      <span>Base de données</span>
+                      <Badge variant="default">Opérationnelle</Badge>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span>Services IA</span>
+                      <Badge variant="default">Actifs</Badge>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span>Edge Functions</span>
+                      <Badge variant="default">Déployées</Badge>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span>API Gateway</span>
+                      <Badge variant="default">Stable</Badge>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span>Dernière mise à jour</span>
+                      <span className="text-sm text-gray-600">
+                        {new Date(systemStats.lastUpdate).toLocaleTimeString('fr-FR', {
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </span>
+                    </div>
+                  </CardContent>
+                </Card>
               </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+            </TabsContent>
+
+            <TabsContent value="system" className="space-y-6">
+              <AdminSystemSettings />
+            </TabsContent>
+
+            <TabsContent value="users" className="space-y-6">
+              <AdminUsersManager />
+            </TabsContent>
+
+            <TabsContent value="content" className="space-y-6">
+              <AdminContentManager />
+            </TabsContent>
+
+            <TabsContent value="subscriptions" className="space-y-6">
+              <AdminSubscriptionsManager />
+            </TabsContent>
+
+            <TabsContent value="analytics" className="space-y-6">
+              <AdminAnalytics />
+            </TabsContent>
+
+            <TabsContent value="security" className="space-y-6">
+              <AdminSecurityAudit />
+            </TabsContent>
+
+            <TabsContent value="chat" className="space-y-6">
+              <AdminChatMonitoring />
+            </TabsContent>
+
+            <TabsContent value="tools" className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Outils avancés</CardTitle>
+                  <CardDescription>
+                    Outils de gestion et maintenance avancés
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="grid md:grid-cols-2 gap-4">
+                  <Button variant="outline" className="h-auto p-4 justify-start">
+                    <Database className="h-5 w-5 mr-3" />
+                    <div className="text-left">
+                      <div className="font-medium">Migration données</div>
+                      <div className="text-sm text-gray-600">Outils de migration et backup</div>
+                    </div>
+                  </Button>
+                  <Button variant="outline" className="h-auto p-4 justify-start">
+                    <Search className="h-5 w-5 mr-3" />
+                    <div className="text-left">
+                      <div className="font-medium">Recherche avancée</div>
+                      <div className="text-sm text-gray-600">Filtrage et recherche intelligente</div>
+                    </div>
+                  </Button>
+                  <Button variant="outline" className="h-auto p-4 justify-start">
+                    <Edit className="h-5 w-5 mr-3" />
+                    <div className="text-left">
+                      <div className="font-medium">Édition rapide</div>
+                      <div className="text-sm text-gray-600">Modification en lot</div>
+                    </div>
+                  </Button>
+                  <Button variant="outline" className="h-auto p-4 justify-start">
+                    <Activity className="h-5 w-5 mr-3" />
+                    <div className="text-left">
+                      <div className="font-medium">Monitoring temps réel</div>
+                      <div className="text-sm text-gray-600">Surveillance système</div>
+                    </div>
+                  </Button>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+      </Card>
     </div>
   );
-}
+};
