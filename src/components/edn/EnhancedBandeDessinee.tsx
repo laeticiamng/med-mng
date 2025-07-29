@@ -2,10 +2,11 @@ import React, { useState } from 'react';
 import { BandeDessineeComplete } from './BandeDessineeComplete';
 import { ValeursProfessionnellesBD } from './ValeursProfessionnellesBD';
 import { AlternativeContentFormats } from './content/AlternativeContentFormats';
+import { MasterContentViewer } from '@/components/content/MasterContentViewer';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { BookOpen, FileText, Wand2 } from 'lucide-react';
+import { BookOpen, FileText, Wand2, Star } from 'lucide-react';
 
 interface EnhancedBandeDessineeProps {
   itemData: {
@@ -47,16 +48,24 @@ export const EnhancedBandeDessinee: React.FC<EnhancedBandeDessineeProps> = ({ it
       </Card>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="contenu-master" className="flex items-center gap-2">
+            <Star className="h-4 w-4" />
+            Contenu Premium
+          </TabsTrigger>
           <TabsTrigger value="bande-dessinee" className="flex items-center gap-2">
             <BookOpen className="h-4 w-4" />
-            Bande Dessinée
+            BD Classique
           </TabsTrigger>
           <TabsTrigger value="formats-alternatifs" className="flex items-center gap-2">
             <FileText className="h-4 w-4" />
             Autres Formats
           </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="contenu-master" className="space-y-6">
+          <MasterContentViewer itemData={itemData} />
+        </TabsContent>
 
         <TabsContent value="bande-dessinee" className="space-y-6">
           {renderBandeDessinee()}

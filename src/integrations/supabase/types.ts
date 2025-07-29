@@ -2548,6 +2548,111 @@ export type Database = {
         }
         Relationships: []
       }
+      med_mng_content_master: {
+        Row: {
+          approved_at: string | null
+          approved_by: string | null
+          avg_reading_time: number | null
+          comic_data: Json | null
+          content_size_kb: number | null
+          created_at: string | null
+          generated_at: string | null
+          generation_version: string | null
+          has_lyrics_sync: boolean | null
+          id: string
+          images_data: Json | null
+          item_id: string
+          novel_data: Json | null
+          poem_data: Json | null
+          quality_score: number | null
+          unique_viewers_count: number | null
+          updated_at: string | null
+          views_count: number | null
+        }
+        Insert: {
+          approved_at?: string | null
+          approved_by?: string | null
+          avg_reading_time?: number | null
+          comic_data?: Json | null
+          content_size_kb?: number | null
+          created_at?: string | null
+          generated_at?: string | null
+          generation_version?: string | null
+          has_lyrics_sync?: boolean | null
+          id?: string
+          images_data?: Json | null
+          item_id: string
+          novel_data?: Json | null
+          poem_data?: Json | null
+          quality_score?: number | null
+          unique_viewers_count?: number | null
+          updated_at?: string | null
+          views_count?: number | null
+        }
+        Update: {
+          approved_at?: string | null
+          approved_by?: string | null
+          avg_reading_time?: number | null
+          comic_data?: Json | null
+          content_size_kb?: number | null
+          created_at?: string | null
+          generated_at?: string | null
+          generation_version?: string | null
+          has_lyrics_sync?: boolean | null
+          id?: string
+          images_data?: Json | null
+          item_id?: string
+          novel_data?: Json | null
+          poem_data?: Json | null
+          quality_score?: number | null
+          unique_viewers_count?: number | null
+          updated_at?: string | null
+          views_count?: number | null
+        }
+        Relationships: []
+      }
+      med_mng_content_views: {
+        Row: {
+          completed: boolean | null
+          completion_percentage: number | null
+          content_type: string
+          device_type: string | null
+          id: string
+          ip_address: unknown | null
+          item_id: string
+          user_agent: string | null
+          user_id: string | null
+          view_duration: number | null
+          viewed_at: string | null
+        }
+        Insert: {
+          completed?: boolean | null
+          completion_percentage?: number | null
+          content_type: string
+          device_type?: string | null
+          id?: string
+          ip_address?: unknown | null
+          item_id: string
+          user_agent?: string | null
+          user_id?: string | null
+          view_duration?: number | null
+          viewed_at?: string | null
+        }
+        Update: {
+          completed?: boolean | null
+          completion_percentage?: number | null
+          content_type?: string
+          device_type?: string | null
+          id?: string
+          ip_address?: unknown | null
+          item_id?: string
+          user_agent?: string | null
+          user_id?: string | null
+          view_duration?: number | null
+          viewed_at?: string | null
+        }
+        Relationships: []
+      }
       med_mng_listening_events: {
         Row: {
           event_type: string
@@ -5023,6 +5128,10 @@ export type Database = {
           p_scene_immersive: Json
         }
         Returns: string[]
+      }
+      generate_master_content: {
+        Args: { p_item_id: string }
+        Returns: Json
       }
       generate_security_audit_report: {
         Args: Record<PropertyKey, never>
