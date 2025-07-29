@@ -1,251 +1,443 @@
+import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.3';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const GENERATION_COSTS = {
-  'qcm': 5 // 5 crédits par QCM généré
-};
+const supabase = createClient(
+  Deno.env.get('SUPABASE_URL') ?? '',
+  Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+);
+
+const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
 
 serve(async (req) => {
-  console.log('🎯 QCM Generator called:', req.method);
-  
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    // Initialiser Supabase
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    const url = new URL(req.url);
+    const path = url.pathname;
 
-    // Authentification utilisateur
-    const authHeader = req.headers.get('Authorization')!;
-    const token = authHeader.replace('Bearer ', '');
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    // POST /generate-qcm - Generate QCM questions for an item
+    if (req.method === 'POST' && path === '/generate-qcm') {
+      const { item_code, session_type, question_count = 10 } = await req.json();
 
-    if (authError || !user) {
-      console.error('❌ Auth error:', authError);
-      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-        status: 401,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      });
-    }
-
-    const { item_id, type, difficulty = 5 } = await req.json();
-
-    if (!item_id || !type) {
-      return new Response(JSON.stringify({ error: 'item_id et type requis' }), {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      });
-    }
-
-    console.log(`📚 Génération QCM pour ${item_id}, type: ${type}, difficulté: ${difficulty}`);
-
-    // Vérifier et décrémenter les crédits
-    const { data: quotaData, error: quotaError } = await supabase.rpc('med_mng_decrement_quota', {
-      p_user_id: user.id,
-      p_credits_required: GENERATION_COSTS.qcm
-    });
-
-    if (quotaError || !quotaData) {
-      console.error('❌ Quota insuffisant:', quotaError);
-      return new Response(JSON.stringify({ 
-        error: 'Crédits insuffisants', 
-        credits_required: GENERATION_COSTS.qcm 
-      }), {
-        status: 402,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      });
-    }
-
-    // Récupérer les données de l'item
-    const { data: itemData, error: itemError } = await supabase
-      .from('edn_items_immersive')
-      .select('item_code, title, tableau_rang_a, tableau_rang_b')
-      .eq('item_code', item_id)
-      .single();
-
-    if (itemError || !itemData) {
-      console.error('❌ Item non trouvé:', itemError);
-      // Rollback des crédits
-      await supabase.rpc('med_mng_refund_credits', {
-        p_user_id: user.id,
-        p_credits: GENERATION_COSTS.qcm
-      });
-      return new Response(JSON.stringify({ error: 'Item non trouvé' }), {
-        status: 404,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      });
-    }
-
-    // Sélectionner le contenu selon le type
-    let contentData;
-    switch (type) {
-      case 'rang_a':
-        contentData = itemData.tableau_rang_a;
-        break;
-      case 'rang_b':
-        contentData = itemData.tableau_rang_b;
-        break;
-      case 'mix':
-        contentData = {
-          rang_a: itemData.tableau_rang_a,
-          rang_b: itemData.tableau_rang_b
-        };
-        break;
-      default:
-        return new Response(JSON.stringify({ error: 'Type invalide: rang_a, rang_b ou mix' }), {
+      if (!item_code || !session_type) {
+        return new Response(JSON.stringify({ error: 'Item code et type de session requis' }), {
           status: 400,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         });
-    }
+      }
 
-    // Générer les questions avec IA (OpenAI)
-    const openAIKey = Deno.env.get('OPENAI_API_KEY');
-    if (!openAIKey) {
-      console.error('❌ OpenAI key manquante');
-      await supabase.rpc('med_mng_refund_credits', {
-        p_user_id: user.id,
-        p_credits: GENERATION_COSTS.qcm
-      });
-      return new Response(JSON.stringify({ error: 'Configuration IA manquante' }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      });
-    }
+      // Get item data
+      const { data: itemData } = await supabase
+        .from('edn_items_immersive')
+        .select('*')
+        .eq('item_code', item_code)
+        .single();
 
-    const prompt = `Génère un QCM de ${difficulty} questions sur le sujet médical "${itemData.title}" (${item_id}).
+      if (!itemData) {
+        return new Response(JSON.stringify({ error: 'Item non trouvé' }), {
+          status: 404,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
 
-Contenu source (${type}):
-${JSON.stringify(contentData, null, 2)}
+      // Generate QCM using OpenAI
+      const prompt = `Génère ${question_count} questions QCM pour l'item médical ${item_code} - ${itemData.title}.
 
-Instructions:
-- ${difficulty} questions de difficulté progressive
-- 4 options par question (A, B, C, D)
-- 1 seule bonne réponse par question
-- Explication détaillée pour chaque réponse
-- Focus sur les éléments cliniques essentiels
-- Questions type ECN/EDN
+Type de session: ${session_type}
+${session_type === 'rang_a' ? 'Focus sur les connaissances de base (Rang A)' : 
+  session_type === 'rang_b' ? 'Focus sur les connaissances approfondies (Rang B)' : 
+  'Mix des connaissances Rang A et B'}
 
-Format de réponse JSON strict:
+Contenu à couvrir:
+${session_type === 'rang_a' || session_type === 'mixed' ? JSON.stringify(itemData.tableau_rang_a) : ''}
+${session_type === 'rang_b' || session_type === 'mixed' ? JSON.stringify(itemData.tableau_rang_b) : ''}
+
+Format de réponse JSON:
 {
   "questions": [
     {
-      "id": 1,
-      "question": "Question précise et claire",
-      "options": ["A. Option 1", "B. Option 2", "C. Option 3", "D. Option 4"],
-      "correct_answer": 1,
-      "explanation": "Explication détaillée de la bonne réponse",
-      "difficulty": "facile|moyen|difficile"
+      "id": "unique_id",
+      "question": "Question text",
+      "options": ["Option A", "Option B", "Option C", "Option D"],
+      "correct_answer": "Option A",
+      "explanation": "Explication détaillée",
+      "medical_concept": "Concept médical principal",
+      "difficulty": "facile|moyen|difficile",
+      "rang": "A|B"
     }
   ]
+}
+
+Critères:
+- Questions précises et cliniquement pertinentes
+- 4 options par question (A, B, C, D)
+- Explications pédagogiques détaillées
+- Concepts médicaux clairs
+- Niveau de difficulté adapté au rang`;
+
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${openAIApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'gpt-4.1-2025-04-14',
+          messages: [
+            { role: 'system', content: 'Tu es un expert en pédagogie médicale spécialisé dans la création de QCM EDN de haute qualité.' },
+            { role: 'user', content: prompt }
+          ],
+          temperature: 0.7,
+          max_tokens: 4000
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Erreur OpenAI');
+      }
+
+      const aiResponse = await response.json();
+      const generatedContent = JSON.parse(aiResponse.choices[0].message.content);
+
+      return new Response(JSON.stringify({
+        success: true,
+        item_code,
+        session_type,
+        questions: generatedContent.questions,
+        generated_at: new Date().toISOString()
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // POST /start-qcm-session - Start a new QCM session
+    if (req.method === 'POST' && path === '/start-qcm-session') {
+      const authHeader = req.headers.get('authorization');
+      if (!authHeader) {
+        return new Response(JSON.stringify({ error: 'Authentication required' }), {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const { item_code, session_type, questions } = await req.json();
+
+      // Get user
+      const { data: { user } } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''));
+      if (!user) {
+        return new Response(JSON.stringify({ error: 'Invalid token' }), {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      // Create session
+      const { data: session, error } = await supabase
+        .from('qcm_sessions')
+        .insert({
+          item_code,
+          session_type,
+          total_questions: questions.length,
+          user_id: user.id
+        })
+        .select()
+        .single();
+
+      if (error) {
+        return new Response(JSON.stringify({ error: error.message }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      return new Response(JSON.stringify({
+        success: true,
+        session_id: session.id,
+        questions
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // POST /submit-qcm-response - Submit a QCM response
+    if (req.method === 'POST' && path === '/submit-qcm-response') {
+      const { session_id, question_id, question_text, user_answer, correct_answer, response_time, explanation, medical_concept } = await req.json();
+
+      const is_correct = user_answer === correct_answer;
+
+      const { error } = await supabase
+        .from('qcm_responses')
+        .insert({
+          session_id,
+          question_id,
+          question_text,
+          user_answer,
+          correct_answer,
+          is_correct,
+          explanation,
+          medical_concept,
+          response_time_seconds: response_time
+        });
+
+      if (error) {
+        return new Response(JSON.stringify({ error: error.message }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      return new Response(JSON.stringify({
+        success: true,
+        is_correct,
+        explanation
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // POST /complete-qcm-session - Complete QCM session and calculate score
+    if (req.method === 'POST' && path === '/complete-qcm-session') {
+      const { session_id } = await req.json();
+
+      // Get all responses for this session
+      const { data: responses } = await supabase
+        .from('qcm_responses')
+        .select('*')
+        .eq('session_id', session_id);
+
+      if (!responses) {
+        return new Response(JSON.stringify({ error: 'Session non trouvée' }), {
+          status: 404,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const correct_answers = responses.filter(r => r.is_correct).length;
+      const incorrect_answers = responses.length - correct_answers;
+      const score = (correct_answers / responses.length) * 100;
+
+      // Update session
+      const { data: session, error } = await supabase
+        .from('qcm_sessions')
+        .update({
+          score,
+          correct_answers,
+          incorrect_answers,
+          completed_at: new Date().toISOString()
+        })
+        .eq('id', session_id)
+        .select()
+        .single();
+
+      if (error) {
+        return new Response(JSON.stringify({ error: error.message }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      // Get incorrect answers for error song generation
+      const incorrectAnswers = responses.filter(r => !r.is_correct);
+
+      return new Response(JSON.stringify({
+        success: true,
+        session,
+        score,
+        correct_answers,
+        incorrect_answers,
+        total_questions: responses.length,
+        incorrect_responses: incorrectAnswers,
+        can_generate_error_song: incorrectAnswers.length > 0
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // POST /generate-error-song - Generate song from QCM errors
+    if (req.method === 'POST' && path === '/generate-error-song') {
+      const authHeader = req.headers.get('authorization');
+      if (!authHeader) {
+        return new Response(JSON.stringify({ error: 'Authentication required' }), {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const { session_id, incorrect_responses } = await req.json();
+
+      if (!incorrect_responses || incorrect_responses.length === 0) {
+        return new Response(JSON.stringify({ error: 'Aucune erreur à analyser' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      // Get user and session info
+      const { data: { user } } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''));
+      const { data: session } = await supabase
+        .from('qcm_sessions')
+        .select('*')
+        .eq('id', session_id)
+        .single();
+
+      if (!session || !user) {
+        return new Response(JSON.stringify({ error: 'Session ou utilisateur non trouvé' }), {
+          status: 404,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      // Create prompt for error song
+      const errorConcepts = incorrect_responses.map(r => ({
+        concept: r.medical_concept,
+        question: r.question_text,
+        correct_answer: r.correct_answer,
+        user_answer: r.user_answer,
+        explanation: r.explanation
+      }));
+
+      const songPrompt = `Crée une chanson pédagogique pour mémoriser les erreurs du QCM sur l'item ${session.item_code}.
+
+Erreurs à corriger:
+${errorConcepts.map((error, i) => `
+${i + 1}. Concept: ${error.concept}
+Question: ${error.question}
+Bonne réponse: ${error.correct_answer}
+Réponse donnée: ${error.user_answer}
+Explication: ${error.explanation}
+`).join('\n')}
+
+Style musical: Pédagogique et mémorable
+Objectif: Aider à retenir les bonnes réponses
+Ton: Positif et encourageant
+
+Format de réponse JSON:
+{
+  "title": "Titre de la chanson",
+  "lyrics": {
+    "verses": [
+      {"text": "Couplet 1", "medical_focus": "concept médical"},
+      {"text": "Refrain", "medical_focus": "message principal"}
+    ]
+  },
+  "style": "pop éducatif",
+  "tempo": "modéré",
+  "key_concepts": ["concept1", "concept2"]
 }`;
 
-    const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openAIKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4.1-2025-04-14',
-        messages: [
-          { 
-            role: 'system', 
-            content: 'Tu es un expert en médecine spécialisé dans la création de QCM pour l\'EDN. Réponds uniquement en JSON valide.' 
-          },
-          { role: 'user', content: prompt }
-        ],
-        temperature: 0.7,
-      }),
-    });
-
-    if (!openAIResponse.ok) {
-      console.error('❌ Erreur OpenAI:', await openAIResponse.text());
-      await supabase.rpc('med_mng_refund_credits', {
-        p_user_id: user.id,
-        p_credits: GENERATION_COSTS.qcm
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${openAIApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'gpt-4.1-2025-04-14',
+          messages: [
+            { role: 'system', content: 'Tu es un compositeur spécialisé dans les chansons pédagogiques médicales.' },
+            { role: 'user', content: songPrompt }
+          ],
+          temperature: 0.8,
+          max_tokens: 2000
+        }),
       });
-      return new Response(JSON.stringify({ error: 'Erreur génération IA' }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      });
-    }
 
-    const aiResult = await openAIResponse.json();
-    const generatedContent = JSON.parse(aiResult.choices[0].message.content);
-
-    // Sauvegarder la session QCM
-    const { data: qcmSession, error: qcmError } = await supabase
-      .from('med_mng_qcm_sessions')
-      .insert({
-        user_id: user.id,
-        item_id: item_id,
-        type: type,
-        questions: generatedContent.questions,
-        answers: [], // Réponses vides au départ
-        score: 0,
-        errors: []
-      })
-      .select()
-      .single();
-
-    if (qcmError) {
-      console.error('❌ Erreur sauvegarde QCM:', qcmError);
-      await supabase.rpc('med_mng_refund_credits', {
-        p_user_id: user.id,
-        p_credits: GENERATION_COSTS.qcm
-      });
-      return new Response(JSON.stringify({ error: 'Erreur sauvegarde' }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      });
-    }
-
-    // Logger l'usage
-    await supabase.rpc('log_ia_usage', {
-      p_user_id: user.id,
-      p_service: 'qcm_generation',
-      p_credits_used: GENERATION_COSTS.qcm,
-      p_item_id: item_id,
-      p_metadata: {
-        type: type,
-        difficulty: difficulty,
-        questions_count: generatedContent.questions.length
+      if (!response.ok) {
+        throw new Error('Erreur OpenAI pour génération chanson');
       }
-    });
 
-    console.log(`✅ QCM généré avec succès: ${qcmSession.id}`);
+      const aiResponse = await response.json();
+      const songData = JSON.parse(aiResponse.choices[0].message.content);
 
-    return new Response(JSON.stringify({
-      success: true,
-      session_id: qcmSession.id,
-      questions: generatedContent.questions.map(q => ({
-        id: q.id,
-        question: q.question,
-        options: q.options,
-        difficulty: q.difficulty
-        // Note: pas la réponse correcte ni l'explication lors de la génération
-      })),
-      credits_used: GENERATION_COSTS.qcm
-    }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      // Save error song to database
+      const { data: errorSong, error } = await supabase
+        .from('error_songs')
+        .insert({
+          user_id: user.id,
+          session_id,
+          song_title: songData.title,
+          lyrics: songData.lyrics,
+          generation_prompt: songPrompt,
+          errors_analyzed: errorConcepts,
+          generation_status: 'completed'
+        })
+        .select()
+        .single();
+
+      if (error) {
+        return new Response(JSON.stringify({ error: error.message }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      return new Response(JSON.stringify({
+        success: true,
+        error_song: errorSong,
+        song_data: songData
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // GET /user-qcm-history - Get user's QCM history
+    if (req.method === 'GET' && path === '/user-qcm-history') {
+      const authHeader = req.headers.get('authorization');
+      if (!authHeader) {
+        return new Response(JSON.stringify({ error: 'Authentication required' }), {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const { data: { user } } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''));
+      if (!user) {
+        return new Response(JSON.stringify({ error: 'Invalid token' }), {
+          status: 401,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const { data: sessions, error } = await supabase
+        .from('qcm_sessions')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(50);
+
+      if (error) {
+        return new Response(JSON.stringify({ error: error.message }), {
+          status: 500,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      return new Response(JSON.stringify({
+        success: true,
+        sessions
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    return new Response(JSON.stringify({ error: 'Route non trouvée' }), {
+      status: 404,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
   } catch (error) {
-    console.error('❌ Erreur QCM Generator:', error);
-    return new Response(JSON.stringify({ 
-      error: 'Erreur interne serveur',
-      details: error.message 
-    }), {
+    console.error('Error in qcm-generator:', error);
+    return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 });

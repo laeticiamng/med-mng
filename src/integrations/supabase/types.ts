@@ -1506,6 +1506,59 @@ export type Database = {
         }
         Relationships: []
       }
+      error_songs: {
+        Row: {
+          audio_url: string | null
+          created_at: string | null
+          errors_analyzed: Json
+          generation_prompt: string
+          generation_status: string | null
+          id: string
+          lyrics: Json
+          session_id: string
+          song_title: string
+          suno_audio_id: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          audio_url?: string | null
+          created_at?: string | null
+          errors_analyzed: Json
+          generation_prompt: string
+          generation_status?: string | null
+          id?: string
+          lyrics: Json
+          session_id: string
+          song_title: string
+          suno_audio_id?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          audio_url?: string | null
+          created_at?: string | null
+          errors_analyzed?: Json
+          generation_prompt?: string
+          generation_status?: string | null
+          id?: string
+          lyrics?: Json
+          session_id?: string
+          song_title?: string
+          suno_audio_id?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "error_songs_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "qcm_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       extraction_events: {
         Row: {
           created_at: string
@@ -3720,6 +3773,101 @@ export type Database = {
         }
         Relationships: []
       }
+      qcm_responses: {
+        Row: {
+          correct_answer: string
+          created_at: string | null
+          explanation: string | null
+          id: string
+          is_correct: boolean
+          medical_concept: string | null
+          question_id: string
+          question_text: string
+          response_time_seconds: number | null
+          session_id: string
+          user_answer: string
+        }
+        Insert: {
+          correct_answer: string
+          created_at?: string | null
+          explanation?: string | null
+          id?: string
+          is_correct: boolean
+          medical_concept?: string | null
+          question_id: string
+          question_text: string
+          response_time_seconds?: number | null
+          session_id: string
+          user_answer: string
+        }
+        Update: {
+          correct_answer?: string
+          created_at?: string | null
+          explanation?: string | null
+          id?: string
+          is_correct?: boolean
+          medical_concept?: string | null
+          question_id?: string
+          question_text?: string
+          response_time_seconds?: number | null
+          session_id?: string
+          user_answer?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "qcm_responses_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "qcm_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      qcm_sessions: {
+        Row: {
+          completed_at: string | null
+          correct_answers: number | null
+          created_at: string | null
+          id: string
+          incorrect_answers: number | null
+          item_code: string
+          score: number | null
+          session_type: string
+          time_spent_seconds: number | null
+          total_questions: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          correct_answers?: number | null
+          created_at?: string | null
+          id?: string
+          incorrect_answers?: number | null
+          item_code: string
+          score?: number | null
+          session_type: string
+          time_spent_seconds?: number | null
+          total_questions?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          correct_answers?: number | null
+          created_at?: string | null
+          id?: string
+          incorrect_answers?: number | null
+          item_code?: string
+          score?: number | null
+          session_type?: string
+          time_spent_seconds?: number | null
+          total_questions?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       recording_projects: {
         Row: {
           bpm: number | null
@@ -4292,6 +4440,45 @@ export type Database = {
         }
         Relationships: []
       }
+      user_playlists: {
+        Row: {
+          cover_image_url: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          is_public: boolean | null
+          name: string
+          play_count: number | null
+          song_ids: Json | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          cover_image_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          name: string
+          play_count?: number | null
+          song_ids?: Json | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          cover_image_url?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          name?: string
+          play_count?: number | null
+          song_ids?: Json | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_preferences: {
         Row: {
           created_at: string
@@ -4312,6 +4499,51 @@ export type Database = {
           id?: string
           preferences?: Json
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_quotas: {
+        Row: {
+          created_at: string | null
+          id: string
+          monthly_chat_quota: number | null
+          monthly_chat_used: number | null
+          monthly_music_quota: number | null
+          monthly_music_used: number | null
+          monthly_qcm_quota: number | null
+          monthly_qcm_used: number | null
+          quota_reset_date: string | null
+          subscription_type: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          monthly_chat_quota?: number | null
+          monthly_chat_used?: number | null
+          monthly_music_quota?: number | null
+          monthly_music_used?: number | null
+          monthly_qcm_quota?: number | null
+          monthly_qcm_used?: number | null
+          quota_reset_date?: string | null
+          subscription_type?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          monthly_chat_quota?: number | null
+          monthly_chat_used?: number | null
+          monthly_music_quota?: number | null
+          monthly_music_used?: number | null
+          monthly_qcm_quota?: number | null
+          monthly_qcm_used?: number | null
+          quota_reset_date?: string | null
+          subscription_type?: string | null
+          updated_at?: string | null
           user_id?: string
         }
         Relationships: []
@@ -5026,6 +5258,10 @@ export type Database = {
           total_rang_a: number
           total_rang_b: number
         }[]
+      }
+      reset_monthly_quotas: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       run_security_health_check: {
         Args: Record<PropertyKey, never>
