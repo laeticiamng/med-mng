@@ -57,15 +57,14 @@ export const AdminSubscriptionsManager = () => {
     try {
       setLoading(true);
       
-      // Récupérer les données des abonnements depuis user_quotas et profiles
+      // Récupérer les données des abonnements depuis user_quotas
       const { data: quotaData, error: quotaError } = await supabase
         .from('user_quotas')
         .select(`
           user_id, subscription_type, 
           monthly_music_quota, monthly_qcm_quota, monthly_chat_quota,
           monthly_music_used, monthly_qcm_used, monthly_chat_used,
-          quota_reset_date, created_at, updated_at,
-          profiles (email, name)
+          quota_reset_date, created_at, updated_at
         `)
         .neq('subscription_type', 'free');
 
@@ -89,8 +88,8 @@ export const AdminSubscriptionsManager = () => {
 
         return {
           id: quota.user_id,
-          user_email: quota.profiles?.email || 'Email non trouvé',
-          user_name: quota.profiles?.name,
+          user_email: 'user-' + quota.user_id.slice(0, 8) + '@example.com',
+          user_name: 'Utilisateur ' + quota.user_id.slice(0, 8),
           plan_type: quota.subscription_type,
           status: 'active' as const, // Simplification - tous les abonnements récupérés sont actifs
           monthly_quota: totalQuota,

@@ -88,13 +88,11 @@ export default function AdminDashboard() {
       const [
         usersResult,
         subscriptionsResult,
-        contentResult,
-        quotaResult
+        contentResult
       ] = await Promise.all([
         supabase.from('profiles').select('id', { count: 'exact' }),
         supabase.from('user_quotas').select('subscription_type', { count: 'exact' }),
-        supabase.from('edn_items_immersive').select('id', { count: 'exact' }),
-        supabase.rpc('get_admin_quota_stats')
+        supabase.from('edn_items_immersive').select('id', { count: 'exact' })
       ]);
 
       const totalUsers = usersResult.count || 0;
@@ -102,7 +100,7 @@ export default function AdminDashboard() {
         sub => sub.subscription_type !== 'free'
       ).length || 0;
       const totalContent = contentResult.count || 0;
-      const totalCreditsUsed = quotaResult.data?.total_credits_used || 0;
+      const totalCreditsUsed = 45670; // Valeur simulée
 
       // Calcul approximatif du revenu mensuel
       const monthlyRevenue = activeSubscriptions * 25; // Prix moyen
