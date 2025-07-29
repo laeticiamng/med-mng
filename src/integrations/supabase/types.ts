@@ -3495,6 +3495,141 @@ export type Database = {
         }
         Relationships: []
       }
+      performance_alerts: {
+        Row: {
+          acknowledged: boolean
+          acknowledged_at: string | null
+          acknowledged_by: string | null
+          alert_type: string
+          created_at: string
+          description: string
+          id: string
+          metric_data: Json
+          resolved: boolean
+          resolved_at: string | null
+          severity: string
+          title: string
+        }
+        Insert: {
+          acknowledged?: boolean
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          alert_type: string
+          created_at?: string
+          description: string
+          id?: string
+          metric_data: Json
+          resolved?: boolean
+          resolved_at?: string | null
+          severity: string
+          title: string
+        }
+        Update: {
+          acknowledged?: boolean
+          acknowledged_at?: string | null
+          acknowledged_by?: string | null
+          alert_type?: string
+          created_at?: string
+          description?: string
+          id?: string
+          metric_data?: Json
+          resolved?: boolean
+          resolved_at?: string | null
+          severity?: string
+          title?: string
+        }
+        Relationships: []
+      }
+      performance_budgets: {
+        Row: {
+          active: boolean
+          created_at: string
+          critical_threshold: number
+          id: string
+          metric_name: string
+          metric_type: string
+          name: string
+          target_value: number
+          updated_at: string
+          warning_threshold: number
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          critical_threshold: number
+          id?: string
+          metric_name: string
+          metric_type: string
+          name: string
+          target_value: number
+          updated_at?: string
+          warning_threshold: number
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          critical_threshold?: number
+          id?: string
+          metric_name?: string
+          metric_type?: string
+          name?: string
+          target_value?: number
+          updated_at?: string
+          warning_threshold?: number
+        }
+        Relationships: []
+      }
+      performance_metrics: {
+        Row: {
+          connection_type: string | null
+          created_at: string
+          device_type: string | null
+          id: string
+          metadata: Json | null
+          metric_name: string
+          metric_type: string
+          metric_unit: string
+          metric_value: number
+          session_id: string
+          timestamp: string
+          url: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          connection_type?: string | null
+          created_at?: string
+          device_type?: string | null
+          id?: string
+          metadata?: Json | null
+          metric_name: string
+          metric_type: string
+          metric_unit: string
+          metric_value: number
+          session_id: string
+          timestamp?: string
+          url?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          connection_type?: string | null
+          created_at?: string
+          device_type?: string | null
+          id?: string
+          metadata?: Json | null
+          metric_name?: string
+          metric_type?: string
+          metric_unit?: string
+          metric_value?: number
+          session_id?: string
+          timestamp?: string
+          url?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       posts: {
         Row: {
           content: string
@@ -3794,6 +3929,51 @@ export type Database = {
           severity?: string
           status?: string
           type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      sla_metrics: {
+        Row: {
+          breach_count: number
+          created_at: string
+          current_value: number | null
+          id: string
+          last_calculated: string | null
+          metric_name: string
+          period_end: string
+          period_start: string
+          service_name: string
+          status: string
+          target_value: number
+          updated_at: string
+        }
+        Insert: {
+          breach_count?: number
+          created_at?: string
+          current_value?: number | null
+          id?: string
+          last_calculated?: string | null
+          metric_name: string
+          period_end: string
+          period_start: string
+          service_name: string
+          status?: string
+          target_value: number
+          updated_at?: string
+        }
+        Update: {
+          breach_count?: number
+          created_at?: string
+          current_value?: number | null
+          id?: string
+          last_calculated?: string | null
+          metric_name?: string
+          period_end?: string
+          period_start?: string
+          service_name?: string
+          status?: string
+          target_value?: number
           updated_at?: string
         }
         Relationships: []
@@ -4245,6 +4425,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
+      calculate_sla_metrics: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       check_music_generation_quota: {
         Args: { user_uuid: string }
         Returns: {
@@ -4280,6 +4464,10 @@ export type Database = {
         Returns: number
       }
       cleanup_old_operation_logs: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      cleanup_old_performance_metrics: {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
