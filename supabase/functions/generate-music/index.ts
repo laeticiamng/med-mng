@@ -535,7 +535,7 @@ serve(async (req) => {
         .from('generated_music_tracks')
         .insert(insertData)
         .select()
-        .single();
+        .maybeSingle();
       
       if (insertError) {
         console.error('❌ Erreur insertion BDD:', insertError);
