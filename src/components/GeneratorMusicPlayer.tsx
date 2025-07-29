@@ -19,9 +19,6 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
 }) => {
   const { currentTrack, isPlaying, play, pause, resume } = useGlobalAudio();
   const [showDebug, setShowDebug] = useState(false);
-  const [isLoadingAudio, setIsLoadingAudio] = useState(false);
-  const [audioPreloaded, setAudioPreloaded] = useState(false);
-  const [generationStartTime, setGenerationStartTime] = useState<number | null>(null);
 
   // Détecter si c'est une génération en cours (trackId sans audioUrl)
   const isGenerating = generatedSong?.audioUrl && !generatedSong.audioUrl.startsWith('http');
@@ -30,39 +27,13 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
   // Utiliser le hook de statut pour suivre la génération
   const { status, isPolling, startPolling, audioUrl, progress } = useMusicGenerationStatus(trackIdForPolling);
 
-  // Démarrer le polling automatiquement si nécessaire + gestion temps
+  // Démarrer le polling automatiquement si nécessaire
   useEffect(() => {
     if (trackIdForPolling && !isPolling) {
       console.log('🚀 Démarrage du polling pour trackId:', trackIdForPolling);
-      setGenerationStartTime(Date.now());
       startPolling();
     }
   }, [trackIdForPolling, isPolling, startPolling]);
-
-  // Précharger l'audio dès qu'il est disponible
-  useEffect(() => {
-    if (audioUrl && !audioPreloaded) {
-      setIsLoadingAudio(true);
-      const audio = new Audio(audioUrl);
-      
-      audio.addEventListener('canplaythrough', () => {
-        setAudioPreloaded(true);
-        setIsLoadingAudio(false);
-        console.log('✅ Audio préchargé avec succès:', audioUrl);
-      });
-      
-      audio.addEventListener('error', (e) => {
-        setIsLoadingAudio(false);
-        console.error('❌ Erreur préchargement audio:', e);
-      });
-      
-      audio.load();
-    }
-  }, [audioUrl, audioPreloaded]);
-
-  // Calcul du temps de génération
-  const generationDuration = generationStartTime && audioUrl ? 
-    Math.round((Date.now() - generationStartTime) / 1000) : null;
 
   console.log('🎵 GeneratorMusicPlayer render:', {
     hasGeneratedSong: !!generatedSong,
@@ -159,39 +130,10 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
           
           {/* Barre de progression si génération en cours */}
           {isGenerating && !audioUrl && (
-            <div className="space-y-3">
+            <div className="space-y-2">
               <Progress value={progress} className="w-full" />
-              <div className="text-center space-y-1">
-                <p className="text-sm text-blue-600 font-medium">
-                  Génération en cours... {progress}% complété
-                </p>
-                {generationStartTime && (
-                  <p className="text-xs text-gray-500">
-                    Temps écoulé: {Math.round((Date.now() - generationStartTime) / 1000)}s
-                  </p>
-                )}
-                <p className="text-xs text-blue-500">
-                  ⏱️ Temps estimé: 60-120 secondes
-                </p>
-              </div>
-            </div>
-          )}
-          
-          {/* Indicateur de chargement audio */}
-          {audioUrl && isLoadingAudio && (
-            <div className="text-center space-y-2">
-              <Loader2 className="h-5 w-5 animate-spin mx-auto text-green-600" />
-              <p className="text-sm text-green-600">
-                Chargement de l'audio...
-              </p>
-            </div>
-          )}
-          
-          {/* Succès de génération */}
-          {audioUrl && audioPreloaded && generationDuration && (
-            <div className="text-center">
-              <p className="text-sm text-green-600 font-medium">
-                ✅ Générée en {generationDuration}s - Prête à écouter !
+              <p className="text-sm text-blue-600">
+                Génération en cours... {progress}% complété
               </p>
             </div>
           )}
