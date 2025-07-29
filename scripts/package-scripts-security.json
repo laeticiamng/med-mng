@@ -8,6 +8,9 @@
     "test:integration": "jest test/integration --verbose",
     "test:integration:api": "jest test/integration/med-mng-api.integration.test.ts",
     "test:integration:robustness": "jest test/integration/api-robustness.test.ts",
-    "test:api:endpoints": "./scripts/test-api-endpoints.sh"
+    "test:api:endpoints": "./scripts/test-api-endpoints.sh",
+    "test:api-validation": "npm run generate-api-types && npm run test:api",
+    "test:e2e": "playwright test test/e2e",
+    "test:e2e:headed": "playwright test test/e2e --headed"
   }
 }

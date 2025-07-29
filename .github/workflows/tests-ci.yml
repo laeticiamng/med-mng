@@ -172,6 +172,12 @@ jobs:
       - name: 📥 Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: 🎯 Run E2E tests
+        run: |
+          npm run test:e2e
+          npm run test:security
+          npm run test:api-validation
+
       - name: 🎯 Run API integration tests
         run: |
           echo "🎯 Tests d'intégration API MED-MNG..."
