@@ -2,6 +2,12 @@ import React, { useState } from 'react';
 import { QuizSelector, QuizConfig } from './QuizSelector';
 import { QuizInterface } from './QuizInterface';
 import { QuizGenerator } from './QuizGenerator';
+import { QuizErrorSongGenerator } from '../music/QuizErrorSongGenerator';
+import { useQuizErrorTracker } from '@/hooks/useQuizErrorTracker';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { RotateCcw, Music, Brain, Trophy, AlertTriangle } from 'lucide-react';
 
 interface QuizManagerProps {
   item: {
@@ -41,6 +47,13 @@ export const QuizManager: React.FC<QuizManagerProps> = ({ item, onClose }) => {
   const [quizConfig, setQuizConfig] = useState<QuizConfig | null>(null);
   const [quizQuestions, setQuizQuestions] = useState<any[]>([]);
   const [quizResults, setQuizResults] = useState<QuizResults | null>(null);
+  
+  const { 
+    currentErrors, 
+    hasCurrentSession, 
+    startQuizSession, 
+    endQuizSession 
+  } = useQuizErrorTracker();
 
   // Calculer le nombre total de questions disponibles
   const calculateTotalQuestions = () => {
@@ -75,6 +88,9 @@ export const QuizManager: React.FC<QuizManagerProps> = ({ item, onClose }) => {
   const handleStartQuiz = (config: QuizConfig) => {
     console.log('🎯 Configuration du quiz:', config);
     
+    // Démarrer une session de tracking des erreurs
+    startQuizSession(item.item_code, item.title, config.numberOfQuestions);
+    
     // Générer les questions selon la configuration
     const generatedQuestions = QuizGenerator.generateQuestions(item, config);
     
@@ -89,14 +105,22 @@ export const QuizManager: React.FC<QuizManagerProps> = ({ item, onClose }) => {
     console.log('🎯 Quiz terminé:', results);
     setQuizResults(results);
     
-    // Optionnel: sauvegarder les résultats
-    // saveQuizResults(item.id, results);
+    // Terminer la session de tracking des erreurs
+    endQuizSession(results.score);
+    
+    // Passer à la vue résultats
+    setCurrentView('results');
   };
 
   const handleReturnToConfig = () => {
     setCurrentView('config');
     setQuizConfig(null);
     setQuizQuestions([]);
+    setQuizResults(null);
+  };
+
+  const handleRestartQuiz = () => {
+    setCurrentView('config');
     setQuizResults(null);
   };
 
@@ -121,6 +145,108 @@ export const QuizManager: React.FC<QuizManagerProps> = ({ item, onClose }) => {
         onQuizComplete={handleQuizComplete}
         onReturnToConfig={handleReturnToConfig}
       />
+    );
+  }
+
+  if (currentView === 'results' && quizResults) {
+    return (
+      <div className="space-y-6">
+        <Tabs defaultValue="results" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="results" className="flex items-center gap-2">
+              <Trophy className="h-4 w-4" />
+              Résultats
+            </TabsTrigger>
+            <TabsTrigger value="song" className="flex items-center gap-2">
+              <Music className="h-4 w-4" />
+              Chanson d'Erreurs
+              {currentErrors.length > 0 && (
+                <span className="ml-1 px-2 py-0.5 text-xs bg-orange-500 text-white rounded-full">
+                  {currentErrors.length}
+                </span>
+              )}
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="results" className="space-y-4">
+            <Card className="bg-gradient-to-br from-blue-50 to-indigo-50 border-blue-200">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-3 text-blue-800">
+                  <Trophy className="h-6 w-6" />
+                  Résultats du Quiz {item.item_code}
+                </CardTitle>
+                <CardDescription className="text-blue-700">
+                  Quiz terminé avec {quizResults.correctAnswers} bonnes réponses sur {quizResults.totalQuestions}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="bg-white/60 rounded-lg p-3 text-center">
+                    <div className="text-2xl font-bold text-green-600">
+                      {Math.round((quizResults.score / quizResults.totalQuestions) * 100)}%
+                    </div>
+                    <div className="text-sm text-gray-600">Score</div>
+                  </div>
+                  <div className="bg-white/60 rounded-lg p-3 text-center">
+                    <div className="text-2xl font-bold text-blue-600">
+                      {quizResults.correctAnswers}
+                    </div>
+                    <div className="text-sm text-gray-600">Correctes</div>
+                  </div>
+                  <div className="bg-white/60 rounded-lg p-3 text-center">
+                    <div className="text-2xl font-bold text-orange-600">
+                      {quizResults.wrongAnswers}
+                    </div>
+                    <div className="text-sm text-gray-600">Erreurs</div>
+                  </div>
+                  <div className="bg-white/60 rounded-lg p-3 text-center">
+                    <div className="text-2xl font-bold text-purple-600">
+                      {Math.round(quizResults.timeSpent / 60)}min
+                    </div>
+                    <div className="text-sm text-gray-600">Temps</div>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Button onClick={handleRestartQuiz} className="w-full" variant="outline">
+                    <RotateCcw className="h-4 w-4 mr-2" />
+                    Nouveau Quiz
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="song" className="space-y-4">
+            {currentErrors.length > 0 ? (
+              <QuizErrorSongGenerator
+                itemCode={item.item_code}
+                itemTitle={item.title}
+              />
+            ) : (
+              <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-3 text-green-800">
+                    <Trophy className="h-6 w-6" />
+                    Quiz parfait !
+                  </CardTitle>
+                  <CardDescription className="text-green-700">
+                    Aucune erreur détectée - pas besoin de chanson d'aide-mémoire
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-center py-4">
+                    <Brain className="h-12 w-12 mx-auto text-green-500 mb-2" />
+                    <p className="text-green-700">
+                      Excellent travail ! Vous maîtrisez parfaitement {item.title}
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </TabsContent>
+        </Tabs>
+      </div>
     );
   }
 

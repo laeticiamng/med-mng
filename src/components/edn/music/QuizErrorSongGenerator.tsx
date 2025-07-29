@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Music, AlertTriangle, Brain, Target } from 'lucide-react';
 import { useQuizErrorTracker } from '@/hooks/useQuizErrorTracker';
-import { useMusicGenerationWithTranslation } from '@/hooks/useMusicGenerationWithTranslation';
+import { useSpotifyAI } from '@/hooks/useSpotifyAI';
 import { useToast } from '@/hooks/use-toast';
 
 interface QuizErrorSongGeneratorProps {
@@ -18,7 +18,7 @@ export const QuizErrorSongGenerator: React.FC<QuizErrorSongGeneratorProps> = ({
 }) => {
   const [selectedStyle, setSelectedStyle] = React.useState<string>('lofi-piano');
   const { currentErrors, hasCurrentSession } = useQuizErrorTracker();
-  const { generateMusicInLanguage, isGenerating } = useMusicGenerationWithTranslation();
+  const { generateMusic, loading: isGenerating } = useSpotifyAI();
   const { toast } = useToast();
 
   const musicStyles = [
@@ -38,9 +38,8 @@ export const QuizErrorSongGenerator: React.FC<QuizErrorSongGeneratorProps> = ({
       return acc;
     }, {} as Record<string, typeof currentErrors>);
 
-    let lyrics = `[Chanson d'Erreurs - ${itemCode}]
+    let lyrics = `Chanson d'Erreurs - ${itemCode}
     
-[Intro]
 Mes erreurs du quiz ${itemTitle}
 Transformées en mélodie
 Pour mieux les retenir
@@ -49,7 +48,7 @@ Et ne plus les subir
 `;
     
     Object.entries(errorsByTheme).forEach(([theme, errors], themeIndex) => {
-      lyrics += `[Couplet ${themeIndex + 1} - ${theme}]\n`;
+      lyrics += `Thème ${themeIndex + 1}: ${theme}\n`;
       errors.forEach((error, index) => {
         lyrics += `Erreur ${index + 1}: ${error.question.substring(0, 80)}...\n`;
         lyrics += `La bonne réponse était: ${error.correctAnswer}\n`;
@@ -60,19 +59,16 @@ Et ne plus les subir
       });
     });
 
-    lyrics += `[Refrain]
-🎵 Mes erreurs sont mes professeurs
+    lyrics += `Mes erreurs sont mes professeurs
 Chaque faute devient un bonheur
 ${currentErrors.length} leçons à retenir
-Pour mieux réussir et grandir 🎵
+Pour mieux réussir et grandir
 
-[Pont]
 Quiz ${itemCode}, merci pour tes enseignements
 Chaque erreur forge mes apprentissages
 De mes fautes naît la sagesse
 Et ma connaissance progresse
 
-[Fin]
 Erreurs transformées en chanson
 Difficile d'oublier la leçon !
 ${itemTitle}, je te maîtrise
@@ -95,7 +91,12 @@ Grâce à mes erreurs... quelle surprise !`;
       const lyrics = generateLyricsFromErrors();
       console.log('🎵 Génération chanson d\'erreurs:', { lyrics, style: selectedStyle });
       
-      const audioUrl = await generateMusicInLanguage('A', [lyrics], selectedStyle, 180);
+      await generateMusic({
+        item_code: itemCode,
+        type: 'error_song',
+        paroles: [lyrics],
+        style: selectedStyle
+      });
       
       toast({
         title: "Chanson générée !",
@@ -187,10 +188,10 @@ Grâce à mes erreurs... quelle surprise !`;
         {/* Bouton de génération */}
         <Button
           onClick={handleGenerate}
-          disabled={isGenerating.rangA || isGenerating.rangB}
+          disabled={isGenerating}
           className="w-full bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700"
         >
-          {isGenerating.rangA || isGenerating.rangB ? (
+          {isGenerating ? (
             <>
               <div className="animate-spin h-4 w-4 mr-2 border-2 border-white border-t-transparent rounded-full" />
               Génération...
