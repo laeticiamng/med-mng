@@ -669,6 +669,45 @@ export type Database = {
           },
         ]
       }
+      completeness_alerts: {
+        Row: {
+          alert_type: string
+          created_at: string | null
+          id: string
+          item_code: string
+          message: string
+          metadata: Json | null
+          resolved: boolean | null
+          resolved_at: string | null
+          resolved_by: string | null
+          severity: string
+        }
+        Insert: {
+          alert_type: string
+          created_at?: string | null
+          id?: string
+          item_code: string
+          message: string
+          metadata?: Json | null
+          resolved?: boolean | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+        }
+        Update: {
+          alert_type?: string
+          created_at?: string | null
+          id?: string
+          item_code?: string
+          message?: string
+          metadata?: Json | null
+          resolved?: boolean | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+        }
+        Relationships: []
+      }
       data_integrity_checks: {
         Row: {
           batch_id: string | null
@@ -2107,6 +2146,95 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      items_completeness_history: {
+        Row: {
+          completeness_score: number
+          content_score: number | null
+          created_at: string | null
+          id: string
+          item_code: string
+          metadata: Json | null
+          quiz_score: number | null
+          report_id: string | null
+          tableau_a_score: number | null
+          tableau_b_score: number | null
+        }
+        Insert: {
+          completeness_score: number
+          content_score?: number | null
+          created_at?: string | null
+          id?: string
+          item_code: string
+          metadata?: Json | null
+          quiz_score?: number | null
+          report_id?: string | null
+          tableau_a_score?: number | null
+          tableau_b_score?: number | null
+        }
+        Update: {
+          completeness_score?: number
+          content_score?: number | null
+          created_at?: string | null
+          id?: string
+          item_code?: string
+          metadata?: Json | null
+          quiz_score?: number | null
+          report_id?: string | null
+          tableau_a_score?: number | null
+          tableau_b_score?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "items_completeness_history_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "items_completeness_reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      items_completeness_reports: {
+        Row: {
+          alerts: Json | null
+          audit_type: string
+          average_completeness: number | null
+          complete_items: number
+          created_at: string | null
+          critical_issues: number
+          id: string
+          incomplete_items: number
+          results: Json | null
+          summary: Json | null
+          total_items: number
+        }
+        Insert: {
+          alerts?: Json | null
+          audit_type?: string
+          average_completeness?: number | null
+          complete_items?: number
+          created_at?: string | null
+          critical_issues?: number
+          id?: string
+          incomplete_items?: number
+          results?: Json | null
+          summary?: Json | null
+          total_items?: number
+        }
+        Update: {
+          alerts?: Json | null
+          audit_type?: string
+          average_completeness?: number | null
+          complete_items?: number
+          created_at?: string | null
+          critical_issues?: number
+          id?: string
+          incomplete_items?: number
+          results?: Json | null
+          summary?: Json | null
+          total_items?: number
+        }
+        Relationships: []
       }
       jam_participants: {
         Row: {
@@ -4657,6 +4785,17 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
+      calculate_item_completeness_score: {
+        Args: {
+          p_item_code: string
+          p_tableau_a: Json
+          p_tableau_b: Json
+          p_quiz_questions: Json
+          p_paroles_musicales: string[]
+          p_scene_immersive: Json
+        }
+        Returns: number
+      }
       calculate_sla_metrics: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -4873,6 +5012,17 @@ export type Database = {
       generate_audit_report: {
         Args: { report_type_param?: string }
         Returns: string
+      }
+      generate_completeness_alerts: {
+        Args: {
+          p_item_code: string
+          p_tableau_a: Json
+          p_tableau_b: Json
+          p_quiz_questions: Json
+          p_paroles_musicales: string[]
+          p_scene_immersive: Json
+        }
+        Returns: string[]
       }
       generate_security_audit_report: {
         Args: Record<PropertyKey, never>
@@ -5281,6 +5431,10 @@ export type Database = {
       reset_monthly_quotas: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      run_automated_completeness_audit: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
       }
       run_security_health_check: {
         Args: Record<PropertyKey, never>
