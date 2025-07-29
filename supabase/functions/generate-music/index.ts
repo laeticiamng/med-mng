@@ -307,15 +307,15 @@ function buildSimplifiedPrompt(itemCode: string, rang: string, style: string): s
 function getCorrectSunoModel(userModel: string): string {
   console.log('🔧 Conversion modèle selon doc officielle:', userModel);
   
-  // Mapper les modèles vers les formats CORRECTS supportés par l'API Suno
+  // Utiliser directement les noms officiels de l'API Suno
   const modelMap: { [key: string]: string } = {
-    'V3_5': 'chirp-v3-5',
-    'V4': 'chirp-v3-5', 
-    'V4_5': 'chirp-v4-5', // Nom correct pour V4.5
-    'V4_5PLUS': 'chirp-v4-5'
+    'V3_5': 'V3_5',
+    'V4': 'V4', 
+    'V4_5': 'V4_5',
+    'V4_5PLUS': 'V4_5PLUS'
   };
   
-  const mappedModel = modelMap[userModel] || 'chirp-v4-5';
+  const mappedModel = modelMap[userModel] || 'V4_5';
   console.log(`🔧 Modèle ${userModel} mappé vers ${mappedModel}`);
   return mappedModel;
 }
