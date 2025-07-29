@@ -258,44 +258,17 @@ function buildExpressiveTitle(itemCode: string, rang: string, style: string): st
   return `${itemCode || 'Medical'} Mastery${rangeSuffix} - ${styleCapitalized} Education`;
 }
 
-// Fonction pour créer un prompt synthétique avec toutes les compétences et assonances
-function buildSyntheticPromptWithAssonances(itemCode: string, rang: string, style: string, competences: any[]): string {
-  const rangText = rang === 'A' ? 'fondamental' : 'expert';
-  
-  // Créer des vers avec assonances basés sur les compétences
-  let verses = [];
-  
-  // Vers d'introduction avec assonance
-  verses.push(`${itemCode} ${rangText}, compétences à maîtriser`);
-  
-  // Intégrer les compétences avec assonances et rimes
-  if (competences && competences.length > 0) {
-    // Prendre un échantillon représentatif des compétences
-    const sampledCompetences = competences.slice(0, Math.min(5, competences.length));
-    
-    sampledCompetences.forEach((comp, index) => {
-      const intitule = comp.intitule || comp.concept || 'Compétence médicale';
-      const shortIntitule = intitule.substring(0, 80); // Limiter la longueur
-      
-      if (index % 2 === 0) {
-        verses.push(`${shortIntitule}, essentiel médical`);
-        verses.push(`Diagnostic précis à bien définir`);
-        verses.push(`Traitement adapté pour guérir`);
-      } else {
-        verses.push(`${shortIntitule}, fondamental`);
-        verses.push(`Signes cliniques à observer, pronostic certain`);
-        verses.push(`Prise en charge optimale, résultat sain`);
-      }
-      verses.push('---'); // Séparateur pour structure musicale
-    });
+// Fonction pour créer un prompt optimisé et concis
+function buildOptimizedPrompt(itemCode: string, rang: string, lyrics: string): string {
+  // Utiliser directement les paroles fournies si disponibles
+  if (lyrics && lyrics.trim()) {
+    // Limiter la longueur pour V4_5 (max 5000 caractères)
+    return lyrics.substring(0, 4800);
   }
   
-  // Conclusion avec assonance
-  verses.push(`${itemCode} maîtrisé, excellence atteinte`);
-  verses.push(`Compétences solides, réussite certaine`);
-  verses.push(`Formation complète, expertise validée`);
-  
-  return verses.join('\n').substring(0, 4800); // Laisser marge pour 5000 caractères max
+  // Fallback: prompt simple et efficace
+  const rangText = rang === 'A' ? 'foundation' : 'advanced';
+  return `Medical education song about ${itemCode}, ${rangText} level, structured verses and chorus, clear educational content.`;
 }
 
 // Fonction pour créer un prompt simplifié (réduction de taille)
@@ -303,14 +276,14 @@ function buildSimplifiedPrompt(itemCode: string, rang: string, style: string): s
   return `Educational song for ${itemCode || 'medical content'}, ${rang ? `level ${rang}` : 'medical training'}, ${style} style, clear melody, memorable, professional medical education music.`;
 }
 
-// Fonction pour convertir vers le format correct selon le ticket de support officiel
+// Fonction pour convertir vers le format correct selon la documentation officielle
 function getCorrectSunoModel(userModel: string): string {
   console.log('🔧 Conversion modèle selon doc officielle:', userModel);
   
-  // ✅ OPTIMISATION MAXIMALE: Toujours utiliser V4_5PLUS pour vitesse optimale
-  // D'après le ticket de support officiel : "V4_5PLUS" offre la meilleure performance
-  console.log('🚀 MODÈLE OPTIMISÉ: V4_5PLUS sélectionné pour génération ultra-rapide');
-  return 'V4_5PLUS'; // Modèle le plus rapide selon ticket support Lovable
+  // Utiliser V4_5 comme recommandé dans la documentation officielle
+  // V4_5: "Superior genre blending with smarter prompts and faster output, up to 8 minutes"
+  console.log('🚀 MODÈLE OPTIMISÉ: V4_5 sélectionné pour génération optimale');
+  return 'V4_5';
 }
 
 serve(async (req) => {
@@ -381,10 +354,10 @@ serve(async (req) => {
       fastMode = true
     } = body;
 
-    // Build enhanced components according to official docs
-    const enhancedPrompt = lyrics || buildRichEducationalPrompt(itemCode, rang, style, 'relaxing', 'moderate');
-    const enhancedStyle = buildRichStyle(style, 'relaxing', 'moderate', ['piano', 'strings']);
-    const enhancedTitle = title || buildExpressiveTitle(itemCode, rang, style);
+    // Build optimized components for faster generation
+    const optimizedPrompt = buildOptimizedPrompt(itemCode, rang, lyrics);
+    const optimizedStyle = `${style}, educational, clear vocals`;
+    const optimizedTitle = title || `Rang ${rang} - ${itemCode} - ${style}`;
     const correctModel = getCorrectSunoModel(model);
 
     console.log('🎵 GENERATION SUNO ACTIVÉE - Mode production avec API réelle');
@@ -411,21 +384,16 @@ serve(async (req) => {
     // Build callback URL for async processing
     const callbackUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/suno-callback`;
 
-    // ✅ OPTIMISATION MAXIMALE VITESSE selon ticket support Lovable
-    // Configuration pour génération la plus rapide possible (<20s)
+    // ✅ OPTIMISATION MAXIMALE VITESSE selon docs officielles Suno
+    // Configuration pour génération la plus rapide possible
     const sunoPayload = {
-      prompt: enhancedPrompt,
+      prompt: optimizedPrompt,
       customMode: true,
-      instrumental: instrumental, // Garde le paramètre original pour flexibilité
-      style: enhancedStyle,
-      title: enhancedTitle,
-      model: correctModel, // V4_5PLUS pour vitesse optimale
-      callBackUrl: callbackUrl,
-      // 🚀 PARAMÈTRES D'OPTIMISATION VITESSE
-      fastMode: true,           // Mode rapide activé
-      priority: "high",         // Priorité haute
-      streamingEnabled: true,   // Streaming activé
-      optimizeForSpeed: true    // Optimisation vitesse maximale
+      instrumental: instrumental,
+      style: optimizedStyle,
+      title: optimizedTitle,
+      model: "V4_5", // Modèle optimisé selon docs officielles
+      callBackUrl: callbackUrl
     };
 
     console.log('🚀 APPEL API SUNO RÉEL avec payload CORRIGÉ:', {
