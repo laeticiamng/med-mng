@@ -1,9 +1,11 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Check } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface PricingPlan {
   id: string;
@@ -66,11 +68,52 @@ const plans: PricingPlan[] = [
 ];
 
 interface PricingPlansProps {
-  onSelectPlan: (planId: string) => void;
+  onSelectPlan?: (planId: string) => void;
   loading?: boolean;
+  currentPlan?: string;
 }
 
-export const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, loading }) => {
+export const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, loading, currentPlan }) => {
+  const [processingPlan, setProcessingPlan] = useState<string | null>(null);
+
+  const handleStripeCheckout = async (planId: string) => {
+    try {
+      setProcessingPlan(planId);
+      toast.loading('Redirection vers Stripe...', { id: 'stripe-checkout' });
+      
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error('Veuillez vous connecter pour vous abonner');
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke('create-subscription-checkout', {
+        body: { planId },
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
+
+      if (error) {
+        console.error('Erreur checkout:', error);
+        toast.error('Erreur lors de la création du checkout Stripe');
+        return;
+      }
+
+      if (data?.url) {
+        // Ouvrir Stripe dans un nouvel onglet
+        window.open(data.url, '_blank');
+        toast.success('Redirection vers Stripe', { id: 'stripe-checkout' });
+      }
+    } catch (error) {
+      console.error('Erreur:', error);
+      toast.error('Une erreur est survenue');
+    } finally {
+      setProcessingPlan(null);
+      toast.dismiss('stripe-checkout');
+    }
+  };
+
   return (
     <div className="grid md:grid-cols-3 gap-6 max-w-6xl mx-auto">
       {plans.map((plan) => (
@@ -110,12 +153,20 @@ export const PricingPlans: React.FC<PricingPlansProps> = ({ onSelectPlan, loadin
             </ul>
             
             <Button 
-              onClick={() => onSelectPlan(plan.id)}
+              onClick={() => {
+                if (onSelectPlan) {
+                  onSelectPlan(plan.id);
+                } else {
+                  handleStripeCheckout(plan.id);
+                }
+              }}
               className="w-full"
               variant={plan.popular ? 'default' : 'outline'}
-              disabled={loading}
+              disabled={loading || processingPlan === plan.id || currentPlan === plan.id}
             >
-              {loading ? 'Chargement...' : 'Choisir ce plan'}
+              {processingPlan === plan.id ? 'Redirection...' : 
+               currentPlan === plan.id ? 'Plan actuel' :
+               loading ? 'Chargement...' : 'S\'abonner'}
             </Button>
           </CardContent>
         </Card>
