@@ -49,7 +49,7 @@ export const LyricsCompletionStatus: React.FC = () => {
       setLoading(true);
       
       const { data, error } = await supabase
-        .from('edn_items_immersive')
+        .from('edn_items_complete')
         .select(`
           id, item_code, title,
           paroles_rang_a, paroles_rang_b, paroles_rang_ab,

@@ -16,7 +16,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { AppleStyleItemModal } from "@/components/edn/premium/AppleStyleItemModal";
+import { AppleStyleItemModalFixed } from "@/components/edn/premium/AppleStyleItemModalFixed";
 import { EdnItemCard } from "@/components/edn/premium/EdnItemCard";
 import { LyricsCompletionStatus } from "@/components/LyricsCompletionStatus";
 import { RevisionDashboard } from "@/components/revision/RevisionDashboard";
@@ -680,7 +680,7 @@ export default function EdnComplete() {
 
       {/* Modal avec nouveau design Apple */}
       {selectedItem && (
-        <AppleStyleItemModal
+        <AppleStyleItemModalFixed
           item={selectedItem}
           isOpen={isModalOpen}
           onClose={() => {

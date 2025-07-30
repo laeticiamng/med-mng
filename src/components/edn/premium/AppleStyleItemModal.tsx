@@ -50,25 +50,26 @@ export const AppleStyleItemModal: React.FC<AppleStyleItemModalProps> = ({
   // Récupérer les données complètes OIC
   useEffect(() => {
     const fetchCompleteData = async () => {
-      if (!finalItem?.item_code || !isOpen) return;
+      if (!finalItem?.item_code) return;
       
       try {
-        const { data, error } = await supabase
+        const { data: completeData } = await supabase
           .from('edn_items_complete')
-          .select('competences_oic_rang_a, competences_oic_rang_b, tableau_rang_a, tableau_rang_b')
+          .select('*')
           .eq('item_code', finalItem.item_code)
           .single();
-
-        if (data && !error) {
-          setCompleteItemData(data);
+        
+        if (completeData) {
+          console.log('✅ Données complètes récupérées:', completeData);
+          setCompleteItemData(completeData);
         }
       } catch (error) {
-        console.error('Erreur récupération données OIC:', error);
+        console.error('❌ Erreur récupération données complètes:', error);
       }
     };
-
+    
     fetchCompleteData();
-  }, [finalItem?.item_code, isOpen]);
+  }, [finalItem?.item_code]);
 
   if (!finalItem) return null;
 
@@ -148,58 +149,83 @@ export const AppleStyleItemModal: React.FC<AppleStyleItemModalProps> = ({
         id: 'rang-a',
         label: 'Compétences Rang A',
         icon: BookOpen,
-        available: !!finalItem.tableau_rang_a,
-        progress: finalItem.tableau_rang_a ? 100 : 0,
-        component: <TableauRangA data={finalItem.tableau_rang_a} />
+        available: !!completeItemData?.tableau_rang_a || !!completeItemData?.competences_oic_rang_a,
+        progress: completeItemData?.tableau_rang_a ? 100 : 0,
+        component: (
+          <div className="p-6">
+            <TableauRangA 
+              data={completeItemData?.tableau_rang_a || {
+                title: `${finalItem.item_code} - Compétences Rang A`,
+                sections: completeItemData?.competences_oic_rang_a || []
+              }} 
+            />
+          </div>
+        )
       },
       {
         id: 'rang-b',
         label: 'Compétences Rang B',
         icon: Brain,
-        available: !!finalItem.tableau_rang_b,
-        progress: finalItem.tableau_rang_b ? 100 : 0,
-        component: <TableauRangB data={finalItem.tableau_rang_b} itemCode={finalItem.item_code} />
+        available: !!completeItemData?.tableau_rang_b || !!completeItemData?.competences_oic_rang_b,
+        progress: completeItemData?.tableau_rang_b ? 100 : 0,
+        component: (
+          <div className="p-6">
+            <TableauRangB 
+              data={completeItemData?.tableau_rang_b || {
+                title: `${finalItem.item_code} - Compétences Rang B`,
+                sections: completeItemData?.competences_oic_rang_b || []
+              }} 
+              itemCode={finalItem.item_code} 
+            />
+          </div>
+        )
       },
       {
         id: 'music',
         label: 'Génération Musicale',
         icon: Music,
-        available: !!(finalItem.paroles_musicales || finalItem.paroles_rang_a || finalItem.paroles_rang_b),
-        progress: finalItem.paroles_musicales ? 100 : 0,
+        available: !!(completeItemData?.paroles_musicales || finalItem.paroles_musicales),
+        progress: completeItemData?.paroles_musicales ? 100 : 0,
         component: (
-          <ParolesMusicales 
-            itemCode={finalItem.item_code}
-            paroles_rang_a={finalItem.paroles_rang_a}
-            paroles_rang_b={finalItem.paroles_rang_b}
-            paroles_rang_ab={finalItem.paroles_rang_ab}
-          />
+          <div className="p-6">
+            <ParolesMusicales 
+              itemCode={finalItem.item_code}
+              paroles_rang_a={completeItemData?.paroles_rang_a || finalItem.paroles_rang_a || []}
+              paroles_rang_b={completeItemData?.paroles_rang_b || finalItem.paroles_rang_b || []}
+              paroles_rang_ab={completeItemData?.paroles_rang_ab || finalItem.paroles_rang_ab || []}
+            />
+          </div>
         )
       },
       {
         id: 'scene',
         label: 'Scène Immersive',
         icon: Users,
-        available: !!finalItem.scene_immersive,
-        progress: finalItem.scene_immersive ? 100 : 0,
+        available: !!(completeItemData?.scene_immersive || finalItem.scene_immersive),
+        progress: completeItemData?.scene_immersive ? 100 : 0,
         component: (
-          <SceneImmersive 
-            data={finalItem.scene_immersive || {}} 
-            itemCode={finalItem.item_code}
-          />
+          <div className="p-6">
+            <SceneImmersive 
+              data={completeItemData?.scene_immersive || finalItem.scene_immersive || {}} 
+              itemCode={finalItem.item_code}
+            />
+          </div>
         )
       },
       {
         id: 'quiz',
         label: 'Quiz Final',
         icon: Brain,
-        available: !!finalItem.quiz_questions,
-        progress: finalItem.quiz_questions ? 100 : 0,
+        available: !!(completeItemData?.quiz_questions || finalItem.quiz_questions),
+        progress: completeItemData?.quiz_questions ? 100 : 0,
         component: (
-          <EnhancedQuizFinal 
-            questions={finalItem.quiz_questions || []} 
-            itemCode={finalItem.item_code}
-            itemTitle={finalItem.title || ''}
-          />
+          <div className="p-6">
+            <EnhancedQuizFinal 
+              questions={completeItemData?.quiz_questions || finalItem.quiz_questions || []} 
+              itemCode={finalItem.item_code}
+              itemTitle={finalItem.title || ''}
+            />
+          </div>
         )
       },
       {
@@ -209,10 +235,12 @@ export const AppleStyleItemModal: React.FC<AppleStyleItemModalProps> = ({
         available: true,
         progress: 80,
         component: (
-          <BdGallery 
-            itemCode={finalItem.item_code} 
-            title={finalItem.title || ''} 
-          />
+          <div className="p-6">
+            <BdGallery 
+              itemCode={finalItem.item_code} 
+              title={finalItem.title || ''} 
+            />
+          </div>
         )
       },
       {
@@ -222,10 +250,12 @@ export const AppleStyleItemModal: React.FC<AppleStyleItemModalProps> = ({
         available: true,
         progress: 75,
         component: (
-          <RomanNarratif 
-            itemCode={finalItem.item_code}
-            title={finalItem.title || ''} 
-          />
+          <div className="p-6">
+            <RomanNarratif 
+              itemCode={finalItem.item_code}
+              title={finalItem.title || ''} 
+            />
+          </div>
         )
       }
     ];

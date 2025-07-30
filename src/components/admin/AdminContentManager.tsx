@@ -55,7 +55,7 @@ export const AdminContentManager = () => {
       setLoading(true);
       
       const { data: immersiveItems, error: immersiveError } = await supabase
-        .from('edn_items_immersive')
+        .from('edn_items_complete')
         .select(`
           id, item_code, title, subtitle, 
           tableau_rang_a, tableau_rang_b,

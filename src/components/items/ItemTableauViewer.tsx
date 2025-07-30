@@ -44,7 +44,7 @@ export const ItemTableauViewer: React.FC<ItemTableauViewerProps> = ({
 
         // Charger l'item depuis Supabase
         const { data: itemData, error: itemError } = await supabase
-          .from('edn_items_immersive')
+          .from('edn_items_complete')
           .select('*')
           .eq('item_code', itemCode)
           .single();

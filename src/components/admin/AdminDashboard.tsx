@@ -88,7 +88,7 @@ export const AdminDashboard: React.FC = () => {
       const [usersResult, subscriptionsResult, ednResult, songsResult, alertsResult] = await Promise.all([
         supabase.from('profiles').select('id', { count: 'exact', head: true }),
         supabase.from('user_subscriptions').select('id', { count: 'exact', head: true }).eq('status', 'active'),
-        supabase.from('edn_items_immersive').select('id', { count: 'exact', head: true }),
+        supabase.from('edn_items_complete').select('id', { count: 'exact', head: true }),
         supabase.from('emotionscare_songs').select('id', { count: 'exact', head: true }),
         supabase.from('completeness_alerts').select('id', { count: 'exact', head: true }).eq('resolved', false)
       ]);
