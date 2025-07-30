@@ -179,12 +179,20 @@ export const AppleStyleItemModal: React.FC<AppleStyleItemModalProps> = ({
         progress: completeItemData?.tableau_rang_b ? 100 : 0,
         component: (
           <div className="p-6">
-            <TableauRangB 
-              data={completeItemData?.tableau_rang_b || {
-                title: `${finalItem.item_code} - Compétences Rang B`,
-                sections: completeItemData?.competences_oic_rang_b || []
-              }} 
+            <div style={{ 
+              padding: '15px', 
+              background: '#f3e8ff', 
+              border: '2px solid #a855f7',
+              marginBottom: '20px',
+              borderRadius: '8px',
+              fontWeight: 'bold',
+              color: '#581c87'
+            }}>
+              ✅ NOUVEAU: Chargement des compétences OIC RÉELLES depuis backup_oic_competences pour {finalItem.item_code} Rang B
+            </div>
+            <TableauCompetencesOICWithRealData 
               itemCode={finalItem.item_code} 
+              rang="B" 
             />
           </div>
         )
