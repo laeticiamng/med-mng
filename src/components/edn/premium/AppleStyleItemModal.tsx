@@ -8,7 +8,7 @@ import {
   CheckCircle, Star, ArrowLeft, ArrowRight, ChevronDown, ChevronUp
 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { TableauRangA } from "@/components/edn/TableauRangA";
+import { TableauCompetencesOICWithRealData } from "@/components/edn/tableau/TableauCompetencesOICWithRealData";
 import { TableauRangB } from "@/components/edn/TableauRangB";
 import { ParolesMusicales } from "@/components/edn/ParolesMusicales";
 import { SceneImmersive } from "@/components/edn/SceneImmersive";
@@ -153,11 +153,20 @@ export const AppleStyleItemModal: React.FC<AppleStyleItemModalProps> = ({
         progress: completeItemData?.tableau_rang_a ? 100 : 0,
         component: (
           <div className="p-6">
-            <TableauRangA 
-              data={completeItemData?.tableau_rang_a || {
-                title: `${finalItem.item_code} - Compétences Rang A`,
-                sections: completeItemData?.competences_oic_rang_a || []
-              }} 
+            <div style={{ 
+              padding: '15px', 
+              background: '#e8f5e8', 
+              border: '2px solid #4ade80',
+              marginBottom: '20px',
+              borderRadius: '8px',
+              fontWeight: 'bold',
+              color: '#166534'
+            }}>
+              ✅ NOUVEAU: Chargement des compétences OIC RÉELLES depuis backup_oic_competences pour {finalItem.item_code} Rang A
+            </div>
+            <TableauCompetencesOICWithRealData 
+              itemCode={finalItem.item_code} 
+              rang="A" 
             />
           </div>
         )
