@@ -20,12 +20,12 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
   const { currentTrack, isPlaying, play, pause, resume } = useGlobalAudio();
   const [showDebug, setShowDebug] = useState(false);
 
-  // Détecter si c'est une génération en cours (trackId sans audioUrl)
-  const isGenerating = generatedSong?.audioUrl && !generatedSong.audioUrl.startsWith('http');
-  const trackIdForPolling = isGenerating ? generatedSong.audioUrl : null;
+  // Détecter si c'est une génération en cours (trackId de 32 caractères hexadécimaux)
+  const isTrackId = generatedSong?.audioUrl && /^[a-f0-9]{32}$/.test(generatedSong.audioUrl);
+  const trackIdForPolling = isTrackId ? generatedSong.audioUrl : null;
   
   // Utiliser le hook de statut pour suivre la génération
-  const { status, isPolling, startPolling, audioUrl, progress } = useMusicGenerationStatus(trackIdForPolling);
+  const { status, isPolling, startPolling, audioUrl, progress, isGenerating } = useMusicGenerationStatus(trackIdForPolling);
 
   // Démarrer le polling automatiquement si nécessaire
   useEffect(() => {
