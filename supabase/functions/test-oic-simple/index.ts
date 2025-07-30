@@ -21,11 +21,11 @@ Deno.serve(async (req) => {
       auth: { persistSession: false }
     });
 
-    // Test simple de l'API publique
-    console.log('🔍 Test d\'accès à l\'API MediaWiki...');
+    // Test de l'API publique avec limit 500
+    console.log('🔍 Test d\'accès à l\'API MediaWiki avec 500 pages...');
     
     const response = await fetch(
-      'https://livret.uness.fr/lisa/2025/api.php?action=query&list=categorymembers&cmtitle=Catégorie:Objectif_de_connaissance&cmlimit=10&format=json'
+      'https://livret.uness.fr/lisa/2025/api.php?action=query&list=categorymembers&cmtitle=Catégorie:Objectif_de_connaissance&cmlimit=500&format=json'
     );
 
     console.log(`📡 Status: ${response.status}`);
@@ -37,26 +37,40 @@ Deno.serve(async (req) => {
     const data = await response.json();
     console.log('📊 Données reçues:', JSON.stringify(data, null, 2));
 
-    // Compter les pages OIC
+    // Compter les pages OIC avec patterns plus flexibles
     const members = data.query?.categorymembers || [];
-    const oicPages = members.filter((page: any) => 
-      page.title && page.title.match(/OIC[_-]\d{3}[_-]\d{2}[_-][AB][_-]\d{2}/i)
-    );
+    const oicPages = members.filter((page: any) => {
+      if (!page.title) return false;
+      // Patterns possibles: OIC_XXX_XX_X_XX, OIC-XXX-XX-X-XX, etc.
+      return page.title.match(/OIC[_-]?\d{3}[_-]?\d{2}[_-]?[AB][_-]?\d{2}/i) ||
+             page.title.includes('OIC') ||
+             page.title.toLowerCase().includes('objectif');
+    });
 
     console.log(`🎯 Pages OIC trouvées: ${oicPages.length}/${members.length}`);
+    
+    // Afficher quelques exemples de titres pour debug
+    console.log('📋 Premiers titres trouvés:');
+    members.slice(0, 10).forEach((page: any, i: number) => {
+      console.log(`  ${i+1}. ${page.title} (ID: ${page.pageid})`);
+    });
 
-    // Test d'une page spécifique
-    if (oicPages.length > 0) {
-      const firstPage = oicPages[0];
+    // Test d'extraction de contenu sur la première page trouvée
+    if (members.length > 0) {
+      const firstPage = members[0];
       console.log(`📄 Test extraction page: ${firstPage.title}`);
       
       const pageResponse = await fetch(
-        `https://livret.uness.fr/lisa/2025/api.php?action=query&prop=revisions&rvprop=content&pageids=${firstPage.pageid}&format=json`
+        `https://livret.uness.fr/lisa/2025/api.php?action=query&prop=revisions&rvprop=content|timestamp&pageids=${firstPage.pageid}&format=json&formatversion=2`
       );
 
       if (pageResponse.ok) {
         const pageData = await pageResponse.json();
-        console.log('✅ Contenu de page récupéré avec succès');
+        const page = pageData.query?.pages?.[0];
+        if (page?.revisions?.[0]?.content) {
+          console.log('✅ Contenu de page récupéré avec succès');
+          console.log(`📝 Aperçu: ${page.revisions[0].content.substring(0, 200)}...`);
+        }
       } else {
         console.log('❌ Échec récupération contenu page');
       }
