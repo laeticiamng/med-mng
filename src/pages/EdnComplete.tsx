@@ -16,7 +16,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { EdnItemModal } from "@/components/edn/premium/EdnItemModal";
+import { AppleStyleItemModal } from "@/components/edn/premium/AppleStyleItemModal";
 import { EdnItemCard } from "@/components/edn/premium/EdnItemCard";
 import { LyricsCompletionStatus } from "@/components/LyricsCompletionStatus";
 import { RevisionDashboard } from "@/components/revision/RevisionDashboard";
@@ -323,26 +323,57 @@ export default function EdnComplete() {
           <TabsContent value="immersive">
             <div className="grid gap-4">
               {viewMode === 'grid' ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                   {filteredItems.map(item => (
-                    <Card key={item.id} className="cursor-pointer hover:shadow-sm" onClick={() => openItemModal(item)}>
-                      <CardContent className="p-4">
-                        <div className="space-y-2">
+                    <Card 
+                      key={item.id} 
+                      className="group cursor-pointer hover:shadow-xl hover:scale-[1.02] transition-all duration-300 border-0 bg-gradient-to-br from-white via-slate-50 to-gray-50 overflow-hidden"
+                      onClick={() => openItemModal(item)}
+                    >
+                      <CardContent className="p-0">
+                        <div className="p-6 space-y-4">
+                          {/* Header avec numéro item */}
                           <div className="flex items-center justify-between">
-                            <h3 className="font-semibold">{item.item_code}</h3>
-                            <Badge variant="outline">{getCompletionPercentage(item)}%</Badge>
+                            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                              <span className="text-white font-bold text-sm">{item.item_code.replace('IC-', '')}</span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <div className={`w-3 h-3 rounded-full ${getCompletionPercentage(item) === 100 ? 'bg-green-500' : getCompletionPercentage(item) > 70 ? 'bg-yellow-500' : 'bg-gray-400'}`}></div>
+                              <Badge variant="outline" className="text-xs font-medium">
+                                {getCompletionPercentage(item)}%
+                              </Badge>
+                            </div>
                           </div>
-                          <p className="text-sm text-muted-foreground line-clamp-2">{item.title}</p>
-                          <div className="flex gap-1 flex-wrap">
+                          
+                          {/* Titre */}
+                          <div>
+                            <h3 className="font-bold text-slate-800 text-lg mb-1">{item.item_code}</h3>
+                            <p className="text-sm text-slate-600 line-clamp-2 leading-relaxed">{item.title}</p>
+                          </div>
+                          
+                          {/* Badges fonctionnalités */}
+                          <div className="flex gap-2 flex-wrap">
                             {item.scene_immersive && (
-                              <Badge variant="secondary" className="text-xs">3D</Badge>
+                              <Badge className="bg-blue-100 text-blue-700 border-blue-200 text-xs">3D</Badge>
                             )}
                             {item.quiz_questions && (
-                              <Badge variant="secondary" className="text-xs">Quiz</Badge>
+                              <Badge className="bg-green-100 text-green-700 border-green-200 text-xs">Quiz</Badge>
                             )}
                             {item.paroles_musicales && item.paroles_musicales.length > 0 && (
-                              <Badge variant="secondary" className="text-xs">Musique</Badge>
+                              <Badge className="bg-purple-100 text-purple-700 border-purple-200 text-xs">Musique</Badge>
                             )}
+                          </div>
+                          
+                          {/* Progress bar */}
+                          <div className="w-full bg-gray-200 rounded-full h-1.5 overflow-hidden">
+                            <div 
+                              className={`h-full transition-all duration-500 ${
+                                getCompletionPercentage(item) === 100 ? 'bg-gradient-to-r from-green-500 to-green-600' :
+                                getCompletionPercentage(item) > 70 ? 'bg-gradient-to-r from-yellow-500 to-orange-500' :
+                                'bg-gradient-to-r from-gray-400 to-gray-500'
+                              }`}
+                              style={{ width: `${getCompletionPercentage(item)}%` }}
+                            ></div>
                           </div>
                         </div>
                       </CardContent>
@@ -350,16 +381,32 @@ export default function EdnComplete() {
                   ))}
                 </div>
               ) : (
-                <div className="space-y-2">
+                <div className="space-y-3">
                   {filteredItems.map(item => (
-                    <Card key={item.id} className="cursor-pointer hover:shadow-sm" onClick={() => openItemModal(item)}>
-                      <CardContent className="p-4">
+                    <Card 
+                      key={item.id} 
+                      className="group cursor-pointer hover:shadow-lg hover:bg-slate-50 transition-all duration-200 border border-slate-200"
+                      onClick={() => openItemModal(item)}
+                    >
+                      <CardContent className="p-5">
                         <div className="flex items-center justify-between">
-                          <div>
-                            <h3 className="font-semibold">{item.item_code}</h3>
-                            <p className="text-sm text-muted-foreground">{item.title}</p>
+                          <div className="flex items-center gap-4">
+                            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center shadow-md">
+                              <span className="text-white font-bold text-xs">{item.item_code.replace('IC-', '')}</span>
+                            </div>
+                            <div>
+                              <h3 className="font-semibold text-slate-800">{item.item_code}</h3>
+                              <p className="text-sm text-slate-600">{item.title}</p>
+                            </div>
                           </div>
-                          <Badge variant="outline">{getCompletionPercentage(item)}%</Badge>
+                          <div className="flex items-center gap-3">
+                            <div className="flex gap-1">
+                              {item.scene_immersive && <div className="w-2 h-2 bg-blue-500 rounded-full"></div>}
+                              {item.quiz_questions && <div className="w-2 h-2 bg-green-500 rounded-full"></div>}
+                              {item.paroles_musicales && item.paroles_musicales.length > 0 && <div className="w-2 h-2 bg-purple-500 rounded-full"></div>}
+                            </div>
+                            <Badge variant="outline" className="font-medium">{getCompletionPercentage(item)}%</Badge>
+                          </div>
                         </div>
                       </CardContent>
                     </Card>
@@ -631,12 +678,17 @@ export default function EdnComplete() {
         )}
       </div>
 
-      {/* Modal */}
-      <EdnItemModal
-        item={selectedItem}
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-      />
+      {/* Modal avec nouveau design Apple */}
+      {selectedItem && (
+        <AppleStyleItemModal
+          item={selectedItem}
+          isOpen={isModalOpen}
+          onClose={() => {
+            setIsModalOpen(false);
+            setSelectedItem(null);
+          }}
+        />
+      )}
     </div>
   );
 }
