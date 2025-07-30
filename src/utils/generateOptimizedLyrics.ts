@@ -111,6 +111,12 @@ function generateOptimizedStructure(
 }
 
 function extractAdvancedMedicalContent(itemData: EdnItemData, competences: CompetenceOIC[], rang: 'A' | 'B' | 'AB') {
+  console.log(`📋 Extraction contenu médical pour ${itemData.item_code}:`, {
+    competencesCount: competences.length,
+    rang,
+    competencesTitles: competences.map(c => c.intitule).slice(0, 3)
+  });
+
   const content = {
     definition: [] as string[],
     epidemio: [] as string[],
