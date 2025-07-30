@@ -13,7 +13,7 @@ interface GenerationResult {
  * Respecte le cahier des charges: structure complète, style Nekfeu, contenu médical dense
  */
 export async function generateAllAdvancedLyrics(): Promise<GenerationResult> {
-  console.log('🚀 Génération avancée des paroles pour tous les items EDN...');
+  console.log('🚀 Génération avancée des paroles médicales pour tous les items EDN...');
   
   const result: GenerationResult = {
     processed: 0,
@@ -23,88 +23,28 @@ export async function generateAllAdvancedLyrics(): Promise<GenerationResult> {
   };
   
   try {
-    // 1. Récupérer tous les items EDN
-    const { data: items, error } = await supabase
-      .from('edn_items_immersive')
-      .select('id, item_code, title')
-      .order('item_code');
-      
+    // Appeler la nouvelle edge function avec OpenAI pour générer des paroles médicales spécifiques
+    const { data, error } = await supabase.functions.invoke('update-edn-unique-content', {
+      body: { action: 'generate_advanced_lyrics' }
+    });
+
     if (error) {
-      throw new Error(`Erreur récupération items: ${error.message}`);
+      console.error('❌ Erreur lors de l\'appel de la fonction:', error);
+      throw error;
     }
+
+    console.log('✅ Génération des paroles médicales avancées terminée:', data);
     
-    if (!items || items.length === 0) {
-      throw new Error('Aucun item EDN trouvé');
-    }
-    
-    console.log(`📋 ${items.length} items EDN à traiter`);
-    
-    // 2. Traitement par batch pour éviter la surcharge
-    const batchSize = 10;
-    const batches = [];
-    
-    for (let i = 0; i < items.length; i += batchSize) {
-      batches.push(items.slice(i, i + batchSize));
-    }
-    
-    // 3. Traiter chaque batch
-    for (let batchIndex = 0; batchIndex < batches.length; batchIndex++) {
-      const batch = batches[batchIndex];
-      console.log(`🔄 Traitement batch ${batchIndex + 1}/${batches.length} (${batch.length} items)`);
-      
-      // Traiter les items du batch en parallèle
-      const batchPromises = batch.map(async (item) => {
-        try {
-          result.processed++;
-          
-          // Générer les 3 versions: A, B, AB
-          const [lyricsA, lyricsB, lyricsAB] = await Promise.all([
-            generateAdvancedLyrics(item.item_code, 'A'),
-            generateAdvancedLyrics(item.item_code, 'B'), 
-            generateAdvancedLyrics(item.item_code, 'AB')
-          ]);
-          
-          // Mettre à jour l'item avec les nouvelles paroles
-          const { error: updateError } = await supabase
-            .from('edn_items_immersive')
-            .update({
-              paroles_rang_a: lyricsA,
-              paroles_rang_b: lyricsB,
-              paroles_rang_ab: lyricsAB,
-              paroles_musicales: lyricsAB, // Version complète par défaut
-              updated_at: new Date().toISOString()
-            })
-            .eq('id', item.id);
-            
-          if (updateError) {
-            throw new Error(`Erreur mise à jour ${item.item_code}: ${updateError.message}`);
-          }
-          
-          result.successful++;
-          console.log(`✅ ${item.item_code} - Paroles générées et sauvées`);
-          
-        } catch (error) {
-          result.failed++;
-          const errorMsg = `❌ ${item.item_code}: ${error instanceof Error ? error.message : 'Erreur inconnue'}`;
-          result.errors.push(errorMsg);
-          console.error(errorMsg);
-        }
-      });
-      
-      // Attendre que le batch soit terminé
-      await Promise.all(batchPromises);
-      
-      // Pause entre les batches pour éviter la surcharge
-      if (batchIndex < batches.length - 1) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-      }
-    }
-    
-    console.log('🎉 Génération terminée:', result);
-    return result;
+    // Retourner les résultats de la génération
+    return data || {
+      processed: 0,
+      successful: 0,
+      failed: 0,
+      errors: ['Aucun résultat retourné']
+    };
     
   } catch (error) {
-    console.error('❌ Erreur générale:', error);
+    console.error('❌ Erreur lors de la génération des paroles médicales:', error);
     result.errors.push(`Erreur générale: ${error instanceof Error ? error.message : 'Erreur inconnue'}`);
     return result;
   }
