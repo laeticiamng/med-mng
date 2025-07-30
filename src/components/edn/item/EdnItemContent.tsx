@@ -44,21 +44,35 @@ export const EdnItemContent = ({ activeSection, item }: EdnItemContentProps) => 
   const renderActiveSection = () => {
     switch (activeSection) {
       case 'tableau-a':
-        console.log('📋 Rendering Tableau Rang A for:', item.item_code);
+        console.log('🔍 DÉBUT - Rendering Tableau Rang A for:', item.item_code);
+        console.log('🔍 Component utilisé: TableauCompetencesOICWithRealData');
+        console.log('🔍 Props passées:', { itemCode: item.item_code, rang: 'A' });
         return (
-          <TableauCompetencesOICWithRealData 
-            itemCode={item.item_code} 
-            rang="A" 
-          />
+          <div>
+            <div style={{ padding: '10px', background: '#f0f0f0', marginBottom: '10px' }}>
+              DEBUG: Utilisation de TableauCompetencesOICWithRealData pour {item.item_code} Rang A
+            </div>
+            <TableauCompetencesOICWithRealData 
+              itemCode={item.item_code} 
+              rang="A" 
+            />
+          </div>
         );
       
       case 'tableau-b':
-        console.log('📋 Rendering Tableau Rang B for:', item.item_code);
+        console.log('🔍 DÉBUT - Rendering Tableau Rang B for:', item.item_code);
+        console.log('🔍 Component utilisé: TableauCompetencesOICWithRealData');
+        console.log('🔍 Props passées:', { itemCode: item.item_code, rang: 'B' });
         return (
-          <TableauCompetencesOICWithRealData 
-            itemCode={item.item_code} 
-            rang="B" 
-          />
+          <div>
+            <div style={{ padding: '10px', background: '#f0f0f0', marginBottom: '10px' }}>
+              DEBUG: Utilisation de TableauCompetencesOICWithRealData pour {item.item_code} Rang B
+            </div>
+            <TableauCompetencesOICWithRealData 
+              itemCode={item.item_code} 
+              rang="B" 
+            />
+          </div>
         );
       
       case 'scene':
