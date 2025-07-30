@@ -38,7 +38,10 @@ export async function generateOptimizedLyrics(
   
   try {
     const itemData = await fetchItemData(itemCode);
+    console.log(`📋 ItemData récupérée pour ${itemCode}:`, itemData);
+    
     const competences = await fetchCompetences(itemCode, rang);
+    console.log(`🔍 Compétences récupérées pour ${itemCode} Rang ${rang}:`, competences);
     
     // Structure standardisée selon spécifications
     const songStructure = generateOptimizedStructure(itemData, competences, rang);
