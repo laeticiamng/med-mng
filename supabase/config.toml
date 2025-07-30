@@ -131,3 +131,6 @@ verify_jwt = false
 [functions.test-simple-api]
 verify_jwt = false
 
+[functions.extract-oic-comprehensive]
+verify_jwt = false
+
