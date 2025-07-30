@@ -61,14 +61,29 @@ export const ParolesMusicalesMainContent: React.FC<ParolesMusicalesMainContentPr
 }) => {
   console.log('🎵 ParolesMusicalesMainContent - Received paroles:', paroles);
   
-  // Normaliser les paroles en format attendu
-  const normalizedParoles = Array.isArray(paroles[0]) 
-    ? (paroles as string[][]).map(section => section.join('\n'))
-    : paroles as string[];
+  // Normaliser les paroles en format attendu  
+  let normalizedParoles: string[] = [];
+  
+  if (Array.isArray(paroles)) {
+    if (Array.isArray(paroles[0])) {
+      // Format string[][]
+      normalizedParoles = (paroles as string[][]).map(section => 
+        Array.isArray(section) ? section.join('\n') : String(section)
+      );
+    } else {
+      // Format string[]
+      normalizedParoles = paroles as string[];
+    }
+  }
 
   console.log('🎵 ParolesMusicalesMainContent - Normalized paroles:', normalizedParoles);
 
-  if (!normalizedParoles || normalizedParoles.length === 0) {
+  // Vérifier si on a vraiment des paroles utilisables
+  const hasUsableParoles = normalizedParoles && 
+    normalizedParoles.length > 0 && 
+    normalizedParoles.some(p => p && p.trim().length > 0);
+
+  if (!hasUsableParoles) {
     return (
       <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
         <div className="flex items-center gap-2 text-yellow-800">
