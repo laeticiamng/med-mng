@@ -73,7 +73,7 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
     seek,
     changeVolume,
     stop
-  } = useParolesMusicales(paroles, { 
+  } = useParolesMusicales([], { 
     paroles_rang_a, 
     paroles_rang_b, 
     paroles_rang_ab, 
