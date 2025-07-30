@@ -351,32 +351,12 @@ export const TableauCompetencesOICOptimized: React.FC<TableauCompetencesOICOptim
         ) : (
           <div className="space-y-2">
             {competences.map((competence, index) => (
-              <div key={index} className="flex items-center gap-4 p-3 border rounded-lg hover:bg-muted/30 transition-colors">
-                <div className={`w-8 h-8 rounded-lg ${rang === 'A' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'} flex items-center justify-center text-sm font-bold flex-shrink-0`}>
-                  {competence.ordre_affichage || index + 1}
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
-                    {competence.objectif_id && (
-                      <Badge variant="outline" className="text-xs">
-                        {competence.objectif_id}
-                      </Badge>
-                    )}
-                    <h4 className="font-semibold text-sm truncate">
-                      {competence.titre_complet || competence.intitule}
-                    </h4>
-                  </div>
-                  <p className="text-xs text-muted-foreground line-clamp-2">
-                    {competence.sommaire || competence.description}
-                  </p>
-                </div>
-                <div className="flex gap-1 flex-shrink-0">
-                  {competence.sommaire && <div className="w-2 h-2 rounded-full bg-green-500" title="Sommaire disponible" />}
-                  {competence.mecanismes && <div className="w-2 h-2 rounded-full bg-blue-500" title="Mécanismes disponibles" />}
-                  {competence.indications && <div className="w-2 h-2 rounded-full bg-orange-500" title="Indications disponibles" />}
-                  {competence.effets_indesirables && <div className="w-2 h-2 rounded-full bg-red-500" title="Effets indésirables disponibles" />}
-                </div>
-              </div>
+              <CompetenceCard
+                key={`compact-${competence.objectif_id}-${index}`}
+                competence={competence}
+                index={index}
+                rang={rang}
+              />
             ))}
           </div>
         )}
