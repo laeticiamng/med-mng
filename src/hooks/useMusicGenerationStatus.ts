@@ -38,7 +38,7 @@ export const useMusicGenerationStatus = (taskId: string | null) => {
           taskId: taskId,
           status: dbTrack.generation_status as MusicGenerationStatus['status'],
           audioUrl: dbTrack.audio_url,
-          streamUrl: metadata?.stream_url,
+          streamUrl: dbTrack.stream_url || metadata?.stream_url,
           imageUrl: metadata?.image_url,
           progress: getProgressFromStatus(dbTrack.generation_status, metadata?.progress),
           metadata: metadata
@@ -144,8 +144,8 @@ export const useMusicGenerationStatus = (taskId: string | null) => {
     stopPolling,
     checkStatus,
     // Helpers
-    isGenerating: status?.status === 'generating' || status?.status === 'text_complete',
-    isCompleted: status?.status === 'completed',
+    isGenerating: (status?.status === 'generating' || status?.status === 'text_complete') && !status?.audioUrl && !status?.streamUrl,
+    isCompleted: status?.status === 'completed' || !!(status?.audioUrl || status?.streamUrl),
     isFailed: status?.status === 'failed',
     progress: status?.progress || 0,
     audioUrl: status?.audioUrl,
