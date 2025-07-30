@@ -60,28 +60,48 @@ export const ParolesMusicalesMainContent: React.FC<ParolesMusicalesMainContentPr
   pollingTracks = 0
 }) => {
   console.log('🎵 ParolesMusicalesMainContent - Received paroles:', paroles);
+  console.log('🎵 ParolesMusicalesMainContent - itemCode:', itemCode);
+  console.log('🎵 ParolesMusicalesMainContent - Type of paroles:', typeof paroles, Array.isArray(paroles));
   
-  // Normaliser les paroles en format attendu  
+  // Normaliser les paroles en format attendu avec debugging renforcé
   let normalizedParoles: string[] = [];
   
-  if (Array.isArray(paroles)) {
+  if (Array.isArray(paroles) && paroles.length > 0) {
+    console.log('🔍 Première entrée paroles[0]:', paroles[0], typeof paroles[0]);
+    
     if (Array.isArray(paroles[0])) {
       // Format string[][]
-      normalizedParoles = (paroles as string[][]).map(section => 
-        Array.isArray(section) ? section.join('\n') : String(section)
-      );
+      console.log('📝 Format détecté: string[][]');
+      normalizedParoles = (paroles as string[][]).map((section, index) => {
+        const result = Array.isArray(section) ? section.join('\n') : String(section);
+        console.log(`📝 Section ${index}:`, result.substring(0, 100) + '...');
+        return result;
+      });
     } else {
       // Format string[]
-      normalizedParoles = paroles as string[];
+      console.log('📝 Format détecté: string[]');
+      normalizedParoles = (paroles as string[]).map((section, index) => {
+        const result = String(section);
+        console.log(`📝 Section ${index}:`, result.substring(0, 100) + '...');
+        return result;
+      });
     }
+  } else {
+    console.log('❌ Paroles non valides ou vides:', paroles);
   }
 
-  console.log('🎵 ParolesMusicalesMainContent - Normalized paroles:', normalizedParoles);
+  console.log('🎵 ParolesMusicalesMainContent - Normalized paroles count:', normalizedParoles.length);
 
-  // Vérifier si on a vraiment des paroles utilisables
+  // Vérifier si on a vraiment des paroles utilisables avec debugging
   const hasUsableParoles = normalizedParoles && 
     normalizedParoles.length > 0 && 
-    normalizedParoles.some(p => p && p.trim().length > 0);
+    normalizedParoles.some((p, index) => {
+      const isUsable = p && typeof p === 'string' && p.trim().length > 0;
+      console.log(`🔍 Parole ${index} utilisable:`, isUsable, 'Longueur:', p?.length || 0);
+      return isUsable;
+    });
+
+  console.log('✅ Has usable paroles:', hasUsableParoles);
 
   if (!hasUsableParoles) {
     return (
