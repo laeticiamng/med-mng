@@ -1,4 +1,4 @@
-// supabase/functions/test-connectivity/index.ts - VERSION CORRIGÉE
+// supabase/functions/test-connectivity/index.ts - DEBUG ULTIMATE
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
@@ -7,225 +7,283 @@ const corsHeaders = {
   'Access-Control-Allow-Methods': 'POST, GET, OPTIONS, PUT, DELETE'
 }
 
-interface APITestResponse {
-  success: boolean
-  statistics: {
-    total_pages: number
-    oic_pages_found: number
-    api_accessible: boolean
-    timestamp: string
-    debug_info?: any
-  }
-  error?: string
-}
-
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders })
   }
 
   try {
-    console.log('🚀 DIAGNOSTIC COMPLET API LiSA')
+    console.log('🚀 LISA ULTIMATE DEBUG - VERSION FINALE')
+    console.log('=' .repeat(50))
     
-    const body = await req.json().catch(() => ({}))
-    console.log('📥 Request body:', body)
-
+    const debugResults: any = {}
     const baseUrl = 'https://livret.uness.fr/lisa/2025'
-    let debugInfo: any = {}
 
-    // ÉTAPE 1: Test API MediaWiki de base
-    console.log('🔍 ÉTAPE 1: Test API MediaWiki...')
-    const siteInfoUrl = `${baseUrl}/api.php?action=query&meta=siteinfo&format=json`
-    
+    // TEST 1: Page d'accueil simple
+    console.log('\n🏠 TEST 1: Page d\'accueil LiSA')
     try {
-      const siteResponse = await fetch(siteInfoUrl, {
+      const homeResponse = await fetch(`${baseUrl}/`)
+      console.log(`Status: ${homeResponse.status}`)
+      
+      if (homeResponse.ok) {
+        const homeHtml = await homeResponse.text()
+        const hasObjectif = homeHtml.includes('Objectif') || homeHtml.includes('objectif')
+        const hasConnexion = homeHtml.includes('connexion') || homeHtml.includes('login') || homeHtml.includes('Se connecter')
+        
+        debugResults.homepage = {
+          status: homeResponse.status,
+          size: homeHtml.length,
+          hasObjectif,
+          hasConnexion,
+          title: homeHtml.match(/<title[^>]*>([^<]*)<\/title>/i)?.[1] || 'No title'
+        }
+        
+        console.log(`✅ Accueil OK - Taille: ${homeHtml.length}, Objectif: ${hasObjectif}, Login: ${hasConnexion}`)
+      }
+    } catch (error) {
+      debugResults.homepage = { error: error.message }
+      console.log(`❌ Erreur accueil: ${error.message}`)
+    }
+
+    // TEST 2: API MediaWiki - Version très basique
+    console.log('\n🔧 TEST 2: API MediaWiki basique')
+    try {
+      const apiBasicUrl = `${baseUrl}/api.php`
+      const apiResponse = await fetch(apiBasicUrl)
+      console.log(`Status: ${apiResponse.status}`)
+      
+      if (apiResponse.ok) {
+        const apiText = await apiResponse.text()
+        debugResults.api_basic = {
+          status: apiResponse.status,
+          isXML: apiText.includes('<?xml'),
+          isJSON: apiText.includes('{'),
+          hasError: apiText.includes('error'),
+          content: apiText.substring(0, 200)
+        }
+        console.log(`✅ API basique OK - Type: ${apiText.includes('<?xml') ? 'XML' : 'Other'}`)
+      }
+    } catch (error) {
+      debugResults.api_basic = { error: error.message }
+      console.log(`❌ Erreur API basique: ${error.message}`)
+    }
+
+    // TEST 3: API avec paramètres siteinfo
+    console.log('\n📡 TEST 3: API Siteinfo')
+    try {
+      const siteUrl = `${baseUrl}/api.php?action=query&meta=siteinfo&format=json`
+      console.log(`URL: ${siteUrl}`)
+      
+      const siteResponse = await fetch(siteUrl, {
         headers: {
-          'User-Agent': 'Mozilla/5.0 (compatible; MED-MNG/1.0)',
-          'Accept': 'application/json'
+          'User-Agent': 'Mozilla/5.0 (compatible; MED-MNG-Debug/1.0)',
+          'Accept': '*/*'
         }
       })
       
-      console.log(`📡 Siteinfo response: ${siteResponse.status}`)
+      console.log(`Status: ${siteResponse.status}`)
+      console.log(`Headers:`, Object.fromEntries(siteResponse.headers.entries()))
       
       if (siteResponse.ok) {
-        const siteData = await siteResponse.json()
-        debugInfo.siteinfo = {
-          status: siteResponse.status,
-          sitename: siteData.query?.general?.sitename,
-          version: siteData.query?.general?.generator
+        const siteText = await siteResponse.text()
+        console.log(`Raw response: ${siteText.substring(0, 300)}`)
+        
+        try {
+          const siteData = JSON.parse(siteText)
+          debugResults.siteinfo = {
+            status: siteResponse.status,
+            hasQuery: !!siteData.query,
+            sitename: siteData.query?.general?.sitename,
+            version: siteData.query?.general?.generator,
+            raw: siteText.substring(0, 500)
+          }
+          console.log(`✅ Siteinfo parsed - Site: ${siteData.query?.general?.sitename}`)
+        } catch (parseError) {
+          debugResults.siteinfo = {
+            status: siteResponse.status,
+            parseError: parseError.message,
+            raw: siteText.substring(0, 500)
+          }
+          console.log(`❌ Parse error: ${parseError.message}`)
         }
-        console.log('✅ API MediaWiki accessible:', debugInfo.siteinfo)
       } else {
-        debugInfo.siteinfo = { status: siteResponse.status, error: 'Non accessible' }
-        console.log('❌ API MediaWiki non accessible')
+        const errorText = await siteResponse.text()
+        debugResults.siteinfo = {
+          status: siteResponse.status,
+          error: errorText.substring(0, 200)
+        }
+        console.log(`❌ Siteinfo failed: ${siteResponse.status}`)
       }
     } catch (error) {
-      debugInfo.siteinfo = { error: error.message }
-      console.error('❌ Erreur siteinfo:', error.message)
+      debugResults.siteinfo = { error: error.message }
+      console.log(`❌ Erreur siteinfo: ${error.message}`)
     }
 
-    // ÉTAPE 2: Test recherche de pages
-    console.log('🔍 ÉTAPE 2: Test recherche pages...')
-    
-    // Essayer plusieurs approches pour trouver les pages OIC
-    const searchMethods = [
+    // TEST 4: Test direct URLs de pages connues
+    console.log('\n📄 TEST 4: Pages directes')
+    const testPages = [
+      'Accueil',
+      'Catégorie:Objectif_de_connaissance', 
+      'Special:AllPages',
+      'Objectif_de_connaissance_001_01_A_01'
+    ]
+
+    for (const pageName of testPages) {
+      try {
+        const pageUrl = `${baseUrl}/${encodeURIComponent(pageName)}`
+        console.log(`Testing: ${pageUrl}`)
+        
+        const pageResponse = await fetch(pageUrl)
+        console.log(`${pageName}: ${pageResponse.status}`)
+        
+        if (pageResponse.ok) {
+          const pageHtml = await pageResponse.text()
+          debugResults[`page_${pageName.replace(/[^a-zA-Z0-9]/g, '_')}`] = {
+            status: pageResponse.status,
+            size: pageHtml.length,
+            hasContent: pageHtml.length > 1000,
+            needsLogin: pageHtml.includes('vous devez vous connecter') || pageHtml.includes('login required')
+          }
+        } else {
+          debugResults[`page_${pageName.replace(/[^a-zA-Z0-9]/g, '_')}`] = {
+            status: pageResponse.status
+          }
+        }
+        
+        // Pause entre requêtes
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        
+      } catch (error) {
+        debugResults[`page_${pageName.replace(/[^a-zA-Z0-9]/g, '_')}`] = {
+          error: error.message
+        }
+        console.log(`❌ Erreur page ${pageName}: ${error.message}`)
+      }
+    }
+
+    // TEST 5: API avec différents paramètres
+    console.log('\n🔍 TEST 5: Tests API variés')
+    const apiTests = [
       {
-        name: 'Catégorie Standard',
-        url: `${baseUrl}/api.php?action=query&list=categorymembers&cmtitle=Catégorie:Objectif_de_connaissance&cmlimit=50&format=json`
+        name: 'List all namespaces',
+        url: `${baseUrl}/api.php?action=query&meta=siteinfo&siprop=namespaces&format=json`
       },
       {
-        name: 'Catégorie Alternative 1',
-        url: `${baseUrl}/api.php?action=query&list=categorymembers&cmtitle=Category:Objectif_de_connaissance&cmlimit=50&format=json`
+        name: 'Special pages',
+        url: `${baseUrl}/api.php?action=query&list=querypage&qppage=Uncategorizedpages&format=json`
       },
       {
-        name: 'Recherche Titre',
-        url: `${baseUrl}/api.php?action=query&list=search&srsearch=Objectif_de_connaissance&srlimit=50&format=json`
+        name: 'Recent changes',
+        url: `${baseUrl}/api.php?action=query&list=recentchanges&rclimit=5&format=json`
       },
       {
-        name: 'All Pages Prefix',
-        url: `${baseUrl}/api.php?action=query&list=allpages&apprefix=Objectif_de_connaissance&aplimit=50&format=json`
+        name: 'All categories',
+        url: `${baseUrl}/api.php?action=query&list=allcategories&aclimit=10&format=json`
       }
     ]
 
-    let totalPagesFound = 0
-    let bestMethod = null
-
-    for (const method of searchMethods) {
+    for (const test of apiTests) {
       try {
-        console.log(`🔎 Test méthode: ${method.name}`)
-        console.log(`📡 URL: ${method.url}`)
-        
-        const response = await fetch(method.url, {
+        console.log(`Testing: ${test.name}`)
+        const response = await fetch(test.url, {
           headers: {
-            'User-Agent': 'Mozilla/5.0 (compatible; MED-MNG/1.0)',
-            'Accept': 'application/json'
+            'User-Agent': 'Mozilla/5.0 (compatible; MED-MNG-Debug/1.0)'
           }
         })
-
-        console.log(`📊 ${method.name} response: ${response.status}`)
-
+        
+        console.log(`${test.name}: ${response.status}`)
+        
         if (response.ok) {
-          const data = await response.json()
-          console.log(`📄 ${method.name} data keys:`, Object.keys(data))
-          
-          let pages = []
-          
-          // Traitement selon le type de requête
-          if (data.query?.categorymembers) {
-            pages = data.query.categorymembers
-            console.log(`📋 ${method.name} - categorymembers: ${pages.length}`)
-          } else if (data.query?.search) {
-            pages = data.query.search
-            console.log(`🔍 ${method.name} - search results: ${pages.length}`)
-          } else if (data.query?.allpages) {
-            pages = data.query.allpages
-            console.log(`📚 ${method.name} - allpages: ${pages.length}`)
-          } else {
-            console.log(`❓ ${method.name} - structure inconnue:`, data)
-          }
-
-          if (pages.length > totalPagesFound) {
-            totalPagesFound = pages.length
-            bestMethod = {
-              name: method.name,
-              count: pages.length,
-              examples: pages.slice(0, 3).map((p: any) => p.title || p.name),
-              data: data
+          const text = await response.text()
+          try {
+            const data = JSON.parse(text)
+            debugResults[`api_${test.name.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase()}`] = {
+              status: response.status,
+              hasQuery: !!data.query,
+              keys: data.query ? Object.keys(data.query) : [],
+              hasData: !!(data.query && Object.keys(data.query).length > 0)
+            }
+            console.log(`✅ ${test.name} OK - Keys: ${data.query ? Object.keys(data.query) : 'none'}`)
+          } catch (parseError) {
+            debugResults[`api_${test.name.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase()}`] = {
+              status: response.status,
+              parseError: parseError.message
             }
           }
-
-          debugInfo[method.name.toLowerCase().replace(/\s+/g, '_')] = {
-            status: response.status,
-            pages_count: pages.length,
-            has_query: !!data.query,
-            query_keys: data.query ? Object.keys(data.query) : [],
-            examples: pages.slice(0, 2).map((p: any) => p.title || p.name)
-          }
-
         } else {
-          debugInfo[method.name.toLowerCase().replace(/\s+/g, '_')] = {
-            status: response.status,
-            error: 'Non accessible'
+          debugResults[`api_${test.name.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase()}`] = {
+            status: response.status
           }
         }
 
-        // Pause entre requêtes
-        await new Promise(resolve => setTimeout(resolve, 500))
-
+        await new Promise(resolve => setTimeout(resolve, 1000))
+        
       } catch (error) {
-        console.error(`❌ Erreur ${method.name}:`, error.message)
-        debugInfo[method.name.toLowerCase().replace(/\s+/g, '_')] = {
+        debugResults[`api_${test.name.replace(/[^a-zA-Z0-9]/g, '_').toLowerCase()}`] = {
           error: error.message
         }
+        console.log(`❌ Erreur ${test.name}: ${error.message}`)
       }
     }
 
-    // ÉTAPE 3: Test d'accès direct à une page
-    console.log('🔍 ÉTAPE 3: Test accès page directe...')
-    try {
-      const directPageUrl = `${baseUrl}/api.php?action=query&prop=revisions&titles=Objectif_de_connaissance_001_01_A_01&rvprop=content&format=json`
-      const directResponse = await fetch(directPageUrl, {
-        headers: {
-          'User-Agent': 'Mozilla/5.0 (compatible; MED-MNG/1.0)',
-          'Accept': 'application/json'
-        }
-      })
+    // ANALYSE FINALE
+    console.log('\n📊 ANALYSE FINALE')
+    console.log('=' .repeat(50))
 
-      if (directResponse.ok) {
-        const directData = await directResponse.json()
-        const pages = directData.query?.pages || {}
-        const pageIds = Object.keys(pages)
-        
-        debugInfo.direct_page_access = {
-          status: directResponse.status,
-          pages_found: pageIds.length,
-          has_content: pageIds.some(id => pages[id].revisions?.length > 0)
-        }
-        
-        console.log('✅ Accès page directe:', debugInfo.direct_page_access)
-      }
-    } catch (error) {
-      debugInfo.direct_page_access = { error: error.message }
-      console.error('❌ Erreur accès direct:', error.message)
+    const analysis = {
+      homepage_accessible: debugResults.homepage?.status === 200,
+      api_responsive: debugResults.api_basic?.status === 200,
+      siteinfo_works: debugResults.siteinfo?.hasQuery === true,
+      needs_authentication: false,
+      possible_causes: []
     }
 
-    // ÉTAPE 4: Résumé et diagnostic
-    console.log('📊 RÉSUMÉ DIAGNOSTIC:')
-    console.log(`🎯 Meilleure méthode: ${bestMethod?.name || 'Aucune'}`)
-    console.log(`📈 Pages trouvées: ${totalPagesFound}`)
+    // Détecter les causes probables
+    if (!analysis.homepage_accessible) {
+      analysis.possible_causes.push('Site LiSA inaccessible')
+    } else if (!analysis.api_responsive) {
+      analysis.possible_causes.push('API MediaWiki désactivée')
+    } else if (!analysis.siteinfo_works) {
+      analysis.possible_causes.push('API nécessite authentification')
+    } else {
+      analysis.possible_causes.push('Pages OIC dans espace privé ou nom incorrect')
+    }
+
+    // Détecter besoin d'authentification
+    const authIndicators = [
+      debugResults.homepage?.hasConnexion,
+      debugResults.page_Catégorie_Objectif_de_connaissance?.needsLogin,
+      debugResults.page_Objectif_de_connaissance_001_01_A_01?.needsLogin
+    ]
     
-    if (bestMethod) {
-      console.log(`📋 Exemples:`, bestMethod.examples)
+    if (authIndicators.some(indicator => indicator === true)) {
+      analysis.needs_authentication = true
+      analysis.possible_causes.push('Authentification CAS requise')
     }
 
-    // Construction de la réponse
-    const response: APITestResponse = {
-      success: totalPagesFound > 0,
+    debugResults.final_analysis = analysis
+
+    console.log('🔍 Causes probables:', analysis.possible_causes)
+    console.log('🔐 Auth requise:', analysis.needs_authentication)
+
+    // RÉPONSE FINALE AVEC DIAGNOSTIC COMPLET
+    const response = {
+      success: false, // Toujours false car 0 pages trouvées
       statistics: {
-        total_pages: totalPagesFound,
-        oic_pages_found: totalPagesFound,
-        api_accessible: true,
+        total_pages: 0,
+        oic_pages_found: 0,
+        api_accessible: analysis.api_responsive,
         timestamp: new Date().toISOString(),
-        debug_info: {
-          ...debugInfo,
-          best_method: bestMethod,
-          summary: {
-            api_accessible: !!debugInfo.siteinfo?.sitename,
-            methods_tested: searchMethods.length,
-            pages_found: totalPagesFound,
-            recommended_method: bestMethod?.name
-          }
-        }
+        debug_info: debugResults,
+        analysis: analysis
       },
-      error: totalPagesFound === 0 ? 'Aucune page OIC trouvée malgré API accessible' : undefined
+      error: `Diagnostic: ${analysis.possible_causes.join(', ')}`,
+      next_steps: analysis.needs_authentication 
+        ? 'Implémenter authentification CAS'
+        : 'Vérifier noms de catégories et espaces de noms'
     }
 
-    console.log('✅ Diagnostic terminé')
-    console.log('📤 Réponse finale:', {
-      success: response.success,
-      pages_found: totalPagesFound,
-      best_method: bestMethod?.name
-    })
+    console.log('✅ Diagnostic terminé - Envoi réponse complète')
 
     return new Response(JSON.stringify(response), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -233,20 +291,13 @@ Deno.serve(async (req) => {
     })
 
   } catch (error) {
-    console.error('💥 ERREUR FATALE:', error)
+    console.error('💥 ERREUR FATALE DEBUG:', error)
     
-    const errorResponse: APITestResponse = {
+    return new Response(JSON.stringify({
       success: false,
-      statistics: {
-        total_pages: 0,
-        oic_pages_found: 0,
-        api_accessible: false,
-        timestamp: new Date().toISOString()
-      },
-      error: `Erreur fatale: ${error.message}`
-    }
-
-    return new Response(JSON.stringify(errorResponse), {
+      error: `Debug failed: ${error.message}`,
+      stack: error.stack
+    }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 500
     })
