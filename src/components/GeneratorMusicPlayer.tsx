@@ -202,7 +202,7 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
 
         <div className="text-xs text-gray-500 text-center mt-4 space-y-1">
           {isGenerating && !audioUrl ? (
-            <p>⏳ Votre musique est en cours de génération. Le processus peut prendre 1-2 minutes...</p>
+            <p>⏳ Votre musique est en cours de génération. Le processus optimisé prend environ 20 secondes...</p>
           ) : (
             <p>🎵 Votre musique est prête ! Utilisez les contrôles pour l'écouter.</p>
           )}
