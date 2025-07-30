@@ -46,33 +46,33 @@ export const EdnItemContent = ({ activeSection, item }: EdnItemContentProps) => 
     switch (activeSection) {
       case 'tableau-a':
         console.log('📋 Rendering Tableau Rang A for:', item.item_code);
-        console.log('📊 Tableau Rang A raw data:', item.tableau_rang_a);
-        console.log('📊 Item complet:', JSON.stringify(item, null, 2));
-        // Créer les données enrichies avec les vraies compétences OIC
+        console.log('📊 Compétences OIC Rang A:', item.competences_oic_rang_a);
+        
+        // PRIORITÉ AUX COMPÉTENCES OIC ENRICHIES
         const enrichedTableauData = {
-          ...item.tableau_rang_a,
+          title: `${item.item_code} Rang A - Compétences EDN`,
           competences_oic: item.competences_oic_rang_a || [],
           sections: item.tableau_rang_a?.sections || []
         };
         
-        return enrichedTableauData ? (
+        console.log('📊 Data passed to TableauRangA:', enrichedTableauData);
+        
+        return (
           <TableauRangA data={enrichedTableauData} itemCode={item.item_code} />
-        ) : (
-          <div className="text-center py-8">
-            <TranslatedText text="Tableau Rang A en cours de développement" />
-          </div>
         );
       
       case 'tableau-b':
         console.log('📋 Rendering Tableau Rang B for:', item.item_code);
-        console.log('📊 Tableau Rang B raw data:', item.tableau_rang_b);
+        console.log('📊 Compétences OIC Rang B:', item.competences_oic_rang_b);
         
-        // Créer les données enrichies avec les vraies compétences OIC
+        // PRIORITÉ AUX COMPÉTENCES OIC ENRICHIES
         const enrichedTableauDataB = {
-          ...item.tableau_rang_b,
+          title: `${item.item_code} Rang B - Compétences Approfondies EDN`,
           competences_oic: item.competences_oic_rang_b || [],
           sections: item.tableau_rang_b?.sections || []
         };
+        
+        console.log('📊 Data passed to TableauRangB:', enrichedTableauDataB);
         
         return (
           <TableauRangB 
