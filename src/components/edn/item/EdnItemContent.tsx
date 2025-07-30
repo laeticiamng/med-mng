@@ -27,6 +27,8 @@ interface EdnItemData {
   tableau_rang_b?: any;
   scene_immersive?: any;
   quiz_questions?: any;
+  competences_oic_rang_a?: any[];
+  competences_oic_rang_b?: any[];
   created_at: string;
   updated_at: string;
 }
@@ -46,8 +48,15 @@ export const EdnItemContent = ({ activeSection, item }: EdnItemContentProps) => 
         console.log('📋 Rendering Tableau Rang A for:', item.item_code);
         console.log('📊 Tableau Rang A raw data:', item.tableau_rang_a);
         console.log('📊 Item complet:', JSON.stringify(item, null, 2));
-        return item.tableau_rang_a ? (
-          <TableauRangA data={item.tableau_rang_a} itemCode={item.item_code} />
+        // Créer les données enrichies avec les vraies compétences OIC
+        const enrichedTableauData = {
+          ...item.tableau_rang_a,
+          competences_oic: item.competences_oic_rang_a || [],
+          sections: item.tableau_rang_a?.sections || []
+        };
+        
+        return enrichedTableauData ? (
+          <TableauRangA data={enrichedTableauData} itemCode={item.item_code} />
         ) : (
           <div className="text-center py-8">
             <TranslatedText text="Tableau Rang A en cours de développement" />
@@ -58,9 +67,16 @@ export const EdnItemContent = ({ activeSection, item }: EdnItemContentProps) => 
         console.log('📋 Rendering Tableau Rang B for:', item.item_code);
         console.log('📊 Tableau Rang B raw data:', item.tableau_rang_b);
         
+        // Créer les données enrichies avec les vraies compétences OIC
+        const enrichedTableauDataB = {
+          ...item.tableau_rang_b,
+          competences_oic: item.competences_oic_rang_b || [],
+          sections: item.tableau_rang_b?.sections || []
+        };
+        
         return (
           <TableauRangB 
-            data={item.tableau_rang_b}
+            data={enrichedTableauDataB}
             itemCode={item.item_code}
           />
         );

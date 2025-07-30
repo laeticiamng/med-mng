@@ -25,10 +25,12 @@ interface TableauRangAProps {
     colonnes?: string[];
     lignes?: string[][];
     sections?: any[];
+    competences_oic?: any[]; // Ajout des compétences OIC réelles
   };
+  itemCode?: string;
 }
 
-export const TableauRangA = ({ data }: TableauRangAProps) => {
+export const TableauRangA = ({ data, itemCode }: TableauRangAProps) => {
   console.log('TableauRangA - Received data:', data);
 
   if (!data) {
@@ -40,7 +42,97 @@ export const TableauRangA = ({ data }: TableauRangAProps) => {
     );
   }
 
-  // Nouvelle logique pour afficher les données structurées correctement
+  // PRIORITÉ 1: Afficher les compétences OIC réelles si disponibles
+  if (data.competences_oic && Array.isArray(data.competences_oic) && data.competences_oic.length > 0) {
+    console.log('📚 Affichage des compétences OIC réelles:', data.competences_oic);
+    
+    return (
+      <div className="space-y-6">
+        <div className="mb-6">
+          <h2 className="text-2xl font-bold text-blue-700 mb-2 flex items-center gap-2">
+            <Badge className="bg-blue-600">Rang A</Badge>
+            Compétences EDN - {itemCode || 'Item'}
+          </h2>
+          <p className="text-gray-600">
+            Compétences officielles du référentiel OIC ({data.competences_oic.length} compétences)
+          </p>
+        </div>
+
+        <div className="space-y-4">
+          {data.competences_oic.map((competence: any, idx: number) => {
+            const competenceId = `competence-oic-${idx}`;
+            return (
+              <Card 
+                key={competence.objectif_id || idx} 
+                className="border-l-4 border-l-blue-500 bg-blue-50/30"
+                role="article"
+                aria-labelledby={competenceId}
+              >
+                <CardContent className="p-4">
+                  <div className="space-y-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Badge 
+                            variant="outline" 
+                            className="text-xs bg-blue-100 border-blue-300"
+                            aria-label={`Code de compétence ${competence.objectif_id}`}
+                          >
+                            {competence.objectif_id}
+                          </Badge>
+                          {competence.rubrique && (
+                            <Badge 
+                              variant="secondary" 
+                              className="text-xs"
+                            >
+                              {competence.rubrique}
+                            </Badge>
+                          )}
+                        </div>
+                        
+                        <h5 
+                          id={competenceId}
+                          className="font-semibold text-blue-800 text-base leading-tight"
+                        >
+                          {competence.intitule}
+                        </h5>
+                      </div>
+                    </div>
+                    
+                    {competence.description && (
+                      <div 
+                        className="text-sm text-gray-700 leading-relaxed p-3 bg-white rounded border"
+                        role="definition"
+                      >
+                        <div 
+                          dangerouslySetInnerHTML={{ 
+                            __html: competence.description 
+                              .replace(/&nbsp;/g, ' ')
+                              .replace(/<br\s*\/?>/gi, '<br>')
+                          }} 
+                        />
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+
+        <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+          <div className="flex items-center gap-2 text-sm text-blue-700">
+            <Badge className="bg-blue-600">
+              {data.competences_oic.length}
+            </Badge>
+            compétences officielles du référentiel EDN - Rang A
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // PRIORITÉ 2: Nouvelle logique pour afficher les données structurées correctement
   if (data.sections && Array.isArray(data.sections)) {
     return (
       <div className="space-y-6">
