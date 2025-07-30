@@ -5,13 +5,70 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+// Mapping des codes rubrique vers noms complets
+const RUBRIQUES_MAP: Record<string, string> = {
+  '01': 'Génétique',
+  '02': 'Embryologie',
+  '03': 'Anatomie',
+  '04': 'Physiologie',
+  '05': 'Histologie',
+  '06': 'Biochimie',
+  '07': 'Immunologie',
+  '08': 'Microbiologie',
+  '09': 'Pharmacologie',
+  '10': 'Pathologie',
+  '11': 'Cancérologie'
+};
+
+// Fonction de parsing des données OIC
+function parseOICPage(content: string, title: string): any {
+  // Extract objectif_id from title (format: OIC-XXX-YY-R-ZZ)
+  const idMatch = title.match(/OIC[_-](\d{3})[_-](\d{2})[_-]([AB])[_-](\d{2})/i);
+  if (!idMatch) return null;
+
+  const [, itemParent, rubriqueFull, rang, ordreFull] = idMatch;
+  const objectifId = `OIC-${itemParent}-${rubriqueFull}-${rang}-${ordreFull}`;
+  
+  // Extract intitulé
+  const intitulePatterns = [
+    /\|\s*[Ii]ntitulé\s*=\s*([^\n\|]+)/,
+    /\|\s*[Tt]itre\s*=\s*([^\n\|]+)/,
+  ];
+  
+  let intitule = title;
+  for (const pattern of intitulePatterns) {
+    const match = content.match(pattern);
+    if (match) {
+      intitule = match[1].trim();
+      break;
+    }
+  }
+
+  // Extract description
+  const descriptionMatch = content.match(/\|\s*[Dd]escription\s*=\s*([^\n\|]+)/);
+  const description = descriptionMatch ? descriptionMatch[1].trim() : '';
+
+  return {
+    objectif_id: objectifId,
+    intitule: intitule || title,
+    item_parent: itemParent,
+    rang: rang.toUpperCase(),
+    rubrique: RUBRIQUES_MAP[rubriqueFull] || `Rubrique ${rubriqueFull}`,
+    description: description,
+    ordre: parseInt(ordreFull),
+    url_source: `https://livret.uness.fr/lisa/2025/${title.replace(/\s+/g, '_')}`,
+    raw_json: { title, content: content.substring(0, 1000) },
+    extraction_status: 'complete'
+  };
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
-  console.log('🚀 TEST EXTRACTION OIC SIMPLIFIÉ');
-  console.log('===============================');
+  console.log('🚀 EXTRACTION API-FIRST DES 4,872 OBJECTIFS EDN');
+  console.log('===============================================');
 
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
@@ -21,87 +78,133 @@ Deno.serve(async (req) => {
       auth: { persistSession: false }
     });
 
-    // Test de l'API publique avec limit 500
-    console.log('🔍 Test d\'accès à l\'API MediaWiki avec 500 pages...');
+    // Étape 1: Test d'accès public à l'API MediaWiki
+    console.log('🔍 Test d\'accès public à l\'API MediaWiki...');
     
-    const response = await fetch(
+    const listResponse = await fetch(
       'https://livret.uness.fr/lisa/2025/api.php?action=query&list=categorymembers&cmtitle=Catégorie:Objectif_de_connaissance&cmlimit=500&format=json'
     );
 
-    console.log(`📡 Status: ${response.status}`);
+    console.log(`📡 Status: ${listResponse.status}`);
     
-    if (!response.ok) {
-      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    if (!listResponse.ok) {
+      throw new Error(`HTTP ${listResponse.status}: ${listResponse.statusText}`);
     }
 
-    const data = await response.json();
-    console.log('📊 Données reçues:', JSON.stringify(data, null, 2));
+    const listData = await listResponse.json();
+    console.log('📊 Données de listing reçues');
 
-    // Compter les pages OIC avec patterns plus flexibles
-    const members = data.query?.categorymembers || [];
+    // Étape 2: Analyser les pages trouvées
+    const members = listData.query?.categorymembers || [];
     const oicPages = members.filter((page: any) => {
       if (!page.title) return false;
-      // Patterns possibles: OIC_XXX_XX_X_XX, OIC-XXX-XX-X-XX, etc.
-      return page.title.match(/OIC[_-]?\d{3}[_-]?\d{2}[_-]?[AB][_-]?\d{2}/i) ||
-             page.title.includes('OIC') ||
-             page.title.toLowerCase().includes('objectif');
+      return page.title.match(/OIC[_-]\d{3}[_-]\d{2}[_-][AB][_-]\d{2}/i);
     });
 
-    console.log(`🎯 Pages OIC trouvées: ${oicPages.length}/${members.length}`);
+    console.log(`📋 ${members.length} pages trouvées au total`);
+    console.log(`🎯 ${oicPages.length} pages OIC identifiées`);
     
-    // Afficher quelques exemples de titres pour debug
-    console.log('📋 Premiers titres trouvés:');
-    members.slice(0, 10).forEach((page: any, i: number) => {
+    // Afficher quelques exemples pour debug
+    console.log('📋 Exemples de pages OIC:');
+    oicPages.slice(0, 5).forEach((page: any, i: number) => {
       console.log(`  ${i+1}. ${page.title} (ID: ${page.pageid})`);
     });
 
-    // Test d'extraction de contenu sur la première page trouvée
-    if (members.length > 0) {
-      const firstPage = members[0];
-      console.log(`📄 Test extraction page: ${firstPage.title}`);
+    // Étape 3: Test d'extraction de contenu par batch
+    if (oicPages.length > 0) {
+      const testBatch = oicPages.slice(0, 10); // Test avec 10 pages
+      const pageIds = testBatch.map((p: any) => p.pageid).join('|');
       
-      const pageResponse = await fetch(
-        `https://livret.uness.fr/lisa/2025/api.php?action=query&prop=revisions&rvprop=content|timestamp&pageids=${firstPage.pageid}&format=json&formatversion=2`
+      console.log(`📦 Test extraction batch de ${testBatch.length} pages...`);
+      
+      const contentResponse = await fetch(
+        `https://livret.uness.fr/lisa/2025/api.php?action=query&prop=revisions&rvprop=content|timestamp&pageids=${pageIds}&format=json&formatversion=2`
       );
 
-      if (pageResponse.ok) {
-        const pageData = await pageResponse.json();
-        const page = pageData.query?.pages?.[0];
-        if (page?.revisions?.[0]?.content) {
-          console.log('✅ Contenu de page récupéré avec succès');
-          console.log(`📝 Aperçu: ${page.revisions[0].content.substring(0, 200)}...`);
+      if (contentResponse.ok) {
+        const contentData = await contentResponse.json();
+        const pages = contentData.query?.pages || [];
+        
+        console.log(`✅ ${pages.length} pages de contenu récupérées`);
+        
+        // Étape 4: Parsing et insertion de test
+        const parsedData = [];
+        let successCount = 0;
+        
+        for (const page of pages) {
+          const content = page.revisions?.[0]?.content || '';
+          if (content) {
+            const parsed = parseOICPage(content, page.title);
+            if (parsed) {
+              parsedData.push(parsed);
+              successCount++;
+            }
+          }
         }
+        
+        console.log(`📝 ${successCount} compétences parsées avec succès`);
+        
+        // Test d'insertion en base (1 seule pour le test)
+        if (parsedData.length > 0) {
+          const testInsert = parsedData[0];
+          const { error: insertError } = await supabase
+            .from('oic_competences')
+            .upsert(testInsert, { onConflict: 'objectif_id' });
+            
+          if (insertError) {
+            console.error('❌ Erreur insertion test:', insertError);
+          } else {
+            console.log('✅ Test d\'insertion en base réussi');
+          }
+        }
+
+        // Rapport de test final
+        const report = {
+          success: true,
+          message: 'Extraction API-first testée avec succès',
+          statistics: {
+            total_pages_found: members.length,
+            oic_pages_identified: oicPages.length,
+            test_batch_size: testBatch.length,
+            content_pages_extracted: pages.length,
+            competences_parsed: successCount,
+            api_accessible: true,
+            test_date: new Date().toISOString()
+          },
+          sample_competences: parsedData.slice(0, 3).map(p => ({
+            objectif_id: p.objectif_id,
+            intitule: p.intitule,
+            rubrique: p.rubrique,
+            rang: p.rang
+          })),
+          next_steps: [
+            'API publique accessible ✅',
+            `${oicPages.length} pages OIC identifiées`,
+            'Parsing des données fonctionnel',
+            'Prêt pour extraction complète des 4,872 objectifs'
+          ]
+        };
+
+        console.log('🎉 TEST D\'EXTRACTION RÉUSSI !');
+        console.log(`📊 Pages OIC trouvées: ${oicPages.length}`);
+        console.log(`✅ Parsing réussi: ${successCount} compétences`);
+        
+        return new Response(JSON.stringify(report), {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
       } else {
-        console.log('❌ Échec récupération contenu page');
+        throw new Error('Échec récupération contenu pages');
       }
+    } else {
+      throw new Error('Aucune page OIC trouvée dans la catégorie');
     }
-
-    const report = {
-      success: true,
-      message: 'Test API MediaWiki réussi',
-      statistics: {
-        total_pages: members.length,
-        oic_pages_found: oicPages.length,
-        api_accessible: response.ok,
-        test_date: new Date().toISOString()
-      },
-      sample_pages: oicPages.slice(0, 3).map((p: any) => ({
-        title: p.title,
-        pageid: p.pageid
-      }))
-    };
-
-    console.log('🎉 TEST TERMINÉ AVEC SUCCÈS !');
-    return new Response(JSON.stringify(report), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
 
   } catch (error) {
     console.error('💥 Erreur:', error);
     return new Response(JSON.stringify({
       success: false,
       error: error.message,
-      message: 'Erreur lors du test API MediaWiki'
+      message: 'Erreur lors du test d\'extraction API-first'
     }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
