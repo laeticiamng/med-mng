@@ -14,7 +14,7 @@ export const CompletionTrigger = () => {
     try {
       console.log('📡 Test extraction OIC simple...');
       
-      const { data, error } = await supabase.functions.invoke('test-oic-simple', {
+      const { data, error } = await supabase.functions.invoke('test-connectivity', {
         body: { 
           action: 'test',
           timestamp: new Date().toISOString()

@@ -125,3 +125,6 @@ verify_jwt = false
 [functions.test-oic-simple]
 verify_jwt = false
 
+[functions.test-connectivity]
+verify_jwt = false
+
