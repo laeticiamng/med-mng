@@ -4,8 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Music } from 'lucide-react';
 import { BandeDessinee } from '@/components/edn/BandeDessinee';
 import { EnhancedBandeDessinee } from '@/components/edn/EnhancedBandeDessinee';
-import { TableauRangA } from '@/components/edn/TableauRangA';
-import { TableauRangB } from '@/components/edn/TableauRangB';
+import { TableauCompetencesOICWithRealData } from '@/components/edn/tableau/TableauCompetencesOICWithRealData';
 import { SceneImmersive } from '@/components/edn/SceneImmersive';
 import { ParolesMusicales } from '@/components/edn/ParolesMusicales';
 import { EnhancedQuizFinal } from '@/components/edn/EnhancedQuizFinal';
@@ -46,38 +45,19 @@ export const EdnItemContent = ({ activeSection, item }: EdnItemContentProps) => 
     switch (activeSection) {
       case 'tableau-a':
         console.log('📋 Rendering Tableau Rang A for:', item.item_code);
-        console.log('📊 Compétences OIC Rang A:', item.competences_oic_rang_a);
-        
-        // PRIORITÉ AUX COMPÉTENCES OIC ENRICHIES
-        const enrichedTableauData = {
-          title: `${item.item_code} Rang A - Compétences EDN`,
-          competences: item.competences_oic_rang_a || [],
-          sections: item.competences_oic_rang_a || []
-        };
-        
-        console.log('📊 Data passed to TableauRangA:', enrichedTableauData);
-        
         return (
-          <TableauRangA data={enrichedTableauData} itemCode={item.item_code} />
+          <TableauCompetencesOICWithRealData 
+            itemCode={item.item_code} 
+            rang="A" 
+          />
         );
       
       case 'tableau-b':
         console.log('📋 Rendering Tableau Rang B for:', item.item_code);
-        console.log('📊 Compétences OIC Rang B:', item.competences_oic_rang_b);
-        
-        // PRIORITÉ AUX COMPÉTENCES OIC ENRICHIES
-        const enrichedTableauDataB = {
-          title: `${item.item_code} Rang B - Compétences Approfondies EDN`,
-          competences: item.competences_oic_rang_b || [],
-          sections: item.competences_oic_rang_b || []
-        };
-        
-        console.log('📊 Data passed to TableauRangB:', enrichedTableauDataB);
-        
         return (
-          <TableauRangB 
-            data={enrichedTableauDataB}
-            itemCode={item.item_code}
+          <TableauCompetencesOICWithRealData 
+            itemCode={item.item_code} 
+            rang="B" 
           />
         );
       
