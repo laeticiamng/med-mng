@@ -79,7 +79,15 @@ Deno.serve(async (req) => {
     console.log(`🔑 SERVICE_KEY: ${supabaseServiceKey ? 'configuré' : 'manquant'}`);
     
     if (!supabaseUrl || !supabaseServiceKey) {
-      throw new Error('Variables d\'environnement Supabase manquantes');
+      console.error('❌ Variables Supabase manquantes');
+      return new Response(JSON.stringify({
+        success: false,
+        error: 'Variables d\'environnement Supabase manquantes',
+        message: 'Configuration Supabase incomplète'
+      }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
     
     const supabase = createClient(supabaseUrl, supabaseServiceKey, {
