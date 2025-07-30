@@ -65,8 +65,19 @@ export const TableauCompetencesOICWithRealData: React.FC<TableauCompetencesOICWi
     );
   }
 
-  // Convertir les données OIC authentiques au format attendu et les trier par ordre
-  const sortedCompetences = [...competencesData].sort((a, b) => (a.ordre || 0) - (b.ordre || 0));
+  // Convertir les données OIC authentiques au format attendu et les trier par numéro dans objectif_id
+  const sortedCompetences = [...competencesData].sort((a, b) => {
+    // Extraire le numéro de l'objectif_id (ex: OIC-001-07-A -> 7)
+    const getNumberFromObjectifId = (objectifId: string) => {
+      const match = objectifId.match(/OIC-\d+-(\d+)-[AB]/);
+      return match ? parseInt(match[1], 10) : 0;
+    };
+    
+    const numA = getNumberFromObjectifId(a.objectif_id || '');
+    const numB = getNumberFromObjectifId(b.objectif_id || '');
+    
+    return numA - numB;
+  });
   
   const competencesFormatted = {
     title: `${itemCode} Rang ${rang} - Compétences OIC officielles UNESS`,
