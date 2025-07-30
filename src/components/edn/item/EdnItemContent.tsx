@@ -89,7 +89,10 @@ export const EdnItemContent = ({ activeSection, item }: EdnItemContentProps) => 
         );
       
       case 'music':
-        if (!item.paroles_musicales || item.paroles_musicales.length === 0) {
+        const hasLyrics = (item.paroles_rang_a && item.paroles_rang_a.length > 0) || 
+                         (item.paroles_rang_b && item.paroles_rang_b.length > 0);
+        
+        if (!hasLyrics) {
           return (
             <div className="text-center py-8 bg-amber-50 rounded-lg border border-amber-200">
               <Music className="h-12 w-12 text-amber-600 mx-auto mb-4" />
