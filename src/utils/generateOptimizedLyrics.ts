@@ -206,47 +206,82 @@ function extractFromTableau(sections: any[], content: any, rang: string) {
   });
 }
 
-// 🎶 COUPLET 1 - Introduction avec définitions précises
+// 🎶 COUPLET 1 - Introduction avec définitions précises RÉELLES
 function generateCouplet1IA(itemCode: string, title: string, definition: string[], epidemio: string[], rang: string): string[] {
-  const shortTitle = title.length > 35 ? title.substring(0, 32) + '...' : title;
+  console.log(`🎵 Génération Couplet 1 pour ${itemCode}:`, { definition, epidemio });
   
-  return [
-    `${shortTitle} pathologie centrale`, // IA-friendly: pas d'apostrophes
-    `Définition précise et essentielle`, // Assonance -elle
-    definition[0] || `Mécanisme physiopathologique clair`,
-    definition[1] || `Tableau clinique caractéristique`,
-    `Épidémiologie bien documentée`, // Éviter "bien" → remplacer par contenu
-    epidemio[0] || `Population cible identifiée`,
-    `Facteurs de risque analysés`, // Assonance -és
-    `${itemCode} concept maîtrisé` // Eviter "je maîtrise"
-  ];
+  const verses: string[] = [];
+  
+  // ✅ UTILISER LE VRAI CONTENU MÉDICAL EXTRAIT
+  if (definition.length > 0) {
+    verses.push(definition[0]); // Vraie définition OIC
+    if (definition.length > 1) verses.push(definition[1]);
+  } else {
+    verses.push(`${itemCode} définition manquante`);
+  }
+  
+  if (epidemio.length > 0) {
+    verses.push(epidemio[0]); // Vraie épidémiologie
+  } else {
+    verses.push(`Épidémiologie ${itemCode} à préciser`);
+  }
+  
+  // Compléter si nécessaire avec du contenu neutre
+  while (verses.length < 4) {
+    verses.push(`Connaissance ${itemCode} essentielle`);
+  }
+  
+  return verses;
 }
 
-// 🔁 REFRAIN - Résumé musical des notions clés  
+// 🔁 REFRAIN - Utiliser les VRAIS mots-clés extraits
 function generateRefrainOptimized(itemCode: string, keywords: string[], rang: string): string[] {
-  const intensity = rang === 'A' ? 'fondements' : rang === 'B' ? 'expertise' : 'maîtrise totale';
-  const mainKeyword = keywords[0] || 'diagnostic';
+  console.log(`🎵 Génération Refrain pour ${itemCode}:`, { keywords, rang });
   
+  const realKeywords = keywords.filter(k => k && k.length > 2).slice(0, 3);
+  
+  if (realKeywords.length > 0) {
+    return [
+      `${itemCode} ${realKeywords[0]} essentiel`,
+      `${realKeywords[1] || 'concept'} médical central`,
+      `${realKeywords[2] || 'connaissance'} clinique précise`,
+      `Maîtrise ${rang} validée`
+    ];
+  }
+  
+  // Fallback si pas de mots-clés
   return [
-    `${itemCode}, ${intensity} médical`, // Assonance -al
-    `${mainKeyword} optimal`, // Assonance -al
-    `Clinique et paraclinique`, // Rythme IA fluide
-    `Excellence thérapeutique` // Assonance -ique
+    `${itemCode} spécialité médicale`,
+    `Compétence clinique validée`,
+    `Connaissance rang ${rang} acquise`,
+    `Formation médicale ciblée`
   ];
 }
 
-// 🎶 COUPLET 2 - Développement logique (causes, mécanismes, signes)
+// 🎶 COUPLET 2 - VRAI contenu clinique et paraclinique
 function generateCouplet2IA(clinique: string[], paraclinique: string[], rang: string): string[] {
-  return [
-    `Signes fonctionnels et physiques`, // Éviter contractions
-    clinique[0] || `Inspection, palpation méthodiques`,
-    clinique[1] || `Auscultation révélatrice`,
-    `Syndrome complet caractéristique`, // Assonance -ique
-    `Examens complémentaires ciblés`, // Assonance -és
-    paraclinique[0] || `Biologie confirme l'hypothèse`,
-    paraclinique[1] || `Imagerie précise l'anatomie`,
-    `Diagnostic différentiel établi` // Éviter mots difficiles
-  ];
+  console.log(`🎵 Génération Couplet 2:`, { clinique, paraclinique });
+  
+  const verses: string[] = [];
+  
+  // ✅ UTILISER LE VRAI CONTENU CLINIQUE
+  if (clinique.length > 0) {
+    verses.push(clinique[0]);
+    if (clinique.length > 1) verses.push(clinique[1]);
+  }
+  
+  // ✅ UTILISER LE VRAI CONTENU PARACLINIQUE  
+  if (paraclinique.length > 0) {
+    verses.push(paraclinique[0]);
+    if (paraclinique.length > 1) verses.push(paraclinique[1]);
+  }
+  
+  // Compléter si nécessaire
+  while (verses.length < 4) {
+    verses.push(`Examen clinique spécialisé rang ${rang}`);
+  }
+  
+  return verses;
 }
 
 // 🎶 COUPLET 3 - Approche thérapeutique + complications
