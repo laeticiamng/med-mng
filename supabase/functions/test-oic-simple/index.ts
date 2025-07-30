@@ -40,7 +40,7 @@ Deno.serve(async (req) => {
     // Compter les pages OIC
     const members = data.query?.categorymembers || [];
     const oicPages = members.filter((page: any) => 
-      page.title.match(/OIC[_-]\d{3}[_-]\d{2}[_-][AB][_-]\d{2}/i)
+      page.title && page.title.match(/OIC[_-]\d{3}[_-]\d{2}[_-][AB][_-]\d{2}/i)
     );
 
     console.log(`🎯 Pages OIC trouvées: ${oicPages.length}/${members.length}`);
