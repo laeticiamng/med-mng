@@ -38,7 +38,7 @@ export const useEdnItemV2 = (slug: string | undefined): UseEdnItemV2Result => {
         
         // 1. Récupération depuis Supabase
         const { data, error: supabaseError } = await supabase
-          .from('edn_items_complete')
+          .from('edn_items_immersive')
           .select('*')
           .eq('slug', slug)
           .single();

@@ -21,7 +21,7 @@ export const useAllEdnItems = () => {
         console.log('🔍 Récupération de tous les items EDN...');
         
         const { data, error: supabaseError } = await supabase
-          .from('edn_items_complete')
+          .from('edn_items_immersive')
           .select('item_code, title, subtitle')
           .order('item_code');
 
