@@ -16,7 +16,7 @@ describe('🔗 Tests d\'intégration API - Endpoints critiques', () => {
   describe('📚 API EDN Items', () => {
     it('✅ GET /edn - doit retourner la liste des items EDN', async () => {
       const { data, error } = await supabase
-        .from('edn_items_immersive')
+        .from('edn_items_complete')
         .select('*')
         .limit(5);
 
@@ -36,7 +36,7 @@ describe('🔗 Tests d\'intégration API - Endpoints critiques', () => {
     it('✅ GET /edn/:slug - doit retourner un item spécifique', async () => {
       // D'abord récupérer un slug valide
       const { data: items } = await supabase
-        .from('edn_items_immersive')
+        .from('edn_items_complete')
         .select('slug')
         .limit(1);
 
@@ -44,7 +44,7 @@ describe('🔗 Tests d\'intégration API - Endpoints critiques', () => {
         const testSlug = items[0].slug;
         
         const { data, error } = await supabase
-          .from('edn_items_immersive')
+          .from('edn_items_complete')
           .select('*')
           .eq('slug', testSlug)
           .single();
@@ -59,7 +59,7 @@ describe('🔗 Tests d\'intégration API - Endpoints critiques', () => {
 
     it('❌ GET /edn/:slug - doit retourner 404 pour slug inexistant', async () => {
       const { data, error } = await supabase
-        .from('edn_items_immersive')
+        .from('edn_items_complete')
         .select('*')
         .eq('slug', 'slug-inexistant-test-12345')
         .single();
@@ -151,7 +151,7 @@ describe('🔗 Tests d\'intégration API - Endpoints critiques', () => {
     it('✅ POST /verify-item/:id - doit vérifier un item spécifique', async () => {
       // Récupérer un item de test
       const { data: items } = await supabase
-        .from('edn_items_immersive')
+        .from('edn_items_complete')
         .select('id')
         .limit(1);
 
@@ -222,7 +222,7 @@ describe('🔗 Tests d\'intégration API - Endpoints critiques', () => {
       const startTime = performance.now();
       
       const { data, error } = await supabase
-        .from('edn_items_immersive')
+        .from('edn_items_complete')
         .select('*')
         .limit(1);
       
@@ -237,7 +237,7 @@ describe('🔗 Tests d\'intégration API - Endpoints critiques', () => {
     it('📈 Throughput - gestion requêtes multiples', async () => {
       const promises = Array.from({ length: 5 }, (_, i) => 
         supabase
-          .from('edn_items_immersive')
+          .from('edn_items_complete')
           .select('id, title')
           .limit(2)
       );
@@ -262,7 +262,7 @@ describe('🔗 Tests d\'intégration API - Endpoints critiques', () => {
     it('🛡️ RLS Protection - lecture publique autorisée', async () => {
       // Test lecture publique des items EDN (doit marcher)
       const { data, error } = await supabase
-        .from('edn_items_immersive')
+        .from('edn_items_complete')
         .select('id, title')
         .limit(1);
 
@@ -273,7 +273,7 @@ describe('🔗 Tests d\'intégration API - Endpoints critiques', () => {
     it('🔐 RLS Protection - écriture protégée', async () => {
       // Test écriture sans auth (doit échouer)
       const { error } = await supabase
-        .from('edn_items_immersive')
+        .from('edn_items_complete')
         .insert({
           item_code: 'TEST-SECURITY',
           title: 'Test Security Violation',
@@ -299,7 +299,7 @@ describe('🔗 Tests d\'intégration API - Endpoints critiques', () => {
   describe('🔄 Tests de cohérence données', () => {
     it('✅ Cohérence EDN - tous les items ont les champs requis', async () => {
       const { data, error } = await supabase
-        .from('edn_items_immersive')
+        .from('edn_items_complete')
         .select('id, item_code, title, slug')
         .limit(20);
 
@@ -347,7 +347,7 @@ describe('🔗 Tests d\'intégration API - Endpoints critiques', () => {
         for (const track of tracks) {
           if (track.metadata && track.metadata.item_code) {
             const { data: item, error } = await supabase
-              .from('edn_items_immersive')
+              .from('edn_items_complete')
               .select('id')
               .eq('item_code', track.metadata.item_code)
               .single();
@@ -365,7 +365,7 @@ describe('🔗 Tests d\'intégration API - Endpoints critiques', () => {
 describe('🚨 Tests de robustesse - Edge Cases', () => {
   it('💾 Gestion mémoire - requêtes volumineuses', async () => {
     const { data, error } = await supabase
-      .from('edn_items_immersive')
+      .from('edn_items_complete')
       .select('*')
       .limit(100);
 
@@ -389,7 +389,7 @@ describe('🚨 Tests de robustesse - Edge Cases', () => {
     });
 
     const queryPromise = supabase
-      .from('edn_items_immersive')
+        .from('edn_items_complete')
       .select('*');
 
     try {
@@ -404,7 +404,7 @@ describe('🚨 Tests de robustesse - Edge Cases', () => {
   it('🔄 Concurrence - requêtes simultanées', async () => {
     const concurrentQueries = Array.from({ length: 10 }, (_, i) =>
       supabase
-        .from('edn_items_immersive')
+        .from('edn_items_complete')
         .select('id, title')
         .range(i * 2, (i * 2) + 1)
     );

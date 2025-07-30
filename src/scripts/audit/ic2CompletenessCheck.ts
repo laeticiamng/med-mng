@@ -11,7 +11,7 @@ export async function checkIC2Completeness(): Promise<IC2Report> {
   try {
     // Récupération de l'item IC-2
     const { data: item, error } = await supabase
-      .from('edn_items_immersive')
+      .from('edn_items_complete')
       .select('*')
       .eq('item_code', 'IC-2')
       .single();

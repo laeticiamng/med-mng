@@ -59,7 +59,7 @@ export async function generateLyricsForItem(itemCode: string): Promise<boolean> 
   try {
     // Récupérer l'item
     const { data: item, error: fetchError } = await supabase
-      .from('edn_items_immersive')
+      .from('edn_items_complete')
       .select('id, item_code, title')
       .eq('item_code', itemCode)
       .single();
@@ -77,7 +77,7 @@ export async function generateLyricsForItem(itemCode: string): Promise<boolean> 
     
     // Sauvegarder
     const { error: updateError } = await supabase
-      .from('edn_items_immersive')
+      .from('edn_items_complete')
       .update({
         paroles_rang_a: lyricsA,
         paroles_rang_b: lyricsB, 

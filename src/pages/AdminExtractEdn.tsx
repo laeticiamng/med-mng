@@ -58,7 +58,7 @@ const AdminExtractEdn = () => {
   const checkExistingData = async () => {
     try {
       const { data, error } = await supabase
-        .from('edn_items_immersive')
+        .from('edn_items_complete')
         .select('item_code, title, updated_at')
         .order('item_code');
 

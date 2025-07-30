@@ -92,7 +92,7 @@ export default function AdminDashboard() {
       ] = await Promise.all([
         supabase.from('profiles').select('id', { count: 'exact' }),
         supabase.from('user_quotas').select('subscription_type', { count: 'exact' }),
-        supabase.from('edn_items_immersive').select('id', { count: 'exact' })
+        supabase.from('edn_items_complete').select('id', { count: 'exact' })
       ]);
 
       const totalUsers = usersResult.count || 0;

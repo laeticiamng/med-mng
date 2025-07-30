@@ -100,7 +100,7 @@ export function DataQualityMonitor() {
           id: 'issue-1',
           type: 'corrupted_data',
           severity: 'critical',
-          table: 'edn_items_immersive',
+          table: 'edn_items_complete',
           field: 'tableau_rang_a',
           description: 'Données JSON corrompues détectées',
           count: 12,
@@ -149,7 +149,7 @@ export function DataQualityMonitor() {
 
       const mockTableHealth: TableHealth[] = [
         {
-          table_name: 'edn_items_immersive',
+          table_name: 'edn_items_complete',
           quality_score: 78.5,
           record_count: 4200,
           issues_count: 15,

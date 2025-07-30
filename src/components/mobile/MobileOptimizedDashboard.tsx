@@ -110,7 +110,7 @@ export default function MobileOptimizedDashboard() {
           break;
         case 'quick_export':
           await supabase.functions.invoke('admin-export', {
-            body: { table: 'edn_items_immersive', format: 'json' }
+            body: { table: 'edn_items_complete', format: 'json' }
           });
           toast.success('Export en cours...');
           break;

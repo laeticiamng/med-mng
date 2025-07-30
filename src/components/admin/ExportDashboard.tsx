@@ -10,7 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
 const AVAILABLE_TABLES = [
-  { id: 'edn_items_immersive', name: 'Items EDN Immersifs', description: 'Contenu pédagogique principal' },
+  { id: 'edn_items_complete', name: 'Items EDN Complets', description: 'Contenu pédagogique principal' },
   { id: 'operation_logs', name: 'Logs Opération', description: 'Historique des opérations système' },
   { id: 'user_activity_logs', name: 'Logs Activité', description: 'Activité des utilisateurs' },
   { id: 'data_integrity_reports', name: 'Rapports Intégrité', description: 'Résultats des vérifications d\'intégrité' },
@@ -106,7 +106,7 @@ export const ExportDashboard = () => {
         tables = ['operation_logs', 'user_activity_logs', 'extraction_logs'];
         break;
       case 'content':
-        tables = ['edn_items_immersive', 'audit_reports', 'data_integrity_reports'];
+        tables = ['edn_items_complete', 'audit_reports', 'data_integrity_reports'];
         break;
     }
     

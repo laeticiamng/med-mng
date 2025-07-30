@@ -31,8 +31,8 @@ export async function testLyricsGeneration(itemCode: string = 'IC-1') {
   try {
     // Récupérer l'item
     const { data: item, error } = await supabase
-      .from('edn_items_immersive')
-      .select('item_code, title, paroles_rang_a, paroles_rang_b, paroles_rang_ab')
+      .from('edn_items_complete')
+      .select('item_code, title, paroles_musicales, competences_oic_rang_a, competences_oic_rang_b')
       .eq('item_code', itemCode)
       .single()
       
@@ -41,9 +41,9 @@ export async function testLyricsGeneration(itemCode: string = 'IC-1') {
     }
     
     console.log(`📋 Item trouvé: ${item.title}`)
-    console.log(`📝 Paroles Rang A (${item.paroles_rang_a?.length || 0} lignes):`, item.paroles_rang_a?.slice(0, 3))
-    console.log(`📝 Paroles Rang B (${item.paroles_rang_b?.length || 0} lignes):`, item.paroles_rang_b?.slice(0, 3))
-    console.log(`📝 Paroles Rang AB (${item.paroles_rang_ab?.length || 0} lignes):`, item.paroles_rang_ab?.slice(0, 3))
+    console.log(`📝 Paroles musicales (${item.paroles_musicales?.length || 0} lignes):`, item.paroles_musicales?.slice(0, 3))
+    console.log(`📝 Compétences Rang A:`, item.competences_oic_rang_a ? 'Présent' : 'Manquant')
+    console.log(`📝 Compétences Rang B:`, item.competences_oic_rang_b ? 'Présent' : 'Manquant')
     
     return item
     

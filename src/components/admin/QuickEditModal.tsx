@@ -65,7 +65,7 @@ export const QuickEditModal: React.FC<QuickEditModalProps> = ({
   };
 
   const commonTables = [
-    'edn_items_immersive',
+    'edn_items_complete',
     'ecos_situations_complete',
     'oic_competences',
     'profiles',

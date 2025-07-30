@@ -75,7 +75,7 @@ export const IntegrityCheckDashboard: React.FC = () => {
         body: { 
           action: 'run_check',
           check_type: 'manual',
-          tables: ['edn_items_immersive', 'ecos_situations_complete', 'oic_competences']
+          tables: ['edn_items_complete', 'ecos_situations_complete', 'oic_competences']
         }
       });
 

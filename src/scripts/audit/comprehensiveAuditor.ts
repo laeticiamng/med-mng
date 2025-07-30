@@ -77,7 +77,7 @@ export class ComprehensiveSystemAuditor {
     
     try {
       const { data: testData, error: testError } = await supabase
-        .from('edn_items_immersive')
+        .from('edn_items_complete')
         .select('id')
         .limit(1);
         
@@ -94,7 +94,7 @@ export class ComprehensiveSystemAuditor {
       
       const tableChecks = [
         { name: 'subscription_plans', query: () => supabase.from('subscription_plans').select('*').limit(1) },
-        { name: 'edn_items_immersive', query: () => supabase.from('edn_items_immersive').select('*').limit(1) }
+        { name: 'edn_items_complete', query: () => supabase.from('edn_items_complete').select('*').limit(1) }
       ];
       
       for (const tableCheck of tableChecks) {
@@ -134,7 +134,7 @@ export class ComprehensiveSystemAuditor {
     
     try {
       const { data: items, error } = await supabase
-        .from('edn_items_immersive')
+        .from('edn_items_complete')
         .select('*');
         
       if (error) {
@@ -429,7 +429,7 @@ export class ComprehensiveSystemAuditor {
           const itemCode = issue.description.match(/Item (IC-[0-9]+)/)?.[1];
           if (itemCode) {
             const { error } = await supabase
-              .from('edn_items_immersive')
+              .from('edn_items_complete')
               .update({ title: `Item ${itemCode} - Titre généré` })
               .eq('item_code', itemCode)
               .is('title', null);
@@ -453,7 +453,7 @@ export class ComprehensiveSystemAuditor {
             ];
             
             const { error } = await supabase
-              .from('edn_items_immersive')
+              .from('edn_items_complete')
               .update({ paroles_musicales: specializedParoles })
               .eq('item_code', itemCode);
               
@@ -480,7 +480,7 @@ export class ComprehensiveSystemAuditor {
     
     try {
       const { data: items, error } = await supabase
-        .from('edn_items_immersive')
+        .from('edn_items_complete')
         .select('*');
         
       if (error) {
@@ -509,7 +509,7 @@ export class ComprehensiveSystemAuditor {
           updates.updated_at = new Date().toISOString();
           
           const { error: updateError } = await supabase
-            .from('edn_items_immersive')
+            .from('edn_items_complete')
             .update(updates)
             .eq('id', item.id);
             

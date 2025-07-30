@@ -15,7 +15,7 @@ export class IC1CompletenessAuditor {
     try {
       // Récupération de l'item IC-1
       const { data: ic1Item, error } = await supabase
-        .from('edn_items_immersive')
+        .from('edn_items_complete')
         .select('*')
         .or('item_code.eq.IC-1,item_code.eq.IC-001,slug.eq.ic-1,slug.eq.relation-medecin-malade')
         .single();
