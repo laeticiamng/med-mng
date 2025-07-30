@@ -32,7 +32,7 @@ export const useEdnItem = (slug: string | undefined) => {
       
       try {
         const { data, error } = await supabase
-          .from('edn_items_immersive')
+          .from('edn_items_complete')
           .select('*')
           .eq('slug', slug)
           .single();
