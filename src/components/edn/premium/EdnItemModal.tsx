@@ -285,12 +285,6 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                 </div>
               </TabsContent>
 
-              <TabsContent value="music" className="mt-0 p-6">
-                <ParolesMusicales 
-                  paroles={finalItem.paroles_musicales || []} 
-                  itemCode={finalItem.item_code}
-                />
-              </TabsContent>
 
               <TabsContent value="scene" className="mt-0 p-6">
                 <SceneImmersive 
