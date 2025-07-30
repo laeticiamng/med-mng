@@ -83,12 +83,12 @@ export default function EdnComplete() {
       setLoading(true);
 
       const { data: immersiveData, error: immersiveError } = await supabase
-        .from('edn_items_immersive')
+        .from('edn_items_complete')
         .select(`
           id, item_code, title, subtitle, slug, 
-          paroles_musicales, paroles_rang_a, paroles_rang_b, paroles_rang_ab,
-          tableau_rang_a, tableau_rang_b, scene_immersive,
-          quiz_questions, updated_at
+          paroles_musicales, tableau_rang_a, tableau_rang_b, scene_immersive,
+          quiz_questions, updated_at, competences_oic_rang_a, competences_oic_rang_b,
+          completeness_score, is_validated, competences_count_rang_a, competences_count_rang_b
         `)
         .order('item_code');
 
