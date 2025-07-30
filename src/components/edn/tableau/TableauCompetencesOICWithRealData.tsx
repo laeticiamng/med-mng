@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { TableauCompetencesOICOptimized } from './TableauCompetencesOICOptimized';
-import { useOicCompetences } from '@/hooks/useOicCompetences';
+import { useEdnItem } from '@/hooks/useEdnItem';
 
 interface TableauCompetencesOICWithRealDataProps {
   itemCode: string;
@@ -12,12 +12,15 @@ export const TableauCompetencesOICWithRealData: React.FC<TableauCompetencesOICWi
   itemCode, 
   rang 
 }) => {
-  const { competences, loading, error } = useOicCompetences(itemCode, rang);
+  // Utiliser le hook existant qui récupère les données de edn_items_complete
+  const slug = itemCode.toLowerCase().replace('IC-', 'ic-');
+  const { item, loading } = useEdnItem(slug);
 
   console.log(`🔍 TableauCompetencesOICWithRealData - ${itemCode} rang ${rang}:`, {
-    competences: competences.length,
+    item: !!item,
     loading,
-    error
+    competences_rang_a: item?.competences_oic_rang_a?.length || 0,
+    competences_rang_b: item?.competences_oic_rang_b?.length || 0
   });
 
   if (loading) {
@@ -29,29 +32,17 @@ export const TableauCompetencesOICWithRealData: React.FC<TableauCompetencesOICWi
           <div className="h-4 bg-gray-200 rounded w-1/2 mx-auto"></div>
         </div>
         <p className="text-gray-600 mt-4">
-          Recherche des compétences OIC authentiques pour {itemCode} rang {rang}...
+          Chargement des compétences OIC authentiques pour {itemCode} rang {rang}...
         </p>
       </div>
     );
   }
 
-  if (error) {
-    return (
-      <div className="w-full p-8 text-center">
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-          <h3 className="text-red-800 font-semibold mb-2">
-            Erreur de chargement des compétences OIC
-          </h3>
-          <p className="text-red-600 text-sm">
-            {error}
-          </p>
-        </div>
-      </div>
-    );
-  }
+  // Récupérer les compétences selon le rang
+  const competencesData = rang === 'A' ? item?.competences_oic_rang_a : item?.competences_oic_rang_b;
 
   // Si aucune compétence OIC authentique n'est trouvée
-  if (!competences || competences.length === 0) {
+  if (!competencesData || competencesData.length === 0) {
     return (
       <div className="w-full p-8 text-center">
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
@@ -74,28 +65,43 @@ export const TableauCompetencesOICWithRealData: React.FC<TableauCompetencesOICWi
     );
   }
 
-  // Convertir les données OIC authentiques au format attendu
-  const competencesData = {
+  // Convertir les données OIC authentiques au format attendu et les trier par ordre
+  const sortedCompetences = [...competencesData].sort((a, b) => (a.ordre || 0) - (b.ordre || 0));
+  
+  const competencesFormatted = {
     title: `${itemCode} Rang ${rang} - Compétences OIC officielles UNESS`,
-    competences: competences.map(comp => ({
+    competences: sortedCompetences.map((comp, index) => ({
       intitule: comp.intitule,
       description: comp.description,
       objectif_id: comp.objectif_id,
       rubrique: comp.rubrique,
       keywords: [],
-      ordre_affichage: comp.ordre || 0
+      ordre_affichage: comp.ordre || index + 1
     })),
-    count: competences.length,
+    count: sortedCompetences.length,
     theme: `Compétences OIC ${rang === 'A' ? 'fondamentales' : 'avancées'} - Données authentiques UNESS`
   };
 
-  console.log(`✅ Affichage de ${competences.length} compétences OIC AUTHENTIQUES pour ${itemCode} rang ${rang}`);
+  console.log(`✅ Affichage de ${sortedCompetences.length} compétences OIC AUTHENTIQUES pour ${itemCode} rang ${rang}`);
 
   return (
-    <TableauCompetencesOICOptimized 
-      data={competencesData} 
-      itemCode={itemCode} 
-      rang={rang} 
-    />
+    <div>
+      <div style={{ 
+        padding: '15px', 
+        background: '#e8f5e8', 
+        border: '2px solid #4ade80',
+        marginBottom: '20px',
+        borderRadius: '8px',
+        fontWeight: 'bold',
+        color: '#166534'
+      }}>
+        ✅ DONNÉES RÉELLES: {sortedCompetences.length} compétences OIC authentiques UNESS pour {itemCode} Rang {rang}
+      </div>
+      <TableauCompetencesOICOptimized 
+        data={competencesFormatted} 
+        itemCode={itemCode} 
+        rang={rang} 
+      />
+    </div>
   );
 };
