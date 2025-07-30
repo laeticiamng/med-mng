@@ -9,16 +9,8 @@ export interface OicCompetence {
   rubrique: string;
   rang: string;
   item_parent: string;
-  titre_complet?: string;
-  sommaire?: string;
-  mecanismes?: string;
-  indications?: string;
-  effets_indesirables?: string;
-  interactions?: string;
-  modalites_surveillance?: string;
-  causes_echec?: string;
-  contributeurs?: string;
-  ordre_affichage?: number;
+  ordre?: number;
+  url_source?: string;
 }
 
 export const useOicCompetences = (itemCode: string, rang: 'A' | 'B') => {
@@ -37,7 +29,7 @@ export const useOicCompetences = (itemCode: string, rang: 'A' | 'B') => {
         console.log(`🔍 Récupération compétences OIC RÉELLES pour item ${itemNumber} rang ${rang}`);
         
         const { data, error } = await supabase
-          .from('oic_competences')
+          .from('backup_oic_competences')
           .select(`
             objectif_id,
             intitule,
@@ -45,20 +37,12 @@ export const useOicCompetences = (itemCode: string, rang: 'A' | 'B') => {
             rubrique,
             rang,
             item_parent,
-            titre_complet,
-            sommaire,
-            mecanismes,
-            indications,
-            effets_indesirables,
-            interactions,
-            modalites_surveillance,
-            causes_echec,
-            contributeurs,
-            ordre_affichage
+            ordre,
+            url_source
           `)
           .eq('item_parent', itemNumber)
           .eq('rang', rang)
-          .order('objectif_id');
+          .order('ordre');
 
         if (error) {
           console.error('❌ Erreur récupération OIC:', error);
@@ -68,19 +52,12 @@ export const useOicCompetences = (itemCode: string, rang: 'A' | 'B') => {
 
         console.log(`✅ ${data?.length || 0} compétences OIC RÉELLES récupérées pour ${itemCode} rang ${rang}`);
         
-        // Filtrer pour ne garder que les compétences avec du vrai contenu (pas générique)
+        // Simplement vérifier que les compétences ont le contenu nécessaire
         const realCompetences = data?.filter(comp => {
-          // Vérifier si c'est du contenu générique enrichi automatiquement
-          const hasGenericContent = 
-            comp.titre_complet?.includes('Expertise de base en') ||
-            comp.titre_complet?.includes('Expertise avancée en') ||
-            comp.sommaire?.includes('Communication - Éthique - Raisonnement') ||
-            comp.intitule === comp.description;
-          
-          return !hasGenericContent && comp.objectif_id && comp.intitule;
+          return comp.objectif_id && comp.intitule && comp.description;
         }) || [];
 
-        console.log(`🎯 ${realCompetences.length} compétences AUTHENTIQUES après filtrage`);
+        console.log(`🎯 ${realCompetences.length} compétences AUTHENTIQUES récupérées`);
         setCompetences(realCompetences);
         
       } catch (err) {
