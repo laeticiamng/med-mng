@@ -110,7 +110,8 @@ const CompetenceCard: React.FC<{
             {competence.description && (
               <div className="mb-4 p-3 bg-muted/30 rounded-lg">
                 <div 
-                  className="text-sm text-muted-foreground"
+                  className="text-sm text-muted-foreground leading-relaxed"
+                  style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word', overflowWrap: 'break-word' }}
                   dangerouslySetInnerHTML={createSafeHtml(
                     competence.description
                       .replace(/&nbsp;/g, ' ')
