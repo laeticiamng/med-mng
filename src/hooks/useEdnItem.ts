@@ -14,6 +14,8 @@ interface EdnItemData {
   tableau_rang_b?: any;
   scene_immersive?: any;
   quiz_questions?: any;
+  competences_oic_rang_a?: any;
+  competences_oic_rang_b?: any;
   created_at: string;
   updated_at: string;
   payload_v2?: any;
@@ -33,7 +35,7 @@ export const useEdnItem = (slug: string | undefined) => {
       try {
         const { data, error } = await supabase
           .from('edn_items_complete')
-          .select('*')
+          .select('*, competences_oic_rang_a, competences_oic_rang_b')
           .eq('slug', slug)
           .single();
 
@@ -56,7 +58,9 @@ export const useEdnItem = (slug: string | undefined) => {
             quiz_questions: data.quiz_questions,
             created_at: data.created_at,
             updated_at: data.updated_at,
-            payload_v2: (data as any).payload_v2
+            payload_v2: (data as any).payload_v2,
+            competences_oic_rang_a: data.competences_oic_rang_a as any,
+            competences_oic_rang_b: data.competences_oic_rang_b as any
           };
           setRawItem(mappedData);
         }
