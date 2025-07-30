@@ -37,6 +37,20 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
     hasTableauB: !!tableauRangB 
   });
 
+  console.log('🎵 DETAILED paroles_rang_a:', paroles_rang_a);
+  console.log('🎵 DETAILED paroles_rang_b:', paroles_rang_b);
+  
+  // Créer le format final qui sera passé à ParolesMusicalesMainContent
+  const finalParoles = paroles_rang_a && paroles_rang_b 
+    ? [paroles_rang_a, paroles_rang_b] 
+    : paroles_rang_a 
+      ? [paroles_rang_a]
+      : paroles_rang_b
+        ? [paroles_rang_b]
+        : [];
+        
+  console.log('🎵 FINAL paroles qui vont être passées:', finalParoles);
+
   const {
     selectedStyle,
     setSelectedStyle,
