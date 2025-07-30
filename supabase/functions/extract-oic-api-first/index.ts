@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.3'
+import { launch } from 'https://deno.land/x/puppeteer@16.2.0/mod.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -114,6 +115,14 @@ async function testPublicAPIAccess(): Promise<boolean> {
     if (!response.ok) return false;
     
     const data = await response.json();
+    
+    // Si la réponse contient des données de redirection CAS, l'API n'est pas publique
+    const responseText = JSON.stringify(data);
+    if (responseText.includes('cas.uness.fr') || responseText.includes('authentification')) {
+      console.log('❌ API publique inaccessible - redirection CAS détectée');
+      return false;
+    }
+    
     const hasOICPages = data.query?.categorymembers?.some((page: any) => 
       page.title.match(/OIC[_-]\d{3}[_-]\d{2}[_-][AB][_-]\d{2}/i)
     );
@@ -130,11 +139,74 @@ async function testPublicAPIAccess(): Promise<boolean> {
   }
 }
 
-async function listAllOICPages(): Promise<string[]> {
-  console.log('📋 Récupération des IDs de pages de la catégorie...');
+async function authenticateWithCAS(): Promise<string | null> {
+  console.log('🔐 Authentification CAS requise...');
   
+  const casUser = Deno.env.get('CAS_USER');
+  const casPass = Deno.env.get('CAS_PASS');
+  
+  if (!casUser || !casPass) {
+    throw new Error('Credentials CAS manquants (CAS_USER, CAS_PASS)');
+  }
+  
+  console.log('🚀 Lancement Puppeteer minimal pour authentification...');
+  
+  const browser = await launch({ 
+    headless: true,
+    args: ['--no-sandbox', '--disable-setuid-sandbox']
+  });
+  
+  try {
+    const page = await browser.newPage();
+    
+    // 1. Aller sur une page protégée pour déclencher CAS
+    console.log('📍 Accès page protégée pour déclencher CAS...');
+    await page.goto('https://livret.uness.fr/lisa/2025/index.php?title=OIC-001-01-A-01', {
+      waitUntil: 'networkidle2'
+    });
+    
+    // 2. Détecter si on est sur CAS
+    const currentUrl = page.url();
+    if (currentUrl.includes('cas.uness.fr')) {
+      console.log('🔑 Page CAS détectée, saisie des credentials...');
+      
+      // Saisir username
+      await page.waitForSelector('#username', { timeout: 10000 });
+      await page.type('#username', casUser);
+      
+      // Saisir password
+      await page.waitForSelector('#password', { timeout: 5000 });
+      await page.type('#password', casPass);
+      
+      // Cliquer sur connexion
+      await page.click('input[type="submit"]');
+      
+      // Attendre la redirection
+      await page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 15000 });
+    }
+    
+    // 3. Récupérer les cookies
+    const cookies = await page.cookies();
+    const cookieString = cookies
+      .map(cookie => `${cookie.name}=${cookie.value}`)
+      .join('; ');
+    
+    console.log('✅ Authentification CAS réussie!');
+    return cookieString;
+    
+  } finally {
+    await browser.close();
+  }
+}
+
+async function listAllOICPages(cookies?: string): Promise<string[]> {
   const pageIds: string[] = [];
   let cmcontinue = '';
+  
+  const headers: Record<string, string> = {};
+  if (cookies) {
+    headers['Cookie'] = cookies;
+  }
   
   do {
     const url = new URL('https://livret.uness.fr/lisa/2025/api.php');
@@ -143,9 +215,8 @@ async function listAllOICPages(): Promise<string[]> {
     url.searchParams.set('cmtitle', 'Catégorie:Objectif_de_connaissance');
     url.searchParams.set('cmlimit', '500');
     url.searchParams.set('format', 'json');
-    if (cmcontinue) url.searchParams.set('cmcontinue', cmcontinue);
     
-    const response = await fetch(url.toString());
+    const response = await fetch(url.toString(), { headers });
     const data = await response.json();
     
     const members = data.query?.categorymembers || [];
@@ -164,7 +235,7 @@ async function listAllOICPages(): Promise<string[]> {
   return pageIds;
 }
 
-async function extractPagesByBatch(pageIds: string[], batchSize = 50): Promise<OICCompetence[]> {
+async function extractPagesByBatch(pageIds: string[], cookies?: string, batchSize = 50): Promise<OICCompetence[]> {
   console.log(`🔄 Traitement par batches de ${batchSize} pages...`);
   
   const competences: OICCompetence[] = [];
@@ -179,6 +250,11 @@ async function extractPagesByBatch(pageIds: string[], batchSize = 50): Promise<O
     console.log(`📦 Batch ${i + 1}/${batches.length} - Pages ${i * batchSize + 1} à ${Math.min((i + 1) * batchSize, pageIds.length)}`);
     
     try {
+      const headers: Record<string, string> = {};
+      if (cookies) {
+        headers['Cookie'] = cookies;
+      }
+      
       const url = new URL('https://livret.uness.fr/lisa/2025/api.php');
       url.searchParams.set('action', 'query');
       url.searchParams.set('prop', 'revisions');
@@ -187,7 +263,7 @@ async function extractPagesByBatch(pageIds: string[], batchSize = 50): Promise<O
       url.searchParams.set('format', 'json');
       url.searchParams.set('formatversion', '2');
       
-      const response = await fetch(url.toString());
+      const response = await fetch(url.toString(), { headers });
       const data = await response.json();
       
       const pages = data.query?.pages || [];
@@ -237,18 +313,24 @@ Deno.serve(async (req) => {
 
     // 1. Test accès API publique
     const isPublicAccessible = await testPublicAPIAccess();
+    let cookies: string | null = null;
+    
     if (!isPublicAccessible) {
-      throw new Error('API MediaWiki inaccessible - authentification CAS requise');
+      console.log('🔐 API publique inaccessible, authentification CAS requise...');
+      cookies = await authenticateWithCAS();
+      if (!cookies) {
+        throw new Error('Échec de l\'authentification CAS');
+      }
     }
 
     // 2. Lister toutes les pages OIC
-    const pageIds = await listAllOICPages();
+    const pageIds = await listAllOICPages(cookies || undefined);
     if (pageIds.length === 0) {
       throw new Error('Aucune page OIC trouvée');
     }
 
     // 3. Extraire par batches
-    const competences = await extractPagesByBatch(pageIds);
+    const competences = await extractPagesByBatch(pageIds, cookies || undefined);
     console.log(`📊 ${competences.length} compétences extraites au total`);
 
     // 4. Insertion en base

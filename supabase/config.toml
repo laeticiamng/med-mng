@@ -119,3 +119,6 @@ verify_jwt = false
 [functions.complete-oic-competences]
 verify_jwt = false
 
+[functions.extract-oic-api-first]
+verify_jwt = false
+
