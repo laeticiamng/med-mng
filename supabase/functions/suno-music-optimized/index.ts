@@ -13,101 +13,154 @@ serve(async (req) => {
   }
 
   try {
-    console.log('🎵 GÉNÉRATION SUNO OPTIMISÉE - Début');
+    console.log('🎵 SUNO API OFFICIELLE - Début');
     
-    const { paroles, style, rang, duration = 120 } = await req.json();
-    
-    // Validation rapide
-    if (!paroles || paroles.length === 0) {
-      throw new Error('Paroles manquantes');
-    }
+    const requestBody = await req.json();
+    console.log('🎵 Requête reçue:', requestBody);
 
-    console.log('🎵 Paramètres:', { 
-      parolesCount: paroles.length, 
-      style, 
-      rang, 
-      duration 
-    });
+    // Gérer les différents types de requêtes
+    if (requestBody.action === 'status') {
+      // Requête de statut
+      const { audioId } = requestBody;
+      
+      if (!audioId) {
+        throw new Error('audioId manquant pour vérifier le statut');
+      }
 
-    // Format optimisé pour Suno
-    const prompt = `[Verse 1]
+      console.log('🔍 Vérification statut taskId:', audioId);
+      
+      const sunoApiKey = Deno.env.get('SUNO_API_KEY');
+      if (!sunoApiKey) {
+        throw new Error('SUNO_API_KEY non configurée');
+      }
+
+      // Appel API officielle Suno pour le statut
+      const statusResponse = await fetch(`https://api.sunoapi.org/api/v1/generate/record-info?taskId=${audioId}`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${sunoApiKey}`,
+          'Accept': 'application/json'
+        }
+      });
+
+      if (!statusResponse.ok) {
+        throw new Error(`Suno Status API Error: ${statusResponse.status} ${statusResponse.statusText}`);
+      }
+
+      const statusData = await statusResponse.json();
+      console.log('📊 Statut reçu:', statusData);
+
+      return new Response(JSON.stringify(statusData), {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+
+    } else {
+      // Requête de génération
+      const { paroles, style, rang, duration = 120, customMode = true, instrumental = false, model = "V3_5" } = requestBody;
+      
+      // Validation
+      if (!paroles || paroles.length === 0) {
+        throw new Error('Paroles manquantes');
+      }
+
+      console.log('🎵 Paramètres génération:', { 
+        parolesCount: paroles.length, 
+        style, 
+        rang, 
+        duration,
+        customMode,
+        instrumental,
+        model
+      });
+
+      // Format des paroles selon l'API officielle
+      const prompt = `[Verse 1]
 ${paroles.slice(0, 4).join('\n')}
 
 [Chorus]
-EDN Formation - Rang ${rang}
-Excellence médicale garantie
+EDN Formation médicale - Rang ${rang}
+Excellence et compétence garanties
 
 [Verse 2]
 ${paroles.slice(4, 8).join('\n')}
 
 [Outro]
-Compétences acquises avec succès
-Formation médicale de qualité`;
+Compétences médicales acquises
+Formation de qualité professionnelle`;
 
-    console.log('🎵 Prompt formaté (longueur:', prompt.length, ')');
+      console.log('🎵 Prompt formaté (longueur:', prompt.length, ')');
 
-    // Configuration optimisée Suno
-    const sunoPayload = {
-      prompt: prompt,
-      make_instrumental: false,
-      wait_audio: false, // Mode asynchrone plus rapide
-      model: 'chirp-v3-0', // Version rapide
-      tags: style || 'educational, upbeat',
-      title: `EDN Rang ${rang} - Formation Médicale`
-    };
+      const sunoApiKey = Deno.env.get('SUNO_API_KEY');
+      if (!sunoApiKey) {
+        throw new Error('SUNO_API_KEY non configurée');
+      }
 
-    // Simulation de génération musicale rapide (remplacer par vraie API Suno)
-    console.log('🚀 Démarrage génération Suno...');
-    
-    // Pour test - remplacer par l'appel réel à Suno
-    const simulatedResponse = {
-      id: `suno_${Date.now()}`,
-      status: 'queued',
-      audio_url: null,
-      estimated_wait_time: 30
-    };
+      // Configuration selon l'API officielle Suno
+      const sunoPayload = {
+        prompt: prompt,
+        style: style || 'educational, upbeat, modern',
+        title: `EDN Rang ${rang} - Formation Médicale`,
+        customMode: customMode,
+        instrumental: instrumental,
+        model: model,
+        callBackUrl: `https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/suno-callback`
+      };
 
-    // En production, décommenter ceci:
-    /*
-    const sunoResponse = await fetch('https://api.suno.ai/generate', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${Deno.env.get('SUNO_API_KEY')}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(sunoPayload)
-    });
+      console.log('🚀 Appel API Suno officielle...');
 
-    if (!sunoResponse.ok) {
-      throw new Error(`Suno API Error: ${sunoResponse.status}`);
+      // Appel réel à l'API Suno officielle
+      const sunoResponse = await fetch('https://api.sunoapi.org/api/v1/generate', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${sunoApiKey}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(sunoPayload)
+      });
+
+      if (!sunoResponse.ok) {
+        const errorText = await sunoResponse.text();
+        console.error('❌ Erreur API Suno:', errorText);
+        throw new Error(`Suno API Error: ${sunoResponse.status} - ${errorText}`);
+      }
+
+      const sunoData = await sunoResponse.json();
+      console.log('✅ Réponse Suno:', sunoData);
+
+      // Vérifier la structure de réponse selon la doc officielle
+      if (sunoData.code !== 200) {
+        throw new Error(`Suno API Error: ${sunoData.msg || 'Erreur inconnue'}`);
+      }
+
+      const taskId = sunoData.data?.taskId;
+      if (!taskId) {
+        throw new Error('TaskId manquant dans la réponse Suno');
+      }
+
+      console.log('✅ TaskId généré:', taskId);
+
+      // Réponse standardisée
+      return new Response(JSON.stringify({
+        success: true,
+        trackId: taskId,
+        status: 'generating',
+        message: 'Génération musicale démarrée avec succès',
+        estimated_completion: new Date(Date.now() + (duration * 1000)).toISOString()
+      }), {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
     }
 
-    const sunoData = await sunoResponse.json();
-    */
-
-    console.log('✅ Génération démarrée:', simulatedResponse.id);
-
-    // Réponse immédiate pour éviter les timeouts
-    return new Response(JSON.stringify({
-      success: true,
-      id: simulatedResponse.id,
-      status: 'generating',
-      message: 'Génération musicale démarrée en mode optimisé',
-      estimated_completion: new Date(Date.now() + (duration * 1000)).toISOString(),
-      // URL de démo pour test
-      audio_url: 'https://www.soundjay.com/misc/beep-07a.wav'
-    }), {
-      status: 200,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-    });
-
   } catch (error) {
-    console.error('❌ Erreur génération Suno optimisée:', error);
+    console.error('❌ Erreur fonction Suno:', error);
     
     return new Response(JSON.stringify({
       success: false,
       error: error.message || 'Erreur génération musicale',
-      details: 'Vérifiez les paramètres et réessayez'
+      details: 'Vérifiez les paramètres et la configuration API'
     }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
