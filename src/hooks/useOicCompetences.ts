@@ -44,6 +44,9 @@ export const useOicCompetences = (itemCode: string, rang: 'A' | 'B') => {
           .eq('rang', rang)
           .order('ordre');
 
+        console.log(`🔧 Requête SQL: item_parent='${itemNumber}' AND rang='${rang}'`);
+        console.log(`📊 Données brutes récupérées:`, data);
+
         if (error) {
           console.error('❌ Erreur récupération OIC:', error);
           setError(error.message);
