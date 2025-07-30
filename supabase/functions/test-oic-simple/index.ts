@@ -71,8 +71,16 @@ Deno.serve(async (req) => {
   console.log('===============================================');
 
   try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    console.log('🔍 Vérification variables environnement...');
+    const supabaseUrl = Deno.env.get('SUPABASE_URL');
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+    
+    console.log(`📍 SUPABASE_URL: ${supabaseUrl ? 'configuré' : 'manquant'}`);
+    console.log(`🔑 SERVICE_KEY: ${supabaseServiceKey ? 'configuré' : 'manquant'}`);
+    
+    if (!supabaseUrl || !supabaseServiceKey) {
+      throw new Error('Variables d\'environnement Supabase manquantes');
+    }
     
     const supabase = createClient(supabaseUrl, supabaseServiceKey, {
       auth: { persistSession: false }
