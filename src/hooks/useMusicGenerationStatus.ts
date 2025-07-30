@@ -23,14 +23,17 @@ export const useMusicGenerationStatus = (taskId: string | null) => {
       console.log('🔍 Vérification statut pour taskId:', taskId);
       
       // Vérifier d'abord en base de données
-      const { data: dbTrack, error: dbError } = await supabase
+      const { data: dbTracks, error: dbError } = await supabase
         .from('generated_music_tracks')
         .select('*')
-        .or(`task_id.eq.${taskId},suno_track_id.eq.${taskId}`)
-        .single();
+        .or(`task_id.eq.${taskId},suno_track_id.eq.${taskId}`);
+
+      // Prendre le premier track avec audio_url ou le plus récent
+      const dbTrack = dbTracks?.find(track => track.audio_url && track.audio_url.trim() !== '') || 
+                      dbTracks?.[0];
 
       if (dbTrack && !dbError) {
-        console.log('✅ Statut trouvé en BDD:', dbTrack.generation_status);
+        console.log('✅ Statut trouvé en BDD:', dbTrack.generation_status, 'avec audio:', !!dbTrack.audio_url);
         
         const metadata = dbTrack.metadata as any;
         
@@ -39,7 +42,7 @@ export const useMusicGenerationStatus = (taskId: string | null) => {
           status: dbTrack.generation_status as MusicGenerationStatus['status'],
           audioUrl: dbTrack.audio_url,
           streamUrl: dbTrack.stream_url || metadata?.stream_url,
-          imageUrl: metadata?.image_url,
+          imageUrl: dbTrack.image_url || metadata?.image_url,
           progress: getProgressFromStatus(dbTrack.generation_status, metadata?.progress),
           metadata: metadata
         };
