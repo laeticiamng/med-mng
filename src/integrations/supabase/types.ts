@@ -5366,6 +5366,15 @@ export type Database = {
           details: Json
         }[]
       }
+      enrich_edn_items_with_oic_competences_fixed: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          processed_count: number
+          success_count: number
+          error_count: number
+          details: Json
+        }[]
+      }
       enrich_oic_by_specialty_range: {
         Args: { start_item: number; end_item: number; specialty_name: string }
         Returns: number
