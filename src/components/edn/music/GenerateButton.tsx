@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Loader2 } from 'lucide-react';
 
 interface GenerateButtonProps {
-  rang: 'A' | 'B';
+  rang: 'A' | 'B' | 'AB';
   isGenerating: boolean;
   isDisabled: boolean;
   musicDuration: number;
@@ -38,7 +38,7 @@ export const GenerateButton = ({
             Génération en cours...
           </>
         ) : (
-          `Générer Musique Rang ${rang} (${formatDuration(musicDuration)})`
+          `Générer Musique ${rang === 'AB' ? 'A+B' : `Rang ${rang}`} (${formatDuration(musicDuration)})`
         )}
       </Button>
     </div>

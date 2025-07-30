@@ -8,7 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 interface SaveMusicButtonProps {
   audioUrl: string;
   title: string;
-  rang: 'A' | 'B';
+  rang: 'A' | 'B' | 'AB';
   style: string;
   itemCode?: string;
   isVisible: boolean;

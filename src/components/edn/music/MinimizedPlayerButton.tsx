@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Minimize2 } from 'lucide-react';
 
 interface MinimizedPlayerButtonProps {
-  rang: 'A' | 'B';
+  rang: 'A' | 'B' | 'AB';
   isVisible: boolean;
   onMinimize: () => void;
 }
@@ -16,7 +16,7 @@ export const MinimizedPlayerButton = ({ rang, isVisible, onMinimize }: Minimized
       <Button
         onClick={onMinimize}
         variant="outline"
-        className={`${rang === 'A' ? 'border-amber-300 text-amber-600 hover:bg-amber-50' : 'border-blue-300 text-blue-600 hover:bg-blue-50'}`}
+        className={`${rang === 'AB' ? 'border-purple-300 text-purple-600 hover:bg-purple-50' : rang === 'A' ? 'border-amber-300 text-amber-600 hover:bg-amber-50' : 'border-blue-300 text-blue-600 hover:bg-blue-50'}`}
       >
         <Minimize2 className="h-4 w-4 mr-2" />
         Lecteur minimisé - Continuer l'écoute

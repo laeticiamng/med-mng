@@ -189,7 +189,7 @@ export const ParolesMusicalesMainContent: React.FC<ParolesMusicalesMainContentPr
             🎵 Section Combinée Rang A+B - Fusion des compétences
           </h4>
           <ParolesMusicalesRangSection
-            rang="A"
+            rang="AB"
             paroles={`${normalizedParoles[0]}\n\n--- TRANSITION RANG B ---\n\n${normalizedParoles[1]}`}
             musicDuration={musicDuration * 1.5} // Durée augmentée pour la fusion
             selectedStyle={selectedStyle}

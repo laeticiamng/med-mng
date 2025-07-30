@@ -5,7 +5,7 @@ export const useMusicCardState = (isGenerating: boolean) => {
   const [isClicked, setIsClicked] = useState(false);
 
   const handleGenerateClick = async (
-    rang: 'A' | 'B',
+    rang: 'A' | 'B' | 'AB',
     onGenerateMusic: () => void
   ) => {
     if (isClicked || isGenerating) {

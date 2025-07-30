@@ -3,7 +3,7 @@ import React from 'react';
 import { MusicCard } from './MusicCard';
 
 interface ParolesMusicalesRangSectionProps {
-  rang: 'A' | 'B';
+  rang: 'A' | 'B' | 'AB';
   paroles: string;
   musicDuration: number;
   isGenerating: boolean;

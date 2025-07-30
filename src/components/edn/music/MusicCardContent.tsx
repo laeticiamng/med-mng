@@ -7,7 +7,7 @@ import { formatParoles, hasValidParoles } from './utils/parolesFormatter';
 import { getCardStyling } from './utils/cardStyling';
 
 interface MusicCardContentProps {
-  rang: 'A' | 'B';
+  rang: 'A' | 'B' | 'AB';
   title: string;
   paroles: string;
   isGenerating: boolean;

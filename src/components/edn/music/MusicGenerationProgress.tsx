@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Music, Clock, Loader2 } from 'lucide-react';
 
 interface MusicGenerationProgressProps {
-  rang: 'A' | 'B';
+  rang: 'A' | 'B' | 'AB';
   progress: number;
   attempts: number;
   maxAttempts: number;

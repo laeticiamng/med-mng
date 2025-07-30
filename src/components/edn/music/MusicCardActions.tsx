@@ -4,7 +4,7 @@ import { formatParoles, hasValidParoles } from './utils/parolesFormatter';
 import { getCardStyling } from './utils/cardStyling';
 
 interface MusicCardActionsProps {
-  rang: 'A' | 'B';
+  rang: 'A' | 'B' | 'AB';
   paroles: string;
   selectedStyle: string;
   musicDuration: number;
