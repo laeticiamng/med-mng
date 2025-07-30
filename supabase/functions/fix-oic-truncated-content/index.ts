@@ -53,18 +53,39 @@ serve(async (req) => {
           // Construire l'URL de la page UNESS pour cette compétence
           let unessUrl = competence.url_source
           if (!unessUrl) {
-            // Construire l'URL à partir de l'objectif_id si pas d'URL source
-            const itemNumber = competence.item_parent?.replace('IC-', '') || '1'
-            unessUrl = `https://sides.uness.fr/edn/${itemNumber}`
+          // Construire l'URL LiSA depuis l'objectif_id
+            const urlParts = competence.objectif_id.split('-')
+            if (urlParts.length >= 4) {
+              const rubrique = urlParts[1]
+              const item = urlParts[2] 
+              const rang = urlParts[3]
+              const numero = urlParts[4]
+              unessUrl = `https://livret.uness.fr/lisa/2025/index.php/OIC-${rubrique}-${item}-${rang}-${numero}`
+            } else {
+              unessUrl = `https://livret.uness.fr/lisa/2025/index.php/${competence.objectif_id}`
+            }
           }
 
-          // Extraire le contenu complet depuis UNESS
+          console.log(`🌐 Extraction depuis LiSA: ${unessUrl}`)
+
+          // Récupérer les identifiants UNESS depuis les secrets Supabase
+          const unessUsername = Deno.env.get('UNESS_USERNAME')
+          const unessPassword = Deno.env.get('UNESS_PASSWORD')
+          
+          if (!unessUsername || !unessPassword) {
+            console.warn('⚠️ Identifiants UNESS manquants, tentative sans authentification')
+          }
+
+          // Extraire le contenu complet depuis LiSA avec authentification CAS si disponible
           const response = await fetch(unessUrl, {
             headers: {
               'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
               'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
               'Accept-Language': 'fr,fr-FR;q=0.8,en-US;q=0.5,en;q=0.3',
-              'Cache-Control': 'no-cache'
+              'Cache-Control': 'no-cache',
+              ...(unessUsername && unessPassword ? {
+                'Authorization': `Basic ${btoa(`${unessUsername}:${unessPassword}`)}`
+              } : {})
             }
           })
 
