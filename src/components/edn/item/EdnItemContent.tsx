@@ -51,8 +51,8 @@ export const EdnItemContent = ({ activeSection, item }: EdnItemContentProps) => 
         // PRIORITÉ AUX COMPÉTENCES OIC ENRICHIES
         const enrichedTableauData = {
           title: `${item.item_code} Rang A - Compétences EDN`,
-          competences_oic: item.competences_oic_rang_a || [],
-          sections: item.tableau_rang_a?.sections || []
+          competences: item.competences_oic_rang_a || [],
+          sections: item.competences_oic_rang_a || []
         };
         
         console.log('📊 Data passed to TableauRangA:', enrichedTableauData);
@@ -68,8 +68,8 @@ export const EdnItemContent = ({ activeSection, item }: EdnItemContentProps) => 
         // PRIORITÉ AUX COMPÉTENCES OIC ENRICHIES
         const enrichedTableauDataB = {
           title: `${item.item_code} Rang B - Compétences Approfondies EDN`,
-          competences_oic: item.competences_oic_rang_b || [],
-          sections: item.tableau_rang_b?.sections || []
+          competences: item.competences_oic_rang_b || [],
+          sections: item.competences_oic_rang_b || []
         };
         
         console.log('📊 Data passed to TableauRangB:', enrichedTableauDataB);
