@@ -44,13 +44,19 @@ export const EdnItemContent = ({ activeSection, item }: EdnItemContentProps) => 
   const renderActiveSection = () => {
     switch (activeSection) {
       case 'tableau-a':
-        console.log('🔍 DÉBUT - Rendering Tableau Rang A for:', item.item_code);
-        console.log('🔍 Component utilisé: TableauCompetencesOICWithRealData');
-        console.log('🔍 Props passées:', { itemCode: item.item_code, rang: 'A' });
+        console.log('🚀 [' + new Date().toISOString() + '] CHARGEMENT RANG A AVEC VRAIES DONNÉES OIC');
         return (
           <div>
-            <div style={{ padding: '10px', background: '#f0f0f0', marginBottom: '10px' }}>
-              DEBUG: Utilisation de TableauCompetencesOICWithRealData pour {item.item_code} Rang A
+            <div style={{ 
+              padding: '15px', 
+              background: '#e8f5e8', 
+              border: '2px solid #4ade80',
+              marginBottom: '20px',
+              borderRadius: '8px',
+              fontWeight: 'bold',
+              color: '#166534'
+            }}>
+              ✅ NOUVEAU: Chargement des compétences OIC RÉELLES depuis backup_oic_competences pour {item.item_code} Rang A
             </div>
             <TableauCompetencesOICWithRealData 
               itemCode={item.item_code} 
@@ -60,13 +66,19 @@ export const EdnItemContent = ({ activeSection, item }: EdnItemContentProps) => 
         );
       
       case 'tableau-b':
-        console.log('🔍 DÉBUT - Rendering Tableau Rang B for:', item.item_code);
-        console.log('🔍 Component utilisé: TableauCompetencesOICWithRealData');
-        console.log('🔍 Props passées:', { itemCode: item.item_code, rang: 'B' });
+        console.log('🚀 [' + new Date().toISOString() + '] CHARGEMENT RANG B AVEC VRAIES DONNÉES OIC');
         return (
           <div>
-            <div style={{ padding: '10px', background: '#f0f0f0', marginBottom: '10px' }}>
-              DEBUG: Utilisation de TableauCompetencesOICWithRealData pour {item.item_code} Rang B
+            <div style={{ 
+              padding: '15px', 
+              background: '#e0e7ff', 
+              border: '2px solid #6366f1',
+              marginBottom: '20px',
+              borderRadius: '8px',
+              fontWeight: 'bold',
+              color: '#3730a3'
+            }}>
+              ✅ NOUVEAU: Chargement des compétences OIC RÉELLES depuis backup_oic_competences pour {item.item_code} Rang B
             </div>
             <TableauCompetencesOICWithRealData 
               itemCode={item.item_code} 
