@@ -12,11 +12,11 @@ export const CompletionTrigger = () => {
     setStatus('🚀 Lancement de la completion...');
     
     try {
-      console.log('📡 Invocation complete-edn-with-oic...');
+      console.log('📡 Lancement extraction API-first OIC...');
       
-      const { data, error } = await supabase.functions.invoke('complete-edn-with-oic', {
+      const { data, error } = await supabase.functions.invoke('extract-oic-api-first', {
         body: { 
-          action: 'complete',
+          action: 'extract',
           timestamp: new Date().toISOString()
         }
       });
@@ -31,19 +31,13 @@ export const CompletionTrigger = () => {
 
       if (data?.success) {
         const stats = data.statistics;
-        setStatus(`✅ Terminé ! ${stats.items_completed}/${stats.items_processed} items enrichis (${stats.completion_rate})`);
+        setStatus(`✅ Terminé ! ${stats.competences_inserted}/${stats.competences_extracted} compétences extraites (${stats.success_rate})`);
         
-        console.log('🎉 COMPLETION RÉUSSIE !');
-        console.log(`📊 Items traités: ${stats.items_processed}`);
-        console.log(`✅ Items enrichis: ${stats.items_completed}`);
-        console.log(`📈 Taux: ${stats.completion_rate}`);
-        
-        if (data.details?.length > 0) {
-          console.log('📋 Exemples enrichis:');
-          data.details.slice(0, 5).forEach((item: any) => {
-            console.log(`${item.item_code}: ${item.total_before} → ${item.total_after} (+${item.total_after - item.total_before})`);
-          });
-        }
+        console.log('🎉 EXTRACTION API-FIRST RÉUSSIE !');
+        console.log(`📊 Pages trouvées: ${stats.pages_found}`);
+        console.log(`🎯 Compétences extraites: ${stats.competences_extracted}`);
+        console.log(`💾 Compétences insérées: ${stats.competences_inserted}`);
+        console.log(`📈 Taux: ${stats.success_rate}`);
         
       } else {
         setStatus(`❌ Échec: ${data?.error || 'Erreur inconnue'}`);
@@ -65,14 +59,14 @@ export const CompletionTrigger = () => {
 
   return (
     <div className="fixed bottom-4 right-4 bg-white border rounded-lg shadow-lg p-4 max-w-md z-50">
-      <h3 className="font-bold text-sm mb-2">🎯 Completion EDN-OIC</h3>
+      <h3 className="font-bold text-sm mb-2">🎯 Extraction API-first OIC</h3>
       <p className="text-sm mb-3">{status}</p>
       <button 
         onClick={launchCompletion}
         disabled={isRunning}
         className="w-full bg-blue-500 text-white px-3 py-2 rounded text-sm hover:bg-blue-600 disabled:opacity-50"
       >
-        {isRunning ? '⏳ En cours...' : '🚀 Relancer'}
+        {isRunning ? '⏳ En cours...' : '🚀 Extraire OIC'}
       </button>
     </div>
   );
