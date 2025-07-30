@@ -32,7 +32,7 @@ const EdnImmersive = () => {
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-900 mb-4">Item non trouvé</h2>
           <p className="text-gray-600">L'item EDN demandé n'existe pas ou n'est pas disponible.</p>
-          <Link to="/edn-complete" className="mt-4 inline-block">
+          <Link to="/edn" className="mt-4 inline-block">
             <Button>Retour à la liste</Button>
           </Link>
         </div>
@@ -50,7 +50,7 @@ const EdnImmersive = () => {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-4">
-              <Link to="/edn-complete" className="flex items-center gap-2 text-amber-700 hover:text-amber-900">
+              <Link to="/edn" className="flex items-center gap-2 text-amber-700 hover:text-amber-900">
                 <ArrowLeft className="h-4 w-4" />
                 Retour
               </Link>

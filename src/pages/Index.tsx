@@ -60,7 +60,7 @@ const Index = () => {
               <PremiumButton
                 variant="glass"
                 size="sm"
-                onClick={() => navigate('/edn-complete')}
+                onClick={() => navigate('/edn')}
                 className="hidden md:inline-flex"
               >
                 <Brain className="h-4 w-4 mr-2" />
@@ -186,7 +186,7 @@ const Index = () => {
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
             {/* Items EDN Unifié */}
-            <PremiumCard variant="gradient" className="p-8 text-center cursor-pointer" onClick={() => navigate('/edn-complete')}>
+            <PremiumCard variant="gradient" className="p-8 text-center cursor-pointer" onClick={() => navigate('/edn')}>
               <div className="mx-auto w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-blue-500/25">
                 <BookOpen className="h-10 w-10 text-white" />
               </div>

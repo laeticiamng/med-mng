@@ -1,6 +1,6 @@
 import React from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import EdnComplete from './pages/EdnComplete';
 
 const queryClient = new QueryClient({
@@ -23,7 +23,8 @@ const App = () => {
             <main>
               <Routes>
                 <Route path="/" element={<div>Test Page</div>} />
-                <Route path="/edn-complete" element={<EdnComplete />} />
+                <Route path="/edn" element={<EdnComplete />} />
+                <Route path="/edn-complete" element={<Navigate to="/edn" replace />} />
                 <Route path="*" element={<div>404 Not Found</div>} />
               </Routes>
             </main>

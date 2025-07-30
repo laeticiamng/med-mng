@@ -62,7 +62,7 @@ export default function EdnCompleteDetail() {
   if (error || !item) {
     return (
       <div className="container mx-auto px-4 py-8">
-        <Link to="/edn-complete">
+        <Link to="/edn">
           <Button variant="ghost" className="mb-4">
             <ArrowLeft className="h-4 w-4 mr-2" />
             Retour à la liste
@@ -81,7 +81,7 @@ export default function EdnCompleteDetail() {
       <div className="container mx-auto px-4 py-8">
         {/* Header avec navigation */}
         <div className="mb-6">
-          <Link to="/edn-complete">
+          <Link to="/edn">
             <Button variant="ghost" className="mb-4">
               <ArrowLeft className="h-4 w-4 mr-2" />
               Retour à la liste

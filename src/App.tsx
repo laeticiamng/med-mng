@@ -11,7 +11,7 @@ import { SkipLinks } from "@/components/navigation/SkipLinks";
 // ⚡ LAZY LOADING - Composants non-critiques chargés à la demande
 const DynamicOnboarding = lazy(() => import("@/components/onboarding/DynamicOnboarding").then(module => ({ default: module.DynamicOnboarding })));
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { GlobalAudioProvider } from "@/contexts/GlobalAudioContext";
 import Index from "./pages/Index";
@@ -55,6 +55,12 @@ import TestExtraction from "./pages/TestExtraction";
 import EdnImmersive from "./pages/EdnImmersive";
 import EdnComplete from "./pages/EdnComplete";
 
+// Composant de redirection pour /edn-complete/:slug vers /edn/:slug
+const EdnCompleteRedirect = () => {
+  const { slug } = useParams();
+  return <Navigate to={`/edn/${slug}`} replace />;
+};
+
 // ⚡ OPTIMISATION QueryClient - Configuration pour chargement rapide
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -87,13 +93,13 @@ const App = () => {
                           <Route path="/generator" element={<Generator />} />
                           {/* EDN Interface Unifiée - toutes les fonctionnalités fusionnées */}
                           <Route path="/edn" element={<EdnComplete />} />
-                          <Route path="/edn-complete" element={<EdnComplete />} />
-                          <Route path="/edn-complete/:slug" element={<EdnComplete />} />
                           <Route path="/edn/:slug" element={<EdnComplete />} />
                           
-                          {/* Redirections vers l'interface unifiée */}
+                          {/* Redirections automatiques vers l'interface unifiée */}
+                          <Route path="/edn-complete" element={<Navigate to="/edn" replace />} />
+                          <Route path="/edn-complete/:slug" element={<EdnCompleteRedirect />} />
                           <Route path="/edn/:slug/immersive" element={<EdnImmersive />} />
-                          <Route path="/edn/music-library" element={<Navigate to="/edn-complete" replace />} />
+                          <Route path="/edn/music-library" element={<Navigate to="/edn" replace />} />
                           <Route path="/ecos" element={<EcosIndex />} />
                           <Route path="/ecos/:scenarioId" element={<EcosScenario />} />
                           
