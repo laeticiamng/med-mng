@@ -40,6 +40,7 @@ interface EdnItemContentProps {
 export const EdnItemContent = ({ activeSection, item }: EdnItemContentProps) => {
   console.log('🔍 EdnItemContent - Active section:', activeSection);
   console.log('📊 EdnItemContent - Item data:', item);
+  console.log('🚨 FORCE UPDATE - Current timestamp:', new Date().toISOString());
   
   const renderActiveSection = () => {
     switch (activeSection) {
