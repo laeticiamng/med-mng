@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useMusicGenerationWithTranslation } from '@/hooks/useMusicGenerationWithTranslation';
 import { useGlobalAudio } from '@/contexts/GlobalAudioContext';
-import { generateComprehensiveLyrics, generateMixedLyrics } from '@/utils/generateComprehensiveLyrics';
+import { generateOptimizedLyrics, generateRangAB } from '@/utils/generateOptimizedLyrics';
 import { useSunoPolling } from './useSunoPolling';
 import { useSunoCallbackListener } from './useSunoCallbackListener';
 
@@ -70,12 +70,13 @@ export const useParolesMusicales = (
       // 🚀 GÉNÉRATION COMPLÈTE AVEC TOUTES LES COMPÉTENCES
       console.log(`🎯 Génération complète pour ${itemData.item_code} Rang ${rang}`);
       
-      // Générer les paroles complètes avec assonances et toutes les compétences
-      const parolesCompletes = await generateComprehensiveLyrics(itemData.item_code, rang);
+      // 🎫 Générer les paroles ultra-optimisées IA selon nouvelles spécifications
+      const parolesCompletes = await generateOptimizedLyrics(itemData.item_code, rang);
       
-      console.log(`✅ ${parolesCompletes.length} lignes générées avec assonances:`, {
+      console.log(`✅ ${parolesCompletes.length} lignes générées (style Nekfeu IA-optimisé):`, {
         preview: parolesCompletes.slice(0, 3),
         total: parolesCompletes.length,
+        caracteres: parolesCompletes.join('\n').length + '/5000',
         itemCode: itemData.item_code,
         rang
       });
@@ -84,10 +85,10 @@ export const useParolesMusicales = (
         throw new Error('Aucune parole générée');
       }
 
-      // Toast de démarrage avec détails
+      // Toast de démarrage avec détails optimisés
       toast({
-        title: `🎵 Génération ${rang} lancée`,
-        description: `${parolesCompletes.length} vers avec assonances - ${itemData.item_code}`,
+        title: `🎫 Génération ${rang} Ultra-Optimisée`,
+        description: `${parolesCompletes.length} vers Nekfeu IA - ${itemData.item_code} (${parolesCompletes.join('\n').length}/5000 car.)`,
       });
 
       console.log(`🎵 Configuration génération:`, {
@@ -142,8 +143,8 @@ export const useParolesMusicales = (
     try {
       console.log(`🎯 Génération Mix complète pour ${itemData.item_code}`);
       
-      // Générer les paroles mixtes avec toutes les compétences A+B
-      const parolesMix = await generateMixedLyrics(itemData.item_code);
+      // 🎫 Générer les paroles Mix ultra-optimisées IA (A+B fusion)
+      const parolesMix = await generateRangAB(itemData.item_code);
       
       console.log(`✅ ${parolesMix.length} lignes Mix générées:`, {
         preview: parolesMix.slice(0, 3),
