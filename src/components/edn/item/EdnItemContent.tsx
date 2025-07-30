@@ -20,6 +20,9 @@ interface EdnItemData {
   subtitle?: string;
   slug: string;
   paroles_musicales?: string[];
+  paroles_rang_a?: string[];
+  paroles_rang_b?: string[];
+  paroles_rang_ab?: string[];
   tableau_rang_a?: any;
   tableau_rang_b?: any;
   scene_immersive?: any;
@@ -109,6 +112,9 @@ export const EdnItemContent = ({ activeSection, item }: EdnItemContentProps) => 
         return (
           <ParolesMusicales 
             paroles={item.paroles_musicales} 
+            paroles_rang_a={item.paroles_rang_a}
+            paroles_rang_b={item.paroles_rang_b}
+            paroles_rang_ab={item.paroles_rang_ab}
             itemCode={item.item_code}
             tableauRangA={item.tableau_rang_a}
             tableauRangB={item.tableau_rang_b}

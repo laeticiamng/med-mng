@@ -86,7 +86,7 @@ export default function EdnComplete() {
         .from('edn_items_immersive')
         .select(`
           id, item_code, title, subtitle, slug, 
-          paroles_rang_a, paroles_rang_b, paroles_rang_ab,
+          paroles_musicales, paroles_rang_a, paroles_rang_b, paroles_rang_ab,
           tableau_rang_a, tableau_rang_b, scene_immersive,
           quiz_questions, updated_at
         `)
@@ -137,7 +137,10 @@ export default function EdnComplete() {
         tableau_rang_b: immersive.tableau_rang_b,
         scene_immersive: immersive.scene_immersive,
         quiz_questions: immersive.quiz_questions,
-        paroles_musicales: immersive.paroles_musicales
+        paroles_musicales: immersive.paroles_musicales,
+        paroles_rang_a: immersive.paroles_rang_a,
+        paroles_rang_b: immersive.paroles_rang_b,
+        paroles_rang_ab: immersive.paroles_rang_ab
       };
     });
     return mergedItems;
