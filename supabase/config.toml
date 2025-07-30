@@ -116,3 +116,6 @@ verify_jwt = true
 [functions.suno-callback]
 verify_jwt = false
 
+[functions.complete-oic-competences]
+verify_jwt = false
+
