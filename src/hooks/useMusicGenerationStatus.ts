@@ -46,8 +46,11 @@ export const useMusicGenerationStatus = (taskId: string | null) => {
 
         setStatus(statusData);
 
-        // Arrêter le polling si terminé
-        if (dbTrack.generation_status === 'completed' || dbTrack.generation_status === 'failed') {
+        // Arrêter le polling si terminé ou si on a une URL audio/stream
+        if (dbTrack.generation_status === 'completed' || 
+            dbTrack.generation_status === 'failed' ||
+            dbTrack.audio_url || 
+            dbTrack.stream_url) {
           setIsPolling(false);
           console.log('🏁 Génération terminée, arrêt du polling');
         }
