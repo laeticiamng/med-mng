@@ -22,7 +22,7 @@ serve(async (req) => {
 
     // Récupérer tous les items EDN
     const { data: ednItems, error: ednError } = await supabase
-      .from('edn_items_immersive')
+      .from('edn_items_complete')
       .select('*')
       .order('item_code')
 
@@ -212,7 +212,7 @@ serve(async (req) => {
         // =====================
         
         const { error: updateError } = await supabase
-          .from('edn_items_immersive')
+          .from('edn_items_complete')
           .update({
             paroles_rang_a: parolesRangA,
             paroles_rang_b: parolesRangB,
