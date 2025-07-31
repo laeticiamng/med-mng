@@ -1,90 +1,119 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+}
 
 serve(async (req) => {
-  const logs: string[] = [];
-  
+  // Handle CORS preflight requests
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders });
+  }
+
   try {
-    logs.push("🔐 ÉTAPE 3.2: Génération cookie CAS");
-    logs.push("=" .repeat(50));
+    const { username, password } = await req.json();
     
-    // Simuler la génération du cookie CAS
-    // Dans un vrai environnement, il faudrait utiliser Puppeteer/Playwright
-    logs.push("⚠️ Simulation génération cookie CAS");
-    logs.push("📝 Credentials: laeticia.moto-ngane@etud.u-picardie.fr");
-    
-    // Test direct avec tentative d'authentification
-    logs.push("🌐 Tentative d'accès à la page protégée...");
-    const protectedUrl = 'https://livret.uness.fr/lisa/2025/Catégorie:Objectif_de_connaissance';
-    
-    const response = await fetch(protectedUrl, {
-      method: 'GET',
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
-      },
-      redirect: 'manual'
-    });
-    
-    logs.push(`📊 Status: ${response.status} ${response.statusText}`);
-    logs.push(`📍 URL finale: ${response.url}`);
-    
-    if (response.status === 302 || response.status === 301) {
-      const location = response.headers.get('location');
-      logs.push(`🔄 Redirection vers: ${location}`);
-      
-      if (location?.includes('auth.uness.fr/cas/login')) {
-        logs.push("🔐 Redirection CAS confirmée - Authentification requise");
-        logs.push("⚠️ Cookie CAS nécessaire pour accéder aux données");
-        
-        // Simuler un hash de cookie (en attendant la vraie implémentation)
-        const simulatedCookieHash = "a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6";
-        logs.push(`🍪 Hash cookie simulé: ${simulatedCookieHash}`);
-        
-        return new Response(JSON.stringify({
-          success: true,
-          needsAuth: true,
-          authType: 'CAS',
-          cookieHash: simulatedCookieHash,
-          logs: logs
-        }), {
-          headers: { 'Content-Type': 'application/json' }
-        });
-      }
-    } else if (response.status === 200) {
-      logs.push("✅ Accès direct réussi - Pas d'authentification nécessaire");
-      return new Response(JSON.stringify({
-        success: true,
-        needsAuth: false,
-        logs: logs
-      }), {
-        headers: { 'Content-Type': 'application/json' }
-      });
-    } else {
-      const text = await response.text();
-      logs.push(`❌ Erreur inattendue: ${text.substring(0, 300)}`);
+    if (!username || !password) {
+      return new Response(
+        JSON.stringify({ error: 'Username et password requis' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
-    
-    logs.push("=" .repeat(50));
-    logs.push("📊 RÉSULTATS DIAGNOSTIC 3.2 TERMINÉ");
-    logs.push("=" .repeat(50));
-    
-    return new Response(JSON.stringify({
-      success: true,
-      timestamp: new Date().toISOString(),
-      logs: logs
-    }), {
-      headers: { 'Content-Type': 'application/json' }
+
+    console.log('🚀 Génération cookie CAS pour:', username);
+
+    // Utiliser Puppeteer avec Deno
+    const puppeteerUrl = "https://deno.land/x/puppeteer@16.2.0/mod.ts";
+    const { default: puppeteer } = await import(puppeteerUrl);
+
+    console.log('📦 Lancement navigateur...');
+    const browser = await puppeteer.launch({
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
     });
+
+    const page = await browser.newPage();
     
+    // Configurer user agent
+    await page.setUserAgent('Mozilla/5.0 (compatible; Supabase-CAS-Bot/1.0)');
+    
+    console.log('🔐 Accès page CAS...');
+    await page.goto('https://cas.uness.fr/cas/login?service=https://livret.uness.fr/lisa/2025/', {
+      waitUntil: 'networkidle2'
+    });
+
+    // Remplir formulaire
+    console.log('📝 Remplissage formulaire...');
+    await page.type('#username', username);
+    await page.type('#password', password);
+    
+    // Soumettre
+    console.log('✅ Soumission...');
+    await Promise.all([
+      page.waitForNavigation({ waitUntil: 'networkidle2' }),
+      page.click('input[type="submit"]')
+    ]);
+
+    // Récupérer cookies
+    console.log('🍪 Récupération cookies...');
+    const cookies = await page.cookies();
+    
+    // Fermer navigateur
+    await browser.close();
+
+    // Formater cookie pour l'API
+    const cookieString = cookies
+      .map(cookie => `${cookie.name}=${cookie.value}`)
+      .join('; ');
+
+    console.log('🧪 Test cookie...');
+    
+    // Tester le cookie
+    const testResponse = await fetch(
+      'https://livret.uness.fr/lisa/2025/api.php?action=query&list=categorymembers&cmtitle=Catégorie:Objectif_de_connaissance&cmlimit=5&format=json',
+      {
+        headers: {
+          'Cookie': cookieString,
+          'User-Agent': 'Mozilla/5.0 (compatible; Supabase-CAS-Bot/1.0)'
+        }
+      }
+    );
+
+    const testData = await testResponse.json();
+    const isValid = testData.query?.categorymembers?.length > 0;
+
+    console.log(`${isValid ? '✅' : '❌'} Cookie ${isValid ? 'valide' : 'invalide'}`);
+
+    if (!isValid) {
+      return new Response(
+        JSON.stringify({ 
+          error: 'Authentification échouée',
+          details: testData 
+        }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    return new Response(
+      JSON.stringify({
+        success: true,
+        cookie: cookieString,
+        testResult: {
+          valid: isValid,
+          sampleCount: testData.query.categorymembers.length
+        }
+      }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+
   } catch (error) {
-    logs.push(`💥 Erreur critique: ${error.message}`);
-    return new Response(JSON.stringify({
-      success: false,
-      error: error.message,
-      logs: logs
-    }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' }
-    });
+    console.error('❌ Erreur génération cookie:', error);
+    return new Response(
+      JSON.stringify({ 
+        error: 'Erreur interne',
+        details: error.message 
+      }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
   }
 });
