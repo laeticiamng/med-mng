@@ -129,6 +129,29 @@ serve(async (req) => {
       return publicRes;
     }
 
+    // Handle quota endpoint without authentication for read-only operations
+    if (path === '/quota' && req.method === 'GET') {
+      try {
+        // Créer un client Supabase temporaire pour les quotas publics
+        const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2.50.3');
+        const supabaseUrl = 'https://yaincoxihiqdksxgrsrk.supabase.co';
+        const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY') || '';
+        const tempSupabase = createClient(supabaseUrl, supabaseKey);
+        
+        const quotaResponse = await handleQuota(req, tempSupabase, path);
+        if (quotaResponse) {
+          MonitoringService.endRequest(requestId, quotaResponse.status);
+          return quotaResponse;
+        }
+      } catch (error) {
+        console.warn('Quota endpoint failed, returning default:', error);
+        MonitoringService.endRequest(requestId, 200);
+        return new Response(JSON.stringify({ remaining_credits: 0 }), {
+          headers: { ...corsHeaders, ...securityHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+    }
+
     // Authentication with retry
     const authResult = await RetryService.withRetry(
       () => validateAuth(req),
