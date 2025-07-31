@@ -24,6 +24,7 @@ import { QuotaIndicator } from "@/components/quota/QuotaIndicator";
 import { PricingPlans } from "@/components/med-mng/PricingPlans";
 import { useIAQuota } from "@/hooks/useIAQuota";
 import { useSubscription } from "@/hooks/useSubscription";
+import { GenerateAllLyricsButton } from "@/components/edn/GenerateAllLyricsButton";
 
 interface EdnItem {
   id: string;
@@ -471,7 +472,10 @@ export default function EdnComplete() {
           </TabsContent>
 
           <TabsContent value="music">
-            <LyricsCompletionStatus />
+            <div className="space-y-6">
+              <GenerateAllLyricsButton />
+              <LyricsCompletionStatus />
+            </div>
           </TabsContent>
 
           <TabsContent value="revision">
