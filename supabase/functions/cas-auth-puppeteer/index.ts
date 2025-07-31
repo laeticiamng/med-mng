@@ -77,94 +77,131 @@ Deno.serve(async (req) => {
   }
 })
 
-// Authentification CAS complète avec simulation fetch (en attendant Puppeteer)
+// Authentification CAS réelle via fetch - séquence complète
 async function performCASAuthentication(username: string, password: string, testOnly: boolean): Promise<Response> {
-  console.log('🎭 Simulation authentification CAS...')
+  console.log('🔐 Authentification CAS RÉELLE via fetch...')
   console.log(`🔑 Utilisateur: ${username}`)
   
   try {
-    // NOTE: Dans un environnement réel, ici on utiliserait Puppeteer
-    // Pour l'instant, on simule et on retourne des cookies factices pour test
-    console.log('⚠️  SIMULATION - En production, utiliser Puppeteer local')
-    
-    // Test d'accès AVEC cookies simulés pour voir la différence
-    const mockCookies = 'PHPSESSID=simulation_test_cookie_cas; path=/; domain=.uness.fr'
-    console.log('🍪 Test avec cookies simulés...')
-    
-    const apiTestWithCookies = await fetch('https://livret.uness.fr/lisa/2025/api.php?action=query&list=categorymembers&cmtitle=Catégorie:Objectif_de_connaissance&cmlimit=10&format=json', {
+    // ÉTAPE 1: Aller sur la page protégée pour déclencher la redirection CAS
+    console.log('🌐 Étape 1: Accès page protégée...')
+    const initialResponse = await fetch('https://livret.uness.fr/lisa/2025/OIC-001', {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible; CAS-Auth/1.0)',
-        'Cookie': mockCookies,
-        'Accept': 'application/json'
-      }
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
+      },
+      redirect: 'manual' // Important: intercepter les redirections
     })
-
-    console.log(`📊 Test avec cookies: ${apiTestWithCookies.status}`)
-    const apiDataWithCookies = await apiTestWithCookies.json()
-    const oicPagesWithCookies = apiDataWithCookies.query?.categorymembers?.length || 0
     
-    console.log(`📋 Pages avec cookies simulés: ${oicPagesWithCookies}`)
-
-    // Test d'accès SANS cookies pour comparaison
-    const apiTestWithoutCookies = await fetch('https://livret.uness.fr/lisa/2025/api.php?action=query&list=categorymembers&cmtitle=Catégorie:Objectif_de_connaissance&cmlimit=10&format=json', {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible; CAS-Auth/1.0)',
-        'Accept': 'application/json'
-      }
-    })
-
-    const apiDataWithoutCookies = await apiTestWithoutCookies.json()
-    const oicPagesWithoutCookies = apiDataWithoutCookies.query?.categorymembers?.length || 0
+    console.log(`📊 Statut initial: ${initialResponse.status}`)
     
-    console.log(`📋 Pages SANS cookies: ${oicPagesWithoutCookies}`)
-
-    // Si différence significative, c'est que l'auth est requise
-    if (oicPagesWithCookies > oicPagesWithoutCookies) {
-      console.log('✅ Différence détectée - Authentification CAS améliore l\'accès')
+    // Vérifier si redirection vers CAS
+    if (initialResponse.status === 302 || initialResponse.status === 301) {
+      const locationHeader = initialResponse.headers.get('location')
+      console.log(`🔄 Redirection détectée vers: ${locationHeader}`)
       
-      return new Response(JSON.stringify({
-        success: false,
-        needsPuppeteer: true,
-        error: 'Puppeteer requis pour obtenir de vrais cookies CAS',
-        comparison: {
-          with_cookies: oicPagesWithCookies,
-          without_cookies: oicPagesWithoutCookies,
-          improvement: oicPagesWithCookies - oicPagesWithoutCookies
-        },
-        instructions: {
-          message: 'Authentification CAS réelle requise',
-          next_steps: [
-            '1. Utiliser le script Puppeteer local avec vos credentials',
-            '2. Récupérer les vrais cookies CAS depuis le navigateur',
-            '3. Utiliser validate_cookies pour tester les vrais cookies',
-            '4. Une fois validés, lancer l\'extraction complète'
-          ]
-        },
-        puppeteer_example: {
-          command: 'node generate-cas-cookie.js',
-          expected_output: 'Cookie CAS récupéré et sauvegardé'
+      if (locationHeader && locationHeader.includes('cas') || locationHeader.includes('auth')) {
+        // ÉTAPE 2: Suivre la redirection vers CAS
+        console.log('🔐 Étape 2: Accès formulaire CAS...')
+        const casResponse = await fetch(locationHeader, {
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
+          }
+        })
+        
+        const casHtml = await casResponse.text()
+        console.log('📄 Formulaire CAS récupéré')
+        
+        // ÉTAPE 3: Extraire les paramètres du formulaire (lt, execution, etc.)
+        const ltMatch = casHtml.match(/name="lt"\s+value="([^"]+)"/)
+        const executionMatch = casHtml.match(/name="execution"\s+value="([^"]+)"/)
+        const eventIdMatch = casHtml.match(/name="_eventId"\s+value="([^"]+)"/)
+        
+        if (!ltMatch || !executionMatch) {
+          throw new Error('Paramètres CAS introuvables dans le formulaire')
         }
-      }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      })
+        
+        const lt = ltMatch[1]
+        const execution = executionMatch[1]
+        const eventId = eventIdMatch ? eventIdMatch[1] : 'submit'
+        
+        console.log(`🔑 Paramètres CAS extraits: lt=${lt.substring(0, 10)}..., execution=${execution}`)
+        
+        // ÉTAPE 4: Soumettre les credentials
+        console.log('📤 Étape 4: Soumission credentials...')
+        const loginData = new URLSearchParams({
+          username: username,
+          password: password,
+          lt: lt,
+          execution: execution,
+          _eventId: eventId,
+          submit: 'LOGIN'
+        })
+        
+        const loginResponse = await fetch(casResponse.url, {
+          method: 'POST',
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+            'Referer': casResponse.url
+          },
+          body: loginData.toString(),
+          redirect: 'manual'
+        })
+        
+        console.log(`📊 Statut login: ${loginResponse.status}`)
+        
+        // ÉTAPE 5: Récupérer les cookies de session
+        const setCookieHeaders = loginResponse.headers.get('set-cookie')
+        console.log(`🍪 Set-Cookie reçu: ${setCookieHeaders ? 'Oui' : 'Non'}`)
+        
+        if (setCookieHeaders && (loginResponse.status === 302 || loginResponse.status === 301)) {
+          // Parse des cookies
+          const cookies = setCookieHeaders
+            .split(',')
+            .map(cookie => cookie.split(';')[0].trim())
+            .filter(cookie => cookie.includes('='))
+            .join('; ')
+          
+          console.log(`✅ Cookies CAS obtenus: ${cookies.substring(0, 50)}...`)
+          
+          // ÉTAPE 6: Tester l'accès avec les cookies
+          console.log('🧪 Étape 6: Test accès OIC avec cookies...')
+          const testResponse = await fetch('https://livret.uness.fr/lisa/2025/api.php?action=query&list=categorymembers&cmtitle=Catégorie:Objectif_de_connaissance&cmlimit=50&format=json', {
+            headers: {
+              'User-Agent': 'Mozilla/5.0 (compatible; OIC-Extractor/1.0)',
+              'Cookie': cookies,
+              'Accept': 'application/json'
+            }
+          })
+          
+          const testData = await testResponse.json()
+          const oicPages = testData.query?.categorymembers || []
+          
+          console.log(`🎯 ${oicPages.length} pages OIC accessibles avec cookies CAS`)
+          
+          if (oicPages.length > 0) {
+            return new Response(JSON.stringify({
+              success: true,
+              cookies: cookies,
+              pages_found: oicPages.length,
+              examples: oicPages.slice(0, 5).map(page => ({
+                title: page.title,
+                pageid: page.pageid
+              })),
+              message: 'Authentification CAS réussie - Cookies opérationnels'
+            }), {
+              headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+            })
+          }
+        }
+      }
     }
-
-    // Si pas de différence, peut-être accès public
-    if (oicPagesWithoutCookies > 0) {
-      console.log(`✅ Accès public possible - ${oicPagesWithoutCookies} pages trouvées`)
-      
-      return new Response(JSON.stringify({
-        success: true,
-        cookies: 'not_required',
-        pages_found: oicPagesWithoutCookies,
-        message: 'Accès direct possible sans authentification CAS'
-      }), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      })
-    }
-
-    // Aucun accès possible
-    throw new Error('Accès refusé - Authentification CAS réelle requise')
+    
+    // Si on arrive ici, l'authentification a échoué
+    throw new Error('Échec authentification CAS - Vérifier les credentials')
 
   } catch (error) {
     console.error('❌ Erreur auth CAS:', error.message)
@@ -172,7 +209,7 @@ async function performCASAuthentication(username: string, password: string, test
     return new Response(JSON.stringify({
       success: false,
       error: error.message,
-      recommendation: 'Utiliser le script Puppeteer local pour l\'authentification CAS'
+      recommendation: 'Vérifier les credentials CAS dans les secrets Supabase'
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 500
