@@ -115,7 +115,11 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
               onDurationChange={setMusicDuration}
             />
 
-            <ParolesMusicalesErrorSection lastError={lastError} />
+            <ParolesMusicalesErrorSection 
+              lastError={lastError} 
+              itemCode={itemCode}
+              hasNoLyrics={finalParoles.length === 0 || finalParoles.every(p => !p || p.length === 0)}
+            />
 
             <ParolesMusicalesMainContent
               paroles={
