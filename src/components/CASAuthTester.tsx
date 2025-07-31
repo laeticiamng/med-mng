@@ -5,6 +5,8 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { testOICAccessWithRealCAS, extractOICWithCASCookies } from '@/utils/testOICAccessWithCAS';
+import { validateCASCookies } from '@/utils/getCASCookies';
 
 interface AuthResult {
   success: boolean;
@@ -13,8 +15,9 @@ interface AuthResult {
   instructions?: any;
   pages_found?: number;
   valid?: boolean;
-  pages_accessible?: number;
+  pages_accessible?: number | string;
   examples?: any[];
+  improvement?: number;
 }
 
 export default function CASAuthTester() {
@@ -67,25 +70,26 @@ export default function CASAuthTester() {
     setLoading(true);
     
     try {
-      console.log('🍪 Validation cookies...');
+      console.log('🍪 Validation cookies avec nouveau système...');
       
-      const { data, error } = await supabase.functions.invoke('cas-auth-puppeteer', {
-        body: { 
-          action: 'validate_cookies',
-          cookies: cookies.trim()
-        }
-      });
+      const validationResult = await validateCASCookies(cookies.trim());
       
-      if (error) {
-        throw error;
-      }
+      console.log('📊 Résultat validation:', validationResult);
       
-      console.log('📊 Résultat validation:', data);
-      setResult(data);
-      
-      if (data.success && data.valid) {
-        toast.success(`✅ Cookies valides - ${data.pages_accessible} pages accessibles`);
+      if (validationResult.success) {
+        setResult({ 
+          success: true, 
+          valid: true, 
+          pages_accessible: 'Test réussi avec cookies',
+          examples: []
+        });
+        toast.success('✅ Cookies CAS valides !');
       } else {
+        setResult({ 
+          success: false, 
+          error: validationResult.error,
+          valid: false 
+        });
         toast.error('❌ Cookies invalides ou expirés');
       }
       
@@ -96,6 +100,56 @@ export default function CASAuthTester() {
         error: error.message || 'Erreur validation cookies' 
       });
       toast.error('Erreur lors de la validation');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const testRealCASAccess = async () => {
+    setLoading(true);
+    setResult(null);
+    
+    try {
+      console.log('🎯 TEST COMPLET - Accès OIC avec authentification CAS réelle');
+      toast.info('Test d\'accès complet en cours...');
+      
+      const testResult = await testOICAccessWithRealCAS();
+      
+      console.log('📊 Résultat test complet:', testResult);
+      
+      if (testResult.success) {
+        setResult({ 
+          success: true, 
+          pages_found: testResult.withAuth.count,
+          pages_accessible: testResult.withAuth.count,
+          examples: [],
+          improvement: testResult.improvement
+        });
+        
+        if (testResult.improvement > 0) {
+          toast.success(`🎉 Authentification CAS fonctionne ! +${testResult.improvement} pages avec auth`);
+        } else {
+          toast.success(`✅ Accès direct possible - ${testResult.withAuth.count} pages`);
+        }
+      } else {
+        setResult({ 
+          success: false, 
+          error: testResult.error,
+          instructions: {
+            message: 'Authentification CAS manuelle requise',
+            next_steps: testResult.nextSteps || []
+          }
+        });
+        toast.error('❌ Authentification CAS requise');
+      }
+      
+    } catch (error: any) {
+      console.error('❌ Erreur test complet:', error);
+      setResult({ 
+        success: false, 
+        error: error.message || 'Erreur test complet' 
+      });
+      toast.error('Erreur lors du test complet');
     } finally {
       setLoading(false);
     }
@@ -114,21 +168,39 @@ export default function CASAuthTester() {
         </CardHeader>
         <CardContent className="space-y-4">
           
-          {/* Test d'authentification */}
+          {/* Test complet avec injection réelle */}
           <div className="space-y-3">
-            <h3 className="font-medium">1. Test d'accès CAS</h3>
+            <h3 className="font-medium">1. 🎯 Test COMPLET avec injection réelle des cookies</h3>
+            <div className="p-3 bg-blue-50 rounded-lg text-sm text-blue-700">
+              <p className="font-medium">⚡ Test corrigé qui injecte VRAIMENT les cookies CAS dans les requêtes API</p>
+              <p>Ce test montre la différence entre les appels avec et sans authentification.</p>
+            </div>
+            <Button 
+              onClick={testRealCASAccess}
+              disabled={loading}
+              className="w-full"
+              variant="default"
+            >
+              {loading ? '🔄 Test complet en cours...' : '🚀 TEST COMPLET - Accès OIC avec CAS réel'}
+            </Button>
+          </div>
+
+          {/* Test d'authentification basique */}
+          <div className="space-y-3">
+            <h3 className="font-medium">2. Test d'accès CAS (basique)</h3>
             <Button 
               onClick={testCASAuthentication}
               disabled={loading}
+              variant="outline"
               className="w-full"
             >
-              {loading ? '🔄 Test en cours...' : '🚀 Tester l\'authentification CAS'}
+              {loading ? '🔄 Test en cours...' : '🔍 Tester l\'authentification CAS (Edge Function)'}
             </Button>
           </div>
           
           {/* Validation de cookies */}
           <div className="space-y-3">
-            <h3 className="font-medium">2. Validation de cookies (optionnel)</h3>
+            <h3 className="font-medium">3. Validation de cookies (manuel)</h3>
             <Textarea
               placeholder="Collez ici vos cookies CAS (ex: PHPSESSID=abc123; autre_cookie=def456)"
               value={cookies}
@@ -141,7 +213,7 @@ export default function CASAuthTester() {
               variant="outline"
               className="w-full"
             >
-              {loading ? '🔄 Validation...' : '🍪 Valider les cookies'}
+              {loading ? '🔄 Validation...' : '🍪 Valider les cookies manuellement'}
             </Button>
           </div>
           

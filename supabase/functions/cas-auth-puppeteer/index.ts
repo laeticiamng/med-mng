@@ -77,88 +77,94 @@ Deno.serve(async (req) => {
   }
 })
 
-// Authentification CAS complète avec Puppeteer
+// Authentification CAS complète avec simulation fetch (en attendant Puppeteer)
 async function performCASAuthentication(username: string, password: string, testOnly: boolean): Promise<Response> {
-  console.log('🎭 Lancement Puppeteer pour auth CAS...')
+  console.log('🎭 Simulation authentification CAS...')
+  console.log(`🔑 Utilisateur: ${username}`)
   
   try {
-    // NOTE: Dans Supabase Edge Functions, Puppeteer nécessite une configuration spéciale
-    // Pour l'instant, on simule le processus avec fetch
-    console.log('⚠️  Puppeteer en Edge Function nécessite une configuration spéciale')
-    console.log('🔄 Utilisation d\'une approche fetch pour l\'auth CAS...')
-
-    // Étape 1: Accéder à la page protégée pour déclencher la redirection CAS
-    const initialResponse = await fetch('https://livret.uness.fr/lisa/2025/Catégorie:Objectif_de_connaissance', {
-      redirect: 'manual',
+    // NOTE: Dans un environnement réel, ici on utiliserait Puppeteer
+    // Pour l'instant, on simule et on retourne des cookies factices pour test
+    console.log('⚠️  SIMULATION - En production, utiliser Puppeteer local')
+    
+    // Test d'accès AVEC cookies simulés pour voir la différence
+    const mockCookies = 'PHPSESSID=simulation_test_cookie_cas; path=/; domain=.uness.fr'
+    console.log('🍪 Test avec cookies simulés...')
+    
+    const apiTestWithCookies = await fetch('https://livret.uness.fr/lisa/2025/api.php?action=query&list=categorymembers&cmtitle=Catégorie:Objectif_de_connaissance&cmlimit=10&format=json', {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible; CAS-Auth/1.0)'
+        'User-Agent': 'Mozilla/5.0 (compatible; CAS-Auth/1.0)',
+        'Cookie': mockCookies,
+        'Accept': 'application/json'
       }
     })
 
-    console.log(`📊 Réponse initiale: ${initialResponse.status}`)
+    console.log(`📊 Test avec cookies: ${apiTestWithCookies.status}`)
+    const apiDataWithCookies = await apiTestWithCookies.json()
+    const oicPagesWithCookies = apiDataWithCookies.query?.categorymembers?.length || 0
     
-    if (initialResponse.status >= 300 && initialResponse.status < 400) {
-      const location = initialResponse.headers.get('location')
-      console.log(`🔗 Redirection vers: ${location}`)
-      
-      if (location?.includes('cas.u-picardie.fr') || location?.includes('auth.uness.fr')) {
-        console.log('✅ Redirection CAS détectée')
-        
-        // Pour l'instant, retourner les instructions pour l'utilisateur
-        return new Response(JSON.stringify({
-          success: false,
-          error: 'Puppeteer non disponible en Edge Function',
-          cas_url: location,
-          instructions: {
-            message: 'Authentification CAS requise - Utiliser le script local',
-            next_steps: [
-              '1. Utiliser le script local avec Puppeteer',
-              '2. Ou obtenir manuellement les cookies depuis le navigateur',
-              '3. Puis appeler validate_cookies avec les cookies obtenus'
-            ]
-          },
-          manual_method: {
-            url: 'https://livret.uness.fr/lisa/2025/',
-            username_field: '#username',
-            password_field: '#password',
-            submit_button: 'input[type="submit"]'
-          }
-        }), {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        })
-        
-      } else {
-        throw new Error(`Redirection inattendue: ${location}`)
-      }
-    }
+    console.log(`📋 Pages avec cookies simulés: ${oicPagesWithCookies}`)
 
-    // Si pas de redirection, peut-être déjà accessible
-    console.log('🔍 Pas de redirection CAS - Test d\'accès direct...')
-    
-    const apiTest = await fetch('https://livret.uness.fr/lisa/2025/api.php?action=query&list=categorymembers&cmtitle=Catégorie:Objectif_de_connaissance&cmlimit=10&format=json', {
+    // Test d'accès SANS cookies pour comparaison
+    const apiTestWithoutCookies = await fetch('https://livret.uness.fr/lisa/2025/api.php?action=query&list=categorymembers&cmtitle=Catégorie:Objectif_de_connaissance&cmlimit=10&format=json', {
       headers: {
         'User-Agent': 'Mozilla/5.0 (compatible; CAS-Auth/1.0)',
         'Accept': 'application/json'
       }
     })
 
-    const apiData = await apiTest.json()
-    const oicPages = apiData.query?.categorymembers?.length || 0
+    const apiDataWithoutCookies = await apiTestWithoutCookies.json()
+    const oicPagesWithoutCookies = apiDataWithoutCookies.query?.categorymembers?.length || 0
+    
+    console.log(`📋 Pages SANS cookies: ${oicPagesWithoutCookies}`)
 
-    if (oicPages > 0) {
-      console.log(`✅ Accès direct possible - ${oicPages} pages trouvées`)
+    // Si différence significative, c'est que l'auth est requise
+    if (oicPagesWithCookies > oicPagesWithoutCookies) {
+      console.log('✅ Différence détectée - Authentification CAS améliore l\'accès')
+      
+      return new Response(JSON.stringify({
+        success: false,
+        needsPuppeteer: true,
+        error: 'Puppeteer requis pour obtenir de vrais cookies CAS',
+        comparison: {
+          with_cookies: oicPagesWithCookies,
+          without_cookies: oicPagesWithoutCookies,
+          improvement: oicPagesWithCookies - oicPagesWithoutCookies
+        },
+        instructions: {
+          message: 'Authentification CAS réelle requise',
+          next_steps: [
+            '1. Utiliser le script Puppeteer local avec vos credentials',
+            '2. Récupérer les vrais cookies CAS depuis le navigateur',
+            '3. Utiliser validate_cookies pour tester les vrais cookies',
+            '4. Une fois validés, lancer l\'extraction complète'
+          ]
+        },
+        puppeteer_example: {
+          command: 'node generate-cas-cookie.js',
+          expected_output: 'Cookie CAS récupéré et sauvegardé'
+        }
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      })
+    }
+
+    // Si pas de différence, peut-être accès public
+    if (oicPagesWithoutCookies > 0) {
+      console.log(`✅ Accès public possible - ${oicPagesWithoutCookies} pages trouvées`)
       
       return new Response(JSON.stringify({
         success: true,
         cookies: 'not_required',
-        pages_found: oicPages,
+        pages_found: oicPagesWithoutCookies,
         message: 'Accès direct possible sans authentification CAS'
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       })
     }
 
-    throw new Error('Accès refusé et authentification CAS requise')
+    // Aucun accès possible
+    throw new Error('Accès refusé - Authentification CAS réelle requise')
 
   } catch (error) {
     console.error('❌ Erreur auth CAS:', error.message)
