@@ -173,6 +173,57 @@ const Index = () => {
           </div>
         </div>
 
+        {/* Bouton d'extraction OIC - Test immédiat */}
+        <div className="pb-8">
+          <div className="text-center">
+            <PremiumCard variant="glass" className="p-6 max-w-2xl mx-auto border-2 border-blue-500/20 bg-gradient-to-r from-blue-50 to-purple-50">
+              <div className="flex items-center justify-center gap-3 mb-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+                  <Zap className="h-6 w-6 text-white" />
+                </div>
+                <h3 className="text-xl font-bold text-gray-900">Extraction OIC Autonome</h3>
+              </div>
+              <p className="text-gray-600 mb-4">
+                Mise à jour automatique des 4,872 compétences OIC depuis l'API UNESS
+              </p>
+              <PremiumButton
+                variant="primary"
+                size="lg"
+                onClick={async () => {
+                  try {
+                    console.log('🚀 Déclenchement extraction OIC...');
+                    const response = await fetch('https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/auto-extract-oic', {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU'
+                      },
+                      body: JSON.stringify({ 
+                        action: 'immediate_extraction',
+                        source: 'homepage_button' 
+                      })
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                      alert(`✅ Extraction démarrée ! Session: ${result.session_id}\n\n🔗 Surveillez les logs: https://supabase.com/dashboard/project/yaincoxihiqdksxgrsrk/functions`);
+                    } else {
+                      alert(`❌ Erreur: ${result.error}`);
+                    }
+                  } catch (error) {
+                    alert(`💥 Erreur: ${error.message}`);
+                  }
+                }}
+                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg"
+              >
+                <Zap className="h-5 w-5 mr-2" />
+                🚀 Déclencher Extraction OIC Maintenant
+              </PremiumButton>
+            </PremiumCard>
+          </div>
+        </div>
+
         {/* Section d'accès rapide premium avec grille 2x2 */}
         <div className="pb-20">
           <div className="text-center mb-16">
