@@ -54,7 +54,8 @@ jobs:
         
     - name: 📦 Install dependencies (extraction only)
       run: |
-        npm install --no-save puppeteer @supabase/supabase-js dotenv typescript @types/node
+        cd scripts
+        npm install --no-save
         npm install -g tsx
         
     - name: 📁 Create cache directory
@@ -66,12 +67,12 @@ jobs:
         CAS_PASSWORD: ${{ secrets.CAS_PASSWORD }}
       run: |
         echo "🔐 Démarrage authentification CAS..."
-        tsx scripts/auth/generate-cas-cookie.ts
+        cd scripts && tsx auth/generate-cas-cookie.ts
         
         # Vérifier que les cookies ont été générés
-        if [ ! -f .cache/cookies.txt ]; then
+        if [ ! -f scripts/.cache/cookies.txt ]; then
           echo "❌ Erreur: fichier cookies non généré"
-          ls -la .cache/
+          ls -la scripts/.cache/
           exit 1
         fi
         
@@ -87,12 +88,12 @@ jobs:
         
         # Utiliser le script TypeScript moderne
         echo "📜 Utilisation du script TypeScript moderne"
-        tsx scripts/extract-oic.ts
+        cd scripts && tsx extract-oic.ts
         
         # Vérifier que le rapport a été généré
-        if [ ! -f .cache/extraction-success.json ] && [ ! -f .cache/extraction-error.json ]; then
+        if [ ! -f scripts/.cache/extraction-success.json ] && [ ! -f scripts/.cache/extraction-error.json ]; then
           echo "❌ Erreur: aucun rapport d'extraction généré"
-          ls -la .cache/
+          ls -la scripts/.cache/
           exit 1
         fi
         
@@ -101,18 +102,18 @@ jobs:
     - name: 📊 Display completion report
       run: |
         echo "📊 Rapport de complétion:"
-        if [ -f .cache/extraction-success.json ]; then
+        if [ -f scripts/.cache/extraction-success.json ]; then
           echo "✅ Succès:"
-          cat .cache/extraction-success.json | jq '.'
+          cat scripts/.cache/extraction-success.json | jq '.'
         fi
         
-        if [ -f .cache/extraction-error.json ]; then
+        if [ -f scripts/.cache/extraction-error.json ]; then
           echo "❌ Erreurs:"
-          cat .cache/extraction-error.json | jq '.'
+          cat scripts/.cache/extraction-error.json | jq '.'
         fi
         
         echo "📁 Contenu du cache:"
-        ls -la .cache/
+        ls -la scripts/.cache/
         
     - name: 📤 Upload completion artifacts
       uses: actions/upload-artifact@v4
@@ -120,7 +121,7 @@ jobs:
       with:
         name: oic-completion-${{ github.run_number }}
         path: |
-          .cache/
+          scripts/.cache/
         retention-days: 30
         
     - name: 💬 Comment PR with completion stats (if triggered by PR)
@@ -132,8 +133,8 @@ jobs:
           try {
             let reportContent = '';
             
-            if (fs.existsSync('.cache/extraction-success.json')) {
-              const successReport = JSON.parse(fs.readFileSync('.cache/extraction-success.json', 'utf8'));
+            if (fs.existsSync('scripts/.cache/extraction-success.json')) {
+              const successReport = JSON.parse(fs.readFileSync('scripts/.cache/extraction-success.json', 'utf8'));
               reportContent = `
             ## ✅ Complétion OIC - Rapport de succès
             
@@ -146,8 +147,8 @@ jobs:
             **⏰ Timestamp:** ${successReport.timestamp}
             **✅ Statut:** Succès total
             `;
-            } else if (fs.existsSync('.cache/extraction-error.json')) {
-              const errorReport = JSON.parse(fs.readFileSync('.cache/extraction-error.json', 'utf8'));
+            } else if (fs.existsSync('scripts/.cache/extraction-error.json')) {
+              const errorReport = JSON.parse(fs.readFileSync('scripts/.cache/extraction-error.json', 'utf8'));
               reportContent = `
             ## ❌ Complétion OIC - Rapport d'erreur
             
@@ -175,14 +176,14 @@ jobs:
         echo "❌ La complétion OIC a échoué"
         echo "📧 Vérifiez les artefacts pour plus de détails"
         
-        if [ -f .cache/auth-error.log ]; then
+        if [ -f scripts/.cache/auth-error.log ]; then
           echo "🔐 Erreur d'authentification:"
-          cat .cache/auth-error.log
+          cat scripts/.cache/auth-error.log
         fi
         
-        if [ -f .cache/extraction-error.log ]; then
+        if [ -f scripts/.cache/extraction-error.log ]; then
           echo "📊 Erreur d'extraction:"
-          cat .cache/extraction-error.log
+          cat scripts/.cache/extraction-error.log
         fi
 
   # Job optionnel pour valider la qualité des données après complétion
@@ -204,7 +205,7 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: oic-completion-${{ github.run_number }}
-        path: .cache/
+        path: scripts/.cache/
         
     - name: ✅ Validate completion quality
       env:
