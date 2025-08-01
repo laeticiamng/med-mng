@@ -218,7 +218,7 @@ const Index = () => {
                 className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg"
               >
                 <Zap className="h-5 w-5 mr-2" />
-                🚀 Déclencher Extraction OIC Maintenant
+                🚀 Compléter les Compétences OIC
               </PremiumButton>
             </PremiumCard>
           </div>
