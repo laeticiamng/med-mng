@@ -135,21 +135,26 @@ async function main() {
     console.log('🎯 Table: backup_oic_competences');
     
     await initializeServices();
-    await launchBrowser();
-    await authenticateWithCAS();
     
-    const oicPages = await fetchOICPagesList();
-    console.log(`📋 ${oicPages.length} pages OIC trouvées`);
-    
-    // Vérifier l'état actuel des compétences dans Supabase
-    const incompleteCompetences = await getIncompleteCompetences();
-    console.log(`🔍 ${incompleteCompetences.length} compétences à compléter (descriptions vides)`);
-    
-    if (incompleteCompetences.length > 0) {
-      await processIncompleteOICPages(oicPages, incompleteCompetences);
+    // Mode complétion ou extraction complète
+    if (isCompletionMode) {
+      // Mode complétion : traiter uniquement les compétences incomplètes
+      const incompleteCompetences = await getIncompleteCompetences();
+      console.log(`🔍 ${incompleteCompetences.length} compétences à compléter (descriptions vides)`);
+      
+      if (incompleteCompetences.length > 0) {
+        await processIncompleteOICPages(incompleteCompetences);
+      } else {
+        console.log('✅ Toutes les compétences sont déjà complètes');
+      }
     } else {
-      console.log('✅ Toutes les compétences sont déjà complètes');
+      // Mode complet : extraction de toutes les pages
+      const oicPages = await fetchOICPagesList();
+      console.log(`📋 ${oicPages.length} pages OIC trouvées`);
+      
+      await processAllOICPages(oicPages);
     }
+    
     await generateReport();
     
     console.log('✅ Extraction OIC terminée avec succès');
