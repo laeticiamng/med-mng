@@ -143,12 +143,16 @@ async function main() {
       console.log(`🔍 ${incompleteCompetences.length} compétences à compléter (descriptions vides)`);
       
       if (incompleteCompetences.length > 0) {
+        await launchBrowser();
+        await authenticateWithCAS();
         await processIncompleteOICPages(incompleteCompetences);
       } else {
         console.log('✅ Toutes les compétences sont déjà complètes');
       }
     } else {
       // Mode complet : extraction de toutes les pages
+      await launchBrowser();
+      await authenticateWithCAS();
       const oicPages = await fetchOICPagesList();
       console.log(`📋 ${oicPages.length} pages OIC trouvées`);
       
@@ -292,46 +296,17 @@ async function fetchOICPagesList() {
 }
 
 /**
- * 🔍 Récupération des compétences incomplètes
+ * 🔄 Traitement de toutes les pages OIC (mode complet)
  */
-async function getIncompleteCompetences() {
-  try {
-    const { data, error } = await supabase
-      .from('backup_oic_competences')
-      .select('objectif_id, intitule')
-      .or('description.is.null,description.eq.');
-    
-    if (error) {
-      throw new Error(`Erreur Supabase: ${error.message}`);
-    }
-    
-    return data || [];
-  } catch (error) {
-    console.error('Erreur récupération compétences incomplètes:', error);
-    return [];
-  }
-}
-
-/**
- * 🔄 Traitement ciblé des pages OIC incomplètes
- */
-async function processIncompleteOICPages(oicPages, incompleteCompetences) {
-  console.log(`🎯 Traitement ciblé de ${incompleteCompetences.length} compétences incomplètes...`);
+async function processAllOICPages(oicPages) {
+  console.log(`📊 Traitement complet de ${oicPages.length} pages OIC...`);
   
-  const incompleteIds = new Set(incompleteCompetences.map(c => c.objectif_id));
-  const pagesNeeded = oicPages.filter(page => {
-    const objectifIdMatch = page.title.match(/Objectif_de_connaissance_(\d+_\d+_[A-Z]_\d+)/);
-    return objectifIdMatch && incompleteIds.has(objectifIdMatch[1]);
-  });
-  
-  console.log(`📋 ${pagesNeeded.length} pages à traiter pour complétion`);
-  
-  for (let i = 0; i < pagesNeeded.length; i += CONFIG.BATCH_SIZE) {
-    const batch = pagesNeeded.slice(i, i + CONFIG.BATCH_SIZE);
+  for (let i = 0; i < oicPages.length; i += CONFIG.BATCH_SIZE) {
+    const batch = oicPages.slice(i, i + CONFIG.BATCH_SIZE);
     const batchNumber = Math.floor(i / CONFIG.BATCH_SIZE) + 1;
-    const totalBatches = Math.ceil(pagesNeeded.length / CONFIG.BATCH_SIZE);
+    const totalBatches = Math.ceil(oicPages.length / CONFIG.BATCH_SIZE);
     
-    console.log(`📦 Lot ${batchNumber}/${totalBatches} (${batch.length} pages à compléter)`);
+    console.log(`📦 Lot ${batchNumber}/${totalBatches} (${batch.length} pages à traiter)`);
     
     const competences = [];
     
@@ -348,17 +323,83 @@ async function processIncompleteOICPages(oicPages, incompleteCompetences) {
       }
     }
     
-    // Sauvegarde du lot avec mise à jour ciblée
+    // Sauvegarde du lot 
     if (competences.length > 0) {
-      await updateIncompleteCompetences(competences);
+      await saveCompetencesToSupabase(competences);
     }
     
     // Pause entre les lots
-    if (i + CONFIG.BATCH_SIZE < pagesNeeded.length) {
+    if (i + CONFIG.BATCH_SIZE < oicPages.length) {
       console.log(`⏳ Pause ${CONFIG.DELAY_BETWEEN_BATCHES}ms...`);
       await new Promise(resolve => setTimeout(resolve, CONFIG.DELAY_BETWEEN_BATCHES));
     }
   }
+}
+
+/**
+ * 📄 Récupération d'une page OIC spécifique
+ */
+async function fetchSingleOICPage(pageTitle) {
+  console.log(`📄 Récupération de ${pageTitle}...`);
+  
+  try {
+    const pageApiUrl = `${CONFIG.BASE_URL}/api.php?action=query&titles=${encodeURIComponent(pageTitle)}&prop=revisions&rvprop=content&format=json`;
+    
+    await page.goto(pageApiUrl, { waitUntil: 'networkidle0' });
+    const content = await page.content();
+    
+    const jsonMatch = content.match(/<pre[^>]*>(.*?)<\/pre>/s);
+    if (!jsonMatch) {
+      throw new Error('Contenu JSON non trouvé');
+    }
+    
+    const pageData = JSON.parse(jsonMatch[1]);
+    const pages = pageData.query?.pages || {};
+    const pageContent = Object.values(pages)[0];
+    
+    if (!pageContent?.revisions?.[0]?.['*']) {
+      return null;
+    }
+    
+    return {
+      title: pageTitle,
+      content: pageContent.revisions[0]['*'],
+      url: pageApiUrl
+    };
+    
+  } catch (error) {
+    console.error(`❌ Erreur récupération ${pageTitle}:`, error.message);
+    return null;
+  }
+}
+
+/**
+ * 🧩 Parser et sauvegarder une page OIC complète
+ */
+async function parseAndSaveOICPage(pageData, itemParent) {
+  console.log(`🧩 Parsing page ${itemParent}...`);
+  
+  try {
+    const competence = parseOICContent(pageData.title, pageData.content, pageData.url);
+    if (competence) {
+      await saveCompetencesToSupabase([competence]);
+      extractionStats.updated++;
+      console.log(`✅ Page ${itemParent} traitée avec succès`);
+    } else {
+      console.warn(`⚠️ Échec parsing page ${itemParent}`);
+      extractionStats.errors++;
+    }
+  } catch (error) {
+    console.error(`❌ Erreur traitement page ${itemParent}:`, error.message);
+    extractionStats.errors++;
+  }
+}
+
+/**
+ * ⏱️ Fonction utilitaire de pause
+ */
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 /**

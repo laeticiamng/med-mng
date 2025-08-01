@@ -82,13 +82,17 @@ jobs:
       env:
         SUPABASE_URL: https://yaincoxihiqdksxgrsrk.supabase.co
         SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        COMPLETION_MODE: true
         FORCE_UPDATE: ${{ github.event.inputs.force_update }}
+        CAS_USERNAME: ${{ secrets.CAS_USERNAME }}
+        CAS_PASSWORD: ${{ secrets.CAS_PASSWORD }}
       run: |
         echo "🚀 Démarrage extraction OIC avec logique de complétion..."
+        echo "🎯 Mode: COMPLÉTION (COMPLETION_MODE=true)"
         
-        # Utiliser le script TypeScript moderne
-        echo "📜 Utilisation du script TypeScript moderne"
-        cd scripts && tsx extract-oic.ts
+        # Utiliser le script CommonJS corrigé
+        echo "📜 Utilisation du script extract-oic-competences.cjs"
+        cd scripts && node extract-oic-competences.cjs
         
         # Vérifier que le rapport a été généré
         if [ ! -f scripts/.cache/extraction-success.json ] && [ ! -f scripts/.cache/extraction-error.json ]; then
