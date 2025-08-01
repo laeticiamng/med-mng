@@ -191,15 +191,15 @@ const Index = () => {
                 size="lg"
                 onClick={async () => {
                   try {
-                    console.log('🚀 Déclenchement extraction OIC...');
-                    const response = await fetch('https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/auto-extract-oic', {
+                    console.log('🚀 Déclenchement extraction OIC Puppeteer...');
+                    const response = await fetch('https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/puppeteer-oic-extraction', {
                       method: 'POST',
                       headers: {
                         'Content-Type': 'application/json',
                         'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU'
                       },
                       body: JSON.stringify({ 
-                        action: 'immediate_extraction',
+                        method: 'puppeteer_cas',
                         source: 'homepage_button' 
                       })
                     });
@@ -207,7 +207,7 @@ const Index = () => {
                     const result = await response.json();
                     
                     if (result.success) {
-                      alert(`✅ Extraction démarrée ! Session: ${result.session_id}\n\n🔗 Surveillez les logs: https://supabase.com/dashboard/project/yaincoxihiqdksxgrsrk/functions`);
+                      alert(`✅ Extraction Puppeteer terminée ! \n📊 ${result.competences_extraites} compétences extraites\n🆔 Session: ${result.session_id}`);
                     } else {
                       alert(`❌ Erreur: ${result.error}`);
                     }
