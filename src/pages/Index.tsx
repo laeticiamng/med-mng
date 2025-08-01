@@ -186,40 +186,73 @@ const Index = () => {
               <p className="text-gray-600 mb-4">
                 Mise à jour automatique des 4,872 compétences OIC depuis l'API UNESS
               </p>
-              <PremiumButton
-                variant="primary"
-                size="lg"
-                onClick={async () => {
-                  try {
-                    console.log('🚀 Déclenchement extraction OIC Puppeteer...');
-                    const response = await fetch('https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/puppeteer-oic-extraction', {
-                      method: 'POST',
-                      headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU'
-                      },
-                      body: JSON.stringify({ 
-                        method: 'puppeteer_cas',
-                        source: 'homepage_button' 
-                      })
-                    });
-                    
-                    const result = await response.json();
-                    
-                    if (result.success) {
-                      alert(`✅ Extraction Puppeteer terminée ! \n📊 ${result.competences_extraites} compétences extraites\n🆔 Session: ${result.session_id}`);
-                    } else {
-                      alert(`❌ Erreur: ${result.error}`);
+              <div className="flex gap-3 justify-center">
+                <PremiumButton
+                  variant="secondary"
+                  size="lg"
+                  onClick={async () => {
+                    try {
+                      console.log('🧪 Test authentification CAS...');
+                      const response = await fetch('https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/test-cas-auth', {
+                        method: 'POST',
+                        headers: {
+                          'Content-Type': 'application/json',
+                          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU'
+                        }
+                      });
+                      
+                      const result = await response.json();
+                      
+                      if (result.success) {
+                        alert(`✅ Test CAS réussi !\n🔐 Auth: OK\n📊 Pages OIC: ${result.api?.pagesFound || 0}\n🍪 Cookies: ${result.auth?.cookiesLength || 0} chars`);
+                      } else {
+                        alert(`❌ Test échoué: ${result.error}`);
+                      }
+                    } catch (error) {
+                      alert(`💥 Erreur test: ${error.message}`);
                     }
-                  } catch (error) {
-                    alert(`💥 Erreur: ${error.message}`);
-                  }
-                }}
-                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg"
-              >
-                <Zap className="h-5 w-5 mr-2" />
-                🚀 Compléter les Compétences OIC
-              </PremiumButton>
+                  }}
+                  className="bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700"
+                >
+                  <Target className="h-5 w-5 mr-2" />
+                  🧪 Tester CAS Auth
+                </PremiumButton>
+                
+                <PremiumButton
+                  variant="primary"
+                  size="lg"
+                  onClick={async () => {
+                    try {
+                      console.log('🚀 Déclenchement extraction OIC Puppeteer...');
+                      const response = await fetch('https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/puppeteer-oic-extraction', {
+                        method: 'POST',
+                        headers: {
+                          'Content-Type': 'application/json',
+                          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU'
+                        },
+                        body: JSON.stringify({ 
+                          method: 'puppeteer_cas',
+                          source: 'homepage_button' 
+                        })
+                      });
+                      
+                      const result = await response.json();
+                      
+                      if (result.success) {
+                        alert(`✅ Extraction Puppeteer terminée ! \n📊 ${result.competences_extraites} compétences extraites\n🆔 Session: ${result.session_id}`);
+                      } else {
+                        alert(`❌ Erreur: ${result.error}`);
+                      }
+                    } catch (error) {
+                      alert(`💥 Erreur: ${error.message}`);
+                    }
+                  }}
+                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg"
+                >
+                  <Zap className="h-5 w-5 mr-2" />
+                  🚀 Compléter les Compétences OIC
+                </PremiumButton>
+              </div>
             </PremiumCard>
           </div>
         </div>
