@@ -6,6 +6,55 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+// CAS Authentication function (without Puppeteer)
+async function authenticateWithCAS(username: string, password: string): Promise<string> {
+  console.log('🔐 Démarrage authentification CAS native...')
+  
+  // Étape 1: Récupérer la page de login CAS
+  const loginUrl = 'https://cas.u-picardie.fr/cas/login?service=https%3A%2F%2Flivret.uness.fr%2Flisa%2F2025%2F'
+  const loginResponse = await fetch(loginUrl)
+  const loginHtml = await loginResponse.text()
+  
+  // Extraire lt et execution
+  const ltMatch = loginHtml.match(/name="lt"\s+value="([^"]+)"/)
+  const executionMatch = loginHtml.match(/name="execution"\s+value="([^"]+)"/)
+  
+  if (!ltMatch || !executionMatch) {
+    throw new Error('Impossible de récupérer les tokens CAS')
+  }
+  
+  const lt = ltMatch[1]
+  const execution = executionMatch[1]
+  
+  console.log('🎫 Tokens CAS récupérés')
+  
+  // Étape 2: Soumettre les credentials
+  const authData = new URLSearchParams({
+    username: username,
+    password: password,
+    lt: lt,
+    execution: execution,
+    _eventId: 'submit',
+    submit: 'LOGIN'
+  })
+  
+  const authResponse = await fetch(loginUrl, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+    },
+    body: authData.toString(),
+    redirect: 'manual'
+  })
+  
+  // Récupérer les cookies d'authentification
+  const cookies = authResponse.headers.get('set-cookie') || ''
+  console.log('✅ Authentification CAS réussie')
+  
+  return cookies
+}
+
 interface OICCompetence {
   objectif_id: string;
   intitule: string;
@@ -28,7 +77,7 @@ serve(async (req) => {
   }
 
   try {
-    console.log('🤖 PUPPETEER OIC EXTRACTION: Démarrage avec authentification CAS')
+    console.log('🤖 OIC EXTRACTION NATIVE: Démarrage avec authentification CAS')
     
     // Initialiser Supabase
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!
@@ -43,158 +92,129 @@ serve(async (req) => {
       throw new Error('CAS_USERNAME et CAS_PASSWORD doivent être configurés dans les secrets Supabase')
     }
     
-    console.log('🔐 Credentials CAS trouvés, démarrage Puppeteer...')
+    console.log('🔐 Démarrage authentification CAS native...')
     
-    // Import Puppeteer depuis un CDN
-    const puppeteer = await import('https://deno.land/x/puppeteer@16.2.0/mod.ts')
+    // Authentification CAS
+    const cookies = await authenticateWithCAS(casUsername, casPassword)
     
-    console.log('🚀 Lancement du navigateur...')
-    const browser = await puppeteer.default.launch({
-      headless: true,
-      args: [
-        '--no-sandbox',
-        '--disable-setuid-sandbox',
-        '--disable-dev-shm-usage',
-        '--disable-accelerated-2d-canvas',
-        '--disable-gpu',
-        '--window-size=1920x1080'
-      ]
+    console.log('📋 Récupération de la liste des objectifs OIC...')
+    
+    // Récupérer la liste des pages OIC via l'API MediaWiki
+    const listUrl = 'https://livret.uness.fr/lisa/2025/api.php?action=query&list=categorymembers&cmtitle=Cat%C3%A9gorie:Objectif_de_connaissance&cmlimit=500&format=json'
+    const listResponse = await fetch(listUrl, {
+      headers: {
+        'Cookie': cookies,
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+      }
     })
     
-    const page = await browser.newPage()
-    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36')
+    const listData = await listResponse.json()
+    const oicPages = listData.query?.categorymembers || []
     
-    try {
-      console.log('🔗 Navigation vers LiSA UNESS...')
+    console.log(`📊 ${oicPages.length} objectifs OIC trouvés`)
+    
+    if (oicPages.length === 0) {
+      throw new Error('Aucun objectif OIC trouvé dans la catégorie')
+    }
+    
+    // Récupérer les compétences existantes pour comparaison
+    const { data: existingCompetences } = await supabase
+      .from('backup_oic_competences')
+      .select('objectif_id, description')
+    
+    const incompletesCount = existingCompetences?.filter(c => !c.description || c.description.trim() === '').length || 0
+    console.log(`🔍 ${incompletesCount} compétences sans description trouvées`)
+    
+    // Traitement par lots
+    const batchSize = 20
+    const competences: OICCompetence[] = []
+    let processed = 0
+    let updated = 0
+    
+    for (let i = 0; i < oicPages.length; i += batchSize) {
+      const batch = oicPages.slice(i, i + batchSize)
+      console.log(`🔄 Traitement du lot ${Math.floor(i/batchSize) + 1}/${Math.ceil(oicPages.length/batchSize)}`)
       
-      // Aller à la page de connexion CAS
-      await page.goto('https://livret.uness.fr/lisa/2025/', { 
-        waitUntil: 'networkidle0',
-        timeout: 30000 
-      })
-      
-      // Détecter et gérer la redirection CAS
-      const currentUrl = page.url()
-      console.log('📍 URL actuelle:', currentUrl)
-      
-      if (currentUrl.includes('cas') || currentUrl.includes('login')) {
-        console.log('🔐 Page CAS détectée, authentification...')
-        
-        // Attendre et remplir les champs de connexion
-        await page.waitForSelector('input[name="username"], input[id="username"]', { timeout: 10000 })
-        await page.type('input[name="username"], input[id="username"]', casUsername)
-        await page.type('input[name="password"], input[id="password"]', casPassword)
-        
-        // Soumettre le formulaire
-        await Promise.all([
-          page.click('input[type="submit"], button[type="submit"]'),
-          page.waitForNavigation({ waitUntil: 'networkidle0', timeout: 30000 })
-        ])
-        
-        console.log('✅ Authentification CAS réussie')
-      }
-      
-      // Aller à l'API MediaWiki pour récupérer la liste des OIC
-      console.log('📋 Récupération de la liste des objectifs OIC...')
-      
-      const apiUrl = 'https://livret.uness.fr/lisa/2025/api.php?action=query&list=categorymembers&cmtitle=Cat%C3%A9gorie:Objectif_de_connaissance&cmlimit=500&format=json'
-      await page.goto(apiUrl, { waitUntil: 'networkidle0' })
-      
-      const pageContent = await page.content()
-      const jsonMatch = pageContent.match(/<pre[^>]*>(.*?)<\/pre>/s)
-      
-      if (!jsonMatch) {
-        throw new Error('Impossible de récupérer les données JSON de l\'API')
-      }
-      
-      const apiData = JSON.parse(jsonMatch[1])
-      const oicPages = apiData.query?.categorymembers || []
-      
-      console.log(`📊 ${oicPages.length} objectifs OIC trouvés`)
-      
-      if (oicPages.length === 0) {
-        throw new Error('Aucun objectif OIC trouvé dans la catégorie')
-      }
-      
-      // Traitement par lots
-      const batchSize = 50
-      const competences: OICCompetence[] = []
-      
-      for (let i = 0; i < oicPages.length; i += batchSize) {
-        const batch = oicPages.slice(i, i + batchSize)
-        console.log(`🔄 Traitement du lot ${Math.floor(i/batchSize) + 1}/${Math.ceil(oicPages.length/batchSize)}`)
-        
-        for (const oicPage of batch) {
-          try {
-            const pageTitle = oicPage.title
-            const pageApiUrl = `https://livret.uness.fr/lisa/2025/api.php?action=query&titles=${encodeURIComponent(pageTitle)}&prop=revisions&rvprop=content&format=json`
-            
-            await page.goto(pageApiUrl, { waitUntil: 'networkidle0' })
-            const pageContentRaw = await page.content()
-            const pageJsonMatch = pageContentRaw.match(/<pre[^>]*>(.*?)<\/pre>/s)
-            
-            if (pageJsonMatch) {
-              const pageData = JSON.parse(pageJsonMatch[1])
-              const pages = pageData.query?.pages || {}
-              const pageContent = Object.values(pages)[0] as any
-              
-              if (pageContent?.revisions?.[0]?.['*']) {
-                const wikiContent = pageContent.revisions[0]['*']
-                const parsedCompetence = parseOICContent(pageTitle, wikiContent, pageApiUrl)
-                
-                if (parsedCompetence) {
-                  competences.push(parsedCompetence)
-                }
-              }
-            }
-          } catch (error) {
-            console.error(`❌ Erreur lors du traitement de ${oicPage.title}:`, error)
+      for (const oicPage of batch) {
+        try {
+          processed++
+          const pageTitle = oicPage.title
+          
+          // Vérifier si cette compétence a besoin d'être mise à jour
+          const existing = existingCompetences?.find(c => 
+            pageTitle.includes(c.objectif_id.replace(/_/g, '_'))
+          )
+          
+          if (existing && existing.description && existing.description.trim() !== '') {
+            continue // Skip si déjà complète
           }
-        }
-        
-        // Pause entre les lots
-        await new Promise(resolve => setTimeout(resolve, 1000))
-      }
-      
-      await browser.close()
-      
-      console.log(`💾 Sauvegarde de ${competences.length} compétences en base...`)
-      
-      // Mise à jour de la base de données
-      if (competences.length > 0) {
-        const { error } = await supabase
-          .from('backup_oic_competences')
-          .upsert(competences, {
-            onConflict: 'objectif_id',
-            ignoreDuplicates: false
+          
+          const pageApiUrl = `https://livret.uness.fr/lisa/2025/api.php?action=query&titles=${encodeURIComponent(pageTitle)}&prop=revisions&rvprop=content&format=json`
+          
+          const pageResponse = await fetch(pageApiUrl, {
+            headers: {
+              'Cookie': cookies,
+              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+            }
           })
-        
-        if (error) {
-          throw new Error(`Erreur lors de la sauvegarde: ${error.message}`)
+          
+          const pageData = await pageResponse.json()
+          const pages = pageData.query?.pages || {}
+          const pageContent = Object.values(pages)[0] as any
+          
+          if (pageContent?.revisions?.[0]?.['*']) {
+            const wikiContent = pageContent.revisions[0]['*']
+            const parsedCompetence = parseOICContent(pageTitle, wikiContent, pageApiUrl)
+            
+            if (parsedCompetence && parsedCompetence.description) {
+              competences.push(parsedCompetence)
+              updated++
+              console.log(`✅ Mise à jour: ${parsedCompetence.objectif_id}`)
+            }
+          }
+        } catch (error) {
+          console.error(`❌ Erreur lors du traitement de ${oicPage.title}:`, error)
         }
       }
       
-      const rapport = {
-        success: true,
-        message: 'Extraction Puppeteer OIC terminée avec succès',
-        competences_extraites: competences.length,
-        timestamp: new Date().toISOString(),
-        method: 'puppeteer_cas',
-        session_id: crypto.randomUUID()
-      }
+      // Pause entre les lots
+      await new Promise(resolve => setTimeout(resolve, 500))
+    }
+    
+    console.log(`💾 Sauvegarde de ${competences.length} compétences en base...`)
+    
+    // Mise à jour de la base de données
+    if (competences.length > 0) {
+      const { error } = await supabase
+        .from('backup_oic_competences')
+        .upsert(competences, {
+          onConflict: 'objectif_id',
+          ignoreDuplicates: false
+        })
       
-      console.log('🎉 EXTRACTION PUPPETEER TERMINÉE:', rapport)
-      
-      return new Response(
-        JSON.stringify(rapport),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-      
-    } finally {
-      if (browser) {
-        await browser.close()
+      if (error) {
+        throw new Error(`Erreur lors de la sauvegarde: ${error.message}`)
       }
     }
+    
+    const rapport = {
+      success: true,
+      message: 'Extraction OIC native terminée avec succès',
+      competences_traitees: processed,
+      competences_mises_a_jour: updated,
+      competences_deja_completes: processed - updated,
+      incomplets_detectes: incompletesCount,
+      timestamp: new Date().toISOString(),
+      method: 'native_cas',
+      session_id: crypto.randomUUID()
+    }
+    
+    console.log('🎉 EXTRACTION NATIVE TERMINÉE:', rapport)
+    
+    return new Response(
+      JSON.stringify(rapport),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    )
     
   } catch (error) {
     console.error('💥 Erreur Puppeteer OIC:', error)
