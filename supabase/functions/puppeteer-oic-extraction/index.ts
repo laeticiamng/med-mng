@@ -6,53 +6,104 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-// CAS Authentication function (without Puppeteer)
+// Import the working CAS login function
 async function authenticateWithCAS(username: string, password: string): Promise<string> {
-  console.log('🔐 Démarrage authentification CAS native...')
+  console.log('🔐 Démarrage authentification CAS...')
   
-  // Étape 1: Récupérer la page de login CAS
-  const loginUrl = 'https://cas.u-picardie.fr/cas/login?service=https%3A%2F%2Flivret.uness.fr%2Flisa%2F2025%2F'
-  const loginResponse = await fetch(loginUrl)
-  const loginHtml = await loginResponse.text()
+  const jar: Record<string, string> = {}
   
-  // Extraire lt et execution
-  const ltMatch = loginHtml.match(/name="lt"\s+value="([^"]+)"/)
-  const executionMatch = loginHtml.match(/name="execution"\s+value="([^"]+)"/)
-  
-  if (!ltMatch || !executionMatch) {
-    throw new Error('Impossible de récupérer les tokens CAS')
+  function addCookie(setCookie: string | null) {
+    if (!setCookie) return
+    setCookie.split(",").forEach(c => {
+      const [kv] = c.split(";")
+      const [k, v] = kv.split("=")
+      if (k && v) {
+        jar[k.trim()] = v.trim()
+      }
+    })
   }
   
-  const lt = ltMatch[1]
-  const execution = executionMatch[1]
+  function cookieHeader() {
+    return Object.entries(jar).map(([k, v]) => `${k}=${v}`).join("; ")
+  }
+
+  const service = "https://livret.uness.fr/login/cas"
+  const loginURL = `https://auth.uness.fr/cas/login?service=${encodeURIComponent(service)}`
   
-  console.log('🎫 Tokens CAS récupérés')
+  // ÉTAPE 1: GET initial CAS page
+  console.log('📋 Récupération page CAS...')
+  let response = await fetch(loginURL, { 
+    redirect: "manual",
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+    }
+  })
   
-  // Étape 2: Soumettre les credentials
-  const authData = new URLSearchParams({
+  addCookie(response.headers.get("set-cookie"))
+  const html = await response.text()
+  
+  // Parser les champs CAS
+  const ltMatch = html.match(/name="lt" value="([^"]+)"/)
+  const executionMatch = html.match(/name="execution" value="([^"]+)"/)
+  
+  const lt = ltMatch?.[1] ?? ""
+  const execution = executionMatch?.[1] ?? ""
+  
+  if (!lt || !execution) {
+    throw new Error(`Champs CAS manquants - lt: ${!!lt}, execution: ${!!execution}`)
+  }
+  
+  console.log('🔑 Tokens CAS récupérés')
+  
+  // ÉTAPE 2: POST credentials
+  const body = new URLSearchParams({
     username: username,
     password: password,
-    lt: lt,
-    execution: execution,
-    _eventId: 'submit',
-    submit: 'LOGIN'
+    lt,
+    execution,
+    _eventId: "submit",
+    submit: "Se connecter"
   })
   
-  const authResponse = await fetch(loginUrl, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
+  response = await fetch(loginURL, {
+    method: "POST", 
+    redirect: "manual",
+    headers: { 
+      "Content-Type": "application/x-www-form-urlencoded",
+      "Cookie": cookieHeader(),
       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
     },
-    body: authData.toString(),
-    redirect: 'manual'
+    body: body.toString()
   })
   
-  // Récupérer les cookies d'authentification
-  const cookies = authResponse.headers.get('set-cookie') || ''
-  console.log('✅ Authentification CAS réussie')
+  addCookie(response.headers.get("set-cookie"))
+  const ticketLocation = response.headers.get("location")
+  const hasTicket = ticketLocation?.includes("ticket=ST-")
   
-  return cookies
+  if (!ticketLocation || !hasTicket) {
+    throw new Error(`Pas de ticket à l'étape 2. Status: ${response.status}`)
+  }
+  
+  console.log('🎫 Ticket CAS obtenu')
+  
+  // ÉTAPE 3: Validation du ticket
+  response = await fetch(ticketLocation, { 
+    redirect: "manual", 
+    headers: { 
+      "Cookie": cookieHeader(),
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+    }
+  })
+  
+  addCookie(response.headers.get("set-cookie"))
+  const homeURL = response.headers.get("location")
+  
+  if (!homeURL) {
+    throw new Error(`Pas de redirection après validation ticket. Status: ${response.status}`)
+  }
+  
+  console.log('✅ Authentification CAS réussie')
+  return cookieHeader()
 }
 
 interface OICCompetence {
