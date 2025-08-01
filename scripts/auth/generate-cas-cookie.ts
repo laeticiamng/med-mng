@@ -47,42 +47,88 @@ export async function generateCASCookie(email: string, password: string): Promis
 
     console.log('📧 Étape 1: Saisie de l\'email...');
     
-    // Attendre et saisir l'email
-    await page.waitForSelector('input[type="email"], input[name="username"], #username', { timeout: 10000 });
-    
-    const emailSelector = await page.$('input[type="email"]') ? 'input[type="email"]' : 
-                         await page.$('input[name="username"]') ? 'input[name="username"]' : 
-                         '#username';
-    
-    await page.type(emailSelector, email);
-    
-    // Chercher et cliquer sur le bouton de soumission
-    const submitBtn = await page.$('button[type="submit"], input[type="submit"], .btn-primary');
-    if (submitBtn) {
-      await Promise.all([
-        page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 15000 }),
-        submitBtn.click()
-      ]);
+    try {
+      // Attendre que la page soit complètement chargée avec timeout étendu
+      console.log('⏳ Attente chargement complet de la page...');
+      await page.waitForTimeout(3000);
+      
+      // Sélecteurs étendus pour plus de robustesse
+      console.log('🔍 Recherche champ email avec sélecteurs étendus...');
+      await page.waitForSelector('form input, input[type="email"], input[name="username"], #username', { timeout: 20000 });
+      
+      const emailInput = await page.$('input[type="email"], input[name="username"], #username, form input[type="text"], form input:first-of-type');
+      if (emailInput) {
+        console.log('✅ Champ email trouvé, saisie en cours...');
+        await emailInput.type(email);
+      } else {
+        // Sauvegarde HTML pour debug
+        console.log('💾 Sauvegarde HTML pour debug (email)...');
+        const debugHtml = await page.content();
+        await fs.promises.writeFile('.cache/cas-debug-email.html', debugHtml);
+        throw new Error("❌ Champ email introuvable dans la page CAS UNESS");
+      }
+
+      // Chercher et cliquer sur le bouton de soumission avec sélecteurs étendus
+      console.log('🔍 Recherche bouton de soumission...');
+      const submitBtn = await page.$('button[type="submit"], input[type="submit"], .btn-primary, button.btn, .submit-btn');
+      if (submitBtn) {
+        console.log('➡️  Soumission étape 1 (email)...');
+        await Promise.all([
+          page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 20000 }),
+          submitBtn.click()
+        ]);
+      } else {
+        console.log('⚠️  Aucun bouton submit trouvé, tentative avec Enter...');
+        await emailInput.press('Enter');
+        await page.waitForTimeout(2000);
+      }
+    } catch (error) {
+      // En cas d'erreur sur l'étape email, sauvegarder le HTML
+      console.log('💾 Sauvegarde HTML d\'erreur (étape email)...');
+      const debugHtml = await page.content();
+      await fs.promises.writeFile('.cache/cas-debug-email-error.html', debugHtml);
+      throw error;
     }
 
     console.log('🔑 Étape 2: Saisie du mot de passe...');
     
-    // Attendre la page de mot de passe
-    await page.waitForSelector('input[type="password"], input[name="password"], #password', { timeout: 10000 });
-    
-    const passwordSelector = await page.$('input[type="password"]') ? 'input[type="password"]' : 
-                            await page.$('input[name="password"]') ? 'input[name="password"]' : 
-                            '#password';
-    
-    await page.type(passwordSelector, password);
-    
-    // Soumettre le formulaire de mot de passe
-    const passwordSubmitBtn = await page.$('button[type="submit"], input[type="submit"], .btn-primary');
-    if (passwordSubmitBtn) {
-      await Promise.all([
-        page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 15000 }),
-        passwordSubmitBtn.click()
-      ]);
+    try {
+      // Attendre la page de mot de passe avec timeout étendu
+      console.log('🔍 Recherche champ mot de passe avec sélecteurs étendus...');
+      await page.waitForSelector('input[type="password"], input[name="password"], #password, form input[type="password"]', { timeout: 20000 });
+      
+      const passwordInput = await page.$('input[type="password"], input[name="password"], #password, form input[type="password"]');
+      if (passwordInput) {
+        console.log('✅ Champ mot de passe trouvé, saisie en cours...');
+        await passwordInput.type(password);
+      } else {
+        // Sauvegarde HTML pour debug
+        console.log('💾 Sauvegarde HTML pour debug (password)...');
+        const debugHtml = await page.content();
+        await fs.promises.writeFile('.cache/cas-debug-password.html', debugHtml);
+        throw new Error("❌ Champ mot de passe introuvable dans la page CAS UNESS");
+      }
+
+      // Soumettre le formulaire de mot de passe avec sélecteurs étendus
+      console.log('🔍 Recherche bouton de soumission (password)...');
+      const passwordSubmitBtn = await page.$('button[type="submit"], input[type="submit"], .btn-primary, button.btn, .submit-btn');
+      if (passwordSubmitBtn) {
+        console.log('➡️  Soumission étape 2 (password)...');
+        await Promise.all([
+          page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 20000 }),
+          passwordSubmitBtn.click()
+        ]);
+      } else {
+        console.log('⚠️  Aucun bouton submit trouvé, tentative avec Enter...');
+        await passwordInput.press('Enter');
+        await page.waitForTimeout(2000);
+      }
+    } catch (error) {
+      // En cas d'erreur sur l'étape password, sauvegarder le HTML
+      console.log('💾 Sauvegarde HTML d\'erreur (étape password)...');
+      const debugHtml = await page.content();
+      await fs.promises.writeFile('.cache/cas-debug-password-error.html', debugHtml);
+      throw error;
     }
 
     console.log('🎫 Étape 3: Validation et récupération des cookies...');
