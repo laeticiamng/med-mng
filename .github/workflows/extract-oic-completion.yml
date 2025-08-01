@@ -53,9 +53,9 @@ jobs:
         node-version: '18'
         cache: 'npm'
         
-    - name: 📦 Install dependencies
+    - name: 📦 Install dependencies (extraction only)
       run: |
-        npm install puppeteer @supabase/supabase-js dotenv typescript @types/node
+        npm install --no-save puppeteer @supabase/supabase-js dotenv typescript @types/node
         npm install -g tsx
         
     - name: 📁 Create cache directory
