@@ -31,9 +31,10 @@ let page;
 let extractionStats = {
   total_expected: 4872,
   total_found: 0,
+  processed: 0,
   updated: 0,
   inserted: 0,
-  unchanged: 0,
+  skipped: 0,
   errors: 0,
   missing: [],
   start_time: new Date().toISOString(),
@@ -56,7 +57,15 @@ async function main() {
     const oicPages = await fetchOICPagesList();
     console.log(`📋 ${oicPages.length} pages OIC trouvées`);
     
-    await processOICPages(oicPages);
+    // Vérifier l'état actuel des compétences dans Supabase
+    const incompleteCompetences = await getIncompleteCompetences();
+    console.log(`🔍 ${incompleteCompetences.length} compétences à compléter (descriptions vides)`);
+    
+    if (incompleteCompetences.length > 0) {
+      await processIncompleteOICPages(oicPages, incompleteCompetences);
+    } else {
+      console.log('✅ Toutes les compétences sont déjà complètes');
+    }
     await generateReport();
     
     console.log('✅ Extraction OIC terminée avec succès');
@@ -89,6 +98,7 @@ async function initializeServices() {
   // Créer les dossiers nécessaires
   await fs.mkdir('logs', { recursive: true });
   await fs.mkdir('reports', { recursive: true });
+  await fs.mkdir('.cache', { recursive: true });
   
   console.log('✅ Services initialisés');
 }
@@ -193,22 +203,52 @@ async function fetchOICPagesList() {
 }
 
 /**
- * 🔄 Traitement des pages OIC par lots
+ * 🔍 Récupération des compétences incomplètes
  */
-async function processOICPages(oicPages) {
-  console.log(`🔄 Traitement de ${oicPages.length} pages par lots de ${CONFIG.BATCH_SIZE}...`);
-  
-  for (let i = 0; i < oicPages.length; i += CONFIG.BATCH_SIZE) {
-    const batch = oicPages.slice(i, i + CONFIG.BATCH_SIZE);
-    const batchNumber = Math.floor(i / CONFIG.BATCH_SIZE) + 1;
-    const totalBatches = Math.ceil(oicPages.length / CONFIG.BATCH_SIZE);
+async function getIncompleteCompetences() {
+  try {
+    const { data, error } = await supabase
+      .from('backup_oic_competences')
+      .select('objectif_id, intitule')
+      .or('description.is.null,description.eq.');
     
-    console.log(`📦 Lot ${batchNumber}/${totalBatches} (${batch.length} pages)`);
+    if (error) {
+      throw new Error(`Erreur Supabase: ${error.message}`);
+    }
+    
+    return data || [];
+  } catch (error) {
+    console.error('Erreur récupération compétences incomplètes:', error);
+    return [];
+  }
+}
+
+/**
+ * 🔄 Traitement ciblé des pages OIC incomplètes
+ */
+async function processIncompleteOICPages(oicPages, incompleteCompetences) {
+  console.log(`🎯 Traitement ciblé de ${incompleteCompetences.length} compétences incomplètes...`);
+  
+  const incompleteIds = new Set(incompleteCompetences.map(c => c.objectif_id));
+  const pagesNeeded = oicPages.filter(page => {
+    const objectifIdMatch = page.title.match(/Objectif_de_connaissance_(\d+_\d+_[A-Z]_\d+)/);
+    return objectifIdMatch && incompleteIds.has(objectifIdMatch[1]);
+  });
+  
+  console.log(`📋 ${pagesNeeded.length} pages à traiter pour complétion`);
+  
+  for (let i = 0; i < pagesNeeded.length; i += CONFIG.BATCH_SIZE) {
+    const batch = pagesNeeded.slice(i, i + CONFIG.BATCH_SIZE);
+    const batchNumber = Math.floor(i / CONFIG.BATCH_SIZE) + 1;
+    const totalBatches = Math.ceil(pagesNeeded.length / CONFIG.BATCH_SIZE);
+    
+    console.log(`📦 Lot ${batchNumber}/${totalBatches} (${batch.length} pages à compléter)`);
     
     const competences = [];
     
     for (const oicPage of batch) {
       try {
+        extractionStats.processed++;
         const competence = await extractOICCompetence(oicPage);
         if (competence) {
           competences.push(competence);
@@ -219,13 +259,13 @@ async function processOICPages(oicPages) {
       }
     }
     
-    // Sauvegarde du lot
+    // Sauvegarde du lot avec mise à jour ciblée
     if (competences.length > 0) {
-      await saveCompetencesToSupabase(competences);
+      await updateIncompleteCompetences(competences);
     }
     
     // Pause entre les lots
-    if (i + CONFIG.BATCH_SIZE < oicPages.length) {
+    if (i + CONFIG.BATCH_SIZE < pagesNeeded.length) {
       console.log(`⏳ Pause ${CONFIG.DELAY_BETWEEN_BATCHES}ms...`);
       await new Promise(resolve => setTimeout(resolve, CONFIG.DELAY_BETWEEN_BATCHES));
     }
@@ -360,6 +400,52 @@ async function saveCompetencesToSupabase(competences) {
 }
 
 /**
+ * 🎯 Mise à jour ciblée des compétences incomplètes
+ */
+async function updateIncompleteCompetences(competences) {
+  console.log(`🎯 Mise à jour ciblée de ${competences.length} compétences incomplètes...`);
+  
+  for (const competence of competences) {
+    try {
+      // Vérifier d'abord si la compétence existe et si la description est vide
+      const { data: existing, error: selectError } = await supabase
+        .from('backup_oic_competences')
+        .select('objectif_id, description')
+        .eq('objectif_id', competence.objectif_id)
+        .single();
+      
+      if (selectError) {
+        console.log(`➕ Nouvelle compétence: ${competence.objectif_id}`);
+        await supabase
+          .from('backup_oic_competences')
+          .insert(competence);
+        extractionStats.inserted++;
+      } else if (!existing.description || existing.description.trim() === '') {
+        console.log(`🔄 Mise à jour: ${competence.objectif_id}`);
+        await supabase
+          .from('backup_oic_competences')
+          .update({
+            description: competence.description,
+            updated_at: competence.updated_at,
+            raw_json: competence.raw_json,
+            hash_content: competence.hash_content
+          })
+          .eq('objectif_id', competence.objectif_id);
+        extractionStats.updated++;
+      } else {
+        console.log(`⏭️  Ignorée (déjà complète): ${competence.objectif_id}`);
+        extractionStats.skipped++;
+      }
+    } catch (error) {
+      console.error(`❌ Erreur mise à jour ${competence.objectif_id}:`, error.message);
+      extractionStats.errors++;
+    }
+  }
+  
+  console.log(`✅ Traitement terminé: ${extractionStats.updated} mises à jour, ${extractionStats.skipped} ignorées`);
+}
+
+/**
  * 📊 Génération du rapport final
  */
 async function generateReport() {
@@ -368,28 +454,67 @@ async function generateReport() {
   const reportPath = path.join('reports', 'oic_extraction_report.json');
   const logPath = path.join('logs', `extraction-${new Date().toISOString().split('T')[0]}.log`);
   
+  // Rapport pour GitHub Actions (.cache/)
+  const cacheReportPath = path.join('.cache', 'extraction-success.json');
+  const cacheLogPath = path.join('.cache', `rapport-${new Date().toISOString().split('T')[0]}.log`);
+  
+  const success = extractionStats.errors === 0;
+  
   try {
-    // Rapport JSON
+    // Rapport JSON principal
     await fs.writeFile(reportPath, JSON.stringify(extractionStats, null, 2));
+    
+    // Rapport pour GitHub Actions (.cache/)
+    const cacheReport = {
+      timestamp: extractionStats.end_time,
+      stats: {
+        processed: extractionStats.processed,
+        updated: extractionStats.updated,
+        inserted: extractionStats.inserted,
+        skipped: extractionStats.skipped,
+        errors: extractionStats.errors
+      },
+      success: success
+    };
+    await fs.writeFile(cacheReportPath, JSON.stringify(cacheReport, null, 2));
     
     // Log détaillé
     const logContent = [
       `🤖 EXTRACTION OIC AUTONOME - ${extractionStats.start_time}`,
       `📊 Compétences attendues: ${extractionStats.total_expected}`,
       `📋 Compétences trouvées: ${extractionStats.total_found}`,
+      `🔄 Compétences traitées: ${extractionStats.processed}`,
       `✅ Mises à jour: ${extractionStats.updated}`,
+      `➕ Insertions: ${extractionStats.inserted}`,
+      `⏭️  Ignorées: ${extractionStats.skipped}`,
       `❌ Erreurs: ${extractionStats.errors}`,
       `⏱️ Durée: ${new Date(extractionStats.end_time) - new Date(extractionStats.start_time)}ms`,
+      `🎯 Statut: ${success ? 'SUCCÈS' : 'ÉCHEC'}`,
       ''
     ].join('\n');
     
     await fs.writeFile(logPath, logContent);
+    await fs.writeFile(cacheLogPath, logContent);
     
     console.log('📋 Rapport généré:', reportPath);
+    console.log('📋 Rapport cache généré:', cacheReportPath);
     console.log('📋 Log généré:', logPath);
     
   } catch (error) {
     console.error('Erreur génération rapport:', error);
+    
+    // Générer un rapport d'erreur même en cas de problème
+    try {
+      const errorReport = {
+        timestamp: new Date().toISOString(),
+        stats: { processed: 0, updated: 0, skipped: 0, errors: 1 },
+        success: false,
+        error: error.message
+      };
+      await fs.writeFile(cacheReportPath, JSON.stringify(errorReport, null, 2));
+    } catch (finalError) {
+      console.error('Impossible de générer le rapport d\'erreur:', finalError);
+    }
   }
 }
 
