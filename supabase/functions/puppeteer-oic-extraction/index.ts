@@ -42,14 +42,27 @@ async function authenticateWithCAS(username: string, password: string): Promise<
   addCookie(response.headers.get("set-cookie"))
   const html = await response.text()
   
-  // Parser les champs CAS
-  const ltMatch = html.match(/name="lt" value="([^"]+)"/)
-  const executionMatch = html.match(/name="execution" value="([^"]+)"/)
+  console.log(`📋 Page CAS status: ${response.status}`)
+  console.log(`📋 HTML preview: ${html.substring(0, 500)}...`)
+  
+  // Parser les champs CAS avec plusieurs patterns
+  const ltMatch = html.match(/name="lt"\s*value="([^"]+)"/i) || 
+                  html.match(/name='lt'\s*value='([^']+)'/i) ||
+                  html.match(/<input[^>]*name="lt"[^>]*value="([^"]+)"/i)
+  
+  const executionMatch = html.match(/name="execution"\s*value="([^"]+)"/i) || 
+                        html.match(/name='execution'\s*value='([^']+)'/i) ||
+                        html.match(/<input[^>]*name="execution"[^>]*value="([^"]+)"/i)
   
   const lt = ltMatch?.[1] ?? ""
   const execution = executionMatch?.[1] ?? ""
   
+  console.log(`📋 lt trouvé: ${!!lt} (${lt.substring(0, 20)}...)`)
+  console.log(`📋 execution trouvé: ${!!execution} (${execution.substring(0, 20)}...)`)
+  
   if (!lt || !execution) {
+    console.error(`❌ Champs CAS manquants - lt: ${!!lt}, execution: ${!!execution}`)
+    console.error(`📋 HTML complet pour debug:`, html)
     throw new Error(`Champs CAS manquants - lt: ${!!lt}, execution: ${!!execution}`)
   }
   
