@@ -42,12 +42,96 @@ let extractionStats = {
 };
 
 /**
+ * 🔍 Récupère les compétences incomplètes depuis Supabase
+ * @returns {Array} Liste des compétences avec description vide/null
+ */
+async function getIncompleteCompetences() {
+  console.log('🔍 Recherche des compétences incomplètes...');
+  
+  try {
+    const { data, error } = await supabase
+      .from('backup_oic_competences')
+      .select('objectif_id, intitule, item_parent')
+      .or('description.is.null,description.eq.')
+      .order('objectif_id');
+    
+    if (error) {
+      console.error('❌ Erreur lors de la récupération des compétences incomplètes:', error);
+      return [];
+    }
+    
+    console.log(`📊 ${data.length} compétences incomplètes trouvées`);
+    return data || [];
+  } catch (error) {
+    console.error('❌ Erreur inattendue lors de la récupération:', error);
+    return [];
+  }
+}
+
+/**
+ * 🎯 Traite uniquement les pages OIC incomplètes (mode complétion)
+ * @param {Array} incompleteCompetences - Liste des compétences à compléter
+ */
+async function processIncompleteOICPages(incompleteCompetences) {
+  console.log(`🎯 Mode complétion : traitement de ${incompleteCompetences.length} compétences incomplètes`);
+  
+  if (incompleteCompetences.length === 0) {
+    console.log('✅ Toutes les compétences sont déjà complètes !');
+    return;
+  }
+  
+  // Grouper par item_parent pour optimiser les requêtes API
+  const pagesByItem = {};
+  incompleteCompetences.forEach(comp => {
+    if (!pagesByItem[comp.item_parent]) {
+      pagesByItem[comp.item_parent] = [];
+    }
+    pagesByItem[comp.item_parent].push(comp);
+  });
+  
+  console.log(`📄 ${Object.keys(pagesByItem).length} pages à traiter`);
+  
+  for (const [itemParent, competences] of Object.entries(pagesByItem)) {
+    try {
+      console.log(`\n🔄 Traitement de ${itemParent} (${competences.length} compétences incomplètes)`);
+      
+      // Récupérer la page complète depuis l'API MediaWiki
+      const pageTitle = `Objectif de connaissance:${itemParent}`;
+      const pageContent = await fetchSingleOICPage(pageTitle);
+      
+      if (pageContent) {
+        // Parser et sauvegarder toutes les compétences de cette page
+        await parseAndSaveOICPage(pageContent, itemParent);
+        extractionStats.processed++;
+        
+        await sleep(1000); // Délai entre les pages
+      } else {
+        console.warn(`⚠️ Impossible de récupérer le contenu de ${pageTitle}`);
+        extractionStats.errors++;
+      }
+    } catch (error) {
+      console.error(`❌ Erreur lors du traitement de ${itemParent}:`, error);
+      extractionStats.errors++;
+    }
+  }
+}
+
+/**
  * 🏁 Point d'entrée principal
  */
 async function main() {
   try {
     console.log('🤖 EXTRACTION OIC AUTONOME - Démarrage');
-    console.log('📊 Target: 4,872 compétences OIC');
+    
+    // Vérifier si on est en mode complétion
+    const isCompletionMode = process.env.COMPLETION_MODE === 'true';
+    console.log(`📊 Mode: ${isCompletionMode ? 'COMPLÉTION CIBLÉE' : 'EXTRACTION COMPLÈTE'}`);
+    
+    if (isCompletionMode) {
+      console.log('🎯 Target: Compétences incomplètes uniquement');
+    } else {
+      console.log('📊 Target: 4,872 compétences OIC (extraction complète)');
+    }
     console.log('🎯 Table: backup_oic_competences');
     
     await initializeServices();
