@@ -307,19 +307,31 @@ export class OICExtractor {
 // Script principal
 if (require.main === module) {
   async function main() {
+    // Créer le dossier .cache/ en premier
+    if (!fs.existsSync('.cache')) {
+      fs.mkdirSync('.cache', { recursive: true });
+      console.log('📁 Dossier .cache créé pour extraction');
+    }
+    
     try {
       // Charger les cookies depuis le fichier
       const cookiesPath = '.cache/cookies.txt';
       
       if (!fs.existsSync(cookiesPath)) {
-        throw new Error(`Fichier cookies introuvable: ${cookiesPath}. Exécuter d'abord generate-cas-cookie.ts`);
+        const errorMsg = `Fichier cookies introuvable: ${cookiesPath}. Exécuter d'abord generate-cas-cookie.ts`;
+        console.error('❌', errorMsg);
+        fs.writeFileSync('.cache/extraction-error.log', errorMsg);
+        throw new Error(errorMsg);
       }
       
       const cookieData = JSON.parse(fs.readFileSync(cookiesPath, 'utf8'));
       const cookies = cookieData.cookies;
       
       if (!cookies) {
-        throw new Error('Cookies vides dans le fichier');
+        const errorMsg = 'Cookies vides dans le fichier';
+        console.error('❌', errorMsg);
+        fs.writeFileSync('.cache/extraction-error.log', errorMsg);
+        throw new Error(errorMsg);
       }
       
       console.log('🍪 Cookies chargés depuis le cache');
@@ -330,8 +342,25 @@ if (require.main === module) {
       
       console.log('📊 Statistiques finales:', stats);
       
+      // Écrire un fichier de succès
+      fs.writeFileSync('.cache/extraction-success.json', JSON.stringify({
+        success: true,
+        stats,
+        timestamp: new Date().toISOString()
+      }, null, 2));
+      
     } catch (error) {
       console.error('💥 Erreur extraction:', error);
+      
+      // Toujours écrire un rapport, même en cas d'erreur
+      const errorReport = {
+        success: false,
+        error: error.message,
+        stack: error.stack,
+        timestamp: new Date().toISOString()
+      };
+      
+      fs.writeFileSync('.cache/extraction-error.json', JSON.stringify(errorReport, null, 2));
       process.exit(1);
     }
   }
