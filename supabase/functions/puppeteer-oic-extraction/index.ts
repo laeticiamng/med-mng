@@ -1,122 +1,10 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { casLogin } from '../lib/casLogin.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
-
-// Import the working CAS login function
-async function authenticateWithCAS(username: string, password: string): Promise<string> {
-  console.log('🔐 Démarrage authentification CAS...')
-  
-  const jar: Record<string, string> = {}
-  
-  function addCookie(setCookie: string | null) {
-    if (!setCookie) return
-    setCookie.split(",").forEach(c => {
-      const [kv] = c.split(";")
-      const [k, v] = kv.split("=")
-      if (k && v) {
-        jar[k.trim()] = v.trim()
-      }
-    })
-  }
-  
-  function cookieHeader() {
-    return Object.entries(jar).map(([k, v]) => `${k}=${v}`).join("; ")
-  }
-
-  const service = "https://livret.uness.fr/login/cas"
-  const loginURL = `https://auth.uness.fr/cas/login?service=${encodeURIComponent(service)}`
-  
-  // ÉTAPE 1: GET initial CAS page
-  console.log('📋 Récupération page CAS...')
-  let response = await fetch(loginURL, { 
-    redirect: "manual",
-    headers: {
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-    }
-  })
-  
-  addCookie(response.headers.get("set-cookie"))
-  const html = await response.text()
-  
-  console.log(`📋 Page CAS status: ${response.status}`)
-  console.log(`📋 HTML preview: ${html.substring(0, 500)}...`)
-  
-  // Parser les champs CAS avec plusieurs patterns
-  const ltMatch = html.match(/name="lt"\s*value="([^"]+)"/i) || 
-                  html.match(/name='lt'\s*value='([^']+)'/i) ||
-                  html.match(/<input[^>]*name="lt"[^>]*value="([^"]+)"/i)
-  
-  const executionMatch = html.match(/name="execution"\s*value="([^"]+)"/i) || 
-                        html.match(/name='execution'\s*value='([^']+)'/i) ||
-                        html.match(/<input[^>]*name="execution"[^>]*value="([^"]+)"/i)
-  
-  const lt = ltMatch?.[1] ?? ""
-  const execution = executionMatch?.[1] ?? ""
-  
-  console.log(`📋 lt trouvé: ${!!lt} (${lt.substring(0, 20)}...)`)
-  console.log(`📋 execution trouvé: ${!!execution} (${execution.substring(0, 20)}...)`)
-  
-  if (!lt || !execution) {
-    console.error(`❌ Champs CAS manquants - lt: ${!!lt}, execution: ${!!execution}`)
-    console.error(`📋 HTML complet pour debug:`, html)
-    throw new Error(`Champs CAS manquants - lt: ${!!lt}, execution: ${!!execution}`)
-  }
-  
-  console.log('🔑 Tokens CAS récupérés')
-  
-  // ÉTAPE 2: POST credentials
-  const body = new URLSearchParams({
-    username: username,
-    password: password,
-    lt,
-    execution,
-    _eventId: "submit",
-    submit: "Se connecter"
-  })
-  
-  response = await fetch(loginURL, {
-    method: "POST", 
-    redirect: "manual",
-    headers: { 
-      "Content-Type": "application/x-www-form-urlencoded",
-      "Cookie": cookieHeader(),
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-    },
-    body: body.toString()
-  })
-  
-  addCookie(response.headers.get("set-cookie"))
-  const ticketLocation = response.headers.get("location")
-  const hasTicket = ticketLocation?.includes("ticket=ST-")
-  
-  if (!ticketLocation || !hasTicket) {
-    throw new Error(`Pas de ticket à l'étape 2. Status: ${response.status}`)
-  }
-  
-  console.log('🎫 Ticket CAS obtenu')
-  
-  // ÉTAPE 3: Validation du ticket
-  response = await fetch(ticketLocation, { 
-    redirect: "manual", 
-    headers: { 
-      "Cookie": cookieHeader(),
-      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-    }
-  })
-  
-  addCookie(response.headers.get("set-cookie"))
-  const homeURL = response.headers.get("location")
-  
-  if (!homeURL) {
-    throw new Error(`Pas de redirection après validation ticket. Status: ${response.status}`)
-  }
-  
-  console.log('✅ Authentification CAS réussie')
-  return cookieHeader()
 }
 
 interface OICCompetence {
@@ -158,8 +46,15 @@ serve(async (req) => {
     
     console.log('🔐 Démarrage authentification CAS native...')
     
-    // Authentification CAS
-    const cookies = await authenticateWithCAS(casUsername, casPassword)
+    // Authentification CAS avec la fonction qui marche
+    console.log(`🔐 Utilisation des credentials: ${casUsername}`)
+    const authResult = await casLogin(casUsername, casPassword)
+    
+    if (!authResult.success) {
+      throw new Error(`Authentification CAS échouée: ${authResult.error}`)
+    }
+    
+    const cookies = authResult.cookies
     
     console.log('📋 Récupération de la liste des objectifs OIC...')
     
