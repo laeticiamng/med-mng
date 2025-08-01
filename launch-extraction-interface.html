@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 Extraction OIC Immédiate - Déclenchement Autonome</title>
+    <style>
+        body { 
+            font-family: 'Consolas', monospace; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; 
+            padding: 20px; 
+            margin: 0;
+            min-height: 100vh;
+        }
+        .container { 
+            max-width: 900px; 
+            margin: 0 auto; 
+            background: rgba(0,0,0,0.3);
+            border-radius: 15px;
+            padding: 30px;
+            backdrop-filter: blur(10px);
+        }
+        .header { 
+            text-align: center; 
+            margin-bottom: 30px;
+            border-bottom: 2px solid rgba(255,255,255,0.3);
+            padding-bottom: 20px;
+        }
+        .status { 
+            background: rgba(0,0,0,0.2); 
+            padding: 20px; 
+            border-radius: 10px; 
+            margin: 15px 0;
+            border-left: 4px solid #4CAF50;
+        }
+        .error { border-left-color: #f44336; }
+        .warning { border-left-color: #ff9800; }
+        .info { border-left-color: #2196F3; }
+        button { 
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white; 
+            border: none; 
+            padding: 15px 30px; 
+            border-radius: 25px;
+            cursor: pointer; 
+            font-size: 16px;
+            font-weight: bold;
+            margin: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(76, 175, 80, 0.3);
+        }
+        button:hover { 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
+        }
+        button:disabled { 
+            background: #666; 
+            cursor: not-allowed; 
+            transform: none;
+            box-shadow: none;
+        }
+        .links { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); 
+            gap: 15px; 
+            margin-top: 20px;
+        }
+        .link-card {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 10px;
+            text-decoration: none;
+            color: white;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .link-card:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
+        }
+        .progress {
+            width: 100%;
+            height: 20px;
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(45deg, #4CAF50, #8BC34A);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        .log {
+            background: rgba(0,0,0,0.5);
+            color: #00ff00;
+            padding: 15px;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            height: 200px;
+            overflow-y: auto;
+            margin: 15px 0;
+            border: 1px solid rgba(0,255,0,0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Extraction OIC Autonome</h1>
+            <h2>Déclenchement Immédiat - 4,872 Compétences</h2>
+            <p>📅 <span id="timestamp"></span></p>
+        </div>
+
+        <div class="status info" id="mainStatus">
+            <h3>🎯 Prêt pour l'extraction</h3>
+            <p>Cliquez sur le bouton pour déclencher l'extraction autonome des compétences OIC</p>
+        </div>
+
+        <div style="text-align: center; margin: 30px 0;">
+            <button id="triggerBtn" onclick="triggerExtraction()">
+                🚀 DÉCLENCHER EXTRACTION IMMÉDIATE
+            </button>
+            <button id="monitorBtn" onclick="openMonitoring()" style="background: linear-gradient(45deg, #2196F3, #1976D2);">
+                📊 SURVEILLANCE
+            </button>
+        </div>
+
+        <div class="progress">
+            <div class="progress-bar" id="progressBar"></div>
+        </div>
+        <div style="text-align: center;">
+            <span id="progressText">En attente...</span>
+        </div>
+
+        <div class="log" id="logOutput">
+            [SYSTEM] Système d'extraction OIC autonome initialisé<br>
+            [SYSTEM] Prêt pour le déclenchement immédiat<br>
+            [INFO] 🎯 Objectif: 4,872 compétences OIC depuis API LiSA UNESS<br>
+            [INFO] 💾 Destination: Table backup_oic_competences<br>
+            [INFO] 🤖 Mode: 100% autonome avec surveillance automatique<br>
+        </div>
+
+        <div class="links">
+            <a href="https://github.com/laeticiamng/med-mng/actions/workflows/weekly-oic-extraction.yml" class="link-card" target="_blank">
+                <strong>📊 GitHub Actions</strong><br>
+                Surveillance workflow
+            </a>
+            <a href="https://supabase.com/dashboard/project/yaincoxihiqdksxgrsrk/functions/auto-extract-oic/logs" class="link-card" target="_blank">
+                <strong>🔍 Logs Edge Functions</strong><br>
+                Logs temps réel
+            </a>
+            <a href="https://supabase.com/dashboard/project/yaincoxihiqdksxgrsrk/editor" class="link-card" target="_blank">
+                <strong>💾 Table OIC</strong><br>
+                Données extraites
+            </a>
+            <a href="https://livret.uness.fr/lisa/2025/Catégorie:Objectif_de_connaissance" class="link-card" target="_blank">
+                <strong>🌐 Source UNESS</strong><br>
+                API MediaWiki
+            </a>
+        </div>
+
+        <div class="status warning" style="margin-top: 30px;">
+            <h3>⏰ Information Importante</h3>
+            <p>L'extraction autonome peut prendre <strong>15-30 minutes</strong> pour traiter les 4,872 compétences OIC. Le processus est entièrement automatique et ne nécessite aucune intervention.</p>
+        </div>
+    </div>
+
+    <script>
+        // Initialisation
+        document.getElementById('timestamp').textContent = new Date().toLocaleString('fr-FR');
+        
+        let extractionInProgress = false;
+        let sessionId = null;
+        let monitoringInterval = null;
+
+        function log(message, type = 'INFO') {
+            const logOutput = document.getElementById('logOutput');
+            const timestamp = new Date().toLocaleTimeString();
+            logOutput.innerHTML += `[${timestamp}] [${type}] ${message}<br>`;
+            logOutput.scrollTop = logOutput.scrollHeight;
+        }
+
+        function updateStatus(title, message, type = 'info') {
+            const status = document.getElementById('mainStatus');
+            status.className = `status ${type}`;
+            status.innerHTML = `<h3>${title}</h3><p>${message}</p>`;
+        }
+
+        function updateProgress(percentage, text) {
+            document.getElementById('progressBar').style.width = percentage + '%';
+            document.getElementById('progressText').textContent = text;
+        }
+
+        async function triggerExtraction() {
+            if (extractionInProgress) {
+                log('❌ Extraction déjà en cours', 'WARNING');
+                return;
+            }
+
+            extractionInProgress = true;
+            document.getElementById('triggerBtn').disabled = true;
+            
+            log('🚀 Démarrage de l\'extraction autonome...', 'SYSTEM');
+            updateStatus('🚀 Extraction en cours', 'Connexion aux systèmes...', 'info');
+            updateProgress(5, 'Initialisation...');
+
+            try {
+                log('🌐 Connexion à l\'Edge Function auto-extract-oic...');
+                
+                const response = await fetch('https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/auto-extract-oic', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU'
+                    },
+                    body: JSON.stringify({ 
+                        action: 'immediate_extraction',
+                        source: 'web_interface',
+                        force: true 
+                    })
+                });
+
+                const result = await response.json();
+                
+                if (result.success) {
+                    log('✅ EXTRACTION DÉMARRÉE AVEC SUCCÈS !', 'SUCCESS');
+                    sessionId = result.session_id;
+                    updateStatus('🎉 Extraction lancée !', 'Surveillance automatique activée', 'status');
+                    updateProgress(10, 'Authentification CAS...');
+                    
+                    log(`🆔 Session ID: ${sessionId || 'automatique'}`);
+                    log('🤖 Surveillance automatique activée');
+                    log('⏰ Durée estimée: 15-30 minutes');
+                    
+                    // Démarrer la surveillance
+                    startMonitoring();
+                    
+                } else {
+                    throw new Error(result.error || 'Échec du déclenchement');
+                }
+                
+            } catch (error) {
+                log(`💥 ERREUR: ${error.message}`, 'ERROR');
+                updateStatus('❌ Erreur', error.message, 'error');
+                extractionInProgress = false;
+                document.getElementById('triggerBtn').disabled = false;
+            }
+        }
+
+        function startMonitoring() {
+            let attempts = 0;
+            const maxAttempts = 40; // 20 minutes max
+            
+            monitoringInterval = setInterval(async () => {
+                attempts++;
+                
+                try {
+                    const response = await fetch('https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/extract-edn-objectifs', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU'
+                        },
+                        body: JSON.stringify({ 
+                            action: 'status', 
+                            session_id: sessionId 
+                        })
+                    });
+                    
+                    const status = await response.json();
+                    const extracted = status.items_extracted || 0;
+                    const progress = Math.min(Math.round((extracted / 4872) * 100), 95);
+                    
+                    log(`📊 Progression [${attempts}/${maxAttempts}]: ${extracted}/4872 compétences (${progress}%)`);
+                    updateProgress(progress, `${extracted}/4872 compétences extraites`);
+                    
+                    if (status.status === 'termine') {
+                        log(`🎉 EXTRACTION TERMINÉE ! ${extracted} compétences extraites`, 'SUCCESS');
+                        updateStatus('🎉 Terminé !', `${extracted} compétences extraites avec succès`, 'status');
+                        updateProgress(100, 'Extraction terminée !');
+                        clearInterval(monitoringInterval);
+                        extractionInProgress = false;
+                        document.getElementById('triggerBtn').disabled = false;
+                        
+                    } else if (status.status === 'erreur') {
+                        log(`💥 EXTRACTION ÉCHOUÉE: ${status.error_message}`, 'ERROR');
+                        updateStatus('❌ Échec', status.error_message, 'error');
+                        clearInterval(monitoringInterval);
+                        extractionInProgress = false;
+                        document.getElementById('triggerBtn').disabled = false;
+                        
+                    } else if (attempts >= maxAttempts) {
+                        log('⏰ Monitoring arrêté après 20 minutes', 'WARNING');
+                        updateStatus('⏰ Monitoring arrêté', 'Extraction peut continuer en arrière-plan', 'warning');
+                        clearInterval(monitoringInterval);
+                        extractionInProgress = false;
+                        document.getElementById('triggerBtn').disabled = false;
+                    }
+                    
+                } catch (error) {
+                    log(`⚠️ Erreur monitoring: ${error.message}`, 'WARNING');
+                }
+            }, 30000); // Vérifier toutes les 30 secondes
+        }
+
+        function openMonitoring() {
+            const links = [
+                'https://github.com/laeticiamng/med-mng/actions',
+                'https://supabase.com/dashboard/project/yaincoxihiqdksxgrsrk/functions/auto-extract-oic/logs',
+                'https://supabase.com/dashboard/project/yaincoxihiqdksxgrsrk/editor'
+            ];
+            
+            links.forEach(link => window.open(link, '_blank'));
+            log('🔗 Ouverture des consoles de surveillance', 'INFO');
+        }
+
+        // Log d'initialisation
+        log('🎯 Interface d\'extraction OIC autonome chargée');
+        log('🤖 Système prêt pour déclenchement immédiat');
+        log('📋 Objectif: 4,872 compétences depuis API LiSA UNESS');
+    </script>
+</body>
+</html>
