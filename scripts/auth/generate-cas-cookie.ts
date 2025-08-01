@@ -163,41 +163,43 @@ export async function saveCookiesToFile(cookies: string, filePath: string = '.ca
 }
 
 // Script principal si exécuté directement
-if (require.main === module) {
-  import('fs').then(fs => {
-    const email = process.env.CAS_USERNAME || process.env.CAS_USER;
-    const password = process.env.CAS_PASSWORD || process.env.CAS_PASS;
-    
-    // Créer le dossier .cache/ en premier
-    if (!fs.existsSync('.cache')) {
-      fs.mkdirSync('.cache', { recursive: true });
-      console.log('📁 Dossier .cache créé');
-    }
+async function main() {
+  const email = process.env.CAS_USERNAME || process.env.CAS_USER;
+  const password = process.env.CAS_PASSWORD || process.env.CAS_PASS;
   
-    if (!email || !password) {
-      console.error('❌ Variables d\'environnement CAS_USERNAME et CAS_PASSWORD requises');
-      // Écrire un fichier d'erreur pour debug
-      fs.writeFileSync('.cache/auth-error.log', 'Variables CAS_USERNAME et CAS_PASSWORD manquantes');
+  // Créer le dossier .cache/ en premier
+  if (!fs.existsSync('.cache')) {
+    fs.mkdirSync('.cache', { recursive: true });
+    console.log('📁 Dossier .cache créé');
+  }
+
+  if (!email || !password) {
+    console.error('❌ Variables d\'environnement CAS_USERNAME et CAS_PASSWORD requises');
+    // Écrire un fichier d'erreur pour debug
+    fs.writeFileSync('.cache/auth-error.log', 'Variables CAS_USERNAME et CAS_PASSWORD manquantes');
+    process.exit(1);
+  }
+
+  try {
+    const result = await generateCASCookie(email, password);
+    if (result.success) {
+      await saveCookiesToFile(result.cookies);
+      console.log('🎉 Authentification CAS terminée avec succès');
+    } else {
+      console.error('💥 Échec authentification:', result.error);
+      // Écrire le détail de l'erreur pour debug
+      fs.writeFileSync('.cache/auth-error.log', `Erreur auth: ${result.error}\nDebug: ${JSON.stringify(result.debugInfo, null, 2)}`);
       process.exit(1);
     }
-  
-    generateCASCookie(email, password)
-      .then(async (result) => {
-        if (result.success) {
-          await saveCookiesToFile(result.cookies);
-          console.log('🎉 Authentification CAS terminée avec succès');
-        } else {
-          console.error('💥 Échec authentification:', result.error);
-          // Écrire le détail de l'erreur pour debug
-          fs.writeFileSync('.cache/auth-error.log', `Erreur auth: ${result.error}\nDebug: ${JSON.stringify(result.debugInfo, null, 2)}`);
-          process.exit(1);
-        }
-      })
-      .catch((error) => {
-        console.error('💥 Erreur fatale:', error);
-        // Écrire l'erreur fatale pour debug
-        fs.writeFileSync('.cache/auth-fatal-error.log', `Erreur fatale: ${error.message}\nStack: ${error.stack}`);
-        process.exit(1);
-      });
-  });
+  } catch (error: any) {
+    console.error('💥 Erreur fatale:', error);
+    // Écrire l'erreur fatale pour debug
+    fs.writeFileSync('.cache/auth-fatal-error.log', `Erreur fatale: ${error.message}\nStack: ${error.stack}`);
+    process.exit(1);
+  }
+}
+
+// Exécuter si script principal
+if (require.main === module) {
+  main();
 }
