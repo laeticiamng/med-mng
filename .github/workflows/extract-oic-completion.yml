@@ -51,7 +51,6 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '18'
-        cache: 'npm'
         
     - name: 📦 Install dependencies (extraction only)
       run: |
@@ -86,14 +85,9 @@ jobs:
       run: |
         echo "🚀 Démarrage extraction OIC avec logique de complétion..."
         
-        # Utiliser le script éprouvé avec le nouveau système TypeScript
-        if [ -f "scripts/extract-oic-competences.cjs" ]; then
-          echo "📜 Utilisation du script CommonJS éprouvé"
-          node scripts/extract-oic-competences.cjs
-        else
-          echo "📜 Utilisation du script TypeScript moderne"
-          tsx scripts/extract-oic.ts
-        fi
+        # Utiliser le script TypeScript moderne
+        echo "📜 Utilisation du script TypeScript moderne"
+        tsx scripts/extract-oic.ts
         
         # Vérifier que le rapport a été généré
         if [ ! -f .cache/extraction-success.json ] && [ ! -f .cache/extraction-error.json ]; then

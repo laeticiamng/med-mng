@@ -307,6 +307,8 @@ export class OICExtractor {
 // Script principal
 if (require.main === module) {
   async function main() {
+    const fs = require('fs');
+    
     // Créer le dossier .cache/ en premier
     if (!fs.existsSync('.cache')) {
       fs.mkdirSync('.cache', { recursive: true });
