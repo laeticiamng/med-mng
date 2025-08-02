@@ -1,369 +1,151 @@
-// extract-oic-competences.cjs
-// Script Node.js pour GitHub Actions - Extraction complète des 4,872 compétences OIC
+/* eslint-disable no-console */
+import puppeteer from 'puppeteer';
+import fs from 'fs';
+import dotenv from 'dotenv';
+import fetch from 'node-fetch';
+import { createClient } from '@supabase/supabase-js';
 
-const puppeteer = require('puppeteer');
-const { createClient } = require('@supabase/supabase-js');
-const fs = require('fs');
+dotenv.config();
 
-// Configuration depuis les variables d'environnement GitHub Actions
-const config = {
-  cas: {
-    username: process.env.CAS_USERNAME || 'laeticia.moto-ngane@etud.u-picardie.fr',
-    password: process.env.CAS_PASSWORD || 'Aiciteal1!'
-  },
-  supabase: {
-    url: 'https://yaincoxihiqdksxgrsrk.supabase.co',
-    serviceKey: process.env.SUPABASE_SERVICE_ROLE_KEY
-  },
-  urls: {
-    base: 'https://livret.uness.fr/lisa/2025',
-    category: 'https://livret.uness.fr/lisa/2025/Catégorie:Objectif_de_connaissance',
-    api: 'https://livret.uness.fr/lisa/2025/api.php'
-  }
-};
+const {
+  SUPABASE_URL,
+  SUPABASE_SERVICE_ROLE_KEY,
+  CAS_USERNAME,
+  CAS_PASSWORD,
+  FORCE_UPDATE = 'false',
+} = process.env;
 
-// Logging vers fichier et console
-const logFile = `extraction-${new Date().toISOString().slice(0,10)}.log`;
-function log(message) {
-  const timestamp = new Date().toISOString();
-  const logMessage = `[${timestamp}] ${message}`;
-  console.log(logMessage);
-  fs.appendFileSync(logFile, logMessage + '\n');
+if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY || !CAS_USERNAME || !CAS_PASSWORD) {
+  console.error('❌ Variables d'environnement manquantes');
+  process.exit(1);
 }
 
-// Initialiser Supabase
-const supabase = createClient(config.supabase.url, config.supabase.serviceKey);
+const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+const API_ROOT = 'https://livret.uness.fr/lisa/2025';
 
-// Fonction principale
-async function extractAllCompetences() {
-  log('🚀 DÉMARRAGE EXTRACTION OIC - 4,872 COMPÉTENCES ATTENDUES');
-  log('===============================================');
-  
-  if (!config.supabase.serviceKey) {
-    throw new Error('❌ SUPABASE_SERVICE_ROLE_KEY manquant');
-  }
-  
-  const browser = await puppeteer.launch({
-    headless: true,
-    defaultViewport: null,
-    args: [
-      '--no-sandbox', 
-      '--disable-setuid-sandbox', 
-      '--disable-dev-shm-usage',
-      '--disable-web-security'
-    ]
-  });
-  
-  const stats = {
-    startTime: Date.now(),
-    totalFound: 0,
-    totalProcessed: 0,
-    totalInserted: 0,
-    totalErrors: 0,
-    errors: []
+function log(...a) { console.log('[OIC]', ...a); }
+fs.mkdirSync('.cache', { recursive: true });
+
+// Authentification CAS (inchangée)
+async function loginCAS() {
+  const browser = await puppeteer.launch({ headless: true });
+  const page = await browser.newPage();
+
+  await page.goto('https://auth.uness.fr/cas/login', { waitUntil: 'networkidle2' });
+  await page.type('input[name="username"]', CAS_USERNAME);
+  await Promise.all([
+    page.waitForNavigation({ waitUntil: 'networkidle2' }),
+    page.click('button[type="submit"]'),
+  ]);
+  await page.type('input[name="password"]', CAS_PASSWORD);
+  await Promise.all([
+    page.waitForNavigation({ waitUntil: 'networkidle2' }),
+    page.click('button[type="submit"]'),
+  ]);
+
+  const cookies = (await page.cookies())
+    .filter(c => c.domain.includes('uness.fr'))
+    .map(c => `${c.name}=${c.value}`)
+    .join('; ');
+
+  fs.writeFileSync('.cache/cookies.txt', cookies);
+  await browser.close();
+  return cookies;
+}
+
+// Ajout : détection des compétences incomplètes
+async function getIncompleteIds() {
+  const { data, error } = await supabase
+    .from('backup_oic_competences')
+    .select('objectif_id')
+    .or('description.is.null,description.eq.');
+
+  if (error) throw error;
+  return new Set(data.map(d => d.objectif_id));
+}
+
+// Extraction d'une page
+function titleToId(title) {
+  // Objectif_de_connaissance_OIC-123-01-A-04 → OIC-123-01-A-04
+  const m = title.match(/OIC-\d{3}-\d{2}-[AB]-\d{2}/);
+  return m ? m[0] : null;
+}
+
+async function fetchPage(pageId, cookieStr) {
+  const url = `${API_ROOT}/api.php?action=query&prop=revisions&rvprop=content&format=json&formatversion=2&pageids=${pageId}`;
+  const res = await fetch(url, { headers: { Cookie: cookieStr, 'User-Agent': 'Mozilla/5.0' } });
+  return res.json();
+}
+
+function parsePage(pageJson, title) {
+  const wiki = pageJson.query.pages[0].revisions?.[0]?.content ?? '';
+  const id = titleToId(title);
+  if (!id) return null;
+
+  const intitule = wiki.match(/'''(.*?)'''/)?.[1] ?? title;
+  const rubrique = wiki.match(/\[\[Catégorie:(.*?)\]\]/)?.[1] ?? '';
+  const description = wiki.split('\n')
+    .filter(l => l.trim() && !l.startsWith('=') && !l.startsWith('{{') && !l.startsWith('[['))
+    .join(' ')
+    .slice(0, 500);
+
+  return {
+    objectif_id: id,
+    intitule,
+    item_parent: id.slice(4, 7),
+    rang: id.includes('-A-') ? 'A' : 'B',
+    rubrique,
+    description,
+    ordre: Number(id.split('-').pop()),
+    url_source: `https://livret.uness.fr/lisa/2025/${encodeURIComponent(title)}`,
+    raw_json: pageJson,
+    extraction_status: 'complete',
+    date_import: new Date().toISOString(),
   };
-  
-  try {
-    const page = await browser.newPage();
-    
-    // 0. Vérifier d'abord les compétences incomplètes
-    const incompleteIds = await getIncompleteCompetences();
-    const completionMode = incompleteIds.size > 0;
-    
-    if (completionMode) {
-      log(`🔄 MODE COMPLÉTION ACTIVÉ - ${incompleteIds.size} compétences à compléter`);
-      stats.completionMode = true;
-      stats.targetIds = incompleteIds;
-    } else {
-      log(`✅ TOUTES LES COMPÉTENCES SONT COMPLÈTES - Extraction classique`);
-      stats.completionMode = false;
-    }
-    
-    // 1. Authentification CAS
-    log('🔐 Authentification CAS...');
-    await authenticateCAS(page);
-    
-    // 2. Récupérer les cookies de session après authentification
-    const cookies = await page.cookies();
-    const cookieString = cookies
-      .filter(c => c.domain.includes('uness.fr'))
-      .map(c => `${c.name}=${c.value}`)
-      .join('; ');
-    log(`🍪 Cookies de session récupérés: ${cookies.length} cookies pour uness.fr`);
-    
-    // DEBUG: afficher les cookies pour voir s'ils sont du bon domaine
-    if (cookies.length > 0) {
-      log(`🔍 COOKIES DÉTAILLÉS:`);
-      cookies.forEach((cookie, i) => {
-        log(`   ${i+1}. ${cookie.name}=${cookie.value.substring(0, 20)}... (domain: ${cookie.domain})`);
-      });
-    } else {
-      log(`⚠️ AUCUN COOKIE RÉCUPÉRÉ - PROBLÈME D'AUTHENTIFICATION PROBABLE`);
-    }
-    
-    // TEST: essayer un appel API avec les cookies de session
-    log('🧪 TEST API avec authentification et cookies...');
-    try {
-      // Créer une requête avec les cookies de session
-      const testUrl = 'https://livret.uness.fr/lisa/2025/api.php?action=query&list=categorymembers&cmtitle=Catégorie:Objectif_de_connaissance&cmlimit=1&format=json';
-      
-      const response = await page.evaluate(async (url, cookieStr) => {
-        const response = await fetch(url, {
-          method: 'GET',
-          headers: {
-            'Cookie': cookieStr,
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-            'Accept': 'application/json, text/plain, */*',
-            'Referer': 'https://livret.uness.fr/lisa/2025/',
-            'X-Requested-With': 'XMLHttpRequest'
-          },
-          credentials: 'include'
-        });
-        
-        const text = await response.text();
-        return {
-          status: response.status,
-          ok: response.ok,
-          text: text
-        };
-      }, testUrl, cookieString);
-      
-      log(`🧪 Réponse API test: status=${response.status}, ok=${response.ok}`);
-      log(`🧪 Contenu API test (200 premiers chars): ${response.text.substring(0, 200)}...`);
-      
-      if (response.ok) {
-        try {
-          const data = JSON.parse(response.text);
-          if (data.error) {
-            log(`❌ ERREUR API: ${JSON.stringify(data.error)}`);
-            if (data.error.code === 'readapidenied') {
-              log(`⚠️ API toujours protégée - on continue avec navigation directe`);
-            }
-          } else if (data.query?.categorymembers?.length > 0) {
-            log(`✅ TEST API RÉUSSI: ${data.query.categorymembers.length} membres trouvés`);
-          } else {
-            log(`📊 API accessible mais aucun membre trouvé`);
-          }
-        } catch (parseError) {
-          log(`❌ Erreur parsing JSON: ${parseError.message}`);
-        }
-      }
-    } catch (testError) {
-      log(`❌ ERREUR TEST API: ${testError.message}`);
-    }
-    
-  // 2. Vérifier l'authentification - ne pas naviguer, utiliser l'URL actuelle
-  const currentUrl = page.url();
-  log(`🔍 URL après authentification: ${currentUrl}`);
-  
-  // Si on est déjà sur livret.uness.fr, pas besoin de re-naviguer
-  if (currentUrl.includes('livret.uness.fr')) {
-    log('✅ Déjà sur livret.uness.fr après authentification');
-  } else {
-    log('⚠️ Pas encore sur livret.uness.fr, tentative de navigation...');
-    await page.goto(config.urls.category, { waitUntil: 'networkidle2', timeout: 60000 });
-  }
-  
-  // Attendre que la page se charge complètement
-  await new Promise(resolve => setTimeout(resolve, 3000));
-  
-  const finalUrl = page.url();
-  log(`🔍 URL finale pour vérification: ${finalUrl}`);
-  
-  const isAuthenticated = await page.evaluate(() => {
-    // Vérifier plusieurs conditions d'authentification
-    const url = window.location.href;
-    const hasContent = document.body.innerText.includes('Objectif de connaissance') || 
-                      document.body.innerText.includes('Catégorie') ||
-                      document.querySelector('h1') ||
-                      document.body.innerText.includes('Livret') ||
-                      document.body.innerText.includes('UNESS');
-    const notOnAuthPage = !url.includes('cas/login') && !url.includes('auth.uness.fr/cas');
-    
-    return notOnAuthPage && hasContent;
-  });
-  
-  if (!isAuthenticated) {
-    log(`❌ Authentification échouée - URL: ${finalUrl}`);
-    const pageContent = await page.content();
-    log(`🔍 Contenu page (500 premiers caractères): ${pageContent.substring(0, 500)}`);
-    
-    // Essayer une dernière fois avec une approche différente
-    log('🔄 Tentative finale avec navigation directe vers API...');
-    try {
-      await page.goto(config.urls.api + '?action=query&meta=siteinfo&format=json', { 
-        waitUntil: 'networkidle2', 
-        timeout: 30000 
-      });
-      const apiContent = await page.content();
-      if (apiContent.includes('query') && !apiContent.includes('cas/login')) {
-        log('✅ API accessible, authentification OK');
-        return; // Success
-      }
-    } catch (e) {
-      log(`❌ Test API échoué: ${e.message}`);
-    }
-    
-    throw new Error('❌ Authentification CAS échouée');
-  }
-  log('✅ Authentification CAS réussie');
-    
-    // 3. Extraction via API MediaWiki avec cookies
-    log('📊 Début extraction via API MediaWiki...');
-    const allCompetences = await extractViaAPI(page, stats, cookieString);
-    
-    // 4. Insertion dans Supabase
-    log(`💾 Insertion de ${allCompetences.length} compétences dans Supabase...`);
-    await insertToSupabase(allCompetences, stats);
-    
-    // 5. Rapport final
-    await generateFinalReport(stats);
-    
-  } catch (error) {
-    log(`❌ ERREUR CRITIQUE: ${error.message}`);
-    stats.errors.push({ type: 'CRITICAL', error: error.message, timestamp: new Date().toISOString() });
-    throw error;
-  } finally {
-    await browser.close();
-    
-    // Sauvegarder le rapport JSON
-    const reportFile = `rapport-${new Date().toISOString().slice(0,10)}.json`;
-    fs.writeFileSync(reportFile, JSON.stringify({
-      ...stats,
-      duration: Date.now() - stats.startTime,
-      success: stats.totalInserted > 0
-    }, null, 2));
-    
-    log(`📊 Rapport sauvegardé: ${reportFile}`);
-  }
 }
 
-// Authentification CAS complètement refaite
-async function authenticateCAS(page) {
-  log('🌐 Navigation vers page protégée pour déclencher l\'authentification...');
-  await page.goto(config.urls.category, { waitUntil: 'networkidle2', timeout: 30000 });
-  
-  const initialUrl = page.url();
-  log(`🔍 URL initiale: ${initialUrl}`);
-  
-  // Si pas de redirection CAS, on est déjà authentifié
-  if (!initialUrl.includes('cas/login') && !initialUrl.includes('auth.uness.fr')) {
-    log('✅ Pas de redirection CAS - déjà authentifié');
-    return;
+// Boucle principale avec mode complétion
+async function main() {
+  const cookies = await loginCAS();           // 1️⃣ Auth CAS
+  const incompleteSet = (FORCE_UPDATE === 'true') ? new Set() : await getIncompleteIds();
+  const completionMode = incompleteSet.size > 0;
+
+  log(completionMode
+      ? `🔄 Mode complétion : ${incompleteSet.size} descriptions manquantes`
+      : '📥 Mode extraction complète');
+
+  // 2️⃣ lister toutes les pages OIC
+  const listURL = `${API_ROOT}/api.php?action=query&list=categorymembers&cmtitle=Catégorie:Objectif_de_connaissance&cmlimit=500&format=json`;
+  const listRes = await fetch(listURL, { headers: { Cookie: cookies, 'User-Agent': 'Mozilla/5.0' } });
+  const pageIds = (await listRes.json()).query.categorymembers.map(p => p.pageid);
+
+  let processed = 0, updated = 0;
+  for (const pid of pageIds) {
+    const pageJson = await fetchPage(pid, cookies);
+    const title = pageJson.query.pages[0].title;
+    const objectifId = titleToId(title);
+
+    if (completionMode && !incompleteSet.has(objectifId)) continue;  // skip
+
+    const comp = parsePage(pageJson, title);
+    if (!comp) continue;
+
+    processed++;
+    const { error } = await supabase.from('backup_oic_competences')
+      .upsert([comp], { onConflict: 'objectif_id', ignoreDuplicates: false });
+    if (!error) updated++;
   }
-  
-  log('🔑 Authentification CAS requise - début du processus...');
-  
-  // Attendre que la page de login soit entièrement chargée
-  await new Promise(resolve => setTimeout(resolve, 3000));
-  
-  // Étape 1: Saisir l'email
-  log('📧 Saisie de l\'email...');
-  await page.waitForSelector('input[type="email"], input[name="email"], input[type="text"]', { timeout: 10000 });
-  
-  const emailInput = await page.$('input[type="email"]') || await page.$('input[name="email"]') || await page.$('input[type="text"]');
-  if (!emailInput) {
-    throw new Error('Champ email non trouvé');
-  }
-  
-  await emailInput.type(config.cas.username);
-  log(`✅ Email saisi: ${config.cas.username}`);
-  
-  // Cliquer sur le bouton de la première étape
-  const submitButton1 = await page.$('button[type="submit"], input[type="submit"]');
-  if (!submitButton1) {
-    throw new Error('Bouton submit étape 1 non trouvé');
-  }
-  
-  log('🔄 Clic sur le bouton de connexion étape 1...');
-  await submitButton1.click();
-  
-  // Attendre la navigation vers l'étape 2
-  try {
-    await page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 30000 });
-  } catch (e) {
-    log('⚠️ Pas de navigation détectée, continuons...');
-  }
-  
-  await new Promise(resolve => setTimeout(resolve, 3000));
-  
-  // Étape 2: Saisir le mot de passe
-  log('🔐 Saisie du mot de passe...');
-  await page.waitForSelector('input[type="password"]', { timeout: 10000 });
-  
-  const passwordInput = await page.$('input[type="password"]');
-  if (!passwordInput) {
-    throw new Error('Champ mot de passe non trouvé');
-  }
-  
-  await passwordInput.type(config.cas.password);
-  log('✅ Mot de passe saisi');
-  
-  // Cliquer sur le bouton de la deuxième étape
-  const submitButton2 = await page.$('button[type="submit"], input[type="submit"]');
-  if (!submitButton2) {
-    throw new Error('Bouton submit étape 2 non trouvé');
-  }
-  
-  log('🔄 Clic sur le bouton de connexion étape 2...');
-  await submitButton2.click();
-  
-  // Attendre la redirection OAuth2 complète vers livret.uness.fr
-  log('⏳ Attente de la redirection OAuth2 complète...');
-  
-  let redirectSuccess = false;
-  for (let attempt = 0; attempt < 12; attempt++) { // 12 tentatives = 2 minutes max
-    await new Promise(resolve => setTimeout(resolve, 10000)); // Attendre 10 secondes
-    
-    const currentUrl = page.url();
-    log(`🔍 Tentative ${attempt + 1} - URL actuelle: ${currentUrl.substring(0, 100)}...`);
-    
-    // Vérifier si on est arrivé sur livret.uness.fr
-    if (currentUrl.includes('livret.uness.fr') && !currentUrl.includes('cas/login') && !currentUrl.includes('auth.uness.fr/cas')) {
-      log('🎉 Redirection OAuth2 réussie !');
-      redirectSuccess = true;
-      break;
-    }
-    
-    // Si on est toujours sur une page d'auth, continuer d'attendre
-    if (currentUrl.includes('auth.uness.fr') || currentUrl.includes('cas/login')) {
-      log(`⏳ Toujours en cours d'authentification, patience...`);
-      continue;
-    }
-    
-    // Si on est sur une page inattendue, essayer de naviguer
-    log(`⚠️ URL inattendue: ${currentUrl.substring(0, 100)}`);
-  }
-  
-  if (!redirectSuccess) {
-    log('❌ La redirection OAuth2 a échoué après 2 minutes d\'attente');
-    throw new Error('Timeout OAuth2 - redirection vers livret.uness.fr échouée');
-  }
-  
-  log(`✅ Authentification CAS terminée avec succès`);
+
+  const report = { timestamp: new Date().toISOString(), completionMode, processed, updated };
+  fs.writeFileSync('.cache/extraction-success.json', JSON.stringify(report, null, 2));
+  log('✅ Terminé :', report);
 }
 
-// Extraction hybride : API MediaWiki + scraping de secours
-async function extractViaAPI(page, stats, cookieString) {
-  const allCompetences = [];
-  let continueToken = '';
-  let pageCount = 0;
-  let useAPIFallback = false;
-  
-  log('🚀 === DÉBUT EXTRACTION HYBRIDE ===');
-  
-  // Première tentative avec l'API
-  try {
-    return await extractViaMediaWikiAPI(page, stats, cookieString);
-  } catch (error) {
-    log(`❌ API MediaWiki échouée: ${error.message}`);
-    log(`🔄 BASCULEMENT vers scraping HTML direct...`);
-    return await extractViaCategoryScraping(page, stats);
-  }
-}
-
-// Méthode API MediaWiki classique
-async function extractViaMediaWikiAPI(page, stats, cookieString) {
+main().catch(e => {
+  fs.writeFileSync('.cache/extraction-error.log', e.stack);
+  console.error(e);
+  process.exit(1);
+});
   const allCompetences = [];
   let continueToken = '';
   let pageCount = 0;
