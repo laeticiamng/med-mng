@@ -840,30 +840,62 @@ function parseCompetence(pageData) {
   }
 }
 
-// Vérifier les compétences incomplètes en base
+// Vérifier les compétences incomplètes en base (logique avancée)
 async function getIncompleteCompetences() {
-  log('🔍 Recherche des compétences avec descriptions manquantes...');
+  log('🔍 Vérification avancée des compétences incomplètes...');
   
   try {
-    const { data, error } = await supabase
+    const { data: allCompetences, error } = await supabase
       .from('backup_oic_competences')
-      .select('objectif_id, description, intitule')
-      .or('description.is.null,description.eq.');
+      .select('objectif_id, description, intitule');
     
     if (error) {
-      throw new Error(`Erreur récupération incomplètes: ${error.message}`);
+      throw new Error(`Erreur récupération compétences: ${error.message}`);
     }
     
-    log(`📊 ${data?.length || 0} compétences avec descriptions manquantes trouvées`);
+    // Logique avancée de détection d'incomplétude
+    const incompletes = allCompetences.filter(comp => {
+      const desc = comp.description?.trim() || '';
+      const titre = comp.intitule?.trim() || '';
+      
+      // Cas 1: Description vide ou null
+      if (!desc) return true;
+      
+      // Cas 2: Description trop courte (< 40 caractères)
+      if (desc.length < 40) return true;
+      
+      // Cas 3: Extraction HTML mal parsée
+      if (/==|Titre:|{{\||<br\s*\/?>/i.test(desc)) return true;
+      
+      // Cas 4: Fragments incomplets (commence par - ou *)
+      if (/^[-*]\s/.test(desc)) return true;
+      
+      // Cas 5: Entités HTML non décodées
+      if (/&lt;|&gt;|&amp;|&nbsp;/.test(desc)) return true;
+      
+      // Cas 6: Titre corrompu avec balises MediaWiki
+      if (/\[\[.*\]\]/.test(titre)) return true;
+      
+      return false;
+    });
     
-    if (data && data.length > 0) {
+    log(`📊 ${incompletes.length} compétences incomplètes détectées (sur ${allCompetences.length} total)`);
+    log(`🔍 Critères: descriptions vides, < 40 chars, HTML corrompu, fragments, entités HTML, titres corrompus`);
+    
+    if (incompletes.length > 0) {
       log(`🔍 Exemples de compétences incomplètes:`);
-      data.slice(0, 5).forEach((comp, i) => {
-        log(`   ${i+1}. ${comp.objectif_id} - ${comp.intitule || 'Sans titre'}`);
+      incompletes.slice(0, 5).forEach((comp, i) => {
+        const reason = !comp.description?.trim() ? 'vide' : 
+                     comp.description.length < 40 ? 'trop courte' :
+                     /==|Titre:|{{\||<br\s*\/?>/i.test(comp.description) ? 'HTML corrompu' :
+                     /^[-*]\s/.test(comp.description) ? 'fragment' :
+                     /&lt;|&gt;|&amp;|&nbsp;/.test(comp.description) ? 'entités HTML' :
+                     /\[\[.*\]\]/.test(comp.intitule) ? 'titre corrompu' : 'autre';
+        log(`   ${i+1}. ${comp.objectif_id} - ${comp.intitule || 'Sans titre'} (${reason})`);
       });
     }
     
-    return new Set(data?.map(comp => comp.objectif_id) || []);
+    return new Set(incompletes.map(comp => comp.objectif_id));
     
   } catch (error) {
     log(`❌ Erreur vérification incomplètes: ${error.message}`);
