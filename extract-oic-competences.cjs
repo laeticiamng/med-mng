@@ -66,6 +66,19 @@ async function extractAllCompetences() {
   try {
     const page = await browser.newPage();
     
+    // 0. Vérifier d'abord les compétences incomplètes
+    const incompleteIds = await getIncompleteCompetences();
+    const completionMode = incompleteIds.size > 0;
+    
+    if (completionMode) {
+      log(`🔄 MODE COMPLÉTION ACTIVÉ - ${incompleteIds.size} compétences à compléter`);
+      stats.completionMode = true;
+      stats.targetIds = incompleteIds;
+    } else {
+      log(`✅ TOUTES LES COMPÉTENCES SONT COMPLÈTES - Extraction classique`);
+      stats.completionMode = false;
+    }
+    
     // 1. Authentification CAS
     log('🔐 Authentification CAS...');
     await authenticateCAS(page);
@@ -446,25 +459,19 @@ async function extractViaMediaWikiAPI(page, stats, cookieString) {
     const oicPattern2 = /OIC[\s_-]\d{3}[\s_-]\d{2}[\s_-][AB]/;
     const oicPattern3 = /OIC.*\d{3}.*\d{2}.*[AB]/;
     
-    let pageIds = allMembers
-      .filter(p => p.title?.match(oicPattern1))
-      .map(p => p.pageid);
+    let validPages = allMembers.filter(p => p.title?.match(oicPattern1));
     
-    if (pageIds.length === 0) {
+    if (validPages.length === 0) {
       log(`⚠️ Pattern strict ne trouve rien, test pattern flexible...`);
-      pageIds = allMembers
-        .filter(p => p.title?.match(oicPattern2))
-        .map(p => p.pageid);
+      validPages = allMembers.filter(p => p.title?.match(oicPattern2));
     }
     
-    if (pageIds.length === 0) {
+    if (validPages.length === 0) {
       log(`⚠️ Pattern avec espaces ne trouve rien, test pattern très flexible...`);
-      pageIds = allMembers
-        .filter(p => p.title?.match(oicPattern3))
-        .map(p => p.pageid);
+      validPages = allMembers.filter(p => p.title?.match(oicPattern3));
     }
     
-    if (pageIds.length === 0) {
+    if (validPages.length === 0) {
       log(`🔍 PATTERN DEBUG - Test si les pages contiennent "OIC":`);
       const oicPages = allMembers.filter(p => p.title?.includes('OIC'));
       log(`   → ${oicPages.length} pages contiennent "OIC"`);
@@ -477,8 +484,33 @@ async function extractViaMediaWikiAPI(page, stats, cookieString) {
       // Si aucun pattern ne fonctionne, prendre toutes les pages pour debug
       if (allMembers.length > 0) {
         log(`🚨 TAKING ALL PAGES FOR DEBUG - Will extract content to see actual format`);
-        pageIds = allMembers.slice(0, 10).map(p => p.pageid); // Prendre seulement 10 pour debug
+        validPages = allMembers.slice(0, 10); // Prendre seulement 10 pour debug
       }
+    }
+    
+    // FILTRAGE MODE COMPLÉTION : ne traiter que les pages à compléter
+    let pageIds;
+    if (stats.completionMode && stats.targetIds) {
+      const pagesToProcess = validPages.filter(page => {
+        const match = page.title?.match(/OIC-(\d{3})-(\d{2})-([AB])/);
+        if (match) {
+          const fullId = match[0];
+          return stats.targetIds.has(fullId);
+        }
+        return false;
+      });
+      
+      pageIds = pagesToProcess.map(p => p.pageid);
+      log(`🔄 MODE COMPLÉTION: ${pageIds.length}/${validPages.length} pages sélectionnées pour complétion`);
+      
+      if (pageIds.length === 0) {
+        log(`✅ Aucune page à compléter dans ce lot - toutes les descriptions sont complètes !`);
+        continueToken = '';
+        break;
+      }
+    } else {
+      pageIds = validPages.map(p => p.pageid);
+      log(`📊 MODE EXTRACTION COMPLÈTE: ${pageIds.length} pages à traiter`);
     }
     
     stats.totalFound += pageIds.length;
@@ -808,7 +840,38 @@ function parseCompetence(pageData) {
   }
 }
 
-// Insertion dans Supabase
+// Vérifier les compétences incomplètes en base
+async function getIncompleteCompetences() {
+  log('🔍 Recherche des compétences avec descriptions manquantes...');
+  
+  try {
+    const { data, error } = await supabase
+      .from('backup_oic_competences')
+      .select('objectif_id, description, intitule')
+      .or('description.is.null,description.eq.');
+    
+    if (error) {
+      throw new Error(`Erreur récupération incomplètes: ${error.message}`);
+    }
+    
+    log(`📊 ${data?.length || 0} compétences avec descriptions manquantes trouvées`);
+    
+    if (data && data.length > 0) {
+      log(`🔍 Exemples de compétences incomplètes:`);
+      data.slice(0, 5).forEach((comp, i) => {
+        log(`   ${i+1}. ${comp.objectif_id} - ${comp.intitule || 'Sans titre'}`);
+      });
+    }
+    
+    return new Set(data?.map(comp => comp.objectif_id) || []);
+    
+  } catch (error) {
+    log(`❌ Erreur vérification incomplètes: ${error.message}`);
+    return new Set();
+  }
+}
+
+// Insertion dans Supabase avec mode complétion
 async function insertToSupabase(competences, stats) {
   const validData = competences.filter(c => c && c.objectif_id);
   log(`✅ ${validData.length} compétences valides à insérer`);
@@ -824,7 +887,7 @@ async function insertToSupabase(competences, stats) {
     
     try {
       const { data, error } = await supabase
-        .from('oic_competences')
+        .from('backup_oic_competences')
         .upsert(chunk, { 
           onConflict: 'objectif_id',
           ignoreDuplicates: false 
@@ -852,38 +915,73 @@ async function insertToSupabase(competences, stats) {
   }
 }
 
-// Rapport final
+// Rapport final avec statistiques de complétion
 async function generateFinalReport(stats) {
   log('\n📊 GÉNÉRATION RAPPORT FINAL...');
   log('===============================');
   
   try {
-    const { count, error } = await supabase
-      .from('oic_competences')
+    // Compter le total de compétences
+    const { count: totalCount, error: countError } = await supabase
+      .from('backup_oic_competences')
       .select('*', { count: 'exact', head: true });
     
-    if (error) {
-      throw new Error(`Erreur comptage: ${error.message}`);
+    if (countError) {
+      throw new Error(`Erreur comptage total: ${countError.message}`);
+    }
+    
+    // Compter les compétences avec descriptions vides
+    const { count: incompleteCount, error: incompleteError } = await supabase
+      .from('backup_oic_competences')
+      .select('*', { count: 'exact', head: true })
+      .or('description.is.null,description.eq.');
+    
+    if (incompleteError) {
+      throw new Error(`Erreur comptage incomplètes: ${incompleteError.message}`);
     }
     
     const duration = Math.round((Date.now() - stats.startTime) / 1000);
-    const completeness = ((count / 4872) * 100).toFixed(2);
+    const totalCompleteness = ((totalCount / 4872) * 100).toFixed(2);
+    const completeCount = totalCount - incompleteCount;
+    const descriptionCompleteness = totalCount > 0 ? ((completeCount / totalCount) * 100).toFixed(2) : 0;
     
-    log(`\n🎉 EXTRACTION TERMINÉE !`);
-    log(`======================`);
-    log(`⏱️  Durée totale: ${duration}s (${Math.round(duration/60)}min)`);
-    log(`📊 Pages trouvées: ${stats.totalFound}`);
-    log(`✅ Pages traitées: ${stats.totalProcessed}`);
-    log(`💾 Compétences insérées: ${stats.totalInserted}`);
-    log(`❌ Erreurs: ${stats.totalErrors}`);
-    log(`📈 Total en base: ${count}/4872 (${completeness}%)`);
-    
-    if (count >= 4872) {
-      log(`🎯 OBJECTIF ATTEINT ! Les 4,872 compétences ont été extraites avec succès !`);
-    } else if (count > 4000) {
-      log(`🔥 EXTRACTION QUASI-COMPLÈTE ! ${count} compétences extraites (${4872-count} manquantes)`);
+    if (stats.completionMode) {
+      log(`\n🔄 RAPPORT COMPLÉTION TERMINÉ !`);
+      log(`============================`);
+      log(`⏱️  Durée totale: ${duration}s (${Math.round(duration/60)}min)`);
+      log(`🎯 Compétences ciblées: ${stats.targetIds?.size || 0}`);
+      log(`📊 Pages trouvées: ${stats.totalFound}`);
+      log(`✅ Pages traitées: ${stats.totalProcessed}`);
+      log(`💾 Compétences mises à jour: ${stats.totalInserted}`);
+      log(`❌ Erreurs: ${stats.totalErrors}`);
+      log(`📈 Compétences complètes: ${completeCount}/${totalCount} (${descriptionCompleteness}%)`);
+      log(`🔢 Compétences incomplètes restantes: ${incompleteCount}`);
+      
+      if (incompleteCount === 0) {
+        log(`🎉 MISSION ACCOMPLIE ! Toutes les descriptions sont maintenant complètes !`);
+      } else if (incompleteCount < 100) {
+        log(`🔥 QUASI-TERMINÉ ! Seulement ${incompleteCount} descriptions manquantes`);
+      } else {
+        log(`⚠️  PROGRÈS RÉALISÉ : ${stats.totalInserted} descriptions complétées`);
+      }
     } else {
-      log(`⚠️  EXTRACTION PARTIELLE : ${count} compétences extraites`);
+      log(`\n🎉 EXTRACTION TERMINÉE !`);
+      log(`======================`);
+      log(`⏱️  Durée totale: ${duration}s (${Math.round(duration/60)}min)`);
+      log(`📊 Pages trouvées: ${stats.totalFound}`);
+      log(`✅ Pages traitées: ${stats.totalProcessed}`);
+      log(`💾 Compétences insérées: ${stats.totalInserted}`);
+      log(`❌ Erreurs: ${stats.totalErrors}`);
+      log(`📈 Total en base: ${totalCount}/4872 (${totalCompleteness}%)`);
+      log(`🧩 Descriptions complètes: ${completeCount}/${totalCount} (${descriptionCompleteness}%)`);
+      
+      if (totalCount >= 4872) {
+        log(`🎯 OBJECTIF ATTEINT ! Les 4,872 compétences ont été extraites avec succès !`);
+      } else if (totalCount > 4000) {
+        log(`🔥 EXTRACTION QUASI-COMPLÈTE ! ${totalCount} compétences extraites (${4872-totalCount} manquantes)`);
+      } else {
+        log(`⚠️  EXTRACTION PARTIELLE : ${totalCount} compétences extraites`);
+      }
     }
     
     if (stats.errors.length > 0) {
@@ -894,6 +992,30 @@ async function generateFinalReport(stats) {
       if (stats.errors.length > 10) {
         log(`   ... et ${stats.errors.length - 10} autres erreurs`);
       }
+    }
+    
+    // Sauvegarder les statistiques de complétion
+    if (stats.completionMode) {
+      // Créer le dossier .cache s'il n'existe pas
+      if (!fs.existsSync('.cache')) {
+        fs.mkdirSync('.cache');
+      }
+      
+      fs.writeFileSync('.cache/extraction-success.json', JSON.stringify({
+        mode: 'completion',
+        timestamp: new Date().toISOString(),
+        duration: duration,
+        targetCompetences: stats.targetIds?.size || 0,
+        processed: stats.totalProcessed,
+        updated: stats.totalInserted,
+        errors: stats.totalErrors,
+        totalInDatabase: totalCount,
+        completeDescriptions: completeCount,
+        incompleteDescriptions: incompleteCount,
+        completenessPercentage: parseFloat(descriptionCompleteness),
+        success: incompleteCount === 0
+      }, null, 2));
+      log(`💾 Rapport de complétion sauvegardé: .cache/extraction-success.json`);
     }
     
   } catch (error) {
