@@ -123,7 +123,7 @@ Deno.serve(async (req) => {
             // Parser le contenu MediaWiki (comme votre workflow)
             const objectifMatch = content.match(/\|Identifiant=([^|\n]+)/)
             const intituleMatch = content.match(/\|Intitule=([^|\n]+)/)
-            const descriptionMatch = content.match(/\|Description=([^|]*?)(?=\|[A-Za-z]+=/s)/)
+            const descriptionMatch = content.match(/\|Description=([\s\S]*?)(?=\n\|[A-Za-z]+)/s)
             const rubriqueMatch = content.match(/\|Rubrique=([^|\n]+)/)
             const rangMatch = content.match(/\|Rang=([^|\n]+)/)
             const itemParentMatch = content.match(/\|Parent_id=([^|\n]+)/)
