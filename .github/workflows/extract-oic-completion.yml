@@ -26,6 +26,9 @@ jobs:
         node-version: '20'
         cache: 'npm'
 
+    - name: ℹ️ Install system deps for Chromium
+      run: sudo apt-get update && sudo apt-get install -y libgbm-dev libxshmfence-dev
+
     - name: 📦 Install deps
       run: |
         npm ci            # package-lock.json déjà présent

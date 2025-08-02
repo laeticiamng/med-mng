@@ -1,9 +1,9 @@
 /* eslint-disable no-console */
-import puppeteer from 'puppeteer';
-import fs from 'fs';
-import dotenv from 'dotenv';
-import fetch from 'node-fetch';
-import { createClient } from '@supabase/supabase-js';
+const puppeteer = require('puppeteer');
+const fs = require('fs');
+const dotenv = require('dotenv');
+const fetch = require('node-fetch');
+const { createClient } = require('@supabase/supabase-js');
 
 dotenv.config();
 
@@ -26,28 +26,132 @@ const API_ROOT = 'https://livret.uness.fr/lisa/2025';
 function log(...a) { console.log('[OIC]', ...a); }
 fs.mkdirSync('.cache', { recursive: true });
 
+// Fonction de pagination complète pour récupérer TOUS les IDs de pages OIC
+async function listAllPageIds(cookieStr) {
+  const ids = [];
+  const cat = encodeURIComponent('Catégorie:Objectif_de_connaissance');
+  let cont = '';
+  let pageCount = 0;
+  
+  log('🔄 Début récupération complète des IDs...');
+  
+  do {
+    const url = `${API_ROOT}/api.php?action=query&list=categorymembers&cmtitle=${cat}&cmlimit=500&format=json${cont ? '&' + cont : ''}`;
+    
+    log(`📄 Lot ${++pageCount} - Récupération de 500 IDs...`);
+    
+    try {
+      const response = await fetch(url, {
+        headers: { 
+          Cookie: cookieStr,
+          'User-Agent': 'Mozilla/5.0 (compatible; OIC-Extractor/2.0)'
+        }
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      const j = await response.json();
+      
+      if (j.error) {
+        throw new Error(`API Error: ${j.error.code} - ${j.error.info}`);
+      }
+      
+      if (!j.query?.categorymembers) {
+        log('⚠️ Pas de categorymembers dans la réponse');
+        break;
+      }
+      
+      const currentBatch = j.query.categorymembers.map(p => p.pageid);
+      ids.push(...currentBatch);
+      
+      log(`✅ Lot ${pageCount}: ${currentBatch.length} IDs récupérés (total: ${ids.length})`);
+      
+      // Préparer la continuation
+      if (j.continue?.cmcontinue) {
+        cont = `cmcontinue=${encodeURIComponent(j.continue.cmcontinue)}`;
+        log(`🔄 Continuation disponible...`);
+      } else {
+        cont = '';
+        log(`🏁 Fin de pagination atteinte`);
+      }
+      
+    } catch (error) {
+      log(`❌ Erreur lot ${pageCount}: ${error.message}`);
+      throw error;
+    }
+    
+    // Délai de courtoisie entre les requêtes
+    if (cont) {
+      await new Promise(resolve => setTimeout(resolve, 200));
+    }
+    
+  } while (cont && pageCount < 20); // Sécurité : max 20 lots = 10000 pages
+  
+  log(`🎉 Récupération terminée: ${ids.length} IDs au total en ${pageCount} lots`);
+  
+  if (pageCount >= 20) {
+    log(`⚠️ Limite de sécurité atteinte (20 lots max)`);
+  }
+  
+  return ids;
+}
+
 // Authentification CAS (inchangée)
 async function loginCAS() {
-  const browser = await puppeteer.launch({ headless: true });
+  const browser = await puppeteer.launch({ 
+    headless: true,
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-web-security'
+    ]
+  });
   const page = await browser.newPage();
 
+  log('🔐 Navigation vers page CAS...');
   await page.goto('https://auth.uness.fr/cas/login', { waitUntil: 'networkidle2' });
+  
+  log('📧 Saisie email...');
+  await page.waitForSelector('input[name="username"]', { timeout: 10000 });
   await page.type('input[name="username"]', CAS_USERNAME);
+  
+  log('🔄 Clic étape 1...');
   await Promise.all([
     page.waitForNavigation({ waitUntil: 'networkidle2' }),
     page.click('button[type="submit"]'),
   ]);
-  await page.type('input[name="password"]', CAS_PASSWORD);
+  
+  log('🔐 Saisie mot de passe...');
+  await page.waitForSelector('input[type="password"]', { timeout: 10000 });
+  await page.type('input[type="password"]', CAS_PASSWORD);
+  
+  log('🔄 Clic étape 2...');
   await Promise.all([
     page.waitForNavigation({ waitUntil: 'networkidle2' }),
     page.click('button[type="submit"]'),
   ]);
+
+  // Attendre redirection complète vers UNESS
+  let redirectAttempts = 0;
+  while (redirectAttempts < 10) {
+    const currentUrl = page.url();
+    if (currentUrl.includes('livret.uness.fr')) {
+      log('✅ Redirection vers UNESS réussie');
+      break;
+    }
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    redirectAttempts++;
+  }
 
   const cookies = (await page.cookies())
     .filter(c => c.domain.includes('uness.fr'))
     .map(c => `${c.name}=${c.value}`)
     .join('; ');
 
+  log(`🍪 ${(await page.cookies()).length} cookies récupérés`);
   fs.writeFileSync('.cache/cookies.txt', cookies);
   await browser.close();
   return cookies;
@@ -106,39 +210,113 @@ function parsePage(pageJson, title) {
 
 // Boucle principale avec mode complétion
 async function main() {
-  const cookies = await loginCAS();           // 1️⃣ Auth CAS
-  const incompleteSet = (FORCE_UPDATE === 'true') ? new Set() : await getIncompleteIds();
-  const completionMode = incompleteSet.size > 0;
+  try {
+    const cookies = await loginCAS();           // 1️⃣ Auth CAS
+    const incompleteSet = (FORCE_UPDATE === 'true') ? new Set() : await getIncompleteIds();
+    const completionMode = incompleteSet.size > 0 && FORCE_UPDATE !== 'true';
 
-  log(completionMode
-      ? `🔄 Mode complétion : ${incompleteSet.size} descriptions manquantes`
-      : '📥 Mode extraction complète');
+    log(completionMode
+        ? `🔄 Mode complétion : ${incompleteSet.size} descriptions manquantes`
+        : '📥 Mode extraction complète (FORCE_UPDATE activé ou aucune incomplète)');
 
-  // 2️⃣ lister toutes les pages OIC
-  const listURL = `${API_ROOT}/api.php?action=query&list=categorymembers&cmtitle=Catégorie:Objectif_de_connaissance&cmlimit=500&format=json`;
-  const listRes = await fetch(listURL, { headers: { Cookie: cookies, 'User-Agent': 'Mozilla/5.0' } });
-  const pageIds = (await listRes.json()).query.categorymembers.map(p => p.pageid);
+    // 2️⃣ lister toutes les pages OIC avec pagination complète
+    log('📡 Récupération de TOUS les IDs de pages via pagination...');
+    const pageIds = await listAllPageIds(cookies);
+    log(`📊 Total pages trouvées: ${pageIds.length}`);
 
-  let processed = 0, updated = 0;
-  for (const pid of pageIds) {
-    const pageJson = await fetchPage(pid, cookies);
-    const title = pageJson.query.pages[0].title;
-    const objectifId = titleToId(title);
+    let processed = 0, updated = 0, skipped = 0, errors = 0;
+    
+    log(`🚀 Début traitement des pages...`);
+    for (const pid of pageIds) {
+      try {
+        const pageJson = await fetchPage(pid, cookies);
+        
+        if (!pageJson.query?.pages?.[0]) {
+          log(`⚠️ Page ${pid}: pas de contenu trouvé`);
+          continue;
+        }
+        
+        const title = pageJson.query.pages[0].title;
+        const objectifId = titleToId(title);
 
-    if (completionMode && !incompleteSet.has(objectifId)) continue;  // skip
+        if (!objectifId) {
+          // Page non-OIC, skip silencieusement
+          continue;
+        }
 
-    const comp = parsePage(pageJson, title);
-    if (!comp) continue;
+        if (completionMode && !incompleteSet.has(objectifId)) {
+          skipped++;
+          continue;  // skip - déjà complète
+        }
 
-    processed++;
-    const { error } = await supabase.from('backup_oic_competences')
-      .upsert([comp], { onConflict: 'objectif_id', ignoreDuplicates: false });
-    if (!error) updated++;
+        const comp = parsePage(pageJson, title);
+        if (!comp) {
+          log(`⚠️ Parsing échoué pour ${title}`);
+          continue;
+        }
+
+        processed++;
+        
+        // Optimisation: réduire la taille du raw_json
+        const slimRawJson = {
+          query: {
+            pages: [{
+              pageid: pageJson.query.pages[0].pageid,
+              title: title,
+              revisions: pageJson.query.pages[0].revisions ? [{
+                contentformat: pageJson.query.pages[0].revisions[0].contentformat,
+                contentmodel: pageJson.query.pages[0].revisions[0].contentmodel
+              }] : []
+            }]
+          }
+        };
+        comp.raw_json = slimRawJson;
+
+        const { error } = await supabase.from('backup_oic_competences')
+          .upsert([comp], { onConflict: 'objectif_id', ignoreDuplicates: false });
+        
+        if (error) {
+          log(`❌ Erreur Supabase pour ${objectifId}: ${error.message}`);
+          errors++;
+        } else {
+          updated++;
+          if (processed % 50 === 0) {
+            log(`📊 Progression: ${processed} traités, ${updated} mis à jour, ${skipped} ignorés`);
+          }
+        }
+        
+        // Délai entre les pages pour éviter de surcharger l'API
+        await new Promise(resolve => setTimeout(resolve, 50));
+        
+      } catch (pageError) {
+        log(`❌ Erreur page ${pid}: ${pageError.message}`);
+        errors++;
+      }
+    }
+
+    const report = { 
+      timestamp: new Date().toISOString(), 
+      completionMode, 
+      totalPages: pageIds.length,
+      processed, 
+      updated, 
+      skipped,
+      errors,
+      success: errors === 0
+    };
+    
+    fs.writeFileSync('.cache/extraction-success.json', JSON.stringify(report, null, 2));
+    log('✅ Terminé :', report);
+    
+  } catch (error) {
+    const errorReport = {
+      timestamp: new Date().toISOString(),
+      error: error.message,
+      stack: error.stack
+    };
+    fs.writeFileSync('.cache/extraction-error.json', JSON.stringify(errorReport, null, 2));
+    throw error;
   }
-
-  const report = { timestamp: new Date().toISOString(), completionMode, processed, updated };
-  fs.writeFileSync('.cache/extraction-success.json', JSON.stringify(report, null, 2));
-  log('✅ Terminé :', report);
 }
 
 main().catch(e => {
