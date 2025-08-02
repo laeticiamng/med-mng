@@ -1,4 +1,4 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.3'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -11,230 +11,197 @@ Deno.serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  console.log('🚀 Démarrage completion EDN avec OIC...');
-
   try {
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    
-    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
-      auth: { persistSession: false }
-    });
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    )
 
-    let processedItems = 0;
-    let completedItems = 0;
-    let errors = 0;
-    const completionDetails: any[] = [];
+    console.log('🚀 Démarrage du processus de complétion EDN avec OIC...')
 
-    console.log('📊 Récupération des items EDN...');
-    
-    // Récupérer tous les items EDN
+    // 1. Récupérer tous les items EDN
     const { data: ednItems, error: ednError } = await supabase
-      .from('edn_items_complete')
-      .select('id, item_code, competences_count_rang_a, competences_count_rang_b, competences_count_total, tableau_rang_a, tableau_rang_b')
-      .order('item_code');
+      .from('edn_items_immersive')
+      .select('id, item_code, title, competences_count_rang_a, competences_count_rang_b')
+      .order('item_code')
 
     if (ednError) {
-      throw new Error(`Erreur récupération EDN: ${ednError.message}`);
+      console.error('❌ Erreur récupération EDN:', ednError)
+      throw ednError
     }
 
-    console.log(`📋 ${ednItems?.length || 0} items EDN trouvés`);
+    console.log(`📚 ${ednItems.length} items EDN trouvés`)
 
-    // Récupérer toutes les compétences OIC groupées par item_parent
-    const { data: oicCompetences, error: oicError } = await supabase
-      .from('oic_competences')
-      .select('item_parent, rang, objectif_id, intitule, description, rubrique, ordre')
-      .not('item_parent', 'is', null)
-      .order('item_parent, rang, ordre');
+    let processed = 0
+    let updated = 0
+    let errors = 0
+    const processingErrors: any[] = []
 
-    if (oicError) {
-      throw new Error(`Erreur récupération OIC: ${oicError.message}`);
-    }
-
-    console.log(`🎯 ${oicCompetences?.length || 0} compétences OIC trouvées`);
-
-    // Grouper les compétences OIC par item_parent et rang
-    const oicByItem: Record<string, { rangA: any[], rangB: any[] }> = {};
-    
-    oicCompetences?.forEach(comp => {
-      const itemCode = `IC-${comp.item_parent}`;
-      if (!oicByItem[itemCode]) {
-        oicByItem[itemCode] = { rangA: [], rangB: [] };
-      }
-      
-      const competenceData = {
-        competence_id: comp.objectif_id,
-        concept: comp.intitule || `Concept ${comp.objectif_id}`,
-        definition: comp.description || 'Définition à compléter',
-        exemple: `Exemple clinique pour ${comp.intitule || comp.objectif_id}`,
-        piege: 'Piège à identifier',
-        mnemo: 'Moyen mnémotechnique',
-        subtilite: 'Subtilité importante',
-        application: 'Application pratique',
-        vigilance: 'Point de vigilance',
-        rubrique: comp.rubrique,
-        ordre: comp.ordre
-      };
-
-      if (comp.rang === 'A') {
-        oicByItem[itemCode].rangA.push(competenceData);
-      } else if (comp.rang === 'B') {
-        oicByItem[itemCode].rangB.push(competenceData);
-      }
-    });
-
-    console.log(`🔄 Traitement de ${ednItems?.length || 0} items EDN...`);
-
-    // Traiter chaque item EDN
-    for (const item of ednItems || []) {
+    // 2. Pour chaque item EDN, récupérer les compétences OIC correspondantes
+    for (const item of ednItems) {
       try {
-        processedItems++;
+        processed++
+        console.log(`\n📖 Traitement ${item.item_code}: ${item.title}`)
         
-        const oicData = oicByItem[item.item_code];
-        if (!oicData || (oicData.rangA.length === 0 && oicData.rangB.length === 0)) {
-          console.log(`⚠️ Aucune compétence OIC pour ${item.item_code}`);
-          continue;
+        // Extraire le numéro d'item (ex: IC-1 -> 1, IC-10 -> 10)
+        const itemNumberMatch = item.item_code.match(/IC-(\d+)/)
+        if (!itemNumberMatch) {
+          console.log(`⚠️ Format item_code non reconnu: ${item.item_code}`)
+          continue
+        }
+        const itemNumber = itemNumberMatch[1].padStart(3, '0') // 1 -> 001, 10 -> 010
+        
+        // Récupérer les compétences OIC pour cet item
+        const { data: oicCompetences, error: oicError } = await supabase
+          .from('backup_oic_competences')
+          .select('*')
+          .eq('item_parent', itemNumber)
+          .order('rang, ordre')
+
+        if (oicError) {
+          console.error(`❌ Erreur OIC pour ${item.item_code}:`, oicError)
+          errors++
+          processingErrors.push({ item_code: item.item_code, error: oicError.message })
+          continue
         }
 
-        let needsUpdate = false;
-        let updateData: any = {};
+        console.log(`🔍 ${oicCompetences.length} compétences OIC trouvées pour ${item.item_code}`)
 
-        // Vérifier et compléter Rang A
-        const currentRangACount = item.competences_count_rang_a || 0;
-        const availableRangACount = oicData.rangA.length;
-        
-        if (availableRangACount > currentRangACount) {
-          console.log(`📝 ${item.item_code}: Enrichissement Rang A (${currentRangACount} → ${availableRangACount})`);
-          
-          const enrichedTableauA = {
-            title: `${item.item_code} Rang A - Compétences enrichies OIC (${availableRangACount} compétences)`,
-            sections: [{
-              title: 'Compétences fondamentales',
-              concepts: oicData.rangA
-            }]
-          };
-
-          updateData.tableau_rang_a = enrichedTableauA;
-          updateData.competences_count_rang_a = availableRangACount;
-          needsUpdate = true;
+        if (oicCompetences.length === 0) {
+          console.log(`⚠️ Aucune compétence OIC pour ${item.item_code}`)
+          continue
         }
 
-        // Vérifier et compléter Rang B
-        const currentRangBCount = item.competences_count_rang_b || 0;
-        const availableRangBCount = oicData.rangB.length;
-        
-        if (availableRangBCount > currentRangBCount) {
-          console.log(`📝 ${item.item_code}: Enrichissement Rang B (${currentRangBCount} → ${availableRangBCount})`);
-          
-          const enrichedTableauB = {
-            title: `${item.item_code} Rang B - Compétences approfondies OIC (${availableRangBCount} compétences)`,
-            sections: [{
-              title: 'Compétences approfondies',
-              concepts: oicData.rangB
-            }]
-          };
+        // Séparer rang A et rang B
+        const competencesRangA = oicCompetences.filter(c => c.rang === 'A')
+        const competencesRangB = oicCompetences.filter(c => c.rang === 'B')
 
-          updateData.tableau_rang_b = enrichedTableauB;
-          updateData.competences_count_rang_b = availableRangBCount;
-          needsUpdate = true;
+        console.log(`📊 Rang A: ${competencesRangA.length}, Rang B: ${competencesRangB.length}`)
+
+        // Formater les compétences pour l'insertion
+        const formatCompetences = (competences: any[]) => {
+          return competences.map(comp => ({
+            objectif_id: comp.objectif_id,
+            intitule: comp.intitule || '',
+            description: comp.description || '',
+            rubrique: comp.rubrique || '',
+            ordre: comp.ordre || 0,
+            concepts_cles: comp.description ? 
+              comp.description.split(/[.!?]/).slice(0, 3).map((s: string) => s.trim()).filter((s: string) => s.length > 10) : 
+              [],
+            mots_cles: comp.intitule ? 
+              comp.intitule.toLowerCase().split(/[\s,;:.]+/).filter((w: string) => w.length > 3).slice(0, 5) : 
+              []
+          }))
         }
 
-        // Mettre à jour le total
-        if (needsUpdate) {
-          const newRangACount = updateData.competences_count_rang_a || item.competences_count_rang_a || 0;
-          const newRangBCount = updateData.competences_count_rang_b || item.competences_count_rang_b || 0;
-          updateData.competences_count_total = newRangACount + newRangBCount;
-          updateData.updated_at = new Date().toISOString();
+        const competencesRangAFormatted = formatCompetences(competencesRangA)
+        const competencesRangBFormatted = formatCompetences(competencesRangB)
 
-          // Effectuer la mise à jour
-          const { error: updateError } = await supabase
-            .from('edn_items_complete')
-            .update(updateData)
-            .eq('id', item.id);
+        // Créer les tableaux de compétences pour les rangs A et B
+        const tableauRangA = {
+          title: `${item.item_code} Rang A - Connaissances fondamentales`,
+          sections: competencesRangAFormatted.map(comp => ({
+            title: comp.intitule,
+            content: comp.description,
+            concepts_cles: comp.concepts_cles,
+            mots_cles: comp.mots_cles,
+            rubrique: comp.rubrique
+          }))
+        }
 
-          if (updateError) {
-            throw new Error(`Erreur mise à jour ${item.item_code}: ${updateError.message}`);
-          }
+        const tableauRangB = {
+          title: `${item.item_code} Rang B - Connaissances approfondies`,
+          sections: competencesRangBFormatted.map(comp => ({
+            title: comp.intitule,
+            content: comp.description,
+            concepts_cles: comp.concepts_cles,
+            mots_cles: comp.mots_cles,
+            rubrique: comp.rubrique
+          }))
+        }
 
-          completedItems++;
-          completionDetails.push({
-            item_code: item.item_code,
-            rang_a_before: currentRangACount,
-            rang_a_after: newRangACount,
-            rang_b_before: currentRangBCount,
-            rang_b_after: newRangBCount,
-            total_before: item.competences_count_total || 0,
-            total_after: newRangACount + newRangBCount
-          });
+        // Générer des paroles musicales basées sur les compétences
+        const parolesRangA = competencesRangA.slice(0, 4).map(comp => 
+          `${comp.intitule} - ${comp.description?.substring(0, 50) || 'Compétence essentielle'}...`
+        )
+        const parolesRangB = competencesRangB.slice(0, 4).map(comp => 
+          `${comp.intitule} - Expertise avancée en ${comp.rubrique || 'domaine spécialisé'}`
+        )
 
-          console.log(`✅ ${item.item_code} enrichi: Total ${item.competences_count_total || 0} → ${newRangACount + newRangBCount}`);
+        // Mettre à jour l'item EDN
+        const { error: updateError } = await supabase
+          .from('edn_items_immersive')
+          .update({
+            competences_oic_rang_a: competencesRangAFormatted,
+            competences_oic_rang_b: competencesRangBFormatted,
+            competences_count_rang_a: competencesRangA.length,
+            competences_count_rang_b: competencesRangB.length,
+            competences_count_total: competencesRangA.length + competencesRangB.length,
+            tableau_rang_a: tableauRangA,
+            tableau_rang_b: tableauRangB,
+            paroles_rang_a: parolesRangA,
+            paroles_rang_b: parolesRangB,
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', item.id)
+
+        if (updateError) {
+          console.error(`❌ Erreur mise à jour ${item.item_code}:`, updateError)
+          errors++
+          processingErrors.push({ item_code: item.item_code, error: updateError.message })
+        } else {
+          updated++
+          console.log(`✅ ${item.item_code} mis à jour avec succès`)
+        }
+
+        // Petit délai pour éviter de surcharger la DB
+        if (processed % 10 === 0) {
+          console.log(`📊 Progression: ${processed}/${ednItems.length} items traités`)
+          await new Promise(resolve => setTimeout(resolve, 100))
         }
 
       } catch (error) {
-        console.error(`❌ Erreur traitement ${item.item_code}:`, error);
-        errors++;
+        console.error(`❌ Erreur traitement ${item.item_code}:`, error)
+        errors++
+        processingErrors.push({ item_code: item.item_code, error: error.message })
       }
     }
 
-    // Enregistrer cette fonction qui a marché pour référence future
-    const functionRecord = {
-      function_name: 'complete-edn-with-oic',
-      description: 'Fonction de completion intelligente EDN avec compétences OIC - TESTÉ ET VALIDÉ',
-      success_date: new Date().toISOString(),
-      processing_stats: {
-        total_items_processed: processedItems,
-        items_completed: completedItems,
-        items_with_errors: errors,
-        completion_rate: `${((completedItems / processedItems) * 100).toFixed(1)}%`
-      },
-      approach: 'Enrichissement intelligent - seulement ce qui manque',
-      notes: 'Cette fonction fonctionne parfaitement pour enrichir les items EDN avec les compétences OIC sans écraser les données existantes'
-    };
-
-    console.log('💾 Sauvegarde référence fonction validée...');
-    
-    // Sauvegarder dans ai_generated_content pour référence future
-    await supabase
-      .from('ai_generated_content')
-      .upsert({
-        identifier: 'complete-edn-with-oic-validated',
-        content_type: 'successful_function',
-        title: 'Fonction EDN-OIC Completion Validée',
-        content: functionRecord
-      });
-
     const summary = {
       success: true,
-      message: 'Completion EDN avec OIC terminée avec succès',
       statistics: {
-        items_processed: processedItems,
-        items_completed: completedItems,
-        items_with_errors: errors,
-        completion_rate: `${((completedItems / processedItems) * 100).toFixed(1)}%`
+        total_items: ednItems.length,
+        processed,
+        updated,
+        errors,
+        completion_rate: Math.round((updated / ednItems.length) * 100)
       },
-      details: completionDetails,
-      function_saved: 'complete-edn-with-oic-validated'
-    };
+      timestamp: new Date().toISOString(),
+      processing_errors: processingErrors
+    }
 
-    console.log('🎉 COMPLETION TERMINÉE !');
-    console.log(`📊 Items traités: ${processedItems}`);
-    console.log(`✅ Items enrichis: ${completedItems}`);
-    console.log(`❌ Erreurs: ${errors}`);
-    console.log(`📈 Taux de succès: ${((completedItems / processedItems) * 100).toFixed(1)}%`);
+    console.log('\n🎉 COMPLÉTION TERMINÉE!')
+    console.log(`📊 Statistiques:`)
+    console.log(`   - Items traités: ${processed}/${ednItems.length}`)
+    console.log(`   - Items mis à jour: ${updated}`)
+    console.log(`   - Erreurs: ${errors}`)
+    console.log(`   - Taux de complétion: ${summary.statistics.completion_rate}%`)
 
     return new Response(JSON.stringify(summary), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+      status: 200,
+    })
 
   } catch (error) {
-    console.error('💥 Erreur critique:', error);
+    console.error('❌ Erreur générale:', error)
     return new Response(JSON.stringify({
       success: false,
       error: error.message,
-      message: 'Erreur lors de la completion EDN-OIC'
+      timestamp: new Date().toISOString()
     }), {
-      status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+      status: 500,
+    })
   }
-});
+})
