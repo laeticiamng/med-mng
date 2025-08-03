@@ -1,0 +1,10 @@
+{
+  "name": "oic-scripts",
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "puppeteer": "^22.7.0",
+    "@supabase/supabase-js": "^2.39.5",
+    "dotenv": "^16.4.5"
+  }
+}

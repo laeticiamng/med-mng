@@ -29,14 +29,13 @@ jobs:
     - name: ℹ️ Install system deps for Chromium
       run: sudo apt-get update && sudo apt-get install -y libgbm-dev libxshmfence-dev
 
-    - name: 📦 Install deps
-      run: |
-        npm ci            # package-lock.json déjà présent
-        # Si besoin : npm i puppeteer @supabase/supabase-js dotenv
+    - name: 📦 Install OIC deps
+      working-directory: oic-scripts
+      run: npm install
 
     - name: 🚀 Run extraction / completion
+      working-directory: oic-scripts
       env:
-        SUPABASE_URL: https://yaincoxihiqdksxgrsrk.supabase.co
         SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         CAS_USERNAME: ${{ secrets.CAS_USERNAME }}
         CAS_PASSWORD: ${{ secrets.CAS_PASSWORD }}
@@ -51,6 +50,5 @@ jobs:
       with:
         name: extraction-report-${{ github.run_number }}
         path: |
-          .cache/
-          rapport-*.json
-          extraction-*.log
+          oic-scripts/.cache/
+          oic-scripts/extraction-*.json
