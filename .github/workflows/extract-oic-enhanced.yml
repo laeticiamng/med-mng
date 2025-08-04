@@ -54,11 +54,13 @@ jobs:
     
     - name: 📦 Installer les dépendances
       run: |
-        npm install node-fetch @supabase/supabase-js dotenv crypto
+        npm install puppeteer @supabase/supabase-js dotenv crypto
     
     - name: 🚀 Exécuter l'extraction OIC enhanced
       env:
         SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        CAS_USERNAME: ${{ secrets.CAS_USERNAME }}
+        CAS_PASSWORD: ${{ secrets.CAS_PASSWORD }}
         BATCH_SIZE: ${{ github.event.inputs.batch_size }}
         MAX_PAGES: ${{ github.event.inputs.max_pages }}
       run: |
@@ -66,9 +68,9 @@ jobs:
         echo "🔢 Batch size: ${BATCH_SIZE:-50}"
         echo "📊 Max pages: ${MAX_PAGES:-5000}"
         
-        # Créer le script d'extraction amélioré basé sur votre version qui marche
+        # Créer le script d'extraction avec authentification CAS (basé sur votre version qui marche)
         cat > extract-oic-enhanced.cjs << 'EOF'
-        const fetch = require('node-fetch');
+        const puppeteer = require('puppeteer');
         const fs = require('fs');
         const crypto = require('crypto');
         const { createClient } = require('@supabase/supabase-js');
@@ -77,6 +79,10 @@ jobs:
         const SUPABASE_URL = 'https://yaincoxihiqdksxgrsrk.supabase.co';
         const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
         const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+
+        // Identifiants CAS
+        const CAS_USERNAME = process.env.CAS_USERNAME;
+        const CAS_PASSWORD = process.env.CAS_PASSWORD;
 
         // Configuration améliorée
         const BATCH_SIZE = parseInt(process.env.BATCH_SIZE) || 50;
@@ -102,21 +108,59 @@ jobs:
           '11': 'Interprétation'
         };
 
-        async function getAllPageIds() {
+        async function authenticateWithCAS(page) {
+          console.log('🔐 Authentification CAS...');
+          console.log('🌐 Navigation vers page protégée pour déclencher l\'authentification...');
+          
+          await page.goto('https://livret.uness.fr/lisa/2025/Special:UserLogin', { waitUntil: 'networkidle2' });
+          
+          const currentUrl = page.url();
+          console.log(`🔍 URL initiale: ${currentUrl}`);
+          
+          if (currentUrl.includes('auth.uness.fr/cas/login')) {
+            console.log('🔑 Authentification CAS requise - début du processus...');
+            
+            await page.waitForTimeout(3000);
+            
+            console.log('📧 Saisie de l\'email...');
+            await page.waitForSelector('input[name="username"]', { timeout: 10000 });
+            await page.type('input[name="username"]', CAS_USERNAME);
+            console.log('✅ Email saisi: ***');
+            
+            console.log('🔄 Clic sur le bouton de connexion étape 1...');
+            await page.click('input[name="submit"]');
+            await page.waitForTimeout(4000);
+            
+            console.log('🔐 Saisie du mot de passe...');
+            await page.waitForSelector('input[name="password"]', { timeout: 10000 });
+            await page.type('input[name="password"]', CAS_PASSWORD);
+            console.log('✅ Mot de passe saisi');
+            
+            console.log('🔄 Clic sur le bouton de connexion étape 2...');
+            await page.click('input[name="submit"]');
+            await page.waitForTimeout(5000);
+            
+            console.log('✅ Authentification CAS terminée');
+          }
+        }
+
+        async function getAllPageIds(page) {
           console.log('🔍 Récupération de tous les page IDs...');
           let allPageIds = [];
           let continueToken = null;
           let pageCount = 0;
 
           do {
-            let url = `https://livret.uness.fr/lisa/2025/api.php?action=query&list=categorymembers&cmtitle=Catégorie:Objectif_de_connaissance&cmlimit=500&format=json&origin=*`;
+            let url = `https://livret.uness.fr/lisa/2025/api.php?action=query&list=categorymembers&cmtitle=Catégorie:Objectif_de_connaissance&cmlimit=500&format=json`;
             if (continueToken) {
               url += `&cmcontinue=${encodeURIComponent(continueToken)}`;
             }
 
             try {
-              const response = await fetch(url);
-              const data = await response.json();
+              await page.goto(url, { waitUntil: 'networkidle2' });
+              const content = await page.content();
+              const jsonText = content.match(/<pre[^>]*>(.*?)<\/pre>/s)?.[1] || content;
+              const data = JSON.parse(jsonText);
               
               if (data.query && data.query.categorymembers) {
                 const pageIds = data.query.categorymembers.map(item => item.pageid);
@@ -124,13 +168,11 @@ jobs:
                 pageCount += pageIds.length;
                 console.log(`📄 Récupéré ${pageIds.length} page IDs (total: ${pageCount})`);
                 
-                // Vérifier la limite
                 if (pageCount >= MAX_PAGES) {
                   console.log(`🛑 Limite atteinte: ${MAX_PAGES} pages`);
                   break;
                 }
                 
-                // Continuer s'il y a plus de pages
                 continueToken = data.continue ? data.continue.cmcontinue : null;
               } else {
                 console.log('⚠️ Pas de données dans la réponse');
@@ -141,7 +183,7 @@ jobs:
               break;
             }
             
-            await new Promise(resolve => setTimeout(resolve, 100));
+            await page.waitForTimeout(100);
           } while (continueToken);
 
           console.log(`✅ Total page IDs récupérés: ${allPageIds.length}`);
@@ -153,7 +195,6 @@ jobs:
             const title = page.title;
             const content = page.revisions?.[0]?.content || '';
             
-            // Pattern OIC amélioré
             const match = title.match(/OIC-(\d{3})-(\d{2})-([AB])-(\d{2})/);
             if (!match) {
               return null;
@@ -162,7 +203,6 @@ jobs:
             const [, itemNum, rubriqueCode, rang, ordre] = match;
             const objectif_id = `OIC-${itemNum}-${rubriqueCode}-${rang}-${ordre}`;
             
-            // Extraction améliorée de l'intitulé
             let intitule = title;
             const intitulePatterns = [
               /\|\s*[Ii]ntitulé\s*=\s*([^\n\|]+)/,
@@ -179,7 +219,6 @@ jobs:
               }
             }
             
-            // Extraction améliorée de la description
             let description = '';
             const descPatterns = [
               /\|\s*[Dd]escription\s*=\s*([^\n\|]+)/,
@@ -228,112 +267,127 @@ jobs:
         }
 
         async function extractCompetences() {
-          // Récupérer tous les page IDs
-          const PAGE_IDS = await getAllPageIds();
+          const browser = await puppeteer.launch({ 
+            headless: true,
+            args: ['--no-sandbox', '--disable-setuid-sandbox']
+          });
           
-          if (PAGE_IDS.length === 0) {
-            console.error('❌ Aucun page ID récupéré');
-            return;
-          }
-
-          let allResults = [];
-          let processedCount = 0;
-
-          console.log(`🔄 Début extraction de ${PAGE_IDS.length} pages par lots de ${BATCH_SIZE}...`);
-
-          for (let i = 0; i < PAGE_IDS.length; i += BATCH_SIZE) {
-            const batch = PAGE_IDS.slice(i, i + BATCH_SIZE);
-            const idsString = batch.join('|');
-            const batchNumber = Math.floor(i / BATCH_SIZE) + 1;
-            const totalBatches = Math.ceil(PAGE_IDS.length / BATCH_SIZE);
+          try {
+            const page = await browser.newPage();
             
-            console.log(`📦 Batch ${batchNumber}/${totalBatches} - Pages ${i + 1}-${Math.min(i + BATCH_SIZE, PAGE_IDS.length)}`);
-
-            const url = `https://livret.uness.fr/lisa/2025/api.php?action=query&prop=revisions&rvprop=content|timestamp&format=json&pageids=${idsString}&formatversion=2&origin=*`;
-
-            try {
-              const response = await fetch(url);
-              const data = await response.json();
-              
-              if (data && data.query && data.query.pages) {
-                for (const page of data.query.pages) {
-                  const competence = parseOICContent(page);
-                  if (competence) {
-                    allResults.push(competence);
-                    processedCount++;
-                  }
-                }
-                console.log(`✅ Batch ${batchNumber}: ${data.query.pages.length} pages traitées, ${processedCount} compétences extraites`);
-              } else {
-                console.error(`❌ Pas de données pour le batch ${batchNumber}`);
-              }
-            } catch (error) {
-              console.error(`❌ Erreur batch ${batchNumber}:`, error.message);
+            // Authentification CAS
+            await authenticateWithCAS(page);
+            
+            // Récupérer tous les page IDs
+            const PAGE_IDS = await getAllPageIds(page);
+            
+            if (PAGE_IDS.length === 0) {
+              console.error('❌ Aucun page ID récupéré');
+              return;
             }
-            
-            // Délai pour éviter la surcharge
-            await new Promise(resolve => setTimeout(resolve, 500));
-          }
 
-          console.log(`🎯 Extraction terminée: ${allResults.length} compétences extraites`);
+            let allResults = [];
+            let processedCount = 0;
 
-          // Sauvegarde locale
-          const reportData = {
-            timestamp: new Date().toISOString(),
-            total_pages_processed: PAGE_IDS.length,
-            total_competences_extracted: allResults.length,
-            batch_size: BATCH_SIZE,
-            competences: allResults
-          };
+            console.log(`🔄 Début extraction de ${PAGE_IDS.length} pages par lots de ${BATCH_SIZE}...`);
 
-          fs.writeFileSync(`rapport-extraction-${Date.now()}.json`, JSON.stringify(reportData, null, 2));
-          console.log(`💾 Rapport sauvegardé localement`);
-
-          // Sauvegarde en base Supabase par chunks
-          if (allResults.length > 0 && SUPABASE_SERVICE_KEY) {
-            console.log('💾 Sauvegarde en base Supabase...');
-            
-            const CHUNK_SIZE = 50;
-            for (let i = 0; i < allResults.length; i += CHUNK_SIZE) {
-              const chunk = allResults.slice(i, i + CHUNK_SIZE);
+            for (let i = 0; i < PAGE_IDS.length; i += BATCH_SIZE) {
+              const batch = PAGE_IDS.slice(i, i + BATCH_SIZE);
+              const idsString = batch.join('|');
+              const batchNumber = Math.floor(i / BATCH_SIZE) + 1;
+              const totalBatches = Math.ceil(PAGE_IDS.length / BATCH_SIZE);
               
-              try {
-                const { data, error } = await supabase
-                  .from('oic_competences')
-                  .upsert(chunk, { 
-                    onConflict: 'objectif_id',
-                    returning: 'minimal'
-                  });
+              console.log(`📦 Batch ${batchNumber}/${totalBatches} - Pages ${i + 1}-${Math.min(i + BATCH_SIZE, PAGE_IDS.length)}`);
 
-                if (error) {
-                  console.error(`❌ Erreur sauvegarde chunk ${Math.floor(i/CHUNK_SIZE) + 1}:`, error);
+              const url = `https://livret.uness.fr/lisa/2025/api.php?action=query&prop=revisions&rvprop=content|timestamp&format=json&pageids=${idsString}&formatversion=2`;
+
+              try {
+                await page.goto(url, { waitUntil: 'networkidle2' });
+                const content = await page.content();
+                const jsonText = content.match(/<pre[^>]*>(.*?)<\/pre>/s)?.[1] || content;
+                const data = JSON.parse(jsonText);
+                
+                if (data && data.query && data.query.pages) {
+                  for (const pageData of data.query.pages) {
+                    const competence = parseOICContent(pageData);
+                    if (competence) {
+                      allResults.push(competence);
+                      processedCount++;
+                    }
+                  }
+                  console.log(`✅ Batch ${batchNumber}: ${data.query.pages.length} pages traitées, ${processedCount} compétences extraites`);
                 } else {
-                  console.log(`✅ Chunk ${Math.floor(i/CHUNK_SIZE) + 1} sauvegardé (${chunk.length} compétences)`);
+                  console.error(`❌ Pas de données pour le batch ${batchNumber}`);
                 }
               } catch (error) {
-                console.error(`❌ Erreur technique chunk ${Math.floor(i/CHUNK_SIZE) + 1}:`, error.message);
+                console.error(`❌ Erreur batch ${batchNumber}:`, error.message);
               }
               
-              // Petit délai entre les chunks
-              await new Promise(resolve => setTimeout(resolve, 200));
+              await page.waitForTimeout(500);
             }
+
+            console.log(`🎯 Extraction terminée: ${allResults.length} compétences extraites`);
+
+            // Sauvegarde locale
+            const reportData = {
+              timestamp: new Date().toISOString(),
+              total_pages_processed: PAGE_IDS.length,
+              total_competences_extracted: allResults.length,
+              batch_size: BATCH_SIZE,
+              competences: allResults
+            };
+
+            fs.writeFileSync(`rapport-extraction-${Date.now()}.json`, JSON.stringify(reportData, null, 2));
+            console.log(`💾 Rapport sauvegardé localement`);
+
+            // Sauvegarde en base Supabase par chunks
+            if (allResults.length > 0 && SUPABASE_SERVICE_KEY) {
+              console.log('💾 Sauvegarde en base Supabase...');
+              
+              const CHUNK_SIZE = 50;
+              for (let i = 0; i < allResults.length; i += CHUNK_SIZE) {
+                const chunk = allResults.slice(i, i + CHUNK_SIZE);
+                
+                try {
+                  const { data, error } = await supabase
+                    .from('oic_competences')
+                    .upsert(chunk, { 
+                      onConflict: 'objectif_id',
+                      returning: 'minimal'
+                    });
+
+                  if (error) {
+                    console.error(`❌ Erreur sauvegarde chunk ${Math.floor(i/CHUNK_SIZE) + 1}:`, error);
+                  } else {
+                    console.log(`✅ Chunk ${Math.floor(i/CHUNK_SIZE) + 1} sauvegardé (${chunk.length} compétences)`);
+                  }
+                } catch (error) {
+                  console.error(`❌ Erreur technique chunk ${Math.floor(i/CHUNK_SIZE) + 1}:`, error.message);
+                }
+                
+                await new Promise(resolve => setTimeout(resolve, 200));
+              }
+            }
+
+            // Statistiques finales
+            const stats = {
+              total: allResults.length,
+              rang_a: allResults.filter(c => c.rang === 'A').length,
+              rang_b: allResults.filter(c => c.rang === 'B').length,
+              rubriques: [...new Set(allResults.map(c => c.rubrique))].length
+            };
+
+            console.log('📊 STATISTIQUES FINALES:');
+            console.log(`   🎯 Total: ${stats.total}`);
+            console.log(`   🅰️ Rang A: ${stats.rang_a}`);
+            console.log(`   🅱️ Rang B: ${stats.rang_b}`);
+            console.log(`   📂 Rubriques: ${stats.rubriques}`);
+            
+            return reportData;
+            
+          } finally {
+            await browser.close();
           }
-
-          // Statistiques finales
-          const stats = {
-            total: allResults.length,
-            rang_a: allResults.filter(c => c.rang === 'A').length,
-            rang_b: allResults.filter(c => c.rang === 'B').length,
-            rubriques: [...new Set(allResults.map(c => c.rubrique))].length
-          };
-
-          console.log('📊 STATISTIQUES FINALES:');
-          console.log(`   🎯 Total: ${stats.total}`);
-          console.log(`   🅰️ Rang A: ${stats.rang_a}`);
-          console.log(`   🅱️ Rang B: ${stats.rang_b}`);
-          console.log(`   📂 Rubriques: ${stats.rubriques}`);
-          
-          return reportData;
         }
 
         // Lancement de l'extraction
