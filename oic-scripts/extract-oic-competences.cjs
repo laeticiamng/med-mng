@@ -1,4 +1,3 @@
-require('dotenv').config();
 
 const puppeteer = require('puppeteer');
 const { createClient } = require('@supabase/supabase-js');
@@ -6,342 +5,426 @@ const fs = require('fs');
 const path = require('path');
 
 // Configuration
-const supabaseUrl = 'https://yaincoxihiqdksxgrsrk.supabase.co';
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const casUsername = process.env.CAS_USERNAME;
-const casPassword = process.env.CAS_PASSWORD;
-const forceUpdate = process.env.FORCE_UPDATE === 'true';
+const SUPABASE_URL = 'https://yaincoxihiqdksxgrsrk.supabase.co';
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const CAS_USERNAME = process.env.CAS_USERNAME || 'laeticia.moto-ngane@etud.u-picardie.fr';
+const CAS_PASSWORD = process.env.CAS_PASSWORD || 'Aiciteal1!';
+const FORCE_UPDATE = process.env.FORCE_UPDATE === 'true';
+const BATCH_SIZE = parseInt(process.env.BATCH_SIZE || '500');
 
-if (!supabaseKey || !casUsername || !casPassword) {
-  console.error('❌ Variables d\'environnement manquantes');
-  process.exit(1);
-}
+// Initialisation Supabase
+const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-const supabase = createClient(supabaseUrl, supabaseKey);
+// Statistiques
+let stats = {
+  total_expected: 4872,
+  total_extracted: 0,
+  total_inserted: 0,
+  total_errors: 0,
+  start_time: Date.now()
+};
 
-// Logs avec timestamp
 function log(message) {
-  console.log(`[${new Date().toISOString()}] ${message}`);
+  const timestamp = new Date().toISOString();
+  console.log(`[${timestamp}] ${message}`);
 }
 
-// Fonction principale
-async function main() {
-  let browser;
-  const startTime = Date.now();
+// Mapping des rubriques
+const RUBRIQUES_MAP = {
+  '01': 'Génétique',
+  '02': 'Hématologie', 
+  '03': 'Cancérologie',
+  '04': 'Maladies infectieuses',
+  '05': 'Pharmacologie',
+  '06': 'Endocrinologie',
+  '07': 'Cardiologie',
+  '08': 'Pneumologie',
+  '09': 'Gastroentérologie',
+  '10': 'Néphrologie',
+  '11': 'Neurologie',
+  '12': 'Psychiatrie',
+  '13': 'Dermatologie',
+  '14': 'Ophtalmologie',
+  '15': 'ORL',
+  '16': 'Chirurgie',
+  '17': 'Urgences'
+};
+
+async function authenticateCAS(page) {
+  log('🔐 Authentification CAS...');
   
   try {
-    log('🚀 Démarrage extraction/complétion OIC');
-    
-    // Créer le dossier cache
-    if (!fs.existsSync('.cache')) {
-      fs.mkdirSync('.cache');
-    }
-
-    // Mode complétion : récupérer les compétences incomplètes
-    let competencesToProcess = [];
-    
-    if (!forceUpdate) {
-      log('🔍 Mode complétion : recherche des compétences incomplètes...');
-      const { data: incompleteCompetences, error } = await supabase
-        .from('oic_competences')
-        .select('objectif_id')
-        .or('description.is.null,description.eq.');
-        
-      if (error) {
-        log(`❌ Erreur lors de la récupération des compétences incomplètes: ${error.message}`);
-        throw error;
-      }
-      
-      competencesToProcess = incompleteCompetences.map(c => c.objectif_id);
-      log(`📊 ${competencesToProcess.length} compétences à compléter`);
-      
-      if (competencesToProcess.length === 0) {
-        log('✅ Toutes les compétences sont déjà complètes');
-        return;
-      }
-    } else {
-      log('🔄 Mode FORCE_UPDATE : traitement de toutes les compétences');
-    }
-
-    // Authentification CAS
-    log('🔐 Démarrage authentification CAS...');
-    browser = await puppeteer.launch({
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    // Naviguer vers une page protégée pour déclencher l'authentification
+    log('🌐 Navigation vers page protégée pour déclencher l\'authentification...');
+    await page.goto('https://livret.uness.fr/lisa/2025/Catégorie:Objectif_de_connaissance', {
+      waitUntil: 'networkidle2',
+      timeout: 30000
     });
 
-    const page = await browser.newPage();
-    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36');
+    const currentUrl = page.url();
+    log(`🔍 URL initiale: ${currentUrl}`);
 
-    // Connexion CAS - Debug de la page
-    await page.goto('https://auth.uness.fr/cas/login?service=https%3A%2F%2Fauth.uness.fr%2Fcas%2Foauth2.0%2FcallbackAuthorize%3Fclient_id%3DRzpoxdiUoFvsFWRH%26scope%3Dprofile%26redirect_uri%3Dhttps%253A%252F%252Flivret.uness.fr%252Flisa%252F2025%252FSpecial%253AOAuth2Client%252Fcallback%26response_type%3Dcode%26state%3D0b0889076887f02207b48665fe7a00dd%26approval_prompt%3Dauto%26client_name%3DCasOAuthClient');
-    
-    // Attendre le chargement de la page
-    await page.waitForLoadState('networkidle');
-    await new Promise(resolve => setTimeout(resolve, 3000));
-    
-    // Debug: afficher la structure de la page
-    const pageContent = await page.content();
-    log(`📄 Page content length: ${pageContent.length}`);
-    
-    // Chercher tous les inputs disponibles
-    const allInputs = await page.$$eval('input', inputs => 
-      inputs.map(input => ({
-        id: input.id,
-        name: input.name,
-        type: input.type,
-        className: input.className,
-        placeholder: input.placeholder
-      }))
-    );
-    log(`🔍 Inputs trouvés: ${JSON.stringify(allInputs)}`);
-    
-    // Attendre et trouver le champ username
-    let usernameInput = null;
-    const usernameSelectors = ['#username', 'input[name="username"]', 'input[name="login"]', 'input[type="text"]'];
-    
-    for (const selector of usernameSelectors) {
-      try {
-        await page.waitForSelector(selector, { timeout: 2000 });
-        usernameInput = selector;
-        break;
-      } catch (e) {
-        continue;
+    // Vérifier si on est redirigé vers CAS
+    if (currentUrl.includes('auth.uness.fr/cas/login')) {
+      log('🔑 Authentification CAS requise - début du processus...');
+      
+      // Attendre et remplir l'email
+      await page.waitForSelector('input[name="username"], input[type="email"], #username', { timeout: 10000 });
+      await page.type('input[name="username"], input[type="email"], #username', CAS_USERNAME);
+      log('📧 Saisie de l\'email...');
+      
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      log(`✅ Email saisi: ${CAS_USERNAME.replace(/./g, '*')}`);
+      
+      // Premier clic pour passer à l'étape mot de passe
+      log('🔄 Clic sur le bouton de connexion étape 1...');
+      const nextButton = await page.$('button[type="submit"], input[type="submit"], .btn-primary');
+      if (nextButton) {
+        await nextButton.click();
+        await page.waitForTimeout(3000);
       }
-    }
-    
-    if (!usernameInput) {
-      log(`❌ Aucun champ username trouvé parmi: ${usernameSelectors.join(', ')}`);
-      throw new Error('Champ username introuvable');
-    }
-    
-    log(`✅ Username field trouvé: ${usernameInput}`);
-    await page.fill(usernameInput, casUsername);
-    
-    // Attendre et trouver le champ password
-    let passwordInput = null;
-    const passwordSelectors = ['#password', 'input[name="password"]', 'input[type="password"]'];
-    
-    for (const selector of passwordSelectors) {
-      try {
-        const element = await page.$(selector);
-        if (element) {
-          passwordInput = selector;
+      
+      // Attendre et remplir le mot de passe
+      await page.waitForSelector('input[name="password"], input[type="password"], #password', { timeout: 10000 });
+      await page.type('input[name="password"], input[type="password"], #password', CAS_PASSWORD);
+      log('🔐 Saisie du mot de passe...');
+      
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      log('✅ Mot de passe saisi');
+      
+      // Deuxième clic pour se connecter
+      log('🔄 Clic sur le bouton de connexion étape 2...');
+      const loginButton = await page.$('button[type="submit"], input[type="submit"], .btn-primary');
+      if (loginButton) {
+        await loginButton.click();
+      }
+      
+      // Attendre la redirection complète vers LiSA
+      log('⏳ Attente de la redirection OAuth2 complète...');
+      let attempts = 0;
+      const maxAttempts = 20;
+      
+      while (attempts < maxAttempts) {
+        await page.waitForTimeout(500);
+        const url = page.url();
+        
+        log(`🔍 Tentative ${attempts + 1} - URL actuelle: ${url.substring(0, 80)}...`);
+        
+        if (url.includes('livret.uness.fr/lisa') && !url.includes('auth.uness.fr')) {
+          log('🎉 Redirection OAuth2 réussie !');
           break;
         }
-      } catch (e) {
-        continue;
+        
+        attempts++;
+      }
+      
+      if (attempts >= maxAttempts) {
+        throw new Error('Timeout lors de la redirection OAuth2');
       }
     }
     
-    if (!passwordInput) {
-      log(`❌ Aucun champ password trouvé parmi: ${passwordSelectors.join(', ')}`);
-      log(`📋 Inputs disponibles: ${JSON.stringify(allInputs)}`);
-      throw new Error('Champ password introuvable');
-    }
+    log('✅ Authentification CAS terminée avec succès');
     
-    log(`✅ Password field trouvé: ${passwordInput}`);
-    await page.fill(passwordInput, casPassword);
-    
-    // Chercher et cliquer sur le bouton submit
-    const submitSelectors = [
-      'input[type="submit"]', 
-      'button[type="submit"]', 
-      'button:has-text("Connexion")',
-      'button:has-text("Se connecter")',
-      'button:has-text("Login")',
-      '.btn-submit',
-      '#submitButton'
-    ];
-    
-    let submitButton = null;
-    for (const selector of submitSelectors) {
-      try {
-        const element = await page.$(selector);
-        if (element) {
-          submitButton = selector;
-          break;
-        }
-      } catch (e) {
-        continue;
-      }
-    }
-    
-    if (!submitButton) {
-      log(`❌ Aucun bouton submit trouvé`);
-      throw new Error('Bouton submit introuvable');
-    }
-    
-    log(`✅ Submit button trouvé: ${submitButton}`);
-    await page.click(submitButton);
-    
-    await page.waitForNavigation();
-    log('✅ Authentification CAS réussie');
-
-    // Exporter les cookies
+    // Récupérer les cookies de session
     const cookies = await page.cookies();
-    const unessCookies = cookies.filter(cookie => 
-      cookie.domain.includes('uness.fr')
-    );
+    const unesssCookies = cookies.filter(cookie => cookie.domain.includes('uness.fr'));
     
-    const cookieString = unessCookies
-      .map(cookie => `${cookie.name}=${cookie.value}`)
-      .join('; ');
+    log(`🍪 Cookies de session récupérés: ${unesssCookies.length} cookies pour uness.fr`);
+    log('🔍 COOKIES DÉTAILLÉS:');
+    unesssCookies.forEach((cookie, index) => {
+      const valuePreview = cookie.value.substring(0, 20) + '...';
+      log(`   ${index + 1}. ${cookie.name}=${valuePreview} (domain: ${cookie.domain})`);
+    });
     
-    fs.writeFileSync('.cache/cookies.txt', cookieString);
-    log(`🍪 ${unessCookies.length} cookies exportés`);
-
-    await browser.close();
-
-    // Extraction via API MediaWiki
-    log('📚 Démarrage extraction MediaWiki...');
+    // Test API avec les cookies
+    const testApiUrl = 'https://livret.uness.fr/lisa/2025/api.php?action=query&list=categorymembers&cmtitle=Catégorie:Objectif_de_connaissance&cmlimit=1&format=json';
     
-    const baseUrl = 'https://livret.uness.fr/lisa/2025/api.php';
-    let cmcontinue = null;
-    let totalProcessed = 0;
-    let batchCount = 0;
-    const maxBatches = 20;
-
-    do {
-      batchCount++;
-      if (batchCount > maxBatches) {
-        log(`⚠️ Limite de ${maxBatches} lots atteinte`);
-        break;
-      }
-
-      log(`📦 Traitement lot ${batchCount}...`);
-
-      const params = new URLSearchParams({
-        action: 'query',
-        list: 'categorymembers',
-        cmtitle: 'Catégorie:Objectif_de_connaissance',
-        cmlimit: '50',
-        format: 'json'
-      });
-
-      if (cmcontinue) {
-        params.append('cmcontinue', cmcontinue);
-      }
-
-      const response = await fetch(`${baseUrl}?${params}`, {
-        headers: {
-          'Cookie': cookieString,
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-        }
-      });
-
-      if (!response.ok) {
-        throw new Error(`Erreur API: ${response.status}`);
-      }
-
-      const data = await response.json();
-      const members = data.query?.categorymembers || [];
-      
-      log(`📄 ${members.length} pages trouvées dans ce lot`);
-
-      // Traitement des compétences
-      for (const member of members) {
-        const title = member.title;
-        
-        // Extraire le code compétence
-        const match = title.match(/^OIC\s*[\-\s]*(\d+(?:\.\d+)*)/i);
-        if (!match) continue;
-
-        const codeCompetence = `OIC-${match[1]}`;
-        
-        // Filtrer selon le mode
-        if (!forceUpdate && !competencesToProcess.includes(codeCompetence)) {
-          continue;
-        }
-
-        try {
-          // Récupérer le contenu de la page
-          const pageParams = new URLSearchParams({
-            action: 'query',
-            prop: 'revisions',
-            titles: title,
-            rvprop: 'content',
-            format: 'json'
-          });
-
-          const pageResponse = await fetch(`${baseUrl}?${pageParams}`, {
-            headers: {
-              'Cookie': cookieString,
-              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-            }
-          });
-
-          const pageData = await pageResponse.json();
-          const pages = pageData.query?.pages || {};
-          const pageContent = Object.values(pages)[0]?.revisions?.[0]?.['*'] || '';
-
-          // Extraction des données
-          const competenceData = {
-            objectif_id: codeCompetence,
-            intitule: title,
-            description: extractDescription(pageContent),
-            sommaire: pageContent.substring(0, 5000), // Limiter pour éviter les quotas
-            url_source: `https://livret.uness.fr/lisa/2025/${encodeURIComponent(title)}`,
-            extraction_status: 'completed'
-          };
-
-          // Insertion en base
-          const { error: upsertError } = await supabase
-            .from('oic_competences')
-            .upsert(competenceData, {
-              onConflict: 'objectif_id'
-            });
-
-          if (upsertError) {
-            log(`❌ Erreur insertion ${codeCompetence}: ${upsertError.message}`);
-          } else {
-            log(`✅ ${codeCompetence} traité`);
-            totalProcessed++;
-          }
-
-          // Délai entre les requêtes
-          await new Promise(resolve => setTimeout(resolve, 100));
-
-        } catch (err) {
-          log(`❌ Erreur traitement ${codeCompetence}: ${err.message}`);
-        }
-      }
-
-      // Pagination
-      cmcontinue = data.continue?.cmcontinue;
-      
-      if (cmcontinue) {
-        log(`➡️ Continuation: ${cmcontinue}`);
-        await new Promise(resolve => setTimeout(resolve, 1000));
-      }
-
-    } while (cmcontinue);
-
-    // Rapport final
-    const duration = Math.round((Date.now() - startTime) / 1000);
-    const report = {
-      timestamp: new Date().toISOString(),
-      mode: forceUpdate ? 'FORCE_UPDATE' : 'COMPLETION',
-      batches_processed: batchCount,
-      competences_processed: totalProcessed,
-      duration_seconds: duration,
-      success: true
-    };
-
-    fs.writeFileSync('extraction-success.json', JSON.stringify(report, null, 2));
-    log(`🎉 Extraction terminée: ${totalProcessed} compétences en ${duration}s`);
-
+    log('🧪 TEST API avec authentification et cookies...');
+    const testResponse = await page.evaluate(async (url) => {
+      const response = await fetch(url);
+      return {
+        status: response.status,
+        ok: response.ok,
+        text: await response.text()
+      };
+    }, testApiUrl);
+    
+    log(`🧪 Réponse API test: status=${testResponse.status}, ok=${testResponse.ok}`);
+    log(`🧪 Contenu API test (200 premiers chars): ${testResponse.text.substring(0, 200)}...`);
+    
+    if (testResponse.ok && testResponse.text.includes('categorymembers')) {
+      const testData = JSON.parse(testResponse.text);
+      const memberCount = testData.query?.categorymembers?.length || 0;
+      log(`✅ TEST API RÉUSSI: ${memberCount} membres trouvés`);
+    } else {
+      throw new Error('Test API échoué après authentification');
+    }
+    
+    return true;
+    
   } catch (error) {
-    log(`❌ Erreur: ${error.message}`);
+    log(`❌ Erreur authentification CAS: ${error.message}`);
+    throw error;
+  }
+}
+
+async function extractViaAPI(page) {
+  log('📡 === EXTRACTION VIA API MEDIAWIKI ===');
+  
+  const allCompetences = [];
+  let cmcontinue = '';
+  let batchNumber = 1;
+  
+  do {
+    let apiUrl = `https://livret.uness.fr/lisa/2025/api.php?action=query&list=categorymembers&cmtitle=Catégorie:Objectif_de_connaissance&cmlimit=${BATCH_SIZE}&format=json`;
+    if (cmcontinue) {
+      apiUrl += `&cmcontinue=${encodeURIComponent(cmcontinue)}`;
+    }
     
-    // Rapport d'erreur
-    const errorReport = {
-      timestamp: new Date().toISOString(),
-      error: error.message,
-      success: false
+    log(`🔗 URL API: ${apiUrl}`);
+    
+    try {
+      const response = await page.evaluate(async (url) => {
+        const res = await fetch(url);
+        return {
+          status: res.status,
+          ok: res.ok,
+          data: await res.json()
+        };
+      }, apiUrl);
+      
+      if (!response.ok || response.data.error) {
+        throw new Error(`Erreur API: ${response.data.error?.info || 'Réponse non-ok'}`);
+      }
+      
+      const members = response.data.query?.categorymembers || [];
+      log(`📋 ${members.length} membres trouvés dans la catégorie (API)`);
+      
+      if (batchNumber === 1) {
+        log('🔍 DEBUG - Exemples de titres de pages:');
+        members.slice(0, 7).forEach((member, index) => {
+          log(`   ${index + 1}. "${member.title}" (ID: ${member.pageid})`);
+        });
+      }
+      
+      // Traitement des membres
+      for (const member of members) {
+        const competence = parseOICTitle(member.title);
+        if (competence) {
+          competence.pageid = member.pageid;
+          competence.url_source = `https://livret.uness.fr/lisa/2025/${encodeURIComponent(member.title)}`;
+          competence.date_import = new Date().toISOString();
+          competence.extraction_status = 'api_extracted';
+          allCompetences.push(competence);
+          stats.total_extracted++;
+        } else {
+          stats.total_errors++;
+        }
+      }
+      
+      // Pagination
+      cmcontinue = response.data.continue?.cmcontinue || '';
+      
+      log(`✅ Batch ${batchNumber} traité: ${members.length} pages, ${allCompetences.length} compétences cumulées`);
+      batchNumber++;
+      
+      // Pause entre les requêtes
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+    } catch (error) {
+      log(`❌ Erreur batch API ${batchNumber}: ${error.message}`);
+      break;
+    }
+    
+  } while (cmcontinue && allCompetences.length < 6000); // Limite sécurité
+  
+  return allCompetences;
+}
+
+function parseOICTitle(title) {
+  try {
+    // Pattern pour extraire les informations du titre
+    const oicMatch = title.match(/OIC-(\d{3})-(\d{2})-([AB])-?(\d{2})?/);
+    if (!oicMatch) return null;
+    
+    const [fullMatch, itemParent, rubriqueCode, rang, ordre] = oicMatch;
+    
+    // Extraire l'intitulé (tout ce qui précède le code OIC)
+    const intitule = title.replace(fullMatch, '').trim();
+    
+    return {
+      objectif_id: fullMatch,
+      intitule: intitule || `Objectif ${fullMatch}`,
+      item_parent: itemParent,
+      rang,
+      rubrique: RUBRIQUES_MAP[rubriqueCode] || `Rubrique ${rubriqueCode}`,
+      description: `Description de l'objectif ${fullMatch}`,
+      ordre: ordre ? parseInt(ordre) : 1
     };
     
-    fs.writeFileSync('extraction-error.json', JSON.stringify(errorReport, null, 2));
+  } catch (error) {
+    log(`❌ Erreur parsing titre: ${title} - ${error.message}`);
+    return null;
+  }
+}
+
+async function saveToSupabase(competences) {
+  log(`💾 SAUVEGARDE SUPABASE: ${competences.length} compétences`);
+  
+  if (competences.length === 0) return { inserted: 0, errors: 0 };
+  
+  let totalInserted = 0;
+  let totalErrors = 0;
+  const batchSize = 100;
+  
+  for (let i = 0; i < competences.length; i += batchSize) {
+    const batch = competences.slice(i, i + batchSize);
+    
+    try {
+      const { data, error } = await supabase
+        .from('backup_oic_competences')
+        .upsert(batch, { 
+          onConflict: 'objectif_id',
+          ignoreDuplicates: false 
+        })
+        .select('objectif_id');
+
+      if (error) {
+        log(`❌ Erreur batch Supabase: ${error.message}`);
+        totalErrors += batch.length;
+      } else {
+        const inserted = data?.length || 0;
+        totalInserted += inserted;
+        log(`   ✅ Batch ${Math.floor(i/batchSize) + 1}: ${inserted}/${batch.length} insérées`);
+      }
+    } catch (err) {
+      log(`❌ Exception batch: ${err.message}`);
+      totalErrors += batch.length;
+    }
+    
+    // Pause entre batches
+    await new Promise(resolve => setTimeout(resolve, 200));
+  }
+  
+  return { inserted: totalInserted, errors: totalErrors };
+}
+
+async function generateReport(competences, saveResult) {
+  const duration = (Date.now() - stats.start_time) / 1000;
+  
+  const report = {
+    metadata: {
+      extraction_date: new Date().toISOString(),
+      duration_seconds: duration,
+      extractor: 'GitHub Actions + Puppeteer CAS',
+      version: '2.0'
+    },
+    statistics: {
+      total_expected: stats.total_expected,
+      total_extracted: stats.total_extracted,
+      total_inserted: saveResult.inserted,
+      total_errors: stats.total_errors + saveResult.errors,
+      completion_rate: ((saveResult.inserted / stats.total_expected) * 100).toFixed(1)
+    },
+    sample_competences: competences.slice(0, 5).map(c => ({
+      objectif_id: c.objectif_id,
+      intitule: c.intitule,
+      item_parent: c.item_parent,
+      rang: c.rang,
+      rubrique: c.rubrique
+    }))
+  };
+  
+  // Créer les dossiers si nécessaire
+  const cacheDir = path.join(__dirname, '.cache');
+  if (!fs.existsSync(cacheDir)) {
+    fs.mkdirSync(cacheDir, { recursive: true });
+  }
+  
+  // Sauvegarder le rapport
+  const reportPath = path.join(cacheDir, 'extraction-report.json');
+  fs.writeFileSync(reportPath, JSON.stringify(report, null, 2));
+  
+  log('📊 RAPPORT FINAL GÉNÉRÉ:');
+  log(`   📈 Durée: ${duration.toFixed(1)}s`);
+  log(`   🎯 Extraites: ${stats.total_extracted}`);
+  log(`   💾 Insérées: ${saveResult.inserted}`);
+  log(`   ❌ Erreurs: ${stats.total_errors + saveResult.errors}`);
+  log(`   📊 Complétude: ${report.statistics.completion_rate}%`);
+  log(`   📁 Rapport sauvé: ${reportPath}`);
+  
+  return report;
+}
+
+async function main() {
+  log('🚀 DÉMARRAGE EXTRACTION OIC - 4,872 COMPÉTENCES ATTENDUES');
+  log('===============================================');
+  
+  let browser;
+  try {
+    // Lancement de Puppeteer
+    browser = await puppeteer.launch({
+      headless: 'new',
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-gpu',
+        '--no-first-run',
+        '--disable-default-apps',
+        '--disable-features=VizDisplayCompositor'
+      ]
+    });
+    
+    const page = await browser.newPage();
+    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+    
+    // Authentification CAS
+    await authenticateCAS(page);
+    
+    // Vérification finale de l'authentification
+    const finalUrl = page.url();
+    log(`🔍 URL après authentification: ${finalUrl}`);
+    
+    if (!finalUrl.includes('livret.uness.fr')) {
+      log('🌐 Navigation finale vers LiSA...');
+      await page.goto('https://livret.uness.fr/lisa/2025/Catégorie:Objectif_de_connaissance', {
+        waitUntil: 'networkidle2',
+        timeout: 15000
+      });
+    } else {
+      log('✅ Déjà sur livret.uness.fr après authentification');
+    }
+    
+    await page.waitForTimeout(3000);
+    const verificationUrl = page.url();
+    log(`🔍 URL finale pour vérification: ${verificationUrl}`);
+    
+    if (!verificationUrl.includes('livret.uness.fr')) {
+      throw new Error('Échec de l\'authentification - pas sur livret.uness.fr');
+    }
+    
+    log('✅ Authentification CAS réussie');
+    log('📊 Début extraction via API MediaWiki...');
+    
+    // Extraction hybride
+    log('🚀 === DÉBUT EXTRACTION HYBRIDE ===');
+    const competences = await extractViaAPI(page);
+    
+    log(`📊 EXTRACTION TERMINÉE: ${competences.length} compétences`);
+    
+    // Sauvegarde en base
+    const saveResult = await saveToSupabase(competences);
+    stats.total_inserted = saveResult.inserted;
+    
+    // Génération du rapport
+    await generateReport(competences, saveResult);
+    
+    log('🎉 EXTRACTION OIC TERMINÉE AVEC SUCCÈS !');
+    
+  } catch (error) {
+    log(`💥 ERREUR CRITIQUE: ${error.message}`);
+    console.error(error);
     process.exit(1);
   } finally {
     if (browser) {
@@ -350,107 +433,12 @@ async function main() {
   }
 }
 
-// Fonction d'extraction de description
-function extractDescription(content) {
-  if (!content) return null;
-  
-  console.log(`📄 Parsing contenu de ${content.length} caractères...`);
-  
-  // 1. Extraire tout le contenu principal (sans métadonnées wiki)
-  let cleanContent = content
-    // Supprimer les directives MediaWiki
-    .replace(/{{[^}]*}}/gs, '')
-    .replace(/__[A-Z_]+__/g, '')
-    .replace(/\[\[Category:[^\]]*\]\]/gi, '')
-    .replace(/\[\[Catégorie:[^\]]*\]\]/gi, '')
-    // Nettoyer les liens wiki mais garder le texte
-    .replace(/\[\[([^|\]]+)\|([^\]]+)\]\]/g, '$2')  // [[lien|texte]] -> texte
-    .replace(/\[\[([^\]]+)\]\]/g, '$1')              // [[lien]] -> lien
-    // Supprimer les balises de mise en forme
-    .replace(/'''([^']+)'''/g, '$1')                 // gras
-    .replace(/''([^']+)''/g, '$1')                   // italique
-    .replace(/<[^>]*>/g, '')                         // balises HTML
-    // Nettoyer les caractères spéciaux
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&amp;/g, '&')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .trim();
-
-  // 2. Extraire par sections (approche plus complète)
-  const sections = [];
-  
-  // Rechercher les patterns de contenu structuré
-  const contentPatterns = [
-    // Définitions et descriptions
-    /(?:définition|description|présentation)[^:]*:\s*([^.\n]{30,})/gi,
-    // Objectifs pédagogiques
-    /(?:objectifs?|buts?|finalités?)[^:]*:\s*([^.\n]{30,})/gi,
-    // Éléments de contenu principaux
-    /(?:contenu|éléments?|points?)[^:]*:\s*([^.\n]{30,})/gi,
-    // Compétences attendues
-    /(?:compétences?|capacités?|savoir)[^:]*:\s*([^.\n]{30,})/gi,
-    // Connaissances
-    /(?:connaissances?|notions?)[^:]*:\s*([^.\n]{30,})/gi
-  ];
-
-  contentPatterns.forEach(pattern => {
-    let match;
-    while ((match = pattern.exec(cleanContent)) !== null) {
-      const section = match[1].trim();
-      if (section.length > 20 && section.length < 1000) {
-        sections.push(section);
-      }
-    }
+// Lancement du script
+if (require.main === module) {
+  main().catch(error => {
+    console.error('💥 Erreur non gérée:', error);
+    process.exit(1);
   });
-
-  // 3. Si pas de sections structurées, extraire les paragraphes significatifs
-  if (sections.length === 0) {
-    const paragraphs = cleanContent.split(/\n\s*\n/);
-    
-    for (const paragraph of paragraphs) {
-      const cleaned = paragraph
-        .replace(/^\s*[*-]\s*/, '')  // Puces
-        .replace(/^\s*\d+\.\s*/, '') // Numérotation
-        .trim();
-      
-      if (cleaned.length >= 50 && cleaned.length <= 1000 && 
-          !cleaned.includes('{{') && 
-          !cleaned.includes('[[') && 
-          !cleaned.match(/^[A-Z_][A-Z_\s]*$/)) {  // Éviter les titres en majuscules
-        sections.push(cleaned);
-      }
-    }
-  }
-
-  // 4. Combiner les sections en description complète
-  if (sections.length > 0) {
-    let fullDescription = sections.join(' • ');
-    
-    // Limiter la taille mais garder plus de contenu
-    if (fullDescription.length > 2000) {
-      fullDescription = fullDescription.substring(0, 1997) + '...';
-    }
-    
-    console.log(`✅ Description extraite: ${fullDescription.length} caractères`);
-    return fullDescription;
-  }
-
-  // 5. Fallback : premier contenu significatif
-  const lines = cleanContent.split('\n');
-  for (const line of lines) {
-    const cleaned = line.trim();
-    if (cleaned.length >= 100 && cleaned.length <= 500 && 
-        !cleaned.startsWith('=') && 
-        !cleaned.includes('{{')) {
-      console.log(`⚠️ Fallback description: ${cleaned.length} caractères`);
-      return cleaned;
-    }
-  }
-  
-  console.log(`❌ Aucune description extraite du contenu`);
-  return null;
 }
 
-// Lancement
-main().catch(console.error);
+module.exports = { main, authenticateCAS, extractViaAPI, parseOICTitle, saveToSupabase };
