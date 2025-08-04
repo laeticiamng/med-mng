@@ -42,11 +42,7 @@ jobs:
         node-version: '18'
         cache: 'npm'
     
-    - name: Install dependencies
-      run: |
-        npm install puppeteer @supabase/supabase-js dotenv
-    
-    - name: Install OIC dependencies
+    - name: Install dependencies in oic-scripts
       working-directory: oic-scripts
       run: npm install
     
@@ -65,5 +61,6 @@ jobs:
       with:
         name: extraction-report
         path: |
-          rapport-*.json
-          extraction-*.log
+          oic-scripts/rapport-*.json
+          oic-scripts/extraction-*.log
+          oic-scripts/.cache/
