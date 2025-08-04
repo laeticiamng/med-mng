@@ -25,6 +25,7 @@ import { PricingPlans } from "@/components/med-mng/PricingPlans";
 import { useIAQuota } from "@/hooks/useIAQuota";
 import { useSubscription } from "@/hooks/useSubscription";
 import { GenerateAllLyricsButton } from "@/components/edn/GenerateAllLyricsButton";
+import { LyricsGenerationManager } from "@/components/edn/LyricsGenerationManager";
 
 interface EdnItem {
   id: string;
@@ -476,8 +477,7 @@ export default function EdnComplete() {
 
           <TabsContent value="music">
             <div className="space-y-6">
-              <GenerateAllLyricsButton />
-              <LyricsCompletionStatus />
+              <LyricsGenerationManager />
             </div>
           </TabsContent>
 
