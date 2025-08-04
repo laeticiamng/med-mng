@@ -46,7 +46,12 @@ jobs:
       run: |
         npm install puppeteer @supabase/supabase-js dotenv
     
+    - name: Install OIC dependencies
+      working-directory: oic-scripts
+      run: npm install
+    
     - name: Run OIC extraction
+      working-directory: oic-scripts
       env:
         SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         CAS_USERNAME: ${{ secrets.CAS_USERNAME }}
