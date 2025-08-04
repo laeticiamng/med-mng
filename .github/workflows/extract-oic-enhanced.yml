@@ -131,12 +131,40 @@ jobs:
               await page.fill('input[name="password"], input[type="password"], #password', process.env.CAS_PASSWORD);
               console.log('✅ Mot de passe saisi');
               
-              // Deuxième clic
+              // Deuxième clic - CRUCIAL: Reproduire la logique de la version 31
               console.log('🔄 Clic sur le bouton de connexion étape 2...');
               const loginButton = await page.locator('button[type="submit"], input[type="submit"], .btn-primary').first();
               await loginButton.click();
               
-              // Attendre la redirection
+              // MODIFICATION CRITIQUE: Attendre la redirection comme version 31
+              console.log('⏳ Attente de la redirection OAuth2 complète...');
+              
+              // Version 31 : attend que l'URL contienne 'livret.uness.fr/lisa/2025/Cat'
+              let redirectSuccess = false;
+              let attempt = 0;
+              const maxAttempts = 20;
+              
+              while (attempt < maxAttempts && !redirectSuccess) {
+                await new Promise(resolve => setTimeout(resolve, 500));
+                attempt++;
+                
+                const currentUrl = page.url();
+                console.log(`🔍 Tentative ${attempt} - URL actuelle: ${currentUrl.substring(0, 80)}...`);
+                
+                // Condition exacte de la version 31 qui marche
+                if (currentUrl.includes('livret.uness.fr/lisa/2025/Cat') && 
+                    currentUrl.includes('Objectif_de_connaissance')) {
+                  console.log('🎉 Redirection OAuth2 réussie !');
+                  redirectSuccess = true;
+                  break;
+                }
+              }
+              
+              if (!redirectSuccess) {
+                throw new Error('Timeout lors de la redirection OAuth2 - Version 31 réussit ici');
+              }
+              
+              // Attendre stabilisation page
               await page.waitForLoadState('networkidle');
               console.log(`✅ Authentification terminée, URL: ${page.url()}`);
             }
