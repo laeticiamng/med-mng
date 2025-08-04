@@ -192,31 +192,30 @@ function generateSpecificLyrics(item: EdnItem, competences: any[], rang: 'A' | '
   const lyrics: string[] = [];
   const itemNumber = item.item_code.split('-')[1];
   
-  // Extraire les concepts clés des compétences réelles
+  // Extraire les concepts clés des compétences réelles et créer des paroles chantables
   const medicalConcepts = competences && competences.length > 0
     ? competences.slice(0, 8).map(comp => {
         const text = comp.intitule || comp.description || '';
-        // Nettoyer et extraire les concepts médicaux
-        return cleanMedicalConcept(text);
+        return createSingableLyric(text);
       }).filter(concept => concept.length > 0)
-    : getDefaultMedicalConcepts(item, rang);
+    : getDefaultMedicalLyrics(item, rang);
 
   // Assurer qu'on a au moins 8 concepts
   while (medicalConcepts.length < 8) {
-    medicalConcepts.push(...getDefaultMedicalConcepts(item, rang));
+    medicalConcepts.push(...getDefaultMedicalLyrics(item, rang));
   }
   
-  const shortTitle = extractMedicalKeywords(item.title);
+  const shortTitle = extractKeywords(item.title);
   
   // COUPLET 1 - Concepts médicaux spécifiques
   lyrics.push(
-    medicalConcepts[0],
-    medicalConcepts[1], 
+    medicalConcepts[0] || `${shortTitle} étudier`,
+    medicalConcepts[1] || `Compétences analyser`, 
     `Pour ${shortTitle} comprendre`,
-    `Chaque détail bien apprendre`
+    `Expertise développer`
   );
   
-  // REFRAIN - Assonances médicales
+  // REFRAIN - Assonances médicales avec le titre
   lyrics.push(
     `${shortTitle} maîtriser`,
     `Diagnostic préciser`,
@@ -226,10 +225,10 @@ function generateSpecificLyrics(item: EdnItem, competences: any[], rang: 'A' | '
   
   // COUPLET 2
   lyrics.push(
-    medicalConcepts[2],
-    medicalConcepts[3],
-    `Sémiologie analyser`,
-    `Pathologie identifier`
+    medicalConcepts[2] || `Sémiologie étudier`,
+    medicalConcepts[3] || `Pathologie analyser`,
+    `Signes cliniques observer`,
+    `Syndrome identifier`
   );
   
   lyrics.push(
@@ -241,10 +240,10 @@ function generateSpecificLyrics(item: EdnItem, competences: any[], rang: 'A' | '
   
   // COUPLET 3
   lyrics.push(
-    medicalConcepts[4],
-    medicalConcepts[5],
-    `Surveillance organiser`,
-    `Évolution surveiller`
+    medicalConcepts[4] || `Thérapeutique choisir`,
+    medicalConcepts[5] || `Surveillance organiser`,
+    `Évolution surveiller`,
+    `Pronostic évaluer`
   );
   
   lyrics.push(
@@ -256,9 +255,9 @@ function generateSpecificLyrics(item: EdnItem, competences: any[], rang: 'A' | '
   
   // COUPLET 4 FINAL
   lyrics.push(
-    medicalConcepts[6],
-    medicalConcepts[7],
-    `Compétence développer`,
+    medicalConcepts[6] || `Prévention enseigner`,
+    medicalConcepts[7] || `Éducation prodiguer`,
+    `Compétence acquérir`,
     `Expertise consolider`
   );
   
@@ -277,105 +276,108 @@ function generateMixedLyrics(item: EdnItem, competencesA: any[], competencesB: a
   const lyrics: string[] = [];
   
   // Combiner les concepts des deux rangs
-  const conceptsA = competencesA.slice(0, 4).map(comp => cleanMedicalConcept(comp.intitule || comp.description || ''));
-  const conceptsB = competencesB.slice(0, 4).map(comp => cleanMedicalConcept(comp.intitule || comp.description || ''));
+  const conceptsA = competencesA.slice(0, 4).map(comp => createSingableLyric(comp.intitule || comp.description || ''));
+  const conceptsB = competencesB.slice(0, 4).map(comp => createSingableLyric(comp.intitule || comp.description || ''));
   
-  const shortTitle = extractMedicalKeywords(item.title);
+  const shortTitle = extractKeywords(item.title);
   
   // COUPLET 1 - Mix fondamental + expertise
   lyrics.push(
-    conceptsA[0] || 'Connaissances fondamentales',
-    conceptsB[0] || 'Expertise spécialisée',
-    `${shortTitle} complet maîtriser`,
-    `Formation globale finaliser`
+    conceptsA[0] || 'Bases fondamentales',
+    conceptsB[0] || 'Expertise développer',
+    `${shortTitle} intégrer`,
+    `Formation compléter`
   );
   
   // REFRAIN MIXTE
   lyrics.push(
-    `${shortTitle} intégrer`,
+    `${shortTitle} maîtriser`,
     `Compétences développer`,
     `Excellence atteindre`,
-    `Maîtrise parfaite viser`
+    `Expertise parfaire`
   );
   
   // COUPLET 2
   lyrics.push(
-    conceptsA[1] || 'Diagnostic de base',
+    conceptsA[1] || 'Diagnostic établir',
     conceptsB[1] || 'Analyse approfondie',
-    `Approche complète adopter`,
-    `Qualité optimiser`
+    `Approche globale adopter`,
+    `Qualité améliorer`
   );
   
   lyrics.push(
-    `${shortTitle} intégrer`,
+    `${shortTitle} maîtriser`,
     `Compétences développer`,
     `Excellence atteindre`,
-    `Maîtrise parfaite viser`
+    `Expertise parfaire`
   );
   
   // COUPLET 3
   lyrics.push(
-    conceptsA[2] || 'Traitement standard',
-    conceptsB[2] || 'Prise en charge experte',
+    conceptsA[2] || 'Traitement adapter',
+    conceptsB[2] || 'Prise en charge optimiser',
     `Soins personnaliser`,
-    `Résultats optimiser`
+    `Résultats améliorer`
   );
   
   lyrics.push(
-    `${shortTitle} intégrer`,
+    `${shortTitle} maîtriser`,
     `Compétences développer`,
     `Excellence atteindre`,
-    `Maîtrise parfaite viser`
+    `Expertise parfaire`
   );
   
   // COUPLET 4 FINAL
   lyrics.push(
-    conceptsA[3] || 'Prévention essentielle',
-    conceptsB[3] || 'Innovation thérapeutique',
-    `Expertise complète acquérir`,
+    conceptsA[3] || 'Prévention organiser',
+    conceptsB[3] || 'Innovation développer',
+    `Expertise complète`,
     `Excellence maintenir`
   );
   
   lyrics.push(
-    `${shortTitle} intégrer`,
+    `${shortTitle} maîtriser`,
     `Compétences développer`,
     `Excellence atteindre`,
-    `Maîtrise parfaite viser`
+    `Expertise parfaire`
   );
   
   return lyrics;
 }
 
-// Fonctions utilitaires pour nettoyer et extraire les concepts médicaux
-function cleanMedicalConcept(text: string): string {
+// Fonctions utilitaires pour créer des paroles chantables
+function createSingableLyric(text: string): string {
   if (!text) return '';
   
-  // Nettoyer le texte et le raccourcir pour être facilement chantable
+  // Nettoyer et extraire les mots clés médicaux
   let cleaned = text
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // Enlever les accents
     .replace(/[^\w\s-]/g, ' ') // Enlever la ponctuation
     .replace(/\s+/g, ' ') // Normaliser les espaces
-    .trim();
+    .trim()
+    .toLowerCase();
     
-  // Garder seulement les 3-4 premiers mots pour la chanson
-  const words = cleaned.split(' ').slice(0, 4);
+  // Extraire les 2-3 mots les plus importants
+  const words = cleaned.split(' ').filter(word => word.length > 3).slice(0, 3);
   
-  // Vérifier que ça finit par une sonorité qui se chante bien
-  const lastWord = words[words.length - 1];
-  if (lastWord && !lastWord.match(/(er|ir|é|ée|ie|tion|sion)$/)) {
-    // Ajouter un suffixe chantable si nécessaire
-    if (lastWord.endsWith('e')) {
-      words[words.length - 1] = lastWord + 'r';
-    } else {
-      words.push('maîtriser');
-    }
-  }
+  if (words.length === 0) return '';
   
-  return words.join(' ');
+  // Créer une phrase chantable avec une terminaison en -er
+  const concept = words.join(' ');
+  
+  // Ajouter un verbe chantable
+  const verbs = ['maîtriser', 'analyser', 'étudier', 'comprendre', 'développer', 'organiser', 'surveiller', 'évaluer'];
+  const verb = verbs[Math.floor(Math.random() * verbs.length)];
+  
+  return `${concept} ${verb}`;
 }
 
-function extractMedicalKeywords(title: string): string {
-  // Extraire les mots clés médicaux du titre
+function extractKeywords(title: string): string {
+  // Extraire les mots clés médicaux du titre (max 15 caractères)
   const medicalWords = title
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // Enlever les accents
     .toLowerCase()
     .replace(/[^\w\s]/g, ' ')
     .split(' ')
@@ -383,21 +385,20 @@ function extractMedicalKeywords(title: string): string {
     .slice(0, 2)
     .join(' ');
     
-  return medicalWords || 'pathologie';
+  return medicalWords.substring(0, 15) || 'pathologie';
 }
 
-function getDefaultMedicalConcepts(item: EdnItem, rang: 'A' | 'B'): string[] {
-  const itemNumber = item.item_code.split('-')[1];
-  const keywords = extractMedicalKeywords(item.title);
+function getDefaultMedicalLyrics(item: EdnItem, rang: 'A' | 'B'): string[] {
+  const keywords = extractKeywords(item.title);
   
   return [
     `${keywords} étudier`,
-    `Physiopathologie analyser`,
-    `Symptômes identifier`,
+    `Sémiologie analyser`,
     `Diagnostic établir`,
     `Traitement choisir`,
     `Surveillance organiser`,
-    `Complications prévenir`,
+    `Évolution surveiller`,
+    `Prévention enseigner`,
     `Pronostic évaluer`
   ];
 }
