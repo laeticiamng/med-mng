@@ -81,7 +81,7 @@ async function authenticateCAS(page) {
       const nextButton = await page.$('button[type="submit"], input[type="submit"], .btn-primary');
       if (nextButton) {
         await nextButton.click();
-        await page.waitForTimeout(3000);
+        await new Promise(resolve => setTimeout(resolve, 3000));
       }
       
       // Attendre et remplir le mot de passe
@@ -105,7 +105,7 @@ async function authenticateCAS(page) {
       const maxAttempts = 20;
       
       while (attempts < maxAttempts) {
-        await page.waitForTimeout(500);
+        await new Promise(resolve => setTimeout(resolve, 500));
         const url = page.url();
         
         log(`🔍 Tentative ${attempts + 1} - URL actuelle: ${url.substring(0, 80)}...`);
@@ -401,7 +401,7 @@ async function main() {
       log('✅ Déjà sur livret.uness.fr après authentification');
     }
     
-    await page.waitForTimeout(3000);
+    await new Promise(resolve => setTimeout(resolve, 3000));
     const verificationUrl = page.url();
     log(`🔍 URL finale pour vérification: ${verificationUrl}`);
     
