@@ -183,87 +183,131 @@ function generateRangLyrics(item: EdnItem, rang: 'A' | 'B', competences: any[]):
   const lyrics: string[] = [];
   
   const isRangA = rang === 'A';
-  const niveau = isRangA ? 'fondamental' : 'expert';
+  const itemNumber = item.item_code.split('-')[1];
   
-  // Obtenir les compétences spécifiques
+  // Obtenir les compétences spécifiques (jusqu'à 8 pour 4 couplets)
   const specificCompetences = competences && competences.length > 0 
-    ? competences.slice(0, 4).map(comp => {
+    ? competences.slice(0, 8).map(comp => {
         const intitule = comp.intitule || comp.description || 'Compétence médicale';
-        return intitule.length > 60 ? intitule.substring(0, 60) + '...' : intitule;
+        return intitule.length > 50 ? intitule.substring(0, 50) + '...' : intitule;
       })
-    : [`Compétences ${niveau} niveau ${rang}`, `Diagnostic et thérapeutique`, `Sémiologie clinique`, `Prise en charge`];
+    : [
+        `Sémiologie ${rang} pour item ${itemNumber}`,
+        `Physiopathologie ${rang} détaillée`, 
+        `Diagnostic ${rang} précis`,
+        `Thérapeutique ${rang} adaptée`,
+        `Surveillance ${rang} rigoureuse`,
+        `Complications ${rang} à surveiller`,
+        `Pronostic ${rang} à établir`,
+        `Éducation ${rang} du patient`
+      ];
 
   // Titre court de l'item
   const shortTitle = item.title.length > 40 ? item.title.substring(0, 40) + '...' : item.title;
   
-  // Introduction spécifique à l'item
-  const introVerse = `[Introduction Spécifique - Item ${item.item_code.split('-')[1]}]
-${item.item_code} : ${shortTitle}
+  // COUPLET 1
+  const couplet1 = `[Couplet 1 - Rang ${rang}]
+${specificCompetences[0] || `Compétences ${rang} à maîtriser`}
+${specificCompetences[1] || `Formation ${rang} à consolider`}
+Pour l'item ${itemNumber} je vais étudier
+Chaque notion ${rang} bien assimiler`;
 
-[Couplet 1 - Rang ${rang} Item ${item.item_code.split('-')[1]}]
-${specificCompetences[0]}
-${specificCompetences[1]}
-${specificCompetences[2]}
-${specificCompetences[3]}`;
-
-  lyrics.push(introVerse);
+  lyrics.push(couplet1);
   
-  // Refrain unique à cet item
-  const itemNumber = item.item_code.split('-')[1];
-  const refrain = `[Refrain Unique Item ${itemNumber}]
-Item ${itemNumber} maîtrisé - ${shortTitle}
-Compétence professionnelle ${itemNumber}, excellence clinique
-Patient centré item ${itemNumber}, soins personnalisés
-Médecin expert item ${itemNumber}, reconnaissance établie`;
+  // REFRAIN (identique à chaque fois avec assonances)
+  const refrain = `[Refrain - Item ${itemNumber} Rang ${rang}]
+Item ${itemNumber} je vais réussir
+Rang ${rang} pour mieux guérir
+${shortTitle.substring(0, 25)}...
+Médecine en musique convertir`;
 
   lyrics.push(refrain);
   
-  // Couplet 2 avec compétences avancées
-  const advancedVerse = isRangA 
-    ? `[Couplet 2 - Rang A Item ${itemNumber}]
-Bases théoriques item ${itemNumber}, fondamentaux solides
-Sémiologie classique item ${itemNumber}, signes cliniques
-Diagnostic standard item ${itemNumber}, démarche rigoureuse
-Thérapeutique item ${itemNumber}, protocoles établis`
-    : `[Couplet 2 - Rang B Item ${itemNumber}]
-Situations complexes item ${itemNumber}, expertise clinique
-Diagnostic différentiel item ${itemNumber}, analyse fine
-Thérapeutiques avancées item ${itemNumber}, innovation
-Leadership médical item ${itemNumber}, excellence reconnue`;
+  // COUPLET 2
+  const couplet2 = `[Couplet 2 - Rang ${rang}]
+${specificCompetences[2] || `Diagnostic ${rang} approfondir`}
+${specificCompetences[3] || `Traitement ${rang} à choisir`}
+Les protocoles ${rang} respecter
+Pour mes patients soigner`;
 
-  lyrics.push(advancedVerse);
+  lyrics.push(couplet2);
+  lyrics.push(refrain); // Refrain après couplet 2
   
-  // Refrain final unique
-  const finalRefrain = `[Refrain Final Unique ${itemNumber}]
-${item.item_code} - Maîtrise absolue confirmée et reconnue
-${isRangA ? `Fondamentaux ${itemNumber} parfaitement intégrés` : `Expertise médicale ${itemNumber} leadership reconnu`}
-Humanisme médical item ${itemNumber}, science et conscience
-Mission accomplie item ${itemNumber}, excellence partagée`;
+  // COUPLET 3  
+  const couplet3 = `[Couplet 3 - Rang ${rang}]
+${specificCompetences[4] || `Surveillance ${rang} continue`}
+${specificCompetences[5] || `Évolution ${rang} suivre`}
+Chaque signe ${rang} analyser
+Pour le patient surveiller`;
 
-  lyrics.push(finalRefrain);
+  lyrics.push(couplet3);
+  lyrics.push(refrain); // Refrain après couplet 3
+  
+  // COUPLET 4 (dernier)
+  const couplet4 = `[Couplet 4 Final - Rang ${rang}]
+${specificCompetences[6] || `Prévention ${rang} enseigner`}
+${specificCompetences[7] || `Éducation ${rang} prodiguer`}
+Item ${itemNumber} Rang ${rang} validé
+Excellence médicale atteindre`;
+
+  lyrics.push(couplet4);
+  lyrics.push(refrain); // Refrain final
   
   return lyrics;
 }
 
 function generateCombinedLyrics(item: EdnItem): string[] {
   const lyrics: string[] = [];
+  const itemNumber = item.item_code.split('-')[1];
+  const shortTitle = item.title.length > 40 ? item.title.substring(0, 40) + '...' : item.title;
   
-  // Combined version with both Rang A and B
-  const combinedVerse = `[Couplet Combiné A+B]
-${item.item_code} double expertise
-Rang A et B tous maîtrisés
-${item.title.substring(0, 40)}${item.title.length > 40 ? '...' : ''}
-Formation complète assurée`;
+  // COUPLET 1 - Mix A+B
+  const couplet1 = `[Couplet 1 - Mix A+B]
+Rang A fondamentaux maîtriser
+Rang B expertise développer
+Item ${itemNumber} complet étudier
+Double compétence acquérir`;
 
-  lyrics.push(combinedVerse);
+  lyrics.push(couplet1);
   
-  const combinedRefrain = `[Refrain A+B]
-Du fondamental à l'expertise
-${item.item_code} je maîtrise
-Rang A et B en harmonie
-Pour une médecine réussie`;
+  // REFRAIN COMBINÉ (avec assonances)
+  const refrain = `[Refrain Combiné A+B - Item ${itemNumber}]
+A et B je vais unifier
+${shortTitle.substring(0, 25)}... dominer
+Formation complète finaliser
+Excellence médicale rayonner`;
 
-  lyrics.push(combinedRefrain);
+  lyrics.push(refrain);
+  
+  // COUPLET 2 - Mix A+B
+  const couplet2 = `[Couplet 2 - Mix A+B]
+Bases solides A consolider
+Expertise B approfondir
+Diagnostic complet élaborer
+Thérapeutique optimiser`;
+
+  lyrics.push(couplet2);
+  lyrics.push(refrain);
+  
+  // COUPLET 3 - Mix A+B
+  const couplet3 = `[Couplet 3 - Mix A+B]
+Sémiologie A+B analyser
+Physiopathologie intégrer
+Surveillance complète assurer
+Évolution globale surveiller`;
+
+  lyrics.push(couplet3);
+  lyrics.push(refrain);
+  
+  // COUPLET 4 FINAL - Mix A+B
+  const couplet4 = `[Couplet 4 Final - Mix A+B]
+Prévention A+B enseigner
+Éducation globale prodiguer
+Item ${itemNumber} A+B validé
+Maîtrise complète atteindre`;
+
+  lyrics.push(couplet4);
+  lyrics.push(refrain);
   
   return lyrics;
 }
