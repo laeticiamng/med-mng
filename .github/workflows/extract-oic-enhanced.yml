@@ -50,12 +50,15 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '20'
-        cache: 'npm'
-    
+        # Désactiver le cache npm pour éviter les conflits
+        
     - name: 📦 Installer les dépendances dans oic-scripts
       working-directory: oic-scripts
       run: |
-        npm install --legacy-peer-deps
+        # Nettoyer le cache npm
+        npm cache clean --force
+        # Installer avec --force pour ignorer les conflits
+        npm install --force
 
     - name: 🚀 Exécuter l'extraction OIC avec le script existant
       working-directory: oic-scripts
