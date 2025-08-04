@@ -44,7 +44,7 @@ async function main() {
       log('🔍 Mode complétion : recherche des compétences incomplètes...');
       const { data: incompleteCompetences, error } = await supabase
         .from('oic_competences')
-        .select('code_competence')
+        .select('objectif_id')
         .or('description.is.null,description.eq.');
         
       if (error) {
@@ -52,7 +52,7 @@ async function main() {
         throw error;
       }
       
-      competencesToProcess = incompleteCompetences.map(c => c.code_competence);
+      competencesToProcess = incompleteCompetences.map(c => c.objectif_id);
       log(`📊 ${competencesToProcess.length} compétences à compléter`);
       
       if (competencesToProcess.length === 0) {
@@ -183,19 +183,19 @@ async function main() {
 
           // Extraction des données
           const competenceData = {
-            code_competence: codeCompetence,
-            titre: title,
+            objectif_id: codeCompetence,
+            intitule: title,
             description: extractDescription(pageContent),
-            raw_content: pageContent.substring(0, 5000), // Limiter pour éviter les quotas
-            url: `https://sides.uness.fr/livret/index.php?title=${encodeURIComponent(title)}`,
-            extracted_at: new Date().toISOString()
+            sommaire: pageContent.substring(0, 5000), // Limiter pour éviter les quotas
+            url_source: `https://sides.uness.fr/livret/index.php?title=${encodeURIComponent(title)}`,
+            extraction_status: 'completed'
           };
 
           // Insertion en base
           const { error: upsertError } = await supabase
             .from('oic_competences')
             .upsert(competenceData, {
-              onConflict: 'code_competence'
+              onConflict: 'objectif_id'
             });
 
           if (upsertError) {
