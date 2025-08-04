@@ -1,0 +1,352 @@
+name: 🚀 Extraction OIC Enhanced (basé sur script working)
+
+on:
+  workflow_dispatch:   # Lancement manuel
+    inputs:
+      batch_size:
+        description: 'Taille des lots pour l\'extraction'
+        required: false
+        default: '50'
+        type: string
+      max_pages:
+        description: 'Nombre maximum de pages à traiter'
+        required: false
+        default: '5000'
+        type: string
+  schedule:
+    - cron: '0 2 * * 0'   # Chaque dimanche à 2h
+
+jobs:
+  diagnostic-api:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 🔍 Test API de catégorie
+      run: |
+        echo "🔍 Test API MediaWiki (1 résultat)..."
+        curl -s 'https://livret.uness.fr/lisa/2025/api.php?action=query&list=categorymembers&cmtitle=Catégorie:Objectif_de_connaissance&cmlimit=1&format=json&origin=*' | jq .
+        
+    - name: 📦 Test batch 50
+      run: |
+        echo "📄 Test 50 pages avec prop=revisions..."
+        IDS=$(curl -s 'https://livret.uness.fr/lisa/2025/api.php?action=query&list=categorymembers&cmtitle=Catégorie:Objectif_de_connaissance&cmlimit=50&format=json&origin=*' | jq -r '.query.categorymembers[].pageid' | paste -sd'|' -)
+        echo "🔢 Page IDs récupérés: $IDS"
+        if [ -n "$IDS" ]; then
+          echo "📖 Test récupération contenu..."
+          curl -s "https://livret.uness.fr/lisa/2025/api.php?action=query&prop=revisions&rvprop=content|timestamp&format=json&origin=*&pageids=${IDS}&formatversion=2" | jq '.query.pages | length'
+        else
+          echo "❌ Aucun ID récupéré - problème avec la catégorie"
+        fi
+
+  extract:
+    runs-on: ubuntu-latest
+    needs: diagnostic-api
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+    
+    - name: 🟢 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: 📦 Installer les dépendances
+      run: |
+        npm install node-fetch @supabase/supabase-js dotenv crypto
+    
+    - name: 🚀 Exécuter l'extraction OIC enhanced
+      env:
+        SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        BATCH_SIZE: ${{ github.event.inputs.batch_size }}
+        MAX_PAGES: ${{ github.event.inputs.max_pages }}
+      run: |
+        echo "🔧 Configuration de l'extraction enhanced..."
+        echo "🔢 Batch size: ${BATCH_SIZE:-50}"
+        echo "📊 Max pages: ${MAX_PAGES:-5000}"
+        
+        # Créer le script d'extraction amélioré basé sur votre version qui marche
+        cat > extract-oic-enhanced.cjs << 'EOF'
+        const fetch = require('node-fetch');
+        const fs = require('fs');
+        const crypto = require('crypto');
+        const { createClient } = require('@supabase/supabase-js');
+
+        // Configuration Supabase
+        const SUPABASE_URL = 'https://yaincoxihiqdksxgrsrk.supabase.co';
+        const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+        const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+
+        // Configuration améliorée
+        const BATCH_SIZE = parseInt(process.env.BATCH_SIZE) || 50;
+        const MAX_PAGES = parseInt(process.env.MAX_PAGES) || 5000;
+        
+        console.log(`🚀 EXTRACTION OIC ENHANCED - Configuration:`);
+        console.log(`   📦 Batch size: ${BATCH_SIZE}`);
+        console.log(`   📊 Max pages: ${MAX_PAGES}`);
+        console.log('===============================================');
+
+        // Mapping des rubriques
+        const RUBRIQUES_MAP = {
+          '01': 'Génétique',
+          '02': 'Immunopathologie', 
+          '03': 'Inflammation',
+          '04': 'Cancérologie',
+          '05': 'Pharmacologie',
+          '06': 'Douleur',
+          '07': 'Santé publique',
+          '08': 'Thérapeutique',
+          '09': 'Urgences',
+          '10': 'Vieillissement',
+          '11': 'Interprétation'
+        };
+
+        async function getAllPageIds() {
+          console.log('🔍 Récupération de tous les page IDs...');
+          let allPageIds = [];
+          let continueToken = null;
+          let pageCount = 0;
+
+          do {
+            let url = `https://livret.uness.fr/lisa/2025/api.php?action=query&list=categorymembers&cmtitle=Catégorie:Objectif_de_connaissance&cmlimit=500&format=json&origin=*`;
+            if (continueToken) {
+              url += `&cmcontinue=${encodeURIComponent(continueToken)}`;
+            }
+
+            try {
+              const response = await fetch(url);
+              const data = await response.json();
+              
+              if (data.query && data.query.categorymembers) {
+                const pageIds = data.query.categorymembers.map(item => item.pageid);
+                allPageIds.push(...pageIds);
+                pageCount += pageIds.length;
+                console.log(`📄 Récupéré ${pageIds.length} page IDs (total: ${pageCount})`);
+                
+                // Vérifier la limite
+                if (pageCount >= MAX_PAGES) {
+                  console.log(`🛑 Limite atteinte: ${MAX_PAGES} pages`);
+                  break;
+                }
+                
+                // Continuer s'il y a plus de pages
+                continueToken = data.continue ? data.continue.cmcontinue : null;
+              } else {
+                console.log('⚠️ Pas de données dans la réponse');
+                break;
+              }
+            } catch (error) {
+              console.error('❌ Erreur récupération page IDs:', error);
+              break;
+            }
+            
+            await new Promise(resolve => setTimeout(resolve, 100));
+          } while (continueToken);
+
+          console.log(`✅ Total page IDs récupérés: ${allPageIds.length}`);
+          return allPageIds.slice(0, MAX_PAGES);
+        }
+
+        function parseOICContent(page) {
+          try {
+            const title = page.title;
+            const content = page.revisions?.[0]?.content || '';
+            
+            // Pattern OIC amélioré
+            const match = title.match(/OIC-(\d{3})-(\d{2})-([AB])-(\d{2})/);
+            if (!match) {
+              return null;
+            }
+            
+            const [, itemNum, rubriqueCode, rang, ordre] = match;
+            const objectif_id = `OIC-${itemNum}-${rubriqueCode}-${rang}-${ordre}`;
+            
+            // Extraction améliorée de l'intitulé
+            let intitule = title;
+            const intitulePatterns = [
+              /\|\s*[Ii]ntitulé\s*=\s*([^\n\|]+)/,
+              /\|\s*[Tt]itre\s*=\s*([^\n\|]+)/,
+              /'''(.+?)'''/,
+              /==\s*(.+?)\s*==/
+            ];
+            
+            for (const pattern of intitulePatterns) {
+              const intituleMatch = pattern.exec(content);
+              if (intituleMatch && intituleMatch[1] && intituleMatch[1].trim()) {
+                intitule = intituleMatch[1].trim();
+                break;
+              }
+            }
+            
+            // Extraction améliorée de la description
+            let description = '';
+            const descPatterns = [
+              /\|\s*[Dd]escription\s*=\s*([^\n\|]+)/,
+              /\|\s*[Dd]éfinition\s*=\s*([^\n\|]+)/,
+              /\n\n(.+?)(?=\n\n|\[\[|==|$)/s
+            ];
+            
+            for (const pattern of descPatterns) {
+              const descMatch = pattern.exec(content);
+              if (descMatch && descMatch[1] && descMatch[1].trim()) {
+                description = descMatch[1].trim()
+                  .replace(/\[\[(.+?)\|(.+?)\]\]/g, '$2')
+                  .replace(/\[\[(.+?)\]\]/g, '$1')
+                  .replace(/'''(.+?)'''/g, '$1')
+                  .replace(/''(.+?)''/g, '$1')
+                  .replace(/{{.+?}}/g, '')
+                  .replace(/<.*?>/g, '');
+                break;
+              }
+            }
+            
+            return {
+              objectif_id,
+              intitule: intitule.substring(0, 1000), // Capacité augmentée
+              item_parent: `IC-${itemNum}`,
+              rang,
+              rubrique: RUBRIQUES_MAP[rubriqueCode] || `Rubrique ${rubriqueCode}`,
+              description: (description || `Description de l'objectif ${objectif_id}`).substring(0, 5000), // Capacité augmentée
+              ordre: parseInt(ordre),
+              url_source: `https://livret.uness.fr/lisa/2025/${encodeURIComponent(title)}`,
+              raw_json: { 
+                page_content: content.substring(0, 10000), // Capacité augmentée
+                page_title: title,
+                extraction_date: new Date().toISOString()
+              },
+              hash_content: crypto.createHash('md5').update(content).digest('hex'),
+              extraction_status: 'complete',
+              date_import: new Date().toISOString(),
+              updated_at: new Date().toISOString()
+            };
+            
+          } catch (error) {
+            console.error('❌ Erreur parsing:', error);
+            return null;
+          }
+        }
+
+        async function extractCompetences() {
+          // Récupérer tous les page IDs
+          const PAGE_IDS = await getAllPageIds();
+          
+          if (PAGE_IDS.length === 0) {
+            console.error('❌ Aucun page ID récupéré');
+            return;
+          }
+
+          let allResults = [];
+          let processedCount = 0;
+
+          console.log(`🔄 Début extraction de ${PAGE_IDS.length} pages par lots de ${BATCH_SIZE}...`);
+
+          for (let i = 0; i < PAGE_IDS.length; i += BATCH_SIZE) {
+            const batch = PAGE_IDS.slice(i, i + BATCH_SIZE);
+            const idsString = batch.join('|');
+            const batchNumber = Math.floor(i / BATCH_SIZE) + 1;
+            const totalBatches = Math.ceil(PAGE_IDS.length / BATCH_SIZE);
+            
+            console.log(`📦 Batch ${batchNumber}/${totalBatches} - Pages ${i + 1}-${Math.min(i + BATCH_SIZE, PAGE_IDS.length)}`);
+
+            const url = `https://livret.uness.fr/lisa/2025/api.php?action=query&prop=revisions&rvprop=content|timestamp&format=json&pageids=${idsString}&formatversion=2&origin=*`;
+
+            try {
+              const response = await fetch(url);
+              const data = await response.json();
+              
+              if (data && data.query && data.query.pages) {
+                for (const page of data.query.pages) {
+                  const competence = parseOICContent(page);
+                  if (competence) {
+                    allResults.push(competence);
+                    processedCount++;
+                  }
+                }
+                console.log(`✅ Batch ${batchNumber}: ${data.query.pages.length} pages traitées, ${processedCount} compétences extraites`);
+              } else {
+                console.error(`❌ Pas de données pour le batch ${batchNumber}`);
+              }
+            } catch (error) {
+              console.error(`❌ Erreur batch ${batchNumber}:`, error.message);
+            }
+            
+            // Délai pour éviter la surcharge
+            await new Promise(resolve => setTimeout(resolve, 500));
+          }
+
+          console.log(`🎯 Extraction terminée: ${allResults.length} compétences extraites`);
+
+          // Sauvegarde locale
+          const reportData = {
+            timestamp: new Date().toISOString(),
+            total_pages_processed: PAGE_IDS.length,
+            total_competences_extracted: allResults.length,
+            batch_size: BATCH_SIZE,
+            competences: allResults
+          };
+
+          fs.writeFileSync(`rapport-extraction-${Date.now()}.json`, JSON.stringify(reportData, null, 2));
+          console.log(`💾 Rapport sauvegardé localement`);
+
+          // Sauvegarde en base Supabase par chunks
+          if (allResults.length > 0 && SUPABASE_SERVICE_KEY) {
+            console.log('💾 Sauvegarde en base Supabase...');
+            
+            const CHUNK_SIZE = 50;
+            for (let i = 0; i < allResults.length; i += CHUNK_SIZE) {
+              const chunk = allResults.slice(i, i + CHUNK_SIZE);
+              
+              try {
+                const { data, error } = await supabase
+                  .from('oic_competences')
+                  .upsert(chunk, { 
+                    onConflict: 'objectif_id',
+                    returning: 'minimal'
+                  });
+
+                if (error) {
+                  console.error(`❌ Erreur sauvegarde chunk ${Math.floor(i/CHUNK_SIZE) + 1}:`, error);
+                } else {
+                  console.log(`✅ Chunk ${Math.floor(i/CHUNK_SIZE) + 1} sauvegardé (${chunk.length} compétences)`);
+                }
+              } catch (error) {
+                console.error(`❌ Erreur technique chunk ${Math.floor(i/CHUNK_SIZE) + 1}:`, error.message);
+              }
+              
+              // Petit délai entre les chunks
+              await new Promise(resolve => setTimeout(resolve, 200));
+            }
+          }
+
+          // Statistiques finales
+          const stats = {
+            total: allResults.length,
+            rang_a: allResults.filter(c => c.rang === 'A').length,
+            rang_b: allResults.filter(c => c.rang === 'B').length,
+            rubriques: [...new Set(allResults.map(c => c.rubrique))].length
+          };
+
+          console.log('📊 STATISTIQUES FINALES:');
+          console.log(`   🎯 Total: ${stats.total}`);
+          console.log(`   🅰️ Rang A: ${stats.rang_a}`);
+          console.log(`   🅱️ Rang B: ${stats.rang_b}`);
+          console.log(`   📂 Rubriques: ${stats.rubriques}`);
+          
+          return reportData;
+        }
+
+        // Lancement de l'extraction
+        extractCompetences().catch(console.error);
+        EOF
+        
+        node extract-oic-enhanced.cjs
+    
+    - name: 📋 Upload rapport d'extraction
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: rapport-extraction-enhanced-${{ github.run_number }}
+        path: |
+          rapport-*.json
+        retention-days: 7
