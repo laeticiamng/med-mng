@@ -94,9 +94,38 @@ async function authenticateCAS(page) {
       
       // Deuxième clic pour se connecter
       log('🔄 Clic sur le bouton de connexion étape 2...');
-      const loginButton = await page.$('button[type="submit"], input[type="submit"], .btn-primary');
-      if (loginButton) {
-        await loginButton.click();
+      
+      // Essayer plusieurs sélecteurs pour le bouton de connexion
+      const buttonSelectors = [
+        'button[type="submit"]',
+        'input[type="submit"]', 
+        '.btn-primary',
+        '[name="submit"]',
+        'button:contains("Se connecter")',
+        'input[value*="onnect"]',
+        'button',
+        'input[type="button"]'
+      ];
+      
+      let buttonClicked = false;
+      for (const selector of buttonSelectors) {
+        try {
+          const button = await page.$(selector);
+          if (button) {
+            log(`🎯 Bouton trouvé avec le sélecteur: ${selector}`);
+            await button.click();
+            buttonClicked = true;
+            await new Promise(resolve => setTimeout(resolve, 2000));
+            break;
+          }
+        } catch (error) {
+          log(`⚠️ Erreur avec sélecteur ${selector}: ${error.message}`);
+        }
+      }
+      
+      if (!buttonClicked) {
+        log('⚠️ Aucun bouton de connexion trouvé, tentative avec Enter');
+        await page.keyboard.press('Enter');
       }
       
       // Attendre la redirection complète vers LiSA
