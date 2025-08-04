@@ -1,0 +1,415 @@
+name: 🚀 Extraction OIC complète (basé sur workflow #31 qui fonctionne)
+
+on:
+  workflow_dispatch:   # Lancement manuel
+    inputs:
+      force_update:
+        description: 'Forcer la mise à jour même si les compétences existent'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+        - 'false'
+        - 'true'
+      batch_size:
+        description: 'Taille des lots pour l\'extraction'
+        required: false
+        default: '100'
+        type: string
+  schedule:
+    - cron: '0 2 * * 0'   # Chaque dimanche à 2h (optionnel)
+
+jobs:
+  diagnostic-api:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 🔍 Test API de catégorie
+      run: |
+        echo "🔍 Test API MediaWiki (1 résultat)..."
+        curl -s 'https://livret.uness.fr/lisa/2025/api.php?action=query&list=categorymembers&cmtitle=Catégorie:Objectif_de_connaissance&cmlimit=1&format=json&origin=*' | jq .
+        
+    - name: 📦 Test batch 50
+      run: |
+        echo "📄 Test 50 pages avec prop=revisions..."
+        # Récupère 50 pageids depuis la première requête
+        IDS=$(curl -s 'https://livret.uness.fr/lisa/2025/api.php?action=query&list=categorymembers&cmtitle=Catégorie:Objectif_de_connaissance&cmlimit=50&format=json&origin=*' | jq -r '.query.categorymembers[].pageid' | paste -sd'|' -)
+        echo "🔢 Page IDs récupérés: $IDS"
+        if [ -n "$IDS" ]; then
+          echo "📖 Test récupération contenu de $IDS..."
+          curl -s "https://livret.uness.fr/lisa/2025/api.php?action=query&prop=revisions&rvprop=content|timestamp&format=json&origin=*&pageids=${IDS}&formatversion=2" | jq '.query.pages | length'
+        else
+          echo "❌ Aucun ID récupéré - problème avec la catégorie"
+        fi
+
+  extract:
+    runs-on: ubuntu-latest
+    needs: diagnostic-api
+    
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+    
+    - name: 🟢 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: 📦 Installer les dépendances
+      run: |
+        npm install puppeteer @supabase/supabase-js dotenv
+    
+    - name: 🚀 Exécuter l'extraction OIC avec capacité augmentée
+      env:
+        SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        CAS_USERNAME: ${{ secrets.CAS_USERNAME }}
+        CAS_PASSWORD: ${{ secrets.CAS_PASSWORD }}
+        FORCE_UPDATE: ${{ github.event.inputs.force_update }}
+        BATCH_SIZE: ${{ github.event.inputs.batch_size }}
+      run: |
+        echo "🔧 Configuration de l'extraction avec capacité augmentée..."
+        echo "📊 Force update: ${FORCE_UPDATE:-false}"
+        echo "🔢 Batch size: ${BATCH_SIZE:-100}"
+        echo "📈 Capacité de caractères augmentée pour les compétences"
+        
+        # Créer un script d'extraction amélioré basé sur le working
+        cat > extract-oic-enhanced.cjs << 'EOF'
+        const puppeteer = require('puppeteer');
+        const { createClient } = require('@supabase/supabase-js');
+        require('dotenv').config();
+
+        // Configuration Supabase
+        const SUPABASE_URL = 'https://yaincoxihiqdksxgrsrk.supabase.co';
+        const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+        const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+
+        // Configuration avec capacité augmentée
+        const CONFIG = {
+          MAX_TITLE_LENGTH: 1000,        // Augmenté de 500 à 1000
+          MAX_DESCRIPTION_LENGTH: 5000,  // Augmenté de 1000 à 5000
+          MAX_CONTENT_LENGTH: 10000,     // Augmenté de 3000 à 10000
+          BATCH_SIZE: parseInt(process.env.BATCH_SIZE) || 100,
+          FORCE_UPDATE: process.env.FORCE_UPDATE === 'true'
+        };
+
+        async function extractOICWithEnhancedCapacity() {
+          console.log('🚀 DÉMARRAGE EXTRACTION OIC AVEC CAPACITÉ AUGMENTÉE');
+          console.log('===============================================');
+          console.log(`📊 Configuration:`);
+          console.log(`   - Titre max: ${CONFIG.MAX_TITLE_LENGTH} caractères`);
+          console.log(`   - Description max: ${CONFIG.MAX_DESCRIPTION_LENGTH} caractères`);
+          console.log(`   - Contenu max: ${CONFIG.MAX_CONTENT_LENGTH} caractères`);
+          console.log(`   - Taille batch: ${CONFIG.BATCH_SIZE}`);
+          console.log(`   - Force update: ${CONFIG.FORCE_UPDATE}`);
+          
+          let browser;
+          try {
+            // Lancement de Puppeteer
+            browser = await puppeteer.launch({
+              headless: 'new',
+              args: [
+                '--no-sandbox',
+                '--disable-setuid-sandbox',
+                '--disable-dev-shm-usage',
+                '--disable-web-security',
+                '--disable-extensions',
+                '--no-first-run'
+              ]
+            });
+
+            console.log('🔐 Authentification CAS...');
+            const page = await browser.newPage();
+            
+            // Navigation vers page protégée pour déclencher l'authentification
+            console.log('🌐 Navigation vers page protégée pour déclencher l\'authentification...');
+            await page.goto('https://livret.uness.fr/lisa/2025/Special:CategoryTree?target=Cat%C3%A9gorie%3AObjectif_de_connaissance&mode=categories');
+            await page.waitForLoadState('networkidle');
+            
+            const currentUrl = page.url();
+            console.log(`🔍 URL actuelle: ${currentUrl}`);
+            
+            // Si on est redirigé vers l'authentification CAS
+            if (currentUrl.includes('auth.uness.fr/cas/login')) {
+              console.log('🔑 Authentification CAS requise - début du processus...');
+              
+              // Attendre et remplir l'email
+              await page.waitForSelector('input[name="username"], input[type="email"], #username');
+              await page.fill('input[name="username"], input[type="email"], #username', process.env.CAS_USERNAME);
+              console.log('✅ Email saisi');
+              
+              // Cliquer sur suivant ou continuer
+              const nextButton = await page.locator('button[type="submit"], input[type="submit"], .btn-primary').first();
+              await nextButton.click();
+              console.log('🔄 Clic sur le bouton de connexion étape 1...');
+              
+              // Attendre la page de mot de passe
+              await page.waitForLoadState('networkidle');
+              
+              // Saisir le mot de passe
+              await page.waitForSelector('input[name="password"], input[type="password"], #password');
+              await page.fill('input[name="password"], input[type="password"], #password', process.env.CAS_PASSWORD);
+              console.log('✅ Mot de passe saisi');
+              
+              // Cliquer sur connexion
+              const loginButton = await page.locator('button[type="submit"], input[type="submit"], .btn-primary').first();
+              await loginButton.click();
+              console.log('🔄 Clic sur le bouton de connexion étape 2...');
+              
+              // Attendre la redirection
+              await page.waitForLoadState('networkidle');
+              console.log(`✅ Authentification terminée, URL: ${page.url()}`);
+            }
+
+            // Récupération des cookies d'authentification
+            const cookies = await page.context().cookies();
+            const cookieString = cookies.map(cookie => `${cookie.name}=${cookie.value}`).join('; ');
+            console.log(`🍪 Cookies récupérés: ${cookies.length} cookies`);
+
+            // Test d'accès API avec authentification
+            console.log('🧪 Test d\'accès API avec authentification...');
+            const testResponse = await fetch('https://livret.uness.fr/lisa/2025/api.php?action=query&list=categorymembers&cmtitle=Catégorie:Objectif_de_connaissance&cmlimit=5&format=json', {
+              headers: { 'Cookie': cookieString }
+            });
+            
+            if (testResponse.ok) {
+              const testData = await testResponse.json();
+              if (testData.query && testData.query.categorymembers) {
+                console.log(`✅ API accessible - ${testData.query.categorymembers.length} compétences trouvées`);
+              }
+            }
+
+            // Extraction des compétences avec pagination
+            let allCompetences = [];
+            let continueToken = null;
+            let batchNumber = 0;
+
+            do {
+              batchNumber++;
+              console.log(`📦 Traitement batch ${batchNumber}...`);
+              
+              let apiUrl = `https://livret.uness.fr/lisa/2025/api.php?action=query&list=categorymembers&cmtitle=Catégorie:Objectif_de_connaissance&cmlimit=${CONFIG.BATCH_SIZE}&format=json`;
+              if (continueToken) {
+                apiUrl += `&cmcontinue=${encodeURIComponent(continueToken)}`;
+              }
+
+              const response = await fetch(apiUrl, {
+                headers: { 'Cookie': cookieString }
+              });
+
+              if (!response.ok) {
+                console.error(`❌ Erreur API batch ${batchNumber}: ${response.status}`);
+                break;
+              }
+
+              const data = await response.json();
+              
+              if (data.query && data.query.categorymembers) {
+                const batch = data.query.categorymembers;
+                console.log(`📊 Batch ${batchNumber}: ${batch.length} compétences`);
+                
+                // Récupération du contenu détaillé pour ce batch
+                const pageIds = batch.map(item => item.pageid).join('|');
+                const contentUrl = `https://livret.uness.fr/lisa/2025/api.php?action=query&prop=revisions&rvprop=content|timestamp&format=json&pageids=${pageIds}&formatversion=2`;
+                
+                const contentResponse = await fetch(contentUrl, {
+                  headers: { 'Cookie': cookieString }
+                });
+
+                if (contentResponse.ok) {
+                  const contentData = await contentResponse.json();
+                  
+                  if (contentData.query && contentData.query.pages) {
+                    for (const page of contentData.query.pages) {
+                      try {
+                        const competence = parseOICCompetence(page, CONFIG);
+                        if (competence) {
+                          allCompetences.push(competence);
+                        }
+                      } catch (error) {
+                        console.warn(`⚠️ Erreur parsing page ${page.pageid}: ${error.message}`);
+                      }
+                    }
+                  }
+                }
+                
+                // Vérifier s'il y a plus de pages
+                continueToken = data.continue ? data.continue.cmcontinue : null;
+              } else {
+                console.log(`⚠️ Pas de données dans batch ${batchNumber}`);
+                break;
+              }
+              
+              // Délai entre les requêtes pour éviter la surcharge
+              await new Promise(resolve => setTimeout(resolve, 1000));
+              
+            } while (continueToken && batchNumber < 50); // Limite de sécurité
+
+            console.log(`🎯 Extraction terminée: ${allCompetences.length} compétences`);
+
+            // Sauvegarde en base avec capacité augmentée
+            if (allCompetences.length > 0) {
+              console.log('💾 Sauvegarde en base de données...');
+              
+              for (let i = 0; i < allCompetences.length; i += 50) {
+                const chunk = allCompetences.slice(i, i + 50);
+                
+                try {
+                  const { data, error } = await supabase
+                    .from('oic_competences')
+                    .upsert(chunk, { 
+                      onConflict: 'objectif_id',
+                      returning: 'minimal'
+                    });
+
+                  if (error) {
+                    console.error(`❌ Erreur sauvegarde chunk ${Math.floor(i/50) + 1}:`, error);
+                  } else {
+                    console.log(`✅ Chunk ${Math.floor(i/50) + 1} sauvegardé (${chunk.length} compétences)`);
+                  }
+                } catch (error) {
+                  console.error(`❌ Erreur technique chunk ${Math.floor(i/50) + 1}:`, error.message);
+                }
+              }
+            }
+
+            // Génération du rapport
+            const report = {
+              timestamp: new Date().toISOString(),
+              total_found: allCompetences.length,
+              batches_processed: batchNumber,
+              config: CONFIG,
+              success: true,
+              extraction_summary: {
+                rang_a: allCompetences.filter(c => c.rang === 'A').length,
+                rang_b: allCompetences.filter(c => c.rang === 'B').length,
+                rubriques: [...new Set(allCompetences.map(c => c.rubrique))].length
+              }
+            };
+
+            console.log('📋 RAPPORT FINAL:');
+            console.log(`   🎯 Total trouvé: ${report.total_found}`);
+            console.log(`   📦 Batches traités: ${report.batches_processed}`);
+            console.log(`   🅰️ Rang A: ${report.extraction_summary.rang_a}`);
+            console.log(`   🅱️ Rang B: ${report.extraction_summary.rang_b}`);
+            console.log(`   📂 Rubriques: ${report.extraction_summary.rubriques}`);
+
+            require('fs').writeFileSync(`rapport-extraction-${Date.now()}.json`, JSON.stringify(report, null, 2));
+
+          } catch (error) {
+            console.error('💥 ERREUR CRITIQUE:', error);
+            process.exit(1);
+          } finally {
+            if (browser) {
+              await browser.close();
+            }
+          }
+        }
+
+        function parseOICCompetence(page, config) {
+          try {
+            const title = page.title;
+            const content = page.revisions?.[0]?.content || '';
+            
+            // Pattern OIC amélioré
+            const match = title.match(/OIC-(\d{3})-(\d{2})-([AB])-(\d{2})/);
+            if (!match) {
+              return null;
+            }
+            
+            const [, itemNum, rubriqueCode, rang, ordre] = match;
+            const objectif_id = `OIC-${itemNum}-${rubriqueCode}-${rang}-${ordre}`;
+            
+            // Extraction améliorée de l'intitulé avec capacité augmentée
+            let intitule = title;
+            const intitulePatterns = [
+              /\|\s*[Ii]ntitulé\s*=\s*([^\n\|]{1,800})/,
+              /\|\s*[Tt]itre\s*=\s*([^\n\|]{1,800})/,
+              /'''(.{1,800}?)'''/,
+              /==\s*(.{1,500}?)\s*==/
+            ];
+            
+            for (const pattern of intitulePatterns) {
+              const intituleMatch = pattern.exec(content);
+              if (intituleMatch && intituleMatch[1] && intituleMatch[1].trim()) {
+                intitule = intituleMatch[1].trim();
+                break;
+              }
+            }
+            
+            // Extraction améliorée de la description avec capacité augmentée
+            let description = '';
+            const descPatterns = [
+              /\|\s*[Dd]escription\s*=\s*([^\n\|]{1,3000})/,
+              /\|\s*[Dd]éfinition\s*=\s*([^\n\|]{1,3000})/,
+              /\n\n(.{1,2000}?)(?=\n\n|\[\[|==|$)/s
+            ];
+            
+            for (const pattern of descPatterns) {
+              const descMatch = pattern.exec(content);
+              if (descMatch && descMatch[1] && descMatch[1].trim()) {
+                description = descMatch[1].trim()
+                  .replace(/\[\[(.+?)\|(.+?)\]\]/g, '$2')
+                  .replace(/\[\[(.+?)\]\]/g, '$1')
+                  .replace(/'''(.+?)'''/g, '$1')
+                  .replace(/''(.+?)''/g, '$1')
+                  .replace(/{{.+?}}/g, '')
+                  .replace(/<.*?>/g, '');
+                break;
+              }
+            }
+            
+            return {
+              objectif_id,
+              intitule: intitule.substring(0, config.MAX_TITLE_LENGTH),
+              item_parent: `IC-${itemNum}`,
+              rang,
+              rubrique: getRubriqueLabel(rubriqueCode),
+              description: description.substring(0, config.MAX_DESCRIPTION_LENGTH) || `Description de l'objectif ${objectif_id}`,
+              ordre: parseInt(ordre),
+              url_source: `https://livret.uness.fr/lisa/2025/${encodeURIComponent(title)}`,
+              raw_json: { page_content: content.substring(0, config.MAX_CONTENT_LENGTH) },
+              hash_content: require('crypto').createHash('md5').update(content).digest('hex'),
+              extraction_status: 'complete',
+              date_import: new Date().toISOString(),
+              updated_at: new Date().toISOString()
+            };
+            
+          } catch (error) {
+            console.error('❌ Erreur parsing:', error);
+            return null;
+          }
+        }
+
+        function getRubriqueLabel(code) {
+          const rubriques = {
+            '01': 'Génétique',
+            '02': 'Immunopathologie', 
+            '03': 'Inflammation',
+            '04': 'Cancérologie',
+            '05': 'Pharmacologie',
+            '06': 'Douleur',
+            '07': 'Santé publique',
+            '08': 'Thérapeutique',
+            '09': 'Urgences',
+            '10': 'Vieillissement',
+            '11': 'Interprétation'
+          };
+          return rubriques[code] || `Rubrique ${code}`;
+        }
+
+        // Lancement de l'extraction
+        extractOICWithEnhancedCapacity().catch(console.error);
+        EOF
+        
+        node extract-oic-enhanced.cjs
+    
+    - name: 📋 Upload rapport d'extraction
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: rapport-extraction-enhanced-${{ github.run_number }}
+        path: |
+          rapport-*.json
+          extraction-*.log
+        retention-days: 7
