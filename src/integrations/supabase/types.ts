@@ -1010,6 +1010,9 @@ export type Database = {
           mots_cles: string[] | null
           niveau_complexite: string | null
           paroles_musicales: string[] | null
+          paroles_rang_a: string[] | null
+          paroles_rang_ab: string[] | null
+          paroles_rang_b: string[] | null
           payload_v2: Json | null
           pitch_intro: string | null
           quiz_questions: Json | null
@@ -1046,6 +1049,9 @@ export type Database = {
           mots_cles?: string[] | null
           niveau_complexite?: string | null
           paroles_musicales?: string[] | null
+          paroles_rang_a?: string[] | null
+          paroles_rang_ab?: string[] | null
+          paroles_rang_b?: string[] | null
           payload_v2?: Json | null
           pitch_intro?: string | null
           quiz_questions?: Json | null
@@ -1082,6 +1088,9 @@ export type Database = {
           mots_cles?: string[] | null
           niveau_complexite?: string | null
           paroles_musicales?: string[] | null
+          paroles_rang_a?: string[] | null
+          paroles_rang_ab?: string[] | null
+          paroles_rang_b?: string[] | null
           payload_v2?: Json | null
           pitch_intro?: string | null
           quiz_questions?: Json | null

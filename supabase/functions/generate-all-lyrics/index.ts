@@ -70,9 +70,6 @@ Deno.serve(async (req) => {
     for (const item of items as EdnItem[]) {
       try {
         console.log(`🎼 Traitement item ${item.item_code}...`);
-        
-        // Force regeneration for all items to get new format
-        console.log(`🎼 Traitement item ${item.item_code}...`);
 
         // Generate three versions of lyrics
         const lyricsResult = await generateLyricsForItem(item, supabase);
