@@ -54,7 +54,7 @@ import AuditCompleteness from "./pages/AuditCompleteness";
 import TestExtraction from "./pages/TestExtraction";
 import EdnImmersive from "./pages/EdnImmersive";
 import EdnComplete from "./pages/EdnComplete";
-import { CompletionTrigger } from "@/components/CompletionTrigger";
+
 
 // Composant de redirection pour /edn-complete/:slug vers /edn/:slug
 const EdnCompleteRedirect = () => {
@@ -153,7 +153,7 @@ const App = () => {
                         <DynamicOnboarding />
                       </Suspense>
                       <HelpButton />
-                      <CompletionTrigger />
+                      
                     </div>
                     <Toaster />
                     <Sonner />
