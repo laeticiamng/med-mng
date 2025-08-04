@@ -17,149 +17,98 @@ Deno.serve(async (req) => {
     
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
     
-    console.log('🚀 Démarrage complétion compétences OIC...');
+    console.log('🚀 Démarrage complétion intelligente OIC...');
     
-    // 1. Récupérer les compétences incomplètes (description vide OU courte)
-    const { data: incompleteCompetences, error: fetchError } = await supabase
+    // Vérifier l'état actuel des compétences
+    const { data: stats, error: statsError } = await supabase
       .from('backup_oic_competences')
-      .select('objectif_id, intitule, description')
-      .or('description.is.null,description.eq.')
-      .limit(50); // Traiter par plus petit batch d'abord
-    
-    if (fetchError) {
-      throw new Error(`Erreur récupération compétences: ${fetchError.message}`);
+      .select('objectif_id, description')
+      .limit(1000);
+
+    if (statsError) {
+      throw new Error(`Erreur récupération stats: ${statsError.message}`);
     }
-    
-    console.log(`📊 ${incompleteCompetences?.length || 0} compétences vides à compléter (étape 1)`);
-    
-    if (!incompleteCompetences || incompleteCompetences.length === 0) {
+
+    if (!stats || stats.length === 0) {
       return new Response(JSON.stringify({
-        success: true,
-        message: 'Toutes les compétences sont maintenant complètes (descriptions > 100 caractères)',
-        completed: 0,
-        total: 0,
-        remaining_incomplete: 0
+        success: false,
+        message: 'Aucune compétence OIC trouvée dans la base',
+        recommendation: 'Veuillez d\'abord exécuter l\'extraction OIC via GitHub Actions',
+        github_workflow: '.github/workflows/extract-oic-completion.yml'
       }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
-    
-    let completed = 0;
-    let errors = 0;
-    
-    // Ajouter les compétences courtes à traiter
-    console.log('🔍 Récupération compétences courtes < 100 caractères...');
-    const { data: shortCompetences, error: shortError } = await supabase
-      .from('backup_oic_competences')
-      .select('objectif_id, intitule, description')
-      .not('description', 'is', null)
-      .neq('description', '')
-      .lt('char_length(description)', 100)
-      .limit(50);
-    
-    if (shortError) {
-      console.log('⚠️ Erreur récupération compétences courtes:', shortError.message);
-    } else {
-      console.log(`📊 ${shortCompetences?.length || 0} compétences courtes récupérées`);
-      // Ajouter les compétences courtes à la liste
-      if (shortCompetences) {
-        incompleteCompetences.push(...shortCompetences);
-      }
+
+    // Analyser les descriptions manquantes ou courtes
+    const emptyDescriptions = stats.filter(c => !c.description || c.description.trim() === '');
+    const shortDescriptions = stats.filter(c => c.description && c.description.trim().length > 0 && c.description.length < 100);
+    const completeDescriptions = stats.filter(c => c.description && c.description.length >= 100);
+
+    console.log(`📊 Analyse des compétences:`);
+    console.log(`  - Descriptions vides: ${emptyDescriptions.length}`);
+    console.log(`  - Descriptions courtes (<100 car): ${shortDescriptions.length}`);
+    console.log(`  - Descriptions complètes (≥100 car): ${completeDescriptions.length}`);
+
+    const totalIncomplete = emptyDescriptions.length + shortDescriptions.length;
+    const completionRate = Math.round((completeDescriptions.length / stats.length) * 100);
+
+    // Si l'extraction initiale n'a pas été faite ou très peu de données
+    if (stats.length < 100) {
+      return new Response(JSON.stringify({
+        success: false,
+        message: 'Extraction OIC incomplète - Données insuffisantes',
+        current_count: stats.length,
+        expected_count: '4000+',
+        recommendation: 'Exécutez d\'abord l\'extraction complète via GitHub Actions',
+        action_required: 'Trigger le workflow extract-oic-completion.yml'
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
     }
-    
-    console.log(`📈 Total à traiter: ${incompleteCompetences.length} compétences`);
-    
-    // 2. Traiter chaque compétence incomplète (vides + courtes)
-    for (const competence of incompleteCompetences) {
-      try {
-        console.log(`🔄 Traitement ${competence.objectif_id}...`);
-        
-        // Construire l'URL de la page UNESS
-        const pageUrl = `https://sides.uness.fr/livret/index.php?title=${encodeURIComponent('OIC ' + competence.objectif_id)}`;
-        
-        // Récupérer le contenu via l'API MediaWiki
-        const apiUrl = 'https://sides.uness.fr/livret/api.php';
-        const apiParams = new URLSearchParams({
-          action: 'query',
-          prop: 'revisions',
-          titles: `OIC ${competence.objectif_id}`,
-          rvprop: 'content',
-          format: 'json'
-        });
-        
-        const response = await fetch(`${apiUrl}?${apiParams}`, {
-          headers: {
-            'User-Agent': 'Mozilla/5.0 (compatible; MedMNG-Completion/1.0)',
-            'Accept': 'application/json'
-          }
-        });
-        
-        if (!response.ok) {
-          console.log(`❌ Erreur HTTP ${response.status} pour ${competence.objectif_id}`);
-          errors++;
-          continue;
-        }
-        
-        const data = await response.json();
-        const pages = data.query?.pages || {};
-        const pageContent = Object.values(pages)[0]?.revisions?.[0]?.['*'] || '';
-        
-        if (!pageContent) {
-          console.log(`⚠️ Aucun contenu trouvé pour ${competence.objectif_id}`);
-          errors++;
-          continue;
-        }
-        
-        // Extraire la description du contenu MediaWiki
-        const description = extractDescription(pageContent);
-        
-        if (description) {
-          // Mettre à jour la compétence dans la table backup officielle avec le contenu complet
-          const { error: updateError } = await supabase
-            .from('backup_oic_competences')
-            .update({
-              description: description,
-              raw_json: JSON.stringify({ 
-                content: pageContent.substring(0, 2000),
-                extraction_date: new Date().toISOString(),
-                source: 'UNESS MediaWiki API'
-              }),
-              url_source: pageUrl,
-              updated_at: new Date().toISOString()
-            })
-            .eq('objectif_id', competence.objectif_id);
-          
-          if (updateError) {
-            console.log(`❌ Erreur mise à jour ${competence.objectif_id}: ${updateError.message}`);
-            errors++;
-          } else {
-            console.log(`✅ ${competence.objectif_id} complété`);
-            completed++;
-          }
-        } else {
-          console.log(`⚠️ Impossible d'extraire la description pour ${competence.objectif_id}`);
-          errors++;
-        }
-        
-        // Délai pour éviter la surcharge
-        await new Promise(resolve => setTimeout(resolve, 200));
-        
-      } catch (error) {
-        console.log(`❌ Erreur traitement ${competence.objectif_id}: ${error.message}`);
-        errors++;
-      }
+
+    // Si déjà bien complété
+    if (completionRate >= 90) {
+      return new Response(JSON.stringify({
+        success: true,
+        message: `Compétences OIC déjà bien complétées (${completionRate}%)`,
+        stats: {
+          total: stats.length,
+          empty: emptyDescriptions.length,
+          short: shortDescriptions.length,
+          complete: completeDescriptions.length,
+          completion_rate: `${completionRate}%`
+        },
+        recommendation: totalIncomplete > 0 ? 
+          'Quelques descriptions peuvent encore être améliorées via GitHub Actions' :
+          'Toutes les compétences sont maintenant complètes'
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
     }
-    
-    console.log(`🎉 Complétion terminée: ${completed} complétées, ${errors} erreurs sur ${incompleteCompetences.length} traitées`);
-    
+
+    // Pour une complétion massive, rediriger vers GitHub Actions
     return new Response(JSON.stringify({
-      success: true,
-      message: 'Complétion des compétences terminée - Toutes maintenant 100% complètes',
-      completed,
-      errors,
-      total: incompleteCompetences.length,
-      completion_rate: Math.round((completed / incompleteCompetences.length) * 100),
-      note: 'Compétences maintenant avec descriptions complètes (> 100 caractères)'
+      success: false,
+      message: 'Complétion automatique recommandée via GitHub Actions',
+      current_status: {
+        total_competences: stats.length,
+        incomplete_count: totalIncomplete,
+        completion_rate: `${completionRate}%`,
+        empty_descriptions: emptyDescriptions.length,
+        short_descriptions: shortDescriptions.length
+      },
+      recommendation: {
+        action: 'Utiliser l\'extraction GitHub Actions pour complétion massive',
+        workflow: 'extract-oic-completion.yml',
+        benefits: [
+          'Authentification CAS automatique',
+          'Traitement par batches optimisé',
+          'Gestion des timeouts et retry',
+          'Rapports détaillés'
+        ]
+      },
+      quick_samples: totalIncomplete > 0 ? emptyDescriptions.slice(0, 3).map(c => c.objectif_id) : []
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
@@ -168,61 +117,11 @@ Deno.serve(async (req) => {
     console.error('💥 Erreur critique:', error);
     return new Response(JSON.stringify({
       success: false,
-      error: error.message
+      error: error.message,
+      recommendation: 'Utiliser l\'extraction GitHub Actions pour une complétion fiable'
     }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
   }
 });
-
-// Fonction d'extraction de description (même logique que le script qui fonctionne)
-function extractDescription(content: string): string | null {
-  if (!content) return null;
-  
-  // Différents patterns pour extraire la description
-  const patterns = [
-    /'''Description[^:]*:?\s*'''?\s*([^'\n]+)/i,
-    /{{[^}]*description[^}]*\|\s*([^|}]+)/i,
-    /\|description\s*=\s*([^|\n]+)/i,
-    /description\s*[:=]\s*([^.\n]+)/i,
-    /\*\s*'''([^']+)'''/i, // Texte en gras
-    /^\s*([A-Z][^.\n]{20,200})\./m // Premier paragraphe descriptif
-  ];
-  
-  for (const pattern of patterns) {
-    const match = content.match(pattern);
-    if (match && match[1]) {
-      let description = match[1].trim()
-        .replace(/{{[^}]*}}/g, '') // Supprimer les templates
-        .replace(/\[\[[^\]]*\]\]/g, '') // Supprimer les liens
-        .replace(/'''?/g, '') // Supprimer le gras
-        .replace(/\s+/g, ' ') // Normaliser les espaces
-        .trim();
-      
-      if (description.length > 20 && description.length < 500) {
-        return description;
-      }
-    }
-  }
-  
-  // Fallback: premier paragraphe significatif
-  const lines = content.split('\n');
-  for (const line of lines) {
-    const cleaned = line.trim()
-      .replace(/[{}|]/g, '')
-      .replace(/\[\[[^\]]*\]\]/g, '')
-      .replace(/'''?/g, '')
-      .trim();
-    
-    if (cleaned.length > 30 && 
-        cleaned.length < 300 && 
-        !cleaned.startsWith('[[') && 
-        !cleaned.startsWith('{{') &&
-        !cleaned.includes('Catégorie:')) {
-      return cleaned;
-    }
-  }
-  
-  return null;
-}
