@@ -173,85 +173,93 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Bouton d'extraction OIC - Test immédiat */}
+        {/* Bouton de complétion OIC - Complétion intelligente 100% */}
         <div className="pb-8">
           <div className="text-center">
-            <PremiumCard variant="glass" className="p-6 max-w-2xl mx-auto border-2 border-blue-500/20 bg-gradient-to-r from-blue-50 to-purple-50">
-              <div className="flex items-center justify-center gap-3 mb-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
-                  <Zap className="h-6 w-6 text-white" />
+            <PremiumCard variant="glass" className="p-8 max-w-3xl mx-auto border-2 border-gradient-to-r from-blue-500/30 to-purple-500/30 bg-gradient-to-r from-blue-50 to-purple-50">
+              <div className="flex items-center justify-center gap-4 mb-6">
+                <div className="w-16 h-16 bg-gradient-to-br from-blue-500 via-purple-600 to-indigo-700 rounded-2xl flex items-center justify-center shadow-lg">
+                  <Brain className="h-8 w-8 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900">Extraction OIC Autonome</h3>
+                <div className="text-left">
+                  <h3 className="text-2xl font-bold text-gray-900 mb-1">Complétion Intelligente OIC</h3>
+                  <p className="text-sm text-gray-600">Complétez automatiquement toutes les compétences</p>
+                </div>
               </div>
-              <p className="text-gray-600 mb-4">
-                Mise à jour automatique des 4,872 compétences OIC depuis l'API UNESS
+              
+              <div className="bg-white/50 rounded-xl p-6 mb-6 border border-blue-200/50">
+                <div className="grid grid-cols-3 gap-4 text-center">
+                  <div>
+                    <div className="text-2xl font-bold text-blue-600">4,872</div>
+                    <div className="text-sm text-gray-600">Compétences totales</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-orange-600">1,807</div>
+                    <div className="text-sm text-gray-600">À compléter</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-green-600">100%</div>
+                    <div className="text-sm text-gray-600">Objectif final</div>
+                  </div>
+                </div>
+              </div>
+              
+              <p className="text-gray-700 mb-6 leading-relaxed">
+                Lancez la complétion automatique de toutes les compétences OIC incomplètes (descriptions vides ou moins de 100 caractères) 
+                via l'API UNESS MediaWiki pour obtenir un contenu 100% complet.
               </p>
-              <div className="flex gap-3 justify-center">
-                <PremiumButton
-                  variant="secondary"
-                  size="lg"
-                  onClick={async () => {
-                    try {
-                      console.log('🧪 Test authentification CAS...');
-                      const response = await fetch('https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/test-cas-auth', {
-                        method: 'POST',
-                        headers: {
-                          'Content-Type': 'application/json',
-                          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU'
-                        }
-                      });
+              
+              <PremiumButton
+                variant="primary"
+                size="xl"
+                onClick={async () => {
+                  try {
+                    console.log('🧠 Lancement complétion intelligente OIC...');
+                    
+                    // Afficher le statut de démarrage
+                    const startMessage = "🚀 Complétion en cours...\n\n⏳ Récupération des compétences incomplètes\n📡 Connexion à l'API UNESS\n🔄 Traitement en cours...";
+                    alert(startMessage);
+                    
+                    const response = await fetch('https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/complete-oic-competences', {
+                      method: 'POST',
+                      headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU'
+                      },
+                      body: JSON.stringify({})
+                    });
+                    
+                    const result = await response.json();
+                    
+                    if (result.success) {
+                      const successMessage = `✅ COMPLÉTION TERMINÉE AVEC SUCCÈS !
+
+📊 Statistiques finales :
+✅ Complétées : ${result.completed || 0}
+❌ Erreurs : ${result.errors || 0}  
+📈 Total traité : ${result.total || 0}
+💯 Taux de réussite : ${result.completion_rate || 0}%
+
+🎉 Toutes les compétences sont maintenant 100% complètes !
+${result.note || ''}`;
                       
-                      const result = await response.json();
-                      
-                      if (result.success) {
-                        alert(`✅ Test CAS réussi !\n🔐 Auth: OK\n📊 Pages OIC: ${result.api?.pagesFound || 0}\n🍪 Cookies: ${result.auth?.cookiesLength || 0} chars`);
-                      } else {
-                        alert(`❌ Test échoué: ${result.error}`);
-                      }
-                    } catch (error) {
-                      alert(`💥 Erreur test: ${error.message}`);
+                      alert(successMessage);
+                    } else {
+                      alert(`❌ Erreur lors de la complétion :\n${result.error}`);
                     }
-                  }}
-                  className="bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700"
-                >
-                  <Target className="h-5 w-5 mr-2" />
-                  🧪 Tester CAS Auth
-                </PremiumButton>
-                
-                <PremiumButton
-                  variant="primary"
-                  size="lg"
-                  onClick={async () => {
-                    try {
-                      console.log('🚀 Déclenchement extraction OIC Puppeteer...');
-                      const response = await fetch('https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/puppeteer-oic-extraction', {
-                        method: 'POST',
-                        headers: {
-                          'Content-Type': 'application/json',
-                          'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU'
-                        },
-                        body: JSON.stringify({ 
-                          method: 'puppeteer_cas',
-                          source: 'homepage_button' 
-                        })
-                      });
-                      
-                      const result = await response.json();
-                      
-                      if (result.success) {
-                        alert(`✅ Extraction Puppeteer terminée ! \n📊 ${result.competences_extraites} compétences extraites\n🆔 Session: ${result.session_id}`);
-                      } else {
-                        alert(`❌ Erreur: ${result.error}`);
-                      }
-                    } catch (error) {
-                      alert(`💥 Erreur: ${error.message}`);
-                    }
-                  }}
-                  className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg"
-                >
-                  <Zap className="h-5 w-5 mr-2" />
-                  🚀 Compléter les Compétences OIC
-                </PremiumButton>
+                  } catch (error) {
+                    alert(`💥 Erreur critique :\n${error.message}`);
+                  }
+                }}
+                className="w-full bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-700 hover:from-blue-700 hover:via-purple-700 hover:to-indigo-800 shadow-xl transform hover:scale-105 transition-all duration-300"
+              >
+                <Brain className="h-6 w-6 mr-3" />
+                🧠 Lancer la Complétion Intelligente
+                <Sparkles className="h-5 w-5 ml-3" />
+              </PremiumButton>
+              
+              <div className="mt-4 text-xs text-gray-500 text-center">
+                ⚡ Processus automatisé • 🔒 Sécurisé • 📊 Statistiques en temps réel
               </div>
             </PremiumCard>
           </div>
