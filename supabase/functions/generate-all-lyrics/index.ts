@@ -78,14 +78,19 @@ Deno.serve(async (req) => {
           continue;
         }
 
-        // Generate lyrics based on OIC competences
-        const lyrics = generateLyricsForItem(item);
+        // Generate three versions of lyrics
+        const lyricsResult = await generateLyricsForItem(item, supabase);
         
-        if (lyrics && lyrics.length > 0) {
-          // Update the item with new lyrics
+        if (lyricsResult && (lyricsResult.rangA.length > 0 || lyricsResult.rangB.length > 0 || lyricsResult.mixed.length > 0)) {
+          // Update the item with all three versions
           const { error: updateError } = await supabase
             .from('edn_items_complete')
-            .update({ paroles_musicales: lyrics })
+            .update({ 
+              paroles_rang_a: lyricsResult.rangA,
+              paroles_rang_b: lyricsResult.rangB,
+              paroles_rang_ab: lyricsResult.mixed,
+              paroles_musicales: lyricsResult.mixed // Garder la compatibilité
+            })
             .eq('id', item.id);
 
           if (updateError) {
@@ -147,167 +152,259 @@ Deno.serve(async (req) => {
   }
 });
 
-function generateLyricsForItem(item: EdnItem): string[] {
-  const lyrics: string[] = [];
+async function generateLyricsForItem(item: EdnItem, supabase: any): Promise<{ rangA: string[], rangB: string[], mixed: string[] }> {
+  console.log(`🎵 Génération paroles pour ${item.item_code}: ${item.title}`);
   
   try {
-    console.log(`🎵 Génération paroles pour ${item.item_code}: ${item.title}`);
+    // Récupérer les compétences OIC spécifiques depuis la base
+    const itemNumber = item.item_code.replace('IC-', '').padStart(3, '0');
     
-    // Generate Rang A lyrics
-    if (item.competences_oic_rang_a && item.competences_oic_rang_a.length > 0) {
-      const rangALyrics = generateRangLyrics(item, 'A', item.competences_oic_rang_a);
-      lyrics.push(...rangALyrics);
-    }
-    
-    // Generate Rang B lyrics  
-    if (item.competences_oic_rang_b && item.competences_oic_rang_b.length > 0) {
-      const rangBLyrics = generateRangLyrics(item, 'B', item.competences_oic_rang_b);
-      lyrics.push(...rangBLyrics);
-    }
-    
-    // Generate combined lyrics if both exist
-    if (item.competences_oic_rang_a?.length > 0 && item.competences_oic_rang_b?.length > 0) {
-      const combinedLyrics = generateCombinedLyrics(item);
-      lyrics.push(...combinedLyrics);
-    }
-    
-    return lyrics;
+    const { data: competencesRangA } = await supabase
+      .from('backup_oic_competences')
+      .select('*')
+      .eq('item_parent', itemNumber)
+      .eq('rang', 'A')
+      .order('ordre');
+      
+    const { data: competencesRangB } = await supabase
+      .from('backup_oic_competences')
+      .select('*')
+      .eq('item_parent', itemNumber)
+      .eq('rang', 'B')
+      .order('ordre');
+
+    // Générer les trois versions spécifiques
+    const lyricsRangA = generateSpecificLyrics(item, competencesRangA || [], 'A');
+    const lyricsRangB = generateSpecificLyrics(item, competencesRangB || [], 'B');
+    const lyricsMixed = generateMixedLyrics(item, competencesRangA || [], competencesRangB || []);
+
+    return {
+      rangA: lyricsRangA,
+      rangB: lyricsRangB,
+      mixed: lyricsMixed
+    };
     
   } catch (error) {
     console.error(`❌ Erreur génération paroles ${item.item_code}:`, error);
-    return [];
+    return {
+      rangA: [`Erreur génération pour ${item.item_code} rang A`],
+      rangB: [`Erreur génération pour ${item.item_code} rang B`],
+      mixed: [`Erreur génération pour ${item.item_code} mixte`]
+    };
   }
 }
 
-function generateRangLyrics(item: EdnItem, rang: 'A' | 'B', competences: any[]): string[] {
+// Générer des paroles spécifiques basées uniquement sur les compétences réelles
+function generateSpecificLyrics(item: EdnItem, competences: any[], rang: 'A' | 'B'): string[] {
   const lyrics: string[] = [];
-  
-  const isRangA = rang === 'A';
   const itemNumber = item.item_code.split('-')[1];
   
-  // Obtenir les compétences spécifiques (jusqu'à 8 pour 4 couplets)
-  const specificCompetences = competences && competences.length > 0 
+  // Extraire les concepts clés des compétences réelles
+  const medicalConcepts = competences && competences.length > 0
     ? competences.slice(0, 8).map(comp => {
-        const intitule = comp.intitule || comp.description || 'Compétence médicale';
-        return intitule.length > 50 ? intitule.substring(0, 50) + '...' : intitule;
-      })
-    : [
-        `Sémiologie ${rang} pour item ${itemNumber}`,
-        `Physiopathologie ${rang} détaillée`, 
-        `Diagnostic ${rang} précis`,
-        `Thérapeutique ${rang} adaptée`,
-        `Surveillance ${rang} rigoureuse`,
-        `Complications ${rang} à surveiller`,
-        `Pronostic ${rang} à établir`,
-        `Éducation ${rang} du patient`
-      ];
+        const text = comp.intitule || comp.description || '';
+        // Nettoyer et extraire les concepts médicaux
+        return cleanMedicalConcept(text);
+      }).filter(concept => concept.length > 0)
+    : getDefaultMedicalConcepts(item, rang);
 
-  // Titre court de l'item
-  const shortTitle = item.title.length > 40 ? item.title.substring(0, 40) + '...' : item.title;
+  // Assurer qu'on a au moins 8 concepts
+  while (medicalConcepts.length < 8) {
+    medicalConcepts.push(...getDefaultMedicalConcepts(item, rang));
+  }
   
-  // COUPLET 1
-  const couplet1 = `[Couplet 1 - Rang ${rang}]
-${specificCompetences[0] || `Compétences ${rang} à maîtriser`}
-${specificCompetences[1] || `Formation ${rang} à consolider`}
-Pour l'item ${itemNumber} je vais étudier
-Chaque notion ${rang} bien assimiler`;
-
-  lyrics.push(couplet1);
+  const shortTitle = extractMedicalKeywords(item.title);
   
-  // REFRAIN (identique à chaque fois avec assonances)
-  const refrain = `[Refrain - Item ${itemNumber} Rang ${rang}]
-Item ${itemNumber} je vais réussir
-Rang ${rang} pour mieux guérir
-${shortTitle.substring(0, 25)}...
-Médecine en musique convertir`;
-
-  lyrics.push(refrain);
+  // COUPLET 1 - Concepts médicaux spécifiques
+  lyrics.push(
+    medicalConcepts[0],
+    medicalConcepts[1], 
+    `Pour ${shortTitle} comprendre`,
+    `Chaque détail bien apprendre`
+  );
+  
+  // REFRAIN - Assonances médicales
+  lyrics.push(
+    `${shortTitle} maîtriser`,
+    `Diagnostic préciser`,
+    `Traitement optimiser`, 
+    `Excellence viser`
+  );
   
   // COUPLET 2
-  const couplet2 = `[Couplet 2 - Rang ${rang}]
-${specificCompetences[2] || `Diagnostic ${rang} approfondir`}
-${specificCompetences[3] || `Traitement ${rang} à choisir`}
-Les protocoles ${rang} respecter
-Pour mes patients soigner`;
-
-  lyrics.push(couplet2);
-  lyrics.push(refrain); // Refrain après couplet 2
+  lyrics.push(
+    medicalConcepts[2],
+    medicalConcepts[3],
+    `Sémiologie analyser`,
+    `Pathologie identifier`
+  );
   
-  // COUPLET 3  
-  const couplet3 = `[Couplet 3 - Rang ${rang}]
-${specificCompetences[4] || `Surveillance ${rang} continue`}
-${specificCompetences[5] || `Évolution ${rang} suivre`}
-Chaque signe ${rang} analyser
-Pour le patient surveiller`;
-
-  lyrics.push(couplet3);
-  lyrics.push(refrain); // Refrain après couplet 3
+  lyrics.push(
+    `${shortTitle} maîtriser`,
+    `Diagnostic préciser`,
+    `Traitement optimiser`,
+    `Excellence viser`
+  );
   
-  // COUPLET 4 (dernier)
-  const couplet4 = `[Couplet 4 Final - Rang ${rang}]
-${specificCompetences[6] || `Prévention ${rang} enseigner`}
-${specificCompetences[7] || `Éducation ${rang} prodiguer`}
-Item ${itemNumber} Rang ${rang} validé
-Excellence médicale atteindre`;
-
-  lyrics.push(couplet4);
-  lyrics.push(refrain); // Refrain final
+  // COUPLET 3
+  lyrics.push(
+    medicalConcepts[4],
+    medicalConcepts[5],
+    `Surveillance organiser`,
+    `Évolution surveiller`
+  );
+  
+  lyrics.push(
+    `${shortTitle} maîtriser`,
+    `Diagnostic préciser`, 
+    `Traitement optimiser`,
+    `Excellence viser`
+  );
+  
+  // COUPLET 4 FINAL
+  lyrics.push(
+    medicalConcepts[6],
+    medicalConcepts[7],
+    `Compétence développer`,
+    `Expertise consolider`
+  );
+  
+  lyrics.push(
+    `${shortTitle} maîtriser`,
+    `Diagnostic préciser`,
+    `Traitement optimiser`,
+    `Excellence viser`
+  );
   
   return lyrics;
 }
 
-function generateCombinedLyrics(item: EdnItem): string[] {
+// Générer des paroles mixtes combinant les compétences A et B
+function generateMixedLyrics(item: EdnItem, competencesA: any[], competencesB: any[]): string[] {
   const lyrics: string[] = [];
-  const itemNumber = item.item_code.split('-')[1];
-  const shortTitle = item.title.length > 40 ? item.title.substring(0, 40) + '...' : item.title;
   
-  // COUPLET 1 - Mix A+B
-  const couplet1 = `[Couplet 1 - Mix A+B]
-Rang A fondamentaux maîtriser
-Rang B expertise développer
-Item ${itemNumber} complet étudier
-Double compétence acquérir`;
-
-  lyrics.push(couplet1);
+  // Combiner les concepts des deux rangs
+  const conceptsA = competencesA.slice(0, 4).map(comp => cleanMedicalConcept(comp.intitule || comp.description || ''));
+  const conceptsB = competencesB.slice(0, 4).map(comp => cleanMedicalConcept(comp.intitule || comp.description || ''));
   
-  // REFRAIN COMBINÉ (avec assonances)
-  const refrain = `[Refrain Combiné A+B - Item ${itemNumber}]
-A et B je vais unifier
-${shortTitle.substring(0, 25)}... dominer
-Formation complète finaliser
-Excellence médicale rayonner`;
-
-  lyrics.push(refrain);
+  const shortTitle = extractMedicalKeywords(item.title);
   
-  // COUPLET 2 - Mix A+B
-  const couplet2 = `[Couplet 2 - Mix A+B]
-Bases solides A consolider
-Expertise B approfondir
-Diagnostic complet élaborer
-Thérapeutique optimiser`;
-
-  lyrics.push(couplet2);
-  lyrics.push(refrain);
+  // COUPLET 1 - Mix fondamental + expertise
+  lyrics.push(
+    conceptsA[0] || 'Connaissances fondamentales',
+    conceptsB[0] || 'Expertise spécialisée',
+    `${shortTitle} complet maîtriser`,
+    `Formation globale finaliser`
+  );
   
-  // COUPLET 3 - Mix A+B
-  const couplet3 = `[Couplet 3 - Mix A+B]
-Sémiologie A+B analyser
-Physiopathologie intégrer
-Surveillance complète assurer
-Évolution globale surveiller`;
-
-  lyrics.push(couplet3);
-  lyrics.push(refrain);
+  // REFRAIN MIXTE
+  lyrics.push(
+    `${shortTitle} intégrer`,
+    `Compétences développer`,
+    `Excellence atteindre`,
+    `Maîtrise parfaite viser`
+  );
   
-  // COUPLET 4 FINAL - Mix A+B
-  const couplet4 = `[Couplet 4 Final - Mix A+B]
-Prévention A+B enseigner
-Éducation globale prodiguer
-Item ${itemNumber} A+B validé
-Maîtrise complète atteindre`;
-
-  lyrics.push(couplet4);
-  lyrics.push(refrain);
+  // COUPLET 2
+  lyrics.push(
+    conceptsA[1] || 'Diagnostic de base',
+    conceptsB[1] || 'Analyse approfondie',
+    `Approche complète adopter`,
+    `Qualité optimiser`
+  );
+  
+  lyrics.push(
+    `${shortTitle} intégrer`,
+    `Compétences développer`,
+    `Excellence atteindre`,
+    `Maîtrise parfaite viser`
+  );
+  
+  // COUPLET 3
+  lyrics.push(
+    conceptsA[2] || 'Traitement standard',
+    conceptsB[2] || 'Prise en charge experte',
+    `Soins personnaliser`,
+    `Résultats optimiser`
+  );
+  
+  lyrics.push(
+    `${shortTitle} intégrer`,
+    `Compétences développer`,
+    `Excellence atteindre`,
+    `Maîtrise parfaite viser`
+  );
+  
+  // COUPLET 4 FINAL
+  lyrics.push(
+    conceptsA[3] || 'Prévention essentielle',
+    conceptsB[3] || 'Innovation thérapeutique',
+    `Expertise complète acquérir`,
+    `Excellence maintenir`
+  );
+  
+  lyrics.push(
+    `${shortTitle} intégrer`,
+    `Compétences développer`,
+    `Excellence atteindre`,
+    `Maîtrise parfaite viser`
+  );
   
   return lyrics;
+}
+
+// Fonctions utilitaires pour nettoyer et extraire les concepts médicaux
+function cleanMedicalConcept(text: string): string {
+  if (!text) return '';
+  
+  // Nettoyer le texte et le raccourcir pour être facilement chantable
+  let cleaned = text
+    .replace(/[^\w\s-]/g, ' ') // Enlever la ponctuation
+    .replace(/\s+/g, ' ') // Normaliser les espaces
+    .trim();
+    
+  // Garder seulement les 3-4 premiers mots pour la chanson
+  const words = cleaned.split(' ').slice(0, 4);
+  
+  // Vérifier que ça finit par une sonorité qui se chante bien
+  const lastWord = words[words.length - 1];
+  if (lastWord && !lastWord.match(/(er|ir|é|ée|ie|tion|sion)$/)) {
+    // Ajouter un suffixe chantable si nécessaire
+    if (lastWord.endsWith('e')) {
+      words[words.length - 1] = lastWord + 'r';
+    } else {
+      words.push('maîtriser');
+    }
+  }
+  
+  return words.join(' ');
+}
+
+function extractMedicalKeywords(title: string): string {
+  // Extraire les mots clés médicaux du titre
+  const medicalWords = title
+    .toLowerCase()
+    .replace(/[^\w\s]/g, ' ')
+    .split(' ')
+    .filter(word => word.length > 3)
+    .slice(0, 2)
+    .join(' ');
+    
+  return medicalWords || 'pathologie';
+}
+
+function getDefaultMedicalConcepts(item: EdnItem, rang: 'A' | 'B'): string[] {
+  const itemNumber = item.item_code.split('-')[1];
+  const keywords = extractMedicalKeywords(item.title);
+  
+  return [
+    `${keywords} étudier`,
+    `Physiopathologie analyser`,
+    `Symptômes identifier`,
+    `Diagnostic établir`,
+    `Traitement choisir`,
+    `Surveillance organiser`,
+    `Complications prévenir`,
+    `Pronostic évaluer`
+  ];
 }
