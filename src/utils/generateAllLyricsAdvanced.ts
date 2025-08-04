@@ -1,19 +1,17 @@
 import { supabase } from '@/integrations/supabase/client'
 
 export async function generateAllLyricsAdvanced() {
-  console.log('🚀 Lancement de la génération des paroles médicales avancées...')
+  console.log('🚀 Lancement de la génération des paroles médicales spécifiques...')
   
   try {
-    const { data, error } = await supabase.functions.invoke('update-edn-unique-content', {
-      body: { action: 'generate_advanced_lyrics' }
-    })
+    const { data, error } = await supabase.functions.invoke('generate-all-lyrics', {})
 
     if (error) {
       console.error('❌ Erreur lors de l\'appel de la fonction:', error)
       throw error
     }
 
-    console.log('✅ Génération des paroles médicales avancées terminée:', data)
+    console.log('✅ Génération des paroles médicales spécifiques terminée:', data)
     return data
     
   } catch (error) {
