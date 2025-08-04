@@ -36,23 +36,28 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
     
-    - name: Setup Node.js
+    - name: 🟢 Setup Node.js 20
       uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: '20'
         cache: 'npm'
-    
-    - name: Install dependencies
+
+    - name: ℹ️ Install system deps for Chromium
+      run: sudo apt-get update && sudo apt-get install -y libgbm-dev libxshmfence-dev
+
+    - name: 📦 Install OIC deps
       working-directory: oic-scripts
-      run: npm install --legacy-peer-deps
-    
-    - name: Run OIC extraction
+      run: npm install
+
+    - name: 🚀 Run extraction / completion
       working-directory: oic-scripts
       env:
         SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         CAS_USERNAME: ${{ secrets.CAS_USERNAME }}
         CAS_PASSWORD: ${{ secrets.CAS_PASSWORD }}
+        FORCE_UPDATE: ${{ github.event.inputs.force_update }}
       run: |
+        mkdir -p .cache
         node extract-oic-competences.cjs
     
     - name: Upload extraction report
