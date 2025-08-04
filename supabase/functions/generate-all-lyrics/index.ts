@@ -184,49 +184,61 @@ function generateRangLyrics(item: EdnItem, rang: 'A' | 'B', competences: any[]):
   
   const isRangA = rang === 'A';
   const niveau = isRangA ? 'fondamental' : 'expert';
-  const emoji = isRangA ? '📚' : '🎯';
   
-  // Intro verse
-  const introVerse = `[Couplet 1 - Rang ${rang}]
-Item ${item.item_code} je vais maîtriser
-${item.title.substring(0, 50)}${item.title.length > 50 ? '...' : ''}
-Niveau ${niveau} à développer
-Les bases solides pour réussir`;
+  // Obtenir les compétences spécifiques
+  const specificCompetences = competences && competences.length > 0 
+    ? competences.slice(0, 4).map(comp => {
+        const intitule = comp.intitule || comp.description || 'Compétence médicale';
+        return intitule.length > 60 ? intitule.substring(0, 60) + '...' : intitule;
+      })
+    : [`Compétences ${niveau} niveau ${rang}`, `Diagnostic et thérapeutique`, `Sémiologie clinique`, `Prise en charge`];
+
+  // Titre court de l'item
+  const shortTitle = item.title.length > 40 ? item.title.substring(0, 40) + '...' : item.title;
+  
+  // Introduction spécifique à l'item
+  const introVerse = `[Introduction Spécifique - Item ${item.item_code.split('-')[1]}]
+${item.item_code} : ${shortTitle}
+
+[Couplet 1 - Rang ${rang} Item ${item.item_code.split('-')[1]}]
+${specificCompetences[0]}
+${specificCompetences[1]}
+${specificCompetences[2]}
+${specificCompetences[3]}`;
 
   lyrics.push(introVerse);
   
-  // Refrain 
-  const refrain = `[Refrain]
-EDN ${item.item_code} chantons ensemble
-Compétences Rang ${rang} qui se rassemblent
-Pour l'examen on se prépare
-Avec la musique tout devient plus claire`;
+  // Refrain unique à cet item
+  const itemNumber = item.item_code.split('-')[1];
+  const refrain = `[Refrain Unique Item ${itemNumber}]
+Item ${itemNumber} maîtrisé - ${shortTitle}
+Compétence professionnelle ${itemNumber}, excellence clinique
+Patient centré item ${itemNumber}, soins personnalisés
+Médecin expert item ${itemNumber}, reconnaissance établie`;
 
   lyrics.push(refrain);
   
-  // Competences verse
-  if (competences && competences.length > 0) {
-    const firstCompetences = competences.slice(0, 3);
-    const competenceLines = firstCompetences.map(comp => {
-      const intitule = comp.intitule || comp.description || 'Compétence médicale';
-      return intitule.substring(0, 40) + (intitule.length > 40 ? '...' : '');
-    });
-    
-    const competenceVerse = `[Couplet 2 - Rang ${rang}]
-${competenceLines[0] || 'Chaque concept je vais comprendre'}
-${competenceLines[1] || 'Les définitions bien apprendre'}
-${competenceLines[2] || 'Diagnostic et traitement savoir'}
-Pour mes patients tout donner`;
+  // Couplet 2 avec compétences avancées
+  const advancedVerse = isRangA 
+    ? `[Couplet 2 - Rang A Item ${itemNumber}]
+Bases théoriques item ${itemNumber}, fondamentaux solides
+Sémiologie classique item ${itemNumber}, signes cliniques
+Diagnostic standard item ${itemNumber}, démarche rigoureuse
+Thérapeutique item ${itemNumber}, protocoles établis`
+    : `[Couplet 2 - Rang B Item ${itemNumber}]
+Situations complexes item ${itemNumber}, expertise clinique
+Diagnostic différentiel item ${itemNumber}, analyse fine
+Thérapeutiques avancées item ${itemNumber}, innovation
+Leadership médical item ${itemNumber}, excellence reconnue`;
 
-    lyrics.push(competenceVerse);
-  }
+  lyrics.push(advancedVerse);
   
-  // Final refrain
-  const finalRefrain = `[Refrain Final]
-Item ${item.item_code} Rang ${rang} validé
-Connaissances solides intégrées
-${isRangA ? 'Vers le rang B je vais progresser' : 'Expertise médicale maîtrisée'}
-En musique médecine et réussite mélangées`;
+  // Refrain final unique
+  const finalRefrain = `[Refrain Final Unique ${itemNumber}]
+${item.item_code} - Maîtrise absolue confirmée et reconnue
+${isRangA ? `Fondamentaux ${itemNumber} parfaitement intégrés` : `Expertise médicale ${itemNumber} leadership reconnu`}
+Humanisme médical item ${itemNumber}, science et conscience
+Mission accomplie item ${itemNumber}, excellence partagée`;
 
   lyrics.push(finalRefrain);
   
