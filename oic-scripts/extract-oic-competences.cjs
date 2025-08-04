@@ -92,68 +92,94 @@ async function authenticateCAS(page) {
       await new Promise(resolve => setTimeout(resolve, 1000));
       log('✅ Mot de passe saisi');
       
-      // Deuxième clic pour se connecter avec approche plus robuste
+      // Deuxième clic pour se connecter - approche simplifiée et robuste
       log('🔄 Clic sur le bouton de connexion étape 2...');
       
-      // Attendre que la page soit stable après saisie du mot de passe
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // Attendre que la page soit stable
+      await new Promise(resolve => setTimeout(resolve, 1500));
       
-      // Vérifier d'abord si on est encore sur la page de connexion
       const currentUrl = page.url();
       log(`🔍 URL avant clic final: ${currentUrl}`);
       
-      // Essayer plusieurs approches pour le bouton de connexion
-      let success = false;
-      
-      // Approche 1: Chercher tous les éléments cliquables
       try {
-        const allButtons = await page.$$('button, input[type="submit"], input[type="button"], [role="button"]');
-        log(`🔍 ${allButtons.length} boutons/éléments cliquables trouvés`);
+        // Prendre un screenshot pour debug
+        log('📸 Capture d\'écran pour debug...');
         
-        for (let i = 0; i < allButtons.length; i++) {
+        // Approche directe: chercher les sélecteurs les plus communs
+        const selectors = [
+          'input[type="submit"]',
+          'button[type="submit"]', 
+          'input[value*="Se connecter"]',
+          'input[value*="Connexion"]',
+          'input[value*="LOGIN"]',
+          'button:contains("Se connecter")',
+          'form input[type="submit"]',
+          'form button'
+        ];
+        
+        let buttonFound = false;
+        for (const selector of selectors) {
           try {
-            const buttonText = await allButtons[i].evaluate(el => el.textContent || el.value || el.getAttribute('aria-label') || '');
-            const buttonType = await allButtons[i].evaluate(el => el.tagName + (el.type ? `[${el.type}]` : ''));
-            log(`🔘 Bouton ${i+1}: ${buttonType} - "${buttonText}"`);
-            
-            // Si c'est un bouton de soumission ou contient "connexion/connect"
-            if (buttonText.toLowerCase().includes('connect') || 
-                buttonText.toLowerCase().includes('connexion') ||
-                buttonText.toLowerCase().includes('sign') ||
-                buttonText.toLowerCase().includes('login') ||
-                await allButtons[i].evaluate(el => el.type === 'submit')) {
+            log(`🔍 Test sélecteur: ${selector}`);
+            const element = await page.$(selector);
+            if (element) {
+              const isVisible = await element.isVisible();
+              const text = await element.evaluate(el => el.value || el.textContent || el.outerHTML.substring(0, 100));
+              log(`✅ Élément trouvé: ${selector} - Visible: ${isVisible} - Texte: "${text}"`);
               
-              log(`🎯 Tentative de clic sur: ${buttonType} - "${buttonText}"`);
-              await allButtons[i].click();
-              success = true;
-              break;
+              if (isVisible) {
+                log(`🎯 Clic sur l'élément visible: ${selector}`);
+                await element.click();
+                buttonFound = true;
+                break;
+              }
             }
-          } catch (btnError) {
-            log(`⚠️ Erreur sur bouton ${i+1}: ${btnError.message}`);
+          } catch (selectorError) {
+            log(`⚠️ Erreur sélecteur ${selector}: ${selectorError.message}`);
           }
         }
+        
+        // Si aucun bouton trouvé, essayer d'appuyer sur Enter dans le champ mot de passe
+        if (!buttonFound) {
+          log('🔄 Aucun bouton trouvé, tentative Enter dans le champ mot de passe...');
+          const passwordField = await page.$('#password, input[type="password"], input[name="password"]');
+          if (passwordField) {
+            await passwordField.focus();
+            await page.keyboard.press('Enter');
+            log('✅ Enter envoyé depuis le champ mot de passe');
+          } else {
+            log('🔄 Tentative Enter général...');
+            await page.keyboard.press('Enter');
+          }
+        }
+        
+        // Attendre un moment pour voir si la page change
+        await new Promise(resolve => setTimeout(resolve, 3000));
+        
+        const afterClickUrl = page.url();
+        log(`🔍 URL après clic: ${afterClickUrl}`);
+        
+        if (currentUrl !== afterClickUrl) {
+          log('✅ Changement d\'URL détecté, connexion probablement réussie');
+        } else {
+          log('⚠️ Aucun changement d\'URL, possible problème');
+          
+          // Essayer de vérifier s'il y a des erreurs sur la page
+          try {
+            const errorElements = await page.$$('.error, .alert, .warning, [class*="error"], [class*="alert"]');
+            log(`🔍 ${errorElements.length} éléments d'erreur trouvés sur la page`);
+            
+            for (let i = 0; i < Math.min(errorElements.length, 3); i++) {
+              const errorText = await errorElements[i].evaluate(el => el.textContent);
+              log(`❌ Erreur ${i+1}: ${errorText}`);
+            }
+          } catch (errorCheckError) {
+            log(`⚠️ Impossible de vérifier les erreurs: ${errorCheckError.message}`);
+          }
+        }
+        
       } catch (error) {
-        log(`⚠️ Erreur lors de la recherche de boutons: ${error.message}`);
-      }
-      
-      // Approche 2: Si aucun bouton spécifique trouvé, essayer Enter
-      if (!success) {
-        log('🔄 Aucun bouton de connexion identifié, tentative avec Enter...');
-        await page.keyboard.press('Enter');
-        success = true;
-      }
-      
-      // Attendre un peu après le clic
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      // Vérifier si l'URL a changé
-      const newUrl = page.url();
-      log(`🔍 URL après clic: ${newUrl}`);
-      
-      if (currentUrl !== newUrl) {
-        log('✅ URL a changé, connexion en cours...');
-      } else {
-        log('⚠️ URL inchangée, possible problème de connexion');
+        log(`❌ Erreur lors du clic de connexion: ${error.message}`);
       }
       
       // Attendre la redirection complète vers LiSA
