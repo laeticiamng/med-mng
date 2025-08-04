@@ -75,11 +75,52 @@ async function main() {
 
     // Connexion CAS
     await page.goto('https://auth.uness.fr/cas/login?service=https%3A%2F%2Fauth.uness.fr%2Fcas%2Foauth2.0%2FcallbackAuthorize%3Fclient_id%3DRzpoxdiUoFvsFWRH%26scope%3Dprofile%26redirect_uri%3Dhttps%253A%252F%252Flivret.uness.fr%252Flisa%252F2025%252FSpecial%253AOAuth2Client%252Fcallback%26response_type%3Dcode%26state%3D0b0889076887f02207b48665fe7a00dd%26approval_prompt%3Dauto%26client_name%3DCasOAuthClient');
-    await page.waitForSelector('#username');
     
-    await page.type('#username', casUsername);
-    await page.type('#password', casPassword);
-    await page.click('input[type="submit"]');
+    // Attendre et essayer différents sélecteurs pour les champs de connexion
+    try {
+      await page.waitForSelector('#username', { timeout: 10000 });
+    } catch (e) {
+      // Essayer d'autres sélecteurs possibles
+      await page.waitForSelector('input[name="username"]', { timeout: 5000 });
+    }
+    
+    // Saisir le nom d'utilisateur
+    const usernameSelector = await page.$('#username') ? '#username' : 'input[name="username"]';
+    await page.type(usernameSelector, casUsername);
+    
+    // Saisir le mot de passe avec plusieurs sélecteurs possibles
+    const passwordSelectors = ['#password', 'input[name="password"]', 'input[type="password"]'];
+    let passwordSelector = null;
+    
+    for (const selector of passwordSelectors) {
+      if (await page.$(selector)) {
+        passwordSelector = selector;
+        break;
+      }
+    }
+    
+    if (!passwordSelector) {
+      throw new Error('Impossible de trouver le champ mot de passe');
+    }
+    
+    await page.type(passwordSelector, casPassword);
+    
+    // Cliquer sur le bouton de connexion
+    const submitSelectors = ['input[type="submit"]', 'button[type="submit"]', '#submitButton', '.btn-submit'];
+    let submitSelector = null;
+    
+    for (const selector of submitSelectors) {
+      if (await page.$(selector)) {
+        submitSelector = selector;
+        break;
+      }
+    }
+    
+    if (!submitSelector) {
+      throw new Error('Impossible de trouver le bouton de connexion');
+    }
+    
+    await page.click(submitSelector);
     
     await page.waitForNavigation();
     log('✅ Authentification CAS réussie');
