@@ -191,8 +191,8 @@ export const AppleStyleItemModalFixed: React.FC<AppleStyleItemModalProps> = ({
         id: 'music',
         label: 'Génération Musicale',
         icon: Music,
-        available: !!finalItem?.paroles_musicales,
-        progress: finalItem?.paroles_musicales ? 100 : 0,
+        available: true, // Toujours disponible pour permettre la génération
+        progress: (finalItem?.paroles_musicales && finalItem.paroles_musicales.length > 0) ? 100 : 0,
         component: (
           <div className="p-6">
             <ParolesMusicales 
@@ -200,6 +200,9 @@ export const AppleStyleItemModalFixed: React.FC<AppleStyleItemModalProps> = ({
               paroles_rang_a={finalItem?.paroles_rang_a || []}
               paroles_rang_b={finalItem?.paroles_rang_b || []}
               paroles_rang_ab={finalItem?.paroles_rang_ab || []}
+              paroles={finalItem?.paroles_musicales || []}
+              tableauRangA={finalItem?.tableau_rang_a}
+              tableauRangB={finalItem?.tableau_rang_b}
             />
           </div>
         )
