@@ -254,12 +254,17 @@ function parseOICTitle(title) {
     
     return {
       objectif_id: fullMatch,
-      intitule: intitule || `Objectif ${fullMatch}`,
-      item_parent: itemParent,
+      intitule: (intitule || `Objectif ${fullMatch}`).substring(0, 1000), // Capacité augmentée à 1000
+      item_parent: `IC-${itemParent}`,
       rang,
       rubrique: RUBRIQUES_MAP[rubriqueCode] || `Rubrique ${rubriqueCode}`,
-      description: `Description de l'objectif ${fullMatch}`,
-      ordre: ordre ? parseInt(ordre) : 1
+      description: `Description de l'objectif ${fullMatch}`.substring(0, 5000), // Capacité augmentée à 5000
+      ordre: ordre ? parseInt(ordre) : 1,
+      sommaire: `Sommaire complet de l'objectif ${fullMatch}`.substring(0, 10000), // Nouvelle colonne avec 10000 chars
+      url_source: `https://livret.uness.fr/lisa/2025/${encodeURIComponent(title)}`,
+      date_import: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      extraction_status: 'api_extracted'
     };
     
   } catch (error) {
@@ -282,7 +287,7 @@ async function saveToSupabase(competences) {
     
     try {
       const { data, error } = await supabase
-        .from('backup_oic_competences')
+        .from('oic_competences')
         .upsert(batch, { 
           onConflict: 'objectif_id',
           ignoreDuplicates: false 
