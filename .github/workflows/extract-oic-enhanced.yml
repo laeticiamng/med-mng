@@ -52,22 +52,42 @@ jobs:
         node-version: '20'
         # Désactiver le cache npm pour éviter les conflits
         
-    - name: 📦 Installer les dépendances (Playwright)
+    - name: 📦 Installer seulement les dépendances nécessaires
       run: |
-        npm install playwright @supabase/supabase-js dotenv
+        # Créer un dossier séparé pour éviter les conflits
+        mkdir -p extraction-workspace
+        cd extraction-workspace
+        
+        # Initialiser un nouveau package.json minimal
+        cat > package.json << 'EOF'
+        {
+          "name": "oic-extraction",
+          "version": "1.0.0",
+          "type": "module",
+          "dependencies": {
+            "playwright": "^1.40.0",
+            "@supabase/supabase-js": "^2.39.0"
+          }
+        }
+        EOF
+        
+        # Installer seulement ce qui est nécessaire
+        npm install
+        
+        # Installer les navigateurs Playwright
+        npx playwright install chromium
 
-    - name: 🚀 Exécuter l'extraction OIC avec Playwright (version fonctionnelle)
+    - name: 🚀 Exécuter l'extraction avec environnement propre
+      working-directory: extraction-workspace
       env:
         SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         CAS_USERNAME: ${{ secrets.CAS_USERNAME }}
         CAS_PASSWORD: ${{ secrets.CAS_PASSWORD }}
         BATCH_SIZE: ${{ github.event.inputs.batch_size || '100' }}
-        FORCE_UPDATE: 'true'
       run: |
-        echo "🔧 Configuration de l'extraction avec Playwright (version fonctionnelle)..."
+        echo "🔧 Extraction dans environnement propre..."
         echo "🔢 Batch size: ${BATCH_SIZE}"
-        echo "🔥 Force update: ${FORCE_UPDATE}"
-        echo "📊 Utilisation de la version Playwright qui fonctionne"
+        echo "📊 Environnement isolé - pas de conflits Storybook"
         
         # Créer le script Playwright fonctionnel (copie du workflow #31)
         cat > extract-oic-playwright.cjs << 'EOF'
