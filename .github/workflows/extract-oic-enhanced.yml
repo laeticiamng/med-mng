@@ -55,7 +55,7 @@ jobs:
     - name: 📦 Installer les dépendances dans oic-scripts
       working-directory: oic-scripts
       run: |
-        npm install
+        npm install --legacy-peer-deps
 
     - name: 🚀 Exécuter l'extraction OIC avec le script existant
       working-directory: oic-scripts
