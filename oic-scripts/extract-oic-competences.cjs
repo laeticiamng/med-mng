@@ -74,7 +74,7 @@ async function main() {
     await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36');
 
     // Connexion CAS
-    await page.goto('https://cas.uness.fr/login');
+    await page.goto('https://auth.uness.fr/cas/login?service=https%3A%2F%2Fauth.uness.fr%2Fcas%2Foauth2.0%2FcallbackAuthorize%3Fclient_id%3DRzpoxdiUoFvsFWRH%26scope%3Dprofile%26redirect_uri%3Dhttps%253A%252F%252Flivret.uness.fr%252Flisa%252F2025%252FSpecial%253AOAuth2Client%252Fcallback%26response_type%3Dcode%26state%3D0b0889076887f02207b48665fe7a00dd%26approval_prompt%3Dauto%26client_name%3DCasOAuthClient');
     await page.waitForSelector('#username');
     
     await page.type('#username', casUsername);
@@ -102,7 +102,7 @@ async function main() {
     // Extraction via API MediaWiki
     log('📚 Démarrage extraction MediaWiki...');
     
-    const baseUrl = 'https://sides.uness.fr/livret/api.php';
+    const baseUrl = 'https://livret.uness.fr/lisa/2025/api.php';
     let cmcontinue = null;
     let totalProcessed = 0;
     let batchCount = 0;
@@ -120,7 +120,7 @@ async function main() {
       const params = new URLSearchParams({
         action: 'query',
         list: 'categorymembers',
-        cmtitle: 'Catégorie:Compétences OIC',
+        cmtitle: 'Catégorie:Objectif_de_connaissance',
         cmlimit: '50',
         format: 'json'
       });
@@ -187,7 +187,7 @@ async function main() {
             intitule: title,
             description: extractDescription(pageContent),
             sommaire: pageContent.substring(0, 5000), // Limiter pour éviter les quotas
-            url_source: `https://sides.uness.fr/livret/index.php?title=${encodeURIComponent(title)}`,
+            url_source: `https://livret.uness.fr/lisa/2025/${encodeURIComponent(title)}`,
             extraction_status: 'completed'
           };
 
