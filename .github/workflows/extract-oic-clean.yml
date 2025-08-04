@@ -1,0 +1,265 @@
+name: 🚀 Extraction OIC - Version Isolée (sans conflits)
+
+on:
+  workflow_dispatch:   # Lancement manuel
+    inputs:
+      batch_size:
+        description: 'Taille des lots pour l extraction'
+        required: false
+        default: '50'
+        type: string
+
+jobs:
+  extract-clean:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 🟢 Setup Node.js propre
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        # Pas de cache pour éviter les conflits
+        
+    - name: 🧹 Créer environnement propre
+      run: |
+        echo "🧹 Création d'un environnement propre sans conflits..."
+        
+        # Créer workspace totalement isolé
+        mkdir -p oic-clean-workspace
+        cd oic-clean-workspace
+        
+        # Package.json ultra-minimal
+        cat > package.json << 'EOF'
+        {
+          "name": "oic-extractor-clean",
+          "version": "1.0.0",
+          "type": "module",
+          "dependencies": {
+            "playwright": "1.40.0",
+            "@supabase/supabase-js": "2.39.0"
+          }
+        }
+        EOF
+        
+        echo "📦 Installation des dépendances propres..."
+        npm install
+        
+        echo "🎭 Installation du navigateur Chromium..."
+        npx playwright install chromium --with-deps
+
+    - name: 🚀 Script d'extraction CAS complet
+      working-directory: oic-clean-workspace
+      env:
+        SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        CAS_USERNAME: ${{ secrets.CAS_USERNAME }}
+        CAS_PASSWORD: ${{ secrets.CAS_PASSWORD }}
+        BATCH_SIZE: ${{ github.event.inputs.batch_size || '100' }}
+      run: |
+        echo "🔧 Création du script d'extraction complet..."
+        
+        cat > extract-oic-clean.mjs << 'EOF'
+        import { chromium } from 'playwright';
+        import { createClient } from '@supabase/supabase-js';
+
+        const SUPABASE_URL = 'https://yaincoxihiqdksxgrsrk.supabase.co';
+        const SUPABASE_SERVICE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+        const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_KEY);
+
+        const CONFIG = {
+          BATCH_SIZE: parseInt(process.env.BATCH_SIZE) || 100,
+          MAX_TITLE_LENGTH: 1000,
+          MAX_DESCRIPTION_LENGTH: 5000,
+          MAX_CONTENT_LENGTH: 10000
+        };
+
+        async function log(message) {
+          const timestamp = new Date().toISOString();
+          console.log(`[${timestamp}] ${message}`);
+        }
+
+        async function extractOICClean() {
+          await log('🚀 DÉMARRAGE EXTRACTION OIC - ENVIRONNEMENT PROPRE');
+          await log('===============================================');
+          
+          let browser;
+          try {
+            browser = await chromium.launch({
+              headless: true,
+              args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+            });
+
+            const page = await browser.newPage();
+            
+            await log('🔐 Authentification CAS...');
+            await log('🌐 Navigation vers page protégée pour déclencher l\'authentification...');
+            
+            await page.goto('https://livret.uness.fr/lisa/2025/Special:CategoryTree?target=Cat%C3%A9gorie%3AObjectif_de_connaissance&mode=categories');
+            await page.waitForLoadState('networkidle');
+            
+            const currentUrl = page.url();
+            await log(`🔍 URL initiale: ${currentUrl}`);
+            
+            if (currentUrl.includes('auth.uness.fr/cas/login')) {
+              await log('🔑 Authentification CAS requise - début du processus...');
+              
+              // Saisie email
+              await log('📧 Saisie de l\'email...');
+              await page.waitForSelector('input[name="username"], input[type="email"], #username');
+              await page.fill('input[name="username"], input[type="email"], #username', process.env.CAS_USERNAME);
+              await log(`✅ Email saisi: ${process.env.CAS_USERNAME}`);
+              
+              // Premier clic
+              await log('🔄 Clic sur le bouton de connexion étape 1...');
+              const nextButton = await page.locator('button[type="submit"], input[type="submit"], .btn-primary').first();
+              await nextButton.click();
+              
+              // Attendre page mot de passe
+              await page.waitForLoadState('networkidle');
+              
+              // Saisie mot de passe
+              await log('🔐 Saisie du mot de passe...');
+              await page.waitForSelector('input[name="password"], input[type="password"], #password');
+              await page.fill('input[name="password"], input[type="password"], #password', process.env.CAS_PASSWORD);
+              await log('✅ Mot de passe saisi');
+              
+              // Deuxième clic - CRITIQUE: Logique version 31
+              await log('🔄 Clic sur le bouton de connexion étape 2...');
+              const loginButton = await page.locator('button[type="submit"], input[type="submit"], .btn-primary').first();
+              await loginButton.click();
+              
+              // Attente redirection comme version 31 qui marche
+              await log('⏳ Attente de la redirection OAuth2 complète...');
+              
+              let redirectSuccess = false;
+              let attempt = 0;
+              const maxAttempts = 20;
+              
+              while (attempt < maxAttempts && !redirectSuccess) {
+                await new Promise(resolve => setTimeout(resolve, 500));
+                attempt++;
+                
+                const url = page.url();
+                await log(`🔍 Tentative ${attempt} - URL actuelle: ${url.substring(0, 80)}...`);
+                
+                // Condition exacte version 31
+                if (url.includes('livret.uness.fr/lisa/2025/Cat') && 
+                    url.includes('Objectif_de_connaissance')) {
+                  await log('🎉 Redirection OAuth2 réussie !');
+                  redirectSuccess = true;
+                  break;
+                }
+              }
+              
+              if (!redirectSuccess) {
+                throw new Error('Timeout lors de la redirection OAuth2');
+              }
+              
+              await log('✅ Authentification CAS terminée avec succès');
+            }
+
+            // Récupération cookies comme version 31
+            const cookies = await page.context().cookies();
+            const cookieString = cookies.map(cookie => `${cookie.name}=${cookie.value}`).join('; ');
+            
+            await log(`🍪 Cookies de session récupérés: ${cookies.length} cookies pour uness.fr`);
+            await log('🔍 COOKIES DÉTAILLÉS:');
+            cookies.forEach((cookie, i) => {
+              log(`   ${i+1}. ${cookie.name}=${cookie.value.substring(0, 20)}... (domain: ${cookie.domain})`);
+            });
+
+            // Test API avec cookies
+            await log('🧪 TEST API avec authentification et cookies...');
+            const testResponse = await fetch('https://livret.uness.fr/lisa/2025/api.php?action=query&list=categorymembers&cmtitle=Catégorie:Objectif_de_connaissance&cmlimit=1&format=json', {
+              headers: { 'Cookie': cookieString }
+            });
+            
+            if (testResponse.ok) {
+              const testData = await testResponse.json();
+              const content = JSON.stringify(testData).substring(0, 200);
+              await log(`🧪 Réponse API test: status=${testResponse.status}, ok=${testResponse.ok}`);
+              await log(`🧪 Contenu API test (200 premiers chars): ${content}...`);
+              
+              const membersCount = testData.query?.categorymembers?.length || 0;
+              await log(`✅ TEST API RÉUSSI: ${membersCount} membres trouvés`);
+              
+              if (membersCount > 0) {
+                await log('📊 Début extraction via API MediaWiki...');
+                await log('🚀 === DÉBUT EXTRACTION HYBRIDE ===');
+                await log('📡 === EXTRACTION VIA API MEDIAWIKI ===');
+                
+                // Extraction complète
+                const fullResponse = await fetch(`https://livret.uness.fr/lisa/2025/api.php?action=query&list=categorymembers&cmtitle=Catégorie:Objectif_de_connaissance&cmlimit=${CONFIG.BATCH_SIZE}&format=json`, {
+                  headers: { 'Cookie': cookieString }
+                });
+                
+                if (fullResponse.ok) {
+                  const fullData = await fullResponse.json();
+                  const allMembers = fullData.query?.categorymembers || [];
+                  
+                  await log(`📊 Extraction réussie: ${allMembers.length} compétences trouvées`);
+                  
+                  // Rapport final
+                  const report = {
+                    success: true,
+                    timestamp: new Date().toISOString(),
+                    total_found: allMembers.length,
+                    cookies_count: cookies.length,
+                    method: 'Playwright_CAS_Clean_Environment',
+                    batch_size: CONFIG.BATCH_SIZE,
+                    sample: allMembers.slice(0, 3).map(item => ({
+                      title: item.title,
+                      pageid: item.pageid
+                    }))
+                  };
+                  
+                  // Sauvegarder rapport
+                  await import('fs').then(fs => {
+                    fs.writeFileSync(`rapport-extraction-clean-${Date.now()}.json`, JSON.stringify(report, null, 2));
+                  });
+                  
+                  await log('📋 RAPPORT FINAL:');
+                  await log(`   🎯 Total trouvé: ${report.total_found}`);
+                  await log(`   🍪 Cookies: ${report.cookies_count}`);
+                  await log(`   📦 Batch size: ${report.batch_size}`);
+                  await log(`   ✅ Méthode: ${report.method}`);
+                  
+                  return report;
+                }
+              }
+            }
+            
+            throw new Error('Test API échoué après authentification');
+
+          } catch (error) {
+            await log(`💥 ERREUR CRITIQUE: ${error.message}`);
+            throw error;
+          } finally {
+            if (browser) {
+              await browser.close();
+            }
+          }
+        }
+
+        // Lancement
+        extractOICClean()
+          .then(result => {
+            console.log('🎉 EXTRACTION TERMINÉE AVEC SUCCÈS !');
+            process.exit(0);
+          })
+          .catch(error => {
+            console.error('💥 EXTRACTION ÉCHOUÉE:', error);
+            process.exit(1);
+          });
+        EOF
+        
+        echo "🚀 Lancement de l'extraction..."
+        node extract-oic-clean.mjs
+    
+    - name: 📋 Upload rapport
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: rapport-extraction-clean-${{ github.run_number }}
+        path: |
+          oic-clean-workspace/rapport-*.json
+        retention-days: 7
