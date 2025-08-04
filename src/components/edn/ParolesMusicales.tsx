@@ -41,13 +41,27 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
   console.log('🎵 DETAILED paroles_rang_b:', paroles_rang_b);
   
   // Créer le format final qui sera passé à ParolesMusicalesMainContent
-  const finalParoles = paroles_rang_a && paroles_rang_b 
-    ? [paroles_rang_a, paroles_rang_b] 
-    : paroles_rang_a 
-      ? [paroles_rang_a]
-      : paroles_rang_b
-        ? [paroles_rang_b]
-        : [];
+  // Si on a des champs spécifiques, les utiliser, sinon utiliser paroles_musicales
+  let finalParoles: string[][] = [];
+  
+  if (paroles_rang_a && paroles_rang_a.length > 0) {
+    finalParoles.push(paroles_rang_a);
+  }
+  if (paroles_rang_b && paroles_rang_b.length > 0) {
+    finalParoles.push(paroles_rang_b);
+  }
+  
+  // Si aucune parole spécifique, utiliser paroles_musicales
+  if (finalParoles.length === 0 && paroles && paroles.length > 0) {
+    // Diviser paroles_musicales en sections Rang A et Rang B si possible
+    const allLyrics = Array.isArray(paroles) ? paroles : [paroles];
+    finalParoles = [allLyrics]; // Utiliser comme Rang A pour l'instant
+    
+    console.log('🎵 Utilisation de paroles_musicales comme fallback:', {
+      originalParoles: paroles,
+      finalParoles
+    });
+  }
         
   console.log('🎵 FINAL paroles qui vont être passées:', finalParoles);
 
@@ -122,16 +136,7 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
             />
 
             <ParolesMusicalesMainContent
-              paroles={
-                // Utiliser les paroles dans leur format array original
-                paroles_rang_a && paroles_rang_b 
-                  ? [paroles_rang_a, paroles_rang_b] 
-                  : paroles_rang_a 
-                    ? [paroles_rang_a]
-                    : paroles_rang_b
-                      ? [paroles_rang_b]
-                      : []
-              }
+              paroles={finalParoles.length > 0 ? finalParoles : (paroles && paroles.length > 0 ? [paroles] : [])}
               itemCode={itemCode}
               musicDuration={musicDuration}
               selectedStyle={selectedStyle}
