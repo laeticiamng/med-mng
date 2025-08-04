@@ -64,6 +64,8 @@ export default function EdnComplete() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState<'item_code' | 'completeness_score' | 'updated_at'>('item_code');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage] = useState(12); // 12 items par page
   const [selectedItem, setSelectedItem] = useState<EdnItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('immersive');
@@ -201,6 +203,17 @@ export default function EdnComplete() {
     });
   }, [allItems, searchTerm, selectedCategory, sortBy]);
 
+  // Pagination
+  const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedItems = filteredItems.slice(startIndex, endIndex);
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, selectedCategory, sortBy]);
+
   const calculateStats = () => {
     const total = allItems.length;
     const complete = allItems.filter(isItemComplete).length;
@@ -242,7 +255,7 @@ export default function EdnComplete() {
               </div>
               <div>
                 <h1 className="text-2xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">Interface EDN</h1>
-                <p className="text-slate-600 font-medium">{stats.total} items • {stats.complete} complets</p>
+                <p className="text-slate-600 font-medium">{stats.total} items • Page {currentPage}/{totalPages} • {paginatedItems.length} affichés</p>
               </div>
             </div>
             
@@ -326,7 +339,7 @@ export default function EdnComplete() {
             <div className="grid gap-4">
               {viewMode === 'grid' ? (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-8">
-                  {filteredItems.map(item => (
+                  {paginatedItems.map(item => (
                     <Card 
                       key={item.id} 
                       className="group cursor-pointer hover:shadow-2xl hover:scale-[1.02] transition-all duration-500 border-0 bg-white/80 backdrop-blur-sm rounded-3xl overflow-hidden hover:-translate-y-2"
@@ -387,7 +400,7 @@ export default function EdnComplete() {
                 </div>
               ) : (
                 <div className="space-y-3">
-                  {filteredItems.map(item => (
+                  {paginatedItems.map(item => (
                     <Card 
                       key={item.id} 
                       className="group cursor-pointer hover:shadow-lg hover:bg-slate-50 transition-all duration-200 border border-slate-200"
@@ -671,6 +684,58 @@ export default function EdnComplete() {
             </div>
           </TabsContent>
         </Tabs>
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-center gap-4 mt-8">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(currentPage - 1)}
+              disabled={currentPage === 1}
+              className="px-4"
+            >
+              Précédent
+            </Button>
+            
+            <div className="flex items-center gap-2">
+              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                let pageNum;
+                if (totalPages <= 5) {
+                  pageNum = i + 1;
+                } else if (currentPage <= 3) {
+                  pageNum = i + 1;
+                } else if (currentPage >= totalPages - 2) {
+                  pageNum = totalPages - 4 + i;
+                } else {
+                  pageNum = currentPage - 2 + i;
+                }
+                
+                return (
+                  <Button
+                    key={pageNum}
+                    variant={currentPage === pageNum ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => setCurrentPage(pageNum)}
+                    className="w-10 h-10 p-0"
+                  >
+                    {pageNum}
+                  </Button>
+                );
+              })}
+            </div>
+            
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentPage(currentPage + 1)}
+              disabled={currentPage === totalPages}
+              className="px-4"
+            >
+              Suivant
+            </Button>
+          </div>
+        )}
 
         {filteredItems.length === 0 && (
           <Card className="text-center py-8">
