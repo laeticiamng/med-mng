@@ -1,6 +1,6 @@
 // 🧠 COMPLÉTION INTELLIGENTE DES COMPÉTENCES OIC
-console.log('🧠 Lancement de la complétion intelligente...');
-console.log('📊 Objectif: Compléter toutes les compétences OIC incomplètes');
+console.log('🧠 Lancement de la complétion intelligente TOTALE...');
+console.log('📊 Objectif: Compléter toutes les compétences OIC pour qu\'elles soient 100% complètes (descriptions > 100 caractères)');
 
 async function launchIntelligentCompletion() {
   try {
@@ -29,7 +29,7 @@ async function launchIntelligentCompletion() {
       setTimeout(async () => {
         console.log('\n🔍 Vérification post-complétion...');
         try {
-          const verifyResponse = await fetch('https://yaincoxihiqdksxgrsrk.supabase.co/rest/v1/backup_oic_competences?select=count&or=(description.is.null,description.eq.)', {
+          const verifyResponse = await fetch('https://yaincoxihiqdksxgrsrk.supabase.co/rest/v1/backup_oic_competences?select=count&or=(description.is.null,description.eq.,and(description.neq.,char_length(description).lt.100))', {
             headers: {
               'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU',
               'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU'
