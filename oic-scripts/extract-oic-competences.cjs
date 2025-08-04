@@ -73,54 +73,107 @@ async function main() {
     const page = await browser.newPage();
     await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36');
 
-    // Connexion CAS
+    // Connexion CAS - Debug de la page
     await page.goto('https://auth.uness.fr/cas/login?service=https%3A%2F%2Fauth.uness.fr%2Fcas%2Foauth2.0%2FcallbackAuthorize%3Fclient_id%3DRzpoxdiUoFvsFWRH%26scope%3Dprofile%26redirect_uri%3Dhttps%253A%252F%252Flivret.uness.fr%252Flisa%252F2025%252FSpecial%253AOAuth2Client%252Fcallback%26response_type%3Dcode%26state%3D0b0889076887f02207b48665fe7a00dd%26approval_prompt%3Dauto%26client_name%3DCasOAuthClient');
     
-    // Attendre et essayer différents sélecteurs pour les champs de connexion
-    try {
-      await page.waitForSelector('#username', { timeout: 10000 });
-    } catch (e) {
-      // Essayer d'autres sélecteurs possibles
-      await page.waitForSelector('input[name="username"]', { timeout: 5000 });
+    // Attendre le chargement de la page
+    await page.waitForLoadState('networkidle');
+    await new Promise(resolve => setTimeout(resolve, 3000));
+    
+    // Debug: afficher la structure de la page
+    const pageContent = await page.content();
+    log(`📄 Page content length: ${pageContent.length}`);
+    
+    // Chercher tous les inputs disponibles
+    const allInputs = await page.$$eval('input', inputs => 
+      inputs.map(input => ({
+        id: input.id,
+        name: input.name,
+        type: input.type,
+        className: input.className,
+        placeholder: input.placeholder
+      }))
+    );
+    log(`🔍 Inputs trouvés: ${JSON.stringify(allInputs)}`);
+    
+    // Attendre et trouver le champ username
+    let usernameInput = null;
+    const usernameSelectors = ['#username', 'input[name="username"]', 'input[name="login"]', 'input[type="text"]'];
+    
+    for (const selector of usernameSelectors) {
+      try {
+        await page.waitForSelector(selector, { timeout: 2000 });
+        usernameInput = selector;
+        break;
+      } catch (e) {
+        continue;
+      }
     }
     
-    // Saisir le nom d'utilisateur
-    const usernameSelector = await page.$('#username') ? '#username' : 'input[name="username"]';
-    await page.type(usernameSelector, casUsername);
+    if (!usernameInput) {
+      log(`❌ Aucun champ username trouvé parmi: ${usernameSelectors.join(', ')}`);
+      throw new Error('Champ username introuvable');
+    }
     
-    // Saisir le mot de passe avec plusieurs sélecteurs possibles
+    log(`✅ Username field trouvé: ${usernameInput}`);
+    await page.fill(usernameInput, casUsername);
+    
+    // Attendre et trouver le champ password
+    let passwordInput = null;
     const passwordSelectors = ['#password', 'input[name="password"]', 'input[type="password"]'];
-    let passwordSelector = null;
     
     for (const selector of passwordSelectors) {
-      if (await page.$(selector)) {
-        passwordSelector = selector;
-        break;
+      try {
+        const element = await page.$(selector);
+        if (element) {
+          passwordInput = selector;
+          break;
+        }
+      } catch (e) {
+        continue;
       }
     }
     
-    if (!passwordSelector) {
-      throw new Error('Impossible de trouver le champ mot de passe');
+    if (!passwordInput) {
+      log(`❌ Aucun champ password trouvé parmi: ${passwordSelectors.join(', ')}`);
+      log(`📋 Inputs disponibles: ${JSON.stringify(allInputs)}`);
+      throw new Error('Champ password introuvable');
     }
     
-    await page.type(passwordSelector, casPassword);
+    log(`✅ Password field trouvé: ${passwordInput}`);
+    await page.fill(passwordInput, casPassword);
     
-    // Cliquer sur le bouton de connexion
-    const submitSelectors = ['input[type="submit"]', 'button[type="submit"]', '#submitButton', '.btn-submit'];
-    let submitSelector = null;
+    // Chercher et cliquer sur le bouton submit
+    const submitSelectors = [
+      'input[type="submit"]', 
+      'button[type="submit"]', 
+      'button:has-text("Connexion")',
+      'button:has-text("Se connecter")',
+      'button:has-text("Login")',
+      '.btn-submit',
+      '#submitButton'
+    ];
     
+    let submitButton = null;
     for (const selector of submitSelectors) {
-      if (await page.$(selector)) {
-        submitSelector = selector;
-        break;
+      try {
+        const element = await page.$(selector);
+        if (element) {
+          submitButton = selector;
+          break;
+        }
+      } catch (e) {
+        continue;
       }
     }
     
-    if (!submitSelector) {
-      throw new Error('Impossible de trouver le bouton de connexion');
+    if (!submitButton) {
+      log(`❌ Aucun bouton submit trouvé`);
+      throw new Error('Bouton submit introuvable');
     }
     
-    await page.click(submitSelector);
+    log(`✅ Submit button trouvé: ${submitButton}`);
+    await page.click(submitButton);
     
     await page.waitForNavigation();
     log('✅ Authentification CAS réussie');
