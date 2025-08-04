@@ -71,12 +71,8 @@ Deno.serve(async (req) => {
       try {
         console.log(`🎼 Traitement item ${item.item_code}...`);
         
-        // Skip if already has lyrics
-        if (item.paroles_musicales && item.paroles_musicales.length > 0) {
-          console.log(`⏭️  Item ${item.item_code} a déjà des paroles`);
-          processed++;
-          continue;
-        }
+        // Force regeneration for all items to get new format
+        console.log(`🎼 Traitement item ${item.item_code}...`);
 
         // Generate three versions of lyrics
         const lyricsResult = await generateLyricsForItem(item, supabase);
