@@ -30,12 +30,13 @@ jobs:
 
   extract:
     runs-on: ubuntu-latest
+    timeout-minutes: 90
     needs: diagnostic-api
     
     steps:
-    - name: Checkout code
+    - name: 📥 Checkout
       uses: actions/checkout@v4
-    
+
     - name: 🟢 Setup Node.js 20
       uses: actions/setup-node@v4
       with:
@@ -59,7 +60,7 @@ jobs:
       run: |
         mkdir -p .cache
         node extract-oic-competences.cjs
-    
+        
     - name: 📤 Upload report
       if: always()
       uses: actions/upload-artifact@v4
