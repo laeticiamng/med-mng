@@ -349,11 +349,9 @@ function generateMixedLyrics(item: EdnItem, competencesA: any[], competencesB: a
 function createSingableLyric(text: string): string {
   if (!text) return '';
   
-  // Nettoyer et extraire les mots clés médicaux
+  // Nettoyer le texte SANS supprimer les accents - juste enlever la ponctuation
   let cleaned = text
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '') // Enlever les accents
-    .replace(/[^\w\s-]/g, ' ') // Enlever la ponctuation
+    .replace(/[^\w\sàâäéèêëïîôöùûüÿç-]/gi, ' ') // Garder les accents français
     .replace(/\s+/g, ' ') // Normaliser les espaces
     .trim()
     .toLowerCase();
@@ -363,10 +361,10 @@ function createSingableLyric(text: string): string {
   
   if (words.length === 0) return '';
   
-  // Créer une phrase chantable avec une terminaison en -er
+  // Créer une phrase chantable simple
   const concept = words.join(' ');
   
-  // Ajouter un verbe chantable
+  // Ajouter un verbe chantable approprié
   const verbs = ['maîtriser', 'analyser', 'étudier', 'comprendre', 'développer', 'organiser', 'surveiller', 'évaluer'];
   const verb = verbs[Math.floor(Math.random() * verbs.length)];
   
@@ -374,18 +372,16 @@ function createSingableLyric(text: string): string {
 }
 
 function extractKeywords(title: string): string {
-  // Extraire les mots clés médicaux du titre (max 15 caractères)
+  // Extraire les mots clés médicaux du titre SANS supprimer les accents
   const medicalWords = title
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '') // Enlever les accents
     .toLowerCase()
-    .replace(/[^\w\s]/g, ' ')
+    .replace(/[^\w\sàâäéèêëïîôöùûüÿç]/gi, ' ') // Garder les accents
     .split(' ')
     .filter(word => word.length > 3)
     .slice(0, 2)
     .join(' ');
     
-  return medicalWords.substring(0, 15) || 'pathologie';
+  return medicalWords.substring(0, 20) || 'pathologie';
 }
 
 function getDefaultMedicalLyrics(item: EdnItem, rang: 'A' | 'B'): string[] {
