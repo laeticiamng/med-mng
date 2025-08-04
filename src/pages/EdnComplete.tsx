@@ -230,30 +230,30 @@ export default function EdnComplete() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header simplifié */}
-      <div className="bg-card/80 backdrop-blur-sm border-b sticky top-0 z-40">
-        <div className="container mx-auto px-6 py-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/30">
+      {/* Header Premium Style Apple */}
+      <div className="bg-white/70 backdrop-blur-xl border-b border-white/20 sticky top-0 z-40 shadow-sm">
+        <div className="container mx-auto px-8 py-6">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                <BookOpen className="h-5 w-5 text-white" />
+            <div className="flex items-center gap-4">
+              <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
+                <BookOpen className="h-6 w-6 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-foreground">Interface EDN</h1>
-                <p className="text-sm text-muted-foreground">{stats.total} items • {stats.complete} complets</p>
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">Interface EDN</h1>
+                <p className="text-slate-600 font-medium">{stats.total} items • {stats.complete} complets</p>
               </div>
             </div>
             
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-6">
               <QuotaIndicator compact />
               <Tabs value={activeTab} onValueChange={setActiveTab}>
-                <TabsList className="bg-muted">
-                  <TabsTrigger value="immersive" className="text-xs">Immersif</TabsTrigger>
-                  <TabsTrigger value="complete" className="text-xs">Complet</TabsTrigger>
-                  <TabsTrigger value="music" className="text-xs">Paroles</TabsTrigger>
-                  <TabsTrigger value="revision" className="text-xs">Révisions</TabsTrigger>
-                  <TabsTrigger value="subscription" className="text-xs">Abonnement</TabsTrigger>
+                <TabsList className="bg-white/60 backdrop-blur-sm border border-white/30 shadow-lg rounded-xl p-1">
+                  <TabsTrigger value="immersive" className="text-sm font-medium rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-md">Immersif</TabsTrigger>
+                  <TabsTrigger value="complete" className="text-sm font-medium rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-md">Complet</TabsTrigger>
+                  <TabsTrigger value="music" className="text-sm font-medium rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-md">Paroles</TabsTrigger>
+                  <TabsTrigger value="revision" className="text-sm font-medium rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-md">Révisions</TabsTrigger>
+                  <TabsTrigger value="subscription" className="text-sm font-medium rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-md">Abonnement</TabsTrigger>
                 </TabsList>
               </Tabs>
             </div>
@@ -324,54 +324,57 @@ export default function EdnComplete() {
           <TabsContent value="immersive">
             <div className="grid gap-4">
               {viewMode === 'grid' ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-8">
                   {filteredItems.map(item => (
                     <Card 
                       key={item.id} 
-                      className="group cursor-pointer hover:shadow-xl hover:scale-[1.02] transition-all duration-300 border-0 bg-gradient-to-br from-white via-slate-50 to-gray-50 overflow-hidden"
+                      className="group cursor-pointer hover:shadow-2xl hover:scale-[1.02] transition-all duration-500 border-0 bg-white/80 backdrop-blur-sm rounded-3xl overflow-hidden hover:-translate-y-2"
                       onClick={() => openItemModal(item)}
                     >
                       <CardContent className="p-0">
-                        <div className="p-6 space-y-4">
-                          {/* Header avec numéro item */}
+                        <div className="p-8 space-y-6">
+                          {/* Header avec numéro item style Apple */}
                           <div className="flex items-center justify-between">
-                            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
-                              <span className="text-white font-bold text-sm">{item.item_code.replace('IC-', '')}</span>
+                            <div className="w-16 h-16 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 rounded-2xl flex items-center justify-center shadow-2xl shadow-blue-500/25 group-hover:shadow-blue-500/40 transition-all duration-500">
+                              <span className="text-white font-bold text-lg">{item.item_code.replace('IC-', '')}</span>
                             </div>
-                            <div className="flex items-center gap-2">
-                              <div className={`w-3 h-3 rounded-full ${getCompletionPercentage(item) === 100 ? 'bg-green-500' : getCompletionPercentage(item) > 70 ? 'bg-yellow-500' : 'bg-gray-400'}`}></div>
-                              <Badge variant="outline" className="text-xs font-medium">
+                            <div className="flex items-center gap-3">
+                              <div className={`w-4 h-4 rounded-full shadow-sm ${
+                                getCompletionPercentage(item) === 100 ? 'bg-emerald-500' : 
+                                getCompletionPercentage(item) > 70 ? 'bg-amber-500' : 'bg-slate-400'
+                              }`}></div>
+                              <Badge variant="outline" className="text-sm font-semibold bg-white/60 backdrop-blur-sm border-white/30 rounded-xl px-3 py-1">
                                 {getCompletionPercentage(item)}%
                               </Badge>
                             </div>
                           </div>
                           
-                          {/* Titre */}
+                          {/* Titre style Apple */}
                           <div>
-                            <h3 className="font-bold text-slate-800 text-lg mb-1">{item.item_code}</h3>
-                            <p className="text-sm text-slate-600 line-clamp-2 leading-relaxed">{item.title}</p>
+                            <h3 className="font-bold text-slate-900 text-xl mb-2 tracking-tight">{item.item_code}</h3>
+                            <p className="text-slate-600 line-clamp-3 leading-relaxed text-base">{item.title}</p>
                           </div>
                           
-                          {/* Badges fonctionnalités */}
-                          <div className="flex gap-2 flex-wrap">
+                          {/* Badges fonctionnalités style Apple */}
+                          <div className="flex gap-3 flex-wrap">
                             {item.scene_immersive && (
-                              <Badge className="bg-blue-100 text-blue-700 border-blue-200 text-xs">3D</Badge>
+                              <Badge className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white border-0 text-sm font-semibold rounded-full px-4 py-2 shadow-lg">3D</Badge>
                             )}
                             {item.quiz_questions && (
-                              <Badge className="bg-green-100 text-green-700 border-green-200 text-xs">Quiz</Badge>
+                              <Badge className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-0 text-sm font-semibold rounded-full px-4 py-2 shadow-lg">Quiz</Badge>
                             )}
                             {item.paroles_musicales && item.paroles_musicales.length > 0 && (
-                              <Badge className="bg-purple-100 text-purple-700 border-purple-200 text-xs">Musique</Badge>
+                              <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white border-0 text-sm font-semibold rounded-full px-4 py-2 shadow-lg">Musique</Badge>
                             )}
                           </div>
                           
-                          {/* Progress bar */}
-                          <div className="w-full bg-gray-200 rounded-full h-1.5 overflow-hidden">
+                          {/* Progress bar style Apple */}
+                          <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
                             <div 
-                              className={`h-full transition-all duration-500 ${
-                                getCompletionPercentage(item) === 100 ? 'bg-gradient-to-r from-green-500 to-green-600' :
-                                getCompletionPercentage(item) > 70 ? 'bg-gradient-to-r from-yellow-500 to-orange-500' :
-                                'bg-gradient-to-r from-gray-400 to-gray-500'
+                              className={`h-full transition-all duration-1000 rounded-full ${
+                                getCompletionPercentage(item) === 100 ? 'bg-gradient-to-r from-emerald-500 to-emerald-600' :
+                                getCompletionPercentage(item) > 70 ? 'bg-gradient-to-r from-amber-500 to-orange-500' :
+                                'bg-gradient-to-r from-slate-400 to-slate-500'
                               }`}
                               style={{ width: `${getCompletionPercentage(item)}%` }}
                             ></div>
