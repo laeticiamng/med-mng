@@ -260,30 +260,101 @@ async function main() {
 function extractDescription(content) {
   if (!content) return null;
   
-  // Rechercher différents patterns de description
-  const patterns = [
-    /'''Description[^:]*:?\s*'''?\s*([^'\n]+)/i,
-    /{{[^}]*description[^}]*\|\s*([^|}]+)/i,
-    /\|description\s*=\s*([^|\n]+)/i,
-    /description\s*[:=]\s*([^.\n]+)/i
+  console.log(`📄 Parsing contenu de ${content.length} caractères...`);
+  
+  // 1. Extraire tout le contenu principal (sans métadonnées wiki)
+  let cleanContent = content
+    // Supprimer les directives MediaWiki
+    .replace(/{{[^}]*}}/gs, '')
+    .replace(/__[A-Z_]+__/g, '')
+    .replace(/\[\[Category:[^\]]*\]\]/gi, '')
+    .replace(/\[\[Catégorie:[^\]]*\]\]/gi, '')
+    // Nettoyer les liens wiki mais garder le texte
+    .replace(/\[\[([^|\]]+)\|([^\]]+)\]\]/g, '$2')  // [[lien|texte]] -> texte
+    .replace(/\[\[([^\]]+)\]\]/g, '$1')              // [[lien]] -> lien
+    // Supprimer les balises de mise en forme
+    .replace(/'''([^']+)'''/g, '$1')                 // gras
+    .replace(/''([^']+)''/g, '$1')                   // italique
+    .replace(/<[^>]*>/g, '')                         // balises HTML
+    // Nettoyer les caractères spéciaux
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .trim();
+
+  // 2. Extraire par sections (approche plus complète)
+  const sections = [];
+  
+  // Rechercher les patterns de contenu structuré
+  const contentPatterns = [
+    // Définitions et descriptions
+    /(?:définition|description|présentation)[^:]*:\s*([^.\n]{30,})/gi,
+    // Objectifs pédagogiques
+    /(?:objectifs?|buts?|finalités?)[^:]*:\s*([^.\n]{30,})/gi,
+    // Éléments de contenu principaux
+    /(?:contenu|éléments?|points?)[^:]*:\s*([^.\n]{30,})/gi,
+    // Compétences attendues
+    /(?:compétences?|capacités?|savoir)[^:]*:\s*([^.\n]{30,})/gi,
+    // Connaissances
+    /(?:connaissances?|notions?)[^:]*:\s*([^.\n]{30,})/gi
   ];
-  
-  for (const pattern of patterns) {
-    const match = content.match(pattern);
-    if (match && match[1]) {
-      return match[1].trim().replace(/{{[^}]*}}/g, '').trim();
+
+  contentPatterns.forEach(pattern => {
+    let match;
+    while ((match = pattern.exec(cleanContent)) !== null) {
+      const section = match[1].trim();
+      if (section.length > 20 && section.length < 1000) {
+        sections.push(section);
+      }
+    }
+  });
+
+  // 3. Si pas de sections structurées, extraire les paragraphes significatifs
+  if (sections.length === 0) {
+    const paragraphs = cleanContent.split(/\n\s*\n/);
+    
+    for (const paragraph of paragraphs) {
+      const cleaned = paragraph
+        .replace(/^\s*[*-]\s*/, '')  // Puces
+        .replace(/^\s*\d+\.\s*/, '') // Numérotation
+        .trim();
+      
+      if (cleaned.length >= 50 && cleaned.length <= 1000 && 
+          !cleaned.includes('{{') && 
+          !cleaned.includes('[[') && 
+          !cleaned.match(/^[A-Z_][A-Z_\s]*$/)) {  // Éviter les titres en majuscules
+        sections.push(cleaned);
+      }
     }
   }
-  
-  // Fallback: premier paragraphe non vide
-  const lines = content.split('\n');
+
+  // 4. Combiner les sections en description complète
+  if (sections.length > 0) {
+    let fullDescription = sections.join(' • ');
+    
+    // Limiter la taille mais garder plus de contenu
+    if (fullDescription.length > 2000) {
+      fullDescription = fullDescription.substring(0, 1997) + '...';
+    }
+    
+    console.log(`✅ Description extraite: ${fullDescription.length} caractères`);
+    return fullDescription;
+  }
+
+  // 5. Fallback : premier contenu significatif
+  const lines = cleanContent.split('\n');
   for (const line of lines) {
-    const cleaned = line.trim().replace(/[{}|]/g, '');
-    if (cleaned.length > 20 && !cleaned.startsWith('[[') && !cleaned.startsWith('{{')) {
-      return cleaned.substring(0, 200);
+    const cleaned = line.trim();
+    if (cleaned.length >= 100 && cleaned.length <= 500 && 
+        !cleaned.startsWith('=') && 
+        !cleaned.includes('{{')) {
+      console.log(`⚠️ Fallback description: ${cleaned.length} caractères`);
+      return cleaned;
     }
   }
   
+  console.log(`❌ Aucune description extraite du contenu`);
   return null;
 }
 
