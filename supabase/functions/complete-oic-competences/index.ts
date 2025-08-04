@@ -19,18 +19,18 @@ Deno.serve(async (req) => {
     
     console.log('🚀 Démarrage complétion compétences OIC...');
     
-    // 1. Récupérer les compétences incomplètes (vides OU courtes < 100 caractères)
+    // 1. Récupérer les compétences incomplètes (description vide OU courte)
     const { data: incompleteCompetences, error: fetchError } = await supabase
       .from('backup_oic_competences')
       .select('objectif_id, intitule, description')
-      .or('description.is.null,description.eq.,and(description.neq.,char_length(description).lt.100)')
-      .limit(200); // Traiter par batch plus important
+      .or('description.is.null,description.eq.')
+      .limit(50); // Traiter par plus petit batch d'abord
     
     if (fetchError) {
       throw new Error(`Erreur récupération compétences: ${fetchError.message}`);
     }
     
-    console.log(`📊 ${incompleteCompetences?.length || 0} compétences incomplètes à compléter (vides + courtes < 100 caractères)`);
+    console.log(`📊 ${incompleteCompetences?.length || 0} compétences vides à compléter (étape 1)`);
     
     if (!incompleteCompetences || incompleteCompetences.length === 0) {
       return new Response(JSON.stringify({
@@ -47,7 +47,29 @@ Deno.serve(async (req) => {
     let completed = 0;
     let errors = 0;
     
-    // 2. Traiter chaque compétence incomplète
+    // Ajouter les compétences courtes à traiter
+    console.log('🔍 Récupération compétences courtes < 100 caractères...');
+    const { data: shortCompetences, error: shortError } = await supabase
+      .from('backup_oic_competences')
+      .select('objectif_id, intitule, description')
+      .not('description', 'is', null)
+      .neq('description', '')
+      .lt('char_length(description)', 100)
+      .limit(50);
+    
+    if (shortError) {
+      console.log('⚠️ Erreur récupération compétences courtes:', shortError.message);
+    } else {
+      console.log(`📊 ${shortCompetences?.length || 0} compétences courtes récupérées`);
+      // Ajouter les compétences courtes à la liste
+      if (shortCompetences) {
+        incompleteCompetences.push(...shortCompetences);
+      }
+    }
+    
+    console.log(`📈 Total à traiter: ${incompleteCompetences.length} compétences`);
+    
+    // 2. Traiter chaque compétence incomplète (vides + courtes)
     for (const competence of incompleteCompetences) {
       try {
         console.log(`🔄 Traitement ${competence.objectif_id}...`);
