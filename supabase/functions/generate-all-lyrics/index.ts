@@ -1,320 +1,257 @@
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.3'
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
-
-const securityHeaders = {
-  'X-Content-Type-Options': 'nosniff',
-  'X-Frame-Options': 'DENY',
-  'X-XSS-Protection': '1; mode=block',
-};
-
-const supabaseUrl = 'https://yaincoxihiqdksxgrsrk.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc0MjgxMTgyNywiZXhwIjoyMDU4Mzg3ODI3fQ.JNT0dLPKWd7oQ2_56I0u1h5QWmMwQnLaVL1xVYkOI_c';
-
-interface SupabaseClient {
-  from(table: string): any;
 }
 
-function createSupabaseClient(): SupabaseClient {
-  return {
-    from: (table: string) => ({
-      select: (columns?: string) => ({
-        eq: (column: string, value: any) => ({
-          single: async () => {
-            const url = `${supabaseUrl}/rest/v1/${table}?select=${columns || '*'}&${column}=eq.${value}`;
-            const response = await fetch(url, {
-              headers: {
-                'apikey': supabaseKey,
-                'Authorization': `Bearer ${supabaseKey}`,
-                'Content-Type': 'application/json'
-              }
-            });
-            const data = await response.json();
-            return { data: Array.isArray(data) ? data[0] : data, error: !response.ok ? data : null };
-          }
-        }),
-        order: (column: string, options?: any) => ({
-          range: async (start: number, end: number) => {
-            const url = `${supabaseUrl}/rest/v1/${table}?select=${columns || '*'}&order=${column}.${options?.ascending ? 'asc' : 'desc'}&offset=${start}&limit=${end - start + 1}`;
-            const response = await fetch(url, {
-              headers: {
-                'apikey': supabaseKey,
-                'Authorization': `Bearer ${supabaseKey}`,
-                'Content-Type': 'application/json'
-              }
-            });
-            const data = await response.json();
-            return { data: Array.isArray(data) ? data : [], error: !response.ok ? data : null };
-          }
-        })
-      }),
-      update: (updateData: any) => ({
-        eq: (column: string, value: any) => ({
-          select: async () => {
-            const url = `${supabaseUrl}/rest/v1/${table}?${column}=eq.${value}`;
-            const response = await fetch(url, {
-              method: 'PATCH',
-              headers: {
-                'apikey': supabaseKey,
-                'Authorization': `Bearer ${supabaseKey}`,
-                'Content-Type': 'application/json',
-                'Prefer': 'return=representation'
-              },
-              body: JSON.stringify(updateData)
-            });
-            const data = await response.json();
-            return { data: Array.isArray(data) ? data : [data], error: !response.ok ? data : null };
-          }
-        })
-      })
-    })
-  };
-}
-
-function generateParolesFromCompetences(competences: any[], rang: 'A' | 'B', itemCode: string): string[] {
-  if (!competences || competences.length === 0) {
-    return [
-      `[Couplet ${rang} - Item ${itemCode}]`,
-      `Item ${itemCode} Rang ${rang} - Connaissances à maîtriser`,
-      `Compétences essentielles en médecine moderne`,
-      `Excellence clinique et formation continue`,
-      `Patient au centre de nos préoccupations`,
-      ``,
-      `[Refrain ${rang}]`,
-      `${itemCode} Rang ${rang} - Expertise médicale`,
-      `Science et conscience réunies`,
-      `Pour soigner avec excellence`,
-      `Et servir l'humanité`
-    ];
-  }
-
-  const paroles = [
-    `[Introduction - Item ${itemCode} Rang ${rang}]`,
-    `${itemCode} Rang ${rang} - Excellence médicale en action`
-  ];
-
-  // Ajouter les compétences principales
-  competences.slice(0, 3).forEach((comp, index) => {
-    paroles.push('');
-    paroles.push(`[Couplet ${index + 1} - ${comp.objectif_id || `Compétence ${index + 1}`}]`);
-    
-    const intitule = comp.intitule || `Compétence ${comp.objectif_id}`;
-    const description = comp.description || 'Description à compléter';
-    
-    // Créer des vers chantables à partir du contenu
-    const vers1 = intitule.length > 50 ? intitule.substring(0, 50) + '...' : intitule;
-    const vers2 = description.length > 50 ? description.substring(0, 50) + '...' : description;
-    
-    paroles.push(vers1);
-    paroles.push(vers2);
-    paroles.push(`Maîtrise clinique pour ${itemCode}`);
-    paroles.push(`Excellence dans la pratique médicale`);
-  });
-
-  // Refrain principal
-  paroles.push('');
-  paroles.push(`[Refrain Principal - ${itemCode}]`);
-  paroles.push(`${itemCode} Rang ${rang} - Compétences maîtrisées`);
-  paroles.push(`Science médicale et humanisme réunis`);
-  paroles.push(`Pour le bien-être de nos patients`);
-  paroles.push(`Excellence et déontologie médicale`);
-
-  // Bridge avec compétences supplémentaires
-  if (competences.length > 3) {
-    paroles.push('');
-    paroles.push(`[Bridge - Compétences avancées]`);
-    competences.slice(3, 6).forEach(comp => {
-      const intitule = comp.intitule || `Compétence ${comp.objectif_id}`;
-      const shortTitle = intitule.split(' ').slice(0, 8).join(' ');
-      paroles.push(shortTitle);
-    });
-  }
-
-  // Outro
-  paroles.push('');
-  paroles.push(`[Outro - ${itemCode}]`);
-  paroles.push(`Item ${itemCode} Rang ${rang} - Mission accomplie`);
-  paroles.push(`Compétences intégrées et validées`);
-  paroles.push(`Au service de la médecine d'excellence`);
-
-  return paroles;
-}
-
-function generateParolesAB(parolesA: string[], parolesB: string[], itemCode: string): string[] {
-  const parolesAB = [
-    `[Introduction Complète - Item ${itemCode}]`,
-    `${itemCode} - Maîtrise complète A et B`,
-    `Excellence médicale globale`,
-    '',
-    `[Fusion Rang A et B]`
-  ];
-
-  // Mélanger intelligemment les paroles A et B
-  const sectionsA = parolesA.filter(line => line.includes('[') && line.includes(']'));
-  const sectionsB = parolesB.filter(line => line.includes('[') && line.includes(']'));
-
-  // Ajouter des extraits des deux rangs
-  if (parolesA.length > 5) {
-    parolesAB.push(...parolesA.slice(2, 5));
-  }
-  
-  parolesAB.push('');
-  parolesAB.push(`[Transition A vers B]`);
-  
-  if (parolesB.length > 5) {
-    parolesAB.push(...parolesB.slice(2, 5));
-  }
-
-  parolesAB.push('');
-  parolesAB.push(`[Refrain Unifié - ${itemCode}]`);
-  parolesAB.push(`${itemCode} - Excellence A et B combinées`);
-  parolesAB.push(`Compétences fondamentales et avancées`);
-  parolesAB.push(`Médecine holistique et spécialisée`);
-  parolesAB.push(`Formation médicale d'excellence globale`);
-
-  parolesAB.push('');
-  parolesAB.push(`[Final - Maîtrise Complète]`);
-  parolesAB.push(`Item ${itemCode} - Rang A et B maîtrisés`);
-  parolesAB.push(`Excellence médicale accomplie`);
-  parolesAB.push(`Au service de nos patients`);
-
-  return parolesAB;
+interface EdnItem {
+  id: string;
+  item_code: string;
+  title: string;
+  competences_oic_rang_a?: any[];
+  competences_oic_rang_b?: any[];
+  paroles_musicales?: string[];
 }
 
 Deno.serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
     console.log('🎵 Démarrage génération paroles pour tous les items...');
+
+    // Initialize Supabase client with service role key
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     
-    const supabase = createSupabaseClient();
-    
-    // 1. Récupérer tous les items EDN
+    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: {
+        autoRefreshToken: false,
+        persistSession: false
+      }
+    });
+
     console.log('📋 Récupération des items EDN...');
+
+    // Fetch all EDN items that need lyrics
     const { data: items, error: itemsError } = await supabase
       .from('edn_items_complete')
-      .select('id, item_code, title')
-      .order('item_code', { ascending: true })
-      .range(0, 100); // Traiter par batch de 100
+      .select(`
+        id, item_code, title, 
+        competences_oic_rang_a, competences_oic_rang_b,
+        paroles_musicales
+      `);
 
     if (itemsError) {
+      console.error('❌ Erreur récupération items:', itemsError);
       throw new Error(`Erreur récupération items: ${itemsError.message}`);
     }
 
-    console.log(`📊 ${items?.length || 0} items trouvés`);
+    if (!items || items.length === 0) {
+      return new Response(
+        JSON.stringify({ error: 'Aucun item EDN trouvé' }),
+        { 
+          status: 404, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
 
-    let processedCount = 0;
-    let successCount = 0;
-    let errorCount = 0;
-    const errors: any[] = [];
+    console.log(`📚 ${items.length} items trouvés`);
 
-    for (const item of items || []) {
+    let processed = 0;
+    let success = 0;
+    let errors = 0;
+
+    // Process each item individually
+    for (const item of items as EdnItem[]) {
       try {
-        console.log(`🎵 Traitement item ${item.item_code}...`);
-        processedCount++;
-
-        // 2. Récupérer les compétences OIC pour cet item
-        const itemNumber = item.item_code.replace('IC-', '');
+        console.log(`🎼 Traitement item ${item.item_code}...`);
         
-        const { data: competencesA, error: compAError } = await supabase
-          .from('oic_competences')
-          .select('*')
-          .eq('item_parent', item.item_code)
-          .eq('rang', 'A')
-          .order('ordre', { ascending: true })
-          .range(0, 20);
-
-        const { data: competencesB, error: compBError } = await supabase
-          .from('oic_competences')
-          .select('*')
-          .eq('item_parent', item.item_code)
-          .eq('rang', 'B')
-          .order('ordre', { ascending: true })
-          .range(0, 20);
-
-        // 3. Générer les paroles pour chaque rang
-        const parolesRangA = generateParolesFromCompetences(
-          competencesA || [], 
-          'A', 
-          item.item_code
-        );
-
-        const parolesRangB = generateParolesFromCompetences(
-          competencesB || [], 
-          'B', 
-          item.item_code
-        );
-
-        const parolesRangAB = generateParolesAB(
-          parolesRangA, 
-          parolesRangB, 
-          item.item_code
-        );
-
-        // 4. Mettre à jour l'item avec les nouvelles paroles
-        const updateData = {
-          paroles_musicales: parolesRangA, // Paroles principales (Rang A)
-          // Note: Il semble que la structure actuelle ne supporte que paroles_musicales
-          // Si on veut ajouter les autres, il faudrait modifier le schéma
-          updated_at: new Date().toISOString()
-        };
-
-        const { data: updateResult, error: updateError } = await supabase
-          .from('edn_items_complete')
-          .update(updateData)
-          .eq('id', item.id)
-          .select();
-
-        if (updateError) {
-          throw new Error(`Erreur mise à jour: ${updateError.message}`);
+        // Skip if already has lyrics
+        if (item.paroles_musicales && item.paroles_musicales.length > 0) {
+          console.log(`⏭️  Item ${item.item_code} a déjà des paroles`);
+          processed++;
+          continue;
         }
 
-        successCount++;
-        console.log(`✅ Item ${item.item_code} mis à jour avec succès`);
+        // Generate lyrics based on OIC competences
+        const lyrics = generateLyricsForItem(item);
+        
+        if (lyrics && lyrics.length > 0) {
+          // Update the item with new lyrics
+          const { error: updateError } = await supabase
+            .from('edn_items_complete')
+            .update({ paroles_musicales: lyrics })
+            .eq('id', item.id);
 
-        // Petite pause pour éviter de surcharger la base
+          if (updateError) {
+            console.error(`❌ Erreur mise à jour ${item.item_code}:`, updateError);
+            errors++;
+          } else {
+            console.log(`✅ Paroles générées pour ${item.item_code}`);
+            success++;
+          }
+        } else {
+          console.log(`⚠️  Aucunes paroles générées pour ${item.item_code}`);
+          errors++;
+        }
+        
+        processed++;
+        
+        // Small delay to avoid overwhelming the system
         await new Promise(resolve => setTimeout(resolve, 100));
-
-      } catch (error) {
-        errorCount++;
-        const errorMsg = `Erreur item ${item.item_code}: ${error.message}`;
-        console.error(`❌ ${errorMsg}`);
-        errors.push({
-          item_code: item.item_code,
-          error: error.message
-        });
+        
+      } catch (itemError) {
+        console.error(`❌ Erreur item ${item.item_code}:`, itemError);
+        errors++;
+        processed++;
       }
     }
 
-    console.log(`🎵 Génération terminée:
-    - Traités: ${processedCount}
-    - Succès: ${successCount}  
-    - Erreurs: ${errorCount}`);
+    const stats = {
+      processed,
+      success,
+      errors,
+      total: items.length
+    };
 
-    return new Response(JSON.stringify({
-      success: true,
-      message: 'Génération des paroles terminée',
-      stats: {
-        processed: processedCount,
-        success: successCount,
-        errors: errorCount
-      },
-      errors: errors.slice(0, 10) // Limiter les erreurs retournées
-    }), {
-      headers: { ...corsHeaders, ...securityHeaders, 'Content-Type': 'application/json' }
-    });
+    console.log('📊 Statistiques finales:', stats);
+
+    return new Response(
+      JSON.stringify({
+        message: 'Génération des paroles terminée',
+        stats
+      }),
+      { 
+        status: 200, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      }
+    );
 
   } catch (error) {
     console.error('❌ Erreur générale:', error);
-    return new Response(JSON.stringify({
-      success: false,
-      error: error.message
-    }), {
-      status: 500,
-      headers: { ...corsHeaders, ...securityHeaders, 'Content-Type': 'application/json' }
-    });
+    return new Response(
+      JSON.stringify({ 
+        error: 'Erreur lors de la génération des paroles',
+        details: error.message 
+      }),
+      { 
+        status: 500, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      }
+    );
   }
 });
+
+function generateLyricsForItem(item: EdnItem): string[] {
+  const lyrics: string[] = [];
+  
+  try {
+    console.log(`🎵 Génération paroles pour ${item.item_code}: ${item.title}`);
+    
+    // Generate Rang A lyrics
+    if (item.competences_oic_rang_a && item.competences_oic_rang_a.length > 0) {
+      const rangALyrics = generateRangLyrics(item, 'A', item.competences_oic_rang_a);
+      lyrics.push(...rangALyrics);
+    }
+    
+    // Generate Rang B lyrics  
+    if (item.competences_oic_rang_b && item.competences_oic_rang_b.length > 0) {
+      const rangBLyrics = generateRangLyrics(item, 'B', item.competences_oic_rang_b);
+      lyrics.push(...rangBLyrics);
+    }
+    
+    // Generate combined lyrics if both exist
+    if (item.competences_oic_rang_a?.length > 0 && item.competences_oic_rang_b?.length > 0) {
+      const combinedLyrics = generateCombinedLyrics(item);
+      lyrics.push(...combinedLyrics);
+    }
+    
+    return lyrics;
+    
+  } catch (error) {
+    console.error(`❌ Erreur génération paroles ${item.item_code}:`, error);
+    return [];
+  }
+}
+
+function generateRangLyrics(item: EdnItem, rang: 'A' | 'B', competences: any[]): string[] {
+  const lyrics: string[] = [];
+  
+  const isRangA = rang === 'A';
+  const niveau = isRangA ? 'fondamental' : 'expert';
+  const emoji = isRangA ? '📚' : '🎯';
+  
+  // Intro verse
+  const introVerse = `[Couplet 1 - Rang ${rang}]
+Item ${item.item_code} je vais maîtriser
+${item.title.substring(0, 50)}${item.title.length > 50 ? '...' : ''}
+Niveau ${niveau} à développer
+Les bases solides pour réussir`;
+
+  lyrics.push(introVerse);
+  
+  // Refrain 
+  const refrain = `[Refrain]
+EDN ${item.item_code} chantons ensemble
+Compétences Rang ${rang} qui se rassemblent
+Pour l'examen on se prépare
+Avec la musique tout devient plus claire`;
+
+  lyrics.push(refrain);
+  
+  // Competences verse
+  if (competences && competences.length > 0) {
+    const firstCompetences = competences.slice(0, 3);
+    const competenceLines = firstCompetences.map(comp => {
+      const intitule = comp.intitule || comp.description || 'Compétence médicale';
+      return intitule.substring(0, 40) + (intitule.length > 40 ? '...' : '');
+    });
+    
+    const competenceVerse = `[Couplet 2 - Rang ${rang}]
+${competenceLines[0] || 'Chaque concept je vais comprendre'}
+${competenceLines[1] || 'Les définitions bien apprendre'}
+${competenceLines[2] || 'Diagnostic et traitement savoir'}
+Pour mes patients tout donner`;
+
+    lyrics.push(competenceVerse);
+  }
+  
+  // Final refrain
+  const finalRefrain = `[Refrain Final]
+Item ${item.item_code} Rang ${rang} validé
+Connaissances solides intégrées
+${isRangA ? 'Vers le rang B je vais progresser' : 'Expertise médicale maîtrisée'}
+En musique médecine et réussite mélangées`;
+
+  lyrics.push(finalRefrain);
+  
+  return lyrics;
+}
+
+function generateCombinedLyrics(item: EdnItem): string[] {
+  const lyrics: string[] = [];
+  
+  // Combined version with both Rang A and B
+  const combinedVerse = `[Couplet Combiné A+B]
+${item.item_code} double expertise
+Rang A et B tous maîtrisés
+${item.title.substring(0, 40)}${item.title.length > 40 ? '...' : ''}
+Formation complète assurée`;
+
+  lyrics.push(combinedVerse);
+  
+  const combinedRefrain = `[Refrain A+B]
+Du fondamental à l'expertise
+${item.item_code} je maîtrise
+Rang A et B en harmonie
+Pour une médecine réussie`;
+
+  lyrics.push(combinedRefrain);
+  
+  return lyrics;
+}
