@@ -43,8 +43,8 @@ jobs:
         cache: 'npm'
     
     - name: Install dependencies
-      run: |
-        npm install puppeteer @supabase/supabase-js dotenv
+      working-directory: oic-scripts
+      run: npm install --legacy-peer-deps
     
     - name: Run OIC extraction
       working-directory: oic-scripts
