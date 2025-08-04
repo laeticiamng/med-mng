@@ -60,12 +60,12 @@ jobs:
         mkdir -p .cache
         node extract-oic-competences.cjs
     
-    - name: Upload extraction report
-      uses: actions/upload-artifact@v4
+    - name: 📤 Upload report
       if: always()
+      uses: actions/upload-artifact@v4
       with:
-        name: extraction-report
+        name: extraction-report-${{ github.run_number }}
         path: |
-          oic-scripts/rapport-*.json
-          oic-scripts/extraction-*.log
           oic-scripts/.cache/
+          oic-scripts/extraction-*.json
+          oic-scripts/*.log
