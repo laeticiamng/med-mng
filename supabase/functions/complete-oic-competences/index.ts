@@ -19,10 +19,10 @@ Deno.serve(async (req) => {
     
     console.log('🚀 Démarrage complétion compétences OIC...');
     
-    // 1. Récupérer les compétences incomplètes
+    // 1. Récupérer les compétences incomplètes de la table backup officielle
     const { data: incompleteCompetences, error: fetchError } = await supabase
-      .from('oic_competences')
-      .select('objectif_id, code_competence, intitule, description')
+      .from('backup_oic_competences')
+      .select('objectif_id, intitule, description')
       .or('description.is.null,description.eq.')
       .limit(100); // Traiter par batch de 100
     
@@ -91,12 +91,11 @@ Deno.serve(async (req) => {
         const description = extractDescription(pageContent);
         
         if (description) {
-          // Mettre à jour la compétence
+          // Mettre à jour la compétence dans la table backup officielle
           const { error: updateError } = await supabase
-            .from('oic_competences')
+            .from('backup_oic_competences')
             .update({
               description: description,
-              raw_content: pageContent.substring(0, 5000), // Garder un échantillon
               url_source: pageUrl,
               updated_at: new Date().toISOString()
             })

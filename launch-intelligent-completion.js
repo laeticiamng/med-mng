@@ -29,7 +29,7 @@ async function launchIntelligentCompletion() {
       setTimeout(async () => {
         console.log('\n🔍 Vérification post-complétion...');
         try {
-          const verifyResponse = await fetch('https://yaincoxihiqdksxgrsrk.supabase.co/rest/v1/oic_competences?select=count&or=(description.is.null,description.eq.)', {
+          const verifyResponse = await fetch('https://yaincoxihiqdksxgrsrk.supabase.co/rest/v1/backup_oic_competences?select=count&or=(description.is.null,description.eq.)', {
             headers: {
               'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU',
               'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU'
