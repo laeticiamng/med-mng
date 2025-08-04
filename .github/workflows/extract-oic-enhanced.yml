@@ -4,7 +4,7 @@ on:
   workflow_dispatch:   # Lancement manuel
     inputs:
       batch_size:
-        description: 'Taille des lots pour l\'extraction'
+        description: 'Taille des lots pour l extraction'
         required: false
         default: '50'
         type: string
