@@ -52,3 +52,4 @@ jobs:
         path: |
           oic-scripts/.cache/
           oic-scripts/extraction-*.json
+          oic-scripts/*.log
