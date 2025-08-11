@@ -96,7 +96,7 @@ async function generateForItem(openAIApiKey: string, itemCode: string, rang: Ran
     content: [
       {
         type: 'text',
-        text: `Item: ${itemData?.item_code || itemCode} - ${itemData?.title || itemCode}\nRang: ${rang}\nRésumé tableaux: ${JSON.stringify({ A: itemData?.tableau_rang_a?.sections?.length || 0, B: itemData?.tableau_rang_b?.sections?.length || 0 })}\nCompétences (${competences?.length || 0}):\n${(competences as any[] | undefined)?.slice(0, 50).map(c => `- [${c.rang}] ${c.objectif_id} ${c.intitule}: ${c.description?.slice(0, 300) || ''}`).join('\n') || ''}`
+        text: `Item: ${itemData?.item_code || itemCode} - ${itemData?.title || itemCode}\nRang: ${rang}\nRésumé tableaux: ${JSON.stringify({ A: itemData?.tableau_rang_a?.sections?.length || 0, B: itemData?.tableau_rang_b?.sections?.length || 0 })}\nCompétences (${competences?.length || 0}):\n${(competences as any[] | undefined)?.map(c => `- [${c.rang}] ${c.objectif_id} ${c.intitule}: ${c.description?.slice(0, 300) || ''}`).join('\n') || ''}`
       }
     ]
   } as const;

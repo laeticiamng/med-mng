@@ -69,7 +69,7 @@ serve(async (req) => {
       content: [
         {
           type: 'text',
-          text: `Item: ${source.item.item_code} - ${source.item.title}\nRang: ${rang}\nRésumé tableaux: ${JSON.stringify({ A: source.item.tableau_rang_a?.sections?.length || 0, B: source.item.tableau_rang_b?.sections?.length || 0 })}\nCompétences (${source.competences.length}):\n${(source.competences as any[]).slice(0, 50).map(c => `- [${c.rang}] ${c.objectif_id} ${c.intitule}: ${c.description?.slice(0, 300) || ''}`).join('\n')}`
+          text: `Item: ${source.item.item_code} - ${source.item.title}\nRang: ${rang}\nRésumé tableaux: ${JSON.stringify({ A: source.item.tableau_rang_a?.sections?.length || 0, B: source.item.tableau_rang_b?.sections?.length || 0 })}\nCompétences (${source.competences.length}):\n${(source.competences as any[]).map(c => `- [${c.rang}] ${c.objectif_id} ${c.intitule}: ${c.description?.slice(0, 300) || ''}`).join('\n')}`
         }
       ]
     } as const;
