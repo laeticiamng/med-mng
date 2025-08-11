@@ -4,7 +4,6 @@ import { supabase } from '@/integrations/supabase/client';
 export async function runBulkLyricsOnce() {
   try {
     if (typeof window === 'undefined') return;
-    if (!location.pathname.startsWith('/edn')) return;
     const key = 'bulkLyricsRun_v1';
     if (localStorage.getItem(key)) return; // déjà exécuté
 

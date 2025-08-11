@@ -143,3 +143,9 @@ verify_jwt = false
 [functions.generate-all-lyrics]
 verify_jwt = false
 
+[functions.generate-lyrics-refined]
+verify_jwt = false
+
+[functions.generate-lyrics-bulk]
+verify_jwt = false
+
