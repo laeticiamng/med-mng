@@ -3400,6 +3400,7 @@ export type Database = {
       med_mng_songs: {
         Row: {
           created_at: string
+          created_by: string | null
           id: string
           lyrics: Json | null
           meta: Json | null
@@ -3410,6 +3411,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          created_by?: string | null
           id?: string
           lyrics?: Json | null
           meta?: Json | null
@@ -3420,6 +3422,7 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          created_by?: string | null
           id?: string
           lyrics?: Json | null
           meta?: Json | null
