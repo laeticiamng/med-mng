@@ -36,6 +36,22 @@ export async function generateOptimizedLyrics(
 ): Promise<string[]> {
   console.log(`🎵 Génération ultra-optimisée ${itemCode} Rang ${rang}`);
   
+  // 1) Essayer la fonction Edge (OpenAI) pour un texte long et stylé
+  try {
+    const { data, error } = await supabase.functions.invoke('generate-lyrics-refined', {
+      body: { itemCode, rang }
+    });
+    if (error) throw error;
+    const lines = (data as any)?.lines as string[] | undefined;
+    if (Array.isArray(lines) && lines.length > 0) {
+      console.log('✅ Paroles générées via Edge/OpenAI:', { lines: lines.slice(0, 3), total: lines.length });
+      return enforceConstraints(lines);
+    }
+  } catch (e) {
+    console.warn('⚠️ Edge function indisponible, fallback local utilisé:', e);
+  }
+
+  // 2) Fallback local: structure basée sur les compétences (ancien comportement)
   try {
     const itemData = await fetchItemData(itemCode);
     console.log(`📋 ItemData récupérée pour ${itemCode}:`, itemData);
@@ -43,22 +59,15 @@ export async function generateOptimizedLyrics(
     const competences = await fetchCompetences(itemCode, rang);
     console.log(`🔍 Compétences récupérées pour ${itemCode} Rang ${rang}:`, competences);
     
-    // Structure standardisée selon spécifications
     const songStructure = generateOptimizedStructure(itemData, competences, rang);
-    
-    // Assemblage avec balises IA
     const optimizedSong = assembleOptimizedSong(songStructure);
-    
-    // Vérification contraintes (max 5000 caractères)
     const finalSong = enforceConstraints(optimizedSong);
-    
     const charCount = finalSong.join('\n').length;
-    console.log(`✅ Chanson optimisée IA: ${charCount}/5000 caractères`);
-    
+    console.log(`✅ Chanson optimisée locale: ${charCount}/5000 caractères`);
     return finalSong;
     
   } catch (error) {
-    console.error('❌ Erreur génération optimisée:', error);
+    console.error('❌ Erreur génération locale:', error);
     return generateOptimizedFallback(itemCode, rang);
   }
 }
