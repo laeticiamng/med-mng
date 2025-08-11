@@ -2530,6 +2530,117 @@ export type Database = {
         }
         Relationships: []
       }
+      lyrics_generation_jobs: {
+        Row: {
+          attempt_count: number
+          completed_at: string | null
+          created_at: string
+          error: string | null
+          id: string
+          item_code: string
+          model: string
+          priority: number
+          prompt: string | null
+          rang: string
+          requested_by: string | null
+          started_at: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          attempt_count?: number
+          completed_at?: string | null
+          created_at?: string
+          error?: string | null
+          id?: string
+          item_code: string
+          model?: string
+          priority?: number
+          prompt?: string | null
+          rang: string
+          requested_by?: string | null
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          attempt_count?: number
+          completed_at?: string | null
+          created_at?: string
+          error?: string | null
+          id?: string
+          item_code?: string
+          model?: string
+          priority?: number
+          prompt?: string | null
+          rang?: string
+          requested_by?: string | null
+          started_at?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      lyrics_texts: {
+        Row: {
+          content: string
+          created_at: string
+          generated_by: string | null
+          id: string
+          is_published: boolean
+          item_code: string
+          previous_version_id: string | null
+          rang: string
+          status: string
+          style_meta: Json
+          updated_at: string
+          version: number
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          generated_by?: string | null
+          id?: string
+          is_published?: boolean
+          item_code: string
+          previous_version_id?: string | null
+          rang: string
+          status?: string
+          style_meta?: Json
+          updated_at?: string
+          version?: number
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          generated_by?: string | null
+          id?: string
+          is_published?: boolean
+          item_code?: string
+          previous_version_id?: string | null
+          rang?: string
+          status?: string
+          style_meta?: Json
+          updated_at?: string
+          version?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lyrics_texts_previous_version_id_fkey"
+            columns: ["previous_version_id"]
+            isOneToOne: false
+            referencedRelation: "lyrics_texts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lyrics_texts_previous_version_id_fkey"
+            columns: ["previous_version_id"]
+            isOneToOne: false
+            referencedRelation: "lyrics_texts_latest"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       med_mng_audio_access_logs: {
         Row: {
           access_type: string
@@ -5228,6 +5339,22 @@ export type Database = {
       }
     }
     Views: {
+      lyrics_texts_latest: {
+        Row: {
+          content: string | null
+          created_at: string | null
+          generated_by: string | null
+          id: string | null
+          is_published: boolean | null
+          item_code: string | null
+          rang: string | null
+          status: string | null
+          style_meta: Json | null
+          updated_at: string | null
+          version: number | null
+        }
+        Relationships: []
+      }
       med_mng_view_library: {
         Row: {
           created_at: string | null

@@ -12,8 +12,10 @@ import { SkipLinks } from "@/components/navigation/SkipLinks";
 const DynamicOnboarding = lazy(() => import("@/components/onboarding/DynamicOnboarding").then(module => ({ default: module.DynamicOnboarding })));
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
+import { HelmetProvider } from "react-helmet-async";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { GlobalAudioProvider } from "@/contexts/GlobalAudioContext";
+import { PageThemeProvider } from "@/components/layout/PageThemeProvider";
 import Index from "./pages/Index";
 import Generator from "./pages/Generator";
 import LibraryPage from "./pages/LibraryPage";
@@ -85,83 +87,87 @@ const App = () => {
               <AuthProvider>
                 <ToastProvider>
                   <TooltipProvider>
-                    <BrowserRouter>
-                      <SkipLinks />
-                      <div id="app-root" className="min-h-screen">
-                        <main id="main-content" tabIndex={-1}>
-                          <ErrorBoundary>
-                            <Routes>
-                            <Route path="/" element={<Index />} />
-                            <Route path="/generator" element={<Generator />} />
-                            {/* EDN Interface Unifiée - toutes les fonctionnalités fusionnées */}
-                            <Route path="/edn" element={<EdnComplete />} />
-                            <Route path="/edn/:slug" element={<EdnComplete />} />
-                            
-                            {/* Redirections automatiques vers l'interface unifiée */}
-                            <Route path="/edn-complete" element={<Navigate to="/edn" replace />} />
-                            <Route path="/edn-complete/:slug" element={<EdnCompleteRedirect />} />
-                            <Route path="/edn/:slug/immersive" element={<EdnImmersive />} />
-                            <Route path="/edn/music-library" element={<Navigate to="/edn" replace />} />
-                            <Route path="/ecos" element={<EcosIndex />} />
-                            <Route path="/ecos/:scenarioId" element={<EcosScenario />} />
-                            
-                            {/* Unified audit page */}
-                            <Route path="/audit" element={<AuditComplete />} />
-                            <Route path="/audit-completeness" element={<AuditCompleteness />} />
-                           
-                            {/* Redirect all old audit routes to new unified page */}
-                            <Route path="/audit-general" element={<Navigate to="/audit" replace />} />
-                            <Route path="/audit-edn" element={<Navigate to="/audit" replace />} />
-                            <Route path="/audit-unified" element={<Navigate to="/audit" replace />} />
-                            <Route path="/audit-ic1" element={<Navigate to="/audit" replace />} />
-                            <Route path="/audit-ic2" element={<Navigate to="/audit" replace />} />
-                            <Route path="/audit-ic4" element={<Navigate to="/audit" replace />} />
-                            <Route path="/audit-complete" element={<Navigate to="/audit" replace />} />
-                            
-                            <Route path="/mng-method" element={<MngMethod />} />
-                            <Route path="/mentions-legales" element={<MentionsLegales />} />
-                            <Route path="/politique-confidentialite" element={<PolitiqueConfidentialite />} />
-                            <Route path="/auth" element={<MedMngLogin />} />
-                            <Route path="/auth/signup" element={<MedMngSignup />} />
-                            <Route path="/med-mng/login" element={<MedMngLogin />} />
-                            <Route path="/med-mng/signup" element={<MedMngSignup />} />
-                            <Route path="/med-mng/pricing" element={<MedMngPricing />} />
-                            <Route path="/med-mng/subscribe/:planId" element={<ProtectedRoute><MedMngSubscribe /></ProtectedRoute>} />
-                            <Route path="/med-mng/success" element={<ProtectedRoute><MedMngSuccess /></ProtectedRoute>} />
-                            <Route path="/med-mng/create" element={<ProtectedRoute><MedMngCreate /></ProtectedRoute>} />
-                            <Route path="/med-mng/library" element={<ProtectedRoute><MedMngLibrary /></ProtectedRoute>} />
-                            <Route path="/med-mng/profile" element={<ProtectedRoute><MedMngProfile /></ProtectedRoute>} />
-                            <Route path="/med-mng/player/:songId" element={<ProtectedRoute><MedMngPlayer /></ProtectedRoute>} />
-                            <Route path="/med-mng/playlists" element={<ProtectedRoute><PlaylistManager /></ProtectedRoute>} />
-                            <Route path="/med-mng/playlists/:playlistId" element={<ProtectedRoute><PlaylistDetail /></ProtectedRoute>} />
-                            <Route path="/med-mng/analytics" element={<ProtectedRoute><MusicAnalytics /></ProtectedRoute>} />
-                            <Route path="/chat" element={<MedChat />} />
-                             <Route path="/admin/import" element={<AdminImport />} />
-                             <Route path="/admin/audit" element={<AdminAudit />} />
-                             <Route path="/admin/extract-edn" element={<AdminExtractEdn />} />
-                             <Route path="/admin/extract-ecos" element={<AdminExtractEcos />} />
-                             <Route path="/admin/extract-objectifs" element={<EdnObjectifsExtractionPage />} />
-                             <Route path="/admin/oic-quality" element={<OicDataQualityManager />} />
-                             <Route path="/admin/complete" element={<AdminCompleteProcess />} />
-                             <Route path="/admin-panel" element={<AdminPanel />} /> {/* Panel admin unifié Point X */}
-                            <Route path="/test-subscriptions" element={<SubscriptionTest />} />
-                            <Route path="/library" element={<LibraryPage />} />
-                            <Route path="/test-extraction" element={<TestExtraction />} />
-                            <Route path="*" element={<NotFound />} />
-                         </Routes>
-                          </ErrorBoundary>
-                        </main>
-                      
-                      {/* Global UI Components - LAZY LOADED */}
-                      <Suspense fallback={null}>
-                        <DynamicOnboarding />
-                      </Suspense>
-                      <HelpButton />
-                      
-                    </div>
-                    <Toaster />
-                    <Sonner />
-                  </BrowserRouter>
+<HelmetProvider>
+  <BrowserRouter>
+    <SkipLinks />
+    <div id="app-root" className="min-h-screen">
+      <main id="main-content" tabIndex={-1}>
+        <PageThemeProvider>
+          <ErrorBoundary>
+            <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/generator" element={<Generator />} />
+            {/* EDN Interface Unifiée - toutes les fonctionnalités fusionnées */}
+            <Route path="/edn" element={<EdnComplete />} />
+            <Route path="/edn/:slug" element={<EdnComplete />} />
+            
+            {/* Redirections automatiques vers l'interface unifiée */}
+            <Route path="/edn-complete" element={<Navigate to="/edn" replace />} />
+            <Route path="/edn-complete/:slug" element={<EdnCompleteRedirect />} />
+            <Route path="/edn/:slug/immersive" element={<EdnImmersive />} />
+            <Route path="/edn/music-library" element={<Navigate to="/edn" replace />} />
+            <Route path="/ecos" element={<EcosIndex />} />
+            <Route path="/ecos/:scenarioId" element={<EcosScenario />} />
+            
+            {/* Unified audit page */}
+            <Route path="/audit" element={<AuditComplete />} />
+            <Route path="/audit-completeness" element={<AuditCompleteness />} />
+           
+            {/* Redirect all old audit routes to new unified page */}
+            <Route path="/audit-general" element={<Navigate to="/audit" replace />} />
+            <Route path="/audit-edn" element={<Navigate to="/audit" replace />} />
+            <Route path="/audit-unified" element={<Navigate to="/audit" replace />} />
+            <Route path="/audit-ic1" element={<Navigate to="/audit" replace />} />
+            <Route path="/audit-ic2" element={<Navigate to="/audit" replace />} />
+            <Route path="/audit-ic4" element={<Navigate to="/audit" replace />} />
+            <Route path="/audit-complete" element={<Navigate to="/audit" replace />} />
+            
+            <Route path="/mng-method" element={<MngMethod />} />
+            <Route path="/mentions-legales" element={<MentionsLegales />} />
+            <Route path="/politique-confidentialite" element={<PolitiqueConfidentialite />} />
+            <Route path="/auth" element={<MedMngLogin />} />
+            <Route path="/auth/signup" element={<MedMngSignup />} />
+            <Route path="/med-mng/login" element={<MedMngLogin />} />
+            <Route path="/med-mng/signup" element={<MedMngSignup />} />
+            <Route path="/med-mng/pricing" element={<MedMngPricing />} />
+            <Route path="/med-mng/subscribe/:planId" element={<ProtectedRoute><MedMngSubscribe /></ProtectedRoute>} />
+            <Route path="/med-mng/success" element={<ProtectedRoute><MedMngSuccess /></ProtectedRoute>} />
+            <Route path="/med-mng/create" element={<ProtectedRoute><MedMngCreate /></ProtectedRoute>} />
+            <Route path="/med-mng/library" element={<ProtectedRoute><MedMngLibrary /></ProtectedRoute>} />
+            <Route path="/med-mng/profile" element={<ProtectedRoute><MedMngProfile /></ProtectedRoute>} />
+            <Route path="/med-mng/player/:songId" element={<ProtectedRoute><MedMngPlayer /></ProtectedRoute>} />
+            <Route path="/med-mng/playlists" element={<ProtectedRoute><PlaylistManager /></ProtectedRoute>} />
+            <Route path="/med-mng/playlists/:playlistId" element={<ProtectedRoute><PlaylistDetail /></ProtectedRoute>} />
+            <Route path="/med-mng/analytics" element={<ProtectedRoute><MusicAnalytics /></ProtectedRoute>} />
+            <Route path="/chat" element={<MedChat />} />
+             <Route path="/admin/import" element={<AdminImport />} />
+             <Route path="/admin/audit" element={<AdminAudit />} />
+             <Route path="/admin/extract-edn" element={<AdminExtractEdn />} />
+             <Route path="/admin/extract-ecos" element={<AdminExtractEcos />} />
+             <Route path="/admin/extract-objectifs" element={<EdnObjectifsExtractionPage />} />
+             <Route path="/admin/oic-quality" element={<OicDataQualityManager />} />
+             <Route path="/admin/complete" element={<AdminCompleteProcess />} />
+             <Route path="/admin-panel" element={<AdminPanel />} /> {/* Panel admin unifié Point X */}
+            <Route path="/test-subscriptions" element={<SubscriptionTest />} />
+            <Route path="/library" element={<LibraryPage />} />
+            <Route path="/test-extraction" element={<TestExtraction />} />
+            <Route path="*" element={<NotFound />} />
+         </Routes>
+          </ErrorBoundary>
+        </PageThemeProvider>
+      </main>
+    
+      {/* Global UI Components - LAZY LOADED */}
+      <Suspense fallback={null}>
+        <DynamicOnboarding />
+      </Suspense>
+      <HelpButton />
+      
+    </div>
+    <Toaster />
+    <Sonner />
+  </BrowserRouter>
+</HelmetProvider>
                 </TooltipProvider>
               </ToastProvider>
             </AuthProvider>
