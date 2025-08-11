@@ -4,10 +4,11 @@ import { supabase } from '@/integrations/supabase/client';
 export async function runBulkLyricsOnce() {
   try {
     if (typeof window === 'undefined') return;
-    const key = 'bulkLyricsRun_v1';
+    if (!location.pathname.startsWith('/edn')) return;
+    const key = 'bulkLyricsRun_v2_refined';
     if (localStorage.getItem(key)) return; // déjà exécuté
 
-    console.log('🚀 Déclenchement unique: generate-lyrics-bulk (ALL)');
+    console.log('🚀 Déclenchement unique: generate-lyrics-bulk refined (ALL)');
     localStorage.setItem(key, new Date().toISOString());
 
     const { data, error } = await supabase.functions.invoke('generate-lyrics-bulk', {

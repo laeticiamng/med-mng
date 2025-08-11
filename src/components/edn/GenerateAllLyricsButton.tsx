@@ -18,8 +18,8 @@ export const GenerateAllLyricsButton: React.FC = () => {
     });
 
     try {
-      const { data, error } = await supabase.functions.invoke('generate-all-lyrics', {
-        body: {}
+      const { data, error } = await supabase.functions.invoke('generate-lyrics-bulk', {
+        body: { rang: 'ALL' }
       });
 
       if (error) throw error;
