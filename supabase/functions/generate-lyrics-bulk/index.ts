@@ -14,7 +14,9 @@ interface BulkBody {
   rang?: Rang | 'ALL';         // Par défaut 'ALL'
   limit?: number;              // Facultatif: limiter le nombre d'items
   dryRun?: boolean;            // Si true, ne pas écrire en BDD
+  preserveIfBetter?: boolean;  // Si true (défaut), on n'écrase pas une version existante jugée meilleure
 }
+
 
 function buildSystemPrompt(rang: Rang) {
   return `Tu es un parolier médical expert. Tu écris des textes de rap poétiques en français,
@@ -29,6 +31,28 @@ Contraintes:
 Format de sortie STRICT (JSON): {
   "lines": string[] // chaque élément est UNE ligne du texte, sections comprises entre crochets
 }`;
+}
+
+// Évaluation simple de la qualité (préserve les bonnes versions)
+function hasStructuredSections(lines?: string[]) {
+  if (!Array.isArray(lines)) return false;
+  const rx = /\[(Couplet|Refrain)/i;
+  return lines.some((l) => rx.test(l));
+}
+
+function qualityScore(lines?: string[]) {
+  if (!Array.isArray(lines)) return 0;
+  const base = lines.length;
+  const structure = hasStructuredSections(lines) ? 20 : 0;
+  return base + structure;
+}
+
+function pickBetter(existing?: string[] | null, next?: string[] | null) {
+  if (!existing || existing.length === 0) return next || undefined;
+  if (!next || next.length === 0) return existing || undefined;
+  const exScore = qualityScore(existing);
+  const nxScore = qualityScore(next);
+  return nxScore >= exScore ? next : existing;
 }
 
 async function generateForItem(openAIApiKey: string, itemCode: string, rang: Rang, supabase: ReturnType<typeof createClient>) {
@@ -168,12 +192,26 @@ serve(async (req) => {
         }
 
         if (!body.dryRun) {
+          // Charger l'existant pour préserver la meilleure version si demandé
+          const { data: existingRow } = await admin
+            .from('edn_items_complete')
+            .select('paroles_rang_a, paroles_rang_b, paroles_rang_ab, paroles_musicales')
+            .eq('item_code', code)
+            .maybeSingle();
+
+          const preserve = body.preserveIfBetter !== false; // true par défaut
+          const finalA = preserve ? pickBetter(existingRow?.paroles_rang_a as any, results.A || null) : (results.A || existingRow?.paroles_rang_a);
+          const finalB = preserve ? pickBetter(existingRow?.paroles_rang_b as any, results.B || null) : (results.B || existingRow?.paroles_rang_b);
+          const finalAB = preserve ? pickBetter(existingRow?.paroles_rang_ab as any, results.AB || null) : (results.AB || existingRow?.paroles_rang_ab);
+
           const update: Record<string, any> = {};
-          if (results.A) update.paroles_rang_a = results.A;
-          if (results.B) update.paroles_rang_b = results.B;
-          if (results.AB) {
-            update.paroles_rang_ab = results.AB;
-            update.paroles_musicales = results.AB; // Par défaut, on met AB comme base
+          if (finalA) update.paroles_rang_a = finalA;
+          if (finalB) update.paroles_rang_b = finalB;
+          if (finalAB) {
+            update.paroles_rang_ab = finalAB;
+            // Paroles musicales = meilleure version entre l'existant et AB
+            const baseMus = preserve ? pickBetter(existingRow?.paroles_musicales as any, finalAB) : (finalAB || existingRow?.paroles_musicales);
+            if (baseMus) update.paroles_musicales = baseMus;
           }
           update.updated_at = new Date().toISOString();
 
