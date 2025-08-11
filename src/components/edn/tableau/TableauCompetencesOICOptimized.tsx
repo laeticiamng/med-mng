@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -78,7 +78,7 @@ const CompetenceCard: React.FC<{
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className={`w-8 h-8 rounded-lg ${themeColors.accent} ${themeColors.text} flex items-center justify-center text-sm font-bold`}>
-                  {competence.ordre_affichage || index + 1}
+                  {competence.ordre_affichage ?? index + 1}
                 </div>
                 <div className="flex-1">
                   {competence.objectif_id && (
@@ -300,6 +300,20 @@ export const TableauCompetencesOICOptimized: React.FC<TableauCompetencesOICOptim
     ? { primary: 'blue', bg: 'bg-blue-50', text: 'text-blue-900' }
     : { primary: 'purple', bg: 'bg-purple-50', text: 'text-purple-900' };
 
+  // Tri stable: ordre_affichage croissant, valeurs non définies à la fin, sinon ordre initial
+  const sortedCompetences = useMemo(() => {
+    return [...competences]
+      .map((c, i) => ({ c, i }))
+      .sort((a, b) => {
+        const ao = a.c.ordre_affichage;
+        const bo = b.c.ordre_affichage;
+        if (ao == null && bo == null) return a.i - b.i; // garder l'ordre original
+        if (ao == null) return 1; // a après b
+        if (bo == null) return -1; // a avant b
+        return ao - bo;
+      })
+      .map(x => x.c);
+  }, [competences]);
   return (
     <Card className="w-full shadow-lg border-0">
       <CardHeader className={`${themeColors.bg} border-b-2 ${rang === 'A' ? 'border-blue-200' : 'border-purple-200'}`}>
@@ -340,7 +354,7 @@ export const TableauCompetencesOICOptimized: React.FC<TableauCompetencesOICOptim
       <CardContent className="p-6">
         {viewMode === 'cards' ? (
           <div className="space-y-4">
-            {competences.map((competence, index) => (
+            {sortedCompetences.map((competence, index) => (
               <CompetenceCard
                 key={`${competence.objectif_id}-${index}`}
                 competence={competence}
@@ -351,7 +365,7 @@ export const TableauCompetencesOICOptimized: React.FC<TableauCompetencesOICOptim
           </div>
         ) : (
           <div className="space-y-2">
-            {competences.map((competence, index) => (
+            {sortedCompetences.map((competence, index) => (
               <CompetenceCard
                 key={`compact-${competence.objectif_id}-${index}`}
                 competence={competence}
