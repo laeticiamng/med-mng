@@ -37,19 +37,17 @@ export function useSystemStatus(options?: { silent?: boolean }) {
         'Authorization': `Bearer ${token}`,
       } as const;
 
-      const resStatus = await fetch(FN_URL, {
-        method: 'POST',
+      const resStatus = await fetch(`${FN_URL}/status`, {
+        method: 'GET',
         headers,
-        body: JSON.stringify({ path: '/status' }),
       });
       if (!resStatus.ok) throw new Error(`Status HTTP ${resStatus.status}`);
       const statusData = await resStatus.json();
       setStatus(statusData);
 
-      const resComplete = await fetch(FN_URL, {
-        method: 'POST',
+      const resComplete = await fetch(`${FN_URL}/status/data-completeness`, {
+        method: 'GET',
         headers,
-        body: JSON.stringify({ path: '/status/data-completeness' }),
       });
       if (!resComplete.ok) throw new Error(`Completeness HTTP ${resComplete.status}`);
       const completenessData = await resComplete.json();

@@ -105,25 +105,30 @@ serve(async (req) => {
       return publicRes;
     }
 
-    publicRes = await handleStatus(req, null, path, url);
+    const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2.50.3');
+    const supabaseUrl = 'https://yaincoxihiqdksxgrsrk.supabase.co';
+    const supabaseKey = Deno.env.get('SUPABASE_ANON_KEY') || '';
+    const publicSupabase = createClient(supabaseUrl, supabaseKey);
+
+    publicRes = await handleStatus(req, publicSupabase, path, url);
     if (publicRes) {
       MonitoringService.endRequest(requestId, publicRes.status);
       return publicRes;
     }
 
-    publicRes = await handleAudit(req, null, path, url);
+    publicRes = await handleAudit(req, publicSupabase, path, url);
     if (publicRes) {
       MonitoringService.endRequest(requestId, publicRes.status);
       return publicRes;
     }
 
-    publicRes = await handleRGPD(req, null, path, url);
+    publicRes = await handleRGPD(req, publicSupabase, path, url);
     if (publicRes) {
       MonitoringService.endRequest(requestId, publicRes.status);
       return publicRes;
     }
 
-    publicRes = await handleDocs(req, null, path);
+    publicRes = await handleDocs(req, publicSupabase, path);
     if (publicRes) {
       MonitoringService.endRequest(requestId, publicRes.status);
       return publicRes;

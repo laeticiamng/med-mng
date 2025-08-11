@@ -20,12 +20,18 @@ Deno.serve(async (req) => {
     console.log('🔍 ANALYSE COMPLÉTION DES COMPÉTENCES OIC')
     console.log('=====================================')
 
-    // 1. Identifier les compétences incomplètes
-    const { data: competencesIncompletes, error: queryError } = await supabase
+    const { data: competencesAll, error: queryError } = await supabase
       .from('backup_oic_competences')
       .select('objectif_id, intitule, description, item_parent, rang')
-      .or('description.is.null,description.eq.,length(description).lt.30')
-      .order('item_parent, objectif_id')
+
+    if (queryError) {
+      throw queryError
+    }
+
+    const competencesIncompletes = (competencesAll || []).filter((comp: any) => {
+      const desc = typeof comp.description === 'string' ? comp.description : ''
+      return !desc || desc.trim().length < 30
+    })
 
     if (queryError) {
       throw queryError
@@ -79,7 +85,7 @@ Deno.serve(async (req) => {
 
     // 4. Créer un index des pages par objectif_id pour les compétences incomplètes
     const competencesMap = new Map()
-    competencesIncompletes.forEach(comp => {
+    competencesIncompletes.forEach((comp: any) => {
       competencesMap.set(comp.objectif_id, comp)
     })
 
