@@ -17,11 +17,66 @@ export const useSunoCallbackListener = () => {
 
   useEffect(() => {
     console.log('🔥 [useSunoCallbackListener] useEffect démarré - le hook est actif !');
-    
-    // Écouter les callbacks Suno via un endpoint spécial
+
+    const processed = processedTracksRef.current;
+    const lastPollAtRef = useRef<number>(0);
+    const POLL_INTERVAL = 15000; // 15s pour réduire le spam
+    const MIN_THROTTLE = 5000; // 5s mini entre deux polls
+
+    const canPoll = () => {
+      if (typeof document !== 'undefined') {
+        const visible = document.visibilityState === 'visible';
+        const focused = document.hasFocus ? document.hasFocus() : true;
+        return visible && focused;
+      }
+      return true;
+    };
+
+    const processTrack = (track: any) => {
+      const metadata = track.metadata as any;
+      const taskId = metadata?.original_task_id || track.task_id;
+      if (!taskId) return;
+
+      // Déterminer le rang à partir du titre ou des métadonnées
+      let rang = 'A';
+      if (track.title?.includes('Rang B') || metadata?.rang === 'B') rang = 'B';
+      else if (track.title?.includes('Rang A') || metadata?.rang === 'A') rang = 'A';
+      else if (track.title?.includes('Mix') || metadata?.rang === 'AB') rang = 'AB';
+
+      const trackId = track.id as string;
+      if (processed.has(trackId)) return;
+
+      processed.add(trackId);
+      setCompletedAudio(prev => {
+        const newState: any = { ...prev };
+        const existingVersions = Object.keys(newState).filter(k => k.startsWith(`${rang}_v`)).length;
+        const versionIndex = existingVersions + 1;
+        const versionKey = `${rang}_v${versionIndex}_${taskId}`;
+        newState[versionKey] = track.audio_url;
+
+        // Compatibilité: clé simple par rang
+        const simpleKey = rang === 'AB' ? 'rangAB' : rang === 'A' ? 'rangA' : 'rangB';
+        if (!newState[simpleKey]) newState[simpleKey] = track.audio_url;
+
+        console.log('🔄 État completedAudio mis à jour:', newState);
+        return newState;
+      });
+
+      // Notification de succès
+      toast({
+        title: `🎉 Musique ${rang} prête !`,
+        description: `🎵 ${track.title} est disponible`,
+        duration: 6000,
+      });
+    };
+
     const pollForCallbacks = async () => {
       try {
-        // Chercher tous les tracks récents avec un audio_url valide (sans filtre de temps)
+        if (!canPoll()) return;
+        const now = Date.now();
+        if (now - (lastPollAtRef.current || 0) < MIN_THROTTLE) return;
+        lastPollAtRef.current = now;
+
         console.log('🎯 [CallbackListener] Recherche de ALL tracks avec audio_url...');
         const { data: recentTracks } = await supabase
           .from('generated_music_tracks')
@@ -33,86 +88,7 @@ export const useSunoCallbackListener = () => {
 
         if (recentTracks && recentTracks.length > 0) {
           console.log(`🔍 ${recentTracks.length} tracks récents trouvés`);
-          
-          // Regrouper les musiques par task_id (chaque génération = 2 versions)
-          const tracksByTaskId = new Map();
-          
-          recentTracks.forEach(track => {
-            const metadata = track.metadata as any;
-            const taskId = metadata?.original_task_id || track.task_id;
-            
-            // Déterminer le rang à partir du titre ou des métadonnées
-            let rang = 'A'; // par défaut
-            if (track.title?.includes('Rang B') || metadata?.rang === 'B') {
-              rang = 'B';
-            } else if (track.title?.includes('Rang A') || metadata?.rang === 'A') {
-              rang = 'A';
-            } else if (track.title?.includes('Mix') || metadata?.rang === 'AB') {
-              rang = 'AB';
-            }
-            
-            if (!taskId) return;
-            
-            if (!tracksByTaskId.has(taskId)) {
-              tracksByTaskId.set(taskId, { rang, tracks: [] });
-            }
-            tracksByTaskId.get(taskId).tracks.push(track);
-          });
-          
-          // Traiter chaque groupe de task_id
-          tracksByTaskId.forEach((group, taskId) => {
-            const { rang, tracks } = group;
-            
-            // Pour chaque task_id, nous devons avoir 2 versions selon la doc officielle
-            tracks.forEach((track, index) => {
-              const trackId = track.id;
-              
-              // Vérifier si c'est un nouveau track (pas encore traité)
-              if (!processedTracksRef.current.has(trackId)) {
-                console.log(`🎵 NOUVELLE MUSIQUE ${rang} Version ${index + 1}:`, track.audio_url);
-                processedTracksRef.current.add(trackId);
-                
-                setCompletedAudio(prev => {
-                  const newState = { ...prev };
-                  const versionKey = `${rang}_v${index + 1}_${taskId}`;
-                  
-                  // Ajouter cette version spécifique
-                  newState[versionKey] = track.audio_url;
-                  
-                  // Mettre à jour les clés par rang pour l'interface
-                  if (rang === 'A') {
-                    if (!newState.rangA_v1) newState.rangA_v1 = track.audio_url;
-                    else if (!newState.rangA_v2) newState.rangA_v2 = track.audio_url;
-                    
-                    // Compatibilité: première version devient la version principale
-                    if (!newState.rangA) newState.rangA = track.audio_url;
-                  } else if (rang === 'B') {
-                    if (!newState.rangB_v1) newState.rangB_v1 = track.audio_url;
-                    else if (!newState.rangB_v2) newState.rangB_v2 = track.audio_url;
-                    
-                    // Compatibilité: première version devient la version principale  
-                    if (!newState.rangB) newState.rangB = track.audio_url;
-                  } else if (rang === 'AB' || rang === 'Mix') {
-                    if (!newState.rangAB_v1) newState.rangAB_v1 = track.audio_url;
-                    else if (!newState.rangAB_v2) newState.rangAB_v2 = track.audio_url;
-                    
-                    // Compatibilité: première version devient la version principale
-                    if (!newState.rangAB) newState.rangAB = track.audio_url;
-                  }
-                  
-                  console.log('🔄 État completedAudio mis à jour:', newState);
-                  return newState;
-                });
-
-                // Notification de succès avec numéro de version
-                toast({
-                  title: `🎉 Musique ${rang} Version ${index + 1} terminée !`,
-                  description: `🎵 ${track.title} est maintenant disponible`,
-                  duration: 6000,
-                });
-              }
-            });
-          });
+          recentTracks.forEach(processTrack);
         } else {
           console.log('🔍 Aucun track récent trouvé');
         }
@@ -121,13 +97,39 @@ export const useSunoCallbackListener = () => {
       }
     };
 
-    // Vérifier TRÈS fréquemment (toutes les secondes) pour un affichage quasi-immédiat
-    const interval = setInterval(pollForCallbacks, 1000);
-    
-    // Vérification initiale
-    pollForCallbacks();
+    // Realtime: s'abonner aux INSERT/UPDATE
+    const channel = supabase
+      .channel('realtime:generated_music_tracks')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'generated_music_tracks' },
+        (payload) => {
+          const row: any = (payload as any).new || (payload as any).record;
+          if (row?.audio_url) {
+            processTrack(row);
+          }
+        }
+      )
+      .subscribe((status) => {
+        console.log('📡 Realtime subscription status:', status);
+      });
 
-    return () => clearInterval(interval);
+    // Poll en secours + démarrage immédiat si visible
+    const interval = setInterval(pollForCallbacks, POLL_INTERVAL);
+    if (canPoll()) pollForCallbacks();
+
+    const onVisibility = () => {
+      if (canPoll()) pollForCallbacks();
+    };
+    window.addEventListener('visibilitychange', onVisibility);
+    window.addEventListener('focus', onVisibility);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('visibilitychange', onVisibility);
+      window.removeEventListener('focus', onVisibility);
+      supabase.removeChannel(channel);
+    };
   }, [toast]);
 
   return {

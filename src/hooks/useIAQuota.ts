@@ -39,8 +39,18 @@ export const useIAQuota = () => {
 
       setQuota(data?.remaining_credits || 0);
       return data?.remaining_credits || 0;
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erreur lors de la récupération du quota:', error);
+      const status = error?.status ?? error?.context?.status ?? error?.response?.status;
+      if (status === 401) {
+        toast({
+          title: "Session requise",
+          description: "Veuillez vous connecter pour voir vos crédits IA.",
+          variant: "destructive",
+        });
+        setQuota(0);
+        return 0;
+      }
       toast({
         title: "Erreur",
         description: "Impossible de récupérer le quota IA",
@@ -75,8 +85,16 @@ export const useIAQuota = () => {
         required: credits_required,
         remaining: data?.remaining_credits || 0
       };
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erreur lors de la vérification du quota:', error);
+      const status = error?.status ?? error?.context?.status ?? error?.response?.status;
+      if (status === 401) {
+        toast({
+          title: "Session requise",
+          description: "Connectez-vous pour vérifier vos crédits IA.",
+          variant: "destructive",
+        });
+      }
       return {
         canProceed: false,
         required: 0,
@@ -115,13 +133,22 @@ export const useIAQuota = () => {
         });
         return false;
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erreur lors de l\'utilisation du quota:', error);
-      toast({
-        title: "Erreur",
-        description: "Impossible d'utiliser les crédits IA",
-        variant: "destructive",
-      });
+      const status = error?.status ?? error?.context?.status ?? error?.response?.status;
+      if (status === 401) {
+        toast({
+          title: "Session requise",
+          description: "Reconnectez-vous pour utiliser vos crédits IA.",
+          variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Erreur",
+          description: "Impossible d'utiliser les crédits IA",
+          variant: "destructive",
+        });
+      }
       return false;
     }
   };
