@@ -22,8 +22,20 @@ export async function generateAllAdvancedLyrics(): Promise<GenerationResult> {
     errors: []
   };
   
+  // 1) Essai: fonction Edge backend (plus rapide et fiable)
   try {
-    // Récupérer la liste de tous les items
+    const { data, error } = await supabase.functions.invoke('generate-lyrics-bulk', {
+      body: { rang: 'ALL' }
+    });
+    if (error) throw error;
+    if (data) return data as GenerationResult;
+    throw new Error('Réponse vide de generate-lyrics-bulk');
+  } catch (err) {
+    console.warn('⚠️ generate-lyrics-bulk indisponible, fallback client', err);
+  }
+
+  // 2) Fallback: boucle côté client item par item
+  try {
     const { data: items, error } = await supabase
       .from('edn_items_complete')
       .select('item_code')
@@ -33,7 +45,6 @@ export async function generateAllAdvancedLyrics(): Promise<GenerationResult> {
       throw new Error(`Impossible de récupérer les items: ${error?.message || 'inconnu'}`);
     }
 
-    // Générer item par item (séquentiel pour éviter les limites API)
     for (const it of items) {
       result.processed += 1;
       try {
@@ -48,7 +59,7 @@ export async function generateAllAdvancedLyrics(): Promise<GenerationResult> {
       }
     }
 
-    console.log('✅ Génération terminée pour tous les items:', result);
+    console.log('✅ Génération terminée pour tous les items (fallback):', result);
     return result;
     
   } catch (error) {
