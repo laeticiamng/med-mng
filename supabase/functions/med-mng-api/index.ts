@@ -184,13 +184,13 @@ serve(async (req) => {
         async () => {
           let res: Response | null = null;
           
-          res = await handleSubscriptions(req, supabase);
+          res = await handleSubscriptions(req, supabase, user);
           if (res) return res;
 
-          res = await handleSongs(req, supabase, path);
+          res = await handleSongs(req, supabase, path, user);
           if (res) return res;
 
-          res = await handleLibrary(req, supabase, path, url);
+          res = await handleLibrary(req, supabase, path, url, user);
           if (res) return res;
 
           res = await handleEdn(req, supabase, path, url);
