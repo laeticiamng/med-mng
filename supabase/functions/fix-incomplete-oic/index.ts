@@ -22,7 +22,7 @@ Deno.serve(async (req) => {
 
     const { data: competencesAll, error: queryError } = await supabase
       .from('backup_oic_competences')
-      .select('objectif_id, intitule, description, item_parent, rang')
+      .select('objectif_id, intitule, description, item_parent, rang, url_source')
 
     if (queryError) {
       throw queryError
@@ -39,165 +39,105 @@ Deno.serve(async (req) => {
 
     console.log(`📊 Compétences incomplètes trouvées: ${competencesIncompletes.length}`)
 
-    // 2. Test de connectivité API MediaWiki (copié de votre workflow)
-    console.log('\n🧪 TEST API MEDIAWIKI...')
-    const testApiUrl = 'https://livret.uness.fr/lisa/2025/api.php?action=query&list=categorymembers&cmtitle=Catégorie:Objectif_de_connaissance&cmlimit=1&format=json&origin=*'
-    
-    const testResponse = await fetch(testApiUrl)
-    const testData = await testResponse.json()
-    
-    if (!testData?.query?.categorymembers?.[0]) {
-      throw new Error('❌ API MediaWiki non accessible')
+    // 2. Complétion via url_source (avec cookie UNESS)
+    console.log('\n🌐 COMPLÉTION VIA url_source (session UNESS) ...')
+
+    const rawCookie = (Deno.env.get('UNESS_SESSION_COOKIE') || '').trim()
+    if (!rawCookie) {
+      console.warn('⚠️ UNESS_SESSION_COOKIE manquant: les pages privées risquent de rediriger vers le login')
     }
-    console.log('✅ API MediaWiki accessible')
 
-    // 3. Récupérer la liste complète des pages OIC (comme votre workflow)
-    console.log('\n📄 RÉCUPÉRATION LISTE COMPLÈTE DES PAGES...')
-    let allPages: any[] = []
-    let cmcontinue: string | undefined
+    const buildCookieHeader = (cookie: string) => {
+      if (!cookie) return undefined
+      // Si l'utilisateur a collé un cookie complet ("SESS=...; other=..."), on le passe tel quel
+      if (cookie.includes('=')) return cookie
+      // Sinon, on suppose que c'est une valeur de PHPSESSID
+      return `PHPSESSID=${cookie}`
+    }
 
-    do {
-      const url = new URL('https://livret.uness.fr/lisa/2025/api.php')
-      url.searchParams.set('action', 'query')
-      url.searchParams.set('list', 'categorymembers')
-      url.searchParams.set('cmtitle', 'Catégorie:Objectif_de_connaissance')
-      url.searchParams.set('cmlimit', '500')
-      url.searchParams.set('format', 'json')
-      url.searchParams.set('origin', '*')
-      
-      if (cmcontinue) {
-        url.searchParams.set('cmcontinue', cmcontinue)
+    const cookieHeader = buildCookieHeader(rawCookie)
+
+    const extractDescription = (html: string): string | null => {
+      try {
+        // Chercher la ligne <th> Description ... puis le <td> suivant
+        const regex = /<th[^>]*>\s*Description\s*<\/th>\s*<td[^>]*>([\s\S]*?)<\/td>/i
+        const m = html.match(regex)
+        if (!m) return null
+        let inner = m[1]
+        // Convertir <br> en sauts de ligne
+        inner = inner.replace(/<br\s*\/?\s*>/gi, '\n')
+        // Supprimer les balises HTML restantes
+        inner = inner.replace(/<[^>]+>/g, '')
+        // Normaliser l'espace
+        inner = inner.replace(/\u00A0/g, ' ').replace(/\s+/g, ' ').trim()
+        return inner || null
+      } catch (_) {
+        return null
       }
+    }
 
-      const response = await fetch(url.toString())
-      const data = await response.json()
-
-      if (data?.query?.categorymembers) {
-        allPages = allPages.concat(data.query.categorymembers)
-        cmcontinue = data?.continue?.cmcontinue
-        console.log(`📋 ${allPages.length} pages récupérées...`)
-      } else {
-        break
-      }
-    } while (cmcontinue)
-
-    console.log(`📚 Total pages trouvées: ${allPages.length}`)
-
-    // 4. Créer un index des pages par objectif_id pour les compétences incomplètes
-    const competencesMap = new Map()
-    competencesIncompletes.forEach((comp: any) => {
-      competencesMap.set(comp.objectif_id, comp)
-    })
-
-    // 5. Filtrer les pages correspondant aux compétences incomplètes
-    const pagesToProcess = allPages.filter(page => {
-      const objectifMatch = page.title.match(/OIC-\d+-\d+-[AB]/)
-      return objectifMatch && competencesMap.has(objectifMatch[0])
-    })
-
-    console.log(`🎯 Pages à retraiter: ${pagesToProcess.length}`)
-
-    // 6. Récupérer le contenu complet en lots (comme votre workflow)
     let processed = 0
     let updated = 0
     let errors = 0
-    const batchSize = 50
 
-    for (let i = 0; i < pagesToProcess.length; i += batchSize) {
-      const batch = pagesToProcess.slice(i, i + batchSize)
-      const pageIds = batch.map(p => p.pageid).join('|')
-      
-      console.log(`\n📥 TRAITEMENT LOT ${Math.floor(i/batchSize) + 1} (${batch.length} pages)`)
-      
-      const contentUrl = `https://livret.uness.fr/lisa/2025/api.php?action=query&pageids=${pageIds}&prop=revisions|info&rvprop=content|ids|timestamp&rvslots=main&format=json&formatversion=2`
-      
+    const incompletesWithUrl = (competencesIncompletes || []).filter((c: any) => !!c.url_source)
+    console.log(`🎯 Cibles à compléter (avec URL): ${incompletesWithUrl.length}`)
+
+    for (const comp of incompletesWithUrl) {
+      processed++
+      const objectifId = comp.objectif_id
+      const url = comp.url_source
       try {
-        const contentResponse = await fetch(contentUrl)
-        const contentData = await contentResponse.json()
+        const res = await fetch(url, {
+          headers: cookieHeader ? { Cookie: cookieHeader, 'User-Agent': 'Mozilla/5.0', 'Accept-Language': 'fr-FR,fr;q=0.9' } : { 'User-Agent': 'Mozilla/5.0', 'Accept-Language': 'fr-FR,fr;q=0.9' },
+        })
+        const html = await res.text()
 
-        if (contentData?.query?.pages) {
-          for (const page of contentData.query.pages) {
-            processed++
-            
-            if (!page.revisions?.[0]?.slots?.main?.content) {
-              console.log(`⚠️ Pas de contenu pour page ${page.pageid}`)
-              continue
-            }
-
-            const content = page.revisions[0].slots.main.content
-            
-            // Parser le contenu MediaWiki (comme votre workflow)
-            const objectifMatch = content.match(/\|Identifiant=([^|\n]+)/)
-            const intituleMatch = content.match(/\|Intitule=([^|\n]+)/)
-            const descriptionMatch = content.match(/\|Description=([\s\S]*?)(?=\n\|[A-Za-z]+)/s)
-            const rubriqueMatch = content.match(/\|Rubrique=([^|\n]+)/)
-            const rangMatch = content.match(/\|Rang=([^|\n]+)/)
-            const itemParentMatch = content.match(/\|Parent_id=([^|\n]+)/)
-
-            if (!objectifMatch) {
-              console.log(`⚠️ Impossible de parser l'objectif pour page ${page.pageid}`)
-              continue
-            }
-
-            const objectifId = objectifMatch[1].trim()
-            const intitule = intituleMatch?.[1]?.trim() || ''
-            const description = descriptionMatch?.[1]?.trim() || ''
-            const rubrique = rubriqueMatch?.[1]?.trim() || ''
-            const rang = rangMatch?.[1]?.trim() || ''
-            const itemParent = itemParentMatch?.[1]?.trim().padStart(3, '0') || ''
-
-            // Vérifier si cette compétence était incomplète
-            if (competencesMap.has(objectifId)) {
-              console.log(`🔄 Mise à jour ${objectifId}: "${intitule}"`)
-              console.log(`📝 Description: ${description.substring(0, 100)}${description.length > 100 ? '...' : ''}`)
-
-              // Mettre à jour la compétence avec le contenu complet
-              const { error: updateError } = await supabase
-                .from('backup_oic_competences')
-                .update({
-                  intitule: intitule,
-                  description: description,
-                  rubrique: rubrique,
-                  rang: rang,
-                  item_parent: itemParent,
-                  updated_at: new Date().toISOString(),
-                  extraction_status: 'completed'
-                })
-                .eq('objectif_id', objectifId)
-
-              if (updateError) {
-                console.error(`❌ Erreur mise à jour ${objectifId}:`, updateError)
-                errors++
-              } else {
-                updated++
-                console.log(`✅ ${objectifId} mis à jour`)
-              }
-            }
-          }
+        // Détection basique de redirection vers login
+        if (res.status >= 300 && res.status < 400 || /<title>.*(Connexion|Login).*<\/title>/i.test(html)) {
+          console.warn(`⚠️ ${objectifId}: page semble protégée (status ${res.status}), cookie requis`)
         }
-      } catch (error) {
-        console.error(`❌ Erreur traitement lot:`, error)
-        errors++
-      }
 
-      // Délai entre les lots pour éviter de surcharger l'API
-      if (i + batchSize < pagesToProcess.length) {
-        console.log('⏳ Pause 2s...')
-        await new Promise(resolve => setTimeout(resolve, 2000))
+        const description = extractDescription(html)
+        if (!description || description.length < 30) {
+          console.log(`ℹ️ ${objectifId}: description introuvable ou trop courte`)
+          continue
+        }
+
+        const { error: updateError } = await supabase
+          .from('backup_oic_competences')
+          .update({ description, updated_at: new Date().toISOString(), extraction_status: 'completed' })
+          .eq('objectif_id', objectifId)
+
+        if (updateError) {
+          console.error(`❌ Erreur mise à jour ${objectifId}:`, updateError)
+          errors++
+        } else {
+          updated++
+          console.log(`✅ ${objectifId} mis à jour (${description.substring(0, 80)}${description.length > 80 ? '…' : ''})`)
+        }
+
+        // throttle léger pour éviter d'ennuyer LiSA
+        await new Promise(r => setTimeout(r, 200))
+      } catch (e) {
+        console.error(`❌ ${objectifId}: échec récupération`, e)
+        errors++
       }
     }
 
+
     // 7. Statistiques finales
+    const totalTargets = incompletesWithUrl.length
+    const base = competencesIncompletes.length || 1
     const finalStats = {
       success: true,
       statistics: {
         competences_incompletes_detectees: competencesIncompletes.length,
-        pages_trouvees: allPages.length,
-        pages_traitees: pagesToProcess.length,
+        cibles_avec_url: totalTargets,
         competences_processed: processed,
         competences_updated: updated,
         errors: errors,
-        completion_rate: Math.round((updated / competencesIncompletes.length) * 100)
+        completion_rate: Math.round((updated / base) * 100)
       },
       timestamp: new Date().toISOString()
     }
@@ -205,10 +145,12 @@ Deno.serve(async (req) => {
     console.log('\n🎉 COMPLÉTION TERMINÉE!')
     console.log(`📊 Statistiques:`)
     console.log(`   - Compétences incomplètes détectées: ${competencesIncompletes.length}`)
+    console.log(`   - Cibles avec URL: ${totalTargets}`)
     console.log(`   - Pages traitées: ${processed}`)
     console.log(`   - Compétences mises à jour: ${updated}`)
     console.log(`   - Erreurs: ${errors}`)
     console.log(`   - Taux de complétion: ${finalStats.statistics.completion_rate}%`)
+
 
     return new Response(JSON.stringify(finalStats), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
