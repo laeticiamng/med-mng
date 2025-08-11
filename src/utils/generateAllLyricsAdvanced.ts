@@ -4,7 +4,10 @@ export async function generateAllLyricsAdvanced() {
   console.log('🚀 Lancement de la génération des paroles médicales spécifiques...')
   
   try {
-    const { data, error } = await supabase.functions.invoke('generate-all-lyrics', {})
+    // Utilise la nouvelle Edge Function serveur qui met à jour A/B/AB pour tous les items
+    const { data, error } = await supabase.functions.invoke('generate-lyrics-bulk', {
+      body: { rang: 'ALL' }
+    })
 
     if (error) {
       console.error('❌ Erreur lors de l\'appel de la fonction:', error)
