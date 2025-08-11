@@ -56,7 +56,25 @@ function pickBetter(existing?: string[] | null, next?: string[] | null) {
 }
 
 async function generateForItem(openAIApiKey: string, itemCode: string, rang: Rang, supabase: ReturnType<typeof createClient>) {
-  // Récupérer données item + compétences
+  // 0) Essayer d'abord la fonction raffinée centralisée
+  try {
+    const { data, error } = await (supabase as any).functions.invoke('generate-lyrics-refined', {
+      body: { itemCode, rang }
+    });
+    if (error) throw error;
+    const refined = Array.isArray((data as any)?.lines) ? (data as any).lines as string[] : [];
+    if (refined.length > 0) {
+      const dedup: string[] = [];
+      for (const l of refined) {
+        if (!dedup.length || dedup[dedup.length - 1].toLowerCase() !== l.toLowerCase()) dedup.push(l);
+      }
+      return dedup;
+    }
+  } catch (e) {
+    console.warn('generate-lyrics-refined indisponible, fallback OpenAI direct', e);
+  }
+
+  // 1) Fallback: génération directe OpenAI avec données/compétences
   const { data: itemData } = await supabase
     .from('edn_items_complete')
     .select('item_code, title, tableau_rang_a, tableau_rang_b')
