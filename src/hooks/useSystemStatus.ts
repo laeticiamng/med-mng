@@ -112,7 +112,7 @@ if (!silent && statusData?.compatibility?.frontendShouldUpgrade) {
     isLoading,
     refresh: checkSystemStatus,
     needsUpgrade: status?.compatibility?.frontendShouldUpgrade || false,
-    isOperational: status?.status === 'operational',
+    isOperational: status?.status === 'operational' || (status as any)?.status === 'healthy',
     completenessScore: dataCompleteness?.completeness_score || 0
   };
 }
