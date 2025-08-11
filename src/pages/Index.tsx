@@ -5,7 +5,7 @@ import { PremiumBackground } from "@/components/ui/premium-background";
 import { PremiumCard } from "@/components/ui/premium-card";
 import { PremiumButton } from "@/components/ui/premium-button";
 import { useNavigate } from "react-router-dom";
-import { LogIn, CreditCard, BarChart3, Music, BookOpen, MessageSquare, Users, Zap, Target, Award, TrendingUp, Sparkles, Star, Wand2, Brain, Settings } from "lucide-react";
+import { LogIn, CreditCard, BarChart3, Music, BookOpen, MessageSquare, Users, Zap, Target, Award, TrendingUp, Sparkles, Star, Wand2, Brain, Settings, Activity } from "lucide-react";
 import { TranslatedText } from "@/components/TranslatedText";
 
 // ⚡ LAZY LOADING - Charger les composants lourds seulement quand nécessaire
@@ -14,6 +14,7 @@ const MainSections = lazy(() => import("@/components/MainSections"));
 const MusicGenerationSection = lazy(() => import("@/components/MusicGenerationSection").then(module => ({ default: module.MusicGenerationSection })));
 const AppFooter = lazy(() => import("@/components/AppFooter").then(module => ({ default: module.AppFooter })));
 import StatusWidget from "@/components/StatusWidget";
+import MiniStatusIndicator from "@/components/MiniStatusIndicator";
 
 // Composant de loading léger
 const LazyLoadSpinner = () => (
@@ -48,6 +49,16 @@ const Index = () => {
             
             {/* Navigation premium */}
             <div className="flex items-center gap-3">
+              <MiniStatusIndicator />
+              <PremiumButton
+                variant="glass"
+                size="sm"
+                onClick={() => navigate('/monitoring')}
+                className="hidden xl:inline-flex"
+              >
+                <Activity className="h-4 w-4 mr-2" />
+                Monitoring
+              </PremiumButton>
               <PremiumButton
                 variant="glass"
                 size="sm"

@@ -18,6 +18,7 @@ import { GlobalAudioProvider } from "@/contexts/GlobalAudioContext";
 import { PageThemeProvider } from "@/components/layout/PageThemeProvider";
 import Index from "./pages/Index";
 import Generator from "./pages/Generator";
+import Monitoring from "./pages/Monitoring";
 import LibraryPage from "./pages/LibraryPage";
 // Pages EDN fusionnées dans EdnComplete
 
@@ -97,6 +98,7 @@ const App = () => {
             <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/generator" element={<Generator />} />
+            <Route path="/monitoring" element={<Monitoring />} />
             {/* EDN Interface Unifiée - toutes les fonctionnalités fusionnées */}
             <Route path="/edn" element={<EdnComplete />} />
             <Route path="/edn/:slug" element={<EdnComplete />} />
