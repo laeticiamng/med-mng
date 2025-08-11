@@ -42,9 +42,21 @@ Deno.serve(async (req) => {
     // 2. Complétion via url_source (avec cookie UNESS)
     console.log('\n🌐 COMPLÉTION VIA url_source (session UNESS) ...')
 
-    const rawCookie = (Deno.env.get('UNESS_SESSION_COOKIE') || '').trim()
+    const cookieEnvNames = [
+      'UNESS_SESSION_COOKIE',
+      'UNESS_COOKIE',
+      'LISA_SESSION_COOKIE',
+      'UNES_SESSION_COOKIE',
+      'CAS_UNESS_COOKIE',
+      'PHPSESSID'
+    ] as const
+
+    const rawCookie = cookieEnvNames
+      .map((k) => (Deno.env.get(k) || '').trim())
+      .find((v) => !!v) || ''
+
     if (!rawCookie) {
-      console.warn('⚠️ UNESS_SESSION_COOKIE manquant: les pages privées risquent de rediriger vers le login')
+      console.warn('⚠️ Aucun cookie de session UNESS trouvé parmi: ' + cookieEnvNames.join(', '))
     }
 
     const buildCookieHeader = (cookie: string) => {

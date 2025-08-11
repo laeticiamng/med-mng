@@ -152,3 +152,6 @@ verify_jwt = false
 [functions.edn-lyrics-generate]
 verify_jwt = false
 
+[functions.fix-incomplete-oic]
+verify_jwt = false
+
