@@ -18,11 +18,12 @@ interface DataCompleteness {
   gaps: string[];
 }
 
-export function useSystemStatus() {
+export function useSystemStatus(options?: { silent?: boolean }) {
   const [status, setStatus] = useState<SystemStatus | null>(null);
   const [dataCompleteness, setDataCompleteness] = useState<DataCompleteness | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+  const silent = options?.silent ?? false;
 
   const checkSystemStatus = async () => {
     try {
@@ -47,7 +48,7 @@ export function useSystemStatus() {
       setDataCompleteness(completenessData);
 
       // Alert if frontend should upgrade
-      if (statusData?.compatibility?.frontendShouldUpgrade) {
+if (!silent && statusData?.compatibility?.frontendShouldUpgrade) {
         toast({
           title: "⚠️ Mise à jour disponible",
           description: "Une nouvelle version est disponible pour une meilleure expérience.",
@@ -56,7 +57,7 @@ export function useSystemStatus() {
       }
 
       // Alert if system is degraded
-      if (statusData?.status === 'degraded') {
+      if (!silent && statusData?.status === 'degraded') {
         toast({
           title: "⚠️ Service dégradé",
           description: "Certaines fonctionnalités peuvent être temporairement limitées.",
@@ -65,7 +66,7 @@ export function useSystemStatus() {
       }
 
       // Alert if data completeness is low
-      if (completenessData?.completeness_score < 80) {
+      if (!silent && completenessData?.completeness_score < 80) {
         toast({
           title: "ℹ️ Données en migration",
           description: "Certains contenus sont en cours de finalisation.",
@@ -75,11 +76,13 @@ export function useSystemStatus() {
 
     } catch (error) {
       console.error('System status check failed:', error);
-      toast({
-        title: "Erreur de connexion",
-        description: "Impossible de vérifier l'état du système.",
-        variant: "destructive",
-      });
+      if (!silent) {
+        toast({
+          title: "Erreur de connexion",
+          description: "Impossible de vérifier l'état du système.",
+          variant: "destructive",
+        });
+      }
     } finally {
       setIsLoading(false);
     }

@@ -1,0 +1,100 @@
+import React, { useEffect, useMemo, useState } from 'react';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { Button } from '@/components/ui/button';
+import { CheckCircle2, AlertTriangle, Activity, RefreshCw } from 'lucide-react';
+import { useSystemStatus } from '@/hooks/useSystemStatus';
+
+export const StatusWidget: React.FC = () => {
+  const { status, completenessScore, isLoading, refresh, isOperational } = useSystemStatus({ silent: true });
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const version = status?.version ?? '—';
+  const globalScore = Math.max(0, Math.min(100, Math.round(completenessScore)));
+
+  const stateBadge = useMemo(() => {
+    if (isOperational) {
+      return (
+        <Badge variant="default" className="gap-1">
+          <CheckCircle2 className="w-3 h-3" />
+          Opérationnel
+        </Badge>
+      );
+    }
+    if (status?.status === 'degraded') {
+      return (
+        <Badge variant="destructive" className="gap-1">
+          <AlertTriangle className="w-3 h-3" />
+          Dégradé
+        </Badge>
+      );
+    }
+    if (status?.status === 'maintenance') {
+      return (
+        <Badge variant="secondary" className="gap-1">
+          <Activity className="w-3 h-3" />
+          Maintenance
+        </Badge>
+      );
+    }
+    return (
+      <Badge variant="secondary">Vérification…</Badge>
+    );
+  }, [isOperational, status?.status]);
+
+  // Rafraîchissement toutes les 15s
+  useEffect(() => {
+    let mounted = true;
+
+    const tick = async () => {
+      setIsRefreshing(true);
+      await Promise.allSettled([refresh()]);
+      if (mounted) setLastUpdated(new Date());
+      setIsRefreshing(false);
+    };
+
+    tick();
+    const id = setInterval(tick, 15000);
+    return () => {
+      mounted = false;
+      clearInterval(id);
+    };
+  }, [refresh]);
+
+  return (
+    <section aria-label="Statut de la plateforme" className="w-full max-w-3xl mx-auto">
+      <div className="rounded-xl border p-4 md:p-5 shadow-sm bg-white">
+        <div className="flex items-center justify-between gap-3 mb-4">
+          <div className="flex items-center gap-3">
+            <h2 className="text-lg font-semibold">Statut plateforme</h2>
+            {stateBadge}
+          </div>
+          <div className="flex items-center gap-2 text-sm text-gray-500">
+            <span>v{version}</span>
+            <Button size="sm" variant="outline" onClick={() => refresh()} disabled={isRefreshing}>
+              <RefreshCw className={`w-4 h-4 mr-1 ${isRefreshing ? 'animate-spin' : ''}`} />
+              Actualiser
+            </Button>
+          </div>
+        </div>
+
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <p className="text-sm font-medium">Complétude globale</p>
+            <span className="text-sm tabular-nums">{isLoading ? '—' : `${globalScore}%`}</span>
+          </div>
+          <Progress value={isLoading ? 0 : globalScore} aria-label="Complétude globale" />
+          <p className="mt-1 text-xs text-gray-500">Basé sur les items EDN et la cohérence des données. Rafraîchissement auto (15s).</p>
+        </div>
+
+        <div className="mt-4 flex items-center justify-between text-xs text-gray-500">
+          <span>Compatibilité: {status?.compatibility?.frontendShouldUpgrade ? 'Mise à jour recommandée' : 'OK'}</span>
+          <span>Dernière mise à jour: {lastUpdated ? new Date(lastUpdated).toLocaleTimeString() : '—'}</span>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default StatusWidget;

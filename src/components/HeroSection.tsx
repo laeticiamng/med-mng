@@ -2,6 +2,7 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { BookOpen, Users, BarChart3, Sparkles } from "lucide-react";
+import StatusWidget from "@/components/StatusWidget";
 
 export const HeroSection = () => {
   return (
@@ -36,6 +37,9 @@ export const HeroSection = () => {
             <span>Audit EDN</span>
           </Button>
         </Link>
+      </div>
+      <div className="mt-10">
+        <StatusWidget />
       </div>
     </div>
   );
