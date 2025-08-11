@@ -25,7 +25,7 @@ export const withAuth = (Component: React.ComponentType<any>) => {
 
     if (!user) {
       // Redirect to login with return path
-      return <Navigate to="/med-mng/login" state={{ from: location }} replace />;
+      return <Navigate to="/auth" state={{ from: location }} replace />;
     }
 
     return <Component {...props} />;
@@ -34,7 +34,7 @@ export const withAuth = (Component: React.ComponentType<any>) => {
 
 export const ProtectedRoute: React.FC<WithAuthProps> = ({ 
   children, 
-  fallback = "/med-mng/login" 
+  fallback = "/auth" 
 }) => {
   const { user, loading } = useAuth();
   const location = useLocation();

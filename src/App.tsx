@@ -121,6 +121,8 @@ const App = () => {
                             <Route path="/mng-method" element={<MngMethod />} />
                             <Route path="/mentions-legales" element={<MentionsLegales />} />
                             <Route path="/politique-confidentialite" element={<PolitiqueConfidentialite />} />
+                            <Route path="/auth" element={<MedMngLogin />} />
+                            <Route path="/auth/signup" element={<MedMngSignup />} />
                             <Route path="/med-mng/login" element={<MedMngLogin />} />
                             <Route path="/med-mng/signup" element={<MedMngSignup />} />
                             <Route path="/med-mng/pricing" element={<MedMngPricing />} />
