@@ -14,12 +14,12 @@ export const useSunoCallbackListener = () => {
   
   // Utiliser useRef pour persister entre les re-renders
   const processedTracksRef = useRef(new Set<string>());
+  const lastPollAtRef = useRef<number>(0);
 
   useEffect(() => {
     console.log('🔥 [useSunoCallbackListener] useEffect démarré - le hook est actif !');
 
     const processed = processedTracksRef.current;
-    const lastPollAtRef = useRef<number>(0);
     const POLL_INTERVAL = 15000; // 15s pour réduire le spam
     const MIN_THROTTLE = 5000; // 5s mini entre deux polls
 
