@@ -13,6 +13,7 @@ const MngPresentationBrief = lazy(() => import("@/components/MngPresentationBrie
 const MainSections = lazy(() => import("@/components/MainSections"));
 const MusicGenerationSection = lazy(() => import("@/components/MusicGenerationSection").then(module => ({ default: module.MusicGenerationSection })));
 const AppFooter = lazy(() => import("@/components/AppFooter").then(module => ({ default: module.AppFooter })));
+import StatusWidget from "@/components/StatusWidget";
 
 // Composant de loading léger
 const LazyLoadSpinner = () => (
@@ -173,6 +174,9 @@ const Index = () => {
           </div>
         </div>
 
+        <div className="pb-10 max-w-5xl mx-auto">
+          <StatusWidget />
+        </div>
 
         {/* Section d'accès rapide premium avec grille 2x2 */}
         <div className="pb-20">
