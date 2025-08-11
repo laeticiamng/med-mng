@@ -957,6 +957,51 @@ export type Database = {
         }
         Relationships: []
       }
+      edn_generation_jobs: {
+        Row: {
+          all_items: boolean
+          created_at: string
+          created_by: string | null
+          error_log: string | null
+          id: string
+          item_ids: string[] | null
+          job_type: string
+          progress: number
+          result: Json
+          status: string
+          updated_at: string
+          versions: string[]
+        }
+        Insert: {
+          all_items?: boolean
+          created_at?: string
+          created_by?: string | null
+          error_log?: string | null
+          id?: string
+          item_ids?: string[] | null
+          job_type: string
+          progress?: number
+          result?: Json
+          status?: string
+          updated_at?: string
+          versions?: string[]
+        }
+        Update: {
+          all_items?: boolean
+          created_at?: string
+          created_by?: string | null
+          error_log?: string | null
+          id?: string
+          item_ids?: string[] | null
+          job_type?: string
+          progress?: number
+          result?: Json
+          status?: string
+          updated_at?: string
+          versions?: string[]
+        }
+        Relationships: []
+      }
       edn_items: {
         Row: {
           created_at: string | null
@@ -1196,6 +1241,116 @@ export type Database = {
           visual_ambiance?: Json | null
         }
         Relationships: []
+      }
+      edn_lyrics_versions: {
+        Row: {
+          couverture_json: Json
+          created_at: string
+          id: string
+          item_code: string | null
+          item_id: string
+          metadata: Json
+          prompt_hash: string | null
+          score_couverture: number
+          texte: string[]
+          texte_hash: string | null
+          updated_at: string
+          valide: boolean
+          version: string
+        }
+        Insert: {
+          couverture_json?: Json
+          created_at?: string
+          id?: string
+          item_code?: string | null
+          item_id: string
+          metadata?: Json
+          prompt_hash?: string | null
+          score_couverture?: number
+          texte: string[]
+          texte_hash?: string | null
+          updated_at?: string
+          valide?: boolean
+          version: string
+        }
+        Update: {
+          couverture_json?: Json
+          created_at?: string
+          id?: string
+          item_code?: string | null
+          item_id?: string
+          metadata?: Json
+          prompt_hash?: string | null
+          score_couverture?: number
+          texte?: string[]
+          texte_hash?: string | null
+          updated_at?: string
+          valide?: boolean
+          version?: string
+        }
+        Relationships: []
+      }
+      edn_suno_tracks: {
+        Row: {
+          audio_url: string | null
+          bpm: number | null
+          created_at: string
+          duration: number | null
+          error_log: string | null
+          genre: string | null
+          id: string
+          intensity: string | null
+          lyrics_version_id: string
+          metadata: Json
+          provider: string
+          provider_track_id: string | null
+          seed: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          audio_url?: string | null
+          bpm?: number | null
+          created_at?: string
+          duration?: number | null
+          error_log?: string | null
+          genre?: string | null
+          id?: string
+          intensity?: string | null
+          lyrics_version_id: string
+          metadata?: Json
+          provider?: string
+          provider_track_id?: string | null
+          seed?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          audio_url?: string | null
+          bpm?: number | null
+          created_at?: string
+          duration?: number | null
+          error_log?: string | null
+          genre?: string | null
+          id?: string
+          intensity?: string | null
+          lyrics_version_id?: string
+          metadata?: Json
+          provider?: string
+          provider_track_id?: string | null
+          seed?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "edn_suno_tracks_lyrics_version_id_fkey"
+            columns: ["lyrics_version_id"]
+            isOneToOne: false
+            referencedRelation: "edn_lyrics_versions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       email_templates: {
         Row: {
@@ -5383,6 +5538,42 @@ export type Database = {
           severity: string | null
           unresolved_count: number | null
           violation_count: number | null
+        }
+        Relationships: []
+      }
+      v_competences_parsed: {
+        Row: {
+          description: string | null
+          intitule: string | null
+          item_id: string | null
+          item_parent: string | null
+          objectif_id: string | null
+          ordre_num: number | null
+          rang: string | null
+          rang_code: string | null
+          url_source: string | null
+        }
+        Insert: {
+          description?: string | null
+          intitule?: string | null
+          item_id?: never
+          item_parent?: string | null
+          objectif_id?: string | null
+          ordre_num?: never
+          rang?: string | null
+          rang_code?: never
+          url_source?: string | null
+        }
+        Update: {
+          description?: string | null
+          intitule?: string | null
+          item_id?: never
+          item_parent?: string | null
+          objectif_id?: string | null
+          ordre_num?: never
+          rang?: string | null
+          rang_code?: never
+          url_source?: string | null
         }
         Relationships: []
       }
