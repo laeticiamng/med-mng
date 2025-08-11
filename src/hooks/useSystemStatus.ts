@@ -27,21 +27,34 @@ export function useSystemStatus(options?: { silent?: boolean }) {
 
   const checkSystemStatus = async () => {
     try {
-      const { data: statusData, error: statusError } = await supabase.functions.invoke('med-mng-api', {
-        body: { path: '/status' }
-      });
+      const FN_URL = 'https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/med-mng-api';
+      const ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU';
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData?.session?.access_token ?? ANON;
+      const headers = {
+        'Content-Type': 'application/json',
+        'apikey': ANON,
+        'Authorization': `Bearer ${token}`,
+      } as const;
 
-      if (statusError) throw statusError;
-      
+      const resStatus = await fetch(FN_URL, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ path: '/status' }),
+      });
+      if (!resStatus.ok) throw new Error(`Status HTTP ${resStatus.status}`);
+      const statusData = await resStatus.json();
       setStatus(statusData);
 
-      const { data: completenessData, error: completenessError } = await supabase.functions.invoke('med-mng-api', {
-        body: { path: '/status/data-completeness' }
+      const resComplete = await fetch(FN_URL, {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ path: '/status/data-completeness' }),
       });
-
-      if (completenessError) throw completenessError;
-      
+      if (!resComplete.ok) throw new Error(`Completeness HTTP ${resComplete.status}`);
+      const completenessData = await resComplete.json();
       setDataCompleteness(completenessData);
+
 
       // Alert if frontend should upgrade
 if (!silent && statusData?.compatibility?.frontendShouldUpgrade) {
