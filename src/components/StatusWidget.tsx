@@ -4,12 +4,12 @@ import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
 import { CheckCircle2, AlertTriangle, Activity, RefreshCw } from 'lucide-react';
 import { useSystemStatus } from '@/hooks/useSystemStatus';
-
+import { supabase } from '@/integrations/supabase/client';
 export const StatusWidget: React.FC = () => {
   const { status, completenessScore, isLoading, refresh, isOperational } = useSystemStatus({ silent: true });
-  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
-
+  const [oicScore, setOicScore] = useState<number | null>(null);
   const version = status?.version ?? '—';
   const globalScore = Math.max(0, Math.min(100, Math.round(completenessScore)));
 
@@ -47,9 +47,39 @@ export const StatusWidget: React.FC = () => {
   useEffect(() => {
     let mounted = true;
 
+    const loadOIC = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('oic_competences')
+          .select('description,intitule')
+          .limit(10);
+        if (error) {
+          if (mounted) setOicScore(null);
+          return;
+        }
+        let problems = 0;
+        data?.forEach((comp: any) => {
+          if (
+            comp.description?.includes('&lt;') ||
+            comp.description?.includes('&gt;') ||
+            comp.description?.includes('<') ||
+            comp.description?.includes('>') ||
+            comp.description?.startsWith('-') ||
+            comp.intitule?.includes('[[')
+          ) {
+            problems++;
+          }
+        });
+        const score = ((10 - problems) / 10) * 100;
+        if (mounted) setOicScore(Math.max(0, Math.min(100, score)));
+      } catch {
+        if (mounted) setOicScore(null);
+      }
+    };
+
     const tick = async () => {
       setIsRefreshing(true);
-      await Promise.allSettled([refresh()]);
+      await Promise.allSettled([refresh(), loadOIC()]);
       if (mounted) setLastUpdated(new Date());
       setIsRefreshing(false);
     };
@@ -79,13 +109,23 @@ export const StatusWidget: React.FC = () => {
           </div>
         </div>
 
-        <div>
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-sm font-medium">Complétude globale</p>
-            <span className="text-sm tabular-nums">{isLoading ? '—' : `${globalScore}%`}</span>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm font-medium">Complétude globale</p>
+              <span className="text-sm tabular-nums">{isLoading ? '—' : `${globalScore}%`}</span>
+            </div>
+            <Progress value={isLoading ? 0 : globalScore} aria-label="Complétude globale" />
+            <p className="mt-1 text-xs text-gray-500">Basé sur les items EDN et la cohérence des données.</p>
           </div>
-          <Progress value={isLoading ? 0 : globalScore} aria-label="Complétude globale" />
-          <p className="mt-1 text-xs text-gray-500">Basé sur les items EDN et la cohérence des données. Rafraîchissement auto (15s).</p>
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <p className="text-sm font-medium">Corrections OIC</p>
+              <span className="text-sm tabular-nums">{oicScore === null ? '—' : `${Math.round(oicScore)}%`}</span>
+            </div>
+            <Progress value={oicScore === null ? 0 : Math.round(oicScore)} aria-label="Avancement corrections OIC" />
+            <p className="mt-1 text-xs text-gray-500">Échantillon en direct des compétences (15s).</p>
+          </div>
         </div>
 
         <div className="mt-4 flex items-center justify-between text-xs text-gray-500">
