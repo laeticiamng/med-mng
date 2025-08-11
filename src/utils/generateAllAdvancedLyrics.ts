@@ -23,25 +23,33 @@ export async function generateAllAdvancedLyrics(): Promise<GenerationResult> {
   };
   
   try {
-    // Appeler la nouvelle edge function avec OpenAI pour générer des paroles médicales spécifiques
-    const { data, error } = await supabase.functions.invoke('update-edn-unique-content', {
-      body: { action: 'generate_advanced_lyrics' }
-    });
+    // Récupérer la liste de tous les items
+    const { data: items, error } = await supabase
+      .from('edn_items_complete')
+      .select('item_code')
+      .order('item_code');
 
-    if (error) {
-      console.error('❌ Erreur lors de l\'appel de la fonction:', error);
-      throw error;
+    if (error || !items) {
+      throw new Error(`Impossible de récupérer les items: ${error?.message || 'inconnu'}`);
     }
 
-    console.log('✅ Génération des paroles médicales avancées terminée:', data);
-    
-    // Retourner les résultats de la génération
-    return data || {
-      processed: 0,
-      successful: 0,
-      failed: 0,
-      errors: ['Aucun résultat retourné']
-    };
+    // Générer item par item (séquentiel pour éviter les limites API)
+    for (const it of items) {
+      result.processed += 1;
+      try {
+        const ok = await generateLyricsForItem(it.item_code);
+        if (ok) result.successful += 1; else {
+          result.failed += 1;
+          result.errors.push(`Échec génération pour ${it.item_code}`);
+        }
+      } catch (e) {
+        result.failed += 1;
+        result.errors.push(`Erreur ${it.item_code}: ${e instanceof Error ? e.message : 'inconnue'}`);
+      }
+    }
+
+    console.log('✅ Génération terminée pour tous les items:', result);
+    return result;
     
   } catch (error) {
     console.error('❌ Erreur lors de la génération des paroles médicales:', error);

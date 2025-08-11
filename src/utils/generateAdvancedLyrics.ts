@@ -36,6 +36,25 @@ export async function generateAdvancedLyrics(
 ): Promise<string[]> {
   console.log(`🎵 Génération avancée ${itemCode} Rang ${rang}`);
   
+  // 1) Essayer via l'Edge Function (OpenAI)
+  try {
+    const { data, error } = await supabase.functions.invoke('generate-lyrics-refined', {
+      body: { itemCode, rang }
+    });
+
+    if (error) throw error;
+
+    const lines = Array.isArray((data as any)?.lines) ? (data as any).lines as string[] : [];
+    if (lines.length > 0) {
+      console.log(`✅ Paroles générées par OpenAI: ${lines.length} lignes`);
+      return lines;
+    }
+    throw new Error('Réponse OpenAI vide');
+  } catch (err) {
+    console.warn('⚠️ OpenAI/Edge indisponible, fallback local', err);
+  }
+
+  // 2) Fallback local existant si l'Edge Function échoue
   try {
     // 1. Récupérer les données complètes de l'item
     const itemData = await fetchItemData(itemCode);
@@ -52,11 +71,11 @@ export async function generateAdvancedLyrics(
     // 5. Vérifier la limite de caractères (5000 max)
     const finalSong = optimizeSongLength(fullSong);
     
-    console.log(`✅ Chanson générée: ${finalSong.join(' ').length} caractères`);
+    console.log(`✅ Chanson générée (fallback): ${finalSong.join(' ').length} caractères`);
     return finalSong;
     
   } catch (error) {
-    console.error('❌ Erreur génération avancée:', error);
+    console.error('❌ Erreur génération avancée (fallback):', error);
     return generateFallbackAdvancedSong(itemCode, rang);
   }
 }
