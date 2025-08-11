@@ -6,7 +6,7 @@ export async function generateAllLyricsAdvanced() {
   try {
     // Utilise la nouvelle Edge Function serveur qui met à jour A/B/AB pour tous les items
     const { data, error } = await supabase.functions.invoke('generate-lyrics-bulk', {
-      body: { rang: 'ALL' }
+      body: { rang: 'ALL', preserveIfBetter: false }
     })
 
     if (error) {

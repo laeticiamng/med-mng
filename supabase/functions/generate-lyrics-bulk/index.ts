@@ -19,18 +19,22 @@ interface BulkBody {
 
 
 function buildSystemPrompt(rang: Rang) {
-  return `Tu es un parolier médical expert. Tu écris des textes de rap poétiques en français,
-avec une plume inspirée de Nekfeu (sans le copier), riches, techniques mais accessibles.
-Contraintes: 
-- Pas de rimes ni d'assonances répétées bêtement ligne à ligne, varie les sonorités.
-- Phrases longues, articulées, avec images et double sens, mais composition claire.
-- Intègre fidèlement les compétences médicales de l'item demandé (rang ${rang}).
-- Structure le texte en [Couplet 1], [Refrain], [Couplet 2], [Refrain], [Couplet 3]${rang==='AB' ? ', [Couplet 4]' : ''}, [Refrain Final].
-- Longueur: ${rang==='AB' ? '4500-5000' : '3500-4800'} caractères environ.
-- Langue: français uniquement.
+  return `Tu es un parolier médical expert. Tu écris en français, avec une plume fine et exigeante, inspirée de Nekfeu (sans le copier), mêlant technicité médicale et poésie.
+Règles de style:
+- Phrases longues, articulées, avec images, métaphores et doubles sens; variations de rythme.
+- Assonances/allitérations variées par strophe; éviter toute rime/assonance répétée bêtement ligne à ligne.
+- Vocabulaire riche, aucune liste/numérotation/puces ni remplissage creux; éviter les clichés.
+Exigences de contenu:
+- Intégrer de façon organique TOUTES les compétences de l'item pour le rang demandé (A ou B; pour AB = A+B), en les reformulant si nécessaire, sans les énumérer sèchement.
+- Respecter les notions clés cliniques et la cohérence pédagogique; exactitude terminologique sans jargon gratuit.
+Structure:
+- [Couplet 1], [Refrain], [Couplet 2], [Refrain], [Couplet 3]${rang==='AB' ? ', [Couplet 4]' : ''}, [Refrain Final].
+Longueur cible:
+- Rang ${rang==='AB' ? 'AB: 6000-8000' : 'A ou B: 4500-6500'} caractères.
+Langue: français uniquement.
 Format de sortie STRICT (JSON): {
   "lines": string[] // chaque élément est UNE ligne du texte, sections comprises entre crochets
-}`;
+ }`;
 }
 
 // Évaluation simple de la qualité (préserve les bonnes versions)
