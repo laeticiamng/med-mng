@@ -83,7 +83,7 @@ async function generateForItem(openAIApiKey: string, itemCode: string, rang: Ran
 
   const itemNum = itemCode.replace('IC-', '').padStart(3, '0');
   let compQuery = supabase
-    .from('oic_competences')
+    .from('backup_oic_competences')
     .select('objectif_id,intitule,description,rang,rubrique,item_parent, ordre')
     .eq('item_parent', itemNum)
     .order('ordre', { ascending: true });
