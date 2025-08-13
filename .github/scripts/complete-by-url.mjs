@@ -86,34 +86,50 @@ async function casLogin() {
     }
 
     // 2) Attendre et remplir le formulaire CAS
-    await page.waitForSelector('input[name="username"], input[name="email"]', { timeout: 15000 });
+    try {
+      await page.waitForSelector('input[name="username"], input[name="email"]', { timeout: 15000 });
+    } catch (e) {
+      console.log('Aucun formulaire de connexion trouvé - peut-être déjà authentifié');
+      return;
+    }
     
     // Remplir les champs de connexion
     const usernameField = await page.$('input[name="username"]') || await page.$('input[name="email"]');
     if (usernameField) {
+      await usernameField.clear();
       await usernameField.type(CAS_USERNAME);
     }
 
     const passwordField = await page.$('input[name="password"]');
     if (passwordField) {
+      await passwordField.clear();
       await passwordField.type(CAS_PASSWORD);
     }
 
     // 3) Soumettre le formulaire
-    const submitButton = await page.$('input[type="submit"], button[type="submit"], input[value*="LOGIN"], button:contains("LOGIN")') || 
-                         await page.$('input[name="submit"], button[name="submit"]');
+    const submitButton = await page.$('input[type="submit"]') || 
+                         await page.$('button[type="submit"]') || 
+                         await page.$('input[value*="LOGIN"]') ||
+                         await page.$('input[name="submit"]') ||
+                         await page.$('button[name="submit"]');
     
     if (submitButton) {
+      console.log('🔑 Soumission du formulaire CAS...');
       await Promise.all([
-        page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 30000 }),
+        page.waitForNavigation({ waitUntil: 'networkidle0', timeout: 30000 }),
         submitButton.click()
       ]);
+    } else {
+      // Fallback: soumettre le formulaire directement
+      await page.keyboard.press('Enter');
+      await page.waitForNavigation({ waitUntil: 'networkidle0', timeout: 30000 });
     }
 
     // 4) Attendre le retour sur LiSA après les redirections OAuth2
     let attempts = 0;
-    while (attempts < 10) {
+    while (attempts < 15) { // Augmenté de 10 à 15
       const url = page.url();
+      console.log(`🔍 URL actuelle (tentative ${attempts + 1}): ${url}`);
       if (url.includes('livret.uness.fr')) {
         console.log('✅ Authentification CAS réussie');
         return;
@@ -122,9 +138,10 @@ async function casLogin() {
       attempts++;
     }
 
-    throw new Error('Authentification CAS échouée - pas de retour sur livret.uness.fr');
+    throw new Error('Authentification CAS échouée - pas de retour sur livret.uness.fr après 30s');
   } catch (error) {
-    console.error('Erreur authentification CAS:', error.message);
+    console.error('❌ Erreur authentification CAS:', error.message);
+    console.error('URL actuelle:', page ? page.url() : 'page non disponible');
     throw error;
   }
 }
