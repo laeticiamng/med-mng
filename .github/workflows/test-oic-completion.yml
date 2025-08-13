@@ -1,0 +1,43 @@
+name: Test OIC Completion Debug
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      CAS_USERNAME: ${{ secrets.CAS_USERNAME }}
+      CAS_PASSWORD: ${{ secrets.CAS_PASSWORD }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: |
+          npm ci || npm i
+          npm i @supabase/supabase-js axios tough-cookie axios-cookiejar-support p-limit html-to-text
+
+      - name: Test environment and script
+        run: |
+          echo "Testing environment variables..."
+          echo "SUPABASE_URL: $([[ -n "$SUPABASE_URL" ]] && echo "✅ Present" || echo "❌ Missing")"
+          echo "SUPABASE_SERVICE_ROLE_KEY: $([[ -n "$SUPABASE_SERVICE_ROLE_KEY" ]] && echo "✅ Present" || echo "❌ Missing")"
+          echo "CAS_USERNAME: $([[ -n "$CAS_USERNAME" ]] && echo "✅ Present" || echo "❌ Missing")"
+          echo "CAS_PASSWORD: $([[ -n "$CAS_PASSWORD" ]] && echo "✅ Present" || echo "❌ Missing")"
+          
+          echo "Testing Node.js script syntax..."
+          node -c .github/scripts/complete-by-url.cjs
+          
+          echo "Running with dry-run mode (batch=1)..."
+          node .github/scripts/complete-by-url.cjs --batch 1 --minChars 200 --concurrency 1

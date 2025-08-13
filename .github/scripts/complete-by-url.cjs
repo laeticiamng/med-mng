@@ -138,6 +138,13 @@ async function mark(objId, patch) {
 async function run() {
   console.log(`🚀 Démarrage complétion OIC - batch=${BATCH}, minChars=${MIN_CHARS}, concurrency=${CONCURRENCY}`);
   
+  // Debug environment
+  console.log('Environment check:');
+  console.log('- SUPABASE_URL:', SUPABASE_URL ? '✅ Present' : '❌ Missing');
+  console.log('- SUPABASE_SERVICE_ROLE_KEY:', SUPABASE_SERVICE_ROLE_KEY ? '✅ Present' : '❌ Missing');
+  console.log('- CAS_USERNAME:', process.env.CAS_USERNAME ? '✅ Present' : '❌ Missing');
+  console.log('- CAS_PASSWORD:', process.env.CAS_PASSWORD ? '✅ Present' : '❌ Missing');
+  
   const rows = await pickBatch();
   if (!rows.length) {
     console.log('✅ Aucun item à compléter (lot vide).');
