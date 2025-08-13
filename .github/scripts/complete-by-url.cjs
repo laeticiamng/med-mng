@@ -14,9 +14,12 @@ const { htmlToText } = require('html-to-text');
 // Authentification CAS réutilisée du projet
 let casLogin;
 try {
-  ({ casLogin } = require('../../oic-scripts/cas-login.cjs'));
-} catch (_) { 
-  console.log('⚠️ CAS module not found, using fallback auth'); 
+  const casModule = require('../../oic-scripts/cas-login.cjs');
+  casLogin = casModule.casLogin;
+  console.log('✅ CAS module loaded successfully');
+} catch (error) { 
+  console.log('⚠️ CAS module not found, using fallback auth. Error:', error.message); 
+  casLogin = null;
 }
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
@@ -83,10 +86,17 @@ async function fallbackCasLogin() {
 }
 
 async function ensureCas() {
-  if (typeof casLogin === 'function') {
-    await casLogin({ http, jar });
-  } else {
-    await fallbackCasLogin();
+  try {
+    if (typeof casLogin === 'function') {
+      console.log('🔐 Utilisation du module CAS principal...');
+      await casLogin({ http, jar });
+    } else {
+      console.log('🔐 Utilisation du fallback CAS...');
+      await fallbackCasLogin();
+    }
+  } catch (error) {
+    console.warn('⚠️ Erreur lors de l\'authentification CAS:', error.message);
+    // Continue sans bloquer le processus
   }
 }
 
