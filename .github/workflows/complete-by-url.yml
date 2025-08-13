@@ -67,9 +67,6 @@ jobs:
           google-chrome --version
           which google-chrome
 
-      - name: Run completion by URL
+      - name: Run completion via Edge Function
         run: |
-          node .github/scripts/complete-by-url.mjs \
-            --batch "${{ github.event.inputs.batch_size || '400' }}" \
-            --minChars "${{ github.event.inputs.min_chars || '200' }}" \
-            --concurrency "${{ github.event.inputs.concurrency || '6' }}"
+          node .github/scripts/trigger-completion.mjs
