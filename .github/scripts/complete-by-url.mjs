@@ -57,9 +57,9 @@ const hash = s => crypto.createHash('sha256').update(s || '').digest('hex');
 // ==== AUTH CAS/OAUTH2 avec Puppeteer ====
 async function casLogin() {
   if (!browser) {
-    browser = await puppeteer.launch({ 
+    // Configuration Puppeteer pour GitHub Actions
+    const launchOptions = {
       headless: 'new',
-      executablePath: '/usr/bin/google-chrome',
       args: [
         '--no-sandbox', 
         '--disable-setuid-sandbox', 
@@ -70,15 +70,33 @@ async function casLogin() {
         '--single-process',
         '--disable-background-timer-throttling',
         '--disable-backgrounding-occluded-windows',
-        '--disable-renderer-backgrounding',
-        '--disable-web-security',
-        '--disable-features=VizDisplayCompositor'
+        '--disable-renderer-backgrounding'
       ]
-    });
+    };
+    
+    // Essayer différents chemins pour Chrome
+    const chromePaths = [
+      '/usr/bin/google-chrome-stable',
+      '/usr/bin/google-chrome',
+      '/usr/bin/chromium-browser',
+      '/usr/bin/chromium'
+    ];
+    
+    for (const path of chromePaths) {
+      try {
+        const fs = await import('fs');
+        if (fs.existsSync(path)) {
+          launchOptions.executablePath = path;
+          console.log(`✅ Chrome trouvé: ${path}`);
+          break;
+        }
+      } catch (e) {}
+    }
+    
+    browser = await puppeteer.launch(launchOptions);
     page = await browser.newPage();
     await page.setUserAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
     
-    // Augmenter les timeouts
     page.setDefaultTimeout(60000);
     page.setDefaultNavigationTimeout(60000);
   }
@@ -86,34 +104,44 @@ async function casLogin() {
   try {
     console.log('🚀 Début authentification CAS...');
     
-    // 1) Aller directement sur la page de login CAS
-    const loginUrl = 'https://auth.uness.fr/cas/login?service=https://livret.uness.fr/lisa/';
-    console.log(`📍 Navigation vers: ${loginUrl}`);
-    await page.goto(loginUrl, { waitUntil: 'domcontentloaded', timeout: 60000 });
+    // 1) Visiter une page protégée pour déclencher la redirection CAS
+    console.log('📍 Visite page protégée...');
+    await page.goto('https://livret.uness.fr/lisa/2025/', { 
+      waitUntil: 'networkidle0', 
+      timeout: 60000 
+    });
     
-    await sleep(2000); // Laisser le temps à la page de se charger
+    await sleep(3000);
     
-    const currentUrl = page.url();
-    console.log(`📍 URL après navigation: ${currentUrl}`);
+    let currentUrl = page.url();
+    console.log(`📍 URL après redirection: ${currentUrl}`);
     
-    // Vérifier si déjà authentifié (redirection directe)
+    // Si déjà sur livret.uness.fr, on est authentifié
     if (currentUrl.includes('livret.uness.fr')) {
       console.log('✅ Déjà authentifié');
       return;
     }
+    
+    // 2) Si on est sur auth.uness.fr, remplir le formulaire
+    if (!currentUrl.includes('auth.uness.fr')) {
+      throw new Error(`Redirection inattendue vers: ${currentUrl}`);
+    }
 
-    // 2) Debug: lister tous les champs disponibles
-    const inputFields = await page.evaluate(() => {
+    console.log('🔍 Analyse du formulaire CAS...');
+    
+    // Attendre que le formulaire soit chargé
+    await page.waitForSelector('form', { timeout: 30000 });
+    
+    // Debug: capturer le contenu de la page
+    const pageContent = await page.evaluate(() => {
+      const form = document.querySelector('form');
       const inputs = Array.from(document.querySelectorAll('input'));
-      return inputs.map(input => ({
-        name: input.name,
-        type: input.type,
-        id: input.id,
-        placeholder: input.placeholder,
-        className: input.className
-      }));
+      return {
+        formAction: form ? form.action : 'no form',
+        inputs: inputs.map(i => ({ name: i.name, type: i.type, id: i.id }))
+      };
     });
-    console.log('🔍 Champs disponibles:', JSON.stringify(inputFields, null, 2));
+    console.log('📋 Formulaire détecté:', JSON.stringify(pageContent, null, 2));
 
     // 3) Essayer différents sélecteurs pour username
     let usernameField = null;
