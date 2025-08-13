@@ -40,7 +40,7 @@ jobs:
       - name: Install dependencies
         run: |
           npm ci || npm i
-          npm i @supabase/supabase-js axios tough-cookie axios-cookiejar-support p-limit html-to-text
+          npm i @supabase/supabase-js axios puppeteer p-limit html-to-text
 
       - name: Run completion by URL
         run: |

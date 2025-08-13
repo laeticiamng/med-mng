@@ -11,8 +11,7 @@
 
 import { createClient } from '@supabase/supabase-js';
 import axios from 'axios';
-import { wrapper } from 'axios-cookiejar-support';
-import { CookieJar } from 'tough-cookie';
+import puppeteer from 'puppeteer';
 import pLimit from 'p-limit';
 import crypto from 'node:crypto';
 import { htmlToText } from 'html-to-text';
@@ -43,80 +42,82 @@ const BATCH = parseInt(arg('batch', '400'), 10);
 const MIN_CHARS = parseInt(arg('minChars', '200'), 10);
 const CONCURRENCY = parseInt(arg('concurrency', '6'), 10);
 
-// ---- HTTP client avec CookieJar (session CAS)
-const jar = new CookieJar();
-const http = wrapper(axios.create({
-  jar,
+// ---- HTTP client et browser Puppeteer
+let browser = null;
+let page = null;
+const http = axios.create({
   timeout: 20000,
   maxRedirects: 5,
   validateStatus: () => true
-}));
+});
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const hash = s => crypto.createHash('sha256').update(s || '').digest('hex');
 
-// ==== AUTH CAS/OAUTH2 ====
-// On reproduit le déroulé observé dans le log: visite d'une page protégée, puis formulaire CAS.
+// ==== AUTH CAS/OAUTH2 avec Puppeteer ====
 async function casLogin() {
-  // Étape 0: aller sur une page protégée LiSA pour déclencher la redirection CAS
-  // (exactement comme dans le log: catégorie OIC)
-  const protectedUrl = 'https://livret.uness.fr/lisa/2025/Cat%C3%A9gorie:Objectif_de_connaissance';
-  let res = await http.get(protectedUrl);
-  // On devrait être redirigé(e) vers auth.uness.fr (OAuth2 CAS)
-  // Selon config, l'URL peut contenir des params client_name=CasOAuthClient etc.
-  // Si on est déjà authentifié, on sera peut-être déjà 200 sur livret.uness.fr
-  if (res.status === 200 && res.request?.res?.responseUrl?.includes('livret.uness.fr')) {
-    return; // déjà en session
+  if (!browser) {
+    browser = await puppeteer.launch({ 
+      headless: 'new',
+      args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+    });
+    page = await browser.newPage();
+    await page.setUserAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
   }
 
-  // S'il reste un formulaire CAS, on va l'envoyer.
-  // 1) GET page de login (l'URL actuelle de redirection)
-  const loginUrl = res.request?.res?.responseUrl || res.headers?.location || res.config?.url;
-  if (!loginUrl) return;
+  try {
+    // 1) Aller sur une page protégée pour déclencher l'auth CAS
+    const protectedUrl = 'https://livret.uness.fr/lisa/2025/Cat%C3%A9gorie:Objectif_de_connaissance';
+    await page.goto(protectedUrl, { waitUntil: 'networkidle2', timeout: 30000 });
 
-  // charge le formulaire CAS
-  res = await http.get(loginUrl);
-  if (res.status >= 300 && res.status < 400 && res.headers.location) {
-    // suivre redirection éventuelle
-    res = await http.get(res.headers.location);
-  }
+    // Vérifier si déjà authentifié
+    const currentUrl = page.url();
+    if (currentUrl.includes('livret.uness.fr')) {
+      console.log('✅ Déjà authentifié');
+      return;
+    }
 
-  // Chercher les champs 'lt' / 'execution' si présents
-  const body = res.data || '';
-  const hidden = {};
-  for (const name of ['lt', 'execution', '_eventId', 'csrf_token']) {
-    const m = body.match(new RegExp(`name=["']${name}["']\\s+value=["']([^"']+)["']`, 'i'));
-    if (m) hidden[name] = m[1];
-  }
+    // 2) Attendre et remplir le formulaire CAS
+    await page.waitForSelector('input[name="username"], input[name="email"]', { timeout: 15000 });
+    
+    // Remplir les champs de connexion
+    const usernameField = await page.$('input[name="username"]') || await page.$('input[name="email"]');
+    if (usernameField) {
+      await usernameField.type(CAS_USERNAME);
+    }
 
-  // 2) POST identifiants CAS
-  const form = new URLSearchParams({
-    username: CAS_USERNAME,
-    email: CAS_USERNAME,
-    password: CAS_PASSWORD,
-    ...hidden,
-    _eventId: hidden._eventId || 'submit',
-    submit: 'LOGIN'
-  });
+    const passwordField = await page.$('input[name="password"]');
+    if (passwordField) {
+      await passwordField.type(CAS_PASSWORD);
+    }
 
-  // Normalement, cette POST renvoie une redirection OAuth2 en chaîne
-  const postRes = await http.post(res.request?.res?.responseUrl || loginUrl, form.toString(), {
-    headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
-  });
+    // 3) Soumettre le formulaire
+    const submitButton = await page.$('input[type="submit"], button[type="submit"], input[value*="LOGIN"], button:contains("LOGIN")') || 
+                         await page.$('input[name="submit"], button[name="submit"]');
+    
+    if (submitButton) {
+      await Promise.all([
+        page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 30000 }),
+        submitButton.click()
+      ]);
+    }
 
-  // Suivre les redirections jusqu'à retour sur livret.uness.fr
-  // axios suit déjà `maxRedirects`, mais on vérifie l'URL finale
-  let finalUrl = postRes.request?.res?.responseUrl || postRes.headers?.location;
-  if (finalUrl && !String(finalUrl).includes('livret.uness.fr')) {
-    // tenter de GET la location finale
-    const follow = await http.get(finalUrl);
-    finalUrl = follow.request?.res?.responseUrl || follow.headers?.location || finalUrl;
-  }
+    // 4) Attendre le retour sur LiSA après les redirections OAuth2
+    let attempts = 0;
+    while (attempts < 10) {
+      const url = page.url();
+      if (url.includes('livret.uness.fr')) {
+        console.log('✅ Authentification CAS réussie');
+        return;
+      }
+      await page.waitForTimeout(2000);
+      attempts++;
+    }
 
-  // Vérifier que l'on peut (re)visiter une page LiSA en 200 authentifié
-  const check = await http.get(protectedUrl);
-  if (check.status !== 200) {
-    throw new Error(`CAS login seems incomplete (status=${check.status})`);
+    throw new Error('Authentification CAS échouée - pas de retour sur livret.uness.fr');
+  } catch (error) {
+    console.error('Erreur authentification CAS:', error.message);
+    throw error;
   }
 }
 
@@ -137,34 +138,31 @@ function extractTitleFromUrl(url) {
 }
 
 async function fetchTextFromApi(url) {
-  // priorité API par titre (plus simple que par pageid quand on part d'un url_source)
   const title = extractTitleFromUrl(url);
   if (!title) return { status: 0, error: 'cannot_extract_title' };
 
-  const apiUrl = 'https://livret.uness.fr/lisa/api.php';
-  // on suit la config du log: revisions rvslots=main, formatversion=2
-  const params = new URLSearchParams({
-    action: 'query',
-    prop: 'revisions',
-    rvprop: 'content|ids|timestamp',
-    rvslots: 'main',
-    format: 'json',
-    formatversion: '2',
-    titles: title
-  });
-
+  // Utiliser Puppeteer pour l'API (session partagée)
   for (let i = 0; i < 3; i++) {
     try {
-      const res = await http.get(`${apiUrl}?${params.toString()}`);
-      if (res.status === 401 || res.status === 403) {
+      const apiUrl = `https://livret.uness.fr/lisa/api.php?action=query&prop=revisions&rvprop=content|ids|timestamp&rvslots=main&format=json&formatversion=2&titles=${encodeURIComponent(title)}`;
+      
+      const response = await page.evaluate(async (url) => {
+        const res = await fetch(url);
+        return {
+          status: res.status,
+          data: await res.json()
+        };
+      }, apiUrl);
+
+      if (response.status === 401 || response.status === 403) {
         await casLogin();
         continue;
       }
-      if (res.status !== 200) return { status: res.status };
-      const pages = res.data?.query?.pages || [];
+      if (response.status !== 200) return { status: response.status };
+
+      const pages = response.data?.query?.pages || [];
       if (!pages.length) return { status: 200, text: '' };
 
-      // Wikitext du slot main
       const rev = pages[0]?.revisions?.[0];
       const wikitext = rev?.slots?.main?.content || '';
       return { status: 200, text: wikitext };
@@ -273,6 +271,15 @@ async function run() {
   })));
 
   console.log(`🟢 updated=${updated} | 🟡 skipped_empty=${skippedEmpty} | 🔴 skipped_error=${skippedError}`);
+  
+  // Fermer le browser Puppeteer
+  if (browser) {
+    await browser.close();
+  }
 }
 
-run().catch(e => { console.error(e); process.exit(1); });
+run().catch(async (e) => { 
+  console.error(e); 
+  if (browser) await browser.close();
+  process.exit(1); 
+});
