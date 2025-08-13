@@ -59,7 +59,7 @@ async function casLogin() {
   if (!browser) {
     browser = await puppeteer.launch({ 
       headless: 'new',
-      executablePath: '/usr/bin/google-chrome', // Utiliser Chrome système
+      executablePath: '/usr/bin/google-chrome',
       args: [
         '--no-sandbox', 
         '--disable-setuid-sandbox', 
@@ -70,82 +70,174 @@ async function casLogin() {
         '--single-process',
         '--disable-background-timer-throttling',
         '--disable-backgrounding-occluded-windows',
-        '--disable-renderer-backgrounding'
+        '--disable-renderer-backgrounding',
+        '--disable-web-security',
+        '--disable-features=VizDisplayCompositor'
       ]
     });
     page = await browser.newPage();
     await page.setUserAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+    
+    // Augmenter les timeouts
+    page.setDefaultTimeout(60000);
+    page.setDefaultNavigationTimeout(60000);
   }
 
   try {
-    // 1) Aller sur une page protégée pour déclencher l'auth CAS
-    const protectedUrl = 'https://livret.uness.fr/lisa/2025/Cat%C3%A9gorie:Objectif_de_connaissance';
-    await page.goto(protectedUrl, { waitUntil: 'networkidle2', timeout: 30000 });
-
-    // Vérifier si déjà authentifié
+    console.log('🚀 Début authentification CAS...');
+    
+    // 1) Aller directement sur la page de login CAS
+    const loginUrl = 'https://auth.uness.fr/cas/login?service=https://livret.uness.fr/lisa/';
+    console.log(`📍 Navigation vers: ${loginUrl}`);
+    await page.goto(loginUrl, { waitUntil: 'domcontentloaded', timeout: 60000 });
+    
+    await sleep(2000); // Laisser le temps à la page de se charger
+    
     const currentUrl = page.url();
+    console.log(`📍 URL après navigation: ${currentUrl}`);
+    
+    // Vérifier si déjà authentifié (redirection directe)
     if (currentUrl.includes('livret.uness.fr')) {
       console.log('✅ Déjà authentifié');
       return;
     }
 
-    // 2) Attendre et remplir le formulaire CAS
-    try {
-      await page.waitForSelector('input[name="username"], input[name="email"]', { timeout: 15000 });
-    } catch (e) {
-      console.log('Aucun formulaire de connexion trouvé - peut-être déjà authentifié');
-      return;
+    // 2) Debug: lister tous les champs disponibles
+    const inputFields = await page.evaluate(() => {
+      const inputs = Array.from(document.querySelectorAll('input'));
+      return inputs.map(input => ({
+        name: input.name,
+        type: input.type,
+        id: input.id,
+        placeholder: input.placeholder,
+        className: input.className
+      }));
+    });
+    console.log('🔍 Champs disponibles:', JSON.stringify(inputFields, null, 2));
+
+    // 3) Essayer différents sélecteurs pour username
+    let usernameField = null;
+    const usernameSelectors = [
+      'input[name="username"]',
+      'input[name="email"]', 
+      'input[type="email"]',
+      'input[id="username"]',
+      'input[id="email"]',
+      '#j_username',
+      'input[name="j_username"]'
+    ];
+    
+    for (const selector of usernameSelectors) {
+      try {
+        usernameField = await page.$(selector);
+        if (usernameField) {
+          console.log(`✅ Champ username trouvé avec: ${selector}`);
+          break;
+        }
+      } catch (e) {}
+    }
+
+    // 4) Essayer différents sélecteurs pour password
+    let passwordField = null;
+    const passwordSelectors = [
+      'input[name="password"]',
+      'input[type="password"]',
+      'input[id="password"]',
+      '#j_password',
+      'input[name="j_password"]'
+    ];
+    
+    for (const selector of passwordSelectors) {
+      try {
+        passwordField = await page.$(selector);
+        if (passwordField) {
+          console.log(`✅ Champ password trouvé avec: ${selector}`);
+          break;
+        }
+      } catch (e) {}
+    }
+
+    if (!usernameField || !passwordField) {
+      throw new Error(`Champs manquants - username: ${!!usernameField}, password: ${!!passwordField}`);
+    }
+
+    // 5) Remplir les champs
+    console.log('📝 Remplissage des champs...');
+    await usernameField.click({ clickCount: 3 });
+    await usernameField.type(CAS_USERNAME, { delay: 100 });
+    
+    await passwordField.click({ clickCount: 3 });
+    await passwordField.type(CAS_PASSWORD, { delay: 100 });
+
+    // 6) Soumettre le formulaire
+    console.log('🔑 Soumission du formulaire...');
+    
+    // Essayer différents boutons de soumission
+    const submitSelectors = [
+      'input[type="submit"]',
+      'button[type="submit"]',
+      'input[name="submit"]',
+      'button[name="submit"]',
+      'input[value*="LOGIN"]',
+      'input[value*="Login"]',
+      'input[value*="Se connecter"]',
+      'button[name="submit"]'
+    ];
+    
+    let submitted = false;
+    for (const selector of submitSelectors) {
+      try {
+        const submitButton = await page.$(selector);
+        if (submitButton) {
+          console.log(`🎯 Bouton submit trouvé: ${selector}`);
+          await submitButton.click();
+          submitted = true;
+          break;
+        }
+      } catch (e) {}
     }
     
-    // Remplir les champs de connexion
-    const usernameField = await page.$('input[name="username"]') || await page.$('input[name="email"]');
-    if (usernameField) {
-      await usernameField.click({ clickCount: 3 }); // Sélectionner tout
-      await usernameField.type(CAS_USERNAME);
+    if (!submitted) {
+      console.log('⚡ Fallback: Enter sur le champ password');
+      await passwordField.press('Enter');
     }
 
-    const passwordField = await page.$('input[name="password"]');
-    if (passwordField) {
-      await passwordField.click({ clickCount: 3 }); // Sélectionner tout
-      await passwordField.type(CAS_PASSWORD);
-    }
-
-    // 3) Soumettre le formulaire - approche simplifiée
-    console.log('🔑 Soumission du formulaire CAS...');
-    
-    // Essayer de cliquer sur un bouton submit
-    try {
-      const submitButton = await page.$('input[type="submit"], button[type="submit"], input[value*="LOGIN"], input[name="submit"], button[name="submit"]');
-      if (submitButton) {
-        await submitButton.click();
-      } else {
-        // Fallback: appuyer sur Enter
-        await passwordField.press('Enter');
-      }
-      
-      // Attendre la navigation
-      await page.waitForNavigation({ waitUntil: 'networkidle0', timeout: 30000 });
-    } catch (navError) {
-      console.log('Navigation timeout, mais continuons...');
-    }
-
-    // 4) Attendre le retour sur LiSA après les redirections OAuth2
+    // 7) Attendre les redirections avec plus de patience
+    console.log('⏳ Attente des redirections OAuth2...');
     let attempts = 0;
-    while (attempts < 15) { // Augmenté de 10 à 15
+    const maxAttempts = 30; // 60 secondes total
+    
+    while (attempts < maxAttempts) {
+      await sleep(2000);
       const url = page.url();
-      console.log(`🔍 URL actuelle (tentative ${attempts + 1}): ${url}`);
+      console.log(`🔍 URL actuelle (${attempts + 1}/${maxAttempts}): ${url}`);
+      
       if (url.includes('livret.uness.fr')) {
         console.log('✅ Authentification CAS réussie');
         return;
       }
-      await page.waitForTimeout(2000);
+      
+      // Vérifier si on est bloqué sur une page d'erreur
+      if (url.includes('error') || url.includes('denied')) {
+        throw new Error(`Erreur d'authentification détectée: ${url}`);
+      }
+      
       attempts++;
     }
 
-    throw new Error('Authentification CAS échouée - pas de retour sur livret.uness.fr après 30s');
+    throw new Error(`Authentification CAS échouée - timeout après ${maxAttempts * 2}s`);
+    
   } catch (error) {
     console.error('❌ Erreur authentification CAS:', error.message);
-    console.error('URL actuelle:', page ? page.url() : 'page non disponible');
+    
+    // Debug: capturer le HTML de la page courante
+    try {
+      const html = await page.content();
+      console.log('📄 HTML de la page (premiers 500 chars):', html.substring(0, 500));
+    } catch (e) {
+      console.log('Impossible de capturer le HTML');
+    }
+    
     throw error;
   }
 }
