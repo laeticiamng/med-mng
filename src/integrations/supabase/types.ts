@@ -5537,6 +5537,17 @@ export type Database = {
         }
         Relationships: []
       }
+      oic_completion_dashboard: {
+        Row: {
+          nb_empty: number | null
+          nb_error: number | null
+          nb_pending: number | null
+          nb_updated: number | null
+          pct_completed: number | null
+          total: number | null
+        }
+        Relationships: []
+      }
       secure_platform_stats: {
         Row: {
           metric: string | null
