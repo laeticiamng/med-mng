@@ -59,6 +59,7 @@ async function casLogin() {
   if (!browser) {
     browser = await puppeteer.launch({ 
       headless: 'new',
+      executablePath: '/usr/bin/google-chrome', // Utiliser Chrome système
       args: [
         '--no-sandbox', 
         '--disable-setuid-sandbox', 
@@ -66,7 +67,10 @@ async function casLogin() {
         '--disable-gpu',
         '--no-first-run',
         '--no-zygote',
-        '--single-process'
+        '--single-process',
+        '--disable-background-timer-throttling',
+        '--disable-backgrounding-occluded-windows',
+        '--disable-renderer-backgrounding'
       ]
     });
     page = await browser.newPage();
