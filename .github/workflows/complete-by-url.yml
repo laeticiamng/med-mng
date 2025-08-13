@@ -44,7 +44,7 @@ jobs:
 
       - name: Run completion by URL
         run: |
-          node .github/scripts/complete-by-url.cjs \
+          node .github/scripts/complete-by-url.mjs \
             --batch "${{ github.event.inputs.batch_size || '400' }}" \
             --minChars "${{ github.event.inputs.min_chars || '200' }}" \
             --concurrency "${{ github.event.inputs.concurrency || '6' }}"
