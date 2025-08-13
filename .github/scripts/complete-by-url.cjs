@@ -3,19 +3,21 @@
 // extrait un texte propre et met à jour 'description' si le contenu est substantiel.
 // Traçabilité via completion_status / codes HTTP / erreurs / hash.
 
-import { createClient } from '@supabase/supabase-js';
-import axios from 'axios';
-import { wrapper } from 'axios-cookiejar-support';
-import { CookieJar } from 'tough-cookie';
-import pLimit from 'p-limit';
-import crypto from 'node:crypto';
-import { htmlToText } from 'html-to-text';
+const { createClient } = require('@supabase/supabase-js');
+const axios = require('axios');
+const { wrapper } = require('axios-cookiejar-support');
+const { CookieJar } = require('tough-cookie');
+const pLimit = require('p-limit');
+const crypto = require('crypto');
+const { htmlToText } = require('html-to-text');
 
 // Authentification CAS réutilisée du projet
 let casLogin;
 try {
-  ({ casLogin } = await import('../../oic-scripts/cas-login.cjs').catch(() => ({})));
-} catch (_) { /* noop */ }
+  ({ casLogin } = require('../../oic-scripts/cas-login.cjs'));
+} catch (_) { 
+  console.log('⚠️ CAS module not found, using fallback auth'); 
+}
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
