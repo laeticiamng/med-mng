@@ -496,6 +496,10 @@ export type Database = {
       }
       backup_oic_competences: {
         Row: {
+          completion_last_error: string | null
+          completion_last_http: number | null
+          completion_status: string | null
+          completion_updated_at: string | null
           created_at: string | null
           date_import: string | null
           description: string | null
@@ -508,10 +512,15 @@ export type Database = {
           rang: string | null
           raw_json: Json | null
           rubrique: string | null
+          source_etag: string | null
           updated_at: string | null
           url_source: string | null
         }
         Insert: {
+          completion_last_error?: string | null
+          completion_last_http?: number | null
+          completion_status?: string | null
+          completion_updated_at?: string | null
           created_at?: string | null
           date_import?: string | null
           description?: string | null
@@ -524,10 +533,15 @@ export type Database = {
           rang?: string | null
           raw_json?: Json | null
           rubrique?: string | null
+          source_etag?: string | null
           updated_at?: string | null
           url_source?: string | null
         }
         Update: {
+          completion_last_error?: string | null
+          completion_last_http?: number | null
+          completion_status?: string | null
+          completion_updated_at?: string | null
           created_at?: string | null
           date_import?: string | null
           description?: string | null
@@ -540,6 +554,7 @@ export type Database = {
           rang?: string | null
           raw_json?: Json | null
           rubrique?: string | null
+          source_etag?: string | null
           updated_at?: string | null
           url_source?: string | null
         }

@@ -1,0 +1,50 @@
+name: Completer OIC depuis LiSA (URL par URL)
+
+on:
+  workflow_dispatch:
+    inputs:
+      batch_size:
+        description: "Nombre d'items par lot"
+        required: false
+        default: "400"
+      min_chars:
+        description: "Seuil de contenu substantiel (caractères)"
+        required: false
+        default: "200"
+      concurrency:
+        description: "Nb de requêtes concurrentes LiSA"
+        required: false
+        default: "6"
+
+jobs:
+  complete:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      CAS_USERNAME: ${{ secrets.CAS_USERNAME }}
+      CAS_PASSWORD: ${{ secrets.CAS_PASSWORD }}
+      NODE_OPTIONS: "--max_old_space_size=4096"
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: |
+          npm ci || npm i
+          npm i @supabase/supabase-js axios tough-cookie axios-cookiejar-support p-limit html-to-text
+
+      - name: Run completion by URL
+        run: |
+          node .github/scripts/complete-by-url.cjs \
+            --batch "${{ github.event.inputs.batch_size || '400' }}" \
+            --minChars "${{ github.event.inputs.min_chars || '200' }}" \
+            --concurrency "${{ github.event.inputs.concurrency || '6' }}"
