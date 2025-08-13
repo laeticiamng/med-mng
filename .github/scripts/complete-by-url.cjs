@@ -1,124 +1,173 @@
 // .github/scripts/complete-by-url.cjs
-// Parcourt les OIC à compléter, ouvre chaque url_source LiSA,
-// extrait un texte propre et met à jour 'description' si le contenu est substantiel.
-// Traçabilité via completion_status / codes HTTP / erreurs / hash.
+// Complète les OIC existantes à partir de url_source (LiSA).
+// Authentification CAS/OAuth2 "comme dans le log":
+//  1) visite d'une page protégée -> redirection vers auth.uness.fr
+//  2) saisie email + mdp (+ champs hidden: lt/execution si présents)
+//  3) suivi des redirections jusqu'au retour sur livret.uness.fr
+//  4) cookies conservés dans un CookieJar
+//
+// Ensuite: priorité à l'API MediaWiki (prop=revisions, rvslots=main, formatversion=2).
+// Si vide/non substantiel -> pas d'update; consigne completion_status + logs en base.
 
-const { createClient } = require('@supabase/supabase-js');
-const axios = require('axios');
-const { wrapper } = require('axios-cookiejar-support');
-const { CookieJar } = require('tough-cookie');
-const pLimit = require('p-limit');
-const crypto = require('crypto');
-const { htmlToText } = require('html-to-text');
-
-// Authentification CAS réutilisée du projet
-let casLogin;
-try {
-  const casModule = require('../../oic-scripts/cas-login.cjs');
-  casLogin = casModule.casLogin;
-  console.log('✅ CAS module loaded successfully');
-} catch (error) { 
-  console.log('⚠️ CAS module not found, using fallback auth. Error:', error.message); 
-  casLogin = null;
-}
+import { createClient } from '@supabase/supabase-js';
+import axios from 'axios';
+import { wrapper } from 'axios-cookiejar-support';
+import { CookieJar } from 'tough-cookie';
+import pLimit from 'p-limit';
+import crypto from 'node:crypto';
+import { htmlToText } from 'html-to-text';
 
 const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const CAS_USERNAME = process.env.CAS_USERNAME;
+const CAS_PASSWORD = process.env.CAS_PASSWORD;
+
 if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
   console.error('Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY');
+  process.exit(1);
+}
+if (!CAS_USERNAME || !CAS_PASSWORD) {
+  console.error('Missing CAS_USERNAME or CAS_PASSWORD');
   process.exit(1);
 }
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } });
 
+// ---- CLI args
 const argv = process.argv.slice(2);
 const arg = (name, def) => {
-  const i = argv.findIndex(a => a === `--${name}`);
+  const i = argv.indexOf(`--${name}`);
   return i >= 0 ? argv[i+1] : def;
 };
 const BATCH = parseInt(arg('batch', '400'), 10);
 const MIN_CHARS = parseInt(arg('minChars', '200'), 10);
 const CONCURRENCY = parseInt(arg('concurrency', '6'), 10);
 
+// ---- HTTP client avec CookieJar (session CAS)
 const jar = new CookieJar();
 const http = wrapper(axios.create({
   jar,
   timeout: 20000,
   maxRedirects: 5,
-  // on évite les throw sur HTTP non-200 : on gère nous-mêmes
   validateStatus: () => true
 }));
 
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const hash = s => crypto.createHash('sha256').update(s || '').digest('hex');
 
-// Fallback casLogin basique si non fourni par le repo
-async function fallbackCasLogin() {
-  console.log('⚠️ CAS login function not found, attempting basic auth...');
-  const casUrl = 'https://cas.uness.fr/cas/login';
-  const username = process.env.CAS_USERNAME;
-  const password = process.env.CAS_PASSWORD;
-  
-  if (!username || !password) {
-    console.warn('CAS credentials missing');
-    return;
+// ==== AUTH CAS/OAUTH2 ====
+// On reproduit le déroulé observé dans le log: visite d'une page protégée, puis formulaire CAS.
+async function casLogin() {
+  // Étape 0: aller sur une page protégée LiSA pour déclencher la redirection CAS
+  // (exactement comme dans le log: catégorie OIC)
+  const protectedUrl = 'https://livret.uness.fr/lisa/2025/Cat%C3%A9gorie:Objectif_de_connaissance';
+  let res = await http.get(protectedUrl);
+  // On devrait être redirigé(e) vers auth.uness.fr (OAuth2 CAS)
+  // Selon config, l'URL peut contenir des params client_name=CasOAuthClient etc.
+  // Si on est déjà authentifié, on sera peut-être déjà 200 sur livret.uness.fr
+  if (res.status === 200 && res.request?.res?.responseUrl?.includes('livret.uness.fr')) {
+    return; // déjà en session
   }
 
-  try {
-    // Basic CAS authentication
-    const loginPage = await http.get(casUrl);
-    const ltMatch = loginPage.data.match(/name="lt" value="([^"]+)"/);
-    const executionMatch = loginPage.data.match(/name="execution" value="([^"]+)"/);
-    
-    if (ltMatch && executionMatch) {
-      await http.post(casUrl, {
-        username,
-        password,
-        lt: ltMatch[1],
-        execution: executionMatch[1],
-        _eventId: 'submit'
-      });
-      console.log('✅ CAS authentication completed');
-    }
-  } catch (e) {
-    console.warn('CAS auth failed:', e.message);
+  // S'il reste un formulaire CAS, on va l'envoyer.
+  // 1) GET page de login (l'URL actuelle de redirection)
+  const loginUrl = res.request?.res?.responseUrl || res.headers?.location || res.config?.url;
+  if (!loginUrl) return;
+
+  // charge le formulaire CAS
+  res = await http.get(loginUrl);
+  if (res.status >= 300 && res.status < 400 && res.headers.location) {
+    // suivre redirection éventuelle
+    res = await http.get(res.headers.location);
+  }
+
+  // Chercher les champs 'lt' / 'execution' si présents
+  const body = res.data || '';
+  const hidden = {};
+  for (const name of ['lt', 'execution', '_eventId', 'csrf_token']) {
+    const m = body.match(new RegExp(`name=["']${name}["']\\s+value=["']([^"']+)["']`, 'i'));
+    if (m) hidden[name] = m[1];
+  }
+
+  // 2) POST identifiants CAS
+  const form = new URLSearchParams({
+    username: CAS_USERNAME,
+    email: CAS_USERNAME,
+    password: CAS_PASSWORD,
+    ...hidden,
+    _eventId: hidden._eventId || 'submit',
+    submit: 'LOGIN'
+  });
+
+  // Normalement, cette POST renvoie une redirection OAuth2 en chaîne
+  const postRes = await http.post(res.request?.res?.responseUrl || loginUrl, form.toString(), {
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' }
+  });
+
+  // Suivre les redirections jusqu'à retour sur livret.uness.fr
+  // axios suit déjà `maxRedirects`, mais on vérifie l'URL finale
+  let finalUrl = postRes.request?.res?.responseUrl || postRes.headers?.location;
+  if (finalUrl && !String(finalUrl).includes('livret.uness.fr')) {
+    // tenter de GET la location finale
+    const follow = await http.get(finalUrl);
+    finalUrl = follow.request?.res?.responseUrl || follow.headers?.location || finalUrl;
+  }
+
+  // Vérifier que l'on peut (re)visiter une page LiSA en 200 authentifié
+  const check = await http.get(protectedUrl);
+  if (check.status !== 200) {
+    throw new Error(`CAS login seems incomplete (status=${check.status})`);
   }
 }
 
-async function ensureCas() {
+// ==== MEDIAWIKI API ====
+// Extraction via API (fidèle à la technique du log: prop=revisions, rvslots=main, formatversion=2)
+function extractTitleFromUrl(url) {
   try {
-    if (typeof casLogin === 'function') {
-      console.log('🔐 Utilisation du module CAS principal...');
-      await casLogin({ http, jar });
-    } else {
-      console.log('🔐 Utilisation du fallback CAS...');
-      await fallbackCasLogin();
-    }
-  } catch (error) {
-    console.warn('⚠️ Erreur lors de l\'authentification CAS:', error.message);
-    // Continue sans bloquer le processus
+    // Partie après /lisa/2025/…; utiliser le segment/chemin complet encodé
+    const idx = url.indexOf('/lisa/');
+    if (idx < 0) return null;
+    // on prend tout après /lisa/ (l'API accepte "titles" encodés)
+    const path = url.slice(idx + 6); // "2025/Connaître_..."
+    // L'API "titles" attend un titre MediaWiki (remplacer les espaces par underscores si besoin)
+    return decodeURIComponent(path).replace(/^2025\//, '');
+  } catch {
+    return null;
   }
 }
 
-async function fetchText(url) {
+async function fetchTextFromApi(url) {
+  // priorité API par titre (plus simple que par pageid quand on part d'un url_source)
+  const title = extractTitleFromUrl(url);
+  if (!title) return { status: 0, error: 'cannot_extract_title' };
+
+  const apiUrl = 'https://livret.uness.fr/lisa/api.php';
+  // on suit la config du log: revisions rvslots=main, formatversion=2
+  const params = new URLSearchParams({
+    action: 'query',
+    prop: 'revisions',
+    rvprop: 'content|ids|timestamp',
+    rvslots: 'main',
+    format: 'json',
+    formatversion: '2',
+    titles: title
+  });
+
   for (let i = 0; i < 3; i++) {
     try {
-      const res = await http.get(url);
+      const res = await http.get(`${apiUrl}?${params.toString()}`);
       if (res.status === 401 || res.status === 403) {
-        // besoin de session CAS
-        await ensureCas();
+        await casLogin();
         continue;
       }
       if (res.status !== 200) return { status: res.status };
-      const text = htmlToText(res.data, {
-        wordwrap: 0,
-        selectors: [
-          { selector: 'script, style, nav, footer', format: 'skip' },
-          { selector: 'th', format: 'skip' },
-          { selector: 'td', format: 'block' }
-        ]
-      }).trim();
-      return { status: 200, text };
+      const pages = res.data?.query?.pages || [];
+      if (!pages.length) return { status: 200, text: '' };
+
+      // Wikitext du slot main
+      const rev = pages[0]?.revisions?.[0];
+      const wikitext = rev?.slots?.main?.content || '';
+      return { status: 200, text: wikitext };
     } catch (e) {
       if (i < 2) await sleep(1000 * (i + 1));
       else return { status: 0, error: String(e) };
@@ -126,23 +175,15 @@ async function fetchText(url) {
   }
 }
 
-async function pickBatch() {
-  console.log(`🔍 Recherche de ${BATCH} items à compléter...`);
-  
-  // On cible : description absente/trop courte OU jamais traitée
-  const { data, error } = await supabase
-    .from('backup_oic_competences')
-    .select('objectif_id, url_source, description, source_etag')
-    .or(`description.is.null,description.eq.,char_length(description).lt.${MIN_CHARS},completion_status.is.null`)
-    .limit(BATCH);
-
-  if (error) {
-    console.error('❌ Erreur lors de la sélection:', error);
-    throw error;
-  }
-  
-  console.log(`📋 ${data?.length || 0} items trouvés`);
-  return data || [];
+// Nettoyage/validation: on convertit le wikitext → texte simple (on garde du contenu substantiel)
+function normalizeText(wikitext) {
+  if (!wikitext) return '';
+  // On retire la machinerie du template et on garde la Description principalement.
+  // Extraction naïve de "|Description=...": on coupe jusqu'à la fin du template / ou double saut de ligne
+  const descMatch = wikitext.match(/\|[Dd]escription\s*=\s*([\s\S]*?)(?:\n\||\n}})/);
+  const raw = (descMatch ? descMatch[1] : wikitext).trim();
+  const text = htmlToText(raw, { wordwrap: 0 }).trim();
+  return text;
 }
 
 async function mark(objId, patch) {
@@ -152,23 +193,29 @@ async function mark(objId, patch) {
     .eq('objectif_id', objId);
 }
 
+async function pickBatch(minChars) {
+  // On cible: description absente/trop courte, ou jamais traitée
+  const { data, error } = await supabase
+    .from('backup_oic_competences')
+    .select('objectif_id, url_source, description, source_etag')
+    .or(`description.is.null,description.eq.,char_length(description).lt.${minChars},completion_status.is.null`)
+    .limit(BATCH);
+
+  if (error) throw error;
+  return data || [];
+}
+
 async function run() {
-  console.log(`🚀 Démarrage complétion OIC - batch=${BATCH}, minChars=${MIN_CHARS}, concurrency=${CONCURRENCY}`);
-  
-  // Debug environment
-  console.log('Environment check:');
-  console.log('- SUPABASE_URL:', SUPABASE_URL ? '✅ Present' : '❌ Missing');
-  console.log('- SUPABASE_SERVICE_ROLE_KEY:', SUPABASE_SERVICE_ROLE_KEY ? '✅ Present' : '❌ Missing');
-  console.log('- CAS_USERNAME:', process.env.CAS_USERNAME ? '✅ Present' : '❌ Missing');
-  console.log('- CAS_PASSWORD:', process.env.CAS_PASSWORD ? '✅ Present' : '❌ Missing');
-  
-  const rows = await pickBatch();
+  // 1) S'assurer session CAS active (comme dans le log)
+  await casLogin();
+
+  // 2) Récupérer un lot d'items à compléter
+  const rows = await pickBatch(MIN_CHARS);
   if (!rows.length) {
     console.log('✅ Aucun item à compléter (lot vide).');
     return;
   }
 
-  console.log(`📝 ${rows.length} items à traiter`);
   const limit = pLimit(CONCURRENCY);
   let updated = 0, skippedEmpty = 0, skippedError = 0;
 
@@ -181,18 +228,19 @@ async function run() {
       return;
     }
 
-    const res = await fetchText(url);
-    if (res?.status !== 200) {
+    // 3) Contenu via API (avec session CAS prête)
+    const api = await fetchTextFromApi(url);
+    if (api?.status !== 200) {
       await mark(objId, {
         completion_status: 'skipped_error',
-        completion_last_http: res?.status || 0,
-        completion_last_error: res?.error || `HTTP ${res?.status}`
+        completion_last_http: api?.status || 0,
+        completion_last_error: api?.error || null
       });
       skippedError++;
       return;
     }
 
-    const text = res.text;
+    const text = normalizeText(api.text);
     const substantial = text && (text.length >= MIN_CHARS || /\n- |\n\d+\./.test(text));
     if (!substantial) {
       await mark(objId, { completion_status: 'skipped_empty', completion_last_http: 200 });
@@ -202,8 +250,7 @@ async function run() {
 
     const newHash = hash(text);
     if (newHash === row.source_etag) {
-      // Déjà à jour → rien à faire
-      return;
+      return; // déjà à jour
     }
 
     const { error: upErr } = await supabase
@@ -222,16 +269,10 @@ async function run() {
       skippedError++;
     } else {
       updated++;
-      console.log(`✅ ${objId} updated (${text.length} chars)`);
     }
   })));
 
-  console.log('\n📊 RÉSULTATS:');
   console.log(`🟢 updated=${updated} | 🟡 skipped_empty=${skippedEmpty} | 🔴 skipped_error=${skippedError}`);
-  console.log(`🎯 Taux de réussite: ${Math.round((updated / rows.length) * 100)}%`);
 }
 
-run().catch(e => { 
-  console.error('❌ Erreur:', e); 
-  process.exit(1); 
-});
+run().catch(e => { console.error(e); process.exit(1); });
