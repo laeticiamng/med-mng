@@ -194,11 +194,11 @@ async function mark(objId, patch) {
 }
 
 async function pickBatch(minChars) {
-  // On cible: description absente/trop courte, ou jamais traitée
+  // On cible: description absente ou jamais traitée (plus de filtre par longueur)
   const { data, error } = await supabase
     .from('backup_oic_competences')
     .select('objectif_id, url_source, description, source_etag')
-    .or(`description.is.null,description.eq.,char_length(description).lt.${minChars},completion_status.is.null`)
+    .or(`description.is.null,description.eq.,completion_status.is.null`)
     .limit(BATCH);
 
   if (error) throw error;
@@ -241,8 +241,8 @@ async function run() {
     }
 
     const text = normalizeText(api.text);
-    const substantial = text && (text.length >= MIN_CHARS || /\n- |\n\d+\./.test(text));
-    if (!substantial) {
+    // Prendre tout contenu non-vide, peu importe la longueur
+    if (!text || text.trim().length === 0) {
       await mark(objId, { completion_status: 'skipped_empty', completion_last_http: 200 });
       skippedEmpty++;
       return;
