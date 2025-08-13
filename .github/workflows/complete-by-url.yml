@@ -56,11 +56,16 @@ jobs:
           npm ci || npm i
           npm i @supabase/supabase-js axios puppeteer p-limit html-to-text
           
-      - name: Setup Chrome for Puppeteer
+      - name: Install Chrome for Puppeteer
         run: |
-          # Utiliser Chrome stable du système au lieu d'installer via Puppeteer
-          google-chrome --version || true
-          which google-chrome || true
+          sudo apt-get update
+          sudo apt-get install -y wget gnupg
+          wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+          echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
+          google-chrome --version
+          which google-chrome
 
       - name: Run completion by URL
         run: |

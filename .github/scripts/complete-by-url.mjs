@@ -57,46 +57,25 @@ const hash = s => crypto.createHash('sha256').update(s || '').digest('hex');
 // ==== AUTH CAS/OAUTH2 avec Puppeteer ====
 async function casLogin() {
   if (!browser) {
-    // Configuration Puppeteer pour GitHub Actions
-    const launchOptions = {
+    console.log('🚀 Initialisation de Puppeteer...');
+    
+    browser = await puppeteer.launch({
       headless: 'new',
+      executablePath: '/usr/bin/google-chrome',
       args: [
-        '--no-sandbox', 
-        '--disable-setuid-sandbox', 
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
         '--disable-dev-shm-usage',
         '--disable-gpu',
         '--no-first-run',
-        '--no-zygote',
-        '--single-process',
         '--disable-background-timer-throttling',
         '--disable-backgrounding-occluded-windows',
         '--disable-renderer-backgrounding'
       ]
-    };
+    });
     
-    // Essayer différents chemins pour Chrome
-    const chromePaths = [
-      '/usr/bin/google-chrome-stable',
-      '/usr/bin/google-chrome',
-      '/usr/bin/chromium-browser',
-      '/usr/bin/chromium'
-    ];
-    
-    for (const path of chromePaths) {
-      try {
-        const fs = await import('fs');
-        if (fs.existsSync(path)) {
-          launchOptions.executablePath = path;
-          console.log(`✅ Chrome trouvé: ${path}`);
-          break;
-        }
-      } catch (e) {}
-    }
-    
-    browser = await puppeteer.launch(launchOptions);
     page = await browser.newPage();
     await page.setUserAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
-    
     page.setDefaultTimeout(60000);
     page.setDefaultNavigationTimeout(60000);
   }
