@@ -117,14 +117,21 @@ async function fetchText(url) {
 }
 
 async function pickBatch() {
+  console.log(`🔍 Recherche de ${BATCH} items à compléter...`);
+  
   // On cible : description absente/trop courte OU jamais traitée
   const { data, error } = await supabase
     .from('backup_oic_competences')
     .select('objectif_id, url_source, description, source_etag')
-    .or('description.is.null,description.eq.,char_length(description).lt.' + MIN_CHARS + ',completion_status.is.null')
+    .or(`description.is.null,description.eq.,char_length(description).lt.${MIN_CHARS},completion_status.is.null`)
     .limit(BATCH);
 
-  if (error) throw error;
+  if (error) {
+    console.error('❌ Erreur lors de la sélection:', error);
+    throw error;
+  }
+  
+  console.log(`📋 ${data?.length || 0} items trouvés`);
   return data || [];
 }
 
