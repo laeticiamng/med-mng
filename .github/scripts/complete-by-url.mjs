@@ -96,33 +96,33 @@ async function casLogin() {
     // Remplir les champs de connexion
     const usernameField = await page.$('input[name="username"]') || await page.$('input[name="email"]');
     if (usernameField) {
-      await usernameField.clear();
+      await usernameField.click({ clickCount: 3 }); // Sélectionner tout
       await usernameField.type(CAS_USERNAME);
     }
 
     const passwordField = await page.$('input[name="password"]');
     if (passwordField) {
-      await passwordField.clear();
+      await passwordField.click({ clickCount: 3 }); // Sélectionner tout
       await passwordField.type(CAS_PASSWORD);
     }
 
-    // 3) Soumettre le formulaire
-    const submitButton = await page.$('input[type="submit"]') || 
-                         await page.$('button[type="submit"]') || 
-                         await page.$('input[value*="LOGIN"]') ||
-                         await page.$('input[name="submit"]') ||
-                         await page.$('button[name="submit"]');
+    // 3) Soumettre le formulaire - approche simplifiée
+    console.log('🔑 Soumission du formulaire CAS...');
     
-    if (submitButton) {
-      console.log('🔑 Soumission du formulaire CAS...');
-      await Promise.all([
-        page.waitForNavigation({ waitUntil: 'networkidle0', timeout: 30000 }),
-        submitButton.click()
-      ]);
-    } else {
-      // Fallback: soumettre le formulaire directement
-      await page.keyboard.press('Enter');
+    // Essayer de cliquer sur un bouton submit
+    try {
+      const submitButton = await page.$('input[type="submit"], button[type="submit"], input[value*="LOGIN"], input[name="submit"], button[name="submit"]');
+      if (submitButton) {
+        await submitButton.click();
+      } else {
+        // Fallback: appuyer sur Enter
+        await passwordField.press('Enter');
+      }
+      
+      // Attendre la navigation
       await page.waitForNavigation({ waitUntil: 'networkidle0', timeout: 30000 });
+    } catch (navError) {
+      console.log('Navigation timeout, mais continuons...');
     }
 
     // 4) Attendre le retour sur LiSA après les redirections OAuth2

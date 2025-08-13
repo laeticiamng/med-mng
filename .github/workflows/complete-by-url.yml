@@ -55,6 +55,9 @@ jobs:
         run: |
           npm ci || npm i
           npm i @supabase/supabase-js axios puppeteer p-limit html-to-text
+          
+      - name: Install Chromium for Puppeteer
+        run: npx puppeteer browsers install chrome
 
       - name: Run completion by URL
         run: |
