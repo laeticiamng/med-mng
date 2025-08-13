@@ -8,11 +8,11 @@ on:
         required: false
         default: "400"
       min_chars:
-        description: "Seuil de contenu substantiel (caractères)"
+        description: "Seuil contenu substantiel (caractères)"
         required: false
         default: "200"
       concurrency:
-        description: "Nb de requêtes concurrentes LiSA"
+        description: "Nb requêtes concurrentes LiSA"
         required: false
         default: "6"
 
@@ -35,38 +35,16 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          cache: "npm"
-
-      - name: Install system dependencies for Puppeteer
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            libnss3-dev \
-            libatk-bridge2.0-dev \
-            libdrm-dev \
-            libxcomposite-dev \
-            libxdamage-dev \
-            libxrandr-dev \
-            libgbm-dev \
-            libxss-dev \
-            libasound2-dev
+          cache: npm
 
       - name: Install dependencies
         run: |
           npm ci || npm i
-          npm i @supabase/supabase-js axios puppeteer p-limit html-to-text
-          
-      - name: Install Chrome for Puppeteer
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y wget gnupg
-          wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
-          echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
-          sudo apt-get update
-          sudo apt-get install -y google-chrome-stable
-          google-chrome --version
-          which google-chrome
+          npm i @supabase/supabase-js axios tough-cookie axios-cookiejar-support p-limit html-to-text
 
-      - name: Run completion via Edge Function
+      - name: Run completion by URL
         run: |
-          node .github/scripts/trigger-completion.mjs
+          node .github/scripts/complete-by-url.cjs \
+            --batch "${{ github.event.inputs.batch_size || '400' }}" \
+            --minChars "${{ github.event.inputs.min_chars || '200' }}" \
+            --concurrency "${{ github.event.inputs.concurrency || '6' }}"

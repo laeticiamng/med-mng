@@ -5541,9 +5541,7 @@ export type Database = {
         Row: {
           nb_empty: number | null
           nb_error: number | null
-          nb_pending: number | null
           nb_updated: number | null
-          pct_completed: number | null
           total: number | null
         }
         Relationships: []
