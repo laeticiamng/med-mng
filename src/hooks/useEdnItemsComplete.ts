@@ -31,6 +31,44 @@ export interface EdnItemComplete {
   updated_at: string;
 }
 
+// Hook pour charger seulement les données essentielles rapidement
+export const useEdnItemsEssentials = () => {
+  const [items, setItems] = useState<Partial<EdnItemComplete>[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchEssentials = async () => {
+      try {
+        setLoading(true);
+        const { data, error } = await supabase
+          .from('edn_items_complete')
+          .select(`
+            id,
+            item_code,
+            title,
+            slug,
+            completeness_score,
+            is_validated,
+            competences_count_total
+          `)
+          .order('item_code');
+
+        if (error) throw error;
+        setItems(data || []);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Une erreur est survenue');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEssentials();
+  }, []);
+
+  return { items, loading, error };
+};
+
 export const useEdnItemsComplete = () => {
   const [items, setItems] = useState<EdnItemComplete[]>([]);
   const [loading, setLoading] = useState(true);
@@ -39,9 +77,24 @@ export const useEdnItemsComplete = () => {
   const fetchItems = async () => {
     try {
       setLoading(true);
+      // Sélectionner uniquement les champs essentiels pour l'affichage initial
       const { data, error } = await supabase
         .from('edn_items_complete')
-        .select('*')
+        .select(`
+          id,
+          item_code,
+          title,
+          slug,
+          specialite,
+          completeness_score,
+          is_validated,
+          competences_count_total,
+          competences_count_rang_a,
+          competences_count_rang_b,
+          status,
+          created_at,
+          updated_at
+        `)
         .order('item_code');
 
       if (error) throw error;

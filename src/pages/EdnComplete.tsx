@@ -18,6 +18,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { AppleStyleItemModalFixed } from "@/components/edn/premium/AppleStyleItemModalFixed";
 import { EdnItemCard } from "@/components/edn/premium/EdnItemCard";
+import { EdnItemGridSkeleton } from "@/components/edn/EdnItemSkeleton";
 import { LyricsCompletionStatus } from "@/components/LyricsCompletionStatus";
 import { RevisionDashboard } from "@/components/revision/RevisionDashboard";
 import { QuotaIndicator } from "@/components/quota/QuotaIndicator";
@@ -27,6 +28,7 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { GenerateAllLyricsButton } from "@/components/edn/GenerateAllLyricsButton";
 import { LyricsGenerationManager } from "@/components/edn/LyricsGenerationManager";
 import { CompetencesUpdateChecker } from "@/components/edn/CompetencesUpdateChecker";
+import { useEdnItemsEssentials, useEdnItemsComplete } from "@/hooks/useEdnItemsComplete";
 
 interface EdnItem {
   id: string;
@@ -273,16 +275,38 @@ export default function EdnComplete() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/30 flex items-center justify-center">
-        <div className="text-center space-y-6 p-8">
-          <div className="relative">
-            <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto"></div>
-            <div className="absolute inset-0 w-16 h-16 border-4 border-transparent border-r-purple-400 rounded-full animate-spin mx-auto" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/30">
+        {/* Header skeleton */}
+        <div className="bg-white/70 backdrop-blur-xl border-b border-white/20 sticky top-0 z-40 shadow-sm">
+          <div className="container mx-auto px-8 py-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <Skeleton className="w-12 h-12 rounded-2xl" />
+                <div>
+                  <Skeleton className="h-8 w-48 mb-2" />
+                  <Skeleton className="h-4 w-64" />
+                </div>
+              </div>
+              <Skeleton className="w-64 h-10 rounded-xl" />
+            </div>
           </div>
-          <div className="space-y-2">
-            <h3 className="text-xl font-semibold text-slate-800">Chargement des items EDN...</h3>
-            <p className="text-slate-600">Optimisation en cours pour un affichage rapide</p>
+        </div>
+        
+        <div className="container mx-auto px-6 py-4">
+          {/* Controls skeleton */}
+          <div className="flex flex-col gap-3 mb-6">
+            <Skeleton className="h-10 w-full" />
+            <div className="flex gap-2 items-center justify-between">
+              <div className="flex gap-2">
+                <Skeleton className="h-10 w-32" />
+                <Skeleton className="h-10 w-32" />
+              </div>
+              <Skeleton className="h-10 w-20" />
+            </div>
           </div>
+          
+          {/* Grid skeleton */}
+          <EdnItemGridSkeleton count={12} />
         </div>
       </div>
     );
