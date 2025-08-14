@@ -29,8 +29,7 @@ export function useSystemStatus(options?: { silent?: boolean }) {
     try {
       // Utiliser directement le client Supabase au lieu d'appels HTTP manuels
       const { data: statusData, error: statusError } = await supabase.functions.invoke('med-mng-api', {
-        body: { path: '/status' },
-        method: 'GET'
+        body: { path: '/status' }
       });
 
       if (statusError) {
@@ -51,8 +50,7 @@ export function useSystemStatus(options?: { silent?: boolean }) {
       }
 
       const { data: completenessData, error: completenessError } = await supabase.functions.invoke('med-mng-api', {
-        body: { path: '/status/data-completeness' },
-        method: 'GET'
+        body: { path: '/status/data-completeness' }
       });
 
       if (completenessError) {
