@@ -183,7 +183,7 @@ const MainSections = () => {
                 </div>
                 <h3 className="text-lg font-bold mb-2">{link.title}</h3>
                 <p className="text-sm text-muted-foreground mb-4">{link.description}</p>
-                <Button asChild variant="outline" className="w-full">
+                <Button asChild variant="outline" size="lg" className="w-full">
                   <a href={link.url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2">
                     Visiter
                     <ExternalLink className="h-4 w-4" />
