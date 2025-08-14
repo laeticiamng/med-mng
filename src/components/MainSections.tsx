@@ -59,23 +59,6 @@ const MainSections = () => {
       badge: "IA Avancée"
     },
     {
-      id: "audit",
-      title: "Audit Complétude OIC",
-      description: "Analyse automatique de la qualité des compétences OIC",
-      icon: BarChart3,
-      color: "bg-indigo-500",
-      count: "Analyse en temps réel",
-      status: "Audit automatisé des données",
-      features: [
-        "Détection des contenus incomplets",
-        "Rapport de complétude détaillé",
-        "Recommandations d'amélioration",
-        "Métriques de qualité"
-      ],
-      href: "/audit-completeness",
-      badge: "Audit"
-    },
-    {
       id: "music",
       title: "Générateur Musical",
       description: "Génération musicale pour l'apprentissage médical",
