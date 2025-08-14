@@ -100,7 +100,7 @@ async function getDataCompleteness(supabase: any) {
 
     // Check OIC competences
     const { data: oicData, error: oicError } = await supabase
-      .from('oic_competences')
+      .from('backup_oic_competences')
       .select('item_parent, rang')
       .neq('item_parent', null);
 
