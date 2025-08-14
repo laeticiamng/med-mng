@@ -40,11 +40,11 @@ const arg = (name, def) => {
   const i = argv.indexOf(`--${name}`);
   return i >= 0 ? argv[i+1] : def;
 };
-const BATCH = parseInt(arg('batch', '200'), 10);
-const MIN_CHARS = parseInt(arg('minChars', '500'), 10);  // Seuil plus élevé pour descriptions complètes
-const CONCURRENCY = parseInt(arg('concurrency', '4'), 10);
+const BATCH = parseInt(arg('batch', '400'), 10);
+const MAX_ITEMS = parseInt(arg('maxItems', '5000'), 10);
+const CONCURRENCY = parseInt(arg('concurrency', '3'), 10);
 
-console.log(`🎯 Configuration: batch=${BATCH}, minChars=${MIN_CHARS}, concurrency=${CONCURRENCY}`);
+console.log(`🎯 Configuration: batch=${BATCH}, maxItems=${MAX_ITEMS}, concurrency=${CONCURRENCY}`);
 
 const hash = s => crypto.createHash('sha256').update(s || '').digest('hex');
 
@@ -371,31 +371,30 @@ async function mark(objId, patch) {
     .eq('objectif_id', objId);
 }
 
-async function pickBatch() {
-  console.log(`🔍 Sélection de TOUTES les compétences à copier intégralement (lot de ${BATCH})...`);
+async function getBatch() {
+  console.log(`🔍 Récupération d'un lot de ${BATCH} compétences à traiter...`);
   
-  // Pas de filtre - on prend toutes les lignes avec une URL valide pour copie intégrale
+  // Priorité aux non-traitées, puis celles avec hash différent ou status null
   const { data, error } = await supabase
     .from('backup_oic_competences')
     .select('objectif_id, url_source, description, source_etag, completion_status, intitule')
     .not('url_source', 'is', null)
     .not('url_source', 'eq', '')
+    .or('completion_status.is.null,source_etag.is.null')
     .limit(BATCH)
     .order('completion_updated_at', { ascending: true, nullsFirst: true });
 
   if (error) throw error;
   
-  console.log(`📊 ${data?.length || 0} compétences sélectionnées pour COPIE INTÉGRALE`);
+  console.log(`📊 ${data?.length || 0} compétences récupérées dans ce lot`);
   
-  // Log des exemples
+  // Log des exemples si disponibles
   if (data && data.length > 0) {
     console.log(`🔍 Exemples de compétences à traiter:`);
-    data.slice(0, 3).forEach((item, i) => {
+    data.slice(0, 2).forEach((item, i) => {
       const status = item.completion_status || 'jamais_traité';
-      console.log(`   ${i+1}. [${item.objectif_id}] "${item.intitule?.substring(0, 80)}..."`);
-      console.log(`      Status actuel: ${status}`);
-      console.log(`      URL: ${item.url_source}`);
-      console.log(`      ---`);
+      console.log(`   ${i+1}. [${item.objectif_id}] "${item.intitule?.substring(0, 60)}..."`);
+      console.log(`      Status: ${status}`);
     });
   }
   
@@ -403,7 +402,8 @@ async function pickBatch() {
 }
 
 async function run() {
-  console.log('🚀 Début du processus de COPIE INTÉGRALE de toutes les compétences OIC');
+  console.log('🚀 Début du processus de COPIE INTÉGRALE avec boucle automatique');
+  console.log(`🎯 Paramètres: batch=${BATCH}, maxItems=${MAX_ITEMS}, concurrency=${CONCURRENCY}`);
   
   // Lancer un browser Puppeteer pour l'authentification et extraction
   const browser = await puppeteer.launch({
@@ -423,33 +423,65 @@ async function run() {
     // Authentification initiale
     await casLoginWithPuppeteer(browser);
     
-    const rows = await pickBatch();
-    if (!rows.length) {
-      console.log('✅ Aucune compétence à traiter (lot vide).');
-      return;
+    let processedTotal = 0;
+    let updatedTotal = 0, skippedErrorTotal = 0, unchangedTotal = 0;
+    let iteration = 0;
+
+    while (processedTotal < MAX_ITEMS) {
+      iteration++;
+      console.log(`\n🔁 Itération ${iteration} — récupération d'un lot (batch=${BATCH})...`);
+      
+      const rows = await getBatch();
+      if (!rows || rows.length === 0) {
+        console.log('✅ Plus rien à traiter (batch vide). Fin de la boucle.');
+        break;
+      }
+
+      console.log(`⚡ Traitement de ${rows.length} compétences avec concurrence ${CONCURRENCY}`);
+      
+      // Traiter le lot courant avec pool de workers
+      let idx = 0;
+      let updated = 0, skippedError = 0, unchanged = 0;
+      
+      const workers = Array.from({ length: CONCURRENCY }, () => (async () => {
+        while (idx < rows.length && processedTotal + idx < MAX_ITEMS) {
+          const row = rows[idx++];
+          const result = await processOneCompetence(browser, row);
+          updated += result.updated;
+          skippedError += result.skippedError;
+          unchanged += (result.updated === 0 && result.skippedError === 0) ? 1 : 0;
+          
+          // Micro-pause pour ménager le site
+          await new Promise(r => setTimeout(r, 80));
+        }
+      }));
+
+      await Promise.all(workers);
+
+      processedTotal += rows.length;
+      updatedTotal += updated;
+      skippedErrorTotal += skippedError;
+      unchangedTotal += unchanged;
+
+      console.log(`📈 Lot traité: updated=${updated} | unchanged=${unchanged} | skipped_error=${skippedError}`);
+      console.log(`➡️  Cumul: ${processedTotal}/${MAX_ITEMS} items parcourus | updated_total=${updatedTotal} | error_total=${skippedErrorTotal}`);
+
+      // Relogin entre les lots pour maintenir la session SSO
+      if (processedTotal < MAX_ITEMS && rows.length === BATCH) {
+        try {
+          console.log('🔄 Relogin préventif entre les lots...');
+          await casLoginWithPuppeteer(browser);
+        } catch (e) {
+          console.warn('⚠️ Relogin préventif échoué, continuons:', e.message);
+        }
+      }
     }
 
-    console.log(`⚡ COPIE INTÉGRALE de ${rows.length} compétences avec concurrence réduite de 2`);
-    
-    // Réduire la concurrence pour éviter les problèmes SSO
-    const limit = pLimit(2);
-    let updated = 0, skippedError = 0, unchanged = 0;
-
-    const results = await Promise.all(rows.map(row => limit(async () => {
-      return await processOneCompetence(browser, row);
-    })));
-
-    // Agréger les résultats
-    results.forEach(result => {
-      updated += result.updated;
-      skippedError += result.skippedError;
-      unchanged += (result.updated === 0 && result.skippedError === 0) ? 1 : 0;
-    });
-
-    console.log(`\n🎯 RÉSULTATS COPIE INTÉGRALE:`);
-    console.log(`   ✅ Copiés: ${updated}`);
-    console.log(`   ⚪ Inchangés: ${unchanged}`);
-    console.log(`   ❌ Erreurs: ${skippedError}`);
+    console.log(`\n✅ TERMINÉ — TOTAL GLOBAL:`);
+    console.log(`   ✅ Mis à jour: ${updatedTotal}`);
+    console.log(`   ⚪ Inchangés: ${unchangedTotal}`);
+    console.log(`   ❌ Erreurs: ${skippedErrorTotal}`);
+    console.log(`   📊 Total traité: ${processedTotal} items`);
     
   } finally {
     await browser.close();

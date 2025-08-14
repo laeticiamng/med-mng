@@ -4,22 +4,22 @@ on:
   workflow_dispatch:
     inputs:
       batch_size:
-        description: "Nombre d'items par lot"
+        description: "Taille du lot"
         required: false
-        default: "200"
-      min_chars:
-        description: "Seuil contenu substantiel (caractères)"
+        default: "400"
+      max_items:
+        description: "Plafond total à traiter dans ce run"
         required: false
-        default: "200"
+        default: "5000"
       concurrency:
-        description: "Nb requêtes concurrentes LiSA"
+        description: "Onglets parallèles"
         required: false
-        default: "4"
+        default: "3"
 
 jobs:
   complete:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 240
     env:
       SUPABASE_URL: "https://yaincoxihiqdksxgrsrk.supabase.co"
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
@@ -66,9 +66,9 @@ jobs:
           CAS_PASSWORD: ${{ secrets.CAS_PASSWORD }}
         run: |
           node complete-by-url-puppeteer.js \
-            --batch "${{ github.event.inputs.batch_size || '200' }}" \
-            --minChars "${{ github.event.inputs.min_chars || '200' }}" \
-            --concurrency "${{ github.event.inputs.concurrency || '4' }}"
+            --batch "${{ github.event.inputs.batch_size || '400' }}" \
+            --maxItems "${{ github.event.inputs.max_items || '5000' }}" \
+            --concurrency "${{ github.event.inputs.concurrency || '3' }}"
 
       - name: Upload logs on failure
         if: failure()
