@@ -155,9 +155,9 @@ const MainSections = () => {
       </div>
 
       {/* Liens externes */}
-      <div className="mb-16">
+      <div className="mb-16 max-w-6xl mx-auto">
         <h2 className="text-2xl font-bold text-center mb-8">Plateformes partenaires</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 justify-center">
           {externalLinks.map((link, index) => (
             <Card key={index} className="group hover:shadow-lg transition-all duration-300 border-2 hover:border-primary/20">
               <CardContent className="p-8 text-center max-w-sm mx-auto">
