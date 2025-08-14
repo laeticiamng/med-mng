@@ -59,6 +59,11 @@ jobs:
 
       - name: Run completion (Puppeteer)
         working-directory: automation/oic-completion
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          CAS_USERNAME: ${{ secrets.CAS_USERNAME }}
+          CAS_PASSWORD: ${{ secrets.CAS_PASSWORD }}
         run: |
           node complete-by-url-puppeteer.js \
             --batch "${{ github.event.inputs.batch_size || '200' }}" \
