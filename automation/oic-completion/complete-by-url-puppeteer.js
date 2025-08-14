@@ -383,49 +383,7 @@ async function pickBatch(minChars) {
   const { data, error } = await supabase
     .from('backup_oic_competences')
     .select('objectif_id, url_source, description, source_etag, completion_status, intitule')
-    .or([
-      // === Descriptions clairement incomplètes ===
-      `description.is.null`,                                           
-      `description.eq.''`,                                            
-      `char_length(description).lt.500`,                              // Descriptions < 500 chars = probablement incomplètes
-      
-      // === Status indiquant des échecs ou incomplets ===
-      `completion_status.is.null`,                                    
-      `completion_status.eq.error`,                                   
-      `completion_status.eq.empty`,                                   
-      `completion_status.eq.skipped_empty`,                           
-      `completion_status.neq.updated`,                                // Tout ce qui n'est pas "updated" 
-      
-      // === Descriptions avec marqueurs d'incomplétude ===
-      `description.ilike.*à compléter*`,                              
-      `description.ilike.*Description de l'objectif*`,                
-      `description.ilike.*\.\.\..*`,                                  // Points de suspension
-      `description.ilike.*[truncated]*`,                              
-      `description.ilike.*[incomplete]*`,                             
-      `description.ilike.*voir aussi*`,                               // Souvent signe d'incomplétude
-      `description.ilike.*à définir*`,                                
-      `description.ilike.*à rédiger*`,                                
-      
-      // === Descriptions avec HTML mal formaté ===
-      `description.ilike.*&nbsp;*`,                                   // HTML entities non converties  
-      `description.ilike.*&amp;*`,                                    
-      `description.ilike.*&lt;*`,                                     
-      `description.ilike.*&gt;*`,                                     
-      `description.ilike.*<br>*`,                                     // Tags HTML non convertis
-      `description.ilike.*<div>*`,                                    
-      `description.ilike.*<p>*`,                                      
-      
-      // === Descriptions très courtes ou répétitives ===
-      `description.ilike.*Définition*`,                               // Souvent juste "Définition" sans contenu
-      `description.ilike.*Objectif*`,                                 
-      `description.ilike.*Compétence*`,                               
-      `description.like.%=%`,                                         // Formules/signes mathématiques seuls
-      `description.like.%--%`,                                        // Tirets seuls
-      
-      // === Force la re-vérification des anciennes extractions ===
-      `and(completion_status.eq.updated,char_length(description).lt.800)`, // Même les "updated" courts
-      `completion_updated_at.lt.2025-08-01T00:00:00Z`                // Re-check tout ce qui date d'avant août 2025
-    ].join(','))
+    .or(`description.is.null,description.eq.'',char_length(description).lt.500,completion_status.is.null,completion_status.eq.error,completion_status.eq.empty,completion_status.eq.skipped_empty,completion_status.neq.updated,description.ilike.*à compléter*,description.ilike.*Description de l'objectif*,description.ilike.*\.\.\..*,description.ilike.*[truncated]*,description.ilike.*[incomplete]*,description.ilike.*voir aussi*,description.ilike.*à définir*,description.ilike.*à rédiger*,description.ilike.*&nbsp;*,description.ilike.*&amp;*,description.ilike.*&lt;*,description.ilike.*&gt;*,description.ilike.*<br>*,description.ilike.*<div>*,description.ilike.*<p>*,description.ilike.*Définition*,description.ilike.*Objectif*,description.ilike.*Compétence*,description.like.%=%,description.like.%--%`)
     .not('url_source', 'is', null)                                   // Doit avoir une URL source
     .not('url_source', 'eq', '')                                     // URL non vide
     .limit(BATCH)
