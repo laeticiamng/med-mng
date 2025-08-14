@@ -60,15 +60,15 @@ interface EdnItem {
 }
 
 export default function EdnComplete() {
-  const [immersiveItems, setImmersiveItems] = useState<EdnItem[]>([]);
-  const [completeItems, setCompleteItems] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  // Utiliser les hooks optimisés pour un chargement ultra-rapide
+  const { items: essentialItems, loading: loadingEssentials } = useEdnItemsEssentials();
+  
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState<'item_code' | 'completeness_score' | 'updated_at'>('item_code');
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(12); // 12 items par page
+  const [itemsPerPage] = useState(12);
   const [selectedItem, setSelectedItem] = useState<EdnItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('immersive');
@@ -80,116 +80,10 @@ export default function EdnComplete() {
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    fetchAllData();
-  }, []);
-
-  const fetchAllData = async () => {
-    try {
-      setLoading(true);
-
-      // Étape 1: Charger d'abord les données essentielles pour l'affichage rapide
-      console.log('⚡ Chargement initial des items EDN...');
-      const { data: basicData, error: basicError } = await supabase
-        .from('edn_items_complete')
-        .select(`
-          id, item_code, title, subtitle, slug, 
-          completeness_score, is_validated, 
-          competences_count_rang_a, competences_count_rang_b,
-          updated_at
-        `)
-        .order('item_code')
-        .limit(100); // Charger les 100 premiers rapidement
-
-      if (basicError) {
-        console.error('Erreur chargement initial:', basicError);
-        toast({
-          title: "Erreur",
-          description: "Impossible de charger les données initiales.",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      // Afficher immédiatement les données de base
-      const basicItems = basicData?.map(item => ({
-        ...item,
-        tableau_rang_a: null,
-        tableau_rang_b: null,
-        paroles_musicales: [],
-        scene_immersive: null,
-        quiz_questions: null,
-        competences_oic_rang_a: null,
-        competences_oic_rang_b: null
-      })) || [];
-
-      setImmersiveItems(basicItems);
-      setCompleteItems(basicData || []);
-      setLoading(false); // Permettre l'affichage rapide
-
-      toast({
-        title: "Interface EDN",
-        description: `${basicData?.length || 0} items chargés rapidement`,
-      });
-
-      // Étape 2: Charger progressivement les données complètes en arrière-plan
-      console.log('🔄 Chargement complet des données en arrière-plan...');
-      
-      const { data: fullData, error: fullError } = await supabase
-        .from('edn_items_complete')
-        .select(`
-          id, item_code, title, subtitle, slug, 
-          paroles_musicales, tableau_rang_a, tableau_rang_b, scene_immersive,
-          quiz_questions, updated_at, competences_oic_rang_a, competences_oic_rang_b,
-          completeness_score, is_validated, competences_count_rang_a, competences_count_rang_b
-        `)
-        .order('item_code');
-
-      if (fullError) {
-        console.error('Erreur chargement complet:', fullError);
-        return;
-      }
-
-      // Mettre à jour avec les données complètes
-      setImmersiveItems(fullData || []);
-      
-      console.log('✅ Chargement complet terminé');
-      toast({
-        title: "Données complètes",
-        description: `${fullData?.length || 0} items avec toutes les données chargés`,
-      });
-      
-    } catch (error) {
-      console.error('Erreur:', error);
-      toast({
-        title: "Erreur",
-        description: "Erreur lors du chargement.",
-        variant: "destructive"
-      });
-      setLoading(false);
-    }
-  };
-
-  const allItems = useMemo(() => {
-    const mergedItems = immersiveItems.map(immersive => {
-      const complete = completeItems.find(c => c.item_code === immersive.item_code);
-      return {
-        ...immersive,
-        ...complete,
-        slug: immersive.slug,
-        tableau_rang_a: immersive.tableau_rang_a,
-        tableau_rang_b: immersive.tableau_rang_b,
-        scene_immersive: immersive.scene_immersive,
-        quiz_questions: immersive.quiz_questions,
-        paroles_musicales: immersive.paroles_musicales,
-        paroles_rang_a: immersive.paroles_rang_a,
-        paroles_rang_b: immersive.paroles_rang_b,
-        paroles_rang_ab: immersive.paroles_rang_ab
-      };
-    });
-    return mergedItems;
-  }, [immersiveItems, completeItems]);
+  
+  // Utiliser les données des hooks optimisés
+  const items = essentialItems as EdnItem[];
+  const loading = loadingEssentials;
 
   const isItemComplete = (item: EdnItem) => {
     const hasRangA = !!item.tableau_rang_a;
@@ -212,7 +106,7 @@ export default function EdnComplete() {
   };
 
   const filteredItems = useMemo(() => {
-    return allItems.filter(item => {
+    return items.filter(item => {
       const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            item.item_code.toLowerCase().includes(searchTerm.toLowerCase());
       
@@ -242,7 +136,7 @@ export default function EdnComplete() {
           return numA - numB;
       }
     });
-  }, [allItems, searchTerm, selectedCategory, sortBy]);
+  }, [items, searchTerm, selectedCategory, sortBy]);
 
   // Pagination
   const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
@@ -256,11 +150,11 @@ export default function EdnComplete() {
   }, [searchTerm, selectedCategory, sortBy]);
 
   const calculateStats = () => {
-    const total = allItems.length;
-    const complete = allItems.filter(isItemComplete).length;
-    const validated = allItems.filter(item => item.is_validated).length;
-    const withMusic = allItems.filter(item => item.paroles_musicales && item.paroles_musicales.length > 0).length;
-    const avgScore = total > 0 ? Math.round(allItems.reduce((sum, item) => 
+    const total = items.length;
+    const complete = items.filter(isItemComplete).length;
+    const validated = items.filter(item => item.is_validated).length;
+    const withMusic = items.filter(item => item.paroles_musicales && item.paroles_musicales.length > 0).length;
+    const avgScore = total > 0 ? Math.round(items.reduce((sum, item) => 
       sum + (item.completeness_score || getCompletionPercentage(item)), 0) / total) : 0;
     
     return { total, complete, validated, withMusic, avgScore };
