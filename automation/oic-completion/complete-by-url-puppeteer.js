@@ -348,7 +348,7 @@ async function updateDescription(objectifId, text, httpCode) {
 }
 
 // ===== Traitement d'une compétence avec trace complète =====
-async function processOneCompetence(browser, row) {
+async function processOne(browser, row) {
   const objId = row.objectif_id?.trim();
   const url = (row.url_source || '').trim();
   
@@ -502,8 +502,8 @@ console.log('🚀 Début du processus de COPIE INTÉGRALE avec boucle automatiqu
             console.log(`📋 Worker ${workerIndex + 1}: URL = ${row.url_source}`);
             
             try {
-              console.log(`🔄 Worker ${workerIndex + 1}: Appel processOneCompetence pour ${row.objectif_id}`);
-              const result = await processOneCompetence(browser, row);
+              console.log(`🔄 Worker ${workerIndex + 1}: Appel processOne pour ${row.objectif_id}`);
+              const result = await processOne(browser, row);
               console.log(`📊 Worker ${workerIndex + 1}: Résultat de ${row.objectif_id}:`, result);
               
               updated += result.updated;
