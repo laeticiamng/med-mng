@@ -322,7 +322,7 @@ async function pickBatch(minChars) {
   const { data, error } = await supabase
     .from('backup_oic_competences')
     .select('objectif_id, url_source, description, source_etag')
-    .or(`description.is.null,description.eq.,char_length(description).lt.${minChars},completion_status.is.null`)
+    .or(`description.is.null,description.eq.'',char_length(description).lt.${minChars},completion_status.is.null`)
     .limit(BATCH);
 
   if (error) throw error;
