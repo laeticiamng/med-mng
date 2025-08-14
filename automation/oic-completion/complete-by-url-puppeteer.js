@@ -319,14 +319,45 @@ async function mark(objId, patch) {
 
 async function pickBatch(minChars) {
   console.log(`🔍 Recherche d'items à compléter (lot de ${BATCH})...`);
+  
+  // Stratégie élargie pour détecter les descriptions incomplètes
   const { data, error } = await supabase
     .from('backup_oic_competences')
-    .select('objectif_id, url_source, description, source_etag')
-    .or(`description.is.null,description.eq.'',char_length(description).lt.${minChars},completion_status.is.null`)
-    .limit(BATCH);
+    .select('objectif_id, url_source, description, source_etag, completion_status')
+    .or([
+      `description.is.null`,                                    // Descriptions nulles
+      `description.eq.''`,                                      // Descriptions vides
+      `char_length(description).lt.${minChars}`,               // Descriptions trop courtes
+      `completion_status.is.null`,                             // Pas encore traité
+      `completion_status.eq.error`,                            // Échec précédent
+      `completion_status.eq.empty`,                            // Contenu vide précédent
+      `description.ilike.*à compléter*`,                       // Descriptions génériques
+      `description.ilike.*Description de l'objectif*`,         // Descriptions auto-générées
+      `description.ilike.*....*`,                              // Descriptions tronquées
+      `description.ilike.*[truncated]*`,                       // Marqueurs de troncature
+      `and(description.not.is.null,char_length(description).lt.${minChars * 2})` // Descriptions suspectes
+    ].join(','))
+    .not('url_source', 'is', null)                           // Avoir une URL source
+    .limit(BATCH)
+    .order('completion_updated_at', { ascending: true, nullsFirst: true });
 
   if (error) throw error;
+  
   console.log(`📊 ${data?.length || 0} items trouvés à traiter`);
+  
+  // Log des exemples pour debug
+  if (data && data.length > 0) {
+    console.log(`🔍 Exemples d'items à compléter:`);
+    data.slice(0, 3).forEach((item, i) => {
+      const descLength = item.description?.length || 0;
+      const status = item.completion_status || 'non_traité';
+      console.log(`   ${i+1}. ${item.objectif_id} - ${descLength} chars - Status: ${status}`);
+      if (item.description && item.description.length > 0) {
+        console.log(`      Preview: "${item.description.substring(0, 100)}..."`);
+      }
+    });
+  }
+  
   return data || [];
 }
 
