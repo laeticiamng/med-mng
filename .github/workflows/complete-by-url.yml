@@ -37,8 +37,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "18"
-          cache: "npm"
-          cache-dependency-path: automation/oic-completion/package-lock.json
 
       - name: Show versions
         run: |
@@ -56,11 +54,8 @@ jobs:
       - name: Install runner dependencies
         working-directory: automation/oic-completion
         run: |
-          if [ -f package-lock.json ]; then
-            npm ci --no-audit --no-fund
-          else
-            npm install --no-audit --no-fund
-          fi
+          # Utiliser npm install pour générer un lockfile complet
+          npm install --no-audit --no-fund
 
       - name: Run completion (Puppeteer)
         working-directory: automation/oic-completion
