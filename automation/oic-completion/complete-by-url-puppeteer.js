@@ -171,11 +171,11 @@ async function casLoginWithPuppeteer() {
       if (continueButtons.length > 0) {
         console.log('🔄 Pas de champ password, tentative de clic sur bouton continuer...');
         await continueButtons[0].click();
-        await page.waitForTimeout(2000); // Attendre que la page se charge
+        await new Promise(resolve => setTimeout(resolve, 2000)); // Attendre que la page se charge
         continue;
       }
       
-      await page.waitForTimeout(1000);
+      await new Promise(resolve => setTimeout(resolve, 1000));
     }
     
     // Si on a trouvé le champ password
