@@ -357,7 +357,7 @@ async function processOne(browser, row) {
   if (!url) {
     console.log(`   ❌ ${objId}: URL manquante`);
     await mark(objId, { completion_status: 'skipped_error', completion_last_error: 'missing_url' });
-    return { updated: 0, skippedError: 1 };
+    return { updated: 0, skippedError: 1, unchanged: 0 };
   }
 
   const page = await browser.newPage();
@@ -384,7 +384,7 @@ async function processOne(browser, row) {
     await updateDescription(objId, text, 200);
     
     console.log(`   ✅ ${objId}: TRAITEMENT RÉUSSI - ${text.length} caractères copiés`);
-    return { updated: 1, skippedError: 0 };
+    return { updated: 1, skippedError: 0, unchanged: 0 };
     
   } catch (e) {
     console.log(`   ❌ ${objId}: ERREUR - ${e.message}`);
@@ -396,7 +396,7 @@ async function processOne(browser, row) {
       completion_last_error: String(e).substring(0, 500)
     });
     
-    return { updated: 0, skippedError: 1 };
+    return { updated: 0, skippedError: 1, unchanged: 0 };
   } finally {
     try { await page.close(); } catch {}
   }
@@ -486,6 +486,7 @@ console.log('🚀 Début du processus de COPIE INTÉGRALE avec boucle automatiqu
       const workers = Array.from({ length: CONCURRENCY }, (_, workerIndex) => (async () => {
         console.log(`🚀 Worker ${workerIndex + 1} DÉMARRE MAINTENANT`);
         let processedByWorker = 0;
+        let workerUpdated = 0, workerSkippedError = 0, workerUnchanged = 0;
         
         try {
           while (true) {
@@ -506,16 +507,23 @@ console.log('🚀 Début du processus de COPIE INTÉGRALE avec boucle automatiqu
               const result = await processOne(browser, row);
               console.log(`📊 Worker ${workerIndex + 1}: Résultat de ${row.objectif_id}:`, result);
               
-              updated += result.updated;
-              skippedError += result.skippedError;
-              unchanged += (result.updated === 0 && result.skippedError === 0) ? 1 : 0;
+              // Vérifier le format du résultat
+              if (!result || typeof result !== 'object') {
+                console.error(`❌ Worker ${workerIndex + 1}: Résultat invalide pour ${row.objectif_id}:`, result);
+                workerSkippedError++;
+                continue;
+              }
+              
+              workerUpdated += result.updated || 0;
+              workerSkippedError += result.skippedError || 0;
+              workerUnchanged += result.unchanged || 0;
               processedByWorker++;
               
-              console.log(`✅ Worker ${workerIndex + 1} TERMINÉ ${row.objectif_id}: updated=${result.updated}, error=${result.skippedError}`);
+              console.log(`✅ Worker ${workerIndex + 1} TERMINÉ ${row.objectif_id}: updated=${result.updated || 0}, skippedError=${result.skippedError || 0}, unchanged=${result.unchanged || 0}`);
             } catch (e) {
               console.error(`❌ Worker ${workerIndex + 1} ERREUR sur ${row.objectif_id}:`, e.message);
               console.error(`❌ Worker ${workerIndex + 1} Stack:`, e.stack);
-              skippedError++;
+              workerSkippedError++;
             }
             
             // Micro-pause pour ménager le site
@@ -527,6 +535,13 @@ console.log('🚀 Début du processus de COPIE INTÉGRALE avec boucle automatiqu
         }
         
         console.log(`🏁 Worker ${workerIndex + 1} TERMINÉ DÉFINITIVEMENT: ${processedByWorker} compétences traitées`);
+        console.log(`🏁 Worker ${workerIndex + 1} Compteurs: updated=${workerUpdated}, skippedError=${workerSkippedError}, unchanged=${workerUnchanged}`);
+        
+        // Mettre à jour les compteurs globaux
+        updated += workerUpdated;
+        skippedError += workerSkippedError;
+        unchanged += workerUnchanged;
+        
         return processedByWorker;
       }));
 
