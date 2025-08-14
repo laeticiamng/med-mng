@@ -44,7 +44,7 @@ const BATCH = parseInt(arg('batch', '400'), 10);
 const MAX_ITEMS = parseInt(arg('maxItems', '5000'), 10);
 const CONCURRENCY = parseInt(arg('concurrency', '3'), 10);
 
-console.log(`🎯 Configuration: batch=${BATCH}, maxItems=${MAX_ITEMS}, concurrency=${CONCURRENCY}`);
+console.log(`🎯 Configuration: batch=${BATCH}, maxCompetences=${MAX_ITEMS}, concurrency=${CONCURRENCY}`);
 
 const hash = s => crypto.createHash('sha256').update(s || '').digest('hex');
 
@@ -307,6 +307,13 @@ function buildExtractor() {
 `;
 }
 
+// ===== Helper pour extraire le code item depuis objectif_id =====
+function itemCodeFromObjectif(objectifId = '') {
+  // "OIC-351-03-A" -> "351"
+  const m = objectifId.match(/^OIC-(\d{3})-/);
+  return m ? m[1] : null;
+}
+
 // ===== Traitement d'une compétence avec retry auto =====
 async function processOneCompetence(browser, row) {
   const objId = row.objectif_id;
@@ -314,7 +321,7 @@ async function processOneCompetence(browser, row) {
   
   if (!url) {
     await mark(objId, { completion_status: 'skipped_error', completion_last_error: 'missing_url' });
-    return { updated: 0, skippedEmpty: 0, skippedError: 1 };
+    return { updated: 0, skippedError: 1 };
   }
 
   const page = await browser.newPage();
@@ -343,16 +350,8 @@ async function processOneCompetence(browser, row) {
     // DEBUG: Log hash comparison
     console.log(`   🔐 ${objId}: Hash old=${oldHash?.substring(0,8)}... new=${newHash.substring(0,8)}...`);
     
-    // FORCE UPDATE for debugging (temporarily ignore hash equality)
-    const forceUpdate = true; // Change to false once working
-    
-    if (!forceUpdate && newHash === oldHash) {
-      console.log(`   ⚪ ${objId}: Contenu inchangé (même hash)`);
-      return { updated: 0, skippedEmpty: 0, skippedError: 0 }; // déjà à jour
-    }
-
-    // MISE À JOUR SYSTÉMATIQUE
-    const { error: upErr } = await supabase
+    // COPIE INTÉGRALE SYSTÉMATIQUE avec RETURNING pour vérifier l'impact
+    const { data: updData, error: upErr } = await supabase
       .from('backup_oic_competences')
       .update({
         description: text,
@@ -362,13 +361,29 @@ async function processOneCompetence(browser, row) {
         source_etag: newHash,
         completion_updated_at: new Date().toISOString()
       })
-      .eq('objectif_id', objId);
+      .eq('objectif_id', objId)
+      .select('objectif_id'); // RETURNING pour forcer la vérification
 
-    if (upErr) throw upErr;
+    if (upErr) {
+      await mark(objId, {
+        completion_status: 'skipped_error',
+        completion_last_error: String(upErr)
+      });
+      return { updated: 0, skippedError: 1 };
+    }
+
+    // Vérifier qu'exactement 1 ligne a été mise à jour
+    if (!updData || updData.length !== 1) {
+      await mark(objId, {
+        completion_status: 'skipped_error',
+        completion_last_error: 'no_row_updated'
+      });
+      return { updated: 0, skippedError: 1 };
+    }
     
-    console.log(`   ✅ ${objId}: MISE À JOUR - ${text.length} caractères - "${preview}"`);
+    console.log(`   ✅ ${objId}: MISE À JOUR CONFIRMÉE - ${text.length} caractères - "${preview}"`);
     
-    return { updated: 1, skippedEmpty: 0, skippedError: 0 };
+    return { updated: 1, skippedError: 0 };
     
   } catch (e) {
     await mark(objId, {
@@ -377,7 +392,7 @@ async function processOneCompetence(browser, row) {
       completion_last_error: String(e).substring(0, 500)
     });
     console.log(`   ❌ ${objId}: ${e.message}`);
-    return { updated: 0, skippedEmpty: 0, skippedError: 1 };
+    return { updated: 0, skippedError: 1 };
   } finally {
     try { await page.close(); } catch {}
   }
@@ -421,8 +436,8 @@ async function getBatch() {
 }
 
 async function run() {
-  console.log('🚀 Début du processus de COPIE INTÉGRALE avec boucle automatique');
-  console.log(`🎯 Paramètres: batch=${BATCH}, maxItems=${MAX_ITEMS}, concurrency=${CONCURRENCY}`);
+console.log('🚀 Début du processus de COPIE INTÉGRALE avec boucle automatique');
+  console.log(`🎯 Paramètres: batch=${BATCH}, maxCompetences=${MAX_ITEMS}, concurrency=${CONCURRENCY}`);
   
   // Lancer un browser Puppeteer pour l'authentification et extraction
   const browser = await puppeteer.launch({
@@ -501,7 +516,7 @@ async function run() {
       unchangedTotal += unchanged;
 
       console.log(`📈 Lot traité: updated=${updated} | unchanged=${unchanged} | skipped_error=${skippedError}`);
-      console.log(`➡️  Cumul: ${processedTotal}/${MAX_ITEMS} items parcourus | updated_total=${updatedTotal} | error_total=${skippedErrorTotal}`);
+      console.log(`➡️  Cumul: ${processedTotal}/${MAX_ITEMS} compétences parcourues | updated_total=${updatedTotal} | error_total=${skippedErrorTotal}`);
 
       // Relogin entre les lots pour maintenir la session SSO
       if (processedTotal < MAX_ITEMS && rows.length === BATCH) {
@@ -518,7 +533,7 @@ async function run() {
     console.log(`   ✅ Mis à jour: ${updatedTotal}`);
     console.log(`   ⚪ Inchangés: ${unchangedTotal}`);
     console.log(`   ❌ Erreurs: ${skippedErrorTotal}`);
-    console.log(`   📊 Total traité: ${processedTotal} items`);
+    console.log(`   📊 Total traité: ${processedTotal} compétences`);
     
   } finally {
     await browser.close();
