@@ -160,7 +160,7 @@ const MainSections = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {externalLinks.map((link, index) => (
             <Card key={index} className="group hover:shadow-lg transition-all duration-300 border-2 hover:border-primary/20">
-              <CardContent className="p-6 text-center">
+              <CardContent className="p-8 text-center max-w-sm mx-auto">
                 <div className={`w-12 h-12 ${link.color} rounded-lg mx-auto mb-4 flex items-center justify-center`}>
                   <ExternalLink className="h-6 w-6 text-white" />
                 </div>
