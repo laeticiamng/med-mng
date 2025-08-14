@@ -480,37 +480,50 @@ console.log('🚀 Début du processus de COPIE INTÉGRALE avec boucle automatiqu
       console.log(`🔧 DEBUG: Création de ${CONCURRENCY} workers pour traiter ${rows.length} compétences`);
       
       const workers = Array.from({ length: CONCURRENCY }, (_, workerIndex) => (async () => {
-        console.log(`🚀 Worker ${workerIndex + 1} démarré`);
+        console.log(`🚀 Worker ${workerIndex + 1} DÉMARRE MAINTENANT`);
         let processedByWorker = 0;
         
-        while (true) {
-          const rowIndex = idx++;
-          if (rowIndex >= rows.length) {
-            console.log(`🛑 Worker ${workerIndex + 1}: Plus de compétences à traiter (index ${rowIndex} >= ${rows.length})`);
-            break;
-          }
-          
-          const row = rows[rowIndex];
-          console.log(`👷 Worker ${workerIndex + 1} traite ${row.objectif_id} (${rowIndex + 1}/${rows.length})`);
-          
-          try {
-            const result = await processOneCompetence(browser, row);
-            updated += result.updated;
-            skippedError += result.skippedError;
-            unchanged += (result.updated === 0 && result.skippedError === 0) ? 1 : 0;
-            processedByWorker++;
+        try {
+          while (true) {
+            const rowIndex = idx++;
+            console.log(`🔍 Worker ${workerIndex + 1}: rowIndex=${rowIndex}, rows.length=${rows.length}`);
             
-            console.log(`✅ Worker ${workerIndex + 1} terminé ${row.objectif_id}: updated=${result.updated}, error=${result.skippedError}`);
-          } catch (e) {
-            console.error(`❌ Worker ${workerIndex + 1} erreur sur ${row.objectif_id}:`, e.message);
-            skippedError++;
+            if (rowIndex >= rows.length) {
+              console.log(`🛑 Worker ${workerIndex + 1}: Plus de compétences à traiter (index ${rowIndex} >= ${rows.length})`);
+              break;
+            }
+            
+            const row = rows[rowIndex];
+            console.log(`👷 Worker ${workerIndex + 1} TRAITE MAINTENANT ${row.objectif_id} (${rowIndex + 1}/${rows.length})`);
+            console.log(`📋 Worker ${workerIndex + 1}: URL = ${row.url_source}`);
+            
+            try {
+              console.log(`🔄 Worker ${workerIndex + 1}: Appel processOneCompetence pour ${row.objectif_id}`);
+              const result = await processOneCompetence(browser, row);
+              console.log(`📊 Worker ${workerIndex + 1}: Résultat de ${row.objectif_id}:`, result);
+              
+              updated += result.updated;
+              skippedError += result.skippedError;
+              unchanged += (result.updated === 0 && result.skippedError === 0) ? 1 : 0;
+              processedByWorker++;
+              
+              console.log(`✅ Worker ${workerIndex + 1} TERMINÉ ${row.objectif_id}: updated=${result.updated}, error=${result.skippedError}`);
+            } catch (e) {
+              console.error(`❌ Worker ${workerIndex + 1} ERREUR sur ${row.objectif_id}:`, e.message);
+              console.error(`❌ Worker ${workerIndex + 1} Stack:`, e.stack);
+              skippedError++;
+            }
+            
+            // Micro-pause pour ménager le site
+            await new Promise(r => setTimeout(r, 80));
           }
-          
-          // Micro-pause pour ménager le site
-          await new Promise(r => setTimeout(r, 80));
+        } catch (workerError) {
+          console.error(`💥 Worker ${workerIndex + 1} ERREUR GLOBALE:`, workerError.message);
+          console.error(`💥 Worker ${workerIndex + 1} Stack:`, workerError.stack);
         }
         
-        console.log(`🏁 Worker ${workerIndex + 1} terminé: ${processedByWorker} compétences traitées`);
+        console.log(`🏁 Worker ${workerIndex + 1} TERMINÉ DÉFINITIVEMENT: ${processedByWorker} compétences traitées`);
+        return processedByWorker;
       }));
 
       console.log(`⏳ Attente de la fin des ${workers.length} workers...`);
