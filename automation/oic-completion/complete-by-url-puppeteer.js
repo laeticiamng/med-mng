@@ -45,7 +45,7 @@ const arg = (name, def) => {
   return i >= 0 ? argv[i+1] : def;
 };
 const BATCH = parseInt(arg('batch', '200'), 10);
-const MIN_CHARS = parseInt(arg('minChars', '200'), 10);
+const MIN_CHARS = parseInt(arg('minChars', '500'), 10);  // Seuil plus élevé pour descriptions complètes
 const CONCURRENCY = parseInt(arg('concurrency', '4'), 10);
 
 console.log(`🎯 Configuration: batch=${BATCH}, minChars=${MIN_CHARS}, concurrency=${CONCURRENCY}`);
@@ -305,9 +305,68 @@ async function fetchTextFromApi(url) {
 
 function normalizeText(wikitext) {
   if (!wikitext) return '';
-  const m = wikitext.match(/\|[Dd]escription\s*=\s*([\s\S]*?)(?:\n\||\n}})/);
-  const raw = (m ? m[1] : wikitext).trim();
-  return htmlToText(raw, { wordwrap: 0 }).trim();
+  
+  // Stratégie d'extraction élargie pour récupérer TOUT le contenu utile
+  let extractedContent = '';
+  
+  // 1. Essayer d'extraire le champ Description spécifique
+  const descMatch = wikitext.match(/\|[Dd]escription\s*=\s*([\s\S]*?)(?:\n\||\n}})/);
+  if (descMatch && descMatch[1].trim()) {
+    extractedContent = descMatch[1].trim();
+  }
+  
+  // 2. Si pas de Description, extraire le contenu principal de la page
+  if (!extractedContent || extractedContent.length < 100) {
+    // Chercher d'autres sections utiles
+    const contentPatterns = [
+      /\|[Cc]ontenu\s*=\s*([\s\S]*?)(?:\n\||\n}})/,         // Champ Contenu
+      /\|[Tt]exte\s*=\s*([\s\S]*?)(?:\n\||\n}})/,           // Champ Texte  
+      /\|[Dd]éfinition\s*=\s*([\s\S]*?)(?:\n\||\n}})/,      // Champ Définition
+      /==\s*Description\s*==([\s\S]*?)(?:==|\{\{|$)/i,      // Section Description
+      /==\s*Définition\s*==([\s\S]*?)(?:==|\{\{|$)/i,       // Section Définition
+      /==\s*Contenu\s*==([\s\S]*?)(?:==|\{\{|$)/i,          // Section Contenu
+      /==\s*Objectif\s*==([\s\S]*?)(?:==|\{\{|$)/i,         // Section Objectif
+    ];
+    
+    for (const pattern of contentPatterns) {
+      const match = wikitext.match(pattern);
+      if (match && match[1].trim() && match[1].trim().length > extractedContent.length) {
+        extractedContent = match[1].trim();
+      }
+    }
+  }
+  
+  // 3. En dernier recours, prendre tout le wikitext si rien d'autre n'est trouvé
+  if (!extractedContent || extractedContent.length < 50) {
+    extractedContent = wikitext;
+  }
+  
+  // 4. Nettoyage et conversion vers texte pur
+  let cleanText = htmlToText(extractedContent, { 
+    wordwrap: 0,
+    preserveNewlines: true,
+    formatters: {
+      // Formatter personnalisé pour préserver certaines structures
+      'anchor': function (elem, walk, builder) {
+        const href = elem.attribs && elem.attribs.href;
+        const text = elem.children && elem.children.length > 0 ? walk(elem.children, builder) : '';
+        return text; // Garder juste le texte des liens
+      }
+    }
+  }).trim();
+  
+  // 5. Nettoyages supplémentaires spécifiques au format MediaWiki
+  cleanText = cleanText
+    .replace(/\{\{[^}]*\}\}/g, '')                    // Enlever les templates MediaWiki
+    .replace(/\[\[([^|\]]*\|)?([^\]]*)\]\]/g, '$2')   // Convertir les liens internes
+    .replace(/'{2,}/g, '')                            // Enlever le markup bold/italic
+    .replace(/^[\s\*\-\#]*/, '')                      // Enlever les bullets en début
+    .replace(/\n\s*\n\s*\n/g, '\n\n')                // Normaliser les sauts de ligne multiples
+    .replace(/^\s+|\s+$/g, '')                       // Trim
+    .replace(/\s+/g, ' ')                            // Normaliser les espaces
+    .trim();
+  
+  return cleanText;
 }
 
 async function mark(objId, patch) {
@@ -318,43 +377,76 @@ async function mark(objId, patch) {
 }
 
 async function pickBatch(minChars) {
-  console.log(`🔍 Recherche d'items à compléter (lot de ${BATCH})...`);
+  console.log(`🔍 Recherche ÉLARGIE d'items à compléter pour 100% de complétude (lot de ${BATCH})...`);
   
-  // Stratégie élargie pour détecter les descriptions incomplètes
+  // Stratégie ULTRA élargie pour TOUTES les descriptions incomplètes
   const { data, error } = await supabase
     .from('backup_oic_competences')
-    .select('objectif_id, url_source, description, source_etag, completion_status')
+    .select('objectif_id, url_source, description, source_etag, completion_status, intitule')
     .or([
-      `description.is.null`,                                    // Descriptions nulles
-      `description.eq.''`,                                      // Descriptions vides
-      `char_length(description).lt.${minChars}`,               // Descriptions trop courtes
-      `completion_status.is.null`,                             // Pas encore traité
-      `completion_status.eq.error`,                            // Échec précédent
-      `completion_status.eq.empty`,                            // Contenu vide précédent
-      `description.ilike.*à compléter*`,                       // Descriptions génériques
-      `description.ilike.*Description de l'objectif*`,         // Descriptions auto-générées
-      `description.ilike.*....*`,                              // Descriptions tronquées
-      `description.ilike.*[truncated]*`,                       // Marqueurs de troncature
-      `and(description.not.is.null,char_length(description).lt.${minChars * 2})` // Descriptions suspectes
+      // === Descriptions clairement incomplètes ===
+      `description.is.null`,                                           
+      `description.eq.''`,                                            
+      `char_length(description).lt.500`,                              // Descriptions < 500 chars = probablement incomplètes
+      
+      // === Status indiquant des échecs ou incomplets ===
+      `completion_status.is.null`,                                    
+      `completion_status.eq.error`,                                   
+      `completion_status.eq.empty`,                                   
+      `completion_status.eq.skipped_empty`,                           
+      `completion_status.neq.updated`,                                // Tout ce qui n'est pas "updated" 
+      
+      // === Descriptions avec marqueurs d'incomplétude ===
+      `description.ilike.*à compléter*`,                              
+      `description.ilike.*Description de l'objectif*`,                
+      `description.ilike.*\.\.\..*`,                                  // Points de suspension
+      `description.ilike.*[truncated]*`,                              
+      `description.ilike.*[incomplete]*`,                             
+      `description.ilike.*voir aussi*`,                               // Souvent signe d'incomplétude
+      `description.ilike.*à définir*`,                                
+      `description.ilike.*à rédiger*`,                                
+      
+      // === Descriptions avec HTML mal formaté ===
+      `description.ilike.*&nbsp;*`,                                   // HTML entities non converties  
+      `description.ilike.*&amp;*`,                                    
+      `description.ilike.*&lt;*`,                                     
+      `description.ilike.*&gt;*`,                                     
+      `description.ilike.*<br>*`,                                     // Tags HTML non convertis
+      `description.ilike.*<div>*`,                                    
+      `description.ilike.*<p>*`,                                      
+      
+      // === Descriptions très courtes ou répétitives ===
+      `description.ilike.*Définition*`,                               // Souvent juste "Définition" sans contenu
+      `description.ilike.*Objectif*`,                                 
+      `description.ilike.*Compétence*`,                               
+      `description.like.%=%`,                                         // Formules/signes mathématiques seuls
+      `description.like.%--%`,                                        // Tirets seuls
+      
+      // === Force la re-vérification des anciennes extractions ===
+      `and(completion_status.eq.updated,char_length(description).lt.800)`, // Même les "updated" courts
+      `completion_updated_at.lt.2025-08-01T00:00:00Z`                // Re-check tout ce qui date d'avant août 2025
     ].join(','))
-    .not('url_source', 'is', null)                           // Avoir une URL source
+    .not('url_source', 'is', null)                                   // Doit avoir une URL source
+    .not('url_source', 'eq', '')                                     // URL non vide
     .limit(BATCH)
     .order('completion_updated_at', { ascending: true, nullsFirst: true });
 
   if (error) throw error;
   
-  console.log(`📊 ${data?.length || 0} items trouvés à traiter`);
+  console.log(`📊 ${data?.length || 0} items trouvés à COMPLÉTER INTÉGRALEMENT`);
   
-  // Log des exemples pour debug
+  // Log détaillé des exemples pour debug
   if (data && data.length > 0) {
     console.log(`🔍 Exemples d'items à compléter:`);
-    data.slice(0, 3).forEach((item, i) => {
+    data.slice(0, 5).forEach((item, i) => {
       const descLength = item.description?.length || 0;
       const status = item.completion_status || 'non_traité';
-      console.log(`   ${i+1}. ${item.objectif_id} - ${descLength} chars - Status: ${status}`);
-      if (item.description && item.description.length > 0) {
-        console.log(`      Preview: "${item.description.substring(0, 100)}..."`);
-      }
+      const preview = item.description ? item.description.substring(0, 150).replace(/\n/g, ' ') : 'VIDE';
+      console.log(`   ${i+1}. [${item.objectif_id}] "${item.intitule?.substring(0, 60)}..."`);
+      console.log(`      Status: ${status} | Length: ${descLength} chars`);
+      console.log(`      Preview: "${preview}${descLength > 150 ? '...' : ''}"`);
+      console.log(`      URL: ${item.url_source}`);
+      console.log(`      ---`);
     });
   }
   
@@ -398,10 +490,30 @@ async function run() {
     }
 
     const text = normalizeText(api.text);
-    const substantial = text && (text.length >= MIN_CHARS || /\n- |\n\d+\./.test(text));
-    if (!substantial) {
-      await mark(objId, { completion_status: 'skipped_empty', completion_last_http: 200 });
+    
+    // Critères rigoureux pour une description VRAIMENT complète
+    const isSubstantial = text && (
+      text.length >= MIN_CHARS &&                            // Au moins 500 caractères
+      text.split(' ').length >= 50 &&                        // Au moins 50 mots
+      !text.includes('à compléter') &&                       // Pas de marqueurs d'incomplétude
+      !text.includes('...') &&                               // Pas de troncature
+      !/^(Définition|Objectif|Description)\.?\s*$/.test(text.trim()) && // Pas juste un titre
+      !/^[\s\-\*\.&;]+$/.test(text.trim()) &&               // Pas juste de la ponctuation
+      text.replace(/\s+/g, '').length >= MIN_CHARS * 0.7     // Minimum de contenu réel (pas que des espaces)
+    );
+    
+    if (!isSubstantial) {
+      const reason = !text ? 'no_content' : 
+                     text.length < MIN_CHARS ? `too_short_${text.length}_chars` :
+                     text.split(' ').length < 50 ? `too_few_words_${text.split(' ').length}` :
+                     'quality_insufficient';
+      await mark(objId, { 
+        completion_status: 'skipped_empty', 
+        completion_last_http: 200,
+        completion_last_error: reason
+      });
       skippedEmpty++;
+      console.log(`   ⚠️ ${objId}: Contenu insuffisant (${reason})`);
       return;
     }
 
