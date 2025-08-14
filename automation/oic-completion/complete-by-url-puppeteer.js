@@ -155,9 +155,12 @@ async function ensureLoggedAndOpen(browser, page, url, reloginFn, attempts = 2) 
         continue;
       }
       
-      // Si contenu ressemble à la page de login
-      if (looksLikeLogin(txtHead)) {
-        console.log(`🔐 Page de login détectée dans le contenu (tentative ${i + 1})`);
+      // Si contenu ressemble à la page de login OU contient des erreurs d'auth
+      if (looksLikeLogin(txtHead) || 
+          txtHead.includes('state parameter') ||
+          txtHead.includes('erreur fatale') ||
+          txtHead.includes('mwexception')) {
+        console.log(`🔐 Page de login/erreur détectée dans le contenu (tentative ${i + 1})`);
         console.log(`🔍 Extrait du contenu: "${txtHead.slice(0, 200)}"`);
         if (i === attempts) throw new Error('login_page_content_detected');
         await reloginFn();
@@ -577,6 +580,15 @@ async function processOne(browser, row) {
     
     console.log(`   📊 ${objId}: Contenu extrait (${text.length} car): "${preview}"`);
     
+    // Détecter les erreurs spécifiques d'authentification ou de serveur
+    if (text.includes('State parameter of callback does not match original state') ||
+        text.includes('Erreur fatale de type') ||
+        text.includes('MWException') ||
+        text.includes('callback does not match')) {
+      console.log(`   🔐 ${objId}: Erreur d'authentification détectée, nouvelle tentative...`);
+      throw new Error('auth_callback_error');
+    }
+    
     // Vérifier si on a récupéré une page de login au lieu du contenu
     if (looksLikeLogin(text)) {
       console.log(`   ⚠️ ${objId}: Page de login détectée dans le contenu extrait`);
@@ -609,6 +621,33 @@ async function processOne(browser, row) {
     
   } catch (e) {
     console.log(`   ❌ ${objId}: ERREUR - ${e.message}`);
+    
+    // Si c'est une erreur d'authentification, essayer une nouvelle auth complète
+    if (e.message.includes('auth_callback_error') || 
+        e.message.includes('login_page_content_detected')) {
+      console.log(`   🔄 ${objId}: Tentative de ré-authentification...`);
+      
+      try {
+        // Ré-authentification complète
+        await reloginFn();
+        await new Promise(resolve => setTimeout(resolve, 3000));
+        
+        // Nouvelle tentative de navigation
+        await ensureLoggedAndOpen(browser, page, url, reloginFn, 1);
+        
+        // Nouvelle extraction
+        const retryText = (await page.evaluate(buildExtractor())) || '';
+        console.log(`   🔄 ${objId}: Nouvelle extraction (${retryText.length} car)`);
+        
+        if (retryText.length > 200 && !retryText.includes('State parameter') && !looksLikeLogin(retryText)) {
+          await updateDescription(objId, retryText, 200);
+          console.log(`   ✅ ${objId}: RÉCUPÉRATION RÉUSSIE - ${retryText.length} caractères copiés`);
+          return { updated: 1, skippedError: 0, unchanged: 0 };
+        }
+      } catch (retryError) {
+        console.log(`   ❌ ${objId}: Échec de la récupération après ré-auth: ${retryError.message}`);
+      }
+    }
     
     // Marquer l'erreur en base
     await mark(objId, {
