@@ -100,30 +100,124 @@ async function casLoginWithPuppeteer() {
     // On est sur la page CAS - procéder à l'authentification
     console.log('🔑 Détection de la page CAS, authentification...');
     
-    // Attendre les champs de connexion
-    await page.waitForSelector('input[name="username"], input[name="email"]', { timeout: 10000 });
-    await page.waitForSelector('input[name="password"]', { timeout: 5000 });
+    // Prendre une capture d'écran pour debug
+    await page.screenshot({ path: '/tmp/cas-debug.png', fullPage: true });
+    console.log('📸 Capture d\'écran CAS sauvegardée');
     
-    // Remplir les champs
-    const usernameField = await page.$('input[name="username"]') || await page.$('input[name="email"]');
-    const passwordField = await page.$('input[name="password"]');
+    // Essayer de trouver les champs d'authentification avec plusieurs sélecteurs
+    const possibleUserSelectors = [
+      'input[name="username"]',
+      'input[name="email"]', 
+      'input[type="email"]',
+      'input[id="username"]',
+      'input[id="email"]',
+      '#username',
+      '#email'
+    ];
     
-    if (usernameField && passwordField) {
-      await usernameField.type(CAS_USERNAME);
-      await passwordField.type(CAS_PASSWORD);
-      
-      // Chercher et cliquer sur le bouton de soumission
-      const submitButton = await page.$('input[type="submit"], button[type="submit"], button[name="submit"]');
-      if (submitButton) {
-        await Promise.all([
-          page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 30000 }),
-          submitButton.click()
-        ]);
-      } else {
-        throw new Error('Bouton de soumission non trouvé');
+    let usernameField = null;
+    for (const selector of possibleUserSelectors) {
+      try {
+        usernameField = await page.$(selector);
+        if (usernameField) {
+          console.log(`✅ Champ username trouvé avec: ${selector}`);
+          break;
+        }
+      } catch (e) {
+        // Ignore et continue
       }
+    }
+    
+    if (!usernameField) {
+      console.error('❌ Aucun champ username trouvé');
+      throw new Error('Champ username/email non trouvé');
+    }
+    
+    // Remplir le champ username
+    await usernameField.type(CAS_USERNAME);
+    console.log('📝 Username saisi');
+    
+    // Chercher le champ password (peut ne pas être visible immédiatement)
+    const possiblePasswordSelectors = [
+      'input[name="password"]',
+      'input[type="password"]',
+      'input[id="password"]',
+      '#password'
+    ];
+    
+    let passwordField = null;
+    let submitButton = null;
+    
+    // Essayer de trouver le champ password ou un bouton pour continuer
+    for (let attempt = 0; attempt < 3; attempt++) {
+      console.log(`🔍 Tentative ${attempt + 1}/3 de recherche du champ password...`);
+      
+      for (const selector of possiblePasswordSelectors) {
+        try {
+          passwordField = await page.$(selector);
+          if (passwordField) {
+            console.log(`✅ Champ password trouvé avec: ${selector}`);
+            break;
+          }
+        } catch (e) {
+          // Ignore et continue
+        }
+      }
+      
+      if (passwordField) break;
+      
+      // Si pas de champ password, chercher un bouton "Continuer" ou "Suivant"
+      const continueButtons = await page.$$('button, input[type="submit"]');
+      if (continueButtons.length > 0) {
+        console.log('🔄 Pas de champ password, tentative de clic sur bouton continuer...');
+        await continueButtons[0].click();
+        await page.waitForTimeout(2000); // Attendre que la page se charge
+        continue;
+      }
+      
+      await page.waitForTimeout(1000);
+    }
+    
+    // Si on a trouvé le champ password
+    if (passwordField) {
+      await passwordField.type(CAS_PASSWORD);
+      console.log('🔑 Password saisi');
     } else {
-      throw new Error('Champs username/password non trouvés');
+      console.warn('⚠️ Champ password non trouvé, tentative de soumission directe...');
+    }
+    
+    // Chercher et cliquer sur le bouton de soumission
+    const possibleSubmitSelectors = [
+      'input[type="submit"]',
+      'button[type="submit"]', 
+      'button[name="submit"]',
+      'button:contains("Connexion")',
+      'button:contains("Se connecter")',
+      'button:contains("Login")',
+      'form button'
+    ];
+    
+    for (const selector of possibleSubmitSelectors) {
+      try {
+        submitButton = await page.$(selector);
+        if (submitButton) {
+          console.log(`✅ Bouton submit trouvé avec: ${selector}`);
+          break;
+        }
+      } catch (e) {
+        // Ignore et continue
+      }
+    }
+    
+    if (submitButton) {
+      await Promise.all([
+        page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 30000 }),
+        submitButton.click()
+      ]);
+    } else {
+      console.warn('⚠️ Pas de bouton submit trouvé, tentative de soumission par Enter...');
+      await page.keyboard.press('Enter');
+      await page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 30000 });
     }
     
     // Vérifier que nous sommes bien arrivés sur LiSA
