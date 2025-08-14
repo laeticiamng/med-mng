@@ -14,7 +14,7 @@
     "p-limit": "^4.0.0",
     "html-to-text": "^9.0.5",
     "dotenv": "^16.4.5",
-    "puppeteer": "^22.10.0"
+    "puppeteer": "^24.9.0"
   },
   "scripts": {
     "complete": "node complete-by-url-puppeteer.js"

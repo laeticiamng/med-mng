@@ -64,8 +64,20 @@ async function ensureLoggedAndOpen(browser, page, url, reloginFn, attempts = 2) 
     console.log(`🔗 Tentative ${i + 1}/${attempts + 1} pour ${url}`);
     
     try {
-      const resp = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
-      await new Promise(resolve => setTimeout(resolve, 1000)); // stabilisation augmentée
+      // Vérifier que la page n'est pas fermée avant de naviguer
+      if (page.isClosed()) {
+        console.log(`⚠️ Page fermée détectée, création d'une nouvelle page`);
+        page = await browser.newPage();
+        await page.setUserAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+      }
+      
+      const resp = await page.goto(url, { 
+        waitUntil: 'domcontentloaded', 
+        timeout: 45000 
+      });
+      
+      // Attendre que la page soit stable
+      await new Promise(resolve => setTimeout(resolve, 3000));
       
       // Si redirigé vers auth, ou si on voit la page de login → relogin
       const urlNow = page.url();
@@ -74,16 +86,24 @@ async function ensureLoggedAndOpen(browser, page, url, reloginFn, attempts = 2) 
         if (i === attempts) throw new Error('auth_loop');
         await reloginFn();
         // Attendre que l'auth soit complète avant de réessayer
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        await new Promise(resolve => setTimeout(resolve, 3000));
         continue;
       }
       
       // Vérifier le contenu de la page
-      const txtHead = await page.evaluate(() => {
-        if (!document.body) return '';
-        const text = document.body.innerText || '';
-        return text.slice(0, 1000).toLowerCase();
-      });
+      let txtHead = '';
+      try {
+        txtHead = await page.evaluate(() => {
+          if (!document.body) return '';
+          const text = document.body.innerText || '';
+          return text.slice(0, 1000).toLowerCase();
+        });
+      } catch (evalError) {
+        console.log(`⚠️ Erreur lors de l'évaluation du contenu: ${evalError.message}`);
+        if (i === attempts) throw evalError;
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        continue;
+      }
       
       // Si contenu ressemble à la page de login
       if (looksLikeLogin(txtHead)) {
@@ -92,25 +112,39 @@ async function ensureLoggedAndOpen(browser, page, url, reloginFn, attempts = 2) 
         if (i === attempts) throw new Error('login_page_content_detected');
         await reloginFn();
         // Attendre que l'auth soit complète avant de réessayer
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        await new Promise(resolve => setTimeout(resolve, 3000));
         continue;
       }
       
       // OK, on reste sur livret avec contenu valide
-      await page.waitForNetworkIdle({ timeout: 10000 }).catch(() => {
-        console.log(`⚠️ Network idle timeout pour ${url}`);
-      });
+      try {
+        await page.waitForNetworkIdle({ timeout: 5000 });
+      } catch (networkIdleError) {
+        console.log(`⚠️ Network idle timeout pour ${url}, mais on continue`);
+      }
+      
       console.log(`✅ Navigation réussie vers ${url}`);
       return;
       
     } catch (navigationError) {
       console.log(`❌ Erreur navigation (tentative ${i + 1}): ${navigationError.message}`);
+      
+      // Cas spéciaux des frames détachés
+      if (navigationError.message.includes('detached') || navigationError.message.includes('Detached')) {
+        console.log(`🔄 Frame détaché détecté, nouvelle tentative avec authentification`);
+        if (i < attempts) {
+          await reloginFn();
+          await new Promise(resolve => setTimeout(resolve, 3000));
+          continue;
+        }
+      }
+      
       if (i === attempts) throw navigationError;
       
       // Essayer une réauth avant la prochaine tentative
       if (navigationError.message.includes('auth') || i > 0) {
         await reloginFn();
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        await new Promise(resolve => setTimeout(resolve, 3000));
       }
     }
   }
@@ -396,17 +430,89 @@ async function processOne(browser, row) {
     return { updated: 0, skippedError: 1, unchanged: 0 };
   }
 
-  const page = await browser.newPage();
-  page.setDefaultTimeout(30000);
-  
-  // S'assurer que la nouvelle page hérite des cookies de session
-  await page.setUserAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
-  
+  let page = null;
   try {
+    // Créer une nouvelle page avec configuration robuste
+    page = await browser.newPage();
+    page.setDefaultTimeout(45000);
+    
+    // Configuration anti-détection et stabilité
+    await page.setUserAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+    await page.setViewport({ width: 1366, height: 768 });
+    
+    // Bloquer les ressources non essentielles pour éviter les timeouts
+    await page.setRequestInterception(true);
+    page.on('request', (request) => {
+      const resourceType = request.resourceType();
+      if (['image', 'stylesheet', 'font', 'media'].includes(resourceType)) {
+        request.abort();
+      } else {
+        request.continue();
+      }
+    });
+    
     console.log(`   🌐 ${objId}: Navigation vers la page...`);
-    await ensureLoggedAndOpen(browser, page, url, () => casLoginWithPuppeteer(browser), 2);
+    
+    // Fonction de relogin qui utilise le même browser mais une nouvelle page
+    const reloginFn = async () => {
+      console.log(`🔐 Démarrage authentification CAS avec Puppeteer...`);
+      const authPage = await browser.newPage();
+      try {
+        await authPage.setUserAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+        
+        const protectedUrl = 'https://livret.uness.fr/lisa/2025/Cat%C3%A9gorie:Objectif_de_connaissance';
+        
+        console.log('🌐 Navigation vers la page protégée...');
+        await authPage.goto(protectedUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
+        
+        // Vérifier si on est déjà sur LiSA (pas de redirection CAS)
+        const currentUrl = authPage.url();
+        if (currentUrl.includes('livret.uness.fr/lisa')) {
+          console.log('✅ Déjà authentifié');
+          return;
+        }
+        
+        // On est sur la page CAS - procéder à l'authentification
+        console.log('🔑 Détection de la page CAS, authentification...');
+        
+        // Authentification CAS
+        const usernameField = await authPage.$('input[name="username"]');
+        if (usernameField) {
+          await usernameField.type(CAS_USERNAME);
+          console.log('📝 Username saisi');
+        }
+        
+        // Attendre et remplir le password
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        const passwordField = await authPage.$('input[name="password"]');
+        if (passwordField) {
+          await passwordField.type(CAS_PASSWORD);
+          console.log('🔑 Password saisi');
+        }
+        
+        const submitButton = await authPage.$('button[type="submit"]');
+        if (submitButton) {
+          await Promise.all([
+            authPage.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 30000 }),
+            submitButton.click()
+          ]);
+        }
+        
+        console.log('✅ Authentification CAS réussie');
+        
+      } finally {
+        await authPage.close().catch(() => {});
+      }
+    };
+    
+    await ensureLoggedAndOpen(browser, page, url, reloginFn, 2);
     
     console.log(`   📄 ${objId}: Extraction du contenu...`);
+    
+    // Attendre que le contenu soit chargé
+    await page.waitForSelector('body', { timeout: 10000 });
+    await new Promise(resolve => setTimeout(resolve, 2000));
+    
     const text = (await page.evaluate(buildExtractor())) || '';
     const preview = text.length > 80 ? text.substring(0, 80) + '...' : text;
     
@@ -416,6 +522,12 @@ async function processOne(browser, row) {
     if (looksLikeLogin(text)) {
       console.log(`   ⚠️ ${objId}: Page de login détectée dans le contenu extrait`);
       throw new Error('login_page_content_detected');
+    }
+    
+    // Vérifier que le contenu est substantiel
+    if (text.length < 100) {
+      console.log(`   ⚠️ ${objId}: Contenu trop court (${text.length} caractères)`);
+      throw new Error('content_too_short');
     }
     
     // FORCER L'UPDATE avec vérification
@@ -437,7 +549,12 @@ async function processOne(browser, row) {
     
     return { updated: 0, skippedError: 1, unchanged: 0 };
   } finally {
-    try { await page.close(); } catch {}
+    if (page) {
+      try { 
+        await page.removeAllListeners();
+        await page.close(); 
+      } catch {}
+    }
   }
 }
 
