@@ -615,21 +615,20 @@ async function processOne(browser, row) {
       throw new Error('login_page_content_detected');
     }
     
-    // Vérifier que le contenu est substantiel et contient des données OIC
-    if (text.length < 200) {
-      console.log(`   ⚠️ ${objId}: Contenu trop court (${text.length} caractères)`);
-      throw new Error('content_too_short');
-    }
+    // RETIRER TOUTES LES VÉRIFICATIONS DE LONGUEUR - On veut le contenu 100% complet
+    // Seule vérification: pas de page de login ou contenu générique LiSA
     
-    // Vérifier si le contenu contient vraiment des informations OIC
+    // Vérifier si le contenu contient vraiment des informations OIC (sans limite de longueur)
     const hasOICContent = text.toLowerCase().includes('oic-') || 
                          text.toLowerCase().includes('objectif') ||
                          text.toLowerCase().includes('connaissance') ||
-                         text.length > 1000;
+                         text.toLowerCase().includes('rang') ||
+                         text.toLowerCase().includes('item parent') ||
+                         text.length > 50; // Seuil très bas, juste pour éviter les contenus complètement vides
     
-    if (!hasOICContent) {
-      console.log(`   ⚠️ ${objId}: Contenu ne semble pas être du contenu OIC valide`);
-      throw new Error('invalid_oic_content');
+    if (!hasOICContent && text.length < 50) {
+      console.log(`   ⚠️ ${objId}: Contenu complètement vide ou invalide (${text.length} caractères)`);
+      throw new Error('content_empty');
     }
     
     // FORCER L'UPDATE avec vérification
@@ -659,7 +658,7 @@ async function processOne(browser, row) {
         const retryText = (await page.evaluate(buildExtractor())) || '';
         console.log(`   🔄 ${objId}: Nouvelle extraction (${retryText.length} car)`);
         
-        if (retryText.length > 200 && !retryText.includes('State parameter') && !looksLikeLogin(retryText)) {
+        if (retryText.length > 50 && !retryText.includes('State parameter') && !looksLikeLogin(retryText)) {
           await updateDescription(objId, retryText, 200);
           console.log(`   ✅ ${objId}: RÉCUPÉRATION RÉUSSIE - ${retryText.length} caractères copiés`);
           return { updated: 1, skippedError: 0, unchanged: 0 };
@@ -696,7 +695,7 @@ async function mark(objId, patch) {
 
 // Fonction pour détecter si une compétence a du contenu corrompu en base
 function hasCorruptedContent(description) {
-  if (!description || description.length < 200) return true;
+  if (!description) return true; // Pas de description = corrompu
   
   const lower = description.toLowerCase();
   const corruptionIndicators = [
