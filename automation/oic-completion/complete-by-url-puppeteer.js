@@ -52,10 +52,24 @@ const hash = s => crypto.createHash('sha256').update(s || '').digest('hex');
 function looksLikeLogin(text) {
   if (!text) return false;
   const t = text.toLowerCase();
+  
+  // Vérifier d'abord si c'est du contenu OIC valide
+  if (t.includes('objectif de connaissance') || 
+      t.includes('oic-') || 
+      t.includes('version novembre 2024') ||
+      t.includes('item parent') ||
+      t.includes('rang') ||
+      (t.length > 1000 && !t.includes('veuillez saisir'))) {
+    return false; // C'est du contenu valide, pas une page de login
+  }
+  
+  // Détecter les vraies pages de login
   return t.includes('veuillez saisir votre adresse e-mail') || 
-         t.includes('connexion') || 
+         t.includes('connexion à') || 
          t.includes('authentification') ||
-         t.includes('bienvenue !');
+         t.includes('bienvenue !') ||
+         t.includes('cas d\'authentification') ||
+         (t.includes('connexion') && t.length < 500);
 }
 
 // ===== Assurer auth et navigation avec retry =====
@@ -172,20 +186,25 @@ async function casLoginWithPuppeteer(browser) {
     });
   }
   
-  // Fermer toutes les pages existantes sauf une pour éviter les conflits de cookies
-  const pages = await browser.pages();
-  for (let i = 1; i < pages.length; i++) {
-    await pages[i].close().catch(() => {});
-  }
-
   try {
-    const page = await browser.newPage();
+    // Utiliser la première page disponible ou en créer une
+    let page;
+    const pages = await browser.pages();
+    if (pages.length > 0) {
+      page = pages[0];
+    } else {
+      page = await browser.newPage();
+    }
+    
     await page.setUserAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
     
     const protectedUrl = 'https://livret.uness.fr/lisa/2025/Cat%C3%A9gorie:Objectif_de_connaissance';
     
     console.log('🌐 Navigation vers la page protégée...');
-    await page.goto(protectedUrl, { waitUntil: 'networkidle2', timeout: 30000 });
+    await page.goto(protectedUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
+    
+    // Attendre stabilisation
+    await new Promise(resolve => setTimeout(resolve, 2000));
     
     // Vérifier si on est déjà sur LiSA (pas de redirection CAS)
     const currentUrl = page.url();
@@ -310,14 +329,17 @@ async function casLoginWithPuppeteer(browser) {
     
     if (submitButton) {
       await Promise.all([
-        page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 30000 }),
+        page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 30000 }),
         submitButton.click()
       ]);
     } else {
       console.warn('⚠️ Pas de bouton submit trouvé, tentative de soumission par Enter...');
       await page.keyboard.press('Enter');
-      await page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 30000 });
+      await page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 30000 });
     }
+    
+    // Attendre stabilisation après auth
+    await new Promise(resolve => setTimeout(resolve, 3000));
     
     // Vérifier que nous sommes bien arrivés sur LiSA
     const finalUrl = page.url();
@@ -332,7 +354,8 @@ async function casLoginWithPuppeteer(browser) {
     const cookies = await page.cookies();
     console.log(`🍪 ${cookies.length} cookies récupérés après authentification`);
     
-    await page.close();
+    // Garder cette page ouverte pour maintenir la session
+    // await page.close();
     
     if (ownBrowser) await browser.close();
     return browser;
