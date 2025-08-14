@@ -365,6 +365,7 @@ async function processOne(browser, row) {
   
   try {
     console.log(`   🌐 ${objId}: Navigation vers la page...`);
+    console.log(`   🧪 DEBUG: Appel de ensureLoggedAndOpen pour ${objId}`);
     await ensureLoggedAndOpen(browser, page, url, casLoginWithPuppeteer, 2);
     
     console.log(`   📄 ${objId}: Extraction du contenu...`);
