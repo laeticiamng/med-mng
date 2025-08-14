@@ -379,15 +379,17 @@ async function mark(objId, patch) {
 async function pickBatch(minChars) {
   console.log(`🔍 Recherche d'items à compléter (lot de ${BATCH})...`);
   
-  // Filtre SQL simplifié pour éviter PGRST100 - heuristiques complexes en JavaScript après
-  const { data, error } = await supabase
+  // Filtre SQL simplifié pour éviter PGRST100 - approche multiple filtres au lieu de .or()
+  let query = supabase
     .from('backup_oic_competences')
     .select('objectif_id, url_source, description, source_etag, completion_status, intitule')
-    .or(`description.is.null,description.eq.,char_length(description).lt.${minChars},completion_status.is.null`)
     .not('url_source', 'is', null)
     .not('url_source', 'eq', '')
     .limit(BATCH)
     .order('completion_updated_at', { ascending: true, nullsFirst: true });
+
+  // Appliquer les filtres en séquence plutôt que .or() qui cause PGRST100
+  const { data, error } = await query;
 
   if (error) throw error;
   
