@@ -462,17 +462,35 @@ async function run() {
       let idx = 0;
       let updated = 0, skippedError = 0, unchanged = 0;
       
-      const workers = Array.from({ length: CONCURRENCY }, () => (async () => {
-        while (idx < rows.length && processedTotal + idx < MAX_ITEMS) {
-          const row = rows[idx++];
-          const result = await processOneCompetence(browser, row);
-          updated += result.updated;
-          skippedError += result.skippedError;
-          unchanged += (result.updated === 0 && result.skippedError === 0) ? 1 : 0;
+      const workers = Array.from({ length: CONCURRENCY }, (_, workerIndex) => (async () => {
+        console.log(`🚀 Worker ${workerIndex + 1} démarré`);
+        let processedByWorker = 0;
+        
+        while (idx < rows.length) {
+          const rowIndex = idx++;
+          if (rowIndex >= rows.length) break;
+          
+          const row = rows[rowIndex];
+          console.log(`👷 Worker ${workerIndex + 1} traite ${row.objectif_id} (${rowIndex + 1}/${rows.length})`);
+          
+          try {
+            const result = await processOneCompetence(browser, row);
+            updated += result.updated;
+            skippedError += result.skippedError;
+            unchanged += (result.updated === 0 && result.skippedError === 0) ? 1 : 0;
+            processedByWorker++;
+            
+            console.log(`✅ Worker ${workerIndex + 1} terminé ${row.objectif_id}: updated=${result.updated}, error=${result.skippedError}`);
+          } catch (e) {
+            console.error(`❌ Worker ${workerIndex + 1} erreur sur ${row.objectif_id}:`, e.message);
+            skippedError++;
+          }
           
           // Micro-pause pour ménager le site
           await new Promise(r => setTimeout(r, 80));
         }
+        
+        console.log(`🏁 Worker ${workerIndex + 1} terminé: ${processedByWorker} compétences traitées`);
       }));
 
       await Promise.all(workers);
