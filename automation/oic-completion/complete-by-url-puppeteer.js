@@ -4,12 +4,8 @@
 // Source: API MediaWiki (revisions, rvslots=main) -> normalisation -> update Supabase si contenu substantiel.
 
 import { createClient } from '@supabase/supabase-js';
-import axios from 'axios';
-import { wrapper } from 'axios-cookiejar-support';
-import { CookieJar } from 'tough-cookie';
 import pLimit from 'p-limit';
 import crypto from 'node:crypto';
-import { htmlToText } from 'html-to-text';
 import puppeteer from 'puppeteer';
 import dotenv from 'dotenv';
 dotenv.config();
@@ -50,34 +46,72 @@ const CONCURRENCY = parseInt(arg('concurrency', '4'), 10);
 
 console.log(`🎯 Configuration: batch=${BATCH}, minChars=${MIN_CHARS}, concurrency=${CONCURRENCY}`);
 
-// HTTP client avec CookieJar (session CAS)
-const jar = new CookieJar();
-const http = wrapper(axios.create({
-  jar,
-  timeout: 30000,
-  maxRedirects: 5,
-  validateStatus: () => true
-}));
-
-const sleep = ms => new Promise(r => setTimeout(r, ms));
 const hash = s => crypto.createHash('sha256').update(s || '').digest('hex');
 
+// ===== Détection page de login =====
+function looksLikeLogin(text) {
+  if (!text) return false;
+  const t = text.toLowerCase();
+  return t.includes('veuillez saisir votre adresse e-mail') || 
+         t.includes('connexion') || 
+         t.includes('authentification') ||
+         t.includes('bienvenue !');
+}
+
+// ===== Assurer auth et navigation avec retry =====
+async function ensureLoggedAndOpen(browser, page, url, reloginFn, attempts = 2) {
+  for (let i = 0; i <= attempts; i++) {
+    console.log(`🔗 Tentative ${i + 1}/${attempts + 1} pour ${url}`);
+    
+    const resp = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+    await page.waitForTimeout(600); // stabilisation
+    
+    // Si redirigé vers auth, ou si on voit la page de login → relogin
+    const urlNow = page.url();
+    if (urlNow.includes('auth.uness.fr')) {
+      console.log(`🔐 Redirection CAS détectée (tentative ${i + 1})`);
+      if (i === attempts) throw new Error('auth_loop');
+      await reloginFn(browser);
+      continue;
+    }
+    
+    // Si contenu ressemble à la page de login
+    const txtHead = await page.evaluate(() => (document.body && document.body.innerText || '').slice(0, 500));
+    if (looksLikeLogin(txtHead)) {
+      console.log(`🔐 Page de login détectée dans le contenu (tentative ${i + 1})`);
+      if (i === attempts) throw new Error('login_page_detected_after_attempts');
+      await reloginFn(browser);
+      continue;
+    }
+    
+    // OK, on reste sur livret
+    await page.waitForNetworkIdle({ timeout: 15000 }).catch(() => {});
+    console.log(`✅ Navigation réussie vers ${url}`);
+    return;
+  }
+}
+
 // ===== AUTH CAS/OAuth2 avec Puppeteer =====
-async function casLoginWithPuppeteer() {
+async function casLoginWithPuppeteer(browser) {
   console.log('🔐 Démarrage authentification CAS avec Puppeteer...');
   
-  const browser = await puppeteer.launch({
-    headless: true,
-    args: [
-      '--no-sandbox',
-      '--disable-setuid-sandbox',
-      '--disable-dev-shm-usage',
-      '--disable-accelerated-2d-canvas',
-      '--no-first-run',
-      '--no-zygote',
-      '--disable-gpu'
-    ]
-  });
+  // Si pas de browser fourni, en créer un
+  let ownBrowser = false;
+  if (!browser) {
+    ownBrowser = true;
+    browser = await puppeteer.launch({
+      headless: true,
+      args: [
+        '--no-sandbox',
+        '--disable-setuid-sandbox',
+        '--disable-dev-shm-usage',
+        '--disable-accelerated-2d-canvas',
+        '--no-first-run',
+        '--no-zygote',
+        '--disable-gpu'
+      ]
+    });
+  }
 
   try {
     const page = await browser.newPage();
@@ -92,9 +126,9 @@ async function casLoginWithPuppeteer() {
     const currentUrl = page.url();
     if (currentUrl.includes('livret.uness.fr/lisa')) {
       console.log('✅ Déjà authentifié ou accès direct');
-      const cookies = await page.cookies();
-      await browser.close();
-      return extractCookiesForAxios(cookies);
+      await page.close();
+      if (ownBrowser) await browser.close();
+      return browser;
     }
     
     // On est sur la page CAS - procéder à l'authentification
@@ -228,29 +262,15 @@ async function casLoginWithPuppeteer() {
     }
     
     console.log('✅ Authentification CAS réussie avec Puppeteer');
+    await page.close();
     
-    // Extraire les cookies pour axios
-    const cookies = await page.cookies();
-    await browser.close();
-    
-    return extractCookiesForAxios(cookies);
+    if (ownBrowser) await browser.close();
+    return browser;
     
   } catch (error) {
-    await browser.close();
+    if (ownBrowser) await browser.close();
     throw error;
   }
-}
-
-function extractCookiesForAxios(puppeteerCookies) {
-  const cookieHeader = puppeteerCookies
-    .map(cookie => `${cookie.name}=${cookie.value}`)
-    .join('; ');
-  
-  // Configurer axios avec les cookies
-  http.defaults.headers.Cookie = cookieHeader;
-  
-  console.log(`🍪 ${puppeteerCookies.length} cookies configurés pour axios`);
-  return cookieHeader;
 }
 
 // ===== Extraction directe avec Puppeteer =====
@@ -287,31 +307,60 @@ function buildExtractor() {
 `;
 }
 
-async function fetchContentWithPuppeteer(browser, url) {
+// ===== Traitement d'une compétence avec retry auto =====
+async function processOneCompetence(browser, row) {
+  const objId = row.objectif_id;
+  const url = (row.url_source || '').trim();
+  
+  if (!url) {
+    await mark(objId, { completion_status: 'skipped_error', completion_last_error: 'missing_url' });
+    return { updated: 0, skippedEmpty: 0, skippedError: 1 };
+  }
+
   const page = await browser.newPage();
+  page.setDefaultTimeout(30000);
+  
   try {
-    const resp = await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
-    const statusCode = resp?.status() || 0;
-    
-    if (statusCode === 401 || statusCode === 403) {
-      await page.close();
-      throw new Error(`auth_required_${statusCode}`);
-    }
-    
-    if (statusCode < 200 || statusCode >= 400) {
-      await page.close();
-      return { status: statusCode, text: '' };
-    }
+    await ensureLoggedAndOpen(browser, page, url, casLoginWithPuppeteer, 2);
     
     // Extraction du contenu complet
     const text = (await page.evaluate(buildExtractor())) || '';
-    await page.close();
     
-    return { status: 200, text };
+    // Idempotence : éviter les réécritures inutiles
+    const newHash = hash(text);
+    if (newHash === row.source_etag) {
+      return { updated: 0, skippedEmpty: 0, skippedError: 0 }; // déjà à jour
+    }
+
+    // MISE À JOUR SYSTÉMATIQUE (même si vide)
+    const { error: upErr } = await supabase
+      .from('backup_oic_competences')
+      .update({
+        description: text,
+        completion_status: 'updated',
+        completion_last_http: 200,
+        completion_last_error: null,
+        source_etag: newHash
+      })
+      .eq('objectif_id', objId);
+
+    if (upErr) throw upErr;
     
-  } catch (error) {
-    await page.close();
-    throw error;
+    const preview = text.length > 80 ? text.substring(0, 80) + '...' : text;
+    console.log(`   ✅ ${objId}: ${text.length} caractères copiés - "${preview}"`);
+    
+    return { updated: 1, skippedEmpty: 0, skippedError: 0 };
+    
+  } catch (e) {
+    await mark(objId, {
+      completion_status: 'skipped_error',
+      completion_last_http: 0,
+      completion_last_error: String(e).substring(0, 500)
+    });
+    console.log(`   ❌ ${objId}: ${e.message}`);
+    return { updated: 0, skippedEmpty: 0, skippedError: 1 };
+  } finally {
+    try { await page.close(); } catch {}
   }
 }
 
@@ -356,9 +405,7 @@ async function pickBatch() {
 async function run() {
   console.log('🚀 Début du processus de COPIE INTÉGRALE de toutes les compétences OIC');
   
-  await casLoginWithPuppeteer();
-  
-  // Lancer un browser Puppeteer pour l'extraction
+  // Lancer un browser Puppeteer pour l'authentification et extraction
   const browser = await puppeteer.launch({
     headless: true,
     args: [
@@ -373,86 +420,31 @@ async function run() {
   });
 
   try {
+    // Authentification initiale
+    await casLoginWithPuppeteer(browser);
+    
     const rows = await pickBatch();
     if (!rows.length) {
       console.log('✅ Aucune compétence à traiter (lot vide).');
       return;
     }
 
-    console.log(`⚡ COPIE INTÉGRALE de ${rows.length} compétences avec ${CONCURRENCY} requêtes concurrentes`);
+    console.log(`⚡ COPIE INTÉGRALE de ${rows.length} compétences avec concurrence réduite de 2`);
     
-    const limit = pLimit(CONCURRENCY);
+    // Réduire la concurrence pour éviter les problèmes SSO
+    const limit = pLimit(2);
     let updated = 0, skippedError = 0, unchanged = 0;
 
-    await Promise.all(rows.map(row => limit(async () => {
-      const objId = row.objectif_id;
-      const url = (row.url_source || '').trim();
-      if (!url) {
-        await mark(objId, { completion_status: 'skipped_error', completion_last_error: 'missing_url' });
-        skippedError++;
-        return;
-      }
-
-      try {
-        // Extraction avec Puppeteer
-        const result = await fetchContentWithPuppeteer(browser, url);
-        
-        if (result.status !== 200) {
-          await mark(objId, {
-            completion_status: 'skipped_error',
-            completion_last_http: result.status,
-            completion_last_error: `http_${result.status}`
-          });
-          skippedError++;
-          return;
-        }
-
-        // COPIE INTÉGRALE : pas de filtrage, on prend tout
-        const text = result.text || '';
-        
-        // Idempotence : éviter les réécritures inutiles
-        const newHash = hash(text);
-        if (newHash === row.source_etag) {
-          unchanged++;
-          return; // déjà à jour
-        }
-
-        // MISE À JOUR SYSTÉMATIQUE (même si vide)
-        const { error: upErr } = await supabase
-          .from('backup_oic_competences')
-          .update({
-            description: text,
-            completion_status: 'updated',
-            completion_last_http: 200,
-            completion_last_error: null,
-            source_etag: newHash
-          })
-          .eq('objectif_id', objId);
-
-        if (upErr) {
-          await mark(objId, { completion_status: 'skipped_error', completion_last_error: String(upErr) });
-          skippedError++;
-          return;
-        }
-
-        updated++;
-        const preview = text.length > 80 ? text.substring(0, 80) + '...' : text;
-        console.log(`   ✅ ${objId}: ${text.length} caractères copiés - "${preview}"`);
-        
-      } catch (error) {
-        if (error.message.includes('auth_required')) {
-          console.log('🔑 Réauthentification nécessaire pour', objId);
-          await casLoginWithPuppeteer();
-          skippedError++; // À relancer plus tard
-        } else {
-          await mark(objId, { 
-            completion_status: 'skipped_error', 
-            completion_last_error: error.message.substring(0, 500) 
-          });
-          skippedError++;
-        }
-      }
+    const results = await Promise.all(rows.map(row => limit(async () => {
+      return await processOneCompetence(browser, row);
     })));
+
+    // Agréger les résultats
+    results.forEach(result => {
+      updated += result.updated;
+      skippedError += result.skippedError;
+      unchanged += (result.updated === 0 && result.skippedError === 0) ? 1 : 0;
+    });
 
     console.log(`\n🎯 RÉSULTATS COPIE INTÉGRALE:`);
     console.log(`   ✅ Copiés: ${updated}`);
