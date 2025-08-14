@@ -51,7 +51,7 @@ jobs:
           sudo apt-get install -y \
             libx11-xcb1 libxcomposite1 libxcursor1 libxdamage1 libxi6 \
             libxtst6 libnss3 libxss1 libglib2.0-0 libgbm1 libatk1.0-0 \
-            libatk-bridge2.0-0 libgtk-3-0 libdrm2 libasound2 fonts-liberation
+            libatk-bridge2.0-0 libgtk-3-0 libdrm2 libasound2t64 fonts-liberation
 
       - name: Install runner dependencies
         working-directory: automation/oic-completion
