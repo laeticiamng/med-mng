@@ -64,7 +64,7 @@ async function ensureLoggedAndOpen(browser, page, url, reloginFn, attempts = 2) 
     console.log(`🔗 Tentative ${i + 1}/${attempts + 1} pour ${url}`);
     
     const resp = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
-    await page.waitForTimeout(600); // stabilisation
+    await new Promise(resolve => setTimeout(resolve, 600)); // stabilisation
     
     // Si redirigé vers auth, ou si on voit la page de login → relogin
     const urlNow = page.url();
