@@ -53,23 +53,59 @@ function looksLikeLogin(text) {
   if (!text) return false;
   const t = text.toLowerCase();
   
-  // Vérifier d'abord si c'est du contenu OIC valide
-  if (t.includes('objectif de connaissance') || 
-      t.includes('oic-') || 
-      t.includes('version novembre 2024') ||
-      t.includes('item parent') ||
-      t.includes('rang') ||
-      (t.length > 1000 && !t.includes('veuillez saisir'))) {
+  // PRIORITÉ 1: Vérifier si c'est du contenu OIC valide (signes positifs)
+  const validOICIndicators = [
+    'objectif de connaissance',
+    'oic-',
+    'version novembre 2024',
+    'item parent',
+    'rang',
+    'fibrillation atriale',
+    'syndrome vestibulaire',
+    'bilan hormonal',
+    'vulnérabilité',
+    'éléments clés nécessaires',
+    'physiopathologie',
+    'prescrire un bilan',
+    'définition de la',
+    'principes de l\'intégration',
+    'enjeux éthiques',
+    'prévention des erreurs',
+    'drainage pleural',
+    'étiologies des',
+    'sources de données'
+  ];
+  
+  // Si on trouve des indicateurs OIC ET que le contenu est substantiel
+  const hasValidOICContent = validOICIndicators.some(indicator => t.includes(indicator));
+  const isSubstantial = t.length > 500;
+  
+  if (hasValidOICContent && isSubstantial) {
+    console.log(`   ✅ Contenu OIC valide détecté: ${t.length} caractères`);
     return false; // C'est du contenu valide, pas une page de login
   }
   
-  // Détecter les vraies pages de login
-  return t.includes('veuillez saisir votre adresse e-mail') || 
-         t.includes('connexion à') || 
-         t.includes('authentification') ||
-         t.includes('bienvenue !') ||
-         t.includes('cas d\'authentification') ||
-         (t.includes('connexion') && t.length < 500);
+  // PRIORITÉ 2: Détecter les vraies pages de login (signes négatifs)
+  const loginIndicators = [
+    'veuillez saisir votre adresse e-mail',
+    'cas d\'authentification',
+    'bienvenue !',
+    'connexion à',
+    'authentification',
+    'se connecter'
+  ];
+  
+  const hasLoginIndicators = loginIndicators.some(indicator => t.includes(indicator));
+  const isShort = t.length < 1000;
+  
+  // Si c'est court ET contient des indicateurs de login
+  if (hasLoginIndicators && isShort) {
+    console.log(`   🚫 Page de login détectée: ${t.length} caractères`);
+    return true;
+  }
+  
+  // Par défaut, considérer comme contenu valide si substantiel
+  return false;
 }
 
 // ===== Assurer auth et navigation avec retry =====
@@ -547,10 +583,21 @@ async function processOne(browser, row) {
       throw new Error('login_page_content_detected');
     }
     
-    // Vérifier que le contenu est substantiel
-    if (text.length < 100) {
+    // Vérifier que le contenu est substantiel et contient des données OIC
+    if (text.length < 200) {
       console.log(`   ⚠️ ${objId}: Contenu trop court (${text.length} caractères)`);
       throw new Error('content_too_short');
+    }
+    
+    // Vérifier si le contenu contient vraiment des informations OIC
+    const hasOICContent = text.toLowerCase().includes('oic-') || 
+                         text.toLowerCase().includes('objectif') ||
+                         text.toLowerCase().includes('connaissance') ||
+                         text.length > 1000;
+    
+    if (!hasOICContent) {
+      console.log(`   ⚠️ ${objId}: Contenu ne semble pas être du contenu OIC valide`);
+      throw new Error('invalid_oic_content');
     }
     
     // FORCER L'UPDATE avec vérification
