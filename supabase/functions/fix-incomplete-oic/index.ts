@@ -30,7 +30,15 @@ Deno.serve(async (req) => {
 
     const competencesIncompletes = (competencesAll || []).filter((comp: any) => {
       const desc = typeof comp.description === 'string' ? comp.description : ''
-      return !desc || desc.trim().length < 30
+      // Retirer la limite de 30 caractères - toute description manquante ou contenant du contenu générique LiSA
+      if (!desc || desc.trim().length === 0) return true
+      
+      // Détecter le contenu générique LiSA (page d'accueil)
+      const genericLiSAContent = desc.toLowerCase().includes('bienvenue sur lisa edn 2025') ||
+                                 desc.toLowerCase().includes('items de connaissances') ||
+                                 desc.toLowerCase().includes('la conférence des doyens a retenu')
+      
+      return genericLiSAContent
     })
 
     if (queryError) {
@@ -111,8 +119,18 @@ Deno.serve(async (req) => {
         }
 
         const description = extractDescription(html)
-        if (!description || description.length < 30) {
-          console.log(`ℹ️ ${objectifId}: description introuvable ou trop courte`)
+        if (!description) {
+          console.log(`ℹ️ ${objectifId}: description introuvable`)
+          continue
+        }
+        
+        // Vérifier que ce n'est pas du contenu générique LiSA
+        const isGenericLiSA = description.toLowerCase().includes('bienvenue sur lisa edn 2025') ||
+                              description.toLowerCase().includes('items de connaissances') ||
+                              description.toLowerCase().includes('la conférence des doyens a retenu')
+        
+        if (isGenericLiSA) {
+          console.log(`ℹ️ ${objectifId}: contenu générique LiSA détecté, ignoré`)
           continue
         }
 
