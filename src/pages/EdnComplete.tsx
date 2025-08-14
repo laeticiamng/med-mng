@@ -43,11 +43,14 @@ interface ItemStats {
 
 export default function EdnComplete() {
   const { slug } = useParams();
+  const navigate = useNavigate();
   
   // Si on a un slug, rediriger vers la page de détail
-  if (slug) {
-    return <EdnCompleteDetail />;
-  }
+  useEffect(() => {
+    if (slug) {
+      navigate(`/edn/${slug}`, { replace: true });
+    }
+  }, [slug, navigate]);
   
   // Hook principal pour charger les données
   const { items, loading, error } = useEdnItemsComplete();
@@ -67,7 +70,6 @@ export default function EdnComplete() {
   
   const { toast } = useToast();
   const isMobile = useIsMobile();
-  const navigate = useNavigate();
 
   // Fonctions utilitaires
   const getCompletionPercentage = (item: EdnItem): number => {
