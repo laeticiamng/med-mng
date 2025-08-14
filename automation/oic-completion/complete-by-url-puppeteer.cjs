@@ -1,0 +1,308 @@
+// automation/oic-completion/complete-by-url-puppeteer.cjs
+// Complète les OIC existantes à partir de url_source (LiSA).
+// Auth CAS/OAuth2 avec Puppeteer pour gérer l'authentification complexe
+// Source: API MediaWiki (revisions, rvslots=main) -> normalisation -> update Supabase si contenu substantiel.
+
+const { createClient } = require('@supabase/supabase-js');
+const axios = require('axios');
+const { wrapper } = require('axios-cookiejar-support');
+const { CookieJar } = require('tough-cookie');
+const pLimit = require('p-limit');
+const crypto = require('node:crypto');
+const { htmlToText } = require('html-to-text');
+const puppeteer = require('puppeteer');
+require('dotenv').config();
+
+const SUPABASE_URL = process.env.SUPABASE_URL;
+const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const CAS_USERNAME = process.env.CAS_USERNAME;
+const CAS_PASSWORD = process.env.CAS_PASSWORD;
+
+if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
+  console.error('Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY');
+  process.exit(1);
+}
+if (!CAS_USERNAME || !CAS_PASSWORD) {
+  console.error('Missing CAS_USERNAME or CAS_PASSWORD');
+  process.exit(1);
+}
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, { 
+  auth: { persistSession: false } 
+});
+
+// CLI args
+const argv = process.argv.slice(2);
+const arg = (name, def) => {
+  const i = argv.indexOf(`--${name}`);
+  return i >= 0 ? argv[i+1] : def;
+};
+const BATCH = parseInt(arg('batch', '200'), 10);
+const MIN_CHARS = parseInt(arg('minChars', '200'), 10);
+const CONCURRENCY = parseInt(arg('concurrency', '4'), 10);
+
+console.log(`🎯 Configuration: batch=${BATCH}, minChars=${MIN_CHARS}, concurrency=${CONCURRENCY}`);
+
+// HTTP client avec CookieJar (session CAS)
+const jar = new CookieJar();
+const http = wrapper(axios.create({
+  jar,
+  timeout: 30000,
+  maxRedirects: 5,
+  validateStatus: () => true
+}));
+
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const hash = s => crypto.createHash('sha256').update(s || '').digest('hex');
+
+// ===== AUTH CAS/OAuth2 avec Puppeteer =====
+async function casLoginWithPuppeteer() {
+  console.log('🔐 Démarrage authentification CAS avec Puppeteer...');
+  
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-accelerated-2d-canvas',
+      '--no-first-run',
+      '--no-zygote',
+      '--disable-gpu'
+    ]
+  });
+
+  try {
+    const page = await browser.newPage();
+    await page.setUserAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+    
+    const protectedUrl = 'https://livret.uness.fr/lisa/2025/Cat%C3%A9gorie:Objectif_de_connaissance';
+    
+    console.log('🌐 Navigation vers la page protégée...');
+    await page.goto(protectedUrl, { waitUntil: 'networkidle2', timeout: 30000 });
+    
+    // Vérifier si on est déjà sur LiSA (pas de redirection CAS)
+    const currentUrl = page.url();
+    if (currentUrl.includes('livret.uness.fr/lisa')) {
+      console.log('✅ Déjà authentifié ou accès direct');
+      const cookies = await page.cookies();
+      await browser.close();
+      return extractCookiesForAxios(cookies);
+    }
+    
+    // On est sur la page CAS - procéder à l'authentification
+    console.log('🔑 Détection de la page CAS, authentification...');
+    
+    // Attendre les champs de connexion
+    await page.waitForSelector('input[name="username"], input[name="email"]', { timeout: 10000 });
+    await page.waitForSelector('input[name="password"]', { timeout: 5000 });
+    
+    // Remplir les champs
+    const usernameField = await page.$('input[name="username"]') || await page.$('input[name="email"]');
+    const passwordField = await page.$('input[name="password"]');
+    
+    if (usernameField && passwordField) {
+      await usernameField.type(CAS_USERNAME);
+      await passwordField.type(CAS_PASSWORD);
+      
+      // Chercher et cliquer sur le bouton de soumission
+      const submitButton = await page.$('input[type="submit"], button[type="submit"], button[name="submit"]');
+      if (submitButton) {
+        await Promise.all([
+          page.waitForNavigation({ waitUntil: 'networkidle2', timeout: 30000 }),
+          submitButton.click()
+        ]);
+      } else {
+        throw new Error('Bouton de soumission non trouvé');
+      }
+    } else {
+      throw new Error('Champs username/password non trouvés');
+    }
+    
+    // Vérifier que nous sommes bien arrivés sur LiSA
+    const finalUrl = page.url();
+    if (!finalUrl.includes('livret.uness.fr/lisa')) {
+      console.error('❌ URL finale inattendue:', finalUrl);
+      throw new Error('Authentification CAS semble avoir échoué');
+    }
+    
+    console.log('✅ Authentification CAS réussie avec Puppeteer');
+    
+    // Extraire les cookies pour axios
+    const cookies = await page.cookies();
+    await browser.close();
+    
+    return extractCookiesForAxios(cookies);
+    
+  } catch (error) {
+    await browser.close();
+    throw error;
+  }
+}
+
+function extractCookiesForAxios(puppeteerCookies) {
+  const cookieHeader = puppeteerCookies
+    .map(cookie => `${cookie.name}=${cookie.value}`)
+    .join('; ');
+  
+  // Configurer axios avec les cookies
+  http.defaults.headers.Cookie = cookieHeader;
+  
+  console.log(`🍪 ${puppeteerCookies.length} cookies configurés pour axios`);
+  return cookieHeader;
+}
+
+// ===== MediaWiki API =====
+function extractTitleFromUrl(url) {
+  try {
+    const idx = url.indexOf('/lisa/');
+    if (idx < 0) return null;
+    const path = url.slice(idx + 6); // ex "2025/Titre"
+    return decodeURIComponent(path).replace(/^2025\//, '');
+  } catch {
+    return null;
+  }
+}
+
+async function fetchTextFromApi(url) {
+  const title = extractTitleFromUrl(url);
+  if (!title) return { status: 0, error: 'cannot_extract_title' };
+
+  const apiUrl = 'https://livret.uness.fr/lisa/api.php';
+  const params = new URLSearchParams({
+    action: 'query',
+    prop: 'revisions',
+    rvprop: 'content|ids|timestamp',
+    rvslots: 'main',
+    format: 'json',
+    formatversion: '2',
+    titles: title
+  });
+
+  for (let i = 0; i < 3; i++) {
+    try {
+      const res = await http.get(`${apiUrl}?${params.toString()}`);
+      if (res.status === 401 || res.status === 403) {
+        console.log('🔑 Réauthentification nécessaire...');
+        await casLoginWithPuppeteer();
+        continue;
+      }
+      if (res.status !== 200) return { status: res.status };
+      const pages = res.data?.query?.pages || [];
+      if (!pages.length) return { status: 200, text: '' };
+
+      const rev = pages[0]?.revisions?.[0];
+      const wikitext = rev?.slots?.main?.content || '';
+      return { status: 200, text: wikitext };
+    } catch (e) {
+      console.error(`Erreur API (tentative ${i+1}/3):`, e.message);
+      if (i < 2) await sleep(1000 * (i + 1));
+      else return { status: 0, error: String(e) };
+    }
+  }
+}
+
+function normalizeText(wikitext) {
+  if (!wikitext) return '';
+  const m = wikitext.match(/\|[Dd]escription\s*=\s*([\s\S]*?)(?:\n\||\n}})/);
+  const raw = (m ? m[1] : wikitext).trim();
+  return htmlToText(raw, { wordwrap: 0 }).trim();
+}
+
+async function mark(objId, patch) {
+  await supabase
+    .from('backup_oic_competences')
+    .update({ ...patch, completion_updated_at: new Date().toISOString() })
+    .eq('objectif_id', objId);
+}
+
+async function pickBatch(minChars) {
+  console.log(`🔍 Recherche d'items à compléter (lot de ${BATCH})...`);
+  const { data, error } = await supabase
+    .from('backup_oic_competences')
+    .select('objectif_id, url_source, description, source_etag')
+    .or(`description.is.null,description.eq.,char_length(description).lt.${minChars},completion_status.is.null`)
+    .limit(BATCH);
+
+  if (error) throw error;
+  console.log(`📊 ${data?.length || 0} items trouvés à traiter`);
+  return data || [];
+}
+
+async function run() {
+  console.log('🚀 Début du processus de complétion OIC avec Puppeteer');
+  
+  await casLoginWithPuppeteer();
+
+  const rows = await pickBatch(MIN_CHARS);
+  if (!rows.length) {
+    console.log('✅ Aucun item à compléter (lot vide).');
+    return;
+  }
+
+  console.log(`⚡ Traitement de ${rows.length} items avec ${CONCURRENCY} requêtes concurrentes`);
+  
+  const limit = pLimit(CONCURRENCY);
+  let updated = 0, skippedEmpty = 0, skippedError = 0;
+
+  await Promise.all(rows.map(row => limit(async () => {
+    const objId = row.objectif_id;
+    const url = (row.url_source || '').trim();
+    if (!url) {
+      await mark(objId, { completion_status: 'skipped_error', completion_last_error: 'missing_url' });
+      skippedError++;
+      return;
+    }
+
+    const api = await fetchTextFromApi(url);
+    if (api?.status !== 200) {
+      await mark(objId, {
+        completion_status: 'skipped_error',
+        completion_last_http: api?.status || 0,
+        completion_last_error: api?.error || null
+      });
+      skippedError++;
+      return;
+    }
+
+    const text = normalizeText(api.text);
+    const substantial = text && (text.length >= MIN_CHARS || /\n- |\n\d+\./.test(text));
+    if (!substantial) {
+      await mark(objId, { completion_status: 'skipped_empty', completion_last_http: 200 });
+      skippedEmpty++;
+      return;
+    }
+
+    const newHash = hash(text);
+    if (newHash === row.source_etag) {
+      return; // déjà à jour
+    }
+
+    const { error: upErr } = await supabase
+      .from('backup_oic_competences')
+      .update({
+        description: text,
+        completion_status: 'updated',
+        completion_last_http: 200,
+        completion_last_error: null,
+        source_etag: newHash
+      })
+      .eq('objectif_id', objId);
+
+    if (upErr) {
+      await mark(objId, { completion_status: 'skipped_error', completion_last_error: String(upErr) });
+      skippedError++;
+    } else {
+      updated++;
+    }
+  })));
+
+  console.log(`\n📈 RÉSULTATS FINAUX:`);
+  console.log(`🟢 updated=${updated} | 🟡 skipped_empty=${skippedEmpty} | 🔴 skipped_error=${skippedError}`);
+  console.log(`✅ Traitement terminé avec succès`);
+}
+
+run().catch(e => { 
+  console.error('❌ Erreur fatale:', e); 
+  process.exit(1); 
+});

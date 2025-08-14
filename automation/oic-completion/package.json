@@ -1,0 +1,22 @@
+{
+  "name": "oic-completion-runner",
+  "private": true,
+  "version": "1.0.0",
+  "type": "commonjs",
+  "engines": { 
+    "node": ">=18" 
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.0",
+    "axios": "^1.6.0",
+    "axios-cookiejar-support": "^5.0.2",
+    "tough-cookie": "^4.1.3",
+    "p-limit": "^4.0.0",
+    "html-to-text": "^9.0.5",
+    "dotenv": "^16.4.5",
+    "puppeteer": "^22.10.0"
+  },
+  "scripts": {
+    "complete": "node complete-by-url-puppeteer.cjs"
+  }
+}
