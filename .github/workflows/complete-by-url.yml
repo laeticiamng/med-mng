@@ -21,7 +21,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 120
     env:
-      SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+      SUPABASE_URL: "https://yaincoxihiqdksxgrsrk.supabase.co"
       SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
       CAS_USERNAME: ${{ secrets.CAS_USERNAME }}
       CAS_PASSWORD: ${{ secrets.CAS_PASSWORD }}
@@ -60,7 +60,7 @@ jobs:
       - name: Run completion (Puppeteer)
         working-directory: automation/oic-completion
         env:
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_URL: "https://yaincoxihiqdksxgrsrk.supabase.co"
           SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
           CAS_USERNAME: ${{ secrets.CAS_USERNAME }}
           CAS_PASSWORD: ${{ secrets.CAS_PASSWORD }}
