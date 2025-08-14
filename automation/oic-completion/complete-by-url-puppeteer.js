@@ -477,13 +477,18 @@ console.log('🚀 Début du processus de COPIE INTÉGRALE avec boucle automatiqu
       let idx = 0;
       let updated = 0, skippedError = 0, unchanged = 0;
       
+      console.log(`🔧 DEBUG: Création de ${CONCURRENCY} workers pour traiter ${rows.length} compétences`);
+      
       const workers = Array.from({ length: CONCURRENCY }, (_, workerIndex) => (async () => {
         console.log(`🚀 Worker ${workerIndex + 1} démarré`);
         let processedByWorker = 0;
         
-        while (idx < rows.length) {
+        while (true) {
           const rowIndex = idx++;
-          if (rowIndex >= rows.length) break;
+          if (rowIndex >= rows.length) {
+            console.log(`🛑 Worker ${workerIndex + 1}: Plus de compétences à traiter (index ${rowIndex} >= ${rows.length})`);
+            break;
+          }
           
           const row = rows[rowIndex];
           console.log(`👷 Worker ${workerIndex + 1} traite ${row.objectif_id} (${rowIndex + 1}/${rows.length})`);
@@ -508,7 +513,9 @@ console.log('🚀 Début du processus de COPIE INTÉGRALE avec boucle automatiqu
         console.log(`🏁 Worker ${workerIndex + 1} terminé: ${processedByWorker} compétences traitées`);
       }));
 
+      console.log(`⏳ Attente de la fin des ${workers.length} workers...`);
       await Promise.all(workers);
+      console.log(`✅ Tous les workers terminés`);
 
       processedTotal += rows.length;
       updatedTotal += updated;
@@ -517,6 +524,12 @@ console.log('🚀 Début du processus de COPIE INTÉGRALE avec boucle automatiqu
 
       console.log(`📈 Lot traité: updated=${updated} | unchanged=${unchanged} | skipped_error=${skippedError}`);
       console.log(`➡️  Cumul: ${processedTotal}/${MAX_ITEMS} compétences parcourues | updated_total=${updatedTotal} | error_total=${skippedErrorTotal}`);
+      
+      // PROTECTION CONTRE BOUCLE INFINIE
+      if (updated === 0 && skippedError === 0 && unchanged === 0) {
+        console.log(`🚨 ALERTE: Aucune compétence traitée dans ce lot - arrêt pour éviter boucle infinie`);
+        break;
+      }
 
       // Relogin entre les lots pour maintenir la session SSO
       if (processedTotal < MAX_ITEMS && rows.length === BATCH) {
