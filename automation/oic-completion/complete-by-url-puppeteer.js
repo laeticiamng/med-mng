@@ -48,12 +48,32 @@ console.log(`🎯 Configuration: batch=${BATCH}, maxCompetences=${MAX_ITEMS}, co
 
 const hash = s => crypto.createHash('sha256').update(s || '').digest('hex');
 
-// ===== Détection page de login =====
+// ===== Détection page de login et contenu générique LiSA =====
 function looksLikeLogin(text) {
   if (!text) return false;
   const t = text.toLowerCase();
   
-  // PRIORITÉ 1: Vérifier si c'est du contenu OIC valide (signes positifs)
+  // PRIORITÉ 1: Détecter le contenu générique LiSA (page d'accueil)
+  const genericLiSAIndicators = [
+    'bienvenue sur lisa edn 2025',
+    'items de connaissances',
+    'les items de connaissances (fiche lisa)',
+    'la conférence des doyens a retenu sept compétences génériques',
+    'consultez la charte d\'utilisation de la plateforme lisa',
+    'fiches lisa sont attribuées aux collèges',
+    'liste des fiches lisa communes par collège'
+  ];
+  
+  const hasGenericLiSAContent = genericLiSAIndicators.some(indicator => 
+    t.includes(indicator)
+  );
+  
+  if (hasGenericLiSAContent) {
+    console.log(`   🚫 Contenu générique LiSA détecté (page d'accueil au lieu de la fiche)`);
+    return true;
+  }
+  
+  // PRIORITÉ 2: Vérifier si c'est du contenu OIC valide (signes positifs)
   const validOICIndicators = [
     'objectif de connaissance',
     'oic-',
@@ -85,7 +105,7 @@ function looksLikeLogin(text) {
     return false; // C'est du contenu valide, pas une page de login
   }
   
-  // PRIORITÉ 2: Détecter les vraies pages de login (signes négatifs)
+  // PRIORITÉ 3: Détecter les vraies pages de login (signes négatifs)
   const loginIndicators = [
     'veuillez saisir votre adresse e-mail',
     'cas d\'authentification',
@@ -693,7 +713,13 @@ function hasCorruptedContent(description) {
     'mot de passe',
     'se connecter',
     'login',
-    'cas d\'authentification'
+    'cas d\'authentification',
+    // Contenu générique LiSA
+    'bienvenue sur lisa edn 2025',
+    'items de connaissances',
+    'les items de connaissances (fiche lisa)',
+    'la conférence des doyens a retenu sept compétences génériques',
+    'consultez la charte d\'utilisation de la plateforme lisa'
   ];
   
   return corruptionIndicators.some(indicator => lower.includes(indicator));
@@ -702,28 +728,49 @@ function hasCorruptedContent(description) {
 async function getBatch() {
   console.log(`🔍 Récupération d'un lot de ${BATCH} compétences à traiter...`);
   
-  // Priorité 1: Compétences avec du contenu corrompu (pages de login, erreurs)
-  const { data: corruptedData, error: corruptedError } = await supabase
+  // Priorité 1: Compétences nettoyées avec contenu générique LiSA
+  const { data: cleanedData, error: cleanedError } = await supabase
     .from('backup_oic_competences')
     .select('objectif_id, url_source, description, source_etag, completion_status, intitule')
     .not('url_source', 'is', null)
     .not('url_source', 'eq', '')
-    .not('description', 'is', null)
-    .limit(BATCH * 2) // Récupérer plus pour filtrer
+    .eq('completion_last_error', 'generic_lisa_content_detected')
+    .limit(BATCH)
     .order('completion_updated_at', { ascending: true });
 
-  if (corruptedError) throw corruptedError;
+  if (cleanedError) throw cleanedError;
   
-  // Filtrer pour trouver les compétences avec du contenu corrompu
-  const corruptedCompetences = (corruptedData || []).filter(item => 
-    hasCorruptedContent(item.description)
-  ).slice(0, BATCH);
+  console.log(`🔍 ${cleanedData.length} compétences nettoyées (contenu générique LiSA) trouvées`);
   
-  console.log(`🔍 ${corruptedCompetences.length} compétences avec contenu corrompu trouvées`);
+  let finalData = [...cleanedData];
   
-    // Si pas assez de compétences corrompues, compléter avec les non-traitées
-  let finalData = [...corruptedCompetences];
+  // Priorité 2: Compétences avec du contenu corrompu (pages de login, erreurs)
+  if (finalData.length < BATCH) {
+    const remaining = BATCH - finalData.length;
+    console.log(`🔍 Récupération de ${remaining} compétences avec contenu corrompu...`);
+    
+    const { data: corruptedData, error: corruptedError } = await supabase
+      .from('backup_oic_competences')
+      .select('objectif_id, url_source, description, source_etag, completion_status, intitule')
+      .not('url_source', 'is', null)
+      .not('url_source', 'eq', '')
+      .not('description', 'is', null)
+      .not('completion_last_error', 'eq', 'generic_lisa_content_detected')
+      .limit(remaining * 2) // Récupérer plus pour filtrer
+      .order('completion_updated_at', { ascending: true });
+
+    if (corruptedError) throw corruptedError;
+    
+    // Filtrer pour trouver les compétences avec du contenu corrompu
+    const corruptedCompetences = (corruptedData || []).filter(item => 
+      hasCorruptedContent(item.description)
+    ).slice(0, remaining);
+    
+    console.log(`🔍 ${corruptedCompetences.length} compétences avec contenu corrompu trouvées`);
+    finalData = [...finalData, ...corruptedCompetences];
+  }
   
+  // Priorité 3: Si pas assez de compétences corrompues, compléter avec les non-traitées
   if (finalData.length < BATCH) {
     const remaining = BATCH - finalData.length;
     console.log(`🔍 Récupération de ${remaining} compétences non-traitées supplémentaires...`);
@@ -758,8 +805,9 @@ async function getBatch() {
     finalData.slice(0, 2).forEach((item, i) => {
       const status = item.completion_status || 'jamais_traité';
       const isCorrupted = hasCorruptedContent(item.description) ? ' (CONTENU CORROMPU)' : '';
+      const isGenericCleaned = item.completion_last_error === 'generic_lisa_content_detected' ? ' (NETTOYÉ - CONTENU GÉNÉRIQUE LiSA)' : '';
       console.log(`   ${i+1}. [${item.objectif_id}] "${item.intitule?.substring(0, 60)}..."`);
-      console.log(`      Status: ${status}${isCorrupted}`);
+      console.log(`      Status: ${status}${isCorrupted}${isGenericCleaned}`);
     });
   }
   

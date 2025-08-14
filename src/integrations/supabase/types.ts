@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
@@ -503,7 +503,6 @@ export type Database = {
           created_at: string | null
           date_import: string | null
           description: string | null
-          extraction_status: string | null
           hash_content: string | null
           intitule: string | null
           item_parent: string | null
@@ -524,7 +523,6 @@ export type Database = {
           created_at?: string | null
           date_import?: string | null
           description?: string | null
-          extraction_status?: string | null
           hash_content?: string | null
           intitule?: string | null
           item_parent?: string | null
@@ -545,7 +543,6 @@ export type Database = {
           created_at?: string | null
           date_import?: string | null
           description?: string | null
-          extraction_status?: string | null
           hash_content?: string | null
           intitule?: string | null
           item_parent?: string | null
@@ -5610,26 +5607,26 @@ export type Database = {
       audit_and_correct_edn_content: {
         Args: Record<PropertyKey, never>
         Returns: {
-          updated_count: number
           fixed_issues: Json
+          updated_count: number
         }[]
       }
       audit_and_fix_edn_content: {
         Args: Record<PropertyKey, never>
         Returns: {
-          updated_count: number
           audit_report: Json
+          updated_count: number
         }[]
       }
       audit_tableau_duplicates: {
         Args: Record<PropertyKey, never>
         Returns: {
           audit_type: string
-          item_code_result: string
-          issue_description: string
           duplicate_content: string
-          severity: string
+          issue_description: string
+          item_code_result: string
           recommendation: string
+          severity: string
         }[]
       }
       auto_security_maintenance: {
@@ -5639,11 +5636,11 @@ export type Database = {
       calculate_item_completeness_score: {
         Args: {
           p_item_code: string
+          p_paroles_musicales: string[]
+          p_quiz_questions: Json
+          p_scene_immersive: Json
           p_tableau_a: Json
           p_tableau_b: Json
-          p_quiz_questions: Json
-          p_paroles_musicales: string[]
-          p_scene_immersive: Json
         }
         Returns: number
       }
@@ -5656,16 +5653,16 @@ export type Database = {
         Returns: {
           can_generate: boolean
           current_usage: number
-          quota_limit: number
           plan_name: string
+          quota_limit: number
         }[]
       }
       check_rate_limit: {
         Args: {
-          user_identifier: string
           action_type: string
           max_attempts?: number
           time_window_minutes?: number
+          user_identifier: string
         }
         Returns: boolean
       }
@@ -5676,6 +5673,13 @@ export type Database = {
       clean_corrupted_edn_items: {
         Args: Record<PropertyKey, never>
         Returns: number
+      }
+      clean_generic_lisa_content: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          affected_competences: Json
+          cleaned_count: number
+        }[]
       }
       cleanup_duplicates: {
         Args: Record<PropertyKey, never>
@@ -5716,33 +5720,40 @@ export type Database = {
       complete_all_items_with_competences: {
         Args: Record<PropertyKey, never>
         Returns: {
+          items_details: Json
           processed_items: number
-          updated_items: number
           total_competences_rang_a: number
           total_competences_rang_b: number
-          items_details: Json
+          updated_items: number
         }[]
       }
       complete_extraction_batch: {
         Args: {
-          p_log_id: string
-          p_status?: string
-          p_error_message?: string
           p_error_details?: Json
+          p_error_message?: string
+          p_log_id: string
           p_performance_metrics?: Json
+          p_status?: string
         }
         Returns: undefined
       }
       complete_missing_edn_fields: {
         Args: Record<PropertyKey, never>
         Returns: {
-          updated_count: number
           details: Json
+          updated_count: number
         }[]
       }
       count_all_invitations: {
         Args: Record<PropertyKey, never>
         Returns: number
+      }
+      count_generic_lisa_content: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          sample_objectifs: Json
+          total_count: number
+        }[]
       }
       count_invitations_by_status: {
         Args: { status_param: Database["public"]["Enums"]["invitation_status"] }
@@ -5754,20 +5765,20 @@ export type Database = {
       }
       create_generation_alert: {
         Args: {
-          p_alert_type: string
-          p_severity: string
-          p_message: string
-          p_generation_log_id?: string
-          p_threshold_value?: number
           p_actual_value?: number
+          p_alert_type: string
+          p_generation_log_id?: string
+          p_message: string
           p_metadata?: Json
+          p_severity: string
+          p_threshold_value?: number
         }
         Returns: string
       }
       create_notification_from_template: {
         Args: {
-          template_name: string
           target_user_id: string
+          template_name: string
           template_variables?: Json
         }
         Returns: string
@@ -5775,10 +5786,10 @@ export type Database = {
       detect_and_fix_redundancies: {
         Args: Record<PropertyKey, never>
         Returns: {
-          item_code: string
-          issue_type: string
           description: string
           fixed: boolean
+          issue_type: string
+          item_code: string
         }[]
       }
       detect_data_inconsistencies: {
@@ -5792,32 +5803,32 @@ export type Database = {
       emergency_security_cleanup: {
         Args: Record<PropertyKey, never>
         Returns: {
-          cleaned_table: string
           cleaned_column: string
-          records_affected: number
+          cleaned_table: string
           cleanup_type: string
+          records_affected: number
         }[]
       }
       enrich_edn_items_with_oic_competences: {
         Args: Record<PropertyKey, never>
         Returns: {
+          details: Json
+          error_count: number
           processed_count: number
           success_count: number
-          error_count: number
-          details: Json
         }[]
       }
       enrich_edn_items_with_oic_competences_fixed: {
         Args: Record<PropertyKey, never>
         Returns: {
+          details: Json
+          error_count: number
           processed_count: number
           success_count: number
-          error_count: number
-          details: Json
         }[]
       }
       enrich_oic_by_specialty_range: {
-        Args: { start_item: number; end_item: number; specialty_name: string }
+        Args: { end_item: number; specialty_name: string; start_item: number }
         Returns: number
       }
       final_security_check: {
@@ -5827,79 +5838,79 @@ export type Database = {
       fix_all_edn_items_complete_oic_correction: {
         Args: Record<PropertyKey, never>
         Returns: {
-          fixed_count: number
-          errors_count: number
           details: Json
+          errors_count: number
+          fixed_count: number
         }[]
       }
       fix_all_edn_items_complete_uness_correction: {
         Args: Record<PropertyKey, never>
         Returns: {
-          fixed_count: number
-          errors_count: number
           details: Json
+          errors_count: number
+          fixed_count: number
         }[]
       }
       fix_all_edn_items_complete_unique_content: {
         Args: Record<PropertyKey, never>
         Returns: {
-          updated_count: number
           details: Json
+          updated_count: number
         }[]
       }
       fix_all_edn_items_simple_correction: {
         Args: Record<PropertyKey, never>
         Returns: {
-          fixed_count: number
-          errors_count: number
           details: Json
+          errors_count: number
+          fixed_count: number
         }[]
       }
       fix_all_edn_items_with_real_content: {
         Args: Record<PropertyKey, never>
         Returns: {
-          fixed_count: number
           errors_count: number
+          fixed_count: number
         }[]
       }
       fix_all_edn_items_with_real_oic_competences: {
         Args: Record<PropertyKey, never>
         Returns: {
-          fixed_count: number
-          errors_count: number
           details: Json
+          errors_count: number
+          fixed_count: number
         }[]
       }
       fix_all_edn_items_with_unique_content: {
         Args: Record<PropertyKey, never>
         Returns: {
-          updated_count: number
-          error_count: number
           details: Json
+          error_count: number
+          updated_count: number
         }[]
       }
       fix_competences_mapping_correct: {
         Args: Record<PropertyKey, never>
         Returns: {
-          updated_items: number
-          total_competences_added: number
           details: Json
+          total_competences_added: number
+          updated_items: number
         }[]
       }
       fix_generic_content_and_complete_platform: {
         Args: Record<PropertyKey, never>
         Returns: {
-          fixed_count: number
           details: Json
+          fixed_count: number
         }[]
       }
       fusion_complete_finale: {
         Args: Record<PropertyKey, never>
         Returns: {
-          items_traites: number
           competences_oic_integrees: number
-          items_backup_utilises: number
           details: Json
+          items_backup_utilises: number
+          items_traites: number
         }[]
       }
       generate_audit_report: {
@@ -5909,11 +5920,11 @@ export type Database = {
       generate_completeness_alerts: {
         Args: {
           p_item_code: string
+          p_paroles_musicales: string[]
+          p_quiz_questions: Json
+          p_scene_immersive: Json
           p_tableau_a: Json
           p_tableau_b: Json
-          p_quiz_questions: Json
-          p_paroles_musicales: string[]
-          p_scene_immersive: Json
         }
         Returns: string[]
       }
@@ -5932,38 +5943,38 @@ export type Database = {
         }[]
       }
       get_activity_stats: {
-        Args: { p_start_date?: string; p_end_date?: string }
+        Args: { p_end_date?: string; p_start_date?: string }
         Returns: {
           activity_type: string
-          total_count: number
           percentage: number
+          total_count: number
         }[]
       }
       get_all_music_tracks: {
         Args: Record<PropertyKey, never>
         Returns: {
+          audio_url: string
+          created_at: string
+          generation_status: string
           id: string
           title: string
-          generation_status: string
-          audio_url: string
           user_id: string
-          created_at: string
         }[]
       }
       get_anonymous_activity_logs: {
         Args: {
-          p_start_date?: string
-          p_end_date?: string
           p_activity_type?: string
-          p_search_term?: string
+          p_end_date?: string
           p_page?: number
           p_page_size?: number
+          p_search_term?: string
+          p_start_date?: string
         }
         Returns: {
-          id: string
           activity_type: string
           category: string
           count: number
+          id: string
           timestamp_day: string
         }[]
       }
@@ -5974,38 +5985,38 @@ export type Database = {
       get_edn_objectifs_rapport: {
         Args: Record<PropertyKey, never>
         Returns: {
+          completude_pct: number
           item_parent: number
+          manquants: string[]
           objectifs_attendus: number
           objectifs_extraits: number
-          completude_pct: number
-          manquants: string[]
         }[]
       }
       get_extraction_status: {
         Args: { p_batch_id?: string }
         Returns: {
-          id: string
           batch_id: string
           batch_type: string
-          status: string
-          progress_percentage: number
-          total_items: number
-          processed_items: number
-          failed_items: number
-          error_message: string
-          started_at: string
           completed_at: string
           duration_minutes: number
+          error_message: string
+          failed_items: number
+          id: string
+          processed_items: number
+          progress_percentage: number
           recent_events: Json
+          started_at: string
+          status: string
+          total_items: number
         }[]
       }
       get_oic_competences_rapport: {
         Args: Record<PropertyKey, never>
         Returns: {
-          item_parent: string
           competences_attendues: number
           competences_extraites: number
           completude_pct: number
+          item_parent: string
           manquants: string[]
         }[]
       }
@@ -6016,13 +6027,13 @@ export type Database = {
       get_platform_completion_stats: {
         Args: Record<PropertyKey, never>
         Returns: {
-          total_items: number
-          items_with_3_paroles: number
-          items_with_50_qcm: number
-          total_competences_available: number
           competences_rang_a_integrated: number
           competences_rang_b_integrated: number
           completion_percentage: number
+          items_with_3_paroles: number
+          items_with_50_qcm: number
+          total_competences_available: number
+          total_items: number
         }[]
       }
       get_security_headers: {
@@ -6036,10 +6047,10 @@ export type Database = {
       get_user_subscription: {
         Args: { user_uuid: string }
         Returns: {
+          features: Json
+          monthly_quota: number
           plan_id: string
           plan_name: string
-          monthly_quota: number
-          features: Json
           status: string
         }[]
       }
@@ -6050,8 +6061,8 @@ export type Database = {
       integrate_all_oic_competences_into_edn_items: {
         Args: Record<PropertyKey, never>
         Returns: {
-          processed_items: number
           integrated_competences: number
+          processed_items: number
           rang_a_total: number
           rang_b_total: number
           success_details: Json
@@ -6060,113 +6071,113 @@ export type Database = {
       integrate_oic_into_edn_items: {
         Args: Record<PropertyKey, never>
         Returns: {
-          updated_items: number
-          success_count: number
-          error_count: number
           details: Json
+          error_count: number
+          success_count: number
+          updated_items: number
         }[]
       }
       log_admin_change: {
         Args: {
-          p_table_name: string
-          p_record_id: string
-          p_field_name?: string
-          p_old_value?: Json
-          p_new_value?: Json
           p_action_type?: string
+          p_field_name?: string
+          p_new_value?: Json
+          p_old_value?: Json
           p_reason?: string
+          p_record_id: string
+          p_table_name: string
         }
         Returns: string
       }
       log_audio_access: {
         Args: {
-          p_user_id: string
-          p_song_id: string
           p_access_type: string
+          p_bytes_transferred?: number
           p_ip_address?: string
-          p_user_agent?: string
           p_referer?: string
           p_session_duration?: number
-          p_bytes_transferred?: number
+          p_song_id: string
+          p_user_agent?: string
+          p_user_id: string
         }
         Returns: undefined
       }
       log_chat_interaction: {
         Args: {
-          p_user_id: string
+          p_context_used?: Json
           p_question: string
           p_response: string
-          p_context_used?: Json
-          p_tokens_used?: number
           p_response_time_ms?: number
+          p_tokens_used?: number
+          p_user_id: string
         }
         Returns: undefined
       }
       log_ia_usage: {
         Args:
           | {
-              p_service_type: string
-              p_operation_type: string
               p_credits_used?: number
-              p_request_details?: Json
-              p_response_status?: string
               p_error_details?: string
-            }
-          | {
-              p_service_type: string
               p_operation_type: string
-              p_credits_used?: number
               p_request_details?: Json
               p_response_status?: string
               p_response_time_ms?: number
+              p_service_type: string
+            }
+          | {
+              p_credits_used?: number
               p_error_details?: string
+              p_operation_type: string
+              p_request_details?: Json
+              p_response_status?: string
+              p_service_type: string
             }
         Returns: undefined
       }
       log_lyrics_access: {
         Args: {
-          p_user_id: string
-          p_song_id: string
           p_format: string
           p_ip_address?: string
+          p_song_id: string
+          p_user_id: string
         }
         Returns: undefined
       }
       log_security_event: {
         Args:
-          | { event_type: string; event_details?: Json }
+          | { event_details?: Json; event_type: string }
           | {
-              p_event_type: string
               p_event_details?: Json
-              p_user_id?: string
+              p_event_type: string
               p_ip_address?: unknown
+              p_severity?: string
               p_user_agent?: string
+              p_user_id?: string
             }
           | {
-              p_event_type: string
               p_event_details?: Json
-              p_user_id?: string
+              p_event_type: string
               p_ip_address?: unknown
               p_user_agent?: string
-              p_severity?: string
+              p_user_id?: string
             }
         Returns: undefined
       }
       log_security_finding: {
         Args: {
-          _audit_type: string
-          _severity: string
-          _location: string
-          _finding_type: string
-          _description: string
-          _sensitive_data?: string
           _action_taken?: string
+          _audit_type: string
+          _description: string
+          _finding_type: string
+          _location: string
           _metadata?: Json
+          _sensitive_data?: string
+          _severity: string
         }
         Returns: string
       }
       mark_notifications_as_read: {
-        Args: { user_id_param: string; notification_ids?: string[] }
+        Args: { notification_ids?: string[]; user_id_param: string }
         Returns: number
       }
       med_mng_add_song_to_playlist: {
@@ -6183,16 +6194,16 @@ export type Database = {
       }
       med_mng_create_playlist: {
         Args: {
-          playlist_name: string
-          playlist_description?: string
           is_public?: boolean
+          playlist_description?: string
+          playlist_name: string
         }
         Returns: string
       }
       med_mng_create_user_sub: {
         Args: {
-          plan_name: string
           gateway_name: string
+          plan_name: string
           subscription_id?: string
         }
         Returns: undefined
@@ -6202,31 +6213,31 @@ export type Database = {
         Returns: Json
       }
       med_mng_generate_qcm: {
-        Args: { p_item_id: string; p_type: string; p_difficulty?: number }
+        Args: { p_difficulty?: number; p_item_id: string; p_type: string }
         Returns: Json
       }
       med_mng_get_activity_stats: {
-        Args: { p_start_date?: string; p_end_date?: string }
+        Args: { p_end_date?: string; p_start_date?: string }
         Returns: {
           activity_type: string
-          total_count: number
           percentage: number
+          total_count: number
         }[]
       }
       med_mng_get_anonymous_activity_logs: {
         Args: {
-          p_start_date?: string
-          p_end_date?: string
           p_activity_type?: string
-          p_search_term?: string
+          p_end_date?: string
           p_page?: number
           p_page_size?: number
+          p_search_term?: string
+          p_start_date?: string
         }
         Returns: {
-          id: string
           activity_type: string
           category: string
           count: number
+          id: string
           timestamp_day: string
         }[]
       }
@@ -6240,24 +6251,24 @@ export type Database = {
       }
       med_mng_log_listen: {
         Args: {
-          song_id: string
-          duration_seconds?: number
           completion_percentage?: number
           device_type?: string
+          duration_seconds?: number
+          song_id: string
         }
         Returns: undefined
       }
       med_mng_log_listening_event: {
         Args: {
-          p_song_id: string
           p_event_type: string
           p_listen_duration?: number
           p_metadata?: Json
+          p_song_id: string
         }
         Returns: undefined
       }
       med_mng_log_user_activity: {
-        Args: { activity_type_param: string; activity_details_param?: Json }
+        Args: { activity_details_param?: Json; activity_type_param: string }
         Returns: undefined
       }
       med_mng_refresh_monthly_quota: {
@@ -6265,7 +6276,7 @@ export type Database = {
         Returns: undefined
       }
       med_mng_refund_credits: {
-        Args: { p_user_id: string; p_credits: number }
+        Args: { p_credits: number; p_user_id: string }
         Returns: boolean
       }
       med_mng_remove_from_library: {
@@ -6285,34 +6296,34 @@ export type Database = {
         Returns: boolean
       }
       med_mng_track_listening: {
-        Args: { p_song_id: string; p_listen_duration?: number }
+        Args: { p_listen_duration?: number; p_song_id: string }
         Returns: undefined
       }
       merge_all_tables_into_complete: {
         Args: Record<PropertyKey, never>
         Returns: {
-          processed_items: number
-          integrated_competences: number
           backup_items_restored: number
+          integrated_competences: number
+          processed_items: number
           total_unified_records: number
         }[]
       }
       migrate_edn_items_complete: {
         Args: Record<PropertyKey, never>
         Returns: {
+          details: Json
+          error_count: number
           processed_count: number
           success_count: number
-          error_count: number
-          details: Json
         }[]
       }
       migrate_edn_items_to_platform: {
         Args: Record<PropertyKey, never>
         Returns: {
+          details: Json
+          error_count: number
           processed_count: number
           success_count: number
-          error_count: number
-          details: Json
         }[]
       }
       organize_competences_by_item_and_rank: {
@@ -6344,10 +6355,10 @@ export type Database = {
       scan_for_security_violations: {
         Args: Record<PropertyKey, never>
         Returns: {
-          table_name: string
           column_name: string
-          suspicious_data_count: number
           sample_finding: string
+          suspicious_data_count: number
+          table_name: string
         }[]
       }
       security_validation_final: {
@@ -6357,8 +6368,8 @@ export type Database = {
       start_extraction_batch: {
         Args: {
           p_batch_type: string
-          p_total_items?: number
           p_session_data?: Json
+          p_total_items?: number
         }
         Returns: string
       }
@@ -6369,46 +6380,46 @@ export type Database = {
       update_all_edn_items_unique_content: {
         Args: Record<PropertyKey, never>
         Returns: {
-          updated_count: number
           details: Json
+          updated_count: number
         }[]
       }
       update_edn_items_with_real_specific_content: {
         Args: Record<PropertyKey, never>
         Returns: {
-          updated_count: number
           details: Json
+          updated_count: number
         }[]
       }
       update_edn_items_with_specific_content: {
         Args: Record<PropertyKey, never>
         Returns: {
+          error_count: number
           processed_count: number
           success_count: number
-          error_count: number
         }[]
       }
       update_extraction_progress: {
         Args: {
+          p_event_data?: Json
+          p_event_message?: string
+          p_failed_items?: number
           p_log_id: string
           p_processed_items: number
-          p_failed_items?: number
-          p_event_message?: string
-          p_event_data?: Json
         }
         Returns: undefined
       }
       verify_integration_success: {
         Args: Record<PropertyKey, never>
         Returns: {
-          total_items: number
+          avg_competences_per_item: number
+          integration_health_score: number
           items_with_competences: number
           items_without_competences: number
-          avg_competences_per_item: number
+          paroles_generated: number
           rang_a_total: number
           rang_b_total: number
-          paroles_generated: number
-          integration_health_score: number
+          total_items: number
         }[]
       }
       verify_invitation_token: {
@@ -6418,12 +6429,12 @@ export type Database = {
       verify_oic_data_integrity: {
         Args: Record<PropertyKey, never>
         Returns: {
-          total_competences: number
-          with_content: number
-          without_content: number
           by_item: Json
           by_rank: Json
           integrity_score: number
+          total_competences: number
+          with_content: number
+          without_content: number
         }[]
       }
     }
