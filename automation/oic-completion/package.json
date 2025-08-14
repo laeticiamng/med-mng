@@ -2,7 +2,7 @@
   "name": "oic-completion-runner",
   "private": true,
   "version": "1.0.0",
-  "type": "commonjs",
+  "type": "module",
   "engines": { 
     "node": ">=18" 
   },
@@ -17,6 +17,6 @@
     "puppeteer": "^22.10.0"
   },
   "scripts": {
-    "complete": "node complete-by-url-puppeteer.cjs"
+    "complete": "node complete-by-url-puppeteer.js"
   }
 }

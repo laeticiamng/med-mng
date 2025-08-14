@@ -41,10 +41,10 @@ jobs:
           echo "CAS_PASSWORD: $([[ -n "$CAS_PASSWORD" ]] && echo "✅ Present" || echo "❌ Missing")"
           
           echo "Testing Node.js script syntax..."
-          node -c automation/oic-completion/complete-by-url-puppeteer.cjs
+          node -c automation/oic-completion/complete-by-url-puppeteer.js
 
       - name: Run test script
         working-directory: automation/oic-completion
         run: |
           echo "Running with dry-run mode (batch=1)..."
-          node complete-by-url-puppeteer.cjs --batch 1 --minChars 200 --concurrency 1
+          node complete-by-url-puppeteer.js --batch 1 --minChars 200 --concurrency 1
