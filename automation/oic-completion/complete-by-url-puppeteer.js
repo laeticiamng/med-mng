@@ -314,12 +314,48 @@ function itemCodeFromObjectif(objectifId = '') {
   return m ? m[1] : null;
 }
 
-// ===== Traitement d'une compétence avec retry auto =====
+// ===== Mise à jour Supabase avec RETURNING pour vérification =====
+async function updateDescription(objectifId, text, httpCode) {
+  const newHash = hash(text || '');
+  
+  console.log(`   🔄 ${objectifId}: UPDATE avec ${text.length} caractères, hash=${newHash.substring(0,8)}...`);
+  
+  const { data, error } = await supabase
+    .from('backup_oic_competences')
+    .update({
+      description: text ?? '',
+      completion_status: 'updated',
+      completion_last_http: httpCode ?? 200,
+      completion_last_error: null,
+      source_etag: newHash,
+      completion_updated_at: new Date().toISOString()
+    })
+    .eq('objectif_id', objectifId.trim())
+    .select('objectif_id'); // RETURNING pour forcer la vérification
+
+  if (error) {
+    console.log(`   ❌ ${objectifId}: Erreur Supabase: ${error.message}`);
+    throw new Error(`supabase_update_error: ${error.message}`);
+  }
+  
+  if (!data || data.length !== 1) {
+    console.log(`   ❌ ${objectifId}: Aucune ligne mise à jour (data.length=${data?.length || 0})`);
+    throw new Error('no_row_updated');
+  }
+  
+  console.log(`   ✅ ${objectifId}: LIGNE MISE À JOUR CONFIRMÉE`);
+  return true;
+}
+
+// ===== Traitement d'une compétence avec trace complète =====
 async function processOneCompetence(browser, row) {
-  const objId = row.objectif_id;
+  const objId = row.objectif_id?.trim();
   const url = (row.url_source || '').trim();
   
+  console.log(`   🔍 DÉBUT ${objId}: URL=${url}`);
+  
   if (!url) {
+    console.log(`   ❌ ${objId}: URL manquante`);
     await mark(objId, { completion_status: 'skipped_error', completion_last_error: 'missing_url' });
     return { updated: 0, skippedError: 1 };
   }
@@ -328,14 +364,14 @@ async function processOneCompetence(browser, row) {
   page.setDefaultTimeout(30000);
   
   try {
+    console.log(`   🌐 ${objId}: Navigation vers la page...`);
     await ensureLoggedAndOpen(browser, page, url, casLoginWithPuppeteer, 2);
     
-    // Extraction du contenu complet
+    console.log(`   📄 ${objId}: Extraction du contenu...`);
     const text = (await page.evaluate(buildExtractor())) || '';
-    
-    // DEBUG: Log extracted content preview
     const preview = text.length > 80 ? text.substring(0, 80) + '...' : text;
-    console.log(`   🔍 ${objId}: Contenu extrait (${text.length} car): "${preview}"`);
+    
+    console.log(`   📊 ${objId}: Contenu extrait (${text.length} car): "${preview}"`);
     
     // Vérifier si on a récupéré une page de login au lieu du contenu
     if (looksLikeLogin(text)) {
@@ -343,55 +379,23 @@ async function processOneCompetence(browser, row) {
       throw new Error('login_page_content_detected');
     }
     
-    // Calculer le hash pour l'idempotence
-    const newHash = hash(text);
-    const oldHash = row.source_etag;
+    // FORCER L'UPDATE avec vérification
+    console.log(`   💾 ${objId}: Mise à jour en base...`);
+    await updateDescription(objId, text, 200);
     
-    // DEBUG: Log hash comparison
-    console.log(`   🔐 ${objId}: Hash old=${oldHash?.substring(0,8)}... new=${newHash.substring(0,8)}...`);
-    
-    // COPIE INTÉGRALE SYSTÉMATIQUE avec RETURNING pour vérifier l'impact
-    const { data: updData, error: upErr } = await supabase
-      .from('backup_oic_competences')
-      .update({
-        description: text,
-        completion_status: 'updated',
-        completion_last_http: 200,
-        completion_last_error: null,
-        source_etag: newHash,
-        completion_updated_at: new Date().toISOString()
-      })
-      .eq('objectif_id', objId)
-      .select('objectif_id'); // RETURNING pour forcer la vérification
-
-    if (upErr) {
-      await mark(objId, {
-        completion_status: 'skipped_error',
-        completion_last_error: String(upErr)
-      });
-      return { updated: 0, skippedError: 1 };
-    }
-
-    // Vérifier qu'exactement 1 ligne a été mise à jour
-    if (!updData || updData.length !== 1) {
-      await mark(objId, {
-        completion_status: 'skipped_error',
-        completion_last_error: 'no_row_updated'
-      });
-      return { updated: 0, skippedError: 1 };
-    }
-    
-    console.log(`   ✅ ${objId}: MISE À JOUR CONFIRMÉE - ${text.length} caractères - "${preview}"`);
-    
+    console.log(`   ✅ ${objId}: TRAITEMENT RÉUSSI - ${text.length} caractères copiés`);
     return { updated: 1, skippedError: 0 };
     
   } catch (e) {
+    console.log(`   ❌ ${objId}: ERREUR - ${e.message}`);
+    
+    // Marquer l'erreur en base
     await mark(objId, {
       completion_status: 'skipped_error',
       completion_last_http: 0,
       completion_last_error: String(e).substring(0, 500)
     });
-    console.log(`   ❌ ${objId}: ${e.message}`);
+    
     return { updated: 0, skippedError: 1 };
   } finally {
     try { await page.close(); } catch {}
