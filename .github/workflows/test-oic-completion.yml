@@ -23,10 +23,14 @@ jobs:
           node-version: "20"
           cache: "npm"
 
-      - name: Install dependencies
+      - name: Install runner dependencies
+        working-directory: automation/oic-completion
         run: |
-          npm ci || npm i
-          npm i @supabase/supabase-js axios tough-cookie axios-cookiejar-support p-limit html-to-text
+          if [ -f package-lock.json ]; then
+            npm ci --no-audit --no-fund
+          else
+            npm install --no-audit --no-fund
+          fi
 
       - name: Test environment and script
         run: |
@@ -37,7 +41,10 @@ jobs:
           echo "CAS_PASSWORD: $([[ -n "$CAS_PASSWORD" ]] && echo "✅ Present" || echo "❌ Missing")"
           
           echo "Testing Node.js script syntax..."
-          node -c .github/scripts/complete-by-url.cjs
-          
+          node -c automation/oic-completion/complete-by-url-puppeteer.cjs
+
+      - name: Run test script
+        working-directory: automation/oic-completion
+        run: |
           echo "Running with dry-run mode (batch=1)..."
-          node .github/scripts/complete-by-url.cjs --batch 1 --minChars 200 --concurrency 1
+          node complete-by-url-puppeteer.cjs --batch 1 --minChars 200 --concurrency 1
