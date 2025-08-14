@@ -26,32 +26,26 @@ export interface EdnItemComplete {
   quiz_questions?: any;
   scene_immersive?: any;
   paroles_musicales?: string[];
+  paroles_rang_a?: string[];
+  paroles_rang_b?: string[];
+  paroles_rang_ab?: string[];
   pitch_intro?: string;
   created_at: string;
   updated_at: string;
 }
 
-// Hook pour charger seulement les données essentielles rapidement
-export const useEdnItemsEssentials = () => {
-  const [items, setItems] = useState<Partial<EdnItemComplete>[]>([]);
+export const useEdnItemsComplete = () => {
+  const [items, setItems] = useState<EdnItemComplete[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchEssentials = async () => {
+    const fetchItems = async () => {
       try {
         setLoading(true);
         const { data, error } = await supabase
           .from('edn_items_complete')
-          .select(`
-            id,
-            item_code,
-            title,
-            slug,
-            completeness_score,
-            is_validated,
-            competences_count_total
-          `)
+          .select('*')
           .order('item_code');
 
         if (error) throw error;
@@ -63,54 +57,10 @@ export const useEdnItemsEssentials = () => {
       }
     };
 
-    fetchEssentials();
-  }, []);
-
-  return { items, loading, error };
-};
-
-export const useEdnItemsComplete = () => {
-  const [items, setItems] = useState<EdnItemComplete[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchItems = async () => {
-    try {
-      setLoading(true);
-      // Sélectionner uniquement les champs essentiels pour l'affichage initial
-      const { data, error } = await supabase
-        .from('edn_items_complete')
-        .select(`
-          id,
-          item_code,
-          title,
-          slug,
-          specialite,
-          completeness_score,
-          is_validated,
-          competences_count_total,
-          competences_count_rang_a,
-          competences_count_rang_b,
-          status,
-          created_at,
-          updated_at
-        `)
-        .order('item_code');
-
-      if (error) throw error;
-      setItems(data || []);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Une erreur est survenue');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
     fetchItems();
   }, []);
 
-  return { items, loading, error, refetch: fetchItems };
+  return { items, loading, error, refetch: () => window.location.reload() };
 };
 
 export const useEdnItemComplete = (slug: string) => {
@@ -137,7 +87,9 @@ export const useEdnItemComplete = (slug: string) => {
       }
     };
 
-    fetchItem();
+    if (slug) {
+      fetchItem();
+    }
   }, [slug]);
 
   return { item, loading, error };

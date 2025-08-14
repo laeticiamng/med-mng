@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { 
   Search, BookOpen, Award, Users, TrendingUp, Filter, Grid, List, Eye,
   Music, Brain, Play, Headphones, CheckCircle, Sparkles, ArrowRight,
@@ -28,41 +28,29 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { GenerateAllLyricsButton } from "@/components/edn/GenerateAllLyricsButton";
 import { LyricsGenerationManager } from "@/components/edn/LyricsGenerationManager";
 import { CompetencesUpdateChecker } from "@/components/edn/CompetencesUpdateChecker";
-import { useEdnItemsEssentials, useEdnItemsComplete } from "@/hooks/useEdnItemsComplete";
+import { useEdnItemsComplete, type EdnItemComplete } from "@/hooks/useEdnItemsComplete";
+import EdnCompleteDetail from "./EdnCompleteDetail";
 
-interface EdnItem {
-  id: string;
-  item_code: string;
-  title: string;
-  subtitle?: string;
-  slug: string;
-  tableau_rang_a?: any;
-  tableau_rang_b?: any;
-  paroles_musicales?: string[];
-  paroles_rang_a?: string[];
-  paroles_rang_b?: string[];
-  paroles_rang_ab?: string[];
-  scene_immersive?: any;
-  quiz_questions?: any;
-  audio_ambiance?: any;
-  visual_ambiance?: any;
-  payload_v2?: any;
-  updated_at: string;
-  specialite?: string;
-  mots_cles?: string[];
-  competences_count_rang_a?: number;
-  competences_count_rang_b?: number;
-  competences_count_total?: number;
-  completeness_score?: number;
-  is_validated?: boolean;
-  competences_oic_rang_a?: any;
-  competences_oic_rang_b?: any;
+interface EdnItem extends EdnItemComplete {}
+
+interface ItemStats {
+  total: number;
+  complete: number;
+  validated: number;
+  withMusic: number;
+  avgScore: number;
 }
 
 export default function EdnComplete() {
-  // Utiliser les hooks optimisés pour un chargement ultra-rapide
-  const { items: essentialItems, loading: loadingEssentials } = useEdnItemsEssentials();
+  const { slug } = useParams();
   
+  // Si on a un slug, rediriger vers la page de détail
+  if (slug) {
+    return <EdnCompleteDetail />;
+  }
+  
+  // Hook principal pour charger les données
+  const { items, loading, error } = useEdnItemsComplete();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -80,29 +68,20 @@ export default function EdnComplete() {
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
-  
-  // Utiliser les données des hooks optimisés
-  const items = essentialItems as EdnItem[];
-  const loading = loadingEssentials;
 
-  const isItemComplete = (item: EdnItem) => {
-    const hasRangA = !!item.tableau_rang_a;
-    const hasRangB = !!item.tableau_rang_b;
-    const hasMusic = !!(item.paroles_musicales && item.paroles_musicales.length > 0);
-    const hasScene = !!item.scene_immersive;
-    const hasQuiz = !!item.quiz_questions;
-    return hasRangA && hasRangB && hasMusic && hasScene && hasQuiz;
+  // Fonctions utilitaires
+  const getCompletionPercentage = (item: EdnItem): number => {
+    let score = 0;
+    if (item.tableau_rang_a) score += 25;
+    if (item.tableau_rang_b) score += 25;
+    if (item.quiz_questions && Array.isArray(item.quiz_questions) && item.quiz_questions.length >= 2) score += 25;
+    if (item.paroles_musicales && item.paroles_musicales.length > 0) score += 10;
+    if (item.scene_immersive) score += 15;
+    return Math.min(score, 100);
   };
 
-  const getCompletionPercentage = (item: EdnItem) => {
-    const features = [
-      !!item.tableau_rang_a,
-      !!item.tableau_rang_b,
-      !!(item.paroles_musicales && item.paroles_musicales.length > 0),
-      !!item.scene_immersive,
-      !!item.quiz_questions
-    ];
-    return Math.round((features.filter(Boolean).length / features.length) * 100);
+  const isItemComplete = (item: EdnItem): boolean => {
+    return getCompletionPercentage(item) >= 80;
   };
 
   const filteredItems = useMemo(() => {
@@ -138,18 +117,7 @@ export default function EdnComplete() {
     });
   }, [items, searchTerm, selectedCategory, sortBy]);
 
-  // Pagination
-  const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const paginatedItems = filteredItems.slice(startIndex, endIndex);
-
-  // Reset page when filters change
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchTerm, selectedCategory, sortBy]);
-
-  const calculateStats = () => {
+  const calculateStats = (): ItemStats => {
     const total = items.length;
     const complete = items.filter(isItemComplete).length;
     const validated = items.filter(item => item.is_validated).length;
@@ -160,12 +128,17 @@ export default function EdnComplete() {
     return { total, complete, validated, withMusic, avgScore };
   };
 
-  const openItemModal = (item: EdnItem) => {
+  const stats = calculateStats();
+  const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
+  const currentItems = filteredItems.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handleItemClick = (item: EdnItem) => {
     setSelectedItem(item);
     setIsModalOpen(true);
   };
-
-  const stats = calculateStats();
 
   if (loading) {
     return (
@@ -206,528 +179,416 @@ export default function EdnComplete() {
     );
   }
 
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/30 flex items-center justify-center">
+        <Alert className="max-w-md">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
+            Erreur de chargement: {error}
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/30">
-      {/* Header Premium Style Apple */}
+      {/* Header */}
       <div className="bg-white/70 backdrop-blur-xl border-b border-white/20 sticky top-0 z-40 shadow-sm">
         <div className="container mx-auto px-8 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
-                <BookOpen className="h-6 w-6 text-white" />
+              <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-600 to-purple-600 flex items-center justify-center shadow-lg">
+                <BookOpen className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">Interface EDN</h1>
-                <p className="text-slate-600 font-medium">{stats.total} items • Page {currentPage}/{totalPages} • {paginatedItems.length} affichés</p>
+                <h1 className="text-2xl font-bold bg-gradient-to-r from-slate-900 to-slate-700 bg-clip-text text-transparent">
+                  Interface EDN
+                </h1>
+                <p className="text-slate-600">
+                  {stats.total} items • Page {currentPage}/{Math.max(1, totalPages)} • {currentItems.length} affichés
+                </p>
               </div>
             </div>
-            
-            <div className="flex items-center gap-6">
-              <QuotaIndicator compact />
-              <Tabs value={activeTab} onValueChange={setActiveTab}>
-                <TabsList className="bg-white/60 backdrop-blur-sm border border-white/30 shadow-lg rounded-xl p-1">
-                  <TabsTrigger value="immersive" className="text-sm font-medium rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-md">Immersif</TabsTrigger>
-                  <TabsTrigger value="complete" className="text-sm font-medium rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-md">Complet</TabsTrigger>
-                  <TabsTrigger value="music" className="text-sm font-medium rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-md">Paroles</TabsTrigger>
-                  <TabsTrigger value="competences" className="text-sm font-medium rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-md">Compétences</TabsTrigger>
-                  <TabsTrigger value="revision" className="text-sm font-medium rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-md">Révisions</TabsTrigger>
-                  <TabsTrigger value="subscription" className="text-sm font-medium rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-md">Abonnement</TabsTrigger>
-                </TabsList>
-              </Tabs>
-            </div>
+            <QuotaIndicator />
           </div>
         </div>
       </div>
 
       <div className="container mx-auto px-6 py-4">
-        {/* Contrôles */}
-        <div className="flex flex-col gap-3 mb-6">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-            <Input
-              placeholder="Rechercher..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
-            />
-          </div>
+        {/* Tabs */}
+        <Tabs defaultValue="immersive" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-5 bg-white/50 backdrop-blur-sm border border-white/20">
+            <TabsTrigger value="immersive" className="gap-2">
+              <Eye className="w-4 h-4" />
+              Immersif
+            </TabsTrigger>
+            <TabsTrigger value="complete" className="gap-2">
+              <BookOpen className="w-4 h-4" />
+              Complet
+            </TabsTrigger>
+            <TabsTrigger value="lyrics" className="gap-2">
+              <Music className="w-4 h-4" />
+              Paroles
+            </TabsTrigger>
+            <TabsTrigger value="competences" className="gap-2">
+              <Target className="w-4 h-4" />
+              Compétences
+            </TabsTrigger>
+            <TabsTrigger value="revision" className="gap-2">
+              <Brain className="w-4 h-4" />
+              Révisions
+            </TabsTrigger>
+          </TabsList>
 
-          <div className="flex gap-2 items-center justify-between">
-            <div className="flex gap-2">
-              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                <SelectTrigger className="w-[120px]">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Tous</SelectItem>
-                  <SelectItem value="complete">Complets</SelectItem>
-                  <SelectItem value="withMusic">Avec musique</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
-                <SelectTrigger className="w-[120px]">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="item_code">Code</SelectItem>
-                  <SelectItem value="completeness_score">Score</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="flex gap-1 border rounded-md">
-              <Button
-                variant={viewMode === 'grid' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setViewMode('grid')}
-                className="rounded-r-none"
-              >
-                <Grid className="h-4 w-4" />
-              </Button>
-              <Button
-                variant={viewMode === 'list' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setViewMode('list')}
-                className="rounded-l-none"
-              >
-                <List className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </div>
-
-        {/* Contenu des onglets */}
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsContent value="immersive">
-            <div className="grid gap-4">
-              {viewMode === 'grid' ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-8">
-                  {paginatedItems.map(item => (
-                    <Card 
-                      key={item.id} 
-                      className="group cursor-pointer hover:shadow-2xl hover:scale-[1.02] transition-all duration-500 border-0 bg-white/80 backdrop-blur-sm rounded-3xl overflow-hidden hover:-translate-y-2"
-                      onClick={() => openItemModal(item)}
-                    >
-                      <CardContent className="p-0">
-                        <div className="p-8 space-y-6">
-                          {/* Header avec numéro item style Apple */}
-                          <div className="flex items-center justify-between">
-                            <div className="w-16 h-16 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 rounded-2xl flex items-center justify-center shadow-2xl shadow-blue-500/25 group-hover:shadow-blue-500/40 transition-all duration-500">
-                              <span className="text-white font-bold text-lg">{item.item_code.replace('IC-', '')}</span>
-                            </div>
-                            <div className="flex items-center gap-3">
-                              <div className={`w-4 h-4 rounded-full shadow-sm ${
-                                getCompletionPercentage(item) === 100 ? 'bg-emerald-500' : 
-                                getCompletionPercentage(item) > 70 ? 'bg-amber-500' : 'bg-slate-400'
-                              }`}></div>
-                              <Badge variant="outline" className="text-sm font-semibold bg-white/60 backdrop-blur-sm border-white/30 rounded-xl px-3 py-1">
-                                {getCompletionPercentage(item)}%
-                              </Badge>
-                            </div>
-                          </div>
-                          
-                          {/* Titre style Apple */}
-                          <div>
-                            <h3 className="font-bold text-slate-900 text-xl mb-2 tracking-tight">{item.item_code}</h3>
-                            <p className="text-slate-600 line-clamp-3 leading-relaxed text-base">{item.title}</p>
-                          </div>
-                          
-                          {/* Badges fonctionnalités style Apple */}
-                          <div className="flex gap-3 flex-wrap">
-                            {item.scene_immersive && (
-                              <Badge className="bg-gradient-to-r from-blue-500 to-cyan-500 text-white border-0 text-sm font-semibold rounded-full px-4 py-2 shadow-lg">3D</Badge>
-                            )}
-                            {item.quiz_questions && (
-                              <Badge className="bg-gradient-to-r from-emerald-500 to-teal-500 text-white border-0 text-sm font-semibold rounded-full px-4 py-2 shadow-lg">Quiz</Badge>
-                            )}
-                            {item.paroles_musicales && item.paroles_musicales.length > 0 && (
-                              <Badge className="bg-gradient-to-r from-purple-500 to-pink-500 text-white border-0 text-sm font-semibold rounded-full px-4 py-2 shadow-lg">Musique</Badge>
-                            )}
-                          </div>
-                          
-                          {/* Progress bar style Apple */}
-                          <div className="w-full bg-slate-200 rounded-full h-2 overflow-hidden">
-                            <div 
-                              className={`h-full transition-all duration-1000 rounded-full ${
-                                getCompletionPercentage(item) === 100 ? 'bg-gradient-to-r from-emerald-500 to-emerald-600' :
-                                getCompletionPercentage(item) > 70 ? 'bg-gradient-to-r from-amber-500 to-orange-500' :
-                                'bg-gradient-to-r from-slate-400 to-slate-500'
-                              }`}
-                              style={{ width: `${getCompletionPercentage(item)}%` }}
-                            ></div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {paginatedItems.map(item => (
-                    <Card 
-                      key={item.id} 
-                      className="group cursor-pointer hover:shadow-lg hover:bg-slate-50 transition-all duration-200 border border-slate-200"
-                      onClick={() => openItemModal(item)}
-                    >
-                      <CardContent className="p-5">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center shadow-md">
-                              <span className="text-white font-bold text-xs">{item.item_code.replace('IC-', '')}</span>
-                            </div>
-                            <div>
-                              <h3 className="font-semibold text-slate-800">{item.item_code}</h3>
-                              <p className="text-sm text-slate-600">{item.title}</p>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            <div className="flex gap-1">
-                              {item.scene_immersive && <div className="w-2 h-2 bg-blue-500 rounded-full"></div>}
-                              {item.quiz_questions && <div className="w-2 h-2 bg-green-500 rounded-full"></div>}
-                              {item.paroles_musicales && item.paroles_musicales.length > 0 && <div className="w-2 h-2 bg-purple-500 rounded-full"></div>}
-                            </div>
-                            <Badge variant="outline" className="font-medium">{getCompletionPercentage(item)}%</Badge>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              )}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="complete">
-            <div className="grid gap-4">
-              {viewMode === 'grid' ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {filteredItems.map(item => (
-                    <Card key={item.id} className="cursor-pointer hover:shadow-sm" onClick={() => openItemModal(item)}>
-                      <CardContent className="p-4">
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between">
-                            <h3 className="font-semibold">{item.item_code}</h3>
-                            <Badge variant={item.is_validated ? 'default' : 'outline'}>
-                              {item.is_validated ? 'Validé' : 'En attente'}
-                            </Badge>
-                          </div>
-                          <p className="text-sm text-muted-foreground line-clamp-2">{item.title}</p>
-                          <div className="flex gap-2">
-                            <Badge variant="secondary" className="text-xs">
-                              Score: {item.completeness_score || getCompletionPercentage(item)}%
-                            </Badge>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  {filteredItems.map(item => (
-                    <Card key={item.id} className="cursor-pointer hover:shadow-sm" onClick={() => openItemModal(item)}>
-                      <CardContent className="p-3">
-                        <div className="flex items-center justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2">
-                              <span className="font-semibold text-sm">{item.item_code}</span>
-                              <span className="text-sm text-muted-foreground truncate">{item.title}</span>
-                            </div>
-                          </div>
-                          <div className="flex gap-2">
-                            <Badge variant="outline" className="text-xs">
-                              {item.completeness_score || getCompletionPercentage(item)}%
-                            </Badge>
-                            {item.is_validated && (
-                              <Badge variant="default" className="text-xs">Validé</Badge>
-                            )}
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              )}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="music">
-            <div className="space-y-6">
-              <LyricsGenerationManager />
-            </div>
-          </TabsContent>
-
-          <TabsContent value="revision">
-            <RevisionDashboard />
-          </TabsContent>
-
-          <TabsContent value="subscription">
-            <div className="space-y-6">
-              {/* Quota Overview */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <QuotaIndicator showDetails />
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Plan actuel</CardTitle>
-                    <CardDescription>Votre abonnement et fonctionnalités</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <span className="font-medium">
-                          {subscription?.plan_name || 'Plan Gratuit'}
-                        </span>
-                        <Badge variant={subscription ? 'default' : 'secondary'}>
-                          {subscription ? 'Actif' : 'Gratuit'}
-                        </Badge>
-                      </div>
-                      {subscription && (
-                        <div className="text-sm text-muted-foreground">
-                          <p>Quota mensuel: {subscription.monthly_quota} crédits</p>
-                          <p>Statut: {subscription.status}</p>
-                        </div>
-                      )}
-                      {!subscription && (
-                        <div className="space-y-2">
-                          <p className="text-sm text-muted-foreground">
-                            Vous utilisez le plan gratuit avec des fonctionnalités limitées.
-                          </p>
-                          <Button 
-                            onClick={() => setShowPricing(true)}
-                            className="w-full"
-                          >
-                            Découvrir nos plans
-                          </Button>
-                        </div>
-                      )}
+          <TabsContent value="immersive" className="space-y-6">
+            {/* Stats Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+              <Card className="bg-white/60 backdrop-blur-sm border-white/30">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center">
+                      <BookOpen className="w-5 h-5 text-blue-600" />
                     </div>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* Pricing Plans */}
-              {showPricing && (
-                <div>
-                  <h3 className="text-lg font-semibold mb-4">Choisissez votre plan</h3>
-                  <PricingPlans 
-                    onSelectPlan={(planId) => {
-                      navigate(`/med-mng/subscribe/${planId}`);
-                    }}
-                  />
-                </div>
-              )}
-
-              {/* Usage Stats */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Utilisation des fonctionnalités</CardTitle>
-                  <CardDescription>
-                    Découvrez comment optimiser votre apprentissage avec nos outils IA
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div className="p-4 bg-blue-50 rounded-lg">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Music className="h-5 w-5 text-blue-600" />
-                        <span className="font-medium">Musique IA</span>
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        Générez des chansons mnémotechniques personnalisées
-                      </p>
-                      <p className="text-xs mt-2 text-blue-600">
-                        Coût: 5 crédits par génération
-                      </p>
-                    </div>
-                    
-                    <div className="p-4 bg-green-50 rounded-lg">
-                      <div className="flex items-center gap-2 mb-2">
-                        <Brain className="h-5 w-5 text-green-600" />
-                        <span className="font-medium">QCM IA</span>
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        Créez des QCM adaptatifs intelligents
-                      </p>
-                      <p className="text-xs mt-2 text-green-600">
-                        Coût: 2 crédits par QCM
-                      </p>
-                    </div>
-                    
-                    <div className="p-4 bg-purple-50 rounded-lg">
-                      <div className="flex items-center gap-2 mb-2">
-                        <FileText className="h-5 w-5 text-purple-600" />
-                        <span className="font-medium">Bandes Dessinées</span>
-                      </div>
-                      <p className="text-sm text-muted-foreground">
-                        Transformez les concepts en BD éducatives
-                      </p>
-                      <p className="text-xs mt-2 text-purple-600">
-                        Coût: 10 crédits par BD
-                      </p>
+                    <div>
+                      <p className="text-2xl font-bold text-slate-900">{stats.total}</p>
+                      <p className="text-sm text-slate-600">Items total</p>
                     </div>
                   </div>
                 </CardContent>
               </Card>
 
-              {quota <= 5 && (
-                <Alert>
-                  <AlertTriangle className="h-4 w-4" />
-                  <AlertDescription>
-                    Attention: Il vous reste seulement {quota} crédits. 
-                    Considérez un abonnement pour continuer à utiliser nos fonctionnalités IA.
-                  </AlertDescription>
-                </Alert>
-              )}
+              <Card className="bg-white/60 backdrop-blur-sm border-white/30">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-green-100 flex items-center justify-center">
+                      <CheckCircle className="w-5 h-5 text-green-600" />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold text-slate-900">{stats.complete}</p>
+                      <p className="text-sm text-slate-600">Complets</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white/60 backdrop-blur-sm border-white/30">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-purple-100 flex items-center justify-center">
+                      <Award className="w-5 h-5 text-purple-600" />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold text-slate-900">{stats.validated}</p>
+                      <p className="text-sm text-slate-600">Validés</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white/60 backdrop-blur-sm border-white/30">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center">
+                      <Music className="w-5 h-5 text-orange-600" />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold text-slate-900">{stats.withMusic}</p>
+                      <p className="text-sm text-slate-600">Avec musique</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="bg-white/60 backdrop-blur-sm border-white/30">
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-indigo-100 flex items-center justify-center">
+                      <TrendingUp className="w-5 h-5 text-indigo-600" />
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold text-slate-900">{stats.avgScore}%</p>
+                      <p className="text-sm text-slate-600">Score moyen</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             </div>
+
+            {/* Controls */}
+            <div className="flex flex-col gap-3">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <Input
+                  placeholder="Rechercher un item EDN..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 bg-white/50 backdrop-blur-sm border-white/30"
+                />
+              </div>
+
+              <div className="flex gap-2 items-center justify-between">
+                <div className="flex gap-2">
+                  <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                    <SelectTrigger className="w-40 bg-white/50 backdrop-blur-sm border-white/30">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">Tous</SelectItem>
+                      <SelectItem value="complete">Complets</SelectItem>
+                      <SelectItem value="withMusic">Avec musique</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
+                    <SelectTrigger className="w-40 bg-white/50 backdrop-blur-sm border-white/30">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="item_code">Code</SelectItem>
+                      <SelectItem value="completeness_score">Score</SelectItem>
+                      <SelectItem value="updated_at">Date</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="flex gap-2">
+                  <Button
+                    variant={viewMode === 'grid' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setViewMode('grid')}
+                  >
+                    <Grid className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant={viewMode === 'list' ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => setViewMode('list')}
+                  >
+                    <List className="w-4 h-4" />
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            {/* Items Grid */}
+            <div className={viewMode === 'grid' 
+              ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" 
+              : "space-y-4"
+            }>
+              {currentItems.map((item) => (
+                <Card
+                  key={item.id}
+                  className="cursor-pointer hover:shadow-lg transition-all duration-300 bg-white/60 backdrop-blur-sm border-white/30"
+                  onClick={() => handleItemClick(item)}
+                >
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold">
+                          {item.item_code.replace('IC-', '')}
+                        </div>
+                        <div>
+                          <Badge variant="secondary" className="mb-1 text-xs">
+                            {item.item_code}
+                          </Badge>
+                          <h3 className="font-semibold text-sm leading-tight line-clamp-2">
+                            {item.title}
+                          </h3>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge 
+                          variant={getCompletionPercentage(item) >= 80 ? "default" : "secondary"}
+                          className="text-xs"
+                        >
+                          {getCompletionPercentage(item)}%
+                        </Badge>
+                        {item.is_validated && (
+                          <Badge variant="outline" className="text-green-600 border-green-600">
+                            Validé
+                          </Badge>
+                        )}
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <div className="flex items-center justify-between">
+                      <div className="flex gap-2">
+                        {item.tableau_rang_a && (
+                          <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
+                            <BookOpen className="w-4 h-4 text-blue-600" />
+                          </div>
+                        )}
+                        {item.paroles_musicales && item.paroles_musicales.length > 0 && (
+                          <div className="w-8 h-8 rounded-lg bg-orange-100 flex items-center justify-center">
+                            <Music className="w-4 h-4 text-orange-600" />
+                          </div>
+                        )}
+                        {item.scene_immersive && (
+                          <div className="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center">
+                            <Eye className="w-4 h-4 text-purple-600" />
+                          </div>
+                        )}
+                        {item.quiz_questions && (
+                          <div className="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center">
+                            <Brain className="w-4 h-4 text-green-600" />
+                          </div>
+                        )}
+                      </div>
+                      <Button size="sm" variant="ghost">
+                        <ArrowRight className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-center space-x-2 pt-6">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(prev => Math.max(prev - 1, 1))}
+                  disabled={currentPage === 1}
+                >
+                  Précédent
+                </Button>
+                
+                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                  const pageNum = i + 1;
+                  return (
+                    <Button
+                      key={pageNum}
+                      variant={currentPage === pageNum ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => setCurrentPage(pageNum)}
+                    >
+                      {pageNum}
+                    </Button>
+                  );
+                })}
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setCurrentPage(prev => Math.min(prev + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                >
+                  Suivant
+                </Button>
+              </div>
+            )}
+          </TabsContent>
+
+          <TabsContent value="complete">
+            <div className="text-center py-12">
+              <h3 className="text-lg font-semibold mb-2">Mode Complet</h3>
+              <p className="text-muted-foreground">Fonctionnalité en cours de développement</p>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="lyrics">
+            <LyricsGenerationManager />
           </TabsContent>
 
           <TabsContent value="competences">
             <CompetencesUpdateChecker />
           </TabsContent>
 
-          <TabsContent value="unified">
-            <div className="grid gap-4">
-              {viewMode === 'grid' ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {filteredItems.map(item => (
-                    <Card key={item.id} className="cursor-pointer hover:shadow-sm" onClick={() => openItemModal(item)}>
-                      <CardContent className="p-4">
-                        <div className="space-y-3">
-                          <div className="flex items-center justify-between">
-                            <h3 className="font-semibold">{item.item_code}</h3>
-                            <Badge variant="outline">{getCompletionPercentage(item)}%</Badge>
-                          </div>
-                          <p className="text-sm text-muted-foreground line-clamp-2">{item.title}</p>
-                          <div className="flex gap-1 flex-wrap">
-                            {item.tableau_rang_a && (
-                              <Badge variant="secondary" className="text-xs">Rang A</Badge>
-                            )}
-                            {item.tableau_rang_b && (
-                              <Badge variant="secondary" className="text-xs">Rang B</Badge>
-                            )}
-                            {item.paroles_musicales && item.paroles_musicales.length > 0 && (
-                              <Badge variant="secondary" className="text-xs">Musique</Badge>
-                            )}
-                            {item.scene_immersive && (
-                              <Badge variant="secondary" className="text-xs">3D</Badge>
-                            )}
-                            {item.quiz_questions && (
-                              <Badge variant="secondary" className="text-xs">Quiz</Badge>
-                            )}
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  {filteredItems.map(item => (
-                    <Card key={item.id} className="cursor-pointer hover:shadow-sm" onClick={() => openItemModal(item)}>
-                      <CardContent className="p-3">
-                        <div className="flex items-center justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="font-semibold text-sm">{item.item_code}</span>
-                              <span className="text-sm text-muted-foreground truncate">{item.title}</span>
-                            </div>
-                            <div className="flex gap-1">
-                              {item.tableau_rang_a && <Badge variant="secondary" className="text-xs px-1">A</Badge>}
-                              {item.tableau_rang_b && <Badge variant="secondary" className="text-xs px-1">B</Badge>}
-                              {item.paroles_musicales && item.paroles_musicales.length > 0 && <Badge variant="secondary" className="text-xs px-1">M</Badge>}
-                              {item.scene_immersive && <Badge variant="secondary" className="text-xs px-1">3D</Badge>}
-                              {item.quiz_questions && <Badge variant="secondary" className="text-xs px-1">Q</Badge>}
-                            </div>
-                          </div>
-                          <Badge variant="outline" className="text-xs">
-                            {getCompletionPercentage(item)}%
-                          </Badge>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              )}
-            </div>
+          <TabsContent value="revision">
+            <RevisionDashboard />
           </TabsContent>
         </Tabs>
-
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex items-center justify-center gap-4 mt-8">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setCurrentPage(currentPage - 1)}
-              disabled={currentPage === 1}
-              className="px-4"
-            >
-              Précédent
-            </Button>
-            
-            <div className="flex items-center gap-2">
-              {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                let pageNum;
-                if (totalPages <= 5) {
-                  pageNum = i + 1;
-                } else if (currentPage <= 3) {
-                  pageNum = i + 1;
-                } else if (currentPage >= totalPages - 2) {
-                  pageNum = totalPages - 4 + i;
-                } else {
-                  pageNum = currentPage - 2 + i;
-                }
-                
-                return (
-                  <Button
-                    key={pageNum}
-                    variant={currentPage === pageNum ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setCurrentPage(pageNum)}
-                    className="w-10 h-10 p-0"
-                  >
-                    {pageNum}
-                  </Button>
-                );
-              })}
-            </div>
-            
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setCurrentPage(currentPage + 1)}
-              disabled={currentPage === totalPages}
-              className="px-4"
-            >
-              Suivant
-            </Button>
-          </div>
-        )}
-
-        {filteredItems.length === 0 && (
-          <Card className="text-center py-8">
-            <CardContent>
-              <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-              <h3 className="font-semibold mb-2">Aucun résultat</h3>
-              <p className="text-sm text-muted-foreground">
-                Aucun item ne correspond à vos critères.
-              </p>
-            </CardContent>
-          </Card>
-        )}
       </div>
 
-      {/* Modal avec nouveau design Apple */}
-      {selectedItem && (
-        <AppleStyleItemModalFixed
-          item={selectedItem}
-          isOpen={isModalOpen}
-          onClose={() => {
-            setIsModalOpen(false);
-            setSelectedItem(null);
-          }}
-        />
+      {/* Modal Simple */}
+      {isModalOpen && selectedItem && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b p-6 flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold">{selectedItem.item_code}</h2>
+                <p className="text-slate-600">{selectedItem.title}</p>
+              </div>
+              <Button variant="ghost" size="sm" onClick={() => setIsModalOpen(false)}>
+                ×
+              </Button>
+            </div>
+            <div className="p-6">
+              <div className="space-y-6">
+                <div>
+                  <h3 className="text-lg font-semibold mb-3">Aperçu de l'item</h3>
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="text-center p-4 bg-slate-50 rounded-lg">
+                      <BookOpen className="w-8 h-8 mx-auto text-blue-600 mb-2" />
+                      <p className="text-sm font-medium">Tableaux</p>
+                      <p className="text-xs text-slate-500">
+                        {(selectedItem.tableau_rang_a ? 1 : 0) + (selectedItem.tableau_rang_b ? 1 : 0)}/2
+                      </p>
+                    </div>
+                    <div className="text-center p-4 bg-slate-50 rounded-lg">
+                      <Music className="w-8 h-8 mx-auto text-orange-600 mb-2" />
+                      <p className="text-sm font-medium">Musique</p>
+                      <p className="text-xs text-slate-500">
+                        {selectedItem.paroles_musicales?.length || 0} paroles
+                      </p>
+                    </div>
+                    <div className="text-center p-4 bg-slate-50 rounded-lg">
+                      <Eye className="w-8 h-8 mx-auto text-purple-600 mb-2" />
+                      <p className="text-sm font-medium">Scène</p>
+                      <p className="text-xs text-slate-500">
+                        {selectedItem.scene_immersive ? 'Disponible' : 'Non disponible'}
+                      </p>
+                    </div>
+                    <div className="text-center p-4 bg-slate-50 rounded-lg">
+                      <Brain className="w-8 h-8 mx-auto text-green-600 mb-2" />
+                      <p className="text-sm font-medium">Quiz</p>
+                      <p className="text-xs text-slate-500">
+                        {Array.isArray(selectedItem.quiz_questions) ? selectedItem.quiz_questions.length : 0} questions
+                      </p>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="flex gap-4">
+                  <Link
+                    to={`/edn/${selectedItem.slug}`}
+                    className="flex-1"
+                    onClick={() => setIsModalOpen(false)}
+                  >
+                    <Button className="w-full">
+                      Ouvrir l'item complet
+                    </Button>
+                  </Link>
+                  <Button variant="outline" onClick={() => setIsModalOpen(false)}>
+                    Fermer
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Pricing Modal */}
+      {showPricing && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b p-6 flex items-center justify-between">
+              <h2 className="text-2xl font-bold">Plans d'abonnement</h2>
+              <Button variant="ghost" size="sm" onClick={() => setShowPricing(false)}>
+                ×
+              </Button>
+            </div>
+            <div className="p-6">
+              <PricingPlans />
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
