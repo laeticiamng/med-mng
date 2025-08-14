@@ -66,6 +66,12 @@ export const MiniStatusIndicator: React.FC = () => {
     const oicStr = oicScore === null ? '—' : `${Math.round(oicScore)}%`;
     return `${global}% | OIC ${oicStr}`;
   }, [global, oicScore]);
-  return;
+  return (
+    <Badge variant="outline" className="flex items-center gap-1.5 text-xs">
+      <div className={`w-2 h-2 rounded-full ${dotCls(status?.status)}`} />
+      <Activity className={`w-3 h-3 ${updating ? 'animate-pulse' : ''}`} />
+      <span>{label}</span>
+    </Badge>
+  );
 };
 export default MiniStatusIndicator;
