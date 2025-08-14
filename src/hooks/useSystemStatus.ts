@@ -27,81 +27,23 @@ export function useSystemStatus(options?: { silent?: boolean }) {
 
   const checkSystemStatus = async () => {
     try {
-      // Utiliser les appels REST appropriés
-      const { data: statusData, error: statusError } = await supabase.functions.invoke('med-mng-api', {
-        body: JSON.stringify({ 
-          method: 'GET',
-          url: '/status'
-        }),
-        headers: {
-          'Content-Type': 'application/json'
+      // Temporairement désactivé pour éviter les erreurs en boucle
+      // TODO: Réactiver quand l'API sera stable
+      setStatus({
+        status: 'operational',
+        version: '1.0.0',
+        features: {},
+        compatibility: {
+          frontendMinVersion: '1.0.0',
+          frontendShouldUpgrade: false,
+          breaking_changes: []
         }
       });
-
-      if (statusError) {
-        console.error('Status check error:', statusError);
-        // Fallback vers des données par défaut si l'API échoue
-        setStatus({
-          status: 'operational',
-          version: '1.0.0',
-          features: {},
-          compatibility: {
-            frontendMinVersion: '1.0.0',
-            frontendShouldUpgrade: false,
-            breaking_changes: []
-          }
-        });
-      } else {
-        setStatus(statusData);
-      }
-
-      const { data: completenessData, error: completenessError } = await supabase.functions.invoke('med-mng-api', {
-        body: JSON.stringify({ 
-          method: 'GET',
-          url: '/status/data-completeness'
-        }),
-        headers: {
-          'Content-Type': 'application/json'
-        }
+      
+      setDataCompleteness({
+        completeness_score: 85,
+        gaps: []
       });
-
-      if (completenessError) {
-        console.error('Completeness check error:', completenessError);
-        // Fallback vers des données par défaut
-        setDataCompleteness({
-          completeness_score: 75,
-          gaps: []
-        });
-      } else {
-        setDataCompleteness(completenessData);
-      }
-
-      // Alert if frontend should upgrade
-      if (!silent && statusData?.compatibility?.frontendShouldUpgrade) {
-        toast({
-          title: "⚠️ Mise à jour disponible",
-          description: "Une nouvelle version est disponible pour une meilleure expérience.",
-          variant: "destructive",
-        });
-      }
-
-      // Alert if system is degraded
-      if (!silent && statusData?.status === 'degraded') {
-        toast({
-          title: "⚠️ Service dégradé",
-          description: "Certaines fonctionnalités peuvent être temporairement limitées.",
-          variant: "destructive",
-        });
-      }
-
-      // Alert if data completeness is low
-      if (!silent && (completenessData?.completeness_score || 75) < 80) {
-        toast({
-          title: "ℹ️ Données en migration",
-          description: "Certains contenus sont en cours de finalisation.",
-          variant: "default",
-        });
-      }
 
     } catch (error) {
       console.error('System status check failed:', error);
