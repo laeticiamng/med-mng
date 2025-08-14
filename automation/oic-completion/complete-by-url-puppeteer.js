@@ -253,120 +253,66 @@ function extractCookiesForAxios(puppeteerCookies) {
   return cookieHeader;
 }
 
-// ===== MediaWiki API =====
-function extractTitleFromUrl(url) {
-  try {
-    const idx = url.indexOf('/lisa/');
-    if (idx < 0) return null;
-    const path = url.slice(idx + 6); // ex "2025/Titre"
-    return decodeURIComponent(path).replace(/^2025\//, '');
-  } catch {
-    return null;
-  }
-}
-
-async function fetchTextFromApi(url) {
-  const title = extractTitleFromUrl(url);
-  if (!title) return { status: 0, error: 'cannot_extract_title' };
-
-  const apiUrl = 'https://livret.uness.fr/lisa/api.php';
-  const params = new URLSearchParams({
-    action: 'query',
-    prop: 'revisions',
-    rvprop: 'content|ids|timestamp',
-    rvslots: 'main',
-    format: 'json',
-    formatversion: '2',
-    titles: title
-  });
-
-  for (let i = 0; i < 3; i++) {
-    try {
-      const res = await http.get(`${apiUrl}?${params.toString()}`);
-      if (res.status === 401 || res.status === 403) {
-        console.log('🔑 Réauthentification nécessaire...');
-        await casLoginWithPuppeteer();
-        continue;
-      }
-      if (res.status !== 200) return { status: res.status };
-      const pages = res.data?.query?.pages || [];
-      if (!pages.length) return { status: 200, text: '' };
-
-      const rev = pages[0]?.revisions?.[0];
-      const wikitext = rev?.slots?.main?.content || '';
-      return { status: 200, text: wikitext };
-    } catch (e) {
-      console.error(`Erreur API (tentative ${i+1}/3):`, e.message);
-      if (i < 2) await sleep(1000 * (i + 1));
-      else return { status: 0, error: String(e) };
-    }
-  }
-}
-
-function normalizeText(wikitext) {
-  if (!wikitext) return '';
-  
-  // Stratégie d'extraction élargie pour récupérer TOUT le contenu utile
-  let extractedContent = '';
-  
-  // 1. Essayer d'extraire le champ Description spécifique
-  const descMatch = wikitext.match(/\|[Dd]escription\s*=\s*([\s\S]*?)(?:\n\||\n}})/);
-  if (descMatch && descMatch[1].trim()) {
-    extractedContent = descMatch[1].trim();
-  }
-  
-  // 2. Si pas de Description, extraire le contenu principal de la page
-  if (!extractedContent || extractedContent.length < 100) {
-    // Chercher d'autres sections utiles
-    const contentPatterns = [
-      /\|[Cc]ontenu\s*=\s*([\s\S]*?)(?:\n\||\n}})/,         // Champ Contenu
-      /\|[Tt]exte\s*=\s*([\s\S]*?)(?:\n\||\n}})/,           // Champ Texte  
-      /\|[Dd]éfinition\s*=\s*([\s\S]*?)(?:\n\||\n}})/,      // Champ Définition
-      /==\s*Description\s*==([\s\S]*?)(?:==|\{\{|$)/i,      // Section Description
-      /==\s*Définition\s*==([\s\S]*?)(?:==|\{\{|$)/i,       // Section Définition
-      /==\s*Contenu\s*==([\s\S]*?)(?:==|\{\{|$)/i,          // Section Contenu
-      /==\s*Objectif\s*==([\s\S]*?)(?:==|\{\{|$)/i,         // Section Objectif
-    ];
+// ===== Extraction directe avec Puppeteer =====
+function buildExtractor() {
+  return `
+(() => {
+  // Extraction "copier-coller" intégrale du contenu visible
+  // Prend la zone centrale MediaWiki et préserve la structure
+  const pickText = (sel) => {
+    const el = document.querySelector(sel);
+    if (!el) return '';
     
-    for (const pattern of contentPatterns) {
-      const match = wikitext.match(pattern);
-      if (match && match[1].trim() && match[1].trim().length > extractedContent.length) {
-        extractedContent = match[1].trim();
-      }
-    }
+    // Remplacer <br> par \\n avant d'interroger innerText
+    el.querySelectorAll('br').forEach(br => br.replaceWith(document.createTextNode('\\n')));
+    
+    // Nettoyer les éléments de navigation/menu
+    const toRemove = el.querySelectorAll('#toc, .navigation, .mw-navigation, .sidebar, .navbox');
+    toRemove.forEach(elem => elem.remove());
+    
+    const txt = (el.innerText || '').replace(/\\u00A0/g, ' ').trim();
+    return txt;
+  };
+
+  // Essayer plusieurs sélecteurs par ordre de préférence
+  const candidates = ['#mw-content-text', '.mw-parser-output', 'article', 'main', '#content'];
+  for (const c of candidates) {
+    const t = pickText(c);
+    if (t && t.length >= 1) return t;
   }
   
-  // 3. En dernier recours, prendre tout le wikitext si rien d'autre n'est trouvé
-  if (!extractedContent || extractedContent.length < 50) {
-    extractedContent = wikitext;
-  }
-  
-  // 4. Nettoyage et conversion vers texte pur
-  let cleanText = htmlToText(extractedContent, { 
-    wordwrap: 0,
-    preserveNewlines: true,
-    formatters: {
-      // Formatter personnalisé pour préserver certaines structures
-      'anchor': function (elem, walk, builder) {
-        const href = elem.attribs && elem.attribs.href;
-        const text = elem.children && elem.children.length > 0 ? walk(elem.children, builder) : '';
-        return text; // Garder juste le texte des liens
-      }
+  // Dernier recours : tout le body
+  return (document.body && document.body.innerText || '').replace(/\\u00A0/g, ' ').trim();
+})()
+`;
+}
+
+async function fetchContentWithPuppeteer(browser, url) {
+  const page = await browser.newPage();
+  try {
+    const resp = await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
+    const statusCode = resp?.status() || 0;
+    
+    if (statusCode === 401 || statusCode === 403) {
+      await page.close();
+      throw new Error(`auth_required_${statusCode}`);
     }
-  }).trim();
-  
-  // 5. Nettoyages supplémentaires spécifiques au format MediaWiki
-  cleanText = cleanText
-    .replace(/\{\{[^}]*\}\}/g, '')                    // Enlever les templates MediaWiki
-    .replace(/\[\[([^|\]]*\|)?([^\]]*)\]\]/g, '$2')   // Convertir les liens internes
-    .replace(/'{2,}/g, '')                            // Enlever le markup bold/italic
-    .replace(/^[\s\*\-\#]*/, '')                      // Enlever les bullets en début
-    .replace(/\n\s*\n\s*\n/g, '\n\n')                // Normaliser les sauts de ligne multiples
-    .replace(/^\s+|\s+$/g, '')                       // Trim
-    .replace(/\s+/g, ' ')                            // Normaliser les espaces
-    .trim();
-  
-  return cleanText;
+    
+    if (statusCode < 200 || statusCode >= 400) {
+      await page.close();
+      return { status: statusCode, text: '' };
+    }
+    
+    // Extraction du contenu complet
+    const text = (await page.evaluate(buildExtractor())) || '';
+    await page.close();
+    
+    return { status: 200, text };
+    
+  } catch (error) {
+    await page.close();
+    throw error;
+  }
 }
 
 async function mark(objId, patch) {
@@ -376,11 +322,11 @@ async function mark(objId, patch) {
     .eq('objectif_id', objId);
 }
 
-async function pickBatch(minChars) {
-  console.log(`🔍 Recherche d'items à compléter (lot de ${BATCH})...`);
+async function pickBatch() {
+  console.log(`🔍 Sélection de TOUTES les compétences à copier intégralement (lot de ${BATCH})...`);
   
-  // Filtre SQL simplifié pour éviter PGRST100 - approche multiple filtres au lieu de .or()
-  let query = supabase
+  // Pas de filtre - on prend toutes les lignes avec une URL valide pour copie intégrale
+  const { data, error } = await supabase
     .from('backup_oic_competences')
     .select('objectif_id, url_source, description, source_etag, completion_status, intitule')
     .not('url_source', 'is', null)
@@ -388,23 +334,17 @@ async function pickBatch(minChars) {
     .limit(BATCH)
     .order('completion_updated_at', { ascending: true, nullsFirst: true });
 
-  // Appliquer les filtres en séquence plutôt que .or() qui cause PGRST100
-  const { data, error } = await query;
-
   if (error) throw error;
   
-  console.log(`📊 ${data?.length || 0} items trouvés à COMPLÉTER INTÉGRALEMENT`);
+  console.log(`📊 ${data?.length || 0} compétences sélectionnées pour COPIE INTÉGRALE`);
   
-  // Log détaillé des exemples pour debug
+  // Log des exemples
   if (data && data.length > 0) {
-    console.log(`🔍 Exemples d'items à compléter:`);
-    data.slice(0, 5).forEach((item, i) => {
-      const descLength = item.description?.length || 0;
-      const status = item.completion_status || 'non_traité';
-      const preview = item.description ? item.description.substring(0, 150).replace(/\n/g, ' ') : 'VIDE';
-      console.log(`   ${i+1}. [${item.objectif_id}] "${item.intitule?.substring(0, 60)}..."`);
-      console.log(`      Status: ${status} | Length: ${descLength} chars`);
-      console.log(`      Preview: "${preview}${descLength > 150 ? '...' : ''}"`);
+    console.log(`🔍 Exemples de compétences à traiter:`);
+    data.slice(0, 3).forEach((item, i) => {
+      const status = item.completion_status || 'jamais_traité';
+      console.log(`   ${i+1}. [${item.objectif_id}] "${item.intitule?.substring(0, 80)}..."`);
+      console.log(`      Status actuel: ${status}`);
       console.log(`      URL: ${item.url_source}`);
       console.log(`      ---`);
     });
@@ -414,96 +354,114 @@ async function pickBatch(minChars) {
 }
 
 async function run() {
-  console.log('🚀 Début du processus de complétion OIC avec Puppeteer');
+  console.log('🚀 Début du processus de COPIE INTÉGRALE de toutes les compétences OIC');
   
   await casLoginWithPuppeteer();
-
-  const rows = await pickBatch(MIN_CHARS);
-  if (!rows.length) {
-    console.log('✅ Aucun item à compléter (lot vide).');
-    return;
-  }
-
-  console.log(`⚡ Traitement de ${rows.length} items avec ${CONCURRENCY} requêtes concurrentes`);
   
-  const limit = pLimit(CONCURRENCY);
-  let updated = 0, skippedEmpty = 0, skippedError = 0;
+  // Lancer un browser Puppeteer pour l'extraction
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: [
+      '--no-sandbox',
+      '--disable-setuid-sandbox',
+      '--disable-dev-shm-usage',
+      '--disable-accelerated-2d-canvas',
+      '--no-first-run',
+      '--no-zygote',
+      '--disable-gpu'
+    ]
+  });
 
-  await Promise.all(rows.map(row => limit(async () => {
-    const objId = row.objectif_id;
-    const url = (row.url_source || '').trim();
-    if (!url) {
-      await mark(objId, { completion_status: 'skipped_error', completion_last_error: 'missing_url' });
-      skippedError++;
+  try {
+    const rows = await pickBatch();
+    if (!rows.length) {
+      console.log('✅ Aucune compétence à traiter (lot vide).');
       return;
     }
 
-    const api = await fetchTextFromApi(url);
-    if (api?.status !== 200) {
-      await mark(objId, {
-        completion_status: 'skipped_error',
-        completion_last_http: api?.status || 0,
-        completion_last_error: api?.error || null
-      });
-      skippedError++;
-      return;
-    }
-
-    const text = normalizeText(api.text);
+    console.log(`⚡ COPIE INTÉGRALE de ${rows.length} compétences avec ${CONCURRENCY} requêtes concurrentes`);
     
-    // Critères rigoureux pour une description VRAIMENT complète
-    const isSubstantial = text && (
-      text.length >= MIN_CHARS &&                            // Au moins 500 caractères
-      text.split(' ').length >= 50 &&                        // Au moins 50 mots
-      !text.includes('à compléter') &&                       // Pas de marqueurs d'incomplétude
-      !text.includes('...') &&                               // Pas de troncature
-      !/^(Définition|Objectif|Description)\.?\s*$/.test(text.trim()) && // Pas juste un titre
-      !/^[\s\-\*\.&;]+$/.test(text.trim()) &&               // Pas juste de la ponctuation
-      text.replace(/\s+/g, '').length >= MIN_CHARS * 0.7     // Minimum de contenu réel (pas que des espaces)
-    );
+    const limit = pLimit(CONCURRENCY);
+    let updated = 0, skippedError = 0, unchanged = 0;
+
+    await Promise.all(rows.map(row => limit(async () => {
+      const objId = row.objectif_id;
+      const url = (row.url_source || '').trim();
+      if (!url) {
+        await mark(objId, { completion_status: 'skipped_error', completion_last_error: 'missing_url' });
+        skippedError++;
+        return;
+      }
+
+      try {
+        // Extraction avec Puppeteer
+        const result = await fetchContentWithPuppeteer(browser, url);
+        
+        if (result.status !== 200) {
+          await mark(objId, {
+            completion_status: 'skipped_error',
+            completion_last_http: result.status,
+            completion_last_error: `http_${result.status}`
+          });
+          skippedError++;
+          return;
+        }
+
+        // COPIE INTÉGRALE : pas de filtrage, on prend tout
+        const text = result.text || '';
+        
+        // Idempotence : éviter les réécritures inutiles
+        const newHash = hash(text);
+        if (newHash === row.source_etag) {
+          unchanged++;
+          return; // déjà à jour
+        }
+
+        // MISE À JOUR SYSTÉMATIQUE (même si vide)
+        const { error: upErr } = await supabase
+          .from('backup_oic_competences')
+          .update({
+            description: text,
+            completion_status: 'updated',
+            completion_last_http: 200,
+            completion_last_error: null,
+            source_etag: newHash
+          })
+          .eq('objectif_id', objId);
+
+        if (upErr) {
+          await mark(objId, { completion_status: 'skipped_error', completion_last_error: String(upErr) });
+          skippedError++;
+          return;
+        }
+
+        updated++;
+        const preview = text.length > 80 ? text.substring(0, 80) + '...' : text;
+        console.log(`   ✅ ${objId}: ${text.length} caractères copiés - "${preview}"`);
+        
+      } catch (error) {
+        if (error.message.includes('auth_required')) {
+          console.log('🔑 Réauthentification nécessaire pour', objId);
+          await casLoginWithPuppeteer();
+          skippedError++; // À relancer plus tard
+        } else {
+          await mark(objId, { 
+            completion_status: 'skipped_error', 
+            completion_last_error: error.message.substring(0, 500) 
+          });
+          skippedError++;
+        }
+      }
+    })));
+
+    console.log(`\n🎯 RÉSULTATS COPIE INTÉGRALE:`);
+    console.log(`   ✅ Copiés: ${updated}`);
+    console.log(`   ⚪ Inchangés: ${unchanged}`);
+    console.log(`   ❌ Erreurs: ${skippedError}`);
     
-    if (!isSubstantial) {
-      const reason = !text ? 'no_content' : 
-                     text.length < MIN_CHARS ? `too_short_${text.length}_chars` :
-                     text.split(' ').length < 50 ? `too_few_words_${text.split(' ').length}` :
-                     'quality_insufficient';
-      await mark(objId, { 
-        completion_status: 'skipped_empty', 
-        completion_last_http: 200,
-        completion_last_error: reason
-      });
-      skippedEmpty++;
-      console.log(`   ⚠️ ${objId}: Contenu insuffisant (${reason})`);
-      return;
-    }
-
-    const newHash = hash(text);
-    if (newHash === row.source_etag) {
-      return; // déjà à jour
-    }
-
-    const { error: upErr } = await supabase
-      .from('backup_oic_competences')
-      .update({
-        description: text,
-        completion_status: 'updated',
-        completion_last_http: 200,
-        completion_last_error: null,
-        source_etag: newHash
-      })
-      .eq('objectif_id', objId);
-
-    if (upErr) {
-      await mark(objId, { completion_status: 'skipped_error', completion_last_error: String(upErr) });
-      skippedError++;
-    } else {
-      updated++;
-    }
-  })));
-
-  console.log(`\n📈 RÉSULTATS FINAUX:`);
-  console.log(`🟢 updated=${updated} | 🟡 skipped_empty=${skippedEmpty} | 🔴 skipped_error=${skippedError}`);
-  console.log(`✅ Traitement terminé avec succès`);
+  } finally {
+    await browser.close();
+  }
 }
 
 run().catch(e => { 
