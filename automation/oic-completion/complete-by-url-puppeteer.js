@@ -326,13 +326,32 @@ async function processOneCompetence(browser, row) {
     // Extraction du contenu complet
     const text = (await page.evaluate(buildExtractor())) || '';
     
-    // Idempotence : éviter les réécritures inutiles
+    // DEBUG: Log extracted content preview
+    const preview = text.length > 80 ? text.substring(0, 80) + '...' : text;
+    console.log(`   🔍 ${objId}: Contenu extrait (${text.length} car): "${preview}"`);
+    
+    // Vérifier si on a récupéré une page de login au lieu du contenu
+    if (looksLikeLogin(text)) {
+      console.log(`   ⚠️ ${objId}: Page de login détectée dans le contenu extrait`);
+      throw new Error('login_page_content_detected');
+    }
+    
+    // Calculer le hash pour l'idempotence
     const newHash = hash(text);
-    if (newHash === row.source_etag) {
+    const oldHash = row.source_etag;
+    
+    // DEBUG: Log hash comparison
+    console.log(`   🔐 ${objId}: Hash old=${oldHash?.substring(0,8)}... new=${newHash.substring(0,8)}...`);
+    
+    // FORCE UPDATE for debugging (temporarily ignore hash equality)
+    const forceUpdate = true; // Change to false once working
+    
+    if (!forceUpdate && newHash === oldHash) {
+      console.log(`   ⚪ ${objId}: Contenu inchangé (même hash)`);
       return { updated: 0, skippedEmpty: 0, skippedError: 0 }; // déjà à jour
     }
 
-    // MISE À JOUR SYSTÉMATIQUE (même si vide)
+    // MISE À JOUR SYSTÉMATIQUE
     const { error: upErr } = await supabase
       .from('backup_oic_competences')
       .update({
@@ -340,14 +359,14 @@ async function processOneCompetence(browser, row) {
         completion_status: 'updated',
         completion_last_http: 200,
         completion_last_error: null,
-        source_etag: newHash
+        source_etag: newHash,
+        completion_updated_at: new Date().toISOString()
       })
       .eq('objectif_id', objId);
 
     if (upErr) throw upErr;
     
-    const preview = text.length > 80 ? text.substring(0, 80) + '...' : text;
-    console.log(`   ✅ ${objId}: ${text.length} caractères copiés - "${preview}"`);
+    console.log(`   ✅ ${objId}: MISE À JOUR - ${text.length} caractères - "${preview}"`);
     
     return { updated: 1, skippedEmpty: 0, skippedError: 0 };
     
