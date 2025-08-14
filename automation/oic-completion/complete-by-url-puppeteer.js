@@ -674,34 +674,96 @@ async function mark(objId, patch) {
     .eq('objectif_id', objId);
 }
 
+// Fonction pour détecter si une compétence a du contenu corrompu en base
+function hasCorruptedContent(description) {
+  if (!description || description.length < 200) return true;
+  
+  const lower = description.toLowerCase();
+  const corruptionIndicators = [
+    'state parameter of callback does not match',
+    'erreur fatale de type',
+    'mwexception',
+    'callback does not match',
+    'vous devez vous connecter',
+    'session expirée',
+    'authentification requise',
+    'accès non autorisé',
+    'connexion nécessaire',
+    'identifiant',
+    'mot de passe',
+    'se connecter',
+    'login',
+    'cas d\'authentification'
+  ];
+  
+  return corruptionIndicators.some(indicator => lower.includes(indicator));
+}
+
 async function getBatch() {
   console.log(`🔍 Récupération d'un lot de ${BATCH} compétences à traiter...`);
   
-  // Priorité aux non-traitées, puis celles avec hash différent ou status null
-  const { data, error } = await supabase
+  // Priorité 1: Compétences avec du contenu corrompu (pages de login, erreurs)
+  const { data: corruptedData, error: corruptedError } = await supabase
     .from('backup_oic_competences')
     .select('objectif_id, url_source, description, source_etag, completion_status, intitule')
     .not('url_source', 'is', null)
     .not('url_source', 'eq', '')
-    .or('completion_status.is.null,source_etag.is.null')
-    .limit(BATCH)
-    .order('completion_updated_at', { ascending: true, nullsFirst: true });
+    .not('description', 'is', null)
+    .limit(BATCH * 2) // Récupérer plus pour filtrer
+    .order('completion_updated_at', { ascending: true });
 
-  if (error) throw error;
+  if (corruptedError) throw corruptedError;
   
-  console.log(`📊 ${data?.length || 0} compétences récupérées dans ce lot`);
+  // Filtrer pour trouver les compétences avec du contenu corrompu
+  const corruptedCompetences = (corruptedData || []).filter(item => 
+    hasCorruptedContent(item.description)
+  ).slice(0, BATCH);
+  
+  console.log(`🔍 ${corruptedCompetences.length} compétences avec contenu corrompu trouvées`);
+  
+    // Si pas assez de compétences corrompues, compléter avec les non-traitées
+  let finalData = [...corruptedCompetences];
+  
+  if (finalData.length < BATCH) {
+    const remaining = BATCH - finalData.length;
+    console.log(`🔍 Récupération de ${remaining} compétences non-traitées supplémentaires...`);
+    
+    // Exclure les IDs déjà récupérés pour éviter les doublons
+    const excludeIds = finalData.map(item => item.objectif_id);
+    let query = supabase
+      .from('backup_oic_competences')
+      .select('objectif_id, url_source, description, source_etag, completion_status, intitule')
+      .not('url_source', 'is', null)
+      .not('url_source', 'eq', '')
+      .or('completion_status.is.null,source_etag.is.null')
+      .limit(remaining)
+      .order('completion_updated_at', { ascending: true, nullsFirst: true });
+    
+    if (excludeIds.length > 0) {
+      query = query.not('objectif_id', 'in', `(${excludeIds.map(id => `'${id}'`).join(',')})`);
+    }
+    
+    const { data: additionalData, error: additionalError } = await query;
+
+    if (additionalError) throw additionalError;
+    
+    finalData = [...finalData, ...(additionalData || [])];
+  }
+  
+  console.log(`📊 ${finalData.length} compétences récupérées dans ce lot`);
   
   // Log des exemples si disponibles
-  if (data && data.length > 0) {
+  if (finalData.length > 0) {
     console.log(`🔍 Exemples de compétences à traiter:`);
-    data.slice(0, 2).forEach((item, i) => {
+    finalData.slice(0, 2).forEach((item, i) => {
       const status = item.completion_status || 'jamais_traité';
+      const isCorrupted = hasCorruptedContent(item.description) ? ' (CONTENU CORROMPU)' : '';
       console.log(`   ${i+1}. [${item.objectif_id}] "${item.intitule?.substring(0, 60)}..."`);
-      console.log(`      Status: ${status}`);
+      console.log(`      Status: ${status}${isCorrupted}`);
     });
   }
   
-  return data || [];
+  return finalData;
 }
 
 async function run() {
