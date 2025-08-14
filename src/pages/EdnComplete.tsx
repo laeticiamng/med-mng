@@ -26,6 +26,7 @@ import { useIAQuota } from "@/hooks/useIAQuota";
 import { useSubscription } from "@/hooks/useSubscription";
 import { GenerateAllLyricsButton } from "@/components/edn/GenerateAllLyricsButton";
 import { LyricsGenerationManager } from "@/components/edn/LyricsGenerationManager";
+import { CompetencesUpdateChecker } from "@/components/edn/CompetencesUpdateChecker";
 
 interface EdnItem {
   id: string;
@@ -86,7 +87,54 @@ export default function EdnComplete() {
     try {
       setLoading(true);
 
-      const { data: immersiveData, error: immersiveError } = await supabase
+      // Étape 1: Charger d'abord les données essentielles pour l'affichage rapide
+      console.log('⚡ Chargement initial des items EDN...');
+      const { data: basicData, error: basicError } = await supabase
+        .from('edn_items_complete')
+        .select(`
+          id, item_code, title, subtitle, slug, 
+          completeness_score, is_validated, 
+          competences_count_rang_a, competences_count_rang_b,
+          updated_at
+        `)
+        .order('item_code')
+        .limit(100); // Charger les 100 premiers rapidement
+
+      if (basicError) {
+        console.error('Erreur chargement initial:', basicError);
+        toast({
+          title: "Erreur",
+          description: "Impossible de charger les données initiales.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Afficher immédiatement les données de base
+      const basicItems = basicData?.map(item => ({
+        ...item,
+        tableau_rang_a: null,
+        tableau_rang_b: null,
+        paroles_musicales: [],
+        scene_immersive: null,
+        quiz_questions: null,
+        competences_oic_rang_a: null,
+        competences_oic_rang_b: null
+      })) || [];
+
+      setImmersiveItems(basicItems);
+      setCompleteItems(basicData || []);
+      setLoading(false); // Permettre l'affichage rapide
+
+      toast({
+        title: "Interface EDN",
+        description: `${basicData?.length || 0} items chargés rapidement`,
+      });
+
+      // Étape 2: Charger progressivement les données complètes en arrière-plan
+      console.log('🔄 Chargement complet des données en arrière-plan...');
+      
+      const { data: fullData, error: fullError } = await supabase
         .from('edn_items_complete')
         .select(`
           id, item_code, title, subtitle, slug, 
@@ -96,28 +144,20 @@ export default function EdnComplete() {
         `)
         .order('item_code');
 
-      if (immersiveError) {
-        console.error('Erreur immersive:', immersiveError);
-        toast({
-          title: "Erreur",
-          description: "Impossible de charger les données.",
-          variant: "destructive"
-        });
+      if (fullError) {
+        console.error('Erreur chargement complet:', fullError);
         return;
       }
 
-      const { data: completeData } = await supabase
-        .from('edn_items_complete')
-        .select('id, item_code, title, specialite, completeness_score, is_validated')
-        .order('item_code');
-
-      setImmersiveItems(immersiveData || []);
-      setCompleteItems(completeData || []);
+      // Mettre à jour avec les données complètes
+      setImmersiveItems(fullData || []);
       
+      console.log('✅ Chargement complet terminé');
       toast({
-        title: "Interface EDN",
-        description: `${immersiveData?.length || 0} items chargés`,
+        title: "Données complètes",
+        description: `${fullData?.length || 0} items avec toutes les données chargés`,
       });
+      
     } catch (error) {
       console.error('Erreur:', error);
       toast({
@@ -125,7 +165,6 @@ export default function EdnComplete() {
         description: "Erreur lors du chargement.",
         variant: "destructive"
       });
-    } finally {
       setLoading(false);
     }
   };
@@ -234,10 +273,16 @@ export default function EdnComplete() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center space-y-4">
-          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <p className="text-muted-foreground">Chargement...</p>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50/30 flex items-center justify-center">
+        <div className="text-center space-y-6 p-8">
+          <div className="relative">
+            <div className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin mx-auto"></div>
+            <div className="absolute inset-0 w-16 h-16 border-4 border-transparent border-r-purple-400 rounded-full animate-spin mx-auto" style={{ animationDirection: 'reverse', animationDuration: '1.5s' }}></div>
+          </div>
+          <div className="space-y-2">
+            <h3 className="text-xl font-semibold text-slate-800">Chargement des items EDN...</h3>
+            <p className="text-slate-600">Optimisation en cours pour un affichage rapide</p>
+          </div>
         </div>
       </div>
     );
@@ -266,6 +311,7 @@ export default function EdnComplete() {
                   <TabsTrigger value="immersive" className="text-sm font-medium rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-md">Immersif</TabsTrigger>
                   <TabsTrigger value="complete" className="text-sm font-medium rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-md">Complet</TabsTrigger>
                   <TabsTrigger value="music" className="text-sm font-medium rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-md">Paroles</TabsTrigger>
+                  <TabsTrigger value="competences" className="text-sm font-medium rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-md">Compétences</TabsTrigger>
                   <TabsTrigger value="revision" className="text-sm font-medium rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-md">Révisions</TabsTrigger>
                   <TabsTrigger value="subscription" className="text-sm font-medium rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-md">Abonnement</TabsTrigger>
                 </TabsList>
@@ -616,6 +662,10 @@ export default function EdnComplete() {
                 </Alert>
               )}
             </div>
+          </TabsContent>
+
+          <TabsContent value="competences">
+            <CompetencesUpdateChecker />
           </TabsContent>
 
           <TabsContent value="unified">
