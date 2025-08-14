@@ -63,31 +63,56 @@ async function ensureLoggedAndOpen(browser, page, url, reloginFn, attempts = 2) 
   for (let i = 0; i <= attempts; i++) {
     console.log(`🔗 Tentative ${i + 1}/${attempts + 1} pour ${url}`);
     
-    const resp = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
-    await new Promise(resolve => setTimeout(resolve, 600)); // stabilisation
-    
-    // Si redirigé vers auth, ou si on voit la page de login → relogin
-    const urlNow = page.url();
-    if (urlNow.includes('auth.uness.fr')) {
-      console.log(`🔐 Redirection CAS détectée (tentative ${i + 1})`);
-      if (i === attempts) throw new Error('auth_loop');
-      await reloginFn(browser);
-      continue;
+    try {
+      const resp = await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 30000 });
+      await new Promise(resolve => setTimeout(resolve, 1000)); // stabilisation augmentée
+      
+      // Si redirigé vers auth, ou si on voit la page de login → relogin
+      const urlNow = page.url();
+      if (urlNow.includes('auth.uness.fr') || urlNow.includes('cas.uness.fr')) {
+        console.log(`🔐 Redirection CAS détectée (tentative ${i + 1})`);
+        if (i === attempts) throw new Error('auth_loop');
+        await reloginFn();
+        // Attendre que l'auth soit complète avant de réessayer
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        continue;
+      }
+      
+      // Vérifier le contenu de la page
+      const txtHead = await page.evaluate(() => {
+        if (!document.body) return '';
+        const text = document.body.innerText || '';
+        return text.slice(0, 1000).toLowerCase();
+      });
+      
+      // Si contenu ressemble à la page de login
+      if (looksLikeLogin(txtHead)) {
+        console.log(`🔐 Page de login détectée dans le contenu (tentative ${i + 1})`);
+        console.log(`🔍 Extrait du contenu: "${txtHead.slice(0, 200)}"`);
+        if (i === attempts) throw new Error('login_page_content_detected');
+        await reloginFn();
+        // Attendre que l'auth soit complète avant de réessayer
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        continue;
+      }
+      
+      // OK, on reste sur livret avec contenu valide
+      await page.waitForNetworkIdle({ timeout: 10000 }).catch(() => {
+        console.log(`⚠️ Network idle timeout pour ${url}`);
+      });
+      console.log(`✅ Navigation réussie vers ${url}`);
+      return;
+      
+    } catch (navigationError) {
+      console.log(`❌ Erreur navigation (tentative ${i + 1}): ${navigationError.message}`);
+      if (i === attempts) throw navigationError;
+      
+      // Essayer une réauth avant la prochaine tentative
+      if (navigationError.message.includes('auth') || i > 0) {
+        await reloginFn();
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
     }
-    
-    // Si contenu ressemble à la page de login
-    const txtHead = await page.evaluate(() => (document.body && document.body.innerText || '').slice(0, 500));
-    if (looksLikeLogin(txtHead)) {
-      console.log(`🔐 Page de login détectée dans le contenu (tentative ${i + 1})`);
-      if (i === attempts) throw new Error('login_page_detected_after_attempts');
-      await reloginFn(browser);
-      continue;
-    }
-    
-    // OK, on reste sur livret
-    await page.waitForNetworkIdle({ timeout: 15000 }).catch(() => {});
-    console.log(`✅ Navigation réussie vers ${url}`);
-    return;
   }
 }
 
@@ -111,6 +136,12 @@ async function casLoginWithPuppeteer(browser) {
         '--disable-gpu'
       ]
     });
+  }
+  
+  // Fermer toutes les pages existantes sauf une pour éviter les conflits de cookies
+  const pages = await browser.pages();
+  for (let i = 1; i < pages.length; i++) {
+    await pages[i].close().catch(() => {});
   }
 
   try {
@@ -262,6 +293,11 @@ async function casLoginWithPuppeteer(browser) {
     }
     
     console.log('✅ Authentification CAS réussie avec Puppeteer');
+    
+    // Vérifier que les cookies sont bien stockés dans le browser context
+    const cookies = await page.cookies();
+    console.log(`🍪 ${cookies.length} cookies récupérés après authentification`);
+    
     await page.close();
     
     if (ownBrowser) await browser.close();
@@ -363,9 +399,12 @@ async function processOne(browser, row) {
   const page = await browser.newPage();
   page.setDefaultTimeout(30000);
   
+  // S'assurer que la nouvelle page hérite des cookies de session
+  await page.setUserAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
+  
   try {
     console.log(`   🌐 ${objId}: Navigation vers la page...`);
-    await ensureLoggedAndOpen(browser, page, url, casLoginWithPuppeteer, 2);
+    await ensureLoggedAndOpen(browser, page, url, () => casLoginWithPuppeteer(browser), 2);
     
     console.log(`   📄 ${objId}: Extraction du contenu...`);
     const text = (await page.evaluate(buildExtractor())) || '';
