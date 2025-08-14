@@ -377,15 +377,15 @@ async function mark(objId, patch) {
 }
 
 async function pickBatch(minChars) {
-  console.log(`🔍 Recherche ÉLARGIE d'items à compléter pour 100% de complétude (lot de ${BATCH})...`);
+  console.log(`🔍 Recherche d'items à compléter (lot de ${BATCH})...`);
   
-  // Stratégie ULTRA élargie pour TOUTES les descriptions incomplètes
+  // Filtre SQL simplifié pour éviter PGRST100 - heuristiques complexes en JavaScript après
   const { data, error } = await supabase
     .from('backup_oic_competences')
     .select('objectif_id, url_source, description, source_etag, completion_status, intitule')
-    .or(`description.is.null,description.eq.'',char_length(description).lt.500,completion_status.is.null,completion_status.eq.error,completion_status.eq.empty,completion_status.eq.skipped_empty,completion_status.neq.updated,description.ilike.*à compléter*,description.ilike.*Description de l'objectif*,description.ilike.*\.\.\..*,description.ilike.*[truncated]*,description.ilike.*[incomplete]*,description.ilike.*voir aussi*,description.ilike.*à définir*,description.ilike.*à rédiger*,description.ilike.*&nbsp;*,description.ilike.*&amp;*,description.ilike.*&lt;*,description.ilike.*&gt;*,description.ilike.*<br>*,description.ilike.*<div>*,description.ilike.*<p>*,description.ilike.*Définition*,description.ilike.*Objectif*,description.ilike.*Compétence*,description.like.%=%,description.like.%--%`)
-    .not('url_source', 'is', null)                                   // Doit avoir une URL source
-    .not('url_source', 'eq', '')                                     // URL non vide
+    .or(`description.is.null,description.eq.,char_length(description).lt.${minChars},completion_status.is.null`)
+    .not('url_source', 'is', null)
+    .not('url_source', 'eq', '')
     .limit(BATCH)
     .order('completion_updated_at', { ascending: true, nullsFirst: true });
 
