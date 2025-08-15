@@ -44,10 +44,10 @@ jobs:
     - name: Install dependencies
       run: |
         npm init -y
-        npm install @supabase/supabase-js@latest
-        npm install cheerio@latest
-        npm install axios@latest
-        npm install puppeteer@latest
+        npm install --legacy-peer-deps @supabase/supabase-js@latest
+        npm install --legacy-peer-deps cheerio@latest
+        npm install --legacy-peer-deps axios@latest
+        npm install --legacy-peer-deps puppeteer@latest
 
     - name: Complete OIC Content by URL
       run: |
