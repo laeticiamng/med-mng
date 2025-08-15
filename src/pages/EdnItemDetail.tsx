@@ -72,11 +72,14 @@ export default function EdnItemDetail() {
         // Extraire le numéro d'item pour récupérer les compétences OIC
         const itemNum = itemData.item_code.replace('IC-', '');
         
-        // Charger les compétences OIC réelles depuis la base
+        // Formater le numéro d'item pour la requête (IC-1 -> 001)
+        const itemNumber = itemNum.padStart(3, '0');
+        
+        // Charger les compétences OIC réelles depuis la table backup
         const { data: competences, error: compError } = await supabase
-          .from('oic_competences')
+          .from('backup_oic_competences')
           .select('objectif_id, intitule, description, rang, rubrique, item_parent')
-          .eq('item_parent', `IC-${itemNum}`)
+          .eq('item_parent', itemNumber)
           .order('objectif_id');
 
         if (!compError && competences) {
