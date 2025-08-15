@@ -51,7 +51,7 @@ jobs:
 
     - name: Complete OIC Content by URL
       run: |
-        cat << 'EOF' > complete_oic_advanced.js
+        cat << 'EOF' > complete_oic_advanced.cjs
         const { createClient } = require('@supabase/supabase-js');
         const axios = require('axios');
         const cheerio = require('cheerio');
@@ -346,7 +346,7 @@ jobs:
         MAX_COMPETENCES="${{ github.event.inputs.max_competences || '100' }}" \
         TARGET_ITEMS="${{ github.event.inputs.target_items || 'ALL' }}" \
         FORCE_UPDATE="${{ github.event.inputs.force_update || 'false' }}" \
-        node complete_oic_advanced.js
+        node complete_oic_advanced.cjs
 
     - name: Read completion stats
       id: stats
