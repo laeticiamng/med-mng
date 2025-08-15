@@ -28,6 +28,8 @@ export default function EdnCompleteSimple() {
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
+    let isMounted = true;
+    
     const fetchItems = async () => {
       try {
         const { data, error } = await supabase
@@ -49,19 +51,31 @@ export default function EdnCompleteSimple() {
           .order('item_code');
 
         if (error) {
-          console.error('Erreur:', error);
+          console.error('Erreur lors du chargement des items EDN:', error);
+          if (isMounted) {
+            setLoading(false);
+          }
           return;
         }
 
-        setItems(data || []);
+        if (isMounted) {
+          console.log('Items EDN chargés:', data?.length || 0);
+          setItems(data || []);
+          setLoading(false);
+        }
       } catch (error) {
-        console.error('Erreur:', error);
-      } finally {
-        setLoading(false);
+        console.error('Erreur réseau:', error);
+        if (isMounted) {
+          setLoading(false);
+        }
       }
     };
 
     fetchItems();
+    
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const getCompletionPercentage = (item: EdnItemSimple): number => {
