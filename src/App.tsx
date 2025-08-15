@@ -56,8 +56,8 @@ import OicDataQualityManager from "./pages/OicDataQualityManager";
 import AuditCompleteness from "./pages/AuditCompleteness";
 import TestExtraction from "./pages/TestExtraction";
 import EdnImmersive from "./pages/EdnImmersive";
-import EdnCompleteFast from "./pages/EdnComplete.fast";
 import EdnCompleteSimple from "./pages/EdnComplete.simple";
+import EdnItemDetail from "./pages/EdnItemDetail";
 import { ErrorBoundary } from "@/components/common/ErrorBoundary";
 
 // Composant de redirection pour /edn-complete/:slug vers /edn/:slug
@@ -102,7 +102,7 @@ const App = () => {
             <Route path="/monitoring" element={<Monitoring />} />
             {/* EDN Interface Unifiée - toutes les fonctionnalités fusionnées */}
             <Route path="/edn" element={<EdnCompleteSimple />} />
-            <Route path="/edn/:slug" element={<EdnCompleteFast />} />
+            <Route path="/edn/:slug" element={<EdnItemDetail />} />
             
             {/* Redirections automatiques vers l'interface unifiée */}
             <Route path="/edn-complete" element={<Navigate to="/edn" replace />} />
