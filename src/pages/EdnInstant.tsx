@@ -1,8 +1,16 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { supabase } from "@/integrations/supabase/client";
 
-// Données statiques pour un rendu instantané
-const STATIC_EDN_ITEMS = [
+interface EdnItem {
+  id: string;
+  item_code: string;
+  title: string;
+  slug: string;
+}
+
+// Données statiques pour affichage immédiat (premiers 20 items)
+const INITIAL_EDN_ITEMS: EdnItem[] = [
   { id: '1', item_code: 'IC-1', title: 'Examen clinique général', slug: 'ic-1' },
   { id: '2', item_code: 'IC-2', title: 'Système cardiovasculaire', slug: 'ic-2' },
   { id: '3', item_code: 'IC-3', title: 'Système respiratoire', slug: 'ic-3' },
@@ -26,6 +34,53 @@ const STATIC_EDN_ITEMS = [
 ];
 
 export default function EdnInstant() {
+  const [items, setItems] = useState<EdnItem[]>(INITIAL_EDN_ITEMS);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [totalCount, setTotalCount] = useState(INITIAL_EDN_ITEMS.length);
+
+  // Charger tous les items en arrière-plan après le rendu initial
+  useEffect(() => {
+    let mounted = true;
+
+    const loadAllItems = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('edn_items_complete')
+          .select('id, item_code, title, slug')
+          .order('item_code');
+
+        if (error) {
+          console.error('Erreur chargement EDN:', error);
+          return;
+        }
+
+        if (mounted && data) {
+          console.log(`✅ ${data.length} items EDN chargés depuis la DB`);
+          setItems(data);
+          setTotalCount(data.length);
+        }
+      } catch (err) {
+        console.error('Erreur réseau EDN:', err);
+      }
+    };
+
+    // Délai court pour permettre le rendu initial, puis charger les vraies données
+    const timeoutId = setTimeout(loadAllItems, 100);
+
+    return () => {
+      mounted = false;
+      clearTimeout(timeoutId);
+    };
+  }, []);
+
+  // Filtrage des items
+  const filteredItems = searchTerm 
+    ? items.filter(item => 
+        item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        item.item_code.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : items;
   return (
     <div style={{ 
       padding: '20px', 
@@ -39,8 +94,34 @@ export default function EdnInstant() {
         marginBottom: '1rem',
         color: '#1a1a1a'
       }}>
-        Interface EDN ({STATIC_EDN_ITEMS.length} items)
+        Interface EDN ({totalCount} items)
       </h1>
+      
+      {/* Barre de recherche */}
+      <div style={{ marginBottom: '24px' }}>
+        <input
+          type="text"
+          placeholder="Rechercher un item EDN..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={{
+            width: '100%',
+            maxWidth: '400px',
+            padding: '12px 16px',
+            fontSize: '16px',
+            border: '2px solid #e5e5e5',
+            borderRadius: '8px',
+            outline: 'none',
+            transition: 'border-color 0.2s ease'
+          }}
+          onFocus={(e) => {
+            e.target.style.borderColor = '#3b82f6';
+          }}
+          onBlur={(e) => {
+            e.target.style.borderColor = '#e5e5e5';
+          }}
+        />
+      </div>
       
       <div style={{ 
         display: 'grid', 
@@ -48,7 +129,7 @@ export default function EdnInstant() {
         gap: '16px',
         marginTop: '24px'
       }}>
-        {STATIC_EDN_ITEMS.map((item) => (
+        {filteredItems.map((item) => (
           <Link 
             key={item.id}
             to={`/edn/${item.slug}`}
@@ -133,6 +214,22 @@ export default function EdnInstant() {
         ))}
       </div>
       
+      {/* Message si aucun résultat */}
+      {filteredItems.length === 0 && searchTerm && (
+        <div style={{
+          textAlign: 'center',
+          padding: '40px 20px',
+          backgroundColor: '#f8f9fa',
+          borderRadius: '8px',
+          marginTop: '20px'
+        }}>
+          <p style={{ color: '#666', fontSize: '16px', margin: '0' }}>
+            Aucun item trouvé pour "<strong>{searchTerm}</strong>"
+          </p>
+        </div>
+      )}
+      
+      {/* Statistiques en bas */}
       <div style={{
         marginTop: '40px',
         padding: '20px',
@@ -145,7 +242,8 @@ export default function EdnInstant() {
           fontSize: '14px',
           margin: '0'
         }}>
-          💡 <strong>Navigation instantanée</strong> - Plus besoin d'attendre le chargement !
+          💡 <strong>Navigation instantanée</strong> - {filteredItems.length} items affichés sur {totalCount} disponibles
+          {searchTerm && ` (recherche: "${searchTerm}")`}
         </p>
       </div>
     </div>

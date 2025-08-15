@@ -94,20 +94,76 @@ const IndexOptimized = () => {
               </button>
               <button
                 style={buttonStyle}
+                onClick={() => navigate('/ecos')}
+                className="hidden sm:inline-flex"
+              >
+                <Users size={16} />
+                ECOS
+              </button>
+              <button
+                style={buttonStyle}
                 onClick={() => navigate('/chat')}
               >
                 <MessageSquare size={16} />
                 Chat IA
               </button>
+              <button
+                style={buttonStyle}
+                onClick={() => navigate('/library')}
+                className="hidden md:inline-flex"
+              >
+                <BookOpen size={16} />
+                Bibliothèque
+              </button>
               {isAdmin && (
-                <button
-                  style={buttonStyle}
-                  onClick={() => navigate('/monitoring')}
-                >
-                  <Activity size={16} />
-                  Admin
-                </button>
+                <>
+                  <button
+                    style={buttonStyle}
+                    onClick={() => navigate('/monitoring')}
+                  >
+                    <Activity size={16} />
+                    Monitoring
+                  </button>
+                  <button
+                    style={buttonStyle}
+                    onClick={() => navigate('/admin/import')}
+                    className="hidden lg:inline-flex"
+                  >
+                    <BarChart3 size={16} />
+                    Import
+                  </button>
+                  <button
+                    style={buttonStyle}
+                    onClick={() => navigate('/admin-panel')}
+                    className="hidden lg:inline-flex"
+                  >
+                    <Settings size={16} />
+                    Admin Panel
+                  </button>
+                  <button
+                    style={buttonStyle}
+                    onClick={() => navigate('/audit')}
+                    className="hidden xl:inline-flex"
+                  >
+                    <BarChart3 size={16} />
+                    Audit
+                  </button>
+                </>
               )}
+              <button
+                style={{...buttonStyle, background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)'}}
+                onClick={() => navigate('/med-mng/pricing')}
+              >
+                <CreditCard size={16} />
+                Tarifs
+              </button>
+              <button
+                style={{...buttonStyle, background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)'}}
+                onClick={() => navigate('/med-mng/login')}
+              >
+                <LogIn size={16} />
+                Connexion
+              </button>
             </div>
           </div>
         </div>

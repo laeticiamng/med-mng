@@ -22,7 +22,7 @@ import IndexOptimized from "./pages/IndexOptimized";
 import EdnInstant from "./pages/EdnInstant";
 import EdnItemDetail from "./pages/EdnItemDetail";
 
-// Pages existantes
+// Pages existantes - Import de toutes les pages nécessaires
 import Generator from "./pages/Generator";
 import Monitoring from "./pages/Monitoring";
 import EcosIndex from "./pages/EcosIndex";
@@ -48,6 +48,50 @@ import { MusicAnalytics } from "./components/analytics/MusicAnalytics";
 import { MedChat } from "./pages/MedChat";
 import { SubscriptionTest } from "./pages/SubscriptionTest";
 import LibraryPage from "./pages/LibraryPage";
+
+// Pages admin (avec gestion d'erreurs d'import)
+let AdminImport, AdminAudit, AdminExtractEdn, AdminCompleteProcess, AdminExtractEcos;
+let AdminPanel, EdnObjectifsExtractionPage, OicDataQualityManager, TestExtraction, EdnImmersive;
+
+try {
+  AdminImport = require("./pages/AdminImport").default;
+} catch { AdminImport = () => <div>Page AdminImport non disponible</div>; }
+
+try {
+  AdminAudit = require("./pages/AdminAudit").default;
+} catch { AdminAudit = () => <div>Page AdminAudit non disponible</div>; }
+
+try {
+  AdminExtractEdn = require("./pages/AdminExtractEdn").default;
+} catch { AdminExtractEdn = () => <div>Page AdminExtractEdn non disponible</div>; }
+
+try {
+  AdminCompleteProcess = require("./pages/AdminCompleteProcess").default;
+} catch { AdminCompleteProcess = () => <div>Page AdminCompleteProcess non disponible</div>; }
+
+try {
+  AdminExtractEcos = require("./pages/AdminExtractEcos").default;
+} catch { AdminExtractEcos = () => <div>Page AdminExtractEcos non disponible</div>; }
+
+try {
+  AdminPanel = require("./pages/AdminPanel").AdminPanel;
+} catch { AdminPanel = () => <div>Page AdminPanel non disponible</div>; }
+
+try {
+  EdnObjectifsExtractionPage = require("./pages/EdnObjectifsExtraction").default;
+} catch { EdnObjectifsExtractionPage = () => <div>Page EdnObjectifsExtraction non disponible</div>; }
+
+try {
+  OicDataQualityManager = require("./pages/OicDataQualityManager").default;
+} catch { OicDataQualityManager = () => <div>Page OicDataQualityManager non disponible</div>; }
+
+try {
+  TestExtraction = require("./pages/TestExtraction").default;
+} catch { TestExtraction = () => <div>Page TestExtraction non disponible</div>; }
+
+try {
+  EdnImmersive = require("./pages/EdnImmersive").default;
+} catch { EdnImmersive = () => <div>Page EdnImmersive non disponible</div>; }
 
 // Lazy loading pour les composants non-critiques
 const DynamicOnboarding = lazy(() => import("@/components/onboarding/DynamicOnboarding").then(module => ({ default: module.DynamicOnboarding })));
@@ -103,9 +147,23 @@ const App = () => {
                                   <Route path="/edn-complete/:slug" element={<EdnCompleteRedirect />} />
                                   <Route path="/edn/music-library" element={<Navigate to="/edn" replace />} />
                                   
+                                  {/* EDN Immersif */}
+                                  <Route path="/edn/:slug/immersive" element={<EdnImmersive />} />
+                                  
                                   {/* ECOS */}
                                   <Route path="/ecos" element={<EcosIndex />} />
                                   <Route path="/ecos/:scenarioId" element={<EcosScenario />} />
+                                  
+                                  {/* Pages Admin */}
+                                  <Route path="/admin/import" element={<AdminImport />} />
+                                  <Route path="/admin/audit" element={<AdminAudit />} />
+                                  <Route path="/admin/extract-edn" element={<AdminExtractEdn />} />
+                                  <Route path="/admin/extract-ecos" element={<AdminExtractEcos />} />
+                                  <Route path="/admin/objectives-extraction" element={<EdnObjectifsExtractionPage />} />
+                                  <Route path="/admin/oic-quality" element={<OicDataQualityManager />} />
+                                  <Route path="/admin/complete-process" element={<AdminCompleteProcess />} />
+                                  <Route path="/admin-panel" element={<AdminPanel />} />
+                                  <Route path="/test-extraction" element={<TestExtraction />} />
                                   
                                   {/* Audit */}
                                   <Route path="/audit" element={<AuditComplete />} />
