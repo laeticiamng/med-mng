@@ -21,10 +21,11 @@ import { EdnItemCard } from "@/components/edn/premium/EdnItemCard";
 import { EdnItemGridSkeleton } from "@/components/edn/EdnItemSkeleton";
 import { LyricsCompletionStatus } from "@/components/LyricsCompletionStatus";
 import { RevisionDashboard } from "@/components/revision/RevisionDashboard";
-import { QuotaIndicator } from "@/components/quota/QuotaIndicator";
+// import { QuotaIndicator } from "@/components/quota/QuotaIndicator";
 import { PricingPlans } from "@/components/med-mng/PricingPlans";
-import { useIAQuota } from "@/hooks/useIAQuota";
-import { useSubscription } from "@/hooks/useSubscription";
+// Hooks temporairement commentés pour éviter les erreurs
+// import { useIAQuota } from "@/hooks/useIAQuota";
+// import { useSubscription } from "@/hooks/useSubscription";
 import { GenerateAllLyricsButton } from "@/components/edn/GenerateAllLyricsButton";
 import { LyricsGenerationManager } from "@/components/edn/LyricsGenerationManager";
 import { CompetencesUpdateChecker } from "@/components/edn/CompetencesUpdateChecker";
@@ -50,7 +51,7 @@ export default function EdnComplete() {
     if (slug) {
       navigate(`/edn/${slug}`, { replace: true });
     }
-  }, [slug, navigate]);
+  }, [slug]); // Suppression de navigate pour éviter la boucle
   
   // Hook principal pour charger les données
   const { items, loading, error } = useEdnItemsComplete();
@@ -65,8 +66,11 @@ export default function EdnComplete() {
   const [activeTab, setActiveTab] = useState('immersive');
   const [showPricing, setShowPricing] = useState(false);
   
-  const { quota } = useIAQuota();
-  const { subscription, canGenerateMusic } = useSubscription();
+  // Hooks temporairement désactivés pour éviter les erreurs
+  // const { quota } = useIAQuota();
+  // const { subscription, canGenerateMusic } = useSubscription();
+  const quota = 0;
+  const canGenerateMusic = false;
   
   const { toast } = useToast();
   const isMobile = useIsMobile();
@@ -213,7 +217,7 @@ export default function EdnComplete() {
                 </p>
               </div>
             </div>
-            <QuotaIndicator />
+            {/* <QuotaIndicator /> */}
           </div>
         </div>
       </div>
