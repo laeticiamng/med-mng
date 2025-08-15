@@ -56,7 +56,7 @@ import OicDataQualityManager from "./pages/OicDataQualityManager";
 import AuditCompleteness from "./pages/AuditCompleteness";
 import TestExtraction from "./pages/TestExtraction";
 import EdnImmersive from "./pages/EdnImmersive";
-import EdnComplete from "./pages/EdnComplete";
+import EdnComplete from "./pages/EdnComplete.simple";
 import { ErrorBoundary } from "@/components/common/ErrorBoundary";
 
 // Composant de redirection pour /edn-complete/:slug vers /edn/:slug
