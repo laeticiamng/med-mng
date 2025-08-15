@@ -83,13 +83,30 @@ export default function EdnItemDetail() {
           .order('objectif_id');
 
         if (!compError && competences) {
-          const rangA = competences.filter(c => c.rang === 'A');
-          const rangB = competences.filter(c => c.rang === 'B');
+          // Filtrer et nettoyer les compétences pour exclure les données corrompues
+          const validCompetences = competences.filter(c => {
+            // Exclure les compétences avec du HTML ou du contenu de page de connexion
+            const isValidDescription = c.description && 
+              !c.description.includes('lisa') && 
+              !c.description.includes('LOGIN') && 
+              !c.description.includes('Bienvenue') &&
+              !c.description.includes('<') &&
+              c.description.length > 20; // Description minimum de 20 caractères
+            
+            const isValidTitle = c.intitule && 
+              !c.intitule.includes('OIC-') && // Éviter les titres qui contiennent déjà l'ID
+              c.intitule.length > 10;
+            
+            return isValidDescription && isValidTitle;
+          });
+
+          const rangA = validCompetences.filter(c => c.rang === 'A');
+          const rangB = validCompetences.filter(c => c.rang === 'B');
           
           setCompetencesRangA(rangA);
           setCompetencesRangB(rangB);
           
-          console.log(`✅ Item ${itemData.item_code}: ${rangA.length} compétences Rang A, ${rangB.length} compétences Rang B`);
+          console.log(`✅ Item ${itemData.item_code}: ${rangA.length} compétences Rang A valides, ${rangB.length} compétences Rang B valides`);
         }
 
       } catch (err) {
