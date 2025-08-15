@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from 'react-router-dom';
+import { Search, BookOpen, Filter, Grid, List, CheckCircle, Music, Target } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 
 interface EdnItem {
@@ -7,30 +8,31 @@ interface EdnItem {
   item_code: string;
   title: string;
   slug: string;
+  competences_count_rang_a?: number;
+  competences_count_rang_b?: number;
+  competences_count_total?: number;
+  paroles_musicales?: string[];
+  tableau_rang_a?: any;
+  tableau_rang_b?: any;
+  completeness_score?: number;
 }
 
-// Données statiques pour affichage immédiat (premiers 20 items)
+// Fonction de tri intelligent pour IC-1, IC-2, ..., IC-10, IC-11, ..., IC-100, IC-101...
+const sortItemsByCode = (items: EdnItem[]) => {
+  return items.sort((a, b) => {
+    const numA = parseInt(a.item_code.replace('IC-', ''));
+    const numB = parseInt(b.item_code.replace('IC-', ''));
+    return numA - numB;
+  });
+};
+
+// Données initiales pour affichage instantané
 const INITIAL_EDN_ITEMS: EdnItem[] = [
-  { id: '1', item_code: 'IC-1', title: 'Examen clinique général', slug: 'ic-1' },
-  { id: '2', item_code: 'IC-2', title: 'Système cardiovasculaire', slug: 'ic-2' },
-  { id: '3', item_code: 'IC-3', title: 'Système respiratoire', slug: 'ic-3' },
-  { id: '4', item_code: 'IC-4', title: 'Système digestif', slug: 'ic-4' },
-  { id: '5', item_code: 'IC-5', title: 'Système nerveux', slug: 'ic-5' },
-  { id: '6', item_code: 'IC-6', title: 'Système urinaire', slug: 'ic-6' },
-  { id: '7', item_code: 'IC-7', title: 'Système endocrinien', slug: 'ic-7' },
-  { id: '8', item_code: 'IC-8', title: 'Système musculo-squelettique', slug: 'ic-8' },
-  { id: '9', item_code: 'IC-9', title: 'Dermatologie', slug: 'ic-9' },
-  { id: '10', item_code: 'IC-10', title: 'Ophtalmologie', slug: 'ic-10' },
-  { id: '11', item_code: 'IC-11', title: 'ORL', slug: 'ic-11' },
-  { id: '12', item_code: 'IC-12', title: 'Gynécologie', slug: 'ic-12' },
-  { id: '13', item_code: 'IC-13', title: 'Pédiatrie', slug: 'ic-13' },
-  { id: '14', item_code: 'IC-14', title: 'Psychiatrie', slug: 'ic-14' },
-  { id: '15', item_code: 'IC-15', title: 'Gériatrie', slug: 'ic-15' },
-  { id: '16', item_code: 'IC-16', title: 'Urgences', slug: 'ic-16' },
-  { id: '17', item_code: 'IC-17', title: 'Anesthésie', slug: 'ic-17' },
-  { id: '18', item_code: 'IC-18', title: 'Chirurgie générale', slug: 'ic-18' },
-  { id: '19', item_code: 'IC-19', title: 'Médecine interne', slug: 'ic-19' },
-  { id: '20', item_code: 'IC-20', title: 'Radiologie', slug: 'ic-20' }
+  { id: '1', item_code: 'IC-1', title: 'La relation médecin-malade', slug: 'ic-1', competences_count_rang_a: 5, competences_count_rang_b: 3, competences_count_total: 8, completeness_score: 85 },
+  { id: '2', item_code: 'IC-2', title: 'Les droits du patient', slug: 'ic-2', competences_count_rang_a: 4, competences_count_rang_b: 4, competences_count_total: 8, completeness_score: 90 },
+  { id: '3', item_code: 'IC-3', title: 'Le raisonnement médical', slug: 'ic-3', competences_count_rang_a: 6, competences_count_rang_b: 2, competences_count_total: 8, completeness_score: 75 },
+  { id: '4', item_code: 'IC-4', title: 'Évaluation des pratiques', slug: 'ic-4', competences_count_rang_a: 3, competences_count_rang_b: 5, competences_count_total: 8, completeness_score: 80 },
+  { id: '5', item_code: 'IC-5', title: 'La sécurité du patient', slug: 'ic-5', competences_count_rang_a: 7, competences_count_rang_b: 1, competences_count_total: 8, completeness_score: 95 }
 ];
 
 export default function EdnInstant() {
@@ -38,16 +40,31 @@ export default function EdnInstant() {
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(false);
   const [totalCount, setTotalCount] = useState(INITIAL_EDN_ITEMS.length);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [sortBy, setSortBy] = useState<'code' | 'completion' | 'competences'>('code');
 
-  // Charger tous les items en arrière-plan après le rendu initial
+  // Charger tous les items en arrière-plan
   useEffect(() => {
     let mounted = true;
 
     const loadAllItems = async () => {
       try {
+        setLoading(true);
         const { data, error } = await supabase
           .from('edn_items_complete')
-          .select('id, item_code, title, slug')
+          .select(`
+            id, 
+            item_code, 
+            title, 
+            slug,
+            competences_count_rang_a,
+            competences_count_rang_b,
+            competences_count_total,
+            paroles_musicales,
+            tableau_rang_a,
+            tableau_rang_b,
+            completeness_score
+          `)
           .order('item_code');
 
         if (error) {
@@ -56,195 +73,218 @@ export default function EdnInstant() {
         }
 
         if (mounted && data) {
-          console.log(`✅ ${data.length} items EDN chargés depuis la DB`);
-          setItems(data);
-          setTotalCount(data.length);
+          console.log(`✅ ${data.length} items EDN chargés avec compétences`);
+          const sortedItems = sortItemsByCode(data as EdnItem[]);
+          setItems(sortedItems);
+          setTotalCount(sortedItems.length);
         }
       } catch (err) {
         console.error('Erreur réseau EDN:', err);
+      } finally {
+        if (mounted) {
+          setLoading(false);
+        }
       }
     };
 
-    // Délai court pour permettre le rendu initial, puis charger les vraies données
     const timeoutId = setTimeout(loadAllItems, 100);
-
     return () => {
       mounted = false;
       clearTimeout(timeoutId);
     };
   }, []);
 
-  // Filtrage des items
-  const filteredItems = searchTerm 
-    ? items.filter(item => 
-        item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.item_code.toLowerCase().includes(searchTerm.toLowerCase())
-      )
-    : items;
+  // Filtrage et tri intelligent
+  const processedItems = useMemo(() => {
+    let filtered = items;
+    
+    // Filtrage par recherche
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      filtered = items.filter(item => 
+        item.title.toLowerCase().includes(term) ||
+        item.item_code.toLowerCase().includes(term)
+      );
+    }
+    
+    // Tri intelligent
+    return filtered.sort((a, b) => {
+      switch (sortBy) {
+        case 'completion':
+          return (b.completeness_score || 0) - (a.completeness_score || 0);
+        case 'competences':
+          return (b.competences_count_total || 0) - (a.competences_count_total || 0);
+        case 'code':
+        default:
+          const numA = parseInt(a.item_code.replace('IC-', ''));
+          const numB = parseInt(b.item_code.replace('IC-', ''));
+          return numA - numB;
+      }
+    });
+  }, [items, searchTerm, sortBy]);
+
   return (
-    <div style={{ 
-      padding: '20px', 
-      fontFamily: 'system-ui, -apple-system, sans-serif',
-      maxWidth: '1200px',
-      margin: '0 auto'
-    }}>
-      <h1 style={{ 
-        fontSize: '2rem', 
-        fontWeight: 'bold', 
-        marginBottom: '1rem',
-        color: '#1a1a1a'
-      }}>
-        Interface EDN ({totalCount} items)
-      </h1>
-      
-      {/* Barre de recherche */}
-      <div style={{ marginBottom: '24px' }}>
-        <input
-          type="text"
-          placeholder="Rechercher un item EDN..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          style={{
-            width: '100%',
-            maxWidth: '400px',
-            padding: '12px 16px',
-            fontSize: '16px',
-            border: '2px solid #e5e5e5',
-            borderRadius: '8px',
-            outline: 'none',
-            transition: 'border-color 0.2s ease'
-          }}
-          onFocus={(e) => {
-            e.target.style.borderColor = '#3b82f6';
-          }}
-          onBlur={(e) => {
-            e.target.style.borderColor = '#e5e5e5';
-          }}
-        />
-      </div>
-      
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', 
-        gap: '16px',
-        marginTop: '24px'
-      }}>
-        {filteredItems.map((item) => (
-          <Link 
-            key={item.id}
-            to={`/edn/${item.slug}`}
-            style={{ 
-              textDecoration: 'none',
-              color: 'inherit',
-              display: 'block'
-            }}
-          >
-            <div style={{
-              border: '1px solid #e5e5e5',
-              borderRadius: '8px',
-              padding: '16px',
-              backgroundColor: '#ffffff',
-              boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
-              cursor: 'pointer',
-              transition: 'all 0.15s ease',
-              height: '120px',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'space-between'
-            }}
-            onMouseEnter={(e) => {
-              e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
-            }}
-            onMouseLeave={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
-            }}>
-              <div>
-                <div style={{ 
-                  fontSize: '12px', 
-                  color: '#666', 
-                  marginBottom: '8px',
-                  padding: '3px 8px',
-                  backgroundColor: '#f8f9fa',
-                  borderRadius: '4px',
-                  display: 'inline-block',
-                  fontWeight: '500'
-                }}>
-                  {item.item_code}
-                </div>
-                <h3 style={{ 
-                  margin: '0', 
-                  fontSize: '16px',
-                  fontWeight: '600',
-                  color: '#1a1a1a',
-                  lineHeight: '1.4'
-                }}>
-                  {item.title}
-                </h3>
-              </div>
-              <div style={{
-                display: 'flex',
-                gap: '8px',
-                marginTop: '12px'
-              }}>
-                <span style={{
-                  fontSize: '11px',
-                  color: '#059669',
-                  backgroundColor: '#ecfdf5',
-                  padding: '2px 6px',
-                  borderRadius: '4px',
-                  fontWeight: '500'
-                }}>
-                  ✓ Rang A
-                </span>
-                <span style={{
-                  fontSize: '11px',
-                  color: '#0284c7',
-                  backgroundColor: '#f0f9ff',
-                  padding: '2px 6px',
-                  borderRadius: '4px',
-                  fontWeight: '500'
-                }}>
-                  ✓ Rang B
-                </span>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50">
+      <div className="container mx-auto px-6 py-8">
+        {/* Header avec design moderne */}
+        <div className="mb-8">
+          <div className="flex items-center gap-4 mb-6">
+            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-600 via-indigo-600 to-purple-600 flex items-center justify-center shadow-xl">
+              <BookOpen className="w-8 h-8 text-white" />
+            </div>
+            <div>
+              <h1 className="text-4xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-indigo-900 bg-clip-text text-transparent">
+                Interface EDN Complète
+              </h1>
+              <p className="text-lg text-slate-600 font-medium">
+                {totalCount} items • {processedItems.length} affichés • {loading ? 'Synchronisation...' : 'À jour'}
+              </p>
+            </div>
+          </div>
+
+          {/* Barre de contrôles moderne */}
+          <div className="flex flex-col sm:flex-row gap-4 mb-6">
+            {/* Recherche */}
+            <div className="relative flex-1 max-w-md">
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Rechercher un item EDN..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-12 pr-4 py-3 bg-white border-2 border-slate-200 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-100 outline-none transition-all duration-200 font-medium"
+              />
+            </div>
+
+            {/* Contrôles de tri et vue */}
+            <div className="flex gap-2">
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as any)}
+                className="px-4 py-3 bg-white border-2 border-slate-200 rounded-xl focus:border-blue-500 outline-none font-medium"
+              >
+                <option value="code">Tri par numéro</option>
+                <option value="completion">Tri par complétude</option>
+                <option value="competences">Tri par compétences</option>
+              </select>
+
+              <div className="flex bg-white border-2 border-slate-200 rounded-xl overflow-hidden">
+                <button
+                  onClick={() => setViewMode('grid')}
+                  className={`p-3 transition-colors ${viewMode === 'grid' ? 'bg-blue-500 text-white' : 'text-slate-600 hover:bg-slate-50'}`}
+                >
+                  <Grid className="w-5 h-5" />
+                </button>
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`p-3 transition-colors ${viewMode === 'list' ? 'bg-blue-500 text-white' : 'text-slate-600 hover:bg-slate-50'}`}
+                >
+                  <List className="w-5 h-5" />
+                </button>
               </div>
             </div>
-          </Link>
-        ))}
-      </div>
-      
-      {/* Message si aucun résultat */}
-      {filteredItems.length === 0 && searchTerm && (
-        <div style={{
-          textAlign: 'center',
-          padding: '40px 20px',
-          backgroundColor: '#f8f9fa',
-          borderRadius: '8px',
-          marginTop: '20px'
-        }}>
-          <p style={{ color: '#666', fontSize: '16px', margin: '0' }}>
-            Aucun item trouvé pour "<strong>{searchTerm}</strong>"
-          </p>
+          </div>
         </div>
-      )}
-      
-      {/* Statistiques en bas */}
-      <div style={{
-        marginTop: '40px',
-        padding: '20px',
-        backgroundColor: '#f8f9fa',
-        borderRadius: '8px',
-        textAlign: 'center'
-      }}>
-        <p style={{ 
-          color: '#666', 
-          fontSize: '14px',
-          margin: '0'
-        }}>
-          💡 <strong>Navigation instantanée</strong> - {filteredItems.length} items affichés sur {totalCount} disponibles
-          {searchTerm && ` (recherche: "${searchTerm}")`}
-        </p>
+
+        {/* Grille des items avec design moderne */}
+        {processedItems.length > 0 ? (
+          <div className={viewMode === 'grid' 
+            ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" 
+            : "space-y-4"
+          }>
+            {processedItems.map((item) => (
+              <Link key={item.id} to={`/edn/${item.slug}`} className="block group">
+                <div className={`h-full bg-white border-2 border-slate-200 rounded-2xl p-6 hover:border-blue-300 hover:shadow-xl transition-all duration-300 group-hover:scale-[1.02] ${
+                  viewMode === 'list' ? 'flex items-center gap-6' : 'flex flex-col'
+                }`}>
+                  
+                  {/* Badge et score */}
+                  <div className={`flex items-center justify-between mb-4 ${viewMode === 'list' ? 'mb-0 min-w-[200px]' : ''}`}>
+                    <div className="px-3 py-1 bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-700 text-sm font-bold rounded-lg">
+                      {item.item_code}
+                    </div>
+                    <div className={`px-3 py-1 text-sm font-bold rounded-lg ${
+                      (item.completeness_score || 0) >= 80 
+                        ? 'bg-green-100 text-green-700' 
+                        : (item.completeness_score || 0) >= 60
+                        ? 'bg-yellow-100 text-yellow-700'
+                        : 'bg-red-100 text-red-700'
+                    }`}>
+                      {item.completeness_score || 0}%
+                    </div>
+                  </div>
+                  
+                  {/* Titre */}
+                  <h3 className={`font-bold text-slate-900 leading-tight ${
+                    viewMode === 'list' ? 'flex-1 text-lg' : 'text-lg mb-4 line-clamp-2'
+                  }`}>
+                    {item.title}
+                  </h3>
+                  
+                  {/* Indicateurs de compétences */}
+                  <div className={`flex flex-wrap gap-2 ${viewMode === 'list' ? 'min-w-[300px] justify-end' : 'mt-auto'}`}>
+                    {item.tableau_rang_a && (
+                      <div className="flex items-center gap-1 px-2 py-1 bg-green-50 text-green-700 text-xs font-medium rounded-md">
+                        <CheckCircle className="w-3 h-3" />
+                        Rang A ({item.competences_count_rang_a || 0})
+                      </div>
+                    )}
+                    {item.tableau_rang_b && (
+                      <div className="flex items-center gap-1 px-2 py-1 bg-blue-50 text-blue-700 text-xs font-medium rounded-md">
+                        <CheckCircle className="w-3 h-3" />
+                        Rang B ({item.competences_count_rang_b || 0})
+                      </div>
+                    )}
+                    {item.paroles_musicales?.length && (
+                      <div className="flex items-center gap-1 px-2 py-1 bg-purple-50 text-purple-700 text-xs font-medium rounded-md">
+                        <Music className="w-3 h-3" />
+                        Musique
+                      </div>
+                    )}
+                    <div className="flex items-center gap-1 px-2 py-1 bg-orange-50 text-orange-700 text-xs font-medium rounded-md">
+                      <Target className="w-3 h-3" />
+                      {item.competences_count_total || 0} OIC
+                    </div>
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-16">
+            <div className="w-24 h-24 mx-auto mb-6 bg-slate-100 rounded-full flex items-center justify-center">
+              <Search className="w-12 h-12 text-slate-400" />
+            </div>
+            <h3 className="text-xl font-semibold text-slate-700 mb-2">
+              Aucun item trouvé
+            </h3>
+            <p className="text-slate-500">
+              {searchTerm ? `Aucun résultat pour "${searchTerm}"` : 'Aucun item disponible'}
+            </p>
+          </div>
+        )}
+
+        {/* Statistiques en bas */}
+        <div className="mt-12 p-6 bg-white/70 backdrop-blur-sm border-2 border-slate-200 rounded-2xl">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
+            <div>
+              <div className="text-2xl font-bold text-blue-600">{totalCount}</div>
+              <div className="text-sm text-slate-600 font-medium">Items totaux</div>
+            </div>
+            <div>
+              <div className="text-2xl font-bold text-green-600">{processedItems.filter(i => (i.completeness_score || 0) >= 80).length}</div>
+              <div className="text-sm text-slate-600 font-medium">Complétés</div>
+            </div>
+            <div>
+              <div className="text-2xl font-bold text-purple-600">{processedItems.filter(i => i.paroles_musicales?.length).length}</div>
+              <div className="text-sm text-slate-600 font-medium">Avec musique</div>
+            </div>
+            <div>
+              <div className="text-2xl font-bold text-orange-600">{processedItems.reduce((sum, i) => sum + (i.competences_count_total || 0), 0)}</div>
+              <div className="text-sm text-slate-600 font-medium">Compétences OIC</div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

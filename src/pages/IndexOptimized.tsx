@@ -1,82 +1,123 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { LogIn, CreditCard, BarChart3, Music, BookOpen, MessageSquare, Users, Activity, Brain, Settings } from "lucide-react";
+import { LogIn, CreditCard, BarChart3, Music, BookOpen, MessageSquare, Users, Activity, Brain, Settings, Sparkles, Zap, Target, Award, TrendingUp, Star } from "lucide-react";
 
 const IndexOptimized = () => {
   const navigate = useNavigate();
   const isAdmin = localStorage.getItem('isAdmin') === 'true';
 
-  const cardStyle = {
-    background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
-    border: '1px solid #e2e8f0',
-    borderRadius: '12px',
-    padding: '24px',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease',
-    boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
-  };
-
   const buttonStyle = {
     background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
     color: 'white',
     border: 'none',
-    borderRadius: '8px',
-    padding: '12px 24px',
+    borderRadius: '12px',
+    padding: '12px 20px',
     fontSize: '14px',
     fontWeight: '600',
     cursor: 'pointer',
-    transition: 'all 0.2s ease',
+    transition: 'all 0.3s ease',
     display: 'inline-flex',
     alignItems: 'center',
-    gap: '8px'
+    gap: '8px',
+    boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)'
+  };
+
+  const cardStyle = {
+    background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+    border: '2px solid #e2e8f0',
+    borderRadius: '20px',
+    padding: '32px',
+    cursor: 'pointer',
+    transition: 'all 0.3s ease',
+    boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
+    position: 'relative' as const,
+    overflow: 'hidden' as const
+  };
+
+  const heroButtonStyle = {
+    ...buttonStyle,
+    padding: '16px 32px',
+    fontSize: '16px',
+    borderRadius: '16px',
+    boxShadow: '0 8px 25px rgba(59, 130, 246, 0.4)'
   };
 
   return (
     <div style={{ 
       minHeight: '100vh', 
-      background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
-      fontFamily: 'system-ui, -apple-system, sans-serif'
+      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%)',
+      fontFamily: 'system-ui, -apple-system, sans-serif',
+      position: 'relative'
     }}>
       
-      {/* Header instantané */}
+      {/* Éléments décoratifs en arrière-plan */}
+      <div style={{
+        position: 'absolute',
+        top: '10%',
+        left: '5%',
+        width: '100px',
+        height: '100px',
+        background: 'rgba(255,255,255,0.1)',
+        borderRadius: '50%',
+        animation: 'float 6s ease-in-out infinite'
+      }} />
+      <div style={{
+        position: 'absolute',
+        top: '60%',
+        right: '10%',
+        width: '150px',
+        height: '150px',
+        background: 'rgba(255,255,255,0.05)',
+        borderRadius: '50%',
+        animation: 'float 8s ease-in-out infinite reverse'
+      }} />
+
+      {/* Header avec glassmorphism */}
       <div style={{
         position: 'sticky',
         top: 0,
         zIndex: 50,
-        background: 'rgba(255,255,255,0.9)',
-        backdropFilter: 'blur(12px)',
-        borderBottom: '1px solid rgba(0,0,0,0.1)',
+        background: 'rgba(255,255,255,0.15)',
+        backdropFilter: 'blur(20px)',
+        borderBottom: '1px solid rgba(255,255,255,0.2)',
         padding: '16px 0'
       }}>
         <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px' }}>
+            
+            {/* Logo premium */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
               <div style={{
-                width: '40px',
-                height: '40px',
-                background: 'linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%)',
-                borderRadius: '10px',
+                width: '50px',
+                height: '50px',
+                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+                borderRadius: '15px',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center'
+                justifyContent: 'center',
+                boxShadow: '0 8px 25px rgba(102, 126, 234, 0.4)'
               }}>
-                <span style={{ color: 'white', fontSize: '20px', fontWeight: 'bold' }}>M</span>
+                <Sparkles size={24} color="white" />
               </div>
               <div>
                 <h1 style={{ 
                   margin: 0, 
-                  fontSize: '24px', 
+                  fontSize: '28px', 
                   fontWeight: 'bold',
-                  background: 'linear-gradient(135deg, #1a1a1a 0%, #4a5568 100%)',
+                  background: 'linear-gradient(135deg, #ffffff 0%, #f1f5f9 100%)',
                   WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent'
+                  WebkitTextFillColor: 'transparent',
+                  letterSpacing: '-0.02em'
                 }}>
                   MED MNG
                 </h1>
-                <p style={{ margin: 0, fontSize: '12px', color: '#64748b' }}>Plateforme Premium</p>
+                <p style={{ margin: 0, fontSize: '13px', color: 'rgba(255,255,255,0.8)', fontWeight: '500' }}>
+                  Plateforme Premium IA
+                </p>
               </div>
             </div>
             
+            {/* Navigation moderne */}
             <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
               <button
                 style={buttonStyle}
