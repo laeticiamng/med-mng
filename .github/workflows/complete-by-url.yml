@@ -1,81 +1,251 @@
-name: Completer OIC depuis LiSA (URL par URL)
+name: Complete OIC Competences by URL
 
 on:
   workflow_dispatch:
     inputs:
-      batch_size:
-        description: "Taille du lot"
+      max_competences:
+        description: 'Nombre maximum de compétences à traiter'
         required: false
-        default: "400"
-      max_items:
-        description: "Plafond total à traiter dans ce run"
-        required: false
-        default: "5000"
-      concurrency:
-        description: "Onglets parallèles"
-        required: false
-        default: "3"
+        default: '50'
+        type: string
+  schedule:
+    # Tous les jours à 2h du matin
+    - cron: '0 2 * * *'
+
+env:
+  SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+  SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
 
 jobs:
-  complete:
+  complete-oic-content:
     runs-on: ubuntu-latest
-    timeout-minutes: 240
-    env:
-      SUPABASE_URL: "https://yaincoxihiqdksxgrsrk.supabase.co"
-      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-      CAS_USERNAME: ${{ secrets.CAS_USERNAME }}
-      CAS_PASSWORD: ${{ secrets.CAS_PASSWORD }}
-      NODE_OPTIONS: "--max_old_space_size=4096"
-      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: "false"
-      PUPPETEER_CACHE_DIR: "/home/runner/.puppeteer-cache"
-
+    timeout-minutes: 60
+    
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: "20"
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
 
-      - name: Show versions
-        run: |
-          node -v
-          npm -v
+    - name: Install dependencies
+      run: |
+        npm install @supabase/supabase-js
+        npm install cheerio
+        npm install axios
 
-      - name: Install system dependencies for Puppeteer
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            libx11-xcb1 libxcomposite1 libxcursor1 libxdamage1 libxi6 \
-            libxtst6 libnss3 libxss1 libglib2.0-0 libgbm1 libatk1.0-0 \
-            libatk-bridge2.0-0 libgtk-3-0 libdrm2 libasound2t64 fonts-liberation
+    - name: Complete OIC Content by URL
+      run: |
+        cat << 'EOF' > complete_oic.js
+        const { createClient } = require('@supabase/supabase-js');
+        const axios = require('axios');
+        const cheerio = require('cheerio');
 
-      - name: Install runner dependencies
-        working-directory: automation/oic-completion
-        run: |
-          # Utiliser npm install pour générer un lockfile complet
-          npm install --no-audit --no-fund
+        const supabase = createClient(
+          process.env.SUPABASE_URL,
+          process.env.SUPABASE_SERVICE_ROLE_KEY
+        );
 
-      - name: Run completion (Puppeteer)
-        working-directory: automation/oic-completion
-        env:
-          SUPABASE_URL: "https://yaincoxihiqdksxgrsrk.supabase.co"
-          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
-          CAS_USERNAME: ${{ secrets.CAS_USERNAME }}
-          CAS_PASSWORD: ${{ secrets.CAS_PASSWORD }}
-        run: |
-          node complete-by-url-puppeteer.js \
-            --batch "${{ github.event.inputs.batch_size || '400' }}" \
-            --maxItems "${{ github.event.inputs.max_items || '5000' }}" \
-            --concurrency "${{ github.event.inputs.concurrency || '3' }}"
+        const MAX_COMPETENCES = parseInt(process.env.MAX_COMPETENCES || '50');
 
-      - name: Upload logs on failure
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: install-logs
-          path: |
-            npm-debug.log
-            /home/runner/.npm/_logs/*
-          if-no-files-found: ignore
+        async function extractContentFromUrl(url) {
+          try {
+            console.log(`🌐 Extraction depuis: ${url}`);
+            
+            const response = await axios.get(url, {
+              headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+              },
+              timeout: 10000
+            });
+            
+            const $ = cheerio.load(response.data);
+            
+            // Supprimer les éléments non pertinents
+            $('script, style, nav, header, footer, .navigation, .menu').remove();
+            
+            // Extraire le contenu principal
+            let content = $('main, .content, .main-content, article, .article, .text-content').text() ||
+                         $('body').text();
+            
+            // Nettoyer le contenu
+            content = content
+              .replace(/\s+/g, ' ')
+              .trim()
+              .substring(0, 2000); // Limiter à 2000 caractères
+            
+            // Filtrer le contenu invalide
+            const invalidContent = [
+              'bienvenue',
+              'login',
+              'mot de passe',
+              'connexion',
+              'erreur',
+              'page non trouvée',
+              'javascript',
+              'cookies',
+              'votre adresse email'
+            ];
+            
+            const contentLower = content.toLowerCase();
+            if (invalidContent.some(invalid => contentLower.includes(invalid))) {
+              console.log(`⚠️ Contenu invalide détecté pour ${url}`);
+              return null;
+            }
+            
+            if (content.length < 50) {
+              console.log(`⚠️ Contenu trop court (${content.length} chars) pour ${url}`);
+              return null;
+            }
+            
+            console.log(`✅ Contenu extrait (${content.length} chars) pour ${url}`);
+            return content;
+            
+          } catch (error) {
+            console.log(`❌ Erreur extraction ${url}:`, error.message);
+            return null;
+          }
+        }
+
+        function shouldUpdateContent(currentDescription, newContent) {
+          if (!currentDescription || !newContent) return false;
+          
+          const invalidSigns = [
+            'lisa',
+            'bienvenue',
+            'login',
+            'connexion',
+            'javascript',
+            'votre adresse email',
+            '<',
+            'OIC-'
+          ];
+          
+          const currentLower = currentDescription.toLowerCase();
+          const hasInvalidContent = invalidSigns.some(sign => currentLower.includes(sign));
+          
+          const isNewContentValid = newContent.length > 50 && 
+                                   newContent.length > currentDescription.length * 1.5 &&
+                                   !invalidSigns.some(sign => newContent.toLowerCase().includes(sign));
+          
+          return hasInvalidContent || isNewContentValid;
+        }
+
+        async function main() {
+          try {
+            console.log('=====================================');
+            console.log('🔄 COMPLÉTION PAR URL - DÉMARRAGE');
+            console.log(`📊 Maximum: ${MAX_COMPETENCES} compétences`);
+            console.log('=====================================');
+
+            // Récupérer les compétences avec URL
+            console.log('📥 Récupération des compétences OIC avec URL...');
+            
+            const { data: competences, error } = await supabase
+              .from('backup_oic_competences')
+              .select('objectif_id, intitule, description, url_source, item_parent, rang')
+              .not('url_source', 'is', null)
+              .neq('url_source', '')
+              .limit(MAX_COMPETENCES);
+            
+            if (error) {
+              console.error('❌ Erreur récupération compétences:', error);
+              process.exit(1);
+            }
+
+            console.log(`📊 ${competences?.length || 0} compétences avec URL trouvées`);
+
+            let processedCount = 0;
+            let updatedCount = 0;
+            let errorCount = 0;
+
+            // Traiter chaque compétence
+            for (const competence of competences || []) {
+              try {
+                processedCount++;
+                console.log(`\n🔍 [${processedCount}/${competences?.length}] ${competence.objectif_id}`);
+                
+                // Extraire le contenu de l'URL
+                const newContent = await extractContentFromUrl(competence.url_source);
+                
+                if (!newContent) {
+                  console.log(`⚠️ Impossible d'extraire le contenu pour ${competence.objectif_id}`);
+                  continue;
+                }
+                
+                // Vérifier si une mise à jour est nécessaire
+                if (!shouldUpdateContent(competence.description || '', newContent)) {
+                  console.log(`✅ Contenu déjà correct pour ${competence.objectif_id}`);
+                  continue;
+                }
+                
+                // Mettre à jour la compétence
+                const { error: updateError } = await supabase
+                  .from('backup_oic_competences')
+                  .update({ 
+                    description: newContent,
+                    updated_at: new Date().toISOString()
+                  })
+                  .eq('objectif_id', competence.objectif_id);
+                
+                if (updateError) {
+                  console.error(`❌ Erreur mise à jour ${competence.objectif_id}:`, updateError);
+                  errorCount++;
+                } else {
+                  console.log(`✅ Mis à jour: ${competence.objectif_id}`);
+                  updatedCount++;
+                }
+                
+                // Pause pour éviter la surcharge
+                await new Promise(resolve => setTimeout(resolve, 200));
+                
+              } catch (error) {
+                console.error(`❌ Erreur traitement ${competence.objectif_id}:`, error);
+                errorCount++;
+              }
+            }
+
+            // Statistiques finales
+            console.log('\n=====================================');
+            console.log('📊 STATISTIQUES FINALES:');
+            console.log(`   - Compétences traitées: ${processedCount}`);
+            console.log(`   - Compétences mises à jour: ${updatedCount}`);
+            console.log(`   - Erreurs: ${errorCount}`);
+            console.log(`   - Taux de réussite: ${processedCount > 0 ? Math.round((updatedCount / processedCount) * 100) : 0}%`);
+            console.log('=====================================');
+
+            if (errorCount > processedCount * 0.5) {
+              console.error('❌ Trop d\'erreurs détectées');
+              process.exit(1);
+            }
+
+          } catch (error) {
+            console.error('❌ Erreur globale:', error);
+            process.exit(1);
+          }
+        }
+
+        main();
+        EOF
+
+        MAX_COMPETENCES="${{ github.event.inputs.max_competences || '50' }}" node complete_oic.js
+
+    - name: Create completion report
+      run: |
+        echo "## 📊 Rapport de complétion OIC" >> $GITHUB_STEP_SUMMARY
+        echo "Date: $(date)" >> $GITHUB_STEP_SUMMARY
+        echo "Compétences maximum traitées: ${{ github.event.inputs.max_competences || '50' }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "✅ Workflow terminé avec succès" >> $GITHUB_STEP_SUMMARY
+
+    - name: Notify completion
+      if: always()
+      run: |
+        if [ "${{ job.status }}" == "success" ]; then
+          echo "🎉 Complétion des compétences OIC terminée avec succès"
+        else
+          echo "❌ Erreur lors de la complétion des compétences OIC"
+          exit 1
+        fi
