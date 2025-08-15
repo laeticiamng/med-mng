@@ -202,7 +202,19 @@ export const useIAQuota = () => {
   };
 
   useEffect(() => {
-    fetchQuota();
+    let isMounted = true;
+    
+    const loadQuota = async () => {
+      if (isMounted) {
+        await fetchQuota();
+      }
+    };
+    
+    loadQuota();
+    
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   return {

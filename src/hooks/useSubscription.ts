@@ -71,12 +71,17 @@ export const useSubscription = () => {
   const userIdRef = useRef<string | null>(null);
 
   const fetchSubscription = useCallback(async () => {
-    if (!user || fetchingRef.current || userIdRef.current === user.id) {
+    if (!user || fetchingRef.current) {
       if (!user) {
         setSubscription(null);
         setMusicQuota(null);
         setLoading(false);
       }
+      return;
+    }
+
+    // Eviter les appels multiples pour le même user
+    if (userIdRef.current === user.id) {
       return;
     }
 
@@ -169,7 +174,7 @@ export const useSubscription = () => {
       setLoading(false);
       fetchingRef.current = false;
     }
-  }, [user]);
+  }, []);
 
   const incrementMusicUsage = useCallback(async (): Promise<boolean> => {
     if (!user) {
@@ -262,7 +267,7 @@ export const useSubscription = () => {
 
   useEffect(() => {
     fetchSubscription();
-  }, [fetchSubscription]);
+  }, [user]);
 
   return {
     subscription,
