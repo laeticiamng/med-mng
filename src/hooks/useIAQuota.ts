@@ -202,9 +202,8 @@ export const useIAQuota = () => {
   };
 
   useEffect(() => {
-    // Ne charger le quota qu'une seule fois au montage
     fetchQuota();
-  }, []); // Suppression de toast pour éviter la boucle
+  }, []);
 
   return {
     quota,

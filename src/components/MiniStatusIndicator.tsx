@@ -50,27 +50,18 @@ export const MiniStatusIndicator: React.FC = () => {
   };
   useEffect(() => {
     let mounted = true;
-    let intervalId: NodeJS.Timeout;
-    
     const tick = async () => {
       setUpdating(true);
       await Promise.allSettled([refresh(), loadOIC()]);
       if (mounted) setUpdating(false);
     };
-    
-    // Executer une fois au mount
     tick();
-    
-    // Puis répéter toutes les 30 secondes
-    intervalId = setInterval(tick, 30000);
-    
+    const id = setInterval(tick, 30000);
     return () => {
       mounted = false;
-      if (intervalId) {
-        clearInterval(intervalId);
-      }
+      clearInterval(id);
     };
-  }, []); // Dépendance vide pour éviter la boucle infinie
+  }, [refresh]);
   const label = useMemo(() => {
     const oicStr = oicScore === null ? '—' : `${Math.round(oicScore)}%`;
     return `${global}% | OIC ${oicStr}`;

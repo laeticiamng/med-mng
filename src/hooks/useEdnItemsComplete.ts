@@ -26,9 +26,6 @@ export interface EdnItemComplete {
   quiz_questions?: any;
   scene_immersive?: any;
   paroles_musicales?: string[];
-  paroles_rang_a?: string[];
-  paroles_rang_b?: string[];
-  paroles_rang_ab?: string[];
   pitch_intro?: string;
   created_at: string;
   updated_at: string;
@@ -39,28 +36,28 @@ export const useEdnItemsComplete = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const fetchItems = async () => {
+    try {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('edn_items_complete')
+        .select('*')
+        .order('item_code');
+
+      if (error) throw error;
+      setItems(data || []);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Une erreur est survenue');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchItems = async () => {
-      try {
-        setLoading(true);
-        const { data, error } = await supabase
-          .from('edn_items_complete')
-          .select('*')
-          .order('item_code');
-
-        if (error) throw error;
-        setItems(data || []);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'Une erreur est survenue');
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchItems();
   }, []);
 
-  return { items, loading, error, refetch: () => window.location.reload() };
+  return { items, loading, error, refetch: fetchItems };
 };
 
 export const useEdnItemComplete = (slug: string) => {
@@ -87,9 +84,7 @@ export const useEdnItemComplete = (slug: string) => {
       }
     };
 
-    if (slug) {
-      fetchItem();
-    }
+    fetchItem();
   }, [slug]);
 
   return { item, loading, error };
