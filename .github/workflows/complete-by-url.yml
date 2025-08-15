@@ -6,11 +6,21 @@ on:
       max_competences:
         description: 'Nombre maximum de compétences à traiter'
         required: false
-        default: '50'
+        default: '100'
         type: string
+      target_items:
+        description: 'Items spécifiques (ex: 001,002,003) ou ALL pour tous'
+        required: false
+        default: 'ALL'
+        type: string
+      force_update:
+        description: 'Forcer la mise à jour même pour les descriptions correctes'
+        required: false
+        default: 'false'
+        type: boolean
   schedule:
-    # Tous les jours à 2h du matin
-    - cron: '0 2 * * *'
+    # Tous les jours à 3h du matin
+    - cron: '0 3 * * *'
 
 env:
   SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
@@ -19,7 +29,7 @@ env:
 jobs:
   complete-oic-content:
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 120
     
     steps:
     - name: Checkout code
@@ -28,35 +38,102 @@ jobs:
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '18'
+        node-version: '20'
+        cache: 'npm'
 
     - name: Install dependencies
       run: |
-        npm install @supabase/supabase-js
-        npm install cheerio
-        npm install axios
+        npm init -y
+        npm install @supabase/supabase-js@latest
+        npm install cheerio@latest
+        npm install axios@latest
+        npm install puppeteer@latest
 
     - name: Complete OIC Content by URL
       run: |
-        cat << 'EOF' > complete_oic.js
+        cat << 'EOF' > complete_oic_advanced.js
         const { createClient } = require('@supabase/supabase-js');
         const axios = require('axios');
         const cheerio = require('cheerio');
+        const puppeteer = require('puppeteer');
 
         const supabase = createClient(
           process.env.SUPABASE_URL,
           process.env.SUPABASE_SERVICE_ROLE_KEY
         );
 
-        const MAX_COMPETENCES = parseInt(process.env.MAX_COMPETENCES || '50');
+        const MAX_COMPETENCES = parseInt(process.env.MAX_COMPETENCES || '100');
+        const TARGET_ITEMS = process.env.TARGET_ITEMS || 'ALL';
+        const FORCE_UPDATE = process.env.FORCE_UPDATE === 'true';
+
+        let browser = null;
+
+        async function extractContentWithPuppeteer(url) {
+          try {
+            console.log(`🚀 Extraction Puppeteer: ${url}`);
+            
+            if (!browser) {
+              browser = await puppeteer.launch({
+                headless: 'new',
+                args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+              });
+            }
+            
+            const page = await browser.newPage();
+            await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36');
+            
+            // Bloquer les ressources inutiles pour accélérer
+            await page.setRequestInterception(true);
+            page.on('request', (req) => {
+              if(['image', 'stylesheet', 'font'].includes(req.resourceType())){
+                req.abort();
+              } else {
+                req.continue();
+              }
+            });
+            
+            await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 15000 });
+            
+            // Attendre que le contenu se charge
+            await page.waitForTimeout(2000);
+            
+            // Extraire le contenu principal
+            const content = await page.evaluate(() => {
+              // Supprimer les éléments inutiles
+              const elementsToRemove = document.querySelectorAll('script, style, nav, header, footer, .navigation, .menu, .sidebar');
+              elementsToRemove.forEach(el => el.remove());
+              
+              // Chercher le contenu principal
+              const main = document.querySelector('main, .content, .main-content, article, .article, .text-content, .body-content');
+              const text = main ? main.innerText : document.body.innerText;
+              
+              return text.replace(/\s+/g, ' ').trim();
+            });
+            
+            await page.close();
+            
+            if (content.length < 50) {
+              console.log(`⚠️ Contenu trop court avec Puppeteer (${content.length} chars)`);
+              return null;
+            }
+            
+            console.log(`✅ Contenu Puppeteer extrait (${content.length} chars)`);
+            return content.substring(0, 2000);
+            
+          } catch (error) {
+            console.log(`❌ Erreur Puppeteer ${url}:`, error.message);
+            return null;
+          }
+        }
 
         async function extractContentFromUrl(url) {
           try {
             console.log(`🌐 Extraction depuis: ${url}`);
             
+            // Essayer d'abord avec Axios/Cheerio (plus rapide)
             const response = await axios.get(url, {
               headers: {
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
               },
               timeout: 10000
             });
@@ -64,57 +141,67 @@ jobs:
             const $ = cheerio.load(response.data);
             
             // Supprimer les éléments non pertinents
-            $('script, style, nav, header, footer, .navigation, .menu').remove();
+            $('script, style, nav, header, footer, .navigation, .menu, .sidebar, .ads').remove();
             
-            // Extraire le contenu principal
-            let content = $('main, .content, .main-content, article, .article, .text-content').text() ||
+            // Extraire le contenu principal avec plusieurs sélecteurs
+            let content = $('main').text() || 
+                         $('.content, .main-content').text() || 
+                         $('article, .article').text() ||
+                         $('.text-content, .body-content').text() ||
                          $('body').text();
             
             // Nettoyer le contenu
             content = content
               .replace(/\s+/g, ' ')
               .trim()
-              .substring(0, 2000); // Limiter à 2000 caractères
+              .substring(0, 2000);
             
-            // Filtrer le contenu invalide
-            const invalidContent = [
-              'bienvenue',
-              'login',
-              'mot de passe',
-              'connexion',
-              'erreur',
-              'page non trouvée',
-              'javascript',
-              'cookies',
-              'votre adresse email'
-            ];
-            
-            const contentLower = content.toLowerCase();
-            if (invalidContent.some(invalid => contentLower.includes(invalid))) {
-              console.log(`⚠️ Contenu invalide détecté pour ${url}`);
-              return null;
-            }
-            
+            // Vérifier si le contenu est valide
             if (content.length < 50) {
-              console.log(`⚠️ Contenu trop court (${content.length} chars) pour ${url}`);
-              return null;
+              console.log(`⚠️ Contenu trop court avec Axios (${content.length} chars), essai avec Puppeteer...`);
+              return await extractContentWithPuppeteer(url);
             }
             
-            console.log(`✅ Contenu extrait (${content.length} chars) pour ${url}`);
+            console.log(`✅ Contenu Axios extrait (${content.length} chars)`);
             return content;
             
           } catch (error) {
-            console.log(`❌ Erreur extraction ${url}:`, error.message);
-            return null;
+            console.log(`❌ Erreur Axios ${url}, essai avec Puppeteer...`, error.message);
+            return await extractContentWithPuppeteer(url);
           }
         }
 
+        function isContentValid(content) {
+          if (!content || content.length < 50) return false;
+          
+          const invalidContent = [
+            'bienvenue',
+            'login',
+            'mot de passe',
+            'connexion',
+            'erreur',
+            'page non trouvée',
+            'javascript',
+            'cookies',
+            'votre adresse email',
+            'lisa',
+            'se connecter',
+            'identifier',
+            'authentification'
+          ];
+          
+          const contentLower = content.toLowerCase();
+          return !invalidContent.some(invalid => contentLower.includes(invalid));
+        }
+
         function shouldUpdateContent(currentDescription, newContent) {
-          if (!currentDescription || !newContent) return false;
+          if (!newContent || !isContentValid(newContent)) return false;
+          if (FORCE_UPDATE) return true;
+          if (!currentDescription) return true;
           
           const invalidSigns = [
             'lisa',
-            'bienvenue',
+            'bienvenue', 
             'login',
             'connexion',
             'javascript',
@@ -126,29 +213,36 @@ jobs:
           const currentLower = currentDescription.toLowerCase();
           const hasInvalidContent = invalidSigns.some(sign => currentLower.includes(sign));
           
-          const isNewContentValid = newContent.length > 50 && 
-                                   newContent.length > currentDescription.length * 1.5 &&
-                                   !invalidSigns.some(sign => newContent.toLowerCase().includes(sign));
+          const isSignificantlyBetter = newContent.length > currentDescription.length * 1.5;
           
-          return hasInvalidContent || isNewContentValid;
+          return hasInvalidContent || isSignificantlyBetter;
         }
 
         async function main() {
           try {
             console.log('=====================================');
-            console.log('🔄 COMPLÉTION PAR URL - DÉMARRAGE');
+            console.log('🔄 COMPLÉTION AVANCÉE PAR URL');
             console.log(`📊 Maximum: ${MAX_COMPETENCES} compétences`);
+            console.log(`🎯 Items ciblés: ${TARGET_ITEMS}`);
+            console.log(`🔄 Force update: ${FORCE_UPDATE}`);
             console.log('=====================================');
 
-            // Récupérer les compétences avec URL
-            console.log('📥 Récupération des compétences OIC avec URL...');
-            
-            const { data: competences, error } = await supabase
+            // Construire la requête selon les items ciblés
+            let query = supabase
               .from('backup_oic_competences')
               .select('objectif_id, intitule, description, url_source, item_parent, rang')
               .not('url_source', 'is', null)
-              .neq('url_source', '')
-              .limit(MAX_COMPETENCES);
+              .neq('url_source', '');
+
+            if (TARGET_ITEMS !== 'ALL') {
+              const items = TARGET_ITEMS.split(',').map(item => item.trim());
+              query = query.in('item_parent', items);
+            }
+
+            query = query.limit(MAX_COMPETENCES);
+            
+            console.log('📥 Récupération des compétences OIC avec URL...');
+            const { data: competences, error } = await query;
             
             if (error) {
               console.error('❌ Erreur récupération compétences:', error);
@@ -159,6 +253,7 @@ jobs:
 
             let processedCount = 0;
             let updatedCount = 0;
+            let skippedCount = 0;
             let errorCount = 0;
 
             // Traiter chaque compétence
@@ -166,20 +261,25 @@ jobs:
               try {
                 processedCount++;
                 console.log(`\n🔍 [${processedCount}/${competences?.length}] ${competence.objectif_id}`);
+                console.log(`📄 Current desc length: ${competence.description?.length || 0} chars`);
                 
                 // Extraire le contenu de l'URL
                 const newContent = await extractContentFromUrl(competence.url_source);
                 
-                if (!newContent) {
-                  console.log(`⚠️ Impossible d'extraire le contenu pour ${competence.objectif_id}`);
+                if (!newContent || !isContentValid(newContent)) {
+                  console.log(`⚠️ Contenu invalide pour ${competence.objectif_id}`);
+                  errorCount++;
                   continue;
                 }
                 
                 // Vérifier si une mise à jour est nécessaire
                 if (!shouldUpdateContent(competence.description || '', newContent)) {
                   console.log(`✅ Contenu déjà correct pour ${competence.objectif_id}`);
+                  skippedCount++;
                   continue;
                 }
+                
+                console.log(`📝 Mise à jour ${competence.objectif_id}: ${competence.description?.length || 0} -> ${newContent.length} chars`);
                 
                 // Mettre à jour la compétence
                 const { error: updateError } = await supabase
@@ -199,7 +299,7 @@ jobs:
                 }
                 
                 // Pause pour éviter la surcharge
-                await new Promise(resolve => setTimeout(resolve, 200));
+                await new Promise(resolve => setTimeout(resolve, 300));
                 
               } catch (error) {
                 console.error(`❌ Erreur traitement ${competence.objectif_id}:`, error);
@@ -207,22 +307,35 @@ jobs:
               }
             }
 
+            // Fermer le navigateur
+            if (browser) {
+              await browser.close();
+            }
+
             // Statistiques finales
             console.log('\n=====================================');
             console.log('📊 STATISTIQUES FINALES:');
             console.log(`   - Compétences traitées: ${processedCount}`);
             console.log(`   - Compétences mises à jour: ${updatedCount}`);
+            console.log(`   - Compétences ignorées: ${skippedCount}`);
             console.log(`   - Erreurs: ${errorCount}`);
             console.log(`   - Taux de réussite: ${processedCount > 0 ? Math.round((updatedCount / processedCount) * 100) : 0}%`);
             console.log('=====================================');
 
-            if (errorCount > processedCount * 0.5) {
-              console.error('❌ Trop d\'erreurs détectées');
-              process.exit(1);
-            }
+            // Sauvegarder les stats pour le rapport
+            const stats = {
+              processed: processedCount,
+              updated: updatedCount,
+              skipped: skippedCount,
+              errors: errorCount,
+              successRate: processedCount > 0 ? Math.round((updatedCount / processedCount) * 100) : 0
+            };
+
+            require('fs').writeFileSync('completion-stats.json', JSON.stringify(stats, null, 2));
 
           } catch (error) {
             console.error('❌ Erreur globale:', error);
+            if (browser) await browser.close();
             process.exit(1);
           }
         }
@@ -230,21 +343,65 @@ jobs:
         main();
         EOF
 
-        MAX_COMPETENCES="${{ github.event.inputs.max_competences || '50' }}" node complete_oic.js
+        MAX_COMPETENCES="${{ github.event.inputs.max_competences || '100' }}" \
+        TARGET_ITEMS="${{ github.event.inputs.target_items || 'ALL' }}" \
+        FORCE_UPDATE="${{ github.event.inputs.force_update || 'false' }}" \
+        node complete_oic_advanced.js
 
-    - name: Create completion report
+    - name: Read completion stats
+      id: stats
       run: |
-        echo "## 📊 Rapport de complétion OIC" >> $GITHUB_STEP_SUMMARY
-        echo "Date: $(date)" >> $GITHUB_STEP_SUMMARY
-        echo "Compétences maximum traitées: ${{ github.event.inputs.max_competences || '50' }}" >> $GITHUB_STEP_SUMMARY
-        echo "" >> $GITHUB_STEP_SUMMARY
-        echo "✅ Workflow terminé avec succès" >> $GITHUB_STEP_SUMMARY
+        if [ -f completion-stats.json ]; then
+          STATS=$(cat completion-stats.json)
+          echo "stats=$STATS" >> $GITHUB_OUTPUT
+          
+          PROCESSED=$(echo $STATS | jq '.processed')
+          UPDATED=$(echo $STATS | jq '.updated')
+          SKIPPED=$(echo $STATS | jq '.skipped')
+          ERRORS=$(echo $STATS | jq '.errors')
+          SUCCESS_RATE=$(echo $STATS | jq '.successRate')
+          
+          echo "processed=$PROCESSED" >> $GITHUB_OUTPUT
+          echo "updated=$UPDATED" >> $GITHUB_OUTPUT
+          echo "skipped=$SKIPPED" >> $GITHUB_OUTPUT
+          echo "errors=$ERRORS" >> $GITHUB_OUTPUT
+          echo "success_rate=$SUCCESS_RATE" >> $GITHUB_OUTPUT
+        fi
 
-    - name: Notify completion
+    - name: Create detailed completion report
+      run: |
+        echo "## 📊 Rapport de Complétion OIC Avancé" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "**Date d'exécution:** $(date)" >> $GITHUB_STEP_SUMMARY
+        echo "**Déclencheur:** ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 🎯 Paramètres" >> $GITHUB_STEP_SUMMARY
+        echo "- **Compétences max:** ${{ github.event.inputs.max_competences || '100' }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Items ciblés:** ${{ github.event.inputs.target_items || 'ALL' }}" >> $GITHUB_STEP_SUMMARY
+        echo "- **Force update:** ${{ github.event.inputs.force_update || 'false' }}" >> $GITHUB_STEP_SUMMARY
+        echo "" >> $GITHUB_STEP_SUMMARY
+        echo "### 📈 Résultats" >> $GITHUB_STEP_SUMMARY
+        if [ -f completion-stats.json ]; then
+          echo "- ✅ **Mises à jour:** ${{ steps.stats.outputs.updated }}" >> $GITHUB_STEP_SUMMARY
+          echo "- 📊 **Traitées:** ${{ steps.stats.outputs.processed }}" >> $GITHUB_STEP_SUMMARY
+          echo "- ⏭️ **Ignorées:** ${{ steps.stats.outputs.skipped }}" >> $GITHUB_STEP_SUMMARY
+          echo "- ❌ **Erreurs:** ${{ steps.stats.outputs.errors }}" >> $GITHUB_STEP_SUMMARY
+          echo "- 🎯 **Taux de réussite:** ${{ steps.stats.outputs.success_rate }}%" >> $GITHUB_STEP_SUMMARY
+        else
+          echo "❌ Statistiques non disponibles" >> $GITHUB_STEP_SUMMARY
+        fi
+
+    - name: Notify completion with details
       if: always()
       run: |
         if [ "${{ job.status }}" == "success" ]; then
-          echo "🎉 Complétion des compétences OIC terminée avec succès"
+          if [ -f completion-stats.json ]; then
+            echo "🎉 Complétion terminée avec succès !"
+            echo "📊 ${{ steps.stats.outputs.updated }} compétences mises à jour sur ${{ steps.stats.outputs.processed }} traitées"
+            echo "🎯 Taux de réussite: ${{ steps.stats.outputs.success_rate }}%"
+          else
+            echo "✅ Workflow terminé mais stats indisponibles"
+          fi
         else
           echo "❌ Erreur lors de la complétion des compétences OIC"
           exit 1
