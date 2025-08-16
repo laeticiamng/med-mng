@@ -28,26 +28,22 @@ export const useEdnItemsPaginated = (page = 1, limit = 20) => {
     try {
       setLoading(true);
       
-      const offset = (page - 1) * limit;
-      
-      // Requête ultra-optimisée avec seulement les champs essentiels
-      const { data, error, count } = await supabase
+      // D'abord récupérer TOUTES les données pour faire le tri numérique
+      const { data: allData, error: allError, count } = await supabase
         .from('edn_items_complete')
         .select(`
           id, item_code, title, subtitle, slug, completeness_score, 
           updated_at, specialite, competences_count_total, is_validated,
           paroles_musicales, scene_immersive, quiz_questions
-        `, { count: 'exact' })
-        .order('item_code', { ascending: true })
-        .range(offset, offset + limit - 1);
+        `, { count: 'exact' });
 
-      if (error) {
-        setError(error.message);
+      if (allError) {
+        setError(allError.message);
         return;
       }
 
       // Transformation légère des données pour optimiser l'affichage
-      const lightItems: EdnItemLight[] = (data || []).map(item => ({
+      const lightItems: EdnItemLight[] = (allData || []).map(item => ({
         id: item.id,
         item_code: item.item_code,
         title: item.title,
@@ -63,14 +59,18 @@ export const useEdnItemsPaginated = (page = 1, limit = 20) => {
         has_quiz: !!item.quiz_questions
       }));
 
-      // Tri numérique local par le numéro dans item_code (IC-1, IC-2, etc.)
+      // Tri numérique AVANT la pagination
       lightItems.sort((a, b) => {
         const numA = parseInt(a.item_code.replace(/\D/g, '')) || 0;
         const numB = parseInt(b.item_code.replace(/\D/g, '')) || 0;
         return numA - numB;
       });
 
-      setItems(lightItems);
+      // Maintenant appliquer la pagination côté client
+      const offset = (page - 1) * limit;
+      const paginatedItems = lightItems.slice(offset, offset + limit);
+
+      setItems(paginatedItems);
       setTotalCount(count || 0);
       
     } catch (err) {
