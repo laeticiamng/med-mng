@@ -20,6 +20,7 @@ import {
 import { TableauCompetencesOICWithRealData } from '@/components/edn/tableau/TableauCompetencesOICWithRealData';
 import { SceneImmersive } from '@/components/edn/SceneImmersive';
 import { ParolesMusicales } from '@/components/edn/ParolesMusicales';
+import { LyricsGenerationPanel } from '@/components/edn/LyricsGenerationPanel';
 import { EnhancedQuizFinal } from '@/components/edn/EnhancedQuizFinal';
 import { EnhancedBandeDessinee } from '@/components/edn/EnhancedBandeDessinee';
 import { useEdnItemComplete } from '@/hooks/useEdnItemsComplete';
@@ -152,17 +153,38 @@ export const EdnItemDetailHybrid: React.FC<EdnItemDetailHybridProps> = ({
       id: 'music',
       label: 'Paroles Musicales',
       icon: Music,
-      available: !!(item.paroles_musicales?.length),
+      available: true,
       component: (
-        <ParolesMusicales 
-          paroles={item.paroles_musicales} 
-          paroles_rang_a={undefined}
-          paroles_rang_b={undefined}
-          paroles_rang_ab={undefined}
-          itemCode={item.item_code}
-          tableauRangA={item.tableau_rang_a}
-          tableauRangB={item.tableau_rang_b}
-        />
+        <div className="space-y-6">
+          <LyricsGenerationPanel
+            itemCode={item.item_code}
+            currentLyrics={{
+              rang_a: (item as any).paroles_rang_a || [],
+              rang_b: (item as any).paroles_rang_b || [],
+              rang_ab: (item as any).paroles_rang_ab || []
+            }}
+            onLyricsGenerated={(newLyrics) => {
+              console.log('Nouvelles paroles générées:', newLyrics);
+            }}
+          />
+          <div className="bg-purple-50 dark:bg-purple-950/20 p-4 rounded-lg border border-purple-200 dark:border-purple-800">
+            <h3 className="font-semibold text-purple-800 dark:text-purple-200 mb-2">
+              Génération musicale avec IA
+            </h3>
+            <p className="text-purple-600 dark:text-purple-300 text-sm">
+              Paroles adaptées au contenu médical et génération Suno AI
+            </p>
+          </div>
+          <ParolesMusicales 
+            paroles={item.paroles_musicales} 
+            paroles_rang_a={(item as any).paroles_rang_a || []}
+            paroles_rang_b={(item as any).paroles_rang_b || []}
+            paroles_rang_ab={(item as any).paroles_rang_ab || []}
+            itemCode={item.item_code}
+            tableauRangA={item.tableau_rang_a}
+            tableauRangB={item.tableau_rang_b}
+          />
+        </div>
       )
     },
     {

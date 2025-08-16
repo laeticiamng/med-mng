@@ -12,6 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useEdnItemsPaginated, useEdnStats, EdnItemLight } from '@/hooks/useEdnItemsPaginated';
 import { EdnItemGrid } from '@/components/edn/EdnItemGrid';
 import { useIsMobile } from "@/hooks/use-mobile";
+import { GlobalLyricsManager } from '@/components/edn/GlobalLyricsManager';
 
 // Composants lazy pour les onglets non-critiques
 const LyricsCompletionStatus = React.lazy(() => 
@@ -39,6 +40,7 @@ export default function EdnComplete() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [activeTab, setActiveTab] = useState('immersive');
   const [selectedItem, setSelectedItem] = useState<EdnItemLight | null>(null);
+  const [showLyricsManager, setShowLyricsManager] = useState(false);
 
   const isMobile = useIsMobile();
   const itemsPerPage = isMobile ? 8 : 20;
@@ -88,13 +90,21 @@ export default function EdnComplete() {
                 <QuotaIndicator compact />
               </React.Suspense>
               <Tabs value={activeTab} onValueChange={setActiveTab}>
-                <TabsList className="bg-white/60 backdrop-blur-sm border border-white/30 shadow-lg rounded-xl p-1">
-                  <TabsTrigger value="immersive" className="text-sm font-medium rounded-lg">Immersif</TabsTrigger>
-                  <TabsTrigger value="music" className="text-sm font-medium rounded-lg">Paroles</TabsTrigger>
-                  <TabsTrigger value="revision" className="text-sm font-medium rounded-lg">Révisions</TabsTrigger>
-                  <TabsTrigger value="subscription" className="text-sm font-medium rounded-lg">Abonnement</TabsTrigger>
-                </TabsList>
-              </Tabs>
+                 <TabsList className="bg-white/60 backdrop-blur-sm border border-white/30 shadow-lg rounded-xl p-1">
+                   <TabsTrigger value="immersive" className="text-sm font-medium rounded-lg">Immersif</TabsTrigger>
+                   <TabsTrigger value="music" className="text-sm font-medium rounded-lg">Paroles</TabsTrigger>
+                   <TabsTrigger value="revision" className="text-sm font-medium rounded-lg">Révisions</TabsTrigger>
+                   <TabsTrigger value="subscription" className="text-sm font-medium rounded-lg">Abonnement</TabsTrigger>
+                 </TabsList>
+               </Tabs>
+                <Button 
+                  onClick={() => setShowLyricsManager(true)}
+                  className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white shadow-lg"
+                  size="sm"
+                >
+                  <Music className="h-4 w-4 mr-2" />
+                  Paroles Globales
+                </Button>
             </div>
           </div>
         </div>
@@ -198,14 +208,38 @@ export default function EdnComplete() {
             />
           </TabsContent>
           
-          <TabsContent value="music">
-            <React.Suspense fallback={<div className="text-center py-8">Chargement...</div>}>
-              <div className="space-y-6">
-                <UpdateAllLyricsButton />
-                <LyricsCompletionStatus />
-              </div>
-            </React.Suspense>
-          </TabsContent>
+           <TabsContent value="music">
+             <React.Suspense fallback={<div className="text-center py-8">Chargement...</div>}>
+               <div className="space-y-6">
+                 {showLyricsManager ? (
+                   <div>
+                     <Button 
+                       onClick={() => setShowLyricsManager(false)}
+                       variant="outline"
+                       className="mb-4"
+                     >
+                       ← Retour aux paroles
+                     </Button>
+                     <GlobalLyricsManager />
+                   </div>
+                 ) : (
+                   <>
+                     <div className="flex gap-4 mb-6">
+                       <Button 
+                         onClick={() => setShowLyricsManager(true)}
+                         className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                       >
+                         <Music className="h-4 w-4 mr-2" />
+                         Gestionnaire Paroles Global
+                       </Button>
+                     </div>
+                     <UpdateAllLyricsButton />
+                     <LyricsCompletionStatus />
+                   </>
+                 )}
+               </div>
+             </React.Suspense>
+           </TabsContent>
           
           <TabsContent value="revision">
             <React.Suspense fallback={<div className="text-center py-8">Chargement...</div>}>
