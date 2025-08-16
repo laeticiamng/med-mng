@@ -26,9 +26,7 @@ const PricingPlans = React.lazy(() =>
 const UpdateAllLyricsButton = React.lazy(() => 
   import("@/components/edn/UpdateAllLyricsButton").then(module => ({ default: module.UpdateAllLyricsButton }))
 );
-const SyncAllItemsButton = React.lazy(() => 
-  import("@/components/edn/SyncAllItemsButton").then(module => ({ default: module.SyncAllItemsButton }))
-);
+// SyncAllItemsButton supprimé - navigation globale gère maintenant les actions
 const QuotaIndicator = React.lazy(() => 
   import("@/components/quota/QuotaIndicator").then(module => ({ default: module.QuotaIndicator }))
 );
@@ -222,12 +220,6 @@ export default function EdnComplete() {
           </TabsContent>
         </Tabs>
 
-        {/* Bouton de synchronisation flottant pour les admins */}
-        <div className="fixed bottom-6 right-6 z-50">
-          <React.Suspense fallback={null}>
-            <SyncAllItemsButton />
-          </React.Suspense>
-        </div>
       </div>
     </div>
   );

@@ -18,6 +18,8 @@ import { LanguageProvider } from "@/contexts/LanguageContext";
 import { GlobalAudioProvider } from "@/contexts/GlobalAudioContext";
 import { PageThemeProvider } from "@/components/layout/PageThemeProvider";
 import { ErrorBoundary } from "@/components/common/ErrorBoundary";
+import { GlobalNavigation } from "@/components/layout/GlobalNavigation";
+import { GlobalMusicPlayer } from "@/components/layout/GlobalMusicPlayer";
 
 // ⚡ PAGES LAZY LOADED pour performances optimales
 const Index = lazy(() => import("./pages/Index"));
@@ -105,8 +107,11 @@ const App = () => {
                     <HelmetProvider>
                       <BrowserRouter>
                         <SkipLinks />
-                        <div id="app-root" className="min-h-screen">
-                          <main id="main-content" tabIndex={-1}>
+                        <div id="app-root" className="min-h-screen flex flex-col">
+                          {/* Navigation globale */}
+                          <GlobalNavigation />
+                          
+                          <main id="main-content" tabIndex={-1} className="flex-1 pb-20">
                             <PageThemeProvider>
                               <ErrorBoundary>
                                 <Suspense fallback={<PageLoadingFallback />}>
@@ -178,6 +183,9 @@ const App = () => {
                               </ErrorBoundary>
                             </PageThemeProvider>
                           </main>
+                        
+                          {/* Lecteur musical global */}
+                          <GlobalMusicPlayer />
                         
                           {/* Global UI Components - LAZY LOADED */}
                           <Suspense fallback={null}>
