@@ -95,99 +95,28 @@ export const GlobalLyricsManager: React.FC = () => {
     setGenerationResult(null);
     
     try {
-      toast({
-        title: '🚀 Génération lancée',
-        description: `Génération ${mode === 'ALL' ? 'complète' : 'des paroles manquantes'} locale pour les 367 items EDN`,
+      console.log('🚀 Lancement génération RICHE avec OpenAI pour tous les items');
+      
+      // Utiliser la nouvelle Edge Function optimisée
+      const { data, error } = await supabase.functions.invoke('generate-all-lyrics-rich', {
+        body: { regenerateAll: mode === 'ALL' }
       });
-
-      // Récupérer tous les items
-      const { data: items, error } = await supabase
-        .from('edn_items_complete')
-        .select('item_code, title, paroles_rang_a, paroles_rang_b, paroles_rang_ab')
-        .order('item_code');
 
       if (error) throw error;
 
-      let processed = 0;
-      let success = 0;
-      let failed = 0;
-      const errors: string[] = [];
-
-      // Filtrer selon le mode
-      const itemsToProcess = mode === 'MISSING' 
-        ? items.filter(item => 
-            !item.paroles_rang_a?.length || 
-            !item.paroles_rang_b?.length || 
-            !item.paroles_rang_ab?.length
-          )
-        : items;
-
-      for (const item of itemsToProcess) {
-        try {
-          processed++;
-          
-          // Générer seulement si nécessaire en mode MISSING
-          const needsA = mode === 'ALL' || !item.paroles_rang_a?.length;
-          const needsB = mode === 'ALL' || !item.paroles_rang_b?.length;
-          const needsAB = mode === 'ALL' || !item.paroles_rang_ab?.length;
-
-          const updates: any = { updated_at: new Date().toISOString() };
-
-          if (needsA || needsB || needsAB) {
-            // Récupérer les compétences
-            const itemNum = item.item_code.replace('IC-', '').padStart(3, '0');
-            
-            const { data: competencesA } = await supabase
-              .from('backup_oic_competences')
-              .select('objectif_id, intitule, description, rang, rubrique')
-              .eq('item_parent', itemNum)
-              .eq('rang', 'A')
-              .is('description', false);
-
-            const { data: competencesB } = await supabase
-              .from('backup_oic_competences')
-              .select('objectif_id, intitule, description, rang, rubrique')
-              .eq('item_parent', itemNum)
-              .eq('rang', 'B')
-              .is('description', false);
-
-            if (needsA) updates.paroles_rang_a = await generateRichAdvancedLyrics(item.item_code, 'A');
-            if (needsB) updates.paroles_rang_b = await generateRichAdvancedLyrics(item.item_code, 'B');
-            if (needsAB) {
-              const lyricsAB = await generateRichAdvancedLyrics(item.item_code, 'AB');
-              updates.paroles_rang_ab = lyricsAB;
-              updates.paroles_musicales = lyricsAB;
-            }
-
-            // Sauvegarder
-            const { error: updateError } = await supabase
-              .from('edn_items_complete')
-              .update(updates)
-              .eq('item_code', item.item_code);
-
-            if (updateError) throw updateError;
-          }
-
-          success++;
-        } catch (e) {
-          failed++;
-          errors.push(`${item.item_code}: ${e.message}`);
-          console.error(`Erreur pour ${item.item_code}:`, e);
-        }
-      }
-
-      setGenerationResult({ processed, success, failed, errors });
+      setGenerationResult(data);
       await loadStats();
 
       toast({
-        title: '🎉 Génération terminée',
-        description: `${success} items traités avec succès`,
+        title: '🎉 Génération OpenAI terminée',
+        description: `${data.success} items traités avec paroles style Nekfeu riches`,
       });
-    } catch (error) {
-      console.error('Erreur génération globale:', error);
+
+    } catch (genError) {
+      console.error('Erreur génération globale:', genError);
       toast({
         title: '❌ Erreur génération',
-        description: 'Problème lors de la génération locale',
+        description: 'Problème lors de la génération avec OpenAI',
         variant: 'destructive'
       });
     } finally {
