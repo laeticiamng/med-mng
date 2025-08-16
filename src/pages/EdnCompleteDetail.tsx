@@ -1,5 +1,5 @@
-import { useParams, Link } from 'react-router-dom';
-import { ArrowLeft, BookOpen, Award, Users, Calendar, Tag, Music, Brain, CheckCircle, AlertCircle, Clock } from 'lucide-react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { ArrowLeft, BookOpen, Award, Users, Calendar, Tag, Music, Brain, CheckCircle, AlertCircle, Clock, Maximize2 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -9,10 +9,14 @@ import { Separator } from '@/components/ui/separator';
 import { useEdnItemComplete } from '@/hooks/useEdnItemsComplete';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { EdnItemDetailHybrid } from '@/components/edn/EdnItemDetailHybrid';
+import { useState } from 'react';
 
 export default function EdnCompleteDetail() {
   const { slug } = useParams<{ slug: string }>();
+  const navigate = useNavigate();
   const { item, loading, error } = useEdnItemComplete(slug!);
+  const [showHybridModal, setShowHybridModal] = useState(false);
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('fr-FR', {
@@ -123,6 +127,13 @@ export default function EdnCompleteDetail() {
                 value={item.completeness_score || 0} 
                 className="w-32"
               />
+              <Button 
+                onClick={() => setShowHybridModal(true)}
+                className="flex items-center gap-2 mt-2"
+              >
+                <Maximize2 className="h-4 w-4" />
+                Mode Immersif
+              </Button>
             </div>
           </div>
 
@@ -448,8 +459,17 @@ export default function EdnCompleteDetail() {
               </CardContent>
             </Card>
           </div>
+          </div>
         </div>
+        
+        {/* Modal hybride */}
+        {showHybridModal && (
+          <EdnItemDetailHybrid
+            slug={slug!}
+            isOpen={showHybridModal}
+            onClose={() => setShowHybridModal(false)}
+          />
+        )}
       </div>
-    </div>
-  );
-}
+    );
+  }
