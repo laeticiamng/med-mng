@@ -246,180 +246,102 @@ async function casLoginWithPuppeteer(browser) {
   }
   
   try {
-    // Utiliser la première page disponible ou en créer une
-    let page;
-    const pages = await browser.pages();
-    if (pages.length > 0) {
-      page = pages[0];
-    } else {
-      page = await browser.newPage();
+    // Fermer toutes les pages existantes pour repartir à zéro
+    const existingPages = await browser.pages();
+    for (const existingPage of existingPages) {
+      await existingPage.close();
     }
     
+    // Créer une nouvelle page propre
+    const page = await browser.newPage();
     await page.setUserAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
     
-    const protectedUrl = 'https://livret.uness.fr/lisa/2025/Cat%C3%A9gorie:Objectif_de_connaissance';
+    // Aller directement sur la page de login CAS
+    const casLoginUrl = 'https://auth.uness.fr/cas/login?service=https%3A%2F%2Flivret.uness.fr%2Flisa%2F2025%2FCat%25C3%25A9gorie%3AObjectif_de_connaissance';
     
-    console.log('🌐 Navigation vers la page protégée...');
-    await page.goto(protectedUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
+    console.log('🌐 Navigation directe vers CAS login...');
+    await page.goto(casLoginUrl, { waitUntil: 'domcontentloaded', timeout: 45000 });
     
-    // Attendre stabilisation
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    // Vérifier si on est déjà sur LiSA (pas de redirection CAS)
-    const currentUrl = page.url();
-    if (currentUrl.includes('livret.uness.fr/lisa')) {
-      console.log('✅ Déjà authentifié ou accès direct');
-      await page.close();
-      if (ownBrowser) await browser.close();
-      return browser;
-    }
-    
-    // On est sur la page CAS - procéder à l'authentification
-    console.log('🔑 Détection de la page CAS, authentification...');
-    
-    // Prendre une capture d'écran pour debug
-    await page.screenshot({ path: '/tmp/cas-debug.png', fullPage: true });
-    console.log('📸 Capture d\'écran CAS sauvegardée');
-    
-    // Essayer de trouver les champs d'authentification avec plusieurs sélecteurs
-    const possibleUserSelectors = [
-      'input[name="username"]',
-      'input[name="email"]', 
-      'input[type="email"]',
-      'input[id="username"]',
-      'input[id="email"]',
-      '#username',
-      '#email'
-    ];
-    
-    let usernameField = null;
-    for (const selector of possibleUserSelectors) {
-      try {
-        usernameField = await page.$(selector);
-        if (usernameField) {
-          console.log(`✅ Champ username trouvé avec: ${selector}`);
-          break;
-        }
-      } catch (e) {
-        // Ignore et continue
-      }
-    }
-    
-    if (!usernameField) {
-      console.error('❌ Aucun champ username trouvé');
-      throw new Error('Champ username/email non trouvé');
-    }
-    
-    // Remplir le champ username
-    await usernameField.type(CAS_USERNAME);
-    console.log('📝 Username saisi');
-    
-    // Chercher le champ password (peut ne pas être visible immédiatement)
-    const possiblePasswordSelectors = [
-      'input[name="password"]',
-      'input[type="password"]',
-      'input[id="password"]',
-      '#password'
-    ];
-    
-    let passwordField = null;
-    let submitButton = null;
-    
-    // Essayer de trouver le champ password ou un bouton pour continuer
-    for (let attempt = 0; attempt < 3; attempt++) {
-      console.log(`🔍 Tentative ${attempt + 1}/3 de recherche du champ password...`);
-      
-      for (const selector of possiblePasswordSelectors) {
-        try {
-          passwordField = await page.$(selector);
-          if (passwordField) {
-            console.log(`✅ Champ password trouvé avec: ${selector}`);
-            break;
-          }
-        } catch (e) {
-          // Ignore et continue
-        }
-      }
-      
-      if (passwordField) break;
-      
-      // Si pas de champ password, chercher un bouton "Continuer" ou "Suivant"
-      const continueButtons = await page.$$('button, input[type="submit"]');
-      if (continueButtons.length > 0) {
-        console.log('🔄 Pas de champ password, tentative de clic sur bouton continuer...');
-        await continueButtons[0].click();
-        await new Promise(resolve => setTimeout(resolve, 2000)); // Attendre que la page se charge
-        continue;
-      }
-      
-      await new Promise(resolve => setTimeout(resolve, 1000));
-    }
-    
-    // Si on a trouvé le champ password
-    if (passwordField) {
-      await passwordField.type(CAS_PASSWORD);
-      console.log('🔑 Password saisi');
-    } else {
-      console.warn('⚠️ Champ password non trouvé, tentative de soumission directe...');
-    }
-    
-    // Chercher et cliquer sur le bouton de soumission
-    const possibleSubmitSelectors = [
-      'input[type="submit"]',
-      'button[type="submit"]', 
-      'button[name="submit"]',
-      'button:contains("Connexion")',
-      'button:contains("Se connecter")',
-      'button:contains("Login")',
-      'form button'
-    ];
-    
-    for (const selector of possibleSubmitSelectors) {
-      try {
-        submitButton = await page.$(selector);
-        if (submitButton) {
-          console.log(`✅ Bouton submit trouvé avec: ${selector}`);
-          break;
-        }
-      } catch (e) {
-        // Ignore et continue
-      }
-    }
-    
-    if (submitButton) {
-      await Promise.all([
-        page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 30000 }),
-        submitButton.click()
-      ]);
-    } else {
-      console.warn('⚠️ Pas de bouton submit trouvé, tentative de soumission par Enter...');
-      await page.keyboard.press('Enter');
-      await page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 30000 });
-    }
-    
-    // Attendre stabilisation après auth
+    // Attendre que la page soit complètement chargée
     await new Promise(resolve => setTimeout(resolve, 3000));
     
-    // Vérifier que nous sommes bien arrivés sur LiSA
-    const finalUrl = page.url();
-    if (!finalUrl.includes('livret.uness.fr/lisa')) {
-      console.error('❌ URL finale inattendue:', finalUrl);
-      throw new Error('Authentification CAS semble avoir échoué');
+    console.log('🔑 Saisie des identifiants CAS...');
+    
+    // Attendre et remplir le champ username
+    try {
+      await page.waitForSelector('input[name="username"], input[type="email"], input[id="username"]', { timeout: 10000 });
+      await page.type('input[name="username"], input[type="email"], input[id="username"]', CAS_USERNAME);
+      console.log('📝 Username saisi');
+    } catch (e) {
+      console.error('❌ Impossible de trouver le champ username');
+      throw new Error('Champ username non trouvé');
     }
     
-    console.log('✅ Authentification CAS réussie avec Puppeteer');
+    // Vérifier si le champ password est présent (auth en 1 ou 2 étapes)
+    let passwordPresent = false;
+    try {
+      await page.waitForSelector('input[name="password"], input[type="password"], input[id="password"]', { timeout: 2000 });
+      passwordPresent = true;
+    } catch (e) {
+      console.log('🔄 Champ password pas encore visible, authentification en 2 étapes détectée');
+    }
     
-    // Vérifier que les cookies sont bien stockés dans le browser context
+    if (passwordPresent) {
+      // Auth en 1 étape - saisir le password directement
+      await page.type('input[name="password"], input[type="password"], input[id="password"]', CAS_PASSWORD);
+      console.log('🔑 Password saisi (auth 1 étape)');
+    } else {
+      // Auth en 2 étapes - cliquer sur suivant d'abord
+      console.log('🔄 Clic sur "Suivant" pour auth 2 étapes...');
+      try {
+        await page.click('button[type="submit"], input[type="submit"], button:contains("Suivant")');
+        await page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 30000 });
+        
+        // Maintenant saisir le password
+        await page.waitForSelector('input[name="password"], input[type="password"], input[id="password"]', { timeout: 10000 });
+        await page.type('input[name="password"], input[type="password"], input[id="password"]', CAS_PASSWORD);
+        console.log('🔑 Password saisi (auth 2 étapes)');
+      } catch (e) {
+        console.error('❌ Erreur dans l\'auth 2 étapes:', e.message);
+        throw e;
+      }
+    }
+    
+    // Soumettre le formulaire
+    console.log('📤 Soumission du formulaire d\'authentification...');
+    await Promise.all([
+      page.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 45000 }),
+      page.click('button[type="submit"], input[type="submit"]')
+    ]);
+    
+    // Attendre stabilisation complète
+    await new Promise(resolve => setTimeout(resolve, 5000));
+    
+    // Vérifier le résultat de l'authentification
+    const finalUrl = page.url();
+    console.log(`🔍 URL finale après auth: ${finalUrl}`);
+    
+    if (finalUrl.includes('livret.uness.fr/lisa')) {
+      console.log('✅ Authentification CAS réussie - arrivé sur LiSA');
+    } else if (finalUrl.includes('auth.uness.fr') || finalUrl.includes('cas.uness.fr')) {
+      console.error('❌ Encore sur la page d\'auth - échec probable');
+      throw new Error('Authentification CAS échouée - toujours sur page auth');
+    } else {
+      console.log('🤔 URL inattendue mais pas d\'erreur - on continue');
+    }
+    
+    // Vérifier que les cookies sont bien stockés
     const cookies = await page.cookies();
     console.log(`🍪 ${cookies.length} cookies récupérés après authentification`);
     
-    // Garder cette page ouverte pour maintenir la session
-    // await page.close();
+    // Garder la page ouverte pour maintenir la session
+    console.log('✅ Authentification CAS complète avec succès');
     
     if (ownBrowser) await browser.close();
     return browser;
     
   } catch (error) {
+    console.error('❌ Erreur dans casLoginWithPuppeteer:', error.message);
     if (ownBrowser) await browser.close();
     throw error;
   }
@@ -535,55 +457,15 @@ async function processOne(browser, row) {
     
     console.log(`   🌐 ${objId}: Navigation vers la page...`);
     
-    // Fonction de relogin qui utilise le même browser mais une nouvelle page
+    // Fonction de relogin simplifiée pour réutiliser la logique principale
     const reloginFn = async () => {
-      console.log(`🔐 Démarrage authentification CAS avec Puppeteer...`);
-      const authPage = await browser.newPage();
+      console.log(`🔐 Ré-authentification CAS...`);
       try {
-        await authPage.setUserAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
-        
-        const protectedUrl = 'https://livret.uness.fr/lisa/2025/Cat%C3%A9gorie:Objectif_de_connaissance';
-        
-        console.log('🌐 Navigation vers la page protégée...');
-        await authPage.goto(protectedUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
-        
-        // Vérifier si on est déjà sur LiSA (pas de redirection CAS)
-        const currentUrl = authPage.url();
-        if (currentUrl.includes('livret.uness.fr/lisa')) {
-          console.log('✅ Déjà authentifié');
-          return;
-        }
-        
-        // On est sur la page CAS - procéder à l'authentification
-        console.log('🔑 Détection de la page CAS, authentification...');
-        
-        // Authentification CAS
-        const usernameField = await authPage.$('input[name="username"]');
-        if (usernameField) {
-          await usernameField.type(CAS_USERNAME);
-          console.log('📝 Username saisi');
-        }
-        
-        // Attendre et remplir le password
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        const passwordField = await authPage.$('input[name="password"]');
-        if (passwordField) {
-          await passwordField.type(CAS_PASSWORD);
-          console.log('🔑 Password saisi');
-        }
-        
-        const submitButton = await authPage.$('button[type="submit"]');
-        if (submitButton) {
-          await Promise.all([
-            authPage.waitForNavigation({ waitUntil: 'domcontentloaded', timeout: 30000 }),
-            submitButton.click()
-          ]);
-        }
-        
-        console.log('✅ Authentification CAS réussie');
-        
-      } finally {
-        await authPage.close().catch(() => {});
+        await casLoginWithPuppeteer(browser);
+        console.log('✅ Ré-authentification CAS réussie');
+      } catch (error) {
+        console.error('❌ Erreur lors de la ré-authentification:', error.message);
+        throw error;
       }
     };
     
