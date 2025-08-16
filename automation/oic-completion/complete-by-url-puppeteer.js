@@ -615,12 +615,21 @@ async function processOne(browser, row) {
       throw new Error('login_page_content_detected');
     }
     
-    // COPIE FIDÈLE DU CONTENU : Mise à jour directe en base sans conditions
-    console.log(`   💾 ${objId}: Mise à jour en base...`);
-    await updateDescription(objId, text, 200);
+    // VÉRIFICATION: Comparer avec le contenu actuel en base
+    const currentDescription = row.description || '';
+    const contentChanged = currentDescription !== text;
     
-    console.log(`   ✅ ${objId}: TRAITEMENT RÉUSSI - ${text.length} caractères copiés`);
-    return { updated: 1, skippedError: 0, unchanged: 0 };
+    if (contentChanged) {
+      console.log(`   💾 ${objId}: MISE À JOUR NÉCESSAIRE - Contenu différent détecté`);
+      console.log(`   📊 ${objId}: Ancien: ${currentDescription.length} car -> Nouveau: ${text.length} car`);
+      await updateDescription(objId, text, 200);
+      console.log(`   ✅ ${objId}: CONTENU MIS À JOUR - ${text.length} caractères copiés`);
+      return { updated: 1, skippedError: 0, unchanged: 0 };
+    } else {
+      console.log(`   ✓ ${objId}: Contenu identique - Pas de mise à jour nécessaire (${text.length} car)`);
+      await mark(objId, { completion_status: 'verified_unchanged' });
+      return { updated: 0, skippedError: 0, unchanged: 1 };
+    }
     
   } catch (e) {
     console.log(`   ❌ ${objId}: ERREUR - ${e.message}`);
@@ -709,88 +718,34 @@ function hasCorruptedContent(description) {
 }
 
 async function getBatch() {
-  console.log(`🔍 Récupération d'un lot de ${BATCH} compétences à traiter...`);
+  console.log(`🔍 Récupération d'un lot de ${BATCH} compétences à vérifier et mettre à jour...`);
   
-  // Priorité 1: Compétences nettoyées avec contenu générique LiSA
-  const { data: cleanedData, error: cleanedError } = await supabase
+  // NOUVELLE LOGIQUE: Récupérer TOUTES les compétences pour vérifier leur contenu
+  // Sans filtrer par statut - on veut tout retraiter pour s'assurer de la cohérence
+  const { data: allData, error: allError } = await supabase
     .from('backup_oic_competences')
     .select('objectif_id, url_source, description, source_etag, completion_status, intitule')
     .not('url_source', 'is', null)
     .not('url_source', 'eq', '')
-    .eq('completion_last_error', 'generic_lisa_content_detected')
     .limit(BATCH)
-    .order('completion_updated_at', { ascending: true });
+    .order('objectif_id'); // Trier par ID pour un traitement prévisible
 
-  if (cleanedError) throw cleanedError;
+  if (allError) throw allError;
   
-  console.log(`🔍 ${cleanedData.length} compétences nettoyées (contenu générique LiSA) trouvées`);
+  console.log(`🔍 ${allData.length} compétences récupérées (traitement intégral)`);
   
-  let finalData = [...cleanedData];
-  
-  // Priorité 2: Compétences avec du contenu corrompu (pages de login, erreurs)
-  if (finalData.length < BATCH) {
-    const remaining = BATCH - finalData.length;
-    console.log(`🔍 Récupération de ${remaining} compétences avec contenu corrompu...`);
-    
-    const { data: corruptedData, error: corruptedError } = await supabase
-      .from('backup_oic_competences')
-      .select('objectif_id, url_source, description, source_etag, completion_status, intitule')
-      .not('url_source', 'is', null)
-      .not('url_source', 'eq', '')
-      .not('description', 'is', null)
-      .not('completion_last_error', 'eq', 'generic_lisa_content_detected')
-      .limit(remaining * 2) // Récupérer plus pour filtrer
-      .order('completion_updated_at', { ascending: true });
-
-    if (corruptedError) throw corruptedError;
-    
-    // Filtrer pour trouver les compétences avec du contenu corrompu
-    const corruptedCompetences = (corruptedData || []).filter(item => 
-      hasCorruptedContent(item.description)
-    ).slice(0, remaining);
-    
-    console.log(`🔍 ${corruptedCompetences.length} compétences avec contenu corrompu trouvées`);
-    finalData = [...finalData, ...corruptedCompetences];
-  }
-  
-  // Priorité 3: Si pas assez de compétences corrompues, compléter avec les non-traitées
-  if (finalData.length < BATCH) {
-    const remaining = BATCH - finalData.length;
-    console.log(`🔍 Récupération de ${remaining} compétences non-traitées supplémentaires...`);
-    
-    // Exclure les IDs déjà récupérés pour éviter les doublons
-    const excludeIds = finalData.map(item => item.objectif_id);
-    let query = supabase
-      .from('backup_oic_competences')
-      .select('objectif_id, url_source, description, source_etag, completion_status, intitule')
-      .not('url_source', 'is', null)
-      .not('url_source', 'eq', '')
-      .or('completion_status.is.null,source_etag.is.null')
-      .limit(remaining)
-      .order('completion_updated_at', { ascending: true, nullsFirst: true });
-    
-    if (excludeIds.length > 0) {
-      query = query.not('objectif_id', 'in', `(${excludeIds.map(id => `'${id}'`).join(',')})`);
-    }
-    
-    const { data: additionalData, error: additionalError } = await query;
-
-    if (additionalError) throw additionalError;
-    
-    finalData = [...finalData, ...(additionalData || [])];
-  }
+  let finalData = [...allData];
   
   console.log(`📊 ${finalData.length} compétences récupérées dans ce lot`);
   
   // Log des exemples si disponibles
   if (finalData.length > 0) {
-    console.log(`🔍 Exemples de compétences à traiter:`);
-    finalData.slice(0, 2).forEach((item, i) => {
-      const status = item.completion_status || 'jamais_traité';
-      const isCorrupted = hasCorruptedContent(item.description) ? ' (CONTENU CORROMPU)' : '';
-      const isGenericCleaned = item.completion_last_error === 'generic_lisa_content_detected' ? ' (NETTOYÉ - CONTENU GÉNÉRIQUE LiSA)' : '';
+    console.log(`🔍 Exemples de compétences à retraiter:`);
+    finalData.slice(0, 3).forEach((item, i) => {
+      const currentDescLength = item.description ? item.description.length : 0;
       console.log(`   ${i+1}. [${item.objectif_id}] "${item.intitule?.substring(0, 60)}..."`);
-      console.log(`      Status: ${status}${isCorrupted}${isGenericCleaned}`);
+      console.log(`      Description actuelle: ${currentDescLength} caractères`);
+      console.log(`      URL: ${item.url_source}`);
     });
   }
   
