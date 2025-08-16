@@ -84,7 +84,7 @@ serve(async (req) => {
           `)
           .eq('item_parent', itemNumber)
           .eq('rang', 'A')
-          .in('completion_status', ['completed', 'updated', 'verified_unchanged'])
+        .in('completion_status', ['completed', 'updated', 'verified_unchanged', 'skipped_error'])
           .order('ordre');
 
         if (errorA) {
@@ -106,7 +106,7 @@ serve(async (req) => {
           `)
           .eq('item_parent', itemNumber)
           .eq('rang', 'B')
-          .in('completion_status', ['completed', 'updated', 'verified_unchanged'])
+          .in('completion_status', ['completed', 'updated', 'verified_unchanged', 'skipped_error'])
           .order('ordre');
 
         if (errorB) {

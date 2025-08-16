@@ -50,6 +50,9 @@ import { useSubscription } from "@/hooks/useSubscription";
 const SyncEdnButton = React.lazy(() => 
   import("@/components/edn/SyncEdnButton").then(module => ({ default: module.SyncEdnButton }))
 );
+const SyncAllItemsButton = React.lazy(() => 
+  import("@/components/edn/SyncAllItemsButton").then(module => ({ default: module.SyncAllItemsButton }))
+);
 
 interface EdnItem {
   id: string;
@@ -483,6 +486,7 @@ export default function EdnComplete() {
           <TabsContent value="complete">
             <React.Suspense fallback={<div className="text-center py-8">Chargement...</div>}>
               <div className="space-y-6">
+                <SyncAllItemsButton />
                 <SyncEdnButton onSyncComplete={fetchEssentialData} />
                 <div>Contenu complet chargé</div>
               </div>
