@@ -229,7 +229,7 @@ RETOURNE UNIQUEMENT LES LIGNES DE PAROLES, UNE PAR LIGNE.`;
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
         ],
-        max_tokens: 2000
+        max_completion_tokens: 2000
       }),
     });
 

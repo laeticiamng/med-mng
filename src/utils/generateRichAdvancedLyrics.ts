@@ -160,7 +160,7 @@ FORMAT DE RÉPONSE: Une liste de lignes de paroles avec les sections clairement 
         { role: 'system', content: systemPrompt },
         { role: 'user', content: userPrompt }
       ],
-      max_tokens: 2000
+      max_completion_tokens: 2000
     });
 
     const content = response.choices[0]?.message?.content || '';
