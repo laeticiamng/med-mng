@@ -43,7 +43,7 @@ export const useOicCompetences = (itemCode: string, rang: 'A' | 'B') => {
           `)
           .eq('item_parent', itemNumber)
           .eq('rang', rang)
-          .in('completion_status', ['completed', 'updated', 'verified_unchanged'])
+          .in('completion_status', ['completed', 'updated', 'verified_unchanged', 'skipped_error'])
           .not('description', 'is', null)
           .order('ordre');
 
@@ -62,7 +62,7 @@ export const useOicCompetences = (itemCode: string, rang: 'A' | 'B') => {
         const realCompetences = data?.filter(comp => {
           const hasRequiredFields = comp.objectif_id && comp.intitule && comp.description;
           const hasValidDescription = comp.description && comp.description.length > 20;
-          const hasValidStatus = ['completed', 'updated', 'verified_unchanged'].includes(comp.completion_status);
+          const hasValidStatus = ['completed', 'updated', 'verified_unchanged', 'skipped_error'].includes(comp.completion_status);
           
           return hasRequiredFields && hasValidDescription && hasValidStatus;
         }) || [];

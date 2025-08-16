@@ -50,7 +50,7 @@ export const UpdateCompetencesDisplay = ({ itemCode, onUpdate }: UpdateCompetenc
         `)
         .eq('item_parent', itemNumber)
         .eq('rang', 'A')
-        .in('completion_status', ['completed', 'updated', 'verified_unchanged'])
+          .in('completion_status', ['completed', 'updated', 'verified_unchanged', 'skipped_error'])
         .not('description', 'is', null)
         .order('ordre');
 
@@ -73,7 +73,7 @@ export const UpdateCompetencesDisplay = ({ itemCode, onUpdate }: UpdateCompetenc
         `)
         .eq('item_parent', itemNumber)
         .eq('rang', 'B')
-        .in('completion_status', ['completed', 'updated', 'verified_unchanged'])
+        .in('completion_status', ['completed', 'updated', 'verified_unchanged', 'skipped_error'])
         .not('description', 'is', null)
         .order('ordre');
 
@@ -219,7 +219,7 @@ export const UpdateCompetencesDisplay = ({ itemCode, onUpdate }: UpdateCompetenc
         <div className="text-sm text-muted-foreground">
           <p>Cette action va :</p>
           <ul className="list-disc list-inside ml-2 space-y-1">
-            <li>Récupérer les compétences OIC avec statut 'completed', 'updated' ou 'verified_unchanged'</li>
+            <li>Récupérer les compétences OIC avec statut 'completed', 'updated', 'verified_unchanged' ou 'skipped_error'</li>
             <li>Filtrer celles avec des descriptions complètes (&gt;20 caractères)</li>
             <li>Mettre à jour les tableaux Rang A et Rang B</li>
             <li>Actualiser les compteurs de compétences</li>
