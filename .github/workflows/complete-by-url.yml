@@ -69,7 +69,6 @@ jobs:
             --batch "${{ github.event.inputs.batch_size || '400' }}" \
             --maxItems "${{ github.event.inputs.max_items || '5000' }}" \
             --concurrency "${{ github.event.inputs.concurrency || '3' }}" \
-            --minChars 10 \
             --verifyAll true
 
       - name: Fix truncated content
@@ -84,7 +83,6 @@ jobs:
             --batch "${{ github.event.inputs.batch_size || '400' }}" \
             --maxItems "${{ github.event.inputs.max_items || '5000' }}" \
             --concurrency "${{ github.event.inputs.concurrency || '3' }}" \
-            --minChars 1 \
             --fixTruncated true \
             --verifyContent true
 
