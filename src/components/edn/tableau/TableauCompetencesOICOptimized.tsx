@@ -108,17 +108,30 @@ const CompetenceCard: React.FC<{
         <CollapsibleContent>
           <CardContent className="pt-4">
             {competence.description && (
-              <div className="mb-4 p-3 bg-muted/30 rounded-lg">
+              <div className="mb-4 p-4 bg-background border border-border rounded-lg">
+                <h4 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-2">
+                  <Book className="w-4 h-4" />
+                  Description officielle UNESS
+                </h4>
                 <div 
-                  className="text-sm text-muted-foreground leading-relaxed"
-                  style={{ whiteSpace: 'pre-wrap', wordWrap: 'break-word', overflowWrap: 'break-word' }}
+                  className="text-sm text-foreground leading-relaxed prose prose-sm max-w-none"
+                  style={{ 
+                    whiteSpace: 'pre-wrap', 
+                    wordWrap: 'break-word', 
+                    overflowWrap: 'break-word',
+                    lineHeight: '1.6'
+                  }}
                   dangerouslySetInnerHTML={createSafeHtml(
                     competence.description
                       .replace(/&nbsp;/g, ' ')
                       .replace(/&lt;/g, '<')
                       .replace(/&gt;/g, '>')
                       .replace(/<br\s*\/?>/gi, '<br>')
-                      .replace(/\[\[([^\]|]+)(?:\|[^\]]+)?\]\]/g, '$1')
+                      .replace(/\[\[([^\]|]+)(?:\|[^\]]+)?\]\]/g, '<strong>$1</strong>')
+                      .replace(/\n\n/g, '</p><p>')
+                      .replace(/\n/g, '<br>')
+                      .replace(/^(.+)$/, '<p>$1</p>')
+                      .replace(/<p><\/p>/g, '')
                       .trim()
                   )}
                 />

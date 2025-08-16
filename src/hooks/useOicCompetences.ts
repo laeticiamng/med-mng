@@ -38,10 +38,13 @@ export const useOicCompetences = (itemCode: string, rang: 'A' | 'B') => {
             rang,
             item_parent,
             ordre,
-            url_source
+            url_source,
+            completion_status
           `)
           .eq('item_parent', itemNumber)
           .eq('rang', rang)
+          .in('completion_status', ['completed', 'updated', 'verified_unchanged'])
+          .not('description', 'is', null)
           .order('ordre');
 
         console.log(`🔧 Requête SQL: item_parent='${itemNumber}' AND rang='${rang}'`);
@@ -55,12 +58,16 @@ export const useOicCompetences = (itemCode: string, rang: 'A' | 'B') => {
 
         console.log(`✅ ${data?.length || 0} compétences OIC RÉELLES récupérées pour ${itemCode} rang ${rang}`);
         
-        // Simplement vérifier que les compétences ont le contenu nécessaire
+        // Filtrer les compétences avec descriptions complètes et à jour
         const realCompetences = data?.filter(comp => {
-          return comp.objectif_id && comp.intitule && comp.description;
+          const hasRequiredFields = comp.objectif_id && comp.intitule && comp.description;
+          const hasValidDescription = comp.description && comp.description.length > 20;
+          const hasValidStatus = ['completed', 'updated', 'verified_unchanged'].includes(comp.completion_status);
+          
+          return hasRequiredFields && hasValidDescription && hasValidStatus;
         }) || [];
 
-        console.log(`🎯 ${realCompetences.length} compétences AUTHENTIQUES récupérées`);
+        console.log(`🎯 ${realCompetences.length} compétences AUTHENTIQUES récupérées avec descriptions complètes`);
         setCompetences(realCompetences);
         
       } catch (err) {
