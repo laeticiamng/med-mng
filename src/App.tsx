@@ -1,4 +1,4 @@
-import React, { Suspense, lazy } from "react";
+import React, { Suspense, lazy, memo } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,56 +8,58 @@ import { ToastProvider } from "@/components/feedback/ToastProvider";
 import { ViewportProvider } from "@/components/responsive/ViewportProvider";
 import { SkipLinks } from "@/components/navigation/SkipLinks";
 
-// ⚡ LAZY LOADING - Composants non-critiques chargés à la demande
+// ⚡ LAZY LOADING - Composants chargés uniquement quand nécessaire
 const DynamicOnboarding = lazy(() => import("@/components/onboarding/DynamicOnboarding").then(module => ({ default: module.DynamicOnboarding })));
+
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
 import { HelmetProvider } from "react-helmet-async";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { GlobalAudioProvider } from "@/contexts/GlobalAudioContext";
 import { PageThemeProvider } from "@/components/layout/PageThemeProvider";
-import Index from "./pages/Index";
-import Generator from "./pages/Generator";
-import Monitoring from "./pages/Monitoring";
-import LibraryPage from "./pages/LibraryPage";
-// Pages EDN fusionnées dans EdnComplete
+import { ErrorBoundary } from "@/components/common/ErrorBoundary";
 
-import EcosIndex from "./pages/EcosIndex";
-import EcosScenario from "./pages/EcosScenario";
-import AuditComplete from "./pages/AuditComplete";
-import MngMethod from "./pages/MngMethod";
-import NotFound from "./pages/NotFound";
-import MentionsLegales from "./pages/MentionsLegales";
-import PolitiqueConfidentialite from "./pages/PolitiqueConfidentialite";
-import { MedMngLogin } from "./pages/MedMngLogin";
-import { MedMngSignup } from "./pages/MedMngSignup";
-import { MedMngPricing } from "./pages/MedMngPricing";
-import { MedMngSubscribe } from "./pages/MedMngSubscribe";
-import { MedMngCreate } from "./pages/MedMngCreate";
-import { MedMngLibrary } from "./pages/MedMngLibrary";
-import { MedMngPlayer } from "./pages/MedMngPlayer";
+// ⚡ PAGES LAZY LOADED pour performances optimales
+const Index = lazy(() => import("./pages/Index"));
+const Generator = lazy(() => import("./pages/Generator"));
+const Monitoring = lazy(() => import("./pages/Monitoring"));
+const LibraryPage = lazy(() => import("./pages/LibraryPage"));
+const EcosIndex = lazy(() => import("./pages/EcosIndex"));
+const EcosScenario = lazy(() => import("./pages/EcosScenario"));
+const AuditComplete = lazy(() => import("./pages/AuditComplete"));
+const MngMethod = lazy(() => import("./pages/MngMethod"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const MentionsLegales = lazy(() => import("./pages/MentionsLegales"));
+const PolitiqueConfidentialite = lazy(() => import("./pages/PolitiqueConfidentialite"));
+const MedMngLogin = lazy(() => import("./pages/MedMngLogin").then(module => ({ default: module.MedMngLogin })));
+const MedMngSignup = lazy(() => import("./pages/MedMngSignup").then(module => ({ default: module.MedMngSignup })));
+const MedMngPricing = lazy(() => import("./pages/MedMngPricing").then(module => ({ default: module.MedMngPricing })));
+const MedMngSubscribe = lazy(() => import("./pages/MedMngSubscribe").then(module => ({ default: module.MedMngSubscribe })));
+const MedMngCreate = lazy(() => import("./pages/MedMngCreate").then(module => ({ default: module.MedMngCreate })));
+const MedMngLibrary = lazy(() => import("./pages/MedMngLibrary").then(module => ({ default: module.MedMngLibrary })));
+const MedMngPlayer = lazy(() => import("./pages/MedMngPlayer").then(module => ({ default: module.MedMngPlayer })));
+const MedMngSuccess = lazy(() => import("./pages/MedMngSuccess").then(module => ({ default: module.MedMngSuccess })));
+const MedMngProfile = lazy(() => import("./pages/MedMngProfile").then(module => ({ default: module.MedMngProfile })));
+const PlaylistManager = lazy(() => import("./components/playlists/PlaylistManager").then(module => ({ default: module.PlaylistManager })));
+const PlaylistDetail = lazy(() => import("./components/playlists/PlaylistDetail").then(module => ({ default: module.PlaylistDetail })));
+const MusicAnalytics = lazy(() => import("./components/analytics/MusicAnalytics").then(module => ({ default: module.MusicAnalytics })));
+const MedChat = lazy(() => import("./pages/MedChat").then(module => ({ default: module.MedChat })));
+const SubscriptionTest = lazy(() => import("./pages/SubscriptionTest").then(module => ({ default: module.SubscriptionTest })));
+const AdminImport = lazy(() => import("./pages/AdminImport"));
+const AdminAudit = lazy(() => import("./pages/AdminAudit"));
+const AdminExtractEdn = lazy(() => import("./pages/AdminExtractEdn"));
+const AdminCompleteProcess = lazy(() => import("./pages/AdminCompleteProcess"));
+const AdminExtractEcos = lazy(() => import("./pages/AdminExtractEcos"));
+const AdminPanel = lazy(() => import("./pages/AdminPanel").then(module => ({ default: module.AdminPanel })));
+const EdnObjectifsExtractionPage = lazy(() => import("./pages/EdnObjectifsExtraction"));
+const OicDataQualityManager = lazy(() => import("./pages/OicDataQualityManager"));
+const AuditCompleteness = lazy(() => import("./pages/AuditCompleteness"));
+const TestExtraction = lazy(() => import("./pages/TestExtraction"));
+const EdnImmersive = lazy(() => import("./pages/EdnImmersive"));
+const EdnComplete = lazy(() => import("./pages/EdnComplete"));
+
 import { AuthProvider } from "./components/med-mng/AuthProvider";
 import { ProtectedRoute } from "./components/med-mng/withAuth";
-import { MedMngSuccess } from "./pages/MedMngSuccess";
-import { MedMngProfile } from "./pages/MedMngProfile";
-import { PlaylistManager } from "./components/playlists/PlaylistManager";
-import { PlaylistDetail } from "./components/playlists/PlaylistDetail";
-import { MusicAnalytics } from "./components/analytics/MusicAnalytics";
-import { MedChat } from "./pages/MedChat";
-import { SubscriptionTest } from "./pages/SubscriptionTest";
-import AdminImport from "./pages/AdminImport";
-import AdminAudit from "./pages/AdminAudit";
-import AdminExtractEdn from "./pages/AdminExtractEdn";
-import AdminCompleteProcess from "./pages/AdminCompleteProcess";
-import AdminExtractEcos from "./pages/AdminExtractEcos";
-import { AdminPanel } from "./pages/AdminPanel"; // Nouveau panel admin unifié Point X
-import EdnObjectifsExtractionPage from "./pages/EdnObjectifsExtraction";
-import OicDataQualityManager from "./pages/OicDataQualityManager";
-import AuditCompleteness from "./pages/AuditCompleteness";
-import TestExtraction from "./pages/TestExtraction";
-import EdnImmersive from "./pages/EdnImmersive";
-import EdnComplete from "./pages/EdnComplete";
-import { ErrorBoundary } from "@/components/common/ErrorBoundary";
 
 // Composant de redirection pour /edn-complete/:slug vers /edn/:slug
 const EdnCompleteRedirect = () => {
@@ -65,15 +67,26 @@ const EdnCompleteRedirect = () => {
   return <Navigate to={`/edn/${slug}`} replace />;
 };
 
-// ⚡ OPTIMISATION QueryClient - Configuration pour chargement rapide
+// ⚡ LOADING FALLBACK optimisé
+const PageLoadingFallback = memo(() => (
+  <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-white">
+    <div className="text-center">
+      <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600 mx-auto mb-4"></div>
+      <p className="text-gray-600 text-sm">Chargement...</p>
+    </div>
+  </div>
+));
+
+// ⚡ OPTIMISATION QueryClient - Configuration pour performances maximales
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: false, // Pas de retry au chargement initial pour plus de rapidité
-      staleTime: 10 * 60 * 1000, // 10 minutes - Garde les données plus longtemps
-      gcTime: 15 * 60 * 1000, // 15 minutes - Garde en cache plus longtemps
-      refetchOnWindowFocus: false, // Évite les requêtes inutiles
-      refetchOnMount: false, // Ne pas refetch si les données sont récentes
+      retry: false, // Pas de retry pour chargement plus rapide
+      staleTime: 15 * 60 * 1000, // 15 minutes - garde données longtemps
+      gcTime: 30 * 60 * 1000, // 30 minutes - cache très long
+      refetchOnWindowFocus: false, // Évite requêtes inutiles
+      refetchOnMount: false, // Ne pas refetch si récent
+      refetchOnReconnect: false, // Pas de refetch sur reconnexion
     },
   },
 });
@@ -88,96 +101,101 @@ const App = () => {
               <AuthProvider>
                 <ToastProvider>
                   <TooltipProvider>
-<HelmetProvider>
-  <BrowserRouter>
-    <SkipLinks />
-    <div id="app-root" className="min-h-screen">
-      <main id="main-content" tabIndex={-1}>
-        <PageThemeProvider>
-          <ErrorBoundary>
-            <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/generator" element={<Generator />} />
-            <Route path="/monitoring" element={<Monitoring />} />
-            {/* EDN Interface Unifiée - toutes les fonctionnalités fusionnées */}
-            <Route path="/edn" element={<EdnComplete />} />
-            <Route path="/edn/:slug" element={<EdnComplete />} />
-            
-            {/* Redirections automatiques vers l'interface unifiée */}
-            <Route path="/edn-complete" element={<Navigate to="/edn" replace />} />
-            <Route path="/edn-complete/:slug" element={<EdnCompleteRedirect />} />
-            <Route path="/edn/:slug/immersive" element={<EdnImmersive />} />
-            <Route path="/edn/music-library" element={<Navigate to="/edn" replace />} />
-            <Route path="/ecos" element={<EcosIndex />} />
-            <Route path="/ecos/:scenarioId" element={<EcosScenario />} />
-            
-            {/* Unified audit page */}
-            <Route path="/audit" element={<AuditComplete />} />
-            <Route path="/audit-completeness" element={<AuditCompleteness />} />
-           
-            {/* Redirect all old audit routes to new unified page */}
-            <Route path="/audit-general" element={<Navigate to="/audit" replace />} />
-            <Route path="/audit-edn" element={<Navigate to="/audit" replace />} />
-            <Route path="/audit-unified" element={<Navigate to="/audit" replace />} />
-            <Route path="/audit-ic1" element={<Navigate to="/audit" replace />} />
-            <Route path="/audit-ic2" element={<Navigate to="/audit" replace />} />
-            <Route path="/audit-ic4" element={<Navigate to="/audit" replace />} />
-            <Route path="/audit-complete" element={<Navigate to="/audit" replace />} />
-            
-            <Route path="/mng-method" element={<MngMethod />} />
-            <Route path="/mentions-legales" element={<MentionsLegales />} />
-            <Route path="/politique-confidentialite" element={<PolitiqueConfidentialite />} />
-            <Route path="/auth" element={<MedMngLogin />} />
-            <Route path="/auth/signup" element={<MedMngSignup />} />
-            <Route path="/med-mng/login" element={<MedMngLogin />} />
-            <Route path="/med-mng/signup" element={<MedMngSignup />} />
-            <Route path="/med-mng/pricing" element={<MedMngPricing />} />
-            <Route path="/med-mng/subscribe/:planId" element={<ProtectedRoute><MedMngSubscribe /></ProtectedRoute>} />
-            <Route path="/med-mng/success" element={<ProtectedRoute><MedMngSuccess /></ProtectedRoute>} />
-            <Route path="/med-mng/create" element={<ProtectedRoute><MedMngCreate /></ProtectedRoute>} />
-            <Route path="/med-mng/library" element={<ProtectedRoute><MedMngLibrary /></ProtectedRoute>} />
-            <Route path="/med-mng/profile" element={<ProtectedRoute><MedMngProfile /></ProtectedRoute>} />
-            <Route path="/med-mng/player/:songId" element={<ProtectedRoute><MedMngPlayer /></ProtectedRoute>} />
-            <Route path="/med-mng/playlists" element={<ProtectedRoute><PlaylistManager /></ProtectedRoute>} />
-            <Route path="/med-mng/playlists/:playlistId" element={<ProtectedRoute><PlaylistDetail /></ProtectedRoute>} />
-            <Route path="/med-mng/analytics" element={<ProtectedRoute><MusicAnalytics /></ProtectedRoute>} />
-            <Route path="/chat" element={<MedChat />} />
-             <Route path="/admin/import" element={<AdminImport />} />
-             <Route path="/admin/audit" element={<AdminAudit />} />
-             <Route path="/admin/extract-edn" element={<AdminExtractEdn />} />
-             <Route path="/admin/extract-ecos" element={<AdminExtractEcos />} />
-             <Route path="/admin/extract-objectifs" element={<EdnObjectifsExtractionPage />} />
-             <Route path="/admin/oic-quality" element={<OicDataQualityManager />} />
-             <Route path="/admin/complete" element={<AdminCompleteProcess />} />
-             <Route path="/admin-panel" element={<AdminPanel />} /> {/* Panel admin unifié Point X */}
-            <Route path="/test-subscriptions" element={<SubscriptionTest />} />
-            <Route path="/library" element={<LibraryPage />} />
-            <Route path="/test-extraction" element={<TestExtraction />} />
-            <Route path="*" element={<NotFound />} />
-         </Routes>
-          </ErrorBoundary>
-        </PageThemeProvider>
-      </main>
-    
-      {/* Global UI Components - LAZY LOADED */}
-      <Suspense fallback={null}>
-        <DynamicOnboarding />
-      </Suspense>
-      <HelpButton />
-      
-    </div>
-    <Toaster />
-    <Sonner />
-  </BrowserRouter>
-</HelmetProvider>
-                </TooltipProvider>
-              </ToastProvider>
-            </AuthProvider>
-          </GlobalAudioProvider>
-        </LanguageProvider>
-      </ViewportProvider>
-    </AccessibilityProvider>
-  </QueryClientProvider>
+                    <HelmetProvider>
+                      <BrowserRouter>
+                        <SkipLinks />
+                        <div id="app-root" className="min-h-screen">
+                          <main id="main-content" tabIndex={-1}>
+                            <PageThemeProvider>
+                              <ErrorBoundary>
+                                <Suspense fallback={<PageLoadingFallback />}>
+                                  <Routes>
+                                    <Route path="/" element={<Index />} />
+                                    <Route path="/generator" element={<Generator />} />
+                                    <Route path="/monitoring" element={<Monitoring />} />
+                                    
+                                    {/* EDN Interface Unifiée */}
+                                    <Route path="/edn" element={<EdnComplete />} />
+                                    <Route path="/edn/:slug" element={<EdnComplete />} />
+                                    
+                                    {/* Redirections automatiques vers l'interface unifiée */}
+                                    <Route path="/edn-complete" element={<Navigate to="/edn" replace />} />
+                                    <Route path="/edn-complete/:slug" element={<EdnCompleteRedirect />} />
+                                    <Route path="/edn/:slug/immersive" element={<EdnImmersive />} />
+                                    <Route path="/edn/music-library" element={<Navigate to="/edn" replace />} />
+                                    
+                                    <Route path="/ecos" element={<EcosIndex />} />
+                                    <Route path="/ecos/:scenarioId" element={<EcosScenario />} />
+                                    
+                                    {/* Unified audit page */}
+                                    <Route path="/audit" element={<AuditComplete />} />
+                                    <Route path="/audit-completeness" element={<AuditCompleteness />} />
+                                   
+                                    {/* Redirect all old audit routes to new unified page */}
+                                    <Route path="/audit-general" element={<Navigate to="/audit" replace />} />
+                                    <Route path="/audit-edn" element={<Navigate to="/audit" replace />} />
+                                    <Route path="/audit-unified" element={<Navigate to="/audit" replace />} />
+                                    <Route path="/audit-ic1" element={<Navigate to="/audit" replace />} />
+                                    <Route path="/audit-ic2" element={<Navigate to="/audit" replace />} />
+                                    <Route path="/audit-ic4" element={<Navigate to="/audit" replace />} />
+                                    <Route path="/audit-complete" element={<Navigate to="/audit" replace />} />
+                                    
+                                    <Route path="/mng-method" element={<MngMethod />} />
+                                    <Route path="/mentions-legales" element={<MentionsLegales />} />
+                                    <Route path="/politique-confidentialite" element={<PolitiqueConfidentialite />} />
+                                    <Route path="/auth" element={<MedMngLogin />} />
+                                    <Route path="/auth/signup" element={<MedMngSignup />} />
+                                    <Route path="/med-mng/login" element={<MedMngLogin />} />
+                                    <Route path="/med-mng/signup" element={<MedMngSignup />} />
+                                    <Route path="/med-mng/pricing" element={<MedMngPricing />} />
+                                    <Route path="/med-mng/subscribe/:planId" element={<ProtectedRoute><MedMngSubscribe /></ProtectedRoute>} />
+                                    <Route path="/med-mng/success" element={<ProtectedRoute><MedMngSuccess /></ProtectedRoute>} />
+                                    <Route path="/med-mng/create" element={<ProtectedRoute><MedMngCreate /></ProtectedRoute>} />
+                                    <Route path="/med-mng/library" element={<ProtectedRoute><MedMngLibrary /></ProtectedRoute>} />
+                                    <Route path="/med-mng/profile" element={<ProtectedRoute><MedMngProfile /></ProtectedRoute>} />
+                                    <Route path="/med-mng/player/:songId" element={<ProtectedRoute><MedMngPlayer /></ProtectedRoute>} />
+                                    <Route path="/med-mng/playlists" element={<ProtectedRoute><PlaylistManager /></ProtectedRoute>} />
+                                    <Route path="/med-mng/playlists/:playlistId" element={<ProtectedRoute><PlaylistDetail /></ProtectedRoute>} />
+                                    <Route path="/med-mng/analytics" element={<ProtectedRoute><MusicAnalytics /></ProtectedRoute>} />
+                                    <Route path="/chat" element={<MedChat />} />
+                                    
+                                    <Route path="/admin/import" element={<AdminImport />} />
+                                    <Route path="/admin/audit" element={<AdminAudit />} />
+                                    <Route path="/admin/extract-edn" element={<AdminExtractEdn />} />
+                                    <Route path="/admin/extract-ecos" element={<AdminExtractEcos />} />
+                                    <Route path="/admin/extract-objectifs" element={<EdnObjectifsExtractionPage />} />
+                                    <Route path="/admin/oic-quality" element={<OicDataQualityManager />} />
+                                    <Route path="/admin/complete" element={<AdminCompleteProcess />} />
+                                    <Route path="/admin-panel" element={<AdminPanel />} />
+                                    
+                                    <Route path="/test-subscriptions" element={<SubscriptionTest />} />
+                                    <Route path="/library" element={<LibraryPage />} />
+                                    <Route path="/test-extraction" element={<TestExtraction />} />
+                                    <Route path="*" element={<NotFound />} />
+                                  </Routes>
+                                </Suspense>
+                              </ErrorBoundary>
+                            </PageThemeProvider>
+                          </main>
+                        
+                          {/* Global UI Components - LAZY LOADED */}
+                          <Suspense fallback={null}>
+                            <DynamicOnboarding />
+                          </Suspense>
+                          <HelpButton />
+                        </div>
+                        <Toaster />
+                        <Sonner />
+                      </BrowserRouter>
+                    </HelmetProvider>
+                  </TooltipProvider>
+                </ToastProvider>
+              </AuthProvider>
+            </GlobalAudioProvider>
+          </LanguageProvider>
+        </ViewportProvider>
+      </AccessibilityProvider>
+    </QueryClientProvider>
   );
 };
 

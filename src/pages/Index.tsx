@@ -1,27 +1,29 @@
 
-import React, { Suspense, lazy } from "react";
-import { Button } from "@/components/ui/button";
+import React, { Suspense, lazy, memo } from "react";
 import { PremiumBackground } from "@/components/ui/premium-background";
 import { PremiumCard } from "@/components/ui/premium-card";
 import { PremiumButton } from "@/components/ui/premium-button";
 import { useNavigate } from "react-router-dom";
-import { LogIn, CreditCard, BarChart3, Music, BookOpen, MessageSquare, Users, Zap, Target, Award, TrendingUp, Sparkles, Star, Wand2, Brain, Settings, Activity } from "lucide-react";
+import { LogIn, CreditCard, BarChart3, Music, BookOpen, MessageSquare, Users, Zap, Target, Award, TrendingUp, Sparkles, Star, Brain, Settings, Activity } from "lucide-react";
 import { TranslatedText } from "@/components/TranslatedText";
 
-// ⚡ LAZY LOADING - Charger les composants lourds seulement quand nécessaire
+// ⚡ COMPOSANTS CRITIQUES - Chargés immédiatement
+import StatusWidget from "@/components/StatusWidget";
+import MiniStatusIndicator from "@/components/MiniStatusIndicator";
+
+// ⚡ LAZY LOADING - Composants lourds différés
 const MngPresentationBrief = lazy(() => import("@/components/MngPresentationBrief").then(module => ({ default: module.MngPresentationBrief })));
 const MainSections = lazy(() => import("@/components/MainSections"));
 const MusicGenerationSection = lazy(() => import("@/components/MusicGenerationSection").then(module => ({ default: module.MusicGenerationSection })));
 const AppFooter = lazy(() => import("@/components/AppFooter").then(module => ({ default: module.AppFooter })));
-import StatusWidget from "@/components/StatusWidget";
-import MiniStatusIndicator from "@/components/MiniStatusIndicator";
+const MusicLibrary = lazy(() => import('@/components/music/MusicLibrary').then(module => ({ default: module.MusicLibrary })));
 
-// Composant de loading léger
-const LazyLoadSpinner = () => (
-  <div className="flex justify-center items-center py-8">
-    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+// ⚡ LOADING OPTIMISÉ - Spinner premium léger
+const LazyLoadSpinner = memo(() => (
+  <div className="flex justify-center items-center py-4">
+    <div className="animate-spin rounded-full h-6 w-6 border-2 border-blue-200 border-t-blue-600"></div>
   </div>
-);
+));
 
 const Index = () => {
   const navigate = useNavigate();
@@ -367,10 +369,10 @@ const Index = () => {
           </div>
         </Suspense>
 
-        {/* Section Bibliothèque Musicale - Nouveau composant */}
+        {/* Section Bibliothèque Musicale - LAZY LOADED */}
         <Suspense fallback={<LazyLoadSpinner />}>
           <div className="pb-20">
-            {React.createElement(React.lazy(() => import('@/components/music/MusicLibrary').then(module => ({ default: module.MusicLibrary }))))}
+            <MusicLibrary />
           </div>
         </Suspense>
         

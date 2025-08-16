@@ -61,7 +61,7 @@ export const MiniStatusIndicator: React.FC = () => {
       mounted = false;
       clearInterval(id);
     };
-  }, [refresh]);
+  }, []); // Remove refresh dependency to fix infinite re-renders
   const label = useMemo(() => {
     const oicStr = oicScore === null ? '—' : `${Math.round(oicScore)}%`;
     return `${global}% | OIC ${oicStr}`;
