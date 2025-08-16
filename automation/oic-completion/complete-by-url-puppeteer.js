@@ -615,8 +615,8 @@ async function processOne(browser, row) {
       throw new Error('login_page_content_detected');
     }
     
-    // Vérifier que le contenu est substantiel et contient des données OIC
-    if (text.length < 200) {
+    // Vérifier que le contenu est substantiel et contient des données OIC (seuil réduit)
+    if (text.length < 50) {
       console.log(`   ⚠️ ${objId}: Contenu trop court (${text.length} caractères)`);
       throw new Error('content_too_short');
     }
@@ -659,7 +659,7 @@ async function processOne(browser, row) {
         const retryText = (await page.evaluate(buildExtractor())) || '';
         console.log(`   🔄 ${objId}: Nouvelle extraction (${retryText.length} car)`);
         
-        if (retryText.length > 200 && !retryText.includes('State parameter') && !looksLikeLogin(retryText)) {
+        if (retryText.length > 50 && !retryText.includes('State parameter') && !looksLikeLogin(retryText)) {
           await updateDescription(objId, retryText, 200);
           console.log(`   ✅ ${objId}: RÉCUPÉRATION RÉUSSIE - ${retryText.length} caractères copiés`);
           return { updated: 1, skippedError: 0, unchanged: 0 };
