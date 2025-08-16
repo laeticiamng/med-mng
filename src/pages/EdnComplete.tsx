@@ -52,8 +52,8 @@ export default function EdnComplete() {
   // Gestion du clic sur un item
   const handleItemClick = (item: EdnItemLight) => {
     setSelectedItem(item);
-    // Navigation directe vers l'item
-    window.open(`/edn/${item.slug}`, '_blank');
+    // Navigation directe vers l'item via react-router
+    window.location.href = `/edn/${item.slug}`;
   };
 
   // Reset de la page lors des changements de filtre

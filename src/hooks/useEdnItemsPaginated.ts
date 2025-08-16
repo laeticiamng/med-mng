@@ -38,7 +38,7 @@ export const useEdnItemsPaginated = (page = 1, limit = 20) => {
           updated_at, specialite, competences_count_total, is_validated,
           paroles_musicales, scene_immersive, quiz_questions
         `, { count: 'exact' })
-        .order('item_code')
+        .order('item_code::integer')
         .range(offset, offset + limit - 1);
 
       if (error) {

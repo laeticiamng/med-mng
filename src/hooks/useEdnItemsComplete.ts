@@ -73,9 +73,13 @@ export const useEdnItemComplete = (slug: string) => {
           .from('edn_items_complete')
           .select('*')
           .eq('slug', slug)
-          .single();
+          .maybeSingle();
 
         if (error) throw error;
+        if (!data) {
+          setError('Item non trouvé');
+          return;
+        }
         setItem(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Item non trouvé');
