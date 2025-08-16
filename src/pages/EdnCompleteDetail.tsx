@@ -115,25 +115,26 @@ export default function EdnCompleteDetail() {
               )}
             </div>
             
-            <div className="flex flex-col items-start lg:items-end gap-2">
+            <div className="flex flex-col items-start lg:items-end gap-2 flex-shrink-0">
               <div className="flex items-center gap-2">
-                <span className={`text-2xl font-bold ${getCompletenessColor(item.completeness_score)}`}>
+                <span className={`text-xl md:text-2xl font-bold ${getCompletenessColor(item.completeness_score)}`}>
                   {item.completeness_score}%
                 </span>
-                <span className="text-muted-foreground">
+                <span className="text-sm md:text-base text-muted-foreground">
                   {getCompletenessText(item.completeness_score)}
                 </span>
               </div>
               <Progress 
                 value={item.completeness_score || 0} 
-                className="w-32"
+                className="w-24 md:w-32"
               />
               <Button 
                 onClick={() => setShowHybridModal(true)}
-                className="flex items-center gap-2 mt-2"
+                className="flex items-center gap-2 mt-2 text-sm md:text-base"
               >
                 <Maximize2 className="h-4 w-4" />
-                Mode Immersif
+                <span className="hidden sm:inline">Mode Immersif</span>
+                <span className="sm:hidden">Immersif</span>
               </Button>
             </div>
           </div>

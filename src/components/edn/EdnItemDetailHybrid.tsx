@@ -1,13 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   X, 
-  BookOpen, 
   Award, 
   Music, 
   Brain, 
@@ -231,93 +228,106 @@ export const EdnItemDetailHybrid: React.FC<EdnItemDetailHybridProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-7xl max-h-[95vh] overflow-hidden p-0">
+      <DialogContent className="max-w-[98vw] max-h-[98vh] w-full h-full overflow-hidden p-0 gap-0 flex flex-col">
         <DialogTitle className="sr-only">{item.title}</DialogTitle>
         
-        {/* Header */}
-        <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm border-b p-6">
-          <div className="flex items-center justify-between">
-            <div className="flex-1">
-              <div className="flex items-center gap-3 mb-2">
-                <Badge variant="outline" className="text-sm px-2 py-1">
-                  {item.item_code}
-                </Badge>
-                {item.is_validated && (
-                  <Badge variant="default" className="bg-green-500">
-                    <CheckCircle className="h-3 w-3 mr-1" />
-                    Validé
+        {/* Header - Fixed */}
+        <div className="flex-shrink-0 bg-background/95 backdrop-blur-sm border-b">
+          <div className="p-3 md:p-6">
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 md:gap-3 mb-2 flex-wrap">
+                  <Badge variant="outline" className="text-xs md:text-sm px-2 py-1">
+                    {item.item_code}
                   </Badge>
+                  {item.is_validated && (
+                    <Badge variant="default" className="bg-green-500 text-xs md:text-sm">
+                      <CheckCircle className="h-3 w-3 mr-1" />
+                      Validé
+                    </Badge>
+                  )}
+                </div>
+                <h1 className="text-lg md:text-2xl font-bold mb-1 line-clamp-2">{item.title}</h1>
+                {item.subtitle && (
+                  <p className="text-sm md:text-base text-muted-foreground line-clamp-2">{item.subtitle}</p>
                 )}
               </div>
-              <h1 className="text-2xl font-bold mb-1">{item.title}</h1>
-              {item.subtitle && (
-                <p className="text-muted-foreground">{item.subtitle}</p>
-              )}
-            </div>
-            
-            <div className="flex items-center gap-4">
-              <div className="text-right">
-                <div className="flex items-center gap-2">
-                  <span className={`text-xl font-bold ${getCompletenessColor(item.completeness_score)}`}>
-                    {item.completeness_score || 0}%
-                  </span>
-                  <span className="text-sm text-muted-foreground">
-                    {getCompletenessText(item.completeness_score)}
-                  </span>
-                </div>
-                <Progress 
-                  value={item.completeness_score || 0} 
-                  className="w-24 h-2"
-                />
-              </div>
               
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={onClose}
-                className="h-8 w-8"
-              >
-                <X className="h-4 w-4" />
-              </Button>
+              <div className="flex items-center gap-2 md:gap-4 flex-shrink-0">
+                <div className="text-right hidden sm:block">
+                  <div className="flex items-center gap-1 md:gap-2">
+                    <span className={`text-lg md:text-xl font-bold ${getCompletenessColor(item.completeness_score)}`}>
+                      {item.completeness_score || 0}%
+                    </span>
+                    <span className="text-xs md:text-sm text-muted-foreground hidden md:inline">
+                      {getCompletenessText(item.completeness_score)}
+                    </span>
+                  </div>
+                  <Progress 
+                    value={item.completeness_score || 0} 
+                    className="w-16 md:w-24 h-1.5 md:h-2"
+                  />
+                </div>
+                
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={onClose}
+                  className="h-6 w-6 md:h-8 md:w-8 flex-shrink-0"
+                >
+                  <X className="h-3 w-3 md:h-4 md:w-4" />
+                </Button>
+              </div>
             </div>
-          </div>
 
-          {/* Métadonnées compactes */}
-          <div className="flex items-center gap-6 mt-4 text-sm text-muted-foreground">
-            {item.specialite && (
-              <div className="flex items-center gap-1">
-                <Tag className="h-3 w-3" />
-                {item.specialite}
+            {/* Métadonnées compactes */}
+            <div className="flex items-center gap-3 md:gap-6 mt-3 text-xs md:text-sm text-muted-foreground overflow-x-auto pb-2">
+              {item.specialite && (
+                <div className="flex items-center gap-1 flex-shrink-0">
+                  <Tag className="h-3 w-3" />
+                  <span className="truncate">{item.specialite}</span>
+                </div>
+              )}
+              {item.competences_count_total !== undefined && (
+                <div className="flex items-center gap-1 flex-shrink-0">
+                  <Users className="h-3 w-3" />
+                  <span>{item.competences_count_total} compétences</span>
+                </div>
+              )}
+              <div className="flex items-center gap-1 flex-shrink-0">
+                <Clock className="h-3 w-3" />
+                <span className="truncate">{formatDate(item.updated_at)}</span>
               </div>
-            )}
-            {item.competences_count_total !== undefined && (
-              <div className="flex items-center gap-1">
-                <Users className="h-3 w-3" />
-                {item.competences_count_total} compétences
-              </div>
-            )}
-            <div className="flex items-center gap-1">
-              <Clock className="h-3 w-3" />
-              {formatDate(item.updated_at)}
             </div>
           </div>
         </div>
 
-        {/* Navigation */}
-        <div className="px-6 py-4 border-b bg-muted/30">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
+        {/* Navigation - Fixed */}
+        <div className="flex-shrink-0 px-3 md:px-6 py-2 md:py-3 border-b bg-muted/30">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-2 flex-shrink-0">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={goToPrevious}
                 disabled={currentSectionIndex === 0}
+                className="hidden md:flex"
               >
                 <ArrowLeft className="h-4 w-4 mr-1" />
                 Précédent
               </Button>
               
-              <span className="text-sm text-muted-foreground px-2">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={goToPrevious}
+                disabled={currentSectionIndex === 0}
+                className="md:hidden h-8 w-8 p-0"
+              >
+                <ArrowLeft className="h-4 w-4" />
+              </Button>
+              
+              <span className="text-xs md:text-sm text-muted-foreground px-1 md:px-2 flex-shrink-0">
                 {currentSectionIndex + 1} / {availableSections.length}
               </span>
               
@@ -326,37 +336,50 @@ export const EdnItemDetailHybrid: React.FC<EdnItemDetailHybridProps> = ({
                 size="sm"
                 onClick={goToNext}
                 disabled={currentSectionIndex === availableSections.length - 1}
+                className="hidden md:flex"
               >
                 Suivant
                 <ArrowRight className="h-4 w-4 ml-1" />
               </Button>
+              
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={goToNext}
+                disabled={currentSectionIndex === availableSections.length - 1}
+                className="md:hidden h-8 w-8 p-0"
+              >
+                <ArrowRight className="h-4 w-4" />
+              </Button>
             </div>
 
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 overflow-x-auto">
               {availableSections.map((section, index) => (
                 <Button
                   key={section.id}
                   variant={activeSection === section.id ? "default" : "ghost"}
                   size="sm"
                   onClick={() => setActiveSection(section.id)}
-                  className="flex items-center gap-2"
+                  className="flex items-center gap-1 md:gap-2 flex-shrink-0 text-xs md:text-sm"
                 >
-                  <section.icon className="h-4 w-4" />
-                  <span className="hidden md:inline">{section.label}</span>
+                  <section.icon className="h-3 w-3 md:h-4 md:w-4" />
+                  <span className="hidden sm:inline truncate max-w-20 md:max-w-none">{section.label}</span>
                 </Button>
               ))}
             </div>
           </div>
         </div>
 
-        {/* Contenu */}
-        <div className="flex-1 overflow-auto p-6">
-          <div className="max-w-5xl mx-auto">
-            {currentSection && (
-              <div className="animate-in fade-in-50 duration-300">
-                {currentSection.component}
-              </div>
-            )}
+        {/* Contenu avec scroll corrigé - Flexible */}
+        <div className="flex-1 overflow-y-auto overscroll-contain">
+          <div className="p-3 md:p-6">
+            <div className="max-w-none md:max-w-6xl mx-auto">
+              {currentSection && (
+                <div className="animate-in fade-in-50 duration-300">
+                  {currentSection.component}
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </DialogContent>
