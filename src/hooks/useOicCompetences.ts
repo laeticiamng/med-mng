@@ -23,10 +23,16 @@ export const useOicCompetences = (itemCode: string, rang: 'A' | 'B') => {
       try {
         setLoading(true);
         
-        // Extraire le numéro d'item (IC-1 -> 001, IC-10 -> 010)
-        const itemNumber = itemCode.replace('IC-', '').padStart(3, '0');
+        // Extraire le numéro d'item et gérer les différents formats
+        let itemNumber: string;
+        if (itemCode.startsWith('IC-')) {
+          itemNumber = itemCode.replace('IC-', '').padStart(3, '0');
+        } else {
+          // Si c'est déjà au format numérique, on le garde tel quel
+          itemNumber = itemCode.padStart(3, '0');
+        }
         
-        console.log(`🔍 Récupération compétences OIC RÉELLES pour item ${itemNumber} rang ${rang}`);
+        console.log(`🔍 [useOicCompetences] Récupération pour itemCode='${itemCode}' -> itemNumber='${itemNumber}' rang='${rang}'`);
         
         const { data, error } = await supabase
           .from('backup_oic_competences')
@@ -47,8 +53,9 @@ export const useOicCompetences = (itemCode: string, rang: 'A' | 'B') => {
           .not('description', 'is', null)
           .order('ordre', { ascending: true, nullsFirst: false });
 
-        console.log(`🔧 Requête SQL: item_parent='${itemNumber}' AND rang='${rang}'`);
-        console.log(`📊 Données brutes récupérées:`, data);
+        console.log(`🔧 [useOicCompetences] Requête SQL: item_parent='${itemNumber}' AND rang='${rang}'`);
+        console.log(`📊 [useOicCompetences] Données brutes récupérées pour ${itemCode}:`, data?.length, 'éléments');
+        console.log(`📊 [useOicCompetences] Échantillon données:`, data?.slice(0, 2));
 
         if (error) {
           console.error('❌ Erreur récupération OIC:', error);
