@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { generateRichAdvancedLyrics } from '@/utils/generateRichAdvancedLyrics';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
@@ -150,10 +151,10 @@ export const GlobalLyricsManager: React.FC = () => {
               .eq('rang', 'B')
               .is('description', false);
 
-            if (needsA) updates.paroles_rang_a = generateLocalLyrics(item, competencesA || [], 'A');
-            if (needsB) updates.paroles_rang_b = generateLocalLyrics(item, competencesB || [], 'B');
+            if (needsA) updates.paroles_rang_a = await generateRichAdvancedLyrics(item.item_code, 'A');
+            if (needsB) updates.paroles_rang_b = await generateRichAdvancedLyrics(item.item_code, 'B');
             if (needsAB) {
-              const lyricsAB = generateLocalLyrics(item, [...(competencesA || []), ...(competencesB || [])], 'AB');
+              const lyricsAB = await generateRichAdvancedLyrics(item.item_code, 'AB');
               updates.paroles_rang_ab = lyricsAB;
               updates.paroles_musicales = lyricsAB;
             }

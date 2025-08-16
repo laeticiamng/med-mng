@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { generateRichAdvancedLyrics } from '@/utils/generateRichAdvancedLyrics';
 
 interface LyricsGenerationPanelProps {
   itemCode: string;
@@ -81,14 +82,14 @@ export const LyricsGenerationPanel: React.FC<LyricsGenerationPanelProps> = ({
       const { data: competences } = await compQuery;
       console.log(`📋 ${competences?.length || 0} compétences trouvées pour ${rang}`);
 
-      // Génération locale des paroles style Nekfeu
-      const lines = generateLocalLyrics(itemData, competences || [], rang);
+      // Génération RICHE avec OpenAI style Nekfeu
+      const lines = await generateRichAdvancedLyrics(itemCode, rang);
       
       if (lines.length > 0) {
         setGeneratedLyrics(prev => ({ ...prev, [rang]: lines }));
         toast({
-          title: `✅ Paroles ${rang} générées localement`,
-          description: `${lines.length} lignes créées avec style médical`,
+          title: `✅ Paroles ${rang} générées avec OpenAI`,
+          description: `${lines.length} lignes style Nekfeu avec assonances riches`,
         });
         
         if (onLyricsGenerated) {
@@ -114,28 +115,9 @@ export const LyricsGenerationPanel: React.FC<LyricsGenerationPanelProps> = ({
     try {
       console.log(`🎵 Génération complète pour ${itemCode}...`);
       
-      // Génération locale pour les 3 rangs
+      // Génération RICHE avec OpenAI pour les 3 rangs
       const results = await Promise.allSettled(['A', 'B', 'AB'].map(async (rang) => {
-        const { data: itemData } = await supabase
-          .from('edn_items_complete')
-          .select('item_code, title, competences_oic_rang_a, competences_oic_rang_b')
-          .eq('item_code', itemCode)
-          .single();
-
-        const itemNum = itemCode.replace('IC-', '').padStart(3, '0');
-        let compQuery = supabase
-          .from('backup_oic_competences')
-          .select('objectif_id, intitule, description, rang, rubrique')
-          .eq('item_parent', itemNum)
-          .is('description', false);
-        
-        if (rang !== 'AB') {
-          compQuery = compQuery.eq('rang', rang);
-        }
-        
-        const { data: competences } = await compQuery;
-        const lines = generateLocalLyrics(itemData, competences || [], rang as 'A' | 'B' | 'AB');
-        
+        const lines = await generateRichAdvancedLyrics(itemCode, rang as 'A' | 'B' | 'AB');
         return { rang, lines };
       }));
 
@@ -151,8 +133,8 @@ export const LyricsGenerationPanel: React.FC<LyricsGenerationPanelProps> = ({
 
       setGeneratedLyrics(newLyrics);
       toast({
-        title: '🎵 Génération complète terminée',
-        description: `Paroles générées pour ${successCount}/3 rangs`,
+        title: '🎵 Génération OpenAI terminée',
+        description: `Paroles style Nekfeu générées pour ${successCount}/3 rangs`,
       });
 
       if (onLyricsGenerated) {
@@ -223,10 +205,10 @@ export const LyricsGenerationPanel: React.FC<LyricsGenerationPanelProps> = ({
               .eq('rang', 'B')
               .is('description', false);
 
-            // Générer les paroles pour chaque rang
-            const lyricsA = generateLocalLyrics(item, competencesA || [], 'A');
-            const lyricsB = generateLocalLyrics(item, competencesB || [], 'B');
-            const lyricsAB = generateLocalLyrics(item, [...(competencesA || []), ...(competencesB || [])], 'AB');
+            // Générer les paroles RICHES avec OpenAI pour chaque rang
+            const lyricsA = await generateRichAdvancedLyrics(item.item_code, 'A');
+            const lyricsB = await generateRichAdvancedLyrics(item.item_code, 'B');
+            const lyricsAB = await generateRichAdvancedLyrics(item.item_code, 'AB');
 
             // Sauvegarder en base
             const { error: updateError } = await supabase
@@ -264,8 +246,8 @@ export const LyricsGenerationPanel: React.FC<LyricsGenerationPanelProps> = ({
       }
 
       toast({
-        title: '🎉 Génération globale terminée',
-        description: `${success} items traités avec succès, ${failed} échecs`,
+        title: '🎉 Génération OpenAI globale terminée',
+        description: `${success} items traités avec paroles style Nekfeu riches`,
       });
     } catch (error) {
       console.error('Erreur génération globale:', error);
