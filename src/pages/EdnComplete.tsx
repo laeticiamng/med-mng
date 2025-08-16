@@ -106,22 +106,24 @@ export default function EdnComplete() {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
 
-  // Fonction optimisée pour charger seulement les données essentielles
-  const fetchEssentialData = useCallback(async () => {
+
+  // Charger tous les items en une seule fois pour éviter les duplications
+  const loadAllData = useCallback(async () => {
     try {
       setLoading(true);
 
-      // Requête ultra-optimisée avec seulement les champs nécessaires pour l'affichage initial
+      // Requête pour charger TOUS les items en une seule fois
       const { data, error } = await supabase
         .from('edn_items_complete')
         .select(`
           id, item_code, title, subtitle, slug,
           paroles_musicales, scene_immersive, quiz_questions,
           tableau_rang_a, tableau_rang_b,
-          completeness_score, updated_at
+          completeness_score, updated_at, specialite,
+          competences_count_rang_a, competences_count_rang_b,
+          competences_count_total, is_validated, mots_cles
         `)
-        .order('item_code')
-        .limit(50); // Limite initiale pour un chargement ultra-rapide
+        .order('item_code');
 
       if (error) {
         console.error('Erreur:', error);
@@ -133,6 +135,7 @@ export default function EdnComplete() {
         return;
       }
 
+      console.log(`✅ ${data?.length || 0} items EDN chargés`);
       setImmersiveItems(data || []);
       
     } catch (error) {
@@ -147,45 +150,10 @@ export default function EdnComplete() {
     }
   }, [toast]);
 
-  // Charger le reste des données en arrière-plan
-  const loadAdditionalData = useCallback(async () => {
-    try {
-      // Si plus de 50 items, charger le reste
-      if (immersiveItems.length === 50) {
-        const { data } = await supabase
-          .from('edn_items_complete')
-          .select(`
-            id, item_code, title, subtitle, slug,
-            paroles_musicales, scene_immersive, quiz_questions,
-            tableau_rang_a, tableau_rang_b,
-            completeness_score, updated_at, specialite,
-            competences_count_rang_a, competences_count_rang_b
-          `)
-          .order('item_code')
-          .range(50, 1000);
-        
-        if (data) {
-          setImmersiveItems(prev => [...prev, ...data]);
-        }
-      }
-      
-    } catch (error) {
-      console.error('Erreur chargement additionnel:', error);
-    }
-  }, [immersiveItems.length]);
-
-  // Chargement initial optimisé
+  // Chargement initial unique
   useEffect(() => {
-    fetchEssentialData();
-  }, [fetchEssentialData]);
-
-  // Chargement différé des données non-critiques
-  useEffect(() => {
-    if (!loading && immersiveItems.length > 0) {
-      const timer = setTimeout(loadAdditionalData, 100);
-      return () => clearTimeout(timer);
-    }
-  }, [loading, immersiveItems.length, loadAdditionalData]);
+    loadAllData();
+  }, [loadAllData]);
 
   // Fonctions de calcul optimisées avec memoization
   const isItemComplete = useCallback((item: EdnItem) => {
@@ -487,7 +455,7 @@ export default function EdnComplete() {
             <React.Suspense fallback={<div className="text-center py-8">Chargement...</div>}>
               <div className="space-y-6">
                 <SyncAllItemsButton />
-                <SyncEdnButton onSyncComplete={fetchEssentialData} />
+                <SyncEdnButton onSyncComplete={loadAllData} />
                 <div>Contenu complet chargé</div>
               </div>
             </React.Suspense>
