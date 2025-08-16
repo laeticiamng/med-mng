@@ -68,7 +68,8 @@ jobs:
           node complete-by-url-puppeteer.js \
             --batch "${{ github.event.inputs.batch_size || '400' }}" \
             --maxItems "${{ github.event.inputs.max_items || '5000' }}" \
-            --concurrency "${{ github.event.inputs.concurrency || '3' }}"
+            --concurrency "${{ github.event.inputs.concurrency || '3' }}" \
+            --minChars 10
 
       - name: Upload logs on failure
         if: failure()
