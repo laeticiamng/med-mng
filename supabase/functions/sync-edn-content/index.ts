@@ -69,7 +69,7 @@ serve(async (req) => {
         
         console.log(`🔍 Traitement ${item.item_code} (${itemNumber})`);
 
-        // Récupérer les compétences OIC Rang A
+        // Récupérer les compétences OIC Rang A triées par ordre
         const { data: oicRangA, error: errorA } = await supabase
           .from('backup_oic_competences')
           .select(`
@@ -84,14 +84,14 @@ serve(async (req) => {
           `)
           .eq('item_parent', itemNumber)
           .eq('rang', 'A')
-        .in('completion_status', ['completed', 'updated', 'verified_unchanged', 'skipped_error'])
-          .order('ordre');
+          .in('completion_status', ['completed', 'updated', 'verified_unchanged', 'skipped_error'])
+          .order('ordre', { ascending: true, nullsFirst: false });
 
         if (errorA) {
           console.error(`❌ Erreur OIC Rang A pour ${item.item_code}:`, errorA);
         }
 
-        // Récupérer les compétences OIC Rang B
+        // Récupérer les compétences OIC Rang B triées par ordre
         const { data: oicRangB, error: errorB } = await supabase
           .from('backup_oic_competences')
           .select(`
@@ -107,19 +107,45 @@ serve(async (req) => {
           .eq('item_parent', itemNumber)
           .eq('rang', 'B')
           .in('completion_status', ['completed', 'updated', 'verified_unchanged', 'skipped_error'])
-          .order('ordre');
+          .order('ordre', { ascending: true, nullsFirst: false });
 
         if (errorB) {
           console.error(`❌ Erreur OIC Rang B pour ${item.item_code}:`, errorB);
         }
 
-        const competencesRangA = (oicRangA || []).filter(comp => 
-          comp.objectif_id && comp.intitule && comp.description
-        );
+        const competencesRangA = (oicRangA || [])
+          .filter(comp => comp.objectif_id && comp.intitule && comp.description)
+          .sort((a, b) => {
+            // Tri par ordre en priorité
+            if (a.ordre !== null && b.ordre !== null && a.ordre !== undefined && b.ordre !== undefined) {
+              return a.ordre - b.ordre;
+            }
+            
+            // Fallback : tri par numéro de séquence dans objectif_id
+            const extractSeqNumber = (objectifId: string) => {
+              const match = objectifId.match(/OIC-\d+-(\d+)-[AB]/);
+              return match ? parseInt(match[1], 10) : 999999;
+            };
+            
+            return extractSeqNumber(a.objectif_id) - extractSeqNumber(b.objectif_id);
+          });
 
-        const competencesRangB = (oicRangB || []).filter(comp => 
-          comp.objectif_id && comp.intitule && comp.description
-        );
+        const competencesRangB = (oicRangB || [])
+          .filter(comp => comp.objectif_id && comp.intitule && comp.description)
+          .sort((a, b) => {
+            // Tri par ordre en priorité
+            if (a.ordre !== null && b.ordre !== null && a.ordre !== undefined && b.ordre !== undefined) {
+              return a.ordre - b.ordre;
+            }
+            
+            // Fallback : tri par numéro de séquence dans objectif_id
+            const extractSeqNumber = (objectifId: string) => {
+              const match = objectifId.match(/OIC-\d+-(\d+)-[AB]/);
+              return match ? parseInt(match[1], 10) : 999999;
+            };
+            
+            return extractSeqNumber(a.objectif_id) - extractSeqNumber(b.objectif_id);
+          });
 
         // Construire les tableaux structurés pour Rang A
         const tableauRangA = {

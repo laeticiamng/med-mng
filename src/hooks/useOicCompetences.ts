@@ -45,7 +45,7 @@ export const useOicCompetences = (itemCode: string, rang: 'A' | 'B') => {
           .eq('rang', rang)
           .in('completion_status', ['completed', 'updated', 'verified_unchanged', 'skipped_error'])
           .not('description', 'is', null)
-          .order('ordre');
+          .order('ordre', { ascending: true, nullsFirst: false });
 
         console.log(`🔧 Requête SQL: item_parent='${itemNumber}' AND rang='${rang}'`);
         console.log(`📊 Données brutes récupérées:`, data);
@@ -67,8 +67,28 @@ export const useOicCompetences = (itemCode: string, rang: 'A' | 'B') => {
           return hasRequiredFields && hasValidDescription && hasValidStatus;
         }) || [];
 
-        console.log(`🎯 ${realCompetences.length} compétences AUTHENTIQUES récupérées avec descriptions complètes`);
-        setCompetences(realCompetences);
+        // Tri supplémentaire pour s'assurer de l'ordre croissant
+        const sortedCompetences = realCompetences.sort((a, b) => {
+          // Priorité 1: tri par ordre si disponible
+          if (a.ordre !== null && b.ordre !== null && a.ordre !== undefined && b.ordre !== undefined) {
+            return a.ordre - b.ordre;
+          }
+          
+          // Priorité 2: extraire le numéro de séquence de l'objectif_id
+          const extractSequenceNumber = (objectifId: string) => {
+            // Pattern: OIC-XXX-YY-[A|B] où YY est le numéro de séquence
+            const match = objectifId.match(/OIC-\d+-(\d+)-[AB]/);
+            return match ? parseInt(match[1], 10) : 999999; // valeur élevée si pas de match
+          };
+          
+          const seqA = extractSequenceNumber(a.objectif_id || '');
+          const seqB = extractSequenceNumber(b.objectif_id || '');
+          
+          return seqA - seqB;
+        });
+
+        console.log(`🎯 ${sortedCompetences.length} compétences AUTHENTIQUES récupérées avec descriptions complètes et triées par ordre`);
+        setCompetences(sortedCompetences);
         
       } catch (err) {
         console.error('❌ Erreur:', err);

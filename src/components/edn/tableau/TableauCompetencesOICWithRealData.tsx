@@ -67,22 +67,24 @@ export const TableauCompetencesOICWithRealData: React.FC<TableauCompetencesOICWi
     );
   }
 
-  // Trier les compétences par ordre si disponible, sinon par objectif_id
+  // Les compétences sont déjà triées depuis useOicCompetences
+  // Mais on applique un tri de sécurité supplémentaire
   const sortedCompetences = [...competences].sort((a, b) => {
-    if (a.ordre && b.ordre) {
+    // Priorité 1: tri par ordre si disponible
+    if (a.ordre !== null && b.ordre !== null && a.ordre !== undefined && b.ordre !== undefined) {
       return a.ordre - b.ordre;
     }
     
-    // Fallback: trier par numéro dans objectif_id
-    const getNumberFromObjectifId = (objectifId: string) => {
+    // Priorité 2: extraire le numéro de séquence de l'objectif_id (OIC-XXX-YY-[A|B])
+    const extractSequenceNumber = (objectifId: string) => {
       const match = objectifId.match(/OIC-\d+-(\d+)-[AB]/);
-      return match ? parseInt(match[1], 10) : 0;
+      return match ? parseInt(match[1], 10) : 999999; // valeur élevée si pas de match
     };
     
-    const numA = getNumberFromObjectifId(a.objectif_id || '');
-    const numB = getNumberFromObjectifId(b.objectif_id || '');
+    const seqA = extractSequenceNumber(a.objectif_id || '');
+    const seqB = extractSequenceNumber(b.objectif_id || '');
     
-    return numA - numB;
+    return seqA - seqB;
   });
   
   const competencesFormatted = {
