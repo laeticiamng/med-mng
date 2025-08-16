@@ -58,7 +58,6 @@ interface EdnItem {
 
 export default function EdnComplete() {
   const [immersiveItems, setImmersiveItems] = useState<EdnItem[]>([]);
-  const [completeItems, setCompleteItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -86,18 +85,19 @@ export default function EdnComplete() {
     try {
       setLoading(true);
 
-      const { data: immersiveData, error: immersiveError } = await supabase
+      // Une seule requête pour récupérer toutes les données nécessaires
+      const { data, error } = await supabase
         .from('edn_items_complete')
         .select(`
-          id, item_code, title, subtitle, slug, 
+          id, item_code, title, subtitle, slug, specialite,
           paroles_musicales, tableau_rang_a, tableau_rang_b, scene_immersive,
           quiz_questions, updated_at, competences_oic_rang_a, competences_oic_rang_b,
           completeness_score, is_validated, competences_count_rang_a, competences_count_rang_b
         `)
         .order('item_code');
 
-      if (immersiveError) {
-        console.error('Erreur immersive:', immersiveError);
+      if (error) {
+        console.error('Erreur:', error);
         toast({
           title: "Erreur",
           description: "Impossible de charger les données.",
@@ -106,18 +106,8 @@ export default function EdnComplete() {
         return;
       }
 
-      const { data: completeData } = await supabase
-        .from('edn_items_complete')
-        .select('id, item_code, title, specialite, completeness_score, is_validated')
-        .order('item_code');
-
-      setImmersiveItems(immersiveData || []);
-      setCompleteItems(completeData || []);
+      setImmersiveItems(data || []);
       
-      toast({
-        title: "Interface EDN",
-        description: `${immersiveData?.length || 0} items chargés`,
-      });
     } catch (error) {
       console.error('Erreur:', error);
       toast({
@@ -130,25 +120,8 @@ export default function EdnComplete() {
     }
   };
 
-  const allItems = useMemo(() => {
-    const mergedItems = immersiveItems.map(immersive => {
-      const complete = completeItems.find(c => c.item_code === immersive.item_code);
-      return {
-        ...immersive,
-        ...complete,
-        slug: immersive.slug,
-        tableau_rang_a: immersive.tableau_rang_a,
-        tableau_rang_b: immersive.tableau_rang_b,
-        scene_immersive: immersive.scene_immersive,
-        quiz_questions: immersive.quiz_questions,
-        paroles_musicales: immersive.paroles_musicales,
-        paroles_rang_a: immersive.paroles_rang_a,
-        paroles_rang_b: immersive.paroles_rang_b,
-        paroles_rang_ab: immersive.paroles_rang_ab
-      };
-    });
-    return mergedItems;
-  }, [immersiveItems, completeItems]);
+  // Plus besoin de merger, les données sont déjà complètes
+  const allItems = useMemo(() => immersiveItems, [immersiveItems]);
 
   const isItemComplete = (item: EdnItem) => {
     const hasRangA = !!item.tableau_rang_a;
