@@ -164,57 +164,59 @@ async function generateRichLyrics(
     `- ${c.intitule}: ${c.description}`
   ).join('\n') || 'Aucune compétence spécifique trouvée.';
 
-  const systemPrompt = `Tu es un expert en création de chansons médicales style NEKFEU.
+  const systemPrompt = `Tu es Nekfeu, rappeur expert en création de chansons médicales. Tu crées des paroles LONGUES et DENSES.
 
-MISSION: Créer une vraie chanson COMPLÈTE et RICHE pour l'item médical ${itemCode} "${title}" rang ${rang}.
+MISSION ABSOLUE: Créer une chanson RAP COMPLÈTE de MINIMUM 50 lignes pour ${itemCode} "${title}" rang ${rang}.
 
-OBJECTIF PÉDAGOGIQUE: 
-- Permettre de retenir TOUTES les compétences pour avoir 20/20 au QCM
-- Intégrer chaque élément clé des descriptions de compétences
-- Créer un contenu mémorable et musical
+STYLE NEKFEU IMPOSÉ:
+- Flow complexe avec rimes internes multiples
+- Métaphores médicales sophistiquées 
+- Assonances en -tion, -ation, -sion, -ment systématiques
+- Allitérations médicales créatives
+- Langage urbain moderne mélangé au vocabulaire médical
+- Phrases longues avec césures rythmées
 
-STYLE NEKFEU EXIGÉ:
-- Flow moderne, urbain, intelligent
-- Jeux de mots et métaphores médicales créatives
-- Assonances et allitérations systématiques
-- Rimes riches et internes
-- Ton personnel et direct
-- Références médicales précises mais fluides
+STRUCTURE EXIGÉE (MINIMUM 50 LIGNES):
+[Intro] (3-4 lignes d'accroche forte)
+[Couplet 1] (12 lignes - pathophysiologie détaillée)
+[Refrain] (6 lignes - mémorisation des points clés)
+[Couplet 2] (12 lignes - diagnostic complet et examens)
+[Refrain] (6 lignes - répétition exacte)
+[Couplet 3] (12 lignes - traitement et suivi thérapeutique)
+[Pont] (6 lignes - complications et cas particuliers)
+[Couplet 4] (10 lignes - pronostic et prévention)
+[Outro] (4 lignes - synthèse mémorable)
 
-STRUCTURE OBLIGATOIRE:
-[Intro] (2-3 lignes accroche forte)
-[Couplet 1] (8 lignes - présentation pathologie)
-[Refrain] (4 lignes - message central avec assonances en -ion/-tion)
-[Couplet 2] (8 lignes - diagnostic et examens)
-[Refrain] (répétition exacte)
-[Couplet 3] (8 lignes - traitement et surveillance)
-[Refrain] (répétition exacte)
-[Pont] (4 lignes - transition musicale)
-[Couplet 4] (8 lignes - cas complexes/pronostic)
-[Refrain Final] (4 lignes - variation du refrain)
-[Outro] (2-3 lignes - conclusion mémorable)
+CONTRAINTES ABSOLUES:
+- MINIMUM 50 lignes de paroles (compter chaque ligne)
+- Intégrer CHAQUE compétence médicale dans les paroles
+- Rimes riches et assonances à chaque fin de ligne
+- Métrique régulière adaptée au rap français
+- Vocabulaire médical précis mais musical
+- Style urbain authentique de Nekfeu
 
-CONTRAINTES TECHNIQUES:
-- TOUS les éléments des compétences doivent apparaître naturellement
-- Assonances privilégiées: -ion, -tion, -ment, -eur, -age, -ance
-- Allitérations médicales (diagnostic/différentiel, clinique/critique, etc.)
-- Vocabulaire médical précis mais rythmé
-- Métrique adaptée au rap français
-- Maximum 4500 caractères
-
-COMPÉTENCES À INTÉGRER ABSOLUMENT:
+COMPÉTENCES MÉDICALES À INTÉGRER:
 ${competencesText}
 
-Génère une chanson COMPLÈTE, RICHE et MÉMORABLE qui transforme ce contenu médical en art musical.`;
+IMPORTANT: Génère EXACTEMENT les paroles ligne par ligne, sans titre de section, MINIMUM 50 lignes.`;
 
-  const userPrompt = `Crée maintenant la chanson complète pour ${itemCode} "${title}" rang ${rang}.
+  const userPrompt = `Crée IMMÉDIATEMENT la chanson RAP COMPLÈTE de MINIMUM 50 lignes pour ${itemCode} "${title}" rang ${rang}.
 
-Intègre TOUTES les compétences listées dans un flow style Nekfeu authentique.
-Assure-toi que chaque couplet contient du contenu médical précis.
-Utilise des assonances riches pour faciliter la mémorisation.
-Style urbain moderne et engagé.
+EXIGENCES STRICTES:
+- MINIMUM 50 lignes de paroles (compte chaque ligne)
+- Style Nekfeu avec flow complexe et rimes internes
+- Intégrer TOUTES les compétences médicales listées
+- Assonances systématiques en -tion, -ment, -eur
+- Métaphores médicales créatives
+- Langage urbain mélangé au vocabulaire médical
 
-RETOURNE UNIQUEMENT LES LIGNES DE PAROLES, UNE PAR LIGNE.`;
+FORMT DE RÉPONSE EXIGÉ:
+- Une ligne de paroles par ligne de texte
+- Pas de titres de section ([Couplet], [Refrain], etc.)
+- Juste les paroles pures, ligne par ligne
+- MINIMUM 50 lignes obligatoire
+
+COMMENCE MAINTENANT:`;
 
   try {
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -229,7 +231,8 @@ RETOURNE UNIQUEMENT LES LIGNES DE PAROLES, UNE PAR LIGNE.`;
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
         ],
-        max_completion_tokens: 2000
+        max_completion_tokens: 4000,
+        temperature: undefined // GPT-5 ne supporte pas temperature
       }),
     });
 
@@ -248,8 +251,8 @@ RETOURNE UNIQUEMENT LES LIGNES DE PAROLES, UNE PAR LIGNE.`;
       .filter(line => line.length > 0)
       .filter(line => !line.startsWith('**') && !line.startsWith('*')); // Supprimer markdown
     
-    if (lines.length < 15) {
-      throw new Error('Réponse OpenAI trop courte');
+    if (lines.length < 40) {
+      throw new Error(`Réponse OpenAI trop courte: ${lines.length} lignes au lieu de minimum 40`);
     }
     
     return lines;
