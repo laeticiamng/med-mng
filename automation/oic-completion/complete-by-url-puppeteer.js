@@ -615,30 +615,7 @@ async function processOne(browser, row) {
       throw new Error('login_page_content_detected');
     }
     
-    // Vérifier que le contenu a un minimum de caractères (très permissif)
-    if (text.length < 5) {
-      console.log(`   ⚠️ ${objId}: Contenu trop court (${text.length} caractères)`);
-      throw new Error('content_too_short');
-    }
-    
-    // Vérifier si le contenu contient des informations OIC (très permissif)
-    const hasOICContent = text.toLowerCase().includes('oic-') || 
-                         text.toLowerCase().includes('objectif') ||
-                         text.toLowerCase().includes('connaissance') ||
-                         text.toLowerCase().includes('connaître') ||
-                         text.toLowerCase().includes('diagnostic') ||
-                         text.toLowerCase().includes('traitement') ||
-                         text.toLowerCase().includes('physiopathologie') ||
-                         text.toLowerCase().includes('clinique') ||
-                         text.toLowerCase().includes('étiologie') ||
-                         text.length > 50; // Très permissif : tout contenu > 50 chars est accepté
-    
-    if (!hasOICContent) {
-      console.log(`   ⚠️ ${objId}: Contenu ne semble pas être du contenu OIC valide`);
-      throw new Error('invalid_oic_content');
-    }
-    
-    // FORCER L'UPDATE avec vérification
+    // COPIE FIDÈLE DU CONTENU : Mise à jour directe en base sans conditions
     console.log(`   💾 ${objId}: Mise à jour en base...`);
     await updateDescription(objId, text, 200);
     
@@ -665,7 +642,7 @@ async function processOne(browser, row) {
         const retryText = (await page.evaluate(buildExtractor())) || '';
         console.log(`   🔄 ${objId}: Nouvelle extraction (${retryText.length} car)`);
         
-        if (retryText.length > 5 && !retryText.includes('State parameter') && !looksLikeLogin(retryText)) {
+        if (!retryText.includes('State parameter') && !looksLikeLogin(retryText)) {
           await updateDescription(objId, retryText, 200);
           console.log(`   ✅ ${objId}: RÉCUPÉRATION RÉUSSIE - ${retryText.length} caractères copiés`);
           return { updated: 1, skippedError: 0, unchanged: 0 };
