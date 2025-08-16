@@ -69,7 +69,24 @@ jobs:
             --batch "${{ github.event.inputs.batch_size || '400' }}" \
             --maxItems "${{ github.event.inputs.max_items || '5000' }}" \
             --concurrency "${{ github.event.inputs.concurrency || '3' }}" \
-            --minChars 10
+            --minChars 10 \
+            --verifyAll true
+
+      - name: Fix truncated content
+        working-directory: automation/oic-completion
+        env:
+          SUPABASE_URL: "https://yaincoxihiqdksxgrsrk.supabase.co"
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+          CAS_USERNAME: ${{ secrets.CAS_USERNAME }}
+          CAS_PASSWORD: ${{ secrets.CAS_PASSWORD }}
+        run: |
+          node complete-by-url-puppeteer.js \
+            --batch "${{ github.event.inputs.batch_size || '400' }}" \
+            --maxItems "${{ github.event.inputs.max_items || '5000' }}" \
+            --concurrency "${{ github.event.inputs.concurrency || '3' }}" \
+            --minChars 1 \
+            --fixTruncated true \
+            --verifyContent true
 
       - name: Upload logs on failure
         if: failure()
