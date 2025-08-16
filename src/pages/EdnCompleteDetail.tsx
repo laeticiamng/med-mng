@@ -10,6 +10,7 @@ import { useEdnItemComplete } from '@/hooks/useEdnItemsComplete';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { EdnItemDetailHybrid } from '@/components/edn/EdnItemDetailHybrid';
+import { TableauCompetencesOICWithRealData } from '@/components/edn/tableau/TableauCompetencesOICWithRealData';
 import { useState } from 'react';
 
 export default function EdnCompleteDetail() {
@@ -214,37 +215,22 @@ export default function EdnCompleteDetail() {
                     <CardTitle className="flex items-center gap-2">
                       <Award className="h-5 w-5 text-blue-500" />
                       Compétences Rang A
-                      <Badge variant="secondary">{item.competences_count_rang_a || 0}</Badge>
+                      <Badge variant="secondary">Données en temps réel</Badge>
                     </CardTitle>
                     <CardDescription>
-                      Compétences fondamentales à maîtriser
+                      Compétences fondamentales à maîtriser - Récupérées directement depuis la base OIC
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    {item.competences_oic_rang_a && Array.isArray(item.competences_oic_rang_a) ? (
-                      <div className="space-y-4">
-                        {item.competences_oic_rang_a.map((comp: any, idx: number) => (
-                          <div key={idx} className="p-4 border rounded-lg">
-                            <div className="flex items-start justify-between mb-2">
-                              <h4 className="font-semibold">{comp.intitule}</h4>
-                              {comp.objectif_id && (
-                                <Badge variant="outline">{comp.objectif_id}</Badge>
-                              )}
-                            </div>
-                            {comp.description && (
-                              <p className="text-sm text-muted-foreground">{comp.description}</p>
-                            )}
-                            {comp.rubrique && (
-                              <Badge variant="secondary" className="mt-2">
-                                {comp.rubrique}
-                              </Badge>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-muted-foreground">Aucune compétence Rang A disponible</p>
-                    )}
+                    <div className="bg-blue-50 dark:bg-blue-950/20 p-4 rounded-lg border border-blue-200 dark:border-blue-800 mb-4">
+                      <p className="text-blue-800 dark:text-blue-200 text-sm font-medium">
+                        ✅ Données OIC authentiques pour {item.item_code} Rang A
+                      </p>
+                    </div>
+                    <TableauCompetencesOICWithRealData 
+                      itemCode={item.item_code} 
+                      rang="A" 
+                    />
                   </CardContent>
                 </Card>
 
@@ -254,37 +240,22 @@ export default function EdnCompleteDetail() {
                     <CardTitle className="flex items-center gap-2">
                       <Award className="h-5 w-5 text-purple-500" />
                       Compétences Rang B
-                      <Badge variant="secondary">{item.competences_count_rang_b || 0}</Badge>
+                      <Badge variant="secondary">Données en temps réel</Badge>
                     </CardTitle>
                     <CardDescription>
-                      Compétences avancées et spécialisées
+                      Compétences avancées et spécialisées - Récupérées directement depuis la base OIC
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    {item.competences_oic_rang_b && Array.isArray(item.competences_oic_rang_b) ? (
-                      <div className="space-y-4">
-                        {item.competences_oic_rang_b.map((comp: any, idx: number) => (
-                          <div key={idx} className="p-4 border rounded-lg">
-                            <div className="flex items-start justify-between mb-2">
-                              <h4 className="font-semibold">{comp.intitule}</h4>
-                              {comp.objectif_id && (
-                                <Badge variant="outline">{comp.objectif_id}</Badge>
-                              )}
-                            </div>
-                            {comp.description && (
-                              <p className="text-sm text-muted-foreground">{comp.description}</p>
-                            )}
-                            {comp.rubrique && (
-                              <Badge variant="secondary" className="mt-2">
-                                {comp.rubrique}
-                              </Badge>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <p className="text-muted-foreground">Aucune compétence Rang B disponible</p>
-                    )}
+                    <div className="bg-purple-50 dark:bg-purple-950/20 p-4 rounded-lg border border-purple-200 dark:border-purple-800 mb-4">
+                      <p className="text-purple-800 dark:text-purple-200 text-sm font-medium">
+                        ✅ Données OIC authentiques pour {item.item_code} Rang B
+                      </p>
+                    </div>
+                    <TableauCompetencesOICWithRealData 
+                      itemCode={item.item_code} 
+                      rang="B" 
+                    />
                   </CardContent>
                 </Card>
               </TabsContent>
