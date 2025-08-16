@@ -53,6 +53,9 @@ const SyncEdnButton = React.lazy(() =>
 const SyncAllItemsButton = React.lazy(() => 
   import("@/components/edn/SyncAllItemsButton").then(module => ({ default: module.SyncAllItemsButton }))
 );
+const UpdateAllLyricsButton = React.lazy(() => 
+  import("@/components/edn/UpdateAllLyricsButton").then(module => ({ default: module.UpdateAllLyricsButton }))
+);
 
 interface EdnItem {
   id: string;
@@ -463,7 +466,10 @@ export default function EdnComplete() {
 
           <TabsContent value="music">
             <React.Suspense fallback={<div className="text-center py-8">Chargement...</div>}>
-              <LyricsCompletionStatus />
+              <div className="space-y-6">
+                <UpdateAllLyricsButton />
+                <LyricsCompletionStatus />
+              </div>
             </React.Suspense>
           </TabsContent>
 
