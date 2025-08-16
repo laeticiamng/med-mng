@@ -46,6 +46,11 @@ const LyricsGenerationManager = React.lazy(() =>
 import { useIAQuota } from "@/hooks/useIAQuota";
 import { useSubscription } from "@/hooks/useSubscription";
 
+// Lazy loading du composant de synchronisation
+const SyncEdnButton = React.lazy(() => 
+  import("@/components/edn/SyncEdnButton").then(module => ({ default: module.SyncEdnButton }))
+);
+
 interface EdnItem {
   id: string;
   item_code: string;
@@ -477,7 +482,10 @@ export default function EdnComplete() {
           {/* Autres onglets avec lazy loading */}
           <TabsContent value="complete">
             <React.Suspense fallback={<div className="text-center py-8">Chargement...</div>}>
-              <div>Contenu complet chargé</div>
+              <div className="space-y-6">
+                <SyncEdnButton onSyncComplete={fetchEssentialData} />
+                <div>Contenu complet chargé</div>
+              </div>
             </React.Suspense>
           </TabsContent>
 
