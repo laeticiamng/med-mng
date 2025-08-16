@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
   Search, BookOpen, Award, Users, TrendingUp, Filter, Grid, List, Eye,
@@ -11,40 +11,21 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
-
-// Lazy loading pour les composants moins critiques
-const AppleStyleItemModalFixed = React.lazy(() => 
-  import("@/components/edn/premium/AppleStyleItemModalFixed").then(module => ({ default: module.AppleStyleItemModalFixed }))
-);
-const EdnItemCard = React.lazy(() => 
-  import("@/components/edn/premium/EdnItemCard").then(module => ({ default: module.EdnItemCard }))
-);
-const LyricsCompletionStatus = React.lazy(() => 
-  import("@/components/LyricsCompletionStatus").then(module => ({ default: module.LyricsCompletionStatus }))
-);
-const RevisionDashboard = React.lazy(() => 
-  import("@/components/revision/RevisionDashboard").then(module => ({ default: module.RevisionDashboard }))
-);
-const QuotaIndicator = React.lazy(() => 
-  import("@/components/quota/QuotaIndicator").then(module => ({ default: module.QuotaIndicator }))
-);
-const PricingPlans = React.lazy(() => 
-  import("@/components/med-mng/PricingPlans").then(module => ({ default: module.PricingPlans }))
-);
-const GenerateAllLyricsButton = React.lazy(() => 
-  import("@/components/edn/GenerateAllLyricsButton").then(module => ({ default: module.GenerateAllLyricsButton }))
-);
-const LyricsGenerationManager = React.lazy(() => 
-  import("@/components/edn/LyricsGenerationManager").then(module => ({ default: module.LyricsGenerationManager }))
-);
-
-// Import direct des hooks essentiels
+import { AppleStyleItemModalFixed } from "@/components/edn/premium/AppleStyleItemModalFixed";
+import { EdnItemCard } from "@/components/edn/premium/EdnItemCard";
+import { LyricsCompletionStatus } from "@/components/LyricsCompletionStatus";
+import { RevisionDashboard } from "@/components/revision/RevisionDashboard";
+import { QuotaIndicator } from "@/components/quota/QuotaIndicator";
+import { PricingPlans } from "@/components/med-mng/PricingPlans";
 import { useIAQuota } from "@/hooks/useIAQuota";
 import { useSubscription } from "@/hooks/useSubscription";
+import { GenerateAllLyricsButton } from "@/components/edn/GenerateAllLyricsButton";
+import { LyricsGenerationManager } from "@/components/edn/LyricsGenerationManager";
 
 interface EdnItem {
   id: string;
@@ -76,7 +57,6 @@ interface EdnItem {
 }
 
 export default function EdnComplete() {
-  // États essentiels seulement
   const [immersiveItems, setImmersiveItems] = useState<EdnItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -84,13 +64,12 @@ export default function EdnComplete() {
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState<'item_code' | 'completeness_score' | 'updated_at'>('item_code');
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage] = useState(12);
+  const [itemsPerPage] = useState(12); // 12 items par page
   const [selectedItem, setSelectedItem] = useState<EdnItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('immersive');
   const [showPricing, setShowPricing] = useState(false);
   
-  // Hooks optimisés avec chargement différé
   const { quota } = useIAQuota();
   const { subscription, canGenerateMusic } = useSubscription();
   
@@ -98,22 +77,24 @@ export default function EdnComplete() {
   const isMobile = useIsMobile();
   const navigate = useNavigate();
 
-  // Fonction optimisée pour charger seulement les données essentielles
-  const fetchEssentialData = useCallback(async () => {
+  useEffect(() => {
+    fetchAllData();
+  }, []);
+
+  const fetchAllData = async () => {
     try {
       setLoading(true);
 
-      // Requête ultra-optimisée avec seulement les champs nécessaires pour l'affichage initial
+      // Une seule requête pour récupérer toutes les données nécessaires
       const { data, error } = await supabase
         .from('edn_items_complete')
         .select(`
-          id, item_code, title, subtitle, slug,
-          paroles_musicales, scene_immersive, quiz_questions,
-          tableau_rang_a, tableau_rang_b,
-          completeness_score, updated_at
+          id, item_code, title, subtitle, slug, specialite,
+          paroles_musicales, tableau_rang_a, tableau_rang_b, scene_immersive,
+          quiz_questions, updated_at, competences_oic_rang_a, competences_oic_rang_b,
+          completeness_score, is_validated, competences_count_rang_a, competences_count_rang_b
         `)
-        .order('item_code')
-        .limit(50); // Limite initiale pour un chargement ultra-rapide
+        .order('item_code');
 
       if (error) {
         console.error('Erreur:', error);
@@ -137,61 +118,21 @@ export default function EdnComplete() {
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+  };
 
-  // Charger le reste des données en arrière-plan
-  const loadAdditionalData = useCallback(async () => {
-    try {
-      // Si plus de 50 items, charger le reste
-      if (immersiveItems.length === 50) {
-        const { data } = await supabase
-          .from('edn_items_complete')
-          .select(`
-            id, item_code, title, subtitle, slug,
-            paroles_musicales, scene_immersive, quiz_questions,
-            tableau_rang_a, tableau_rang_b,
-            completeness_score, updated_at, specialite,
-            competences_count_rang_a, competences_count_rang_b
-          `)
-          .order('item_code')
-          .range(50, 1000);
-        
-        if (data) {
-          setImmersiveItems(prev => [...prev, ...data]);
-        }
-      }
-      
-    } catch (error) {
-      console.error('Erreur chargement additionnel:', error);
-    }
-  }, [immersiveItems.length]);
+  // Plus besoin de merger, les données sont déjà complètes
+  const allItems = useMemo(() => immersiveItems, [immersiveItems]);
 
-  // Chargement initial optimisé
-  useEffect(() => {
-    fetchEssentialData();
-  }, [fetchEssentialData]);
-
-  // Chargement différé des données non-critiques
-  useEffect(() => {
-    if (!loading && immersiveItems.length > 0) {
-      const timer = setTimeout(loadAdditionalData, 100);
-      return () => clearTimeout(timer);
-    }
-  }, [loading, immersiveItems.length, loadAdditionalData]);
-
-  // Fonctions de calcul optimisées avec memoization
-  const isItemComplete = useCallback((item: EdnItem) => {
+  const isItemComplete = (item: EdnItem) => {
     const hasRangA = !!item.tableau_rang_a;
     const hasRangB = !!item.tableau_rang_b;
     const hasMusic = !!(item.paroles_musicales && item.paroles_musicales.length > 0);
     const hasScene = !!item.scene_immersive;
     const hasQuiz = !!item.quiz_questions;
     return hasRangA && hasRangB && hasMusic && hasScene && hasQuiz;
-  }, []);
+  };
 
-  const getCompletionPercentage = useCallback((item: EdnItem) => {
-    if (item.completeness_score) return item.completeness_score;
-    
+  const getCompletionPercentage = (item: EdnItem) => {
     const features = [
       !!item.tableau_rang_a,
       !!item.tableau_rang_b,
@@ -200,11 +141,10 @@ export default function EdnComplete() {
       !!item.quiz_questions
     ];
     return Math.round((features.filter(Boolean).length / features.length) * 100);
-  }, []);
+  };
 
-  // Filtrage optimisé avec useMemo
   const filteredItems = useMemo(() => {
-    return immersiveItems.filter(item => {
+    return allItems.filter(item => {
       const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            item.item_code.toLowerCase().includes(searchTerm.toLowerCase());
       
@@ -225,7 +165,7 @@ export default function EdnComplete() {
     }).sort((a, b) => {
       switch (sortBy) {
         case 'completeness_score':
-          return getCompletionPercentage(b) - getCompletionPercentage(a);
+          return (b.completeness_score || getCompletionPercentage(b)) - (a.completeness_score || getCompletionPercentage(a));
         case 'updated_at':
           return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
         default:
@@ -234,39 +174,36 @@ export default function EdnComplete() {
           return numA - numB;
       }
     });
-  }, [immersiveItems, searchTerm, selectedCategory, sortBy, isItemComplete, getCompletionPercentage]);
+  }, [allItems, searchTerm, selectedCategory, sortBy]);
 
-  // Pagination optimisée
-  const { totalPages, paginatedItems } = useMemo(() => {
-    const total = Math.ceil(filteredItems.length / itemsPerPage);
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    const paginated = filteredItems.slice(startIndex, endIndex);
-    
-    return { totalPages: total, paginatedItems: paginated };
-  }, [filteredItems, currentPage, itemsPerPage]);
+  // Pagination
+  const totalPages = Math.ceil(filteredItems.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedItems = filteredItems.slice(startIndex, endIndex);
 
   // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm, selectedCategory, sortBy]);
 
-  // Stats optimisées
-  const stats = useMemo(() => {
-    const total = immersiveItems.length;
-    const complete = immersiveItems.filter(isItemComplete).length;
-    const validated = immersiveItems.filter(item => item.is_validated).length;
-    const withMusic = immersiveItems.filter(item => item.paroles_musicales && item.paroles_musicales.length > 0).length;
-    const avgScore = total > 0 ? Math.round(immersiveItems.reduce((sum, item) => 
-      sum + getCompletionPercentage(item), 0) / total) : 0;
+  const calculateStats = () => {
+    const total = allItems.length;
+    const complete = allItems.filter(isItemComplete).length;
+    const validated = allItems.filter(item => item.is_validated).length;
+    const withMusic = allItems.filter(item => item.paroles_musicales && item.paroles_musicales.length > 0).length;
+    const avgScore = total > 0 ? Math.round(allItems.reduce((sum, item) => 
+      sum + (item.completeness_score || getCompletionPercentage(item)), 0) / total) : 0;
     
     return { total, complete, validated, withMusic, avgScore };
-  }, [immersiveItems, isItemComplete, getCompletionPercentage]);
+  };
 
-  const openItemModal = useCallback((item: EdnItem) => {
+  const openItemModal = (item: EdnItem) => {
     setSelectedItem(item);
     setIsModalOpen(true);
-  }, []);
+  };
+
+  const stats = calculateStats();
 
   if (loading) {
     return (
@@ -296,9 +233,7 @@ export default function EdnComplete() {
             </div>
             
             <div className="flex items-center gap-6">
-              <React.Suspense fallback={<div className="w-8 h-6 bg-slate-200 rounded animate-pulse"></div>}>
-                <QuotaIndicator compact />
-              </React.Suspense>
+              <QuotaIndicator compact />
               <Tabs value={activeTab} onValueChange={setActiveTab}>
                 <TabsList className="bg-white/60 backdrop-blur-sm border border-white/30 shadow-lg rounded-xl p-1">
                   <TabsTrigger value="immersive" className="text-sm font-medium rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-md">Immersif</TabsTrigger>
@@ -447,23 +382,21 @@ export default function EdnComplete() {
                       <CardContent className="p-5">
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-4">
-                            <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center">
-                              <span className="text-white font-bold text-sm">{item.item_code.replace('IC-', '')}</span>
+                            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center shadow-md">
+                              <span className="text-white font-bold text-xs">{item.item_code.replace('IC-', '')}</span>
                             </div>
-                            <div className="flex-1">
-                              <h3 className="font-semibold text-slate-900 mb-1">{item.item_code}</h3>
-                              <p className="text-slate-600 text-sm line-clamp-1">{item.title}</p>
+                            <div>
+                              <h3 className="font-semibold text-slate-800">{item.item_code}</h3>
+                              <p className="text-sm text-slate-600">{item.title}</p>
                             </div>
                           </div>
-                          <div className="flex items-center gap-4">
-                            <div className="flex gap-2">
-                              {item.scene_immersive && <Badge variant="secondary" className="text-xs">3D</Badge>}
-                              {item.quiz_questions && <Badge variant="secondary" className="text-xs">Quiz</Badge>}
-                              {item.paroles_musicales && item.paroles_musicales.length > 0 && <Badge variant="secondary" className="text-xs">Musique</Badge>}
+                          <div className="flex items-center gap-3">
+                            <div className="flex gap-1">
+                              {item.scene_immersive && <div className="w-2 h-2 bg-blue-500 rounded-full"></div>}
+                              {item.quiz_questions && <div className="w-2 h-2 bg-green-500 rounded-full"></div>}
+                              {item.paroles_musicales && item.paroles_musicales.length > 0 && <div className="w-2 h-2 bg-purple-500 rounded-full"></div>}
                             </div>
-                            <Badge variant="outline" className="font-medium">
-                              {getCompletionPercentage(item)}%
-                            </Badge>
+                            <Badge variant="outline" className="font-medium">{getCompletionPercentage(item)}%</Badge>
                           </div>
                         </div>
                       </CardContent>
@@ -474,46 +407,96 @@ export default function EdnComplete() {
             </div>
           </TabsContent>
 
-          {/* Autres onglets avec lazy loading */}
           <TabsContent value="complete">
-            <React.Suspense fallback={<div className="text-center py-8">Chargement...</div>}>
-              <div>Contenu complet chargé</div>
-            </React.Suspense>
+            <div className="grid gap-4">
+              {viewMode === 'grid' ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {filteredItems.map(item => (
+                    <Card key={item.id} className="cursor-pointer hover:shadow-sm" onClick={() => openItemModal(item)}>
+                      <CardContent className="p-4">
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <h3 className="font-semibold">{item.item_code}</h3>
+                            <Badge variant={item.is_validated ? 'default' : 'outline'}>
+                              {item.is_validated ? 'Validé' : 'En attente'}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground line-clamp-2">{item.title}</p>
+                          <div className="flex gap-2">
+                            <Badge variant="secondary" className="text-xs">
+                              Score: {item.completeness_score || getCompletionPercentage(item)}%
+                            </Badge>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {filteredItems.map(item => (
+                    <Card key={item.id} className="cursor-pointer hover:shadow-sm" onClick={() => openItemModal(item)}>
+                      <CardContent className="p-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <span className="font-semibold text-sm">{item.item_code}</span>
+                              <span className="text-sm text-muted-foreground truncate">{item.title}</span>
+                            </div>
+                          </div>
+                          <div className="flex gap-2">
+                            <Badge variant="outline" className="text-xs">
+                              {item.completeness_score || getCompletionPercentage(item)}%
+                            </Badge>
+                            {item.is_validated && (
+                              <Badge variant="default" className="text-xs">Validé</Badge>
+                            )}
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </div>
           </TabsContent>
 
           <TabsContent value="music">
-            <React.Suspense fallback={<div className="text-center py-8">Chargement...</div>}>
-              <LyricsCompletionStatus />
-            </React.Suspense>
+            <div className="space-y-6">
+              <LyricsGenerationManager />
+            </div>
           </TabsContent>
 
           <TabsContent value="revision">
-            <React.Suspense fallback={<div className="text-center py-8">Chargement...</div>}>
-              <RevisionDashboard />
-            </React.Suspense>
+            <RevisionDashboard />
           </TabsContent>
 
           <TabsContent value="subscription">
-            <React.Suspense fallback={<div className="text-center py-8">Chargement...</div>}>
-              <div className="grid gap-6">
+            <div className="space-y-6">
+              {/* Quota Overview */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <QuotaIndicator showDetails />
                 <Card>
                   <CardHeader>
-                    <CardTitle>Abonnement actuel</CardTitle>
-                    <CardDescription>Gérez votre plan et vos crédits IA</CardDescription>
+                    <CardTitle>Plan actuel</CardTitle>
+                    <CardDescription>Votre abonnement et fonctionnalités</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      <div className="p-4 bg-blue-50 rounded-lg">
-                        <h3 className="font-semibold mb-2">Plan Gratuit</h3>
-                        <p className="text-sm text-muted-foreground mb-4">
-                          Fonctionnalités de base avec limitations
-                        </p>
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm">Crédits restants:</span>
-                          <Badge variant="outline">{quota || 0}</Badge>
-                        </div>
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium">
+                          {subscription?.plan_name || 'Plan Gratuit'}
+                        </span>
+                        <Badge variant={subscription ? 'default' : 'secondary'}>
+                          {subscription ? 'Actif' : 'Gratuit'}
+                        </Badge>
                       </div>
-                      
+                      {subscription && (
+                        <div className="text-sm text-muted-foreground">
+                          <p>Quota mensuel: {subscription.monthly_quota} crédits</p>
+                          <p>Statut: {subscription.status}</p>
+                        </div>
+                      )}
                       {!subscription && (
                         <div className="space-y-2">
                           <p className="text-sm text-muted-foreground">
@@ -530,16 +513,148 @@ export default function EdnComplete() {
                     </div>
                   </CardContent>
                 </Card>
+              </div>
 
-                {showPricing && (
+              {/* Pricing Plans */}
+              {showPricing && (
+                <div>
+                  <h3 className="text-lg font-semibold mb-4">Choisissez votre plan</h3>
                   <PricingPlans 
                     onSelectPlan={(planId) => {
                       navigate(`/med-mng/subscribe/${planId}`);
                     }}
                   />
-                )}
-              </div>
-            </React.Suspense>
+                </div>
+              )}
+
+              {/* Usage Stats */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Utilisation des fonctionnalités</CardTitle>
+                  <CardDescription>
+                    Découvrez comment optimiser votre apprentissage avec nos outils IA
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="p-4 bg-blue-50 rounded-lg">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Music className="h-5 w-5 text-blue-600" />
+                        <span className="font-medium">Musique IA</span>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Générez des chansons mnémotechniques personnalisées
+                      </p>
+                      <p className="text-xs mt-2 text-blue-600">
+                        Coût: 5 crédits par génération
+                      </p>
+                    </div>
+                    
+                    <div className="p-4 bg-green-50 rounded-lg">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Brain className="h-5 w-5 text-green-600" />
+                        <span className="font-medium">QCM IA</span>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Créez des QCM adaptatifs intelligents
+                      </p>
+                      <p className="text-xs mt-2 text-green-600">
+                        Coût: 2 crédits par QCM
+                      </p>
+                    </div>
+                    
+                    <div className="p-4 bg-purple-50 rounded-lg">
+                      <div className="flex items-center gap-2 mb-2">
+                        <FileText className="h-5 w-5 text-purple-600" />
+                        <span className="font-medium">Bandes Dessinées</span>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Transformez les concepts en BD éducatives
+                      </p>
+                      <p className="text-xs mt-2 text-purple-600">
+                        Coût: 10 crédits par BD
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {quota <= 5 && (
+                <Alert>
+                  <AlertTriangle className="h-4 w-4" />
+                  <AlertDescription>
+                    Attention: Il vous reste seulement {quota} crédits. 
+                    Considérez un abonnement pour continuer à utiliser nos fonctionnalités IA.
+                  </AlertDescription>
+                </Alert>
+              )}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="unified">
+            <div className="grid gap-4">
+              {viewMode === 'grid' ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {filteredItems.map(item => (
+                    <Card key={item.id} className="cursor-pointer hover:shadow-sm" onClick={() => openItemModal(item)}>
+                      <CardContent className="p-4">
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <h3 className="font-semibold">{item.item_code}</h3>
+                            <Badge variant="outline">{getCompletionPercentage(item)}%</Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground line-clamp-2">{item.title}</p>
+                          <div className="flex gap-1 flex-wrap">
+                            {item.tableau_rang_a && (
+                              <Badge variant="secondary" className="text-xs">Rang A</Badge>
+                            )}
+                            {item.tableau_rang_b && (
+                              <Badge variant="secondary" className="text-xs">Rang B</Badge>
+                            )}
+                            {item.paroles_musicales && item.paroles_musicales.length > 0 && (
+                              <Badge variant="secondary" className="text-xs">Musique</Badge>
+                            )}
+                            {item.scene_immersive && (
+                              <Badge variant="secondary" className="text-xs">3D</Badge>
+                            )}
+                            {item.quiz_questions && (
+                              <Badge variant="secondary" className="text-xs">Quiz</Badge>
+                            )}
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {filteredItems.map(item => (
+                    <Card key={item.id} className="cursor-pointer hover:shadow-sm" onClick={() => openItemModal(item)}>
+                      <CardContent className="p-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="font-semibold text-sm">{item.item_code}</span>
+                              <span className="text-sm text-muted-foreground truncate">{item.title}</span>
+                            </div>
+                            <div className="flex gap-1">
+                              {item.tableau_rang_a && <Badge variant="secondary" className="text-xs px-1">A</Badge>}
+                              {item.tableau_rang_b && <Badge variant="secondary" className="text-xs px-1">B</Badge>}
+                              {item.paroles_musicales && item.paroles_musicales.length > 0 && <Badge variant="secondary" className="text-xs px-1">M</Badge>}
+                              {item.scene_immersive && <Badge variant="secondary" className="text-xs px-1">3D</Badge>}
+                              {item.quiz_questions && <Badge variant="secondary" className="text-xs px-1">Q</Badge>}
+                            </div>
+                          </div>
+                          <Badge variant="outline" className="text-xs">
+                            {getCompletionPercentage(item)}%
+                          </Badge>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </div>
           </TabsContent>
         </Tabs>
 
@@ -608,18 +723,16 @@ export default function EdnComplete() {
         )}
       </div>
 
-      {/* Modal avec lazy loading */}
+      {/* Modal avec nouveau design Apple */}
       {selectedItem && (
-        <React.Suspense fallback={null}>
-          <AppleStyleItemModalFixed
-            item={selectedItem}
-            isOpen={isModalOpen}
-            onClose={() => {
-              setIsModalOpen(false);
-              setSelectedItem(null);
-            }}
-          />
-        </React.Suspense>
+        <AppleStyleItemModalFixed
+          item={selectedItem}
+          isOpen={isModalOpen}
+          onClose={() => {
+            setIsModalOpen(false);
+            setSelectedItem(null);
+          }}
+        />
       )}
     </div>
   );
