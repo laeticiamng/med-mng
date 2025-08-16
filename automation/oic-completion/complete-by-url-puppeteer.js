@@ -128,9 +128,6 @@ function looksLikeLogin(text) {
   return false;
 }
 
-// Global flag pour éviter les re-auth simultanées
-let isReauthenticating = false;
-
 // ===== Assurer auth et navigation avec retry =====
 async function ensureLoggedAndOpen(browser, page, url, reloginFn, attempts = 2) {
   for (let i = 0; i <= attempts; i++) {
@@ -150,27 +147,16 @@ async function ensureLoggedAndOpen(browser, page, url, reloginFn, attempts = 2) 
       });
       
       // Attendre que la page soit stable
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      await new Promise(resolve => setTimeout(resolve, 3000));
       
-      // Si redirigé vers auth, vérifier l'erreur d'abord
+      // Si redirigé vers auth, ou si on voit la page de login → relogin
       const urlNow = page.url();
       if (urlNow.includes('auth.uness.fr') || urlNow.includes('cas.uness.fr')) {
         console.log(`🔐 Redirection CAS détectée (tentative ${i + 1})`);
         if (i === attempts) throw new Error('auth_loop');
-        
-        // Éviter les ré-authentifications simultanées
-        if (!isReauthenticating) {
-          isReauthenticating = true;
-          try {
-            await reloginFn();
-            await new Promise(resolve => setTimeout(resolve, 8000));
-          } finally {
-            isReauthenticating = false;
-          }
-        } else {
-          console.log('⏳ Attente fin de ré-authentification en cours...');
-          await new Promise(resolve => setTimeout(resolve, 15000));
-        }
+        await reloginFn();
+        // Attendre que l'auth soit complète avant de réessayer
+        await new Promise(resolve => setTimeout(resolve, 3000));
         continue;
       }
       
@@ -195,35 +181,44 @@ async function ensureLoggedAndOpen(browser, page, url, reloginFn, attempts = 2) 
           txtHead.includes('erreur fatale') ||
           txtHead.includes('mwexception')) {
         console.log(`🔐 Page de login/erreur détectée dans le contenu (tentative ${i + 1})`);
+        console.log(`🔍 Extrait du contenu: "${txtHead.slice(0, 200)}"`);
         if (i === attempts) throw new Error('login_page_content_detected');
-        
-        // Éviter les ré-authentifications simultanées
-        if (!isReauthenticating) {
-          isReauthenticating = true;
-          try {
-            await reloginFn();
-            await new Promise(resolve => setTimeout(resolve, 8000));
-          } finally {
-            isReauthenticating = false;
-          }
-        } else {
-          console.log('⏳ Attente fin de ré-authentification en cours...');
-          await new Promise(resolve => setTimeout(resolve, 15000));
-        }
+        await reloginFn();
+        // Attendre que l'auth soit complète avant de réessayer
+        await new Promise(resolve => setTimeout(resolve, 3000));
         continue;
       }
       
       // OK, on reste sur livret avec contenu valide
+      try {
+        await page.waitForNetworkIdle({ timeout: 5000 });
+      } catch (networkIdleError) {
+        console.log(`⚠️ Network idle timeout pour ${url}, mais on continue`);
+      }
+      
       console.log(`✅ Navigation réussie vers ${url}`);
       return;
       
     } catch (navigationError) {
       console.log(`❌ Erreur navigation (tentative ${i + 1}): ${navigationError.message}`);
       
+      // Cas spéciaux des frames détachés
+      if (navigationError.message.includes('detached') || navigationError.message.includes('Detached')) {
+        console.log(`🔄 Frame détaché détecté, nouvelle tentative avec authentification`);
+        if (i < attempts) {
+          await reloginFn();
+          await new Promise(resolve => setTimeout(resolve, 3000));
+          continue;
+        }
+      }
+      
       if (i === attempts) throw navigationError;
       
-      // Pour les erreurs de navigation, attendre avant retry
-      await new Promise(resolve => setTimeout(resolve, 5000));
+      // Essayer une réauth avant la prochaine tentative
+      if (navigationError.message.includes('auth') || i > 0) {
+        await reloginFn();
+        await new Promise(resolve => setTimeout(resolve, 3000));
+      }
     }
   }
 }
