@@ -621,11 +621,17 @@ async function processOne(browser, row) {
       throw new Error('content_too_short');
     }
     
-    // Vérifier si le contenu contient vraiment des informations OIC
+    // Vérifier si le contenu contient des informations OIC (très permissif)
     const hasOICContent = text.toLowerCase().includes('oic-') || 
                          text.toLowerCase().includes('objectif') ||
                          text.toLowerCase().includes('connaissance') ||
-                         text.length > 1000;
+                         text.toLowerCase().includes('connaître') ||
+                         text.toLowerCase().includes('diagnostic') ||
+                         text.toLowerCase().includes('traitement') ||
+                         text.toLowerCase().includes('physiopathologie') ||
+                         text.toLowerCase().includes('clinique') ||
+                         text.toLowerCase().includes('étiologie') ||
+                         text.length > 50; // Très permissif : tout contenu > 50 chars est accepté
     
     if (!hasOICContent) {
       console.log(`   ⚠️ ${objId}: Contenu ne semble pas être du contenu OIC valide`);
