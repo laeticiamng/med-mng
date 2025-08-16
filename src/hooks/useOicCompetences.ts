@@ -69,7 +69,10 @@ export const useOicCompetences = (itemCode: string, rang: 'A' | 'B') => {
         const realCompetences = data?.filter(comp => {
           const hasRequiredFields = comp.objectif_id && comp.intitule && comp.description;
           const hasValidDescription = comp.description && comp.description.length > 20;
+          // Accepter toutes les données valides, même avec skipped_error
           const hasValidStatus = ['completed', 'updated', 'verified_unchanged', 'skipped_error'].includes(comp.completion_status);
+          
+          console.log(`🔍 [useOicCompetences] Filtrage ${comp.objectif_id}: required=${hasRequiredFields}, desc=${hasValidDescription}, status=${hasValidStatus} (${comp.completion_status})`);
           
           return hasRequiredFields && hasValidDescription && hasValidStatus;
         }) || [];
