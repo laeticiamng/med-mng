@@ -63,6 +63,13 @@ export const useEdnItemsPaginated = (page = 1, limit = 20) => {
         has_quiz: !!item.quiz_questions
       }));
 
+      // Tri numérique local par le numéro dans item_code (IC-1, IC-2, etc.)
+      lightItems.sort((a, b) => {
+        const numA = parseInt(a.item_code.replace(/\D/g, '')) || 0;
+        const numB = parseInt(b.item_code.replace(/\D/g, '')) || 0;
+        return numA - numB;
+      });
+
       setItems(lightItems);
       setTotalCount(count || 0);
       
