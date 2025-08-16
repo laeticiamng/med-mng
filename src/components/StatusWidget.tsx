@@ -79,7 +79,7 @@ export const StatusWidget: React.FC = () => {
       mounted = false;
       clearInterval(id);
     };
-  }, [refresh]);
+  }, []); // Removed refresh dependency to prevent infinite loop
   return <section aria-label="Statut de la plateforme" className="w-full max-w-3xl mx-auto">
       
     </section>;
