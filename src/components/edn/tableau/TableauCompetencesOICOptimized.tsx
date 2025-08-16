@@ -23,6 +23,7 @@ interface CompetenceOIC {
   causes_echec?: string;
   contributeurs?: string;
   ordre_affichage?: number;
+  url_source?: string;
 }
 
 interface TableauCompetencesOICOptimizedProps {
@@ -108,13 +109,25 @@ const CompetenceCard: React.FC<{
         <CollapsibleContent>
           <CardContent className="pt-4">
             {competence.description && (
-              <div className="mb-4 p-4 bg-background border border-border rounded-lg">
-                <h4 className="text-sm font-semibold text-foreground mb-2 flex items-center gap-2">
-                  <Book className="w-4 h-4" />
-                  Description officielle UNESS
-                </h4>
+              <div className="mb-4 p-4 bg-accent/10 border border-accent/20 rounded-lg">
+                <div className="flex items-start justify-between mb-3">
+                  <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                    <Book className="w-4 h-4" />
+                    Description OIC (backup_oic_competences)
+                  </h4>
+                  {competence.url_source && (
+                    <a 
+                      href={competence.url_source} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline text-xs flex items-center gap-1"
+                    >
+                      📖 Source UNESS
+                    </a>
+                  )}
+                </div>
                 <div 
-                  className="text-sm text-foreground leading-relaxed prose prose-sm max-w-none"
+                  className="text-sm text-foreground leading-relaxed prose prose-sm max-w-none bg-background p-3 rounded border"
                   style={{ 
                     whiteSpace: 'pre-wrap', 
                     wordWrap: 'break-word', 
@@ -135,6 +148,9 @@ const CompetenceCard: React.FC<{
                       .trim()
                   )}
                 />
+                <div className="mt-2 text-xs text-muted-foreground">
+                  ✅ Description extraite directement de la table backup_oic_competences
+                </div>
               </div>
             )}
             
