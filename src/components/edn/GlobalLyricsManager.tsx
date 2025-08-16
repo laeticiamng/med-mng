@@ -96,35 +96,155 @@ export const GlobalLyricsManager: React.FC = () => {
     try {
       toast({
         title: '🚀 Génération lancée',
-        description: `Génération ${mode === 'ALL' ? 'complète' : 'des paroles manquantes'} pour les 367 items EDN`,
+        description: `Génération ${mode === 'ALL' ? 'complète' : 'des paroles manquantes'} locale pour les 367 items EDN`,
       });
 
-      const { data, error } = await supabase.functions.invoke('generate-lyrics-bulk', {
-        body: { 
-          rang: 'ALL',
-          preserveIfBetter: mode === 'MISSING' // Préserver existant si on remplit juste les manquants
-        }
-      });
+      // Récupérer tous les items
+      const { data: items, error } = await supabase
+        .from('edn_items_complete')
+        .select('item_code, title, paroles_rang_a, paroles_rang_b, paroles_rang_ab')
+        .order('item_code');
 
       if (error) throw error;
 
-      setGenerationResult(data);
-      await loadStats(); // Recharger les stats après génération
+      let processed = 0;
+      let success = 0;
+      let failed = 0;
+      const errors: string[] = [];
+
+      // Filtrer selon le mode
+      const itemsToProcess = mode === 'MISSING' 
+        ? items.filter(item => 
+            !item.paroles_rang_a?.length || 
+            !item.paroles_rang_b?.length || 
+            !item.paroles_rang_ab?.length
+          )
+        : items;
+
+      for (const item of itemsToProcess) {
+        try {
+          processed++;
+          
+          // Générer seulement si nécessaire en mode MISSING
+          const needsA = mode === 'ALL' || !item.paroles_rang_a?.length;
+          const needsB = mode === 'ALL' || !item.paroles_rang_b?.length;
+          const needsAB = mode === 'ALL' || !item.paroles_rang_ab?.length;
+
+          const updates: any = { updated_at: new Date().toISOString() };
+
+          if (needsA || needsB || needsAB) {
+            // Récupérer les compétences
+            const itemNum = item.item_code.replace('IC-', '').padStart(3, '0');
+            
+            const { data: competencesA } = await supabase
+              .from('backup_oic_competences')
+              .select('objectif_id, intitule, description, rang, rubrique')
+              .eq('item_parent', itemNum)
+              .eq('rang', 'A')
+              .is('description', false);
+
+            const { data: competencesB } = await supabase
+              .from('backup_oic_competences')
+              .select('objectif_id, intitule, description, rang, rubrique')
+              .eq('item_parent', itemNum)
+              .eq('rang', 'B')
+              .is('description', false);
+
+            if (needsA) updates.paroles_rang_a = generateLocalLyrics(item, competencesA || [], 'A');
+            if (needsB) updates.paroles_rang_b = generateLocalLyrics(item, competencesB || [], 'B');
+            if (needsAB) {
+              const lyricsAB = generateLocalLyrics(item, [...(competencesA || []), ...(competencesB || [])], 'AB');
+              updates.paroles_rang_ab = lyricsAB;
+              updates.paroles_musicales = lyricsAB;
+            }
+
+            // Sauvegarder
+            const { error: updateError } = await supabase
+              .from('edn_items_complete')
+              .update(updates)
+              .eq('item_code', item.item_code);
+
+            if (updateError) throw updateError;
+          }
+
+          success++;
+        } catch (e) {
+          failed++;
+          errors.push(`${item.item_code}: ${e.message}`);
+          console.error(`Erreur pour ${item.item_code}:`, e);
+        }
+      }
+
+      setGenerationResult({ processed, success, failed, errors });
+      await loadStats();
 
       toast({
         title: '🎉 Génération terminée',
-        description: `${data.success || 0} items traités avec succès`,
+        description: `${success} items traités avec succès`,
       });
     } catch (error) {
       console.error('Erreur génération globale:', error);
       toast({
         title: '❌ Erreur génération',
-        description: error.message || 'Erreur lors de la génération',
+        description: 'Problème lors de la génération locale',
         variant: 'destructive'
       });
     } finally {
       setIsLoading(false);
     }
+  };
+
+  // Fonction de génération locale des paroles
+  const generateLocalLyrics = (itemData: any, competences: any[], rang: 'A' | 'B' | 'AB'): string[] => {
+    const lines: string[] = [];
+    
+    lines.push(`[Couplet 1]`);
+    
+    if (competences.length > 0) {
+      competences.slice(0, 3).forEach((comp, i) => {
+        const description = comp.description?.substring(0, 180) || comp.intitule || '';
+        const cleanText = description.replace(/[<>=\[\]]/g, '').trim();
+        lines.push(`${cleanText.split(' ').slice(0, 10).join(' ')}, concept médical essentiel`);
+        
+        if (i === 1) {
+          lines.push(`Science et pratique s'harmonisent, mélodie du savoir`);
+        }
+      });
+    } else {
+      lines.push(`${itemData?.item_code || 'Item'} révèle sa science, méthode et rigueur`);
+      lines.push(`Rang ${rang} structure la pensée, fondation solide`);
+      lines.push(`Chaque notion s'inscrit, mémoire permanente`);
+    }
+    
+    lines.push('');
+    lines.push(`[Refrain]`);
+    lines.push(`Flow médical, rythme et savoir convergent`);
+    lines.push(`${rang === 'AB' ? 'Synthèse totale' : `Rang ${rang} maîtrisé`}, expertise émergente`);
+    lines.push(`Dans ces vers ciselés, la connaissance danse`);
+    lines.push(`QCM victorieux grâce à cette résonance`);
+    
+    lines.push('');
+    lines.push(`[Couplet 2]`);
+    
+    if (competences.length > 3) {
+      competences.slice(3, 6).forEach((comp) => {
+        const cleanText = (comp.description || comp.intitule || '').replace(/[<>=\[\]]/g, '').substring(0, 140);
+        lines.push(`${cleanText.split(' ').slice(0, 9).join(' ')}, pratique affirmée`);
+      });
+    } else {
+      lines.push(`Diagnostic précis, thérapie ciblée`);
+      lines.push(`Patient accompagné, humanité préservée`);
+      lines.push(`Excellence clinique, objectif atteint`);
+    }
+    
+    lines.push('');
+    lines.push(`[Refrain Final]`);
+    lines.push(`Flow médical, rythme et savoir convergent`);
+    lines.push(`${rang === 'AB' ? 'Maîtrise complète' : `Rang ${rang} ancré`}, expertise permanente`);
+    lines.push(`Ces paroles gravées, mémorisation assurée`);
+    lines.push(`${itemData?.item_code || 'Item'} conquis, réussite programmée`);
+    
+    return lines.filter(line => line.length > 0);
   };
 
   const StatCard = ({ 
