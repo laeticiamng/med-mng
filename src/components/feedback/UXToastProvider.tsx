@@ -1,6 +1,5 @@
 import React, { createContext, useContext } from 'react';
 import { toast } from 'sonner';
-import { useNavigate } from 'react-router-dom';
 
 interface UXToastContextType {
   showAuthRequired: (action?: string) => void;
@@ -12,14 +11,20 @@ interface UXToastContextType {
 const UXToastContext = createContext<UXToastContextType | undefined>(undefined);
 
 export const UXToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const navigate = useNavigate();
+  const navigateToLogin = () => {
+    window.location.href = '/med-mng/login';
+  };
+
+  const navigateToPricing = () => {
+    window.location.href = '/med-mng/pricing';
+  };
 
   const showAuthRequired = (action: string = "accéder à cette fonctionnalité") => {
     toast.error(`🔐 Connexion requise pour ${action}`, {
       description: "Connectez-vous en quelques secondes pour débloquer toutes les fonctionnalités.",
       action: {
         label: "🚀 Se connecter",
-        onClick: () => navigate('/med-mng/login')
+        onClick: navigateToLogin
       },
       duration: 8000
     });
@@ -45,7 +50,7 @@ export const UXToastProvider: React.FC<{ children: React.ReactNode }> = ({ child
       description: message.description,
       action: {
         label: message.actionLabel,
-        onClick: () => navigate('/med-mng/pricing')
+        onClick: navigateToPricing
       },
       duration: 10000
     });
