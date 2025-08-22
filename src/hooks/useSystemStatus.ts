@@ -27,22 +27,40 @@ export function useSystemStatus(options?: { silent?: boolean }) {
 
   const checkSystemStatus = async () => {
     try {
-      // Temporairement désactivé pour éviter les erreurs en boucle
-      // TODO: Réactiver quand l'API sera stable
+      // Appel API réel pour le statut système
+      const { data: statusData, error: statusError } = await supabase.functions.invoke('med-mng-api', {
+        body: { 
+          path: '/status',
+          method: 'GET'
+        }
+      });
+
+      if (statusError) throw statusError;
+
       setStatus({
-        status: 'operational',
-        version: '1.0.0',
-        features: {},
-        compatibility: {
+        status: statusData.status || 'operational',
+        version: statusData.version || '1.0.0',
+        features: statusData.features || {},
+        compatibility: statusData.compatibility || {
           frontendMinVersion: '1.0.0',
           frontendShouldUpgrade: false,
           breaking_changes: []
         }
       });
-      
+
+      // Appel API réel pour la complétude des données
+      const { data: completenessData, error: completenessError } = await supabase.functions.invoke('med-mng-api', {
+        body: { 
+          path: '/status/data-completeness',
+          method: 'GET'
+        }
+      });
+
+      if (completenessError) throw completenessError;
+
       setDataCompleteness({
-        completeness_score: 85,
-        gaps: []
+        completeness_score: completenessData.completeness_score || 0,
+        gaps: completenessData.gaps || []
       });
 
     } catch (error) {
@@ -50,7 +68,7 @@ export function useSystemStatus(options?: { silent?: boolean }) {
       
       // Définir des valeurs de fallback pour éviter les erreurs
       setStatus({
-        status: 'operational',
+        status: 'degraded',
         version: '1.0.0',
         features: {},
         compatibility: {
@@ -61,15 +79,15 @@ export function useSystemStatus(options?: { silent?: boolean }) {
       });
       
       setDataCompleteness({
-        completeness_score: 75,
-        gaps: []
+        completeness_score: 0,
+        gaps: ['API non disponible']
       });
 
       if (!silent) {
         toast({
-          title: "Informations système",
-          description: "Connexion en mode dégradé - toutes les fonctionnalités restent disponibles.",
-          variant: "default",
+          title: "Statut système",
+          description: "Impossible de récupérer le statut en temps réel. Fonctionnement en mode dégradé.",
+          variant: "destructive",
         });
       }
     } finally {
