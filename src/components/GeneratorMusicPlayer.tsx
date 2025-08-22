@@ -22,11 +22,13 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
   const { currentTrack, isPlaying, play, pause, resume } = useGlobalAudio();
   const [showDebug, setShowDebug] = useState(false);
 
-  // Détecter si c'est une génération en cours (trackId de 32 caractères hexadécimaux, pas une URL HTTP)
+  // Détecter si c'est une génération en cours (trackId de 32 caractères hexadécimaux)
   const isTrackId = generatedSong?.audioUrl && 
     typeof generatedSong.audioUrl === 'string' && 
+    generatedSong.audioUrl.length === 32 &&
     /^[a-f0-9]{32}$/i.test(generatedSong.audioUrl) &&
-    !generatedSong.audioUrl.startsWith('http'); // Exclure les URLs HTTP
+    !generatedSong.audioUrl.startsWith('http') && // Exclure les URLs HTTP
+    !generatedSong.audioUrl.includes('.'); // Exclure les URLs avec des extensions
   const trackIdForPolling = isTrackId ? generatedSong.audioUrl : null;
   
   console.log('🔍 Détection trackId:', {
