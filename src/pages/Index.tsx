@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Music, BookOpen, MessageSquare, Users, Sparkles, LogIn, CreditCard, Star, Zap, Shield, Award } from "lucide-react";
+import { Music, BookOpen, MessageSquare, Users, Sparkles, LogIn, CreditCard, Star, Zap, Shield, Award, Play, Heart, Clock } from "lucide-react";
 import { TranslatedText } from "@/components/TranslatedText";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,197 +10,276 @@ const Index = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-secondary/5">
-      {/* Header Premium avec Navigation */}
-      <div className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50">
-        <div className="container mx-auto px-4 py-4">
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 relative overflow-hidden">
+      {/* Aura de fond inspirée de Suno */}
+      <div className="absolute inset-0 bg-gradient-to-r from-pink-500/20 via-purple-500/20 to-blue-500/20 animate-pulse"></div>
+      <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,rgba(120,119,198,0.3),transparent_50%)]"></div>
+      
+      <div className="relative z-10">
+        {/* Header simplifié et moderne */}
+        <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-primary to-secondary rounded-xl flex items-center justify-center shadow-lg">
-                <Sparkles className="w-6 h-6 text-primary-foreground" />
+              <div className="w-12 h-12 bg-gradient-to-br from-pink-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
+                <Sparkles className="w-7 h-7 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-foreground">MED MNG</h1>
-                <Badge variant="secondary" className="text-xs">Premium</Badge>
+                <h1 className="text-2xl font-bold text-white">MED MNG</h1>
+                <Badge className="bg-pink-500/20 text-pink-300 border-pink-400/30 text-xs">Premium</Badge>
               </div>
             </div>
             
             <div className="flex items-center gap-3">
-              <Button variant="outline" onClick={() => navigate('/med-mng/pricing')}>
+              <Button 
+                variant="ghost" 
+                className="text-white/80 hover:text-white hover:bg-white/10"
+                onClick={() => navigate('/med-mng/pricing')}
+              >
                 <CreditCard className="w-4 h-4 mr-2" />
-                <TranslatedText text="Tarifs" />
+                Tarifs
               </Button>
-              <Button onClick={() => navigate('/med-mng/login')}>
+              <Button 
+                className="bg-white/10 backdrop-blur-sm text-white border border-white/20 hover:bg-white/20"
+                onClick={() => navigate('/med-mng/login')}
+              >
                 <LogIn className="w-4 h-4 mr-2" />
-                <TranslatedText text="Connexion" />
+                Connexion
               </Button>
             </div>
           </div>
         </div>
-      </div>
 
-      {/* Section Hero Premium */}
-      <div className="container mx-auto px-4 py-16">
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 bg-gradient-to-r from-primary/10 to-secondary/10 px-6 py-3 rounded-full mb-8 border border-primary/20">
-            <Star className="w-5 h-5 text-primary" />
-            <span className="text-primary font-semibold">
-              <TranslatedText text="Plateforme d'Excellence Médicale" />
-            </span>
+        {/* Hero Section inspiré de Suno */}
+        <div className="container mx-auto px-4 py-12">
+          <div className="text-center mb-16">
+            <h2 className="text-6xl md:text-8xl font-bold text-white mb-8 leading-tight">
+              Apprenez la médecine<br />
+              <span className="bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent">
+                comme jamais
+              </span>
+            </h2>
+            <p className="text-xl text-gray-300 mb-10 max-w-3xl mx-auto leading-relaxed">
+              Transformez vos études médicales avec l'IA. 
+              Générez des chansons éducatives, explorez 367 items EDN, et maîtrisez chaque compétence avec une approche révolutionnaire.
+            </p>
+            
+            {/* CTA Principal style Suno */}
+            <div className="flex flex-col sm:flex-row gap-4 items-center justify-center mb-12">
+              <div className="relative flex-1 max-w-md">
+                <input 
+                  type="text" 
+                  placeholder="Ex: Cardiologie, IC-103 Vertige..."
+                  className="w-full px-6 py-4 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-500"
+                />
+              </div>
+              <button 
+                onClick={() => navigate('/generator')}
+                className="px-8 py-4 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-semibold rounded-full hover:from-pink-600 hover:to-purple-700 transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105"
+              >
+                🎵 Créer ma musique
+              </button>
+            </div>
+            
+            <div className="flex flex-wrap justify-center gap-6">
+              <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full border border-white/20">
+                <Zap className="w-4 h-4 text-pink-400" />
+                <span className="text-white text-sm font-medium">IA Avancée</span>
+              </div>
+              <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full border border-white/20">
+                <Shield className="w-4 h-4 text-purple-400" />
+                <span className="text-white text-sm font-medium">367 Items EDN</span>
+              </div>
+              <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2 rounded-full border border-white/20">
+                <Award className="w-4 h-4 text-blue-400" />
+                <span className="text-white text-sm font-medium">Certifié Médical</span>
+              </div>
+            </div>
           </div>
-          
-          <h2 className="text-5xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-foreground via-primary to-secondary bg-clip-text text-transparent">
-            MED MNG
-          </h2>
-          <p className="text-2xl text-muted-foreground max-w-3xl mx-auto mb-8 leading-relaxed">
-            <TranslatedText text="L'intelligence artificielle au service de l'apprentissage médical de nouvelle génération" />
-          </p>
-          
-          <div className="flex flex-wrap justify-center gap-6 mb-12">
-            <div className="flex items-center gap-2 bg-background/60 backdrop-blur-sm px-4 py-2 rounded-full border">
-              <Zap className="w-4 h-4 text-primary" />
-              <span className="text-sm font-medium">IA Avancée</span>
-            </div>
-            <div className="flex items-center gap-2 bg-background/60 backdrop-blur-sm px-4 py-2 rounded-full border">
-              <Shield className="w-4 h-4 text-primary" />
-              <span className="text-sm font-medium">367 Items EDN</span>
-            </div>
-            <div className="flex items-center gap-2 bg-background/60 backdrop-blur-sm px-4 py-2 rounded-full border">
-              <Award className="w-4 h-4 text-primary" />
-              <span className="text-sm font-medium">Certifié Médical</span>
-            </div>
+
+          {/* Galerie de démonstrations inspirée de Suno */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
+            {[
+              { title: "IC-103 Vertige", subtitle: "Neurologie", emoji: "🧠", plays: "2.3K", gradient: "from-purple-600 to-pink-600" },
+              { title: "IC-230 Cardiologie", subtitle: "Cardiovasculaire", emoji: "❤️", plays: "1.8K", gradient: "from-red-500 to-pink-500" },
+              { title: "IC-156 Pneumologie", subtitle: "Respiratoire", emoji: "🫁", plays: "1.5K", gradient: "from-blue-500 to-cyan-500" },
+              { title: "IC-089 Psychiatrie", subtitle: "Santé mentale", emoji: "🧠", plays: "2.1K", gradient: "from-indigo-500 to-purple-500" }
+            ].map((item, index) => (
+              <div key={index} className="group cursor-pointer" onClick={() => navigate('/generator')}>
+                <div className={`relative aspect-square bg-gradient-to-br ${item.gradient} rounded-xl mb-4 overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105`}>
+                  <div className="absolute inset-0 flex items-center justify-center text-5xl">
+                    {item.emoji}
+                  </div>
+                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-300 flex items-center justify-center">
+                    <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white rounded-full p-3 shadow-lg">
+                      <Play className="h-6 w-6 text-purple-600 ml-1" />
+                    </div>
+                  </div>
+                  <div className="absolute bottom-4 left-4 right-4">
+                    <div className="flex items-center justify-between text-white">
+                      <div className="flex items-center gap-1 text-xs">
+                        <Heart className="h-3 w-3" />
+                        <span>{item.plays}</span>
+                      </div>
+                      <div className="flex items-center gap-1 text-xs">
+                        <Clock className="h-3 w-3" />
+                        <span>4:00</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <h3 className="text-white font-medium text-sm mb-1 truncate">{item.title}</h3>
+                <p className="text-gray-400 text-xs truncate">{item.subtitle}</p>
+              </div>
+            ))}
           </div>
-        </div>
 
-        {/* Cartes Premium avec Gradients */}
-        <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-          <Card className="group cursor-pointer hover:shadow-2xl transition-all duration-500 bg-gradient-to-br from-background to-primary/5 border-primary/20 hover:border-primary/40" onClick={() => navigate('/edn')}>
-            <CardContent className="p-10 text-center relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <div className="relative">
-                <div className="w-20 h-20 bg-gradient-to-br from-primary to-primary/60 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
-                  <BookOpen className="w-10 h-10 text-primary-foreground" />
+          {/* Sections principales avec design moderne */}
+          <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto mb-16">
+            <Card 
+              className="group cursor-pointer hover:shadow-2xl transition-all duration-500 bg-black/20 backdrop-blur-xl border border-white/10 hover:border-pink-400/50 overflow-hidden" 
+              onClick={() => navigate('/edn')}
+            >
+              <CardContent className="p-8 relative">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-pink-500/20 to-purple-500/20 rounded-full blur-xl group-hover:scale-150 transition-transform duration-700"></div>
+                <div className="relative">
+                  <div className="w-16 h-16 bg-gradient-to-br from-pink-500 to-purple-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                    <BookOpen className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-white mb-3">Items EDN</h3>
+                  <p className="text-gray-300 mb-6 leading-relaxed">
+                    Base complète IC-1 à IC-367 avec 4,872 compétences OIC intégrées pour une maîtrise totale
+                  </p>
+                  <div className="flex flex-wrap gap-2 mb-6">
+                    <Badge className="bg-pink-500/20 text-pink-300 border-pink-400/30">367 Items</Badge>
+                    <Badge className="bg-purple-500/20 text-purple-300 border-purple-400/30">4,872 Compétences</Badge>
+                    <Badge className="bg-blue-500/20 text-blue-300 border-blue-400/30">Immersif</Badge>
+                  </div>
+                  <Button className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white border-0" size="lg">
+                    Explorer EDN
+                  </Button>
                 </div>
-                <h3 className="text-2xl font-bold mb-3 text-foreground">
-                  <TranslatedText text="Items EDN" />
-                </h3>
-                <p className="text-muted-foreground mb-6 leading-relaxed">
-                  <TranslatedText text="Base complète IC-1 à IC-367 avec 4,872 compétences OIC intégrées" />
-                </p>
-                <div className="flex flex-wrap gap-2 justify-center mb-6">
-                  <Badge variant="secondary">367 Items</Badge>
-                  <Badge variant="secondary">4,872 Compétences</Badge>
-                  <Badge variant="secondary">Immersif</Badge>
-                </div>
-                <Button className="w-full" size="lg">
-                  <TranslatedText text="Explorer EDN" />
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
 
-          <Card className="group cursor-pointer hover:shadow-2xl transition-all duration-500 bg-gradient-to-br from-background to-secondary/5 border-secondary/20 hover:border-secondary/40" onClick={() => navigate('/generator')}>
-            <CardContent className="p-10 text-center relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-secondary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <div className="relative">
-                <div className="w-20 h-20 bg-gradient-to-br from-secondary to-secondary/60 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
-                  <Music className="w-10 h-10 text-secondary-foreground" />
+            <Card 
+              className="group cursor-pointer hover:shadow-2xl transition-all duration-500 bg-black/20 backdrop-blur-xl border border-white/10 hover:border-blue-400/50 overflow-hidden" 
+              onClick={() => navigate('/generator')}
+            >
+              <CardContent className="p-8 relative">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-blue-500/20 to-indigo-500/20 rounded-full blur-xl group-hover:scale-150 transition-transform duration-700"></div>
+                <div className="relative">
+                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                    <Music className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-white mb-3">Générateur Musical IA</h3>
+                  <p className="text-gray-300 mb-6 leading-relaxed">
+                    Créez des chansons éducatives personnalisées avec l'intelligence artificielle de dernière génération
+                  </p>
+                  <div className="flex flex-wrap gap-2 mb-6">
+                    <Badge className="bg-blue-500/20 text-blue-300 border-blue-400/30">IA Avancée</Badge>
+                    <Badge className="bg-indigo-500/20 text-indigo-300 border-indigo-400/30">Multi-Styles</Badge>
+                    <Badge className="bg-cyan-500/20 text-cyan-300 border-cyan-400/30">Instantané</Badge>
+                  </div>
+                  <Button className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white border-0" size="lg">
+                    Générer Maintenant
+                  </Button>
                 </div>
-                <h3 className="text-2xl font-bold mb-3 text-foreground">
-                  <TranslatedText text="Générateur Musical IA" />
-                </h3>
-                <p className="text-muted-foreground mb-6 leading-relaxed">
-                  <TranslatedText text="Créez des chansons éducatives personnalisées avec l'intelligence artificielle" />
-                </p>
-                <div className="flex flex-wrap gap-2 justify-center mb-6">
-                  <Badge variant="secondary">IA Avancée</Badge>
-                  <Badge variant="secondary">Multi-Styles</Badge>
-                  <Badge variant="secondary">Instantané</Badge>
-                </div>
-                <Button variant="secondary" className="w-full" size="lg">
-                  <TranslatedText text="Générer Maintenant" />
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </div>
 
-          <Card className="group cursor-pointer hover:shadow-2xl transition-all duration-500 bg-gradient-to-br from-background to-accent/5 border-accent/20 hover:border-accent/40" onClick={() => navigate('/ecos')}>
-            <CardContent className="p-10 text-center relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <div className="relative">
-                <div className="w-20 h-20 bg-gradient-to-br from-accent to-accent/60 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
-                  <Users className="w-10 h-10 text-accent-foreground" />
+          {/* Autres sections */}
+          <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto mb-16">
+            <Card 
+              className="group cursor-pointer hover:shadow-2xl transition-all duration-500 bg-black/20 backdrop-blur-xl border border-white/10 hover:border-green-400/50 overflow-hidden" 
+              onClick={() => navigate('/ecos')}
+            >
+              <CardContent className="p-8 relative">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-green-500/20 to-emerald-500/20 rounded-full blur-xl group-hover:scale-150 transition-transform duration-700"></div>
+                <div className="relative">
+                  <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                    <Users className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-white mb-3">Simulations ECOS</h3>
+                  <p className="text-gray-300 mb-6 leading-relaxed">
+                    Examens Cliniques Objectifs Structurés pour la pratique médicale immersive
+                  </p>
+                  <div className="flex flex-wrap gap-2 mb-6">
+                    <Badge className="bg-green-500/20 text-green-300 border-green-400/30">3 Scénarios</Badge>
+                    <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-400/30">Évaluation</Badge>
+                    <Badge className="bg-teal-500/20 text-teal-300 border-teal-400/30">Feedback</Badge>
+                  </div>
+                  <Button className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white border-0" size="lg">
+                    Commencer ECOS
+                  </Button>
                 </div>
-                <h3 className="text-2xl font-bold mb-3 text-foreground">
-                  <TranslatedText text="Simulations ECOS" />
-                </h3>
-                <p className="text-muted-foreground mb-6 leading-relaxed">
-                  <TranslatedText text="Examens Cliniques Objectifs Structurés pour la pratique médicale" />
-                </p>
-                <div className="flex flex-wrap gap-2 justify-center mb-6">
-                  <Badge variant="secondary">3 Scénarios</Badge>
-                  <Badge variant="secondary">Évaluation</Badge>
-                  <Badge variant="secondary">Feedback</Badge>
-                </div>
-                <Button variant="outline" className="w-full" size="lg">
-                  <TranslatedText text="Commencer ECOS" />
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
 
-          <Card className="group cursor-pointer hover:shadow-2xl transition-all duration-500 bg-gradient-to-br from-background to-muted/20 border-muted/40 hover:border-foreground/20" onClick={() => navigate('/chat')}>
-            <CardContent className="p-10 text-center relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-muted/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-              <div className="relative">
-                <div className="w-20 h-20 bg-gradient-to-br from-foreground to-muted-foreground rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
-                  <MessageSquare className="w-10 h-10 text-background" />
+            <Card 
+              className="group cursor-pointer hover:shadow-2xl transition-all duration-500 bg-black/20 backdrop-blur-xl border border-white/10 hover:border-orange-400/50 overflow-hidden" 
+              onClick={() => navigate('/chat')}
+            >
+              <CardContent className="p-8 relative">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-orange-500/20 to-red-500/20 rounded-full blur-xl group-hover:scale-150 transition-transform duration-700"></div>
+                <div className="relative">
+                  <div className="w-16 h-16 bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                    <MessageSquare className="w-8 h-8 text-white" />
+                  </div>
+                  <h3 className="text-2xl font-bold text-white mb-3">Assistant IA</h3>
+                  <p className="text-gray-300 mb-6 leading-relaxed">
+                    Chat intelligent spécialisé en médecine avec base de connaissances experte
+                  </p>
+                  <div className="flex flex-wrap gap-2 mb-6">
+                    <Badge className="bg-orange-500/20 text-orange-300 border-orange-400/30">Chat Temps Réel</Badge>
+                    <Badge className="bg-red-500/20 text-red-300 border-red-400/30">Base Médicale</Badge>
+                    <Badge className="bg-pink-500/20 text-pink-300 border-pink-400/30">IA Experte</Badge>
+                  </div>
+                  <Button className="w-full bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white border-0" size="lg">
+                    Démarrer Chat
+                  </Button>
                 </div>
-                <h3 className="text-2xl font-bold mb-3 text-foreground">
-                  <TranslatedText text="Assistant IA" />
-                </h3>
-                <p className="text-muted-foreground mb-6 leading-relaxed">
-                  <TranslatedText text="Chat intelligent spécialisé en médecine avec base de connaissances" />
-                </p>
-                <div className="flex flex-wrap gap-2 justify-center mb-6">
-                  <Badge variant="secondary">Chat Temps Réel</Badge>
-                  <Badge variant="secondary">Base Médicale</Badge>
-                  <Badge variant="secondary">IA Experte</Badge>
-                </div>
-                <Button variant="outline" className="w-full" size="lg">
-                  <TranslatedText text="Démarrer Chat" />
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
+              </CardContent>
+            </Card>
+          </div>
 
-        {/* Section CTA Premium */}
-        <div className="mt-20 text-center">
-          <Card className="bg-gradient-to-r from-primary/10 via-secondary/10 to-accent/10 border-primary/20 max-w-4xl mx-auto">
-            <CardContent className="p-12">
-              <h3 className="text-3xl font-bold mb-4 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-                <TranslatedText text="Prêt à Révolutionner Votre Apprentissage ?" />
-              </h3>
-              <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-                <TranslatedText text="Rejoignez des milliers d'étudiants qui transforment leur façon d'apprendre la médecine" />
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button size="lg" className="px-8" onClick={() => navigate('/med-mng/pricing')}>
-                  <Star className="w-5 h-5 mr-2" />
-                  <TranslatedText text="Découvrir nos Offres" />
-                </Button>
-                <Button variant="outline" size="lg" className="px-8" onClick={() => navigate('/generator')}>
-                  <Music className="w-5 h-5 mr-2" />
-                  <TranslatedText text="Essayer Gratuitement" />
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          {/* Section CTA finale */}
+          <div className="text-center">
+            <Card className="bg-black/20 backdrop-blur-xl border border-white/10 max-w-4xl mx-auto overflow-hidden">
+              <CardContent className="p-12 relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-blue-500/10"></div>
+                <div className="relative">
+                  <h3 className="text-4xl font-bold text-white mb-6">
+                    Prêt à révolutionner votre apprentissage ?
+                  </h3>
+                  <p className="text-xl text-gray-300 mb-10 max-w-2xl mx-auto leading-relaxed">
+                    Rejoignez des milliers d'étudiants qui transforment leur façon d'apprendre la médecine avec l'IA
+                  </p>
+                  <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                    <Button 
+                      size="lg" 
+                      className="px-8 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white border-0 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300" 
+                      onClick={() => navigate('/med-mng/pricing')}
+                    >
+                      <Star className="w-5 h-5 mr-2" />
+                      Découvrir nos Offres
+                    </Button>
+                    <Button 
+                      size="lg" 
+                      className="px-8 bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300" 
+                      onClick={() => navigate('/generator')}
+                    >
+                      <Music className="w-5 h-5 mr-2" />
+                      Essayer Gratuitement
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </div>
   );
 };
-
 export default Index;
