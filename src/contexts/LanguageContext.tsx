@@ -48,7 +48,7 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
     return (savedLanguage as Language) || 'fr';
   });
 
-  const [translations, setTranslations] = useState<Record<string, any>>({});
+  const [translations, setTranslations] = useState<import('@/types/translation').TranslationValue>({});
   const [isTranslating, setIsTranslating] = useState(false);
 
   // Charger les traductions pour la langue courante
@@ -83,9 +83,9 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
   };
 
   // Fonction de traduction avec support des paramètres
-  const t = (key: string, params?: Record<string, string | number>): string => {
+  const t = (key: string, params?: import('@/types/translation').TranslationParams): string => {
     const keys = key.split('.');
-    let value: any = translations;
+    let value: import('@/types/translation').TranslationValue | string = translations;
     
     for (const k of keys) {
       if (value && typeof value === 'object' && k in value) {

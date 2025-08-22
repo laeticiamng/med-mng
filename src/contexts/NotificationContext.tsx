@@ -1,5 +1,11 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { toast } from 'sonner';
+import type {
+  GenerationNotificationData,
+  PlaylistNotificationData,
+  StreamingNotificationData,
+  QuotaNotificationData
+} from '@/types/notification';
 
 type NotificationType = 'success' | 'error' | 'warning' | 'info' | 'generation';
 
@@ -28,10 +34,10 @@ interface NotificationContextType {
   updateNotification: (id: string, updates: Partial<Notification>) => void;
   clearAll: () => void;
   // Méthodes spécialisées
-  notifyGeneration: (type: 'music' | 'quiz' | 'content', status: 'start' | 'progress' | 'complete' | 'error', data?: any) => void;
-  notifyQuota: (remaining: number, total: number) => void;
-  notifyStreaming: (action: 'play' | 'pause' | 'error', track?: string) => void;
-  notifyPlaylist: (action: 'add' | 'remove' | 'create', data?: any) => void;
+  notifyGeneration: (type: 'music' | 'quiz' | 'content', status: 'start' | 'progress' | 'complete' | 'error', data?: GenerationNotificationData) => void;
+  notifyQuota: (remaining: number, total: number, data?: QuotaNotificationData) => void;
+  notifyStreaming: (action: 'play' | 'pause' | 'error', data?: StreamingNotificationData) => void;
+  notifyPlaylist: (action: 'add' | 'remove' | 'create', data?: PlaylistNotificationData) => void;
 }
 
 const NotificationContext = createContext<NotificationContextType | undefined>(undefined);
@@ -109,7 +115,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
   const notifyGeneration = (
     type: 'music' | 'quiz' | 'content', 
     status: 'start' | 'progress' | 'complete' | 'error', 
-    data?: any
+    data?: GenerationNotificationData
   ) => {
     const typeLabels = {
       music: '🎵 Musique',
@@ -134,16 +140,21 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
       message: data?.message || `${typeLabels[type]} ${status === 'complete' ? 'ajouté à votre bibliothèque' : ''}`,
       persistent: status === 'start' || status === 'progress',
       progress: data?.progress,
-      actions: status === 'complete' ? [
+      actions: status === 'complete' && data?.onView ? [
         {
           label: 'Voir',
-          action: () => data?.onView?.()
+          action: data.onView
+        }
+      ] : status === 'error' && data?.error?.retry ? [
+        {
+          label: 'Réessayer',
+          action: data.error.retry
         }
       ] : undefined
     });
   };
 
-  const notifyQuota = (remaining: number, total: number) => {
+  const notifyQuota = (remaining: number, total: number, data?: QuotaNotificationData) => {
     const percentage = (remaining / total) * 100;
     
     if (percentage <= 10) {
@@ -155,7 +166,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
         actions: [
           {
             label: 'Upgrader',
-            action: () => window.location.href = '/subscription'
+            action: () => window.location.href = data?.upgradeUrl || '/subscription'
           }
         ]
       });
@@ -167,37 +178,42 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
         actions: [
           {
             label: 'Voir les plans',
-            action: () => window.location.href = '/subscription'
+            action: () => window.location.href = data?.upgradeUrl || '/subscription'
           }
         ]
       });
     }
   };
 
-  const notifyStreaming = (action: 'play' | 'pause' | 'error', track?: string) => {
+  const notifyStreaming = (action: 'play' | 'pause' | 'error', data?: StreamingNotificationData) => {
     switch (action) {
       case 'play':
         addNotification({
           type: 'info',
           title: '▶️ Lecture en cours',
-          message: track ? `Lecture de: ${track}` : 'Musique en cours de lecture'
+          message: data?.trackTitle ? `Lecture de: ${data.trackTitle}` : 'Musique en cours de lecture'
         });
         break;
       case 'pause':
         addNotification({
           type: 'info',
           title: '⏸️ Lecture en pause',
-          message: track ? `En pause: ${track}` : 'Lecture mise en pause'
+          message: data?.trackTitle ? `En pause: ${data.trackTitle}` : 'Lecture mise en pause'
         });
         break;
       case 'error':
         addNotification({
           type: 'error',
           title: '❌ Erreur de lecture',
-          message: 'Impossible de lire cette piste. Vérifiez votre connexion.',
-          actions: [
+          message: data?.error?.message || 'Impossible de lire cette piste. Vérifiez votre connexion.',
+          actions: data?.error?.retry ? [
             {
               label: 'Réessayer',
+              action: data.error.retry
+            }
+          ] : [
+            {
+              label: 'Actualiser',
               action: () => window.location.reload()
             }
           ]
@@ -206,7 +222,7 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
     }
   };
 
-  const notifyPlaylist = (action: 'add' | 'remove' | 'create', data?: any) => {
+  const notifyPlaylist = (action: 'add' | 'remove' | 'create', data?: PlaylistNotificationData) => {
     switch (action) {
       case 'add':
         addNotification({
@@ -227,12 +243,12 @@ export const NotificationProvider: React.FC<NotificationProviderProps> = ({ chil
           type: 'success',
           title: '🎵 Playlist créée',
           message: data?.playlistName ? `Playlist "${data.playlistName}" créée avec succès` : 'Nouvelle playlist créée',
-          actions: [
+          actions: data?.onView ? [
             {
               label: 'Voir',
-              action: () => data?.onView?.()
+              action: data.onView
             }
-          ]
+          ] : undefined
         });
         break;
     }
@@ -288,7 +304,7 @@ export const useStreamingNotifications = () => {
     const handleVisibilityChange = () => {
       if (document.hidden) {
         // Page cachée - continuer la lecture en arrière-plan
-        notifyStreaming('play', 'Lecture en arrière-plan');
+        notifyStreaming('play', { trackTitle: 'Lecture en arrière-plan' });
       }
     };
 
