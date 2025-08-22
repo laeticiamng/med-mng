@@ -25,18 +25,37 @@ export const useAccessibility = () => {
 
 export const AccessibilityProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [settings, setSettings] = useState<AccessibilitySettings>(() => {
-    const saved = localStorage.getItem('accessibility-settings');
-    return saved ? JSON.parse(saved) : {
-      highContrast: false,
-      focusVisible: true,
-      reducedMotion: false,
-      fontSize: 'medium'
-    };
+    if (typeof window === 'undefined') {
+      return {
+        highContrast: false,
+        focusVisible: true,
+        reducedMotion: false,
+        fontSize: 'medium'
+      };
+    }
+    try {
+      const saved = localStorage.getItem('accessibility-settings');
+      return saved ? JSON.parse(saved) : {
+        highContrast: false,
+        focusVisible: true,
+        reducedMotion: false,
+        fontSize: 'medium'
+      };
+    } catch {
+      return {
+        highContrast: false,
+        focusVisible: true,
+        reducedMotion: false,
+        fontSize: 'medium'
+      };
+    }
   });
 
   const [announcement, setAnnouncement] = useState('');
 
   useEffect(() => {
+    if (typeof window === 'undefined') return;
+    
     // Apply settings to HTML element
     const html = document.documentElement;
     
@@ -61,7 +80,11 @@ export const AccessibilityProvider: React.FC<{ children: React.ReactNode }> = ({
     html.setAttribute('data-font-size', settings.fontSize);
 
     // Save to localStorage
-    localStorage.setItem('accessibility-settings', JSON.stringify(settings));
+    try {
+      localStorage.setItem('accessibility-settings', JSON.stringify(settings));
+    } catch {
+      // Ignore localStorage errors
+    }
   }, [settings]);
 
   const updateSettings = (newSettings: Partial<AccessibilitySettings>) => {
