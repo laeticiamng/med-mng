@@ -1,416 +1,111 @@
-
-import React, { Suspense, lazy, memo } from "react";
-import { PremiumBackground } from "@/components/ui/premium-background";
-import { PremiumCard } from "@/components/ui/premium-card";
-import { PremiumButton } from "@/components/ui/premium-button";
+import React from "react";
 import { useNavigate } from "react-router-dom";
-import { LogIn, CreditCard, BarChart3, Music, BookOpen, MessageSquare, Users, Zap, Target, Award, TrendingUp, Sparkles, Star, Brain, Settings, Activity } from "lucide-react";
+import { Music, BookOpen, MessageSquare, Users, Sparkles } from "lucide-react";
 import { TranslatedText } from "@/components/TranslatedText";
-
-// ⚡ COMPOSANTS CRITIQUES - Chargés immédiatement
-import StatusWidget from "@/components/StatusWidget";
-import MiniStatusIndicator from "@/components/MiniStatusIndicator";
-
-// ⚡ LAZY LOADING - Composants lourds différés
-const MngPresentationBrief = lazy(() => import("@/components/MngPresentationBrief").then(module => ({ default: module.MngPresentationBrief })));
-const MainSections = lazy(() => import("@/components/MainSections"));
-const MusicGenerationSection = lazy(() => import("@/components/MusicGenerationSection").then(module => ({ default: module.MusicGenerationSection })));
-const AppFooter = lazy(() => import("@/components/AppFooter").then(module => ({ default: module.AppFooter })));
-const MusicLibrary = lazy(() => import('@/components/music/MusicLibrary').then(module => ({ default: module.MusicLibrary })));
-
-// ⚡ LOADING OPTIMISÉ - Spinner premium léger
-const LazyLoadSpinner = memo(() => (
-  <div className="flex justify-center items-center py-4">
-    <div className="animate-spin rounded-full h-6 w-6 border-2 border-blue-200 border-t-blue-600"></div>
-  </div>
-));
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 
 const Index = () => {
   const navigate = useNavigate();
-  const isAdmin = localStorage.getItem('isAdmin') === 'true';
 
   return (
-    <PremiumBackground>
-      
-      {/* Header premium avec effet glassmorphism */}
-      <div className="sticky top-0 z-50 bg-white/70 backdrop-blur-xl border-b border-white/20 shadow-lg shadow-black/5">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex justify-between items-center">
-            {/* Logo premium */}
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 via-purple-600 to-indigo-700 rounded-xl shadow-lg flex items-center justify-center">
-                <Sparkles className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <span className="font-bold text-2xl bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent">
-                  MED MNG
-                </span>
-                <div className="text-xs text-gray-500 font-medium">Premium Platform</div>
-              </div>
+    <div className="min-h-screen bg-background">
+      {/* Header simplifié */}
+      <div className="container mx-auto px-4 py-8">
+        <div className="text-center mb-12">
+          <div className="flex items-center justify-center gap-3 mb-6">
+            <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center">
+              <Sparkles className="w-7 h-7 text-primary-foreground" />
             </div>
-            
-            {/* Navigation premium */}
-            <div className="flex items-center gap-3">
-              <MiniStatusIndicator />
-              <PremiumButton
-                variant="glass"
-                size="sm"
-                onClick={() => navigate('/monitoring')}
-                className="hidden xl:inline-flex"
-              >
-                <Activity className="h-4 w-4 mr-2" />
-                Monitoring
-              </PremiumButton>
-              <PremiumButton
-                variant="glass"
-                size="sm"
-                onClick={() => navigate('/generator')}
-                className="hidden md:inline-flex"
-              >
-                <Music className="h-4 w-4 mr-2" />
-                <TranslatedText text="Générateur" />
-              </PremiumButton>
-              
-              <PremiumButton
-                variant="glass"
-                size="sm"
-                onClick={() => navigate('/edn')}
-                className="hidden md:inline-flex"
-              >
-                <Brain className="h-4 w-4 mr-2" />
-                <TranslatedText text="Base EDN" />
-              </PremiumButton>
-              
-              <PremiumButton
-                variant="glass"
-                size="sm"
-                onClick={() => navigate('/chat')}
-                className="hidden sm:inline-flex"
-              >
-                <MessageSquare className="h-4 w-4 mr-2" />
-                <TranslatedText text="Chat IA" />
-              </PremiumButton>
-              
-              {isAdmin && (
-                <PremiumButton
-                  variant="glass"
-                  size="sm"
-                  onClick={() => navigate('/admin/import')}
-                  className="hidden lg:inline-flex"
-                >
-                  <BarChart3 className="h-4 w-4 mr-2" />
-                  <TranslatedText text="Admin Import" />
-                </PremiumButton>
-               )}
-               
-               {isAdmin && (
-                 <PremiumButton
-                   variant="glass"
-                   size="sm"
-                   onClick={() => navigate('/admin-panel')}
-                   className="hidden lg:inline-flex"
-                 >
-                   <Settings className="h-4 w-4 mr-2" />
-                   <TranslatedText text="Admin Panel" />
-                 </PremiumButton>
-               )}
-               
-               {isAdmin && (
-                 <PremiumButton
-                   variant="glass"
-                   size="sm"
-                   onClick={() => navigate('/admin/audit')}
-                   className="hidden xl:inline-flex"
-                 >
-                   <BarChart3 className="h-4 w-4 mr-2" />
-                   <TranslatedText text="Audit" />
-                </PremiumButton>
-              )}
-              
-              <PremiumButton
-                variant="secondary"
-                size="sm"
-                onClick={() => navigate('/med-mng/pricing')}
-              >
-                <CreditCard className="h-4 w-4 mr-2" />
-                <TranslatedText text="Tarifs" />
-              </PremiumButton>
-              
-              <PremiumButton
-                variant="primary"
-                size="sm"
-                onClick={() => navigate('/med-mng/login')}
-              >
-                <LogIn className="h-4 w-4 mr-2" />
-                <TranslatedText text="Connexion" />
-              </PremiumButton>
-            </div>
+            <h1 className="text-4xl font-bold text-foreground">MED MNG</h1>
           </div>
-        </div>
-      </div>
-
-      {/* Contenu principal avec design premium */}
-      <div className="container mx-auto px-4">
-        {/* Section Hero premium */}
-        <div className="pt-16 pb-20">
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-100 to-purple-100 px-6 py-3 rounded-full mb-8 border border-blue-200/50">
-              <Star className="h-5 w-5 text-blue-600" />
-              <span className="text-blue-800 font-semibold">Plateforme Premium</span>
-            </div>
-            
-            <h1 className="text-6xl md:text-7xl font-bold mb-8 bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent leading-tight">
-              MED MNG
-            </h1>
-            <p className="text-2xl md:text-3xl text-gray-600 mb-12 max-w-4xl mx-auto leading-relaxed">
-              <TranslatedText text="L'apprentissage médical réinventé avec l'intelligence artificielle" />
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <PremiumButton
-                variant="primary"
-                size="xl"
-                onClick={() => navigate('/med-mng/pricing')}
-              >
-                <BookOpen className="h-6 w-6 mr-3" />
-                <TranslatedText text="Découvrir MED-MNG" />
-              </PremiumButton>
-              <PremiumButton
-                variant="glass"
-                size="lg"
-                onClick={() => navigate('/generator')}
-              >
-                <Music className="h-5 w-5 mr-2" />
-                <TranslatedText text="Générateur Musical" />
-              </PremiumButton>
-            </div>
-          </div>
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            <TranslatedText text="Plateforme d'apprentissage médical avec IA" />
+          </p>
         </div>
 
-        <div className="pb-10 max-w-5xl mx-auto">
-          <StatusWidget />
-        </div>
-
-        {/* Section d'accès rapide premium avec grille 2x2 */}
-        <div className="pb-20">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-6">
-              <TranslatedText text="Accès Rapide aux Outils" />
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              <TranslatedText text="Choisissez votre méthode d'apprentissage et commencez immédiatement" />
-            </p>
-          </div>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
-            {/* Items EDN Unifié */}
-            <PremiumCard variant="gradient" className="p-8 text-center cursor-pointer" onClick={() => navigate('/edn')}>
-              <div className="mx-auto w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-blue-500/25">
-                <BookOpen className="h-10 w-10 text-white" />
+        {/* Menu principal - 4 cartes essentielles */}
+        <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+          <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate('/edn')}>
+            <CardContent className="p-8 text-center">
+              <div className="w-16 h-16 bg-primary/10 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <BookOpen className="w-8 h-8 text-primary" />
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">
+              <h3 className="text-xl font-semibold mb-2">
                 <TranslatedText text="Items EDN" />
               </h3>
-              <p className="text-gray-600 mb-6 leading-relaxed">
-                <TranslatedText text="Base complète IC-1 à IC-367 avec contenu immersif et 4,872 compétences OIC" />
+              <p className="text-muted-foreground mb-4">
+                <TranslatedText text="Base complète IC-1 à IC-367" />
               </p>
-              <div className="space-y-3 text-sm text-gray-600 mb-8">
-                <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full"></div>
-                  <span>367 items complets</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full"></div>
-                  <span>4,872 compétences OIC</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-gradient-to-r from-purple-500 to-violet-500 rounded-full"></div>
-                  <span>Contenu immersif & BD</span>
-                </div>
-              </div>
-              <PremiumButton variant="primary" size="lg" className="w-full">
-                <TranslatedText text="Explorer EDN" />
-              </PremiumButton>
-            </PremiumCard>
+              <Button className="w-full">
+                <TranslatedText text="Explorer" />
+              </Button>
+            </CardContent>
+          </Card>
 
-            {/* Générateur Musical */}
-            <PremiumCard variant="gradient" className="p-8 text-center cursor-pointer" onClick={() => navigate('/generator')}>
-              <div className="mx-auto w-20 h-20 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-amber-500/25">
-                <Music className="h-10 w-10 text-white" />
+          <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate('/generator')}>
+            <CardContent className="p-8 text-center">
+              <div className="w-16 h-16 bg-secondary/10 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <Music className="w-8 h-8 text-secondary" />
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                <TranslatedText text="Générateur Musical IA" />
+              <h3 className="text-xl font-semibold mb-2">
+                <TranslatedText text="Générateur Musical" />
               </h3>
-              <p className="text-gray-600 mb-6 leading-relaxed">
-                <TranslatedText text="Génération rapide de musique éducative personnalisée avec intelligence artificielle" />
+              <p className="text-muted-foreground mb-4">
+                <TranslatedText text="Créez de la musique éducative avec l'IA" />
               </p>
-              <div className="space-y-3 text-sm text-gray-600 mb-8">
-                <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full"></div>
-                  <span>Sélection rapide d'items</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-gradient-to-r from-pink-500 to-rose-500 rounded-full"></div>
-                  <span>Styles musicaux variés</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full"></div>
-                  <span>Génération IA instantanée</span>
-                </div>
-              </div>
-              <PremiumButton variant="secondary" size="lg" className="w-full">
-                <TranslatedText text="Générer Maintenant" />
-              </PremiumButton>
-            </PremiumCard>
+              <Button variant="secondary" className="w-full">
+                <TranslatedText text="Générer" />
+              </Button>
+            </CardContent>
+          </Card>
 
-            {/* ECOS */}
-            <PremiumCard variant="gradient" className="p-8 text-center cursor-pointer" onClick={() => navigate('/ecos')}>
-              <div className="mx-auto w-20 h-20 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-green-500/25">
-                <Users className="h-10 w-10 text-white" />
+          <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate('/ecos')}>
+            <CardContent className="p-8 text-center">
+              <div className="w-16 h-16 bg-accent/10 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <Users className="w-8 h-8 text-accent" />
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                <TranslatedText text="Simulations ECOS" />
+              <h3 className="text-xl font-semibold mb-2">
+                <TranslatedText text="ECOS" />
               </h3>
-              <p className="text-gray-600 mb-6 leading-relaxed">
-                <TranslatedText text="Examens Cliniques Objectifs Structurés pour la pratique clinique - 3 situations disponibles" />
+              <p className="text-muted-foreground mb-4">
+                <TranslatedText text="Simulations cliniques interactives" />
               </p>
-              <div className="space-y-3 text-sm text-gray-600 mb-8">
-                <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full"></div>
-                  <span>3 scénarios cliniques complets</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full"></div>
-                  <span>Évaluation par compétences</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-gradient-to-r from-purple-500 to-violet-500 rounded-full"></div>
-                  <span>Feedback détaillé</span>
-                </div>
-              </div>
-              <PremiumButton variant="glass" size="lg" className="w-full">
-                <TranslatedText text="Commencer ECOS" />
-              </PremiumButton>
-            </PremiumCard>
+              <Button variant="outline" className="w-full">
+                <TranslatedText text="Commencer" />
+              </Button>
+            </CardContent>
+          </Card>
 
-            {/* MedChat */}
-            <PremiumCard variant="gradient" className="p-8 text-center cursor-pointer" onClick={() => navigate('/chat')}>
-              <div className="mx-auto w-20 h-20 bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-orange-500/25">
-                <MessageSquare className="h-10 w-10 text-white" />
+          <Card className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => navigate('/chat')}>
+            <CardContent className="p-8 text-center">
+              <div className="w-16 h-16 bg-muted/20 rounded-lg flex items-center justify-center mx-auto mb-4">
+                <MessageSquare className="w-8 h-8 text-foreground" />
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">
+              <h3 className="text-xl font-semibold mb-2">
                 <TranslatedText text="Assistant IA" />
               </h3>
-              <p className="text-gray-600 mb-6 leading-relaxed">
-                <TranslatedText text="Assistant intelligent connecté à vos cours médicaux" />
+              <p className="text-muted-foreground mb-4">
+                <TranslatedText text="Chat intelligent médical" />
               </p>
-              <div className="space-y-3 text-sm text-gray-600 mb-8">
-                <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-gradient-to-r from-orange-500 to-red-500 rounded-full"></div>
-                  <span>Chat en temps réel</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full"></div>
-                  <span>Base de connaissances médicales</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full"></div>
-                  <span>Réponses instantanées</span>
-                </div>
-              </div>
-              <PremiumButton variant="accent" size="lg" className="w-full">
-                <TranslatedText text="Démarrer Chat" />
-              </PremiumButton>
-            </PremiumCard>
-          </div>
+              <Button variant="outline" className="w-full">
+                <TranslatedText text="Démarrer" />
+              </Button>
+            </CardContent>
+          </Card>
         </div>
 
-        {/* Section statistiques premium */}
-        <div className="pb-20">
-          <PremiumCard variant="glass" className="p-12">
-            <div className="text-center mb-12">
-              <h2 className="text-4xl font-bold mb-6 bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
-                <TranslatedText text="Pourquoi Choisir MED MNG ?" />
-              </h2>
-              <p className="text-xl text-gray-600">
-                <TranslatedText text="Une plateforme complète pour l'apprentissage médical moderne" />
-              </p>
-            </div>
-            
-            <div className="grid md:grid-cols-4 gap-6 text-center">
-              <PremiumCard variant="elevated" className="p-8">
-                <Zap className="h-16 w-16 mx-auto mb-6 p-4 bg-gradient-to-br from-yellow-400 to-amber-500 text-white rounded-2xl shadow-lg shadow-yellow-500/25" />
-                <h3 className="text-2xl font-bold mb-4 text-gray-900">IA Avancée</h3>
-                <p className="text-gray-600">Génération musicale intelligente pour un apprentissage optimal</p>
-              </PremiumCard>
-              <PremiumCard variant="elevated" className="p-8">
-                <Target className="h-16 w-16 mx-auto mb-6 p-4 bg-gradient-to-br from-green-400 to-emerald-500 text-white rounded-2xl shadow-lg shadow-green-500/25" />
-                <h3 className="text-2xl font-bold mb-4 text-gray-900">Ciblé EDN</h3>
-                <p className="text-gray-600">Contenu adapté aux référentiels médicaux officiels IC-1 à IC-367</p>
-              </PremiumCard>
-              <PremiumCard variant="elevated" className="p-8">
-                <Award className="h-16 w-16 mx-auto mb-6 p-4 bg-gradient-to-br from-orange-400 to-red-500 text-white rounded-2xl shadow-lg shadow-orange-500/25" />
-                <h3 className="text-2xl font-bold mb-4 text-gray-900">Qualité</h3>
-                <p className="text-gray-600">Méthode pédagogique innovante et éprouvée</p>
-              </PremiumCard>
-              <PremiumCard variant="elevated" className="p-8">
-                <TrendingUp className="h-16 w-16 mx-auto mb-6 p-4 bg-gradient-to-br from-blue-400 to-indigo-500 text-white rounded-2xl shadow-lg shadow-blue-500/25" />
-                <h3 className="text-2xl font-bold mb-4 text-gray-900">Efficace</h3>
-                <p className="text-gray-600">Amélioration mesurable des performances d'apprentissage</p>
-              </PremiumCard>
-            </div>
-          </PremiumCard>
+        {/* Actions rapides */}
+        <div className="flex flex-col sm:flex-row gap-4 justify-center mt-12">
+          <Button size="lg" onClick={() => navigate('/med-mng/pricing')}>
+            <TranslatedText text="Voir les tarifs" />
+          </Button>
+          <Button variant="outline" size="lg" onClick={() => navigate('/med-mng/login')}>
+            <TranslatedText text="Se connecter" />
+          </Button>
         </div>
-
-        {/* Section MNG premium - LAZY LOADED */}
-        <Suspense fallback={<LazyLoadSpinner />}>
-          <div className="pb-20">
-            <MngPresentationBrief />
-          </div>
-        </Suspense>
-
-        {/* Section Bibliothèque Musicale - LAZY LOADED */}
-        <Suspense fallback={<LazyLoadSpinner />}>
-          <div className="pb-20">
-            <MusicLibrary />
-          </div>
-        </Suspense>
-        
-        {/* Section Génération Musicale premium - LAZY LOADED */}
-        <Suspense fallback={<LazyLoadSpinner />}>
-          <div className="pb-20">
-            <MusicGenerationSection />
-          </div>
-        </Suspense>
-        
-        {/* Sections principales premium - LAZY LOADED */}
-        <Suspense fallback={<LazyLoadSpinner />}>
-          <div className="pb-20">
-            <MainSections />
-          </div>
-        </Suspense>
-        
-        {/* Footer - LAZY LOADED */}
-        <Suspense fallback={<LazyLoadSpinner />}>
-          <AppFooter />
-        </Suspense>
       </div>
-
-      {/* Admin Audit Button premium */}
-      {isAdmin && (
-        <div className="fixed bottom-6 right-6 z-50">
-          <PremiumButton
-            variant="glass"
-            size="md"
-            onClick={() => navigate('/audit-general')}
-            className="shadow-2xl shadow-black/20"
-          >
-            <BarChart3 className="h-5 w-5 mr-2" />
-            <span className="font-semibold">Audit EDN</span>
-          </PremiumButton>
-        </div>
-      )}
-    </PremiumBackground>
+    </div>
   );
 };
 
