@@ -4750,6 +4750,51 @@ export type Database = {
         }
         Relationships: []
       }
+      quiz_sessions: {
+        Row: {
+          completed: boolean
+          correct_answers: number
+          created_at: string
+          id: string
+          item_code: string
+          questions_count: number
+          rang: string
+          score: number
+          session_data: Json
+          time_spent_seconds: number | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          completed?: boolean
+          correct_answers?: number
+          created_at?: string
+          id?: string
+          item_code: string
+          questions_count?: number
+          rang: string
+          score?: number
+          session_data?: Json
+          time_spent_seconds?: number | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          completed?: boolean
+          correct_answers?: number
+          created_at?: string
+          id?: string
+          item_code?: string
+          questions_count?: number
+          rang?: string
+          score?: number
+          session_data?: Json
+          time_spent_seconds?: number | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       recording_projects: {
         Row: {
           bpm: number | null
