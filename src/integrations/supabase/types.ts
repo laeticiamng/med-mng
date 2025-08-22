@@ -4795,6 +4795,39 @@ export type Database = {
         }
         Relationships: []
       }
+      rate_limit_counters: {
+        Row: {
+          created_at: string | null
+          id: string
+          identifier: string
+          max_requests: number
+          request_count: number
+          updated_at: string | null
+          window_end: string
+          window_start: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          identifier: string
+          max_requests: number
+          request_count?: number
+          updated_at?: string | null
+          window_end: string
+          window_start: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          identifier?: string
+          max_requests?: number
+          request_count?: number
+          updated_at?: string | null
+          window_end?: string
+          window_start?: string
+        }
+        Relationships: []
+      }
       recording_projects: {
         Row: {
           bpm: number | null
@@ -5814,6 +5847,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
+      cleanup_expired_rate_limit_counters: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
       cleanup_old_chat_logs: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -6173,6 +6210,14 @@ export type Database = {
           total_items: number
         }[]
       }
+      get_rate_limit_status: {
+        Args: {
+          p_identifier: string
+          p_max_requests: number
+          p_window_duration_seconds: number
+        }
+        Returns: Json
+      }
       get_security_headers: {
         Args: Record<PropertyKey, never>
         Returns: Json
@@ -6194,6 +6239,14 @@ export type Database = {
       increment_music_usage: {
         Args: { user_uuid: string }
         Returns: boolean
+      }
+      increment_rate_limit_counter: {
+        Args: {
+          p_identifier: string
+          p_max_requests: number
+          p_window_duration_seconds: number
+        }
+        Returns: Json
       }
       integrate_all_oic_competences_into_edn_items: {
         Args: Record<PropertyKey, never>

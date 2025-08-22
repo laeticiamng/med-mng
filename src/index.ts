@@ -2,7 +2,12 @@ import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
 import { logService, httpLoggerMiddleware } from './services/logService';
-import { globalRateLimit, corsOptions, securityHeadersMiddleware } from './middleware/security';
+import { 
+  globalRateLimit, 
+  distributedRateLimitMiddleware,
+  corsOptions, 
+  securityHeadersMiddleware 
+} from './middleware/security';
 
 const app = express();
 const port = process.env.PORT ? Number(process.env.PORT) : 3000;
@@ -29,8 +34,9 @@ app.use(helmet({
 // CORS avec configuration personnalisée
 app.use(cors(corsOptions));
 
-// Rate limiting global
+// Rate limiting global et distribué
 app.use(globalRateLimit);
+app.use(distributedRateLimitMiddleware);
 
 // Parsing JSON et URL-encoded
 app.use(express.json({ limit: '10mb' }));

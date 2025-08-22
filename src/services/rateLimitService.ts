@@ -1,168 +1,198 @@
-interface RateLimitEntry {
-  count: number;
-  resetTime: number;
-  blocked: boolean;
-}
-
-interface RateLimitConfig {
+export interface RateLimitResult {
+  allowed: boolean;
+  identifier: string;
+  currentCount: number;
   maxRequests: number;
-  windowMs: number;
-  blockDurationMs?: number;
+  remainingRequests: number;
+  resetTime: Date;
+  windowStart: Date;
+  windowEnd: Date;
 }
 
-class RateLimitService {
-  private limits: Map<string, RateLimitEntry> = new Map();
-  private cleanupInterval: NodeJS.Timeout;
-
-  constructor() {
-    // Cleanup expired entries every 5 minutes
-    this.cleanupInterval = setInterval(() => this.cleanup(), 5 * 60 * 1000);
-  }
-
-  /**
-   * Check if request should be rate limited
-   */
-  checkLimit(
-    identifier: string, 
-    config: RateLimitConfig
-  ): { allowed: boolean; remaining: number; resetTime: number } {
-    const now = Date.now();
-    const key = identifier;
-    const existing = this.limits.get(key);
-
-    // If no existing entry or window has expired, create new entry
-    if (!existing || now > existing.resetTime) {
-      const newEntry: RateLimitEntry = {
-        count: 1,
-        resetTime: now + config.windowMs,
-        blocked: false
-      };
-      this.limits.set(key, newEntry);
-      
-      return {
-        allowed: true,
-        remaining: config.maxRequests - 1,
-        resetTime: newEntry.resetTime
-      };
-    }
-
-    // Check if currently blocked
-    if (existing.blocked && config.blockDurationMs) {
-      const blockExpiry = existing.resetTime + config.blockDurationMs;
-      if (now < blockExpiry) {
-        return {
-          allowed: false,
-          remaining: 0,
-          resetTime: blockExpiry
-        };
-      } else {
-        // Block period expired, reset
-        existing.blocked = false;
-        existing.count = 0;
-        existing.resetTime = now + config.windowMs;
-      }
-    }
-
-    // Increment count
-    existing.count++;
-
-    // Check if limit exceeded
-    if (existing.count > config.maxRequests) {
-      existing.blocked = true;
-      
-      return {
-        allowed: false,
-        remaining: 0,
-        resetTime: existing.resetTime + (config.blockDurationMs || 0)
-      };
-    }
-
-    return {
-      allowed: true,
-      remaining: config.maxRequests - existing.count,
-      resetTime: existing.resetTime
-    };
-  }
-
-  /**
-   * Get rate limit status without incrementing
-   */
-  getStatus(identifier: string, config: RateLimitConfig) {
-    const now = Date.now();
-    const existing = this.limits.get(identifier);
-
-    if (!existing || now > existing.resetTime) {
-      return {
-        count: 0,
-        remaining: config.maxRequests,
-        resetTime: now + config.windowMs,
-        blocked: false
-      };
-    }
-
-    return {
-      count: existing.count,
-      remaining: Math.max(0, config.maxRequests - existing.count),
-      resetTime: existing.resetTime,
-      blocked: existing.blocked
-    };
-  }
-
-  /**
-   * Reset limits for identifier
-   */
-  reset(identifier: string): void {
-    this.limits.delete(identifier);
-  }
-
-  /**
-   * Clean up expired entries
-   */
-  private cleanup(): void {
-    const now = Date.now();
-    for (const [key, entry] of this.limits.entries()) {
-      if (now > entry.resetTime + (60 * 1000)) { // Extra minute buffer
-        this.limits.delete(key);
-      }
-    }
-  }
-
-  /**
-   * Destroy service and cleanup
-   */
-  destroy(): void {
-    if (this.cleanupInterval) {
-      clearInterval(this.cleanupInterval);
-    }
-    this.limits.clear();
-  }
+export interface RateLimitConfig {
+  windowMs: number; // Window duration in milliseconds
+  maxRequests: number; // Maximum requests per window
+  keyGenerator?: (req: any) => string; // Custom key generator function
+  skipCondition?: (req: any) => boolean; // Skip rate limiting for certain requests
 }
-
-// Singleton instance
-export const rateLimitService = new RateLimitService();
-
-// Rate limit configurations for different endpoints
-export const RATE_LIMITS = {
-  auth: { maxRequests: 5, windowMs: 15 * 60 * 1000, blockDurationMs: 30 * 60 * 1000 }, // 5 per 15min, block 30min
-  extraction: { maxRequests: 10, windowMs: 60 * 1000 }, // 10 per minute
-  music: { maxRequests: 20, windowMs: 60 * 1000 }, // 20 per minute
-  api: { maxRequests: 100, windowMs: 60 * 1000 }, // 100 per minute general API
-  admin: { maxRequests: 50, windowMs: 60 * 1000 }, // 50 per minute for admin
-} as const;
 
 /**
- * Hook for React components to check rate limits
+ * Abstract interface for rate limit storage backends
+ * Allows different implementations (Redis, Supabase, etc.)
  */
-export function useRateLimit(type: keyof typeof RATE_LIMITS, identifier?: string) {
-  const checkLimit = (id?: string) => {
-    const finalId = id || identifier || 'anonymous';
-    return rateLimitService.checkLimit(finalId, RATE_LIMITS[type]);
-  };
+export interface RateLimitStore {
+  /**
+   * Check if a request should be rate limited and increment counter
+   */
+  checkAndIncrement(
+    identifier: string,
+    windowDurationSeconds: number,
+    maxRequests: number
+  ): Promise<RateLimitResult>;
 
-  const getStatus = (id?: string) => {
-    const finalId = id || identifier || 'anonymous';
-    return rateLimitService.getStatus(finalId, RATE_LIMITS[type]);
-  };
+  /**
+   * Get current rate limit status without incrementing
+   */
+  getStatus(
+    identifier: string,
+    windowDurationSeconds: number,
+    maxRequests: number
+  ): Promise<RateLimitResult>;
 
-  return { checkLimit, getStatus };
+  /**
+   * Clean up expired counters (optional implementation)
+   */
+  cleanup?(): Promise<number>;
+
+  /**
+   * Reset counter for a specific identifier (useful for testing)
+   */
+  reset?(identifier: string): Promise<void>;
+}
+
+/**
+ * Rate limiting service with pluggable storage backends
+ * Supports distributed rate limiting across multiple instances
+ */
+export class RateLimitService {
+  private store: RateLimitStore;
+  private config: RateLimitConfig;
+
+  constructor(store: RateLimitStore, config: RateLimitConfig) {
+    this.store = store;
+    this.config = config;
+  }
+
+  /**
+   * Check if a request should be rate limited
+   */
+  async checkRateLimit(request: any): Promise<RateLimitResult> {
+    // Skip rate limiting if condition is met
+    if (this.config.skipCondition && this.config.skipCondition(request)) {
+      return {
+        allowed: true,
+        identifier: 'skipped',
+        currentCount: 0,
+        maxRequests: this.config.maxRequests,
+        remainingRequests: this.config.maxRequests,
+        resetTime: new Date(Date.now() + this.config.windowMs),
+        windowStart: new Date(),
+        windowEnd: new Date(Date.now() + this.config.windowMs)
+      };
+    }
+
+    // Generate identifier for this request
+    const identifier = this.config.keyGenerator 
+      ? this.config.keyGenerator(request)
+      : this.getDefaultIdentifier(request);
+
+    // Check rate limit
+    const windowDurationSeconds = Math.floor(this.config.windowMs / 1000);
+    const result = await this.store.checkAndIncrement(
+      identifier,
+      windowDurationSeconds,
+      this.config.maxRequests
+    );
+
+    return result;
+  }
+
+  /**
+   * Get current rate limit status without incrementing counter
+   */
+  async getStatus(request: any): Promise<RateLimitResult> {
+    const identifier = this.config.keyGenerator 
+      ? this.config.keyGenerator(request)
+      : this.getDefaultIdentifier(request);
+
+    const windowDurationSeconds = Math.floor(this.config.windowMs / 1000);
+    return await this.store.getStatus(
+      identifier,
+      windowDurationSeconds,
+      this.config.maxRequests
+    );
+  }
+
+  /**
+   * Reset rate limit for a specific request (useful for testing)
+   */
+  async reset(request: any): Promise<void> {
+    if (this.store.reset) {
+      const identifier = this.config.keyGenerator 
+        ? this.config.keyGenerator(request)
+        : this.getDefaultIdentifier(request);
+      
+      await this.store.reset(identifier);
+    }
+  }
+
+  /**
+   * Clean up expired counters
+   */
+  async cleanup(): Promise<number> {
+    if (this.store.cleanup) {
+      return await this.store.cleanup();
+    }
+    return 0;
+  }
+
+  /**
+   * Create Express middleware for rate limiting
+   */
+  middleware() {
+    return async (req: any, res: any, next: any) => {
+      try {
+        const result = await this.checkRateLimit(req);
+        
+        // Add rate limit headers
+        res.set({
+          'X-RateLimit-Limit': result.maxRequests.toString(),
+          'X-RateLimit-Remaining': result.remainingRequests.toString(),
+          'X-RateLimit-Reset': Math.ceil(result.resetTime.getTime() / 1000).toString(),
+          'X-RateLimit-Window': this.config.windowMs.toString()
+        });
+
+        if (!result.allowed) {
+          // Rate limit exceeded
+          res.status(429).json({
+            error: 'Too Many Requests',
+            message: `Rate limit exceeded. Try again in ${Math.ceil((result.resetTime.getTime() - Date.now()) / 1000)} seconds.`,
+            retryAfter: Math.ceil((result.resetTime.getTime() - Date.now()) / 1000)
+          });
+          return;
+        }
+
+        next();
+      } catch (error) {
+        console.error('Rate limiting error:', error);
+        // Allow request to continue if rate limiting fails
+        next();
+      }
+    };
+  }
+
+  /**
+   * Default identifier generator (uses IP address)
+   */
+  private getDefaultIdentifier(request: any): string {
+    return request.ip || 
+           request.connection?.remoteAddress || 
+           request.socket?.remoteAddress ||
+           request.headers['x-forwarded-for']?.split(',')[0] ||
+           'unknown';
+  }
+
+  /**
+   * Update configuration
+   */
+  updateConfig(newConfig: Partial<RateLimitConfig>): void {
+    this.config = { ...this.config, ...newConfig };
+  }
+
+  /**
+   * Get current configuration
+   */
+  getConfig(): RateLimitConfig {
+    return { ...this.config };
+  }
 }

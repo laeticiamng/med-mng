@@ -1,7 +1,19 @@
 import rateLimit from 'express-rate-limit';
 import { logService } from '../services/logService';
+import { RateLimitService } from '../services/rateLimitService';
+import { createSupabaseRateLimitStore } from '../services/stores/SupabaseRateLimitStore';
 
-// Configuration du rate limiting global
+// Create distributed rate limit service using Supabase
+const distributedRateLimit = new RateLimitService(
+  createSupabaseRateLimitStore(),
+  {
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    maxRequests: 100,
+    keyGenerator: (req) => req.ip || 'unknown'
+  }
+);
+
+// Configuration du rate limiting global avec fallback au rate limiting en mémoire
 export const globalRateLimit = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // Maximum 100 requêtes par IP par fenêtre
@@ -26,6 +38,9 @@ export const globalRateLimit = rateLimit({
   }
 });
 
+// Distributed rate limiting middleware
+export const distributedRateLimitMiddleware = distributedRateLimit.middleware();
+
 // Rate limiting spécifique pour les APIs sensibles
 export const strictRateLimit = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -48,6 +63,18 @@ export const strictRateLimit = rateLimit({
     });
   }
 });
+
+// Distributed strict rate limiting
+const distributedStrictRateLimit = new RateLimitService(
+  createSupabaseRateLimitStore(),
+  {
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    maxRequests: 5,
+    keyGenerator: (req) => req.ip || 'unknown'
+  }
+);
+
+export const distributedStrictRateLimitMiddleware = distributedStrictRateLimit.middleware();
 
 // Configuration CORS personnalisée
 export const corsOptions = {
