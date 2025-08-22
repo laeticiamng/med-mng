@@ -5709,6 +5709,14 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
+      backup_critical_data: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      calculate_completeness_score: {
+        Args: { item_id: string }
+        Returns: number
+      }
       calculate_item_completeness_score: {
         Args: {
           p_item_code: string
@@ -5772,6 +5780,10 @@ export type Database = {
       cleanup_old_integrity_reports: {
         Args: Record<PropertyKey, never>
         Returns: number
+      }
+      cleanup_old_music_generations: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       cleanup_old_operation_logs: {
         Args: Record<PropertyKey, never>
@@ -6011,6 +6023,10 @@ export type Database = {
       generate_security_audit_report: {
         Args: Record<PropertyKey, never>
         Returns: Json
+      }
+      generate_slug: {
+        Args: { item_code: string; title: string }
+        Returns: string
       }
       generate_specific_content_all_items: {
         Args: Record<PropertyKey, never>
@@ -6449,6 +6465,10 @@ export type Database = {
         }
         Returns: string
       }
+      sync_oic_competences: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       ultimate_security_validation: {
         Args: Record<PropertyKey, never>
         Returns: Json
@@ -6484,6 +6504,14 @@ export type Database = {
           p_processed_items: number
         }
         Returns: undefined
+      }
+      validate_edn_item_data: {
+        Args: { item_data: Json }
+        Returns: boolean
+      }
+      validate_music_lyrics: {
+        Args: { lyrics_data: Json }
+        Returns: boolean
       }
       verify_integration_success: {
         Args: Record<PropertyKey, never>

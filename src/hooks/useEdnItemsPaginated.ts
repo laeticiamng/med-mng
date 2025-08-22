@@ -27,23 +27,29 @@ export const useEdnItemsPaginated = (page = 1, limit = 20) => {
   const fetchItems = useCallback(async () => {
     try {
       setLoading(true);
+      setError(null);
       
-      // D'abord récupérer TOUTES les données pour faire le tri numérique
-      const { data: allData, error: allError, count } = await supabase
+      // Pagination côté serveur optimisée
+      const offset = (page - 1) * limit;
+      
+      const { data, error, count } = await supabase
         .from('edn_items_complete')
         .select(`
           id, item_code, title, subtitle, slug, completeness_score, 
           updated_at, specialite, competences_count_total, is_validated,
           paroles_musicales, scene_immersive, quiz_questions
-        `, { count: 'exact' });
+        `, { count: 'exact' })
+        .order('item_code', { ascending: true })
+        .range(offset, offset + limit - 1);
 
-      if (allError) {
-        setError(allError.message);
+      if (error) {
+        console.error('Erreur lors du chargement des items:', error);
+        setError(error.message);
         return;
       }
 
-      // Transformation légère des données pour optimiser l'affichage
-      const lightItems: EdnItemLight[] = (allData || []).map(item => ({
+      // Transformation optimisée des données
+      const lightItems: EdnItemLight[] = (data || []).map(item => ({
         id: item.id,
         item_code: item.item_code,
         title: item.title,
@@ -54,26 +60,16 @@ export const useEdnItemsPaginated = (page = 1, limit = 20) => {
         specialite: item.specialite,
         competences_count_total: item.competences_count_total,
         is_validated: item.is_validated,
-        has_music: !!(item.paroles_musicales && item.paroles_musicales.length > 0),
+        has_music: Array.isArray(item.paroles_musicales) && item.paroles_musicales.length > 0,
         has_scene: !!item.scene_immersive,
-        has_quiz: !!item.quiz_questions
+        has_quiz: Array.isArray(item.quiz_questions) && item.quiz_questions.length > 0
       }));
 
-      // Tri numérique AVANT la pagination
-      lightItems.sort((a, b) => {
-        const numA = parseInt(a.item_code.replace(/\D/g, '')) || 0;
-        const numB = parseInt(b.item_code.replace(/\D/g, '')) || 0;
-        return numA - numB;
-      });
-
-      // Maintenant appliquer la pagination côté client
-      const offset = (page - 1) * limit;
-      const paginatedItems = lightItems.slice(offset, offset + limit);
-
-      setItems(paginatedItems);
+      setItems(lightItems);
       setTotalCount(count || 0);
       
     } catch (err) {
+      console.error('Erreur fetchItems:', err);
       setError(err instanceof Error ? err.message : 'Erreur de chargement');
     } finally {
       setLoading(false);
