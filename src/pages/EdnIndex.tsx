@@ -151,14 +151,20 @@ const EdnIndex = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50 flex items-center justify-center">
-        <div className="text-center space-y-6">
-          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-900/95 via-purple-900/90 to-indigo-900/95 flex items-center justify-center relative">
+        {/* Suno-style aura effects */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        </div>
+        
+        <div className="text-center space-y-6 relative z-10">
+          <div className="w-20 h-20 border-4 border-purple-400 border-t-transparent rounded-full animate-spin mx-auto"></div>
           <div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+            <h2 className="text-3xl font-bold text-white mb-3">
               Chargement MED MNG EDN
             </h2>
-            <p className="text-gray-600">
+            <p className="text-gray-300 text-lg">
               Préparation des 367 items avec compétences complètes...
             </p>
           </div>
@@ -168,45 +174,58 @@ const EdnIndex = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-purple-50 to-pink-50">
-      {/* Header Unifié */}
-      <div className="bg-white/80 backdrop-blur-lg border-b border-purple-200/50 sticky top-0 z-40">
-        <div className="container mx-auto px-4 py-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900/95 via-purple-900/90 to-indigo-900/95 relative">
+      {/* Suno-style aura effects */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl animate-pulse delay-500"></div>
+      </div>
+
+      {/* Header Suno-inspired */}
+      <div className="bg-black/20 backdrop-blur-xl border-b border-white/10 sticky top-0 z-40 shadow-2xl shadow-purple-500/10">
+        <div className="container mx-auto px-4 py-6 relative">
           <div className="text-center mb-6">
-            <div className="flex items-center justify-center gap-4 mb-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-purple-600 to-indigo-600 rounded-lg flex items-center justify-center">
-                <BookOpen className="h-7 w-7 text-white" />
+            <div className="flex items-center justify-center gap-4 mb-6">
+              <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-blue-500 rounded-3xl flex items-center justify-center shadow-2xl shadow-purple-500/50 relative">
+                <BookOpen className="h-8 w-8 text-white" />
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-400/20 to-blue-400/20 rounded-3xl blur animate-pulse"></div>
               </div>
               <div>
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-indigo-600 bg-clip-text text-transparent">
-                  Items EDN MED MNG • Interface Unifiée
+                <h1 className="text-4xl font-bold bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent mb-2">
+                  Items EDN MED MNG • Interface Musicale
                 </h1>
-                <p className="text-gray-600">367 items • Rangs A & B complets • Tous contenus pédagogiques</p>
+                <p className="text-gray-300 text-lg">367 items • Rangs A & B complets • Génération IA avancée</p>
               </div>
             </div>
-            <div className="flex items-center justify-center gap-2">
-              <CheckCircle className="h-5 w-5 text-green-500" />
-              <span className="text-sm text-green-600 font-medium">
-                100% des compétences UNESS intégrées • Interface premium unifiée
-              </span>
+            
+            <div className="flex items-center justify-center gap-3">
+              <div className="flex items-center gap-2 bg-green-500/20 backdrop-blur-sm rounded-full px-4 py-2 border border-green-400/30">
+                <CheckCircle className="h-4 w-4 text-green-400" />
+                <span className="text-green-300 text-sm font-medium">100% des compétences UNESS intégrées</span>
+              </div>
+              <div className="flex items-center gap-2 bg-purple-500/20 backdrop-blur-sm rounded-full px-4 py-2 border border-purple-400/30">
+                <Music className="h-4 w-4 text-purple-400" />
+                <span className="text-purple-300 text-sm font-medium">Interface premium unifiée</span>
+              </div>
             </div>
           </div>
 
-          {/* Search and Filters Premium Mobile */}
+          {/* Search and Filters Premium */}
           <div className="flex flex-col gap-4">
             <div className="relative">
-              <Search className={`absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 ${isMobile ? 'h-5 w-5' : 'h-5 w-5'}`} />
+              <Search className={`absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 ${isMobile ? 'h-5 w-5' : 'h-5 w-5'}`} />
               <Input
                 placeholder={isMobile ? "Rechercher items..." : "Rechercher parmi les 367 items (titre, code IC-1, compétences, rangs...)"}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className={`pl-10 pr-4 ${isMobile ? 'py-4 text-base rounded-xl' : 'py-3 text-lg'} border-purple-200 focus:border-purple-400 bg-white/70 transition-all duration-300 focus:shadow-lg focus:scale-[1.02]`}
+                className={`pl-12 pr-4 ${isMobile ? 'py-4 text-base rounded-xl' : 'py-3 text-lg'} bg-white/10 border-white/20 text-white placeholder-gray-400 focus:border-purple-400/50 focus:ring-2 focus:ring-purple-400/20 transition-all duration-300 focus:shadow-lg focus:scale-[1.02]`}
               />
               {searchTerm && (
                 <Button
                   size="sm"
                   variant="ghost"
-                  className="absolute right-2 top-1/2 transform -translate-y-1/2 h-6 w-6 rounded-full"
+                  className="absolute right-2 top-1/2 transform -translate-y-1/2 h-6 w-6 rounded-full text-gray-400 hover:text-white"
                   onClick={() => setSearchTerm('')}
                 >
                   ×
@@ -215,8 +234,8 @@ const EdnIndex = () => {
             </div>
             
             {isMobile ? (
-              // Filtres mobiles améliorés
-              <div className="grid grid-cols-2 gap-2">
+              // Filtres mobiles style Suno
+              <div className="grid grid-cols-2 gap-3">
                 {[
                   { value: 'all', label: 'Tous', count: stats.total },
                   { value: 'complete', label: 'Complets', count: stats.complete },
@@ -227,16 +246,16 @@ const EdnIndex = () => {
                     key={filter.value}
                     variant={selectedCategory === filter.value ? "default" : "outline"}
                     className={`
-                      h-auto py-3 px-3 flex flex-col gap-1 transition-all duration-300 active:scale-95
+                      h-auto py-4 px-4 flex flex-col gap-1 transition-all duration-300 active:scale-95 rounded-2xl
                       ${selectedCategory === filter.value 
-                        ? 'bg-purple-600 text-white shadow-lg transform scale-105' 
-                        : 'bg-white/80 hover:bg-purple-50 hover:border-purple-300'
+                        ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-2xl shadow-purple-500/50 transform scale-105 border-purple-400/50' 
+                        : 'bg-white/10 backdrop-blur-sm text-gray-300 hover:text-white hover:bg-white/20 border-white/20 hover:border-purple-400/50 hover:shadow-lg'
                       }
                     `}
                     onClick={() => setSelectedCategory(filter.value)}
                   >
                     <span className="text-sm font-semibold">{filter.label}</span>
-                    <span className={`text-xs ${selectedCategory === filter.value ? 'text-purple-100' : 'text-gray-500'}`}>
+                    <span className={`text-xs ${selectedCategory === filter.value ? 'text-purple-100' : 'text-gray-400'}`}>
                       {filter.count}
                     </span>
                   </Button>
@@ -244,12 +263,12 @@ const EdnIndex = () => {
               </div>
             ) : (
               <Tabs value={selectedCategory} onValueChange={setSelectedCategory} className="w-full">
-                <TabsList className="grid w-full grid-cols-5 bg-white/70">
-                  <TabsTrigger value="all">Tous (367)</TabsTrigger>
-                  <TabsTrigger value="foundation">Base (1-100)</TabsTrigger>
-                  <TabsTrigger value="clinical">Clinique (101-250)</TabsTrigger>
-                  <TabsTrigger value="advanced">Avancé (251-367)</TabsTrigger>
-                  <TabsTrigger value="complete">Complets 100%</TabsTrigger>
+                <TabsList className="grid w-full grid-cols-5 bg-black/40 backdrop-blur-sm border border-white/20 rounded-2xl">
+                  <TabsTrigger value="all" className="text-gray-300 data-[state=active]:text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600 rounded-xl">Tous (367)</TabsTrigger>
+                  <TabsTrigger value="foundation" className="text-gray-300 data-[state=active]:text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600 rounded-xl">Base (1-100)</TabsTrigger>
+                  <TabsTrigger value="clinical" className="text-gray-300 data-[state=active]:text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600 rounded-xl">Clinique (101-250)</TabsTrigger>
+                  <TabsTrigger value="advanced" className="text-gray-300 data-[state=active]:text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600 rounded-xl">Avancé (251-367)</TabsTrigger>
+                  <TabsTrigger value="complete" className="text-gray-300 data-[state=active]:text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600 rounded-xl">Complets 100%</TabsTrigger>
                 </TabsList>
               </Tabs>
             )}
@@ -257,50 +276,53 @@ const EdnIndex = () => {
         </div>
       </div>
 
-      {/* Stats Bar */}
-      <div className="bg-white/60 backdrop-blur-sm border-y border-purple-200/50 py-4">
+      {/* Stats Bar Suno-style */}
+      <div className="bg-black/20 backdrop-blur-xl border-y border-white/10 py-6 relative">
         <div className="container mx-auto px-4">
-          <div className={`grid ${isMobile ? 'grid-cols-2' : 'grid-cols-2 md:grid-cols-3 lg:grid-cols-6'} gap-2 mb-4`}>
+          <div className={`grid ${isMobile ? 'grid-cols-2' : 'grid-cols-2 md:grid-cols-3 lg:grid-cols-6'} gap-4 mb-6`}>
             {[
-              { title: "Items Total", value: stats.total, subtitle: "IC-1 à IC-367", icon: BookOpen, color: "text-blue-600", bgColor: "bg-blue-50" },
-              { title: "Affichés", value: stats.displayed, subtitle: "Filtrés", icon: Target, color: "text-purple-600", bgColor: "bg-purple-50" },
-              { title: "Complets", value: stats.complete, subtitle: `${stats.completion}%`, icon: CheckCircle, color: "text-green-600", bgColor: "bg-green-50" },
-              { title: "Avec Musique", value: stats.withMusic, subtitle: "Paroles intégrées", icon: Music, color: "text-pink-600", bgColor: "bg-pink-50" },
-              { title: "Scènes Immersives", value: stats.withScene, subtitle: "Expériences 3D", icon: Users, color: "text-orange-600", bgColor: "bg-orange-50" },
-              { title: "Quiz Interactifs", value: stats.withQuiz, subtitle: "Évaluations", icon: Brain, color: "text-indigo-600", bgColor: "bg-indigo-50" }
+              { title: "Items Total", value: stats.total, subtitle: "IC-1 à IC-367", icon: BookOpen, color: "text-blue-400", bgColor: "bg-blue-500/20", borderColor: "border-blue-400/30" },
+              { title: "Affichés", value: stats.displayed, subtitle: "Filtrés", icon: Target, color: "text-purple-400", bgColor: "bg-purple-500/20", borderColor: "border-purple-400/30" },
+              { title: "Complets", value: stats.complete, subtitle: `${stats.completion}%`, icon: CheckCircle, color: "text-green-400", bgColor: "bg-green-500/20", borderColor: "border-green-400/30" },
+              { title: "Avec Musique", value: stats.withMusic, subtitle: "Paroles intégrées", icon: Music, color: "text-pink-400", bgColor: "bg-pink-500/20", borderColor: "border-pink-400/30" },
+              { title: "Scènes Immersives", value: stats.withScene, subtitle: "Expériences 3D", icon: Users, color: "text-orange-400", bgColor: "bg-orange-500/20", borderColor: "border-orange-400/30" },
+              { title: "Quiz Interactifs", value: stats.withQuiz, subtitle: "Évaluations", icon: Brain, color: "text-indigo-400", bgColor: "bg-indigo-500/20", borderColor: "border-indigo-400/30" }
             ].map((stat, index) => {
               const IconComponent = stat.icon;
               return (
-                <Card key={index} className={`${stat.bgColor} border-2 hover:shadow-lg transition-all duration-300`}>
-                  <CardContent className={`${isMobile ? 'p-2' : 'p-4'} text-center`}>
-                    <IconComponent className={`${isMobile ? 'h-4 w-4' : 'h-6 w-6'} ${stat.color} mx-auto mb-2`} />
-                    <div className={`${isMobile ? 'text-lg' : 'text-2xl'} font-bold ${stat.color}`}>{stat.value}</div>
-                    <div className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium text-gray-700 mb-1`}>{isMobile ? stat.title.split(' ')[0] : stat.title}</div>
-                    {!isMobile && <div className="text-xs text-gray-500">{stat.subtitle}</div>}
+                <Card key={index} className={`${stat.bgColor} backdrop-blur-sm border ${stat.borderColor} hover:border-opacity-70 hover:shadow-2xl transition-all duration-300 hover:scale-105 group`}>
+                  <CardContent className={`${isMobile ? 'p-3' : 'p-4'} text-center relative overflow-hidden`}>
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                    <div className="relative z-10">
+                      <IconComponent className={`${isMobile ? 'h-5 w-5' : 'h-6 w-6'} ${stat.color} mx-auto mb-2`} />
+                      <div className={`${isMobile ? 'text-xl' : 'text-2xl'} font-bold ${stat.color} mb-1`}>{stat.value}</div>
+                      <div className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium text-gray-300 mb-1`}>{isMobile ? stat.title.split(' ')[0] : stat.title}</div>
+                      {!isMobile && <div className="text-xs text-gray-400">{stat.subtitle}</div>}
+                    </div>
                   </CardContent>
                 </Card>
               );
             })}
           </div>
           
-          {/* Progression globale */}
-          <div className="bg-white/80 rounded-lg p-4">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <Award className="h-5 w-5 text-yellow-500" />
-                <span className="font-semibold text-gray-800">Progression Globale EDN</span>
+          {/* Progression globale style Suno */}
+          <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-6 border border-white/20 shadow-2xl">
+            <div className="flex items-center justify-between mb-3">
+              <div className="flex items-center gap-3">
+                <Award className="h-6 w-6 text-yellow-400" />
+                <span className="font-semibold text-white text-lg">Progression Globale EDN</span>
               </div>
-              <span className="text-lg font-bold text-green-600">{stats.completion}%</span>
+              <span className="text-2xl font-bold text-green-400">{stats.completion}%</span>
             </div>
-            <div className="w-full bg-gray-200 rounded-full h-3">
+            <div className="w-full bg-gray-700/50 rounded-full h-4 mb-2">
               <div 
-                className="bg-gradient-to-r from-green-400 to-green-600 h-3 rounded-full transition-all duration-500"
+                className="bg-gradient-to-r from-green-400 via-green-500 to-green-600 h-4 rounded-full transition-all duration-1000 shadow-lg shadow-green-500/50"
                 style={{ width: `${stats.completion}%` }}
               ></div>
             </div>
-            <div className="flex justify-between text-xs text-gray-600 mt-1">
+            <div className="flex justify-between text-sm text-gray-400">
               <span>0</span>
-              <span>{stats.complete} items complets</span>
+              <span className="text-green-400 font-medium">{stats.complete} items complets</span>
               <span>367</span>
             </div>
           </div>
@@ -308,12 +330,14 @@ const EdnIndex = () => {
       </div>
 
       {/* Main Content */}
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 relative">
         {filteredItems.length === 0 ? (
           <div className="text-center py-16">
-            <BookOpen className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">Aucun item trouvé</h3>
-            <p className="text-gray-600">Essayez de modifier vos critères de recherche ou de filtrage.</p>
+            <div className="bg-white/10 backdrop-blur-sm rounded-3xl p-12 border border-white/20 shadow-2xl max-w-md mx-auto">
+              <BookOpen className="h-20 w-20 text-gray-400 mx-auto mb-6" />
+              <h3 className="text-2xl font-semibold text-white mb-3">Aucun item trouvé</h3>
+              <p className="text-gray-300">Essayez de modifier vos critères de recherche ou de filtrage.</p>
+            </div>
           </div>
         ) : (
           <div className={`grid ${isMobile ? 'grid-cols-1 gap-4' : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'}`}>
