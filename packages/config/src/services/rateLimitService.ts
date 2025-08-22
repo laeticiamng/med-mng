@@ -1,3 +1,10 @@
+import { Request, Response, NextFunction } from 'express';
+
+/**
+ * Properly typed rate limiting service
+ * Replaces the problematic any usage with proper Express types
+ */
+
 export interface RateLimitResult {
   allowed: boolean;
   identifier: string;
@@ -9,13 +16,14 @@ export interface RateLimitResult {
   windowEnd: Date;
 }
 
-import { Request, Response, NextFunction } from 'express';
-
 export interface RateLimitConfig {
   windowMs: number; // Window duration in milliseconds
   maxRequests: number; // Maximum requests per window
   keyGenerator?: (req: Request) => string; // Custom key generator function - FIXED: Request instead of any
   skipCondition?: (req: Request) => boolean; // Skip rate limiting for certain requests - FIXED: Request instead of any
+  onLimitReached?: (req: Request, res: Response) => void; // Custom handler when limit is reached
+  skipSuccessfulRequests?: boolean; // Don't count successful requests
+  skipFailedRequests?: boolean; // Don't count failed requests
 }
 
 /**
@@ -155,23 +163,44 @@ export class RateLimitService {
           'X-RateLimit-Limit': result.maxRequests.toString(),
           'X-RateLimit-Remaining': result.remainingRequests.toString(),
           'X-RateLimit-Reset': Math.ceil(result.resetTime.getTime() / 1000).toString(),
-          'X-RateLimit-Window': this.config.windowMs.toString()
+          'X-RateLimit-Window': this.config.windowMs.toString(),
+          'X-RateLimit-Identifier': result.identifier
         });
 
         if (!result.allowed) {
-          // Rate limit exceeded
+          // Use custom handler if provided
+          if (this.config.onLimitReached) {
+            this.config.onLimitReached(req, res);
+            return;
+          }
+
+          // Default rate limit response
+          const retryAfterSeconds = Math.ceil((result.resetTime.getTime() - Date.now()) / 1000);
+          
           res.status(429).json({
             error: 'Too Many Requests',
-            message: `Rate limit exceeded. Try again in ${Math.ceil((result.resetTime.getTime() - Date.now()) / 1000)} seconds.`,
-            retryAfter: Math.ceil((result.resetTime.getTime() - Date.now()) / 1000)
+            message: `Rate limit exceeded. Try again in ${retryAfterSeconds} seconds.`,
+            retryAfter: retryAfterSeconds,
+            limit: result.maxRequests,
+            remaining: result.remainingRequests,
+            resetTime: result.resetTime.toISOString(),
+            identifier: result.identifier
           });
           return;
         }
 
         next();
       } catch (error) {
-        console.error('Rate limiting error:', error);
-        // Allow request to continue if rate limiting fails
+        console.error('Rate limiting error:', {
+          error: error instanceof Error ? error.message : String(error),
+          stack: error instanceof Error ? error.stack : undefined,
+          ip: req.ip,
+          method: req.method,
+          url: req.originalUrl,
+          timestamp: new Date().toISOString()
+        });
+        
+        // Allow request to continue if rate limiting fails (fail open)
         next();
       }
     };
@@ -182,17 +211,43 @@ export class RateLimitService {
    * FIXED: request parameter properly typed as Request instead of any
    */
   private getDefaultIdentifier(request: Request): string {
-    // Handle x-forwarded-for header properly (can be string or string[])
-    const forwardedFor = request.headers['x-forwarded-for'];
-    const forwardedIP = Array.isArray(forwardedFor) 
-      ? forwardedFor[0] 
-      : typeof forwardedFor === 'string' ? forwardedFor.split(',')[0] : undefined;
+    // Try multiple sources for IP address in order of preference
+    const potentialIPs = [
+      request.ip,
+      (request as any).connection?.remoteAddress,
+      (request as any).socket?.remoteAddress,
+      Array.isArray(request.headers['x-forwarded-for']) 
+        ? request.headers['x-forwarded-for'][0]
+        : request.headers['x-forwarded-for']?.split(',')[0]?.trim(),
+      request.headers['x-real-ip'] as string,
+      request.headers['cf-connecting-ip'] as string, // Cloudflare
+      request.headers['x-client-ip'] as string
+    ];
+
+    // Return first valid IP
+    for (const ip of potentialIPs) {
+      if (ip && typeof ip === 'string' && ip !== 'unknown') {
+        // Basic IP validation
+        if (this.isValidIP(ip)) {
+          return ip;
+        }
+      }
+    }
+
+    return 'unknown';
+  }
+
+  /**
+   * Basic IP address validation
+   */
+  private isValidIP(ip: string): boolean {
+    // IPv4 regex
+    const ipv4Regex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
     
-    return request.ip || 
-           (request as any).connection?.remoteAddress || 
-           (request as any).socket?.remoteAddress ||
-           forwardedIP ||
-           'unknown';
+    // IPv6 regex (simplified)
+    const ipv6Regex = /^([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}$/;
+    
+    return ipv4Regex.test(ip) || ipv6Regex.test(ip);
   }
 
   /**
@@ -203,9 +258,98 @@ export class RateLimitService {
   }
 
   /**
-   * Get current configuration
+   * Get current configuration (readonly copy)
    */
-  getConfig(): RateLimitConfig {
-    return { ...this.config };
+  getConfig(): Readonly<RateLimitConfig> {
+    return Object.freeze({ ...this.config });
   }
+
+  /**
+   * Get statistics about rate limiting
+   */
+  async getStatistics(request: Request): Promise<{
+    identifier: string;
+    currentStatus: RateLimitResult;
+    configuration: Readonly<RateLimitConfig>;
+  }> {
+    const status = await this.getStatus(request);
+    
+    return {
+      identifier: status.identifier,
+      currentStatus: status,
+      configuration: this.getConfig()
+    };
+  }
+}
+
+// Factory functions for common rate limiting scenarios
+
+/**
+ * Create a basic rate limiter with IP-based identification
+ */
+export function createBasicRateLimiter(
+  store: RateLimitStore,
+  options: {
+    windowMs: number;
+    maxRequests: number;
+    message?: string;
+  }
+): RateLimitService {
+  return new RateLimitService(store, {
+    windowMs: options.windowMs,
+    maxRequests: options.maxRequests,
+    keyGenerator: (req: Request) => req.ip || 'unknown',
+    onLimitReached: (req: Request, res: Response) => {
+      res.status(429).json({
+        error: 'Rate limit exceeded',
+        message: options.message || 'Too many requests, please try again later.'
+      });
+    }
+  });
+}
+
+/**
+ * Create a user-based rate limiter (requires authentication)
+ */
+export function createUserRateLimiter(
+  store: RateLimitStore,
+  options: {
+    windowMs: number;
+    maxRequests: number;
+    getUserId: (req: Request) => string | null;
+  }
+): RateLimitService {
+  return new RateLimitService(store, {
+    windowMs: options.windowMs,
+    maxRequests: options.maxRequests,
+    keyGenerator: (req: Request) => {
+      const userId = options.getUserId(req);
+      return userId ? `user:${userId}` : `ip:${req.ip || 'unknown'}`;
+    },
+    skipCondition: (req: Request) => {
+      // Skip rate limiting if user ID cannot be determined
+      return options.getUserId(req) === null;
+    }
+  });
+}
+
+/**
+ * Create an endpoint-specific rate limiter
+ */
+export function createEndpointRateLimiter(
+  store: RateLimitStore,
+  options: {
+    windowMs: number;
+    maxRequests: number;
+    endpoint: string;
+  }
+): RateLimitService {
+  return new RateLimitService(store, {
+    windowMs: options.windowMs,
+    maxRequests: options.maxRequests,
+    keyGenerator: (req: Request) => {
+      const ip = req.ip || 'unknown';
+      return `${options.endpoint}:${ip}`;
+    }
+  });
 }

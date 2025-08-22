@@ -23,7 +23,7 @@ export const globalRateLimit = rateLimit({
   },
   standardHeaders: true, // Retourner les infos de rate limit dans les headers `RateLimit-*`
   legacyHeaders: false, // Désactiver les headers `X-RateLimit-*`
-  handler: (req, res) => {
+  handler: (req: Request, res: Response): void => {
     logService.warn('Rate limit exceeded', {
       ip: req.ip,
       userAgent: req.get('User-Agent'),
@@ -49,7 +49,7 @@ export const strictRateLimit = rateLimit({
     error: 'Limite de requêtes dépassée pour cette API sensible.',
     retryAfter: '15 minutes'
   },
-  handler: (req, res) => {
+  handler: (req: Request, res: Response): void => {
     logService.warn('Strict rate limit exceeded', {
       ip: req.ip,
       userAgent: req.get('User-Agent'),
@@ -102,7 +102,14 @@ export const corsOptions = {
 };
 
 // Middleware de sécurité personnalisé
-export const securityHeadersMiddleware = (req: any, res: any, next: any) => {
+import { Request, Response, NextFunction } from 'express';
+
+// Extend Request interface for custom properties
+interface ExtendedRequest extends Request {
+  requestId?: string;
+}
+
+export const securityHeadersMiddleware = (req: ExtendedRequest, res: Response, next: NextFunction): void => {
   // Headers de sécurité supplémentaires
   res.setHeader('X-API-Version', '1.0.0');
   res.setHeader('X-Request-ID', req.requestId || 'unknown');

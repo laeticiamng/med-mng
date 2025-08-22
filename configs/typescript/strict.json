@@ -1,0 +1,61 @@
+{
+  "extends": "./base.json",
+  "compilerOptions": {
+    // Enable all strict type checking options
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    
+    // Additional strict checks
+    "noImplicitReturns": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noUncheckedIndexedAccess": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "exactOptionalPropertyTypes": true,
+    
+    // Ensure all type checking is enabled
+    "skipLibCheck": false,
+    "allowJs": false,
+    
+    // Strict emit
+    "removeComments": false,
+    "preserveConstEnums": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    
+    // Module resolution
+    "moduleResolution": "bundler",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    
+    // Error reporting
+    "noErrorTruncation": true,
+    "preserveWatchOutput": true,
+    "pretty": true
+  },
+  "include": [
+    "src/**/*",
+    "packages/*/src/**/*",
+    "apps/*/src/**/*",
+    "tests/**/*",
+    "*.ts",
+    "*.tsx"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "build",
+    "coverage",
+    "**/*.js",
+    "**/*.d.ts"
+  ]
+}
