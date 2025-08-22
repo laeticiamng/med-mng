@@ -1,5 +1,5 @@
 import React from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
@@ -15,6 +15,7 @@ import { useState } from 'react';
 
 export const GlobalNavigation = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navigationItems = [
@@ -63,10 +64,22 @@ export const GlobalNavigation = () => {
 
           {/* User Actions */}
           <div className="flex items-center space-x-2">
-            <Button variant="ghost" size="icon" className="hidden sm:flex">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="hidden sm:flex"
+              onClick={() => navigate('/med-mng/pricing')}
+              title="Paramètres"
+            >
               <Settings className="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon" className="hidden sm:flex">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              className="hidden sm:flex"
+              onClick={() => navigate('/med-mng/login')}
+              title="Profil utilisateur"
+            >
               <User className="h-4 w-4" />
             </Button>
 
@@ -109,11 +122,27 @@ export const GlobalNavigation = () => {
                 </Link>
               ))}
               <div className="flex items-center space-x-2 px-3 py-2">
-                <Button variant="ghost" size="sm" className="flex-1">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="flex-1"
+                  onClick={() => {
+                    navigate('/med-mng/pricing');
+                    setIsMobileMenuOpen(false);
+                  }}
+                >
                   <Settings className="h-4 w-4 mr-2" />
                   Paramètres
                 </Button>
-                <Button variant="ghost" size="sm" className="flex-1">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="flex-1"
+                  onClick={() => {
+                    navigate('/med-mng/login');
+                    setIsMobileMenuOpen(false);
+                  }}
+                >
                   <User className="h-4 w-4 mr-2" />
                   Profil
                 </Button>
