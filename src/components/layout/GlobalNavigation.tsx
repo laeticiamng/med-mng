@@ -22,7 +22,7 @@ export const GlobalNavigation = () => {
     { path: '/', icon: Home, label: 'Accueil' },
     { path: '/edn', icon: BookOpen, label: 'EDN' },
     { path: '/ecos', icon: BookOpen, label: 'ECOS' },
-    { path: '/music-library', icon: Music, label: 'Musique' },
+    { path: '/library', icon: Music, label: 'Bibliothèque' },
   ];
 
   const isActive = (path: string) => {

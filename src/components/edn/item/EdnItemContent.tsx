@@ -125,7 +125,7 @@ export const EdnItemContent = ({ activeSection, item }: EdnItemContentProps) => 
               <p className="text-amber-600 mb-4">
                 <TranslatedText text="Les paroles pour cet item sont en cours de création." />
               </p>
-              <Link to="/edn/music-library">
+              <Link to="/library">
                 <Button className="bg-amber-600 hover:bg-amber-700">
                   <Music className="h-4 w-4 mr-2" />
                   <TranslatedText text="Voir ma bibliothèque musicale" />

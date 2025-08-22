@@ -179,7 +179,8 @@ const App = () => {
                                     <Route path="/admin-panel" element={<AdminPanel />} />
                                     
                                     <Route path="/test-subscriptions" element={<SubscriptionTest />} />
-                                    <Route path="/library" element={<LibraryPage />} />
+                <Route path="/library" element={<LibraryPage />} />
+                <Route path="/music-library" element={<LibraryPage />} />
                                     <Route path="/test-extraction" element={<TestExtraction />} />
                                     <Route path="*" element={<NotFound />} />
                                   </Routes>

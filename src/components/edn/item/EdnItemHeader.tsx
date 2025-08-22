@@ -50,7 +50,7 @@ export const EdnItemHeader = ({ item }: EdnItemHeaderProps) => {
         </div>
         
         <div className="mt-4">
-          <Link to="/edn/music-library">
+          <Link to="/library">
             <Button variant="outline" className="flex items-center gap-2">
               <Music className="h-4 w-4" />
               <TranslatedText text="Ma Bibliothèque Musicale" />
