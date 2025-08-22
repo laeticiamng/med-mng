@@ -2,15 +2,7 @@
 // Utilise l'Edge Function Supabase pour gérer l'auth CAS
 
 import { supabase } from '@/integrations/supabase/client';
-
-interface CASCookiesResult {
-  success: boolean;
-  cookies?: string;
-  error?: string;
-  needsManualAuth?: boolean;
-  casUrl?: string;
-  instructions?: any;
-}
+import { CASCookiesResult } from '@/types/cas';
 
 /**
  * Obtient les cookies CAS valides pour l'authentification UNESS
@@ -65,11 +57,12 @@ export async function getCASCookies(): Promise<CASCookiesResult> {
       error: data.error || 'Authentification CAS manuelle requise'
     };
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('💥 Erreur getCASCookies:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue lors de l\'obtention des cookies CAS';
     return {
       success: false,
-      error: error.message || 'Erreur inconnue lors de l\'obtention des cookies CAS'
+      error: errorMessage
     };
   }
 }
@@ -122,11 +115,12 @@ export async function validateCASCookies(cookies: string): Promise<CASCookiesRes
       };
     }
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('💥 Erreur validateCASCookies:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Erreur validation cookies';
     return {
       success: false,
-      error: error.message || 'Erreur validation cookies'
+      error: errorMessage
     };
   }
 }
@@ -205,12 +199,13 @@ export async function testOICAccess(cookies?: string) {
       error: pages.length === 0 ? 'Aucune compétence trouvée - authentification probablement requise' : undefined
     };
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ Erreur test OIC:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
     return {
       accessible: false,
       count: 0,
-      error: error.message
+      error: errorMessage
     };
   }
 }

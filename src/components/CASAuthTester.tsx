@@ -7,22 +7,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { testOICAccessWithRealCAS, extractOICWithCASCookies } from '@/utils/testOICAccessWithCAS';
 import { validateCASCookies } from '@/utils/getCASCookies';
-
-interface AuthResult {
-  success: boolean;
-  error?: string;
-  cas_url?: string;
-  instructions?: any;
-  pages_found?: number;
-  valid?: boolean;
-  pages_accessible?: number | string;
-  examples?: any[];
-  improvement?: number;
-}
+import { CASAuthResult, CASExample } from '@/types/cas';
 
 export default function CASAuthTester() {
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<AuthResult | null>(null);
+  const [result, setResult] = useState<CASAuthResult | null>(null);
   const [cookies, setCookies] = useState('');
   
   const testCASAuthentication = async () => {
@@ -49,11 +38,12 @@ export default function CASAuthTester() {
         toast.error('Authentification CAS requise');
       }
       
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('❌ Erreur:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
       setResult({ 
         success: false, 
-        error: error.message || 'Erreur inconnue' 
+        error: errorMessage
       });
       toast.error('Erreur lors du test CAS');
     } finally {
@@ -93,11 +83,12 @@ export default function CASAuthTester() {
         toast.error('❌ Cookies invalides ou expirés');
       }
       
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('❌ Erreur validation:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Erreur validation cookies';
       setResult({ 
         success: false, 
-        error: error.message || 'Erreur validation cookies' 
+        error: errorMessage
       });
       toast.error('Erreur lors de la validation');
     } finally {
@@ -143,11 +134,12 @@ export default function CASAuthTester() {
         toast.error('❌ Authentification CAS requise');
       }
       
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error('❌ Erreur test complet:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Erreur test complet';
       setResult({ 
         success: false, 
-        error: error.message || 'Erreur test complet' 
+        error: errorMessage
       });
       toast.error('Erreur lors du test complet');
     } finally {
@@ -277,7 +269,7 @@ export default function CASAuthTester() {
                   <div className="p-3 bg-green-50 rounded-lg">
                     <p className="text-green-700 font-medium">Exemples de pages accessibles:</p>
                     <ul className="text-green-600 text-sm space-y-1 mt-2">
-                      {result.examples.slice(0, 3).map((page: any, index: number) => (
+                      {result.examples.slice(0, 3).map((page: CASExample, index: number) => (
                         <li key={index} className="flex items-start gap-2">
                           <span className="font-mono text-xs mt-0.5">•</span>
                           <span>{page.title} (ID: {page.pageid})</span>

@@ -2,19 +2,13 @@
 // Ce script montre la différence entre les appels avec et sans cookies
 
 import { getCASCookies, validateCASCookies, fetchWithCASCookies, testOICAccess } from '@/utils/getCASCookies';
+import { CASTestResult, OICExtractionResult, CASExample } from '@/types/cas';
 
 /**
  * Test complet d'accès OIC avec authentification CAS réelle
  * ATTENTION: Ce script injecte VRAIMENT les cookies dans les requêtes API
  */
-export async function testOICAccessWithRealCAS(): Promise<{
-  success: boolean;
-  withoutAuth: { accessible: boolean; count: number };
-  withAuth: { accessible: boolean; count: number; cookies?: string };
-  improvement: number;
-  error?: string;
-  nextSteps?: string[];
-}> {
+export async function testOICAccessWithRealCAS(): Promise<CASTestResult> {
   console.log('🧪 TEST COMPLET - Accès OIC avec authentification CAS réelle');
   console.log('=' .repeat(60));
   
@@ -116,15 +110,16 @@ export async function testOICAccessWithRealCAS(): Promise<{
       };
     }
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('💥 Erreur test complet:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
     
     return {
       success: false,
       withoutAuth: { accessible: false, count: 0 },
       withAuth: { accessible: false, count: 0 },
       improvement: 0,
-      error: error.message,
+      error: errorMessage,
       nextSteps: [
         '1. Vérifier la connectivité réseau',
         '2. Tester l\'API manuellement',
@@ -137,12 +132,7 @@ export async function testOICAccessWithRealCAS(): Promise<{
 /**
  * Exemple d'utilisation correcte avec injection de cookies
  */
-export async function extractOICWithCASCookies(cookies: string, limit: number = 50): Promise<{
-  success: boolean;
-  pages: any[];
-  totalFound: number;
-  error?: string;
-}> {
+export async function extractOICWithCASCookies(cookies: string, limit: number = 50): Promise<OICExtractionResult> {
   console.log(`🔄 Extraction OIC avec cookies CAS (limit: ${limit})`);
   
   try {
@@ -161,8 +151,8 @@ export async function extractOICWithCASCookies(cookies: string, limit: number = 
     
     console.log(`✅ ${pages.length} pages extraites avec succès`);
     
-    // Extraire quelques exemples
-    const examples = pages.slice(0, 5).map((page: any) => ({
+    // Extraire quelques exemples avec typage strict
+    const examples: CASExample[] = pages.slice(0, 5).map((page: { title: string; pageid: number }) => ({
       title: page.title,
       pageid: page.pageid,
       url: `https://livret.uness.fr/lisa/2025/${encodeURIComponent(page.title)}`
@@ -179,14 +169,15 @@ export async function extractOICWithCASCookies(cookies: string, limit: number = 
       totalFound: pages.length,
     };
     
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('❌ Erreur extraction:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
     
     return {
       success: false,
       pages: [],
       totalFound: 0,
-      error: error.message
+      error: errorMessage
     };
   }
 }
