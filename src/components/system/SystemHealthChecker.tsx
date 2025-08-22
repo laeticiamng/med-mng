@@ -11,6 +11,7 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import { logger } from '@/services/logger';
 
 interface HealthCheck {
   name: string;
@@ -96,7 +97,11 @@ export const SystemHealthChecker = () => {
       });
       
     } catch (error) {
-      console.error('Erreur lors de l\'audit:', error);
+      logger.error('Erreur lors de l\'audit système', {
+        component: 'SystemHealthChecker',
+        action: 'runHealthCheck',
+        metadata: { error }
+      });
       toast({
         title: "Erreur d'audit",
         description: "Impossible de terminer la vérification complète",
@@ -279,20 +284,20 @@ export const SystemHealthChecker = () => {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'success': return <CheckCircle2 className="h-4 w-4 text-green-500" />;
-      case 'warning': return <AlertTriangle className="h-4 w-4 text-yellow-500" />;
-      case 'error': return <XCircle className="h-4 w-4 text-red-500" />;
-      case 'pending': return <Clock className="h-4 w-4 text-gray-500" />;
-      default: return <Clock className="h-4 w-4 text-gray-500" />;
+      case 'success': return <CheckCircle2 className="h-4 w-4 text-primary" />;
+      case 'warning': return <AlertTriangle className="h-4 w-4 text-secondary" />;
+      case 'error': return <XCircle className="h-4 w-4 text-destructive" />;
+      case 'pending': return <Clock className="h-4 w-4 text-muted-foreground" />;
+      default: return <Clock className="h-4 w-4 text-muted-foreground" />;
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'success': return 'bg-green-50 border-green-200';
-      case 'warning': return 'bg-yellow-50 border-yellow-200';
-      case 'error': return 'bg-red-50 border-red-200';
-      default: return 'bg-gray-50 border-gray-200';
+      case 'success': return 'bg-background/5 border-primary/20';
+      case 'warning': return 'bg-secondary/10 border-secondary/30';
+      case 'error': return 'bg-destructive/5 border-destructive/20';
+      default: return 'bg-muted/10 border-border';
     }
   };
 
@@ -308,22 +313,22 @@ export const SystemHealthChecker = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
+      <Card className="bg-gradient-to-r from-background/50 to-primary/5 border-primary/20">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-2xl font-bold text-blue-900">
+              <CardTitle className="text-2xl font-bold text-foreground">
                 État de Santé du Système
               </CardTitle>
-              <p className="text-blue-700 mt-2">
+              <p className="text-muted-foreground mt-2">
                 Diagnostic complet de toutes les fonctionnalités
               </p>
             </div>
             <div className="text-right">
-              <div className="text-3xl font-bold text-blue-900">
+              <div className="text-3xl font-bold text-primary">
                 {healthPercentage}%
               </div>
-              <p className="text-sm text-blue-700">Santé Globale</p>
+              <p className="text-sm text-muted-foreground">Santé Globale</p>
             </div>
           </div>
         </CardHeader>
@@ -334,7 +339,7 @@ export const SystemHealthChecker = () => {
                 {passedChecks}/{totalChecks} tests réussis
               </Badge>
               {lastCheck && (
-                <span className="text-sm text-gray-600">
+                <span className="text-sm text-muted-foreground">
                   Dernière vérification : {lastCheck.toLocaleTimeString()}
                 </span>
               )}

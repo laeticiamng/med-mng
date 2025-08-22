@@ -5531,7 +5531,7 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
-          category?: string | null
+          category?: never
           created_at?: string | null
           description?: string | null
           id?: string | null
@@ -5541,7 +5541,7 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
-          category?: string | null
+          category?: never
           created_at?: string | null
           description?: string | null
           id?: string | null
