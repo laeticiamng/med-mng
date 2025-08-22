@@ -61,7 +61,7 @@ const AuditCompleteness = lazy(() => import("./pages/AuditCompleteness"));
 const TestExtraction = lazy(() => import("./pages/TestExtraction"));
 const EdnImmersive = lazy(() => import("./pages/EdnImmersive"));
 const EdnComplete = lazy(() => import("./pages/EdnComplete"));
-const EdnCompleteDetail = lazy(() => import("./pages/EdnCompleteDetail"));
+const EdnItem = lazy(() => import("./pages/EdnItem"));
 
 import { AuthProvider } from "./components/med-mng/AuthProvider";
 import { ProtectedRoute } from "./components/med-mng/withAuth";
@@ -124,7 +124,7 @@ const App = () => {
                                     
                                      {/* EDN Interface Unifiée */}
                                      <Route path="/edn" element={<EdnComplete />} />
-                                     <Route path="/edn/:slug" element={<EdnCompleteDetail />} />
+                                     <Route path="/edn/:slug" element={<EdnItem />} />
                                     
                                     {/* Redirections automatiques vers l'interface unifiée */}
                                     <Route path="/edn-complete" element={<Navigate to="/edn" replace />} />

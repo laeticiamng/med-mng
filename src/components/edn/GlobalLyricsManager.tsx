@@ -109,7 +109,7 @@ export const GlobalLyricsManager: React.FC = () => {
 
       toast({
         title: '🎉 Génération OpenAI terminée',
-        description: `${data.success} items traités avec paroles style Nekfeu riches`,
+        description: `${data.success} items traités avec paroles musicales de qualité`,
       });
 
     } catch (genError) {
@@ -215,7 +215,7 @@ export const GlobalLyricsManager: React.FC = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Music className="h-6 w-6" />
-            Gestionnaire Global de Paroles - Style Nekfeu
+            Gestionnaire Global de Paroles Musicales
           </CardTitle>
           <p className="text-muted-foreground">
             Génération et suivi des paroles médicales pour les 367 items EDN avec qualité optimale
@@ -398,7 +398,7 @@ export const GlobalLyricsManager: React.FC = () => {
             <TabsContent value="quality" className="mt-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Critères de Qualité - Style Nekfeu</CardTitle>
+                  <CardTitle>Critères de Qualité Musicale</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -407,7 +407,7 @@ export const GlobalLyricsManager: React.FC = () => {
                       <ul className="space-y-2 text-sm">
                         <li className="flex items-start gap-2">
                           <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
-                          Phrases longues avec métaphores médicales
+                          Phrases médicales structurées et rythméessystemy
                         </li>
                         <li className="flex items-start gap-2">
                           <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
@@ -441,7 +441,7 @@ export const GlobalLyricsManager: React.FC = () => {
                         </li>
                         <li className="flex items-start gap-2">
                           <CheckCircle className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
-                          Optimisé pour réussir les QCM post-écoute
+                          Optimisé pour faciliter l'apprentissage
                         </li>
                       </ul>
                     </div>
@@ -452,8 +452,8 @@ export const GlobalLyricsManager: React.FC = () => {
                       🏆 Objectif Note 20/20
                     </h4>
                     <p className="text-sm text-green-700 dark:text-green-300">
-                      Chaque génération vise l'excellence pour garantir une mémorisation optimale et une réussite 
-                      maximale aux QCM après écoute. Le style Nekfeu permet une meilleure rétention grâce aux 
+                      Chaque génération vise l'excellence pour garantir une mémorisation optimale et une maîtrise 
+                      complète des compétences médicales. Le format musical permet une meilleure rétention grâce aux
                       associations créatives et aux structures rythmiques.
                     </p>
                   </div>

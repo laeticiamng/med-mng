@@ -26,7 +26,7 @@ export const LyricsPreviewModal = ({ itemCode, itemTitle }: LyricsPreviewModalPr
       
       toast({
         title: "✅ Prévisualisation générée",
-        description: `Paroles style Nekfeu pour ${itemCode} Rang ${selectedRang}`,
+        description: `Paroles musicales pour ${itemCode} Rang ${selectedRang}`,
       });
     } catch (error) {
       toast({
@@ -90,7 +90,7 @@ export const LyricsPreviewModal = ({ itemCode, itemTitle }: LyricsPreviewModalPr
       >
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            🎵 Prévisualisation Paroles Style Nekfeu
+            🎵 Prévisualisation Paroles Musicales
             <span className="text-muted-foreground text-sm font-normal">
               {itemCode} - {itemTitle.length > 50 ? itemTitle.substring(0, 47) + '...' : itemTitle}
             </span>
@@ -99,7 +99,7 @@ export const LyricsPreviewModal = ({ itemCode, itemTitle }: LyricsPreviewModalPr
         
         {/* Description for accessibility */}
         <div id="lyrics-preview-description" className="sr-only">
-          Prévisualisation des paroles musicales générées par IA dans le style Nekfeu pour l'item EDN sélectionné. Permet de choisir le rang et de générer des paroles personnalisées.
+          Prévisualisation des paroles musicales générées par IA pour l'item EDN sélectionné. Permet de choisir le rang et de générer des paroles personnalisées.
         </div>
         
         <div className="space-y-4">
@@ -147,7 +147,7 @@ export const LyricsPreviewModal = ({ itemCode, itemTitle }: LyricsPreviewModalPr
             <div className="text-center text-muted-foreground py-8">
               <div className="text-4xl mb-2">🎤</div>
               <p>Sélectionnez un rang et cliquez sur "Générer" pour prévisualiser les paroles</p>
-              <p className="text-sm mt-2">Style Nekfeu • Contenu médical dense • Structure complète</p>
+              <p className="text-sm mt-2">Contenu médical • Structure complète • Qualité professionnelle</p>
             </div>
           )}
         </div>

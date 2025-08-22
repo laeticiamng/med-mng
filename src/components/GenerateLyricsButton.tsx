@@ -59,14 +59,14 @@ export const GenerateLyricsButton = () => {
         disabled={isGenerating}
         className="bg-primary text-primary-foreground w-full"
       >
-        {isGenerating ? "🔄 Génération style Nekfeu en cours..." : "🎵 Générer paroles style Nekfeu (367 items)"}
+        {isGenerating ? "🔄 Génération musicale en cours..." : "🎵 Générer paroles musicales (367 items)"}
       </Button>
       
       {isGenerating && (
         <div className="space-y-2">
           <Progress value={progress} className="w-full" />
           <div className="text-sm text-center text-muted-foreground">
-            Progression: {Math.round(progress)}% • Génération avec contenu médical dense et assonances
+            Progression: {Math.round(progress)}% • Génération avec contenu médical intégré
           </div>
           {currentItem && (
             <div className="text-xs text-center text-muted-foreground">

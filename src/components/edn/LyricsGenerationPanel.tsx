@@ -82,14 +82,14 @@ export const LyricsGenerationPanel: React.FC<LyricsGenerationPanelProps> = ({
       const { data: competences } = await compQuery;
       console.log(`📋 ${competences?.length || 0} compétences trouvées pour ${rang}`);
 
-      // Génération RICHE avec OpenAI style Nekfeu
+      // Génération RICHE avec OpenAI musicale
       const lines = await generateRichAdvancedLyrics(itemCode, rang);
       
       if (lines.length > 0) {
         setGeneratedLyrics(prev => ({ ...prev, [rang]: lines }));
         toast({
           title: `✅ Paroles ${rang} générées avec OpenAI`,
-          description: `${lines.length} lignes style Nekfeu avec assonances riches`,
+          description: `${lines.length} lignes musicales avec rythmes intégrés`,
         });
         
         if (onLyricsGenerated) {
@@ -134,7 +134,7 @@ export const LyricsGenerationPanel: React.FC<LyricsGenerationPanelProps> = ({
       setGeneratedLyrics(newLyrics);
       toast({
         title: '🎵 Génération OpenAI terminée',
-        description: `Paroles style Nekfeu générées pour ${successCount}/3 rangs`,
+        description: `Paroles musicales générées pour ${successCount}/3 rangs`,
       });
 
       if (onLyricsGenerated) {
@@ -247,7 +247,7 @@ export const LyricsGenerationPanel: React.FC<LyricsGenerationPanelProps> = ({
 
       toast({
         title: '🎉 Génération OpenAI globale terminée',
-        description: `${success} items traités avec paroles style Nekfeu riches`,
+        description: `${success} items traités avec paroles musicales de qualité`,
       });
     } catch (error) {
       console.error('Erreur génération globale:', error);
@@ -265,7 +265,7 @@ export const LyricsGenerationPanel: React.FC<LyricsGenerationPanelProps> = ({
   const generateLocalLyrics = (itemData: any, competences: any[], rang: 'A' | 'B' | 'AB'): string[] => {
     const lines: string[] = [];
     
-    // Structure basique style Nekfeu avec contenu médical
+    // Structure musicale avec contenu médical
     lines.push(`[Couplet 1]`);
     
     if (competences.length > 0) {
@@ -355,10 +355,10 @@ export const LyricsGenerationPanel: React.FC<LyricsGenerationPanelProps> = ({
           <div>
             <CardTitle className="flex items-center gap-2">
               <Music className="h-5 w-5" />
-              Génération Paroles Style Nekfeu - {itemCode}
+              Génération Paroles Musicales - {itemCode}
             </CardTitle>
             <p className="text-sm text-muted-foreground mt-1">
-              Paroles médicales avec assonances, métaphores et contenu dense pour mémorisation optimale
+              Paroles médicales avec rythmes intégrés et contenu pédagogique pour mémorisation optimale
             </p>
           </div>
           <div className="flex gap-2">
@@ -507,15 +507,15 @@ export const LyricsGenerationPanel: React.FC<LyricsGenerationPanelProps> = ({
           </TabsContent>
         </Tabs>
 
-        <div className="mt-6 p-4 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-950/20 rounded-lg border border-amber-200 dark:border-amber-800">
-          <h4 className="font-semibold text-amber-800 dark:text-amber-200 mb-2">
-            🎯 Objectif Qualité 20/20
+        <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-950/20 dark:to-indigo-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
+          <h4 className="font-semibold text-blue-800 dark:text-blue-200 mb-2">
+            🎯 Génération Musicale Premium
           </h4>
-          <ul className="text-sm text-amber-700 dark:text-amber-300 space-y-1">
-            <li>• <strong>Style Nekfeu</strong>: Phrases longues, métaphores et assonances variées</li>
-            <li>• <strong>Contenu médical dense</strong>: Toutes les compétences intégrées organiquement</li>
-            <li>• <strong>Mémorisation optimale</strong>: Structure et rythme pour retenir l'essentiel</li>
-            <li>• <strong>QCM post-écoute</strong>: Paroles conçues pour réussir les évaluations</li>
+          <ul className="text-sm text-blue-700 dark:text-blue-300 space-y-1">
+            <li>• <strong>Contenu médical complet</strong>: Toutes les compétences intégrées de façon naturelle</li>
+            <li>• <strong>Structure pédagogique</strong>: Organisation optimisée pour l'apprentissage</li>
+            <li>• <strong>Rythme adapté</strong>: Tempo idéal pour la mémorisation efficace</li>
+            <li>• <strong>Qualité professionnelle</strong>: Paroles conçues pour maximiser la rétention</li>
           </ul>
         </div>
       </CardContent>

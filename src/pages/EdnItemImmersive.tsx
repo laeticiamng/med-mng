@@ -23,10 +23,16 @@ const EdnItemImmersive = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-blue-50 flex items-center justify-center px-4">
-        <div className="text-center">
-          <div className="animate-pulse text-xl sm:text-2xl text-amber-800 mb-2">Chargement de l'expérience immersive...</div>
-          <p className="text-sm sm:text-base text-amber-600">Préparation du contenu pédagogique</p>
+      <div className="min-h-screen bg-gradient-to-br from-slate-900/95 via-purple-900/90 to-indigo-900/95 flex items-center justify-center px-4 relative">
+        {/* Suno-style aura effects */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        </div>
+        
+        <div className="text-center relative z-10">
+          <div className="animate-pulse text-2xl sm:text-3xl text-white mb-3 font-bold">Chargement de l'expérience immersive...</div>
+          <p className="text-lg sm:text-xl text-gray-300">Préparation du contenu pédagogique avancé</p>
         </div>
       </div>
     );
@@ -34,11 +40,20 @@ const EdnItemImmersive = () => {
 
   if (!item) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-blue-50 flex items-center justify-center px-4">
-        <div className="text-center">
-          <h1 className="text-xl sm:text-2xl font-bold text-amber-800 mb-4">Item non trouvé</h1>
-          <Link to="/edn" className="text-blue-600 hover:text-blue-800 text-sm sm:text-base">
-            Retour à la liste des items EDN
+      <div className="min-h-screen bg-gradient-to-br from-slate-900/95 via-purple-900/90 to-indigo-900/95 flex items-center justify-center px-4 relative">
+        {/* Suno-style aura effects */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse"></div>
+          <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        </div>
+        
+        <div className="text-center relative z-10">
+          <h1 className="text-2xl sm:text-3xl font-bold text-white mb-6">Item non trouvé</h1>
+          <Link 
+            to="/edn" 
+            className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300 hover:scale-105 shadow-2xl shadow-purple-500/30"
+          >
+            ← Retour à la liste des items EDN
           </Link>
         </div>
       </div>
@@ -46,7 +61,14 @@ const EdnItemImmersive = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-blue-50 overflow-auto">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900/95 via-purple-900/90 to-indigo-900/95 relative overflow-auto">
+      {/* Suno-style aura effects */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl animate-pulse delay-500"></div>
+      </div>
+
       <ImmersiveHeader
         isAudioPlaying={isAudioPlaying}
         currentSection={currentSection}
@@ -56,7 +78,7 @@ const EdnItemImmersive = () => {
         onToggleAudio={toggleAudio}
       />
       
-      <div className="pt-16 pb-6 px-4" style={{ paddingTop: '4.5rem' }}>
+      <div className="pt-16 pb-6 px-4 relative z-10" style={{ paddingTop: '4.5rem' }}>
         <div className="max-w-6xl mx-auto">
           <ImmersiveNavigation
             sections={sections}
