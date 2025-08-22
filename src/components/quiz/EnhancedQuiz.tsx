@@ -141,23 +141,25 @@ export const EnhancedQuiz: React.FC<EnhancedQuizProps> = ({
 
   const saveQuizSession = async (session: QuizSession) => {
     try {
-      const {
-        data: { user }
-      } = await supabase.auth.getUser();
+      // TODO: Create quiz_sessions table in database first
+      console.log('Quiz session would be saved:', session);
+      // const {
+      //   data: { user }
+      // } = await supabase.auth.getUser();
 
-      const { error } = await supabase.from('quiz_sessions').insert({
-        user_id: user?.id,
-        item_code: session.itemCode,
-        rang: session.rang,
-        score: session.score,
-        questions_count: session.questions.length,
-        correct_answers: session.answers.filter(a => a.isCorrect).length,
-        session_data: session
-      });
+      // const { error } = await supabase.from('quiz_sessions').insert({
+      //   user_id: user?.id,
+      //   item_code: session.itemCode,
+      //   rang: session.rang,
+      //   score: session.score,
+      //   questions_count: session.questions.length,
+      //   correct_answers: session.answers.filter(a => a.isCorrect).length,
+      //   session_data: session
+      // });
 
-      if (error) {
-        throw error;
-      }
+      // if (error) {
+      //   throw error;
+      // }
     } catch (error) {
       console.error('Error saving quiz session:', error);
       toast.error("Échec de l'enregistrement de la session de quiz");
