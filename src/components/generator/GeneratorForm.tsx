@@ -9,6 +9,7 @@ import { EcosSelector } from './EcosSelector';
 import { RangSelector } from './RangSelector';
 import { StyleSelector } from './StyleSelector';
 import { LyricsStatusDisplay } from './LyricsStatusDisplay';
+import { GenerationProgress } from './GenerationProgress';
 
 interface GeneratorFormProps {
   contentType: string;
@@ -34,6 +35,13 @@ interface GeneratorFormProps {
   user: any;
   remainingFree: number;
   canGenerateMusic: () => boolean;
+  generationProgress?: {
+    rang: 'A' | 'B' | 'AB';
+    progress: number;
+    attempts: number;
+    maxAttempts: number;
+    estimatedTimeRemaining: number;
+  } | null;
 }
 
 export const GeneratorForm: React.FC<GeneratorFormProps> = ({
@@ -59,7 +67,8 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
   isGenerating,
   user,
   remainingFree,
-  canGenerateMusic
+  canGenerateMusic,
+  generationProgress
 }) => {
   const handleContentTypeChange = (type: string) => {
     setContentType(type);
@@ -128,6 +137,18 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
           <StyleSelector
             selectedStyle={selectedStyle}
             setSelectedStyle={setSelectedStyle}
+          />
+        )}
+
+        {/* Indicateur de progression pendant la génération */}
+        {isGenerating && generationProgress && (
+          <GenerationProgress
+            rang={generationProgress.rang}
+            progress={generationProgress.progress}
+            attempts={generationProgress.attempts}
+            maxAttempts={generationProgress.maxAttempts}
+            estimatedTimeRemaining={generationProgress.estimatedTimeRemaining}
+            style={selectedStyle}
           />
         )}
 

@@ -30,6 +30,7 @@ const Generator = () => {
   const [selectedSituation, setSelectedSituation] = useState('');
   const [selectedStyle, setSelectedStyle] = useState('');
   const [generatedSong, setGeneratedSong] = useState(null);
+  const [generationProgress, setGenerationProgress] = useState(null);
   
   // Récupération des paroles de l'item EDN sélectionné
   const { lyrics: ednLyrics, loading: lyricsLoading, error: lyricsError } = useEdnItemLyrics(
@@ -130,6 +131,15 @@ const Generator = () => {
         actualRang = 'A'; // On utilise le rang A pour l'API mais les paroles mixtes
         lyricsIndex = 2; // Index 2 = paroles mixtes (A+B)
       }
+
+      // Initialiser la progression
+      setGenerationProgress({
+        rang: selectedRang as 'A' | 'B' | 'AB',
+        progress: 0,
+        attempts: 0,
+        maxAttempts: 12,
+        estimatedTimeRemaining: 96
+      });
       
       const audioUrl = await musicGeneration.generateMusicInLanguage(actualRang, lyricsToUse, selectedStyle, 240);
       
@@ -154,10 +164,12 @@ const Generator = () => {
       };
 
       setGeneratedSong(song);
+      setGenerationProgress(null); // Réinitialiser la progression
       toast.success('Génération musicale réussie avec les paroles de l\'item !');
       
     } catch (error) {
       console.error('Erreur génération:', error);
+      setGenerationProgress(null); // Réinitialiser la progression en cas d'erreur
       toast.error('Erreur lors de la génération musicale');
     }
   };
@@ -256,6 +268,7 @@ const Generator = () => {
             user={user}
             remainingFree={remainingFree}
             canGenerateMusic={canGenerateMusic}
+            generationProgress={generationProgress}
           />
 
           {/* Lecteur de musique générée premium */}
