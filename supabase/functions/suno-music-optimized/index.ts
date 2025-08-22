@@ -55,6 +55,130 @@ serve(async (req) => {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
 
+    } else if (requestBody.action === 'convert_to_wav') {
+      // Conversion WAV
+      const { audioId } = requestBody;
+      
+      if (!audioId) {
+        throw new Error('audioId manquant pour conversion WAV');
+      }
+
+      console.log('🎵 Conversion WAV pour audioId:', audioId);
+      
+      const sunoApiKey = Deno.env.get('SUNO_API_KEY');
+      if (!sunoApiKey) {
+        throw new Error('SUNO_API_KEY non configurée');
+      }
+
+      // Appel API Suno pour conversion WAV
+      const wavResponse = await fetch('https://api.sunoapi.org/api/v1/audio/convert-wav', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${sunoApiKey}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ audioId })
+      });
+
+      if (!wavResponse.ok) {
+        throw new Error(`WAV conversion failed: ${wavResponse.status} ${wavResponse.statusText}`);
+      }
+
+      const wavData = await wavResponse.json();
+      console.log('✅ Conversion WAV réussie:', wavData);
+
+      return new Response(JSON.stringify(wavData), {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+
+    } else if (requestBody.action === 'remove_vocals') {
+      // Suppression des voix
+      const { audioId, output_format } = requestBody;
+      
+      if (!audioId) {
+        throw new Error('audioId manquant pour suppression des voix');
+      }
+
+      console.log('🎤 Suppression voix pour audioId:', audioId);
+      
+      const sunoApiKey = Deno.env.get('SUNO_API_KEY');
+      if (!sunoApiKey) {
+        throw new Error('SUNO_API_KEY non configurée');
+      }
+
+      // Appel API Suno pour suppression des voix
+      const vocalResponse = await fetch('https://api.sunoapi.org/api/v1/audio/remove-vocals', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${sunoApiKey}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({ 
+          audioId,
+          output_format: output_format || 'mp3'
+        })
+      });
+
+      if (!vocalResponse.ok) {
+        throw new Error(`Vocal removal failed: ${vocalResponse.status} ${vocalResponse.statusText}`);
+      }
+
+      const vocalData = await vocalResponse.json();
+      console.log('✅ Suppression voix réussie:', vocalData);
+
+      return new Response(JSON.stringify(vocalData), {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+
+    } else if (requestBody.action === 'generate_video') {
+      // Génération vidéo
+      const { audioId, visual_style, resolution, color_scheme, include_lyrics, output_format } = requestBody;
+      
+      if (!audioId) {
+        throw new Error('audioId manquant pour génération vidéo');
+      }
+
+      console.log('🎬 Génération vidéo pour audioId:', audioId);
+      
+      const sunoApiKey = Deno.env.get('SUNO_API_KEY');
+      if (!sunoApiKey) {
+        throw new Error('SUNO_API_KEY non configurée');
+      }
+
+      // Appel API Suno pour génération vidéo
+      const videoResponse = await fetch('https://api.sunoapi.org/api/v1/video/generate', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${sunoApiKey}`,
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          audioId,
+          visual_style: visual_style || 'waveform',
+          resolution: resolution || '1080p',
+          color_scheme: color_scheme || ['#1e40af', '#3b82f6', '#60a5fa'],
+          include_lyrics: include_lyrics !== false,
+          output_format: output_format || 'mp4'
+        })
+      });
+
+      if (!videoResponse.ok) {
+        throw new Error(`Video generation failed: ${videoResponse.status} ${videoResponse.statusText}`);
+      }
+
+      const videoData = await videoResponse.json();
+      console.log('✅ Génération vidéo réussie:', videoData);
+
+      return new Response(JSON.stringify(videoData), {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+
     } else {
       // Requête de génération
       const { paroles, style, rang, duration = 120, customMode = true, instrumental = false, model = "V3_5" } = requestBody;
