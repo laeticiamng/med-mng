@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { toast } from 'sonner';
+import { appNavigate } from '@/lib/navigation';
 
 interface QuotaStats {
   by_service: Array<{
@@ -22,7 +23,6 @@ interface QuotaStats {
 export const useIAQuota = () => {
   const [quota, setQuota] = useState<number>(0);
   const [loading, setLoading] = useState(false);
-  const { toast } = useToast();
 
   const fetchQuota = async () => {
     try {
@@ -51,18 +51,20 @@ export const useIAQuota = () => {
       console.error('Erreur lors de la récupération du quota:', error);
       const status = error?.status ?? error?.context?.status ?? error?.response?.status;
       if (status === 401) {
-      toast({
-        title: "Connexion requise",
+      toast.error("Connexion requise", {
         description: "Connectez-vous pour accéder à vos crédits IA et générer de la musique.",
-        variant: "destructive",
+        action: {
+          label: "Se connecter",
+          onClick: () => appNavigate('/med-mng/login')
+        },
+        duration: 8000
       });
         setQuota(0);
         return 0;
       }
-      toast({
-        title: "Erreur",
-        description: "Impossible de récupérer le quota IA",
-        variant: "destructive",
+      toast.error("Erreur quota IA", {
+        description: "Impossible de récupérer le quota IA. Réessayez dans quelques instants.",
+        duration: 6000
       });
       return 0;
     } finally {
@@ -97,10 +99,13 @@ export const useIAQuota = () => {
       console.error('Erreur lors de la vérification du quota:', error);
       const status = error?.status ?? error?.context?.status ?? error?.response?.status;
       if (status === 401) {
-        toast({
-          title: "Authentification requise",
+        toast.error("Authentification requise", {
           description: "Connectez-vous pour vérifier vos crédits IA et débloquer toutes les fonctionnalités.",
-          variant: "destructive",
+          action: {
+            label: "Se connecter",
+            onClick: () => appNavigate('/med-mng/login')
+          },
+          duration: 8000
         });
       }
       return {
@@ -134,10 +139,9 @@ export const useIAQuota = () => {
         setQuota(data.remaining_credits || 0);
         return true;
       } else {
-        toast({
-          title: "Quota insuffisant",
+        toast.error("Quota insuffisant", {
           description: `Il vous faut ${data?.required_credits || 0} crédits mais vous n'en avez que ${data?.remaining_credits || 0}`,
-          variant: "destructive",
+          duration: 8000
         });
         return false;
       }
@@ -145,16 +149,18 @@ export const useIAQuota = () => {
       console.error('Erreur lors de l\'utilisation du quota:', error);
       const status = error?.status ?? error?.context?.status ?? error?.response?.status;
       if (status === 401) {
-        toast({
-          title: "Session expirée",
+        toast.error("Session expirée", {
           description: "Reconnectez-vous pour utiliser vos crédits IA et continuer à générer.",
-          variant: "destructive",
+          action: {
+            label: "Se reconnecter",
+            onClick: () => appNavigate('/med-mng/login')
+          },
+          duration: 8000
         });
       } else {
-        toast({
-          title: "Erreur",
-          description: "Impossible d'utiliser les crédits IA",
-          variant: "destructive",
+        toast.error("Erreur crédits IA", {
+          description: "Impossible d'utiliser les crédits IA. Réessayez.",
+          duration: 6000
         });
       }
       return false;

@@ -6,6 +6,7 @@ import { HelpButton } from "@/components/onboarding/HelpButton";
 import { AccessibilityProvider } from "@/components/accessibility/AccessibilityProvider";
 import { ToastProvider } from "@/components/feedback/ToastProvider";
 import { UXToastProvider } from "@/components/feedback/UXToastProvider";
+import NavigatorBridge from "@/lib/NavigatorBridge";
 import { ViewportProvider } from "@/components/responsive/ViewportProvider";
 import { SkipLinks } from "@/components/navigation/SkipLinks";
 
@@ -116,6 +117,7 @@ const App = () => {
                   <TooltipProvider>
                     <HelmetProvider>
                       <BrowserRouter>
+                        <NavigatorBridge />
                         <UXToastProvider>
                         <SkipLinks />
                         <div id="app-root" className="min-h-screen flex flex-col">
