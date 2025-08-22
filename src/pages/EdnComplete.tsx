@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { 
   Search, BookOpen, Filter, Grid, List, Music, Brain, Zap, 
   TrendingUp, CheckCircle, Award, Users
@@ -33,6 +33,8 @@ const QuotaIndicator = React.lazy(() =>
 );
 
 export default function EdnComplete() {
+  const navigate = useNavigate();
+  
   // États principaux
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
@@ -52,8 +54,8 @@ export default function EdnComplete() {
   // Gestion du clic sur un item
   const handleItemClick = (item: EdnItemLight) => {
     setSelectedItem(item);
-    // Navigation directe vers l'item via react-router
-    window.location.href = `/edn/${item.slug}`;
+    // Navigation SPA optimisée avec React Router
+    navigate(`/edn/${item.slug}`);
   };
 
   // Reset de la page lors des changements de filtre

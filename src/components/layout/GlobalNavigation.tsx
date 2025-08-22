@@ -6,7 +6,6 @@ import {
   Home, 
   BookOpen, 
   Music, 
-  Settings, 
   User,
   Menu,
   X
@@ -68,17 +67,17 @@ export const GlobalNavigation = () => {
               variant="ghost" 
               size="icon" 
               className="hidden sm:flex"
-              onClick={() => navigate('/med-mng/pricing')}
-              title="Paramètres"
+              onClick={() => navigate('/generator')}
+              title="Générateur Musical"
             >
-              <Settings className="h-4 w-4" />
+              <Music className="h-4 w-4" />
             </Button>
             <Button 
               variant="ghost" 
               size="icon" 
               className="hidden sm:flex"
-              onClick={() => navigate('/med-mng/login')}
-              title="Profil utilisateur"
+              onClick={() => navigate('/med-mng/profile')}
+              title="Mon Profil"
             >
               <User className="h-4 w-4" />
             </Button>
@@ -127,19 +126,19 @@ export const GlobalNavigation = () => {
                   size="sm" 
                   className="flex-1"
                   onClick={() => {
-                    navigate('/med-mng/pricing');
+                    navigate('/generator');
                     setIsMobileMenuOpen(false);
                   }}
                 >
-                  <Settings className="h-4 w-4 mr-2" />
-                  Paramètres
+                  <Music className="h-4 w-4 mr-2" />
+                  Générateur
                 </Button>
                 <Button 
                   variant="ghost" 
                   size="sm" 
                   className="flex-1"
                   onClick={() => {
-                    navigate('/med-mng/login');
+                    navigate('/med-mng/profile');
                     setIsMobileMenuOpen(false);
                   }}
                 >

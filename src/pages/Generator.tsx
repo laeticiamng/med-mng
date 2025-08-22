@@ -65,15 +65,23 @@ const Generator = () => {
     if (!user) {
       // Utilisateur non connecté - utilise le système gratuit limité
       if (remainingFree <= 0) {
-        toast.error('Plus de générations gratuites disponibles. Connectez-vous pour continuer.');
-        navigate('/med-mng/login');
+        toast.error('Plus de générations gratuites disponibles. 🎵 Connectez-vous pour continuer à créer !', {
+          action: {
+            label: "Se connecter",
+            onClick: () => navigate('/med-mng/login')
+          }
+        });
         return;
       }
     } else {
       // Utilisateur connecté - vérifie les quotas d'abonnement
       if (!canGenerateMusic()) {
-        toast.error('Quota de génération atteint pour ce mois. Améliorez votre abonnement.');
-        navigate('/med-mng/pricing');
+        toast.error('Quota de génération atteint pour ce mois. 🚀 Améliorez votre abonnement pour continuer !', {
+          action: {
+            label: "Voir les offres",
+            onClick: () => navigate('/med-mng/pricing')
+          }
+        });
         return;
       }
     }
@@ -178,14 +186,22 @@ const Generator = () => {
     if (!generatedSong) return;
     
     if (!user) {
-      toast.error('Connectez-vous pour sauvegarder vos musiques');
-      navigate('/med-mng/login');
+      toast.error('🔐 Connectez-vous pour sauvegarder vos créations musicales !', {
+        action: {
+          label: "Se connecter", 
+          onClick: () => navigate('/med-mng/login')
+        }
+      });
       return;
     }
     
     if (!canSaveMusic()) {
-      toast.error('Votre abonnement ne permet pas de sauvegarder. Améliorez votre plan.');
-      navigate('/med-mng/pricing');
+      toast.error('📦 Votre abonnement ne permet pas de sauvegarder. Améliorez votre plan !', {
+        action: {
+          label: "Améliorer",
+          onClick: () => navigate('/med-mng/pricing')
+        }
+      });
       return;
     }
     
@@ -213,6 +229,7 @@ const Generator = () => {
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <button
+              type="button"
               onClick={() => navigate('/')}
               className="flex items-center gap-2 text-white/80 hover:text-white transition-colors"
             >
