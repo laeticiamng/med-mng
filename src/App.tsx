@@ -112,11 +112,11 @@ const App = () => {
           <LanguageProvider>
             <GlobalAudioProvider>
               <AuthProvider>
-                <UXToastProvider>
-                  <ToastProvider>
+                <ToastProvider>
                   <TooltipProvider>
                     <HelmetProvider>
                       <BrowserRouter>
+                        <UXToastProvider>
                         <SkipLinks />
                         <div id="app-root" className="min-h-screen flex flex-col">
                           {/* Navigation globale */}
@@ -210,11 +210,11 @@ const App = () => {
                         </div>
                         <Toaster />
                         <Sonner />
+                        </UXToastProvider>
                       </BrowserRouter>
                     </HelmetProvider>
                   </TooltipProvider>
-                  </ToastProvider>
-                </UXToastProvider>
+                </ToastProvider>
               </AuthProvider>
             </GlobalAudioProvider>
           </LanguageProvider>
