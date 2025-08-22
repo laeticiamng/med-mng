@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { HelpButton } from "@/components/onboarding/HelpButton";
 import { AccessibilityProvider } from "@/components/accessibility/AccessibilityProvider";
 import { ToastProvider } from "@/components/feedback/ToastProvider";
+import { UXToastProvider } from "@/components/feedback/UXToastProvider";
 import { ViewportProvider } from "@/components/responsive/ViewportProvider";
 import { SkipLinks } from "@/components/navigation/SkipLinks";
 
@@ -58,6 +59,7 @@ const SystemHealth = lazy(() => import("./pages/SystemHealth"));
 const EdnObjectifsExtractionPage = lazy(() => import("./pages/EdnObjectifsExtraction"));
 const OicDataQualityManager = lazy(() => import("./pages/OicDataQualityManager"));
 const AuditCompleteness = lazy(() => import("./pages/AuditCompleteness"));
+const UXValidationDashboard = lazy(() => import("./components/validation/UXValidationDashboard").then(module => ({ default: module.UXValidationDashboard })));
 const TestExtraction = lazy(() => import("./pages/TestExtraction"));
 const EdnImmersive = lazy(() => import("./pages/EdnImmersive"));
 const EdnComplete = lazy(() => import("./pages/EdnComplete"));
@@ -110,7 +112,8 @@ const App = () => {
           <LanguageProvider>
             <GlobalAudioProvider>
               <AuthProvider>
-                <ToastProvider>
+                <UXToastProvider>
+                  <ToastProvider>
                   <TooltipProvider>
                     <HelmetProvider>
                       <BrowserRouter>
@@ -187,6 +190,7 @@ const App = () => {
                                     <Route path="/test-subscriptions" element={<SubscriptionTest />} />
                 <Route path="/library" element={<Navigate to="/med-mng/library" replace />} />
                 <Route path="/music-library" element={<Navigate to="/med-mng/library" replace />} />
+                                    <Route path="/validation-ux" element={<UXValidationDashboard />} />
                                     <Route path="/test-extraction" element={<TestExtraction />} />
                                     <Route path="*" element={<NotFound />} />
                                   </Routes>
@@ -209,7 +213,8 @@ const App = () => {
                       </BrowserRouter>
                     </HelmetProvider>
                   </TooltipProvider>
-                </ToastProvider>
+                  </ToastProvider>
+                </UXToastProvider>
               </AuthProvider>
             </GlobalAudioProvider>
           </LanguageProvider>
