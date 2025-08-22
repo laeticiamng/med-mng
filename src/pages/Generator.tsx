@@ -275,6 +275,11 @@ const Generator = () => {
           <GeneratorMusicPlayer
             generatedSong={generatedSong}
             onAddToLibrary={handleAddToLibrary}
+            onSongUpdate={(updatedSong) => {
+              // Callback pour mettre à jour la chanson quand l'URL finale arrive
+              console.log('🔄 Mise à jour de la chanson depuis le player:', updatedSong);
+              setGeneratedSong(prev => ({ ...prev, ...updatedSong }));
+            }}
           />
 
           {/* Informations d'aide premium */}

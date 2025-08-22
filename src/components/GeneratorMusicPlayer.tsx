@@ -11,18 +11,29 @@ import { Progress } from '@/components/ui/progress';
 interface GeneratorMusicPlayerProps {
   generatedSong: any;
   onAddToLibrary: () => void;
+  onSongUpdate?: (updatedSong: any) => void;
 }
 
 export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
   generatedSong,
-  onAddToLibrary
+  onAddToLibrary,
+  onSongUpdate
 }) => {
   const { currentTrack, isPlaying, play, pause, resume } = useGlobalAudio();
   const [showDebug, setShowDebug] = useState(false);
 
   // Détecter si c'est une génération en cours (trackId de 32 caractères hexadécimaux)
-  const isTrackId = generatedSong?.audioUrl && /^[a-f0-9]{32}$/.test(generatedSong.audioUrl);
+  const isTrackId = generatedSong?.audioUrl && 
+    typeof generatedSong.audioUrl === 'string' && 
+    /^[a-f0-9]{32}$/i.test(generatedSong.audioUrl);
   const trackIdForPolling = isTrackId ? generatedSong.audioUrl : null;
+  
+  console.log('🔍 Détection trackId:', {
+    audioUrl: generatedSong?.audioUrl,
+    isTrackId,
+    trackIdForPolling,
+    audioUrlType: typeof generatedSong?.audioUrl
+  });
   
   // Utiliser le hook de statut pour suivre la génération
   const { status, isPolling, startPolling, audioUrl, progress, isGenerating } = useMusicGenerationStatus(trackIdForPolling);
@@ -35,12 +46,29 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
     }
   }, [trackIdForPolling, isPolling, startPolling]);
 
+  // Mettre à jour l'objet song quand l'URL audio finale arrive
+  useEffect(() => {
+    if (audioUrl && isTrackId && onSongUpdate) {
+      console.log('🔄 URL audio finale reçue, mise à jour du song:', {
+        trackId: generatedSong.audioUrl,
+        finalAudioUrl: audioUrl
+      });
+      onSongUpdate({ audioUrl });
+    }
+  }, [audioUrl, isTrackId, onSongUpdate, generatedSong?.audioUrl]);
+
   console.log('🎵 GeneratorMusicPlayer render:', {
     hasGeneratedSong: !!generatedSong,
     audioUrl: generatedSong?.audioUrl,
-    isCurrentTrack: currentTrack?.url === generatedSong?.audioUrl,
+    finalAudioUrl: audioUrl || generatedSong?.audioUrl,
+    isTrackId,
+    trackIdForPolling,
+    isCurrentTrack: currentTrack?.url === (audioUrl || generatedSong?.audioUrl),
     isPlaying,
-    currentTrack
+    currentTrack,
+    pollingStatus: status?.status,
+    isGenerating,
+    progress
   });
 
   if (!generatedSong) return null;
@@ -51,8 +79,18 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
   const isCurrentlyPlaying = isCurrentTrack && isPlaying;
 
   const handlePlay = () => {
-    // Si la génération est en cours, afficher un message
-    if (isGenerating && !audioUrl) {
+    console.log('🎵 HandlePlay appelé:', {
+      generatedSong: !!generatedSong,
+      originalAudioUrl: generatedSong?.audioUrl,
+      finalAudioUrl,
+      isTrackId,
+      pollingAudioUrl: audioUrl,
+      isGenerating,
+      status: status?.status
+    });
+
+    // Si la génération est en cours et on n'a pas encore d'URL finale
+    if (isGenerating && !finalAudioUrl) {
       alert('🎵 Votre musique est en cours de génération. Veuillez patienter quelques instants...');
       return;
     }
@@ -70,9 +108,21 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
     if (!finalAudioUrl || 
         finalAudioUrl === '' || 
         finalAudioUrl === 'undefined' ||
-        finalAudioUrl === null) {
-      console.error('❌ URL audio invalide dans GeneratorMusicPlayer:', finalAudioUrl);
-      alert('❌ Erreur: URL audio manquante ou invalide. Veuillez regénérer la musique.');
+        finalAudioUrl === null ||
+        typeof finalAudioUrl !== 'string') {
+      console.error('❌ URL audio invalide dans GeneratorMusicPlayer:', {
+        finalAudioUrl,
+        originalUrl: generatedSong?.audioUrl,
+        pollingUrl: audioUrl,
+        type: typeof finalAudioUrl
+      });
+      
+      // Si c'est un trackId, encourager l'utilisateur à attendre
+      if (isTrackId) {
+        alert('🎵 Votre musique est encore en cours de génération. Veuillez patienter...');
+      } else {
+        alert('❌ Erreur: URL audio manquante ou invalide. Veuillez regénérer la musique.');
+      }
       return;
     }
 
@@ -128,12 +178,27 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
             Style: {generatedSong.style || 'Personnalisé'}
           </p>
           
+          {/* Status de la génération */}
+          {isTrackId && (
+            <div className="bg-blue-50 rounded-lg p-3 mb-4">
+              <p className="text-sm text-blue-700">
+                {isGenerating ? (
+                  <>🔄 Génération en cours... {Math.round(progress || 0)}% complété</>
+                ) : audioUrl ? (
+                  <>✅ Musique prête !</>
+                ) : (
+                  <>⏳ Vérification du statut...</>
+                )}
+              </p>
+            </div>
+          )}
+          
           {/* Barre de progression si génération en cours */}
           {isGenerating && !audioUrl && (
             <div className="space-y-2">
               <Progress value={progress} className="w-full" />
               <p className="text-sm text-blue-600">
-                Génération en cours... {progress}% complété
+                Génération en cours... {Math.round(progress || 0)}% complété
               </p>
             </div>
           )}
@@ -146,10 +211,10 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
             size="lg"
             disabled={isGenerating && !audioUrl}
           >
-            {isGenerating && !audioUrl ? (
+            {isTrackId && isGenerating && !audioUrl ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                En cours...
+                Génération en cours...
               </>
             ) : isCurrentlyPlaying ? (
               <>
@@ -159,7 +224,7 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
             ) : (
               <>
                 <Play className="h-4 w-4 mr-2" />
-                Écouter
+                {isTrackId && !audioUrl ? 'En attente...' : 'Écouter'}
               </>
             )}
           </Button>
@@ -182,6 +247,22 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
           >
             <Bug className="h-4 w-4" />
           </Button>
+          
+          {/* Bouton de test du polling si c'est un trackId */}
+          {isTrackId && (
+            <Button
+              onClick={() => {
+                console.log('🔄 Force polling manuel pour:', trackIdForPolling);
+                startPolling();
+              }}
+              variant="outline"
+              size="lg"
+              className="text-blue-600 border-blue-300 hover:bg-blue-50"
+              title="Forcer la vérification"
+            >
+              🔄
+            </Button>
+          )}
         </div>
 
         {/* Debug Panel */}
@@ -193,21 +274,37 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
               title={generatedSong.title}
             />
             <div className="text-xs text-gray-500 space-y-1">
-              <div>Object: {JSON.stringify(generatedSong, null, 2).substring(0, 200)}...</div>
-              <div>Current Track: {currentTrack?.url}</div>
-              <div>Is Playing: {isPlaying ? 'Yes' : 'No'}</div>
+              <div><strong>Generated Song:</strong> {JSON.stringify(generatedSong, null, 2).substring(0, 200)}...</div>
+              <div><strong>Is Track ID:</strong> {isTrackId ? 'Oui' : 'Non'}</div>
+              <div><strong>Track ID:</strong> {trackIdForPolling || 'N/A'}</div>
+              <div><strong>Polling Audio URL:</strong> {audioUrl || 'En attente...'}</div>
+              <div><strong>Final Audio URL:</strong> {finalAudioUrl || 'N/A'}</div>
+              <div><strong>Current Track:</strong> {currentTrack?.url || 'Aucun'}</div>
+              <div><strong>Is Playing:</strong> {isPlaying ? 'Oui' : 'Non'}</div>
+              <div><strong>Is Generating:</strong> {isGenerating ? 'Oui' : 'Non'}</div>
+              <div><strong>Progress:</strong> {Math.round(progress || 0)}%</div>
+              <div><strong>Status:</strong> {status?.status || 'N/A'}</div>
             </div>
           </div>
         )}
 
         <div className="text-xs text-gray-500 text-center mt-4 space-y-1">
-          {isGenerating && !audioUrl ? (
-            <p>⏳ Votre musique est en cours de génération. Le processus optimisé prend environ 20 secondes...</p>
+          {isTrackId ? (
+            isGenerating && !audioUrl ? (
+              <p>⏳ Votre musique est en cours de génération. Le processus optimisé prend environ 30-90 secondes...</p>
+            ) : audioUrl ? (
+              <p>🎵 Votre musique est prête ! Utilisez les contrôles pour l'écouter.</p>
+            ) : (
+              <p>🔄 Vérification du statut de génération...</p>
+            )
           ) : (
             <p>🎵 Votre musique est prête ! Utilisez les contrôles pour l'écouter.</p>
           )}
-          {(finalAudioUrl || generatedSong.audioUrl) && (
-            <p className="break-all">🔗 URL: {(finalAudioUrl || generatedSong.audioUrl).substring(0, 80)}...</p>
+          {finalAudioUrl && (
+            <p className="break-all">🔗 URL: {finalAudioUrl.substring(0, 80)}...</p>
+          )}
+          {isTrackId && (
+            <p className="break-all">🆔 ID: {generatedSong.audioUrl}</p>
           )}
         </div>
       </CardContent>
