@@ -44,41 +44,20 @@ export const SubscriptionTest = () => {
           <TabsContent value="test" className="mt-6">
             <SubscriptionTestPanel />
             
-            {/* Ajout du test EDN UNESS */}
-            <div className="mt-8 p-6 bg-white rounded-lg shadow-sm border">
-              <h3 className="text-lg font-semibold mb-4">Test Extraction EDN UNESS</h3>
-              <button 
-                onClick={async () => {
-                  console.log("🚀 Démarrage test EDN UNESS...");
-                  try {
-                    const response = await fetch('/api/extract-edn-uness', {
-                      method: 'POST',
-                      headers: {
-                        'Content-Type': 'application/json',
-                      },
-                      body: JSON.stringify({
-                        action: 'start',
-                        resumeFromItem: 1,
-                        // ✅ SÉCURISÉ: Utilisation de variables d'environnement
-                        credentials: {
-                          username: import.meta.env.VITE_CAS_USERNAME || prompt('Username CAS:'),
-                          password: import.meta.env.VITE_CAS_PASSWORD || prompt('Password CAS:')
-                        }
-                      })
-                    });
-                    
-                    const result = await response.json();
-                    console.log("✅ Résultat:", result);
-                    alert(`Extraction terminée: ${result.stats?.totalProcessed || 0} items traités`);
-                  } catch (error) {
-                    console.error("❌ Erreur:", error);
-                    alert("Erreur lors de l'extraction");
-                  }
-                }}
-                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            {/* Section de test EDN UNESS supprimée pour sécurité */}
+            <div className="mt-8 p-6 bg-yellow-50 rounded-lg shadow-sm border border-yellow-200">
+              <h3 className="text-lg font-semibold mb-4 text-yellow-800">⚠️ Test EDN UNESS</h3>
+              <p className="text-yellow-700 mb-4">
+                Le test d'extraction EDN UNESS a été désactivé pour des raisons de sécurité. 
+                Utilisez la page d'administration dédiée avec authentification sécurisée.
+              </p>
+              <Button 
+                variant="outline"
+                onClick={() => window.open('/admin/extract-edn', '_blank')}
+                className="border-yellow-300 text-yellow-800 hover:bg-yellow-100"
               >
-                Tester Extraction EDN
-              </button>
+                Accéder à l'extraction sécurisée
+              </Button>
             </div>
           </TabsContent>
           

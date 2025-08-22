@@ -6,6 +6,7 @@ import { AlertCircle, Download, Play, Pause, RefreshCw } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { SecureCredentialsForm, useSecureCredentials } from '@/components/common/SecureCredentialsForm';
 
 const AdminExtractEdn = () => {
   const [isExtracting, setIsExtracting] = useState(false);
@@ -13,6 +14,8 @@ const AdminExtractEdn = () => {
   const [stats, setStats] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
   const [resumeFromItem, setResumeFromItem] = useState(1);
+  
+  const { getCredentials, showCredentialsForm, handleCredentialsSubmit } = useSecureCredentials();
 
   const startExtraction = async (action: 'start' | 'resume' = 'start') => {
     setIsExtracting(true);
@@ -22,15 +25,14 @@ const AdminExtractEdn = () => {
     try {
       console.log(`🚀 Lancement de l'extraction EDN - Action: ${action}`);
       
+      // ✅ SÉCURISÉ: Récupération des credentials via composant sécurisé
+      const credentials = await getCredentials();
+      
       const { data, error } = await supabase.functions.invoke('extract-edn-uness', {
         body: {
           action,
           resumeFromItem: action === 'resume' ? resumeFromItem : 1,
-          // ✅ SÉCURISÉ: Utilisation de variables d'environnement
-          credentials: {
-            username: import.meta.env.VITE_CAS_USERNAME || prompt('Username CAS:'),
-            password: import.meta.env.VITE_CAS_PASSWORD || prompt('Password CAS:')
-          }
+          credentials // Credentials sécurisés (pas de hardcodé)
         }
       });
 
@@ -214,6 +216,19 @@ const AdminExtractEdn = () => {
         </Alert>
 
       </div>
+
+      {/* Formulaire de credentials sécurisé */}
+      {showCredentialsForm && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div onClick={(e) => e.stopPropagation()}>
+            <SecureCredentialsForm
+              onSubmit={handleCredentialsSubmit}
+              title="Authentification CAS pour extraction EDN"
+              description="Saisissez vos identifiants CAS pour l'extraction sécurisée des données EDN"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
