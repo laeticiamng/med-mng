@@ -13,9 +13,7 @@
     "start:server": "node --loader ts-node/esm src/index.ts",
     "test": "vitest run",
     "integrity:audit": "node --loader ts-node/esm scripts/dataIntegrityAudit.ts",
-    "audit": "node scripts/run-audit.js",
-    "generate:supabase-client": "node scripts/generate-supabase-client.js",
-    "prebuild": "npm run generate-supabase-client"
+    "audit": "node scripts/run-audit.js"
   },
   "dependencies": {
     "@cypress/vite-dev-server": "^6.0.3",

@@ -106,8 +106,6 @@ const queryClient = new QueryClient({
 });
 
 const App = () => {
-  console.log('🚀 App rendering...');
-  
   return (
     <QueryClientProvider client={queryClient}>
       <AccessibilityProvider>
@@ -122,7 +120,7 @@ const App = () => {
                         <NavigatorBridge />
                         <UXToastProvider>
                         <SkipLinks />
-                        <div id="app-root" className="min-h-screen flex flex-col bg-background text-foreground" style={{backgroundColor: '#f8fafc', color: '#1e293b'}}>
+                        <div id="app-root" className="min-h-screen flex flex-col">
                           {/* Navigation globale */}
                           <GlobalNavigation />
                           

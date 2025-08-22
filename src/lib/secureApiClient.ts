@@ -94,42 +94,6 @@ export class SecureSunoClient {
 
     return data;
   }
-
-  async convertToWav(audioId: string) {
-    const { data, error } = await supabase.functions.invoke('suno-music-optimized', {
-      body: { action: 'convert-wav', audioId }
-    });
-
-    if (error) {
-      throw new Error(`Suno WAV API Error: ${error.message}`);
-    }
-
-    return data;
-  }
-
-  async removeVocals(audioId: string) {
-    const { data, error } = await supabase.functions.invoke('suno-music-optimized', {
-      body: { action: 'remove-vocals', audioId }
-    });
-
-    if (error) {
-      throw new Error(`Suno Vocal Removal API Error: ${error.message}`);
-    }
-
-    return data;
-  }
-
-  async generateVideo(audioId: string) {
-    const { data, error } = await supabase.functions.invoke('suno-music-optimized', {
-      body: { action: 'generate-video', audioId }
-    });
-
-    if (error) {
-      throw new Error(`Suno Video API Error: ${error.message}`);
-    }
-
-    return data;
-  }
 }
 
 // Export singleton instances

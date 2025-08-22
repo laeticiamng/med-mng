@@ -1,17 +1,10 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { getCorsHeaders } from '../_shared/cors.ts';
 
-function isAuthorized(req: Request): boolean {
-  const headerKey =
-    req.headers.get('apikey') ||
-    req.headers.get('Authorization')?.replace('Bearer ', '');
-
-  const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '';
-  const anonKey = Deno.env.get('SUPABASE_ANON_KEY') ?? '';
-
-  return !!headerKey && (headerKey === serviceKey || headerKey === anonKey);
-}
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
 
 interface HealthCheckResult {
   service: string;
@@ -148,40 +141,6 @@ async function sendDiscordAlert(alert: AlertPayload) {
   }
 }
 
-async function sendTeamsAlert(alert: AlertPayload) {
-  const webhookUrl = Deno.env.get('TEAMS_WEBHOOK_URL');
-  if (!webhookUrl) return;
-
-  const message = {
-    '@type': 'MessageCard',
-    '@context': 'https://schema.org/extensions',
-    summary: `${alert.type.toUpperCase()} - ${alert.service}`,
-    themeColor:
-      alert.severity === 'critical'
-        ? 'E81123'
-        : alert.severity === 'high'
-        ? 'F2C744'
-        : '107C10',
-    sections: [
-      {
-        activityTitle: alert.service,
-        activitySubtitle: new Date().toISOString(),
-        text: alert.message,
-      },
-    ],
-  };
-
-  try {
-    await fetch(webhookUrl, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(message),
-    });
-  } catch (error) {
-    console.error('Failed to send Teams alert:', error);
-  }
-}
-
 async function logIncident(alert: AlertPayload) {
   try {
     const { error } = await supabase
@@ -205,17 +164,8 @@ async function logIncident(alert: AlertPayload) {
 }
 
 serve(async (req) => {
-  const corsHeaders = getCorsHeaders(req.headers.get('Origin'));
-
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
-  }
-
-  if (!isAuthorized(req)) {
-    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
-      status: 401,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
   }
 
   try {
@@ -251,8 +201,7 @@ serve(async (req) => {
             await Promise.all([
               sendSlackAlert(alert),
               sendDiscordAlert(alert),
-              sendTeamsAlert(alert),
-              logIncident(alert),
+              logIncident(alert)
             ]);
           }
         }
@@ -275,8 +224,7 @@ serve(async (req) => {
         await Promise.all([
           sendSlackAlert(alert),
           sendDiscordAlert(alert),
-          sendTeamsAlert(alert),
-          logIncident(alert),
+          logIncident(alert)
         ]);
 
         return new Response(JSON.stringify({ 

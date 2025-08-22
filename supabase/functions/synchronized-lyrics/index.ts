@@ -19,11 +19,6 @@ interface LyricsLine {
   text: string;
 }
 
-// Cache mémoire simple pour éviter de surcharger l'API Suno
-// Stocke les paroles/timestamps par identifiant audio
-const lyricsCache = new Map<string, { lines: LyricsLine[]; timestamp: number }>();
-const CACHE_DURATION_MS = 1000 * 60 * 30; // 30 minutes
-
 interface LyricsRequest {
   action: 'get' | 'save' | 'generate_from_suno' | 'sync_timestamps';
   songId: string;
@@ -159,7 +154,7 @@ async function generateLyricsFromSuno(supabase: any, request: LyricsRequest) {
   }
 
   try {
-    // Récupérer les paroles depuis Suno
+    // Récupérer les paroles depuis Suno (simulation car l'API n'existe pas encore)
     const lyrics = await fetchSunoLyrics(sunoAudioId);
     
     if (lyrics.length > 0) {
@@ -203,7 +198,7 @@ async function syncTimestampsWithSuno(supabase: any, request: LyricsRequest) {
   }
 
   try {
-    // Récupérer les timestamps depuis Suno
+    // Récupérer les timestamps depuis Suno (simulation)
     const timestamps = await fetchSunoTimestamps(sunoAudioId);
     
     if (timestamps.length > 0) {
@@ -239,53 +234,54 @@ async function syncTimestampsWithSuno(supabase: any, request: LyricsRequest) {
   }
 }
 
-// Récupération réelle des paroles depuis l'API Suno avec cache
+// Fonction simulée pour récupérer les paroles depuis Suno
 async function fetchSunoLyrics(sunoAudioId: string): Promise<LyricsLine[]> {
-  const cached = lyricsCache.get(sunoAudioId);
-  if (cached && Date.now() - cached.timestamp < CACHE_DURATION_MS) {
-    return cached.lines;
-  }
-
-  const apiKey = Deno.env.get('SUNO_API_KEY');
-  if (!apiKey) {
-    throw new Error('SUNO_API_KEY not configured');
-  }
-
+  // TODO: Implémenter l'API Suno réelle quand elle sera disponible
+  // Pour l'instant, générer des paroles d'exemple
+  
   console.log(`Fetching lyrics for Suno audio: ${sunoAudioId}`);
-
-  const response = await fetch(`https://api.suno.ai/v1/audio/${sunoAudioId}/lyrics`, {
-    headers: {
-      'Authorization': `Bearer ${apiKey}`,
-      'Accept': 'application/json'
-    }
-  });
-
-  if (!response.ok) {
-    throw new Error(`Suno lyrics API error: ${response.status}`);
-  }
-
-  const sunoData = await response.json();
-  let lines: LyricsLine[] = [];
-
-  if (Array.isArray(sunoData.segments)) {
-    lines = sunoData.segments.map((seg: any) => ({
-      time: seg.start,
-      text: seg.text
-    }));
-  } else if (typeof sunoData.text === 'string') {
-    const rawLines = sunoData.text.split('\n').filter((l: string) => l.trim().length > 0);
-    lines = rawLines.map((line: string, index: number) => ({
-      time: index * 4,
-      text: line.trim()
-    }));
-  }
-
-  lyricsCache.set(sunoAudioId, { lines, timestamp: Date.now() });
-  return lines;
+  
+  // Simuler des paroles avec timestamps
+  const exampleLyrics: LyricsLine[] = [
+    { time: 0, text: "[Intro]" },
+    { time: 2.5, text: "Médecine et science, notre passion" },
+    { time: 6.0, text: "Apprendre en musique, c'est notre mission" },
+    { time: 10.0, text: "[Couplet 1]" },
+    { time: 12.0, text: "Les compétences s'assemblent en harmonie" },
+    { time: 16.0, text: "Chaque note porte un savoir précis" },
+    { time: 20.0, text: "Dans cette mélodie, tout s'éclaircit" },
+    { time: 24.0, text: "[Refrain]" },
+    { time: 26.0, text: "Chantons la médecine, chantons la vie" },
+    { time: 30.0, text: "Chaque parole guide notre apprentissage" },
+    { time: 34.0, text: "Ensemble nous progressons, ensemble nous grandissons" },
+    { time: 38.0, text: "La musique ouvre le chemin vers la connaissance" }
+  ];
+  
+  return exampleLyrics;
 }
 
-// Les timestamps sont fournis par l'endpoint de paroles
-// Cette fonction retourne simplement les mêmes données
+// Fonction simulée pour récupérer les timestamps depuis Suno
 async function fetchSunoTimestamps(sunoAudioId: string): Promise<LyricsLine[]> {
-  return fetchSunoLyrics(sunoAudioId);
+  // TODO: Implémenter l'API Suno réelle quand elle sera disponible
+  
+  console.log(`Fetching timestamps for Suno audio: ${sunoAudioId}`);
+  
+  // Simuler des timestamps précis
+  const exampleTimestamps: LyricsLine[] = [
+    { time: 0.0, text: "[Intro musical]" },
+    { time: 2.3, text: "Médecine et science, notre passion" },
+    { time: 5.8, text: "Apprendre en musique, c'est notre mission" },
+    { time: 9.5, text: "[Transition]" },
+    { time: 11.2, text: "Les compétences s'assemblent en harmonie" },
+    { time: 15.4, text: "Chaque note porte un savoir précis" },
+    { time: 19.1, text: "Dans cette mélodie, tout s'éclaircit" },
+    { time: 23.0, text: "[Refrain commence]" },
+    { time: 25.2, text: "Chantons la médecine, chantons la vie" },
+    { time: 29.3, text: "Chaque parole guide notre apprentissage" },
+    { time: 33.5, text: "Ensemble nous progressons, ensemble nous grandissons" },
+    { time: 37.8, text: "La musique ouvre le chemin vers la connaissance" },
+    { time: 42.0, text: "[Outro]" }
+  ];
+  
+  return exampleTimestamps;
 }

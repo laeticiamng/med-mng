@@ -121,12 +121,6 @@ supabase/functions/
 - **Analytics d'Écoute** : Suivi détaillé des habitudes
 - **Système d'Abonnements** : Plans freemium et premium
 
-#### ⚠️ Limitations de l'API Suno
-- Les paroles et timestamps ne sont pas garantis pour tous les morceaux.
-- Des erreurs `429` peuvent survenir en cas de dépassement de crédits ou de quotas.
-- Le temps de génération peut varier et atteindre plusieurs minutes.
-- L'API peut temporairement renvoyer `503` lors des périodes de maintenance.
-
 ### 📚 Contenu Éducatif EDN/ECOS
 - **Interface Unifiée** : Navigation fluide entre les items
 - **Paroles Musicales** : Transformation des cours en chansons

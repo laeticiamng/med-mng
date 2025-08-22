@@ -29,6 +29,3 @@ __pycache__/
 !.env.development.example
 !.env.staging.example
 !.env.production.example
-
-# Generated Supabase client
-src/integrations/supabase/client.ts

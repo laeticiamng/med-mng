@@ -15,8 +15,7 @@ export { getMusicStatus, type MusicStatus, type MusicStatusStage } from '../musi
 export { getTimestampedLyrics, type TimestampedLyrics } from '../music/lyrics';
 export { extendMusic, type ExtendMusicPayload } from '../music/extend';
 
-// Utilitaires
+// Utilitaires (placeholder)
 export { convertToWav } from '../utils/wav';
 export { removeVocals } from '../utils/vocal-remove';
 export { generateVideo } from '../utils/video';
-
