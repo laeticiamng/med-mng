@@ -78,7 +78,10 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
   const isCurrentTrack = currentTrack?.url === finalAudioUrl;
   const isCurrentlyPlaying = isCurrentTrack && isPlaying;
 
-  const handlePlay = () => {
+  const handlePlay = (e?: React.MouseEvent) => {
+    e?.preventDefault();
+    e?.stopPropagation();
+    
     console.log('🎵 HandlePlay appelé:', {
       generatedSong: !!generatedSong,
       originalAudioUrl: generatedSong?.audioUrl,
@@ -190,6 +193,7 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
 
         <div className="flex gap-2">
           <Button
+            type="button"
             onClick={handlePlay}
             className="flex-1 bg-green-600 hover:bg-green-700"
             size="lg"
