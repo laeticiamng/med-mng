@@ -65,22 +65,26 @@ const Generator = () => {
     if (!user) {
       // Utilisateur non connecté - utilise le système gratuit limité
       if (remainingFree <= 0) {
-        toast.error('Plus de générations gratuites disponibles. 🎵 Connectez-vous pour continuer à créer !', {
+        toast.error('🎵 Générations gratuites épuisées', {
+          description: "Connectez-vous pour débloquer plus de générations et sauvegarder vos créations !",
           action: {
-            label: "Se connecter",
+            label: "🚀 Se connecter",
             onClick: () => navigate('/med-mng/login')
-          }
+          },
+          duration: 8000
         });
         return;
       }
     } else {
       // Utilisateur connecté - vérifie les quotas d'abonnement
       if (!canGenerateMusic()) {
-        toast.error('Quota de génération atteint pour ce mois. 🚀 Améliorez votre abonnement pour continuer !', {
+        toast.error('🚀 Quota mensuel atteint', {
+          description: "Améliorez votre abonnement pour générer plus de musiques éducatives ce mois-ci.",
           action: {
-            label: "Voir les offres",
+            label: "⭐ Voir les offres",
             onClick: () => navigate('/med-mng/pricing')
-          }
+          },
+          duration: 10000
         });
         return;
       }
@@ -186,21 +190,25 @@ const Generator = () => {
     if (!generatedSong) return;
     
     if (!user) {
-      toast.error('🔐 Connectez-vous pour sauvegarder vos créations musicales !', {
+      toast.error('🔐 Sauvegarde nécessite une connexion', {
+        description: "Connectez-vous pour sauvegarder vos créations et y accéder depuis n'importe où.",
         action: {
-          label: "Se connecter", 
+          label: "🚀 Se connecter", 
           onClick: () => navigate('/med-mng/login')
-        }
+        },
+        duration: 8000
       });
       return;
     }
     
     if (!canSaveMusic()) {
-      toast.error('📦 Votre abonnement ne permet pas de sauvegarder. Améliorez votre plan !', {
+      toast.error('📦 Sauvegarde limitée par votre plan', {
+        description: "Améliorez votre abonnement pour sauvegarder toutes vos créations musicales.",
         action: {
-          label: "Améliorer",
+          label: "⭐ Améliorer le plan",
           onClick: () => navigate('/med-mng/pricing')
-        }
+        },
+        duration: 10000
       });
       return;
     }

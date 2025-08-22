@@ -27,6 +27,14 @@ export const useIAQuota = () => {
   const fetchQuota = async () => {
     try {
       setLoading(true);
+      
+      // Vérifier d'abord si l'utilisateur est connecté
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        setQuota(0);
+        return 0;
+      }
+
       const { data, error } = await supabase.functions.invoke('med-mng-api/quota', {
         body: {},
         method: 'GET',
@@ -43,11 +51,11 @@ export const useIAQuota = () => {
       console.error('Erreur lors de la récupération du quota:', error);
       const status = error?.status ?? error?.context?.status ?? error?.response?.status;
       if (status === 401) {
-        toast({
-          title: "Session requise",
-          description: "Veuillez vous connecter pour voir vos crédits IA.",
-          variant: "destructive",
-        });
+      toast({
+        title: "Connexion requise",
+        description: "Connectez-vous pour accéder à vos crédits IA et générer de la musique.",
+        variant: "destructive",
+      });
         setQuota(0);
         return 0;
       }
@@ -90,8 +98,8 @@ export const useIAQuota = () => {
       const status = error?.status ?? error?.context?.status ?? error?.response?.status;
       if (status === 401) {
         toast({
-          title: "Session requise",
-          description: "Connectez-vous pour vérifier vos crédits IA.",
+          title: "Authentification requise",
+          description: "Connectez-vous pour vérifier vos crédits IA et débloquer toutes les fonctionnalités.",
           variant: "destructive",
         });
       }
@@ -138,8 +146,8 @@ export const useIAQuota = () => {
       const status = error?.status ?? error?.context?.status ?? error?.response?.status;
       if (status === 401) {
         toast({
-          title: "Session requise",
-          description: "Reconnectez-vous pour utiliser vos crédits IA.",
+          title: "Session expirée",
+          description: "Reconnectez-vous pour utiliser vos crédits IA et continuer à générer.",
           variant: "destructive",
         });
       } else {

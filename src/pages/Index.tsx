@@ -59,8 +59,8 @@ const Index = () => {
               </span>
             </h2>
             <p className="text-xl text-gray-300 mb-10 max-w-3xl mx-auto leading-relaxed">
-              Transformez vos études médicales avec l'IA. 
-              Générez des chansons éducatives, explorez 367 items EDN, et maîtrisez chaque compétence avec une approche révolutionnaire.
+              Révolutionnez votre apprentissage médical avec l'IA musicale. 
+              Maîtrisez les 367 items EDN grâce à des chansons éducatives personnalisées et mémorisables.
             </p>
             
             {/* CTA Principal style Suno */}
@@ -68,8 +68,10 @@ const Index = () => {
               <div className="relative flex-1 max-w-md">
                 <input 
                   type="text" 
-                  placeholder="Ex: Cardiologie, IC-103 Vertige..."
-                  className="w-full px-6 py-4 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-500"
+                  placeholder="Ex: IC-103 Vertige, Cardiologie, Pneumologie..."
+                  className="w-full px-6 py-4 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-500 transition-all duration-300"
+                  onFocus={(e) => e.target.style.transform = 'scale(1.02)'}
+                  onBlur={(e) => e.target.style.transform = 'scale(1)'}
                 />
               </div>
               <button 

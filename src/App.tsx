@@ -72,12 +72,18 @@ const EdnCompleteRedirect = () => {
   return <Navigate to={`/edn/${slug}`} replace />;
 };
 
-// ⚡ LOADING FALLBACK optimisé
+// ⚡ LOADING FALLBACK optimisé pour étudiant médical
 const PageLoadingFallback = memo(() => (
-  <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-white">
-    <div className="text-center">
-      <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-600 mx-auto mb-4"></div>
-      <p className="text-gray-600 text-sm">Chargement...</p>
+  <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
+    <div className="text-center bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
+      <div className="relative">
+        <div className="animate-spin rounded-full h-16 w-16 border-4 border-purple-200/30 border-t-purple-400 mx-auto mb-6"></div>
+        <div className="absolute inset-0 animate-pulse">
+          <div className="w-16 h-16 bg-gradient-to-r from-purple-400/20 to-blue-400/20 rounded-full mx-auto blur-sm"></div>
+        </div>
+      </div>
+      <p className="text-white font-medium text-lg mb-2">Chargement MED-MNG</p>
+      <p className="text-gray-300 text-sm">Préparation de votre environnement d'apprentissage...</p>
     </div>
   </div>
 ));
@@ -179,8 +185,8 @@ const App = () => {
                                     <Route path="/admin-panel" element={<AdminPanel />} />
                                     
                                     <Route path="/test-subscriptions" element={<SubscriptionTest />} />
-                <Route path="/library" element={<LibraryPage />} />
-                <Route path="/music-library" element={<LibraryPage />} />
+                <Route path="/library" element={<Navigate to="/med-mng/library" replace />} />
+                <Route path="/music-library" element={<Navigate to="/med-mng/library" replace />} />
                                     <Route path="/test-extraction" element={<TestExtraction />} />
                                     <Route path="*" element={<NotFound />} />
                                   </Routes>

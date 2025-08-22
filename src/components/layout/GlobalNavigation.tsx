@@ -19,9 +19,9 @@ export const GlobalNavigation = () => {
 
   const navigationItems = [
     { path: '/', icon: Home, label: 'Accueil' },
-    { path: '/edn', icon: BookOpen, label: 'EDN' },
-    { path: '/ecos', icon: BookOpen, label: 'ECOS' },
-    { path: '/library', icon: Music, label: 'Bibliothèque' },
+    { path: '/edn', icon: BookOpen, label: 'Items EDN' },
+    { path: '/ecos', icon: BookOpen, label: 'Cas ECOS' },
+    { path: '/med-mng/library', icon: Music, label: 'Ma Bibliothèque' },
   ];
 
   const isActive = (path: string) => {
