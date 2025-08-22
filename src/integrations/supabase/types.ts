@@ -5509,6 +5509,82 @@ export type Database = {
       }
     }
     Views: {
+      audit_summary: {
+        Row: {
+          avg_completeness_score: number | null
+          table_name: string | null
+          total_rows: number | null
+          valid_descriptions: number | null
+          valid_titles: number | null
+        }
+        Relationships: []
+      }
+      competences_overview: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          description: string | null
+          id: string | null
+          item_parent: string | null
+          rank: string | null
+          title: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string | null
+          item_parent?: string | null
+          rank?: string | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string | null
+          item_parent?: string | null
+          rank?: string | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      edn_items_with_competences: {
+        Row: {
+          competences_count_rang_a: number | null
+          competences_count_rang_b: number | null
+          completeness_score: number | null
+          created_at: string | null
+          item_code: string | null
+          subtitle: string | null
+          title: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          competences_count_rang_a?: number | null
+          competences_count_rang_b?: number | null
+          completeness_score?: number | null
+          created_at?: string | null
+          item_code?: string | null
+          subtitle?: string | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          competences_count_rang_a?: number | null
+          competences_count_rang_b?: number | null
+          completeness_score?: number | null
+          created_at?: string | null
+          item_code?: string | null
+          subtitle?: string | null
+          title?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       lyrics_texts_latest: {
         Row: {
           content: string | null

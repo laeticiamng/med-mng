@@ -38,7 +38,10 @@ export const OnboardingModal: React.FC = () => {
 
   return (
     <Dialog open={isActive} onOpenChange={(open) => !open && skipOnboarding()}>
-      <DialogContent className="bg-background border-border shadow-lg max-w-2xl">
+      <DialogContent 
+        className="bg-background border-border shadow-lg max-w-2xl"
+        aria-describedby="onboarding-description"
+      >
         <DialogHeader>
           <div className="flex items-center justify-between">
             <DialogTitle className="text-foreground text-lg font-semibold">
@@ -56,6 +59,11 @@ export const OnboardingModal: React.FC = () => {
         </DialogHeader>
 
         <div className="space-y-6">
+          {/* Description for accessibility */}
+          <div id="onboarding-description" className="sr-only">
+            Guide d'introduction à la plateforme MED-MNG pour vous aider à découvrir les fonctionnalités principales.
+          </div>
+          
           {/* Progress */}
           <div className="space-y-3">
             <div className="flex justify-between text-sm text-muted-foreground">
