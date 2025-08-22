@@ -94,15 +94,6 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
       alert('🎵 Votre musique est en cours de génération. Veuillez patienter quelques instants...');
       return;
     }
-    console.log('🎵 GeneratorMusicPlayer: Tentative de lecture', {
-      audioUrl: generatedSong.audioUrl,
-      title: generatedSong.title,
-      isCurrentTrack,
-      isPlaying,
-      hasGeneratedSong: !!generatedSong,
-      urlType: generatedSong.audioUrl?.startsWith('http') ? 'http' : 'relative',
-      generatedSongObject: generatedSong
-    });
 
     // Vérifier que l'URL audio finale est valide
     if (!finalAudioUrl || 
@@ -126,22 +117,15 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
       return;
     }
 
-    if (isCurrentTrack) {
-      if (isPlaying) {
-        console.log('⏸️ Pause audio en cours');
-        pause();
-      } else {
-        console.log('▶️ Reprise audio');
-        resume();
-      }
-    } else {
-      console.log('🎵 Démarrage nouveau track avec URL:', finalAudioUrl);
-      play({
-        url: finalAudioUrl,
-        title: generatedSong.title || 'Musique générée',
-        rang: 'A'
-      });
-    }
+    console.log('🎵 Démarrage/reprise avec URL:', finalAudioUrl);
+    
+    // CORRECTION: Toujours forcer un nouveau play() pour éviter les problèmes de state
+    // au lieu de tenter resume() qui peut échouer si l'élément audio n'est pas valide
+    play({
+      url: finalAudioUrl,
+      title: generatedSong.title || 'Musique générée',
+      rang: 'A'
+    });
   };
 
   return (
