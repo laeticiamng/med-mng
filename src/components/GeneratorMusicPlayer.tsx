@@ -36,7 +36,18 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
   });
   
   // Utiliser le hook de statut pour suivre la génération
-  const { status, isPolling, startPolling, audioUrl, progress, isGenerating } = useMusicGenerationStatus(trackIdForPolling);
+  const { 
+    status, 
+    isPolling, 
+    startPolling, 
+    cancelGeneration,
+    audioUrl, 
+    progress, 
+    isGenerating, 
+    isTimeout,
+    timeoutReached,
+    elapsedTime 
+  } = useMusicGenerationStatus(trackIdForPolling);
 
   // Démarrer le polling automatiquement si nécessaire
   useEffect(() => {
@@ -167,10 +178,12 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
           
           {/* Status de la génération */}
           {isTrackId && (
-            <div className="bg-blue-50 rounded-lg p-3 mb-4">
-              <p className="text-sm text-blue-700">
-                {isGenerating ? (
-                  <>🔄 Génération en cours... {Math.round(progress || 0)}% complété</>
+            <div className={`rounded-lg p-3 mb-4 ${timeoutReached || isTimeout ? 'bg-red-50' : 'bg-blue-50'}`}>
+              <p className={`text-sm ${timeoutReached || isTimeout ? 'text-red-700' : 'text-blue-700'}`}>
+                {timeoutReached || isTimeout ? (
+                  <>⏱️ Génération trop longue ({Math.round((elapsedTime || 0) / 1000)}s). Vous pouvez annuler et relancer.</>
+                ) : isGenerating ? (
+                  <>🔄 Génération en cours... {Math.round(progress || 0)}% complété ({Math.round((elapsedTime || 0) / 1000)}s)</>
                 ) : audioUrl ? (
                   <>✅ Musique prête !</>
                 ) : (
@@ -181,25 +194,34 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
           )}
           
           {/* Barre de progression si génération en cours */}
-          {isGenerating && !audioUrl && (
+          {(isGenerating || timeoutReached) && !audioUrl && (
             <div className="space-y-2">
-              <Progress value={progress} className="w-full" />
-              <p className="text-sm text-blue-600">
-                Génération en cours... {Math.round(progress || 0)}% complété
-              </p>
+              <Progress value={timeoutReached ? 100 : progress} className={`w-full ${timeoutReached ? 'bg-red-100' : ''}`} />
+              <div className="flex items-center justify-between">
+                <p className={`text-sm ${timeoutReached ? 'text-red-600' : 'text-blue-600'}`}>
+                  {timeoutReached ? (
+                    <>⏱️ Timeout ({Math.round((elapsedTime || 0) / 1000)}s)</>
+                  ) : (
+                    <>Génération en cours... {Math.round(progress || 0)}% complété</>
+                  )}
+                </p>
+                <p className="text-xs text-gray-500">
+                  {Math.round((elapsedTime || 0) / 1000)}s écoulées
+                </p>
+              </div>
             </div>
           )}
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <Button
             type="button"
             onClick={handlePlay}
             className="flex-1 bg-green-600 hover:bg-green-700"
             size="lg"
-            disabled={isGenerating && !audioUrl}
+            disabled={(isGenerating && !audioUrl) || timeoutReached}
           >
-            {isTrackId && isGenerating && !audioUrl ? (
+            {isTrackId && isGenerating && !audioUrl && !timeoutReached ? (
               <>
                 <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                 Génération en cours...
@@ -216,16 +238,50 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
               </>
             )}
           </Button>
+          
           <Button
             onClick={onAddToLibrary}
             variant="outline"
             className="flex-1 border-green-300 text-green-700 hover:bg-green-50"
             size="lg"
-            disabled={isGenerating && !audioUrl}
+            disabled={(isGenerating && !audioUrl) || timeoutReached}
           >
             <Library className="h-4 w-4 mr-2" />
             Bibliothèque
           </Button>
+          
+          {/* Boutons d'annulation et relance si timeout ou génération trop longue */}
+          {isTrackId && (timeoutReached || isTimeout || (isGenerating && elapsedTime && elapsedTime > 120000)) && (
+            <>
+              <Button
+                onClick={() => {
+                  console.log('❌ Annulation demandée par l\'utilisateur');
+                  cancelGeneration();
+                  if (onSongUpdate) {
+                    onSongUpdate({ audioUrl: null });
+                  }
+                }}
+                variant="destructive"
+                size="lg"
+                className="flex-1"
+              >
+                ❌ Annuler
+              </Button>
+              
+              <Button
+                onClick={() => {
+                  console.log('🔄 Relance demandée par l\'utilisateur');
+                  window.location.reload(); // Solution simple pour relancer complètement
+                }}
+                variant="default"
+                size="lg"
+                className="flex-1 bg-blue-600 hover:bg-blue-700"
+              >
+                🔄 Relancer
+              </Button>
+            </>
+          )}
+          
           <Button
             onClick={() => setShowDebug(!showDebug)}
             variant="ghost"
@@ -237,7 +293,7 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
           </Button>
           
           {/* Bouton de test du polling si c'est un trackId */}
-          {isTrackId && (
+          {isTrackId && !timeoutReached && (
             <Button
               onClick={() => {
                 console.log('🔄 Force polling manuel pour:', trackIdForPolling);
@@ -278,8 +334,13 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
 
         <div className="text-xs text-gray-500 text-center mt-4 space-y-1">
           {isTrackId ? (
-            isGenerating && !audioUrl ? (
-              <p>⏳ Votre musique est en cours de génération. Le processus optimisé prend environ 30-90 secondes...</p>
+            timeoutReached || isTimeout ? (
+              <div className="text-red-600">
+                <p>⏱️ La génération prend plus de temps que prévu ({Math.round((elapsedTime || 0) / 1000)}s)</p>
+                <p>Vous pouvez annuler et relancer ou attendre encore un peu.</p>
+              </div>
+            ) : isGenerating && !audioUrl ? (
+              <p>⏳ Votre musique est en cours de génération... ({Math.round((elapsedTime || 0) / 1000)}s écoulées)</p>
             ) : audioUrl ? (
               <p>🎵 Votre musique est prête ! Utilisez les contrôles pour l'écouter.</p>
             ) : (

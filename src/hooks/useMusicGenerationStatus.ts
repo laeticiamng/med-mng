@@ -3,24 +3,48 @@ import { supabase } from '@/integrations/supabase/client';
 
 interface MusicGenerationStatus {
   taskId: string;
-  status: 'generating' | 'text_complete' | 'completed' | 'failed';
+  status: 'generating' | 'text_complete' | 'completed' | 'failed' | 'timeout';
   audioUrl?: string;
   streamUrl?: string;
   imageUrl?: string;
   progress?: number;
   metadata?: any;
   error?: string;
+  startTime?: number;
+  elapsedTime?: number;
 }
 
 export const useMusicGenerationStatus = (taskId: string | null) => {
   const [status, setStatus] = useState<MusicGenerationStatus | null>(null);
   const [isPolling, setIsPolling] = useState(false);
+  const [startTime, setStartTime] = useState<number | null>(null);
+  const [timeoutReached, setTimeoutReached] = useState(false);
+
+  // Timeout de 5 minutes (300 secondes)
+  const GENERATION_TIMEOUT = 5 * 60 * 1000;
 
   const checkStatus = useCallback(async () => {
     if (!taskId) return;
 
+    // Vérifier le timeout
+    const currentTime = Date.now();
+    const elapsed = startTime ? currentTime - startTime : 0;
+    
+    if (startTime && elapsed > GENERATION_TIMEOUT) {
+      console.log('⏱️ Timeout atteint pour la génération:', elapsed / 1000, 'secondes');
+      setTimeoutReached(true);
+      setStatus(prev => prev ? {
+        ...prev,
+        status: 'timeout',
+        error: 'La génération prend plus de temps que prévu. Vous pouvez annuler et relancer.',
+        elapsedTime: elapsed
+      } : null);
+      setIsPolling(false);
+      return;
+    }
+
     try {
-      console.log('🔍 Vérification statut pour taskId:', taskId);
+      console.log('🔍 Vérification statut pour taskId:', taskId, `(${Math.round(elapsed / 1000)}s écoulées)`);
       
       // Vérifier d'abord en base de données
       const { data: dbTracks, error: dbError } = await supabase
@@ -44,7 +68,9 @@ export const useMusicGenerationStatus = (taskId: string | null) => {
           streamUrl: dbTrack.stream_url || metadata?.stream_url,
           imageUrl: dbTrack.image_url || metadata?.image_url,
           progress: getProgressFromStatus(dbTrack.generation_status, metadata?.progress),
-          metadata: metadata
+          metadata: metadata,
+          startTime: startTime || undefined,
+          elapsedTime: elapsed
         };
 
         setStatus(statusData);
@@ -77,7 +103,9 @@ export const useMusicGenerationStatus = (taskId: string | null) => {
           streamUrl: data.streamUrl,
           imageUrl: data.imageUrl,
           progress: getProgressFromStatus(data.status, data.metadata?.progress),
-          metadata: data.metadata
+          metadata: data.metadata,
+          startTime: startTime || undefined,
+          elapsedTime: elapsed
         };
         
         setStatus(statusData);
@@ -111,6 +139,8 @@ export const useMusicGenerationStatus = (taskId: string | null) => {
     
     console.log('🔄 Démarrage polling pour taskId:', taskId);
     setIsPolling(true);
+    setStartTime(Date.now());
+    setTimeoutReached(false);
     
     // Vérification immédiate
     checkStatus();
@@ -120,6 +150,17 @@ export const useMusicGenerationStatus = (taskId: string | null) => {
   const stopPolling = useCallback(() => {
     console.log('⏹️ Arrêt du polling');
     setIsPolling(false);
+    setStartTime(null);
+    setTimeoutReached(false);
+  }, []);
+
+  // Annuler la génération
+  const cancelGeneration = useCallback(() => {
+    console.log('❌ Annulation de la génération');
+    setIsPolling(false);
+    setStartTime(null);
+    setTimeoutReached(false);
+    setStatus(null);
   }, []);
 
   // Effect pour le polling automatique
@@ -148,15 +189,19 @@ export const useMusicGenerationStatus = (taskId: string | null) => {
     isPolling,
     startPolling,
     stopPolling,
+    cancelGeneration,
     checkStatus,
+    timeoutReached,
     // Helpers
     isGenerating: (status?.status === 'generating' || status?.status === 'text_complete') && !status?.audioUrl && !status?.streamUrl,
     isCompleted: status?.status === 'completed' || !!(status?.audioUrl || status?.streamUrl),
     isFailed: status?.status === 'failed',
+    isTimeout: status?.status === 'timeout',
     progress: status?.progress || 0,
     audioUrl: status?.audioUrl,
     streamUrl: status?.streamUrl,
-    imageUrl: status?.imageUrl
+    imageUrl: status?.imageUrl,
+    elapsedTime: status?.elapsedTime || 0
   };
 };
 
@@ -169,6 +214,7 @@ function getProgressFromStatus(status: string, metadataProgress?: number): numbe
     case 'text_complete': return 75;
     case 'completed': return 100;
     case 'failed': return 0;
+    case 'timeout': return 0;
     default: return 0;
   }
 }
