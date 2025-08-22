@@ -13,9 +13,11 @@ interface UXToastContextType {
 
 const UXToastContext = createContext<UXToastContextType | undefined>(undefined);
 
-// Option: centralise le basePath pour éviter les hardcodes
-const BASE = import.meta.env.VITE_APP_BASE_PATH ?? "/med-mng";
-const path = (p: string) => `${BASE}${p}`;
+// Centralise le basePath (multi-env)
+const RAW_BASE = import.meta.env.VITE_APP_BASE_PATH ?? "/med-mng";
+// Normalise les slashes pour éviter //login
+const BASE = RAW_BASE.endsWith("/") ? RAW_BASE.slice(0, -1) : RAW_BASE;
+const path = (p: string) => `${BASE}${p.startsWith("/") ? p : `/${p}`}`;
 
 export const UXToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const gotoLogin = () => appNavigate(path("/login"));
@@ -64,6 +66,7 @@ export const UXToastProvider: React.FC<{ children: React.ReactNode }> = ({ child
     showError,
   };
 
+  // ✅ Fournit bien le Provider (bug fréquent : return {children})
   return <UXToastContext.Provider value={value}>{children}</UXToastContext.Provider>;
 };
 

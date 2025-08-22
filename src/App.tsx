@@ -210,8 +210,7 @@ const App = () => {
                           </Suspense>
                           <HelpButton />
                         </div>
-                        <Toaster />
-                        <Sonner />
+                        <Sonner richColors closeButton />
                         </UXToastProvider>
                       </BrowserRouter>
                     </HelmetProvider>

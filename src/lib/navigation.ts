@@ -12,13 +12,17 @@ export function setNavigate(fn: NavFn) {
 export function appNavigate(to: To, opts?: NavigateOptions) {
   if (_navigate) return _navigate(to, opts);
 
-  // Fallback sans Router (Storybook, tests, providers globaux…)
+  // Fallback sans Router (tests, Storybook, providers globaux…)
   if (typeof window !== "undefined") {
-    if (typeof to === "string") return (window.location.href = to);
-    const path =
-      (to as any)?.pathname ?? "/" +
-      ((to as any)?.search ?? "") +
-      ((to as any)?.hash ?? "");
-    window.location.href = path;
+    if (typeof to === "string") {
+      window.location.href = to;
+      return;
+    }
+    const t = to as any;
+    // ⚠️ Evite la priorité hasardeuse de ?? avec +
+    const pathname = t?.pathname ?? "/";
+    const search = t?.search ?? "";
+    const hash = t?.hash ?? "";
+    window.location.href = `${pathname}${search}${hash}`;
   }
 }

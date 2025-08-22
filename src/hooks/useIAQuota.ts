@@ -28,9 +28,13 @@ export const useIAQuota = () => {
     try {
       setLoading(true);
       
-      // Vérifier d'abord si l'utilisateur est connecté
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
+        toast.error("🔐 Connexion requise", {
+          description: "Connectez-vous pour accéder à vos crédits IA et générer de la musique.",
+          action: { label: "🚀 Se connecter", onClick: () => appNavigate("/med-mng/login") },
+          duration: 8000,
+        });
         setQuota(0);
         return 0;
       }
@@ -47,25 +51,15 @@ export const useIAQuota = () => {
 
       setQuota(data?.remaining_credits || 0);
       return data?.remaining_credits || 0;
-    } catch (error: any) {
-      console.error('Erreur lors de la récupération du quota:', error);
-      const status = error?.status ?? error?.context?.status ?? error?.response?.status;
-      if (status === 401) {
-      toast.error("Connexion requise", {
-        description: "Connectez-vous pour accéder à vos crédits IA et générer de la musique.",
-        action: {
-          label: "Se connecter",
-          onClick: () => appNavigate('/med-mng/login')
-        },
-        duration: 8000
+    } catch (e: any) {
+      console.error('Erreur lors de la récupération du quota:', e);
+      // Gestion session expirée / autres erreurs
+      toast.error("⚠️ Impossible de récupérer le quota", {
+        description: e?.message ?? "Réessayez ou reconnectez-vous.",
+        action: { label: "🔄 Se reconnecter", onClick: () => appNavigate("/med-mng/login") },
+        duration: 8000,
       });
-        setQuota(0);
-        return 0;
-      }
-      toast.error("Erreur quota IA", {
-        description: "Impossible de récupérer le quota IA. Réessayez dans quelques instants.",
-        duration: 6000
-      });
+      setQuota(0);
       return 0;
     } finally {
       setLoading(false);
