@@ -9,6 +9,7 @@ interface EdnItem {
   subtitle?: string;
   completeness_score?: number;
   competences_count_total?: number;
+  paroles_musicales?: string[];
   created_at: string;
   updated_at: string;
 }
@@ -49,7 +50,7 @@ export const useOptimizedEdnItems = (): UseOptimizedEdnItemsReturn => {
 
       let queryBuilder = supabase
         .from('edn_items_complete')
-        .select('id, item_code, title, subtitle, completeness_score, competences_count_total, created_at, updated_at', { count: 'exact' })
+        .select('id, item_code, title, subtitle, completeness_score, competences_count_total, paroles_musicales, created_at, updated_at', { count: 'exact' })
         .eq('status', 'active')
         .order('item_code', { ascending: true })
         .range(startRange, endRange);

@@ -53,6 +53,7 @@ const AdminExtractEdn = lazy(() => import("./pages/AdminExtractEdn"));
 const AdminCompleteProcess = lazy(() => import("./pages/AdminCompleteProcess"));
 const AdminExtractEcos = lazy(() => import("./pages/AdminExtractEcos"));
 const AdminPanel = lazy(() => import("./pages/AdminPanel").then(module => ({ default: module.AdminPanel })));
+const ContentQualityDashboard = lazy(() => import("./components/admin/ContentQualityDashboard").then(module => ({ default: module.ContentQualityDashboard })));
 const SystemHealth = lazy(() => import("./pages/SystemHealth"));
 const EdnObjectifsExtractionPage = lazy(() => import("./pages/EdnObjectifsExtraction"));
 const OicDataQualityManager = lazy(() => import("./pages/OicDataQualityManager"));
@@ -167,6 +168,7 @@ const App = () => {
                                     <Route path="/chat" element={<MedChat />} />
                                     
                                     <Route path="/system-health" element={<SystemHealth />} />
+                                    <Route path="/content-quality" element={<ContentQualityDashboard />} />
                                     <Route path="/admin/import" element={<AdminImport />} />
                                     <Route path="/admin/audit" element={<AdminAudit />} />
                                     <Route path="/admin/extract-edn" element={<AdminExtractEdn />} />
