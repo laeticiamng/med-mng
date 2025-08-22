@@ -132,13 +132,13 @@ const Generator = () => {
         lyricsIndex = 2; // Index 2 = paroles mixtes (A+B)
       }
 
-      // Initialiser la progression
+      // Initialiser la progression plus optimiste
       setGenerationProgress({
         rang: selectedRang as 'A' | 'B' | 'AB',
-        progress: 0,
+        progress: 5, // Démarrer à 5% pour montrer que ça avance
         attempts: 0,
-        maxAttempts: 12,
-        estimatedTimeRemaining: 96
+        maxAttempts: 18,
+        estimatedTimeRemaining: 90 // Plus réaliste
       });
       
       const audioUrl = await musicGeneration.generateMusicInLanguage(actualRang, lyricsToUse, selectedStyle, 240);

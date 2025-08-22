@@ -84,10 +84,10 @@ export const GenerationProgress: React.FC<GenerationProgressProps> = ({
           </div>
         </div>
 
-        <div className="mt-4 p-3 bg-amber-50 rounded-lg border border-amber-200">
-          <p className="text-xs text-amber-700 text-center">
-            ⚡ Suno AI génère votre musique avec une qualité studio. 
-            Cela peut prendre 1-3 minutes selon la charge serveur.
+        <div className="mt-4 p-3 bg-emerald-50 rounded-lg border border-emerald-200">
+          <p className="text-xs text-emerald-700 text-center">
+            ⚡ Génération optimisée - Suno AI produit généralement votre musique en 30-90 secondes.
+            {estimatedTimeRemaining > 0 && ` Encore ~${getEstimatedTime()} estimé.`}
           </p>
         </div>
       </div>
