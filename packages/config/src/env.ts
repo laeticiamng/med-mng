@@ -27,6 +27,7 @@ const envSchema = z.object({
   // Security Configuration
   JWT_SECRET: z.string().min(32, 'JWT secret must be at least 32 characters').optional(),
   CORS_ORIGIN: z.string().default('*'),
+  CORS_ALLOWED_ORIGINS: z.string().optional().default('http://localhost:3000,http://localhost:5173'),
   
   // Rate Limiting
   RATE_LIMIT_WINDOW_MS: z.string().transform(Number).pipe(z.number().positive()).default('900000'), // 15 minutes

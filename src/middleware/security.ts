@@ -76,16 +76,26 @@ const distributedStrictRateLimit = new RateLimitService(
 
 export const distributedStrictRateLimitMiddleware = distributedStrictRateLimit.middleware();
 
+// Get allowed origins from environment variable
+function getAllowedOrigins(): string[] {
+  const corsOrigins = process.env.CORS_ALLOWED_ORIGINS;
+  
+  if (!corsOrigins) {
+    // Default fallback origins for development
+    return [
+      'http://localhost:3000',
+      'http://localhost:5173',
+      'https://yaincoxihiqdksxgrsrk.supabase.co'
+    ];
+  }
+  
+  return corsOrigins.split(',').map(origin => origin.trim());
+}
+
 // Configuration CORS personnalisée
 export const corsOptions = {
   origin: (origin: string | undefined, callback: (error: Error | null, allow?: boolean) => void) => {
-    // Liste des domaines autorisés
-    const allowedOrigins = [
-      'http://localhost:3000',
-      'http://localhost:5173',
-      'https://yaincoxihiqdksxgrsrk.supabase.co',
-      // Ajouter les domaines de production ici
-    ];
+    const allowedOrigins = getAllowedOrigins();
     
     // Permettre les requêtes sans origin (ex: applications mobiles, Postman)
     if (!origin) return callback(null, true);
@@ -93,13 +103,16 @@ export const corsOptions = {
     if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
-      logService.warn('CORS: Origin not allowed', { origin });
+      logService.warn('CORS: Origin not allowed', { origin, allowedOrigins });
       callback(new Error('Non autorisé par la politique CORS'), false);
     }
   },
   credentials: true, // Permettre les cookies/credentials
   optionsSuccessStatus: 200, // Support pour les anciens navigateurs
 };
+
+// Export for testing
+export { getAllowedOrigins };
 
 // Middleware de sécurité personnalisé
 import { Request, Response, NextFunction } from 'express';
