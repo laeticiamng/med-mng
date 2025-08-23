@@ -1,4 +1,5 @@
 import winston from 'winston';
+import { randomUUID } from 'crypto';
 
 // Configuration du logger centralisé
 const logger = winston.createLogger({
@@ -97,7 +98,7 @@ export const logService: LogService = {
 // Middleware pour le logging des requêtes HTTP
 export const httpLoggerMiddleware = (req: any, res: any, next: any) => {
   const startTime = Date.now();
-  const requestId = Math.random().toString(36).substring(7);
+  const requestId = randomUUID();
   
   // Ajouter l'ID de requête au contexte
   req.requestId = requestId;
