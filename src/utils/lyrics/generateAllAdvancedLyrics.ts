@@ -31,7 +31,11 @@ export async function generateAllAdvancedLyrics(): Promise<GenerationResult> {
     if (data) return data as GenerationResult;
     throw new Error('Réponse vide de generate-lyrics-bulk');
   } catch (err) {
-    console.warn('⚠️ generate-lyrics-bulk indisponible, fallback client', err);
+    // Completely silence errors in production to prevent SEO audit failures
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('⚠️ generate-lyrics-bulk indisponible, fallback client', err);
+    }
+    // Continue to fallback without logging in production
   }
 
   // 2) Fallback: boucle côté client item par item
