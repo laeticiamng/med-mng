@@ -123,7 +123,7 @@ const App = () => {
                         <NavigatorBridge />
                         <UXToastProvider>
                         <SkipLinks />
-                        <div id="app-root" className="min-h-screen flex flex-col">
+                        <div id="app-root" className="min-h-screen flex flex-col" style={{ display: 'block' }}>
                           {/* Navigation globale */}
                           <GlobalNavigation />
                           
