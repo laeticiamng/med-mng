@@ -14,6 +14,13 @@ interface LogContext {
   expectedCount?: number;
   actualCount?: number;
   duration?: string;
+  filename?: string;
+  key?: string;
+  hitCount?: number;
+  replacements?: number;
+  deletedCount?: number;
+  remainingSize?: number;
+  size?: number;
   metadata?: Record<string, unknown>;
 }
 

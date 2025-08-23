@@ -15,6 +15,19 @@ export interface EDNItem {
   tableau_rang_b?: TableauData;
 }
 
+// Type pour les données temporaires de traitement
+export interface ProcessingData {
+  theme?: string;
+  title?: string;
+  subtitle?: string;
+  colonnes?: string[];
+  lignes?: string[][];
+  sections?: any[];
+  competences_oic?: any[];
+  id?: string;
+  item_code?: string;
+}
+
 export interface TableauData {
   sections?: TableauSection[];
   metadata?: Record<string, unknown>;

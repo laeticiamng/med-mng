@@ -1,7 +1,7 @@
 
 import { determinerColonnesUtilesIC1, generateLignesRangAIC1 } from './TableauRangAUtilsIC1';
 import { logger } from '@/lib/logger';
-import type { EDNItem, TableauResult } from '@/types';
+import type { EDNItem, ProcessingData, TableauResult } from '@/types';
 
 // Fonction principale pour traiter les données IC-1 selon E-LiSA officielle
 export function processTableauRangAIC1(data: EDNItem): TableauResult {
@@ -34,7 +34,7 @@ export function processTableauRangAIC1(data: EDNItem): TableauResult {
 }
 
 // Fonction pour vérifier si c'est l'item IC-1
-export function isIC1Item(data: EDNItem): boolean {
+export function isIC1Item(data: ProcessingData | EDNItem): boolean {
   if (!data) return false;
   
   const theme = data.theme?.toLowerCase() || '';
