@@ -1,5 +1,26 @@
 import winston from 'winston';
 import { randomUUID } from 'crypto';
+import fs from 'fs';
+import path from 'path';
+
+/**
+ * Assure que le répertoire de logs existe
+ */
+function ensureLogDir(): void {
+  const logDir = path.join(process.cwd(), 'logs');
+  
+  if (!fs.existsSync(logDir)) {
+    try {
+      fs.mkdirSync(logDir, { recursive: true });
+    } catch (error) {
+      console.error('Failed to create logs directory:', error);
+      throw new Error(`Cannot create logs directory: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+}
+
+// S'assurer que le répertoire de logs existe avant la configuration
+ensureLogDir();
 
 // Configuration du logger centralisé
 const logger = winston.createLogger({
