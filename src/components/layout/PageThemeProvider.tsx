@@ -14,6 +14,8 @@ export const PageThemeProvider: React.FC<PropsWithChildren> = ({ children }) => 
   const { pathname } = useLocation();
 
   const theme: ThemeConfig = useMemo(() => {
+    const baseUrl = "https://med-mng.com";
+    
     // Route → distinct visual identity using semantic tokens only
     if (/^\/$/.test(pathname)) {
       return {
@@ -22,7 +24,7 @@ export const PageThemeProvider: React.FC<PropsWithChildren> = ({ children }) => 
         title: "Accueil – MED‑MNG | Plateforme immersive",
         description:
           "Accueil MED‑MNG: explorez les expériences immersives et outils d'apprentissage médicaux.",
-        canonical: "/",
+        canonical: baseUrl,
       };
     }
 
@@ -33,7 +35,7 @@ export const PageThemeProvider: React.FC<PropsWithChildren> = ({ children }) => 
         title: "EDN – Items immersifs et compétences | MED‑MNG",
         description:
           "EDN: items, rangs A/B/AB et contenus immersifs. Révisions intelligentes et interactives.",
-        canonical: "/edn",
+        canonical: `${baseUrl}/edn`,
       };
     }
 
@@ -44,7 +46,7 @@ export const PageThemeProvider: React.FC<PropsWithChildren> = ({ children }) => 
         title: "MED‑MNG Suite – Création, Bibliothèque, Analytics",
         description:
           "Créez, organisez et analysez vos contenus musicaux médicaux avec la suite MED‑MNG.",
-        canonical: "/med-mng",
+        canonical: `${baseUrl}/med-mng`,
       };
     }
 
@@ -55,7 +57,7 @@ export const PageThemeProvider: React.FC<PropsWithChildren> = ({ children }) => 
         title: "Administration – Imports, Audit, Extraction | MED‑MNG",
         description:
           "Console d'administration: import de données, audit qualité, extractions et supervision.",
-        canonical: "/admin",
+        canonical: `${baseUrl}/admin`,
       };
     }
 
@@ -66,7 +68,7 @@ export const PageThemeProvider: React.FC<PropsWithChildren> = ({ children }) => 
         title: "Audit de complétude et qualité | MED‑MNG",
         description:
           "Audit des contenus: complétude, cohérence et indicateurs clés pour la réussite EDN.",
-        canonical: "/audit",
+        canonical: `${baseUrl}/audit`,
       };
     }
 
@@ -77,7 +79,7 @@ export const PageThemeProvider: React.FC<PropsWithChildren> = ({ children }) => 
         title: "Chat IA – Assistance et coaching | MED‑MNG",
         description:
           "Assistance conversationnelle et coaching en temps réel pour vos révisions et créations.",
-        canonical: "/chat",
+        canonical: `${baseUrl}/chat`,
       };
     }
 
@@ -88,7 +90,7 @@ export const PageThemeProvider: React.FC<PropsWithChildren> = ({ children }) => 
       title: "MED‑MNG | Expériences immersives médicales",
       description:
         "Expériences immersives, contenus médicaux et outils de création pour apprendre autrement.",
-      canonical: pathname || "/",
+      canonical: `${baseUrl}${pathname || "/"}`,
     };
   }, [pathname]);
 
