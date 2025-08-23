@@ -7,8 +7,8 @@ interface WindowSize {
 
 export const useWindowSize = (): WindowSize => {
   const [windowSize, setWindowSize] = useState<WindowSize>({
-    width: typeof window !== 'undefined' ? window.innerWidth : 1200,
-    height: typeof window !== 'undefined' ? window.innerHeight : 800,
+    width: typeof window !== 'undefined' ? window.innerWidth : 375, // Default mobile width
+    height: typeof window !== 'undefined' ? window.innerHeight : 667, // Default mobile height
   });
 
   useEffect(() => {

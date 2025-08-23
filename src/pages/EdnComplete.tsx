@@ -46,12 +46,13 @@ export default function EdnComplete() {
   const [showLyricsManager, setShowLyricsManager] = useState(false);
 
   const isMobile = useIsMobile();
-  const { isTablet, isTabletPortrait } = useBreakpoints();
+  const { isTablet, isTabletPortrait, isMobileSmall } = useBreakpoints();
   const gridConfig = useResponsiveGrid();
   const spacing = useResponsiveSpacing();
   
   // Ajustement intelligent du nombre d'items par page selon l'écran
   const getItemsPerPage = () => {
+    if (isMobileSmall) return 6;
     if (isMobile) return 8;
     if (isTabletPortrait) return 12;
     if (isTablet) return 15;
@@ -160,9 +161,9 @@ export default function EdnComplete() {
       </div>
 
       <div className={`container mx-auto relative ${spacing.container}`}>
-        {/* Statistiques style Suno - Optimisées pour tablettes */}
+        /* Statistiques style Suno - Optimisées pour mobile et tablettes */
         {!statsLoading && (
-          <div className={`grid ${gridConfig.stats} ${gridConfig.gap} mb-8`}>
+          <div className={`grid ${gridConfig.stats} ${gridConfig.gap} mb-6 md:mb-8`}>
             <Card className="bg-white/10 backdrop-blur-sm border border-blue-400/30 hover:border-blue-400/50 transition-all duration-300 hover:scale-105 shadow-xl shadow-blue-500/20 group">
               <CardContent className="p-4 text-center relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -215,8 +216,8 @@ export default function EdnComplete() {
           </div>
         )}
 
-        {/* Contrôles de filtrage style Suno - Layout amélioré pour tablette */}
-        <div className={`flex ${gridConfig.navigation} ${gridConfig.gap} mb-8 bg-black/20 backdrop-blur-xl rounded-2xl ${spacing.element} border border-white/10 shadow-2xl`}>
+        {/* Contrôles de filtrage style Suno - Layout mobile optimisé */}
+        <div className={`flex ${gridConfig.navigation} ${gridConfig.gap} mb-6 md:mb-8 bg-black/20 backdrop-blur-xl rounded-2xl ${spacing.element} border border-white/10 shadow-2xl`}>
           <div className="relative flex-1">
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
             <Input
@@ -229,7 +230,7 @@ export default function EdnComplete() {
 
           <div className="flex gap-3">
             <Select value={selectedCategory} onValueChange={handleCategoryChange}>
-              <SelectTrigger className="w-[160px] bg-white/10 border-white/20 text-white h-12 rounded-xl">
+              <SelectTrigger className={`${isMobile ? 'w-full' : 'w-[160px]'} bg-white/10 border-white/20 text-white h-12 rounded-xl`}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-black/90 border-white/20 backdrop-blur-xl">
@@ -240,22 +241,24 @@ export default function EdnComplete() {
               </SelectContent>
             </Select>
 
-            <div className="flex gap-1 border border-white/20 rounded-xl bg-white/10">
+            <div className={`flex ${isMobile ? 'flex-col' : 'gap-1'} border border-white/20 rounded-xl bg-white/10`}>
               <Button
                 variant={viewMode === 'grid' ? 'default' : 'ghost'}
                 size="sm"
                 onClick={() => setViewMode('grid')}
-                className={`rounded-r-none h-12 px-4 ${viewMode === 'grid' ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white' : 'text-gray-300 hover:text-white hover:bg-white/10'}`}
+                className={`${isMobile ? 'w-full rounded-t-xl rounded-b-none' : 'rounded-r-none'} h-12 px-4 ${viewMode === 'grid' ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white' : 'text-gray-300 hover:text-white hover:bg-white/10'}`}
               >
                 <Grid className="h-4 w-4" />
+                {isMobile && <span className="ml-2">Grille</span>}
               </Button>
               <Button
                 variant={viewMode === 'list' ? 'default' : 'ghost'}
                 size="sm"
                 onClick={() => setViewMode('list')}
-                className={`rounded-l-none h-12 px-4 ${viewMode === 'list' ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white' : 'text-gray-300 hover:text-white hover:bg-white/10'}`}
+                className={`${isMobile ? 'w-full rounded-b-xl rounded-t-none' : 'rounded-l-none'} h-12 px-4 ${viewMode === 'list' ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white' : 'text-gray-300 hover:text-white hover:bg-white/10'}`}
               >
                 <List className="h-4 w-4" />
+                {isMobile && <span className="ml-2">Liste</span>}
               </Button>
             </div>
           </div>

@@ -13,12 +13,13 @@ import { TranslatedText } from '@/components/TranslatedText';
 import { useTranslation } from '@/hooks/useTranslation';
 import { SkeletonLibraryGrid } from '@/components/common/SkeletonLibraryGrid';
 import { AdvancedSearch } from '@/components/med-mng/AdvancedSearch';
-import { useResponsiveGrid, useResponsiveSpacing } from '@/hooks/useBreakpoints';
+import { useResponsiveGrid, useResponsiveSpacing, useBreakpoints } from '@/hooks/useBreakpoints';
 
 const MedMngLibraryComponent = () => {
   const medMngApi = useMedMngApi();
   const navigate = useNavigate();
   const [filteredSongs, setFilteredSongs] = useState<any[]>([]);
+  const { isMobile } = useBreakpoints();
   const gridConfig = useResponsiveGrid();
   const spacing = useResponsiveSpacing();
   const [currentPage, setCurrentPage] = useState(1);
@@ -167,11 +168,11 @@ const MedMngLibraryComponent = () => {
           />
         </div>
 
-        {/* Actions - Layout adaptatif pour tablettes */}
-        <div className={`flex ${gridConfig.navigation} ${gridConfig.gap} mb-8`}>
+        {/* Actions - Layout mobile optimisé */}
+        <div className={`flex ${gridConfig.navigation} ${gridConfig.gap} mb-6 md:mb-8`}>
           <Button 
             onClick={() => navigate('/med-mng/create')}
-            className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 min-h-[48px] w-full sm:w-auto"
+            className={`flex items-center gap-2 bg-blue-600 hover:bg-blue-700 min-h-[48px] ${isMobile ? 'w-full' : 'w-auto'}`}
           >
             <Plus className="h-4 w-4" />
             <TranslatedText text="Créer une chanson" />
@@ -179,7 +180,7 @@ const MedMngLibraryComponent = () => {
           <Button 
             variant="outline"
             onClick={() => navigate('/med-mng/pricing')}
-            className="min-h-[48px] w-full sm:w-auto hidden sm:flex"
+            className={`min-h-[48px] ${isMobile ? 'w-full' : 'w-auto hidden sm:flex'}`}
           >
             <TranslatedText text="Voir les abonnements" />
           </Button>
@@ -202,7 +203,10 @@ const MedMngLibraryComponent = () => {
               className="text-gray-600 mb-6"
             />
             {(!library || library.length === 0) && (
-              <Button onClick={() => navigate('/med-mng/create')} className="bg-blue-600 hover:bg-blue-700 min-h-[48px] px-6">
+              <Button 
+                onClick={() => navigate('/med-mng/create')} 
+                className={`bg-blue-600 hover:bg-blue-700 min-h-[48px] px-6 ${isMobile ? 'w-full' : ''}`}
+              >
                 <TranslatedText text="Créer ma première chanson" />
               </Button>
             )}
@@ -221,22 +225,22 @@ const MedMngLibraryComponent = () => {
           </div>
         )}
 
-        {/* Pagination */}
+        {/* Pagination - Mobile optimisée */}
         {library && library.length === 12 && (
-          <div className="flex justify-center mt-8">
-            <div className="flex gap-3 sm:gap-2">
+          <div className="flex justify-center mt-6 md:mt-8">
+            <div className={`flex ${isMobile ? 'flex-col w-full' : 'gap-2'} ${gridConfig.gap}`}>
               <Button
                 variant="outline"
                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
-                className="min-h-[44px] px-4 sm:px-6 flex-1 sm:flex-none"
+                className={`min-h-[44px] px-4 sm:px-6 ${isMobile ? 'w-full mb-2' : 'flex-1 sm:flex-none'}`}
               >
                 <TranslatedText text="Précédent" />
               </Button>
               <Button
                 variant="outline"
                 onClick={() => setCurrentPage(p => p + 1)}
-                className="min-h-[44px] px-4 sm:px-6 flex-1 sm:flex-none"
+                className={`min-h-[44px] px-4 sm:px-6 ${isMobile ? 'w-full' : 'flex-1 sm:flex-none'}`}
               >
                 <TranslatedText text="Suivant" />
               </Button>
