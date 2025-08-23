@@ -4,7 +4,7 @@
  * Système de monitoring des performances et Web Vitals
  */
 
-import { getCLS, getFID, getFCP, getLCP, getTTFB } from 'web-vitals';
+import { onCLS, onINP, onFCP, onLCP, onTTFB } from 'web-vitals';
 
 export interface PerformanceMetric {
   name: string;
@@ -17,7 +17,7 @@ export interface PerformanceMetric {
 
 export interface PerformanceBudget {
   lcp: number;     // Largest Contentful Paint (ms)
-  fid: number;     // First Input Delay (ms)
+  inp: number;     // Interaction to Next Paint (ms) - replaces FID
   cls: number;     // Cumulative Layout Shift (score)
   fcp: number;     // First Contentful Paint (ms)
   ttfb: number;    // Time to First Byte (ms)
@@ -25,7 +25,7 @@ export interface PerformanceBudget {
 
 const PERFORMANCE_BUDGET: PerformanceBudget = {
   lcp: 2500,   // 2.5s
-  fid: 100,    // 100ms
+  inp: 200,    // 200ms (replaces FID)
   cls: 0.1,    // 0.1 score
   fcp: 1800,   // 1.8s
   ttfb: 800    // 800ms
@@ -40,11 +40,11 @@ class PerformanceMonitor {
     if (this.isInitialized) return;
     
     // Mesurer tous les Core Web Vitals
-    getCLS((metric) => this.recordMetric('CLS', metric.value, userId));
-    getFID((metric) => this.recordMetric('FID', metric.value, userId));
-    getFCP((metric) => this.recordMetric('FCP', metric.value, userId));
-    getLCP((metric) => this.recordMetric('LCP', metric.value, userId));
-    getTTFB((metric) => this.recordMetric('TTFB', metric.value, userId));
+    onCLS((metric) => this.recordMetric('CLS', metric.value, userId));
+    onINP((metric) => this.recordMetric('INP', metric.value, userId));
+    onFCP((metric) => this.recordMetric('FCP', metric.value, userId));
+    onLCP((metric) => this.recordMetric('LCP', metric.value, userId));
+    onTTFB((metric) => this.recordMetric('TTFB', metric.value, userId));
     
     // Observer pour les métriques custom
     this.observeCustomMetrics();
@@ -95,7 +95,7 @@ class PerformanceMonitor {
   private getBudget(name: string): number | null {
     const budgetMap: Record<string, number> = {
       'LCP': PERFORMANCE_BUDGET.lcp,
-      'FID': PERFORMANCE_BUDGET.fid, 
+      'INP': PERFORMANCE_BUDGET.inp, 
       'CLS': PERFORMANCE_BUDGET.cls,
       'FCP': PERFORMANCE_BUDGET.fcp,
       'TTFB': PERFORMANCE_BUDGET.ttfb
@@ -166,7 +166,8 @@ class PerformanceMonitor {
 
   private sendToAnalytics(metric: PerformanceMetric) {
     // Envoyer à Google Analytics si disponible
-    if (typeof gtag !== 'undefined') {
+    if (typeof window !== 'undefined' && (window as any).gtag) {
+      const gtag = (window as any).gtag;
       gtag('event', metric.name, {
         event_category: 'Web Vitals',
         event_label: metric.rating,
@@ -239,8 +240,8 @@ class PerformanceMonitor {
       recommendations.push('Optimiser le Largest Contentful Paint : réduire la taille des images, utiliser un CDN');
     }
     
-    if (summary.FID?.average > PERFORMANCE_BUDGET.fid) {
-      recommendations.push('Réduire le First Input Delay : code splitting, defer des scripts non-critiques');
+    if (summary.INP?.average > PERFORMANCE_BUDGET.inp) {
+      recommendations.push('Réduire Interaction to Next Paint : code splitting, defer des scripts non-critiques');
     }
     
     if (summary.CLS?.average > PERFORMANCE_BUDGET.cls) {
@@ -292,13 +293,15 @@ export const measurePerformance = <T>(
 };
 
 // Hook React pour monitoring des composants
+import React from 'react';
+
 export const useComponentPerformance = (componentName: string) => {
   const renderStart = performance.now();
   
   React.useEffect(() => {
     const renderTime = performance.now() - renderStart;
     
-    if (process.env.NODE_ENV === 'development' && renderTime > 16) {
+    if (import.meta.env.DEV && renderTime > 16) {
       console.warn(`🎭 Slow component render: ${componentName} (${renderTime.toFixed(2)}ms)`);
     }
   });

@@ -1,9 +1,14 @@
 
 import { determinerColonnesUtilesIC1, generateLignesRangAIC1 } from './TableauRangAUtilsIC1';
+import { logger } from '@/lib/logger';
+import type { EDNItem, TableauResult } from '@/types';
 
 // Fonction principale pour traiter les données IC-1 selon E-LiSA officielle
-export function processTableauRangAIC1(data: any) {
-  console.log('Processing IC-1 selon fiche E-LiSA officielle:', data);
+export function processTableauRangAIC1(data: EDNItem): TableauResult {
+  logger.info('Processing IC-1 selon fiche E-LiSA officielle', { 
+    component: 'TableauRangAUtilsIC1Integration',
+    itemCode: data.item_code 
+  });
   
   // Générer les lignes enrichies spécifiquement pour IC-1 (15 connaissances)
   const lignesEnrichies = generateLignesRangAIC1(data);
@@ -14,7 +19,11 @@ export function processTableauRangAIC1(data: any) {
   const expectedCount = 15;
   const actualCount = lignesEnrichies.length;
   
-  console.log(`IC-1 E-LiSA : ${actualCount}/${expectedCount} connaissances`);
+  logger.info(`IC-1 E-LiSA : ${actualCount}/${expectedCount} connaissances`, {
+    component: 'TableauRangAUtilsIC1Integration',
+    expectedCount,
+    actualCount
+  });
   
   return {
     lignesEnrichies,
@@ -25,7 +34,7 @@ export function processTableauRangAIC1(data: any) {
 }
 
 // Fonction pour vérifier si c'est l'item IC-1
-export function isIC1Item(data: any): boolean {
+export function isIC1Item(data: EDNItem): boolean {
   if (!data) return false;
   
   const theme = data.theme?.toLowerCase() || '';
