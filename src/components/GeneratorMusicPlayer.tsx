@@ -199,7 +199,14 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
           {/* Barre de progression si génération en cours */}
           {(isGenerating || timeoutReached) && !audioUrl && (
             <div className="space-y-2">
-              <Progress value={timeoutReached ? 100 : progress} className={`w-full ${timeoutReached ? 'bg-red-100' : ''}`} />
+              <Progress 
+                value={timeoutReached ? 100 : progress} 
+                className={`w-full ${timeoutReached ? 'bg-red-100' : ''}`}
+                aria-label={timeoutReached 
+                  ? `Génération timeout après ${Math.round((elapsedTime || 0) / 1000)} secondes`
+                  : `Génération musicale en cours: ${Math.round(progress || 0)}% complété`
+                }
+              />
               <div className="flex items-center justify-between">
                 <p className={`text-sm ${timeoutReached ? 'text-red-600' : 'text-blue-600'}`}>
                   {timeoutReached ? (

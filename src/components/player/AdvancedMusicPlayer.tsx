@@ -298,9 +298,13 @@ export const AdvancedMusicPlayer: React.FC<AdvancedMusicPlayerProps> = ({
               {/* Cover art */}
               <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center shadow-lg">
                 {coverUrl ? (
-                  <img src={coverUrl} alt={title} className="w-full h-full object-cover rounded-lg" />
+                  <img 
+                    src={coverUrl} 
+                    alt={`Illustration pour la chanson ${title}`} 
+                    className="w-full h-full object-cover rounded-lg" 
+                  />
                 ) : (
-                  <Radio className="w-8 h-8 text-white" />
+                  <Radio className="w-8 h-8 text-white" aria-hidden="true" />
                 )}
               </div>
               
@@ -320,18 +324,33 @@ export const AdvancedMusicPlayer: React.FC<AdvancedMusicPlayerProps> = ({
                 {playCount} écoute{playCount > 1 ? 's' : ''}
               </Badge>
               
-              <Button variant="ghost" size="sm" onClick={toggleLike}>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={toggleLike}
+                aria-label={isLiked ? `Retirer ${title} des favoris` : `Ajouter ${title} aux favoris`}
+              >
                 <Heart className={`h-4 w-4 ${isLiked ? 'fill-red-500 text-red-500' : ''}`} />
               </Button>
               
               {onAddToPlaylist && (
-                <Button variant="ghost" size="sm" onClick={onAddToPlaylist}>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={onAddToPlaylist}
+                  aria-label={`Ajouter ${title} à une playlist`}
+                >
                   <TranslatedText text="+ Playlist" />
                 </Button>
               )}
               
               {onShare && (
-                <Button variant="ghost" size="sm" onClick={onShare}>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={onShare}
+                  aria-label={`Partager la chanson ${title}`}
+                >
                   <Share2 className="h-4 w-4" />
                 </Button>
               )}
@@ -340,6 +359,7 @@ export const AdvancedMusicPlayer: React.FC<AdvancedMusicPlayerProps> = ({
                 variant="ghost" 
                 size="sm" 
                 onClick={() => setIsFullscreen(!isFullscreen)}
+                aria-label={isFullscreen ? "Quitter le mode plein écran" : "Passer en mode plein écran"}
               >
                 {isFullscreen ? <Minimize className="h-4 w-4" /> : <Maximize className="h-4 w-4" />}
               </Button>
@@ -368,10 +388,11 @@ export const AdvancedMusicPlayer: React.FC<AdvancedMusicPlayerProps> = ({
               step={0.1}
               onValueChange={(value) => handleSeek(value[0])}
               className="w-full"
+              aria-label={`Position dans la chanson: ${formatTime(currentTime)} sur ${formatTime(duration)}`}
             />
             <div className="flex justify-between text-sm text-gray-500">
-              <span>{formatTime(currentTime)}</span>
-              <span>{formatTime(duration)}</span>
+              <span aria-label={`Temps écoulé: ${formatTime(currentTime)}`}>{formatTime(currentTime)}</span>
+              <span aria-label={`Durée totale: ${formatTime(duration)}`}>{formatTime(duration)}</span>
             </div>
           </div>
 
@@ -382,11 +403,17 @@ export const AdvancedMusicPlayer: React.FC<AdvancedMusicPlayerProps> = ({
               size="sm" 
               onClick={() => setIsShuffled(!isShuffled)}
               className={isShuffled ? 'text-blue-600' : ''}
+              aria-label={isShuffled ? "Désactiver le mode aléatoire" : "Activer le mode aléatoire"}
             >
               <Shuffle className="h-4 w-4" />
             </Button>
 
-            <Button variant="ghost" size="sm" onClick={() => skip('backward')}>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => skip('backward')}
+              aria-label="Revenir 15 secondes en arrière"
+            >
               <SkipBack className="h-4 w-4" />
             </Button>
 
@@ -394,6 +421,7 @@ export const AdvancedMusicPlayer: React.FC<AdvancedMusicPlayerProps> = ({
               onClick={togglePlay}
               disabled={isLoading}
               className="w-12 h-12 rounded-full bg-blue-600 hover:bg-blue-700 text-white"
+              aria-label={isPlaying ? `Mettre en pause ${title}` : `Lire ${title}`}
             >
               {isLoading ? (
                 <div className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full" />
@@ -404,7 +432,12 @@ export const AdvancedMusicPlayer: React.FC<AdvancedMusicPlayerProps> = ({
               )}
             </Button>
 
-            <Button variant="ghost" size="sm" onClick={() => skip('forward')}>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={() => skip('forward')}
+              aria-label="Avancer 15 secondes"
+            >
               <SkipForward className="h-4 w-4" />
             </Button>
 
@@ -413,6 +446,11 @@ export const AdvancedMusicPlayer: React.FC<AdvancedMusicPlayerProps> = ({
               size="sm" 
               onClick={toggleRepeat}
               className={repeatMode !== 'none' ? 'text-blue-600' : ''}
+              aria-label={
+                repeatMode === 'none' ? 'Activer la répétition' :
+                repeatMode === 'one' ? 'Répétition: une chanson' :
+                'Répétition: toute la playlist'
+              }
             >
               <Repeat className="h-4 w-4" />
               {repeatMode === 'one' && <span className="text-xs ml-1">1</span>}
@@ -422,7 +460,12 @@ export const AdvancedMusicPlayer: React.FC<AdvancedMusicPlayerProps> = ({
           {/* Contrôles volume & options */}
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <Button variant="ghost" size="sm" onClick={toggleMute}>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                onClick={toggleMute}
+                aria-label={isMuted ? "Réactiver le son" : "Couper le son"}
+              >
                 {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
               </Button>
               <Slider
@@ -431,6 +474,7 @@ export const AdvancedMusicPlayer: React.FC<AdvancedMusicPlayerProps> = ({
                 step={1}
                 onValueChange={handleVolumeChange}
                 className="w-24"
+                aria-label={`Volume: ${Math.round(isMuted ? 0 : volume * 100)}%`}
               />
             </div>
 
@@ -439,6 +483,7 @@ export const AdvancedMusicPlayer: React.FC<AdvancedMusicPlayerProps> = ({
                 variant="ghost" 
                 size="sm" 
                 onClick={() => setShowVisualizer(!showVisualizer)}
+                aria-label={showVisualizer ? "Masquer le visualiseur audio" : "Afficher le visualiseur audio"}
               >
                 <Settings className="h-4 w-4" />
               </Button>
@@ -447,12 +492,18 @@ export const AdvancedMusicPlayer: React.FC<AdvancedMusicPlayerProps> = ({
                 variant="ghost" 
                 size="sm" 
                 onClick={() => setShowLyrics(!showLyrics)}
+                aria-label={showLyrics ? "Masquer les paroles" : "Afficher les paroles"}
               >
                 <TranslatedText text="Paroles" />
               </Button>
               
               {onDownload && (
-                <Button variant="ghost" size="sm" onClick={onDownload}>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={onDownload}
+                  aria-label={`Télécharger la chanson ${title}`}
+                >
                   <Download className="h-4 w-4" />
                 </Button>
               )}
