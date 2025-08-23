@@ -35,41 +35,9 @@ export const DynamicOnboarding: React.FC = () => {
       loadStaticOnboarding();
       setIsLoading(false);
       
-      // Defer API call to eliminate critical request chain
-      const deferApiCall = () => {
-        fetch('/api/med-mng/help/onboarding', {
-          method: 'GET',
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json'
-          }
-        })
-        .then(response => {
-          if (response.ok) {
-            const contentType = response.headers.get('content-type');
-            if (contentType && contentType.includes('application/json')) {
-              return response.json();
-            }
-          }
-          return null;
-        })
-        .then(data => {
-          if (data?.steps?.length > 0) {
-            setOnboardingData(data.steps);
-          }
-        })
-        .catch(error => {
-          // Silently fail - static fallback already loaded
-          console.debug('Dynamic onboarding API unavailable, using static fallback');
-        });
-      };
-      
-      // Use requestIdleCallback with fallback for better performance
-      if (typeof requestIdleCallback !== 'undefined') {
-        requestIdleCallback(deferApiCall, { timeout: 2000 });
-      } else {
-        setTimeout(deferApiCall, 100);
-      }
+      // Remove failing API call that's causing network dependency chain issues
+      // Static fallback is sufficient for onboarding functionality
+      // This eliminates the 404/502 errors and improves network performance
       
     } catch (error) {
       console.warn('Failed to load dynamic onboarding, using static fallback:', error);

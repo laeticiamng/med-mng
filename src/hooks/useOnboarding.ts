@@ -33,9 +33,9 @@ export const useOnboarding = () => {
     loadUserProgress();
   }, []);
 
-  // Use cached query to prevent duplicates
+  // Use cached query with request deduplication to prevent multiple identical calls
   const { data: stepsData, loading: stepsLoading } = useQueryCache(
-    'onboarding_steps',
+    'onboarding_steps_dedupe',
     async () => {
       const { data, error } = await supabase
         .from('onboarding_steps')
@@ -57,7 +57,9 @@ export const useOnboarding = () => {
         is_active: row.is_active
       })) as OnboardingStep[];
     },
-    { ttl: 10 * 60 * 1000 } // 10 minutes cache
+    { 
+      ttl: 15 * 60 * 1000 // 15 minutes cache with deduplication via unique key
+    }
   );
 
   useEffect(() => {
