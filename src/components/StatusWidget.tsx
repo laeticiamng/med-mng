@@ -81,7 +81,51 @@ export const StatusWidget: React.FC = () => {
     };
   }, []); // Removed refresh dependency to prevent infinite loop
   return <section aria-label="Statut de la plateforme" className="w-full max-w-3xl mx-auto">
+    <div className="bg-white rounded-lg border p-4 space-y-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <h3 className="text-sm font-medium">Statut plateforme MED-MNG</h3>
+          {stateBadge}
+        </div>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={refresh}
+          disabled={isRefreshing || isLoading}
+          className="gap-1"
+        >
+          <RefreshCw className={`w-3 h-3 ${isRefreshing ? 'animate-spin' : ''}`} />
+          {isRefreshing ? 'Mise à jour...' : 'Actualiser'}
+        </Button>
+      </div>
       
-    </section>;
+      <div className="space-y-3">
+        <div>
+          <div className="flex justify-between text-xs text-gray-600 mb-1">
+            <span>Complétude des données</span>
+            <span>{globalScore}%</span>
+          </div>
+          <Progress value={globalScore} className="h-2" />
+        </div>
+        
+        {oicScore !== null && (
+          <div>
+            <div className="flex justify-between text-xs text-gray-600 mb-1">
+              <span>Qualité OIC</span>
+              <span>{oicScore}%</span>
+            </div>
+            <Progress value={oicScore} className="h-2" />
+          </div>
+        )}
+      </div>
+      
+      <div className="flex justify-between text-xs text-gray-500">
+        <span>Version: {version}</span>
+        {lastUpdated && (
+          <span>Mise à jour: {lastUpdated.toLocaleTimeString()}</span>
+        )}
+      </div>
+    </div>
+  </section>;
 };
 export default StatusWidget;
