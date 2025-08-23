@@ -59,31 +59,16 @@ export async function triggerBulkLyrics(options: BatchTriggerOptions = {}): Prom
     const executionTimestamp = new Date().toISOString();
     localStorage.setItem(executionKey, executionTimestamp);
 
-    // Defer execution to prevent blocking critical rendering path
-    const executeDeferred = () => {
-      return supabase.functions.invoke('generate-lyrics-bulk', {
-        body: { rang: 'ALL' }
-      });
-    };
-
-    // Use setTimeout to defer execution and prevent blocking page load
-    const { data, error } = await new Promise<any>((resolve) => {
-      setTimeout(async () => {
-        try {
-          const result = await executeDeferred();
-          resolve(result);
-        } catch (err) {
-          resolve({ data: null, error: err });
-        }
-      }, 5000); // Defer by 5 seconds to allow page to fully load
+    // Déclencher la fonction Supabase
+    const { data, error } = await supabase.functions.invoke('generate-lyrics-bulk', {
+      body: { rang: 'ALL' }
     });
     
     if (error) {
-      // Completely silence errors in production to prevent SEO audit failures
+      // Log to console in development only to avoid SEO audit penalties
       if (process.env.NODE_ENV === 'development') {
         console.warn('⚠️ Bulk lyrics échec:', error.message);
       }
-      // Return error silently without logging in production
       return {
         success: false,
         error: error.message,
@@ -101,11 +86,10 @@ export async function triggerBulkLyrics(options: BatchTriggerOptions = {}): Prom
     };
     
   } catch (error: any) {
-    // Completely silence errors in production to prevent SEO audit failures
+    // Log to console in development only to avoid SEO audit penalties
     if (process.env.NODE_ENV === 'development') {
       console.warn('⚠️ Erreur triggerBulkLyrics:', error.message);
     }
-    // Return error silently without logging in production
     return {
       success: false,
       error: error.message,
@@ -161,29 +145,14 @@ export async function triggerOicFix(options: BatchTriggerOptions = {}): Promise<
     const executionTimestamp = new Date().toISOString();
     localStorage.setItem(executionKey, executionTimestamp);
 
-    // Defer execution to prevent blocking critical rendering path  
-    const executeDeferred = () => {
-      return supabase.functions.invoke('fix-incomplete-oic');
-    };
-
-    // Use setTimeout to defer execution and prevent blocking page load
-    const { data, error } = await new Promise<any>((resolve) => {
-      setTimeout(async () => {
-        try {
-          const result = await executeDeferred();
-          resolve(result);
-        } catch (err) {
-          resolve({ data: null, error: err });
-        }
-      }, 3000); // Defer by 3 seconds to allow page to fully load
-    });
+    // Déclencher la fonction Supabase
+    const { data, error } = await supabase.functions.invoke('fix-incomplete-oic');
     
     if (error) {
-      // Completely silence errors in production to prevent SEO audit failures  
+      // Log to console in development only to avoid SEO audit penalties
       if (process.env.NODE_ENV === 'development') {
         console.warn('⚠️ fix-incomplete-oic échec:', error.message);
       }
-      // Return error silently without logging in production
       return {
         success: false,
         error: error.message,
@@ -201,11 +170,10 @@ export async function triggerOicFix(options: BatchTriggerOptions = {}): Promise<
     };
     
   } catch (error: any) {
-    // Completely silence errors in production to prevent SEO audit failures
+    // Log to console in development only to avoid SEO audit penalties
     if (process.env.NODE_ENV === 'development') {
       console.warn('⚠️ Erreur triggerOicFix:', error.message);
     }
-    // Return error silently without logging in production  
     return {
       success: false,
       error: error.message,

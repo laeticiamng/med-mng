@@ -71,11 +71,7 @@ export const OnboardingModal: React.FC = () => {
               <span>Étape {currentStep + 1} sur {steps.length}</span>
               <span className="font-medium text-primary">{Math.round(progress)}%</span>
             </div>
-            <Progress 
-              value={progress} 
-              className="h-2" 
-              aria-label={`Progression du guide d'introduction: étape ${currentStep + 1} sur ${steps.length} (${Math.round(progress)}% complété)`}
-            />
+            <Progress value={progress} className="h-2" />
           </div>
 
           {/* Step Content */}

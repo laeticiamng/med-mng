@@ -4,8 +4,8 @@ import { CheckCircle, Music, ArrowRight, Home, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useSubscription } from '@/hooks/useSubscription';
-import { useAuth } from '@/components/med-mng/SimpleAuthProvider';
-import { SimpleTranslatedText } from '@/components/SimpleTranslatedText';
+import { useAuth } from '@/components/med-mng/AuthProvider';
+import { TranslatedText } from '@/components/TranslatedText';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/components/med-mng/SimpleAuthProvider';
+import { useAuth } from '@/components/med-mng/AuthProvider';
 import { toast } from 'sonner';
 
 interface SubscriptionPlan {

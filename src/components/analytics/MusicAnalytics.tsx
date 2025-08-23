@@ -19,7 +19,7 @@ import {
 } from 'lucide-react';
 import { TranslatedText } from '@/components/TranslatedText';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/components/med-mng/SimpleAuthProvider';
+import { useAuth } from '@/components/med-mng/AuthProvider';
 
 interface ListeningStats {
   totalListenTime: number;

@@ -31,17 +31,41 @@ export const DynamicOnboarding: React.FC = () => {
 
   const loadDynamicOnboarding = async () => {
     try {
-      // ⚡ CRITICAL PATH OPTIMIZATION: Load static immediately, defer API
+      // ⚡ OPTIMISATION : Pas d'attente pour l'API - démarrer avec le static d'abord
       loadStaticOnboarding();
       setIsLoading(false);
       
-      // Remove failing API call that's causing network dependency chain issues
-      // Static fallback is sufficient for onboarding functionality
-      // This eliminates the 404/502 errors and improves network performance
-      
+      // Charger l'API en arrière-plan sans bloquer l'interface
+      const response = await fetch('/api/med-mng/help/onboarding', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        // Vérifier le type de contenu de la réponse
+        const contentType = response.headers.get('content-type');
+        if (contentType && contentType.includes('application/json')) {
+          try {
+            const data = await response.json();
+            if (data.steps && data.steps.length > 0) {
+              setOnboardingData(data.steps); // Mettre à jour seulement si l'API a du contenu
+            }
+          } catch (parseError) {
+            console.warn('Failed to parse JSON response, using static fallback:', parseError);
+            // Continuer avec le fallback statique déjà chargé
+          }
+        } else {
+          console.warn('Response is not JSON, using static fallback');
+          // Continuer avec le fallback statique déjà chargé
+        }
+      }
     } catch (error) {
       console.warn('Failed to load dynamic onboarding, using static fallback:', error);
       loadStaticOnboarding();
+    } finally {
       setIsLoading(false);
     }
   };

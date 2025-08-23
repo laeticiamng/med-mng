@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/components/med-mng/SimpleAuthProvider';
+import { useAuth } from '@/components/med-mng/AuthProvider';
 import { toast } from 'sonner';
 
 // Components

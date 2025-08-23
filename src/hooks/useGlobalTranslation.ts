@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { useLanguage } from '@/contexts/SimpleLanguageContext';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 // Hook pour traduire automatiquement du contenu basé sur la langue actuelle
 export const useGlobalTranslation = () => {
