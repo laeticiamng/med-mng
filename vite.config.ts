@@ -32,6 +32,8 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     target: 'esnext',
+    // Optimize CSS bundle size
+    cssCodeSplit: true,
     rollupOptions: {
       output: {
         // Manual chunk splitting for better caching and loading
@@ -51,6 +53,13 @@ export default defineConfig(({ mode }) => ({
             ? chunkInfo.facadeModuleId.split('/').pop()?.replace(/\.\w+$/, '') || 'chunk'
             : 'chunk';
           return `assets/${facadeModuleId}-[hash].js`;
+        },
+        // Optimize CSS file names
+        assetFileNames: (assetInfo) => {
+          if (assetInfo.name && assetInfo.name.endsWith('.css')) {
+            return 'assets/styles-[hash].css';
+          }
+          return 'assets/[name]-[hash][extname]';
         }
       },
       onwarn(warning, warn) {

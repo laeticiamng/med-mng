@@ -8,6 +8,23 @@ export default {
 		"./components/**/*.{ts,tsx}",
 		"./app/**/*.{ts,tsx}",
 		"./src/**/*.{ts,tsx}",
+		"./index.html"
+	],
+	// Enable aggressive CSS purging for production builds
+	safelist: [
+		// Keep essential animation and utility classes that might be added dynamically
+		'animate-spin',
+		'animate-pulse', 
+		'animate-bounce',
+		'gpu-accelerated',
+		'will-change-transform',
+		'lcp-heading',
+		'skeleton',
+		'critical-layout',
+		'critical-container',
+		'critical-header',
+		'critical-hero',
+		'critical-title'
 	],
 	prefix: "",
 	theme: {
