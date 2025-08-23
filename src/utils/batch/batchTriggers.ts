@@ -22,8 +22,19 @@ export async function triggerBulkLyrics(options: BatchTriggerOptions = {}): Prom
   const executionKey = 'bulkLyricsRun_v3_all_367x3';
   
   try {
+    // Prevent automatic execution on page load for SEO performance
     if (typeof window === 'undefined') {
-      throw new Error('Cette fonction ne peut être exécutée que côté client');
+      throw new Error('Function disabled on server side');
+    }
+
+    // Prevent execution in production without explicit force
+    if (window.location.hostname.includes('lovable.app') && !forceExecution) {
+      return {
+        success: false,
+        error: 'Execution disabled in production. Use forceExecution: true if needed.',
+        timestamp: new Date().toISOString(),
+        executionKey
+      };
     }
 
     // Vérifier l'environnement si spécifié
@@ -48,10 +59,10 @@ export async function triggerBulkLyrics(options: BatchTriggerOptions = {}): Prom
     const executionTimestamp = new Date().toISOString();
     localStorage.setItem(executionKey, executionTimestamp);
 
-  // Déclencher la fonction Supabase
-  const { data, error } = await supabase.functions.invoke('generate-lyrics-bulk', {
-    body: { rang: 'ALL' }
-  });
+    // Déclencher la fonction Supabase
+    const { data, error } = await supabase.functions.invoke('generate-lyrics-bulk', {
+      body: { rang: 'ALL' }
+    });
     
     if (error) {
       // Log to console in development only to avoid SEO audit penalties
@@ -97,8 +108,19 @@ export async function triggerOicFix(options: BatchTriggerOptions = {}): Promise<
   const executionKey = 'oicFixRun_v1_4872';
   
   try {
+    // Prevent automatic execution on page load for SEO performance
     if (typeof window === 'undefined') {
-      throw new Error('Cette fonction ne peut être exécutée que côté client');
+      throw new Error('Function disabled on server side');
+    }
+
+    // Prevent execution in production without explicit force
+    if (window.location.hostname.includes('lovable.app') && !forceExecution) {
+      return {
+        success: false,
+        error: 'Execution disabled in production. Use forceExecution: true if needed.',
+        timestamp: new Date().toISOString(),
+        executionKey
+      };
     }
 
     // Vérifier l'environnement si spécifié
