@@ -34,7 +34,6 @@ export default defineConfig(({ mode }) => ({
     target: 'esnext',
     // Aggressive CSS optimization for render-blocking elimination
     cssCodeSplit: true,
-    cssMinify: 'lightningcss',
     rollupOptions: {
       output: {
         // Optimized chunk splitting to eliminate icon request chains
