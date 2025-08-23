@@ -51,7 +51,7 @@ export const OnboardingModal: React.FC = () => {
               variant="ghost"
               size="sm"
               onClick={skipOnboarding}
-              className="text-muted-foreground hover:text-foreground"
+              className="text-muted-foreground hover:text-foreground min-h-[44px] min-w-[44px]"
               aria-label="Fermer le guide d'introduction"
             >
               <X className="h-4 w-4" />
@@ -93,23 +93,23 @@ export const OnboardingModal: React.FC = () => {
               variant="outline"
               onClick={previousStep}
               disabled={currentStep === 0}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2 min-h-[44px] min-w-[44px] px-4 py-2"
             >
               <ArrowLeft className="h-4 w-4" />
               Précédent
             </Button>
 
-            <div className="flex gap-3">
+            <div className="flex gap-4">
               <Button
                 variant="ghost"
                 onClick={skipOnboarding}
-                className="text-muted-foreground hover:text-foreground"
+                className="text-muted-foreground hover:text-foreground min-h-[44px] min-w-[44px] px-4 py-2"
               >
                 Passer
               </Button>
               <Button
                 onClick={handleNext}
-                className="bg-primary hover:bg-primary/90 text-primary-foreground flex items-center gap-2"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground flex items-center gap-2 min-h-[44px] min-w-[44px] px-4 py-2"
               >
                 {isLastStep ? (
                   <>
