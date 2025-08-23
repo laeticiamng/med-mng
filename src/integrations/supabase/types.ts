@@ -5836,7 +5836,7 @@ export type Database = {
         Returns: undefined
       }
       calculate_completeness_score: {
-        Args: { item_id: string }
+        Args: { item_data: Json } | { item_id: string }
         Returns: number
       }
       calculate_item_completeness_score: {
@@ -5998,7 +5998,9 @@ export type Database = {
         Returns: string
       }
       create_user_session: {
-        Args: { p_ip_address?: unknown; p_user_agent?: string }
+        Args:
+          | { p_ip_address?: unknown; p_user_agent?: string }
+          | { session_data: Json }
         Returns: string
       }
       detect_and_fix_redundancies: {
