@@ -6222,6 +6222,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
+      get_security_status: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
       get_user_active_room_ids: {
         Args: { p_user_id?: string }
         Returns: {
