@@ -479,6 +479,158 @@ html[data-font-size="large"] {
   top: 6px;
 }
 
+/* ==========================================
+   MED-MNG MOBILE OPTIMIZATIONS 
+   ========================================== */
+
+/* Mobile Touch Optimization Framework */
+@media (max-width: 768px) {
+  body {
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    overscroll-behavior: contain;
+  }
+  
+  /* Touch-friendly interactive elements */
+  button, 
+  [role="button"], 
+  [role="tab"],
+  .touch-target {
+    min-height: 48px;
+    min-width: 48px;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    transition: transform 0.15s ease;
+  }
+  
+  /* Active state feedback */
+  button:active, 
+  [role="button"]:active, 
+  [role="tab"]:active,
+  .touch-target:active {
+    transform: scale(0.95);
+  }
+  
+  /* Optimized scrolling */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Mobile input optimization - prevents iOS zoom */
+  input[type="text"], 
+  input[type="search"], 
+  input[type="email"],
+  input[type="password"],
+  textarea {
+    font-size: 16px;
+    -webkit-appearance: none;
+    border-radius: 12px;
+  }
+  
+  /* Modal improvements for mobile */
+  [data-radix-portal] {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 9999 !important;
+  }
+  
+  /* Swipe gesture indicators */
+  .swipe-indicator {
+    background: linear-gradient(90deg, transparent, hsl(var(--primary) / 0.3), transparent);
+    height: 2px;
+    width: 100%;
+    position: absolute;
+    bottom: 0;
+    animation: swipe-hint 2s infinite;
+  }
+  
+  @keyframes swipe-hint {
+    0%, 100% { opacity: 0; }
+    50% { opacity: 1; }
+  }
+}
+
+/* iOS Safari specific optimizations */
+@supports (-webkit-touch-callout: none) {
+  .modal-content {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+  
+  /* Safe area inset support for notched devices */
+  .safe-area-inset {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+  
+  .safe-area-top { 
+    padding-top: env(safe-area-inset-top); 
+  }
+  
+  .safe-area-bottom { 
+    padding-bottom: env(safe-area-inset-bottom); 
+  }
+}
+
+/* Premium interaction animations */
+.premium-transition {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.premium-hover:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
+}
+
+/* Enhanced card interactions for medical theme */
+.premium-card {
+  @apply medical-card;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.premium-card:hover {
+  transform: translateY(-4px) scale(1.02);
+  box-shadow: var(--shadow-large);
+  border-color: hsl(var(--primary) / 0.3);
+}
+
+/* Medical-themed mobile navigation enhancements */
+.medical-mobile-nav {
+  @apply medical-nav;
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) 12px env(safe-area-inset-left);
+}
+
+/* Touch-optimized medical buttons for mobile */
+@media (max-width: 768px) {
+  .medical-btn-primary,
+  .medical-btn-secondary,
+  .medical-btn-outline {
+    min-height: 48px;
+    padding: 12px 16px;
+    font-size: 16px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  .medical-btn-primary:active {
+    transform: scale(0.95);
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%);
+  }
+}
+
+/* ========================================== */
+
 /* Screen Reader Only Content */
 .sr-only {
   position: absolute;
