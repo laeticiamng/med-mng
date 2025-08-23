@@ -92,24 +92,24 @@ export const CreativeStudio = () => {
   return (
     <div className="space-y-6">
       <div className="text-center space-y-2">
-        <h1 className="text-3xl font-bold gradient-text">Studio de Création IA</h1>
+        <h1 id="main-content" className="text-3xl font-bold gradient-text">Studio de Création IA</h1>
         <p className="text-muted-foreground">
           Générez de la musique, des voix et des images d'ambiance avec l'intelligence artificielle
         </p>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="music" className="flex items-center gap-2">
-            <Music className="h-4 w-4" />
+        <TabsList className="grid w-full grid-cols-3" role="tablist" aria-label="Types de contenu à générer">
+          <TabsTrigger value="music" className="flex items-center gap-2" aria-label="Générer de la musique">
+            <Music className="h-4 w-4" aria-hidden="true" />
             Musique
           </TabsTrigger>
-          <TabsTrigger value="voice" className="flex items-center gap-2">
-            <Mic className="h-4 w-4" />
+          <TabsTrigger value="voice" className="flex items-center gap-2" aria-label="Synthèse vocale">
+            <Mic className="h-4 w-4" aria-hidden="true" />
             Voix
           </TabsTrigger>
-          <TabsTrigger value="image" className="flex items-center gap-2">
-            <Image className="h-4 w-4" />
+          <TabsTrigger value="image" className="flex items-center gap-2" aria-label="Générer des images">
+            <Image className="h-4 w-4" aria-hidden="true" />
             Images
           </TabsTrigger>
         </TabsList>
@@ -142,7 +142,7 @@ export const CreativeStudio = () => {
                 <div className="space-y-2">
                   <Label>Style musical</Label>
                   <Select value={formData.style} onValueChange={(value) => updateFormData('style', value)}>
-                    <SelectTrigger>
+                    <SelectTrigger aria-label="Sélectionner un style musical">
                       <SelectValue placeholder="Choisir un style" />
                     </SelectTrigger>
                     <SelectContent>
@@ -201,7 +201,7 @@ export const CreativeStudio = () => {
               <div className="space-y-2">
                 <Label>Voix</Label>
                 <Select value={formData.voiceId} onValueChange={(value) => updateFormData('voiceId', value)}>
-                  <SelectTrigger>
+                  <SelectTrigger aria-label="Sélectionner une voix pour la synthèse">
                     <SelectValue placeholder="Choisir une voix" />
                   </SelectTrigger>
                   <SelectContent>
@@ -254,7 +254,7 @@ export const CreativeStudio = () => {
                 <div className="space-y-2">
                   <Label>Ambiance</Label>
                   <Select value={formData.mood} onValueChange={(value) => updateFormData('mood', value)}>
-                    <SelectTrigger>
+                    <SelectTrigger aria-label="Sélectionner l'ambiance de l'image">
                       <SelectValue placeholder="Choisir une ambiance" />
                     </SelectTrigger>
                     <SelectContent>
@@ -273,7 +273,7 @@ export const CreativeStudio = () => {
                 <div className="space-y-2">
                   <Label>Taille</Label>
                   <Select value={formData.size} onValueChange={(value) => updateFormData('size', value)}>
-                    <SelectTrigger>
+                    <SelectTrigger aria-label="Sélectionner la taille de l'image">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -301,7 +301,7 @@ export const CreativeStudio = () => {
                   {activeTab === 'music' ? 'Musique' : activeTab === 'voice' ? 'Voix' : 'Image'}
                 </Badge>
               </div>
-              <Progress value={progress} className="w-full" />
+              <Progress value={progress} className="w-full" aria-label={`Progression de génération: ${Math.round(progress)}%`} />
               <p className="text-sm text-muted-foreground">
                 {progress < 30 ? 'Initialisation...' : 
                  progress < 70 ? 'Génération IA en cours...' : 
@@ -319,8 +319,9 @@ export const CreativeStudio = () => {
           disabled={!formData.prompt.trim() || isGenerating}
           size="lg"
           className="gap-2"
+          aria-label={isGenerating ? `Génération en cours` : `Générer du contenu ${activeTab === 'music' ? 'musical' : activeTab === 'voice' ? 'vocal' : 'd\'image'} avec l'IA`}
         >
-          <Sparkles className="h-5 w-5" />
+          <Sparkles className="h-5 w-5" aria-hidden="true" />
           {isGenerating ? 'Génération...' : 'Générer avec l\'IA'}
         </Button>
       </div>
