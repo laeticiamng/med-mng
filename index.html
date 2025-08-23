@@ -36,33 +36,11 @@
     <link rel="dns-prefetch" href="//lovable.dev">
     <link rel="preconnect" href="https://lovable.dev" crossorigin>
     
-    <!-- Optimized non-blocking font loading -->
+    <!-- True non-blocking font loading with preload -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"></noscript>
+
     <script>
-      // Complete non-blocking font loading strategy
-      (function() {
-        // Use requestIdleCallback for better performance
-        function loadFonts() {
-          // Create link element for async font loading
-          var link = document.createElement('link');
-          link.rel = 'stylesheet';
-          link.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap';
-          
-          // Load fonts without blocking render
-          link.media = 'print';
-          link.onload = function() { this.media = 'all'; };
-          link.onerror = function() { this.media = 'all'; };
-          
-          document.head.appendChild(link);
-        }
-        
-        // Load fonts when browser is idle or after 100ms max
-        if ('requestIdleCallback' in window) {
-          requestIdleCallback(loadFonts, { timeout: 100 });
-        } else {
-          setTimeout(loadFonts, 100);
-        }
-      })();
-      
       // Register Service Worker for efficient caching
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
