@@ -596,19 +596,22 @@ html[data-font-size="large"] {
 
 /* Enhanced card interactions for medical theme */
 .premium-card {
-  @apply medical-card;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: calc(var(--radius) + 2px);
 }
 
 .premium-card:hover {
   transform: translateY(-4px) scale(1.02);
-  box-shadow: var(--shadow-large);
+  box-shadow: var(--shadow-large, 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 10px 10px -5px rgb(0 0 0 / 0.04));
   border-color: hsl(var(--primary) / 0.3);
 }
 
 /* Medical-themed mobile navigation enhancements */
 .medical-mobile-nav {
-  @apply medical-nav;
+  background: hsl(var(--background));
+  border-bottom: 1px solid hsl(var(--border));
   padding: env(safe-area-inset-top) env(safe-area-inset-right) 12px env(safe-area-inset-left);
 }
 
