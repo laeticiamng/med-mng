@@ -31,41 +31,49 @@ export const DynamicOnboarding: React.FC = () => {
 
   const loadDynamicOnboarding = async () => {
     try {
-      // ⚡ OPTIMISATION : Pas d'attente pour l'API - démarrer avec le static d'abord
+      // ⚡ CRITICAL PATH OPTIMIZATION: Load static immediately, defer API
       loadStaticOnboarding();
       setIsLoading(false);
       
-      // Charger l'API en arrière-plan sans bloquer l'interface
-      const response = await fetch('/api/med-mng/help/onboarding', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        }
-      });
-
-      if (response.ok) {
-        // Vérifier le type de contenu de la réponse
-        const contentType = response.headers.get('content-type');
-        if (contentType && contentType.includes('application/json')) {
-          try {
-            const data = await response.json();
-            if (data.steps && data.steps.length > 0) {
-              setOnboardingData(data.steps); // Mettre à jour seulement si l'API a du contenu
-            }
-          } catch (parseError) {
-            console.warn('Failed to parse JSON response, using static fallback:', parseError);
-            // Continuer avec le fallback statique déjà chargé
+      // Defer API call to eliminate critical request chain
+      const deferApiCall = () => {
+        fetch('/api/med-mng/help/onboarding', {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json'
           }
-        } else {
-          console.warn('Response is not JSON, using static fallback');
-          // Continuer avec le fallback statique déjà chargé
-        }
+        })
+        .then(response => {
+          if (response.ok) {
+            const contentType = response.headers.get('content-type');
+            if (contentType && contentType.includes('application/json')) {
+              return response.json();
+            }
+          }
+          return null;
+        })
+        .then(data => {
+          if (data?.steps?.length > 0) {
+            setOnboardingData(data.steps);
+          }
+        })
+        .catch(error => {
+          // Silently fail - static fallback already loaded
+          console.debug('Dynamic onboarding API unavailable, using static fallback');
+        });
+      };
+      
+      // Use requestIdleCallback with fallback for better performance
+      if (typeof requestIdleCallback !== 'undefined') {
+        requestIdleCallback(deferApiCall, { timeout: 2000 });
+      } else {
+        setTimeout(deferApiCall, 100);
       }
+      
     } catch (error) {
       console.warn('Failed to load dynamic onboarding, using static fallback:', error);
       loadStaticOnboarding();
-    } finally {
       setIsLoading(false);
     }
   };

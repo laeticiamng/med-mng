@@ -37,21 +37,34 @@ export default defineConfig(({ mode }) => ({
     cssMinify: 'lightningcss',
     rollupOptions: {
       output: {
-        // Optimized chunk splitting to reduce initial bundle size
+        // Optimized chunk splitting to eliminate icon request chains
         manualChunks: (id: string) => {
+          // Core React bundle - highest priority
+          if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) {
+            return 'react-core';
+          }
+          
+          // Critical UI bundle - icons and basic components
+          if (id.includes('lucide-react') || id.includes('@radix-ui')) {
+            return 'ui-core';
+          }
+          
           // Critical path chunks
           if (id.includes('src/pages/Index')) return 'page-index';
-          if (id.includes('src/components/layout')) return 'layout';
+          if (id.includes('src/components/layout')) return 'layout-core';
           
-          // Vendor chunks
-          if (id.includes('react') || id.includes('react-dom')) return 'react-vendor';
-          if (id.includes('@radix-ui')) return 'ui-vendor';
-          if (id.includes('@tanstack')) return 'query-vendor';
-          if (id.includes('@supabase')) return 'supabase-vendor';
+          // Supabase and query - often needed together
+          if (id.includes('@supabase') || id.includes('@tanstack/react-query')) {
+            return 'data-core';
+          }
           
-          // Feature chunks
+          // Heavy features - defer loading
           if (id.includes('src/components/med-mng')) return 'med-mng';
           if (id.includes('framer-motion')) return 'animations';
+          if (id.includes('src/components/onboarding')) return 'onboarding';
+          
+          // Other vendor libraries
+          if (id.includes('node_modules')) return 'vendor-misc';
         },
         // Optimize file names for better caching
         chunkFileNames: 'assets/js/[name]-[hash].js',

@@ -12,6 +12,16 @@
     <link rel="manifest" href="/manifest.webmanifest">
     <meta name="theme-color" content="#4B5563" />
 
+    <!-- Critical Preconnect Hints for Key Origins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://yaincoxihiqdksxgrsrk.supabase.co" crossorigin>
+    
+    <!-- DNS prefetch for additional performance -->
+    <link rel="dns-prefetch" href="//fonts.googleapis.com">
+    <link rel="dns-prefetch" href="//fonts.gstatic.com">
+    <link rel="dns-prefetch" href="//yaincoxihiqdksxgrsrk.supabase.co">
+    
     <!-- Preload critical font files for immediate LCP rendering -->
     <link rel="preload" href="https://fonts.gstatic.com/s/inter/v19/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7W0Q5nw.woff2" as="font" type="font/woff2" crossorigin>
     <link rel="preload" href="https://fonts.gstatic.com/s/inter/v19/UcCO3FwrK3iLTeHuS_flhiMyaEo.woff2" as="font" type="font/woff2" crossorigin>
@@ -23,10 +33,7 @@
     <link rel="modulepreload" href="/src/pages/Index.tsx">
     
     <!-- DNS prefetch and preconnect for external resources -->
-    <link rel="dns-prefetch" href="//yaincoxihiqdksxgrsrk.supabase.co">
-    <link rel="preconnect" href="https://yaincoxihiqdksxgrsrk.supabase.co" crossorigin>
-    
-    <!-- Additional preconnects for potential third-party resources -->
+    <link rel="dns-prefetch" href="//lovable.dev">
     <link rel="preconnect" href="https://lovable.dev" crossorigin>
     
     <!-- Optimized non-blocking font loading -->
