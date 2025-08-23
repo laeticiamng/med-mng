@@ -32,6 +32,7 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     target: 'esnext',
+    sourcemap: true, // Enable source maps for debugging and SEO tools
     // Aggressive CSS optimization for render-blocking elimination
     cssCodeSplit: true,
     rollupOptions: {
