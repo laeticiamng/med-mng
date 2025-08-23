@@ -3,11 +3,24 @@
 
 import { createClient } from '@supabase/supabase-js';
 
-// Configuration
+// Configuration - ALL CREDENTIALS MUST BE SET VIA ENVIRONMENT VARIABLES
 const SUPABASE_URL = 'https://yaincoxihiqdksxgrsrk.supabase.co';
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const CAS_USER = process.env.CAS_USER || 'laeticia.moto-ngane@etud.u-picardie.fr';
-const CAS_PASS = process.env.CAS_PASS || 'Aiciteal1!';
+
+// SECURITY: NO HARDCODED CREDENTIALS - Environment variables are required
+const CAS_USER = process.env.CAS_USER;
+const CAS_PASS = process.env.CAS_PASS;
+
+// Validate required environment variables
+if (!CAS_USER) {
+  throw new Error('❌ SECURITY ERROR: CAS_USER environment variable is required');
+}
+if (!CAS_PASS) {
+  throw new Error('❌ SECURITY ERROR: CAS_PASS environment variable is required');
+}
+if (!SUPABASE_SERVICE_ROLE_KEY) {
+  throw new Error('❌ SECURITY ERROR: SUPABASE_SERVICE_ROLE_KEY environment variable is required');
+}
 
 // Initialisation Supabase
 const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);

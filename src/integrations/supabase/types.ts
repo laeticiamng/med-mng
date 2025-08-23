@@ -6355,6 +6355,12 @@ export type Database = {
               p_event_type: string
               p_ip_address?: unknown
               p_user_agent?: string
+            }
+          | {
+              p_event_details?: Json
+              p_event_type: string
+              p_ip_address?: unknown
+              p_user_agent?: string
               p_user_id?: string
             }
         Returns: undefined
