@@ -29,6 +29,19 @@
         link.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap';
         document.head.appendChild(link);
       }
+      
+      // Register Service Worker for efficient caching
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+          navigator.serviceWorker.register('/sw.js')
+            .then((registration) => {
+              console.log('SW registered: ', registration);
+            })
+            .catch((registrationError) => {
+              console.log('SW registration failed: ', registrationError);
+            });
+        });
+      }
     </script>
 
     <meta property="og:title" content="MED MNG par EmotionsCare - Apprentissage Médical Immersif" />
