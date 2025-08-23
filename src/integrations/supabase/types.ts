@@ -6565,6 +6565,10 @@ export type Database = {
           table_name: string
         }[]
       }
+      security_audit_summary: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
       security_validation_final: {
         Args: Record<PropertyKey, never>
         Returns: Json

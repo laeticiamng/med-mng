@@ -80,7 +80,7 @@ export const SecurityDashboard: React.FC = () => {
             {
               path: 'src/config.ts',
               content: `
-                const API_KEY = "sk-test123456789"; // Test secret
+                const API_KEY = process.env.OPENAI_API_KEY || 'your-api-key-here';
                 export const config = {
                   openai: API_KEY
                 };
