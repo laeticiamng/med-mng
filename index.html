@@ -12,17 +12,12 @@
     <link rel="manifest" href="/manifest.webmanifest">
     <meta name="theme-color" content="#4B5563" />
 
-    <!-- Google Fonts - Non-render-blocking optimization -->
+    <!-- Google Fonts - Completely non-render-blocking -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     
-    <!-- Preload critical fonts to reduce chain length -->
+    <!-- Preload critical font files directly -->
     <link rel="preload" href="https://fonts.gstatic.com/s/inter/v19/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7W0Q5nw.woff2" as="font" type="font/woff2" crossorigin>
-    
-    <!-- Load fonts asynchronously to prevent render blocking -->
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'" media="print">
-    <!-- Fallback for browsers that don't support preload -->
-    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"></noscript>
     
     <!-- Preload critical scripts for faster execution -->
     <link rel="modulepreload" href="/src/main.tsx">
@@ -38,23 +33,28 @@
     
     <!-- Inline script to handle font loading optimization -->
     <script>
-      // Async font loading to prevent render blocking
+      // Load Google Fonts completely asynchronously to prevent render blocking
       (function() {
-        var fontLink = document.querySelector('link[href*="fonts.googleapis.com"]');
-        if (fontLink) {
-          fontLink.addEventListener('load', function() {
-            this.media = 'all';
-          });
-        }
-      })();
-      
-      // Ensure font stylesheet loads even if preload fails
-      if (!window.FontFace) {
         var link = document.createElement('link');
         link.rel = 'stylesheet';
         link.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap';
+        link.media = 'print';
+        link.onload = function() {
+          this.media = 'all';
+        };
+        // Fallback for browsers that don't support onload on link elements
+        link.addEventListener('load', function() {
+          this.media = 'all';
+        });
         document.head.appendChild(link);
-      }
+        
+        // Fallback for older browsers
+        setTimeout(function() {
+          if (link.media !== 'all') {
+            link.media = 'all';
+          }
+        }, 3000);
+      })();
       
       // Register Service Worker for efficient caching
       if ('serviceWorker' in navigator) {
