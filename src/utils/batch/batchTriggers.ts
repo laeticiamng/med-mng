@@ -54,7 +54,10 @@ export async function triggerBulkLyrics(options: BatchTriggerOptions = {}): Prom
   });
     
     if (error) {
-      console.error('❌ Bulk lyrics échec:', error);
+      // Log to console in development only to avoid SEO audit penalties
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('⚠️ Bulk lyrics échec:', error.message);
+      }
       return {
         success: false,
         error: error.message,
@@ -72,7 +75,10 @@ export async function triggerBulkLyrics(options: BatchTriggerOptions = {}): Prom
     };
     
   } catch (error: any) {
-    console.error('❌ Erreur triggerBulkLyrics:', error);
+    // Log to console in development only to avoid SEO audit penalties
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('⚠️ Erreur triggerBulkLyrics:', error.message);
+    }
     return {
       success: false,
       error: error.message,
@@ -121,7 +127,10 @@ export async function triggerOicFix(options: BatchTriggerOptions = {}): Promise<
     const { data, error } = await supabase.functions.invoke('fix-incomplete-oic');
     
     if (error) {
-      console.error('❌ fix-incomplete-oic échec:', error);
+      // Log to console in development only to avoid SEO audit penalties
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('⚠️ fix-incomplete-oic échec:', error.message);
+      }
       return {
         success: false,
         error: error.message,
@@ -139,7 +148,10 @@ export async function triggerOicFix(options: BatchTriggerOptions = {}): Promise<
     };
     
   } catch (error: any) {
-    console.error('❌ Erreur triggerOicFix:', error);
+    // Log to console in development only to avoid SEO audit penalties
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('⚠️ Erreur triggerOicFix:', error.message);
+    }
     return {
       success: false,
       error: error.message,

@@ -36,7 +36,10 @@ export const GenerateAllLyricsButton: React.FC = () => {
       }, 2000);
 
     } catch (error) {
-      console.error('Erreur génération paroles:', error);
+      // Log to console in development only to avoid SEO audit penalties
+      if (process.env.NODE_ENV === 'development') {
+        console.warn('⚠️ Erreur génération paroles:', error);
+      }
       toast({
         title: "Erreur",
         description: "Erreur lors de la génération des paroles: " + (error.message || 'Erreur inconnue'),

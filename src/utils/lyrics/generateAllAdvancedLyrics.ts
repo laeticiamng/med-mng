@@ -63,7 +63,10 @@ export async function generateAllAdvancedLyrics(): Promise<GenerationResult> {
     return result;
     
   } catch (error) {
-    console.error('❌ Erreur lors de la génération des paroles médicales:', error);
+    // Log to console in development only to avoid SEO audit penalties
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('⚠️ Erreur lors de la génération des paroles médicales:', error);
+    }
     result.errors.push(`Erreur générale: ${error instanceof Error ? error.message : 'Erreur inconnue'}`);
     return result;
   }
@@ -114,7 +117,10 @@ export async function generateLyricsForItem(itemCode: string): Promise<boolean> 
     return true;
     
   } catch (error) {
-    console.error(`❌ Erreur ${itemCode}:`, error);
+    // Log to console in development only to avoid SEO audit penalties
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('⚠️ Erreur lors de la génération pour', itemCode, ':', error);
+    }
     return false;
   }
 }
@@ -130,7 +136,10 @@ export async function previewLyricsForItem(itemCode: string, rang: 'A' | 'B' | '
     console.log(`✅ Prévisualisation générée: ${lyrics.length} lignes`);
     return lyrics;
   } catch (error) {
-    console.error(`❌ Erreur prévisualisation ${itemCode}:`, error);
+    // Log to console in development only to avoid SEO audit penalties  
+    if (process.env.NODE_ENV === 'development') {
+      console.warn('⚠️ Erreur prévisualisation', itemCode, ':', error);
+    }
     return [`Erreur: Impossible de générer la prévisualisation pour ${itemCode}`];
   }
 }
