@@ -14,6 +14,8 @@ import { EdnItemGrid } from '@/components/edn/EdnItemGrid';
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useBreakpoints, useResponsiveGrid, useResponsiveSpacing } from "@/hooks/useBreakpoints";
 import { GlobalLyricsManager } from '@/components/edn/GlobalLyricsManager';
+import { Breadcrumbs } from '@/components/ux/Breadcrumbs';
+import { LoadingFeedback } from '@/components/ux/LoadingFeedback';
 
 // Composants lazy pour les onglets non-critiques
 const LyricsCompletionStatus = React.lazy(() => 
@@ -45,10 +47,14 @@ export default function EdnComplete() {
   const [selectedItem, setSelectedItem] = useState<EdnItemLight | null>(null);
   const [showLyricsManager, setShowLyricsManager] = useState(false);
 
+  // Hooks responsifs et UX  
   const isMobile = useIsMobile();
   const { isTablet, isTabletPortrait, isMobileSmall } = useBreakpoints();
   const gridConfig = useResponsiveGrid();
   const spacing = useResponsiveSpacing();
+
+  // États de chargement pour UX optimisée
+  const [isFiltering, setIsFiltering] = useState(false);
   
   // Ajustement intelligent du nombre d'items par page selon l'écran
   const getItemsPerPage = () => {
@@ -93,8 +99,9 @@ export default function EdnComplete() {
 
       {/* Header Suno-inspired */}
       <div className="bg-black/20 backdrop-blur-xl border-b border-white/10 sticky top-0 z-40 shadow-2xl shadow-purple-500/10">
-        <div className="container mx-auto px-6 py-6 relative">
-          <div className="text-center mb-8">
+          <div className="container mx-auto px-6 py-6 relative">
+            <Breadcrumbs />
+            <div className="text-center mb-8">
             <div className="flex items-center justify-center gap-4 mb-6">
               <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-blue-500 rounded-3xl flex items-center justify-center shadow-2xl shadow-purple-500/50 relative">
                 <BookOpen className="h-8 w-8 text-white" />

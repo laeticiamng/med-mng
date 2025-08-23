@@ -69,6 +69,12 @@ const EdnItem = lazy(() => import("./pages/EdnItem"));
 import { AuthProvider } from "./components/med-mng/AuthProvider";
 import { ProtectedRoute } from "./components/med-mng/withAuth";
 
+// UX Integration - Components for 100% UX Score
+import { UndoRedoProvider } from '@/components/ux/UndoRedoProvider';
+import { UXToolbar } from '@/components/ux/UXToolbar';
+import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
+import { SkipToMain } from '@/components/ux/AccessibilityEnhancements';
+
 // Composant de redirection pour /edn-complete/:slug vers /edn/:slug
 const EdnCompleteRedirect = () => {
   const { slug } = useParams();
@@ -108,10 +114,14 @@ const queryClient = new QueryClient({
   },
 });
 
-const App = () => {
+const AppWithUX = () => {
+  // Enable global keyboard shortcuts
+  useKeyboardShortcuts();
+  
   return (
     <QueryClientProvider client={queryClient}>
-      <AccessibilityProvider>
+      <UndoRedoProvider>
+        <AccessibilityProvider>
         <ViewportProvider>
           <LanguageProvider>
             <GlobalAudioProvider>
@@ -122,6 +132,7 @@ const App = () => {
                       <BrowserRouter>
                         <NavigatorBridge />
                         <UXToastProvider>
+                        <SkipToMain />
                         <SkipLinks />
                         <div id="app-root" className="min-h-screen flex flex-col" style={{ display: 'block' }}>
                           {/* Navigation globale */}
@@ -214,6 +225,9 @@ const App = () => {
                           <Suspense fallback={null}>
                             <HelpButton />
                           </Suspense>
+                          
+                          {/* UX Toolbar - Floating bottom-right */}
+                          <UXToolbar />
                         </div>
                         <Sonner richColors closeButton />
                         </UXToastProvider>
@@ -226,8 +240,10 @@ const App = () => {
           </LanguageProvider>
         </ViewportProvider>
       </AccessibilityProvider>
+      </UndoRedoProvider>
     </QueryClientProvider>
   );
 };
 
+const App = AppWithUX;
 export default App;

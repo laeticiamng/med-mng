@@ -16,6 +16,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useChatConversations } from '@/hooks/useChatConversations';
 import { TranslatedText } from '@/components/TranslatedText';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Breadcrumbs } from '@/components/ux/Breadcrumbs';
+import { LoadingFeedback } from '@/components/ux/LoadingFeedback';
 
 interface Message {
   id: string;
@@ -165,6 +167,8 @@ Posez-moi n'importe quelle question ou choisissez une suggestion ci-dessous !`,
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
       <div className="container mx-auto px-4 py-6 max-w-4xl">
+        <Breadcrumbs />
+        
         {/* Header Enhanced */}
         <motion.div 
           initial={{ opacity: 0, y: -20 }}

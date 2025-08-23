@@ -4,9 +4,12 @@ import { Link } from 'react-router-dom';
 import { Stethoscope, Search, Users, Clock, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Breadcrumbs } from '@/components/ux/Breadcrumbs';
+import { LoadingFeedback } from '@/components/ux/LoadingFeedback';
 
 const EcosIndex = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   // Sample ECOS scenarios - in real app, this would come from API
   const ecosScenarios = [
@@ -92,8 +95,10 @@ const EcosIndex = () => {
         ))}
       </div>
 
-      <div className="relative z-10">
-        {/* Header */}
+        <div className="relative z-10">
+          <Breadcrumbs />
+          
+          {/* Header */}
         <div className="bg-black/20 backdrop-blur-sm border-b border-white/10">
           <div className="container mx-auto px-4 py-6">
             <div className="flex items-center justify-between">

@@ -16,6 +16,8 @@ import { useAllEdnItems } from '@/hooks/useAllEdnItems';
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { QuotaDisplay } from '@/components/generator/QuotaDisplay';
 import { GeneratorForm } from '@/components/generator/GeneratorForm';
+import { Breadcrumbs } from '@/components/ux/Breadcrumbs';
+import { LoadingFeedback } from '@/components/ux/LoadingFeedback';
 
 const Generator = () => {
   const navigate = useNavigate();
@@ -232,8 +234,10 @@ const Generator = () => {
       <div className="absolute inset-0 bg-gradient-to-r from-pink-500/20 via-purple-500/20 to-blue-500/20 animate-pulse"></div>
       <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,rgba(120,119,198,0.3),transparent_50%)]"></div>
       
-      <div className="relative z-10">
-        {/* En-tête simplifié */}
+        <div className="relative z-10">
+          <Breadcrumbs />
+          
+          {/* En-tête simplifié */}
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center justify-between">
             <button

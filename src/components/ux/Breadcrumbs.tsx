@@ -14,19 +14,24 @@ interface BreadcrumbsProps {
   className?: string;
 }
 
-const routeLabels: Record<string, string> = {
-  '/': 'Accueil',
-  '/edn': 'EDN Explorer',
-  '/tableau': 'Tableaux',
-  '/chat': 'Chat IA',
-  '/admin': 'Administration',
-  '/profile': 'Profil',
-  '/settings': 'Paramètres',
-  '/med-mng': 'MED-MNG',
-  '/create': 'Créer',
-  '/history': 'Historique',
-  '/favorites': 'Favoris'
-};
+  const routeLabels: Record<string, string> = {
+    '/': 'Accueil',
+    '/edn': 'EDN Explorer',
+    '/ecos': 'Simulations ECOS',
+    '/audit': 'Audit Complet',
+    '/generator': 'Générateur Musical',
+    '/chat': 'Chat IA Assistant',
+    '/med-mng': 'MED-MNG Platform',
+    '/med-mng/login': 'Connexion',
+    '/med-mng/signup': 'Inscription',
+    '/med-mng/pricing': 'Abonnements',
+    '/med-mng/library': 'Bibliothèque',
+    '/med-mng/profile': 'Profil',
+    '/med-mng/create': 'Créer',
+    '/admin': 'Administration',
+    '/monitoring': 'Monitoring',
+    '/system-health': 'Santé Système'
+  };
 
 export const Breadcrumbs: React.FC<BreadcrumbsProps> = ({ 
   items: customItems, 
