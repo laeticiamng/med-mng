@@ -81,7 +81,7 @@ const MedMngLibraryComponent = () => {
       <MedMngLayout className="bg-gradient-to-br from-blue-50 to-indigo-100">
         <div className={`container mx-auto ${spacing.container}`}>
           <div className="mb-8">
-            <h1 className="text-2xl sm:text-4xl font-bold text-gray-900 mb-2">
+            <h1 className="text-2xl sm:text-4xl font-bold text-gray-900 mb-2" id="main-content">
               Ma bibliothèque musicale
             </h1>
             <p className="text-gray-600">Chargement de vos chansons...</p>
@@ -113,17 +113,22 @@ const MedMngLibraryComponent = () => {
             <TranslatedText text="Erreur" as="h1" className="text-2xl font-bold text-gray-900 mb-4" />
             <TranslatedText text={errorMessage} as="p" className="text-gray-600 mb-6" />
             <div className="space-y-3">
-              <Button onClick={() => refetch()} className="w-full min-h-[48px]">
-                {retryText}
-              </Button>
-              <Button 
-                variant="outline" 
-                onClick={() => navigate('/med-mng/create')}
-                className="w-full min-h-[48px]"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                <TranslatedText text="Créer votre première chanson" />
-              </Button>
+            <Button 
+              onClick={() => refetch()} 
+              className="w-full min-h-[48px]"
+              aria-label="Recharger la bibliothèque musicale"
+            >
+              {retryText}
+            </Button>
+            <Button 
+              variant="outline" 
+              onClick={() => navigate('/med-mng/create')}
+              className="w-full min-h-[48px]"
+              aria-label="Créer votre première chanson éducative"
+            >
+              <Plus className="h-4 w-4 mr-2" />
+              <TranslatedText text="Créer votre première chanson" />
+            </Button>
             </div>
           </div>
         </div>
@@ -137,12 +142,12 @@ const MedMngLibraryComponent = () => {
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <TranslatedText 
-              text="Ma bibliothèque musicale"
-              as="h1"
-              className="text-2xl sm:text-4xl font-bold text-gray-900 mb-2"
-              showLoader
-            />
+            <h1 className="text-2xl sm:text-4xl font-bold text-gray-900 mb-2" id="main-content">
+              <TranslatedText 
+                text="Ma bibliothèque musicale"
+                showLoader
+              />
+            </h1>
             <TranslatedText 
               text={`${filteredSongs.length} chanson${filteredSongs.length > 1 ? 's' : ''} dans votre collection`}
               as="p"
@@ -173,6 +178,7 @@ const MedMngLibraryComponent = () => {
           <Button 
             onClick={() => navigate('/med-mng/create')}
             className={`flex items-center gap-2 bg-blue-600 hover:bg-blue-700 min-h-[48px] ${isMobile ? 'w-full' : 'w-auto'}`}
+            aria-label="Créer une nouvelle chanson éducative"
           >
             <Plus className="h-4 w-4" />
             <TranslatedText text="Créer une chanson" />
@@ -181,6 +187,7 @@ const MedMngLibraryComponent = () => {
             variant="outline"
             onClick={() => navigate('/med-mng/pricing')}
             className={`min-h-[48px] ${isMobile ? 'w-full' : 'w-auto hidden sm:flex'}`}
+            aria-label="Voir les offres d'abonnement premium"
           >
             <TranslatedText text="Voir les abonnements" />
           </Button>
@@ -206,6 +213,7 @@ const MedMngLibraryComponent = () => {
               <Button 
                 onClick={() => navigate('/med-mng/create')} 
                 className={`bg-blue-600 hover:bg-blue-700 min-h-[48px] px-6 ${isMobile ? 'w-full' : ''}`}
+                aria-label="Créer votre première chanson éducative pour démarrer votre bibliothèque"
               >
                 <TranslatedText text="Créer ma première chanson" />
               </Button>
@@ -234,6 +242,7 @@ const MedMngLibraryComponent = () => {
                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
                 className={`min-h-[44px] px-4 sm:px-6 ${isMobile ? 'w-full mb-2' : 'flex-1 sm:flex-none'}`}
+                aria-label={`Aller à la page précédente (page ${currentPage - 1})`}
               >
                 <TranslatedText text="Précédent" />
               </Button>
@@ -241,6 +250,7 @@ const MedMngLibraryComponent = () => {
                 variant="outline"
                 onClick={() => setCurrentPage(p => p + 1)}
                 className={`min-h-[44px] px-4 sm:px-6 ${isMobile ? 'w-full' : 'flex-1 sm:flex-none'}`}
+                aria-label={`Aller à la page suivante (page ${currentPage + 1})`}
               >
                 <TranslatedText text="Suivant" />
               </Button>

@@ -158,6 +158,7 @@ export const MedMngPricing = () => {
           variant="outline"
           onClick={() => navigate('/')}
           className="flex items-center gap-2 mb-4 bg-white/80 hover:bg-white shadow-sm"
+          aria-label="Retourner à la page d'accueil"
         >
           <ArrowLeft className="h-4 w-4" />
           <TranslatedText text="Retour à l'accueil" />
@@ -168,12 +169,12 @@ export const MedMngPricing = () => {
         
         {/* Header Section */}
         <div className="text-center mb-8 sm:mb-12">
-          <TranslatedText 
-            text="Choisissez votre abonnement MED-MNG"
-            as="h1"
-            className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4"
-            showLoader
-          />
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 mb-4" id="main-content">
+            <TranslatedText 
+              text="Choisissez votre abonnement MED-MNG"
+              showLoader
+            />
+          </h1>
           <TranslatedText 
             text="Générez de la musique pédagogique avec l'IA, gérez votre bibliothèque et accédez à des outils d'apprentissage avancés."
             as="p"
@@ -225,6 +226,7 @@ export const MedMngPricing = () => {
                 <Button
                   onClick={() => navigate('/edn')}
                   className="w-full bg-green-600 hover:bg-green-700"
+                  aria-label="Commencer gratuitement avec la version d'essai"
                 >
                   <TranslatedText text="Commencer gratuitement" />
                 </Button>
@@ -370,6 +372,7 @@ export const MedMngPricing = () => {
                           variant="outline" 
                           className="w-full"
                           onClick={() => navigate('/med-mng/signup')}
+                          aria-label="S'inscrire gratuitement pour commencer"
                         >
                           <TranslatedText text="Commencer gratuitement" />
                         </Button>
@@ -382,6 +385,7 @@ export const MedMngPricing = () => {
                           }`}
                           onClick={() => handleSubscribe(plan.id)}
                           disabled={processingPlan === plan.id}
+                          aria-label={`S'abonner au plan ${plan.name} à ${plan.price}€/mois`}
                         >
                           {processingPlan === plan.id ? (
                             <div className="flex items-center gap-2">

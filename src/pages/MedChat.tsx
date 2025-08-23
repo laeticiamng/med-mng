@@ -177,6 +177,7 @@ Posez-moi n'importe quelle question ou choisissez une suggestion ci-dessous !`,
               size="icon"
               onClick={() => navigate('/')}
               className="shrink-0 hover:bg-orange-50"
+              aria-label="Retourner à la page d'accueil"
             >
               <ArrowLeft className="h-4 w-4" />
             </Button>
@@ -188,7 +189,7 @@ Posez-moi n'importe quelle question ou choisissez une suggestion ci-dessous !`,
                 <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white animate-pulse"></div>
               </div>
               <div>
-                <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
+                <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent" id="main-content">
                   <TranslatedText text="Chat Intelligent" />
                 </h1>
                 <p className="text-sm md:text-base text-gray-600 flex items-center gap-2">
@@ -202,7 +203,12 @@ Posez-moi n'importe quelle question ou choisissez une suggestion ci-dessous !`,
           <div className="flex gap-2">
             <Dialog>
               <DialogTrigger asChild>
-                <Button variant="outline" size="icon" className="hidden md:flex">
+                <Button 
+                  variant="outline" 
+                  size="icon" 
+                  className="hidden md:flex"
+                  aria-label="Voir l'historique des questions précédentes"
+                >
                   <History className="h-4 w-4" />
                 </Button>
               </DialogTrigger>
@@ -236,6 +242,7 @@ Posez-moi n'importe quelle question ou choisissez une suggestion ci-dessous !`,
               size="icon"
               onClick={clearChat}
               className="hover:bg-red-50"
+              aria-label="Effacer la conversation et recommencer"
             >
               <RefreshCw className="h-4 w-4" />
             </Button>
@@ -380,6 +387,7 @@ Posez-moi n'importe quelle question ou choisissez une suggestion ci-dessous !`,
                             transition={{ delay: index * 0.1 }}
                             onClick={() => handleSuggestionClick(suggestion.text)}
                             className="flex items-start gap-3 p-3 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl hover:from-orange-50 hover:to-red-50 transition-all duration-200 text-left border border-gray-200 hover:border-orange-200 group"
+                            aria-label={`Poser la question: ${suggestion.text} (catégorie: ${suggestion.category})`}
                           >
                             <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow">
                               <suggestion.icon className="h-4 w-4 text-orange-600" />

@@ -101,7 +101,7 @@ export default function EdnComplete() {
                 <div className="absolute inset-0 bg-gradient-to-br from-purple-400/20 to-blue-400/20 rounded-3xl blur animate-pulse"></div>
               </div>
               <div>
-                <h1 className="text-4xl font-bold bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent mb-2">
+                <h1 className="text-4xl font-bold bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent mb-2" id="main-content">
                   EDN Interface Musicale
                 </h1>
                 <p className="text-gray-300 text-lg">
@@ -151,6 +151,7 @@ export default function EdnComplete() {
                 onClick={() => setShowLyricsManager(true)}
                 className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white shadow-2xl shadow-purple-500/50 border border-white/20 backdrop-blur-sm transition-all duration-300 hover:scale-105"
                 size="sm"
+                aria-label="Ouvrir le gestionnaire global des paroles musicales"
               >
                 <Music className="h-4 w-4 mr-2" />
                 Paroles Globales
@@ -225,12 +226,19 @@ export default function EdnComplete() {
               value={searchTerm}
               onChange={(e) => handleSearchChange(e.target.value)}
               className="pl-12 bg-white/10 border-white/20 text-white placeholder-gray-400 focus:border-purple-400/50 focus:ring-2 focus:ring-purple-400/20 h-12 text-lg rounded-xl"
+              aria-label="Rechercher des items EDN par titre ou code médical"
             />
           </div>
 
           <div className="flex gap-3">
-            <Select value={selectedCategory} onValueChange={handleCategoryChange}>
-              <SelectTrigger className={`${isMobile ? 'w-full' : 'w-[160px]'} bg-white/10 border-white/20 text-white h-12 rounded-xl`}>
+            <Select 
+              value={selectedCategory} 
+              onValueChange={handleCategoryChange}
+            >
+              <SelectTrigger 
+                className={`${isMobile ? 'w-full' : 'w-[160px]'} bg-white/10 border-white/20 text-white h-12 rounded-xl`}
+                aria-label="Filtrer les items EDN par catégorie"
+              >
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className="bg-black/90 border-white/20 backdrop-blur-xl">
@@ -247,6 +255,7 @@ export default function EdnComplete() {
                 size="sm"
                 onClick={() => setViewMode('grid')}
                 className={`${isMobile ? 'w-full rounded-t-xl rounded-b-none' : 'rounded-r-none'} h-12 px-4 ${viewMode === 'grid' ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white' : 'text-gray-300 hover:text-white hover:bg-white/10'}`}
+                aria-label={`Afficher en mode grille ${viewMode === 'grid' ? '(sélectionné)' : ''}`}
               >
                 <Grid className="h-4 w-4" />
                 {isMobile && <span className="ml-2">Grille</span>}
@@ -256,6 +265,7 @@ export default function EdnComplete() {
                 size="sm"
                 onClick={() => setViewMode('list')}
                 className={`${isMobile ? 'w-full rounded-b-xl rounded-t-none' : 'rounded-l-none'} h-12 px-4 ${viewMode === 'list' ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white' : 'text-gray-300 hover:text-white hover:bg-white/10'}`}
+                aria-label={`Afficher en mode liste ${viewMode === 'list' ? '(sélectionné)' : ''}`}
               >
                 <List className="h-4 w-4" />
                 {isMobile && <span className="ml-2">Liste</span>}
@@ -284,25 +294,27 @@ export default function EdnComplete() {
                <div className="space-y-6">
                  {showLyricsManager ? (
                    <div>
-                     <Button 
-                       onClick={() => setShowLyricsManager(false)}
-                       variant="outline"
-                       className="mb-4"
-                     >
-                       ← Retour aux paroles
-                     </Button>
+                      <Button 
+                        onClick={() => setShowLyricsManager(false)}
+                        variant="outline"
+                        className="mb-4"
+                        aria-label="Retourner à la vue des paroles générales"
+                      >
+                        ← Retour aux paroles
+                      </Button>
                      <GlobalLyricsManager />
                    </div>
                  ) : (
                    <>
                      <div className="flex gap-4 mb-6">
-                       <Button 
-                         onClick={() => setShowLyricsManager(true)}
-                         className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
-                       >
-                         <Music className="h-4 w-4 mr-2" />
-                         Gestionnaire Paroles Global
-                       </Button>
+                        <Button 
+                          onClick={() => setShowLyricsManager(true)}
+                          className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
+                          aria-label="Ouvrir le gestionnaire global de toutes les paroles"
+                        >
+                          <Music className="h-4 w-4 mr-2" />
+                          Gestionnaire Paroles Global
+                        </Button>
                      </div>
                      <UpdateAllLyricsButton />
                      <LyricsCompletionStatus />
