@@ -20,9 +20,9 @@
     --popover-foreground: 213 32% 19%;
 
     /* Medical Primary - Professional Blue */
-    --primary: 213 94% 68%;
+    --primary: 213 94% 45%;
     --primary-foreground: 0 0% 100%;
-    --primary-hover: 213 94% 58%;
+    --primary-hover: 213 94% 38%;
     --primary-muted: 213 94% 85%;
 
     /* Medical Secondary - Soft Blue */
@@ -35,9 +35,9 @@
     --muted-foreground: 215 16% 47%;
 
     /* Accent Colors - Healing Green */
-    --accent: 142 76% 36%;
+    --accent: 142 76% 30%;
     --accent-foreground: 355 7% 97%;
-    --accent-hover: 142 76% 31%;
+    --accent-hover: 142 76% 25%;
     --accent-muted: 142 76% 85%;
 
     /* Success/Warning/Error */
@@ -51,10 +51,10 @@
     /* Borders & Inputs */
     --border: 213 27% 84%;
     --input: 213 27% 84%;
-    --ring: 213 94% 68%;
+    --ring: 213 94% 45%;
 
     /* Gradients */
-    --gradient-medical: linear-gradient(135deg, hsl(213 94% 68%) 0%, hsl(142 76% 36%) 100%);
+    --gradient-medical: linear-gradient(135deg, hsl(213 94% 45%) 0%, hsl(142 76% 30%) 100%);
     --gradient-header: linear-gradient(135deg, hsl(213 94% 95%) 0%, hsl(213 94% 98%) 100%);
     --gradient-card: linear-gradient(145deg, hsl(0 0% 100%) 0%, hsl(213 27% 98%) 100%);
 
@@ -71,12 +71,12 @@
     /* Sidebar - Medical Professional */
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 51 65% 20%;
-    --sidebar-primary: 213 94% 68%;
+    --sidebar-primary: 213 94% 45%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 213 27% 95%;
     --sidebar-accent-foreground: 51 65% 20%;
     --sidebar-border: 213 27% 84%;
-    --sidebar-ring: 213 94% 68%;
+    --sidebar-ring: 213 94% 45%;
   }
 
   .dark {
@@ -91,9 +91,9 @@
     --popover-foreground: 226 71% 93%;
 
     /* Medical Primary - Brighter in dark */
-    --primary: 213 94% 75%;
+    --primary: 213 94% 65%;
     --primary-foreground: 213 32% 19%;
-    --primary-hover: 213 94% 85%;
+    --primary-hover: 213 94% 75%;
     --primary-muted: 213 94% 25%;
 
     /* Secondary - Darker blues */
@@ -105,9 +105,9 @@
     --muted-foreground: 217 33% 65%;
 
     /* Accent - Softer green in dark */
-    --accent: 142 76% 45%;
+    --accent: 142 76% 40%;
     --accent-foreground: 226 71% 93%;
-    --accent-hover: 142 76% 55%;
+    --accent-hover: 142 76% 50%;
     --accent-muted: 142 76% 25%;
 
     /* Status colors for dark mode */
@@ -120,10 +120,10 @@
 
     --border: 215 25% 18%;
     --input: 215 25% 18%;
-    --ring: 213 94% 75%;
+    --ring: 213 94% 65%;
 
     /* Dark gradients */
-    --gradient-medical: linear-gradient(135deg, hsl(213 94% 75%) 0%, hsl(142 76% 45%) 100%);
+    --gradient-medical: linear-gradient(135deg, hsl(213 94% 65%) 0%, hsl(142 76% 40%) 100%);
     --gradient-header: linear-gradient(135deg, hsl(215 28% 17%) 0%, hsl(215 25% 10%) 100%);
     --gradient-card: linear-gradient(145deg, hsl(215 28% 17%) 0%, hsl(215 25% 8%) 100%);
 
@@ -135,12 +135,12 @@
     /* Dark Sidebar */
     --sidebar-background: 215 28% 17%;
     --sidebar-foreground: 226 71% 93%;
-    --sidebar-primary: 213 94% 75%;
+    --sidebar-primary: 213 94% 65%;
     --sidebar-primary-foreground: 213 32% 19%;
     --sidebar-accent: 215 25% 15%;
     --sidebar-accent-foreground: 226 71% 93%;
     --sidebar-border: 215 25% 18%;
-    --sidebar-ring: 213 94% 75%;
+    --sidebar-ring: 213 94% 65%;
   }
 }
 
