@@ -6222,6 +6222,12 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
+      get_user_active_room_ids: {
+        Args: { p_user_id?: string }
+        Returns: {
+          room_id: string
+        }[]
+      }
       get_user_ia_stats: {
         Args: { p_period_days?: number }
         Returns: Json
