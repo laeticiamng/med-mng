@@ -33,6 +33,15 @@ const envSchema = z.object({
   RATE_LIMIT_WINDOW_MS: z.string().transform(Number).pipe(z.number().positive()).default('900000'), // 15 minutes
   RATE_LIMIT_MAX_REQUESTS: z.string().transform(Number).pipe(z.number().positive()).default('100'),
   
+  // Payload Limits (DoS Protection)
+  MAX_PAYLOAD_MB: z.string().optional().default('1').transform(val => {
+    const num = parseInt(val, 10);
+    if (isNaN(num) || num < 1 || num > 50) {
+      throw new Error('MAX_PAYLOAD_MB must be between 1 and 50 MB');
+    }
+    return num;
+  }),
+  
   // Logging Configuration
   LOG_LEVEL: z.enum(['error', 'warn', 'info', 'debug']).default('info'),
   LOG_FORMAT: z.enum(['json', 'pretty']).default('json'),

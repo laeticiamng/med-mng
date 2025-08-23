@@ -85,6 +85,7 @@ RATE_LIMIT_MAX_REQUESTS=50
 TRUST_PROXY=1
 RATE_LIMIT_WINDOW_MS=60000  # 1 minute
 RATE_LIMIT_MAX_REQUESTS=30
+MAX_PAYLOAD_MB=1  # Limite stricte en production
 ```
 
 ### Validation de la configuration
@@ -139,6 +140,9 @@ CORS_ALLOWED_ORIGINS=https://yourdomain.com,https://api.yourdomain.com
 # Rate limiting
 RATE_LIMIT_WINDOW_MS=60000
 RATE_LIMIT_MAX_REQUESTS=30
+
+# Limites de payload (sécurité DoS)
+MAX_PAYLOAD_MB=1
 
 # Logs
 LOG_LEVEL=info

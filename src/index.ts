@@ -41,9 +41,10 @@ app.use(cors(corsOptions));
 app.use(globalRateLimit);
 app.use(distributedRateLimitMiddleware);
 
-// Parsing JSON et URL-encoded
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+// Parsing JSON et URL-encoded avec limite configurable
+const maxPayloadMB = process.env.MAX_PAYLOAD_MB ? parseInt(process.env.MAX_PAYLOAD_MB, 10) : 1;
+app.use(express.json({ limit: `${maxPayloadMB}mb` }));
+app.use(express.urlencoded({ extended: true, limit: `${maxPayloadMB}mb` }));
 
 // Middleware de logging HTTP
 app.use(httpLoggerMiddleware);
