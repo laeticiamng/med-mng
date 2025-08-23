@@ -2,7 +2,6 @@ import React, { Suspense, lazy, memo } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { HelpButton } from "@/components/onboarding/HelpButton";
 import { AccessibilityProvider } from "@/components/accessibility/AccessibilityProvider";
 import { ToastProvider } from "@/components/feedback/ToastProvider";
 import { UXToastProvider } from "@/components/feedback/UXToastProvider";
@@ -12,6 +11,7 @@ import { SkipLinks } from "@/components/navigation/SkipLinks";
 
 // ⚡ LAZY LOADING - Composants chargés uniquement quand nécessaire
 const DynamicOnboarding = lazy(() => import("@/components/onboarding/DynamicOnboarding").then(module => ({ default: module.DynamicOnboarding })));
+const HelpButton = lazy(() => import("@/components/onboarding/HelpButton").then(module => ({ default: module.HelpButton })));
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useParams } from "react-router-dom";
@@ -211,7 +211,9 @@ const App = () => {
                           <Suspense fallback={null}>
                             <DynamicOnboarding />
                           </Suspense>
-                          <HelpButton />
+                          <Suspense fallback={null}>
+                            <HelpButton />
+                          </Suspense>
                         </div>
                         <Sonner richColors closeButton />
                         </UXToastProvider>
