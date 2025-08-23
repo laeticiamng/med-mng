@@ -22,7 +22,7 @@ const App = () => {
           <div className="min-h-screen">
             <main>
               <Routes>
-                <Route path="/" element={<div>Test Page</div>} />
+                <Route path="/" element={<div className="min-h-screen flex items-center justify-center bg-white"><h1 className="text-4xl font-bold text-black">Test Page - Application MED-MNG</h1></div>} />
                 <Route path="/edn" element={<EdnComplete />} />
                 <Route path="/edn-complete" element={<Navigate to="/edn" replace />} />
                 <Route path="*" element={<div>404 Not Found</div>} />
