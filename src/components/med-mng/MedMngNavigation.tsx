@@ -3,7 +3,7 @@ import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Music, Library, CreditCard, User, Plus, LogOut, Home } from 'lucide-react';
-import { useAuth } from './AuthProvider';
+import { useAuth } from '../med-mng/SimpleAuthProvider';
 import { TranslatedText } from '@/components/TranslatedText';
 
 export const MedMngNavigation: React.FC = () => {

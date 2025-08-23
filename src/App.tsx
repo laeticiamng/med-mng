@@ -3,8 +3,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import EdnComplete from './pages/EdnComplete';
-import { AuthProvider } from './components/med-mng/AuthProvider';
-import { LanguageProvider } from './contexts/LanguageContext';
+import { SimpleAuthProvider } from './components/med-mng/SimpleAuthProvider';
+import { SimpleLanguageProvider } from './contexts/SimpleLanguageContext';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -21,8 +21,8 @@ const App = () => {
   return (
     <React.StrictMode>
       <QueryClientProvider client={queryClient}>
-        <LanguageProvider>
-          <AuthProvider>
+        <SimpleLanguageProvider>
+          <SimpleAuthProvider>
             <BrowserRouter>
               <div className="min-h-screen">
                 <main>
@@ -35,8 +35,8 @@ const App = () => {
                 </main>
               </div>
             </BrowserRouter>
-          </AuthProvider>
-        </LanguageProvider>
+          </SimpleAuthProvider>
+        </SimpleLanguageProvider>
       </QueryClientProvider>
     </React.StrictMode>
   );
