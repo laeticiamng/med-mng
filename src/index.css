@@ -646,3 +646,53 @@ html[data-font-size="large"] {
   white-space: nowrap;
   border: 0;
 }
+
+/* Enhanced accessibility modes */
+.accessibility-mode {
+  --font-size-multiplier: 1.2;
+  --line-height-multiplier: 1.5;
+  --focus-ring-width: 3px;
+}
+
+.accessibility-mode * {
+  font-size: calc(1rem * var(--font-size-multiplier)) !important;
+  line-height: calc(1.5 * var(--line-height-multiplier)) !important;
+}
+
+.accessibility-mode :focus {
+  outline: var(--focus-ring-width) solid hsl(var(--primary)) !important;
+  outline-offset: 2px !important;
+}
+
+.high-contrast {
+  --background: 0 0% 0%;
+  --foreground: 0 0% 100%;
+  --primary: 210 100% 70%;
+  --secondary: 210 40% 20%;
+  --muted: 210 40% 10%;
+  --accent: 210 100% 60%;
+  --border: 210 40% 30%;
+}
+
+.high-contrast * {
+  border-color: hsl(var(--border)) !important;
+}
+
+/* Focus management */
+.focus-trap {
+  position: relative;
+}
+
+/* Focus visible enhancement */
+.focus-visible {
+  @apply outline-none ring-2 ring-primary ring-offset-2;
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
