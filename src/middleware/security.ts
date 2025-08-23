@@ -116,7 +116,7 @@ export { getAllowedOrigins };
 
 // Middleware de sécurité personnalisé
 import { Request, Response, NextFunction } from 'express';
-import { analyzeSuspiciousRequest, quickSuspiciousCheck, generateSecurityReport } from '../utils/suspiciousRequest';
+import { analyzeSuspiciousRequest, quickSuspiciousCheck, generateSecurityReport } from '../utils/security/suspiciousRequest';
 
 // Extend Request interface for custom properties
 interface ExtendedRequest extends Request {

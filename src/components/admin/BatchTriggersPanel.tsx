@@ -21,7 +21,7 @@ import {
   runAllBatchTriggers,
   type BatchTriggerResult,
   type BatchTriggerOptions 
-} from '@/utils/batchTriggers';
+} from '@/utils/batch/batchTriggers';
 
 interface TriggerStatus {
   executed: boolean;

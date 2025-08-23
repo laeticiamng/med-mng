@@ -1,5 +1,5 @@
 
-import { secureSunoClient as SunoApiClient } from "../lib/secureApiClient";
+import { secureSunoClient as SunoApiClient } from "../../lib/secureApiClient";
 
 /**
  * Supprime les voix d'un audio Suno pour créer une version instrumentale

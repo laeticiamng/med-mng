@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { createSafeHtml, sanitizeTextWithBreaks } from '@/utils/sanitize';
+import { createSafeHtml, sanitizeTextWithBreaks } from '@/utils/security/sanitize';
 
 interface CompetenceOIC {
   intitule: string;

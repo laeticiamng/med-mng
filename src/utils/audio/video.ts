@@ -1,5 +1,5 @@
 
-import { secureSunoClient as SunoApiClient } from "../lib/secureApiClient";
+import { secureSunoClient as SunoApiClient } from "../../lib/secureApiClient";
 
 /**
  * Interface pour les options de génération vidéo

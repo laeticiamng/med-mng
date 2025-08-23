@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { previewLyricsForItem } from '@/utils/generateAllAdvancedLyrics';
+import { previewLyricsForItem } from '@/utils/lyrics/generateAllAdvancedLyrics';
 import { useToast } from '@/hooks/use-toast';
 
 interface LyricsPreviewModalProps {

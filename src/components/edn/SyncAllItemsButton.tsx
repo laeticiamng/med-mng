@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { RefreshCw, Database, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { syncAllItemsWithOic } from '@/utils/syncAllItems';
+import { syncAllItemsWithOic } from '@/utils/sync/syncAllItems';
 
 export const SyncAllItemsButton = () => {
   const [isSync, setIsSync] = useState(false);

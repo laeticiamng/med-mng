@@ -3,7 +3,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Button } from '@/components/ui/button';
 import { HelpCircle, X } from 'lucide-react';
 import { useLocation } from 'react-router-dom';
-import { sanitizeHtml } from '@/utils/sanitize';
+import { sanitizeHtml } from '@/utils/security/sanitize';
 
 interface HelpTip {
   id: string;

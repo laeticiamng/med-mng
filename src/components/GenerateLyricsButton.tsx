@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Progress } from '@/components/ui/progress'
-import { generateAllAdvancedLyrics } from '@/utils/generateAllAdvancedLyrics'
+import { generateAllAdvancedLyrics } from '@/utils/lyrics/generateAllAdvancedLyrics'
 import { useToast } from '@/hooks/use-toast'
 
 export const GenerateLyricsButton = () => {

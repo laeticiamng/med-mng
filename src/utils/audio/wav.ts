@@ -1,5 +1,5 @@
 
-import { secureSunoClient as SunoApiClient } from "../lib/secureApiClient";
+import { secureSunoClient as SunoApiClient } from "../../lib/secureApiClient";
 
 /**
  * Convertit un audio Suno en format WAV

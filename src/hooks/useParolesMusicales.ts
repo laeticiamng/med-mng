@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useMusicGenerationWithTranslation } from '@/hooks/useMusicGenerationWithTranslation';
 import { useGlobalAudio } from '@/contexts/GlobalAudioContext';
-import { generateOptimizedLyrics, generateRangAB } from '@/utils/generateOptimizedLyrics';
+import { generateOptimizedLyrics, generateRangAB } from '@/utils/lyrics/generateOptimizedLyrics';
 import { useSunoPolling } from './useSunoPolling';
 import { useSunoCallbackListener } from './useSunoCallbackListener';
 

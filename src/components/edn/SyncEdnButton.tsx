@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
-import { syncAllEdnContent, getLastSyncStatus, type SyncResult } from '@/utils/syncEdnContent';
+import { syncAllEdnContent, getLastSyncStatus, type SyncResult } from '@/utils/sync/syncEdnContent';
 
 interface SyncEdnButtonProps {
   onSyncComplete?: () => void;
