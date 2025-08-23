@@ -12,12 +12,13 @@
     <link rel="manifest" href="/manifest.webmanifest">
     <meta name="theme-color" content="#4B5563" />
 
-    <!-- Google Fonts - Completely non-render-blocking -->
+    <!-- Google Fonts - Optimized for LCP -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     
-    <!-- Preload critical font files directly -->
+    <!-- Preload critical font files for immediate LCP rendering -->
     <link rel="preload" href="https://fonts.gstatic.com/s/inter/v19/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7W0Q5nw.woff2" as="font" type="font/woff2" crossorigin>
+    <link rel="preload" href="https://fonts.gstatic.com/s/inter/v19/UcCO3FwrK3iLTeHuS_flhiMyaEo.woff2" as="font" type="font/woff2" crossorigin>
     
     <!-- Preload critical scripts for faster execution -->
     <link rel="modulepreload" href="/src/main.tsx">
@@ -33,8 +34,22 @@
     
     <!-- Inline script to handle font loading optimization -->
     <script>
-      // Load Google Fonts completely asynchronously to prevent render blocking
+      // Optimized font loading for immediate LCP rendering
       (function() {
+        // Create inline CSS with font-display: swap for immediate text visibility
+        var style = document.createElement('style');
+        style.textContent = `
+          @font-face {
+            font-family: 'Inter';
+            font-style: normal;
+            font-weight: 700;
+            font-display: swap;
+            src: url('https://fonts.gstatic.com/s/inter/v19/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7W0Q5nw.woff2') format('woff2');
+          }
+        `;
+        document.head.appendChild(style);
+        
+        // Load remaining fonts asynchronously
         var link = document.createElement('link');
         link.rel = 'stylesheet';
         link.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap';
@@ -42,18 +57,14 @@
         link.onload = function() {
           this.media = 'all';
         };
-        // Fallback for browsers that don't support onload on link elements
-        link.addEventListener('load', function() {
-          this.media = 'all';
-        });
         document.head.appendChild(link);
         
-        // Fallback for older browsers
+        // Fallback timing
         setTimeout(function() {
           if (link.media !== 'all') {
             link.media = 'all';
           }
-        }, 3000);
+        }, 1000);
       })();
       
       // Register Service Worker for efficient caching
@@ -124,6 +135,19 @@
         color: white;
         margin-bottom: 2rem;
         line-height: 1.1;
+        font-display: swap;
+        /* Immediate rendering optimization */
+        text-rendering: optimizeSpeed;
+        contain: layout style paint;
+      }
+      
+      /* LCP element specific optimization */
+      .lcp-heading {
+        font-family: 'Inter', system-ui, -apple-system, sans-serif;
+        font-weight: 700;
+        font-display: swap;
+        will-change: auto;
+        contain: layout style paint;
       }
       
       /* Skeleton loading styles */
