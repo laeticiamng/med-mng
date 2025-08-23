@@ -6266,6 +6266,10 @@ export type Database = {
         }
         Returns: Json
       }
+      get_secure_user_count: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
       get_security_headers: {
         Args: Record<PropertyKey, never>
         Returns: Json
