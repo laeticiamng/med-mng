@@ -78,11 +78,11 @@ const EdnCompleteRedirect = () => {
 // ⚡ LOADING FALLBACK optimisé pour étudiant médical
 const PageLoadingFallback = memo(() => (
   <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
-    <div className="text-center bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20">
+    <div className="text-center bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20 gpu-accelerated">
       <div className="relative">
-        <div className="animate-spin rounded-full h-16 w-16 border-4 border-purple-200/30 border-t-purple-400 mx-auto mb-6"></div>
+        <div className="animate-spin rounded-full h-16 w-16 border-4 border-purple-200/30 border-t-purple-400 mx-auto mb-6 will-change-transform"></div>
         <div className="absolute inset-0 animate-pulse">
-          <div className="w-16 h-16 bg-gradient-to-r from-purple-400/20 to-blue-400/20 rounded-full mx-auto blur-sm"></div>
+          <div className="w-16 h-16 bg-gradient-to-r from-purple-400/20 to-blue-400/20 rounded-full mx-auto blur-sm gpu-accelerated"></div>
         </div>
       </div>
       <p className="text-white font-medium text-lg mb-2">Chargement MED-MNG</p>
@@ -90,6 +90,9 @@ const PageLoadingFallback = memo(() => (
     </div>
   </div>
 ));
+
+// Import skeleton loader
+import { PageSkeleton } from "@/components/loading/SkeletonLoader";
 
 // ⚡ OPTIMISATION QueryClient - Configuration pour performances maximales
 const queryClient = new QueryClient({
@@ -127,7 +130,7 @@ const App = () => {
                           <main id="main-content" tabIndex={-1} className="flex-1 pb-20">
                             <PageThemeProvider>
                               <ErrorBoundary>
-                                <Suspense fallback={<PageLoadingFallback />}>
+                                <Suspense fallback={<PageSkeleton />}>
                                   <Routes>
                                     <Route path="/" element={<Index />} />
                                     <Route path="/generator" element={<Generator />} />

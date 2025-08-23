@@ -10,10 +10,10 @@ const Index = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 relative overflow-hidden">
-      {/* Aura de fond inspirée de Suno */}
-      <div className="absolute inset-0 bg-gradient-to-r from-pink-500/20 via-purple-500/20 to-blue-500/20 animate-pulse"></div>
-      <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,rgba(120,119,198,0.3),transparent_50%)]"></div>
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 relative overflow-hidden gpu-accelerated">
+      {/* Optimized background effects with reduced paint cost */}
+      <div className="absolute inset-0 bg-gradient-to-r from-pink-500/20 via-purple-500/20 to-blue-500/20 will-change-transform"></div>
+      <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,rgba(120,119,198,0.3),transparent_50%)] gpu-accelerated"></div>
       
       <div className="relative z-10">
         {/* Header simplifié et moderne */}
@@ -106,8 +106,8 @@ const Index = () => {
               { title: "IC-156 Pneumologie", subtitle: "Respiratoire", emoji: "🫁", plays: "1.5K", gradient: "from-blue-500 to-cyan-500" },
               { title: "IC-089 Psychiatrie", subtitle: "Santé mentale", emoji: "🧠", plays: "2.1K", gradient: "from-indigo-500 to-purple-500" }
             ].map((item, index) => (
-              <div key={index} className="group cursor-pointer" onClick={() => navigate('/generator')}>
-                <div className={`relative aspect-square bg-gradient-to-br ${item.gradient} rounded-xl mb-4 overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105`}>
+              <div key={index} className="group cursor-pointer will-change-transform" onClick={() => navigate('/generator')}>
+                <div className={`relative aspect-square bg-gradient-to-br ${item.gradient} rounded-xl mb-4 overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 gpu-accelerated`}>
                   <div className="absolute inset-0 flex items-center justify-center text-5xl">
                     {item.emoji}
                   </div>
@@ -138,7 +138,7 @@ const Index = () => {
           {/* Sections principales avec design moderne */}
           <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto mb-16">
             <Card 
-              className="group cursor-pointer hover:shadow-2xl transition-all duration-500 bg-black/20 backdrop-blur-xl border border-white/10 hover:border-pink-400/50 overflow-hidden" 
+              className="group cursor-pointer hover:shadow-2xl transition-all duration-500 bg-black/20 backdrop-blur-xl border border-white/10 hover:border-pink-400/50 overflow-hidden will-change-transform gpu-accelerated" 
               onClick={() => navigate('/edn')}
             >
               <CardContent className="p-8 relative">
@@ -164,7 +164,7 @@ const Index = () => {
             </Card>
 
             <Card 
-              className="group cursor-pointer hover:shadow-2xl transition-all duration-500 bg-black/20 backdrop-blur-xl border border-white/10 hover:border-blue-400/50 overflow-hidden" 
+              className="group cursor-pointer hover:shadow-2xl transition-all duration-500 bg-black/20 backdrop-blur-xl border border-white/10 hover:border-blue-400/50 overflow-hidden will-change-transform gpu-accelerated" 
               onClick={() => navigate('/generator')}
             >
               <CardContent className="p-8 relative">
@@ -193,7 +193,7 @@ const Index = () => {
           {/* Autres sections */}
           <div className="grid md:grid-cols-2 gap-8 max-w-6xl mx-auto mb-16">
             <Card 
-              className="group cursor-pointer hover:shadow-2xl transition-all duration-500 bg-black/20 backdrop-blur-xl border border-white/10 hover:border-green-400/50 overflow-hidden" 
+              className="group cursor-pointer hover:shadow-2xl transition-all duration-500 bg-black/20 backdrop-blur-xl border border-white/10 hover:border-green-400/50 overflow-hidden will-change-transform gpu-accelerated" 
               onClick={() => navigate('/ecos')}
             >
               <CardContent className="p-8 relative">
@@ -219,7 +219,7 @@ const Index = () => {
             </Card>
 
             <Card 
-              className="group cursor-pointer hover:shadow-2xl transition-all duration-500 bg-black/20 backdrop-blur-xl border border-white/10 hover:border-orange-400/50 overflow-hidden" 
+              className="group cursor-pointer hover:shadow-2xl transition-all duration-500 bg-black/20 backdrop-blur-xl border border-white/10 hover:border-orange-400/50 overflow-hidden will-change-transform gpu-accelerated" 
               onClick={() => navigate('/chat')}
             >
               <CardContent className="p-8 relative">
