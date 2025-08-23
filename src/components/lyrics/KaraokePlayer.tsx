@@ -45,24 +45,30 @@ export const KaraokePlayer: React.FC<KaraokePlayerProps> = ({
     updateCurrentLine(currentTime);
   }, [currentTime, updateCurrentLine]);
 
-  // Auto-scroll vers la ligne active
+  // Auto-scroll vers la ligne active (optimized to prevent forced reflows)
   useEffect(() => {
     if (currentLineIndex >= 0 && lyricsContainerRef.current) {
-      const container = lyricsContainerRef.current;
-      const activeLine = container.querySelector(`[data-line-index="${currentLineIndex}"]`) as HTMLElement;
-      
-      if (activeLine) {
-        const containerHeight = container.clientHeight;
-        const lineTop = activeLine.offsetTop;
-        const lineHeight = activeLine.clientHeight;
+      // Use requestAnimationFrame to batch layout reads and prevent forced reflows
+      requestAnimationFrame(() => {
+        const container = lyricsContainerRef.current;
+        if (!container) return;
         
-        // Centrer la ligne active dans le conteneur
-        const scrollTop = lineTop - (containerHeight / 2) + (lineHeight / 2);
-        container.scrollTo({
-          top: Math.max(0, scrollTop),
-          behavior: 'smooth'
-        });
-      }
+        const activeLine = container.querySelector(`[data-line-index="${currentLineIndex}"]`) as HTMLElement;
+        
+        if (activeLine) {
+          // Batch all layout property reads together
+          const containerHeight = container.clientHeight;
+          const lineTop = activeLine.offsetTop;
+          const lineHeight = activeLine.clientHeight;
+          
+          // Centrer la ligne active dans le conteneur
+          const scrollTop = lineTop - (containerHeight / 2) + (lineHeight / 2);
+          container.scrollTo({
+            top: Math.max(0, scrollTop),
+            behavior: 'smooth'
+          });
+        }
+      });
     }
   }, [currentLineIndex]);
 

@@ -45,8 +45,8 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({
         inline: 'center'
       });
 
-      // Calculate tooltip position
-      setTimeout(() => {
+      // Calculate tooltip position using requestAnimationFrame to prevent forced reflow
+      requestAnimationFrame(() => {
         const rect = element.getBoundingClientRect();
         const offset = step.offset || { x: 0, y: 0 };
         
@@ -73,7 +73,7 @@ export const OnboardingTour: React.FC<OnboardingTourProps> = ({
         }
 
         setTooltipPosition({ top, left });
-      }, 100);
+      });
 
       // Highlight element
       element.style.position = 'relative';
