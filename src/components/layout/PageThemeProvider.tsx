@@ -21,7 +21,7 @@ export const PageThemeProvider: React.FC<PropsWithChildren> = ({ children }) => 
           "min-h-screen bg-background bg-gradient-to-b from-primary/10 to-accent/10",
         title: "Accueil – MED‑MNG | Plateforme immersive",
         description:
-          "Accueil MED‑MNG: explorez les expériences immersives et outils d’apprentissage médicaux.",
+          "Accueil MED‑MNG: explorez les expériences immersives et outils d'apprentissage médicaux.",
         canonical: "/",
       };
     }
@@ -54,7 +54,7 @@ export const PageThemeProvider: React.FC<PropsWithChildren> = ({ children }) => 
           "min-h-screen bg-background bg-gradient-to-b from-destructive/5 to-muted/20",
         title: "Administration – Imports, Audit, Extraction | MED‑MNG",
         description:
-          "Console d’administration: import de données, audit qualité, extractions et supervision.",
+          "Console d'administration: import de données, audit qualité, extractions et supervision.",
         canonical: "/admin",
       };
     }
@@ -92,13 +92,33 @@ export const PageThemeProvider: React.FC<PropsWithChildren> = ({ children }) => 
     };
   }, [pathname]);
 
+  // Use document.title directly to avoid any rendering issues with helmet
+  React.useEffect(() => {
+    document.title = theme.title;
+    const metaDescription = document.querySelector('meta[name="description"]');
+    if (metaDescription) {
+      metaDescription.setAttribute('content', theme.description);
+    } else {
+      const newMetaDescription = document.createElement('meta');
+      newMetaDescription.name = 'description';
+      newMetaDescription.content = theme.description;
+      document.head.appendChild(newMetaDescription);
+    }
+    
+    // Handle canonical link
+    let canonicalLink = document.querySelector('link[rel="canonical"]') as HTMLLinkElement;
+    if (canonicalLink) {
+      canonicalLink.href = theme.canonical;
+    } else {
+      canonicalLink = document.createElement('link');
+      canonicalLink.rel = 'canonical';
+      canonicalLink.href = theme.canonical;
+      document.head.appendChild(canonicalLink);
+    }
+  }, [theme.title, theme.description, theme.canonical]);
+
   return (
     <div className={theme.classes}>
-      <Helmet>
-        <title>{theme.title}</title>
-        <meta name="description" content={theme.description} />
-        <link rel="canonical" href={theme.canonical} />
-      </Helmet>
       {children}
     </div>
   );
