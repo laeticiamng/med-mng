@@ -5633,72 +5633,6 @@ export type Database = {
         }
         Relationships: []
       }
-      competences_overview: {
-        Row: {
-          category: string | null
-          created_at: string | null
-          description: string | null
-          id: string | null
-          item_parent: string | null
-          rank: string | null
-          title: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          category?: never
-          created_at?: string | null
-          description?: string | null
-          id?: string | null
-          item_parent?: string | null
-          rank?: string | null
-          title?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          category?: never
-          created_at?: string | null
-          description?: string | null
-          id?: string | null
-          item_parent?: string | null
-          rank?: string | null
-          title?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      edn_items_with_competences: {
-        Row: {
-          competences_count_rang_a: number | null
-          competences_count_rang_b: number | null
-          completeness_score: number | null
-          created_at: string | null
-          item_code: string | null
-          subtitle: string | null
-          title: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          competences_count_rang_a?: number | null
-          competences_count_rang_b?: number | null
-          completeness_score?: number | null
-          created_at?: string | null
-          item_code?: string | null
-          subtitle?: string | null
-          title?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          competences_count_rang_a?: number | null
-          competences_count_rang_b?: number | null
-          completeness_score?: number | null
-          created_at?: string | null
-          item_code?: string | null
-          subtitle?: string | null
-          title?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
       lyrics_texts_latest: {
         Row: {
           content: string | null
@@ -6630,6 +6564,19 @@ export type Database = {
           suspicious_data_count: number
           table_name: string
         }[]
+      }
+      security_audit_check: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          check_name: string
+          details: string
+          severity: string
+          status: string
+        }[]
+      }
+      security_audit_summary: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
       }
       security_validation_final: {
         Args: Record<PropertyKey, never>
