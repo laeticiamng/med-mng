@@ -4,7 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Music, Library, CreditCard, User, Plus, LogOut, Home } from 'lucide-react';
 import { useAuth } from '../med-mng/SimpleAuthProvider';
-import { TranslatedText } from '@/components/TranslatedText';
+import { SimpleTranslatedText } from '@/components/SimpleTranslatedText';
 
 export const MedMngNavigation: React.FC = () => {
   const navigate = useNavigate();
@@ -25,7 +25,7 @@ export const MedMngNavigation: React.FC = () => {
           <div className="flex items-center gap-2">
             <Music className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" />
             <span className="text-lg sm:text-xl font-bold text-gray-900">
-              <TranslatedText text="MED-MNG" />
+              <SimpleTranslatedText text="MED-MNG" />
             </span>
           </div>
 
@@ -37,7 +37,7 @@ export const MedMngNavigation: React.FC = () => {
               className="flex items-center gap-2 px-3 py-2 rounded-lg transition-all hover:bg-gray-100"
             >
               <Home className="h-4 w-4" />
-              <TranslatedText text="Accueil" />
+              <SimpleTranslatedText text="Accueil" />
             </Button>
 
             <Button
@@ -46,7 +46,7 @@ export const MedMngNavigation: React.FC = () => {
               className="flex items-center gap-2 px-3 py-2 rounded-lg transition-all hover:bg-gray-100"
             >
               <Library className="h-4 w-4" />
-              <TranslatedText text="Bibliothèque" />
+              <SimpleTranslatedText text="Bibliothèque" />
             </Button>
 
             <Button
@@ -55,7 +55,7 @@ export const MedMngNavigation: React.FC = () => {
               className="flex items-center gap-2 px-3 py-2 rounded-lg transition-all hover:bg-gray-100"
             >
               <Plus className="h-4 w-4" />
-              <TranslatedText text="Créer" />
+              <SimpleTranslatedText text="Créer" />
             </Button>
 
             <Button
@@ -64,7 +64,7 @@ export const MedMngNavigation: React.FC = () => {
               className="flex items-center gap-2 px-3 py-2 rounded-lg transition-all hover:bg-gray-100"
             >
               <CreditCard className="h-4 w-4" />
-              <TranslatedText text="Abonnements" />
+              <SimpleTranslatedText text="Abonnements" />
             </Button>
 
             <Button
@@ -73,7 +73,7 @@ export const MedMngNavigation: React.FC = () => {
               className="flex items-center gap-2 px-3 py-2 rounded-lg transition-all hover:bg-gray-100"
             >
               <User className="h-4 w-4" />
-              <TranslatedText text="Profil" />
+              <SimpleTranslatedText text="Profil" />
             </Button>
 
             <Button
@@ -82,7 +82,7 @@ export const MedMngNavigation: React.FC = () => {
               className="flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50 px-3 py-2 rounded-lg transition-all"
             >
               <LogOut className="h-4 w-4" />
-              <TranslatedText text="Déconnexion" />
+              <SimpleTranslatedText text="Déconnexion" />
             </Button>
           </div>
 
