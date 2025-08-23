@@ -13,7 +13,7 @@ import { useSubscription } from '@/hooks/useSubscription';
 import { useMusicGenerationWithTranslation } from '@/hooks/useMusicGenerationWithTranslation';
 import { useEdnItemLyrics } from '@/hooks/useEdnItemLyrics';
 import { useAllEdnItems } from '@/hooks/useAllEdnItems';
-import { useAuth } from '@/components/med-mng/AuthProvider';
+import { useAuth } from '@/components/med-mng/SimpleAuthProvider';
 import { QuotaDisplay } from '@/components/generator/QuotaDisplay';
 import { GeneratorForm } from '@/components/generator/GeneratorForm';
 

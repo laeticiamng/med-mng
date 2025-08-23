@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { useAuth } from '@/components/med-mng/AuthProvider';
+import { useAuth } from '@/components/med-mng/SimpleAuthProvider';
 import { useEmailNotifications } from '@/hooks/useEmailNotifications';
 import { useMedMngApi } from '@/hooks/useMedMngApi';
 import { Button } from '@/components/ui/button';

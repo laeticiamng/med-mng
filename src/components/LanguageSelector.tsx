@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { useLanguage, Language, LANGUAGES } from '@/contexts/LanguageContext';
+import { useLanguage, Language } from '@/contexts/SimpleLanguageContext';
 
 export const LanguageSelector: React.FC = () => {
   const { currentLanguage, setCurrentLanguage, languages } = useLanguage();

@@ -9,7 +9,7 @@ import {
   createRequestBody, 
   getSuccessMessage 
 } from './musicGenerationUtils';
-import { useLanguage } from '@/contexts/LanguageContext';
+import { useLanguage } from '@/contexts/SimpleLanguageContext';
 import { callSunoApi } from './musicGenerationApi';
 
 export const useMedMngMusicGeneration = () => {

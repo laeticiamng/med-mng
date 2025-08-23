@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { withAuth } from '@/components/med-mng/withAuth';
 import { MedMngLayout } from '@/components/med-mng/MedMngLayout';
-import { useAuth } from '@/components/med-mng/AuthProvider';
+import { useAuth } from '@/components/med-mng/SimpleAuthProvider';
 import { useMedMngApi } from '@/hooks/useMedMngApi';
 import { ProfileHeader } from '@/components/med-mng/profile/ProfileHeader';
 import { ProfileStats } from '@/components/med-mng/profile/ProfileStats';

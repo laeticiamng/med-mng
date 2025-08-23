@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/components/med-mng/AuthProvider';
+import { useAuth } from '@/components/med-mng/SimpleAuthProvider';
 
 export const useAnalytics = () => {
   const { user } = useAuth();
