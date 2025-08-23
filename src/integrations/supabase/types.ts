@@ -5541,6 +5541,42 @@ export type Database = {
         }
         Relationships: []
       }
+      user_sessions: {
+        Row: {
+          created_at: string | null
+          id: string
+          ip_address: unknown | null
+          is_active: boolean | null
+          security_flags: Json | null
+          session_end: string | null
+          session_start: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          is_active?: boolean | null
+          security_flags?: Json | null
+          session_end?: string | null
+          session_start?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          ip_address?: unknown | null
+          is_active?: boolean | null
+          security_flags?: Json | null
+          session_end?: string | null
+          session_start?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       user_subscriptions: {
         Row: {
           created_at: string
@@ -5701,6 +5737,14 @@ export type Database = {
         Row: {
           metric: string | null
           unit: string | null
+          value: string | null
+        }
+        Relationships: []
+      }
+      security_summary: {
+        Row: {
+          description: string | null
+          metric: string | null
           value: string | null
         }
         Relationships: []
@@ -5951,6 +5995,10 @@ export type Database = {
           template_name: string
           template_variables?: Json
         }
+        Returns: string
+      }
+      create_user_session: {
+        Args: { p_ip_address?: unknown; p_user_agent?: string }
         Returns: string
       }
       detect_and_fix_redundancies: {
@@ -6342,6 +6390,16 @@ export type Database = {
           p_user_id: string
         }
         Returns: undefined
+      }
+      log_security_audit: {
+        Args: {
+          p_details?: Json
+          p_event_type: string
+          p_resource_id?: string
+          p_resource_type?: string
+          p_severity?: string
+        }
+        Returns: string
       }
       log_security_event: {
         Args:
