@@ -32,32 +32,34 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     target: 'esnext',
-    // Optimize CSS bundle size
+    // Aggressive CSS optimization for render-blocking elimination
     cssCodeSplit: true,
+    cssMinify: 'lightningcss',
     rollupOptions: {
       output: {
-        // Manual chunk splitting for better caching and loading
-        manualChunks: {
-          // Vendor chunk for stable dependencies
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-          // UI chunk for component library
-          ui: ['@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu', '@radix-ui/react-select', '@radix-ui/react-toast'],
-          // Utils chunk for utilities
-          utils: ['@tanstack/react-query', 'date-fns', 'clsx'],
-          // Supabase chunk
-          supabase: ['@supabase/supabase-js'],
+        // Optimized chunk splitting to reduce initial bundle size
+        manualChunks: (id: string) => {
+          // Critical path chunks
+          if (id.includes('src/pages/Index')) return 'page-index';
+          if (id.includes('src/components/layout')) return 'layout';
+          
+          // Vendor chunks
+          if (id.includes('react') || id.includes('react-dom')) return 'react-vendor';
+          if (id.includes('@radix-ui')) return 'ui-vendor';
+          if (id.includes('@tanstack')) return 'query-vendor';
+          if (id.includes('@supabase')) return 'supabase-vendor';
+          
+          // Feature chunks
+          if (id.includes('src/components/med-mng')) return 'med-mng';
+          if (id.includes('framer-motion')) return 'animations';
         },
-        // Optimize chunk names for caching
-        chunkFileNames: (chunkInfo) => {
-          const facadeModuleId = chunkInfo.facadeModuleId
-            ? chunkInfo.facadeModuleId.split('/').pop()?.replace(/\.\w+$/, '') || 'chunk'
-            : 'chunk';
-          return `assets/${facadeModuleId}-[hash].js`;
-        },
-        // Optimize CSS file names
+        // Optimize file names for better caching
+        chunkFileNames: 'assets/js/[name]-[hash].js',
         assetFileNames: (assetInfo) => {
-          if (assetInfo.name && assetInfo.name.endsWith('.css')) {
-            return 'assets/styles-[hash].css';
+          if (assetInfo.name?.endsWith('.css')) {
+            // Split CSS into smaller chunks based on content
+            if (assetInfo.name.includes('index')) return 'assets/css/main-[hash].css';
+            return 'assets/css/[name]-[hash].css';
           }
           return 'assets/[name]-[hash][extname]';
         }
@@ -69,8 +71,9 @@ export default defineConfig(({ mode }) => ({
     },
     // Enable tree shaking optimization  
     minify: true,
-    // Optimize bundle size
-    chunkSizeWarningLimit: 1000,
-    assetsInlineLimit: 4096
+    // Optimize bundle size and eliminate render-blocking
+    chunkSizeWarningLimit: 500, // Smaller chunks for better loading
+    assetsInlineLimit: 2048, // Inline smaller assets to reduce requests
+    reportCompressedSize: false // Faster builds
   }
 }));

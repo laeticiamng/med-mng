@@ -29,60 +29,31 @@
     <!-- Additional preconnects for potential third-party resources -->
     <link rel="preconnect" href="https://lovable.dev" crossorigin>
     
-    <!-- Inline script to handle font loading optimization -->
+    <!-- Optimized non-blocking font loading -->
     <script>
-      // Optimized font loading for immediate LCP rendering
+      // Complete non-blocking font loading strategy
       (function() {
-        // Create inline CSS with essential font definitions for immediate text visibility
-        var style = document.createElement('style');
-        style.textContent = `
-          @font-face {
-            font-family: 'Inter';
-            font-style: normal;
-            font-weight: 400;
-            font-display: swap;
-            src: url('https://fonts.gstatic.com/s/inter/v19/UcCO3FwrK3iLTeHuS_flhiMyaEo.woff2') format('woff2');
-            unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-          }
-          @font-face {
-            font-family: 'Inter';
-            font-style: normal;
-            font-weight: 700;
-            font-display: swap;
-            src: url('https://fonts.gstatic.com/s/inter/v19/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7W0Q5nw.woff2') format('woff2');
-            unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-          }
-          @font-face {
-            font-family: 'JetBrains Mono';
-            font-style: normal;
-            font-weight: 400;
-            font-display: swap;
-            src: url('https://fonts.gstatic.com/s/jetbrainsmono/v18/tDbY2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKxjPVmUsaaDhw.woff2') format('woff2');
-            unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-          }
-        `;
-        document.head.appendChild(style);
+        // Use requestIdleCallback for better performance
+        function loadFonts() {
+          // Create link element for async font loading
+          var link = document.createElement('link');
+          link.rel = 'stylesheet';
+          link.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap';
+          
+          // Load fonts without blocking render
+          link.media = 'print';
+          link.onload = function() { this.media = 'all'; };
+          link.onerror = function() { this.media = 'all'; };
+          
+          document.head.appendChild(link);
+        }
         
-        // Load remaining font weights asynchronously to avoid render blocking
-        var link = document.createElement('link');
-        link.rel = 'stylesheet';
-        link.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap';
-        link.media = 'print';
-        link.onload = function() {
-          this.media = 'all';
-        };
-        // Add error fallback
-        link.onerror = function() {
-          this.media = 'all';
-        };
-        document.head.appendChild(link);
-        
-        // Fallback timing - ensure fonts load even if onload fails
-        setTimeout(function() {
-          if (link.media !== 'all') {
-            link.media = 'all';
-          }
-        }, 1000);
+        // Load fonts when browser is idle or after 100ms max
+        if ('requestIdleCallback' in window) {
+          requestIdleCallback(loadFonts, { timeout: 100 });
+        } else {
+          setTimeout(loadFonts, 100);
+        }
       })();
       
       // Register Service Worker for efficient caching
@@ -241,29 +212,10 @@
       }
     </style>
     
-    <!-- Async CSS Loading Script -->
+    <!-- Optimized CSS Loading -->
     <script>
-      // Load main CSS asynchronously to eliminate render blocking
-      (function() {
-        var cssLink = document.createElement('link');
-        cssLink.rel = 'stylesheet';
-        cssLink.href = '/src/index.css'; // This will be processed by Vite
-        cssLink.media = 'print'; // Load as non-blocking
-        cssLink.onload = function() {
-          this.media = 'all'; // Apply once loaded
-        };
-        cssLink.onerror = function() {
-          this.media = 'all'; // Apply even on error
-        };
-        document.head.appendChild(cssLink);
-        
-        // Fallback timer
-        setTimeout(function() {
-          if (cssLink.media !== 'all') {
-            cssLink.media = 'all';
-          }
-        }, 500);
-      })();
+      // Critical CSS is already inlined above
+      // Additional CSS will be loaded by Vite with optimized chunking
     </script>
   </head>
 
