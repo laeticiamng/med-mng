@@ -19,6 +19,7 @@ export default defineConfig({
         'coverage/',
         'src/stories/**',
         'src/**/*.stories.*',
+        'tests/security/**/*.test.ts',
         'supabase/functions/**/*.test.ts',
         'test/e2e/**'
       ],
