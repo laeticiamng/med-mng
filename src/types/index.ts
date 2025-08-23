@@ -26,6 +26,9 @@ export interface ProcessingData {
   competences_oic?: any[];
   id?: string;
   item_code?: string;
+  rang?: string;
+  tableau_rang_a?: TableauData;
+  tableau_rang_b?: TableauData;
 }
 
 export interface TableauData {

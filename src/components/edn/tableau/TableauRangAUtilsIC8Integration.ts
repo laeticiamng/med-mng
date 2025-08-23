@@ -1,11 +1,13 @@
 
+import type { ProcessingData, EDNItem } from '@/types';
+
 // Utilitaires pour l'intégration des données IC-8
-export const processTableauRangAIC8 = (data: any) => {
+export const processTableauRangAIC8 = (data: ProcessingData | EDNItem) => {
   console.log('🔍 Traitement IC-8 - Certificats médicaux violences');
   
   // Extraire les données du tableau
-  const tableauData = data.tableau_rang_a || data;
-  const concepts = tableauData?.sections?.[0]?.concepts || [];
+  const tableauData = (data as EDNItem).tableau_rang_a || data;
+  const concepts = (tableauData as any)?.sections?.[0]?.concepts || [];
   
   const colonnesUtiles = [
     { nom: 'Concept', description: 'Élément médico-légal' },
@@ -41,7 +43,7 @@ export const processTableauRangAIC8 = (data: any) => {
   };
 };
 
-export const isIC8Item = (data: any): boolean => {
+export const isIC8Item = (data: ProcessingData | EDNItem): boolean => {
   return data?.item_code === 'IC-8' || 
          data?.title?.includes('Certificats médicaux') ||
          data?.title?.includes('violences') ||

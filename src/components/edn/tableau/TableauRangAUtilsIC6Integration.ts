@@ -1,11 +1,13 @@
 
+import type { ProcessingData, EDNItem } from '@/types';
+
 // Utilitaires pour l'intégration des données IC-6
-export const processTableauRangAIC6 = (data: any) => {
+export const processTableauRangAIC6 = (data: ProcessingData | EDNItem) => {
   console.log('🔍 Traitement IC-6 - Organisation exercice clinique');
   
   // Extraire les données du tableau
-  const tableauData = data.tableau_rang_a || data;
-  const concepts = tableauData?.sections?.[0]?.concepts || [];
+  const tableauData = (data as EDNItem).tableau_rang_a || data;
+  const concepts = (tableauData as any)?.sections?.[0]?.concepts || [];
   
   const colonnesUtiles = [
     { nom: 'Concept', description: 'Notion clé organisation' },
@@ -41,7 +43,7 @@ export const processTableauRangAIC6 = (data: any) => {
   };
 };
 
-export const isIC6Item = (data: any): boolean => {
+export const isIC6Item = (data: ProcessingData | EDNItem): boolean => {
   return data?.item_code === 'IC-6' || 
          data?.title?.includes('Organisation de l\'exercice clinique') ||
          data?.theme?.includes('IC-6');

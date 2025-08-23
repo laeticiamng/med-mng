@@ -1,8 +1,9 @@
 
 import { conceptsRangAIC3, conceptsRangBIC3 } from './TableauRangADataIC3Concepts';
 import { colonnesConfigIC3 } from './TableauRangADataIC3Config';
+import type { ProcessingData, EDNItem } from '@/types';
 
-export const isIC3Item = (data: any): boolean => {
+export const isIC3Item = (data: ProcessingData | EDNItem): boolean => {
   return data?.item_code === 'IC-3' ||
          data?.theme?.toLowerCase().includes('raisonnement') ||
          data?.theme?.toLowerCase().includes('décision') ||
@@ -11,8 +12,9 @@ export const isIC3Item = (data: any): boolean => {
          data?.title?.toLowerCase().includes('démarche scientifique');
 };
 
-export const processTableauRangAIC3 = (data: any) => {
-  const isRangB = data?.rang === 'B' || data?.theme?.includes('Rang B');
+// Utilitaires pour l'intégration des données IC-3
+export const processTableauRangAIC3 = (data: ProcessingData | EDNItem) => {
+  const isRangB = (data as ProcessingData).rang === 'B' || data?.theme?.includes('Rang B');
   const concepts = isRangB ? conceptsRangBIC3 : conceptsRangAIC3;
   
   const lignesEnrichies = concepts.map(concept => [

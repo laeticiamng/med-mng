@@ -1,7 +1,7 @@
 
 import { conceptsRangAIC1, colonnesConfigIC1 } from './TableauRangADataIC1';
 import { logger } from '@/lib/logger';
-import type { ColonneConfig, EDNItem } from '@/types';
+import type { ColonneConfig, ProcessingData, EDNItem } from '@/types';
 
 // Fonction pour déterminer les colonnes utiles selon le contenu IC-1
 export function determinerColonnesUtilesIC1(lignes: string[][]): ColonneConfig[] {
@@ -9,7 +9,7 @@ export function determinerColonnesUtilesIC1(lignes: string[][]): ColonneConfig[]
 }
 
 // Fonction pour générer les lignes enrichies spécifiquement pour IC-1
-export function generateLignesRangAIC1(data: EDNItem): string[][] {
+export function generateLignesRangAIC1(data: ProcessingData | EDNItem): string[][] {
   logger.info('IC-1 Génération : 15 connaissances selon E-LiSA', { 
     component: 'TableauRangAUtilsIC1',
     action: 'generateLignesRangAIC1' 
