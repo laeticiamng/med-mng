@@ -5,12 +5,24 @@ import { TranslatedText } from "@/components/TranslatedText";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { SecurityHeaders } from "@/components/security/SecurityHeaders";
 
 const Index = () => {
   const navigate = useNavigate();
+  
+  // Get absolute URL for canonical link
+  const canonicalUrl = typeof window !== 'undefined' 
+    ? `${window.location.origin}/` 
+    : 'https://med-mng.lovable.app/';
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 relative overflow-hidden gpu-accelerated">
+    <>
+      <SecurityHeaders
+        title="MED MNG par EmotionsCare - Expérience Immersive d'Apprentissage Médical"
+        description="Plateforme immersive d'apprentissage des items EDN et situations ECOS - Médecine sensorielle et interactive avec IA musicale"
+        url={canonicalUrl}
+      />
+      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 relative overflow-hidden gpu-accelerated">
       {/* Optimized background effects with reduced paint cost */}
       <div className="absolute inset-0 bg-gradient-to-r from-pink-500/20 via-purple-500/20 to-blue-500/20 will-change-transform"></div>
       <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,rgba(120,119,198,0.3),transparent_50%)] gpu-accelerated"></div>
@@ -281,7 +293,8 @@ const Index = () => {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 export default Index;
