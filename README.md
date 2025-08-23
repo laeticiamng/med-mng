@@ -238,25 +238,154 @@ git push origin main        # Deploy automatique
 git tag v1.x.x && git push  # Deploy production
 ```
 
-### 📦 Variables d'Environnement
+---
+
+## ⚙️ Configuration
+
+### 🔧 Variables d'Environnement
+
+Copiez `.env.example` vers `.env` et configurez les variables nécessaires selon votre environnement.
+
+#### 📋 Configuration Minimale (Développement)
 ```bash
-# Supabase (Obligatoire)
+# Copier le template
+cp .env.example .env
+
+# Variables obligatoires pour démarrer
+NODE_ENV=development
+PORT=3000
 VITE_SUPABASE_URL=https://yaincoxihiqdksxgrsrk.supabase.co
-VITE_SUPABASE_ANON_KEY=eyJhbGc...
-
-# APIs Externes
-SUNO_API_KEY=your_suno_key              # Génération musicale
-OPENAI_API_KEY=your_openai_key          # Chat IA
-RESEND_API_KEY=your_resend_key          # Emails
-
-# Authentification CAS (Extraction)
-CAS_USERNAME=your_cas_user
-CAS_PASSWORD=your_cas_pass
-
-# Monitoring (Optionnel)
-SENTRY_DSN=your_sentry_dsn
-DISCORD_WEBHOOK_URL=your_discord_webhook
+VITE_SUPABASE_ANON_KEY=eyJhbGc...  # Clé anon Supabase
 ```
+
+#### 🚀 Configuration Production
+```bash
+# Variables critiques en production
+NODE_ENV=production
+JWT_SECRET=your-32-char-secret              # OBLIGATOIRE - Génération JWT
+SUPABASE_SERVICE_ROLE_KEY=service_role_key  # OBLIGATOIRE - Admin Supabase
+SENTRY_DSN=https://sentry.io/...            # RECOMMANDÉ - Monitoring erreurs
+CORS_ALLOWED_ORIGINS=https://yourdomain.com # OBLIGATOIRE - Sécurité CORS
+```
+
+#### 🎵 APIs Externes Optionnelles
+```bash
+# Génération musicale (Suno AI)
+SUNO_API_KEY=your-suno-key
+
+# Intelligence artificielle (OpenAI)
+OPENAI_API_KEY=sk-your-openai-key
+
+# Système d'emails (Resend)
+RESEND_API_KEY=re-your-resend-key
+
+# Extraction EDN/OIC (CAS UNES)
+CAS_USERNAME=your-unes-username
+CAS_PASSWORD=your-unes-password
+```
+
+#### 🔐 Sécurité & Rate Limiting
+```bash
+# Configuration CORS
+CORS_ALLOWED_ORIGINS=https://yourdomain.com,https://app.yourdomain.com
+
+# Rate limiting (requêtes/minute)
+RATE_LIMIT_WINDOW_MS=900000     # Fenêtre 15 minutes
+RATE_LIMIT_MAX_REQUESTS=100     # 100 req/fenêtre
+
+# Sécurité payload
+MAX_PAYLOAD_MB=1                # Limite DoS 1MB
+
+# Proxy de confiance
+TRUST_PROXY=1                   # Load balancers
+```
+
+#### 📊 Monitoring & Analytics
+```bash
+# Monitoring erreurs
+SENTRY_DSN=https://your-sentry-dsn@sentry.io/project
+
+# Webhooks d'alertes
+DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/...
+SLACK_WEBHOOK_URL=https://hooks.slack.com/services/...
+
+# Logs
+LOG_LEVEL=info                  # debug|info|warn|error
+LOG_FORMAT=json                 # json|pretty
+```
+
+#### 🎚️ Feature Flags
+```bash
+# Fonctionnalités principales
+ENABLE_MUSIC_GENERATION=true
+ENABLE_REAL_TIME_FEATURES=true
+ENABLE_ANALYTICS=true
+ENABLE_CHAT_AI=true
+
+# Mode développement
+SKIP_ENV_VALIDATION=false       # Validation stricte
+MOCK_EXTERNAL_APIS=false        # APIs réelles
+```
+
+### 📝 Validation Automatique
+
+Le système valide automatiquement toutes les variables au démarrage :
+
+```bash
+# Validation manuelle
+npm run validate:env
+
+# En cas d'erreur de validation
+✅ Environment validation successful
+   - Environment: production
+   - Port: 3000
+   - Supabase URL: https://yaincoxihiqdksxgrsrk.supabase.co
+   - Features: Music=true, Analytics=true
+
+❌ Environment validation failed:
+   - JWT_SECRET: must be at least 32 characters
+   - SENTRY_DSN: Invalid URL format
+```
+
+### 🔑 Obtention des Clés API
+
+#### Supabase (Obligatoire)
+1. [Dashboard Supabase](https://supabase.com/dashboard/project/yaincoxihiqdksxgrsrk)
+2. Settings → API → Copy anon key
+3. Settings → API → Copy service_role key ⚠️
+
+#### APIs Externes Optionnelles
+- **Suno AI** : [https://suno.ai/api](https://suno.ai/api) - Génération musicale
+- **OpenAI** : [https://platform.openai.com/api-keys](https://platform.openai.com/api-keys) - Chat IA
+- **Resend** : [https://resend.com/api-keys](https://resend.com/api-keys) - Emails transactionnels
+- **Sentry** : [https://sentry.io/settings/projects/](https://sentry.io/settings/projects/) - Monitoring
+
+### 🚨 Sécurité des Secrets
+
+⚠️ **IMPORTANT** : Ne jamais commit les vraies valeurs dans `.env`
+
+```bash
+# ✅ FAIRE : Utiliser .env.example avec des placeholders
+OPENAI_API_KEY=sk-your-openai-key-here
+
+# ❌ NE PAS FAIRE : Commit des vraies clés
+OPENAI_API_KEY=sk-proj-abc123def456...
+```
+
+### 🔄 Synchronisation Multi-Environnements
+
+```bash
+# Développement
+cp .env.example .env.development
+
+# Staging  
+cp .env.example .env.staging
+
+# Production
+cp .env.example .env.production
+```
+
+**Voir le fichier complet** : [`.env.example`](./.env.example) - Documentation détaillée de toutes les variables
 
 ---
 

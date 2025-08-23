@@ -1,13 +1,35 @@
 
-# Contributing Guide - Items EDN
+# Contributing Guide - Med Music Platform
 
-Ce guide explique comment ajouter et modifier des items EDN sur la plateforme.
+Ce guide explique comment contribuer au projet Med Music Platform en suivant les bonnes pratiques de développement et de sécurité.
 
-## 🎯 Structure des Items v2
+## 🎯 Structure du Projet
 
-Chaque item EDN suit désormais un schema JSON standardisé v2 qui garantit la cohérence et permet la génération automatique de contenu.
+### Architecture Générale
 
-### Schema Principal
+```
+src/
+├── 📄 pages/                    # Pages principales de l'application
+│   ├── MedChat.tsx             # Chat IA médical
+│   ├── EdnComplete.tsx         # Interface EDN unifiée
+│   ├── MedMngCreate.tsx        # Génération musicale
+│   └── Admin*.tsx              # Dashboards administration
+├── 🧩 components/              # Composants réutilisables
+│   ├── edn/                    # Composants EDN/ECOS
+│   ├── med-mng/               # Système musical
+│   ├── admin/                  # Administration
+│   └── ui/                     # Design system (shadcn)
+├── 🔧 hooks/                   # Hooks métier spécialisés
+├── 📚 lib/                     # Utilitaires + clients sécurisés
+├── 🎨 styles/                  # Design system + Tailwind
+└── 🔐 middleware/              # Middlewares de sécurité
+```
+
+## 🛠️ Ajouter du Contenu EDN
+
+### 1. Schema JSON Standardisé v2
+
+Chaque item EDN suit un schema JSON v2 pour garantir la cohérence :
 
 ```json
 {
@@ -37,163 +59,254 @@ Chaque item EDN suit désormais un schema JSON standardisé v2 qui garantit la c
 }
 ```
 
-## 🛠️ Ajouter un Nouvel Item
-
-### 1. Création du fichier JSON
-
-Créez un fichier `items/IC-XXX.json` avec la structure complète :
-
-```json
-{
-  "item_metadata": {
-    "code": "IC-42",
-    "title": "Nouveau concept médical",
-    "subtitle": "Sous-titre explicatif",
-    "category": "relation_medecin_malade",
-    "difficulty": "AB",
-    "version": "v2.0.0",
-    "slug": "ic-42-nouveau-concept"
-  },
-  "content": {
-    "rang_a": {
-      "theme": "Fondamentaux du nouveau concept",
-      "competences": [
-        {
-          "competence_id": "NC_CONCEPT_1",
-          "concept": "Premier concept clé",
-          "definition": "Définition précise et complète du concept...",
-          "exemple": "Exemple concret en situation clinique...",
-          "piege": "Piège fréquent à éviter dans la pratique...",
-          "mnemo": "Moyen mnémotechnique simple",
-          "subtilite": "Nuance importante à retenir...",
-          "application": "Application pratique en consultation...",
-          "vigilance": "Point de vigilance critique...",
-          "paroles_chantables": [
-            "Version chantable du concept, rythmée et mémorable",
-            "Autre version avec mélodie différente"
-          ]
-        }
-      ]
-    },
-    "rang_b": {
-      "theme": "Outils pratiques et approfondissement",
-      "competences": [...]
-    }
-  },
-  "generation_config": {
-    "music_enabled": true,
-    "bd_enabled": true,
-    "quiz_enabled": true,
-    "interactive_enabled": true
-  }
-}
-```
-
-### 2. Validation du Schema
-
-Utilisez le validateur intégré :
-
-```typescript
-import { validateItemEDN } from '@/schemas/itemEDNSchema';
-
-const validation = validateItemEDN(monItem);
-if (!validation.success) {
-  console.error('Erreurs:', validation.errors);
-}
-```
-
-### 3. Import en Base
-
-Utilisez le script d'import :
+### 2. Validation et Import
 
 ```bash
-yarn add-item items/IC-42.json
-```
-
-## 📋 Standards de Qualité
-
-### Compétences
-
-Chaque compétence DOIT contenir :
-
-- **concept** : 3-150 caractères, concept clair
-- **definition** : >10 caractères, définition complète
-- **exemple** : >10 caractères, exemple clinique concret
-- **piege** : >10 caractères, erreur fréquente à éviter
-- **mnemo** : >3 caractères, aide-mémoire simple
-- **subtilite** : >10 caractères, nuance importante
-- **application** : >10 caractères, utilisation pratique
-- **vigilance** : >10 caractères, point d'attention critique
-- **paroles_chantables** : 1-3 versions chantables du concept
-
-### Bonnes Pratiques
-
-1. **Clarté** : Langage médical précis mais accessible
-2. **Concision** : Chaque champ doit être informatif sans être verbeux
-3. **Cohérence** : Maintenir le même niveau de détail dans tout l'item
-4. **Mémorisation** : Les mnémos et paroles doivent être efficaces
-5. **Clinique** : Privilégier les exemples de situations réelles
-
-## 🎵 Génération de Contenu Automatique
-
-Une fois l'item validé et importé, la plateforme génère automatiquement :
-
-- **Musique** : Chansons basées sur les `paroles_chantables`
-- **BD** : Planches illustrant les concepts via IA
-- **Quiz** : Questions à partir des définitions et pièges
-- **Mode immersif** : Scénarios interactifs
-
-## 🔧 Outils de Développement
-
-### CLI Helper
-
-```bash
-# Créer un item vide
-yarn create-item IC-42 "Titre" --category=relation_medecin_malade
-
 # Valider un item
 yarn validate-item items/IC-42.json
 
-# Migrer un item v1 vers v2
-yarn migrate-item IC-42
-
-# Importer en base
+# Importer en base de données
 yarn add-item items/IC-42.json --env=staging
 ```
 
-### Tests
+## 🔐 Variables d'Environnement
+
+### Bonnes Pratiques Obligatoires
+
+#### ✅ DO : Synchroniser .env.example
+
+**OBLIGATOIRE** : Lors de l'ajout d'une nouvelle variable d'environnement dans le code :
+
+1. **Ajouter la variable dans `.env.example`** avec documentation
+2. **Mettre à jour la validation** dans `packages/config/src/env.ts`
+3. **Documenter l'usage** dans `README.md` si nécessaire
+4. **Tester la validation** avec `npm run validate:env`
 
 ```bash
-# Tests de validation
-yarn test:schema
+# Exemple d'ajout dans .env.example
+# ===================================
+# NOUVELLE FONCTIONNALITÉ
+# ===================================
 
-# Tests d'intégration
-yarn test:items
-
-# Tests de génération
-yarn test:generation
+# Description de la nouvelle variable
+NEW_API_KEY=your-new-api-key-here        # Obligatoire pour fonctionnalité X
+NEW_FEATURE_ENABLED=true                 # Active/désactive la fonctionnalité
 ```
+
+#### ✅ DO : Validation Zod Obligatoire
+
+Toute nouvelle variable DOIT être validée dans `packages/config/src/env.ts` :
+
+```typescript
+// Ajouter la validation
+const envSchema = z.object({
+  // Variables existantes...
+  
+  // Nouvelle variable avec validation
+  NEW_API_KEY: z.string().min(20, 'API key must be at least 20 characters').optional(),
+  NEW_FEATURE_ENABLED: z.string().transform(Boolean).default('false'),
+});
+```
+
+#### ❌ DON'T : Erreurs Courantes
+
+```bash
+# ❌ NE PAS commit de vraies clés
+OPENAI_API_KEY=sk-proj-abc123def456...
+
+# ❌ NE PAS utiliser de variables non documentées
+VITE_SECRET_KEY=secret123
+
+# ❌ NE PAS oublier la validation
+# Toute variable utilisée DOIT être validée
+```
+
+### Processus de Synchronisation
+
+1. **Avant d'ajouter une variable** :
+   ```bash
+   # Vérifier les variables existantes
+   grep -r "process.env" src/ --include="*.ts" --include="*.tsx"
+   ```
+
+2. **Ajouter la variable** :
+   - Code source avec `process.env.NOUVELLE_VAR`
+   - Documentation dans `.env.example`
+   - Validation dans `env.ts`
+
+3. **Tester la configuration** :
+   ```bash
+   # Test de validation
+   npm run validate:env
+   
+   # Test avec valeur manquante
+   SKIP_ENV_VALIDATION=false npm run dev
+   ```
+
+4. **Documentation** :
+   - Ajouter dans `README.md` si la variable est importante
+   - Mettre à jour `docs/README-DEVOPS.md` si nécessaire
+
+### Catégories de Variables
+
+#### 🔴 Critiques (Production)
+Variables OBLIGATOIRES en production :
+- `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY`
+- `JWT_SECRET` (≥32 caractères)
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `CORS_ALLOWED_ORIGINS`
+
+#### 🟡 Importantes (Fonctionnalités)
+Variables pour activer des fonctionnalités :
+- `SUNO_API_KEY` (génération musicale)
+- `OPENAI_API_KEY` (chat IA)
+- `SENTRY_DSN` (monitoring)
+
+#### 🟢 Optionnelles (Configuration)
+Variables de configuration avec défauts :
+- `LOG_LEVEL` (default: info)
+- `MAX_PAYLOAD_MB` (default: 1)
+- `RATE_LIMIT_MAX_REQUESTS` (default: 100)
+
+## 🧪 Tests et Validation
+
+### Tests de Configuration
+
+```bash
+# Tests des variables d'environnement
+npm run test:env
+
+# Tests de sécurité complets
+./scripts/test-security.sh --all --coverage
+
+# Validation complète
+npm run validate:all
+```
+
+### Standards de Qualité
+
+#### Variables d'Environnement
+- Toute variable utilisée DOIT être dans `.env.example`
+- Toute variable DOIT avoir une validation Zod
+- Les variables sensibles ne doivent JAMAIS être committées
+- La documentation DOIT être à jour
+
+#### Code
+1. **TypeScript strict** : `noImplicitAny: true`
+2. **Tests unitaires** : Couverture > 80%
+3. **Tests de sécurité** : Middleware + rate limiting
+4. **Validation Zod** : Toutes les entrées utilisateur
+
+## 🚀 Processus de Contribution
+
+### 1. Développement Local
+
+```bash
+# Setup complet
+git clone https://github.com/med-mng/med-mng.git
+cd med-mng
+npm install
+
+# Configuration
+cp .env.example .env
+# Éditer .env avec vos clés
+
+# Validation
+npm run validate:env
+npm run test:security
+
+# Développement
+npm run dev
+```
+
+### 2. Pull Request
+
+#### Checklist Obligatoire
+
+- [ ] **Variables d'environnement synchronisées**
+  - [ ] Nouvelle variable ajoutée dans `.env.example`
+  - [ ] Validation Zod mise à jour dans `env.ts`
+  - [ ] Tests de validation passent : `npm run validate:env`
+
+- [ ] **Tests et qualité**
+  - [ ] Tests unitaires : `npm test`
+  - [ ] Tests de sécurité : `./scripts/test-security.sh`
+  - [ ] Linting : `npm run lint`
+  - [ ] TypeScript : `npm run type-check`
+
+- [ ] **Documentation**
+  - [ ] README.md mis à jour si nécessaire
+  - [ ] Code commenté et autodocumenté
+  - [ ] Changements breaking documentés
+
+### 3. Review Process
+
+1. **Auto-validation** : CI/CD vérifie automatiquement
+2. **Review manuelle** : Code review par l'équipe
+3. **Tests E2E** : Validation sur environnement de staging
+4. **Deploy** : Merge vers main déclenche le déploiement
+
+## 📊 Monitoring et Debugging
+
+### Variables de Debug
+
+```bash
+# Mode développement avec debug complet
+NODE_ENV=development
+LOG_LEVEL=debug
+SKIP_ENV_VALIDATION=false
+
+# Validation stricte des variables
+npm run validate:env -- --strict
+```
+
+### Outils de Debug
+
+- **Validation env** : `npm run validate:env`
+- **Tests sécurité** : `./scripts/test-security.sh`
+- **Logs console** : Accessible via outils développeur
+- **Supabase logs** : [Dashboard Supabase](https://supabase.com/dashboard/project/yaincoxihiqdksxgrsrk/logs)
 
 ## 🐛 Dépannage
 
 ### Erreurs Communes
 
-1. **Schema invalide** : Vérifiez la structure JSON avec le validateur
-2. **Compétence incomplète** : Tous les champs sont obligatoires
-3. **Paroles manquantes** : Au moins une version chantable par compétence
-4. **Code dupliqué** : Vérifiez l'unicité du code item
+1. **Variable manquante** :
+   ```
+   ❌ Environment validation failed:
+   - NEW_API_KEY: Required
+   ```
+   → Ajouter la variable dans `.env`
+
+2. **Variable non validée** :
+   ```
+   ❌ NEW_API_KEY used but not validated
+   ```
+   → Ajouter validation Zod dans `env.ts`
+
+3. **Sécurité CORS** :
+   ```
+   ❌ CORS: Origin not allowed
+   ```
+   → Vérifier `CORS_ALLOWED_ORIGINS`
 
 ### Support
 
-- 💬 Canal Slack `#edn-platform`
-- 📧 Support technique : dev@docflemme.com
-- 📚 Documentation complète : `/docs/items-edn`
+- **GitHub Issues** : Bugs et demandes de fonctionnalités
+- **Documentation** : `docs/` répertoire complet
+- **Supabase Dashboard** : [Monitoring base de données](https://supabase.com/dashboard/project/yaincoxihiqdksxgrsrk)
+- **Logs Sentry** : Monitoring des erreurs en temps réel
 
-## 🚀 Processus de Release
+---
 
-1. **Développement** : Créer l'item en local
-2. **Validation** : Tests automatiques + review
-3. **Staging** : Import sur environnement de test
-4. **Production** : Déploiement avec monitoring
+## 📋 Résumé des Obligations
 
-Chaque ajout d'item déclenche automatiquement la génération de contenu associé (musique, BD, quiz).
+**Lors de chaque contribution :**
+
+1. ✅ **Variables d'environnement** synchronisées dans `.env.example`
+2. ✅ **Validation Zod** pour toutes les nouvelles variables
+3. ✅ **Tests de sécurité** passent sans erreur
+4. ✅ **Documentation** mise à jour
+5. ✅ **Aucune clé secrète** committée en dur
+
+**La non-conformité à ces règles bloquera automatiquement la PR.**
