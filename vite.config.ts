@@ -36,32 +36,72 @@ export default defineConfig(({ mode }) => ({
     // Aggressive CSS optimization for render-blocking elimination
     cssCodeSplit: true,
     rollupOptions: {
+      // Optimize tree shaking
+      treeshake: {
+        moduleSideEffects: false,
+        propertyReadSideEffects: false,
+        unknownGlobalSideEffects: false
+      },
       output: {
         // Optimized chunk splitting to eliminate icon request chains
         manualChunks: (id: string) => {
-          // Core React bundle - highest priority
-          if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) {
+          // Core React bundle - highest priority, smallest size
+          if (id.includes('react/') || id.includes('react-dom/') || id.includes('scheduler/')) {
             return 'react-core';
           }
           
-          // Critical UI bundle - icons and basic components
-          if (id.includes('lucide-react') || id.includes('@radix-ui')) {
-            return 'ui-core';
+          // Router - separate for route-based loading
+          if (id.includes('react-router-dom')) {
+            return 'router';
           }
           
-          // Critical path chunks
+          // Critical UI bundle - only essential components
+          if (id.includes('@radix-ui/react-dialog') || id.includes('@radix-ui/react-button')) {
+            return 'ui-critical';
+          }
+          
+          // Non-critical UI components
+          if (id.includes('@radix-ui') || id.includes('cmdk')) {
+            return 'ui-extended';
+          }
+          
+          // Icons - defer unless critical
+          if (id.includes('lucide-react')) {
+            return 'icons';
+          }
+          
+          // Critical pages only
           if (id.includes('src/pages/Index')) return 'page-index';
-          if (id.includes('src/components/layout')) return 'layout-core';
           
-          // Supabase and query - often needed together
-          if (id.includes('@supabase') || id.includes('@tanstack/react-query')) {
-            return 'data-core';
+          // Layout components
+          if (id.includes('src/components/layout')) return 'layout';
+          
+          // Supabase - defer until needed
+          if (id.includes('@supabase')) {
+            return 'supabase';
           }
           
-          // Heavy features - defer loading
-          if (id.includes('src/components/med-mng')) return 'med-mng';
+          // React Query - defer until needed  
+          if (id.includes('@tanstack/react-query')) {
+            return 'query';
+          }
+          
+          // Heavy features - completely defer
+          if (id.includes('src/components/med-mng')) return 'features-medical';
+          if (id.includes('src/components/onboarding')) return 'features-onboarding';
+          if (id.includes('src/components/admin')) return 'features-admin';
+          if (id.includes('src/components/audit')) return 'features-audit';
+          if (id.includes('src/components/edn')) return 'features-edn';
+          if (id.includes('src/components/ecos')) return 'features-ecos';
+          
+          // Animation libraries - defer
           if (id.includes('framer-motion')) return 'animations';
-          if (id.includes('src/components/onboarding')) return 'onboarding';
+          
+          // Form libraries - defer
+          if (id.includes('react-hook-form') || id.includes('@hookform')) return 'forms';
+          
+          // Chart libraries - defer
+          if (id.includes('recharts')) return 'charts';
           
           // Other vendor libraries
           if (id.includes('node_modules')) return 'vendor-misc';
@@ -85,8 +125,8 @@ export default defineConfig(({ mode }) => ({
     // Enable tree shaking optimization  
     minify: true,
     // Optimize bundle size and eliminate render-blocking
-    chunkSizeWarningLimit: 500, // Smaller chunks for better loading
-    assetsInlineLimit: 2048, // Inline smaller assets to reduce requests
+    chunkSizeWarningLimit: 300, // Even smaller chunks for better loading
+    assetsInlineLimit: 1024, // Inline only very small assets
     reportCompressedSize: false // Faster builds
   }
 }));
