@@ -12,17 +12,36 @@ export const useWindowSize = (): WindowSize => {
   });
 
   useEffect(() => {
+    let timeoutId: NodeJS.Timeout;
+    
     function handleResize() {
+      // Debounce resize events to prevent excessive reflows
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        // Use requestAnimationFrame to batch layout reads
+        requestAnimationFrame(() => {
+          setWindowSize({
+            width: window.innerWidth,
+            height: window.innerHeight,
+          });
+        });
+      }, 16); // ~60fps throttling
+    }
+
+    // Set initial size with RAF to avoid initial reflow
+    requestAnimationFrame(() => {
       setWindowSize({
         width: window.innerWidth,
         height: window.innerHeight,
       });
-    }
+    });
 
-    window.addEventListener('resize', handleResize);
-    handleResize(); // Set initial size
+    window.addEventListener('resize', handleResize, { passive: true });
 
-    return () => window.removeEventListener('resize', handleResize);
+    return () => {
+      clearTimeout(timeoutId);
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
 
   return windowSize;
