@@ -12,10 +12,24 @@
     <link rel="manifest" href="/manifest.webmanifest">
     <meta name="theme-color" content="#4B5563" />
 
-    <!-- Google Fonts -->
+    <!-- Google Fonts - Optimized for performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Preload critical font CSS to start loading immediately -->
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <!-- Fallback for browsers that don't support preload -->
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap"></noscript>
+    
+    <!-- Inline script to handle font loading optimization -->
+    <script>
+      // Ensure font stylesheet loads even if preload fails
+      if (!window.FontFace) {
+        var link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap';
+        document.head.appendChild(link);
+      }
+    </script>
 
     <meta property="og:title" content="MED MNG par EmotionsCare - Apprentissage Médical Immersif" />
     <meta property="og:description" content="Et si la médecine devenait une expérience sensorielle ? Découvrez les items EDN et situations ECOS dans un univers immersif unique." />
@@ -27,6 +41,15 @@
     <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
     
     <style>
+      /* Critical CSS - Font fallbacks to prevent layout shift */
+      :root {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+      }
+      
+      .font-mono {
+        font-family: 'JetBrains Mono', 'Consolas', 'Monaco', 'Courier New', monospace;
+      }
+      
       /* Navigation mobile premium optimisée */
       @media (max-width: 768px) {
         body {
