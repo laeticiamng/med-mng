@@ -6,9 +6,10 @@ interface WindowSize {
 }
 
 export const useWindowSize = (): WindowSize => {
+  // Initialize with defaults to prevent initial forced reflow
   const [windowSize, setWindowSize] = useState<WindowSize>({
-    width: typeof window !== 'undefined' ? window.innerWidth : 375, // Default mobile width
-    height: typeof window !== 'undefined' ? window.innerHeight : 667, // Default mobile height
+    width: 375, // Default mobile width - will be updated in effect
+    height: 667, // Default mobile height - will be updated in effect
   });
 
   useEffect(() => {

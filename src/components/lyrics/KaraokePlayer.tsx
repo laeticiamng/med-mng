@@ -56,16 +56,19 @@ export const KaraokePlayer: React.FC<KaraokePlayerProps> = ({
         const activeLine = container.querySelector(`[data-line-index="${currentLineIndex}"]`) as HTMLElement;
         
         if (activeLine) {
-          // Batch all layout property reads together
-          const containerHeight = container.clientHeight;
-          const lineTop = activeLine.offsetTop;
-          const lineHeight = activeLine.clientHeight;
-          
-          // Centrer la ligne active dans le conteneur
-          const scrollTop = lineTop - (containerHeight / 2) + (lineHeight / 2);
-          container.scrollTo({
-            top: Math.max(0, scrollTop),
-            behavior: 'smooth'
+          // Use requestAnimationFrame to prevent forced reflow
+          requestAnimationFrame(() => {
+            // Batch all layout property reads together
+            const containerHeight = container.clientHeight;
+            const lineTop = activeLine.offsetTop;
+            const lineHeight = activeLine.clientHeight;
+            
+            // Centrer la ligne active dans le conteneur
+            const scrollTop = lineTop - (containerHeight / 2) + (lineHeight / 2);
+            container.scrollTo({
+              top: Math.max(0, scrollTop),
+              behavior: 'smooth'
+            });
           });
         }
       });
