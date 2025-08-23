@@ -52,6 +52,7 @@ export const OnboardingModal: React.FC = () => {
               size="sm"
               onClick={skipOnboarding}
               className="text-muted-foreground hover:text-foreground"
+              aria-label="Fermer le guide d'introduction"
             >
               <X className="h-4 w-4" />
             </Button>
