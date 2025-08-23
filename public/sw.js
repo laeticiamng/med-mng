@@ -1,9 +1,21 @@
-// Service Worker for Critical Resource Caching
-const CACHE_NAME = 'med-mng-v1';
+// Service Worker for Efficient Long-Term Caching
+const CACHE_VERSION = 'v2';
+const STATIC_CACHE = `static-${CACHE_VERSION}`;
+const API_CACHE = `api-${CACHE_VERSION}`;
 
-// Install event - cache critical resources
+// Cache TTL in milliseconds
+const CACHE_TTL = {
+  STATIC: 365 * 24 * 60 * 60 * 1000, // 1 year for static assets
+  API: 5 * 60 * 1000 // 5 minutes for API calls
+};
+
+// Install event - setup caches
 self.addEventListener('install', (event) => {
-  self.skipWaiting();
+  event.waitUntil(
+    caches.open(STATIC_CACHE).then(() => {
+      self.skipWaiting();
+    })
+  );
 });
 
 // Activate event - clean old caches
@@ -12,53 +24,107 @@ self.addEventListener('activate', (event) => {
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
-          if (cacheName !== CACHE_NAME) {
+          if (!cacheName.endsWith(CACHE_VERSION)) {
             return caches.delete(cacheName);
           }
         })
       );
+    }).then(() => {
+      self.clients.claim();
     })
   );
-  self.clients.claim();
 });
 
-// Fetch event - serve from cache first for critical resources
+// Fetch event with TTL-based caching
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
   
-  // Only handle GET requests from same origin
-  if (event.request.method !== 'GET' || url.origin !== self.location.origin) {
+  // Only handle GET requests
+  if (event.request.method !== 'GET') {
     return;
   }
-  
-  // Network first for API calls, cache first for assets
-  if (url.pathname.startsWith('/api/')) {
-    // Network first for API calls
-    event.respondWith(
-      fetch(event.request)
-        .catch(() => caches.match(event.request))
-    );
+
+  // Determine cache strategy
+  if (isStaticAsset(url)) {
+    event.respondWith(handleStaticAsset(event.request));
+  } else if (url.pathname.startsWith('/api/')) {
+    event.respondWith(handleApiRequest(event.request));
   } else {
-    // Cache first for static assets
-    event.respondWith(
-      caches.match(event.request)
-        .then((response) => {
-          if (response) {
-            return response;
-          }
-          
-          return fetch(event.request).then((response) => {
-            // Cache valid responses
-            if (response.status === 200) {
-              const responseToCache = response.clone();
-              caches.open(CACHE_NAME)
-                .then((cache) => {
-                  cache.put(event.request, responseToCache);
-                });
-            }
-            return response;
-          });
-        })
-    );
+    event.respondWith(handlePageRequest(event.request));
   }
 });
+
+// Handle static assets with long-term caching
+async function handleStaticAsset(request) {
+  const cache = await caches.open(STATIC_CACHE);
+  const cached = await cache.match(request);
+  
+  if (cached && !isExpired(cached, CACHE_TTL.STATIC)) {
+    return cached;
+  }
+  
+  try {
+    const response = await fetch(request);
+    if (response.ok) {
+      const timestampedResponse = addTimestamp(response.clone());
+      cache.put(request, timestampedResponse);
+    }
+    return response;
+  } catch (error) {
+    return cached || new Response('Offline', { status: 503 });
+  }
+}
+
+// Handle API requests with shorter caching
+async function handleApiRequest(request) {
+  const cache = await caches.open(API_CACHE);
+  
+  try {
+    const response = await fetch(request);
+    if (response.ok) {
+      const timestampedResponse = addTimestamp(response.clone());
+      cache.put(request, timestampedResponse);
+    }
+    return response;
+  } catch (error) {
+    const cached = await cache.match(request);
+    if (cached && !isExpired(cached, CACHE_TTL.API)) {
+      return cached;
+    }
+    throw error;
+  }
+}
+
+// Handle page requests (network first)
+async function handlePageRequest(request) {
+  try {
+    const response = await fetch(request);
+    return response;
+  } catch (error) {
+    const cache = await caches.open(STATIC_CACHE);
+    const cached = await cache.match(request);
+    return cached || new Response('Offline', { status: 503 });
+  }
+}
+
+// Utility functions
+function isStaticAsset(url) {
+  return /\.(js|css|woff2?|ttf|eot|ico|png|jpg|jpeg|gif|svg|webp)$/i.test(url.pathname) ||
+         url.pathname.startsWith('/assets/');
+}
+
+function addTimestamp(response) {
+  const headers = new Headers(response.headers);
+  headers.set('sw-cache-timestamp', Date.now().toString());
+  return new Response(response.body, {
+    status: response.status,
+    statusText: response.statusText,
+    headers: headers
+  });
+}
+
+function isExpired(response, ttl) {
+  const timestamp = response.headers.get('sw-cache-timestamp');
+  if (!timestamp) return true;
+  return Date.now() - parseInt(timestamp) > ttl;
+}
