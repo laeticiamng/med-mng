@@ -75,6 +75,12 @@ import { UXToolbar } from '@/components/ux/UXToolbar';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { SkipToMain } from '@/components/ux/AccessibilityEnhancements';
 
+// Component to handle keyboard shortcuts inside Router context
+const AppKeyboardShortcuts = ({ children }: { children: React.ReactNode }) => {
+  useKeyboardShortcuts(); // Now called inside Router context
+  return <>{children}</>;
+};
+
 // Composant de redirection pour /edn-complete/:slug vers /edn/:slug
 const EdnCompleteRedirect = () => {
   const { slug } = useParams();
@@ -115,9 +121,6 @@ const queryClient = new QueryClient({
 });
 
 const AppWithUX = () => {
-  // Enable global keyboard shortcuts
-  useKeyboardShortcuts();
-  
   return (
     <QueryClientProvider client={queryClient}>
       <UndoRedoProvider>
@@ -129,11 +132,12 @@ const AppWithUX = () => {
                 <ToastProvider>
                   <TooltipProvider>
                     <HelmetProvider>
-                      <BrowserRouter>
-                        <NavigatorBridge />
-                        <UXToastProvider>
-                        <SkipToMain />
-                        <SkipLinks />
+                        <BrowserRouter>
+                          <AppKeyboardShortcuts>
+                            <NavigatorBridge />
+                            <UXToastProvider>
+                            <SkipToMain />
+                            <SkipLinks />
                         <div id="app-root" className="min-h-screen flex flex-col" style={{ display: 'block' }}>
                           {/* Navigation globale */}
                           <GlobalNavigation />
@@ -229,9 +233,10 @@ const AppWithUX = () => {
                           {/* UX Toolbar - Floating bottom-right */}
                           <UXToolbar />
                         </div>
-                        <Sonner richColors closeButton />
-                        </UXToastProvider>
-                      </BrowserRouter>
+                            <Sonner richColors closeButton />
+                            </UXToastProvider>
+                          </AppKeyboardShortcuts>
+                        </BrowserRouter>
                     </HelmetProvider>
                   </TooltipProvider>
                 </ToastProvider>
