@@ -1,5 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import { RateLimitStore, RateLimitResult } from '../rateLimitService';
+import { logService } from '../logService';
 
 /**
  * Supabase implementation of RateLimitStore
@@ -22,13 +23,23 @@ export class SupabaseRateLimitStore implements RateLimitStore {
       });
 
       if (error) {
-        console.error('Supabase rate limit error:', error);
+        logService.error('Supabase rate limit check failed', error instanceof Error ? error : undefined, {
+          identifier,
+          windowDurationSeconds,
+          maxRequests,
+          operation: 'checkAndIncrement'
+        });
         throw new Error(`Rate limit check failed: ${error.message}`);
       }
 
       return this.mapSupabaseResult(data);
     } catch (error) {
-      console.error('Rate limit check error:', error);
+      logService.error('Rate limit check operation failed', error instanceof Error ? error : undefined, {
+        identifier,
+        windowDurationSeconds,
+        maxRequests,
+        operation: 'checkAndIncrement'
+      });
       throw error;
     }
   }
@@ -49,13 +60,23 @@ export class SupabaseRateLimitStore implements RateLimitStore {
       });
 
       if (error) {
-        console.error('Supabase rate limit status error:', error);
+        logService.error('Supabase rate limit status check failed', error instanceof Error ? error : undefined, {
+          identifier,
+          windowDurationSeconds,
+          maxRequests,
+          operation: 'getStatus'
+        });
         throw new Error(`Rate limit status failed: ${error.message}`);
       }
 
       return this.mapSupabaseResult(data);
     } catch (error) {
-      console.error('Rate limit status error:', error);
+      logService.error('Rate limit status operation failed', error instanceof Error ? error : undefined, {
+        identifier,
+        windowDurationSeconds,
+        maxRequests,
+        operation: 'getStatus'
+      });
       throw error;
     }
   }
@@ -68,13 +89,17 @@ export class SupabaseRateLimitStore implements RateLimitStore {
       const { data, error } = await supabase.rpc('cleanup_expired_rate_limit_counters');
 
       if (error) {
-        console.error('Supabase cleanup error:', error);
+        logService.error('Supabase rate limit cleanup failed', error instanceof Error ? error : undefined, {
+          operation: 'cleanup'
+        });
         throw new Error(`Cleanup failed: ${error.message}`);
       }
 
       return data || 0;
     } catch (error) {
-      console.error('Cleanup error:', error);
+      logService.error('Rate limit cleanup operation failed', error instanceof Error ? error : undefined, {
+        operation: 'cleanup'
+      });
       return 0; // Return 0 if cleanup fails
     }
   }
@@ -90,11 +115,17 @@ export class SupabaseRateLimitStore implements RateLimitStore {
         .eq('identifier', identifier);
 
       if (error) {
-        console.error('Supabase reset error:', error);
+        logService.error('Supabase rate limit reset failed', error instanceof Error ? error : undefined, {
+          identifier,
+          operation: 'reset'
+        });
         throw new Error(`Reset failed: ${error.message}`);
       }
     } catch (error) {
-      console.error('Reset error:', error);
+      logService.error('Rate limit reset operation failed', error instanceof Error ? error : undefined, {
+        identifier,
+        operation: 'reset'
+      });
       throw error;
     }
   }

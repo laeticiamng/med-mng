@@ -10,6 +10,7 @@ export interface RateLimitResult {
 }
 
 import { Request, Response, NextFunction } from 'express';
+import { logService } from './logService';
 
 export interface RateLimitConfig {
   windowMs: number; // Window duration in milliseconds
@@ -170,7 +171,13 @@ export class RateLimitService {
 
         next();
       } catch (error) {
-        console.error('Rate limiting error:', error);
+        logService.error('Rate limiting middleware failed', error instanceof Error ? error : undefined, {
+          identifier: this.getDefaultIdentifier(req),
+          windowMs: this.config.windowMs,
+          maxRequests: this.config.maxRequests,
+          endpoint: req.url,
+          method: req.method
+        });
         // Allow request to continue if rate limiting fails
         next();
       }
