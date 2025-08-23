@@ -11,10 +11,13 @@ import { MiniPlayer } from '@/components/player/MiniPlayer';
 import { useMusicLibrary } from '@/hooks/useMusicLibrary';
 import { usePlayer } from '@/hooks/usePlayer';
 import { useNavigate } from 'react-router-dom';
+import { useResponsiveGrid, useResponsiveSpacing } from '@/hooks/useBreakpoints';
 
 export default function LibraryPage() {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
+  const gridConfig = useResponsiveGrid();
+  const spacing = useResponsiveSpacing();
   const { 
     tracks, 
     loading, 
@@ -71,11 +74,11 @@ export default function LibraryPage() {
           <div className="absolute inset-0 bg-gradient-to-r from-pink-500/20 via-purple-500/20 to-blue-500/20 animate-pulse"></div>
           <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,rgba(120,119,198,0.3),transparent_50%)]"></div>
           
-          <div className="relative z-10 container mx-auto px-4 py-8">
+          <div className={`relative z-10 container mx-auto ${spacing.container}`}>
             <div className="space-y-6">
               <Skeleton className="h-10 w-64 bg-white/10" />
               <Skeleton className="h-12 w-full bg-white/10" />
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <div className={`grid ${gridConfig.cards} ${gridConfig.gap}`}>
                 {Array.from({ length: 8 }).map((_, i) => (
                   <div key={i} className="space-y-3">
                     <Skeleton className="aspect-square rounded-lg bg-white/10" />
@@ -100,8 +103,8 @@ export default function LibraryPage() {
         <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,rgba(120,119,198,0.3),transparent_50%)]"></div>
         
         <div className="relative z-10">
-          {/* Header */}
-          <div className="container mx-auto px-4 py-6">
+          {/* Header - Optimisé pour tablettes */}
+          <div className={`container mx-auto ${spacing.container}`}>
             <div className="flex items-center justify-between mb-8">
               <button
                 onClick={() => navigate('/')}
@@ -156,7 +159,7 @@ export default function LibraryPage() {
                 )}
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              <div className={`grid ${gridConfig.cards} ${gridConfig.gap}`}>
                 {filteredTracks.map((track, index) => {
                   const isCurrentTrack = currentTrack?.id === track.id;
                   const isCurrentlyPlaying = isCurrentTrack && isPlaying;

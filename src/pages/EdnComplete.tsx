@@ -12,6 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useEdnItemsPaginated, useEdnStats, EdnItemLight } from '@/hooks/useEdnItemsPaginated';
 import { EdnItemGrid } from '@/components/edn/EdnItemGrid';
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useBreakpoints, useResponsiveGrid, useResponsiveSpacing } from "@/hooks/useBreakpoints";
 import { GlobalLyricsManager } from '@/components/edn/GlobalLyricsManager';
 
 // Composants lazy pour les onglets non-critiques
@@ -45,7 +46,18 @@ export default function EdnComplete() {
   const [showLyricsManager, setShowLyricsManager] = useState(false);
 
   const isMobile = useIsMobile();
-  const itemsPerPage = isMobile ? 8 : 20;
+  const { isTablet, isTabletPortrait } = useBreakpoints();
+  const gridConfig = useResponsiveGrid();
+  const spacing = useResponsiveSpacing();
+  
+  // Ajustement intelligent du nombre d'items par page selon l'écran
+  const getItemsPerPage = () => {
+    if (isMobile) return 8;
+    if (isTabletPortrait) return 12;
+    if (isTablet) return 15;
+    return 20;
+  };
+  const itemsPerPage = getItemsPerPage();
 
   // Hooks optimisés
   const { items, totalCount, loading, totalPages, refetch } = useEdnItemsPaginated(currentPage, itemsPerPage);
@@ -147,10 +159,10 @@ export default function EdnComplete() {
         </div>
       </div>
 
-      <div className="container mx-auto px-6 py-8 relative">
-        {/* Statistiques style Suno */}
+      <div className={`container mx-auto relative ${spacing.container}`}>
+        {/* Statistiques style Suno - Optimisées pour tablettes */}
         {!statsLoading && (
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
+          <div className={`grid ${gridConfig.stats} ${gridConfig.gap} mb-8`}>
             <Card className="bg-white/10 backdrop-blur-sm border border-blue-400/30 hover:border-blue-400/50 transition-all duration-300 hover:scale-105 shadow-xl shadow-blue-500/20 group">
               <CardContent className="p-4 text-center relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -203,8 +215,8 @@ export default function EdnComplete() {
           </div>
         )}
 
-        {/* Contrôles de filtrage style Suno */}
-        <div className="flex flex-col md:flex-row gap-4 mb-8 bg-black/20 backdrop-blur-xl rounded-2xl p-6 border border-white/10 shadow-2xl">
+        {/* Contrôles de filtrage style Suno - Layout amélioré pour tablette */}
+        <div className={`flex ${gridConfig.navigation} ${gridConfig.gap} mb-8 bg-black/20 backdrop-blur-xl rounded-2xl ${spacing.element} border border-white/10 shadow-2xl`}>
           <div className="relative flex-1">
             <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
             <Input

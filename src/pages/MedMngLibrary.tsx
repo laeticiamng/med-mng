@@ -13,11 +13,14 @@ import { TranslatedText } from '@/components/TranslatedText';
 import { useTranslation } from '@/hooks/useTranslation';
 import { SkeletonLibraryGrid } from '@/components/common/SkeletonLibraryGrid';
 import { AdvancedSearch } from '@/components/med-mng/AdvancedSearch';
+import { useResponsiveGrid, useResponsiveSpacing } from '@/hooks/useBreakpoints';
 
 const MedMngLibraryComponent = () => {
   const medMngApi = useMedMngApi();
   const navigate = useNavigate();
   const [filteredSongs, setFilteredSongs] = useState<any[]>([]);
+  const gridConfig = useResponsiveGrid();
+  const spacing = useResponsiveSpacing();
   const [currentPage, setCurrentPage] = useState(1);
   const [showSlowLoading, setShowSlowLoading] = useState(false);
 
@@ -75,7 +78,7 @@ const MedMngLibraryComponent = () => {
   if (isLoading) {
     return (
       <MedMngLayout className="bg-gradient-to-br from-blue-50 to-indigo-100">
-        <div className="container mx-auto px-4 py-8">
+        <div className={`container mx-auto ${spacing.container}`}>
           <div className="mb-8">
             <h1 className="text-2xl sm:text-4xl font-bold text-gray-900 mb-2">
               Ma bibliothèque musicale
@@ -129,7 +132,7 @@ const MedMngLibraryComponent = () => {
 
   return (
     <MedMngLayout className="bg-gradient-to-br from-blue-50 to-indigo-100">
-      <div className="container mx-auto px-4 py-8">
+      <div className={`container mx-auto ${spacing.container}`}>
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
           <div>
@@ -164,8 +167,8 @@ const MedMngLibraryComponent = () => {
           />
         </div>
 
-        {/* Actions */}
-        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-8">
+        {/* Actions - Layout adaptatif pour tablettes */}
+        <div className={`flex ${gridConfig.navigation} ${gridConfig.gap} mb-8`}>
           <Button 
             onClick={() => navigate('/med-mng/create')}
             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 min-h-[48px] w-full sm:w-auto"
@@ -205,7 +208,7 @@ const MedMngLibraryComponent = () => {
             )}
           </div>
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6 animate-fade-in">
+          <div className={`grid ${gridConfig.cards} ${gridConfig.gap} animate-fade-in`}>
             {filteredSongs.map((song) => (
               <SongCard 
                 key={song.id} 
