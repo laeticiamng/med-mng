@@ -116,6 +116,7 @@ export { getAllowedOrigins };
 
 // Middleware de sécurité personnalisé
 import { Request, Response, NextFunction } from 'express';
+import { analyzeSuspiciousRequest, quickSuspiciousCheck, generateSecurityReport } from '../utils/suspiciousRequest';
 
 // Extend Request interface for custom properties
 interface ExtendedRequest extends Request {
@@ -127,25 +128,49 @@ export const securityHeadersMiddleware = (req: ExtendedRequest, res: Response, n
   res.setHeader('X-API-Version', '1.0.0');
   res.setHeader('X-Request-ID', req.requestId || 'unknown');
   
-  // Logging des tentatives d'accès suspicieuses
-  const suspiciousPatterns = [
-    /\.\./g, // Path traversal
-    /<script/gi, // XSS attempts
-    /union.*select/gi, // SQL injection
-    /javascript:/gi, // JavaScript protocol
-  ];
+  // Analyse complète des patterns suspects
+  const securityAnalysis = analyzeSuspiciousRequest(req);
   
-  const url = req.url.toLowerCase();
-  const suspicious = suspiciousPatterns.some(pattern => pattern.test(url));
-  
-  if (suspicious) {
-    logService.warn('Suspicious request detected', {
+  if (securityAnalysis.isSuspicious) {
+    const logData = {
       ip: req.ip,
       userAgent: req.get('User-Agent'),
       endpoint: req.url,
       method: req.method,
-      requestId: req.requestId
-    });
+      requestId: req.requestId,
+      riskScore: securityAnalysis.riskScore,
+      threatCount: securityAnalysis.threats.length,
+      recommendation: securityAnalysis.recommendation,
+      threats: securityAnalysis.threats.map(t => ({
+        type: t.type,
+        severity: t.severity,
+        location: t.location,
+        pattern: t.pattern
+      }))
+    };
+    
+    // Logger selon la sévérité
+    if (securityAnalysis.recommendation === 'block') {
+      logService.error('CRITICAL: Malicious request blocked', undefined, logData);
+      
+      // Bloquer la requête
+      res.status(403).json({
+        error: 'Forbidden',
+        message: 'Request blocked due to security policy violation',
+        requestId: req.requestId
+      });
+      return;
+    } else if (securityAnalysis.recommendation === 'warn') {
+      logService.warn('SECURITY: Suspicious request detected', logData);
+    } else {
+      logService.info('SECURITY: Low-risk suspicious patterns detected', logData);
+    }
+    
+    // En mode développement, ajouter des détails dans les headers
+    if (process.env.NODE_ENV === 'development') {
+      res.setHeader('X-Security-Score', securityAnalysis.riskScore.toString());
+      res.setHeader('X-Security-Threats', securityAnalysis.threats.length.toString());
+    }
   }
   
   next();
