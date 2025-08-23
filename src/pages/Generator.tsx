@@ -240,6 +240,7 @@ const Generator = () => {
               type="button"
               onClick={() => navigate('/')}
               className="flex items-center gap-2 text-white/80 hover:text-white transition-colors"
+              aria-label="Retourner à la page d'accueil"
             >
               <ArrowLeft className="h-5 w-5" />
               Retour
@@ -251,7 +252,7 @@ const Generator = () => {
         <div className="container mx-auto px-4 py-8">
           {/* Titre principal inspiré de Suno */}
           <div className="text-center mb-12">
-            <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
+            <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight" id="main-content">
               Créez la <span className="bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent">musique médicale</span><br />
               de vos rêves
             </h1>
@@ -269,7 +270,19 @@ const Generator = () => {
               { title: "IC-156 Pneumologie", emoji: "🫁", plays: "1.5K", gradient: "from-blue-500 to-cyan-500" },
               { title: "IC-089 Neurologie", emoji: "🧠", plays: "2.1K", gradient: "from-indigo-500 to-purple-500" }
             ].map((item, index) => (
-              <div key={index} className="group cursor-pointer">
+              <div 
+                key={index} 
+                className="group cursor-pointer" 
+                role="button" 
+                tabIndex={0}
+                aria-label={`Exemple de chanson éducative: ${item.title} avec ${item.plays} écoutes`}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    // Logique pour jouer l'exemple
+                  }
+                }}
+              >
                 <div className={`relative aspect-square bg-gradient-to-br ${item.gradient} rounded-lg mb-3 flex items-center justify-center text-4xl hover:scale-105 transition-transform duration-300 shadow-lg`}>
                   {item.emoji}
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 rounded-lg transition-all duration-300 flex items-center justify-center">

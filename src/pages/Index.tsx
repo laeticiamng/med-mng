@@ -24,7 +24,7 @@ const Index = () => {
                 <Sparkles className="w-7 h-7 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-white">MED MNG</h1>
+                <h1 className="text-2xl font-bold text-white">MED MNG - Plateforme d'apprentissage médical avec IA musicale</h1>
                 <Badge className="bg-pink-500/20 text-pink-300 border-pink-400/30 text-xs">Premium</Badge>
               </div>
             </div>
@@ -34,6 +34,7 @@ const Index = () => {
                 variant="ghost" 
                 className="text-white/80 hover:text-white hover:bg-white/10"
                 onClick={() => navigate('/med-mng/pricing')}
+                aria-label="Voir les offres d'abonnement et tarifs"
               >
                 <CreditCard className="w-4 h-4 mr-2" />
                 Tarifs
@@ -41,6 +42,7 @@ const Index = () => {
               <Button 
                 className="bg-white/10 backdrop-blur-sm text-white border border-white/20 hover:bg-white/20"
                 onClick={() => navigate('/med-mng/login')}
+                aria-label="Se connecter à son compte MED-MNG"
               >
                 <LogIn className="w-4 h-4 mr-2" />
                 Connexion
@@ -52,7 +54,7 @@ const Index = () => {
         {/* Hero Section inspiré de Suno */}
         <div className="container mx-auto px-4 py-12">
           <div className="text-center mb-16">
-            <h2 className="lcp-heading text-6xl md:text-8xl font-bold text-white mb-8 leading-tight">
+            <h2 className="lcp-heading text-6xl md:text-8xl font-bold text-white mb-8 leading-tight" id="main-content">
               Apprenez la médecine<br />
               <span className="bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent">
                 comme jamais
@@ -66,17 +68,26 @@ const Index = () => {
             {/* CTA Principal style Suno */}
             <div className="flex flex-col sm:flex-row gap-4 items-center justify-center mb-12">
               <div className="relative flex-1 max-w-md">
+                <label htmlFor="search-topics" className="sr-only">
+                  Rechercher des sujets médicaux ou items EDN
+                </label>
                 <input 
+                  id="search-topics"
                   type="text" 
                   placeholder="Ex: IC-103 Vertige, Cardiologie, Pneumologie..."
                   className="w-full px-6 py-4 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-500 transition-all duration-300"
                   onFocus={(e) => e.target.style.transform = 'scale(1.02)'}
                   onBlur={(e) => e.target.style.transform = 'scale(1)'}
+                  aria-describedby="search-help"
                 />
+                <div id="search-help" className="sr-only">
+                  Entrez un sujet médical, un item EDN ou une spécialité pour générer une chanson éducative
+                </div>
               </div>
               <button 
                 onClick={() => navigate('/generator')}
                 className="px-8 py-4 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-semibold rounded-full hover:from-pink-600 hover:to-purple-700 transition-all duration-300 flex items-center gap-2 shadow-lg hover:shadow-xl hover:scale-105"
+                aria-label="Créer une chanson éducative avec l'intelligence artificielle"
               >
                 🎵 Créer ma musique
               </button>
