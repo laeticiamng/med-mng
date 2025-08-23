@@ -58,15 +58,8 @@ export default defineConfig(({ mode }) => ({
         warn(warning);
       }
     },
-    // Enable tree shaking optimization
-    minify: 'terser',
-    terserOptions: {
-      compress: {
-        drop_console: true,
-        drop_debugger: true,
-        pure_funcs: ['console.log', 'console.info', 'console.debug']
-      }
-    },
+    // Enable tree shaking optimization  
+    minify: true,
     // Optimize bundle size
     chunkSizeWarningLimit: 1000,
     assetsInlineLimit: 4096
