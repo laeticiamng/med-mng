@@ -26,7 +26,7 @@ export const AuditProgress = ({ report }: AuditProgressProps) => {
             <span className="text-sm font-medium">Validation Globale</span>
             <span className="text-sm text-gray-600">{validationRate}%</span>
           </div>
-          <Progress value={validationRate} className="h-2" />
+          <Progress value={validationRate} className="h-2" aria-label={`Taux de conformité: ${validationRate}%`} />
           <p className="text-xs text-gray-500">
             {report.validItems} items sur {report.totalItems} respectent le schéma v2
           </p>

@@ -44,6 +44,7 @@ export const MusicLoadingIndicator = ({ rang, duration, isVisible }: MusicLoadin
             <Progress 
               value={75} 
               className={`h-3 mb-2`}
+              aria-label={`Génération musicale en cours - ${rang === 'AB' ? 'Fusion A+B' : `Rang ${rang}`}`}
             />
             <p className={`text-sm ${textColor} opacity-80`}>
               🎤 Génération avec Suno AI en cours...
