@@ -49,7 +49,14 @@ interface ErrorFallbackProps {
 }
 
 const ErrorFallback: React.FC<ErrorFallbackProps> = ({ error, reset }) => {
-  const navigate = useNavigate();
+  // Safe navigation - check if Router context is available
+  let navigate: any;
+  try {
+    navigate = useNavigate();
+  } catch (e) {
+    // Router not available, use window.location instead
+    navigate = (path: string) => window.location.href = path;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-50 to-orange-50 flex items-center justify-center p-4">
