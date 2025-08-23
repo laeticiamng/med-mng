@@ -12,6 +12,9 @@ import {
 const app = express();
 const port = process.env.PORT ? Number(process.env.PORT) : 3000;
 
+// Configuration du proxy de confiance pour les load balancers
+app.set('trust proxy', 1);
+
 // Middleware de sécurité - à appliquer en premier
 app.use(helmet({
   contentSecurityPolicy: {
