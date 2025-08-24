@@ -47,7 +47,7 @@ const MedMngProfile = lazy(() => import("./pages/MedMngProfile").then(module => 
 const PlaylistManager = lazy(() => import("./components/playlists/PlaylistManager").then(module => ({ default: module.PlaylistManager })));
 const PlaylistDetail = lazy(() => import("./components/playlists/PlaylistDetail").then(module => ({ default: module.PlaylistDetail })));
 const MusicAnalytics = lazy(() => import("./components/analytics/MusicAnalytics").then(module => ({ default: module.MusicAnalytics })));
-const MedChat = lazy(() => import("./pages/MedChat").then(module => ({ default: module.MedChat })));
+const MedChat = lazy(() => import("./pages/MedChat"));
 const SubscriptionTest = lazy(() => import("./pages/SubscriptionTest").then(module => ({ default: module.SubscriptionTest })));
 const AdminImport = lazy(() => import("./pages/AdminImport"));
 const AdminAudit = lazy(() => import("./pages/AdminAudit"));
