@@ -44,6 +44,7 @@ const MedMngLogin = lazy(() => import("./pages/MedMngLogin").then(module => ({ d
 const MedMngSignup = lazy(() => import("./pages/MedMngSignup").then(module => ({ default: module.MedMngSignup })));
 const MedMngPricing = lazy(() => import("./pages/MedMngPricing").then(module => ({ default: module.MedMngPricing })));
 const MedMngSubscribe = lazy(() => import("./pages/MedMngSubscribe").then(module => ({ default: module.MedMngSubscribe })));
+const MedMngDashboard = lazy(() => import("./pages/med-mng/Dashboard"));
 const MedMngCreate = lazy(() => import("./pages/med-mng/Create"));
 const MedMngLibrary = lazy(() => import("./pages/med-mng/Library"));
 const MedMngPlayer = lazy(() => import("./pages/med-mng/Player"));

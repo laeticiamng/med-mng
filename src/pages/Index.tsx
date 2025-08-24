@@ -6,9 +6,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ConsistentBackground } from "@/components/layout/ConsistentBackground";
+import { InteractiveDemo } from "@/components/generator/InteractiveDemo";
+import { useToast } from "@/hooks/use-toast";
 
 const Index = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   return (
     <ConsistentBackground variant="primary">
@@ -108,41 +111,14 @@ const Index = () => {
         </div>
 
         {/* Galerie de démonstrations optimisée mobile */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6 mb-12 sm:mb-16 px-2">
-          {[
-            { title: "IC-103 Vertige", subtitle: "Neurologie", emoji: "🧠", plays: "2.3K", gradient: "from-purple-600 to-pink-600" },
-            { title: "IC-230 Cardiologie", subtitle: "Cardiovasculaire", emoji: "❤️", plays: "1.8K", gradient: "from-red-500 to-pink-500" },
-            { title: "IC-156 Pneumologie", subtitle: "Respiratoire", emoji: "🫁", plays: "1.5K", gradient: "from-blue-500 to-cyan-500" },
-            { title: "IC-089 Psychiatrie", subtitle: "Santé mentale", emoji: "🧠", plays: "2.1K", gradient: "from-indigo-500 to-purple-500" }
-          ].map((item, index) => (
-            <div key={index} className="group cursor-pointer will-change-transform touch-target" onClick={() => navigate('/generator')}>
-              <div className={`relative aspect-square bg-gradient-to-br ${item.gradient} rounded-lg sm:rounded-xl mb-3 sm:mb-4 overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 gpu-accelerated`}>
-                <div className="absolute inset-0 flex items-center justify-center text-3xl sm:text-4xl lg:text-5xl">
-                  {item.emoji}
-                </div>
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-300 flex items-center justify-center">
-                  <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white rounded-full p-2 sm:p-3 shadow-lg">
-                    <Play className="h-4 w-4 sm:h-6 sm:w-6 text-purple-600 ml-0.5 sm:ml-1" />
-                  </div>
-                </div>
-                <div className="absolute bottom-2 sm:bottom-4 left-2 sm:left-4 right-2 sm:right-4">
-                  <div className="flex items-center justify-between text-white">
-                    <div className="flex items-center gap-1 text-xs">
-                      <Heart className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
-                      <span className="text-xs">{item.plays}</span>
-                    </div>
-                    <div className="flex items-center gap-1 text-xs">
-                      <Clock className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
-                      <span className="text-xs">4:00</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <h3 className="text-white font-medium text-xs sm:text-sm mb-1 truncate">{item.title}</h3>
-              <p className="text-gray-400 text-xs truncate">{item.subtitle}</p>
-            </div>
-          ))}
-        </div>
+        <InteractiveDemo onTrackSelect={(trackId) => {
+          toast({
+            title: "🎵 Démonstration",
+            description: "Découvrez cette création musicale générée par MED MNG IA",
+          });
+          // Optionnel: Navigation vers le générateur avec le track pré-sélectionné
+          navigate('/generator');
+        }} />
 
         {/* Sections principales optimisées mobile */}
         <div className="grid sm:grid-cols-2 gap-4 sm:gap-8 max-w-6xl mx-auto mb-12 sm:mb-16 px-2">

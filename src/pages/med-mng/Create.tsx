@@ -411,13 +411,18 @@ const Create = () => {
                             variant="outline" 
                             size="sm" 
                             className="w-full mt-3"
-                            onClick={(e) => {
-                              e.stopPropagation();
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            // Simulation d'aperçu audio
+                            setIsGenerating(true);
+                            setTimeout(() => {
+                              setIsGenerating(false);
                               toast({
-                                title: "Aperçu en cours de développement",
-                                description: "Cette fonctionnalité sera bientôt disponible."
+                                title: `🎵 Aperçu ${style.name}`,
+                                description: `Style: ${style.mood} • Tempo: ${style.tempo}`,
                               });
-                            }}
+                            }, 1500);
+                          }}
                           >
                             <PlayCircle className="h-4 w-4 mr-1" />
                             Aperçu

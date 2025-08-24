@@ -62,9 +62,9 @@ export const MobileBottomNav: React.FC = () => {
   const navItems = [
     {
       icon: <Home className="h-5 w-5" />,
-      label: "Accueil",
-      path: "/",
-      onClick: () => navigate("/")
+      label: "Dashboard",
+      path: "/med-mng/dashboard",
+      onClick: () => navigate("/med-mng/dashboard")
     },
     {
       icon: <Library className="h-5 w-5" />,

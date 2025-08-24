@@ -33,11 +33,11 @@ export const MedMngNavigation: React.FC = () => {
           <div className="hidden md:flex items-center gap-2">
             <Button
               variant="ghost"
-              onClick={() => navigate('/')}
+              onClick={() => navigate('/med-mng/dashboard')}
               className="flex items-center gap-2 px-3 py-2 rounded-lg transition-all hover:bg-gray-100"
             >
               <Home className="h-4 w-4" />
-              <TranslatedText text="Accueil" />
+              <TranslatedText text="Dashboard" />
             </Button>
 
             <Button
@@ -91,7 +91,7 @@ export const MedMngNavigation: React.FC = () => {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => navigate('/')}
+              onClick={() => navigate('/med-mng/dashboard')}
               className="p-2"
             >
               <Home className="h-4 w-4" />
