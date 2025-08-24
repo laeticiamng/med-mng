@@ -34,6 +34,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { EnhancedLibraryCard } from '@/components/immersive/EnhancedLibraryCard';
 import { MusicWaveform } from '@/components/immersive/MusicWaveform';
 import { ResponsiveLayout } from '@/components/immersive/ResponsiveLayout';
+import { LibraryAnalytics } from '@/components/immersive/LibraryAnalytics';
 import { useToast } from '@/hooks/use-toast';
 import { useAPI, useAIRecommendations } from '@/hooks/useAPI';
 import { useNavigate } from 'react-router-dom';
@@ -333,6 +334,11 @@ const Library = () => {
         </div>
 
         <div className="container mx-auto px-4 py-8">
+          {/* Analytics intégrées */}
+          <div className="mb-8">
+            <LibraryAnalytics />
+          </div>
+          
           {/* Contrôles */}
           <div className="flex flex-col md:flex-row gap-4 mb-8">
             {/* Recherche */}

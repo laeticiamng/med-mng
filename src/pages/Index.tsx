@@ -11,6 +11,8 @@ import { FloatingElements } from "@/components/immersive/FloatingElements";
 import { ParallaxBackground } from "@/components/immersive/ParallaxBackground";
 import { InteractiveStats } from "@/components/immersive/InteractiveStats";
 import { AdvancedMusicPlayer } from "@/components/immersive/AdvancedMusicPlayer";
+import { LiveStatsWidget } from "@/components/immersive/LiveStatsWidget";
+import { SearchAndRecommendations } from "@/components/immersive/SearchAndRecommendations";
 import { useToast } from "@/hooks/use-toast";
 
 const Index = () => {
@@ -75,31 +77,8 @@ const Index = () => {
             Maîtrisez les 367 items EDN grâce à des chansons éducatives personnalisées et mémorisables.
           </p>
           
-          {/* CTA Principal optimisé mobile */}
-          <div className="flex flex-col gap-4 items-center justify-center mb-8 sm:mb-12 px-2">
-            <div className="relative w-full max-w-md">
-              <label htmlFor="search-topics" className="sr-only">
-                Rechercher des sujets médicaux ou items EDN
-              </label>
-              <input 
-                id="search-topics"
-                type="text" 
-                placeholder="Ex: IC-103 Vertige, Cardiologie..."
-                className="w-full px-4 sm:px-6 py-3 sm:py-4 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-500 transition-all duration-300 text-sm sm:text-base"
-                aria-describedby="search-help"
-              />
-              <div id="search-help" className="sr-only">
-                Entrez un sujet médical, un item EDN ou une spécialité pour générer une chanson éducative
-              </div>
-            </div>
-            <button 
-              onClick={() => navigate('/generator')}
-              className="w-full max-w-md px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-semibold rounded-full hover:from-pink-600 hover:to-purple-700 transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 text-sm sm:text-base touch-target"
-              aria-label="Créer une chanson éducative avec l'intelligence artificielle"
-            >
-              🎵 Créer ma musique
-            </button>
-          </div>
+          {/* Interface de recherche et recommandations immersive */}
+          <SearchAndRecommendations />
           
           <div className="flex flex-wrap justify-center gap-3 sm:gap-6 px-4">
             <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 sm:px-4 py-2 rounded-full border border-white/20">
@@ -150,6 +129,9 @@ const Index = () => {
           </div>
         </div>
 
+        {/* Stats en temps réel */}
+        <LiveStatsWidget />
+
         {/* Stats interactives */}
         <InteractiveStats />
 
@@ -166,6 +148,62 @@ const Index = () => {
           
           <div className="flex justify-center">
             <AdvancedMusicPlayer />
+          </div>
+        </div>
+
+        {/* Section des témoignages et preuves sociales */}
+        <div className="mb-16 sm:mb-20">
+          <div className="text-center mb-12">
+            <h3 className="text-2xl sm:text-3xl font-bold text-white mb-4">
+              Ils transforment leur apprentissage avec MED MNG
+            </h3>
+            <p className="text-gray-300 max-w-2xl mx-auto">
+              Découvrez les témoignages d'étudiants qui révolutionnent leur façon d'apprendre la médecine
+            </p>
+          </div>
+          
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 px-2">
+            {[
+              {
+                name: "Sarah M., P1",
+                quote: "Grâce aux musiques MNG, j'ai enfin retenu la classification NYHA ! Le style trap rend l'apprentissage addictif.",
+                score: 95,
+                subject: "Cardiologie"
+              },
+              {
+                name: "Thomas L., ECN",
+                quote: "Les paroles sont scientifiquement exactes et les mélodies restent en tête. J'ai progressé de 15 points aux évaluations.",
+                score: 87,
+                subject: "Neurologie"
+              },
+              {
+                name: "Emma R., Externe",
+                quote: "L'interface immersive et les recommandations IA personnalisées ont révolutionné ma révision des EDN.",
+                score: 92,
+                subject: "Pneumologie"
+              }
+            ].map((testimonial, index) => (
+              <Card key={index} className="bg-black/20 backdrop-blur-xl border border-white/10 p-6 hover:shadow-2xl transition-all duration-300">
+                <CardContent className="p-0">
+                  <div className="flex items-center mb-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-pink-500 to-purple-600 rounded-full flex items-center justify-center">
+                      <span className="text-white font-bold text-lg">{testimonial.name[0]}</span>
+                    </div>
+                    <div className="ml-3">
+                      <p className="text-white font-semibold">{testimonial.name}</p>
+                      <p className="text-white/70 text-sm">{testimonial.subject}</p>
+                    </div>
+                  </div>
+                  <p className="text-gray-300 mb-4 italic">"{testimonial.quote}"</p>
+                  <div className="flex items-center">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} className={`h-4 w-4 ${i < 5 ? 'text-yellow-400 fill-current' : 'text-gray-400'}`} />
+                    ))}
+                    <span className="ml-2 text-white/70 text-sm">Score: {testimonial.score}%</span>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
         </div>
 

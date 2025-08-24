@@ -31,6 +31,7 @@ import {
 } from 'lucide-react';
 import { MedMngLayout } from '@/components/med-mng/MedMngLayout';
 import { ImmersivePlayerControls } from '@/components/immersive/ImmersivePlayerControls';
+import { AdvancedPlayerFeatures } from '@/components/immersive/AdvancedPlayerFeatures';
 import { useToast } from '@/hooks/use-toast';
 import { Progress } from '@/components/ui/progress';
 

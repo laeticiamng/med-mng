@@ -37,6 +37,7 @@ import {
 import { MedMngLayout } from '@/components/med-mng/MedMngLayout';
 import { MusicWaveform } from '@/components/immersive/MusicWaveform';
 import { RealtimePreview } from '@/components/med-mng/create/RealtimePreview';
+import { SmartCreationAssistant } from '@/components/immersive/SmartCreationAssistant';
 import { useToast } from '@/hooks/use-toast';
 
 interface CreationStep {
