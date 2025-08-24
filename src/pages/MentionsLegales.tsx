@@ -3,21 +3,21 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Building, Globe, Shield, Scale, Mail, FileText } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { ConsistentBackground } from '@/components/layout/ConsistentBackground';
+import { PageHeader } from '@/components/layout/PageHeader';
 
 const MentionsLegales = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
+    <ConsistentBackground variant="light">
+      <PageHeader
+        title="Mentions Légales"
+        subtitle="Informations légales et conditions d'utilisation"
+        icon={Scale}
+        showBackButton
+        backTo="/"
+      />
+      
       <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center space-x-4">
-            <Link to="/" className="flex items-center space-x-2 text-blue-600 hover:text-blue-800">
-              <ArrowLeft className="h-4 w-4" />
-              <span>Retour à l'accueil</span>
-            </Link>
-            <div className="h-6 border-l border-gray-300" />
-            <h1 className="text-3xl font-bold text-gray-800">Mentions Légales</h1>
-          </div>
-        </div>
 
         <div className="max-w-4xl mx-auto space-y-6">
           {/* En-tête avec logo */}
@@ -196,7 +196,7 @@ const MentionsLegales = () => {
           </div>
         </div>
       </div>
-    </div>
+    </ConsistentBackground>
   );
 };
 

@@ -3,6 +3,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
+import { ConsistentBackground } from '@/components/layout/ConsistentBackground';
+import { PageHeader } from '@/components/layout/PageHeader';
+import { Download } from 'lucide-react';
 
 const OicExtraction = () => {
   const [logs, setLogs] = useState<Array<{time: string, message: string, type: string}>>([]);
@@ -165,7 +168,16 @@ const OicExtraction = () => {
   }, []);
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <ConsistentBackground variant="secondary">
+      <PageHeader
+        title="Extraction OIC"
+        subtitle="Extraction des 4,872 compétences OIC depuis la base de données"
+        icon={Download}
+        showBackButton
+        backTo="/admin"
+      />
+      
+      <div className="container mx-auto px-4 py-8 space-y-6">
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
@@ -228,7 +240,8 @@ const OicExtraction = () => {
           </div>
         </CardContent>
       </Card>
-    </div>
+      </div>
+    </ConsistentBackground>
   );
 };
 
