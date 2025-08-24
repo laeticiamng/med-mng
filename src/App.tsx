@@ -223,6 +223,8 @@ const AppWithUX = () => {
                                     <Route path="*" element={<NotFound />} />
                                   </Routes>
                                   </Suspense>
+                                  {/* UX Toolbar - Floating bottom-right */}
+                                  <UXToolbar />
                                 </UndoRedoProvider>
                               </GlobalErrorBoundary>
                             </PageThemeProvider>
@@ -238,9 +240,6 @@ const AppWithUX = () => {
                           <Suspense fallback={null}>
                             <HelpButton />
                           </Suspense>
-                          
-                          {/* UX Toolbar - Floating bottom-right */}
-                          <UXToolbar />
                           
                           {/* Dev Tools - Development environment only */}
                           {process.env.NODE_ENV === 'development' && <DevTools />}
