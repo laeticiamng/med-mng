@@ -126,8 +126,8 @@ const queryClient = new QueryClient({
 
 const AppWithUX = () => {
   return (
-    <StrictMode>
-      <QueryClientProvider client={queryClient}>
+    <QueryClientProvider client={queryClient}>
+      <StrictMode>
         <HelmetProvider>
           <TooltipProvider>
             <AccessibilityProvider>
@@ -257,8 +257,8 @@ const AppWithUX = () => {
       </AccessibilityProvider>
     </TooltipProvider>
   </HelmetProvider>
+      </StrictMode>
     </QueryClientProvider>
-    </StrictMode>
   );
 };
 
