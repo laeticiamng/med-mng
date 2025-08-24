@@ -6,7 +6,8 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { EdnObjectifsExtractor } from '@/scripts/launch-edn-objectifs-extraction';
-import { PlayCircle, Pause, RefreshCw, BarChart3, CheckCircle, AlertCircle, Clock } from 'lucide-react';
+import { PlayCircle, Pause, RefreshCw, BarChart3, CheckCircle, AlertCircle, Clock, ArrowLeft } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 interface ExtractionStatus {
   session_id: string;
@@ -160,6 +161,18 @@ export const EdnObjectifsExtraction: React.FC = () => {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
+      {/* Navigation Button */}
+      <div className="flex items-center justify-between mb-6">
+        <Link 
+          to="/"
+          className="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors"
+          aria-label="Retourner à la page d'accueil"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Retour à l'accueil
+        </Link>
+      </div>
+      
       <div className="text-center">
         <h1 className="text-3xl font-bold text-primary mb-2">
           🎫 Extraction des Objectifs EDN LISA UNESS
