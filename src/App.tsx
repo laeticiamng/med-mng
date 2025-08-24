@@ -38,6 +38,8 @@ const MngMethod = lazy(() => import("./pages/MngMethod"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const MentionsLegales = lazy(() => import("./pages/MentionsLegales"));
 const PolitiqueConfidentialite = lazy(() => import("./pages/PolitiqueConfidentialite"));
+const Conditions = lazy(() => import("./pages/Conditions"));
+const Support = lazy(() => import("./pages/Support"));
 const MedMngLogin = lazy(() => import("./pages/MedMngLogin").then(module => ({ default: module.MedMngLogin })));
 const MedMngSignup = lazy(() => import("./pages/MedMngSignup").then(module => ({ default: module.MedMngSignup })));
 const MedMngPricing = lazy(() => import("./pages/MedMngPricing").then(module => ({ default: module.MedMngPricing })));
@@ -187,7 +189,9 @@ const AppWithUX = () => {
                                     
                                     <Route path="/mng-method" element={<MngMethod />} />
                                     <Route path="/mentions-legales" element={<MentionsLegales />} />
-                                    <Route path="/politique-confidentialite" element={<PolitiqueConfidentialite />} />
+                                     <Route path="/politique-confidentialite" element={<PolitiqueConfidentialite />} />
+                                     <Route path="/conditions" element={<Conditions />} />
+                                     <Route path="/support" element={<Support />} />
                                     <Route path="/auth" element={<MedMngLogin />} />
                                     <Route path="/auth/signup" element={<MedMngSignup />} />
                                     <Route path="/med-mng/login" element={<MedMngLogin />} />
