@@ -5,11 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useNavigate } from 'react-router-dom';
 import { 
   Search, Filter, BookOpen, Music, Users, Brain, 
   Play, Headphones, Image, FileText, CheckCircle,
   Sparkles, ArrowRight, Volume2, Gamepad2,
-  Maximize2, Eye, Star, Target, Award
+  Maximize2, Eye, Star, Target, Award, ArrowLeft
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -35,6 +36,7 @@ interface EdnItem {
 }
 
 const EdnIndex = () => {
+  const navigate = useNavigate();
   const [items, setItems] = useState<EdnItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
@@ -185,6 +187,20 @@ const EdnIndex = () => {
       {/* Header Suno-inspired */}
       <div className="bg-black/20 backdrop-blur-xl border-b border-white/10 sticky top-0 z-40 shadow-2xl shadow-purple-500/10">
         <div className="container mx-auto px-4 py-6 relative">
+          {/* Navigation Button */}
+          <div className="flex items-center justify-between mb-6">
+            <Button 
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate('/')}
+              className="flex items-center gap-2 text-white/80 hover:text-white hover:bg-white/10"
+              aria-label="Retourner à la page d'accueil"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Retour à l'accueil
+            </Button>
+          </div>
+          
           <div className="text-center mb-6">
             <div className="flex items-center justify-center gap-4 mb-6">
               <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-blue-500 rounded-3xl flex items-center justify-center shadow-2xl shadow-purple-500/50 relative">
