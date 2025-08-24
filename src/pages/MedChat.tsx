@@ -165,11 +165,13 @@ Posez-moi n'importe quelle question ou choisissez une suggestion ci-dessous !`,
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 relative overflow-hidden">
+      {/* Background effects unified */}
+      <div className="absolute inset-0 bg-gradient-to-r from-pink-500/20 via-purple-500/20 to-blue-500/20 animate-pulse"></div>
+      <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,rgba(120,119,198,0.3),transparent_50%)]"></div>
+      
+      <div className="relative z-10">
       <div className="container mx-auto px-4 py-6 max-w-4xl">
-        <Breadcrumbs />
-        
-        {/* Header Enhanced */}
         <motion.div 
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -453,7 +455,7 @@ Posez-moi n'importe quelle question ou choisissez une suggestion ci-dessous !`,
               </div>
             </CardContent>
           </Card>
-        </motion.div>
+        </div>
       </div>
     </div>
   );

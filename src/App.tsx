@@ -1,4 +1,4 @@
-import React, { Suspense, lazy, memo } from "react";
+import React, { Suspense, lazy, memo, StrictMode } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -122,27 +122,28 @@ const queryClient = new QueryClient({
 
 const AppWithUX = () => {
   return (
-    <QueryClientProvider client={queryClient}>
-      <UndoRedoProvider>
-        <AccessibilityProvider>
-        <ViewportProvider>
-          <LanguageProvider>
-            <GlobalAudioProvider>
-              <AuthProvider>
-                <ToastProvider>
-                  <TooltipProvider>
-                    <HelmetProvider>
-                        <BrowserRouter>
-                          <AppKeyboardShortcuts>
-                            <NavigatorBridge />
-                            <UXToastProvider>
-                            <SkipToMain />
-                            <SkipLinks />
-                        <div id="app-root" className="min-h-screen flex flex-col" style={{ display: 'block' }}>
-                          {/* Navigation globale */}
-                          <GlobalNavigation />
-                          
-                          <main id="main-content" tabIndex={-1} className="flex-1 pb-20">
+    <StrictMode>
+      <QueryClientProvider client={queryClient}>
+        <UndoRedoProvider>
+          <AccessibilityProvider>
+          <ViewportProvider>
+            <LanguageProvider>
+              <GlobalAudioProvider>
+                <AuthProvider>
+                  <ToastProvider>
+                    <TooltipProvider>
+                      <HelmetProvider>
+                          <BrowserRouter>
+                            <AppKeyboardShortcuts>
+                              <NavigatorBridge />
+                              <UXToastProvider>
+                              <SkipToMain />
+                              <SkipLinks />
+                          <div id="app-root" className="min-h-screen flex flex-col" style={{ display: 'block' }}>
+                            {/* Navigation globale */}
+                            <GlobalNavigation />
+                            
+                            <main id="main-content" tabIndex={-1} className="flex-1 pb-20">
                             <PageThemeProvider>
                               <ErrorBoundary>
                                 <Suspense fallback={<PageSkeleton />}>
@@ -247,6 +248,7 @@ const AppWithUX = () => {
       </AccessibilityProvider>
       </UndoRedoProvider>
     </QueryClientProvider>
+    </StrictMode>
   );
 };
 

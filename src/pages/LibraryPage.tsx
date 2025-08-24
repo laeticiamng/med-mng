@@ -109,6 +109,7 @@ export default function LibraryPage() {
               <button
                 onClick={() => navigate('/')}
                 className="flex items-center gap-2 text-white/80 hover:text-white transition-colors"
+                aria-label="Retourner à la page d'accueil"
               >
                 <ArrowLeft className="h-5 w-5" />
                 Retour
@@ -117,7 +118,7 @@ export default function LibraryPage() {
             </div>
 
             <div className="text-center mb-8">
-              <h1 className="text-5xl font-bold text-white mb-4">
+              <h1 className="text-5xl font-bold text-white mb-4" id="main-content">
                 Ma <span className="bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent">Bibliothèque</span>
               </h1>
               <p className="text-xl text-gray-300 mb-6">
@@ -149,128 +150,118 @@ export default function LibraryPage() {
                     ? 'Essayez avec d\'autres termes de recherche'
                     : 'Générez votre première musique pour commencer !'}
                 </p>
-                {!searchTerm && (
-                  <Button 
-                    onClick={() => navigate('/generator')}
-                    className="bg-gradient-to-r from-pink-500 to-purple-600 text-white hover:from-pink-600 hover:to-purple-700"
-                  >
-                    Créer ma première musique
-                  </Button>
-                )}
+                <Button 
+                  onClick={() => navigate('/generator')}
+                  className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 px-8 py-3 text-white font-medium rounded-full shadow-lg"
+                  size="lg"
+                >
+                  Créer ma première musique
+                </Button>
               </div>
             ) : (
               <div className={`grid ${gridConfig.cards} ${gridConfig.gap}`}>
-                {filteredTracks.map((track, index) => {
-                  const isCurrentTrack = currentTrack?.id === track.id;
-                  const isCurrentlyPlaying = isCurrentTrack && isPlaying;
-                  
-                  return (
-                    <div key={track.id} className="group">
-                      {/* Pochette/Cover style Suno */}
-                      <div className={`relative aspect-square bg-gradient-to-br ${getGradientForTrack(index)} rounded-lg mb-4 overflow-hidden shadow-lg`}>
-                        {/* Icône médicale selon l'item */}
-                        <div className="absolute inset-0 flex items-center justify-center text-6xl text-white/80">
-                          {track.item_code.includes('103') && '🧠'}
-                          {track.item_code.includes('230') && '❤️'}
-                          {track.item_code.includes('156') && '🫁'}
-                          {track.item_code.includes('089') && '🧠'}
-                          {!['103', '230', '156', '089'].some(code => track.item_code.includes(code)) && <Music className="h-16 w-16" />}
+                {filteredTracks.map((track, index) => (
+                  <Card key={track.id} className="bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/10 group">
+                    <CardContent className="p-6">
+                      {/* Image et contrôles */}
+                      <div className="relative aspect-square mb-4">
+                        <div className={`w-full h-full bg-gradient-to-br ${getGradientForTrack(index)} rounded-xl flex items-center justify-center text-6xl text-white shadow-lg relative overflow-hidden`}>
+                          <Music className="h-20 w-20 opacity-80" />
+                          
+                          {/* Overlay de lecture */}
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-300 flex items-center justify-center">
+                            <div className="opacity-0 group-hover:opacity-100 transition-all duration-300 scale-75 group-hover:scale-100">
+                              <Button
+                                size="lg"
+                                onClick={() => playTrack(track)}
+                                className="rounded-full w-16 h-16 bg-white/20 backdrop-blur-sm border border-white/30 hover:bg-white/30 text-white shadow-xl"
+                              >
+                                {currentTrack?.id === track.id && isPlaying ? (
+                                  <Pause className="h-8 w-8" />
+                                ) : (
+                                  <Play className="h-8 w-8 ml-1" />
+                                )}
+                              </Button>
+                            </div>
+                          </div>
                         </div>
                         
-                        {/* Overlay de lecture */}
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-all duration-300 flex items-center justify-center">
-                          <button
-                            onClick={() => playTrack(track)}
-                            className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white rounded-full p-4 shadow-lg hover:scale-110 transform transition-transform"
-                          >
-                            {isCurrentlyPlaying ? (
-                              <Pause className="h-8 w-8 text-purple-600" />
-                            ) : (
-                              <Play className="h-8 w-8 text-purple-600 ml-1" />
-                            )}
-                          </button>
-                        </div>
-
-                        {/* Badge de lecture en cours */}
-                        {isCurrentlyPlaying && (
-                          <div className="absolute top-3 left-3 bg-pink-500 text-white px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1">
-                            <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-                            En cours
-                          </div>
-                        )}
-
                         {/* Badge du type */}
-                        <div className="absolute top-3 right-3">
-                          <Badge className="bg-white/20 text-white border-white/30 text-xs">
-                            {getTypeLabel(track.type)}
-                          </Badge>
+                        <Badge className="absolute top-2 right-2 bg-black/50 backdrop-blur-sm text-white border-white/20">
+                          {getTypeLabel(track.generation_type)}
+                        </Badge>
+                        
+                        {/* Actions rapides */}
+                        <div className="absolute top-2 left-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() => toggleFavorite(track.id)}
+                            className="rounded-full w-8 h-8 bg-black/30 backdrop-blur-sm hover:bg-black/50 text-white border border-white/20"
+                          >
+                            <Heart className={`h-4 w-4 ${track.is_favorite ? 'fill-current text-pink-400' : ''}`} />
+                          </Button>
                         </div>
                       </div>
 
                       {/* Informations de la track */}
                       <div className="space-y-2">
-                        <h3 className="text-white font-semibold text-sm line-clamp-2 group-hover:text-pink-300 transition-colors">
+                        <h3 className="font-semibold text-white text-lg leading-tight line-clamp-2 group-hover:text-pink-300 transition-colors">
                           {track.title}
                         </h3>
                         
-                        <div className="flex items-center justify-between text-xs text-gray-400">
-                          <span>{track.item_code}</span>
-                          <span className="flex items-center gap-1">
+                        <div className="flex items-center justify-between">
+                          <p className="text-gray-300 text-sm">
+                            {track.item_code}
+                          </p>
+                          <p className="text-gray-400 text-sm flex items-center gap-1">
                             <Clock className="h-3 w-3" />
-                            {formatDuration(240)} {/* durée par défaut */}
-                          </span>
+                            {formatDuration(track.duration)}
+                          </p>
                         </div>
-
-                        {/* Stats et actions */}
-                        <div className="flex items-center justify-between pt-2">
-                          <div className="flex items-center gap-4 text-xs text-gray-400">
-                            <span>{formatNumber(Math.floor(Math.random() * 1000 + 500))} écoutes</span>
+                        
+                        {/* Stats */}
+                        <div className="flex items-center justify-between pt-2 border-t border-white/10">
+                          <div className="flex items-center gap-3 text-xs text-gray-400">
+                            <span className="flex items-center gap-1">
+                              <Play className="h-3 w-3" />
+                              {formatNumber(track.play_count || 0)}
+                            </span>
+                            <span className="flex items-center gap-1">
+                              <Heart className="h-3 w-3" />
+                              {formatNumber(track.likes || 0)}
+                            </span>
                           </div>
                           
-                          <div className="flex items-center gap-2">
-                            <button
-                              onClick={() => toggleFavorite(track.id)}
-                              className="p-1 rounded-full hover:bg-white/10 transition-colors"
-                            >
-                              <Heart className={`h-4 w-4 ${track.is_favorite ? 'text-pink-500 fill-current' : 'text-gray-400'}`} />
-                            </button>
-                            
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <button className="p-1 rounded-full hover:bg-white/10 transition-colors">
-                                  <MoreHorizontal className="h-4 w-4 text-gray-400" />
-                                </button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end" className="bg-gray-900 border-gray-700">
-                                <DropdownMenuItem onClick={() => playTrack(track)} className="text-white hover:bg-gray-800">
-                                  <Play className="h-4 w-4 mr-2" />
-                                  Lire
-                                </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => toggleFavorite(track.id)} className="text-white hover:bg-gray-800">
-                                  <Heart className="h-4 w-4 mr-2" />
-                                  {track.is_favorite ? 'Retirer des favoris' : 'Ajouter aux favoris'}
-                                </DropdownMenuItem>
-                                <DropdownMenuItem 
-                                  onClick={() => removeFromLibrary(track.id)}
-                                  className="text-red-400 hover:bg-gray-800"
-                                >
-                                  <Trash2 className="h-4 w-4 mr-2" />
-                                  Supprimer
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </div>
+                          {/* Menu actions */}
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-6 w-6 p-0 text-gray-400 hover:text-white opacity-0 group-hover:opacity-100 transition-all"
+                              >
+                                <MoreHorizontal className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="bg-white/95 backdrop-blur-sm border border-white/20">
+                              <DropdownMenuItem 
+                                onClick={() => removeFromLibrary(track.id)}
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                              >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                Supprimer
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
                         </div>
                       </div>
-                    </div>
-                  );
-                })}
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
-            )}
           </div>
         </div>
-
-        {/* Mini Player fixe */}
         <MiniPlayer />
       </div>
     </PlayerProvider>
