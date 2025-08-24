@@ -7,6 +7,8 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { SecureCredentialsForm, useSecureCredentials } from '@/components/common/SecureCredentialsForm';
+import { ConsistentBackground } from '@/components/layout/ConsistentBackground';
+import { PageHeader } from '@/components/layout/PageHeader';
 
 const AdminCompleteProcess = () => {
   const [currentPhase, setCurrentPhase] = useState<string>('idle');
@@ -142,8 +144,17 @@ const AdminCompleteProcess = () => {
   };
 
   return (
-    <div className="container mx-auto p-6 max-w-6xl">
-      <div className="space-y-6">
+    <ConsistentBackground variant="secondary">
+      <PageHeader
+        title="Processus Complet - Extraction & Audit"
+        subtitle="Extraction automatique des données EDN + Audit complet de la plateforme"
+        icon={CheckCircle}
+        showBackButton
+        backTo="/admin"
+      />
+      
+      <div className="container mx-auto px-4 py-8 max-w-6xl">
+        <div className="space-y-6">
         
         {/* Header - Processus d'extraction et audit */}
         <Card>
@@ -435,7 +446,8 @@ const AdminCompleteProcess = () => {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </ConsistentBackground>
   );
 };
 

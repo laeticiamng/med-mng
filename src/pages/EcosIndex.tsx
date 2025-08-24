@@ -6,6 +6,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Breadcrumbs } from '@/components/ux/Breadcrumbs';
 import { LoadingFeedback } from '@/components/ux/LoadingFeedback';
+import { ConsistentBackground } from '@/components/layout/ConsistentBackground';
+import { PageHeader } from '@/components/layout/PageHeader';
 
 const EcosIndex = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -79,54 +81,28 @@ const EcosIndex = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 relative overflow-hidden">
-      {/* Background effects unified */}
-      <div className="absolute inset-0 bg-gradient-to-r from-pink-500/20 via-purple-500/20 to-blue-500/20 animate-pulse"></div>
-      <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,rgba(120,119,198,0.3),transparent_50%)]"></div>
+    <ConsistentBackground variant="primary">
+      <PageHeader
+        title="Situations ECOS"
+        subtitle="Pratiquez les situations de départ ECOS avec des patients virtuels immersifs"
+        icon={Stethoscope}
+        showBackButton
+        backTo="/"
+      />
       
-      <div className="relative z-10">
-
-        <div className="relative z-10">
-          <Breadcrumbs />
-          
-          {/* Header */}
-        <div className="bg-black/20 backdrop-blur-sm border-b border-white/10">
-          <div className="container mx-auto px-4 py-6">
-            <div className="flex items-center justify-between">
-              <Link to="/" className="flex items-center gap-3 text-white hover:text-emerald-300 transition-colors">
-                <Stethoscope className="h-8 w-8" />
-                <span className="text-2xl font-bold">DocFlemme ECOS</span>
-              </Link>
-              <div className="flex items-center gap-4">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/40 h-4 w-4" />
-                  <Input
-                    placeholder="Rechercher une situation..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-white/40 focus:bg-white/20"
-                  />
-                </div>
-              </div>
-            </div>
+      <div className="container mx-auto px-4 py-8">
+        {/* Search bar */}
+        <div className="flex items-center justify-center mb-12">
+          <div className="relative w-full max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+            <Input
+              placeholder="Rechercher une situation..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 bg-background/10 border-border text-foreground placeholder:text-muted-foreground"
+            />
           </div>
         </div>
-
-        {/* Main content */}
-        <div className="container mx-auto px-4 py-12">
-          {/* Hero section */}
-          <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 mb-6">
-              <Sparkles className="h-6 w-6 text-emerald-400 animate-pulse" />
-              <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
-                Situations ECOS
-              </h1>
-              <Sparkles className="h-6 w-6 text-teal-400 animate-pulse" />
-            </div>
-            <p className="text-xl text-white/70 max-w-2xl mx-auto">
-              Pratiquez les situations de départ ECOS avec des patients virtuels immersifs
-            </p>
-          </div>
 
           {/* Scenarios grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -136,23 +112,23 @@ const EcosIndex = () => {
                 to={`/ecos/sd-${scenario.id.toLowerCase()}-${scenario.title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}`}
                 className="group"
               >
-                <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 hover:bg-white/10 hover:border-emerald-400/30 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-emerald-500/10 animate-fade-in"
+                <div className="bg-card/50 backdrop-blur-sm rounded-2xl p-6 border border-border hover:bg-card hover:border-primary/30 transition-all duration-300 hover:scale-105 hover:shadow-2xl animate-fade-in"
                      style={{ animationDelay: `${index * 0.1}s` }}>
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white font-bold">
+                      <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center text-primary-foreground font-bold">
                         SD{scenario.id}
                       </div>
                       <div className="flex-1">
-                        <h3 className="text-white font-semibold text-lg group-hover:text-emerald-300 transition-colors">
+                        <h3 className="text-foreground font-semibold text-lg group-hover:text-primary transition-colors">
                           {scenario.title}
                         </h3>
-                        <p className="text-white/60 text-sm">{scenario.specialty}</p>
+                        <p className="text-muted-foreground text-sm">{scenario.specialty}</p>
                       </div>
                     </div>
                   </div>
                   
-                  <p className="text-white/70 text-sm mb-4 line-clamp-2">
+                  <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
                     {scenario.description}
                   </p>
                   
@@ -161,12 +137,12 @@ const EcosIndex = () => {
                       <span className={`px-3 py-1 rounded-full text-xs font-medium ${getTypeColor(scenario.type)}`}>
                         {scenario.type}
                       </span>
-                      <div className="flex items-center gap-1 text-white/40 text-xs">
+                      <div className="flex items-center gap-1 text-muted-foreground text-xs">
                         <Clock className="h-3 w-3" />
                         {scenario.duration}
                       </div>
                     </div>
-                    <Users className="h-4 w-4 text-white/40 group-hover:text-emerald-400 transition-colors" />
+                    <Users className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
                   </div>
                 </div>
               </Link>
@@ -176,16 +152,14 @@ const EcosIndex = () => {
           {/* Empty state */}
           {filteredScenarios.length === 0 && (
             <div className="text-center py-16">
-              <Search className="h-16 w-16 text-white/20 mx-auto mb-4" />
-              <h3 className="text-xl text-white/60 mb-2">Aucune situation trouvée</h3>
-              <p className="text-white/40">Essayez de modifier votre recherche</p>
+              <Search className="h-16 w-16 text-muted-foreground/20 mx-auto mb-4" />
+              <h3 className="text-xl text-muted-foreground mb-2">Aucune situation trouvée</h3>
+              <p className="text-muted-foreground/60">Essayez de modifier votre recherche</p>
             </div>
           )}
         </div>
-        </div>
-      </div>
-    </div>
-  );
-};
+      </ConsistentBackground>
+    );
+  };
 
-export default EcosIndex;
+  export default EcosIndex;

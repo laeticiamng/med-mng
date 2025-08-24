@@ -8,9 +8,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
-import { Upload, FileSpreadsheet, Link2, AlertCircle, CheckCircle, Clock, X } from 'lucide-react';
+import { Upload, FileSpreadsheet, Link2, AlertCircle, CheckCircle, Clock, X, Database } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { ConsistentBackground } from '@/components/layout/ConsistentBackground';
+import { PageHeader } from '@/components/layout/PageHeader';
 
 interface ImportBatch {
   [key: string]: any;
@@ -275,7 +277,16 @@ export default function AdminImport() {
   };
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <ConsistentBackground variant="secondary">
+      <PageHeader
+        title="Importation de Données"
+        subtitle="Gestion des imports CSV et intégrations Google Sheets"
+        icon={Database}
+        showBackButton
+        backTo="/admin"
+      />
+      
+      <div className="container mx-auto px-4 py-8 space-y-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Import de Fiches EDN</h1>
@@ -528,6 +539,7 @@ export default function AdminImport() {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
+      </div>
+    </ConsistentBackground>
   );
 }
