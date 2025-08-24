@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -24,13 +24,19 @@ import {
   Calendar,
   Tag,
   Headphones,
-  BarChart3
+  BarChart3,
+  Plus,
+  Sparkles,
+  Brain
 } from 'lucide-react';
 import { MedMngLayout } from '@/components/med-mng/MedMngLayout';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { EnhancedLibraryCard } from '@/components/immersive/EnhancedLibraryCard';
 import { MusicWaveform } from '@/components/immersive/MusicWaveform';
+import { ResponsiveLayout } from '@/components/immersive/ResponsiveLayout';
 import { useToast } from '@/hooks/use-toast';
+import { useAPI, useAIRecommendations } from '@/hooks/useAPI';
+import { useNavigate } from 'react-router-dom';
 
 interface MedTrack {
   id: string;
@@ -211,7 +217,7 @@ const Library = () => {
     }
   });
 
-  const handlePlayPause = (trackId: string) => {
+  const handlePlayPause = async (trackId: string) => {
     if (currentTrack === trackId && isPlaying) {
       setIsPlaying(false);
     } else {
@@ -220,10 +226,24 @@ const Library = () => {
       
       const track = tracks.find(t => t.id === trackId);
       if (track) {
+        // Mettre à jour le compteur de lecture
+        setTracks(prevTracks =>
+          prevTracks.map(t =>
+            t.id === trackId
+              ? { ...t, playCount: t.playCount + 1 }
+              : t
+          )
+        );
+
         toast({
           title: "🎵 Lecture en cours",
           description: `${track.title} - ${track.subject}`,
         });
+
+        // Rediriger vers le lecteur pour une expérience complète
+        setTimeout(() => {
+          window.location.href = `/med-mng/player/${trackId}`;
+        }, 1000);
       }
     }
   };

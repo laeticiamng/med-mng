@@ -164,12 +164,21 @@ const Create = () => {
     { id: 'nephro', name: 'Néphrologie', items: 19, difficulty: 'Avancé' }
   ];
 
-  // Simulation de génération avec étapes
+  // Génération réelle avec API
   const handleGeneration = async () => {
-    if (!selectedContent || !selectedStyle) {
+    if (!selectedContent && !customPrompt) {
       toast({
         title: "Informations manquantes",
-        description: "Veuillez sélectionner un contenu et un style musical.",
+        description: "Veuillez sélectionner un contenu médical ou saisir un prompt personnalisé.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (!selectedStyle) {
+      toast({
+        title: "Style manquant",
+        description: "Veuillez sélectionner un style musical.",
         variant: "destructive"
       });
       return;
@@ -178,50 +187,92 @@ const Create = () => {
     setIsGenerating(true);
     setGenerationProgress(0);
 
-    const stages = [
-      { name: 'Analyse du contenu médical', duration: 2000 },
-      { name: 'Génération des paroles pédagogiques', duration: 3000 },
-      { name: 'Composition musicale IA', duration: 4000 },
-      { name: 'Optimisation neurocognitive', duration: 2500 },
-      { name: 'Finalisation et export', duration: 1500 }
-    ];
+    try {
+      // Étape 1: Génération des paroles
+      setGenerationProgress(20);
+      toast({
+        title: "Étape 1/3",
+        description: "Génération des paroles pédagogiques...",
+      });
 
-    let totalProgress = 0;
-    
-    for (let i = 0; i < stages.length; i++) {
-      const stage = stages[i];
+      const selectedTopic = medicalTopics.find(t => t.id === selectedContent);
+      const medicalContent = customPrompt || selectedTopic?.name || '';
+
+      const { supabase } = await import('@/integrations/supabase/client');
+      
+      const lyricsResponse = await supabase.functions.invoke('content-ai-generator', {
+        body: {
+          type: 'lyrics',
+          medical_content: medicalContent,
+          style: selectedStyle,
+          difficulty: difficulty,
+          parameters: { duration }
+        }
+      });
+
+      if (lyricsResponse.error) {
+        throw new Error(lyricsResponse.error.message);
+      }
+
+      setGenerationProgress(60);
+      
+      // Étape 2: Génération musicale
+      toast({
+        title: "Étape 2/3",
+        description: "Composition musicale IA en cours...",
+      });
+
+      const musicResponse = await supabase.functions.invoke('music-generation-secure', {
+        body: {
+          lyrics: lyricsResponse.data.content,
+          style: selectedStyle,
+          title: `${medicalContent} - ${selectedStyle}`,
+          medical_topic: medicalContent,
+          difficulty: difficulty,
+          duration: parseInt(duration.split('-')[1]) * 60 || 180
+        }
+      });
+
+      if (musicResponse.error) {
+        throw new Error(musicResponse.error.message);
+      }
+
+      setGenerationProgress(90);
+
+      // Étape 3: Finalisation
+      toast({
+        title: "Étape 3/3",
+        description: "Finalisation et sauvegarde...",
+      });
+
+      // Simulation d'attente pour l'expérience utilisateur
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      setGenerationProgress(100);
       
       toast({
-        title: `Étape ${i + 1}/5`,
-        description: stage.name,
+        title: "🎵 Génération réussie !",
+        description: "Votre musique pédagogique est prête. Redirection vers le lecteur...",
       });
 
-      await new Promise(resolve => {
-        const stepProgress = 100 / stages.length;
-        const interval = setInterval(() => {
-          totalProgress += 2;
-          setGenerationProgress(Math.min(totalProgress, (i + 1) * stepProgress));
-          
-          if (totalProgress >= (i + 1) * stepProgress) {
-            clearInterval(interval);
-            resolve(undefined);
-          }
-        }, stage.duration / (stepProgress / 2));
-      });
-    }
+      setTimeout(() => {
+        setIsGenerating(false);
+        setGenerationProgress(0);
+        // Redirection vers le lecteur avec la nouvelle musique
+        window.location.href = `/med-mng/player/${musicResponse.data.track.id}`;
+      }, 1500);
 
-    setGenerationProgress(100);
-    
-    toast({
-      title: "🎵 Génération terminée !",
-      description: "Votre musique pédagogique est prête. Découvrez-la dans votre bibliothèque.",
-    });
-
-    setTimeout(() => {
+    } catch (error) {
+      console.error('Erreur génération:', error);
       setIsGenerating(false);
       setGenerationProgress(0);
-      // Redirection vers la bibliothèque ou lecteur
-    }, 1500);
+      
+      toast({
+        title: "Erreur de génération",
+        description: error.message || "Une erreur est survenue lors de la génération.",
+        variant: "destructive"
+      });
+    }
   };
 
   const nextStep = () => {
