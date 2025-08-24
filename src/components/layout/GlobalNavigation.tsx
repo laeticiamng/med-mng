@@ -13,8 +13,17 @@ import {
 import { useState } from 'react';
 
 export const GlobalNavigation = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
+  let location, navigate;
+  
+  try {
+    location = useLocation();
+    navigate = useNavigate();
+  } catch (e) {
+    // Router context not available yet
+    console.warn('GlobalNavigation: Router context not available yet');
+    return null;
+  }
+  
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navigationItems = [
