@@ -1,22 +1,21 @@
 import React from 'react';
+import { ConsistentBackground } from '@/components/layout/ConsistentBackground';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { EcosExplorer } from '@/components/ecos/EcosExplorer';
-import { useResponsiveSpacing } from '@/hooks/useBreakpoints';
+import { Stethoscope } from 'lucide-react';
 
 export const EcosPage: React.FC = () => {
-  const spacing = useResponsiveSpacing();
-  
   return (
-    <div className={`container mx-auto ${spacing.container}`}>
-      <div className={`${spacing.header}`}>
-        <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-2" id="main-content">
-          ECOS - Examens Cliniques Objectifs Structurés
-        </h1>
-        <p className="text-muted-foreground text-base md:text-lg">
-          Explorez et consultez les situations d'ECOS disponibles dans la base de données UNESS
-        </p>
+    <ConsistentBackground variant="secondary">
+      <div className="container mx-auto px-4 py-8">
+        <PageHeader
+          title="ECOS - Examens Cliniques"
+          subtitle="Explorez et consultez les situations d'ECOS disponibles dans la base de données UNESS"
+          icon={Stethoscope}
+        />
+        
+        <EcosExplorer />
       </div>
-      
-      <EcosExplorer />
-    </div>
+    </ConsistentBackground>
   );
 };

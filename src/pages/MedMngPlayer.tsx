@@ -4,6 +4,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useMedMngApi } from '@/hooks/useMedMngApi';
 import { withAuth } from '@/components/med-mng/withAuth';
+import { ConsistentBackground } from '@/components/layout/ConsistentBackground';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Card, CardContent } from '@/components/ui/card';
@@ -167,33 +169,34 @@ const MedMngPlayerComponent = () => {
 
   if (!song) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
-        <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Chanson introuvable</h1>
-          <Button onClick={() => navigate('/med-mng/library')}>
-            Retour à la bibliothèque
-          </Button>
+      <ConsistentBackground variant="primary">
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-white mb-4">Chanson introuvable</h1>
+            <Button 
+              onClick={() => navigate('/med-mng/library')}
+              className="bg-white text-primary hover:bg-white/90"
+            >
+              Retour à la bibliothèque
+            </Button>
+          </div>
         </div>
-      </div>
+      </ConsistentBackground>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      <audio ref={audioRef} preload="metadata" />
-      
+    <ConsistentBackground variant="primary">
       <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="flex items-center gap-4 mb-8">
-          <Button
-            variant="ghost"
-            onClick={() => navigate('/med-mng/library')}
-            className="flex items-center gap-2"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Retour à la bibliothèque
-          </Button>
-        </div>
+        <audio ref={audioRef} preload="metadata" />
+        
+        <PageHeader
+          title={song.title}
+          subtitle={`Créé le ${new Date(song.created_at).toLocaleDateString('fr-FR')}`}
+          icon={Music}
+          showBackButton
+          backTo="/med-mng/library"
+        />
 
         <div className="max-w-4xl mx-auto">
           <div className="grid lg:grid-cols-2 gap-8">
@@ -339,7 +342,7 @@ const MedMngPlayerComponent = () => {
           </div>
         </div>
       </div>
-    </div>
+    </ConsistentBackground>
   );
 };
 
