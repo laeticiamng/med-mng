@@ -1,4 +1,5 @@
 
+import { MusicGenerationProgress } from '@/types/hooks';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useMusicPolling } from './useMusicPolling';
@@ -9,7 +10,7 @@ interface GenerationConfig {
   selectedStyle: string;
   duration: number;
   currentLanguage: string;
-  onProgress: (rang: 'A' | 'B', progress: any) => void;
+  onProgress: (rang: 'A' | 'B', progress: MusicGenerationProgress) => void;
   onSuccess: (rang: 'A' | 'B', audioUrl: string) => void;
   onError: (error: Error) => void;
   validateAndNormalizeAudioUrl: (url: string) => string;

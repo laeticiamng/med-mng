@@ -1,17 +1,18 @@
+import { TableauProcessingData, ConceptTableau, TableauResult } from '@/types/tableau';
 
 // Utilitaires pour l'intégration des données IC-4 avec structure complexe
-export const isIC4Item = (data: any): boolean => {
+export const isIC4Item = (data: TableauProcessingData): boolean => {
   return data?.item_code === 'IC-4' || 
-         data?.title?.includes('Qualité et sécurité des soins') ||
+         (typeof data?.title === 'string' && data.title.includes('Qualité et sécurité des soins')) ||
          data?.slug === 'ic4-qualite-securite-soins';
 };
 
-export const processTableauRangAIC4 = (data: any) => {
+export const processTableauRangAIC4 = (data: TableauProcessingData): TableauResult => {
   console.log('🔍 Traitement IC-4 Qualité et sécurité des soins');
   
   // Extraire les données des concepts depuis la nouvelle structure JSON
   const tableauData = data.tableau_rang_a || data;
-  const concepts = tableauData?.sections?.[0]?.concepts || [];
+  const concepts = (tableauData as any)?.sections?.[0]?.concepts || [];
   
   const colonnesUtiles = [
     { nom: 'Concept', description: 'Notion clé à maîtriser' },
@@ -23,7 +24,7 @@ export const processTableauRangAIC4 = (data: any) => {
     { nom: 'Vigilance', description: 'Point de vigilance' }
   ];
 
-  const lignesEnrichies = concepts.map((concept: any) => [
+  const lignesEnrichies = concepts.map((concept: ConceptTableau) => [
     concept.concept || '',
     concept.definition || '',
     concept.exemple || '',
@@ -39,18 +40,23 @@ export const processTableauRangAIC4 = (data: any) => {
 
   return {
     lignesEnrichies,
-    colonnesUtiles,
+    colonnesUtiles: colonnesUtiles.map(col => ({
+      key: col.nom.toLowerCase(),
+      label: col.nom,
+      obligatoire: true,
+      description: col.description || col.nom
+    })),
     theme,
     isRangB: false
   };
 };
 
-export const processTableauRangBIC4 = (data: any) => {
+export const processTableauRangBIC4 = (data: TableauProcessingData): TableauResult => {
   console.log('🔍 Traitement IC-4 Rang B - Expertise qualité et sécurité');
   
   // Extraire les données des concepts experts depuis la nouvelle structure JSON
   const tableauData = data.tableau_rang_b || data;
-  const concepts = tableauData?.sections?.[0]?.concepts || [];
+  const concepts = (tableauData as any)?.sections?.[0]?.concepts || [];
   
   const colonnesUtiles = [
     { nom: 'Concept', description: 'Expertise avancée' },
@@ -62,7 +68,7 @@ export const processTableauRangBIC4 = (data: any) => {
     { nom: 'Excellence', description: 'Niveau d\'excellence' }
   ];
 
-  const lignesEnrichies = concepts.map((concept: any) => [
+  const lignesEnrichies = concepts.map((concept: ConceptTableau) => [
     concept.concept || '',
     concept.analyse || '',
     concept.cas || '',
@@ -78,7 +84,12 @@ export const processTableauRangBIC4 = (data: any) => {
 
   return {
     lignesEnrichies,
-    colonnesUtiles,
+    colonnesUtiles: colonnesUtiles.map(col => ({
+      key: col.nom.toLowerCase(),
+      label: col.nom,
+      obligatoire: true,
+      description: col.description || col.nom
+    })),
     theme,
     isRangB: true
   };

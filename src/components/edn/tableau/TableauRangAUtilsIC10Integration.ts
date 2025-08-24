@@ -1,11 +1,12 @@
+import { TableauProcessingData, TableauResult } from '@/types/tableau';
 
-// Utilitaires pour l'affichage du Tableau Rang A IC-10
-export const processTableauRangAIC10 = (data: any) => {
+// Utilitaires pour l'affichage du Tableau Rang A IC-10  
+export const processTableauRangAIC10 = (data: TableauProcessingData): TableauResult => {
   console.log('🔍 Traitement IC-10 Rang A');
   
   // Extraire les données des concepts
   const tableauData = data.tableau_rang_a || data;
-  const concepts = tableauData?.sections?.[0]?.concepts || [];
+  const concepts = (tableauData as any)?.sections?.[0]?.concepts || [];
   
   const colonnesUtiles = [
     { nom: 'Concept', description: 'Approche transversale', couleur: 'bg-teal-600', couleurCellule: 'bg-teal-50', couleurTexte: 'text-teal-800' },
@@ -18,7 +19,7 @@ export const processTableauRangAIC10 = (data: any) => {
     { nom: 'Vigilance', description: 'Points d\'attention', couleur: 'bg-orange-600', couleurCellule: 'bg-orange-50', couleurTexte: 'text-orange-800' }
   ];
 
-  const lignesEnrichies = concepts.map((concept: any) => [
+  const lignesEnrichies = concepts.map((concept) => [
     concept.concept || '',
     concept.definition || '',
     concept.exemple || '',
@@ -35,14 +36,19 @@ export const processTableauRangAIC10 = (data: any) => {
 
   return {
     lignesEnrichies,
-    colonnesUtiles,
+    colonnesUtiles: colonnesUtiles.map(col => ({
+      key: col.nom.toLowerCase(),
+      label: col.nom,
+      obligatoire: true,
+      description: col.description || col.nom
+    })),
     theme,
     isRangB: false
   };
 };
 
-export const isIC10Item = (data: any): boolean => {
-  return data?.theme?.includes('IC-10') || 
-         data?.title?.includes('Approches transversales du corps') ||
+export const isIC10Item = (data: TableauProcessingData): boolean => {
+  return (typeof data?.theme === 'string' && data.theme.includes('IC-10')) || 
+         (typeof data?.title === 'string' && data.title.includes('Approches transversales du corps')) ||
          data?.item_code === 'IC-10';
 };
