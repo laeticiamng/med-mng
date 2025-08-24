@@ -7,6 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ConsistentBackground } from "@/components/layout/ConsistentBackground";
 import { InteractiveDemo } from "@/components/generator/InteractiveDemo";
+import { FloatingElements } from "@/components/immersive/FloatingElements";
+import { ParallaxBackground } from "@/components/immersive/ParallaxBackground";
+import { InteractiveStats } from "@/components/immersive/InteractiveStats";
+import { AdvancedMusicPlayer } from "@/components/immersive/AdvancedMusicPlayer";
 import { useToast } from "@/hooks/use-toast";
 
 const Index = () => {
@@ -15,6 +19,9 @@ const Index = () => {
 
   return (
     <ConsistentBackground variant="primary">
+      <ParallaxBackground />
+      <FloatingElements />
+      
       {/* Header optimisé pour mobile */}
       <div className="container mx-auto px-4 py-4 sm:py-6">
         <div className="flex items-center justify-between">
@@ -110,15 +117,57 @@ const Index = () => {
           </div>
         </div>
 
-        {/* Galerie de démonstrations optimisée mobile */}
-        <InteractiveDemo onTrackSelect={(trackId) => {
-          toast({
-            title: "🎵 Démonstration",
-            description: "Découvrez cette création musicale générée par MED MNG IA",
-          });
-          // Optionnel: Navigation vers le générateur avec le track pré-sélectionné
-          navigate('/generator');
-        }} />
+        {/* Galerie de démonstrations immersive */}
+        <div className="mb-16 sm:mb-20">
+          <InteractiveDemo onTrackSelect={(trackId) => {
+            toast({
+              title: "🎵 Démonstration Interactive",
+              description: "Découvrez cette création musicale générée par MED MNG IA",
+            });
+            navigate('/generator');
+          }} />
+          
+          {/* Compteur en temps réel */}
+          <div className="flex justify-center mt-8">
+            <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-full px-6 py-3">
+              <div className="flex items-center space-x-4 text-white">
+                <div className="text-center">
+                  <div className="text-2xl font-bold animate-pulse">2,847</div>
+                  <div className="text-xs text-white/70">Musiques créées</div>
+                </div>
+                <div className="w-px h-8 bg-white/30"></div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold animate-pulse">156</div>
+                  <div className="text-xs text-white/70">Étudiants actifs</div>
+                </div>
+                <div className="w-px h-8 bg-white/30"></div>
+                <div className="text-center">
+                  <div className="text-2xl font-bold animate-pulse">98%</div>
+                  <div className="text-xs text-white/70">Satisfaction</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Stats interactives */}
+        <InteractiveStats />
+
+        {/* Lecteur musical avancé en démonstration */}
+        <div className="mb-16 sm:mb-20">
+          <div className="text-center mb-8">
+            <h3 className="text-2xl sm:text-3xl font-bold text-white mb-4">
+              Expérience d'Écoute Immersive
+            </h3>
+            <p className="text-gray-300 max-w-2xl mx-auto">
+              Découvrez notre interface de lecture révolutionnaire, conçue spécialement pour l'apprentissage médical
+            </p>
+          </div>
+          
+          <div className="flex justify-center">
+            <AdvancedMusicPlayer />
+          </div>
+        </div>
 
         {/* Sections principales optimisées mobile */}
         <div className="grid sm:grid-cols-2 gap-4 sm:gap-8 max-w-6xl mx-auto mb-12 sm:mb-16 px-2">

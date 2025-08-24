@@ -28,9 +28,15 @@ import {
   ArrowRight,
   Check,
   Star,
-  TrendingUp
+  TrendingUp,
+  Mic,
+  Radio,
+  Headphones,
+  Waves
 } from 'lucide-react';
 import { MedMngLayout } from '@/components/med-mng/MedMngLayout';
+import { MusicWaveform } from '@/components/immersive/MusicWaveform';
+import { RealtimePreview } from '@/components/med-mng/create/RealtimePreview';
 import { useToast } from '@/hooks/use-toast';
 
 interface CreationStep {
@@ -308,8 +314,11 @@ const Create = () => {
           </div>
 
           <Tabs value={steps[activeStep].id} className="max-w-6xl mx-auto">
-            {/* Étape 1: Sélection du contenu */}
-            <TabsContent value="content" className="space-y-6">
+            <div className="grid lg:grid-cols-3 gap-8">
+              {/* Contenu principal */}
+              <div className="lg:col-span-2">
+                {/* Étape 1: Sélection du contenu */}
+                <TabsContent value="content" className="space-y-6">
               <Card className="shadow-lg border-0 bg-white/70 backdrop-blur-sm">
                 <CardHeader>
                   <CardTitle className="flex items-center space-x-2 text-xl">
@@ -584,7 +593,24 @@ const Create = () => {
                   )}
                 </CardContent>
               </Card>
-            </TabsContent>
+                </TabsContent>
+              </div>
+
+              {/* Aperçu en temps réel */}
+              <div className="lg:col-span-1">
+                <div className="sticky top-24">
+                  <RealtimePreview
+                    selectedContent={selectedContent}
+                    selectedStyle={selectedStyle}
+                    customPrompt={customPrompt}
+                    difficulty={difficulty}
+                    duration={duration}
+                    isGenerating={isGenerating}
+                    onGenerate={handleGeneration}
+                  />
+                </div>
+              </div>
+            </div>
           </Tabs>
 
           {/* Navigation */}

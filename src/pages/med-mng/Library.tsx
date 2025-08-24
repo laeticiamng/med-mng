@@ -28,6 +28,8 @@ import {
 } from 'lucide-react';
 import { MedMngLayout } from '@/components/med-mng/MedMngLayout';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { EnhancedLibraryCard } from '@/components/immersive/EnhancedLibraryCard';
+import { MusicWaveform } from '@/components/immersive/MusicWaveform';
 import { useToast } from '@/hooks/use-toast';
 
 interface MedTrack {
@@ -43,6 +45,8 @@ interface MedTrack {
   tags: string[];
   mood: string;
   tempo: number;
+  retentionScore?: number;
+  completionRate?: number;
 }
 
 const Library = () => {
@@ -72,7 +76,9 @@ const Library = () => {
         difficulty: 'intermediaire',
         tags: ['cardiologie', 'insuffisance', 'physiopathologie'],
         mood: 'Énergique',
-        tempo: 150
+        tempo: 150,
+        retentionScore: 89,
+        completionRate: 76
       },
       {
         id: '2',
@@ -86,7 +92,9 @@ const Library = () => {
         difficulty: 'avance',
         tags: ['neurologie', 'anatomie', 'système nerveux'],
         mood: 'Relaxant',
-        tempo: 85
+        tempo: 85,
+        retentionScore: 92,
+        completionRate: 84
       },
       {
         id: '3',
@@ -100,7 +108,9 @@ const Library = () => {
         difficulty: 'intermediaire',
         tags: ['endocrinologie', 'diabète', 'métabolisme'],
         mood: 'Optimiste',
-        tempo: 125
+        tempo: 125,
+        retentionScore: 95,
+        completionRate: 91
       },
       {
         id: '4',
