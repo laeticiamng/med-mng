@@ -5,6 +5,8 @@ import { Card } from "@/components/ui/card";
 import { Home, ArrowLeft, Search, BookOpen, Stethoscope, Music, Users, AlertTriangle } from "lucide-react";
 import { Helmet } from "react-helmet-async";
 import { useResponsiveSpacing } from "@/hooks/useBreakpoints";
+import { ConsistentBackground } from "@/components/layout/ConsistentBackground";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 const NotFound = () => {
   const location = useLocation();
@@ -25,7 +27,7 @@ const NotFound = () => {
       icon: Home,
       path: "/",
       color: "from-blue-500 to-blue-600",
-      bgColor: "bg-blue-50"
+      bgColor: "bg-blue-500/20"
     },
     {
       title: "EDN Explorer",
@@ -33,7 +35,7 @@ const NotFound = () => {
       icon: BookOpen,
       path: "/edn",
       color: "from-purple-500 to-purple-600",
-      bgColor: "bg-purple-50"
+      bgColor: "bg-purple-500/20"
     },
     {
       title: "Générateur Musical",
@@ -41,7 +43,7 @@ const NotFound = () => {
       icon: Music,
       path: "/generator",
       color: "from-green-500 to-green-600",
-      bgColor: "bg-green-50"
+      bgColor: "bg-green-500/20"
     },
     {
       title: "ECOS",
@@ -49,7 +51,7 @@ const NotFound = () => {
       icon: Stethoscope,
       path: "/ecos",
       color: "from-emerald-500 to-emerald-600",
-      bgColor: "bg-emerald-50"
+      bgColor: "bg-emerald-500/20"
     }
   ];
 
@@ -61,23 +63,8 @@ const NotFound = () => {
         <meta name="robots" content="noindex" />
       </Helmet>
       
-      <div className="min-h-screen bg-gradient-to-br from-red-50 via-white to-orange-50 relative overflow-hidden">
-        {/* Éléments de fond animés */}
-        <div className="absolute inset-0">
-          {[...Array(20)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute w-2 h-2 bg-red-200/30 rounded-full animate-pulse"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 3}s`,
-              }}
-            />
-          ))}
-        </div>
-
-        <div className={`relative z-10 container mx-auto ${spacing.container} flex items-center justify-center min-h-screen`}>
+      <ConsistentBackground variant="primary">
+        <div className={`container mx-auto ${spacing.container} flex items-center justify-center min-h-screen`}>
           <div className="max-w-4xl w-full">
             {/* En-tête avec erreur */}
             <div className="text-center mb-12">
@@ -85,30 +72,30 @@ const NotFound = () => {
                 <AlertTriangle className="h-12 w-12 text-white" />
               </div>
               
-              <h1 className="text-6xl md:text-8xl font-bold bg-gradient-to-r from-red-600 to-orange-600 bg-clip-text text-transparent mb-4">
+              <h1 className="text-6xl md:text-8xl font-bold bg-gradient-to-r from-red-400 to-orange-400 bg-clip-text text-transparent mb-4">
                 404
               </h1>
               
-              <h2 className="text-2xl md:text-3xl font-bold text-gray-800 mb-4">
+              <h2 className="text-2xl md:text-3xl font-bold text-white mb-4">
                 Page introuvable
               </h2>
               
-              <p className="text-lg text-gray-600 mb-2">
+              <p className="text-lg text-gray-300 mb-2">
                 Oops ! La page que vous cherchez n'existe pas ou a été déplacée.
               </p>
               
-              <p className="text-sm text-gray-500 font-mono bg-gray-100 px-3 py-1 rounded inline-block">
+              <p className="text-sm text-gray-400 font-mono bg-black/20 backdrop-blur-sm px-3 py-2 rounded-lg inline-block border border-white/10">
                 {location.pathname}
               </p>
             </div>
 
             {/* Barre de recherche */}
-            <Card className="p-6 mb-8 bg-white/80 backdrop-blur-sm border border-white/50 shadow-lg">
+            <Card className="p-6 mb-8 bg-black/20 backdrop-blur-xl border border-white/10 shadow-2xl">
               <div className="text-center mb-4">
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                <h3 className="text-xl font-semibold text-white mb-2">
                   Que recherchiez-vous ?
                 </h3>
-                <p className="text-gray-600 text-sm">
+                <p className="text-gray-300 text-sm">
                   Utilisez notre recherche pour trouver ce dont vous avez besoin
                 </p>
               </div>
@@ -120,7 +107,7 @@ const NotFound = () => {
                   placeholder="Rechercher un item EDN, une situation ECOS..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 rounded-full border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white/90"
+                  className="w-full pl-12 pr-4 py-3 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all duration-300"
                 />
               </div>
             </Card>
@@ -131,15 +118,15 @@ const NotFound = () => {
                 const Icon = link.icon;
                 return (
                   <Link key={link.path} to={link.path} className="group">
-                    <Card className={`p-6 text-center ${link.bgColor} border-none hover:shadow-xl transition-all duration-300 hover:scale-105 animate-fade-in`}
+                    <Card className={`p-6 text-center ${link.bgColor} backdrop-blur-sm border border-white/10 hover:shadow-2xl transition-all duration-300 hover:scale-105 animate-fade-in hover:border-white/20`}
                           style={{ animationDelay: `${index * 0.1}s` }}>
                       <div className={`inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r ${link.color} rounded-full mb-4 group-hover:scale-110 transition-transform duration-300 shadow-lg`}>
                         <Icon className="h-8 w-8 text-white" />
                       </div>
-                      <h4 className="text-lg font-semibold text-gray-800 mb-2 group-hover:text-gray-900">
+                      <h4 className="text-lg font-semibold text-white mb-2 group-hover:text-gray-100">
                         {link.title}
                       </h4>
-                      <p className="text-sm text-gray-600 group-hover:text-gray-700">
+                      <p className="text-sm text-gray-300 group-hover:text-gray-200">
                         {link.description}
                       </p>
                     </Card>
@@ -149,20 +136,20 @@ const NotFound = () => {
             </div>
 
             {/* Aide supplémentaire */}
-            <Card className="p-8 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200/50 shadow-lg">
+            <Card className="p-8 bg-black/20 backdrop-blur-xl border border-white/10 shadow-2xl">
               <div className="text-center">
-                <Users className="h-12 w-12 text-blue-600 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-800 mb-4">
+                <Users className="h-12 w-12 text-blue-400 mx-auto mb-4" />
+                <h3 className="text-xl font-semibold text-white mb-4">
                   Besoin d'aide ?
                 </h3>
-                <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
+                <p className="text-gray-300 mb-6 max-w-2xl mx-auto">
                   Notre équipe est là pour vous aider. Si vous ne trouvez pas ce que vous cherchez, 
                   n'hésitez pas à nous contacter ou à consulter notre documentation.
                 </p>
                 
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Link to="/">
-                    <Button className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700">
+                    <Button className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white border-0 shadow-lg hover:shadow-xl transition-all duration-300">
                       <Home className="h-4 w-4" />
                       Retour à l'accueil
                     </Button>
@@ -170,7 +157,7 @@ const NotFound = () => {
                   
                   <Button 
                     variant="outline" 
-                    className="flex items-center gap-2 border-blue-200 hover:bg-blue-50"
+                    className="flex items-center gap-2 bg-white/10 backdrop-blur-sm text-white border border-white/20 hover:bg-white/20 hover:border-white/30"
                     onClick={() => window.history.back()}
                   >
                     <ArrowLeft className="h-4 w-4" />
@@ -183,20 +170,20 @@ const NotFound = () => {
             {/* Statistiques de la plateforme */}
             <div className="mt-12 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
               {[
-                { number: "367", label: "Items EDN", color: "text-blue-600" },
-                { number: "50+", label: "Situations ECOS", color: "text-purple-600" },
-                { number: "10k+", label: "Chansons générées", color: "text-green-600" },
-                { number: "2k+", label: "Étudiants actifs", color: "text-orange-600" }
+                { number: "367", label: "Items EDN", color: "text-blue-400" },
+                { number: "50+", label: "Situations ECOS", color: "text-purple-400" },
+                { number: "10k+", label: "Chansons générées", color: "text-green-400" },
+                { number: "2k+", label: "Étudiants actifs", color: "text-orange-400" }
               ].map((stat, index) => (
                 <div key={index} className="animate-fade-in" style={{ animationDelay: `${index * 0.2}s` }}>
                   <div className={`text-2xl font-bold ${stat.color}`}>{stat.number}</div>
-                  <div className="text-sm text-gray-500">{stat.label}</div>
+                  <div className="text-sm text-gray-400">{stat.label}</div>
                 </div>
               ))}
             </div>
           </div>
         </div>
-      </div>
+      </ConsistentBackground>
     </>
   );
 };

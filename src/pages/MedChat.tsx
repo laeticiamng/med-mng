@@ -6,10 +6,10 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { 
-  MessageSquare, Send, User, Bot, ArrowLeft, Search, 
+  MessageSquare, Send, User, Bot, Search, 
   Sparkles, Clock, BookOpen, Brain, Heart, Activity,
   History, HelpCircle, Settings, Mic, Copy, ThumbsUp,
-  ThumbsDown, MoreVertical, Trash, RefreshCw, Loader2
+  ThumbsDown, RefreshCw, Loader2
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -17,7 +17,8 @@ import { useChatConversations } from '@/hooks/useChatConversations';
 import { TranslatedText } from '@/components/TranslatedText';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Breadcrumbs } from '@/components/ux/Breadcrumbs';
-import { LoadingFeedback } from '@/components/ux/LoadingFeedback';
+import { ConsistentBackground } from '@/components/layout/ConsistentBackground';
+import { PageHeader } from '@/components/layout/PageHeader';
 
 interface Message {
   id: string;
@@ -93,13 +94,11 @@ Posez-moi n'importe quelle question ou choisissez une suggestion ci-dessous !`,
     setIsLoading(true);
     setShowSuggestions(false);
 
-    // Ajouter à l'historique de recherche
     setSearchHistory(prev => {
       const newHistory = [textToSend, ...prev.filter(item => item !== textToSend)];
-      return newHistory.slice(0, 10); // Garder seulement les 10 dernières
+      return newHistory.slice(0, 10);
     });
 
-    // Message de frappe temporaire
     const typingMessage: Message = {
       id: 'typing',
       role: 'assistant',
@@ -112,7 +111,6 @@ Posez-moi n'importe quelle question ou choisissez une suggestion ci-dessous !`,
     try {
       const response = await sendMessage(textToSend);
       
-      // Retirer le message de frappe
       setMessages(prev => prev.filter(msg => msg.id !== 'typing'));
       
       const assistantMessage: Message = {
@@ -151,7 +149,7 @@ Posez-moi n'importe quelle question ou choisissez une suggestion ci-dessous !`,
   };
 
   const clearChat = () => {
-    setMessages([messages[0]]); // Garder le message d'accueil
+    setMessages([messages[0]]);
     setShowSuggestions(true);
     setCurrentMessage('');
   };
@@ -165,89 +163,38 @@ Posez-moi n'importe quelle question ou choisissez une suggestion ci-dessous !`,
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 relative overflow-hidden">
-      {/* Background effects unified */}
-      <div className="absolute inset-0 bg-gradient-to-r from-pink-500/20 via-purple-500/20 to-blue-500/20 animate-pulse"></div>
-      <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,rgba(120,119,198,0.3),transparent_50%)]"></div>
+    <ConsistentBackground variant="primary">
+      <PageHeader 
+        title="Assistant IA Médical" 
+        subtitle="Chat intelligent spécialisé en médecine" 
+        backTo="/" 
+      />
       
-      <div className="relative z-10">
       <div className="container mx-auto px-4 py-6 max-w-4xl">
-        <motion.div 
+        <Breadcrumbs />
+        
+        {/* Header Controls */}
+        <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="flex items-center justify-between mb-6"
+          className="flex items-center justify-between mb-6 p-4 bg-black/20 backdrop-blur-xl rounded-2xl border border-white/10 shadow-2xl"
         >
           <div className="flex items-center gap-4">
-            <Button 
-              variant="outline" 
-              size="icon"
-              onClick={() => navigate('/')}
-              className="shrink-0 hover:bg-orange-50"
-              aria-label="Retourner à la page d'accueil"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-            <div className="flex items-center gap-3">
-              <div className="relative">
-                <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center shadow-lg">
-                  <MessageSquare className="h-6 w-6 text-white" />
-                </div>
-                <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white animate-pulse"></div>
-              </div>
-              <div>
-                <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent" id="main-content">
-                  <TranslatedText text="Chat Intelligent" />
-                </h1>
-                <p className="text-sm md:text-base text-gray-600 flex items-center gap-2">
-                  <Sparkles className="h-4 w-4 text-yellow-500" />
-                  <TranslatedText text="Assistant IA médical avancé" />
-                </p>
-              </div>
+            <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center shadow-lg">
+              <Bot className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <h2 className="text-xl font-bold text-white">Assistant IA MED-MNG</h2>
+              <p className="text-gray-300 text-sm">Votre expert médical personnel</p>
             </div>
           </div>
-
-          <div className="flex gap-2">
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button 
-                  variant="outline" 
-                  size="icon" 
-                  className="hidden md:flex"
-                  aria-label="Voir l'historique des questions précédentes"
-                >
-                  <History className="h-4 w-4" />
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Historique des questions</DialogTitle>
-                  <DialogDescription>
-                    Vos dernières questions posées
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="space-y-2 max-h-60 overflow-y-auto">
-                  {searchHistory.map((question, index) => (
-                    <div 
-                      key={index}
-                      className="p-2 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
-                      onClick={() => handleSuggestionClick(question)}
-                    >
-                      <p className="text-sm">{question}</p>
-                      <p className="text-xs text-gray-500">Cliquez pour réutiliser</p>
-                    </div>
-                  ))}
-                  {searchHistory.length === 0 && (
-                    <p className="text-gray-500 text-center py-4">Aucun historique disponible</p>
-                  )}
-                </div>
-              </DialogContent>
-            </Dialog>
-
-            <Button 
-              variant="outline" 
-              size="icon"
+          
+          <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              variant="ghost"
               onClick={clearChat}
-              className="hover:bg-red-50"
+              className="text-white/80 hover:text-white hover:bg-white/10"
               aria-label="Effacer la conversation et recommencer"
             >
               <RefreshCw className="h-4 w-4" />
@@ -255,27 +202,27 @@ Posez-moi n'importe quelle question ou choisissez une suggestion ci-dessous !`,
           </div>
         </motion.div>
 
-        {/* Chat Interface Enhanced */}
+        {/* Chat Interface */}
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.1 }}
         >
-          <Card className="h-[calc(100vh-180px)] flex flex-col shadow-xl border-0 bg-white/80 backdrop-blur-sm">
-            <CardHeader className="flex-shrink-0 border-b bg-gradient-to-r from-orange-50 to-red-50">
+          <Card className="h-[calc(100vh-220px)] flex flex-col shadow-xl border-0 bg-black/20 backdrop-blur-xl border border-white/10">
+            <CardHeader className="flex-shrink-0 border-b border-white/10">
               <CardTitle className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Search className="h-5 w-5 text-orange-600" />
-                  <TranslatedText text="Conversation avec l'IA" />
+                  <Search className="h-5 w-5 text-orange-400" />
+                  <span className="text-white">Conversation avec l'IA</span>
                 </div>
-                <Badge variant="outline" className="text-green-600 border-green-200">
+                <Badge className="bg-green-500/20 text-green-300 border-green-400/30">
                   En ligne
                 </Badge>
               </CardTitle>
             </CardHeader>
             
             <CardContent className="flex-1 flex flex-col p-0 overflow-hidden">
-              {/* Messages Enhanced */}
+              {/* Messages */}
               <ScrollArea className="flex-1 p-4 md:p-6">
                 <div className="space-y-4">
                   <AnimatePresence>
@@ -299,7 +246,7 @@ Posez-moi n'importe quelle question ou choisissez une suggestion ci-dessous !`,
                           className={`max-w-[85%] md:max-w-[75%] group relative ${
                             message.role === 'user'
                               ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-2xl rounded-br-md p-4 shadow-lg'
-                              : 'bg-white border border-gray-200 shadow-sm rounded-2xl rounded-bl-md p-4'
+                              : 'bg-white/90 backdrop-blur-sm border border-white/20 shadow-sm rounded-2xl rounded-bl-md p-4'
                           }`}
                         >
                           {message.isTyping ? (
@@ -310,9 +257,11 @@ Posez-moi n'importe quelle question ou choisissez une suggestion ci-dessous !`,
                             </div>
                           ) : (
                             <>
-                              <p className="whitespace-pre-wrap leading-relaxed">{message.content}</p>
+                              <p className={`whitespace-pre-wrap leading-relaxed ${message.role === 'user' ? 'text-white' : 'text-gray-900'}`}>
+                                {message.content}
+                              </p>
                               
-                              {/* Citations Enhanced - TOUJOURS AFFICHÉES */}
+                              {/* Citations */}
                               {message.courseCitations && message.courseCitations.length > 0 && (
                                 <div className="mt-4 pt-4 border-t border-gray-200">
                                   <p className="text-xs font-medium text-gray-600 mb-2 flex items-center gap-1">
@@ -380,7 +329,7 @@ Posez-moi n'importe quelle question ou choisissez une suggestion ci-dessous !`,
                       animate={{ opacity: 1, y: 0 }}
                       className="space-y-3"
                     >
-                      <p className="text-sm font-medium text-gray-600 flex items-center gap-2">
+                      <p className="text-sm font-medium text-gray-300 flex items-center gap-2">
                         <HelpCircle className="h-4 w-4" />
                         Questions suggérées :
                       </p>
@@ -392,15 +341,15 @@ Posez-moi n'importe quelle question ou choisissez une suggestion ci-dessous !`,
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: index * 0.1 }}
                             onClick={() => handleSuggestionClick(suggestion.text)}
-                            className="flex items-start gap-3 p-3 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl hover:from-orange-50 hover:to-red-50 transition-all duration-200 text-left border border-gray-200 hover:border-orange-200 group"
+                            className="flex items-start gap-3 p-3 bg-white/10 backdrop-blur-sm rounded-xl hover:bg-white/20 transition-all duration-200 text-left border border-white/20 hover:border-white/30 group"
                             aria-label={`Poser la question: ${suggestion.text} (catégorie: ${suggestion.category})`}
                           >
-                            <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow">
-                              <suggestion.icon className="h-4 w-4 text-orange-600" />
+                            <div className="w-8 h-8 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow">
+                              <suggestion.icon className="h-4 w-4 text-orange-400" />
                             </div>
                             <div className="flex-1">
-                              <p className="text-sm font-medium text-gray-900">{suggestion.text}</p>
-                              <p className="text-xs text-gray-500">{suggestion.category}</p>
+                              <p className="text-sm font-medium text-white">{suggestion.text}</p>
+                              <p className="text-xs text-gray-300">{suggestion.category}</p>
                             </div>
                           </motion.button>
                         ))}
@@ -411,8 +360,8 @@ Posez-moi n'importe quelle question ou choisissez une suggestion ci-dessous !`,
                 <div ref={messagesEndRef} />
               </ScrollArea>
 
-              {/* Input Enhanced */}
-              <div className="border-t bg-gradient-to-r from-gray-50 to-gray-100 p-4">
+              {/* Input */}
+              <div className="border-t border-white/10 bg-black/10 backdrop-blur-sm p-4">
                 <div className="flex gap-3 items-end">
                   <div className="flex-1 relative">
                     <Input
@@ -420,13 +369,13 @@ Posez-moi n'importe quelle question ou choisissez une suggestion ci-dessous !`,
                       onChange={(e) => setCurrentMessage(e.target.value)}
                       onKeyPress={handleKeyPress}
                       placeholder="Tapez votre question médicale ici..."
-                      className="min-h-[50px] pr-12 bg-white border-2 border-gray-200 focus:border-orange-400 rounded-xl shadow-sm"
+                      className="min-h-[50px] pr-12 bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder-gray-400 focus:border-orange-400 rounded-xl shadow-sm focus:bg-white/20"
                       disabled={isLoading}
                     />
                     <Button
                       size="sm"
                       variant="ghost"
-                      className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 p-0 text-gray-400 hover:text-orange-600"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 p-0 text-gray-400 hover:text-orange-400"
                     >
                       <Mic className="h-4 w-4" />
                     </Button>
@@ -448,16 +397,15 @@ Posez-moi n'importe quelle question ou choisissez une suggestion ci-dessous !`,
                     )}
                   </Button>
                 </div>
-                <p className="text-xs text-gray-500 mt-2 flex items-center gap-2">
+                <p className="text-xs text-gray-400 mt-2 flex items-center gap-2">
                   <Sparkles className="h-3 w-3" />
                   <TranslatedText text="Appuyez sur Entrée pour envoyer, Maj+Entrée pour une nouvelle ligne" />
                 </p>
               </div>
             </CardContent>
           </Card>
-         </motion.div>
-       </div>
+        </motion.div>
       </div>
-    </div>
+    </ConsistentBackground>
   );
 };

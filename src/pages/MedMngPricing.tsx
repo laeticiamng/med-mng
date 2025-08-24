@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MedMngNavigation } from '@/components/med-mng/MedMngNavigation';
@@ -11,6 +10,8 @@ import { useAuth } from '@/components/med-mng/AuthProvider';
 import { useSubscription } from '@/hooks/useSubscription';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { ConsistentBackground } from '@/components/layout/ConsistentBackground';
+import { PageHeader } from '@/components/layout/PageHeader';
 
 interface SubscriptionPlan {
   id: string;
@@ -149,21 +150,14 @@ export const MedMngPricing = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
+    <ConsistentBackground variant="light">
       <MedMngNavigation />
       
-      {/* Back to Home Button */}
-      <div className="container mx-auto px-4 pt-4">
-        <Button
-          variant="outline"
-          onClick={() => navigate('/')}
-          className="flex items-center gap-2 mb-4 bg-white/80 hover:bg-white shadow-sm"
-          aria-label="Retourner à la page d'accueil"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          <TranslatedText text="Retour à l'accueil" />
-        </Button>
-      </div>
+      <PageHeader 
+        title="Abonnements MED-MNG" 
+        subtitle="Choisissez le plan qui correspond à vos besoins d'apprentissage" 
+        backTo="/" 
+      />
 
       <div className="container mx-auto px-4 py-4 sm:py-8">
         
@@ -183,7 +177,7 @@ export const MedMngPricing = () => {
           />
           
           {/* Free Trial Badge */}
-          <Badge variant="secondary" className="mb-6 px-4 py-2 text-lg">
+          <Badge variant="secondary" className="mb-6 px-4 py-2 text-lg bg-green-500/20 text-green-700 border-green-300">
             <Music className="h-4 w-4 mr-2" />
             <TranslatedText text="3 chansons gratuites pour commencer !" />
           </Badge>
@@ -193,7 +187,7 @@ export const MedMngPricing = () => {
         <div className="grid md:grid-cols-2 gap-8 mb-12">
           
           {/* Version Gratuite */}
-          <Card className="bg-white/90 backdrop-blur-sm shadow-lg">
+          <Card className="bg-white/90 backdrop-blur-sm shadow-lg border border-white/50">
             <CardHeader className="text-center pb-4">
               <CardTitle className="text-2xl text-green-600">
                 <TranslatedText text="Version Gratuite" />
@@ -207,7 +201,7 @@ export const MedMngPricing = () => {
                 {freeFeatures.map((feature, index) => {
                   const Icon = feature.icon;
                   return (
-                    <div key={index} className="flex items-start gap-3 p-3 bg-green-50 rounded-lg">
+                    <div key={index} className="flex items-start gap-3 p-3 bg-green-500/10 backdrop-blur-sm rounded-lg border border-green-300/20">
                       <Icon className="h-6 w-6 text-green-600 flex-shrink-0 mt-1" />
                       <div>
                         <h4 className="font-semibold text-gray-900">
@@ -252,7 +246,7 @@ export const MedMngPricing = () => {
                 {premiumFeatures.map((feature, index) => {
                   const Icon = feature.icon;
                   return (
-                    <div key={index} className="flex items-start gap-3 p-3 bg-blue-50 rounded-lg">
+                    <div key={index} className="flex items-start gap-3 p-3 bg-blue-500/10 backdrop-blur-sm rounded-lg border border-blue-300/20">
                       <Icon className="h-6 w-6 text-blue-600 flex-shrink-0 mt-1" />
                       <div>
                         <h4 className="font-semibold text-gray-900">
@@ -272,7 +266,7 @@ export const MedMngPricing = () => {
 
         {/* Current subscription banner */}
         {subscription && (
-          <Card className="mb-8 p-6 bg-white/90 backdrop-blur-sm shadow-lg">
+          <Card className="mb-8 p-6 bg-white/90 backdrop-blur-sm shadow-lg border border-white/50">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-xl font-bold text-gray-900">
@@ -291,7 +285,7 @@ export const MedMngPricing = () => {
 
         {/* Plans Grid */}
         <div className="mb-12">
-          <h2 className="text-2xl font-bold text-center mb-8">
+          <h2 className="text-2xl font-bold text-center mb-8 text-gray-900">
             <TranslatedText text="Plans d'abonnement disponibles" />
           </h2>
           
@@ -304,7 +298,7 @@ export const MedMngPricing = () => {
               {plans.map((plan) => (
                 <Card 
                   key={plan.id}
-                  className={`relative bg-white/90 backdrop-blur-sm shadow-lg ${
+                  className={`relative bg-white/90 backdrop-blur-sm shadow-lg border border-white/50 ${
                     isCurrentPlan(plan.name) ? 'ring-2 ring-blue-500' : ''
                   } ${plan.name.toLowerCase() === 'premium' ? 'border-2 border-purple-500' : ''}`}
                 >
@@ -318,8 +312,8 @@ export const MedMngPricing = () => {
                     <div className={`w-12 h-12 bg-gradient-to-r ${getPlanColor(plan.name)} rounded-xl mx-auto mb-4 flex items-center justify-center text-white`}>
                       {getPlanIcon(plan.name)}
                     </div>
-                    <CardTitle className="text-xl font-bold">{plan.name}</CardTitle>
-                    <CardDescription className="text-sm">{plan.description}</CardDescription>
+                    <CardTitle className="text-xl font-bold text-gray-900">{plan.name}</CardTitle>
+                    <CardDescription className="text-sm text-gray-600">{plan.description}</CardDescription>
                     <div className="text-3xl font-bold text-gray-900 mt-4">
                       {plan.price === 0 ? 'Gratuit' : `${plan.price}€`}
                       {plan.price > 0 && <span className="text-sm font-normal text-gray-600">/mois</span>}
@@ -330,34 +324,34 @@ export const MedMngPricing = () => {
                     <div className="space-y-3">
                       <div className="flex items-center gap-2">
                         <Check className="h-4 w-4 text-green-500" />
-                        <span className="text-sm">{plan.monthly_music_quota} générations/mois</span>
+                        <span className="text-sm text-gray-700">{plan.monthly_music_quota} générations/mois</span>
                       </div>
                       
                       {plan.features?.tableaux && (
                         <div className="flex items-center gap-2">
                           <Check className="h-4 w-4 text-green-500" />
-                          <span className="text-sm">Tableaux Rang A & B</span>
+                          <span className="text-sm text-gray-700">Tableaux Rang A & B</span>
                         </div>
                       )}
                       
                       {plan.features?.quiz && (
                         <div className="flex items-center gap-2">
                           <Check className="h-4 w-4 text-green-500" />
-                          <span className="text-sm">Quiz complets</span>
+                          <span className="text-sm text-gray-700">Quiz complets</span>
                         </div>
                       )}
                       
                       {plan.features?.bande_dessinee && (
                         <div className="flex items-center gap-2">
                           <Check className="h-4 w-4 text-green-500" />
-                          <span className="text-sm">Bandes dessinées</span>
+                          <span className="text-sm text-gray-700">Bandes dessinées</span>
                         </div>
                       )}
                       
                       {plan.features?.save_music && (
                         <div className="flex items-center gap-2">
                           <Check className="h-4 w-4 text-green-500" />
-                          <span className="text-sm">Sauvegarde bibliothèque</span>
+                          <span className="text-sm text-gray-700">Sauvegarde bibliothèque</span>
                         </div>
                       )}
                     </div>
@@ -406,9 +400,9 @@ export const MedMngPricing = () => {
         </div>
 
         {/* FAQ Section */}
-        <Card className="mt-8 sm:mt-12 max-w-4xl mx-auto shadow-lg">
+        <Card className="mt-8 sm:mt-12 max-w-4xl mx-auto shadow-lg bg-white/90 backdrop-blur-sm border border-white/50">
           <CardHeader className="text-center">
-            <CardTitle className="text-lg sm:text-xl">
+            <CardTitle className="text-lg sm:text-xl text-gray-900">
               <TranslatedText text="Questions Fréquentes" />
             </CardTitle>
           </CardHeader>
@@ -416,7 +410,7 @@ export const MedMngPricing = () => {
             <div className="space-y-6">
               
               <div className="border-b pb-4">
-                <h4 className="font-semibold text-lg mb-2">
+                <h4 className="font-semibold text-lg mb-2 text-gray-900">
                   <TranslatedText text="Comment fonctionne la version gratuite ?" />
                 </h4>
                 <p className="text-gray-600">
@@ -425,7 +419,7 @@ export const MedMngPricing = () => {
               </div>
 
               <div className="border-b pb-4">
-                <h4 className="font-semibold text-lg mb-2">
+                <h4 className="font-semibold text-lg mb-2 text-gray-900">
                   <TranslatedText text="Puis-je annuler mon abonnement ?" />
                 </h4>
                 <p className="text-gray-600">
@@ -434,57 +428,27 @@ export const MedMngPricing = () => {
               </div>
 
               <div className="border-b pb-4">
-                <h4 className="font-semibold text-lg mb-2">
+                <h4 className="font-semibold text-lg mb-2 text-gray-900">
                   <TranslatedText text="Les musiques sont-elles téléchargeables ?" />
                 </h4>
                 <p className="text-gray-600">
-                  <TranslatedText text="Non, pour des raisons de sécurité et de droits d'auteur, les musiques sont uniquement disponibles en streaming sécurisé dans votre bibliothèque." />
+                  <TranslatedText text="Non, pour des raisons de droits d'auteur, nos musiques sont uniquement disponibles en streaming sécurisé via notre plateforme. Vous pouvez les écouter autant que vous le souhaitez." />
                 </p>
               </div>
 
               <div>
-                <h4 className="font-semibold text-lg mb-2">
-                  <TranslatedText text="Que comprend le support prioritaire ?" />
+                <h4 className="font-semibold text-lg mb-2 text-gray-900">
+                  <TranslatedText text="Comment contacter le support ?" />
                 </h4>
                 <p className="text-gray-600">
-                  <TranslatedText text="Les abonnés premium bénéficient d'un support par email avec réponse sous 24h et d'un accès privilégié aux nouvelles fonctionnalités." />
+                  <TranslatedText text="Notre équipe support est disponible par email. Connectez-vous à votre compte pour accéder aux options de support personnalisées." />
                 </p>
               </div>
-
             </div>
           </CardContent>
         </Card>
 
-        {/* Call to Action */}
-        <div className="mt-12 text-center">
-          <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 text-white">
-            <h3 className="text-2xl font-bold mb-4">
-              <TranslatedText text="Prêt à révolutionner votre apprentissage médical ?" />
-            </h3>
-            <p className="text-lg mb-6 opacity-90">
-              <TranslatedText text="Rejoignez des centaines d'étudiants qui utilisent déjà MED-MNG pour réussir leurs études" />
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button
-                onClick={() => navigate('/edn')}
-                variant="secondary"
-                size="lg"
-                className="bg-white text-blue-600 hover:bg-gray-100"
-              >
-                <TranslatedText text="Essayer gratuitement" />
-              </Button>
-              <Button
-                onClick={() => navigate('/med-mng/login')}
-                variant="outline"
-                size="lg"
-                className="border-white text-white hover:bg-white/10"
-              >
-                <TranslatedText text="Se connecter" />
-              </Button>
-            </div>
-          </div>
-        </div>
       </div>
-    </div>
+    </ConsistentBackground>
   );
 };
