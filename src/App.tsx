@@ -71,6 +71,10 @@ const TestExtraction = lazy(() => import("./pages/TestExtraction"));
 const EdnImmersive = lazy(() => import("./pages/EdnImmersive"));
 const EdnComplete = lazy(() => import("./pages/EdnComplete"));
 const EdnItem = lazy(() => import("./pages/EdnItem"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const Library = lazy(() => import("./pages/Library"));
+const Profile = lazy(() => import("./pages/Profile"));
+const Settings = lazy(() => import("./pages/Settings"));
 
 import { AuthProvider } from "./components/med-mng/AuthProvider";
 import { ProtectedRoute } from "./components/med-mng/withAuth";
@@ -223,9 +227,16 @@ const AppWithUX = () => {
                                             <Route path="/test-subscriptions" element={<SubscriptionTest />} />
                                             <Route path="/library" element={<Navigate to="/med-mng/library" replace />} />
                                             <Route path="/music-library" element={<Navigate to="/med-mng/library" replace />} />
-                                            <Route path="/validation-ux" element={<UXValidationDashboard />} />
-                                            <Route path="/test-extraction" element={<TestExtraction />} />
-                                            <Route path="*" element={<NotFound />} />
+                                             <Route path="/validation-ux" element={<UXValidationDashboard />} />
+                                             <Route path="/test-extraction" element={<TestExtraction />} />
+                                             
+                                             {/* Nouvelles pages complètes */}
+                                             <Route path="/dashboard" element={<Dashboard />} />
+                                             <Route path="/library" element={<Library />} />
+                                             <Route path="/profile" element={<Profile />} />
+                                             <Route path="/settings" element={<Settings />} />
+                                             
+                                             <Route path="*" element={<NotFound />} />
                                           </Routes>
                                         </Suspense>
                                         {/* UX Toolbar - Floating bottom-right */}
