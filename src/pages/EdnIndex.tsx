@@ -10,13 +10,15 @@ import {
   Search, Filter, BookOpen, Music, Users, Brain, 
   Play, Headphones, Image, FileText, CheckCircle,
   Sparkles, ArrowRight, Volume2, Gamepad2,
-  Maximize2, Eye, Star, Target, Award, ArrowLeft
+  Maximize2, Eye, Star, Target, Award
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { EdnItemModal } from "@/components/edn/premium/EdnItemModal";
 import { EdnItemCard } from "@/components/edn/premium/EdnItemCard";
+import { ConsistentBackground } from "@/components/layout/ConsistentBackground";
+import { PageHeader } from "@/components/layout/PageHeader";
 
 interface EdnItem {
   id: string;
@@ -153,65 +155,40 @@ const EdnIndex = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900/95 via-purple-900/90 to-indigo-900/95 flex items-center justify-center relative">
-        {/* Suno-style aura effects */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        </div>
-        
-        <div className="text-center space-y-6 relative z-10">
-          <div className="w-20 h-20 border-4 border-purple-400 border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <div>
-            <h2 className="text-3xl font-bold text-white mb-3">
-              Chargement MED MNG EDN
-            </h2>
-            <p className="text-gray-300 text-lg">
-              Préparation des 367 items avec compétences complètes...
-            </p>
+      <ConsistentBackground variant="secondary">
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center space-y-6 relative z-10">
+            <div className="w-20 h-20 border-4 border-purple-400 border-t-transparent rounded-full animate-spin mx-auto"></div>
+            <div>
+              <h2 className="text-3xl font-bold text-white mb-3">
+                Chargement MED MNG EDN
+              </h2>
+              <p className="text-gray-300 text-lg">
+                Préparation des 367 items avec compétences complètes...
+              </p>
+            </div>
           </div>
         </div>
-      </div>
+      </ConsistentBackground>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900/95 via-purple-900/90 to-indigo-900/95 relative">
-      {/* Suno-style aura effects */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl animate-pulse delay-500"></div>
-      </div>
-
+    <ConsistentBackground variant="secondary">
+      <PageHeader 
+        title="Items EDN MED MNG • Interface Musicale" 
+        subtitle="367 items • Rangs A & B complets • Génération IA avancée" 
+        backTo="/" 
+      />
+      
       {/* Header Suno-inspired */}
       <div className="bg-black/20 backdrop-blur-xl border-b border-white/10 sticky top-0 z-40 shadow-2xl shadow-purple-500/10">
         <div className="container mx-auto px-4 py-6 relative">
-          {/* Navigation Button */}
-          <div className="flex items-center justify-between mb-6">
-            <Button 
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate('/')}
-              className="flex items-center gap-2 text-white/80 hover:text-white hover:bg-white/10"
-              aria-label="Retourner à la page d'accueil"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Retour à l'accueil
-            </Button>
-          </div>
-          
           <div className="text-center mb-6">
             <div className="flex items-center justify-center gap-4 mb-6">
               <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-blue-500 rounded-3xl flex items-center justify-center shadow-2xl shadow-purple-500/50 relative">
                 <BookOpen className="h-8 w-8 text-white" />
                 <div className="absolute inset-0 bg-gradient-to-br from-purple-400/20 to-blue-400/20 rounded-3xl blur animate-pulse"></div>
-              </div>
-              <div>
-                <h1 className="text-4xl font-bold bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent mb-2">
-                  Items EDN MED MNG • Interface Musicale
-                </h1>
-                <p className="text-gray-300 text-lg">367 items • Rangs A & B complets • Génération IA avancée</p>
               </div>
             </div>
             
@@ -378,7 +355,7 @@ const EdnIndex = () => {
           setSelectedItem(null);
         }}
       />
-    </div>
+    </ConsistentBackground>
   );
 };
 

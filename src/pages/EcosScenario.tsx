@@ -1,4 +1,6 @@
 
+import { ConsistentBackground } from '@/components/layout/ConsistentBackground';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { EcosHeader } from '@/components/ecos/EcosHeader';
@@ -35,14 +37,14 @@ const EcosScenario = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 relative overflow-hidden">
-      {/* Background effects unified */}
-      <div className="absolute inset-0 bg-gradient-to-r from-pink-500/20 via-purple-500/20 to-blue-500/20 animate-pulse"></div>
-      <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,rgba(120,119,198,0.3),transparent_50%)]"></div>
+    <ConsistentBackground variant="primary">
+      <PageHeader 
+        title="Simulation ECOS" 
+        subtitle="Examen Clinique Objectif Structuré" 
+        backTo="/ecos" 
+      />
       
-      <div className="relative z-10">
-
-      <div className="relative z-10">
+      <div className="container mx-auto px-4 py-8">
         <EcosHeader 
           timeLeft={timeLeft}
           formatTime={formatTime}
@@ -50,42 +52,39 @@ const EcosScenario = () => {
           specialty={scenarioData.specialty}
         />
 
-        <div className="container mx-auto px-4 py-8">
-          {/* Scenario header */}
-          <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-white mb-4">{scenarioData.title}</h1>
-            <p className="text-xl text-emerald-200 max-w-3xl mx-auto bg-black/20 rounded-lg p-4">
-              {scenarioData.pitch}
-            </p>
-          </div>
+        {/* Scenario header */}
+        <div className="text-center mb-8">
+          <h1 className="text-4xl font-bold text-white mb-4">{scenarioData.title}</h1>
+          <p className="text-xl text-emerald-200 max-w-3xl mx-auto bg-black/20 backdrop-blur-sm rounded-xl p-6 border border-white/10">
+            {scenarioData.pitch}
+          </p>
+        </div>
 
-          <PatientCard patient={scenarioData.patient} />
-          
-          <StepProgress 
+        <PatientCard patient={scenarioData.patient} />
+        
+        <StepProgress 
+          currentStep={currentStep}
+          totalSteps={scenarioData.steps.length}
+        />
+
+        {!showQuiz ? (
+          <StepContent
+            step={scenarioData.steps[currentStep]}
             currentStep={currentStep}
             totalSteps={scenarioData.steps.length}
+            responses={responses}
+            onResponseChange={handleResponse}
+            onNext={nextStep}
           />
-
-          {!showQuiz ? (
-            <StepContent
-              step={scenarioData.steps[currentStep]}
-              currentStep={currentStep}
-              totalSteps={scenarioData.steps.length}
-              responses={responses}
-              onResponseChange={handleResponse}
-              onNext={nextStep}
-            />
-          ) : (
-            <QuizSection
-              questions={quizQuestions}
-              answers={quizAnswers}
-              onAnswerChange={handleQuizAnswer}
-            />
-          )}
-        </div>
+        ) : (
+          <QuizSection
+            questions={quizQuestions}
+            answers={quizAnswers}
+            onAnswerChange={handleQuizAnswer}
+          />
+        )}
       </div>
-      </div>
-    </div>
+    </ConsistentBackground>
   );
 };
 

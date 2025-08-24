@@ -5,296 +5,304 @@ import { TranslatedText } from "@/components/TranslatedText";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { ConsistentBackground } from "@/components/layout/ConsistentBackground";
 
 const Index = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 relative overflow-hidden gpu-accelerated pb-safe">
-      {/* Optimized background effects with reduced paint cost */}
-      <div className="absolute inset-0 bg-gradient-to-r from-pink-500/20 via-purple-500/20 to-blue-500/20 will-change-transform"></div>
-      <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,rgba(120,119,198,0.3),transparent_50%)] gpu-accelerated"></div>
-      
-      <div className="relative z-10">
-        {/* Header optimisé pour mobile */}
-        <div className="container mx-auto px-4 py-4 sm:py-6">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg">
-                <Sparkles className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
-              </div>
-              <div className="min-w-0 flex-1">
-                <h1 className="text-lg sm:text-2xl font-bold text-white truncate">MED MNG</h1>
-                <p className="text-xs sm:text-sm text-white/70 hidden sm:block">Plateforme d'apprentissage médical avec IA musicale</p>
-                <Badge className="bg-pink-500/20 text-pink-300 border-pink-400/30 text-xs mt-1 sm:mt-0">Premium</Badge>
-              </div>
+    <ConsistentBackground variant="primary">
+      {/* Header optimisé pour mobile */}
+      <div className="container mx-auto px-4 py-4 sm:py-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+            <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg">
+              <Sparkles className="w-6 h-6 sm:w-7 sm:h-7 text-white" />
             </div>
-            
-            <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-              <Button 
-                variant="ghost" 
-                size="sm"
-                className="text-white/80 hover:text-white hover:bg-white/10 hidden sm:flex"
-                onClick={() => navigate('/med-mng/pricing')}
-                aria-label="Voir les offres d'abonnement et tarifs"
-              >
-                <CreditCard className="w-4 h-4 mr-1" />
-                Tarifs
-              </Button>
-              <Button 
-                size="sm"
-                className="bg-white/10 backdrop-blur-sm text-white border border-white/20 hover:bg-white/20 text-xs sm:text-sm"
-                onClick={() => navigate('/med-mng/login')}
-                aria-label="Se connecter à son compte MED-MNG"
-              >
-                <LogIn className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                <span className="hidden sm:inline">Connexion</span>
-                <span className="sm:hidden">Login</span>
-              </Button>
+            <div className="min-w-0 flex-1">
+              <h1 className="text-lg sm:text-2xl font-bold text-white truncate">MED MNG</h1>
+              <p className="text-xs sm:text-sm text-white/70 hidden sm:block">Plateforme d'apprentissage médical avec IA musicale</p>
+              <Badge className="bg-pink-500/20 text-pink-300 border-pink-400/30 text-xs mt-1 sm:mt-0">Premium</Badge>
             </div>
           </div>
-        </div>
-
-        {/* Hero Section optimisé mobile */}
-        <div className="container mx-auto px-4 py-8 sm:py-12">
-          <div className="text-center mb-12 sm:mb-16">
-            <h2 className="lcp-heading text-4xl sm:text-6xl md:text-8xl font-bold text-white mb-6 sm:mb-8 leading-tight" id="main-content">
-              Apprenez la médecine<br />
-              <span className="bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent">
-                comme jamais
-              </span>
-            </h2>
-            <p className="text-base sm:text-xl text-gray-300 mb-8 sm:mb-10 max-w-3xl mx-auto leading-relaxed px-2">
-              Révolutionnez votre apprentissage médical avec l'IA musicale. 
-              Maîtrisez les 367 items EDN grâce à des chansons éducatives personnalisées et mémorisables.
-            </p>
-            
-            {/* CTA Principal optimisé mobile */}
-            <div className="flex flex-col gap-4 items-center justify-center mb-8 sm:mb-12 px-2">
-              <div className="relative w-full max-w-md">
-                <label htmlFor="search-topics" className="sr-only">
-                  Rechercher des sujets médicaux ou items EDN
-                </label>
-                <input 
-                  id="search-topics"
-                  type="text" 
-                  placeholder="Ex: IC-103 Vertige, Cardiologie..."
-                  className="w-full px-4 sm:px-6 py-3 sm:py-4 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-500 transition-all duration-300 text-sm sm:text-base"
-                  aria-describedby="search-help"
-                />
-                <div id="search-help" className="sr-only">
-                  Entrez un sujet médical, un item EDN ou une spécialité pour générer une chanson éducative
-                </div>
-              </div>
-              <button 
-                onClick={() => navigate('/generator')}
-                className="w-full max-w-md px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-semibold rounded-full hover:from-pink-600 hover:to-purple-700 transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 text-sm sm:text-base touch-target"
-                aria-label="Créer une chanson éducative avec l'intelligence artificielle"
-              >
-                🎵 Créer ma musique
-              </button>
-            </div>
-            
-            <div className="flex flex-wrap justify-center gap-3 sm:gap-6 px-4">
-              <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 sm:px-4 py-2 rounded-full border border-white/20">
-                <Zap className="w-3 h-3 sm:w-4 sm:h-4 text-pink-400" />
-                <span className="text-white text-xs sm:text-sm font-medium">IA Avancée</span>
-              </div>
-              <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 sm:px-4 py-2 rounded-full border border-white/20">
-                <Shield className="w-3 h-3 sm:w-4 sm:h-4 text-purple-400" />
-                <span className="text-white text-xs sm:text-sm font-medium">367 Items EDN</span>
-              </div>
-              <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 sm:px-4 py-2 rounded-full border border-white/20">
-                <Award className="w-3 h-3 sm:w-4 sm:h-4 text-blue-400" />
-                <span className="text-white text-xs sm:text-sm font-medium">Certifié Médical</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Galerie de démonstrations optimisée mobile */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6 mb-12 sm:mb-16 px-2">
-            {[
-              { title: "IC-103 Vertige", subtitle: "Neurologie", emoji: "🧠", plays: "2.3K", gradient: "from-purple-600 to-pink-600" },
-              { title: "IC-230 Cardiologie", subtitle: "Cardiovasculaire", emoji: "❤️", plays: "1.8K", gradient: "from-red-500 to-pink-500" },
-              { title: "IC-156 Pneumologie", subtitle: "Respiratoire", emoji: "🫁", plays: "1.5K", gradient: "from-blue-500 to-cyan-500" },
-              { title: "IC-089 Psychiatrie", subtitle: "Santé mentale", emoji: "🧠", plays: "2.1K", gradient: "from-indigo-500 to-purple-500" }
-            ].map((item, index) => (
-              <div key={index} className="group cursor-pointer will-change-transform touch-target" onClick={() => navigate('/generator')}>
-                <div className={`relative aspect-square bg-gradient-to-br ${item.gradient} rounded-lg sm:rounded-xl mb-3 sm:mb-4 overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 gpu-accelerated`}>
-                  <div className="absolute inset-0 flex items-center justify-center text-3xl sm:text-4xl lg:text-5xl">
-                    {item.emoji}
-                  </div>
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-300 flex items-center justify-center">
-                    <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white rounded-full p-2 sm:p-3 shadow-lg">
-                      <Play className="h-4 w-4 sm:h-6 sm:w-6 text-purple-600 ml-0.5 sm:ml-1" />
-                    </div>
-                  </div>
-                  <div className="absolute bottom-2 sm:bottom-4 left-2 sm:left-4 right-2 sm:right-4">
-                    <div className="flex items-center justify-between text-white">
-                      <div className="flex items-center gap-1 text-xs">
-                        <Heart className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
-                        <span className="text-xs">{item.plays}</span>
-                      </div>
-                      <div className="flex items-center gap-1 text-xs">
-                        <Clock className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
-                        <span className="text-xs">4:00</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <h3 className="text-white font-medium text-xs sm:text-sm mb-1 truncate">{item.title}</h3>
-                <p className="text-gray-400 text-xs truncate">{item.subtitle}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* Sections principales optimisées mobile */}
-          <div className="grid sm:grid-cols-2 gap-4 sm:gap-8 max-w-6xl mx-auto mb-12 sm:mb-16 px-2">
-            <Card 
-              className="group cursor-pointer hover:shadow-2xl transition-all duration-500 bg-black/20 backdrop-blur-xl border border-white/10 hover:border-pink-400/50 overflow-hidden will-change-transform gpu-accelerated" 
-              onClick={() => navigate('/edn')}
+          
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            <Button 
+              variant="ghost" 
+              size="sm"
+              className="text-white/80 hover:text-white hover:bg-white/10 hidden sm:flex"
+              onClick={() => navigate('/med-mng/pricing')}
+              aria-label="Voir les offres d'abonnement et tarifs"
             >
-              <CardContent className="p-4 sm:p-8 relative">
-                <div className="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 bg-gradient-to-br from-pink-500/20 to-purple-500/20 rounded-full blur-xl group-hover:scale-150 transition-transform duration-700"></div>
-                <div className="relative">
-                  <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl sm:rounded-2xl flex items-center justify-center mb-4 sm:mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
-                    <BookOpen className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
-                  </div>
-                  <h3 className="text-lg sm:text-2xl font-bold text-white mb-2 sm:mb-3">Items EDN</h3>
-                  <p className="text-gray-300 mb-4 sm:mb-6 leading-relaxed text-sm sm:text-base">
-                    Base complète IC-1 à IC-367 avec 4,872 compétences OIC intégrées pour une maîtrise totale
-                  </p>
-                  <div className="flex flex-wrap gap-1 sm:gap-2 mb-4 sm:mb-6">
-                    <Badge className="bg-pink-500/20 text-pink-300 border-pink-400/30 text-xs">367 Items</Badge>
-                    <Badge className="bg-purple-500/20 text-purple-300 border-purple-400/30 text-xs">4,872 Compétences</Badge>
-                    <Badge className="bg-blue-500/20 text-blue-300 border-blue-400/30 text-xs">Immersif</Badge>
-                  </div>
-                  <Button className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white border-0 touch-target" size="lg">
-                    Explorer EDN
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card 
-              className="group cursor-pointer hover:shadow-2xl transition-all duration-500 bg-black/20 backdrop-blur-xl border border-white/10 hover:border-blue-400/50 overflow-hidden will-change-transform gpu-accelerated" 
-              onClick={() => navigate('/generator')}
+              <CreditCard className="w-4 h-4 mr-1" />
+              Tarifs
+            </Button>
+            <Button 
+              size="sm"
+              className="bg-white/10 backdrop-blur-sm text-white border border-white/20 hover:bg-white/20 text-xs sm:text-sm"
+              onClick={() => navigate('/med-mng/login')}
+              aria-label="Se connecter à son compte MED-MNG"
             >
-              <CardContent className="p-4 sm:p-8 relative">
-                <div className="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 bg-gradient-to-br from-blue-500/20 to-indigo-500/20 rounded-full blur-xl group-hover:scale-150 transition-transform duration-700"></div>
-                <div className="relative">
-                  <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl sm:rounded-2xl flex items-center justify-center mb-4 sm:mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
-                    <Music className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
-                  </div>
-                  <h3 className="text-lg sm:text-2xl font-bold text-white mb-2 sm:mb-3">Générateur Musical IA</h3>
-                  <p className="text-gray-300 mb-4 sm:mb-6 leading-relaxed text-sm sm:text-base">
-                    Créez des chansons éducatives personnalisées avec l'intelligence artificielle de dernière génération
-                  </p>
-                  <div className="flex flex-wrap gap-1 sm:gap-2 mb-4 sm:mb-6">
-                    <Badge className="bg-blue-500/20 text-blue-300 border-blue-400/30 text-xs">IA Avancée</Badge>
-                    <Badge className="bg-indigo-500/20 text-indigo-300 border-indigo-400/30 text-xs">Multi-Styles</Badge>
-                    <Badge className="bg-cyan-500/20 text-cyan-300 border-cyan-400/30 text-xs">Instantané</Badge>
-                  </div>
-                  <Button className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white border-0 touch-target" size="lg">
-                    Générer Maintenant
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Autres sections optimisées mobile */}
-          <div className="grid sm:grid-cols-2 gap-4 sm:gap-8 max-w-6xl mx-auto mb-12 sm:mb-16 px-2">
-            <Card 
-              className="group cursor-pointer hover:shadow-2xl transition-all duration-500 bg-black/20 backdrop-blur-xl border border-white/10 hover:border-green-400/50 overflow-hidden will-change-transform gpu-accelerated" 
-              onClick={() => navigate('/ecos')}
-            >
-              <CardContent className="p-4 sm:p-8 relative">
-                <div className="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 bg-gradient-to-br from-green-500/20 to-emerald-500/20 rounded-full blur-xl group-hover:scale-150 transition-transform duration-700"></div>
-                <div className="relative">
-                  <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl sm:rounded-2xl flex items-center justify-center mb-4 sm:mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
-                    <Users className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
-                  </div>
-                  <h3 className="text-lg sm:text-2xl font-bold text-white mb-2 sm:mb-3">Simulations ECOS</h3>
-                  <p className="text-gray-300 mb-4 sm:mb-6 leading-relaxed text-sm sm:text-base">
-                    Examens Cliniques Objectifs Structurés pour la pratique médicale immersive
-                  </p>
-                  <div className="flex flex-wrap gap-1 sm:gap-2 mb-4 sm:mb-6">
-                    <Badge className="bg-green-500/20 text-green-300 border-green-400/30 text-xs">3 Scénarios</Badge>
-                    <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-400/30 text-xs">Évaluation</Badge>
-                    <Badge className="bg-teal-500/20 text-teal-300 border-teal-400/30 text-xs">Feedback</Badge>
-                  </div>
-                  <Button className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white border-0 touch-target" size="lg">
-                    Commencer ECOS
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card 
-              className="group cursor-pointer hover:shadow-2xl transition-all duration-500 bg-black/20 backdrop-blur-xl border border-white/10 hover:border-orange-400/50 overflow-hidden will-change-transform gpu-accelerated" 
-              onClick={() => navigate('/chat')}
-            >
-              <CardContent className="p-4 sm:p-8 relative">
-                <div className="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 bg-gradient-to-br from-orange-500/20 to-red-500/20 rounded-full blur-xl group-hover:scale-150 transition-transform duration-700"></div>
-                <div className="relative">
-                  <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl sm:rounded-2xl flex items-center justify-center mb-4 sm:mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
-                    <MessageSquare className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
-                  </div>
-                  <h3 className="text-lg sm:text-2xl font-bold text-white mb-2 sm:mb-3">Assistant IA</h3>
-                  <p className="text-gray-300 mb-4 sm:mb-6 leading-relaxed text-sm sm:text-base">
-                    Chat intelligent spécialisé en médecine avec base de connaissances experte
-                  </p>
-                  <div className="flex flex-wrap gap-1 sm:gap-2 mb-4 sm:mb-6">
-                    <Badge className="bg-orange-500/20 text-orange-300 border-orange-400/30 text-xs">Chat Temps Réel</Badge>
-                    <Badge className="bg-red-500/20 text-red-300 border-red-400/30 text-xs">Base Médicale</Badge>
-                    <Badge className="bg-pink-500/20 text-pink-300 border-pink-400/30 text-xs">IA Experte</Badge>
-                  </div>
-                  <Button className="w-full bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white border-0 touch-target" size="lg">
-                    Démarrer Chat
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Section CTA finale optimisée mobile */}
-          <div className="text-center px-2">
-            <Card className="bg-black/20 backdrop-blur-xl border border-white/10 max-w-4xl mx-auto overflow-hidden">
-              <CardContent className="p-6 sm:p-12 relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-blue-500/10"></div>
-                <div className="relative">
-                  <h3 className="text-2xl sm:text-4xl font-bold text-white mb-4 sm:mb-6">
-                    Prêt à révolutionner votre apprentissage ?
-                  </h3>
-                  <p className="text-base sm:text-xl text-gray-300 mb-6 sm:mb-10 max-w-2xl mx-auto leading-relaxed">
-                    Rejoignez des milliers d'étudiants qui transforment leur façon d'apprendre la médecine avec l'IA
-                  </p>
-                  <div className="flex flex-col gap-3 sm:gap-4 justify-center">
-                    <Button 
-                      size="lg" 
-                      className="w-full sm:w-auto px-6 sm:px-8 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white border-0 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 touch-target" 
-                      onClick={() => navigate('/med-mng/pricing')}
-                    >
-                      <Star className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                      Découvrir nos Offres
-                    </Button>
-                    <Button 
-                      size="lg" 
-                      className="w-full sm:w-auto px-6 sm:px-8 bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300 touch-target" 
-                      onClick={() => navigate('/generator')}
-                    >
-                      <Music className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
-                      Essayer Gratuitement
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+              <LogIn className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Connexion</span>
+              <span className="sm:hidden">Login</span>
+            </Button>
           </div>
         </div>
       </div>
-    </div>
+
+      {/* Hero Section optimisé mobile */}
+      <div className="container mx-auto px-4 py-8 sm:py-12">
+        <div className="text-center mb-12 sm:mb-16">
+          <h2 className="lcp-heading text-4xl sm:text-6xl md:text-8xl font-bold text-white mb-6 sm:mb-8 leading-tight" id="main-content">
+            Apprenez la médecine<br />
+            <span className="bg-gradient-to-r from-pink-400 to-purple-400 bg-clip-text text-transparent">
+              comme jamais
+            </span>
+          </h2>
+          <p className="text-base sm:text-xl text-gray-300 mb-8 sm:mb-10 max-w-3xl mx-auto leading-relaxed px-2">
+            Révolutionnez votre apprentissage médical avec l'IA musicale. 
+            Maîtrisez les 367 items EDN grâce à des chansons éducatives personnalisées et mémorisables.
+          </p>
+          
+          {/* CTA Principal optimisé mobile */}
+          <div className="flex flex-col gap-4 items-center justify-center mb-8 sm:mb-12 px-2">
+            <div className="relative w-full max-w-md">
+              <label htmlFor="search-topics" className="sr-only">
+                Rechercher des sujets médicaux ou items EDN
+              </label>
+              <input 
+                id="search-topics"
+                type="text" 
+                placeholder="Ex: IC-103 Vertige, Cardiologie..."
+                className="w-full px-4 sm:px-6 py-3 sm:py-4 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-500 transition-all duration-300 text-sm sm:text-base"
+                aria-describedby="search-help"
+              />
+              <div id="search-help" className="sr-only">
+                Entrez un sujet médical, un item EDN ou une spécialité pour générer une chanson éducative
+              </div>
+            </div>
+            <button 
+              onClick={() => navigate('/generator')}
+              className="w-full max-w-md px-6 sm:px-8 py-3 sm:py-4 bg-gradient-to-r from-pink-500 to-purple-600 text-white font-semibold rounded-full hover:from-pink-600 hover:to-purple-700 transition-all duration-300 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl hover:scale-105 text-sm sm:text-base touch-target"
+              aria-label="Créer une chanson éducative avec l'intelligence artificielle"
+            >
+              🎵 Créer ma musique
+            </button>
+          </div>
+          
+          <div className="flex flex-wrap justify-center gap-3 sm:gap-6 px-4">
+            <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 sm:px-4 py-2 rounded-full border border-white/20">
+              <Zap className="w-3 h-3 sm:w-4 sm:h-4 text-pink-400" />
+              <span className="text-white text-xs sm:text-sm font-medium">IA Avancée</span>
+            </div>
+            <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 sm:px-4 py-2 rounded-full border border-white/20">
+              <Shield className="w-3 h-3 sm:w-4 sm:h-4 text-purple-400" />
+              <span className="text-white text-xs sm:text-sm font-medium">367 Items EDN</span>
+            </div>
+            <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-3 sm:px-4 py-2 rounded-full border border-white/20">
+              <Award className="w-3 h-3 sm:w-4 sm:h-4 text-blue-400" />
+              <span className="text-white text-xs sm:text-sm font-medium">Certifié Médical</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Galerie de démonstrations optimisée mobile */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-6 mb-12 sm:mb-16 px-2">
+          {[
+            { title: "IC-103 Vertige", subtitle: "Neurologie", emoji: "🧠", plays: "2.3K", gradient: "from-purple-600 to-pink-600" },
+            { title: "IC-230 Cardiologie", subtitle: "Cardiovasculaire", emoji: "❤️", plays: "1.8K", gradient: "from-red-500 to-pink-500" },
+            { title: "IC-156 Pneumologie", subtitle: "Respiratoire", emoji: "🫁", plays: "1.5K", gradient: "from-blue-500 to-cyan-500" },
+            { title: "IC-089 Psychiatrie", subtitle: "Santé mentale", emoji: "🧠", plays: "2.1K", gradient: "from-indigo-500 to-purple-500" }
+          ].map((item, index) => (
+            <div key={index} className="group cursor-pointer will-change-transform touch-target" onClick={() => navigate('/generator')}>
+              <div className={`relative aspect-square bg-gradient-to-br ${item.gradient} rounded-lg sm:rounded-xl mb-3 sm:mb-4 overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 gpu-accelerated`}>
+                <div className="absolute inset-0 flex items-center justify-center text-3xl sm:text-4xl lg:text-5xl">
+                  {item.emoji}
+                </div>
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-all duration-300 flex items-center justify-center">
+                  <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white rounded-full p-2 sm:p-3 shadow-lg">
+                    <Play className="h-4 w-4 sm:h-6 sm:w-6 text-purple-600 ml-0.5 sm:ml-1" />
+                  </div>
+                </div>
+                <div className="absolute bottom-2 sm:bottom-4 left-2 sm:left-4 right-2 sm:right-4">
+                  <div className="flex items-center justify-between text-white">
+                    <div className="flex items-center gap-1 text-xs">
+                      <Heart className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                      <span className="text-xs">{item.plays}</span>
+                    </div>
+                    <div className="flex items-center gap-1 text-xs">
+                      <Clock className="h-2.5 w-2.5 sm:h-3 sm:w-3" />
+                      <span className="text-xs">4:00</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <h3 className="text-white font-medium text-xs sm:text-sm mb-1 truncate">{item.title}</h3>
+              <p className="text-gray-400 text-xs truncate">{item.subtitle}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Sections principales optimisées mobile */}
+        <div className="grid sm:grid-cols-2 gap-4 sm:gap-8 max-w-6xl mx-auto mb-12 sm:mb-16 px-2">
+          <Card 
+            className="group cursor-pointer hover:shadow-2xl transition-all duration-500 bg-black/20 backdrop-blur-xl border border-white/10 hover:border-pink-400/50 overflow-hidden will-change-transform gpu-accelerated" 
+            onClick={() => navigate('/edn')}
+          >
+            <CardContent className="p-4 sm:p-8 relative">
+              <div className="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 bg-gradient-to-br from-pink-500/20 to-purple-500/20 rounded-full blur-xl group-hover:scale-150 transition-transform duration-700"></div>
+              <div className="relative">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl sm:rounded-2xl flex items-center justify-center mb-4 sm:mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <BookOpen className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+                </div>
+                <h3 className="text-lg sm:text-2xl font-bold text-white mb-2 sm:mb-3">Items EDN</h3>
+                <p className="text-gray-300 mb-4 sm:mb-6 leading-relaxed text-sm sm:text-base">
+                  Base complète IC-1 à IC-367 avec 4,872 compétences OIC intégrées pour une maîtrise totale
+                </p>
+                <div className="flex flex-wrap gap-1 sm:gap-2 mb-4 sm:mb-6">
+                  <Badge className="bg-pink-500/20 text-pink-300 border-pink-400/30 text-xs">367 Items</Badge>
+                  <Badge className="bg-purple-500/20 text-purple-300 border-purple-400/30 text-xs">4,872 Compétences</Badge>
+                  <Badge className="bg-blue-500/20 text-blue-300 border-blue-400/30 text-xs">Immersif</Badge>
+                </div>
+                <Button className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white border-0 touch-target" size="lg">
+                  Explorer EDN
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card 
+            className="group cursor-pointer hover:shadow-2xl transition-all duration-500 bg-black/20 backdrop-blur-xl border border-white/10 hover:border-blue-400/50 overflow-hidden will-change-transform gpu-accelerated" 
+            onClick={() => navigate('/generator')}
+          >
+            <CardContent className="p-4 sm:p-8 relative">
+              <div className="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 bg-gradient-to-br from-blue-500/20 to-indigo-500/20 rounded-full blur-xl group-hover:scale-150 transition-transform duration-700"></div>
+              <div className="relative">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl sm:rounded-2xl flex items-center justify-center mb-4 sm:mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <Music className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+                </div>
+                <h3 className="text-lg sm:text-2xl font-bold text-white mb-2 sm:mb-3">Générateur Musical IA</h3>
+                <p className="text-gray-300 mb-4 sm:mb-6 leading-relaxed text-sm sm:text-base">
+                  Créez des chansons éducatives personnalisées avec l'intelligence artificielle de dernière génération
+                </p>
+                <div className="flex flex-wrap gap-1 sm:gap-2 mb-4 sm:mb-6">
+                  <Badge className="bg-blue-500/20 text-blue-300 border-blue-400/30 text-xs">IA Avancée</Badge>
+                  <Badge className="bg-indigo-500/20 text-indigo-300 border-indigo-400/30 text-xs">Multi-Styles</Badge>
+                  <Badge className="bg-cyan-500/20 text-cyan-300 border-cyan-400/30 text-xs">Instantané</Badge>
+                </div>
+                <Button className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white border-0 touch-target" size="lg">
+                  Générer Maintenant
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Autres sections optimisées mobile */}
+        <div className="grid sm:grid-cols-2 gap-4 sm:gap-8 max-w-6xl mx-auto mb-12 sm:mb-16 px-2">
+          <Card 
+            className="group cursor-pointer hover:shadow-2xl transition-all duration-500 bg-black/20 backdrop-blur-xl border border-white/10 hover:border-green-400/50 overflow-hidden will-change-transform gpu-accelerated" 
+            onClick={() => navigate('/ecos')}
+          >
+            <CardContent className="p-4 sm:p-8 relative">
+              <div className="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 bg-gradient-to-br from-green-500/20 to-emerald-500/20 rounded-full blur-xl group-hover:scale-150 transition-transform duration-700"></div>
+              <div className="relative">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl sm:rounded-2xl flex items-center justify-center mb-4 sm:mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <Users className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+                </div>
+                <h3 className="text-lg sm:text-2xl font-bold text-white mb-2 sm:mb-3">Simulations ECOS</h3>
+                <p className="text-gray-300 mb-4 sm:mb-6 leading-relaxed text-sm sm:text-base">
+                  Examens Cliniques Objectifs Structurés pour la pratique médicale immersive
+                </p>
+                <div className="flex flex-wrap gap-1 sm:gap-2 mb-4 sm:mb-6">
+                  <Badge className="bg-green-500/20 text-green-300 border-green-400/30 text-xs">3 Scénarios</Badge>
+                  <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-400/30 text-xs">Évaluation</Badge>
+                  <Badge className="bg-teal-500/20 text-teal-300 border-teal-400/30 text-xs">Feedback</Badge>
+                </div>
+                <Button className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white border-0 touch-target" size="lg">
+                  Commencer ECOS
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card 
+            className="group cursor-pointer hover:shadow-2xl transition-all duration-500 bg-black/20 backdrop-blur-xl border border-white/10 hover:border-orange-400/50 overflow-hidden will-change-transform gpu-accelerated" 
+            onClick={() => navigate('/chat')}
+          >
+            <CardContent className="p-4 sm:p-8 relative">
+              <div className="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 bg-gradient-to-br from-orange-500/20 to-red-500/20 rounded-full blur-xl group-hover:scale-150 transition-transform duration-700"></div>
+              <div className="relative">
+                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl sm:rounded-2xl flex items-center justify-center mb-4 sm:mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                  <MessageSquare className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+                </div>
+                <h3 className="text-lg sm:text-2xl font-bold text-white mb-2 sm:mb-3">Assistant IA</h3>
+                <p className="text-gray-300 mb-4 sm:mb-6 leading-relaxed text-sm sm:text-base">
+                  Chat intelligent spécialisé en médecine avec base de connaissances experte
+                </p>
+                <div className="flex flex-wrap gap-1 sm:gap-2 mb-4 sm:mb-6">
+                  <Badge className="bg-orange-500/20 text-orange-300 border-orange-400/30 text-xs">Chat Temps Réel</Badge>
+                  <Badge className="bg-red-500/20 text-red-300 border-red-400/30 text-xs">Base Médicale</Badge>
+                  <Badge className="bg-pink-500/20 text-pink-300 border-pink-400/30 text-xs">IA Experte</Badge>
+                </div>
+                <Button className="w-full bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 text-white border-0 touch-target" size="lg">
+                  Démarrer Chat
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Section CTA finale optimisée mobile */}
+        <div className="text-center px-2">
+          <Card className="bg-black/20 backdrop-blur-xl border border-white/10 max-w-4xl mx-auto overflow-hidden">
+            <CardContent className="p-6 sm:p-12 relative">
+              <div className="absolute inset-0 bg-gradient-to-r from-pink-500/10 via-purple-500/10 to-blue-500/10"></div>
+              <div className="relative">
+                <h3 className="text-2xl sm:text-4xl font-bold text-white mb-4 sm:mb-6">
+                  Prêt à révolutionner votre apprentissage ?
+                </h3>
+                <p className="text-base sm:text-xl text-gray-300 mb-6 sm:mb-10 max-w-2xl mx-auto leading-relaxed">
+                  Rejoignez des milliers d'étudiants qui transforment leur façon d'apprendre la médecine avec l'IA
+                </p>
+                <div className="flex flex-col gap-3 sm:gap-4 justify-center">
+                  <Button 
+                    size="lg" 
+                    className="w-full sm:w-auto px-6 sm:px-8 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white border-0 shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300 touch-target" 
+                    onClick={() => navigate('/med-mng/pricing')}
+                  >
+                    <Star className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                    Découvrir nos Offres
+                  </Button>
+                  <Button 
+                    size="lg" 
+                    className="w-full sm:w-auto px-6 sm:px-8 bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300 touch-target" 
+                    onClick={() => navigate('/generator')}
+                  >
+                    <Music className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                    Essayer Gratuitement
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Footer Premium */}
+        <div className="text-center py-8 sm:py-12 px-2">
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 text-sm text-gray-300">
+            <span>&copy; 2024 MED MNG. Tous droits réservés.</span>
+            <div className="flex gap-4">
+              <a href="#" className="hover:text-white transition-colors">Conditions</a>
+              <a href="#" className="hover:text-white transition-colors">Confidentialité</a>
+              <a href="#" className="hover:text-white transition-colors">Support</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ConsistentBackground>
   );
 };
+
 export default Index;
