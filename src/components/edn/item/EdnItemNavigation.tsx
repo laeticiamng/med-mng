@@ -1,9 +1,9 @@
 
 import { Button } from '@/components/ui/button';
-import { BookOpen, Palette, Music } from 'lucide-react';
+import { BookOpen, Palette, Music, Target, Brain, Zap } from 'lucide-react';
 import { TranslatedText } from '@/components/TranslatedText';
 
-type SectionType = 'tableau-a' | 'tableau-b' | 'scene' | 'bd' | 'music' | 'quiz';
+type SectionType = 'immersive' | 'competences' | 'tableau-a' | 'tableau-b' | 'scene' | 'bd' | 'music' | 'quiz';
 
 interface EdnItemNavigationProps {
   activeSection: SectionType;
@@ -15,6 +15,32 @@ export const EdnItemNavigation = ({ activeSection, onSectionChange }: EdnItemNav
     <div className="mb-8">
       <div className="bg-black/20 backdrop-blur-xl rounded-2xl p-6 border border-white/10 shadow-2xl">
         <div className="flex flex-wrap gap-3">
+          <Button
+            variant={activeSection === 'immersive' ? 'default' : 'outline'}
+            onClick={() => onSectionChange('immersive')}
+            className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-300 ${
+              activeSection === 'immersive' 
+                ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-2xl shadow-purple-500/50 scale-105' 
+                : 'bg-white/10 border-white/20 text-gray-300 hover:text-white hover:bg-white/20 hover:border-purple-400/50'
+            }`}
+          >
+            <Zap className="h-5 w-5" />
+            <TranslatedText text="Expérience Immersive" />
+          </Button>
+          
+          <Button
+            variant={activeSection === 'competences' ? 'default' : 'outline'}
+            onClick={() => onSectionChange('competences')}
+            className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-300 ${
+              activeSection === 'competences' 
+                ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-2xl shadow-purple-500/50 scale-105' 
+                : 'bg-white/10 border-white/20 text-gray-300 hover:text-white hover:bg-white/20 hover:border-purple-400/50'
+            }`}
+          >
+            <Brain className="h-5 w-5" />
+            <TranslatedText text="Compétences OIC" />
+          </Button>
+          
           <Button
             variant={activeSection === 'tableau-a' ? 'default' : 'outline'}
             onClick={() => onSectionChange('tableau-a')}

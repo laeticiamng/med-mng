@@ -10,7 +10,7 @@ import { ParolesMusicales } from '@/components/edn/ParolesMusicales';
 import { EnhancedQuizFinal } from '@/components/edn/EnhancedQuizFinal';
 import { TranslatedText } from '@/components/TranslatedText';
 
-type SectionType = 'tableau-a' | 'tableau-b' | 'scene' | 'bd' | 'music' | 'quiz';
+type SectionType = 'immersive' | 'competences' | 'tableau-a' | 'tableau-b' | 'scene' | 'bd' | 'music' | 'quiz';
 
 interface EdnItemData {
   id: string;
