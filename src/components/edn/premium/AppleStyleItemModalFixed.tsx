@@ -53,11 +53,13 @@ export const AppleStyleItemModalFixed: React.FC<AppleStyleItemModalProps> = ({
           .from('edn_items_complete')
           .select('*')
           .eq('item_code', item.item_code)
-          .single();
+          .maybeSingle();
         
         if (completeData) {
           console.log('✅ Données complètes récupérées:', completeData);
           setCompleteItemData(completeData);
+        } else {
+          console.warn('⚠️ Aucune donnée complète trouvée pour:', item.item_code);
         }
       } catch (error) {
         console.error('❌ Erreur récupération données complètes:', error);

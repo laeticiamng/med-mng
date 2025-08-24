@@ -67,9 +67,16 @@ export default function AdminDashboard() {
         .from('profiles')
         .select('role')
         .eq('id', user.id)
-        .single();
+        .maybeSingle();
 
-      if (error || !profile || profile.role !== 'admin') {
+      if (error) {
+        console.error('Erreur lors de la récupération du profil:', error);
+        toast.error('Erreur lors de la vérification des droits');
+        navigate('/');
+        return;
+      }
+
+      if (!profile || profile.role !== 'admin') {
         toast.error('Accès refusé: Privilèges administrateur requis');
         navigate('/');
         return;

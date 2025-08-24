@@ -47,10 +47,14 @@ export const ItemTableauViewer: React.FC<ItemTableauViewerProps> = ({
           .from('edn_items_complete')
           .select('*')
           .eq('item_code', itemCode)
-          .single();
+          .maybeSingle();
 
         if (itemError) {
           throw itemError;
+        }
+
+        if (!itemData) {
+          throw new Error(`Item ${itemCode} non trouvé dans la base de données`);
         }
 
         setItem(itemData);

@@ -53,11 +53,13 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
           .from('edn_items_complete')
           .select('competences_oic_rang_a, competences_oic_rang_b, tableau_rang_a, tableau_rang_b')
           .eq('item_code', finalItem.item_code)
-          .single();
+          .maybeSingle();
 
         if (data && !error) {
           setCompleteItemData(data);
           console.log('🔥 Données OIC récupérées pour', finalItem.item_code, ':', data);
+        } else if (!data) {
+          console.warn('⚠️ Aucune donnée OIC trouvée pour:', finalItem.item_code);
         }
       } catch (error) {
         console.error('Erreur récupération données OIC:', error);

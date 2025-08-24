@@ -63,9 +63,12 @@ export const LyricsGenerationPanel: React.FC<LyricsGenerationPanelProps> = ({
         .from('edn_items_complete')
         .select('item_code, title, competences_oic_rang_a, competences_oic_rang_b')
         .eq('item_code', itemCode)
-        .single();
+        .maybeSingle();
 
       if (itemError) throw itemError;
+      if (!itemData) {
+        throw new Error(`Item ${itemCode} non trouvé`);
+      }
 
       // Récupérer les compétences OIC depuis backup_oic_competences
       const itemNum = itemCode.replace('IC-', '').padStart(3, '0');
