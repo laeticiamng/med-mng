@@ -128,15 +128,14 @@ const AppWithUX = () => {
   return (
     <StrictMode>
       <QueryClientProvider client={queryClient}>
-        <UndoRedoProvider>
-          <AccessibilityProvider>
-          <ViewportProvider>
-            <LanguageProvider>
-              <GlobalAudioProvider>
-                <AuthProvider>
-                  <ToastProvider>
-                    <TooltipProvider>
-                      <HelmetProvider>
+        <HelmetProvider>
+          <TooltipProvider>
+            <AccessibilityProvider>
+            <ViewportProvider>
+              <LanguageProvider>
+                <GlobalAudioProvider>
+                  <AuthProvider>
+                    <ToastProvider>
                           <BrowserRouter>
                             <AppKeyboardShortcuts>
                               <NavigatorBridge />
@@ -147,10 +146,11 @@ const AppWithUX = () => {
                             {/* Navigation globale */}
                             <GlobalNavigation />
                             
-                            <main id="main-content" tabIndex={-1} className="flex-1 pb-20">
+                           <main id="main-content" tabIndex={-1} className="flex-1 pb-20">
                             <PageThemeProvider>
                               <GlobalErrorBoundary>
-                                <Suspense fallback={<PageSkeleton />}>
+                                <UndoRedoProvider>
+                                  <Suspense fallback={<PageSkeleton />}>
                                   <Routes>
                                     <Route path="/" element={<Index />} />
                                     <Route path="/generator" element={<Generator />} />
@@ -222,7 +222,8 @@ const AppWithUX = () => {
                                     <Route path="/test-extraction" element={<TestExtraction />} />
                                     <Route path="*" element={<NotFound />} />
                                   </Routes>
-                                </Suspense>
+                                  </Suspense>
+                                </UndoRedoProvider>
                               </GlobalErrorBoundary>
                             </PageThemeProvider>
                           </main>
@@ -246,17 +247,16 @@ const AppWithUX = () => {
                         </div>
                             <Sonner richColors closeButton />
                             </UXToastProvider>
-                          </AppKeyboardShortcuts>
-                        </BrowserRouter>
-                    </HelmetProvider>
-                  </TooltipProvider>
+                           </AppKeyboardShortcuts>
+                         </BrowserRouter>
                 </ToastProvider>
               </AuthProvider>
             </GlobalAudioProvider>
           </LanguageProvider>
         </ViewportProvider>
       </AccessibilityProvider>
-      </UndoRedoProvider>
+    </TooltipProvider>
+  </HelmetProvider>
     </QueryClientProvider>
     </StrictMode>
   );
