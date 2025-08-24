@@ -19,7 +19,7 @@ import { HelmetProvider } from "react-helmet-async";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { GlobalAudioProvider } from "@/contexts/GlobalAudioContext";
 import { PageThemeProvider } from "@/components/layout/PageThemeProvider";
-import { ErrorBoundary } from "@/components/common/ErrorBoundary";
+import GlobalErrorBoundary from "@/components/error/GlobalErrorBoundary";
 import { GlobalNavigation } from "@/components/layout/GlobalNavigation";
 import { GlobalMusicPlayer } from "@/components/layout/GlobalMusicPlayer";
 
@@ -149,7 +149,7 @@ const AppWithUX = () => {
                             
                             <main id="main-content" tabIndex={-1} className="flex-1 pb-20">
                             <PageThemeProvider>
-                              <ErrorBoundary>
+                              <GlobalErrorBoundary>
                                 <Suspense fallback={<PageSkeleton />}>
                                   <Routes>
                                     <Route path="/" element={<Index />} />
@@ -223,7 +223,7 @@ const AppWithUX = () => {
                                     <Route path="*" element={<NotFound />} />
                                   </Routes>
                                 </Suspense>
-                              </ErrorBoundary>
+                              </GlobalErrorBoundary>
                             </PageThemeProvider>
                           </main>
                         
