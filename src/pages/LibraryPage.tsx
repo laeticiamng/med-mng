@@ -188,7 +188,7 @@ export default function LibraryPage() {
                         
                         {/* Badge du type */}
                         <Badge className="absolute top-2 right-2 bg-black/50 backdrop-blur-sm text-white border-white/20">
-                          {getTypeLabel(track.generation_type)}
+                          {getTypeLabel((track as any).generation_type || 'default')}
                         </Badge>
                         
                         {/* Actions rapides */}
@@ -225,11 +225,11 @@ export default function LibraryPage() {
                           <div className="flex items-center gap-3 text-xs text-gray-400">
                             <span className="flex items-center gap-1">
                               <Play className="h-3 w-3" />
-                              {formatNumber(track.play_count || 0)}
+                              {formatNumber((track as any).play_count || 0)}
                             </span>
                             <span className="flex items-center gap-1">
                               <Heart className="h-3 w-3" />
-                              {formatNumber(track.likes || 0)}
+                              {formatNumber((track as any).likes || 0)}
                             </span>
                           </div>
                           
@@ -260,6 +260,7 @@ export default function LibraryPage() {
                   </Card>
                 ))}
               </div>
+            )}
           </div>
         </div>
         <MiniPlayer />

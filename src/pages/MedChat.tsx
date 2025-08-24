@@ -455,7 +455,8 @@ Posez-moi n'importe quelle question ou choisissez une suggestion ci-dessous !`,
               </div>
             </CardContent>
           </Card>
-        </div>
+         </motion.div>
+       </div>
       </div>
     </div>
   );
