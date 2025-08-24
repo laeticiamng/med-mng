@@ -9,6 +9,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { SystemHealthChecker } from '@/components/system/SystemHealthChecker';
 import { useResponsiveSpacing } from '@/hooks/useBreakpoints';
 import { Helmet } from 'react-helmet-async';
+import { ConsistentBackground } from '@/components/layout/ConsistentBackground';
+import { PageHeader } from '@/components/layout/PageHeader';
 
 const SystemHealth = () => {
   const spacing = useResponsiveSpacing();
@@ -165,276 +167,240 @@ const SystemHealth = () => {
   }, []);
 
   return (
-    <>
+    <ConsistentBackground variant="secondary">
       <Helmet>
         <title>Diagnostic Système | MED MNG</title>
         <meta name="description" content="Surveillance en temps réel de l'état système MED MNG. Métriques de performance, santé des services et monitoring avancé." />
       </Helmet>
 
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-blue-50 relative overflow-hidden">
-        {/* Éléments de fond animés */}
-        <div className="absolute inset-0 opacity-20">
-          {[...Array(25)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute w-1 h-1 bg-blue-400/30 rounded-full animate-pulse"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 3}s`,
-              }}
-            />
-          ))}
+      <PageHeader
+        title="🔍 Diagnostic Système"
+        subtitle="Surveillance en temps réel de l'infrastructure MED MNG. Monitoring complet des performances, santé des services et métriques système."
+        icon={Activity}
+        badge={{
+          text: `Santé système: ${systemMetrics.overallHealth}%`,
+          variant: systemMetrics.overallHealth > 95 ? 'default' : 
+                   systemMetrics.overallHealth > 85 ? 'secondary' : 'destructive'
+        }}
+        showBackButton
+        backTo="/"
+        actions={
+          <Button 
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            size="sm"
+            variant="outline"
+            className="flex items-center gap-2"
+          >
+            <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+            Actualiser
+          </Button>
+        }
+      />
+
+      <div className={`container mx-auto ${spacing.container}`}>
+        {/* Métriques rapides */}
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4 mb-8">
+          {[
+            { label: 'Santé', value: systemMetrics.overallHealth + '%', icon: Activity, color: 'text-success' },
+            { label: 'Uptime', value: systemMetrics.uptime, icon: Clock, color: 'text-primary' },
+            { label: 'Latence', value: systemMetrics.responseTime, icon: Zap, color: 'text-secondary' },
+            { label: 'Erreurs', value: systemMetrics.errorRate, icon: AlertTriangle, color: 'text-warning' },
+            { label: 'Utilisateurs', value: systemMetrics.totalUsers, icon: Globe, color: 'text-primary' },
+            { label: 'Actifs', value: systemMetrics.activeUsers, icon: Wifi, color: 'text-success' },
+            { label: 'API Calls', value: systemMetrics.apiCalls, icon: Server, color: 'text-info' },
+            { label: 'Dernier incident', value: systemMetrics.lastIncident, icon: Shield, color: 'text-muted-foreground' }
+          ].map((metric, index) => {
+            const Icon = metric.icon;
+            return (
+              <Card key={metric.label} className={`bg-card/80 backdrop-blur-sm text-center animate-fade-in`}
+                    style={{ animationDelay: `${index * 0.1}s` }}>
+                <CardContent className="p-4">
+                  <Icon className={`h-5 w-5 ${metric.color} mx-auto mb-2`} />
+                  <div className="text-sm font-semibold text-foreground">{metric.value}</div>
+                  <div className="text-xs text-muted-foreground">{metric.label}</div>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
 
-        <div className={`relative z-10 container mx-auto ${spacing.container}`}>
-          {/* Navigation */}
-          <div className="flex items-center justify-between mb-8">
-            <Link 
-              to="/" 
-              className="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Retour à l'accueil
-            </Link>
-            <div className="flex items-center gap-4">
-              <Badge 
-                className={`${systemMetrics.overallHealth > 95 ? 'bg-green-100 text-green-800' : 
-                  systemMetrics.overallHealth > 85 ? 'bg-yellow-100 text-yellow-800' : 
-                  'bg-red-100 text-red-800'}`}
-              >
-                Santé système: {systemMetrics.overallHealth}%
-              </Badge>
-              <Button 
-                onClick={handleRefresh}
-                disabled={isRefreshing}
-                size="sm"
-                variant="outline"
-                className="flex items-center gap-2"
-              >
-                <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-                Actualiser
-              </Button>
-            </div>
-          </div>
+        {/* Interface système détaillée */}
+        <Tabs defaultValue="services" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4 bg-card/50 backdrop-blur-sm">
+            <TabsTrigger value="services" className="flex items-center gap-2">
+              <Server className="h-4 w-4" />
+              Services
+            </TabsTrigger>
+            <TabsTrigger value="performance" className="flex items-center gap-2">
+              <Cpu className="h-4 w-4" />
+              Performance
+            </TabsTrigger>
+            <TabsTrigger value="monitoring" className="flex items-center gap-2">
+              <Activity className="h-4 w-4" />
+              Monitoring
+            </TabsTrigger>
+            <TabsTrigger value="events" className="flex items-center gap-2">
+              <Bell className="h-4 w-4" />
+              Événements
+            </TabsTrigger>
+          </TabsList>
 
-          {/* En-tête */}
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-full mb-6 shadow-xl">
-              <Activity className="h-10 w-10 text-white animate-pulse" />
-            </div>
-            
-            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-4">
-              🔍 Diagnostic Système
-            </h1>
-            
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Surveillance en temps réel de l'infrastructure MED MNG. 
-              Monitoring complet des performances, santé des services et métriques système.
-            </p>
-          </div>
-
-          {/* Métriques rapides */}
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4 mb-8">
-            {[
-              { label: 'Santé', value: systemMetrics.overallHealth + '%', icon: Activity, color: 'text-green-600' },
-              { label: 'Uptime', value: systemMetrics.uptime, icon: Clock, color: 'text-blue-600' },
-              { label: 'Latence', value: systemMetrics.responseTime, icon: Zap, color: 'text-purple-600' },
-              { label: 'Erreurs', value: systemMetrics.errorRate, icon: AlertTriangle, color: 'text-yellow-600' },
-              { label: 'Utilisateurs', value: systemMetrics.totalUsers, icon: Globe, color: 'text-indigo-600' },
-              { label: 'Actifs', value: systemMetrics.activeUsers, icon: Wifi, color: 'text-green-600' },
-              { label: 'API Calls', value: systemMetrics.apiCalls, icon: Server, color: 'text-cyan-600' },
-              { label: 'Dernier incident', value: systemMetrics.lastIncident, icon: Shield, color: 'text-gray-600' }
-            ].map((metric, index) => {
-              const Icon = metric.icon;
-              return (
-                <Card key={metric.label} className={`bg-white/80 backdrop-blur-sm text-center animate-fade-in`}
+          <TabsContent value="services" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {healthChecks.map((service, index) => (
+                <Card key={service.name} 
+                      className={`bg-card/80 backdrop-blur-sm shadow-lg animate-fade-in`}
                       style={{ animationDelay: `${index * 0.1}s` }}>
-                  <CardContent className="p-4">
-                    <Icon className={`h-5 w-5 ${metric.color} mx-auto mb-2`} />
-                    <div className="text-sm font-semibold text-gray-800">{metric.value}</div>
-                    <div className="text-xs text-gray-500">{metric.label}</div>
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center justify-between">
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        {getStatusIcon(service.status)}
+                        {service.name}
+                      </CardTitle>
+                      <Badge className={getStatusColor(service.status)}>
+                        {service.status}
+                      </Badge>
+                    </div>
+                    <CardDescription>{service.description}</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <div className="text-muted-foreground">Uptime</div>
+                        <div className="font-semibold">{service.uptime}</div>
+                      </div>
+                      <div>
+                        <div className="text-muted-foreground">Latence</div>
+                        <div className="font-semibold">{service.responseTime}</div>
+                      </div>
+                      <div>
+                        <div className="text-muted-foreground">Dernier check</div>
+                        <div className="font-semibold">Il y a {service.lastCheck}</div>
+                      </div>
+                      <div>
+                        <div className="text-muted-foreground">Problèmes</div>
+                        <div className="font-semibold text-destructive">{service.issues}</div>
+                      </div>
+                    </div>
                   </CardContent>
                 </Card>
-              );
-            })}
-          </div>
+              ))}
+            </div>
+          </TabsContent>
 
-          {/* Interface système détaillée */}
-          <Tabs defaultValue="services" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4 bg-white/50 backdrop-blur-sm">
-              <TabsTrigger value="services" className="flex items-center gap-2">
-                <Server className="h-4 w-4" />
-                Services
-              </TabsTrigger>
-              <TabsTrigger value="performance" className="flex items-center gap-2">
-                <Cpu className="h-4 w-4" />
-                Performance
-              </TabsTrigger>
-              <TabsTrigger value="monitoring" className="flex items-center gap-2">
-                <Activity className="h-4 w-4" />
-                Monitoring
-              </TabsTrigger>
-              <TabsTrigger value="events" className="flex items-center gap-2">
-                <Bell className="h-4 w-4" />
-                Événements
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="services" className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {healthChecks.map((service, index) => (
-                  <Card key={service.name} 
-                        className={`bg-white/80 backdrop-blur-sm shadow-lg animate-fade-in`}
-                        style={{ animationDelay: `${index * 0.1}s` }}>
-                    <CardHeader className="pb-3">
-                      <div className="flex items-center justify-between">
-                        <CardTitle className="text-lg flex items-center gap-2">
-                          {getStatusIcon(service.status)}
-                          {service.name}
-                        </CardTitle>
-                        <Badge className={getStatusColor(service.status)}>
-                          {service.status}
-                        </Badge>
+          {/* ... keep existing code for other tabs with updated theming */}
+          
+          <TabsContent value="performance" className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {serverMetrics.map((metric, index) => (
+                <Card key={metric.name} 
+                      className={`bg-card/80 backdrop-blur-sm shadow-lg animate-fade-in`}
+                      style={{ animationDelay: `${index * 0.1}s` }}>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-lg flex items-center justify-between">
+                      <span>{metric.name}</span>
+                      <Badge className={
+                        metric.value / metric.max < 0.7 ? 'bg-success/10 text-success border-success/20' :
+                        metric.value / metric.max < 0.9 ? 'bg-warning/10 text-warning border-warning/20' :
+                        'bg-destructive/10 text-destructive border-destructive/20'
+                      }>
+                        {metric.status}
+                      </Badge>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-muted-foreground">Utilisation actuelle</span>
+                        <span className="text-lg font-bold">
+                          {metric.value}{metric.unit} / {metric.max}{metric.unit}
+                        </span>
                       </div>
-                      <CardDescription>{service.description}</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="grid grid-cols-2 gap-4 text-sm">
-                        <div>
-                          <div className="text-gray-500">Uptime</div>
-                          <div className="font-semibold">{service.uptime}</div>
-                        </div>
-                        <div>
-                          <div className="text-gray-500">Latence</div>
-                          <div className="font-semibold">{service.responseTime}</div>
-                        </div>
-                        <div>
-                          <div className="text-gray-500">Dernier check</div>
-                          <div className="font-semibold">Il y a {service.lastCheck}</div>
-                        </div>
-                        <div>
-                          <div className="text-gray-500">Problèmes</div>
-                          <div className="font-semibold text-red-600">{service.issues}</div>
-                        </div>
+                      <Progress 
+                        value={(metric.value / metric.max) * 100} 
+                        className="h-3"
+                      />
+                      <div className="text-xs text-muted-foreground">
+                        {((metric.value / metric.max) * 100).toFixed(1)}% utilisé
                       </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </TabsContent>
-
-            <TabsContent value="performance" className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {serverMetrics.map((metric, index) => (
-                  <Card key={metric.name} 
-                        className={`bg-white/80 backdrop-blur-sm shadow-lg animate-fade-in`}
-                        style={{ animationDelay: `${index * 0.1}s` }}>
-                    <CardHeader className="pb-3">
-                      <CardTitle className="text-lg flex items-center justify-between">
-                        <span>{metric.name}</span>
-                        <Badge className={
-                          metric.value / metric.max < 0.7 ? 'bg-green-100 text-green-800' :
-                          metric.value / metric.max < 0.9 ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-red-100 text-red-800'
-                        }>
-                          {metric.status}
-                        </Badge>
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="space-y-3">
-                        <div className="flex justify-between items-center">
-                          <span className="text-sm text-gray-600">Utilisation actuelle</span>
-                          <span className="text-lg font-bold">
-                            {metric.value}{metric.unit} / {metric.max}{metric.unit}
-                          </span>
-                        </div>
-                        <Progress 
-                          value={(metric.value / metric.max) * 100} 
-                          className="h-3"
-                        />
-                        <div className="text-xs text-gray-500">
-                          {((metric.value / metric.max) * 100).toFixed(1)}% utilisé
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-            </TabsContent>
-
-            <TabsContent value="monitoring" className="space-y-6">
-              <Card className="bg-white/80 backdrop-blur-sm shadow-lg">
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Activity className="h-5 w-5 text-blue-600" />
-                    Système de Surveillance Avancé
-                  </CardTitle>
-                  <CardDescription>
-                    Interface complète de monitoring système avec outils d'analyse
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <SystemHealthChecker />
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="events" className="space-y-6">
-              <Card className="bg-white/80 backdrop-blur-sm shadow-lg">
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Bell className="h-5 w-5 text-orange-600" />
-                      Journal des Événements
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Button size="sm" variant="outline">
-                        <Download className="h-4 w-4 mr-2" />
-                        Exporter
-                      </Button>
-                      <Button size="sm" variant="outline">
-                        <Settings className="h-4 w-4 mr-2" />
-                        Configurer
-                      </Button>
-                    </div>
-                  </CardTitle>
-                  <CardDescription>
-                    Événements système en temps réel et alertes de monitoring
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {recentEvents.map((event, index) => (
-                      <div key={index} 
-                           className={`flex items-center gap-3 p-3 rounded-lg border-l-4 animate-fade-in ${
-                             event.type === 'success' ? 'border-green-500 bg-green-50' :
-                             event.type === 'warning' ? 'border-yellow-500 bg-yellow-50' :
-                             event.type === 'error' ? 'border-red-500 bg-red-50' :
-                             'border-blue-500 bg-blue-50'
-                           }`}
-                           style={{ animationDelay: `${index * 0.1}s` }}>
-                        <div className="flex-shrink-0">
-                          {getEventIcon(event.type)}
-                        </div>
-                        <div className="flex-1">
-                          <div className="text-sm font-medium text-gray-800">{event.message}</div>
-                          <div className="text-xs text-gray-500">Il y a {event.time}</div>
-                        </div>
-                        <Badge variant="outline" className="text-xs">
-                          {event.severity}
-                        </Badge>
-                      </div>
-                    ))}
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="monitoring" className="space-y-6">
+            <Card className="bg-card/80 backdrop-blur-sm shadow-lg">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Activity className="h-5 w-5 text-primary" />
+                  Système de Surveillance Avancé
+                </CardTitle>
+                <CardDescription>
+                  Interface complète de monitoring système avec outils d'analyse
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <SystemHealthChecker />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="events" className="space-y-6">
+            <Card className="bg-card/80 backdrop-blur-sm shadow-lg">
+              <CardHeader>
+                <CardTitle className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Bell className="h-5 w-5 text-warning" />
+                    Journal des Événements
                   </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
-        </div>
+                  <div className="flex items-center gap-2">
+                    <Button size="sm" variant="outline">
+                      <Download className="h-4 w-4 mr-2" />
+                      Exporter
+                    </Button>
+                    <Button size="sm" variant="outline">
+                      <Settings className="h-4 w-4 mr-2" />
+                      Configurer
+                    </Button>
+                  </div>
+                </CardTitle>
+                <CardDescription>
+                  Événements système en temps réel et alertes de monitoring
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {recentEvents.map((event, index) => (
+                    <div key={index} 
+                         className={`flex items-center gap-3 p-3 rounded-lg border-l-4 animate-fade-in ${
+                           event.type === 'success' ? 'border-success bg-success/10' :
+                           event.type === 'warning' ? 'border-warning bg-warning/10' :
+                           event.type === 'error' ? 'border-destructive bg-destructive/10' :
+                           'border-primary bg-primary/10'
+                         }`}
+                         style={{ animationDelay: `${index * 0.1}s` }}>
+                      <div className="flex-shrink-0">
+                        {getEventIcon(event.type)}
+                      </div>
+                      <div className="flex-1">
+                        <div className="text-sm font-medium text-foreground">{event.message}</div>
+                        <div className="text-xs text-muted-foreground">Il y a {event.time}</div>
+                      </div>
+                      <Badge variant="outline" className="text-xs">
+                        {event.severity}
+                      </Badge>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
-    </>
+    </ConsistentBackground>
   );
 };
 

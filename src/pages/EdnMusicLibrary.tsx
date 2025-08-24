@@ -6,6 +6,9 @@ import { MusicLibraryGrid } from '@/components/edn/music/library/MusicLibraryGri
 import { MusicLibraryEmpty } from '@/components/edn/music/library/MusicLibraryEmpty';
 import { MusicLibraryLoading } from '@/components/edn/music/library/MusicLibraryLoading';
 import { useMusicLibrary } from '@/hooks/useMusicLibrary';
+import { ConsistentBackground } from '@/components/layout/ConsistentBackground';
+import { PageHeader } from '@/components/layout/PageHeader';
+import { Music } from 'lucide-react';
 
 const EdnMusicLibrary = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -21,10 +24,16 @@ const EdnMusicLibrary = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-blue-50">
+    <ConsistentBackground variant="tertiary">
+      <PageHeader
+        title="Bibliothèque Musicale EDN"
+        subtitle={`${filteredMusics.length} création${filteredMusics.length > 1 ? 's' : ''} musicale${filteredMusics.length > 1 ? 's' : ''} éducative${filteredMusics.length > 1 ? 's' : ''}`}
+        icon={Music}
+        showBackButton
+        backTo="/edn"
+      />
+      
       <div className="container mx-auto px-4 py-8">
-        <MusicLibraryHeader musicCount={filteredMusics.length} />
-        
         <MusicLibrarySearch 
           searchTerm={searchTerm}
           onSearchChange={setSearchTerm}
@@ -41,7 +50,7 @@ const EdnMusicLibrary = () => {
           />
         )}
       </div>
-    </div>
+    </ConsistentBackground>
   );
 };
 

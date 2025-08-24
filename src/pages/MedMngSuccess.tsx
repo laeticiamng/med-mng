@@ -8,6 +8,8 @@ import { useAuth } from '@/components/med-mng/AuthProvider';
 import { TranslatedText } from '@/components/TranslatedText';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { ConsistentBackground } from '@/components/layout/ConsistentBackground';
+import { PageHeader } from '@/components/layout/PageHeader';
 
 export const MedMngSuccess = () => {
   const navigate = useNavigate();
@@ -57,59 +59,57 @@ export const MedMngSuccess = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin h-12 w-12 border-4 border-green-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p className="text-lg text-gray-600">Vérification de votre abonnement...</p>
+      <ConsistentBackground variant="secondary">
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center">
+            <div className="animate-spin h-12 w-12 border-4 border-success border-t-transparent rounded-full mx-auto mb-4"></div>
+            <p className="text-lg text-muted-foreground">Vérification de votre abonnement...</p>
+          </div>
         </div>
-      </div>
+      </ConsistentBackground>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-green-50 to-emerald-100 px-4 py-8">
-      <div className="container mx-auto max-w-2xl">
-        <Card className="shadow-lg">
-          <CardHeader className="text-center bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-t-lg">
-            <div className="flex justify-center mb-4">
-              <div className="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
-                <CheckCircle className="h-10 w-10 text-white" />
-              </div>
-            </div>
-            <CardTitle className="text-2xl">Paiement réussi !</CardTitle>
-            <CardDescription className="text-green-100">
-              Votre abonnement MED-MNG est maintenant actif
-            </CardDescription>
-          </CardHeader>
-          
+    <ConsistentBackground variant="secondary">
+      <PageHeader
+        title="Paiement réussi !"
+        subtitle="Votre abonnement MED-MNG est maintenant actif"
+        icon={CheckCircle}
+        showBackButton
+        backTo="/"
+      />
+      
+      <div className="container mx-auto max-w-2xl px-4 py-8">
+        <Card className="shadow-lg bg-card/80 backdrop-blur-sm">          
           <CardContent className="p-8">
             {subscription && (
-              <div className="bg-green-50 rounded-lg p-6 mb-6">
-                <h3 className="font-semibold text-green-800 mb-4">✨ Votre plan {subscription.plan_name} est actif !</h3>
-                <ul className="space-y-2 text-green-700">
+              <div className="bg-success/10 rounded-lg p-6 mb-6">
+                <h3 className="font-semibold text-success mb-4">✨ Votre plan {subscription.plan_name} est actif !</h3>
+                <ul className="space-y-2 text-muted-foreground">
                   <li className="flex items-center gap-2">
-                    <Music className="h-4 w-4 text-green-500" />
+                    <Music className="h-4 w-4 text-success" />
                     <span>{subscription.monthly_quota} générations musicales par mois</span>
                   </li>
                   <li className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <CheckCircle className="h-4 w-4 text-success" />
                     <span>Sauvegarde dans votre bibliothèque</span>
                   </li>
                   {subscription.features.tableaux && (
                     <li className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-500" />
+                      <CheckCircle className="h-4 w-4 text-success" />
                       <span>Accès aux tableaux Rang A et B</span>
                     </li>
                   )}
                   {subscription.features.quiz && (
                     <li className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-500" />
+                      <CheckCircle className="h-4 w-4 text-success" />
                       <span>Quiz complets disponibles</span>
                     </li>
                   )}
                   {subscription.features.bande_dessinee && (
                     <li className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-500" />
+                      <CheckCircle className="h-4 w-4 text-success" />
                       <span>Bandes dessinées éducatives</span>
                     </li>
                   )}
@@ -120,7 +120,7 @@ export const MedMngSuccess = () => {
             <div className="space-y-4">
               <Button
                 onClick={() => navigate('/generator')}
-                className="w-full bg-green-600 hover:bg-green-700 text-white py-3"
+                className="w-full bg-success hover:bg-success/90 text-success-foreground py-3"
                 size="lg"
               >
                 <Music className="h-5 w-5 mr-2" />
@@ -149,13 +149,13 @@ export const MedMngSuccess = () => {
               </Button>
             </div>
 
-            <div className="text-center text-sm text-gray-500 mt-6">
+            <div className="text-center text-sm text-muted-foreground mt-6">
               <p>📧 Vous recevrez un email de confirmation sous peu</p>
               <p>❓ Questions ? Contactez notre support</p>
             </div>
           </CardContent>
         </Card>
       </div>
-    </div>
+    </ConsistentBackground>
   );
 };

@@ -5,6 +5,9 @@ import { EdnItemNavigation } from '@/components/edn/item/EdnItemNavigation';
 import { EdnItemContent } from '@/components/edn/item/EdnItemContent';
 import { useEdnItem } from '@/hooks/useEdnItem';
 import { TranslatedText } from '@/components/TranslatedText';
+import { ConsistentBackground } from '@/components/layout/ConsistentBackground';
+import { PageHeader } from '@/components/layout/PageHeader';
+import { BookOpen } from 'lucide-react';
 
 type SectionType = 'tableau-a' | 'tableau-b' | 'scene' | 'bd' | 'music' | 'quiz';
 
@@ -15,72 +18,67 @@ const EdnItem = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900/95 via-purple-900/90 to-indigo-900/95 flex items-center justify-center relative">
-        {/* Suno-style aura effects */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-          <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl animate-pulse delay-500"></div>
+      <ConsistentBackground variant="secondary">
+        <div className="min-h-screen flex items-center justify-center">        
+          <div className="text-center relative z-10">
+            <div className="w-20 h-20 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
+            <h2 className="text-3xl font-bold text-foreground mb-3">
+              <TranslatedText text="Chargement de l'item EDN" />
+            </h2>
+            <p className="text-muted-foreground text-lg">
+              <TranslatedText text="Préparation du contenu pédagogique complet..." />
+            </p>
+          </div>
         </div>
-        
-        <div className="text-center relative z-10">
-          <div className="w-20 h-20 border-4 border-purple-400 border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
-          <h2 className="text-3xl font-bold text-white mb-3">
-            <TranslatedText text="Chargement de l'item EDN" />
-          </h2>
-          <p className="text-gray-300 text-lg">
-            <TranslatedText text="Préparation du contenu pédagogique complet..." />
-          </p>
-        </div>
-      </div>
+      </ConsistentBackground>
     );
   }
 
   if (!item) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900/95 via-purple-900/90 to-indigo-900/95 flex items-center justify-center relative">
-        {/* Suno-style aura effects */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+      <ConsistentBackground variant="secondary">
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center relative z-10">
+            <h1 className="text-3xl font-bold text-foreground mb-6">
+              <TranslatedText text="Item EDN non trouvé" />
+            </h1>
+            <p className="text-muted-foreground text-lg mb-8">
+              <TranslatedText text="L'item demandé n'existe pas ou n'est pas disponible." />
+            </p>
+          </div>
         </div>
-        
-        <div className="text-center relative z-10">
-          <h1 className="text-3xl font-bold text-white mb-6">
-            <TranslatedText text="Item EDN non trouvé" />
-          </h1>
-          <p className="text-gray-300 text-lg mb-8">
-            <TranslatedText text="L'item demandé n'existe pas ou n'est pas disponible." />
-          </p>
-        </div>
-      </div>
+      </ConsistentBackground>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900/95 via-purple-900/90 to-indigo-900/95 relative">
-      {/* Suno-style aura effects */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl animate-pulse delay-500"></div>
-      </div>
-
-      <div className="container mx-auto px-4 py-8 relative z-10">
-        <EdnItemHeader item={item} />
+    <ConsistentBackground variant="secondary">
+      <PageHeader
+        title={item.title}
+        subtitle={`Item EDN ${item.item_code} - Contenu pédagogique complet`}
+        icon={BookOpen}
+        badge={{
+          text: item.item_code,
+          variant: "outline"
+        }}
+        showBackButton
+        backTo="/edn"
+      />
+      
+      <div className="container mx-auto px-4 py-8">
         <EdnItemNavigation 
           activeSection={activeSection} 
           onSectionChange={setActiveSection} 
         />
         
         {/* Content area with modern styling */}
-        <div className="bg-black/10 backdrop-blur-xl rounded-3xl border border-white/10 shadow-2xl overflow-hidden">
+        <div className="bg-card/50 backdrop-blur-xl rounded-3xl border border-border shadow-2xl overflow-hidden">
           <div className="p-8">
             <EdnItemContent activeSection={activeSection} item={item} />
           </div>
         </div>
       </div>
-    </div>
+    </ConsistentBackground>
   );
 };
 

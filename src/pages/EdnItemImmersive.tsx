@@ -1,11 +1,13 @@
 
 import { Link } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
-import { Volume2 } from 'lucide-react';
+import { Volume2, BookOpen } from 'lucide-react';
 import { ImmersiveHeader } from '@/components/edn/immersive/ImmersiveHeader';
 import { ImmersiveNavigation } from '@/components/edn/immersive/ImmersiveNavigation';
 import { ImmersiveContent } from '@/components/edn/immersive/ImmersiveContent';
 import { useImmersiveLogic } from '@/components/edn/immersive/useImmersiveLogic';
+import { ConsistentBackground } from '@/components/layout/ConsistentBackground';
+import { PageHeader } from '@/components/layout/PageHeader';
 
 const EdnItemImmersive = () => {
   const {
@@ -23,62 +25,50 @@ const EdnItemImmersive = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900/95 via-purple-900/90 to-indigo-900/95 flex items-center justify-center px-4 relative">
-        {/* Suno-style aura effects */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+      <ConsistentBackground variant="secondary">
+        <div className="min-h-screen flex items-center justify-center px-4">
+          <div className="text-center relative z-10">
+            <div className="animate-pulse text-2xl sm:text-3xl text-foreground mb-3 font-bold">Chargement de l'expérience immersive...</div>
+            <p className="text-lg sm:text-xl text-muted-foreground">Préparation du contenu pédagogique avancé</p>
+          </div>
         </div>
-        
-        <div className="text-center relative z-10">
-          <div className="animate-pulse text-2xl sm:text-3xl text-white mb-3 font-bold">Chargement de l'expérience immersive...</div>
-          <p className="text-lg sm:text-xl text-gray-300">Préparation du contenu pédagogique avancé</p>
-        </div>
-      </div>
+      </ConsistentBackground>
     );
   }
 
   if (!item) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900/95 via-purple-900/90 to-indigo-900/95 flex items-center justify-center px-4 relative">
-        {/* Suno-style aura effects */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse"></div>
-          <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
+      <ConsistentBackground variant="secondary">
+        <div className="min-h-screen flex items-center justify-center px-4">
+          <div className="text-center relative z-10">
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-6">Item non trouvé</h1>
+            <Link 
+              to="/edn" 
+              className="inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground px-6 py-3 rounded-xl font-medium transition-all duration-300 hover:scale-105 shadow-lg"
+            >
+              ← Retour à la liste des items EDN
+            </Link>
+          </div>
         </div>
-        
-        <div className="text-center relative z-10">
-          <h1 className="text-2xl sm:text-3xl font-bold text-white mb-6">Item non trouvé</h1>
-          <Link 
-            to="/edn" 
-            className="inline-flex items-center gap-2 bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white px-6 py-3 rounded-xl font-medium transition-all duration-300 hover:scale-105 shadow-2xl shadow-purple-500/30"
-          >
-            ← Retour à la liste des items EDN
-          </Link>
-        </div>
-      </div>
+      </ConsistentBackground>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900/95 via-purple-900/90 to-indigo-900/95 relative overflow-auto">
-      {/* Suno-style aura effects */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl animate-pulse delay-500"></div>
-      </div>
-
-      <ImmersiveHeader
-        isAudioPlaying={isAudioPlaying}
-        currentSection={currentSection}
-        sectionsLength={sections.length}
-        progress={progress}
-        currentSectionName={sections[currentSection] || 'Section inconnue'}
-        onToggleAudio={toggleAudio}
+    <ConsistentBackground variant="secondary">
+      <PageHeader
+        title={item?.title || "Expérience Immersive"}
+        subtitle={`Mode immersif avancé - Section ${currentSection + 1} sur ${sections.length}`}
+        icon={BookOpen}
+        badge={{
+          text: item?.item_code || "EDN",
+          variant: "outline"
+        }}
+        showBackButton
+        backTo="/edn"
       />
-      
-      <div className="pt-16 pb-6 px-4 relative z-10" style={{ paddingTop: '4.5rem' }}>
+
+      <div className="pt-16 pb-6 px-4 relative z-10" style={{ paddingTop: '2rem' }}>
         <div className="max-w-6xl mx-auto">
           <ImmersiveNavigation
             sections={sections}
@@ -100,7 +90,7 @@ const EdnItemImmersive = () => {
           </div>
         </div>
       </div>
-    </div>
+    </ConsistentBackground>
   );
 };
 
