@@ -43,6 +43,24 @@ const Index = () => {
               variant="ghost" 
               size="sm"
               className="text-white/80 hover:text-white hover:bg-white/10 hidden sm:flex"
+              onClick={() => navigate('/help')}
+              aria-label="Centre d'aide et support"
+            >
+              Aide
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="sm"
+              className="text-white/80 hover:text-white hover:bg-white/10 hidden lg:flex"
+              onClick={() => navigate('/analytics-new')}
+              aria-label="Voir les analytics"
+            >
+              Analytics
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="sm"
+              className="text-white/80 hover:text-white hover:bg-white/10 hidden sm:flex"
               onClick={() => navigate('/med-mng/pricing')}
               aria-label="Voir les offres d'abonnement et tarifs"
             >
