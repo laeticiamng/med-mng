@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client"
+import { monitoring } from '@/lib/monitoring';
 
 export interface MusicGenerationRequest {
   item_id: string
@@ -52,65 +53,148 @@ export interface PlaylistSong {
   added_at: string
 }
 
+export interface UserSong {
+  id: string;
+  user_id: string;
+  song_id: string;
+  created_at: string;
+  emotionscare_songs: {
+    id: string;
+    title: string;
+    suno_audio_id: string;
+    meta: any;
+    created_at: string;
+  };
+}
+
+export interface SimpleSong {
+  id: string;
+  title: string;
+  suno_audio_id: string;
+  meta?: any;
+  created_at: string;
+}
+
+export interface Favorite {
+  id: string;
+  user_id: string;
+  song_id: string;
+  created_at: string;
+}
+
+export interface MusicGenerationResponse {
+  success: boolean;
+  generation_id: string;
+  song?: GeneratedSong;
+  duration_seconds?: number;
+  added_to_library?: boolean;
+  error?: string;
+}
+
 class MusicService {
-  private baseUrl = `https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/music-generation`
+  // Configuration dynamique basée sur l'environnement Supabase
+  private get baseUrl(): string {
+    const supabaseUrl = 'https://yaincoxihiqdksxgrsrk.supabase.co'; // Obtenu de la config Supabase
+    return `${supabaseUrl}/functions/v1/music-generation`;
+  }
 
   // ===== GÉNÉRATION MUSICALE =====
-  async generateSong(request: MusicGenerationRequest): Promise<{
-    success: boolean
-    generation_id: string
-    song?: GeneratedSong
-    duration_seconds?: number
-    added_to_library?: boolean
-    error?: string
-  }> {
+  async generateSong(request: MusicGenerationRequest): Promise<MusicGenerationResponse> {
     try {
-      console.log(`🎵 Generating song for ${request.item_code} Rang ${request.rang_type}`)
-      
+      monitoring.logPerformance({
+        endpoint: 'music-generation',
+        responseTime: Date.now(),
+        memoryUsage: 0,
+        cpuUsage: 0
+      });
+
       const { data, error } = await supabase.functions.invoke('music-generation', {
         body: request,
         method: 'POST'
       })
 
-      if (error) throw error
-
-      if (data.success) {
-        console.log(`✅ Song generated successfully in ${data.duration_seconds}s`)
-        // Événement analytics
-        this.trackGeneration(request, data.duration_seconds, true)
-      } else {
-        console.error('❌ Song generation failed:', data.error)
-        this.trackGeneration(request, 0, false, data.error)
+      if (error) {
+        throw new Error(`Erreur génération: ${error.message}`);
       }
 
-      return data
+      if (data.success) {
+        this.trackGeneration(request, data.duration_seconds || 0, true);
+        monitoring.logEvent({
+          level: 'info',
+          message: `Chanson générée avec succès: ${request.item_code}`,
+          timestamp: new Date().toISOString(),
+          metadata: { 
+            item_code: request.item_code, 
+            duration: data.duration_seconds 
+          }
+        });
+      } else {
+        this.trackGeneration(request, 0, false, data.error);
+        monitoring.logEvent({
+          level: 'error',
+          message: `Échec génération: ${data.error}`,
+          timestamp: new Date().toISOString(),
+          metadata: { item_code: request.item_code }
+        });
+      }
+
+      return data;
     } catch (error) {
-      console.error('❌ Error generating song:', error)
-      this.trackGeneration(request, 0, false, error.message)
-      throw error
+      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+      
+      monitoring.logAPIError(error instanceof Error ? error : new Error(errorMessage), {
+        endpoint: 'music-generation',
+        method: 'POST'
+      });
+      
+      this.trackGeneration(request, 0, false, errorMessage);
+      throw new Error(`Erreur génération musicale: ${errorMessage}`);
     }
   }
 
   async getGenerationStats(): Promise<GenerationStats> {
     try {
+      const { data: session } = await supabase.auth.getSession();
+      if (!session?.session?.access_token) {
+        throw new Error('Utilisateur non authentifié');
+      }
+
       const response = await fetch(`${this.baseUrl}/stats`, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+          'Authorization': `Bearer ${session.session.access_token}`,
           'Content-Type': 'application/json'
         }
-      })
+      });
 
-      if (!response.ok) throw new Error(`HTTP ${response.status}`)
-      return await response.json()
+      if (!response.ok) {
+        throw new Error(`Erreur HTTP ${response.status}: ${response.statusText}`);
+      }
+      
+      const stats = await response.json();
+      
+      monitoring.logEvent({
+        level: 'info',
+        message: 'Statistiques de génération récupérées',
+        timestamp: new Date().toISOString(),
+        metadata: stats
+      });
+      
+      return stats;
     } catch (error) {
-      console.error('❌ Error fetching generation stats:', error)
-      throw error
+      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+      
+      monitoring.logAPIError(error instanceof Error ? error : new Error(errorMessage), {
+        endpoint: 'generation-stats',
+        method: 'GET'
+      });
+      
+      throw new Error(`Erreur récupération stats: ${errorMessage}`);
     }
   }
 
   // ===== BIBLIOTHÈQUE UTILISATEUR =====
-  async getUserLibrary(): Promise<any[]> {
+  async getUserLibrary(): Promise<UserSong[]> {
     try {
       const { data, error } = await supabase
         .from('emotionscare_user_songs')
@@ -124,21 +208,31 @@ class MusicService {
             created_at
           )
         `)
-        .order('created_at', { ascending: false })
+        .order('created_at', { ascending: false });
 
-      if (error) throw error
-      return data || []
+      if (error) {
+        throw new Error(`Erreur base de données: ${error.message}`);
+      }
+      
+      return (data || []) as UserSong[];
     } catch (error) {
-      console.error('❌ Error fetching user library:', error)
-      throw error
+      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+      
+      monitoring.logAPIError(error instanceof Error ? error : new Error(errorMessage), {
+        endpoint: 'user-library',
+        method: 'GET'
+      });
+      
+      throw new Error(`Erreur récupération bibliothèque: ${errorMessage}`);
     }
   }
 
   async addToLibrary(songId: string): Promise<void> {
     try {
-      // Obtenir l'utilisateur actuel
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) throw new Error('User not authenticated')
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        throw new Error('Utilisateur non authentifié');
+      }
 
       const { error } = await supabase
         .from('emotionscare_user_songs')
@@ -146,13 +240,28 @@ class MusicService {
           user_id: user.id,
           song_id: songId,
           created_at: new Date().toISOString()
-        })
+        });
 
-      if (error) throw error
-      console.log('✅ Song added to library')
+      if (error) {
+        throw new Error(`Erreur base de données: ${error.message}`);
+      }
+      
+      monitoring.logEvent({
+        level: 'info',
+        message: 'Chanson ajoutée à la bibliothèque',
+        timestamp: new Date().toISOString(),
+        userId: user.id,
+        metadata: { songId }
+      });
     } catch (error) {
-      console.error('❌ Error adding to library:', error)
-      throw error
+      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+      
+      monitoring.logAPIError(error instanceof Error ? error : new Error(errorMessage), {
+        endpoint: 'add-to-library',
+        method: 'POST'
+      });
+      
+      throw new Error(`Erreur ajout bibliothèque: ${errorMessage}`);
     }
   }
 
@@ -161,13 +270,27 @@ class MusicService {
       const { error } = await supabase
         .from('emotionscare_user_songs')
         .delete()
-        .eq('song_id', songId)
+        .eq('song_id', songId);
 
-      if (error) throw error
-      console.log('✅ Song removed from library')
+      if (error) {
+        throw new Error(`Erreur base de données: ${error.message}`);
+      }
+      
+      monitoring.logEvent({
+        level: 'info',
+        message: 'Chanson supprimée de la bibliothèque',
+        timestamp: new Date().toISOString(),
+        metadata: { songId }
+      });
     } catch (error) {
-      console.error('❌ Error removing from library:', error)
-      throw error
+      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+      
+      monitoring.logAPIError(error instanceof Error ? error : new Error(errorMessage), {
+        endpoint: 'remove-from-library',
+        method: 'DELETE'
+      });
+      
+      throw new Error(`Erreur suppression bibliothèque: ${errorMessage}`);
     }
   }
 
@@ -235,7 +358,7 @@ class MusicService {
   }
 
   // ===== FAVORIS =====
-  async getFavorites(): Promise<any[]> {
+  async getFavorites(): Promise<Favorite[]> {
     try {
       const { data, error } = await supabase
         .from('emotionscare_song_likes')
@@ -249,13 +372,22 @@ class MusicService {
             created_at
           )
         `)
-        .order('created_at', { ascending: false })
+        .order('created_at', { ascending: false });
 
-      if (error) throw error
-      return data || []
+      if (error) {
+        throw new Error(`Erreur base de données: ${error.message}`);
+      }
+      
+      return (data || []) as Favorite[];
     } catch (error) {
-      console.error('❌ Error fetching favorites:', error)
-      throw error
+      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+      
+      monitoring.logAPIError(error instanceof Error ? error : new Error(errorMessage), {
+        endpoint: 'favorites',
+        method: 'GET'
+      });
+      
+      throw new Error(`Erreur récupération favoris: ${errorMessage}`);
     }
   }
 
@@ -266,22 +398,33 @@ class MusicService {
         .from('emotionscare_song_likes')
         .select('id')
         .eq('song_id', songId)
-        .single()
+        .single();
 
       if (existing) {
         // Retirer des favoris
         const { error } = await supabase
           .from('emotionscare_song_likes')
           .delete()
-          .eq('song_id', songId)
+          .eq('song_id', songId);
 
-        if (error) throw error
-        console.log('✅ Removed from favorites')
-        return false
+        if (error) {
+          throw new Error(`Erreur base de données: ${error.message}`);
+        }
+        
+        monitoring.logEvent({
+          level: 'info',
+          message: 'Chanson supprimée des favoris',
+          timestamp: new Date().toISOString(),
+          metadata: { songId }
+        });
+        
+        return false;
       } else {
         // Ajouter aux favoris
-        const { data: { user } } = await supabase.auth.getUser()
-        if (!user) throw new Error('User not authenticated')
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          throw new Error('Utilisateur non authentifié');
+        }
 
         const { error } = await supabase
           .from('emotionscare_song_likes')
@@ -289,15 +432,31 @@ class MusicService {
             user_id: user.id,
             song_id: songId,
             created_at: new Date().toISOString()
-          })
+          });
 
-        if (error) throw error
-        console.log('✅ Added to favorites')
-        return true
+        if (error) {
+          throw new Error(`Erreur base de données: ${error.message}`);
+        }
+        
+        monitoring.logEvent({
+          level: 'info',
+          message: 'Chanson ajoutée aux favoris',
+          timestamp: new Date().toISOString(),
+          userId: user.id,
+          metadata: { songId }
+        });
+        
+        return true;
       }
     } catch (error) {
-      console.error('❌ Error toggling favorite:', error)
-      throw error
+      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+      
+      monitoring.logAPIError(error instanceof Error ? error : new Error(errorMessage), {
+        endpoint: 'toggle-favorite',
+        method: 'POST'
+      });
+      
+      throw new Error(`Erreur gestion favoris: ${errorMessage}`);
     }
   }
 
@@ -315,7 +474,7 @@ class MusicService {
     duration: number, 
     success: boolean, 
     error?: string
-  ) {
+  ): void {
     // Analytics internes (peut être étendu avec des services externes)
     const event = {
       event_type: 'music_generation',
@@ -325,31 +484,63 @@ class MusicService {
       success,
       error,
       timestamp: new Date().toISOString()
-    }
+    };
     
-    console.log('📊 Music generation event:', event)
+    monitoring.logEvent({
+      level: success ? 'info' : 'error',
+      message: `Génération musicale ${success ? 'réussie' : 'échouée'}: ${request.item_code}`,
+      timestamp: new Date().toISOString(),
+      metadata: event
+    });
     
     // Stocker en local storage pour analytics client
-    const existingEvents = JSON.parse(localStorage.getItem('music_analytics') || '[]')
-    existingEvents.push(event)
-    // Garder seulement les 100 derniers événements
-    localStorage.setItem('music_analytics', JSON.stringify(existingEvents.slice(-100)))
-  }
-
-  async getAnalytics(): Promise<any> {
-    const localEvents = JSON.parse(localStorage.getItem('music_analytics') || '[]')
-    return {
-      local_events: localEvents,
-      session_stats: this.calculateSessionStats(localEvents)
+    try {
+      const existingEvents = JSON.parse(localStorage.getItem('music_analytics') || '[]');
+      existingEvents.push(event);
+      // Garder seulement les 100 derniers événements
+      localStorage.setItem('music_analytics', JSON.stringify(existingEvents.slice(-100)));
+    } catch (storageError) {
+      console.warn('Erreur stockage analytics local:', storageError);
     }
   }
 
-  private calculateSessionStats(events: any[]) {
-    const totalEvents = events.length
-    const successfulEvents = events.filter(e => e.success).length
+  async getAnalytics(): Promise<{ 
+    local_events: any[]; 
+    session_stats: any; 
+  }> {
+    try {
+      const localEvents = JSON.parse(localStorage.getItem('music_analytics') || '[]');
+      return {
+        local_events: localEvents,
+        session_stats: this.calculateSessionStats(localEvents)
+      };
+    } catch (error) {
+      monitoring.logEvent({
+        level: 'warn',
+        message: 'Erreur récupération analytics locales',
+        timestamp: new Date().toISOString(),
+        metadata: { error: error instanceof Error ? error.message : 'Erreur inconnue' }
+      });
+      
+      return {
+        local_events: [],
+        session_stats: this.calculateSessionStats([])
+      };
+    }
+  }
+
+  private calculateSessionStats(events: any[]): {
+    total_generations: number;
+    success_rate: number;
+    average_duration: number;
+    session_start?: string;
+    last_generation?: string;
+  } {
+    const totalEvents = events.length;
+    const successfulEvents = events.filter((e: any) => e.success).length;
     const avgDuration = events.length > 0 
-      ? events.reduce((sum, e) => sum + e.duration_seconds, 0) / events.length 
-      : 0
+      ? events.reduce((sum: number, e: any) => sum + (e.duration_seconds || 0), 0) / events.length 
+      : 0;
 
     return {
       total_generations: totalEvents,
@@ -357,7 +548,7 @@ class MusicService {
       average_duration: Math.round(avgDuration),
       session_start: events[0]?.timestamp,
       last_generation: events[events.length - 1]?.timestamp
-    }
+    };
   }
 }
 
