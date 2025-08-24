@@ -44,11 +44,11 @@ const MedMngLogin = lazy(() => import("./pages/MedMngLogin").then(module => ({ d
 const MedMngSignup = lazy(() => import("./pages/MedMngSignup").then(module => ({ default: module.MedMngSignup })));
 const MedMngPricing = lazy(() => import("./pages/MedMngPricing").then(module => ({ default: module.MedMngPricing })));
 const MedMngSubscribe = lazy(() => import("./pages/MedMngSubscribe").then(module => ({ default: module.MedMngSubscribe })));
-const MedMngCreate = lazy(() => import("./pages/MedMngCreate").then(module => ({ default: module.MedMngCreate })));
-const MedMngLibrary = lazy(() => import("./pages/MedMngLibrary").then(module => ({ default: module.MedMngLibrary })));
-const MedMngPlayer = lazy(() => import("./pages/MedMngPlayer").then(module => ({ default: module.MedMngPlayer })));
+const MedMngCreate = lazy(() => import("./pages/med-mng/Create"));
+const MedMngLibrary = lazy(() => import("./pages/med-mng/Library"));
+const MedMngPlayer = lazy(() => import("./pages/med-mng/Player"));
 const MedMngSuccess = lazy(() => import("./pages/MedMngSuccess").then(module => ({ default: module.MedMngSuccess })));
-const MedMngProfile = lazy(() => import("./pages/MedMngProfile").then(module => ({ default: module.MedMngProfile })));
+const MedMngProfile = lazy(() => import("./pages/med-mng/Profile"));
 const PlaylistManager = lazy(() => import("./components/playlists/PlaylistManager").then(module => ({ default: module.PlaylistManager })));
 const PlaylistDetail = lazy(() => import("./components/playlists/PlaylistDetail").then(module => ({ default: module.PlaylistDetail })));
 const MusicAnalytics = lazy(() => import("./components/analytics/MusicAnalytics").then(module => ({ default: module.MusicAnalytics })));
