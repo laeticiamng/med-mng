@@ -1,5 +1,5 @@
 import { useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { appNavigate } from "@/lib/navigation";
 import { toast } from '@/hooks/use-toast';
 
 interface ShortcutConfig {
@@ -12,32 +12,31 @@ interface ShortcutConfig {
 }
 
 export const useKeyboardShortcuts = (shortcuts: ShortcutConfig[] = []) => {
-  const navigate = useNavigate();
 
   const defaultShortcuts: ShortcutConfig[] = [
     {
       key: 'h',
       ctrlKey: true,
-      action: () => navigate('/'),
+      action: () => appNavigate('/'),
       description: 'Aller à l\'accueil'
     },
     {
       key: 'e',
       ctrlKey: true,
-      action: () => navigate('/edn'),
+      action: () => appNavigate('/edn'),
       description: 'Ouvrir EDN Explorer'
     },
     {
       key: 'c',
       ctrlKey: true,
       shiftKey: true,
-      action: () => navigate('/chat'),
+      action: () => appNavigate('/chat'),
       description: 'Ouvrir le Chat IA'
     },
     {
       key: 'm',
       ctrlKey: true,
-      action: () => navigate('/med-mng'),
+      action: () => appNavigate('/med-mng'),
       description: 'Ouvrir MED-MNG'
     },
     {
@@ -91,7 +90,7 @@ export const useKeyboardShortcuts = (shortcuts: ShortcutConfig[] = []) => {
         break;
       }
     }
-  }, [shortcuts, navigate]);
+  }, [shortcuts]);
 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown);
