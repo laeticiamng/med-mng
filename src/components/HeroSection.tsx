@@ -31,7 +31,7 @@ export const HeroSection = () => {
             <span>Simulations ECOS</span>
           </Button>
         </Link>
-        <Link to="/audit-general">
+        <Link to="/audit">
           <Button variant="outline" size="lg" className="flex items-center space-x-2">
             <BarChart3 className="h-5 w-5" />
             <span>Audit EDN</span>

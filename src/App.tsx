@@ -74,6 +74,7 @@ import { UndoRedoProvider } from '@/components/ux/UndoRedoProvider';
 import { UXToolbar } from '@/components/ux/UXToolbar';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { SkipToMain } from '@/components/ux/AccessibilityEnhancements';
+import { DevTools } from '@/components/DevTools';
 
 // Component to handle keyboard shortcuts inside Router context
 const AppKeyboardShortcuts = ({ children }: { children: React.ReactNode }) => {
@@ -233,6 +234,9 @@ const AppWithUX = () => {
                           
                           {/* UX Toolbar - Floating bottom-right */}
                           <UXToolbar />
+                          
+                          {/* Dev Tools - Development environment only */}
+                          {process.env.NODE_ENV === 'development' && <DevTools />}
                         </div>
                             <Sonner richColors closeButton />
                             </UXToastProvider>
