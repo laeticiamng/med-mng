@@ -499,6 +499,9 @@ html[data-font-size="large"] {
   .touch-target {
     min-height: 48px;
     min-width: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     -webkit-user-select: none;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
@@ -514,7 +517,30 @@ html[data-font-size="large"] {
     transform: scale(0.95);
   }
   
-  /* Optimized scrolling */
+  /* Optimisation des zones de texte sur mobile */
+  input[type="text"], 
+  input[type="search"], 
+  input[type="email"],
+  input[type="password"],
+  textarea, select {
+    font-size: 16px; /* Évite le zoom automatique sur iOS */
+    border-radius: 8px;
+    padding: 12px 16px;
+    -webkit-appearance: none;
+  }
+  
+  /* Amélioration des cartes sur mobile */
+  .medical-card {
+    margin-bottom: 12px;
+    padding: 16px;
+  }
+  
+  /* Navigation mobile padding de sécurité */
+  .pb-safe {
+    padding-bottom: calc(env(safe-area-inset-bottom) + 80px);
+  }
+  
+  /* Optimisation du scroll */
   .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
@@ -526,15 +552,29 @@ html[data-font-size="large"] {
     display: none;
   }
   
-  /* Mobile input optimization - prevents iOS zoom */
-  input[type="text"], 
-  input[type="search"], 
-  input[type="email"],
-  input[type="password"],
-  textarea {
-    font-size: 16px;
-    -webkit-appearance: none;
-    border-radius: 12px;
+  /* Grille responsive optimisée */
+  .grid-mobile-1 { grid-template-columns: repeat(1, 1fr); }
+  .grid-mobile-2 { grid-template-columns: repeat(2, 1fr); }
+  .grid-mobile-3 { grid-template-columns: repeat(3, 1fr); }
+  
+  /* Espacement mobile optimisé */
+  .gap-mobile-2 { gap: 8px; }
+  .gap-mobile-3 { gap: 12px; }
+  .gap-mobile-4 { gap: 16px; }
+  
+  /* Padding mobile optimisé */
+  .p-mobile-2 { padding: 8px; }
+  .p-mobile-3 { padding: 12px; }
+  .p-mobile-4 { padding: 16px; }
+  .p-mobile-6 { padding: 24px; }
+  
+  /* Amélioration des animations pour mobile */
+  .hover\\:scale-105:hover {
+    transform: scale(1.02); /* Réduction pour mobile */
+  }
+  
+  .active\\:scale-95:active {
+    transform: scale(0.98);
   }
   
   /* Modal improvements for mobile */
@@ -544,20 +584,57 @@ html[data-font-size="large"] {
     z-index: 9999 !important;
   }
   
-  /* Swipe gesture indicators */
-  .swipe-indicator {
-    background: linear-gradient(90deg, transparent, hsl(var(--primary) / 0.3), transparent);
-    height: 2px;
-    width: 100%;
-    position: absolute;
-    bottom: 0;
-    animation: swipe-hint 2s infinite;
+  /* Medical buttons optimisés pour mobile */
+  .medical-btn-primary,
+  .medical-btn-secondary,
+  .medical-btn-outline {
+    min-height: 48px;
+    padding: 12px 16px;
+    font-size: 16px;
+    -webkit-tap-highlight-color: transparent;
   }
   
-  @keyframes swipe-hint {
-    0%, 100% { opacity: 0; }
-    50% { opacity: 1; }
+  .medical-btn-primary:active {
+    transform: scale(0.95);
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%);
   }
+}
+
+/* Optimisation pour très petits écrans */
+@media (max-width: 375px) {
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Texte plus petit sur très petits écrans */
+  .text-responsive-sm {
+    font-size: 14px;
+  }
+  
+  /* Padding réduit pour très petits écrans */
+  .container {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+}
+
+/* Navigation mobile en bas */
+.mobile-bottom-nav {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px) saturate(180%);
+  border-top: 1px solid rgba(59, 130, 246, 0.1);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.dark .mobile-bottom-nav {
+  background: rgba(15, 23, 42, 0.95);
+  border-top-color: rgba(59, 130, 246, 0.2);
 }
 
 /* iOS Safari specific optimizations */
@@ -584,55 +661,18 @@ html[data-font-size="large"] {
   }
 }
 
-/* Premium interaction animations */
-.premium-transition {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.premium-hover:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-medium);
-}
-
-/* Enhanced card interactions for medical theme */
-.premium-card {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  background: hsl(var(--card));
-  border: 1px solid hsl(var(--border));
-  border-radius: calc(var(--radius) + 2px);
-}
-
-.premium-card:hover {
-  transform: translateY(-4px) scale(1.02);
-  box-shadow: var(--shadow-large, 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 10px 10px -5px rgb(0 0 0 / 0.04));
-  border-color: hsl(var(--primary) / 0.3);
-}
-
-/* Medical-themed mobile navigation enhancements */
-.medical-mobile-nav {
-  background: hsl(var(--background));
-  border-bottom: 1px solid hsl(var(--border));
-  padding: env(safe-area-inset-top) env(safe-area-inset-right) 12px env(safe-area-inset-left);
-}
-
-/* Touch-optimized medical buttons for mobile */
-@media (max-width: 768px) {
-  .medical-btn-primary,
-  .medical-btn-secondary,
-  .medical-btn-outline {
-    min-height: 48px;
-    padding: 12px 16px;
-    font-size: 16px;
-    -webkit-tap-highlight-color: transparent;
-  }
-  
-  .medical-btn-primary:active {
-    transform: scale(0.95);
-    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%);
+/* Amélioration des focus states sur mobile */
+@media (hover: none) and (pointer: coarse) {
+  .focus-visible:focus {
+    outline: 2px solid hsl(var(--primary));
+    outline-offset: 2px;
+    border-radius: 4px;
   }
 }
 
-/* ========================================== */
+/* ==========================================
+   ENHANCED MEDICAL COMPONENTS & ACCESSIBILITY
+   ========================================== */
 
 /* Screen Reader Only Content */
 .sr-only {
@@ -645,47 +685,6 @@ html[data-font-size="large"] {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
-}
-
-/* Enhanced accessibility modes */
-.accessibility-mode {
-  --font-size-multiplier: 1.2;
-  --line-height-multiplier: 1.5;
-  --focus-ring-width: 3px;
-}
-
-.accessibility-mode * {
-  font-size: calc(1rem * var(--font-size-multiplier)) !important;
-  line-height: calc(1.5 * var(--line-height-multiplier)) !important;
-}
-
-.accessibility-mode :focus {
-  outline: var(--focus-ring-width) solid hsl(var(--primary)) !important;
-  outline-offset: 2px !important;
-}
-
-.high-contrast {
-  --background: 0 0% 0%;
-  --foreground: 0 0% 100%;
-  --primary: 210 100% 70%;
-  --secondary: 210 40% 20%;
-  --muted: 210 40% 10%;
-  --accent: 210 100% 60%;
-  --border: 210 40% 30%;
-}
-
-.high-contrast * {
-  border-color: hsl(var(--border)) !important;
-}
-
-/* Focus management */
-.focus-trap {
-  position: relative;
-}
-
-/* Focus visible enhancement */
-.focus-visible {
-  @apply outline-none ring-2 ring-primary ring-offset-2;
 }
 
 /* Reduced motion support */
