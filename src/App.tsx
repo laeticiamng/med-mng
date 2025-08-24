@@ -82,10 +82,10 @@ import { SkipToMain } from '@/components/ux/AccessibilityEnhancements';
 import { DevTools } from '@/components/DevTools';
 
 // Component to handle keyboard shortcuts inside Router context
-const AppKeyboardShortcuts = ({ children }: { children: React.ReactNode }) => {
-  useKeyboardShortcuts(); // Now called inside Router context
-  return <>{children}</>;
-};
+const AppKeyboardShortcuts = memo(() => {
+  useKeyboardShortcuts(); // Called inside Router context
+  return null; // This component only provides keyboard functionality
+});
 
 // Composant de redirection pour /edn-complete/:slug vers /edn/:slug
 const EdnCompleteRedirect = () => {
@@ -140,9 +140,9 @@ const AppWithUX = () => {
                       <ToastProvider>
                         <UndoRedoProvider>
                           <BrowserRouter>
-                            <AppKeyboardShortcuts>
-                              <NavigatorBridge />
-                              <UXToastProvider>
+                            <NavigatorBridge />
+                            <AppKeyboardShortcuts />
+                            <UXToastProvider>
                                 <SkipToMain />
                                 <SkipLinks />
                                 <div id="app-root" className="min-h-screen flex flex-col" style={{ display: 'block' }}>
@@ -249,7 +249,6 @@ const AppWithUX = () => {
                                 </div>
                                 <Sonner richColors closeButton />
                               </UXToastProvider>
-                            </AppKeyboardShortcuts>
                           </BrowserRouter>
                         </UndoRedoProvider>
                       </ToastProvider>
