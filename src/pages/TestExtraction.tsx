@@ -6,6 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ConsistentBackground } from '@/components/layout/ConsistentBackground';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { EdnExtractionTest } from '@/components/test/EdnExtractionTest';
 import { useResponsiveSpacing } from '@/hooks/useBreakpoints';
 import { Helmet } from 'react-helmet-async';
@@ -83,52 +85,19 @@ export default function TestExtraction() {
         <meta name="description" content="Interface de test pour l'extraction complète des données UNESS LISA 2025. Validation et performance en temps réel." />
       </Helmet>
 
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50 relative overflow-hidden">
-        {/* Éléments de fond tech */}
-        <div className="absolute inset-0 opacity-30">
-          {[...Array(15)].map((_, i) => (
-            <div
-              key={i}
-              className="absolute w-1 h-1 bg-indigo-400/20 rounded-full animate-pulse"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 3}s`,
-              }}
-            />
-          ))}
-        </div>
-
-        <div className={`relative z-10 container mx-auto ${spacing.container}`}>
-          {/* Navigation */}
-          <div className="flex items-center justify-between mb-8">
-            <Link 
-              to="/" 
-              className="flex items-center gap-2 text-indigo-600 hover:text-indigo-800 transition-colors"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Retour à l'accueil
-            </Link>
-            <Badge variant="outline" className="bg-white/80">
-              Environnement de test
-            </Badge>
-          </div>
-
-          {/* En-tête */}
-          <div className="text-center mb-12">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-r from-indigo-500 to-purple-600 rounded-full mb-6 shadow-xl">
-              <TestTube className="h-10 w-10 text-white animate-bounce" />
-            </div>
-            
-            <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent mb-4">
-              🧪 Test d'Extraction UNESS
-            </h1>
-            
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Interface de test pour la nouvelle fonction d'extraction complète des données UNESS LISA 2025.
-              Validation automatisée, tests de performance et monitoring en temps réel.
-            </p>
-          </div>
+      <ConsistentBackground variant="light">
+        <div className={`container mx-auto px-4 py-8 ${spacing.container}`}>
+          <PageHeader
+            title="🧪 Test d'Extraction UNESS"
+            subtitle="Interface de test pour la nouvelle fonction d'extraction complète des données UNESS LISA 2025. Validation automatisée, tests de performance et monitoring en temps réel."
+            icon={TestTube}
+            showBackButton
+            backTo="/"
+            badge={{
+              text: "Environnement de test",
+              variant: "outline"
+            }}
+          />
 
           {/* Dashboard des tests */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -354,7 +323,7 @@ export default function TestExtraction() {
             </TabsContent>
           </Tabs>
         </div>
-      </div>
+      </ConsistentBackground>
     </>
   );
 }

@@ -9,6 +9,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { ConsistentBackground } from '@/components/layout/ConsistentBackground';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { toast } from 'sonner';
@@ -127,70 +129,56 @@ export default function AdminDashboard() {
 
   if (!isAdmin) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <Shield className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-          <h2 className="text-xl font-semibold mb-2">Vérification des accès...</h2>
-          <p className="text-muted-foreground">Contrôle des privilèges administrateur</p>
+      <ConsistentBackground variant="tertiary">
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center">
+            <Shield className="h-12 w-12 text-white/60 mx-auto mb-4" />
+            <h2 className="text-xl font-semibold mb-2 text-white">Vérification des accès...</h2>
+            <p className="text-white/80">Contrôle des privilèges administrateur</p>
+          </div>
         </div>
-      </div>
+      </ConsistentBackground>
     );
   }
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Chargement du tableau de bord...</p>
+      <ConsistentBackground variant="tertiary">
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center">
+            <div className="w-8 h-8 border-2 border-white border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-white/80">Chargement du tableau de bord...</p>
+          </div>
         </div>
-      </div>
+      </ConsistentBackground>
     );
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="bg-card/80 backdrop-blur-sm border-b">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center">
-                <Shield className="h-5 w-5 text-white" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-foreground">Administration</h1>
-                <p className="text-sm text-muted-foreground">
-                  Gestion complète de la plateforme E-LiSA
-                </p>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-4">
-              <Badge 
-                variant={stats.systemHealth === 'good' ? 'default' : 'destructive'}
-                className="flex items-center gap-1"
-              >
-                <div className={`w-2 h-2 rounded-full ${
-                  stats.systemHealth === 'good' ? 'bg-green-500' : 'bg-red-500'
-                } animate-pulse`} />
-                Système {stats.systemHealth === 'good' ? 'Opérationnel' : 'Alerte'}
-              </Badge>
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => navigate('/')}
-              >
-                Retour à l'accueil
-              </Button>
-            </div>
-          </div>
-        </div>
-      </div>
+    <ConsistentBackground variant="tertiary">
+      <div className="container mx-auto px-4 py-8">
+        <PageHeader
+          title="Administration E-LiSA"
+          subtitle="Gestion complète de la plateforme médicale"
+          icon={Shield}
+          badge={{
+            text: stats.systemHealth === 'good' ? 'Système Opérationnel' : 'Système en Alerte',
+            variant: stats.systemHealth === 'good' ? 'default' : 'destructive'
+          }}
+          actions={
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => navigate('/')}
+              className="border-white/20 text-white hover:bg-white/10"
+            >
+              Retour à l'accueil
+            </Button>
+          }
+        />
 
-      <div className="container mx-auto px-6 py-6">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-6">
+          <TabsList className="grid w-full grid-cols-6 mb-8 bg-white/10 border-white/20">
             <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
             <TabsTrigger value="users">Utilisateurs</TabsTrigger>
             <TabsTrigger value="content">Contenu</TabsTrigger>
@@ -202,7 +190,7 @@ export default function AdminDashboard() {
           <TabsContent value="overview" className="space-y-6 mt-6">
             {/* Alertes système */}
             {stats.systemHealth !== 'good' && (
-              <Alert variant="destructive">
+              <Alert variant="destructive" className="bg-red-500/10 border-red-500/20 text-white">
                 <AlertTriangle className="h-4 w-4" />
                 <AlertDescription>
                   Attention: Utilisation élevée des crédits IA ({stats.totalCreditsUsed.toLocaleString()}).
@@ -213,53 +201,53 @@ export default function AdminDashboard() {
 
             {/* Statistiques principales */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              <Card>
+              <Card className="bg-white/10 backdrop-blur border-white/20">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Utilisateurs</CardTitle>
-                  <Users className="h-4 w-4 text-muted-foreground" />
+                  <CardTitle className="text-sm font-medium text-white">Utilisateurs</CardTitle>
+                  <Users className="h-4 w-4 text-white/60" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{stats.totalUsers.toLocaleString()}</div>
-                  <p className="text-xs text-muted-foreground">
+                  <div className="text-2xl font-bold text-white">{stats.totalUsers.toLocaleString()}</div>
+                  <p className="text-xs text-white/60">
                     Total des comptes créés
                   </p>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="bg-white/10 backdrop-blur border-white/20">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Abonnements</CardTitle>
-                  <CreditCard className="h-4 w-4 text-muted-foreground" />
+                  <CardTitle className="text-sm font-medium text-white">Abonnements</CardTitle>
+                  <CreditCard className="h-4 w-4 text-white/60" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{stats.activeSubscriptions}</div>
-                  <p className="text-xs text-muted-foreground">
+                  <div className="text-2xl font-bold text-white">{stats.activeSubscriptions}</div>
+                  <p className="text-xs text-white/60">
                     Abonnements actifs
                   </p>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="bg-white/10 backdrop-blur border-white/20">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Revenus</CardTitle>
-                  <DollarSign className="h-4 w-4 text-muted-foreground" />
+                  <CardTitle className="text-sm font-medium text-white">Revenus</CardTitle>
+                  <DollarSign className="h-4 w-4 text-white/60" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{stats.monthlyRevenue}€</div>
-                  <p className="text-xs text-muted-foreground">
+                  <div className="text-2xl font-bold text-white">{stats.monthlyRevenue}€</div>
+                  <p className="text-xs text-white/60">
                     Estimation mensuelle
                   </p>
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="bg-white/10 backdrop-blur border-white/20">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Contenu</CardTitle>
-                  <BookOpen className="h-4 w-4 text-muted-foreground" />
+                  <CardTitle className="text-sm font-medium text-white">Contenu</CardTitle>
+                  <BookOpen className="h-4 w-4 text-white/60" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">{stats.totalContent}</div>
-                  <p className="text-xs text-muted-foreground">
+                  <div className="text-2xl font-bold text-white">{stats.totalContent}</div>
+                  <p className="text-xs text-white/60">
                     Items EDN disponibles
                   </p>
                 </CardContent>
@@ -268,13 +256,13 @@ export default function AdminDashboard() {
 
             {/* Graphiques et activité récente */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card>
+              <Card className="bg-white/10 backdrop-blur border-white/20">
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
+                  <CardTitle className="flex items-center gap-2 text-white">
                     <TrendingUp className="h-5 w-5" />
                     Utilisation des crédits IA
                   </CardTitle>
-                  <CardDescription>
+                  <CardDescription className="text-white/60">
                     Consommation des ressources IA sur la période
                   </CardDescription>
                 </CardHeader>
@@ -282,28 +270,28 @@ export default function AdminDashboard() {
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <Music className="h-4 w-4 text-blue-500" />
-                        <span className="text-sm">Génération musicale</span>
+                        <Music className="h-4 w-4 text-blue-400" />
+                        <span className="text-sm text-white">Génération musicale</span>
                       </div>
-                      <span className="font-medium">
+                      <span className="font-medium text-white">
                         {Math.round(stats.totalCreditsUsed * 0.6).toLocaleString()} crédits
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <Brain className="h-4 w-4 text-green-500" />
-                        <span className="text-sm">QCM intelligents</span>
+                        <Brain className="h-4 w-4 text-green-400" />
+                        <span className="text-sm text-white">QCM intelligents</span>
                       </div>
-                      <span className="font-medium">
+                      <span className="font-medium text-white">
                         {Math.round(stats.totalCreditsUsed * 0.3).toLocaleString()} crédits
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <Eye className="h-4 w-4 text-purple-500" />
-                        <span className="text-sm">Bandes dessinées</span>
+                        <Eye className="h-4 w-4 text-purple-400" />
+                        <span className="text-sm text-white">Bandes dessinées</span>
                       </div>
-                      <span className="font-medium">
+                      <span className="font-medium text-white">
                         {Math.round(stats.totalCreditsUsed * 0.1).toLocaleString()} crédits
                       </span>
                     </div>
@@ -311,17 +299,17 @@ export default function AdminDashboard() {
                 </CardContent>
               </Card>
 
-              <Card>
+              <Card className="bg-white/10 backdrop-blur border-white/20">
                 <CardHeader>
-                  <CardTitle>Actions rapides</CardTitle>
-                  <CardDescription>
+                  <CardTitle className="text-white">Actions rapides</CardTitle>
+                  <CardDescription className="text-white/60">
                     Tâches administratives courantes
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   <Button 
                     variant="outline" 
-                    className="w-full justify-start"
+                    className="w-full justify-start border-white/20 text-white hover:bg-white/10"
                     onClick={() => setActiveTab('users')}
                   >
                     <Users className="h-4 w-4 mr-2" />
@@ -329,7 +317,7 @@ export default function AdminDashboard() {
                   </Button>
                   <Button 
                     variant="outline" 
-                    className="w-full justify-start"
+                    className="w-full justify-start border-white/20 text-white hover:bg-white/10"
                     onClick={() => setActiveTab('content')}
                   >
                     <BookOpen className="h-4 w-4 mr-2" />
@@ -337,7 +325,7 @@ export default function AdminDashboard() {
                   </Button>
                   <Button 
                     variant="outline" 
-                    className="w-full justify-start"
+                    className="w-full justify-start border-white/20 text-white hover:bg-white/10"
                     onClick={() => setActiveTab('analytics')}
                   >
                     <BarChart3 className="h-4 w-4 mr-2" />
@@ -345,7 +333,7 @@ export default function AdminDashboard() {
                   </Button>
                   <Button 
                     variant="outline" 
-                    className="w-full justify-start"
+                    className="w-full justify-start border-white/20 text-white hover:bg-white/10"
                     onClick={fetchAdminStats}
                   >
                     <TrendingUp className="h-4 w-4 mr-2" />
@@ -377,6 +365,6 @@ export default function AdminDashboard() {
           </TabsContent>
         </Tabs>
       </div>
-    </div>
+    </ConsistentBackground>
   );
 }
