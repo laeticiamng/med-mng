@@ -11,7 +11,15 @@ type ThemeConfig = {
 
 // Small, focused theming provider to make each major route visually unique
 export const PageThemeProvider: React.FC<PropsWithChildren> = ({ children }) => {
-  const { pathname } = useLocation();
+  let pathname = "/";
+  
+  try {
+    const location = useLocation();
+    pathname = location.pathname;
+  } catch (e) {
+    // Router context not available yet, use default pathname
+    console.warn('PageThemeProvider: Router context not available yet, using default pathname');
+  }
 
   const theme: ThemeConfig = useMemo(() => {
     const baseUrl = "https://med-mng.com";
