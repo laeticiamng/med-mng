@@ -7,17 +7,22 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-// Configuration identique au script Deno
+// Configuration sécurisée avec secrets Supabase
 const config = {
   cas: {
-    username: Deno.env.get('CAS_USERNAME') || 'laeticia.moto-ngane@etud.u-picardie.fr',
-    password: Deno.env.get('CAS_PASSWORD') || 'Aiciteal1!'
+    username: Deno.env.get('CAS_USERNAME'),
+    password: Deno.env.get('CAS_PASSWORD')
   },
   urls: {
     base: 'https://livret.uness.fr/lisa/2025',
     category: 'https://livret.uness.fr/lisa/2025/Catégorie:Objectif_de_connaissance',
     api: 'https://livret.uness.fr/lisa/2025/api.php'
   }
+}
+
+// Validation des secrets requis
+if (!config.cas.username || !config.cas.password) {
+  throw new Error('❌ ERREUR: Variables CAS_USERNAME et CAS_PASSWORD requises dans les secrets Supabase')
 }
 
 serve(async (req) => {

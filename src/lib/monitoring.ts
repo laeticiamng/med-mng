@@ -40,13 +40,9 @@ export class MonitoringService {
       
       console.log('[MONITORING]', JSON.stringify(logEntry, null, 2));
       
-      // TODO: In production, send to external monitoring service like Sentry, DataDog, etc.
-      if (process.env.NODE_ENV === 'production' && process.env.MONITORING_ENDPOINT) {
-        await fetch(process.env.MONITORING_ENDPOINT, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(logEntry)
-        });
+      // Envoi vers services de monitoring externes en production
+      if (process.env.NODE_ENV === 'production') {
+        await this.sendToExternalServices(logEntry);
       }
     } catch (error) {
       console.error('Failed to log monitoring event:', error);
@@ -107,6 +103,81 @@ export class MonitoringService {
         errorType: 'api_error',
       },
     });
+  }
+
+  /**
+   * Envoie les données vers des services externes de monitoring
+   */
+  private async sendToExternalServices(logEntry: MonitoringData & { service: string; environment: string }): Promise<void> {
+    const promises: Promise<void>[] = [];
+    
+    // Sentry pour le monitoring d'erreurs
+    if (process.env.SENTRY_DSN && (logEntry.level === 'error' || logEntry.level === 'warn')) {
+      promises.push(this.sendToSentry(logEntry));
+    }
+    
+    // DataDog ou autre APM
+    if (process.env.MONITORING_ENDPOINT) {
+      promises.push(this.sendToAPM(logEntry));
+    }
+    
+    // Webhook personnalisé
+    if (process.env.MONITORING_WEBHOOK) {
+      promises.push(this.sendToWebhook(logEntry));
+    }
+    
+    await Promise.allSettled(promises);
+  }
+  
+  private async sendToSentry(logEntry: MonitoringData): Promise<void> {
+    try {
+      // Intégration avec Sentry si disponible
+      if (typeof window !== 'undefined' && (window as any).Sentry) {
+        const Sentry = (window as any).Sentry;
+        if (logEntry.level === 'error') {
+          Sentry.captureException(new Error(logEntry.message));
+        } else {
+          Sentry.captureMessage(logEntry.message, logEntry.level);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to send to Sentry:', error);
+    }
+  }
+  
+  private async sendToAPM(logEntry: MonitoringData): Promise<void> {
+    try {
+      await fetch(process.env.MONITORING_ENDPOINT!, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${process.env.MONITORING_API_KEY || ''}`,
+          'X-Source': 'med-mng-platform'
+        },
+        body: JSON.stringify(logEntry)
+      });
+    } catch (error) {
+      console.error('Failed to send to APM:', error);
+    }
+  }
+  
+  private async sendToWebhook(logEntry: MonitoringData & { service: string; environment: string }): Promise<void> {
+    try {
+      await fetch(process.env.MONITORING_WEBHOOK!, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          timestamp: logEntry.timestamp,
+          level: logEntry.level,
+          message: logEntry.message,
+          service: logEntry.service,
+          environment: logEntry.environment,
+          metadata: logEntry.metadata
+        })
+      });
+    } catch (error) {
+      console.error('Failed to send to webhook:', error);
+    }
   }
 }
 

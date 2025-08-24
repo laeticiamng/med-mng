@@ -2,6 +2,8 @@ import winston from 'winston';
 import { randomUUID } from 'crypto';
 import fs from 'fs';
 import path from 'path';
+import type { ExtendedRequest, ExpressMiddleware } from '../types/express';
+import type { Request, Response, NextFunction } from 'express';
 
 /**
  * Assure que le répertoire de logs existe
@@ -63,7 +65,7 @@ if (process.env.NODE_ENV !== 'production') {
   }));
 }
 
-// Types pour une meilleure sécurité de typage
+// Types stricts pour une meilleure sécurité de typage
 export interface LogContext {
   userId?: string;
   ip?: string;
@@ -73,7 +75,20 @@ export interface LogContext {
   method?: string;
   statusCode?: number;
   responseTime?: number;
-  [key: string]: any;
+  error?: {
+    message: string;
+    stack?: string;
+    name: string;
+  };
+  metadata?: Record<string, unknown>;
+  // Propriétés extensibles pour compatibilité
+  port?: number;
+  environment?: string;
+  nodeVersion?: string;
+  origin?: string;
+  identifier?: string;
+  operation?: string;
+  [key: string]: unknown;
 }
 
 // Interface du service de logging
@@ -116,8 +131,13 @@ export const logService: LogService = {
   }
 };
 
-// Middleware pour le logging des requêtes HTTP
-export const httpLoggerMiddleware = (req: any, res: any, next: any) => {
+// Import des types Express
+// Middleware typé pour le logging des requêtes HTTP
+export const httpLoggerMiddleware: ExpressMiddleware = (
+  req: ExtendedRequest, 
+  res: Response, 
+  next: NextFunction
+) => {
   const startTime = Date.now();
   const requestId = randomUUID();
   
@@ -133,9 +153,9 @@ export const httpLoggerMiddleware = (req: any, res: any, next: any) => {
     userAgent: req.get('User-Agent'),
   });
 
-  // Intercepter la fin de la réponse
+  // Intercepter la fin de la réponse avec typage correct
   const originalSend = res.send;
-  res.send = function(data: any) {
+  res.send = function(data: unknown) {
     const responseTime = Date.now() - startTime;
     
     logService.http('HTTP Request Completed', {
@@ -147,7 +167,8 @@ export const httpLoggerMiddleware = (req: any, res: any, next: any) => {
       ip: req.ip || req.connection.remoteAddress,
     });
     
-    originalSend.call(this, data);
+    // Appel correct avec typage approprié
+    return originalSend.call(this, data);
   };
 
   next();
