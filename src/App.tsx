@@ -75,6 +75,10 @@ const Dashboard = lazy(() => import("./pages/Dashboard"));
 const Library = lazy(() => import("./pages/Library"));
 const Profile = lazy(() => import("./pages/Profile"));
 const Settings = lazy(() => import("./pages/Settings"));
+const Notifications = lazy(() => import("./pages/Notifications"));
+const AnalyticsNew = lazy(() => import("./pages/Analytics").then(module => ({ default: module.Analytics })));
+const Help = lazy(() => import("./pages/Help"));
+const Contact = lazy(() => import("./pages/Contact"));
 
 import { AuthProvider } from "./components/med-mng/AuthProvider";
 import { ProtectedRoute } from "./components/med-mng/withAuth";
@@ -230,11 +234,15 @@ const AppWithUX = () => {
                                              <Route path="/validation-ux" element={<UXValidationDashboard />} />
                                              <Route path="/test-extraction" element={<TestExtraction />} />
                                              
-                                             {/* Nouvelles pages complètes */}
-                                             <Route path="/dashboard" element={<Dashboard />} />
-                                             <Route path="/library" element={<Library />} />
-                                             <Route path="/profile" element={<Profile />} />
-                                             <Route path="/settings" element={<Settings />} />
+                                              {/* Nouvelles pages complètes */}
+                                              <Route path="/dashboard" element={<Dashboard />} />
+                                              <Route path="/library-new" element={<Library />} />
+                                              <Route path="/profile" element={<Profile />} />
+                                              <Route path="/settings" element={<Settings />} />
+                                              <Route path="/notifications" element={<Notifications />} />
+                                              <Route path="/analytics-new" element={<AnalyticsNew />} />
+                                               <Route path="/help" element={<Help />} />
+                                               <Route path="/contact" element={<Contact />} />
                                              
                                              <Route path="*" element={<NotFound />} />
                                           </Routes>
