@@ -1,13 +1,14 @@
 
 import { 
   generateLignesRangAIntelligentIC2, 
-  generateLignesRangBIntelligentIC2,
+  generateLignesRangBIntelligentIC2, 
   determinerColonnesUtilesIC2, 
   enrichirDonneesIC2 
 } from './TableauRangAUtilsIC2';
+import { EdnItemData, ColumnConfig, TableauGenerationResult } from '@/types/edn';
 
 // Fonction pour détecter si c'est l'item IC-2 selon E-LiSA
-export const isIC2Item = (data: any): boolean => {
+export const isIC2Item = (data: EdnItemData): boolean => {
   if (!data) return false;
   
   // Vérifier le code d'item directement
@@ -28,7 +29,7 @@ export const isIC2Item = (data: any): boolean => {
 };
 
 // Fonction pour détecter si c'est le rang B selon E-LiSA
-export const isRangBIC2 = (data: any): boolean => {
+export const isRangBIC2 = (data: EdnItemData): boolean => {
   if (!data) return false;
   
   // Forcer le rang B pour IC-2 quand le thème contient "Rang B"
@@ -42,7 +43,7 @@ export const isRangBIC2 = (data: any): boolean => {
 };
 
 // Fonction principale pour traiter les données IC-2 selon E-LiSA officielle
-export function processTableauRangAIC2(data: any) {
+export function processTableauRangAIC2(data: EdnItemData) {
   console.log('🔍 Processing IC-2 selon fiche E-LiSA officielle:', data);
   
   const isRangB = isRangBIC2(data);
@@ -54,8 +55,8 @@ export function processTableauRangAIC2(data: any) {
   
   // Générer les lignes selon le rang E-LiSA
   const lignesEnrichies = isRangB 
-    ? generateLignesRangBIntelligentIC2(donneesEnrichies)
-    : generateLignesRangAIntelligentIC2(donneesEnrichies);
+    ? generateLignesRangBIntelligentIC2(data.tableau_rang_b || {})
+    : generateLignesRangAIntelligentIC2(data.tableau_rang_a || {});
   
   console.log('📋 IC-2 - Lignes générées:', lignesEnrichies.length);
   console.log('📋 IC-2 - Contenu lignes:', lignesEnrichies);
@@ -71,7 +72,7 @@ export function processTableauRangAIC2(data: any) {
   return {
     lignesEnrichies,
     colonnesUtiles,
-    theme: `${donneesEnrichies.theme} - ${isRangB ? 'Rang B (2 connaissances E-LiSA)' : 'Rang A (7 connaissances E-LiSA)'}`,
+    theme: `${donneesEnrichies.metadata?.theme} - ${isRangB ? 'Rang B (2 connaissances E-LiSA)' : 'Rang A (7 connaissances E-LiSA)'}`,
     isRangB,
     isComplete: actualCount === expectedCount
   };

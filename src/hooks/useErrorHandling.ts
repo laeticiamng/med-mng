@@ -15,7 +15,7 @@ export interface ErrorHandlingOptions {
   logToSentry?: boolean;
   retryable?: boolean;
   context?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface RetryOptions {
@@ -124,7 +124,15 @@ export function useErrorHandling() {
       addBreadcrumb({
         message: `Error in ${context}`,
         category: appError.category,
-        level: appError.severity as any,
+        level: (() => {
+          switch (appError.severity) {
+            case ErrorSeverity.CRITICAL: return 'fatal';
+            case ErrorSeverity.HIGH: return 'error'; 
+            case ErrorSeverity.MEDIUM: return 'warning';
+            case ErrorSeverity.LOW: return 'info';
+            default: return 'debug';
+          }
+        })(),
         data: metadata
       });
       captureException(appError);
@@ -153,11 +161,11 @@ export function useErrorHandling() {
     return appError;
   }, []);
 
-  const withErrorBoundary = useCallback(<T extends (...args: any[]) => any>(
+  const withErrorBoundary = useCallback(<T extends (...args: unknown[]) => unknown>(
     fn: T,
     context: string = 'function-call'
   ): T => {
-    return ((...args: any[]) => {
+    return ((...args: unknown[]) => {
       try {
         const result = fn(...args);
         

@@ -1,7 +1,9 @@
 
 import { conceptsRangAIC4, conceptsRangBIC4, colonnesConfigIC4 } from './TableauRangADataIC4';
+import { TableauData, ColumnConfig } from '@/types/edn';
+import { adaptLegacyColumnConfig } from '@/utils/tableauConfigAdapter';
 
-export const generateLignesRangAIntelligentIC4 = (data: any): string[][] => {
+export const generateLignesRangAIntelligentIC4 = (data: TableauData): string[][] => {
   console.log('IC-4 Génération Rang A : 13 connaissances selon LiSA exactement');
   
   const lignes: string[][] = [];
@@ -25,7 +27,7 @@ export const generateLignesRangAIntelligentIC4 = (data: any): string[][] => {
   return lignes;
 };
 
-export const generateLignesRangBIntelligentIC4 = (data: any): string[][] => {
+export const generateLignesRangBIntelligentIC4 = (data: TableauData): string[][] => {
   console.log('IC-4 Génération Rang B : 22 connaissances selon LiSA exactement');
   
   const lignes: string[][] = [];
@@ -49,9 +51,9 @@ export const generateLignesRangBIntelligentIC4 = (data: any): string[][] => {
   return lignes;
 };
 
-export const determinerColonnesUtilesIC4 = (lignes: string[][]): any[] => {
+export const determinerColonnesUtilesIC4 = (lignes: string[][]): ColumnConfig[] => {
   console.log('IC-4: Configuration colonnes optimisée pour structure LiSA officielle');
   
   // Toutes les colonnes sont pertinentes selon le format LiSA
-  return colonnesConfigIC4;
+  return adaptLegacyColumnConfig(colonnesConfigIC4);
 };

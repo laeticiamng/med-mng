@@ -1,4 +1,6 @@
 
+import { TableauData, EdnItemData } from '@/types/edn';
+
 // Utilitaires pour traiter les données JSON standard stockées en base
 export interface StandardSection {
   title: string;
@@ -11,7 +13,7 @@ export interface StandardTableauData {
   sections: StandardSection[];
 }
 
-export const processStandardTableauData = (data: any, isRangB: boolean = false) => {
+export const processStandardTableauData = (data: EdnItemData, isRangB: boolean = false) => {
   console.log('🔍 Processing standard tableau data:', data);
   
   // Extraire les données selon le format JSON de la base

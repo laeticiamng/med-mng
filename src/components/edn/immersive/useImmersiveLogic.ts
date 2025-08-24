@@ -2,24 +2,17 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-
-interface EdnItemImmersive {
-  id: string;
-  slug: string;
-  title: string;
-  subtitle: string;
-  item_code: string;
-  pitch_intro: string;
-  visual_ambiance: any;
-  audio_ambiance: any;
-  tableau_rang_a: any;
-  tableau_rang_b: any;
-  scene_immersive: any;
-  paroles_musicales: string[];
-  interaction_config: any;
-  quiz_questions: any;
-  reward_messages: any;
-}
+import { 
+  EdnItemImmersive, 
+  QuizConfig, 
+  QuizQuestion,
+  VisualAmbiance,
+  AudioAmbiance,
+  TableauData,
+  SceneImmersive,
+  InteractionConfig,
+  RewardMessages
+} from '@/types/edn';
 
 export const useImmersiveLogic = () => {
   const { slug } = useParams();
@@ -93,11 +86,11 @@ export const useImmersiveLogic = () => {
 
         // Validation de la structure des quiz (répartition 70% A / 30% B)
         if (data.quiz_questions && typeof data.quiz_questions === 'object' && 'questions' in data.quiz_questions) {
-          const questions = (data.quiz_questions as any).questions;
-          if (Array.isArray(questions)) {
-            const rangACount = questions.filter((q: any) => q.rang === 'A').length;
-            const rangBCount = questions.filter((q: any) => q.rang === 'B').length;
-            const total = questions.length;
+          const quizConfig = data.quiz_questions as unknown as QuizConfig;
+          if (Array.isArray(quizConfig.questions)) {
+            const rangACount = quizConfig.questions.filter((q: QuizQuestion) => q.rang === 'A').length;
+            const rangBCount = quizConfig.questions.filter((q: QuizQuestion) => q.rang === 'B').length;
+            const total = quizConfig.questions.length;
             
             console.log('📊 Répartition quiz:', {
               total,
@@ -109,7 +102,7 @@ export const useImmersiveLogic = () => {
           }
         }
 
-        setItem(data);
+        setItem(data as unknown as EdnItemImmersive);
       } catch (error) {
         console.error('❌ Erreur inattendue:', error);
       } finally {

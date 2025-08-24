@@ -8,9 +8,10 @@ import {
   applicationsConcrates, 
   vigilancesSpecifiques 
 } from './TableauRangAData';
+import { ColumnConfig, TableauData } from '@/types/edn';
 
 // Fonction pour déterminer les colonnes utiles selon le contenu
-export function determinerColonnesUtiles(lignes: string[][]): any[] {
+export function determinerColonnesUtiles(lignes: string[][]): ColumnConfig[] {
   const colonnesUtiles = [];
   
   for (let colIndex = 0; colIndex < COLONNES_CONFIG.length; colIndex++) {
@@ -45,7 +46,7 @@ export function determinerColonnesUtiles(lignes: string[][]): any[] {
 }
 
 // Fonction pour générer les lignes enrichies de manière intelligente
-export function generateLignesRangAIntelligent(data: any): string[][] {
+export function generateLignesRangAIntelligent(data: TableauData): string[][] {
   const lignesBase = data.lignes || [];
   
   // Générer les lignes à partir des concepts avec contenu intelligent

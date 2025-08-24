@@ -1,7 +1,9 @@
 
+import { EdnItemData } from '@/types/edn';
 import { conceptsRangAIC5, conceptsRangBIC5, colonnesConfigIC5 } from './TableauRangADataIC5';
+import { adaptLegacyColumnConfig } from '@/utils/tableauConfigAdapter';
 
-export const isIC5Item = (data: any): boolean => {
+export const isIC5Item = (data: EdnItemData): boolean => {
   if (!data) return false;
   
   // Vérifier le code d'item directement
@@ -22,7 +24,7 @@ export const isIC5Item = (data: any): boolean => {
 };
 
 // Fonction pour détecter si c'est le rang B selon les données
-export const isRangBIC5 = (data: any): boolean => {
+export const isRangBIC5 = (data: EdnItemData): boolean => {
   if (!data) return false;
   
   // Forcer le rang B pour IC-5 quand le thème contient "Rang B"
@@ -35,7 +37,7 @@ export const isRangBIC5 = (data: any): boolean => {
   return isExplicitRangB;
 };
 
-export const generateLignesRangAIntelligentIC5 = (data: any): string[][] => {
+export const generateLignesRangAIntelligentIC5 = (data: Record<string, unknown>): string[][] => {
   console.log('🎯 IC-5 Génération Rang A : 4 connaissances selon données');
   
   const lignes: string[][] = [];
@@ -60,7 +62,7 @@ export const generateLignesRangAIntelligentIC5 = (data: any): string[][] => {
   return lignes;
 };
 
-export const generateLignesRangBIntelligentIC5 = (data: any): string[][] => {
+export const generateLignesRangBIntelligentIC5 = (data: Record<string, unknown>): string[][] => {
   console.log('🎯 IC-5 Génération Rang B : 4 connaissances selon données');
   
   const lignes: string[][] = [];
@@ -85,15 +87,15 @@ export const generateLignesRangBIntelligentIC5 = (data: any): string[][] => {
   return lignes;
 };
 
-export const determinerColonnesUtilesIC5 = (lignes: string[][]): any[] => {
+export const determinerColonnesUtilesIC5 = (lignes: string[][]): import('@/types/edn').ColumnConfig[] => {
   console.log('🏗️ IC-5: Configuration colonnes optimisée');
   
   // Toutes les colonnes sont pertinentes
-  return colonnesConfigIC5;
+  return adaptLegacyColumnConfig(colonnesConfigIC5);
 };
 
 // Fonction principale pour traiter les données IC-5
-export function processTableauRangAIC5(data: any) {
+export function processTableauRangAIC5(data: EdnItemData) {
   console.log('🔍 Processing IC-5 Organisation système de santé:', data);
   
   const isRangB = isRangBIC5(data);
