@@ -133,133 +133,133 @@ const AppWithUX = () => {
         <HelmetProvider>
           <TooltipProvider>
             <AccessibilityProvider>
-            <ViewportProvider>
-              <LanguageProvider>
-                <GlobalAudioProvider>
-                  <AuthProvider>
-                    <ToastProvider>
+              <ViewportProvider>
+                <LanguageProvider>
+                  <GlobalAudioProvider>
+                    <AuthProvider>
+                      <ToastProvider>
+                        <UndoRedoProvider>
                           <BrowserRouter>
                             <AppKeyboardShortcuts>
                               <NavigatorBridge />
                               <UXToastProvider>
-                              <SkipToMain />
-                              <SkipLinks />
-                          <div id="app-root" className="min-h-screen flex flex-col" style={{ display: 'block' }}>
-                            {/* Navigation globale */}
-                            <GlobalNavigation />
-                            
-                           <main id="main-content" tabIndex={-1} className="flex-1 pb-20">
-                            <PageThemeProvider>
-                              <GlobalErrorBoundary>
-                                <UndoRedoProvider>
-                                  <Suspense fallback={<PageSkeleton />}>
-                                  <Routes>
-                                    <Route path="/" element={<Index />} />
-                                    <Route path="/generator" element={<Generator />} />
-                                    <Route path="/monitoring" element={<Monitoring />} />
-                                    <Route path="/analytics" element={<Analytics />} />
-                                    <Route path="/admin" element={<Admin />} />
-                                    <Route path="/export" element={<Export />} />
-                                    
-                                     {/* EDN Interface Unifiée */}
-                                     <Route path="/edn" element={<EdnComplete />} />
-                                     <Route path="/edn/:slug" element={<EdnItem />} />
-                                    
-                                    {/* Redirections automatiques vers l'interface unifiée */}
-                                    <Route path="/edn-complete" element={<Navigate to="/edn" replace />} />
-                                    <Route path="/edn-complete/:slug" element={<EdnCompleteRedirect />} />
-                                    <Route path="/edn/:slug/immersive" element={<EdnImmersive />} />
-                                    <Route path="/edn/music-library" element={<Navigate to="/edn" replace />} />
-                                    
-                                    <Route path="/ecos" element={<EcosIndex />} />
-                                    <Route path="/ecos/:scenarioId" element={<EcosScenario />} />
-                                    
-                                    {/* Unified audit page */}
-                                    <Route path="/audit" element={<AuditComplete />} />
-                                    <Route path="/audit-completeness" element={<AuditCompleteness />} />
-                                   
-                                    {/* Redirect all old audit routes to new unified page */}
-                                    <Route path="/audit-general" element={<Navigate to="/audit" replace />} />
-                                    <Route path="/audit-edn" element={<Navigate to="/audit" replace />} />
-                                    <Route path="/audit-unified" element={<Navigate to="/audit" replace />} />
-                                    <Route path="/audit-ic1" element={<Navigate to="/audit" replace />} />
-                                    <Route path="/audit-ic2" element={<Navigate to="/audit" replace />} />
-                                    <Route path="/audit-ic4" element={<Navigate to="/audit" replace />} />
-                                    <Route path="/audit-complete" element={<Navigate to="/audit" replace />} />
-                                    
-                                    <Route path="/mng-method" element={<MngMethod />} />
-                                    <Route path="/mentions-legales" element={<MentionsLegales />} />
-                                     <Route path="/politique-confidentialite" element={<PolitiqueConfidentialite />} />
-                                     <Route path="/conditions" element={<Conditions />} />
-                                     <Route path="/support" element={<Support />} />
-                                    <Route path="/auth" element={<MedMngLogin />} />
-                                    <Route path="/auth/signup" element={<MedMngSignup />} />
-                                    <Route path="/med-mng/login" element={<MedMngLogin />} />
-                                    <Route path="/med-mng/signup" element={<MedMngSignup />} />
-                                    <Route path="/med-mng/pricing" element={<MedMngPricing />} />
-                                    <Route path="/med-mng/subscribe/:planId" element={<ProtectedRoute><MedMngSubscribe /></ProtectedRoute>} />
-                                    <Route path="/med-mng/success" element={<ProtectedRoute><MedMngSuccess /></ProtectedRoute>} />
-                                    <Route path="/med-mng/create" element={<ProtectedRoute><MedMngCreate /></ProtectedRoute>} />
-                                    <Route path="/med-mng/library" element={<ProtectedRoute><MedMngLibrary /></ProtectedRoute>} />
-                                    <Route path="/med-mng/profile" element={<ProtectedRoute><MedMngProfile /></ProtectedRoute>} />
-                                    <Route path="/med-mng/player/:songId" element={<ProtectedRoute><MedMngPlayer /></ProtectedRoute>} />
-                                    <Route path="/med-mng/playlists" element={<ProtectedRoute><PlaylistManager /></ProtectedRoute>} />
-                                    <Route path="/med-mng/playlists/:playlistId" element={<ProtectedRoute><PlaylistDetail /></ProtectedRoute>} />
-                                    <Route path="/med-mng/analytics" element={<ProtectedRoute><MusicAnalytics /></ProtectedRoute>} />
-                                    <Route path="/chat" element={<MedChat />} />
-                                    
-                                    <Route path="/system-health" element={<SystemHealth />} />
-                                    <Route path="/content-quality" element={<ContentQualityDashboard />} />
-                                    <Route path="/admin/import" element={<AdminImport />} />
-                                    <Route path="/admin/audit" element={<AdminAudit />} />
-                                    <Route path="/admin/extract-edn" element={<AdminExtractEdn />} />
-                                    <Route path="/admin/extract-ecos" element={<AdminExtractEcos />} />
-                                    <Route path="/admin/extract-objectifs" element={<EdnObjectifsExtractionPage />} />
-                                    <Route path="/admin/oic-quality" element={<OicDataQualityManager />} />
-                                    <Route path="/admin/complete" element={<AdminCompleteProcess />} />
-                                    <Route path="/admin-panel" element={<AdminPanel />} />
-                                    
-                                    <Route path="/test-subscriptions" element={<SubscriptionTest />} />
-                <Route path="/library" element={<Navigate to="/med-mng/library" replace />} />
-                <Route path="/music-library" element={<Navigate to="/med-mng/library" replace />} />
-                                    <Route path="/validation-ux" element={<UXValidationDashboard />} />
-                                    <Route path="/test-extraction" element={<TestExtraction />} />
-                                    <Route path="*" element={<NotFound />} />
-                                  </Routes>
+                                <SkipToMain />
+                                <SkipLinks />
+                                <div id="app-root" className="min-h-screen flex flex-col" style={{ display: 'block' }}>
+                                  {/* Navigation globale */}
+                                  <GlobalNavigation />
+                                  
+                                  <main id="main-content" tabIndex={-1} className="flex-1 pb-20">
+                                    <PageThemeProvider>
+                                      <GlobalErrorBoundary>
+                                        <Suspense fallback={<PageSkeleton />}>
+                                          <Routes>
+                                            <Route path="/" element={<Index />} />
+                                            <Route path="/generator" element={<Generator />} />
+                                            <Route path="/monitoring" element={<Monitoring />} />
+                                            <Route path="/analytics" element={<Analytics />} />
+                                            <Route path="/admin" element={<Admin />} />
+                                            <Route path="/export" element={<Export />} />
+                                            
+                                            {/* EDN Interface Unifiée */}
+                                            <Route path="/edn" element={<EdnComplete />} />
+                                            <Route path="/edn/:slug" element={<EdnItem />} />
+                                            
+                                            {/* Redirections automatiques vers l'interface unifiée */}
+                                            <Route path="/edn-complete" element={<Navigate to="/edn" replace />} />
+                                            <Route path="/edn-complete/:slug" element={<EdnCompleteRedirect />} />
+                                            <Route path="/edn/:slug/immersive" element={<EdnImmersive />} />
+                                            <Route path="/edn/music-library" element={<Navigate to="/edn" replace />} />
+                                            
+                                            <Route path="/ecos" element={<EcosIndex />} />
+                                            <Route path="/ecos/:scenarioId" element={<EcosScenario />} />
+                                            
+                                            {/* Unified audit page */}
+                                            <Route path="/audit" element={<AuditComplete />} />
+                                            <Route path="/audit-completeness" element={<AuditCompleteness />} />
+                                           
+                                            {/* Redirect all old audit routes to new unified page */}
+                                            <Route path="/audit-general" element={<Navigate to="/audit" replace />} />
+                                            <Route path="/audit-edn" element={<Navigate to="/audit" replace />} />
+                                            <Route path="/audit-unified" element={<Navigate to="/audit" replace />} />
+                                            <Route path="/audit-ic1" element={<Navigate to="/audit" replace />} />
+                                            <Route path="/audit-ic2" element={<Navigate to="/audit" replace />} />
+                                            <Route path="/audit-ic4" element={<Navigate to="/audit" replace />} />
+                                            <Route path="/audit-complete" element={<Navigate to="/audit" replace />} />
+                                            
+                                            <Route path="/mng-method" element={<MngMethod />} />
+                                            <Route path="/mentions-legales" element={<MentionsLegales />} />
+                                            <Route path="/politique-confidentialite" element={<PolitiqueConfidentialite />} />
+                                            <Route path="/conditions" element={<Conditions />} />
+                                            <Route path="/support" element={<Support />} />
+                                            <Route path="/auth" element={<MedMngLogin />} />
+                                            <Route path="/auth/signup" element={<MedMngSignup />} />
+                                            <Route path="/med-mng/login" element={<MedMngLogin />} />
+                                            <Route path="/med-mng/signup" element={<MedMngSignup />} />
+                                            <Route path="/med-mng/pricing" element={<MedMngPricing />} />
+                                            <Route path="/med-mng/subscribe/:planId" element={<ProtectedRoute><MedMngSubscribe /></ProtectedRoute>} />
+                                            <Route path="/med-mng/success" element={<ProtectedRoute><MedMngSuccess /></ProtectedRoute>} />
+                                            <Route path="/med-mng/create" element={<ProtectedRoute><MedMngCreate /></ProtectedRoute>} />
+                                            <Route path="/med-mng/library" element={<ProtectedRoute><MedMngLibrary /></ProtectedRoute>} />
+                                            <Route path="/med-mng/profile" element={<ProtectedRoute><MedMngProfile /></ProtectedRoute>} />
+                                            <Route path="/med-mng/player/:songId" element={<ProtectedRoute><MedMngPlayer /></ProtectedRoute>} />
+                                            <Route path="/med-mng/playlists" element={<ProtectedRoute><PlaylistManager /></ProtectedRoute>} />
+                                            <Route path="/med-mng/playlists/:playlistId" element={<ProtectedRoute><PlaylistDetail /></ProtectedRoute>} />
+                                            <Route path="/med-mng/analytics" element={<ProtectedRoute><MusicAnalytics /></ProtectedRoute>} />
+                                            <Route path="/chat" element={<MedChat />} />
+                                            
+                                            <Route path="/system-health" element={<SystemHealth />} />
+                                            <Route path="/content-quality" element={<ContentQualityDashboard />} />
+                                            <Route path="/admin/import" element={<AdminImport />} />
+                                            <Route path="/admin/audit" element={<AdminAudit />} />
+                                            <Route path="/admin/extract-edn" element={<AdminExtractEdn />} />
+                                            <Route path="/admin/extract-ecos" element={<AdminExtractEcos />} />
+                                            <Route path="/admin/extract-objectifs" element={<EdnObjectifsExtractionPage />} />
+                                            <Route path="/admin/oic-quality" element={<OicDataQualityManager />} />
+                                            <Route path="/admin/complete" element={<AdminCompleteProcess />} />
+                                            <Route path="/admin-panel" element={<AdminPanel />} />
+                                            
+                                            <Route path="/test-subscriptions" element={<SubscriptionTest />} />
+                                            <Route path="/library" element={<Navigate to="/med-mng/library" replace />} />
+                                            <Route path="/music-library" element={<Navigate to="/med-mng/library" replace />} />
+                                            <Route path="/validation-ux" element={<UXValidationDashboard />} />
+                                            <Route path="/test-extraction" element={<TestExtraction />} />
+                                            <Route path="*" element={<NotFound />} />
+                                          </Routes>
+                                        </Suspense>
+                                        {/* UX Toolbar - Floating bottom-right */}
+                                        <UXToolbar />
+                                      </GlobalErrorBoundary>
+                                    </PageThemeProvider>
+                                  </main>
+                                
+                                  {/* Lecteur musical global */}
+                                  <GlobalMusicPlayer />
+                                
+                                  {/* Global UI Components - LAZY LOADED */}
+                                  <Suspense fallback={null}>
+                                    <DynamicOnboarding />
                                   </Suspense>
-                                  {/* UX Toolbar - Floating bottom-right */}
-                                  <UXToolbar />
-                                </UndoRedoProvider>
-                              </GlobalErrorBoundary>
-                            </PageThemeProvider>
-                          </main>
-                        
-                          {/* Lecteur musical global */}
-                          <GlobalMusicPlayer />
-                        
-                          {/* Global UI Components - LAZY LOADED */}
-                          <Suspense fallback={null}>
-                            <DynamicOnboarding />
-                          </Suspense>
-                          <Suspense fallback={null}>
-                            <HelpButton />
-                          </Suspense>
-                          
-                          {/* Dev Tools - Development environment only */}
-                          {process.env.NODE_ENV === 'development' && <DevTools />}
-                        </div>
-                            <Sonner richColors closeButton />
-                            </UXToastProvider>
-                           </AppKeyboardShortcuts>
-                         </BrowserRouter>
-                </ToastProvider>
-              </AuthProvider>
-            </GlobalAudioProvider>
-          </LanguageProvider>
-        </ViewportProvider>
-      </AccessibilityProvider>
-    </TooltipProvider>
-  </HelmetProvider>
+                                  <Suspense fallback={null}>
+                                    <HelpButton />
+                                  </Suspense>
+                                  
+                                  {/* Dev Tools - Development environment only */}
+                                  {process.env.NODE_ENV === 'development' && <DevTools />}
+                                </div>
+                                <Sonner richColors closeButton />
+                              </UXToastProvider>
+                            </AppKeyboardShortcuts>
+                          </BrowserRouter>
+                        </UndoRedoProvider>
+                      </ToastProvider>
+                    </AuthProvider>
+                  </GlobalAudioProvider>
+                </LanguageProvider>
+              </ViewportProvider>
+            </AccessibilityProvider>
+          </TooltipProvider>
+        </HelmetProvider>
       </StrictMode>
     </QueryClientProvider>
   );
