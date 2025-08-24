@@ -37,7 +37,7 @@ export const isRangBIC5 = (data: EdnItemData): boolean => {
   return isExplicitRangB;
 };
 
-export const generateLignesRangAIntelligentIC5 = (data: Record<string, unknown>): string[][] => {
+export const generateLignesRangAIntelligentIC5 = (data: EdnItemData): string[][] => {
   console.log('🎯 IC-5 Génération Rang A : 4 connaissances selon données');
   
   const lignes: string[][] = [];
@@ -62,7 +62,7 @@ export const generateLignesRangAIntelligentIC5 = (data: Record<string, unknown>)
   return lignes;
 };
 
-export const generateLignesRangBIntelligentIC5 = (data: Record<string, unknown>): string[][] => {
+export const generateLignesRangBIntelligentIC5 = (data: EdnItemData): string[][] => {
   console.log('🎯 IC-5 Génération Rang B : 4 connaissances selon données');
   
   const lignes: string[][] = [];

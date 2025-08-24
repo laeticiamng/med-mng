@@ -120,7 +120,7 @@ export interface ConceptData {
   vigilance?: string;
 }
 
-export interface EdnItemData {
+export interface EdnItemData extends Record<string, unknown> {
   item_code?: string;
   title?: string;
   subtitle?: string;
