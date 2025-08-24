@@ -97,10 +97,10 @@ export const EdnImmersiveScene: React.FC<EdnImmersiveSceneProps> = ({
 
   const getObjectiveTypeColor = (type: string) => {
     switch (type) {
-      case 'knowledge': return 'text-blue-400 bg-blue-500/20 border-blue-400/30';
-      case 'skill': return 'text-green-400 bg-green-500/20 border-green-400/30';
-      case 'attitude': return 'text-purple-400 bg-purple-500/20 border-purple-400/30';
-      default: return 'text-gray-400 bg-gray-500/20 border-gray-400/30';
+      case 'knowledge': return 'text-primary bg-primary/20 border-primary/30';
+      case 'skill': return 'text-success bg-success/20 border-success/30';
+      case 'attitude': return 'text-accent bg-accent/20 border-accent/30';
+      default: return 'text-muted-foreground bg-muted border-border';
     }
   };
 
@@ -121,14 +121,14 @@ export const EdnImmersiveScene: React.FC<EdnImmersiveSceneProps> = ({
           {/* Title & Controls */}
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <h1 className="text-2xl md:text-3xl font-bold text-white mb-2 flex items-center gap-3">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-500 rounded-2xl flex items-center justify-center">
+              <h1 className="text-2xl md:text-3xl font-bold text-foreground mb-2 flex items-center gap-3">
+                <div className="w-12 h-12 bg-gradient-medical rounded-2xl flex items-center justify-center shadow-premium">
                   <BookOpen className="h-6 w-6 text-white" />
                 </div>
                 {item.title}
               </h1>
               <div className="flex items-center gap-3 flex-wrap">
-                <Badge className="bg-blue-600/20 text-blue-300 border-blue-400/30">
+                <Badge className="bg-primary/20 text-primary border-primary/30">
                   {item.item_code}
                 </Badge>
                 {item.difficulty_level && (
@@ -137,7 +137,7 @@ export const EdnImmersiveScene: React.FC<EdnImmersiveSceneProps> = ({
                   </div>
                 )}
                 {item.estimated_duration && (
-                  <Badge variant="outline" className="border-white/20 text-white">
+                  <Badge variant="outline" className="border-border text-muted-foreground">
                     <Clock className="h-3 w-3 mr-1" />
                     {item.estimated_duration}min
                   </Badge>

@@ -86,22 +86,22 @@ export const CompetenceTracker: React.FC<CompetenceTrackerProps> = ({
 
   const getCategoryColor = (category: string) => {
     switch (category.toLowerCase()) {
-      case 'diagnostic': return 'blue';
-      case 'thérapeutique': return 'green';
-      case 'examen clinique': return 'purple';
-      case 'anatomie': return 'orange';
-      case 'communication': return 'pink';
-      case 'analyse': return 'yellow';
-      default: return 'gray';
+      case 'diagnostic': return 'primary';
+      case 'thérapeutique': return 'success';
+      case 'examen clinique': return 'accent';
+      case 'anatomie': return 'warning';
+      case 'communication': return 'destructive';
+      case 'analyse': return 'secondary';
+      default: return 'muted';
     }
   };
 
   const getProgressColor = (progress?: number) => {
-    if (!progress) return 'text-gray-400 bg-gray-500/20';
-    if (progress >= 90) return 'text-green-400 bg-green-500/20';
-    if (progress >= 70) return 'text-blue-400 bg-blue-500/20';
-    if (progress >= 50) return 'text-orange-400 bg-orange-500/20';
-    return 'text-red-400 bg-red-500/20';
+    if (!progress) return 'text-muted-foreground bg-muted/50';
+    if (progress >= 90) return 'text-success bg-success/20';
+    if (progress >= 70) return 'text-primary bg-primary/20';
+    if (progress >= 50) return 'text-warning bg-warning/20';
+    return 'text-destructive bg-destructive/20';
   };
 
   const getProgressLevel = (progress?: number) => {
@@ -219,21 +219,21 @@ export const CompetenceTracker: React.FC<CompetenceTrackerProps> = ({
               <div className="space-y-4">
                 {/* Category Header */}
                 <div className="flex items-center justify-between">
-                  <h3 className="text-xl font-semibold text-white flex items-center gap-3">
-                    <div className={`p-2 rounded-lg bg-${categoryColor}-500/20 text-${categoryColor}-400`}>
+                  <h3 className="text-xl font-semibold text-foreground flex items-center gap-3">
+                    <div className={`p-2 rounded-lg bg-${categoryColor}/20 text-${categoryColor}`}>
                       {getCategoryIcon(category)}
                     </div>
                     {category}
-                    <Badge variant="outline" className="border-white/20 text-gray-400">
+                    <Badge variant="outline" className="border-border text-muted-foreground">
                       {allCategoryComps.length} compétences
                     </Badge>
                   </h3>
                   
                   <div className="text-right">
-                    <div className="text-lg font-bold text-white">
+                    <div className="text-lg font-bold text-foreground">
                       {Math.round(allCategoryComps.reduce((sum, c) => sum + (c.progress || 0), 0) / allCategoryComps.length)}%
                     </div>
-                    <div className="text-xs text-gray-400">Progression</div>
+                    <div className="text-xs text-muted-foreground">Progression</div>
                   </div>
                 </div>
 
@@ -245,10 +245,10 @@ export const CompetenceTracker: React.FC<CompetenceTrackerProps> = ({
                   return (
                     <div key={rang} className="space-y-3">
                       <div className="flex items-center gap-2">
-                        <Badge className={rang === 'A' ? 'bg-blue-600/20 text-blue-300 border-blue-400/30' : 'bg-purple-600/20 text-purple-300 border-purple-400/30'}>
+                        <Badge className={rang === 'A' ? 'bg-primary/20 text-primary border-primary/30' : 'bg-accent/20 text-accent border-accent/30'}>
                           Rang {rang}
                         </Badge>
-                        <span className="text-sm text-gray-400">{rankComps.length} compétences</span>
+                        <span className="text-sm text-muted-foreground">{rankComps.length} compétences</span>
                       </div>
 
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

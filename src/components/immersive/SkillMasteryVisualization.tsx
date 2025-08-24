@@ -68,21 +68,21 @@ export const SkillMasteryVisualization: React.FC<SkillMasteryVisualizationProps>
 
   const getCategoryColor = (category: string) => {
     switch (category.toLowerCase()) {
-      case 'diagnostic': return 'blue';
-      case 'thérapeutique': return 'green';
-      case 'communication': return 'purple';
-      case 'technique': return 'orange';
-      case 'analyse': return 'pink';
-      default: return 'gray';
+      case 'diagnostic': return 'primary';
+      case 'thérapeutique': return 'success';
+      case 'communication': return 'accent';
+      case 'technique': return 'warning';
+      case 'analyse': return 'destructive';
+      default: return 'muted';
     }
   };
 
   const getMasteryLevel = (percentage: number) => {
-    if (percentage >= 90) return { level: 'Expert', color: 'text-yellow-400', bgColor: 'bg-yellow-500/20' };
-    if (percentage >= 75) return { level: 'Avancé', color: 'text-green-400', bgColor: 'bg-green-500/20' };
-    if (percentage >= 50) return { level: 'Intermédiaire', color: 'text-blue-400', bgColor: 'bg-blue-500/20' };
-    if (percentage >= 25) return { level: 'Débutant', color: 'text-orange-400', bgColor: 'bg-orange-500/20' };
-    return { level: 'Novice', color: 'text-gray-400', bgColor: 'bg-gray-500/20' };
+    if (percentage >= 90) return { level: 'Expert', color: 'text-warning', bgColor: 'bg-warning/20' };
+    if (percentage >= 75) return { level: 'Avancé', color: 'text-success', bgColor: 'bg-success/20' };
+    if (percentage >= 50) return { level: 'Intermédiaire', color: 'text-primary', bgColor: 'bg-primary/20' };
+    if (percentage >= 25) return { level: 'Débutant', color: 'text-accent', bgColor: 'bg-accent/20' };
+    return { level: 'Novice', color: 'text-muted-foreground', bgColor: 'bg-muted/50' };
   };
 
   const groupedSkills = skills.reduce((acc, skill) => {
@@ -150,15 +150,15 @@ export const SkillMasteryVisualization: React.FC<SkillMasteryVisualizationProps>
           {Object.entries(groupedSkills).map(([category, categorySkills]) => (
             <ImmersiveCard key={category} variant="glass" glow={getCategoryColor(category) as any}>
               <div className="space-y-4">
-                <h3 className="text-xl font-semibold text-white flex items-center gap-3">
-                  <div className={`p-2 rounded-lg bg-${getCategoryColor(category)}-500/20 text-${getCategoryColor(category)}-400`}>
-                    {getCategoryIcon(category)}
-                  </div>
-                  {category}
-                  <Badge variant="outline" className="border-white/20 text-gray-400">
-                    {categorySkills.length} compétences
-                  </Badge>
-                </h3>
+              <h3 className="text-xl font-semibold text-foreground flex items-center gap-3">
+                <div className={`p-2 rounded-lg bg-${getCategoryColor(category)}/20 text-${getCategoryColor(category)}`}>
+                  {getCategoryIcon(category)}
+                </div>
+                {category}
+                <Badge variant="outline" className="border-border text-muted-foreground">
+                  {categorySkills.length} compétences
+                </Badge>
+              </h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {categorySkills.map((skill) => {
@@ -171,7 +171,7 @@ export const SkillMasteryVisualization: React.FC<SkillMasteryVisualizationProps>
                           setSelectedSkill(skill);
                           onSkillClick?.(skill);
                         }}
-                        className="p-4 bg-white/5 border border-white/10 rounded-lg hover:border-white/20 hover:bg-white/10 cursor-pointer transition-all duration-200 group"
+                        className="medical-card-premium glass-medical p-4 hover:shadow-premium transition-all duration-200 group cursor-pointer"
                       >
                         <div className="space-y-3">
                           {/* Skill Header */}
