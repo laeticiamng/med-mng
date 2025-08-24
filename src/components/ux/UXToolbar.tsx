@@ -40,8 +40,7 @@ export const UXToolbar: React.FC = () => {
   };
 
   return (
-    <TooltipProvider>
-      <div 
+    <div
         className="fixed bottom-4 right-4 z-50 bg-background/95 backdrop-blur-sm border rounded-lg p-2 shadow-lg"
         role="toolbar"
         aria-label="Outils d'accessibilité et de navigation"
@@ -166,7 +165,6 @@ export const UXToolbar: React.FC = () => {
             </span>
           )}
         </div>
-      </div>
-    </TooltipProvider>
+    </div>
   );
 };

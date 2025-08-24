@@ -24,7 +24,8 @@ import {
   Sparkles,
   Gift,
   Lock,
-  CheckCircle2
+  CheckCircle2,
+  CheckCircle
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -152,7 +153,7 @@ export const GamificationSystem: React.FC = () => {
       unlocked: false,
       progress: { current: 7, target: 10 }
     }
-  ];
+  ]);
 
   const [challenges] = useState<Challenge[]>([
     {
@@ -163,7 +164,7 @@ export const GamificationSystem: React.FC = () => {
       category: 'Étude',
       reward: { xp: 50, badge: '📚' },
       progress: { current: 2, target: 3 },
-      timeRemaining: 8 * 60 * 60, // 8 heures en secondes
+      timeRemaining: 8 * 60 * 60,
       completed: false
     },
     {
@@ -174,7 +175,7 @@ export const GamificationSystem: React.FC = () => {
       category: 'Musique',
       reward: { xp: 200, title: 'Compositeur Amateur' },
       progress: { current: 3, target: 5 },
-      timeRemaining: 4 * 24 * 60 * 60, // 4 jours
+      timeRemaining: 4 * 24 * 60 * 60,
       completed: false
     },
     {
@@ -185,10 +186,10 @@ export const GamificationSystem: React.FC = () => {
       category: 'Performance',
       reward: { xp: 500, badge: '🎯' },
       progress: { current: 6, target: 10 },
-      timeRemaining: 12 * 24 * 60 * 60, // 12 jours
+      timeRemaining: 12 * 24 * 60 * 60,
       completed: false
     }
-  ];
+  ]);
 
   const [leaderboard] = useState<LeaderboardEntry[]>([
     {
@@ -215,7 +216,7 @@ export const GamificationSystem: React.FC = () => {
       points: 13245,
       change: 'up'
     }
-  ];
+  ]);
 
   const getRarityColor = (rarity: string) => {
     switch (rarity) {
