@@ -23,7 +23,7 @@ export const useAllEdnItems = () => {
         const { data, error: supabaseError } = await supabase
           .from('edn_items_complete')
           .select('item_code, title, subtitle')
-          .order('item_code');
+          .order('item_code', { ascending: true });
 
         if (supabaseError) {
           console.error('❌ Erreur Supabase lors de la récupération des items:', supabaseError);

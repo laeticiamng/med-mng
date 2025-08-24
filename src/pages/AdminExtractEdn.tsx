@@ -64,7 +64,7 @@ const AdminExtractEdn = () => {
       const { data, error } = await supabase
         .from('edn_items_complete')
         .select('item_code, title, updated_at')
-        .order('item_code');
+        .order('item_code', { ascending: true });
 
       if (error) throw error;
 

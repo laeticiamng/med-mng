@@ -62,7 +62,7 @@ export const AdminContentManager = () => {
           paroles_musicales, quiz_questions, scene_immersive,
           created_at, updated_at
         `)
-        .order('item_code');
+        .order('item_code', { ascending: true });
 
       if (immersiveError) {
         throw immersiveError;

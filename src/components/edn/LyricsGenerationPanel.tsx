@@ -176,7 +176,7 @@ export const LyricsGenerationPanel: React.FC<LyricsGenerationPanelProps> = ({
       const { data: items, error } = await supabase
         .from('edn_items_complete')
         .select('item_code, title')
-        .order('item_code');
+        .order('item_code', { ascending: true });
 
       if (error) throw error;
 

@@ -59,7 +59,7 @@ const EdnIndex = () => {
       const { data: fallbackData, error: fallbackError } = await supabase
         .from('edn_items_complete')
         .select('*')
-        .order('item_code');
+        .order('item_code', { ascending: true });
 
       if (fallbackError) {
         console.error('Erreur lors du chargement des items:', fallbackError);

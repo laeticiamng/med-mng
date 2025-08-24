@@ -53,7 +53,7 @@ export const LyricsCompletionStatus: React.FC = () => {
           competences_oic_rang_a, competences_oic_rang_b,
           paroles_musicales, updated_at
         `)
-        .order('item_code');
+        .order('item_code', { ascending: true });
 
       if (error) throw error;
 
