@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Music } from 'lucide-react';
+import { Music, ArrowLeft } from 'lucide-react';
 
 export const MedMngLogin = () => {
   const { user, signIn, signInWithGoogle, signInWithFacebook, signInWithApple } = useAuth();
@@ -57,7 +57,19 @@ export const MedMngLogin = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 px-4">
-      <Card className="w-full max-w-md">
+      {/* Bouton retour à l'accueil */}
+      <div className="absolute top-4 left-4 z-10">
+        <Link 
+          to="/"
+          className="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors bg-white/80 backdrop-blur-sm px-3 py-2 rounded-lg border border-blue-200 hover:border-blue-300"
+          aria-label="Retourner à la page d'accueil"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Accueil
+        </Link>
+      </div>
+
+      <Card className="w-full max-w-md relative z-20">
         <CardHeader className="text-center">
           <div className="flex items-center justify-center gap-2 mb-4">
             <Music className="h-8 w-8 text-blue-600" aria-hidden="true" />

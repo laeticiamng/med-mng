@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
+import { useNavigate } from 'react-router-dom';
 import StatusWidget from '@/components/StatusWidget';
 import { useSystemStatus } from '@/hooks/useSystemStatus';
 import { useExtractionMonitoring } from '@/hooks/useExtractionMonitoring';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft } from 'lucide-react';
 
 const StatCard = ({ title, value, hint }: { title: string; value: string | number; hint?: string }) => (
   <div className="rounded-xl border p-4 bg-white shadow-sm">
@@ -21,6 +24,7 @@ const Section = ({ children, title }: { children: React.ReactNode; title: string
 );
 
 const Monitoring: React.FC = () => {
+  const navigate = useNavigate();
   const { isOperational } = useSystemStatus({ silent: true });
   const { stats, recentExtractions, refresh, loading } = useExtractionMonitoring();
   const [tick, setTick] = useState(0);
@@ -42,7 +46,19 @@ const Monitoring: React.FC = () => {
       </Helmet>
 
       <header className="mb-8">
-        <h1 className="text-3xl font-bold">Monitoring plateforme</h1>
+        <div className="flex items-center justify-between mb-4">
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => navigate('/')}
+            className="flex items-center gap-2"
+            aria-label="Retourner à la page d'accueil"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Retour
+          </Button>
+        </div>
+        <h1 className="text-3xl font-bold" id="main-content">Monitoring plateforme</h1>
         <div className="mt-2">
           <Badge variant={isOperational ? 'default' : 'secondary'}>
             {isOperational ? 'Opérationnel' : 'Vérification…'}

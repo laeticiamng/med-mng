@@ -97,7 +97,24 @@ export default function EdnComplete() {
         <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl animate-pulse delay-500"></div>
       </div>
 
-      {/* Header Suno-inspired */}
+      <div className="relative z-10">
+        <Breadcrumbs />
+        
+        {/* Navigation Header */}
+        <div className="container mx-auto px-4 py-4">
+          <Button 
+            variant="ghost"
+            size="sm"
+            onClick={() => navigate('/')}
+            className="flex items-center gap-2 text-white/80 hover:text-white hover:bg-white/10 mb-4"
+            aria-label="Retourner à la page d'accueil"
+          >
+            <BookOpen className="h-4 w-4" />
+            Retour à l'accueil
+          </Button>
+        </div>
+
+        {/* Header Suno-inspired */}
       <div className="bg-black/20 backdrop-blur-xl border-b border-white/10 sticky top-0 z-40 shadow-2xl shadow-purple-500/10">
           <div className="container mx-auto px-6 py-6 relative">
             <Breadcrumbs />
@@ -169,7 +186,7 @@ export default function EdnComplete() {
       </div>
 
       <div className={`container mx-auto relative ${spacing.container}`}>
-        /* Statistiques style Suno - Optimisées pour mobile et tablettes */
+        {/* Statistiques style Suno - Optimisées pour mobile et tablettes */}
         {!statsLoading && (
           <div className={`grid ${gridConfig.stats} ${gridConfig.gap} mb-6 md:mb-8`}>
             <Card className="bg-white/10 backdrop-blur-sm border border-blue-400/30 hover:border-blue-400/50 transition-all duration-300 hover:scale-105 shadow-xl shadow-blue-500/20 group">
@@ -344,6 +361,7 @@ export default function EdnComplete() {
           </TabsContent>
         </Tabs>
 
+      </div>
       </div>
     </div>
   );
