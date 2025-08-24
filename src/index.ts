@@ -8,9 +8,13 @@ import {
   corsOptions, 
   securityHeadersMiddleware 
 } from './middleware/security';
+import { validateSecurityConfig } from './config/security';
 
 const app = express();
 const port = process.env.PORT ? Number(process.env.PORT) : 3000;
+
+// Masquer la technologie du serveur
+app.disable('x-powered-by');
 
 // Configuration du proxy de confiance pour les load balancers
 app.set('trust proxy', 1);
@@ -102,6 +106,9 @@ app.use((err: Error, _req: express.Request, res: express.Response, _next: expres
     message: process.env.NODE_ENV === 'development' ? err.message : 'Une erreur s\'est produite'
   });
 });
+
+// Validation de la configuration sécurité au démarrage
+validateSecurityConfig();
 
 // Démarrage du serveur
 app.listen(port, () => {

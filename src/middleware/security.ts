@@ -2,27 +2,29 @@ import rateLimit from 'express-rate-limit';
 import { logService } from '../services/logService';
 import { RateLimitService } from '../services/rateLimitService';
 import { createSupabaseRateLimitStore } from '../services/stores/SupabaseRateLimitStore';
+import { SecurityConfig, RateLimitConfig } from '../types/security';
+import { getStandardRateLimitConfig, getStrictRateLimitConfig, getSecurityConfig } from '../config/security';
+
+// Configuration centralisée via environnement
+const standardConfig = getStandardRateLimitConfig();
+const strictConfig = getStrictRateLimitConfig();
 
 // Create distributed rate limit service using Supabase
 const distributedRateLimit = new RateLimitService(
   createSupabaseRateLimitStore(),
-  {
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    maxRequests: 100,
-    keyGenerator: (req) => req.ip || 'unknown'
-  }
+  standardConfig
 );
 
 // Configuration du rate limiting global avec fallback au rate limiting en mémoire
 export const globalRateLimit = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // Maximum 100 requêtes par IP par fenêtre
+  windowMs: standardConfig.windowMs,
+  max: standardConfig.maxRequests,
   message: {
     error: 'Trop de requêtes depuis cette IP, veuillez réessayer dans 15 minutes.',
     retryAfter: '15 minutes'
   },
-  standardHeaders: true, // Retourner les infos de rate limit dans les headers `RateLimit-*`
-  legacyHeaders: false, // Désactiver les headers `X-RateLimit-*`
+  standardHeaders: true,
+  legacyHeaders: false,
   handler: (req: Request, res: Response): void => {
     logService.warn('Rate limit exceeded', {
       ip: req.ip,
@@ -43,8 +45,8 @@ export const distributedRateLimitMiddleware = distributedRateLimit.middleware();
 
 // Rate limiting spécifique pour les APIs sensibles
 export const strictRateLimit = rateLimit({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // Maximum 5 requêtes par IP par fenêtre
+  windowMs: strictConfig.windowMs,
+  max: strictConfig.maxRequests,
   message: {
     error: 'Limite de requêtes dépassée pour cette API sensible.',
     retryAfter: '15 minutes'
@@ -67,29 +69,15 @@ export const strictRateLimit = rateLimit({
 // Distributed strict rate limiting
 const distributedStrictRateLimit = new RateLimitService(
   createSupabaseRateLimitStore(),
-  {
-    windowMs: 15 * 60 * 1000, // 15 minutes
-    maxRequests: 5,
-    keyGenerator: (req) => req.ip || 'unknown'
-  }
+  strictConfig
 );
 
 export const distributedStrictRateLimitMiddleware = distributedStrictRateLimit.middleware();
 
-// Get allowed origins from environment variable
+// Get allowed origins from environment variable with security config
 function getAllowedOrigins(): string[] {
-  const corsOrigins = process.env.CORS_ALLOWED_ORIGINS;
-  
-  if (!corsOrigins) {
-    // Default fallback origins for development
-    return [
-      'http://localhost:3000',
-      'http://localhost:5173',
-      'https://yaincoxihiqdksxgrsrk.supabase.co'
-    ];
-  }
-  
-  return corsOrigins.split(',').map(origin => origin.trim());
+  const securityConfig = getSecurityConfig();
+  return securityConfig.cors.allowedOrigins;
 }
 
 // Configuration CORS personnalisée
@@ -116,7 +104,7 @@ export { getAllowedOrigins };
 
 // Middleware de sécurité personnalisé
 import { Request, Response, NextFunction } from 'express';
-import { analyzeSuspiciousRequest, quickSuspiciousCheck, generateSecurityReport } from '../utils/security/suspiciousRequest';
+import { analyzeSuspiciousRequest } from '../utils/security/suspiciousRequest';
 
 // Extend Request interface for custom properties
 interface ExtendedRequest extends Request {

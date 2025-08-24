@@ -89,9 +89,10 @@ const THREAT_PATTERNS = {
 
 /**
  * Headers suspects à surveiller
+ * Note: 'host' retiré pour éviter les faux positifs avec les proxies légitimes
  */
 const SUSPICIOUS_HEADERS = [
-  'x-forwarded-for', 'x-real-ip', 'x-forwarded-host', 'host'
+  'x-forwarded-for', 'x-real-ip', 'x-forwarded-host'
 ];
 
 /**

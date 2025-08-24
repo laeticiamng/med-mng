@@ -1,4 +1,5 @@
-// SPA-first navigation, with window fallback
+// SPA-first navigation, with safe window fallback
+import { isBrowser } from './environment';
 import type { To, NavigateOptions } from "react-router-dom";
 
 type NavFn = (to: To, opts?: NavigateOptions) => void;
@@ -13,7 +14,7 @@ export function appNavigate(to: To, opts?: NavigateOptions) {
   if (_navigate) return _navigate(to, opts);
 
   // Fallback sans Router (tests, Storybook, providers globaux…)
-  if (typeof window !== "undefined") {
+  if (isBrowser()) {
     if (typeof to === "string") {
       window.location.href = to;
       return;
