@@ -19,24 +19,9 @@ app.disable('x-powered-by');
 // Configuration du proxy de confiance pour les load balancers
 app.set('trust proxy', 1);
 
-// Middleware de sécurité - à appliquer en premier
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'"],
-      scriptSrc: ["'self'"],
-      connectSrc: [
-        "'self'",
-        "https://yaincoxihiqdksxgrsrk.supabase.co",
-        "https://*.supabase.co"
-      ],
-      imgSrc: ["'self'", "data:", "https:"],
-      fontSrc: ["'self'", "https:"],
-    },
-  },
-  crossOriginEmbedderPolicy: false, // Éviter les problèmes avec les iframes
-}));
+// Middleware de sécurité avec CSP centralisée
+import { createCSPMiddleware } from './utils/security/cspHelper';
+app.use(createCSPMiddleware('production'));
 
 // CORS avec configuration personnalisée
 app.use(cors(corsOptions));

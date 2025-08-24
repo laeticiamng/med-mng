@@ -116,48 +116,52 @@ export const securityHeadersMiddleware = (req: ExtendedRequest, res: Response, n
   res.setHeader('X-API-Version', '1.0.0');
   res.setHeader('X-Request-ID', req.requestId || 'unknown');
   
-  // Analyse complète des patterns suspects
-  const securityAnalysis = analyzeSuspiciousRequest(req);
+  // Analyse des patterns suspects - uniquement pour les requêtes sensibles
+  const isSensitiveEndpoint = req.url.includes('/api/') || req.method !== 'GET';
   
-  if (securityAnalysis.isSuspicious) {
-    const logData = {
-      ip: req.ip,
-      userAgent: req.get('User-Agent'),
-      endpoint: req.url,
-      method: req.method,
-      requestId: req.requestId,
-      riskScore: securityAnalysis.riskScore,
-      threatCount: securityAnalysis.threats.length,
-      recommendation: securityAnalysis.recommendation,
-      threats: securityAnalysis.threats.map(t => ({
-        type: t.type,
-        severity: t.severity,
-        location: t.location,
-        pattern: t.pattern
-      }))
-    };
+  if (isSensitiveEndpoint) {
+    const securityAnalysis = analyzeSuspiciousRequest(req);
     
-    // Logger selon la sévérité
-    if (securityAnalysis.recommendation === 'block') {
-      logService.error('CRITICAL: Malicious request blocked', undefined, logData);
+    if (securityAnalysis.isSuspicious) {
+      const logData = {
+        ip: req.ip,
+        userAgent: req.get('User-Agent'),
+        endpoint: req.url,
+        method: req.method,
+        requestId: req.requestId,
+        riskScore: securityAnalysis.riskScore,
+        threatCount: securityAnalysis.threats.length,
+        recommendation: securityAnalysis.recommendation,
+        threats: securityAnalysis.threats.map(t => ({
+          type: t.type,
+          severity: t.severity,
+          location: t.location,
+          pattern: t.pattern
+        }))
+      };
       
-      // Bloquer la requête
-      res.status(403).json({
-        error: 'Forbidden',
-        message: 'Request blocked due to security policy violation',
-        requestId: req.requestId
-      });
-      return;
-    } else if (securityAnalysis.recommendation === 'warn') {
-      logService.warn('SECURITY: Suspicious request detected', logData);
-    } else {
-      logService.info('SECURITY: Low-risk suspicious patterns detected', logData);
-    }
-    
-    // En mode développement, ajouter des détails dans les headers
-    if (process.env.NODE_ENV === 'development') {
-      res.setHeader('X-Security-Score', securityAnalysis.riskScore.toString());
-      res.setHeader('X-Security-Threats', securityAnalysis.threats.length.toString());
+      // Logger selon la sévérité
+      if (securityAnalysis.recommendation === 'block') {
+        logService.error('CRITICAL: Malicious request blocked', undefined, logData);
+        
+        // Bloquer la requête
+        res.status(403).json({
+          error: 'Forbidden',
+          message: 'Request blocked due to security policy violation',
+          requestId: req.requestId
+        });
+        return;
+      } else if (securityAnalysis.recommendation === 'warn') {
+        logService.warn('SECURITY: Suspicious request detected', logData);
+      } else {
+        logService.info('SECURITY: Low-risk suspicious patterns detected', logData);
+      }
+      
+      // En mode développement, ajouter des détails dans les headers
+      if (process.env.NODE_ENV === 'development') {
+        res.setHeader('X-Security-Score', securityAnalysis.riskScore.toString());
+        res.setHeader('X-Security-Threats', securityAnalysis.threats.length.toString());
+      }
     }
   }
   

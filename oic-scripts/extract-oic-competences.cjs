@@ -7,8 +7,8 @@ const path = require('path');
 // Configuration
 const SUPABASE_URL = 'https://yaincoxihiqdksxgrsrk.supabase.co';
 const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const CAS_USERNAME = process.env.CAS_USERNAME || 'laeticia.moto-ngane@etud.u-picardie.fr';
-const CAS_PASSWORD = process.env.CAS_PASSWORD || 'Aiciteal1!';
+const CAS_USERNAME = process.env.CAS_USERNAME;
+const CAS_PASSWORD = process.env.CAS_PASSWORD;
 const FORCE_UPDATE = process.env.FORCE_UPDATE === 'true';
 const BATCH_SIZE = parseInt(process.env.BATCH_SIZE || '500');
 
@@ -53,9 +53,12 @@ const RUBRIQUES_MAP = {
 async function authenticateCAS(page) {
   log('🔐 Authentification CAS...');
   
+  if (!CAS_USERNAME || !CAS_PASSWORD) {
+    throw new Error('CAS_USERNAME et CAS_PASSWORD requis dans les variables d\'environnement');
+  }
+
   try {
     // Naviguer vers une page protégée pour déclencher l'authentification
-    log('🌐 Navigation vers page protégée pour déclencher l\'authentification...');
     await page.goto('https://livret.uness.fr/lisa/2025/Catégorie:Objectif_de_connaissance', {
       waitUntil: 'networkidle2',
       timeout: 30000

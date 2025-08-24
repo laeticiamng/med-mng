@@ -9,7 +9,7 @@ import type { Request, Response, NextFunction } from 'express';
  * Assure que le répertoire de logs existe
  */
 function ensureLogDir(): void {
-  const logDir = path.join(process.cwd(), 'logs');
+  const logDir = path.join(process.env.LOG_DIR || process.cwd(), 'logs');
   
   if (!fs.existsSync(logDir)) {
     try {
