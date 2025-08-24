@@ -414,11 +414,11 @@ export default function Contact() {
                 <div className="space-y-3">
                   <div className="flex items-center gap-3">
                     <Badge className="bg-green-500/20 text-green-300">Email</Badge>
-                    <span className="text-gray-300 text-sm">< 24h</span>
+                    <span className="text-gray-300 text-sm">&lt; 24h</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <Badge className="bg-blue-500/20 text-blue-300">Chat</Badge>
-                    <span className="text-gray-300 text-sm">< 5 min</span>
+                    <span className="text-gray-300 text-sm">&lt; 5 min</span>
                   </div>
                   <div className="flex items-center gap-3">
                     <Badge className="bg-purple-500/20 text-purple-300">Téléphone</Badge>
