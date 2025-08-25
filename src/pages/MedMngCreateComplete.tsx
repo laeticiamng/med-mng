@@ -24,7 +24,7 @@ import {
   Settings,
   Mic,
   Headphones,
-  Waveform,
+  
   Sparkles,
   Brain,
   Target,
@@ -58,7 +58,7 @@ import {
 import { useNavAction } from "@/hooks/useNavAction";
 import { analytics } from "@/lib/analytics";
 import { t } from "@/lib/i18n/keys";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "@/hooks/use-toast";
 
 // Mock data for generation options
 const mockGenres = [
@@ -811,7 +811,7 @@ Pour une médecine réussie`;
                     
                     <div className="bg-background/50 rounded p-3 mb-4">
                       <div className="h-16 bg-muted rounded flex items-center justify-center">
-                        <Waveform className="w-8 h-8 text-muted-foreground" />
+                        <Volume2 className="w-8 h-8 text-muted-foreground" />
                         <span className="ml-2 text-muted-foreground">Forme d'onde audio</span>
                       </div>
                     </div>

@@ -39,7 +39,7 @@ import {
   SkipBack,
   VolumeX,
   Volume1,
-  Waveform,
+  
   Mic,
   Users,
   TrendingUp,
@@ -61,7 +61,7 @@ import {
 } from "lucide-react";
 import { useNavAction } from "@/hooks/useNavAction";
 import { analytics } from "@/lib/analytics";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "@/hooks/use-toast";
 
 // Mock library data
 const mockSongs = [
@@ -947,7 +947,7 @@ export default function MedMngLibraryComplete() {
                   <p className="text-sm text-muted-foreground">
                     Découvrez les chansons créées par la communauté médicale
                   </p>
-                </div>
+                </CardContent>
               </Card>
               
               {viewMode === 'grid' ? (
