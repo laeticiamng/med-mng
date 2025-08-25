@@ -1,318 +1,404 @@
-import { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { 
-  MessageCircle, 
-  Send, 
-  Bot, 
-  User, 
-  Paperclip, 
-  Mic,
-  Settings,
-  RefreshCw,
-  BookOpen,
-  Stethoscope,
-  Brain,
-  Heart,
-  Zap
-} from 'lucide-react';
-import { toast } from '@/hooks/use-toast';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { MessageCircle, Send, Bot, User, Stethoscope, BookOpen, Brain, Settings, History, Trash2 } from 'lucide-react';
 
 interface Message {
   id: string;
-  type: 'user' | 'ai';
+  type: 'user' | 'assistant';
   content: string;
   timestamp: Date;
-  sources?: string[];
+  specialty?: string;
 }
 
-export const ChatPage = () => {
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      type: 'ai',
-      content: 'Bonjour ! Je suis votre assistant IA médical. Je peux vous aider avec des questions sur la médecine, l\'anatomie, la pharmacologie et bien plus encore. Comment puis-je vous assister aujourd\'hui ?',
-      timestamp: new Date(),
-      sources: ['Base de connaissances MED-MNG']
-    }
-  ]);
-  const [inputValue, setInputValue] = useState('');
-  const [isTyping, setIsTyping] = useState(false);
-  const scrollAreaRef = useRef<HTMLDivElement>(null);
+interface ChatSession {
+  id: string;
+  title: string;
+  messages: Message[];
+  createdAt: Date;
+  specialty: string;
+}
 
-  const handleSendMessage = async () => {
-    if (!inputValue.trim()) return;
+const specialties = [
+  'Médecine générale',
+  'Cardiologie',
+  'Neurologie',
+  'Pédiatrie',
+  'Gynécologie',
+  'Orthopédie',
+  'Psychiatrie',
+  'Dermatologie',
+  'Pneumologie',
+  'Gastroentérologie'
+];
+
+const mockPrompts = [
+  "Expliquez-moi les signes d'alerte d'un infarctus du myocarde",
+  "Quels sont les examens à prescrire devant une dyspnée ?",
+  "Comment prendre en charge une crise d'asthme aigüe ?",
+  "Quelles sont les contre-indications de l'aspirine ?",
+  "Décrivez la conduite à tenir devant une fièvre chez l'enfant"
+];
+
+export function ChatPage() {
+  const [sessions, setSessions] = useState<ChatSession[]>([]);
+  const [currentSession, setCurrentSession] = useState<ChatSession | null>(null);
+  const [message, setMessage] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+  const [selectedSpecialty, setSelectedSpecialty] = useState('Médecine générale');
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [currentSession?.messages]);
+
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const createNewSession = () => {
+    const newSession: ChatSession = {
+      id: Date.now().toString(),
+      title: `Session ${sessions.length + 1}`,
+      messages: [],
+      createdAt: new Date(),
+      specialty: selectedSpecialty
+    };
+    setSessions([newSession, ...sessions]);
+    setCurrentSession(newSession);
+  };
+
+  const sendMessage = async () => {
+    if (!message.trim() || !currentSession) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
       type: 'user',
-      content: inputValue,
-      timestamp: new Date()
+      content: message,
+      timestamp: new Date(),
+      specialty: selectedSpecialty
     };
 
-    setMessages(prev => [...prev, userMessage]);
-    setInputValue('');
+    const updatedSession = {
+      ...currentSession,
+      messages: [...currentSession.messages, userMessage]
+    };
+
+    if (updatedSession.messages.length === 1) {
+      updatedSession.title = message.slice(0, 50) + (message.length > 50 ? '...' : '');
+    }
+
+    setCurrentSession(updatedSession);
+    setSessions(sessions.map(s => s.id === currentSession.id ? updatedSession : s));
+    setMessage('');
     setIsTyping(true);
 
     // Simulate AI response
     setTimeout(() => {
-      const aiResponse: Message = {
+      const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
-        type: 'ai',
-        content: getSimulatedResponse(inputValue),
+        type: 'assistant',
+        content: generateAIResponse(userMessage.content, selectedSpecialty),
         timestamp: new Date(),
-        sources: ['Harrison\'s Principles', 'Gray\'s Anatomy', 'Pharmacology Database']
+        specialty: selectedSpecialty
       };
-      setMessages(prev => [...prev, aiResponse]);
+
+      const sessionWithAI = {
+        ...updatedSession,
+        messages: [...updatedSession.messages, aiMessage]
+      };
+
+      setCurrentSession(sessionWithAI);
+      setSessions(sessions.map(s => s.id === currentSession.id ? sessionWithAI : s));
       setIsTyping(false);
     }, 1500);
   };
 
-  const getSimulatedResponse = (input: string) => {
-    const responses = [
-      'Excellent question ! En médecine, ce sujet nécessite une approche méthodique. Laissez-moi vous expliquer les points clés...',
-      'D\'après les dernières recommandations médicales, voici ce que nous savons sur ce sujet...',
-      'Cette condition médicale présente plusieurs aspects importants à considérer. Permettez-moi de détailler...',
-      'Pour répondre à votre question, il est important de comprendre d\'abord les mécanismes physiologiques sous-jacents...'
-    ];
-    return responses[Math.floor(Math.random() * responses.length)];
+  const generateAIResponse = (userMessage: string, specialty: string): string => {
+    const responses = {
+      'infarctus': `En tant qu'assistant médical spécialisé en ${specialty}, voici les signes d'alerte d'un infarctus du myocarde :
+
+**Signes cliniques majeurs :**
+• Douleur thoracique constrictive, intense, prolongée (>20 min)
+• Localisation rétrosternale avec irradiation possible (bras gauche, mâchoire, épigastre)
+• Accompagnée de sueurs, nausées, dyspnée
+• Sensation d'angoisse de mort imminente
+
+**Formes atypiques à connaître :**
+• Chez la femme : fatigue, dyspnée, douleurs épigastriques
+• Chez le diabétique : forme silencieuse possible
+• Chez la personne âgée : confusion, chute
+
+**Conduite à tenir :**
+1. Appel SAMU (15) immédiat
+2. ECG 12 dérivations en urgence
+3. Troponines
+4. Préparation à la revascularisation
+
+⚠️ Tout retard diagnostic engage le pronostic vital.`,
+      
+      'dyspnée': `Concernant les examens devant une dyspnée en ${specialty} :
+
+**Bilan de première intention :**
+• Gazométrie artérielle (hypoxémie, hypercapnie)
+• Radiographie thoracique (épanchement, pneumothorax, œdème)
+• ECG (signes d'insuffisance cardiaque, trouble du rythme)
+• BNP ou NT-proBNP (insuffisance cardiaque)
+• Hémogramme (anémie)
+
+**Selon l'orientation clinique :**
+• Échocardiographie (fonction systolique, valvulopathie)
+• Scanner thoracique (embolie pulmonaire, pathologie parenchymateuse)
+• EFR (BPCO, asthme)
+• D-dimères (si suspicion EP et probabilité faible)
+
+**Examens spécialisés :**
+• Angioscanner pulmonaire si EP
+• Cathétérisme cardiaque si coronaropathie
+• Fibroscopie bronchique si suspicion néoplasique`,
+
+      'default': `En tant qu'assistant médical spécialisé en ${specialty}, je peux vous aider avec votre question. Pouvez-vous préciser davantage votre demande pour que je puisse vous fournir une réponse plus détaillée et adaptée à votre contexte clinique ?
+
+Je peux vous assister sur :
+• Diagnostics différentiels
+• Conduites à tenir
+• Prescriptions et posologies
+• Interprétation d'examens
+• Recommandations HAS
+
+N'hésitez pas à reformuler votre question ou à me donner plus de contexte.`
+    };
+
+    const lowerMessage = userMessage.toLowerCase();
+    if (lowerMessage.includes('infarctus') || lowerMessage.includes('myocarde')) {
+      return responses.infarctus;
+    } else if (lowerMessage.includes('dyspnée') || lowerMessage.includes('dyspnee')) {
+      return responses.dyspnée;
+    } else {
+      return responses.default;
+    }
   };
 
-  const quickQuestions = [
-    { text: 'Expliquez la physiopathologie de l\'hypertension', icon: Heart },
-    { text: 'Quels sont les effets secondaires des AINS ?', icon: Brain },
-    { text: 'Comment diagnostiquer une pneumonie ?', icon: Stethoscope },
-    { text: 'Mécanisme d\'action de l\'insuline', icon: Zap },
-  ];
-
-  useEffect(() => {
-    if (scrollAreaRef.current) {
-      scrollAreaRef.current.scrollTop = scrollAreaRef.current.scrollHeight;
+  const deleteSession = (sessionId: string) => {
+    setSessions(sessions.filter(s => s.id !== sessionId));
+    if (currentSession?.id === sessionId) {
+      setCurrentSession(null);
     }
-  }, [messages]);
+  };
+
+  const formatTime = (date: Date) => {
+    return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+  };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
-            Assistant IA Médical
-          </h1>
-          <p className="text-xl text-muted-foreground">
-            Votre compagnon intelligent pour l'apprentissage médical
-          </p>
-        </div>
+    <div className="container mx-auto px-4 py-8">
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 h-[calc(100vh-200px)]">
+        
+        {/* Sidebar */}
+        <div className="lg:col-span-1 space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2 text-lg">
+                <MessageCircle className="h-5 w-5" />
+                <span>Assistant IA Médical</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <label className="text-sm font-medium mb-2 block">Spécialité</label>
+                <Select value={selectedSpecialty} onValueChange={setSelectedSpecialty}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {specialties.map(specialty => (
+                      <SelectItem key={specialty} value={specialty}>{specialty}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <Button onClick={createNewSession} className="w-full">
+                <MessageCircle className="h-4 w-4 mr-2" />
+                Nouvelle conversation
+              </Button>
+            </CardContent>
+          </Card>
 
-        <div className="grid lg:grid-cols-4 gap-6">
-          {/* Chat Area */}
-          <div className="lg:col-span-3">
-            <Card className="h-[600px] flex flex-col">
-              <CardHeader className="border-b">
-                <CardTitle className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <MessageCircle className="h-5 w-5 text-blue-600" />
-                    Chat Médical
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="text-green-600 border-green-600">
-                      <div className="w-2 h-2 bg-green-600 rounded-full mr-2" />
-                      En ligne
-                    </Badge>
-                    <Button variant="outline" size="sm">
-                      <Settings className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </CardTitle>
-              </CardHeader>
-
-              {/* Messages */}
-              <ScrollArea className="flex-1 p-4" ref={scrollAreaRef}>
-                <div className="space-y-4">
-                  {messages.map((message) => (
-                    <div
-                      key={message.id}
-                      className={`flex gap-3 ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
-                    >
-                      {message.type === 'ai' && (
-                        <Avatar className="h-8 w-8">
-                          <AvatarFallback className="bg-blue-100 text-blue-600">
-                            <Bot className="h-4 w-4" />
-                          </AvatarFallback>
-                        </Avatar>
-                      )}
-                      
-                      <div
-                        className={`max-w-[80%] rounded-lg p-3 ${
-                          message.type === 'user'
-                            ? 'bg-blue-600 text-white'
-                            : 'bg-muted/50 text-foreground'
-                        }`}
-                      >
-                        <p className="text-sm">{message.content}</p>
-                        {message.sources && (
-                          <div className="mt-2 pt-2 border-t border-muted-foreground/20">
-                            <p className="text-xs opacity-70 flex items-center gap-1">
-                              <BookOpen className="h-3 w-3" />
-                              Sources: {message.sources.join(', ')}
-                            </p>
-                          </div>
-                        )}
-                        <p className="text-xs opacity-70 mt-1">
-                          {message.timestamp.toLocaleTimeString()}
-                        </p>
+          {/* Sessions History */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center space-x-2 text-sm">
+                <History className="h-4 w-4" />
+                <span>Historique</span>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <ScrollArea className="h-64">
+                <div className="space-y-2">
+                  {sessions.map((session) => (
+                    <div key={session.id} className={`p-2 rounded cursor-pointer transition-colors ${currentSession?.id === session.id ? 'bg-primary/10' : 'hover:bg-muted'}`}>
+                      <div className="flex items-start justify-between" onClick={() => setCurrentSession(session)}>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">{session.title}</p>
+                          <p className="text-xs text-muted-foreground">{session.messages.length} messages</p>
+                          <Badge variant="outline" className="text-xs mt-1">{session.specialty}</Badge>
+                        </div>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={(e) => { e.stopPropagation(); deleteSession(session.id); }}
+                          className="ml-2 h-6 w-6 p-0"
+                        >
+                          <Trash2 className="h-3 w-3" />
+                        </Button>
                       </div>
-
-                      {message.type === 'user' && (
-                        <Avatar className="h-8 w-8">
-                          <AvatarFallback className="bg-green-100 text-green-600">
-                            <User className="h-4 w-4" />
-                          </AvatarFallback>
-                        </Avatar>
-                      )}
                     </div>
                   ))}
-                  
-                  {isTyping && (
-                    <div className="flex gap-3 justify-start">
-                      <Avatar className="h-8 w-8">
-                        <AvatarFallback className="bg-blue-100 text-blue-600">
-                          <Bot className="h-4 w-4" />
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="bg-muted/50 rounded-lg p-3">
-                        <div className="flex gap-1">
-                          <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse" />
-                          <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse" style={{ animationDelay: '0.2s' }} />
-                          <div className="w-2 h-2 bg-blue-600 rounded-full animate-pulse" style={{ animationDelay: '0.4s' }} />
-                        </div>
-                      </div>
-                    </div>
-                  )}
                 </div>
               </ScrollArea>
+            </CardContent>
+          </Card>
 
-              {/* Input Area */}
-              <div className="p-4 border-t">
-                <div className="flex gap-2">
-                  <Button variant="outline" size="sm">
-                    <Paperclip className="h-4 w-4" />
-                  </Button>
-                  <Input
-                    value={inputValue}
-                    onChange={(e) => setInputValue(e.target.value)}
-                    placeholder="Posez votre question médicale..."
-                    onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                    className="flex-1"
-                  />
-                  <Button variant="outline" size="sm">
-                    <Mic className="h-4 w-4" />
-                  </Button>
-                  <Button 
-                    onClick={handleSendMessage}
-                    disabled={!inputValue.trim() || isTyping}
-                    className="bg-blue-600 hover:bg-blue-700"
-                  >
-                    <Send className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-            </Card>
-          </div>
-
-          {/* Sidebar */}
-          <div className="space-y-6">
-            {/* Quick Questions */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Questions rapides</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {quickQuestions.map((question, index) => (
+          {/* Suggested Prompts */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-sm">Suggestions</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                {mockPrompts.slice(0, 3).map((prompt, index) => (
                   <Button
                     key={index}
                     variant="outline"
                     size="sm"
-                    className="w-full justify-start text-left h-auto p-3"
-                    onClick={() => setInputValue(question.text)}
+                    className="w-full text-xs text-left justify-start h-auto p-2"
+                    onClick={() => setMessage(prompt)}
                   >
-                    <question.icon className="h-4 w-4 mr-2 flex-shrink-0" />
-                    <span className="text-xs">{question.text}</span>
+                    {prompt}
                   </Button>
                 ))}
-              </CardContent>
-            </Card>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
-            {/* Chat Stats */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Statistiques</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex justify-between">
-                  <span className="text-sm">Questions posées</span>
-                  <Badge variant="outline">47</Badge>
+        {/* Chat Area */}
+        <div className="lg:col-span-3">
+          <Card className="h-full flex flex-col">
+            <CardHeader className="border-b">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Bot className="h-5 w-5 text-primary" />
+                  <div>
+                    <CardTitle className="text-lg">
+                      Assistant IA - {selectedSpecialty}
+                    </CardTitle>
+                    {currentSession && (
+                      <p className="text-sm text-muted-foreground">
+                        {currentSession.messages.length} messages
+                      </p>
+                    )}
+                  </div>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-sm">Temps d'étude</span>
-                  <Badge variant="outline">12h 30m</Badge>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm">Sujets abordés</span>
-                  <Badge variant="outline">23</Badge>
-                </div>
-              </CardContent>
-            </Card>
+                <Badge variant="outline">
+                  <Brain className="h-3 w-3 mr-1" />
+                  Powered by AI
+                </Badge>
+              </div>
+            </CardHeader>
 
-            {/* Recent Topics */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Sujets récents</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  {[
-                    'Cardiologie',
-                    'Pharmacologie',
-                    'Neurologie',
-                    'Pneumologie',
-                    'Endocrinologie'
-                  ].map((topic, index) => (
-                    <Badge key={index} variant="secondary" className="mr-2 mb-2">
-                      {topic}
-                    </Badge>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+            <CardContent className="flex-1 flex flex-col p-0">
+              {currentSession ? (
+                <>
+                  {/* Messages */}
+                  <ScrollArea className="flex-1 p-4">
+                    <div className="space-y-4">
+                      {currentSession.messages.map((msg) => (
+                        <div key={msg.id} className={`flex items-start space-x-3 ${msg.type === 'user' ? 'justify-end' : 'justify-start'}`}>
+                          {msg.type === 'assistant' && (
+                            <div className="flex-shrink-0">
+                              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                                <Bot className="h-4 w-4 text-primary" />
+                              </div>
+                            </div>
+                          )}
+                          <div className={`max-w-[80%] ${msg.type === 'user' ? 'order-2' : ''}`}>
+                            <div className={`rounded-lg px-4 py-2 ${msg.type === 'user' ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
+                              <p className="text-sm whitespace-pre-line">{msg.content}</p>
+                            </div>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              {formatTime(msg.timestamp)}
+                            </p>
+                          </div>
+                          {msg.type === 'user' && (
+                            <div className="flex-shrink-0 order-3">
+                              <div className="w-8 h-8 rounded-full bg-secondary flex items-center justify-center">
+                                <User className="h-4 w-4" />
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                      {isTyping && (
+                        <div className="flex items-start space-x-3">
+                          <div className="flex-shrink-0">
+                            <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                              <Bot className="h-4 w-4 text-primary" />
+                            </div>
+                          </div>
+                          <div className="bg-muted rounded-lg px-4 py-2">
+                            <div className="flex space-x-1">
+                              <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce"></div>
+                              <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                              <div className="w-2 h-2 bg-muted-foreground rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                      <div ref={messagesEndRef} />
+                    </div>
+                  </ScrollArea>
 
-            {/* Actions */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Actions</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <Button variant="outline" className="w-full justify-start">
-                  <RefreshCw className="h-4 w-4 mr-2" />
-                  Nouvelle conversation
-                </Button>
-                <Button variant="outline" className="w-full justify-start">
-                  <BookOpen className="h-4 w-4 mr-2" />
-                  Historique des chats
-                </Button>
-                <Button variant="outline" className="w-full justify-start">
-                  <Settings className="h-4 w-4 mr-2" />
-                  Paramètres IA
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
+                  {/* Input */}
+                  <div className="border-t p-4">
+                    <div className="flex space-x-2">
+                      <Input
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                        placeholder="Posez votre question médicale..."
+                        onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+                        className="flex-1"
+                      />
+                      <Button onClick={sendMessage} disabled={!message.trim() || isTyping}>
+                        <Send className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <div className="flex-1 flex items-center justify-center text-center p-8">
+                  <div className="space-y-4">
+                    <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto">
+                      <MessageCircle className="h-8 w-8 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="text-lg font-semibold">Bienvenue dans votre assistant IA médical</h3>
+                      <p className="text-muted-foreground">Créez une nouvelle conversation pour commencer</p>
+                    </div>
+                    <Button onClick={createNewSession}>
+                      Nouvelle conversation
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
   );
-};
+}
