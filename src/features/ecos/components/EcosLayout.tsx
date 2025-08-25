@@ -17,9 +17,10 @@ interface EcosLayoutProps {
     status: 'not_started' | 'in_progress' | 'completed';
   };
   showProgress?: boolean;
+  showFilters?: boolean;
 }
 
-export function EcosLayout({ children, scenario, showProgress = false }: EcosLayoutProps) {
+export function EcosLayout({ children, scenario, showProgress = false, showFilters = false }: EcosLayoutProps) {
   const sidebar = scenario ? (
     <div className="space-y-4">
       <div className="p-4 border rounded-lg">
