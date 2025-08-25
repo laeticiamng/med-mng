@@ -1,9 +1,19 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { TooltipProvider, Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { TooltipProvider } from '@/components/ui/tooltip';
 
-console.log('🔄 Step 4: Testing actual Tooltip usage');
+console.log('🔄 Step 5: Testing UXToolbar (suspect #1)');
+
+// Import du premier suspect
+let UXToolbar;
+try {
+  UXToolbar = require('@/components/ux/UXToolbar').default;
+  console.log('✅ UXToolbar loaded successfully');
+} catch (error) {
+  console.log('❌ UXToolbar failed to load:', error);
+  UXToolbar = () => <div style={{color: 'red'}}>UXToolbar failed to load</div>;
+}
 
 const TestPage = () => (
   <div style={{ 
@@ -20,29 +30,15 @@ const TestPage = () => (
   }}>
     <div>
       <h1 style={{ fontSize: '3rem', marginBottom: '1rem' }}>MED-MNG</h1>
-      <p style={{ fontSize: '1.2rem', color: '#ccc' }}>Step 4: Testing actual Tooltip</p>
+      <p style={{ fontSize: '1.2rem', color: '#ccc' }}>Step 5: Testing UXToolbar</p>
     </div>
     
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <button style={{
-          backgroundColor: '#6366f1',
-          color: 'white',
-          padding: '0.5rem 1rem',
-          borderRadius: '0.5rem',
-          border: 'none',
-          cursor: 'pointer'
-        }}>
-          Hover me for tooltip
-        </button>
-      </TooltipTrigger>
-      <TooltipContent>
-        <p>This tooltip works!</p>
-      </TooltipContent>
-    </Tooltip>
+    <div style={{ padding: '1rem', border: '1px solid #444', borderRadius: '0.5rem' }}>
+      <UXToolbar />
+    </div>
     
     <p style={{ fontSize: '1rem', color: '#999' }}>
-      If you see this and can hover the button, Tooltip is fully working
+      If you see this without errors, UXToolbar is not the culprit
     </p>
   </div>
 );
