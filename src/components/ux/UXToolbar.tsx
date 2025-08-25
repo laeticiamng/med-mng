@@ -12,110 +12,54 @@ import {
 } from 'lucide-react';
 
 export const UXToolbar: React.FC = () => {
+  console.log('🔧 UXToolbar rendering with Tailwind styles');
+  
   return (
     <div
-      className="fixed bottom-4 right-4 z-50 bg-card border border-border rounded-lg p-2 shadow-medium"
+      className="fixed bottom-4 right-4 z-50 bg-white border border-gray-300 rounded-lg p-2 shadow-lg"
       role="toolbar"
       aria-label="Outils d'accessibilité et de navigation"
+      style={{ 
+        backgroundColor: '#ffffff',
+        border: '1px solid #e5e7eb',
+        minWidth: '200px',
+        minHeight: '50px'
+      }}
     >
       <div className="flex items-center gap-1">
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-              onClick={() => console.log('Undo clicked!')}
-            >
-              <Undo2 className="h-4 w-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Annuler</p>
-          </TooltipContent>
-        </Tooltip>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="bg-gray-100 text-gray-700 hover:bg-gray-200"
+          onClick={() => console.log('🔧 Undo clicked!')}
+          style={{ backgroundColor: '#f3f4f6', color: '#374151' }}
+        >
+          <Undo2 className="h-4 w-4" />
+        </Button>
         
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-              onClick={() => console.log('Redo clicked!')}
-            >
-              <Redo2 className="h-4 w-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Refaire</p>
-          </TooltipContent>
-        </Tooltip>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="bg-gray-100 text-gray-700 hover:bg-gray-200"
+          onClick={() => console.log('🔧 Redo clicked!')}
+          style={{ backgroundColor: '#f3f4f6', color: '#374151' }}
+        >
+          <Redo2 className="h-4 w-4" />
+        </Button>
         
-        <Separator orientation="vertical" className="h-6 mx-1" />
-        
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-              onClick={() => console.log('Keyboard clicked!')}
-            >
-              <Keyboard className="h-4 w-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Navigation clavier</p>
-          </TooltipContent>
-        </Tooltip>
-        
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-              onClick={() => console.log('Accessibility clicked!')}
-            >
-              <Accessibility className="h-4 w-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Options d'accessibilité</p>
-          </TooltipContent>
-        </Tooltip>
-        
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-              onClick={() => console.log('Vision clicked!')}
-            >
-              <Eye className="h-4 w-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Aide visuelle</p>
-          </TooltipContent>
-        </Tooltip>
-        
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="bg-muted text-muted-foreground hover:bg-accent hover:text-accent-foreground"
-              onClick={() => console.log('Audio clicked!')}
-            >
-              <Volume2 className="h-4 w-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>Feedback audio</p>
-          </TooltipContent>
-        </Tooltip>
+        <Button
+          variant="ghost"
+          size="sm" 
+          className="bg-gray-100 text-gray-700 hover:bg-gray-200"
+          onClick={() => console.log('🔧 Keyboard clicked!')}
+          style={{ backgroundColor: '#f3f4f6', color: '#374151' }}
+        >
+          <Keyboard className="h-4 w-4" />
+        </Button>
+      </div>
+      
+      <div className="text-xs text-gray-500 mt-2">
+        🔧 Debug mode
       </div>
     </div>
   );
