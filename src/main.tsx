@@ -1,35 +1,32 @@
-import { createRoot } from 'react-dom/client'
+import React from 'react';
+import { createRoot } from 'react-dom/client';
 
-// Pure JS test without React
+console.log('🔄 Step 1: Testing minimal React (no providers, no external components)');
+
 const App = () => {
-  console.log('🔥 Testing pure JS without React...');
-  
-  const element = document.createElement('div');
-  element.style.cssText = `
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #1a1a2e;
-    color: white;
-    font-family: Arial, sans-serif;
-    text-align: center;
-  `;
-  
-  element.innerHTML = `
-    <div>
-      <h1 style="font-size: 3rem; margin-bottom: 1rem;">MED-MNG</h1>
-      <p style="font-size: 1.2rem; color: #ccc;">Pure JS test (no React)</p>
-      <p style="font-size: 1rem; color: #999; margin-top: 2rem;">
-        If you see this, JavaScript is working
-      </p>
+  return (
+    <div style={{ 
+      minHeight: '100vh', 
+      display: 'flex', 
+      alignItems: 'center', 
+      justifyContent: 'center',
+      backgroundColor: '#1a1a2e',
+      color: 'white',
+      fontFamily: 'Arial, sans-serif',
+      textAlign: 'center'
+    }}>
+      <div>
+        <h1 style={{ fontSize: '3rem', marginBottom: '1rem' }}>MED-MNG</h1>
+        <p style={{ fontSize: '1.2rem', color: '#ccc' }}>Step 1: Minimal React Test</p>
+        <p style={{ fontSize: '1rem', color: '#999', marginTop: '2rem' }}>
+          If you see this, React is working without TooltipProvider
+        </p>
+      </div>
     </div>
-  `;
-  
-  return element;
+  );
 };
 
 const root = document.getElementById("root");
 if (root) {
-  root.appendChild(App());
+  createRoot(root).render(<App />);
 }
