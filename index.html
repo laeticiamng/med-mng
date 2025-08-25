@@ -22,10 +22,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     
-    <!-- Preload critical scripts for faster execution -->
-    <link rel="modulepreload" href="/src/main.tsx">
-    <link rel="modulepreload" href="/src/App.tsx">
-    <!-- Temporarily disable Index.tsx preload to debug React dispatcher issue -->
+    <!-- All preloads disabled for cache-busting debug -->
+    <!-- <link rel="modulepreload" href="/src/main.tsx"> -->
+    <!-- <link rel="modulepreload" href="/src/App.tsx"> -->
     <!-- <link rel="modulepreload" href="/src/pages/Index.tsx"> -->
     
     <!-- DNS prefetch and preconnect for external resources -->
@@ -136,8 +135,10 @@
       })();
     </script>
     
-    <!-- Service Worker Registration -->
+    <!-- Service Worker Registration - DISABLED FOR DEBUGGING -->
     <script>
+      console.log('Service Worker registration disabled for debugging React dispatcher issue');
+      /*
       // Register Service Worker for efficient caching
       if ('serviceWorker' in navigator) {
         window.addEventListener('load', () => {
@@ -150,6 +151,7 @@
             });
         });
       }
+      */
     </script>
 
     <meta property="og:title" content="MED MNG par EmotionsCare - Apprentissage Médical Immersif" />
@@ -336,6 +338,36 @@
 
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <script type="module">
+      // Complete cache-busting debug script
+      console.log('🚀 Cache-busting debug mode activated');
+      
+      // Clear any existing service worker
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function(registrations) {
+          for(let registration of registrations) {
+            registration.unregister();
+            console.log('Unregistered service worker:', registration);
+          }
+        });
+      }
+      
+      // Clear all cache storage
+      if ('caches' in window) {
+        caches.keys().then(function(names) {
+          for (let name of names) {
+            caches.delete(name);
+            console.log('Deleted cache:', name);
+          }
+        });
+      }
+      
+      // Load main script with cache-busting
+      const timestamp = Date.now();
+      const script = document.createElement('script');
+      script.type = 'module';
+      script.src = `/src/main.tsx?t=${timestamp}`;
+      document.head.appendChild(script);
+    </script>
   </body>
 </html>
