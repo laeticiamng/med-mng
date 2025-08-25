@@ -25,7 +25,8 @@
     <!-- Preload critical scripts for faster execution -->
     <link rel="modulepreload" href="/src/main.tsx">
     <link rel="modulepreload" href="/src/App.tsx">
-    <link rel="modulepreload" href="/src/pages/Index.tsx">
+    <!-- Temporarily disable Index.tsx preload to debug React dispatcher issue -->
+    <!-- <link rel="modulepreload" href="/src/pages/Index.tsx"> -->
     
     <!-- DNS prefetch and preconnect for external resources -->
     <link rel="dns-prefetch" href="//yaincoxihiqdksxgrsrk.supabase.co">
