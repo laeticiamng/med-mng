@@ -12,155 +12,55 @@ import {
 } from 'lucide-react';
 
 export const UXToolbar: React.FC = () => {
-  // Simplified version without problematic hooks
-  const canUndo = false;
-  const canRedo = false;
-  const undo = () => console.log('Undo');
-  const redo = () => console.log('Redo');
-  const showShortcutsHelp = () => console.log('Show shortcuts');
-  const isHighContrast = false;
-  const prefersReducedMotion = false;
-
-  const toggleAccessibilityMode = () => {
-    document.body.classList.toggle('accessibility-mode');
-  };
-
-  const toggleHighContrast = () => {
-    document.body.classList.toggle('high-contrast');
-  };
-
-  const announcePageInfo = () => {
-    const pageTitle = document.title;
-    const headingsCount = document.querySelectorAll('h1, h2, h3, h4, h5, h6').length;
-    console.log(`Page ${pageTitle}. ${headingsCount} titres trouvés.`);
-  };
+  console.log('🔧 UXToolbar is rendering!');
 
   return (
     <div
-        className="fixed bottom-4 right-4 z-50 bg-background/95 backdrop-blur-sm border rounded-lg p-2 shadow-lg"
-        role="toolbar"
-        aria-label="Outils d'accessibilité et de navigation"
-      >
-        <div className="flex items-center gap-1">
-          {/* Undo/Redo */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={undo}
-                disabled={!canUndo}
-                aria-label="Annuler la dernière action (Ctrl+Z)"
-              >
-                <Undo2 className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Annuler (Ctrl+Z)</p>
-            </TooltipContent>
-          </Tooltip>
-
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={redo}
-                disabled={!canRedo}
-                aria-label="Rétablir la dernière action (Ctrl+Y)"
-              >
-                <Redo2 className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Rétablir (Ctrl+Y)</p>
-            </TooltipContent>
-          </Tooltip>
-
-          <Separator orientation="vertical" className="h-6" />
-
-          {/* Accessibility Tools */}
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={showShortcutsHelp}
-                aria-label="Afficher les raccourcis clavier (Ctrl+/)"
-              >
-                <Keyboard className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Raccourcis clavier (Ctrl+/)</p>
-            </TooltipContent>
-          </Tooltip>
-
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={toggleAccessibilityMode}
-                aria-label="Activer le mode accessibilité"
-              >
-                <Accessibility className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Mode accessibilité</p>
-            </TooltipContent>
-          </Tooltip>
-
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={toggleHighContrast}
-                aria-label="Activer le mode contraste élevé"
-                className={isHighContrast ? 'bg-accent' : ''}
-              >
-                <Eye className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Contraste élevé</p>
-            </TooltipContent>
-          </Tooltip>
-
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={announcePageInfo}
-                aria-label="Annoncer les informations de la page"
-              >
-                <Volume2 className="h-4 w-4" />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Informations de la page</p>
-            </TooltipContent>
-          </Tooltip>
-        </div>
-
-        {/* Status indicators */}
-        <div className="flex items-center gap-2 mt-2 text-xs text-muted-foreground">
-          {prefersReducedMotion && (
-            <span className="flex items-center gap-1">
-              <div className="w-2 h-2 bg-orange-500 rounded-full" />
-              Mouvement réduit
-            </span>
-          )}
-          {isHighContrast && (
-            <span className="flex items-center gap-1">
-              <div className="w-2 h-2 bg-blue-500 rounded-full" />
-              Contraste élevé
-            </span>
-          )}
-        </div>
+      className="fixed bottom-4 right-4 z-50 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg p-2 shadow-lg"
+      role="toolbar"
+      aria-label="Outils d'accessibilité et de navigation"
+      style={{
+        backgroundColor: '#ffffff',
+        border: '1px solid #e5e7eb',
+        boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)'
+      }}
+    >
+      <div className="flex items-center gap-1">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => console.log('Undo clicked!')}
+          style={{ background: '#f3f4f6', color: '#374151' }}
+        >
+          <Undo2 className="h-4 w-4" />
+        </Button>
+        
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => console.log('Redo clicked!')}
+          style={{ background: '#f3f4f6', color: '#374151' }}
+        >
+          <Redo2 className="h-4 w-4" />
+        </Button>
+        
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => console.log('Keyboard clicked!')}
+          style={{ background: '#f3f4f6', color: '#374151' }}
+        >
+          <Keyboard className="h-4 w-4" />
+        </Button>
+      </div>
+      
+      <div style={{ 
+        marginTop: '8px', 
+        fontSize: '12px', 
+        color: '#6b7280' 
+      }}>
+        🔧 Toolbar test
+      </div>
     </div>
   );
 };

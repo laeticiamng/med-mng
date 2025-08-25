@@ -4,7 +4,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { UXToolbar } from '@/components/ux/UXToolbar';
 
-console.log('🔄 Step 7: Testing UXToolbar with proper ES6 import');
+console.log('🔄 Step 8: Testing UXToolbar with inline styles');
 
 const TestPage = () => {
   return (
@@ -22,7 +22,7 @@ const TestPage = () => {
     }}>
       <div>
         <h1 style={{ fontSize: '3rem', marginBottom: '1rem' }}>MED-MNG</h1>
-        <p style={{ fontSize: '1.2rem', color: '#ccc' }}>Step 7: UXToolbar with ES6 import</p>
+        <p style={{ fontSize: '1.2rem', color: '#ccc' }}>Step 8: UXToolbar with inline styles</p>
       </div>
       
       <div style={{ 
