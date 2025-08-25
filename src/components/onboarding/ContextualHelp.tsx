@@ -76,11 +76,12 @@ export const ContextualHelp: React.FC<ContextualHelpProps> = ({
   }
 
   return (
-    <Tooltip open={isVisible} onOpenChange={setIsVisible}>
-      <TooltipTrigger asChild>
-        <div className="relative inline-block">
-          {children}
-          {shouldShow() && (
+    <TooltipProvider>
+      <Tooltip open={isVisible} onOpenChange={setIsVisible}>
+        <TooltipTrigger asChild>
+          <div className="relative inline-block">
+            {children}
+            {shouldShow() && (
               <Button
                 variant="ghost"
                 size="sm"
@@ -116,6 +117,7 @@ export const ContextualHelp: React.FC<ContextualHelpProps> = ({
             />
           </div>
         </TooltipContent>
-    </Tooltip>
+      </Tooltip>
+    </TooltipProvider>
   );
 };

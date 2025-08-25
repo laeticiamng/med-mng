@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import { Music, BookOpen, MessageSquare, Users, Sparkles, LogIn, CreditCard, Star, Zap, Shield, Award, Play, Heart, Clock, BarChart3 } from "lucide-react";
+import { Music, BookOpen, MessageSquare, Users, Sparkles, LogIn, CreditCard, Star, Zap, Shield, Award, Play, Heart, Clock } from "lucide-react";
 import { TranslatedText } from "@/components/TranslatedText";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -43,52 +43,22 @@ const Index = () => {
               variant="ghost" 
               size="sm"
               className="text-white/80 hover:text-white hover:bg-white/10 hidden sm:flex"
-              onClick={() => navigate('/help')}
-              aria-label="Centre d'aide et support"
-            >
-              Aide
-            </Button>
-            <Button 
-              variant="ghost" 
-              size="sm"
-              className="text-white/80 hover:text-white hover:bg-white/10 hidden lg:flex"
-              onClick={() => navigate('/analytics-new')}
-              aria-label="Voir les analytics"
-            >
-              Analytics
-            </Button>
-            <Button 
-              variant="ghost" 
-              size="sm"
-              className="text-white/80 hover:text-white hover:bg-white/10 hidden sm:flex"
               onClick={() => navigate('/med-mng/pricing')}
               aria-label="Voir les offres d'abonnement et tarifs"
             >
               <CreditCard className="w-4 h-4 mr-1" />
               Tarifs
             </Button>
-            <div className="flex gap-1 sm:gap-2">
-              <Button 
-                variant="ghost" 
-                size="sm"
-                className="text-white/80 hover:text-white hover:bg-white/10 hidden md:flex"
-                onClick={() => navigate('/dashboard')}
-                aria-label="Accéder au tableau de bord"
-              >
-                <BarChart3 className="w-4 h-4 mr-1" />
-                Dashboard
-              </Button>
-              <Button 
-                size="sm"
-                className="bg-white/10 backdrop-blur-sm text-white border border-white/20 hover:bg-white/20 text-xs sm:text-sm"
-                onClick={() => navigate('/med-mng/login')}
-                aria-label="Se connecter à son compte MED-MNG"
-              >
-                <LogIn className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                <span className="hidden sm:inline">Connexion</span>
-                <span className="sm:hidden">Login</span>
-              </Button>
-            </div>
+            <Button 
+              size="sm"
+              className="bg-white/10 backdrop-blur-sm text-white border border-white/20 hover:bg-white/20 text-xs sm:text-sm"
+              onClick={() => navigate('/med-mng/login')}
+              aria-label="Se connecter à son compte MED-MNG"
+            >
+              <LogIn className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Connexion</span>
+              <span className="sm:hidden">Login</span>
+            </Button>
           </div>
         </div>
       </div>
