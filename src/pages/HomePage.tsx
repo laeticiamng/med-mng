@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { NavButton } from '@/components/navigation/NavButton';
+import { findNavNode } from '@/lib/nav-schema';
+import type { NavigationContext } from '@/types/nav';
 import { 
   BookOpen, 
   Stethoscope, 
@@ -22,6 +24,13 @@ export const HomePage = () => {
   const [completedModules] = useState(12);
   const [totalModules] = useState(28);
   const progress = (completedModules / totalModules) * 100;
+
+  // Mock navigation context - in real app this would come from auth/context
+  const navContext: NavigationContext = {
+    isAuthenticated: true,
+    userRoles: ['user'],
+    featureFlags: {}
+  };
 
   const recentActivities = [
     { id: 1, type: 'ecos', title: 'Simulation cardiologie', time: '2h', completed: true },
@@ -100,7 +109,8 @@ export const HomePage = () => {
                 Perfectionnez vos compétences cliniques avec nos simulations d'examen
               </p>
               <NavButton 
-                navId="ecos" 
+                node={findNavNode("ecos")!} 
+                context={navContext}
                 className="w-full bg-blue-600 hover:bg-blue-700"
               >
                 <Play className="h-4 w-4 mr-2" />
@@ -126,7 +136,8 @@ export const HomePage = () => {
                 Apprenez avec du contenu multimédia et des parcours adaptatifs
               </p>
               <NavButton 
-                navId="edn" 
+                node={findNavNode("edn")!} 
+                context={navContext}
                 className="w-full bg-green-600 hover:bg-green-700"
               >
                 <BookOpen className="h-4 w-4 mr-2" />
@@ -152,7 +163,8 @@ export const HomePage = () => {
                 Créez et partagez des contenus musicaux éducatifs
               </p>
               <NavButton 
-                navId="medmng-create" 
+                node={findNavNode("medmng-create")!} 
+                context={navContext}
                 className="w-full bg-amber-600 hover:bg-amber-700"
               >
                 <Music className="h-4 w-4 mr-2" />
@@ -205,15 +217,15 @@ export const HomePage = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <NavButton navId="medmng-library" variant="outline" className="w-full justify-start">
+              <NavButton node={findNavNode("medmng-library")!} context={navContext} variant="outline" className="w-full justify-start">
                 <Music className="h-4 w-4 mr-2" />
                 Ma bibliothèque musicale
               </NavButton>
-              <NavButton navId="chat" variant="outline" className="w-full justify-start">
+              <NavButton node={findNavNode("chat")!} context={navContext} variant="outline" className="w-full justify-start">
                 <Users className="h-4 w-4 mr-2" />
                 Assistant IA médical
               </NavButton>
-              <NavButton navId="profile" variant="outline" className="w-full justify-start">
+              <NavButton node={findNavNode("profile")!} context={navContext} variant="outline" className="w-full justify-start">
                 <Users className="h-4 w-4 mr-2" />
                 Mon profil
               </NavButton>
