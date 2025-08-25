@@ -1,27 +1,31 @@
-import React from 'react';
+// Pure JS test without React - no imports needed
 
 const App = () => {
-  console.log('🔥 Ultra minimal App rendering...');
+  console.log('🔥 Testing pure JS without React...');
   
-  return (
-    <div style={{ 
-      minHeight: '100vh', 
-      display: 'flex', 
-      alignItems: 'center', 
-      justifyContent: 'center',
-      backgroundColor: '#1a1a2e',
-      color: 'white',
-      fontFamily: 'Arial, sans-serif'
-    }}>
-      <div style={{ textAlign: 'center' }}>
-        <h1 style={{ fontSize: '3rem', marginBottom: '1rem' }}>MED-MNG</h1>
-        <p style={{ fontSize: '1.2rem', color: '#ccc' }}>Ultra minimal test</p>
-        <p style={{ fontSize: '1rem', color: '#999', marginTop: '2rem' }}>
-          If you see this, React is working properly
-        </p>
-      </div>
+  const element = document.createElement('div');
+  element.style.cssText = `
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #1a1a2e;
+    color: white;
+    font-family: Arial, sans-serif;
+    text-align: center;
+  `;
+  
+  element.innerHTML = `
+    <div>
+      <h1 style="font-size: 3rem; margin-bottom: 1rem;">MED-MNG</h1>
+      <p style="font-size: 1.2rem; color: #ccc;">Pure JS test (no React)</p>
+      <p style="font-size: 1rem; color: #999; margin-top: 2rem;">
+        If you see this, JavaScript is working
+      </p>
     </div>
-  );
+  `;
+  
+  return element;
 };
 
 export default App;
