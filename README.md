@@ -1,5 +1,5 @@
-# 🏥 MED-MNG - Plateforme Médicale Intelligente
-**Dernière mise à jour : 28 Juillet 2025**
+# Plateforme EDN LiSA 2025
+Plateforme d'apprentissage médical pour les Epreuves Dossiers Numériques (EDN), conforme au référentiel LiSA 2025. Spécialisée dans l'enseignement des 367 items de connaissances médicaux avec tableaux Rang A/B et compétences OIC.
 
 [![CI/CD Pipeline](https://github.com/med-mng/med-mng/actions/workflows/ci.yml/badge.svg)](https://github.com/med-mng/med-mng/actions/workflows/ci.yml)
 [![Performance](https://img.shields.io/badge/Performance-B+-green)](https://lighthouse.com)
@@ -8,28 +8,26 @@
 [![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue)](./src/types/)
 [![Production Ready](https://img.shields.io/badge/Production-Ready-success)](./docs/security/)
 
-## 🎯 **PLATEFORME SÉCURISÉE - GRADE A+ (95/100)**
+## 🎯 Fonctionnalités Principales
 
-### 🛡️ **AMÉLIORATIONS SÉCURITÉ RÉCENTES**
-- ✅ **Secrets sécurisés** : Supprimé tous les identifiants hardcodés
-- ✅ **TypeScript strict** : Élimination complète des types `any`
-- ✅ **CSP renforcée** : Suppression de `'unsafe-inline'`
-- ✅ **Monitoring complet** : Intégration Sentry/DataDog/Webhooks
-- ✅ **Architecture propre** : Réorganisation et structure maintenir
+### Apprentissage EDN
+- **367 Items de Connaissances** : Tous les items EDN 2025 avec contenus structurés
+- **Tableaux Rang A/B** : Connaissances selon le référentiel LiSA officiel
+- **Compétences OIC** : 7 compétences génériques d'intégration
+- **Progression personnalisée** : Suivi individuel des apprentissages
 
-### ✅ **ÉTAT ACTUEL (28 Juillet 2025)**
-- 🏗️ **Architecture** : React + TypeScript + Supabase (Solide)
-- 🎵 **Fonctionnalités Core** : Chat IA + Génération Musicale + EDN/ECOS (Opérationnelles)
-- 🔐 **Sécurité** : **HAUTEMENT SÉCURISÉE** - 98.3% Grade A ✅
-- 🗄️ **Base de Données** : 95 tables + RLS complet (**17 problèmes mineurs restants**)
-- 📚 **Documentation** : Complète et structurée
-- ⚡ **Edge Functions** : Structure présente (code non accessible actuellement)
+### Modules Pédagogiques
+- **EDN** : Navigation et exploration des items médicaux (IC-1 à IC-367)
+- **ECOS** : Situations d'Examen Clinique Objectif Structuré
+- **Tableaux interactifs** : Visualisation des connaissances Rang A et Rang B
+- **Quiz adaptatifs** : Évaluation contextuelle par item
+- **Scènes immersives** : Apprentissage par cas cliniques
 
-### 🎉 **SÉCURITÉ CRITIQUE CORRIGÉE**
-- **✅ Critique** : 110 → 17 problèmes (-85% résolution)
-- **✅ RLS Policies** : Toutes les politiques de sécurité activées
-- **✅ Functions** : 27 fonctions critiques sécurisées
-- **📋 Reste** : 17 problèmes mineurs non-critiques
+### Outils Pédagogiques
+- **Chat Médical IA** : Assistant spécialisé dans les connaissances EDN
+- **Génération Musicale** : Contenus audio pour mémorisation (Suno AI)
+- **Contenus Multimédias** : Supports visuels et interactifs
+- **Suivi de Progression** : Analytics et tableaux de bord
 
 ---
 
