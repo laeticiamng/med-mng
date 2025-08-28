@@ -44,6 +44,7 @@ const MedMngLogin = lazy(() => import("./pages/MedMngLogin").then(module => ({ d
 const MedMngSignup = lazy(() => import("./pages/MedMngSignup").then(module => ({ default: module.MedMngSignup })));
 const MedMngPricing = lazy(() => import("./pages/MedMngPricing").then(module => ({ default: module.MedMngPricing })));
 const MedMngSubscribe = lazy(() => import("./pages/MedMngSubscribe").then(module => ({ default: module.MedMngSubscribe })));
+const MedMngSuccess = lazy(() => import("./pages/MedMngSuccess").then(module => ({ default: module.MedMngSuccess })));
 const MedMngDashboard = lazy(() => import("./pages/med-mng/Dashboard"));
 const MedMngCreate = lazy(() => import("./pages/med-mng/Create"));
 const MedMngLibrary = lazy(() => import("./pages/med-mng/Library"));
@@ -201,8 +202,9 @@ const AppWithUX = () => {
                                             <Route path="/auth/signup" element={<MedMngSignup />} />
                                             <Route path="/med-mng/login" element={<MedMngLogin />} />
                                             <Route path="/med-mng/signup" element={<MedMngSignup />} />
-                                            <Route path="/med-mng/pricing" element={<MedMngPricing />} />
+                                             <Route path="/med-mng/pricing" element={<MedMngPricing />} />
                                              <Route path="/med-mng/subscribe/:planId" element={<ProtectedRoute><MedMngSubscribe /></ProtectedRoute>} />
+                                             <Route path="/med-mng/success" element={<ProtectedRoute><MedMngSuccess /></ProtectedRoute>} />
                                              <Route path="/med-mng/create" element={<ProtectedRoute><MedMngCreate /></ProtectedRoute>} />
                                              <Route path="/med-mng/library" element={<ProtectedRoute><MedMngLibrary /></ProtectedRoute>} />
                                              <Route path="/med-mng/dashboard" element={<ProtectedRoute><MedMngDashboard /></ProtectedRoute>} />
