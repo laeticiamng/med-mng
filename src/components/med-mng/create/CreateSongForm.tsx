@@ -3,79 +3,95 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Wand2 } from 'lucide-react';
-import { ContentTypeSelector } from './ContentTypeSelector';
 import { ItemSelector } from './ItemSelector';
-import { SituationSelector } from './SituationSelector';
+import { RangSelector } from './RangSelector';
 import { StyleSelector } from './StyleSelector';
 import { SelectionPreview } from './SelectionPreview';
 
 interface CreateSongFormProps {
-  contentType: string;
   selectedItem: string;
   selectedRang: string;
-  selectedSituation: string;
   style: string;
   isGenerating: boolean;
   selectedTitle: string;
   canGenerate: boolean;
-  onContentTypeChange: (value: string) => void;
   onItemChange: (value: string) => void;
   onRangChange: (value: string) => void;
-  onSituationChange: (value: string) => void;
   onStyleChange: (value: string) => void;
   onGenerate: () => void;
 }
 
 export const CreateSongForm: React.FC<CreateSongFormProps> = ({
-  contentType,
   selectedItem,
   selectedRang,
-  selectedSituation,
   style,
   isGenerating,
   selectedTitle,
   canGenerate,
-  onContentTypeChange,
   onItemChange,
   onRangChange,
-  onSituationChange,
   onStyleChange,
   onGenerate
 }) => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Sélection du contenu</CardTitle>
+        <CardTitle className="flex items-center gap-2">
+          <Wand2 className="h-5 w-5" />
+          Créer votre chanson médicale
+        </CardTitle>
+        <p className="text-sm text-gray-600">
+          Suivez les étapes pour générer une chanson personnalisée basée sur un item EDN
+        </p>
       </CardHeader>
       <CardContent className="space-y-6">
-        <ContentTypeSelector
-          contentType={contentType}
-          onContentTypeChange={onContentTypeChange}
-          disabled={isGenerating}
+        {/* Étape 1: Sélection de l'item */}
+        <ItemSelector
+          selectedItem={selectedItem}
+          onItemSelect={onItemChange}
         />
 
-        {contentType === 'item' && (
-          <ItemSelector
-            selectedItem={selectedItem}
-            onItemSelect={onItemChange}
-          />
-        )}
-
-        {contentType === 'situation' && (
-          <SituationSelector
-            selectedSituation={selectedSituation}
-            onSituationChange={onSituationChange}
+        {/* Étape 2: Sélection du rang (seulement si un item est sélectionné) */}
+        {selectedItem && (
+          <RangSelector
+            selectedRang={selectedRang}
+            onRangChange={onRangChange}
             disabled={isGenerating}
           />
         )}
 
-        <StyleSelector
-          style={style}
-          onStyleChange={onStyleChange}
-          disabled={isGenerating}
-        />
+        {/* Étape 3: Sélection du style (seulement si un rang est sélectionné) */}
+        {selectedItem && selectedRang && (
+          <StyleSelector
+            style={style}
+            onStyleChange={onStyleChange}
+            disabled={isGenerating}
+            allowCombinations={true}
+          />
+        )}
 
-        <SelectionPreview title={selectedTitle} />
+        {/* Récapitulatif de la sélection */}
+        {selectedTitle && (
+          <SelectionPreview title={selectedTitle} />
+        )}
+
+        {/* Indicateurs de progression */}
+        <div className="flex items-center justify-center space-x-4 py-4">
+          <div className={`flex items-center space-x-2 ${selectedItem ? 'text-green-600' : 'text-gray-400'}`}>
+            <div className={`w-3 h-3 rounded-full ${selectedItem ? 'bg-green-500' : 'bg-gray-300'}`}></div>
+            <span className="text-sm font-medium">Item</span>
+          </div>
+          <div className={`w-8 h-0.5 ${selectedItem ? 'bg-green-300' : 'bg-gray-200'}`}></div>
+          <div className={`flex items-center space-x-2 ${selectedRang ? 'text-green-600' : 'text-gray-400'}`}>
+            <div className={`w-3 h-3 rounded-full ${selectedRang ? 'bg-green-500' : 'bg-gray-300'}`}></div>
+            <span className="text-sm font-medium">Rang</span>
+          </div>
+          <div className={`w-8 h-0.5 ${selectedRang ? 'bg-green-300' : 'bg-gray-200'}`}></div>
+          <div className={`flex items-center space-x-2 ${style ? 'text-green-600' : 'text-gray-400'}`}>
+            <div className={`w-3 h-3 rounded-full ${style ? 'bg-green-500' : 'bg-gray-300'}`}></div>
+            <span className="text-sm font-medium">Style</span>
+          </div>
+        </div>
 
         <Button
           onClick={onGenerate}

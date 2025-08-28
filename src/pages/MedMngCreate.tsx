@@ -34,10 +34,8 @@ const MedMngCreateComponent = () => {
   const navigate = useNavigate();
   const medMngApi = useMedMngApi();
   
-  const [contentType, setContentType] = useState(''); // 'item' ou 'situation'
   const [selectedItem, setSelectedItem] = useState('');
-  const [selectedRang, setSelectedRang] = useState(''); // 'A' ou 'B'
-  const [selectedSituation, setSelectedSituation] = useState('');
+  const [selectedRang, setSelectedRang] = useState(''); // 'A', 'B' ou 'AB'
   const [style, setStyle] = useState('');
 
   const { data: quota, isLoading: quotaLoading, error: quotaError } = useQuery({
@@ -55,25 +53,15 @@ const MedMngCreateComponent = () => {
   } = useSongGeneration();
 
   const getSelectedTitle = () => {
-    if (contentType === 'item' && selectedItem && selectedRang) {
+    if (selectedItem && selectedRang) {
       const item = ednitems.find(i => i.code === selectedItem);
       return `${item?.title} - Rang ${selectedRang}`;
-    }
-    if (contentType === 'situation' && selectedSituation) {
-      const situation = situations.find(s => s.code === selectedSituation);
-      return situation?.title;
     }
     return '';
   };
 
   const canGenerate = (): boolean => {
-    if (contentType === 'item') {
-      return !!(selectedItem && selectedRang && style);
-    }
-    if (contentType === 'situation') {
-      return !!(selectedSituation && style);
-    }
-    return false;
+    return !!(selectedItem && selectedRang && style);
   };
 
   const handleGenerate = async () => {
@@ -91,10 +79,10 @@ const MedMngCreateComponent = () => {
 
     const title = getSelectedTitle();
     await generateSong(
-      contentType,
+      'item', // Toujours 'item' maintenant
       selectedItem,
       selectedRang,
-      selectedSituation,
+      '', // Plus de situation
       style,
       title,
       quota
@@ -204,19 +192,15 @@ const MedMngCreateComponent = () => {
 
           <div className="max-w-4xl mx-auto">
             <CreateSongContainer
-              contentType={contentType}
               selectedItem={selectedItem}
               selectedRang={selectedRang}
-              selectedSituation={selectedSituation}
               style={style}
               isGenerating={isGenerating}
               generatedSong={generatedSong}
               selectedTitle={getSelectedTitle()}
               canGenerate={canGenerate()}
-              onContentTypeChange={setContentType}
               onItemChange={setSelectedItem}
               onRangChange={setSelectedRang}
-              onSituationChange={setSelectedSituation}
               onStyleChange={setStyle}
               onGenerate={handleGenerate}
               onPlay={playGeneratedSong}
