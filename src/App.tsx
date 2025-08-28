@@ -76,6 +76,7 @@ const TestExtraction = lazy(() => import("./pages/TestExtraction"));
 const EdnImmersive = lazy(() => import("./pages/EdnImmersive"));
 const EdnComplete = lazy(() => import("./pages/EdnComplete"));
 const EdnItem = lazy(() => import("./pages/EdnItem"));
+const CompletePlatform = lazy(() => import("./pages/CompletePlatform"));
 
 import { AuthProvider } from "./components/med-mng/AuthProvider";
 import { ProtectedRoute } from "./components/med-mng/withAuth";
@@ -160,7 +161,7 @@ const AppWithUX = () => {
                                       <GlobalErrorBoundary>
                                         <Suspense fallback={<PageSkeleton />}>
                                           <Routes>
-                                            <Route path="/" element={<Index />} />
+                                            <Route path="/" element={<CompletePlatform />} />
                                             <Route path="/generator" element={<Generator />} />
                                             <Route path="/monitoring" element={<Monitoring />} />
                                             <Route path="/analytics" element={<Analytics />} />
