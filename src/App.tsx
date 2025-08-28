@@ -25,19 +25,12 @@ import { GlobalMusicPlayer } from "@/components/layout/GlobalMusicPlayer";
 
 // ⚡ PAGES LAZY LOADED pour performances optimales
 const Index = lazy(() => import("./pages/Index"));
-const HomePage = lazy(() => import("./pages/HomePage").then(module => ({ default: module.HomePage })));
-const GeneratorPage = lazy(() => import("./pages/GeneratorPage").then(module => ({ default: module.GeneratorPage })));
-const ChatPage = lazy(() => import("./pages/ChatPage").then(module => ({ default: module.ChatPage })));
-const AuditPage = lazy(() => import("./pages/AuditPage").then(module => ({ default: module.AuditPage })));
-const AdminPanelPage = lazy(() => import("./pages/AdminPanelPage").then(module => ({ default: module.AdminPanelPage })));
 const Generator = lazy(() => import("./pages/Generator"));
 const Monitoring = lazy(() => import("./pages/Monitoring"));
 const Analytics = lazy(() => import("./pages/Analytics").then(module => ({ default: module.Analytics })));
 const Admin = lazy(() => import("./pages/Admin").then(module => ({ default: module.Admin })));
 const Export = lazy(() => import("./pages/Export").then(module => ({ default: module.Export })));
 const LibraryPage = lazy(() => import("./pages/LibraryPage"));
-const MusicLibraryPage = lazy(() => import("./components/features/MusicLibraryPage").then(module => ({ default: module.MusicLibraryPage })));
-const ProfilePage = lazy(() => import("./components/features/ProfilePage").then(module => ({ default: module.ProfilePage })));
 const EcosIndex = lazy(() => import("./pages/EcosIndex"));
 const EcosScenario = lazy(() => import("./pages/EcosScenario"));
 const AuditComplete = lazy(() => import("./pages/AuditComplete"));
@@ -161,19 +154,13 @@ const AppWithUX = () => {
                                     <PageThemeProvider>
                                       <GlobalErrorBoundary>
                                         <Suspense fallback={<PageSkeleton />}>
-                                           <Routes>
-                                             <Route path="/" element={<Index />} />
-                                             <Route path="/home" element={<HomePage />} />
-                                             <Route path="/generator" element={<GeneratorPage />} />
-                                             <Route path="/chat" element={<ChatPage />} />
-                                             <Route path="/audit" element={<AuditPage />} />
-                                             <Route path="/admin-panel" element={<AdminPanelPage />} />
-                                             <Route path="/music-library" element={<MusicLibraryPage />} />
-                                             <Route path="/profile" element={<ProfilePage />} />
-                                             <Route path="/monitoring" element={<Monitoring />} />
-                                             <Route path="/analytics" element={<Analytics />} />
-                                             <Route path="/admin" element={<Admin />} />
-                                             <Route path="/export" element={<Export />} />
+                                          <Routes>
+                                            <Route path="/" element={<Index />} />
+                                            <Route path="/generator" element={<Generator />} />
+                                            <Route path="/monitoring" element={<Monitoring />} />
+                                            <Route path="/analytics" element={<Analytics />} />
+                                            <Route path="/admin" element={<Admin />} />
+                                            <Route path="/export" element={<Export />} />
                                             
                                             {/* EDN Interface Unifiée */}
                                             <Route path="/edn" element={<EdnComplete />} />
@@ -188,8 +175,9 @@ const AppWithUX = () => {
                                             <Route path="/ecos" element={<EcosIndex />} />
                                             <Route path="/ecos/:scenarioId" element={<EcosScenario />} />
                                             
-                                             {/* Unified audit page */}
-                                             <Route path="/audit-completeness" element={<AuditCompleteness />} />
+                                            {/* Unified audit page */}
+                                            <Route path="/audit" element={<AuditComplete />} />
+                                            <Route path="/audit-completeness" element={<AuditCompleteness />} />
                                            
                                             {/* Redirect all old audit routes to new unified page */}
                                             <Route path="/audit-general" element={<Navigate to="/audit" replace />} />
