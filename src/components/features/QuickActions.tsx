@@ -18,7 +18,7 @@ import {
   Heart,
   Download,
   Upload,
-  Refresh,
+  RefreshCw,
   Filter,
   SortAsc,
   Grid,
@@ -45,1317 +45,413 @@ import {
   SkipBack,
   Shuffle,
   Repeat,
-  Maximize,
-  Minimize,
-  Eye,
-  EyeOff,
-  Lock,
-  Unlock,
-  CheckCircle,
-  XCircle,
-  AlertCircle,
-  Info,
-  Sun,
-  Moon,
-  Palette,
-  Globe,
-  Wifi,
-  WifiOff,
-  Battery,
-  Bluetooth,
-  Cast,
-  MoreVertical,
-  Command,
   Home,
   ArrowRight,
   ArrowLeft,
-  ArrowUp,
-  ArrowDown,
-  ChevronRight,
-  ChevronLeft,
-  ChevronUp,
-  ChevronDown,
   Menu,
   X,
   Plus,
-  Minus,
   Edit,
   Trash2,
   Copy,
-  Cut,
   Save,
   FolderOpen,
   Folder,
   File,
   Image,
-  Video as VideoIcon,
-  Music2,
-  Archive,
-  Package,
-  Box,
   Database,
   Server,
   Cloud,
   HardDrive,
   Smartphone,
-  Tablet,
   Monitor,
   Laptop,
-  Printer,
-  Scanner,
-  Gamepad2,
-  Radio,
-  Tv,
-  Watch,
-  Car,
-  Bike,
-  Plane,
-  Train,
-  Bus,
-  Truck,
-  Ship,
   MapPin,
   Navigation,
   Compass,
-  Route,
-  Map,
-  Flag,
-  Tag,
-  Hash,
-  AtSign,
-  Percent,
-  Dollar,
-  Euro,
-  Pound,
-  Yen,
   CreditCard,
-  Wallet,
   ShoppingCart,
-  ShoppingBag,
-  Gift,
   Coffee,
-  Pizza,
   Utensils,
-  Wine,
-  Beer,
-  Cocktail,
-  IceCream,
-  Cake,
-  Apple,
-  Cherry,
-  Grape,
-  Banana,
-  Carrot,
   Leaf,
-  Tree,
+  Trees,
   Flower,
-  Flower2,
-  Sun as SunIcon,
-  Moon as MoonIcon,
-  Star as StarIcon,
-  Cloud as CloudIcon,
+  Sun,
+  Moon,
   CloudRain,
-  CloudSnow,
-  Zap as ZapIcon,
-  Rainbow,
-  Umbrella,
-  Thermometer,
-  Wind,
-  Snowflake,
-  Droplets,
   Waves,
   Mountain,
-  Volcano,
-  TreePine,
-  Palmtree,
-  Cactus,
-  Sprout,
-  Seedling,
   Bug,
-  Bird,
   Fish,
-  Rabbit,
-  Turtle,
-  Dog,
   Cat,
-  Heart as HeartIcon,
+  Dog,
   Smile,
-  Frown,
-  Meh,
-  Angry,
-  Laugh,
-  Crying,
-  Kiss,
   ThumbsUp,
-  ThumbsDown,
-  Clap,
-  Wave,
-  Peace,
-  Victory,
-  CrossedFingers,
-  Muscle,
-  Pray,
-  Handshake,
   Crown,
-  Gem,
-  Ring,
-  Medal,
   Trophy,
-  Award as AwardIcon,
-  Ribbon,
-  Rosette,
-  Badge,
   Shield,
-  ShieldCheck,
-  Lock as LockIcon,
-  Unlock as UnlockIcon,
+  Lock,
   Key,
-  Fingerprint,
-  Eye as EyeIcon,
-  EyeOff as EyeOffIcon,
+  Eye,
+  EyeOff,
   Glasses,
-  Sunglasses,
-  Hat,
-  Shirt,
-  Tie,
   Briefcase,
-  Backpack,
-  Handbag,
-  Luggage,
-  UmbrellaBeach,
-  Tent,
-  Campfire,
-  Axe,
   Hammer,
   Wrench,
-  Screwdriver,
-  Drill,
-  Saw,
   Scissors,
-  Ruler,
-  PaintBucket,
-  Brush,
   Pen,
   Pencil,
-  Eraser,
-  Marker,
-  Crayon,
-  PenTool,
-  Feather,
-  Ink,
-  Stamp,
-  Paperclip,
-  Link,
-  Unlink,
-  Chain,
-  Anchor,
-  Magnet,
-  Puzzle,
-  Gamepad,
+  Paintbrush,
+  Gamepad2,
   Dice1,
-  Dice2,
-  Dice3,
-  Dice4,
-  Dice5,
-  Dice6,
-  Spade,
-  Club,
-  Heart2,
   Diamond,
-  Chess,
-  Target as TargetIcon,
-  Crosshair,
-  Focus,
-  Scan,
-  QrCode,
-  Barcode,
-  Binary,
   Code,
   Terminal,
-  Bug as BugIcon,
-  Wrench as WrenchIcon,
-  Cog,
-  Settings2,
-  Sliders,
-  Toggles,
   Power,
-  PowerOff,
-  Plug,
-  Cable,
-  Usb,
-  HardDrive as HardDriveIcon,
-  SdCard,
-  Sim,
-  MemoryStick,
-  FloppyDisk,
+  Battery,
+  Wifi,
+  Bluetooth,
   Disc,
-  Disc2,
-  Disc3,
   PlayCircle,
-  PauseCircle,
-  StopCircle,
-  RecordCircle,
-  Rewind,
-  FastForward,
-  VolumeOff,
-  Volume1,
-  Volume2 as Volume2Icon,
   VolumeX,
-  Headphones as HeadphonesIcon,
   Speaker,
-  Radio as RadioIcon,
-  Podcast,
-  Rss,
-  Wifi as WifiIcon,
-  WifiOff as WifiOffIcon,
-  Bluetooth as BluetoothIcon,
-  Nfc,
-  Cast as CastIcon,
-  Airplay,
-  Chromecast,
-  Tv2,
-  MonitorSpeaker,
-  Projector,
+  Radio,
+  Tv,
   Webcam,
-  Camera as CameraIcon,
-  Video2,
   Film,
-  Clapperboard,
-  Image as ImageIcon,
   Images,
-  Palette as PaletteIcon,
-  Brush as BrushIcon,
-  Paintbrush,
-  Pipette,
-  Dropper,
-  Crop,
-  RotateCcw,
-  RotateCw,
-  FlipHorizontal,
-  FlipVertical,
+  Palette,
   Move,
   MousePointer,
-  MousePointer2,
-  Hand,
-  Grab,
-  Pointer,
-  Click,
-  CursorArrow,
-  PlusSquare,
-  MinusSquare,
   Square,
   Circle,
   Triangle,
-  Hexagon,
-  Octagon,
-  Pentagon,
-  Diamond as DiamondIcon,
-  Sparkles as SparklesIcon,
-  Sparkle,
-  Zap2,
+  Sparkles,
   Flame,
-  Sun2,
   Sunrise,
-  Sunset,
-  Moon2,
   Eclipse,
-  Star2,
-  Star3,
-  Star4,
-  Star5,
-  Star6,
-  Comet,
-  Planet,
-  Galaxy,
-  Orbit,
-  Satellite,
   Rocket,
-  Ufo,
-  Alien,
-  Ghost,
-  Skull,
-  Crossbones,
-  Biohazard,
-  Radioactive,
   Atom,
-  Dna,
   Microscope,
   TestTube,
-  Beaker,
-  Flask,
-  Syringe,
   Pill,
-  Capsule,
-  Bandage,
-  Thermometer as ThermometerIcon,
-  Stethoscope as StethoscopeIcon,
-  Heartbeat,
-  Pulse,
-  Activity as ActivityIcon,
-  Zap3,
-  FlashOff,
-  Power2,
-  Battery as BatteryIcon,
-  BatteryCharging,
-  BatteryFull,
-  BatteryLow,
-  BatteryWarning,
-  Plug2,
-  Unplug,
-  Zap4,
-  FlashOn,
-  FlashAuto,
+  Thermometer,
   Flashlight,
-  FlashlightOff,
   Lamp,
-  LampCeiling,
-  LampDesk,
-  LampFloor,
-  LampWall,
-  Lightbulb as LightbulbIcon,
-  LightbulbOff,
-  Candle,
-  Torch,
-  Fire,
-  Campfire as CampfireIcon,
-  Fireplace,
-  Flame as FlameIcon,
-  Hot,
-  Cold,
-  Snowflake as SnowflakeIcon,
-  AirVent,
   Fan,
-  Wind as WindIcon,
-  Tornado,
-  Hurricane,
-  Cyclone,
-  Twister,
-  Storm,
-  Lightning,
-  Bolt,
-  Thunder,
-  Rain,
-  Drizzle,
-  CloudRain as CloudRainIcon,
-  CloudDrizzle,
-  CloudHail,
-  CloudSnow as CloudSnowIcon,
-  CloudSun,
-  CloudMoon,
-  PartlyCloudy,
-  Overcast,
-  Fog,
-  Haze,
-  Mist,
-  Smoke,
-  Smog,
-  AirPollution,
-  Dust,
-  Sand,
-  Sandstorm,
-  Blizzard,
-  Avalanche,
-  Earthquake,
-  Tsunami,
-  Flood,
-  Drought,
-  Wildfire,
-  Tornado2,
-  Hurricane2,
-  Typhoon,
-  Cyclone2,
-  MeteorShower,
-  SolarFlare,
-  Aurora,
-  Comet2,
-  Asteroid,
-  BlackHole,
-  Wormhole,
-  TimeMachine,
-  Clock as ClockIcon,
-  Clock2,
-  Clock3,
-  Clock4,
-  Clock5,
-  Clock6,
-  Clock7,
-  Clock8,
-  Clock9,
-  Clock10,
-  Clock11,
-  Clock12,
   AlarmClock,
-  Timer as TimerIcon,
-  Stopwatch,
-  Countdown,
-  Hourglass,
-  Calendar as CalendarIcon,
-  Calendar2,
+  Timer,
   CalendarDays,
-  CalendarCheck,
-  CalendarX,
-  CalendarPlus,
-  CalendarMinus,
-  CalendarHeart,
-  CalendarClock,
-  CalendarRange,
-  Date,
-  Schedule,
-  Appointment,
-  Event,
-  Meeting,
-  Conference,
-  Seminar,
-  Workshop,
-  Training,
-  Course,
-  Lesson,
-  Lecture,
-  Presentation,
-  Slideshow,
-  Projector2,
-  Screen,
-  Display,
-  Monitor as MonitorIcon,
-  Desktop,
-  Computer,
-  Laptop as LaptopIcon,
-  Tablet as TabletIcon,
-  Smartphone as SmartphoneIcon,
-  Phone,
-  PhoneCall,
-  PhoneIncoming,
-  PhoneOutgoing,
-  PhoneMissed,
-  PhoneOff,
-  Voicemail,
-  MessageCircle,
-  MessageSquare as MessageSquareIcon,
-  Mail,
-  MailOpen,
-  Inbox,
-  Send,
-  Reply,
-  ReplyAll,
-  Forward,
-  At,
-  AtSign as AtSignIcon,
-  Hash as HashIcon,
-  Mention,
-  Tag as TagIcon,
-  Label,
-  Bookmark as BookmarkIcon,
-  BookmarkPlus,
-  BookmarkMinus,
-  BookmarkCheck,
-  BookmarkX,
-  BookOpen as BookOpenIcon,
-  Book,
-  BookCopy,
-  BookKey,
-  BookLock,
-  BookMarked,
-  Notebook,
-  NotebookPen,
-  NotebookTabs,
-  Journal,
-  Diary,
-  Library,
-  Archive as ArchiveIcon,
-  Package as PackageIcon,
-  Box as BoxIcon,
-  Container,
-  Crate,
-  Barrel,
-  Bucket,
-  Basket,
-  Bag,
-  ShoppingBag as ShoppingBagIcon,
-  ShoppingCart as ShoppingCartIcon,
-  Store,
-  Shop,
-  Market,
-  Mall,
-  Retail,
-  Wholesale,
-  Warehouse,
-  Factory,
-  Industry,
-  Manufacturing,
-  Production,
-  Assembly,
-  Quality,
-  Control,
-  Inspection,
-  Testing,
-  Verification,
-  Certification,
-  Approval,
-  Validation,
-  Authentication,
-  Authorization,
-  Permission,
-  Access,
-  Security,
-  Privacy,
-  Confidential,
-  Secret,
-  Hidden,
-  Invisible,
-  Visible,
-  Show,
-  Hide,
-  Reveal,
-  Conceal,
-  Mask,
-  Unmask,
-  Cover,
-  Uncover,
-  Protect,
-  Defend,
-  Guard,
-  Shield as ShieldIcon,
-  ShieldAlert,
-  ShieldCheck as ShieldCheckIcon,
-  ShieldX,
-  ShieldOff,
-  Armor,
-  Helmet,
-  Sword,
-  Axe as AxeIcon,
-  Dagger,
-  Bow,
-  Arrow,
-  Target2,
-  Bullseye,
-  Dart,
-  Spear,
-  Lance,
-  Trident,
-  Mace,
-  Club,
-  Hammer as HammerIcon,
-  Sledgehammer,
-  Pickaxe,
-  Shovel,
-  Rake,
-  Hoe,
-  Trowel,
-  Scissors as ScissorsIcon,
-  Knife,
-  ForkKnife,
-  Spoon,
-  Chopsticks,
-  Plate,
-  Bowl,
-  Cup,
-  Glass,
-  Mug,
-  Bottle,
-  BottleWater,
-  Can,
-  Jar, 
-  Pot,
-  Pan,
-  Kettle,
-  Teapot,
-  CoffeeCup,
-  TeaCup,
-  WineGlass,
-  Cocktail as CocktailIcon,
-  Beer as BeerIcon,
-  Champagne,
-  Whiskey,
-  Vodka,
-  Rum,
-  Gin,
-  Tequila,
-  Sake,
-  Soda,
-  Juice,
-  Smoothie,
-  Milkshake,
-  IceCream as IceCreamIcon,
-  Popsicle,
-  Candy,
-  Chocolate,
-  Cookie,
-  Donut,
-  Cake as CakeIcon,
-  Cupcake,
-  Pie,
-  Tart,
-  Pastry,
-  Croissant,
-  Bagel,
-  Bread,
-  Toast,
-  Sandwich,
-  Burger,
-  HotDog,
-  Pizza as PizzaIcon,
-  Taco,
-  Burrito,
-  Sushi,
-  Ramen,
-  Noodles,
-  Pasta,
-  Spaghetti,
-  Rice,
-  Curry,
-  Stew,
-  Soup,
-  Salad,
-  Fruit,
-  Vegetable,
-  Apple as AppleIcon,
-  Orange,
-  Banana as BananaIcon,
-  Grape as GrapeIcon,
-  Cherry as CherryIcon,
-  Strawberry,
-  Peach,
-  Pear,
-  Pineapple,
-  Mango,
-  Coconut,
-  Lemon,
-  Lime,
-  Kiwi,
-  Melon,
-  Watermelon,
-  Avocado,
-  Tomato,
-  Cucumber,
-  Carrot as CarrotIcon,
-  Potato,
-  Onion,
-  Garlic,
-  Pepper,
-  Chili,
-  Corn,
-  Peas,
-  Beans,
-  Broccoli,
-  Cauliflower,
-  Cabbage,
-  Lettuce,
-  Spinach,
-  Celery,
-  Radish,
-  Beet,
-  Turnip,
-  Mushroom,
-  Herb,
-  Spice,
-  Salt,
-  Sugar,
-  Honey,
-  Oil,
-  Vinegar,
-  Sauce,
-  Ketchup,
-  Mustard,
-  Mayo,
-  Cheese,
-  Butter,
-  Milk,
-  Cream,
-  Yogurt,
-  Egg,
-  Meat,
-  Chicken,
-  Beef,
-  Pork,
-  Lamb,
-  Fish as FishIcon,
-  Shrimp,
-  Crab,
-  Lobster,
-  Oyster,
-  Clam,
-  Mussel,
-  Squid,
-  Octopus,
-  Tuna,
-  Salmon,
-  Cod,
-  Sardine,
-  Anchovy,
-  Herring,
-  Mackerel,
-  Trout,
-  Bass,
-  Shark,
-  Whale,
-  Dolphin,
-  Seal,
-  Walrus,
-  Penguin,
-  Bird as BirdIcon,
-  Eagle,
-  Hawk,
-  Owl,
-  Parrot,
-  Peacock,
-  Swan,
-  Duck,
-  Goose,
-  Chicken2,
-  Rooster,
-  Turkey,
-  Pigeon,
-  Dove,
-  Crow,
-  Raven,
-  Robin,
-  Sparrow,
-  Canary,
-  Flamingo,
-  Heron,
-  Crane,
-  Stork,
-  Pelican,
-  Seagull,
-  Albatross,
-  Puffin,
-  Kingfisher,
-  Woodpecker,
-  Hummingbird,
-  Bee,
-  Butterfly,
-  Dragonfly,
-  Ladybug,
-  Spider,
-  Ant,
-  Fly,
-  Mosquito,
-  Wasp,
-  Hornet,
-  Mantis,
-  Cricket,
-  Grasshopper,
-  Locust,
-  Beetle,
-  Cockroach,
-  Centipede,
-  Millipede,
-  Scorpion,
-  Tarantula,
-  Worm,
-  Caterpillar,
-  Snail,
-  Slug,
-  Jellyfish,
-  Starfish,
-  SeaHorse,
-  Coral,
-  Seaweed,
-  Plankton,
-  Algae,
-  Moss,
-  Fern,
-  Grass,
-  Weed,
-  Flower as FlowerIcon,
-  Rose,
-  Tulip,
-  Daisy,
-  Sunflower,
-  Lily,
-  Orchid,
-  Lotus,
-  Hibiscus,
-  Jasmine,
-  Lavender,
-  Dandelion,
-  Poppy,
-  Violet,
-  Iris,
-  Daffodil,
-  Chrysanthemum,
-  Carnation,
-  Peony,
-  Magnolia,
-  Cherry2,
-  Blossom,
-  Petal,
-  Stem,
-  Leaf as LeafIcon,
-  Branch,
-  Twig,
-  Bark,
-  Root,
-  Seed,
-  Nut,
-  Acorn,
-  Pinecone,
-  Mushroom2,
-  Toadstool,
-  Lichen,
-  Vine,
-  Ivy,
-  Bamboo,
-  Reed,
-  Cattail,
-  Willow,
-  Oak,
-  Pine,
-  Spruce,
-  Fir,
-  Cedar,
-  Redwood,
-  Sequoia,
-  Maple,
-  Birch,
-  Elm,
-  Ash,
-  Poplar,
-  Aspen,
-  Sycamore,
-  Chestnut,
-  Walnut,
-  Hazel,
-  Almond,
-  Olive,
-  Fig,
-  Date,
-  Palm,
-  Coconut2,
-  Banana2,
-  Plantain,
-  Papaya,
-  Guava,
-  Passion,
-  Dragon,
-  Star3,
-  Lychee,
-  Rambutan,
-  Durian,
-  Jackfruit,
-  Breadfruit,
-  Tamarind,
-  Pomegranate,
-  Persimmon,
-  Apricot,
-  Plum,
-  Nectarine,
-  Quince,
-  Medlar,
-  Elderberry,
-  Blackberry,
-  Raspberry,
-  Blueberry,
-  Cranberry,
-  Gooseberry,
-  Currant,
-  Boysenberry,
-  Mulberry,
-  Cloudberry,
-  Lingonberry,
-  Huckleberry,
-  Chokeberry,
-  Serviceberry,
-  Buffaloberry,
-  Salmonberry,
-  Thimbleberry,
-  Dewberry,
-  Loganberry,
-  Tayberry,
-  Marionberry,
-  Ollalieberry,
-  Youngberry
+  Map,
+  Route,
+  Flag
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { useToast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils';
 
 interface QuickAction {
   id: string;
-  label: string;
+  title: string;
+  description: string;
   icon: React.ComponentType<any>;
+  category: string;
   action: () => void;
-  category: 'primary' | 'secondary' | 'navigation' | 'tools' | 'settings';
-  tooltip: string;
   badge?: string;
-  hotkey?: string;
-  disabled?: boolean;
 }
 
-interface QuickActionsProps {
-  className?: string;
-  compact?: boolean;
-  showCategories?: boolean;
-}
-
-export const QuickActions = ({ 
-  className, 
-  compact = false, 
-  showCategories = true 
-}: QuickActionsProps) => {
+export const QuickActions = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
 
-  // Actions principales
   const quickActions: QuickAction[] = [
-    // Navigation principale
+    // Navigation & Core Features
     {
-      id: 'home',
-      label: 'Accueil',
-      icon: Home,
-      action: () => navigate('/'),
-      category: 'navigation',
-      tooltip: 'Retour à l\'accueil',
-      hotkey: 'H'
-    },
-    {
-      id: 'edn',
-      label: 'EDN',
+      id: 'edn-platform',
+      title: 'Plateforme EDN',
+      description: 'Accéder à la plateforme EDN complète',
       icon: BookOpen,
+      category: 'navigation',
       action: () => navigate('/edn'),
-      category: 'primary',
-      tooltip: 'Items de connaissances EDN',
-      hotkey: 'E'
+      badge: 'Principal'
     },
     {
-      id: 'med-mng',
-      label: 'MED-MNG',
+      id: 'medmng-music',
+      title: 'MED-MNG Musique',
+      description: 'Générateur musical intelligent',
       icon: Music,
-      action: () => navigate('/med-mng/dashboard'),
-      category: 'primary',
-      tooltip: 'Studio de création musicale',
-      hotkey: 'M'
+      category: 'creation',
+      action: () => navigate('/med-mng')
     },
     {
-      id: 'ecos',
-      label: 'ECOS',
-      icon: Stethoscope,
-      action: () => navigate('/ecos'),
-      category: 'primary',
-      tooltip: 'Situations cliniques ECOS',
-      hotkey: 'C'
+      id: 'immersive-scene',
+      title: 'Scène Immersive',
+      description: 'Expérience immersive interactive',
+      icon: Eye,
+      category: 'immersive',
+      action: () => navigate('/edn/immersive')
     },
     {
-      id: 'chat',
-      label: 'Chat IA',
+      id: 'comic-creation',
+      title: 'Bande Dessinée',
+      description: 'Création de BD interactive',
+      icon: Images,
+      category: 'creation',
+      action: () => navigate('/edn/comic')
+    },
+    {
+      id: 'quiz-system',
+      title: 'Système de Quiz',
+      description: 'Quiz interactifs et évaluations',
       icon: Brain,
-      action: () => navigate('/chat'),
-      category: 'primary',
-      tooltip: 'Assistant médical intelligent',
-      hotkey: 'I'
+      category: 'education',
+      action: () => navigate('/edn/quiz')
     },
 
-    // Outils de recherche
+    // Dashboard & Analytics
     {
-      id: 'search',
-      label: 'Recherche',
-      icon: Search,
-      action: () => {
-        setIsSearchOpen(true);
-        toast({
-          title: "🔍 Recherche globale",
-          description: "Recherche activée dans toute la plateforme",
-        });
-      },
-      category: 'tools',
-      tooltip: 'Recherche globale',
-      hotkey: '/'
-    },
-    {
-      id: 'filter',
-      label: 'Filtres',
-      icon: Filter,
-      action: () => {
-        toast({
-          title: "🔽 Filtres avancés",
-          description: "Paneau de filtres ouvert",
-        });
-      },
-      category: 'tools',
-      tooltip: 'Filtres avancés'
-    },
-
-    // Actions rapides
-    {
-      id: 'favorites',
-      label: 'Favoris',
-      icon: Heart,
-      action: () => navigate('/edn?filter=favorites'),
-      category: 'secondary',
-      tooltip: 'Voir vos favoris',
-      badge: '12'
-    },
-    {
-      id: 'bookmarks',
-      label: 'Marque-pages',
-      icon: Bookmark,
-      action: () => {
-        toast({
-          title: "🔖 Marque-pages",
-          description: "Liste de vos marque-pages",
-        });
-      },
-      category: 'secondary',
-      tooltip: 'Vos marque-pages'
-    },
-    {
-      id: 'progress',
-      label: 'Progression',
-      icon: Activity,
-      action: () => navigate('/analytics?view=progress'),
-      category: 'secondary',
-      tooltip: 'Voir votre progression'
-    },
-    {
-      id: 'analytics',
-      label: 'Analytics',
+      id: 'dashboard',
+      title: 'Tableau de Bord',
+      description: 'Vue d\'ensemble des activités',
       icon: BarChart3,
-      action: () => navigate('/analytics'),
-      category: 'secondary',
-      tooltip: 'Tableaux de bord détaillés'
+      category: 'analytics',
+      action: () => navigate('/dashboard')
+    },
+    {
+      id: 'user-analytics',
+      title: 'Analytics Utilisateur',
+      description: 'Statistiques détaillées d\'usage',
+      icon: TrendingUp,
+      category: 'analytics',
+      action: () => console.log('Analytics')
+    },
+    {
+      id: 'performance-metrics',
+      title: 'Métriques Performance',
+      description: 'Mesure des performances système',
+      icon: Activity,
+      category: 'analytics',
+      action: () => console.log('Metrics')
     },
 
-    // Outils création
+    // Content Management
     {
-      id: 'create-music',
-      label: 'Créer musique',
-      icon: PlusCircle,
-      action: () => navigate('/med-mng/create'),
-      category: 'tools',
-      tooltip: 'Créer une nouvelle mélodie médicale'
+      id: 'library-management',
+      title: 'Gestion Bibliothèque',
+      description: 'Organisation du contenu',
+      icon: FolderOpen,
+      category: 'content',
+      action: () => navigate('/library')
     },
     {
-      id: 'record',
-      label: 'Enregistrer',
-      icon: Mic,
-      action: () => {
-        toast({
-          title: "🎤 Enregistrement",
-          description: "Démarrage de l'enregistrement vocal",
-        });
-      },
-      category: 'tools',
-      tooltip: 'Enregistrer audio'
+      id: 'file-upload',
+      title: 'Téléchargement Fichiers',
+      description: 'Import de nouveaux contenus',
+      icon: Upload,
+      category: 'content',
+      action: () => console.log('Upload')
     },
     {
-      id: 'notes',
-      label: 'Notes',
-      icon: FileText,
-      action: () => {
-        toast({
-          title: "📝 Carnet de notes",
-          description: "Ouvrir votre carnet personnel",
-        });
-      },
-      category: 'tools',
-      tooltip: 'Prendre des notes'
+      id: 'content-search',
+      title: 'Recherche Avancée',
+      description: 'Recherche dans tous les contenus',
+      icon: Search,
+      category: 'content',
+      action: () => console.log('Search')
     },
 
-    // Paramètres et profil
+    // User Management
     {
-      id: 'profile',
-      label: 'Profil',
+      id: 'user-profile',
+      title: 'Profil Utilisateur',
+      description: 'Gérer votre profil',
       icon: User,
-      action: () => navigate('/med-mng/profile'),
-      category: 'settings',
-      tooltip: 'Votre profil utilisateur'
-    },
-    {
-      id: 'settings',
-      label: 'Paramètres',
-      icon: Settings,
-      action: () => navigate('/med-mng/settings'),
-      category: 'settings',
-      tooltip: 'Paramètres de l\'application'
+      category: 'user',
+      action: () => navigate('/profile')
     },
     {
       id: 'notifications',
-      label: 'Notifications',
+      title: 'Notifications',
+      description: 'Centre de notifications',
       icon: Bell,
-      action: () => {
-        toast({
-          title: "🔔 Notifications",
-          description: "Centre de notifications",
-        });
-      },
-      category: 'settings',
-      tooltip: 'Voir les notifications',
-      badge: '3'
+      category: 'user',
+      action: () => console.log('Notifications')
     },
     {
-      id: 'help',
-      label: 'Aide',
-      icon: HelpCircle,
-      action: () => navigate('/support'),
-      category: 'settings',
-      tooltip: 'Centre d\'aide et support'
+      id: 'settings',
+      title: 'Paramètres',
+      description: 'Configuration système',
+      icon: Settings,
+      category: 'user',
+      action: () => navigate('/settings')
+    },
+
+    // Medical Features
+    {
+      id: 'medical-analysis',
+      title: 'Analyse Médicale',
+      description: 'Outils d\'analyse médicale',
+      icon: Stethoscope,
+      category: 'medical',
+      action: () => console.log('Medical analysis')
+    },
+    {
+      id: 'health-monitoring',
+      title: 'Surveillance Santé',
+      description: 'Monitoring des paramètres vitaux',
+      icon: Heart,
+      category: 'medical',
+      action: () => console.log('Health monitoring')
+    },
+    {
+      id: 'medical-reports',
+      title: 'Rapports Médicaux',
+      description: 'Génération de rapports',
+      icon: FileText,
+      category: 'medical',
+      action: () => console.log('Medical reports')
+    },
+
+    // Creative Tools
+    {
+      id: 'music-creation',
+      title: 'Création Musicale',
+      description: 'Outils de composition',
+      icon: Music,
+      category: 'creation',
+      action: () => navigate('/create/music')
+    },
+    {
+      id: 'audio-processing',
+      title: 'Traitement Audio',
+      description: 'Edition et mixage audio',
+      icon: Headphones,
+      category: 'creation',
+      action: () => console.log('Audio processing')
+    },
+    {
+      id: 'video-editing',
+      title: 'Edition Vidéo',
+      description: 'Montage et post-production',
+      icon: Video,
+      category: 'creation',
+      action: () => console.log('Video editing')
+    },
+
+    // System Tools
+    {
+      id: 'database-sync',
+      title: 'Synchronisation BDD',
+      description: 'Sync avec bases de données',
+      icon: Database,
+      category: 'system',
+      action: () => console.log('Database sync')
+    },
+    {
+      id: 'system-backup',
+      title: 'Sauvegarde Système',
+      description: 'Backup automatique',
+      icon: Save,
+      category: 'system',
+      action: () => console.log('System backup')
+    },
+    {
+      id: 'security-audit',
+      title: 'Audit Sécurité',
+      description: 'Vérification sécuritaire',
+      icon: Shield,
+      category: 'system',
+      action: () => console.log('Security audit')
     }
   ];
 
-  const categories = {
-    primary: 'Actions principales',
-    secondary: 'Actions secondaires',
-    navigation: 'Navigation',
-    tools: 'Outils',
-    settings: 'Paramètres'
-  };
+  const categories = [
+    { id: 'all', label: 'Toutes', icon: Grid },
+    { id: 'navigation', label: 'Navigation', icon: Compass },
+    { id: 'creation', label: 'Création', icon: Palette },
+    { id: 'education', label: 'Éducation', icon: Brain },
+    { id: 'analytics', label: 'Analytics', icon: BarChart3 },
+    { id: 'content', label: 'Contenu', icon: Folder },
+    { id: 'user', label: 'Utilisateur', icon: User },
+    { id: 'medical', label: 'Médical', icon: Stethoscope },
+    { id: 'system', label: 'Système', icon: Settings }
+  ];
 
-  const getCategoryActions = (category: string) => {
-    return quickActions.filter(action => action.category === category);
-  };
-
-  const handleKeyboardShortcut = (action: QuickAction) => {
-    if (action.hotkey) {
-      // Simuler l'écoute des raccourcis clavier
-      document.addEventListener('keydown', (e) => {
-        if (e.ctrlKey || e.metaKey) {
-          if (e.key.toLowerCase() === action.hotkey?.toLowerCase()) {
-            e.preventDefault();
-            action.action();
-          }
-        }
-      });
-    }
-  };
-
-  // Initialiser les raccourcis clavier
-  quickActions.forEach(handleKeyboardShortcut);
-
-  if (compact) {
-    return (
-      <div className={cn("flex items-center gap-2 overflow-x-auto pb-2", className)}>
-        {quickActions
-          .filter(action => action.category === 'primary')
-          .map((action) => (
-            <Tooltip key={action.id}>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={action.action}
-                  disabled={action.disabled}
-                  className="gap-1 whitespace-nowrap relative"
-                >
-                  <action.icon className="h-4 w-4" />
-                  {action.badge && (
-                    <Badge variant="destructive" className="absolute -top-1 -right-1 h-4 w-4 p-0 text-xs">
-                      {action.badge}
-                    </Badge>
-                  )}
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>{action.tooltip}</p>
-                {action.hotkey && (
-                  <p className="text-xs text-muted-foreground">
-                    Ctrl+{action.hotkey}
-                  </p>
-                )}
-              </TooltipContent>
-            </Tooltip>
-          ))}
-      </div>
-    );
-  }
+  const filteredActions = selectedCategory === 'all' 
+    ? quickActions 
+    : quickActions.filter(action => action.category === selectedCategory);
 
   return (
-    <div className={cn("space-y-6", className)}>
-      {showCategories ? (
-        Object.entries(categories).map(([categoryKey, categoryName]) => {
-          const categoryActions = getCategoryActions(categoryKey);
-          if (categoryActions.length === 0) return null;
+    <div className="space-y-6">
+      {/* Category Filter */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Zap className="h-5 w-5 text-primary" />
+            Actions Rapides
+          </CardTitle>
+          <CardDescription>
+            Accès rapide à toutes les fonctionnalités de la plateforme
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="flex flex-wrap gap-2">
+            {categories.map((category) => (
+              <Button
+                key={category.id}
+                variant={selectedCategory === category.id ? "default" : "outline"}
+                size="sm"
+                onClick={() => setSelectedCategory(category.id)}
+                className="flex items-center gap-2"
+              >
+                <category.icon className="h-4 w-4" />
+                {category.label}
+              </Button>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
-          return (
-            <div key={categoryKey} className="space-y-3">
-              <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wide">
-                {categoryName}
-              </h3>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-                {categoryActions.map((action) => (
-                  <Tooltip key={action.id}>
-                    <TooltipTrigger asChild>
-                      <Button
-                        variant="outline"
-                        size="default"
-                        onClick={action.action}
-                        disabled={action.disabled}
-                        className={cn(
-                          "h-16 flex-col gap-2 relative group transition-all duration-200",
-                          categoryKey === 'primary' && "border-primary/20 hover:border-primary/40 hover:bg-primary/5"
-                        )}
-                      >
-                        <action.icon className={cn(
-                          "h-5 w-5",
-                          categoryKey === 'primary' && "text-primary"
-                        )} />
-                        <span className="text-xs font-medium">{action.label}</span>
-                        {action.badge && (
-                          <Badge 
-                            variant="destructive" 
-                            className="absolute -top-1 -right-1 h-5 w-5 p-0 text-xs"
-                          >
-                            {action.badge}
-                          </Badge>
-                        )}
-                        {action.hotkey && (
-                          <div className="absolute bottom-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Badge variant="secondary" className="text-xs px-1 py-0">
-                              ⌘{action.hotkey}
-                            </Badge>
-                          </div>
-                        )}
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>{action.tooltip}</p>
-                      {action.hotkey && (
-                        <p className="text-xs text-muted-foreground">
-                          Raccourci: Ctrl+{action.hotkey}
-                        </p>
-                      )}
-                    </TooltipContent>
-                  </Tooltip>
-                ))}
+      {/* Actions Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        {filteredActions.map((action) => (
+          <Card 
+            key={action.id} 
+            className="hover:shadow-lg transition-all duration-200 cursor-pointer group"
+            onClick={action.action}
+          >
+            <CardHeader className="pb-3">
+              <div className="flex items-start justify-between">
+                <action.icon className="h-6 w-6 text-primary group-hover:scale-110 transition-transform" />
+                {action.badge && (
+                  <Badge variant="secondary" className="text-xs">
+                    {action.badge}
+                  </Badge>
+                )}
               </div>
-            </div>
-          );
-        })
-      ) : (
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
-          {quickActions.map((action) => (
-            <Tooltip key={action.id}>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="default"
-                  onClick={action.action}
-                  disabled={action.disabled}
-                  className="h-16 flex-col gap-2 relative group"
-                >
-                  <action.icon className="h-5 w-5" />
-                  <span className="text-xs">{action.label}</span>
-                  {action.badge && (
-                    <Badge variant="destructive" className="absolute -top-1 -right-1 h-4 w-4 p-0 text-xs">
-                      {action.badge}
-                    </Badge>
-                  )}
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>{action.tooltip}</p>
-              </TooltipContent>
-            </Tooltip>
-          ))}
-        </div>
-      )}
-
-      {/* Indicateur de raccourcis clavier */}
-      <div className="flex items-center justify-center text-xs text-muted-foreground">
-        <span>💡 Utilisez Ctrl + lettre pour les raccourcis rapides</span>
+              <CardTitle className="text-sm font-semibold group-hover:text-primary transition-colors">
+                {action.title}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              <p className="text-xs text-muted-foreground line-clamp-2">
+                {action.description}
+              </p>
+            </CardContent>
+          </Card>
+        ))}
       </div>
+
+      {filteredActions.length === 0 && (
+        <Card>
+          <CardContent className="text-center py-12">
+            <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <p className="text-muted-foreground">
+              Aucune action trouvée dans cette catégorie.
+            </p>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };
