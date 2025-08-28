@@ -1,39 +1,35 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Slider } from '@/components/ui/slider';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Slider } from '@/components/ui/slider';
 import { 
   Play, 
   Pause, 
   SkipBack, 
   SkipForward, 
-  Volume2, 
-  VolumeX,
-  Repeat, 
-  Shuffle, 
   Heart, 
+  Share2, 
   Download,
-  Share2,
+  Volume2,
+  VolumeX,
+  Repeat,
+  Shuffle,
+  ArrowLeft,
   Music,
-  Brain,
-  FileText,
-  BarChart3,
   Clock,
-  Target,
-  Headphones,
-  Waves,
-  Zap,
+  Brain,
   BookOpen,
-  Star,
-  TrendingUp
+  User,
+  Tag,
+  TrendingUp,
+  Eye,
+  ThumbsUp,
+  MessageCircle
 } from 'lucide-react';
 import { MedMngLayout } from '@/components/med-mng/MedMngLayout';
-import { ImmersivePlayerControls } from '@/components/immersive/ImmersivePlayerControls';
-import { AdvancedPlayerFeatures } from '@/components/immersive/AdvancedPlayerFeatures';
 import { useToast } from '@/hooks/use-toast';
-import { Progress } from '@/components/ui/progress';
 
 interface Track {
   id: string;
@@ -41,161 +37,165 @@ interface Track {
   subject: string;
   style: string;
   duration: number;
-  audioUrl?: string;
-  lyrics: string[];
-  pedagogicalPoints: string[];
-  mnemonics: string[];
-  difficulty: string;
+  artist: string;
+  description: string;
+  lyrics: string;
   tags: string[];
+  difficulty: string;
+  playCount: number;
+  isFavorite: boolean;
+  audioUrl?: string;
+  imageUrl?: string;
   createdAt: string;
 }
 
-interface LearningStats {
-  listenTime: number;
-  completionRate: number;
-  retentionScore: number;
-  repeatedSections: number;
+interface PlayerState {
+  isPlaying: boolean;
+  currentTime: number;
+  duration: number;
+  volume: number;
+  isMuted: boolean;
+  isRepeating: boolean;
+  isShuffling: boolean;
 }
 
 const Player = () => {
+  const { trackId } = useParams();
+  const navigate = useNavigate();
   const { toast } = useToast();
-  const audioRef = useRef<HTMLAudioElement>(null);
 
-  // États du lecteur
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [duration, setDuration] = useState(0);
-  const [volume, setVolume] = useState(75);
-  const [isMuted, setIsMuted] = useState(false);
-  const [isRepeat, setIsRepeat] = useState(false);
-  const [isShuffle, setIsShuffle] = useState(false);
-  
-  // États de l'interface
-  const [activeTab, setActiveTab] = useState('player');
-  const [showLyrics, setShowLyrics] = useState(false);
-  const [currentLyricsIndex, setCurrentLyricsIndex] = useState(0);
-  const [learningMode, setLearningMode] = useState(false);
-  
-  // Données de la piste actuelle (simulées)
-  const [currentTrack] = useState<Track>({
-    id: '1',
-    title: 'Insuffisance Cardiaque Trap',
-    subject: 'Cardiologie',
-    style: 'Trap',
-    duration: 245,
-    lyrics: [
-      "Le cœur qui bat, mais qui faiblit",
-      "Fraction d'éjection qui chute, attention !",
-      "Dyspnée d'effort, œdèmes aux pieds",
-      "L'insuffisance cardiaque s'installe",
-      "NYHA classe 1, 2, 3 et 4",
-      "De l'asymptomatique au grabataire",
-      "IEC, diurétiques, bêta-bloquants",
-      "Le traitement qu'il faut retenir !",
-      "[Refrain] IC, IC, insuffisance cardiaque",
-      "Mémorise bien cette pathologie classique",
-      "Systolique ou diastolique",
-      "Chaque forme a sa logique !",
-      "BNP élevé, échographie",
-      "Confirmation du diagnostic",
-      "Prévention secondaire, éducation",
-      "Pour éviter la décompensation !"
-    ],
-    pedagogicalPoints: [
-      "Définition : Incapacité du cœur à assurer un débit cardiaque suffisant",
-      "Classification NYHA : I (asymptomatique) à IV (dyspnée au repos)",
-      "Biomarqueurs : BNP/NT-proBNP élevés",
-      "Traitement : IEC/ARA2, bêta-bloquants, diurétiques",
-      "Surveillance : Poids quotidien, signes de décompensation"
-    ],
-    mnemonics: [
-      "IC = 'Je Craque' (Insuffisance Cardiaque)",
-      "NYHA = 'New York Heart Association'",
-      "BNP = 'Brain Natriuretic Peptide' (mais vient du cœur !)",
-      "IEC = 'Inhibiteurs de l'Enzyme de Conversion'"
-    ],
-    difficulty: 'Intermédiaire',
-    tags: ['cardiologie', 'insuffisance', 'NYHA', 'BNP'],
-    createdAt: '2024-01-15T10:30:00Z'
+  const [track, setTrack] = useState<Track | null>(null);
+  const [playerState, setPlayerState] = useState<PlayerState>({
+    isPlaying: false,
+    currentTime: 0,
+    duration: 0,
+    volume: 80,
+    isMuted: false,
+    isRepeating: false,
+    isShuffling: false
   });
 
-  // Stats d'apprentissage (simulées)
-  const [learningStats] = useState<LearningStats>({
-    listenTime: 127,
-    completionRate: 85,
-    retentionScore: 92,
-    repeatedSections: 3
-  });
+  // Mock track data
+  useEffect(() => {
+    const mockTracks: Track[] = [
+      {
+        id: '1',
+        title: 'Insuffisance Cardiaque Trap',
+        subject: 'Cardiologie',
+        style: 'Trap',
+        duration: 245,
+        artist: 'Dr. MED-MNG',
+        description: 'Une exploration musicale approfondie de l\'insuffisance cardiaque, couvrant la physiopathologie, les symptômes, le diagnostic et les stratégies thérapeutiques modernes.',
+        lyrics: 'Le cœur qui faiblit, pompe qui défaille\nInsuffisance cardiaque, un combat sans faille\nFraction d\'éjection diminuée\nLe débit cardiaque perturbé\n\n[Refrain]\nIC systolique ou diastolique\nClassification New York\nStade I à IV chronique\nPronostic qu\'on explore\n\nIEC, ARA2, bêta-bloquants\nDigoxine pour les symptômes\nDiurétiques décongestionnants\nPour soulager les syndromes',
+        tags: ['cardiologie', 'insuffisance', 'physiopathologie', 'traitement'],
+        difficulty: 'Intermédiaire',
+        playCount: 127,
+        isFavorite: true,
+        createdAt: '2024-01-15T10:30:00Z'
+      },
+      {
+        id: '2',
+        title: 'Neuroanatomie Lo-Fi',
+        subject: 'Neurologie',
+        style: 'Lo-Fi',
+        duration: 312,
+        artist: 'Prof. Neural',
+        description: 'Un voyage relaxant à travers les structures du système nerveux central et périphérique.',
+        lyrics: 'Cerveau et moelle épinière\nSystème nerveux central, structure légendaire\nNeurones et synapses\nTransmission qui ne s\'effondre jamais\n\n[Refrain]\nCortex frontal, pariétal\nTemporal et occipital\nFaisceaux descendants\nMotricité en mouvement',
+        tags: ['neurologie', 'anatomie', 'système nerveux'],
+        difficulty: 'Avancé',
+        playCount: 89,
+        isFavorite: false,
+        createdAt: '2024-01-14T15:45:00Z'
+      }
+    ];
 
-  // Effet pour simuler la progression
+    const foundTrack = mockTracks.find(t => t.id === trackId);
+    if (foundTrack) {
+      setTrack(foundTrack);
+      setPlayerState(prev => ({ ...prev, duration: foundTrack.duration }));
+    }
+  }, [trackId]);
+
+  // Simulate playback
   useEffect(() => {
     let interval: NodeJS.Timeout;
-    
-    if (isPlaying) {
+    if (playerState.isPlaying && track) {
       interval = setInterval(() => {
-        setCurrentTime(prev => {
-          const newTime = prev + 1;
-          
-          // Mise à jour de l'index des paroles
-          const lyricsTimePerLine = duration / currentTrack.lyrics.length;
-          const newLyricsIndex = Math.floor(newTime / lyricsTimePerLine);
-          setCurrentLyricsIndex(Math.min(newLyricsIndex, currentTrack.lyrics.length - 1));
-          
-          if (newTime >= duration) {
-            setIsPlaying(false);
-            if (isRepeat) {
-              return 0;
-            }
-            return duration;
-          }
-          return newTime;
-        });
+        setPlayerState(prev => ({
+          ...prev,
+          currentTime: Math.min(prev.currentTime + 1, prev.duration)
+        }));
       }, 1000);
     }
-    
     return () => clearInterval(interval);
-  }, [isPlaying, duration, isRepeat, currentTrack.lyrics.length]);
+  }, [playerState.isPlaying, track]);
 
-  // Initialisation de la durée
-  useEffect(() => {
-    setDuration(currentTrack.duration);
-  }, [currentTrack.duration]);
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
 
-  // Fonctions de contrôle
-  const togglePlay = () => {
-    setIsPlaying(!isPlaying);
-    if (!isPlaying) {
+  const handlePlayPause = () => {
+    setPlayerState(prev => ({ ...prev, isPlaying: !prev.isPlaying }));
+    
+    if (!playerState.isPlaying && track) {
       toast({
         title: "🎵 Lecture en cours",
-        description: currentTrack.title,
+        description: `${track.title} - ${track.subject}`,
       });
     }
   };
 
   const handleSeek = (value: number[]) => {
-    const newTime = value[0];
-    setCurrentTime(newTime);
-    
-    // Mise à jour des paroles
-    const lyricsTimePerLine = duration / currentTrack.lyrics.length;
-    const newLyricsIndex = Math.floor(newTime / lyricsTimePerLine);
-    setCurrentLyricsIndex(Math.min(newLyricsIndex, currentTrack.lyrics.length - 1));
+    setPlayerState(prev => ({ ...prev, currentTime: value[0] }));
   };
 
   const handleVolumeChange = (value: number[]) => {
-    const newVolume = value[0];
-    setVolume(newVolume);
-    setIsMuted(newVolume === 0);
+    setPlayerState(prev => ({ 
+      ...prev, 
+      volume: value[0],
+      isMuted: value[0] === 0
+    }));
   };
 
   const toggleMute = () => {
-    setIsMuted(!isMuted);
+    setPlayerState(prev => ({ 
+      ...prev, 
+      isMuted: !prev.isMuted,
+      volume: prev.isMuted ? 80 : 0
+    }));
   };
 
-  const formatTime = (seconds: number) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = Math.floor(seconds % 60);
-    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  const toggleFavorite = () => {
+    if (track) {
+      setTrack(prev => prev ? { ...prev, isFavorite: !prev.isFavorite } : null);
+      toast({
+        title: track.isFavorite ? "Retiré des favoris" : "Ajouté aux favoris",
+        description: track.title,
+      });
+    }
+  };
+
+  const handleShare = () => {
+    if (track) {
+      navigator.clipboard.writeText(window.location.href);
+      toast({
+        title: "Lien copié !",
+        description: "Le lien de cette musique a été copié dans le presse-papier.",
+      });
+    }
+  };
+
+  const getDifficultyColor = (difficulty: string) => {
+    switch (difficulty.toLowerCase()) {
+      case 'débutant': return 'bg-green-100 text-green-800';
+      case 'intermédiaire': return 'bg-blue-100 text-blue-800';
+      case 'avancé': return 'bg-orange-100 text-orange-800';
+      case 'expert': return 'bg-red-100 text-red-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
   };
 
   const getStyleGradient = (style: string) => {
@@ -204,176 +204,198 @@ const Player = () => {
       case 'lo-fi': return 'from-blue-400 to-cyan-400';
       case 'pop': return 'from-pink-400 to-rose-400';
       case 'jazz': return 'from-amber-500 to-orange-500';
-      case 'afrobeat': return 'from-green-500 to-emerald-500';
-      case 'classique': return 'from-indigo-500 to-purple-500';
       default: return 'from-gray-400 to-gray-500';
     }
   };
 
+  if (!track) {
+    return (
+      <MedMngLayout>
+        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center">
+          <div className="text-center">
+            <Music className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+            <h2 className="text-2xl font-semibold text-gray-600 mb-2">Musique non trouvée</h2>
+            <p className="text-gray-500 mb-6">Cette musique n'existe pas ou a été supprimée.</p>
+            <Button onClick={() => navigate('/med-mng/library')}>
+              Retour à la bibliothèque
+            </Button>
+          </div>
+        </div>
+      </MedMngLayout>
+    );
+  }
+
   return (
     <MedMngLayout>
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
+        
+        {/* Header avec navigation */}
+        <div className="bg-white/80 backdrop-blur-sm border-b border-blue-100 sticky top-0 z-40">
+          <div className="container mx-auto px-4 py-4">
+            <div className="flex items-center justify-between">
+              <Button 
+                variant="ghost" 
+                onClick={() => navigate(-1)}
+                className="flex items-center gap-2"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Retour
+              </Button>
+              
+              <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" onClick={handleShare}>
+                  <Share2 className="h-4 w-4" />
+                </Button>
+                <Button variant="outline" size="sm">
+                  <Download className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div className="container mx-auto px-4 py-8">
-          <div className="max-w-6xl mx-auto">
-            {/* Header avec artwork */}
-            <Card className="mb-8 overflow-hidden shadow-2xl bg-white/80 backdrop-blur-sm border-0">
-              <div className="flex flex-col lg:flex-row">
-                {/* Artwork */}
-                <div className="lg:w-80 lg:h-80">
-                  <div className={`w-full h-64 lg:h-80 bg-gradient-to-br ${getStyleGradient(currentTrack.style)} flex items-center justify-center text-white relative overflow-hidden`}>
-                    <div className="absolute inset-0 bg-black/20" />
-                    <div className="relative z-10 text-center">
-                      <Music className="h-24 w-24 mx-auto mb-4 opacity-90" />
-                      <Badge className="bg-white/20 backdrop-blur-sm text-white border-white/30">
-                        {currentTrack.style}
-                      </Badge>
-                    </div>
+          <div className="max-w-4xl mx-auto">
+            
+            {/* Lecteur principal */}
+            <Card className="mb-8 overflow-hidden shadow-2xl bg-white/90 backdrop-blur-sm border-0">
+              <div className="grid md:grid-cols-2 gap-0">
+                
+                {/* Image / Visualisation */}
+                <div className="relative aspect-square">
+                  <div className={`w-full h-full bg-gradient-to-br ${getStyleGradient(track.style)} flex items-center justify-center text-white relative`}>
+                    <Music className="h-24 w-24 opacity-80" />
                     
-                    {/* Animation de lecture */}
-                    {isPlaying && (
-                      <div className="absolute bottom-4 left-4">
-                        <div className="flex items-center space-x-1">
-                          {[...Array(4)].map((_, i) => (
-                            <div
-                              key={i}
-                              className="w-1 bg-white/80 rounded-full animate-pulse"
-                              style={{
-                                height: `${Math.random() * 20 + 10}px`,
-                                animationDelay: `${i * 0.1}s`,
-                                animationDuration: '0.8s'
-                              }}
-                            />
-                          ))}
+                    {/* Overlay de lecture */}
+                    <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                      <Button
+                        size="lg"
+                        onClick={handlePlayPause}
+                        className="bg-white/20 backdrop-blur-sm border border-white/30 hover:bg-white/30 text-white rounded-full w-20 h-20"
+                      >
+                        {playerState.isPlaying ? (
+                          <Pause className="h-10 w-10" />
+                        ) : (
+                          <Play className="h-10 w-10 ml-1" />
+                        )}
+                      </Button>
+                    </div>
+
+                    {/* Stats overlay */}
+                    <div className="absolute bottom-4 left-4 right-4">
+                      <div className="flex justify-between items-center text-white text-sm">
+                        <div className="flex items-center gap-2">
+                          <Eye className="h-4 w-4" />
+                          {track.playCount}
                         </div>
+                        <Badge className="bg-white/20 backdrop-blur-sm text-white border-white/20">
+                          {track.style}
+                        </Badge>
                       </div>
-                    )}
+                    </div>
                   </div>
                 </div>
 
                 {/* Informations et contrôles */}
-                <div className="flex-1 p-6 lg:p-8">
-                  <div className="space-y-6">
-                    {/* Titre et métadonnées */}
+                <div className="p-8 flex flex-col justify-between">
+                  
+                  {/* Informations du track */}
+                  <div className="space-y-4 mb-6">
                     <div>
-                      <h1 className="text-2xl lg:text-3xl font-bold text-gray-800 mb-2">
-                        {currentTrack.title}
-                      </h1>
-                      <div className="flex flex-wrap items-center gap-2 mb-4">
-                        <Badge className="bg-blue-100 text-blue-800">
-                          {currentTrack.subject}
+                      <h1 className="text-2xl font-bold text-gray-800 mb-2">{track.title}</h1>
+                      <p className="text-gray-600">{track.artist}</p>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2">
+                      <Badge variant="outline">{track.subject}</Badge>
+                      <Badge className={getDifficultyColor(track.difficulty)}>
+                        {track.difficulty}
+                      </Badge>
+                      {track.tags.map((tag, index) => (
+                        <Badge key={index} variant="outline" className="text-xs">
+                          {tag}
                         </Badge>
-                        <Badge variant="outline">
-                          {currentTrack.difficulty}
-                        </Badge>
-                        <span className="text-gray-500 text-sm">
-                          {formatTime(currentTrack.duration)}
-                        </span>
-                      </div>
-                      
-                      <div className="flex flex-wrap gap-1">
-                        {currentTrack.tags.map((tag) => (
-                          <Badge key={tag} variant="outline" className="text-xs">
-                            #{tag}
-                          </Badge>
-                        ))}
+                      ))}
+                    </div>
+
+                    <p className="text-sm text-gray-600 leading-relaxed">
+                      {track.description}
+                    </p>
+                  </div>
+
+                  {/* Contrôles de lecture */}
+                  <div className="space-y-4">
+                    
+                    {/* Barre de progression */}
+                    <div className="space-y-2">
+                      <Slider
+                        value={[playerState.currentTime]}
+                        max={playerState.duration}
+                        step={1}
+                        onValueChange={handleSeek}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-xs text-gray-500">
+                        <span>{formatTime(playerState.currentTime)}</span>
+                        <span>{formatTime(playerState.duration)}</span>
                       </div>
                     </div>
 
                     {/* Contrôles principaux */}
-                    <div className="space-y-4">
-                      {/* Barre de progression */}
-                      <div className="space-y-2">
-                        <Slider
-                          value={[currentTime]}
-                          max={duration}
-                          step={1}
-                          onValueChange={handleSeek}
-                          className="w-full"
-                        />
-                        <div className="flex justify-between text-sm text-gray-500">
-                          <span>{formatTime(currentTime)}</span>
-                          <span>{formatTime(duration)}</span>
-                        </div>
+                    <div className="flex items-center justify-center gap-4">
+                      <Button variant="ghost" size="sm">
+                        <SkipBack className="h-5 w-5" />
+                      </Button>
+                      
+                      <Button 
+                        onClick={handlePlayPause}
+                        className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white rounded-full w-12 h-12"
+                      >
+                        {playerState.isPlaying ? (
+                          <Pause className="h-6 w-6" />
+                        ) : (
+                          <Play className="h-6 w-6 ml-1" />
+                        )}
+                      </Button>
+                      
+                      <Button variant="ghost" size="sm">
+                        <SkipForward className="h-5 w-5" />
+                      </Button>
+                    </div>
+
+                    {/* Contrôles secondaires */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={toggleFavorite}
+                          className={track.isFavorite ? 'text-red-500' : ''}
+                        >
+                          <Heart className={`h-4 w-4 ${track.isFavorite ? 'fill-current' : ''}`} />
+                        </Button>
+                        
+                        <Button variant="ghost" size="sm" onClick={handleShare}>
+                          <Share2 className="h-4 w-4" />
+                        </Button>
                       </div>
 
-                      {/* Boutons de contrôle */}
-                      <div className="flex items-center justify-center space-x-4">
-                        <Button
-                          variant="outline"
-                          size="lg"
-                          onClick={() => setIsShuffle(!isShuffle)}
-                          className={isShuffle ? 'text-purple-600 border-purple-600' : ''}
-                        >
-                          <Shuffle className="h-5 w-5" />
-                        </Button>
-                        
-                        <Button variant="outline" size="lg">
-                          <SkipBack className="h-5 w-5" />
-                        </Button>
-                        
-                        <Button 
-                          size="lg"
-                          onClick={togglePlay}
-                          className="w-16 h-16 rounded-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white"
-                        >
-                          {isPlaying ? (
-                            <Pause className="h-8 w-8" />
+                      {/* Contrôle volume */}
+                      <div className="flex items-center gap-2 w-32">
+                        <Button variant="ghost" size="sm" onClick={toggleMute}>
+                          {playerState.isMuted || playerState.volume === 0 ? (
+                            <VolumeX className="h-4 w-4" />
                           ) : (
-                            <Play className="h-8 w-8 ml-1" />
+                            <Volume2 className="h-4 w-4" />
                           )}
                         </Button>
-                        
-                        <Button variant="outline" size="lg">
-                          <SkipForward className="h-5 w-5" />
-                        </Button>
-                        
-                        <Button
-                          variant="outline"
-                          size="lg"
-                          onClick={() => setIsRepeat(!isRepeat)}
-                          className={isRepeat ? 'text-purple-600 border-purple-600' : ''}
-                        >
-                          <Repeat className="h-5 w-5" />
-                        </Button>
-                      </div>
-
-                      {/* Volume et actions */}
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2 flex-1 max-w-xs">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={toggleMute}
-                          >
-                            {isMuted || volume === 0 ? (
-                              <VolumeX className="h-4 w-4" />
-                            ) : (
-                              <Volume2 className="h-4 w-4" />
-                            )}
-                          </Button>
-                          <Slider
-                            value={[isMuted ? 0 : volume]}
-                            max={100}
-                            step={1}
-                            onValueChange={handleVolumeChange}
-                            className="flex-1"
-                          />
-                          <span className="text-xs text-gray-500 w-8">
-                            {isMuted ? 0 : volume}%
-                          </span>
-                        </div>
-
-                        <div className="flex items-center space-x-2">
-                          <Button variant="outline" size="sm">
-                            <Heart className="h-4 w-4" />
-                          </Button>
-                          <Button variant="outline" size="sm">
-                            <Download className="h-4 w-4" />
-                          </Button>
-                          <Button variant="outline" size="sm">
-                            <Share2 className="h-4 w-4" />
-                          </Button>
-                        </div>
+                        <Slider
+                          value={[playerState.volume]}
+                          max={100}
+                          step={1}
+                          onValueChange={handleVolumeChange}
+                          className="flex-1"
+                        />
                       </div>
                     </div>
                   </div>
@@ -381,266 +403,81 @@ const Player = () => {
               </div>
             </Card>
 
-            {/* Onglets de contenu */}
-            <Tabs value={activeTab} onValueChange={setActiveTab}>
-              <TabsList className="grid w-full grid-cols-4 mb-6">
-                <TabsTrigger value="player" className="flex items-center space-x-2">
-                  <Waves className="h-4 w-4" />
-                  <span className="hidden sm:inline">Visualiseur</span>
-                </TabsTrigger>
-                <TabsTrigger value="lyrics" className="flex items-center space-x-2">
-                  <FileText className="h-4 w-4" />
-                  <span className="hidden sm:inline">Paroles</span>
-                </TabsTrigger>
-                <TabsTrigger value="learning" className="flex items-center space-x-2">
-                  <Brain className="h-4 w-4" />
-                  <span className="hidden sm:inline">Apprentissage</span>
-                </TabsTrigger>
-                <TabsTrigger value="stats" className="flex items-center space-x-2">
-                  <BarChart3 className="h-4 w-4" />
-                  <span className="hidden sm:inline">Statistiques</span>
-                </TabsTrigger>
-              </TabsList>
+            {/* Paroles et informations détaillées */}
+            <div className="grid md:grid-cols-2 gap-8">
+              
+              {/* Paroles */}
+              <Card className="p-6 bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                  <BookOpen className="h-5 w-5 text-blue-600" />
+                  Paroles Pédagogiques
+                </h3>
+                <div className="prose prose-sm max-w-none">
+                  <pre className="whitespace-pre-wrap text-sm text-gray-700 font-medium leading-relaxed">
+                    {track.lyrics}
+                  </pre>
+                </div>
+              </Card>
 
-              {/* Visualiseur audio */}
-              <TabsContent value="player">
-                <Card className="p-8 bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-                  <div className="text-center">
-                    <div className="mb-8">
-                      <div className="bg-gradient-to-r from-purple-100 to-blue-100 rounded-full w-32 h-32 flex items-center justify-center mx-auto mb-4">
-                        {isPlaying ? (
-                          <Waves className="h-16 w-16 text-purple-600 animate-pulse" />
-                        ) : (
-                          <Music className="h-16 w-16 text-purple-600" />
-                        )}
-                      </div>
-                      
-                      <h3 className="text-xl font-semibold mb-2">
-                        {isPlaying ? 'Lecture en cours...' : 'En pause'}
-                      </h3>
-                      <p className="text-gray-600">
-                        Mode {learningMode ? 'Apprentissage' : 'Écoute'} actif
-                      </p>
-                    </div>
-
-                    {/* Visualiseur de fréquences simulé */}
-                    {isPlaying && (
-                      <div className="flex items-end justify-center space-x-1 mb-8">
-                        {[...Array(32)].map((_, i) => (
-                          <div
-                            key={i}
-                            className="bg-gradient-to-t from-purple-500 to-blue-500 rounded-full"
-                            style={{
-                              width: '4px',
-                              height: `${Math.random() * 40 + 10}px`,
-                              animation: `pulse ${Math.random() * 0.5 + 0.5}s infinite`
-                            }}
-                          />
-                        ))}
-                      </div>
-                    )}
-
-                    <Button
-                      onClick={() => setLearningMode(!learningMode)}
-                      className={`${learningMode 
-                        ? 'bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700' 
-                        : 'bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700'
-                      } text-white`}
-                    >
-                      <Brain className="h-4 w-4 mr-2" />
-                      {learningMode ? 'Mode Apprentissage Activé' : 'Activer Mode Apprentissage'}
-                    </Button>
-                  </div>
-                </Card>
-              </TabsContent>
-
-              {/* Paroles synchronisées */}
-              <TabsContent value="lyrics">
+              {/* Informations détaillées */}
+              <div className="space-y-6">
+                
+                {/* Stats d'apprentissage */}
                 <Card className="p-6 bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+                  <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                    <Brain className="h-5 w-5 text-purple-600" />
+                    Impact Pédagogique
+                  </h3>
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <h3 className="text-lg font-semibold">Paroles Pédagogiques</h3>
-                      <Badge className="bg-gradient-to-r from-purple-500 to-blue-500 text-white">
-                        <Zap className="h-3 w-3 mr-1" />
-                        Synchronisées
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Taux de rétention</span>
+                      <Badge className="bg-green-100 text-green-800">89%</Badge>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Difficulté perçue</span>
+                      <Badge className={getDifficultyColor(track.difficulty)}>
+                        {track.difficulty}
                       </Badge>
                     </div>
-                    
-                    <div className="space-y-2 max-h-96 overflow-y-auto">
-                      {currentTrack.lyrics.map((line, index) => (
-                        <div
-                          key={index}
-                          className={`p-3 rounded-lg transition-all duration-300 ${
-                            index === currentLyricsIndex
-                              ? 'bg-gradient-to-r from-purple-100 to-blue-100 border-l-4 border-purple-500 text-purple-900 font-medium'
-                              : index < currentLyricsIndex
-                              ? 'bg-gray-50 text-gray-600'
-                              : 'text-gray-800 hover:bg-gray-50'
-                          }`}
-                        >
-                          <div className="flex items-center space-x-2">
-                            <span className="text-xs text-gray-400 w-8">
-                              {index + 1}
-                            </span>
-                            <span>{line}</span>
-                          </div>
-                        </div>
-                      ))}
+                    <div className="flex justify-between items-center">
+                      <span className="text-sm text-gray-600">Temps d'apprentissage moyen</span>
+                      <span className="text-sm font-medium">24 min</span>
                     </div>
                   </div>
                 </Card>
-              </TabsContent>
 
-              {/* Contenu pédagogique */}
-              <TabsContent value="learning">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                  {/* Points pédagogiques */}
-                  <Card className="p-6 bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-                    <div className="space-y-4">
-                      <div className="flex items-center space-x-2">
-                        <BookOpen className="h-5 w-5 text-blue-600" />
-                        <h3 className="text-lg font-semibold">Points Clés</h3>
+                {/* Interactions communautaires */}
+                <Card className="p-6 bg-white/80 backdrop-blur-sm border-0 shadow-lg">
+                  <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                    <User className="h-5 w-5 text-blue-600" />
+                    Communauté
+                  </h3>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <ThumbsUp className="h-4 w-4 text-green-600" />
+                        <span className="text-sm">J'aime</span>
                       </div>
-                      
-                      <div className="space-y-3">
-                        {currentTrack.pedagogicalPoints.map((point, index) => (
-                          <div key={index} className="flex items-start space-x-3 p-3 bg-blue-50 rounded-lg">
-                            <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 text-sm font-medium flex-shrink-0 mt-0.5">
-                              {index + 1}
-                            </div>
-                            <p className="text-sm text-gray-700">{point}</p>
-                          </div>
-                        ))}
-                      </div>
+                      <span className="text-sm font-medium">234</span>
                     </div>
-                  </Card>
-
-                  {/* Moyens mnémotechniques */}
-                  <Card className="p-6 bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-                    <div className="space-y-4">
-                      <div className="flex items-center space-x-2">
-                        <Target className="h-5 w-5 text-purple-600" />
-                        <h3 className="text-lg font-semibold">Mnémotechniques</h3>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <MessageCircle className="h-4 w-4 text-blue-600" />
+                        <span className="text-sm">Commentaires</span>
                       </div>
-                      
-                      <div className="space-y-3">
-                        {currentTrack.mnemonics.map((mnemonic, index) => (
-                          <div key={index} className="p-3 bg-purple-50 rounded-lg border-l-4 border-purple-500">
-                            <p className="text-sm text-purple-900 font-medium">{mnemonic}</p>
-                          </div>
-                        ))}
-                      </div>
-                      
-                      <div className="mt-6 p-4 bg-gradient-to-r from-purple-100 to-blue-100 rounded-lg">
-                        <div className="flex items-center space-x-2 mb-2">
-                          <Brain className="h-4 w-4 text-purple-600" />
-                          <span className="text-sm font-medium text-purple-800">Conseil d'apprentissage</span>
-                        </div>
-                        <p className="text-xs text-purple-700">
-                          Répétez cette musique plusieurs fois pour optimiser la mémorisation. 
-                          La méthode MNG utilise la répétition musicale pour ancrer les connaissances.
-                        </p>
-                      </div>
+                      <span className="text-sm font-medium">18</span>
                     </div>
-                  </Card>
-                </div>
-              </TabsContent>
-
-              {/* Statistiques d'apprentissage */}
-              <TabsContent value="stats">
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                  <Card className="p-6 text-center bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-                    <div className="space-y-2">
-                      <Clock className="h-8 w-8 text-blue-600 mx-auto" />
-                      <div className="text-2xl font-bold text-blue-600">
-                        {Math.floor(learningStats.listenTime / 60)}m{learningStats.listenTime % 60}s
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Eye className="h-4 w-4 text-purple-600" />
+                        <span className="text-sm">Écoutes</span>
                       </div>
-                      <p className="text-sm text-gray-600">Temps d'écoute</p>
-                    </div>
-                  </Card>
-
-                  <Card className="p-6 text-center bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-                    <div className="space-y-2">
-                      <Target className="h-8 w-8 text-green-600 mx-auto" />
-                      <div className="text-2xl font-bold text-green-600">
-                        {learningStats.completionRate}%
-                      </div>
-                      <p className="text-sm text-gray-600">Taux de completion</p>
-                      <Progress value={learningStats.completionRate} className="h-2" />
-                    </div>
-                  </Card>
-
-                  <Card className="p-6 text-center bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-                    <div className="space-y-2">
-                      <Brain className="h-8 w-8 text-purple-600 mx-auto" />
-                      <div className="text-2xl font-bold text-purple-600">
-                        {learningStats.retentionScore}%
-                      </div>
-                      <p className="text-sm text-gray-600">Score de rétention</p>
-                    </div>
-                  </Card>
-
-                  <Card className="p-6 text-center bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-                    <div className="space-y-2">
-                      <Repeat className="h-8 w-8 text-orange-600 mx-auto" />
-                      <div className="text-2xl font-bold text-orange-600">
-                        {learningStats.repeatedSections}
-                      </div>
-                      <p className="text-sm text-gray-600">Sections répétées</p>
-                    </div>
-                  </Card>
-                </div>
-
-                <Card className="mt-6 p-6 bg-white/80 backdrop-blur-sm border-0 shadow-lg">
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-semibold">Analyse de Performance</h3>
-                    
-                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                      <div>
-                        <h4 className="font-medium mb-3">Progression d'apprentissage</h4>
-                        <div className="space-y-2">
-                          <div className="flex justify-between text-sm">
-                            <span>Mémorisation des concepts</span>
-                            <span>92%</span>
-                          </div>
-                          <Progress value={92} className="h-2" />
-                          
-                          <div className="flex justify-between text-sm">
-                            <span>Association musicale</span>
-                            <span>88%</span>
-                          </div>
-                          <Progress value={88} className="h-2" />
-                          
-                          <div className="flex justify-between text-sm">
-                            <span>Rétention à long terme</span>
-                            <span>85%</span>
-                          </div>
-                          <Progress value={85} className="h-2" />
-                        </div>
-                      </div>
-                      
-                      <div>
-                        <h4 className="font-medium mb-3">Recommandations</h4>
-                        <div className="space-y-3">
-                          <div className="flex items-start space-x-2 text-sm">
-                            <Star className="h-4 w-4 text-yellow-500 flex-shrink-0 mt-0.5" />
-                            <span>Excellent travail ! Continuez à ce rythme.</span>
-                          </div>
-                          <div className="flex items-start space-x-2 text-sm">
-                            <TrendingUp className="h-4 w-4 text-green-500 flex-shrink-0 mt-0.5" />
-                            <span>Répétez les sections 4-6 pour améliorer la rétention.</span>
-                          </div>
-                          <div className="flex items-start space-x-2 text-sm">
-                            <Headphones className="h-4 w-4 text-blue-500 flex-shrink-0 mt-0.5" />
-                            <span>Prochaine session recommandée dans 2-3 jours.</span>
-                          </div>
-                        </div>
-                      </div>
+                      <span className="text-sm font-medium">{track.playCount}</span>
                     </div>
                   </div>
                 </Card>
-              </TabsContent>
-            </Tabs>
+              </div>
+            </div>
           </div>
         </div>
       </div>

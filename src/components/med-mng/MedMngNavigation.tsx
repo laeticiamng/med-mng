@@ -2,7 +2,7 @@
 import React from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Music, Library, CreditCard, User, Plus, LogOut, Home } from 'lucide-react';
+import { Music, Library, CreditCard, User, Plus, LogOut, Home, BarChart3, Settings } from 'lucide-react';
 import { useAuth } from './AuthProvider';
 import { TranslatedText } from '@/components/TranslatedText';
 
@@ -32,7 +32,7 @@ export const MedMngNavigation: React.FC = () => {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-2">
             <Button
-              variant="ghost"
+              variant={isActive('/med-mng/dashboard') ? 'default' : 'ghost'}
               onClick={() => navigate('/med-mng/dashboard')}
               className="flex items-center gap-2 px-3 py-2 rounded-lg transition-all hover:bg-gray-100"
             >
@@ -50,6 +50,15 @@ export const MedMngNavigation: React.FC = () => {
             </Button>
 
             <Button
+              variant={isActive('/med-mng/playlists') ? 'default' : 'ghost'}
+              onClick={() => navigate('/med-mng/playlists')}
+              className="flex items-center gap-2 px-3 py-2 rounded-lg transition-all hover:bg-gray-100"
+            >
+              <Music className="h-4 w-4" />
+              <TranslatedText text="Playlists" />
+            </Button>
+
+            <Button
               variant={isActive('/med-mng/create') ? 'default' : 'ghost'}
               onClick={() => navigate('/med-mng/create')}
               className="flex items-center gap-2 px-3 py-2 rounded-lg transition-all hover:bg-gray-100"
@@ -59,21 +68,30 @@ export const MedMngNavigation: React.FC = () => {
             </Button>
 
             <Button
-              variant={isActive('/med-mng/pricing') ? 'default' : 'ghost'}
-              onClick={() => navigate('/med-mng/pricing')}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg transition-all hover:bg-gray-100"
-            >
-              <CreditCard className="h-4 w-4" />
-              <TranslatedText text="Abonnements" />
-            </Button>
-
-            <Button
-              variant={isActive('/med-mng/profile') ? 'default' : 'ghost'}
-              onClick={() => navigate('/med-mng/profile')}
+              variant={isActive('/med-mng/community') ? 'default' : 'ghost'}
+              onClick={() => navigate('/med-mng/community')}
               className="flex items-center gap-2 px-3 py-2 rounded-lg transition-all hover:bg-gray-100"
             >
               <User className="h-4 w-4" />
-              <TranslatedText text="Profil" />
+              <TranslatedText text="Communauté" />
+            </Button>
+
+            <Button
+              variant={isActive('/med-mng/analytics') ? 'default' : 'ghost'}
+              onClick={() => navigate('/med-mng/analytics')}
+              className="flex items-center gap-2 px-3 py-2 rounded-lg transition-all hover:bg-gray-100"
+            >
+              <BarChart3 className="h-4 w-4" />
+              <TranslatedText text="Analytics" />
+            </Button>
+
+            <Button
+              variant={isActive('/med-mng/settings') ? 'default' : 'ghost'}
+              onClick={() => navigate('/med-mng/settings')}
+              className="flex items-center gap-2 px-3 py-2 rounded-lg transition-all hover:bg-gray-100"
+            >
+              <Settings className="h-4 w-4" />
+              <TranslatedText text="Paramètres" />
             </Button>
 
             <Button
