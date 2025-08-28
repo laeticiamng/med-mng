@@ -25,7 +25,6 @@ import { GlobalMusicPlayer } from "@/components/layout/GlobalMusicPlayer";
 
 // ⚡ PAGES LAZY LOADED pour performances optimales
 const Index = lazy(() => import("./pages/Index"));
-const CompletePlatform = lazy(() => import("./pages/CompletePlatform").then(module => ({ default: module.CompletePlatform })));
 const Generator = lazy(() => import("./pages/Generator"));
 const Monitoring = lazy(() => import("./pages/Monitoring"));
 const Analytics = lazy(() => import("./pages/Analytics").then(module => ({ default: module.Analytics })));
@@ -161,8 +160,7 @@ const AppWithUX = () => {
                                       <GlobalErrorBoundary>
                                         <Suspense fallback={<PageSkeleton />}>
                                           <Routes>
-                            <Route path="/" element={<CompletePlatform />} />
-                            <Route path="/index" element={<Index />} />
+                                            <Route path="/" element={<Index />} />
                                             <Route path="/generator" element={<Generator />} />
                                             <Route path="/monitoring" element={<Monitoring />} />
                                             <Route path="/analytics" element={<Analytics />} />
