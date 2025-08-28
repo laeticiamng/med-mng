@@ -47,7 +47,13 @@ const MedMngSubscribe = lazy(() => import("./pages/MedMngSubscribe").then(module
 const MedMngDashboard = lazy(() => import("./pages/med-mng/Dashboard"));
 const MedMngCreate = lazy(() => import("./pages/med-mng/Create"));
 const MedMngLibrary = lazy(() => import("./pages/med-mng/Library"));
+const MedMngProfile = lazy(() => import("./pages/med-mng/Profile"));
 const MedMngPlayer = lazy(() => import("./pages/med-mng/Player"));
+const MedMngAnalytics = lazy(() => import("./pages/med-mng/Analytics"));
+const MedMngSettings = lazy(() => import("./pages/med-mng/Settings"));
+const MedMngCommunity = lazy(() => import("./pages/med-mng/Community"));
+const MedMngPlaylists = lazy(() => import("./pages/med-mng/Playlists"));
+const MedMngPlaylistDetail = lazy(() => import("./pages/med-mng/PlaylistDetail"));
 const PlaylistManager = lazy(() => import("./components/playlists/PlaylistManager").then(module => ({ default: module.PlaylistManager })));
 const PlaylistDetail = lazy(() => import("./components/playlists/PlaylistDetail").then(module => ({ default: module.PlaylistDetail })));
 const MusicAnalytics = lazy(() => import("./components/analytics/MusicAnalytics").then(module => ({ default: module.MusicAnalytics })));
@@ -196,17 +202,17 @@ const AppWithUX = () => {
                                             <Route path="/med-mng/login" element={<MedMngLogin />} />
                                             <Route path="/med-mng/signup" element={<MedMngSignup />} />
                                             <Route path="/med-mng/pricing" element={<MedMngPricing />} />
-                                            <Route path="/med-mng/subscribe/:planId" element={<ProtectedRoute><MedMngSubscribe /></ProtectedRoute>} />
-                                            <Route path="/med-mng/success" element={<ProtectedRoute><MedMngSuccess /></ProtectedRoute>} />
-                                            <Route path="/med-mng/create" element={<ProtectedRoute><MedMngCreate /></ProtectedRoute>} />
-                                            <Route path="/med-mng/library" element={<ProtectedRoute><MedMngLibrary /></ProtectedRoute>} />
-                            <Route path="/med-mng/dashboard" element={<ProtectedRoute><MedMngDashboard /></ProtectedRoute>} />
-                            <Route path="/med-mng/analytics" element={<ProtectedRoute><MedMngAnalytics /></ProtectedRoute>} />
-                            <Route path="/med-mng/settings" element={<ProtectedRoute><MedMngSettings /></ProtectedRoute>} />
-                            <Route path="/med-mng/community" element={<ProtectedRoute><MedMngCommunity /></ProtectedRoute>} />
-                            <Route path="/med-mng/playlists" element={<ProtectedRoute><MedMngPlaylists /></ProtectedRoute>} />
-                            <Route path="/med-mng/playlists/:playlistId" element={<ProtectedRoute><MedMngPlaylistDetail /></ProtectedRoute>} />
-                            <Route path="/med-mng/player/:trackId" element={<ProtectedRoute><MedMngPlayer /></ProtectedRoute>} />
+                                             <Route path="/med-mng/subscribe/:planId" element={<ProtectedRoute><MedMngSubscribe /></ProtectedRoute>} />
+                                             <Route path="/med-mng/create" element={<ProtectedRoute><MedMngCreate /></ProtectedRoute>} />
+                                             <Route path="/med-mng/library" element={<ProtectedRoute><MedMngLibrary /></ProtectedRoute>} />
+                                             <Route path="/med-mng/dashboard" element={<ProtectedRoute><MedMngDashboard /></ProtectedRoute>} />
+                                             <Route path="/med-mng/profile" element={<ProtectedRoute><MedMngProfile /></ProtectedRoute>} />
+                                             <Route path="/med-mng/analytics" element={<ProtectedRoute><MedMngAnalytics /></ProtectedRoute>} />
+                                             <Route path="/med-mng/settings" element={<ProtectedRoute><MedMngSettings /></ProtectedRoute>} />
+                                             <Route path="/med-mng/community" element={<ProtectedRoute><MedMngCommunity /></ProtectedRoute>} />
+                                             <Route path="/med-mng/playlists" element={<ProtectedRoute><MedMngPlaylists /></ProtectedRoute>} />
+                                             <Route path="/med-mng/playlists/:playlistId" element={<ProtectedRoute><MedMngPlaylistDetail /></ProtectedRoute>} />
+                                             <Route path="/med-mng/player/:trackId" element={<ProtectedRoute><MedMngPlayer /></ProtectedRoute>} />
                                             <Route path="/chat" element={<MedChat />} />
                                             
                                             <Route path="/system-health" element={<SystemHealth />} />
