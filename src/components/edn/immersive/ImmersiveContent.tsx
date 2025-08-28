@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { TableauSection } from './TableauSection';
-import { QuizSection } from './QuizSection';
+import { EnhancedQuizSection } from '../enhanced/EnhancedQuizSection';
 import { ParolesMusicales } from '../ParolesMusicales';
 import { BandeDessinee } from '../BandeDessinee';
 import { InteractionSection } from './InteractionSection';
@@ -151,10 +151,10 @@ export const ImmersiveContent: React.FC<ImmersiveContentProps> = ({
 
       case 7: // Quiz final
         return (
-          <QuizSection
-            quizData={item.quiz_questions}
-            itemCode={item.item_code}
-          />
+            <EnhancedQuizSection 
+              quizData={item.quiz_questions}
+              itemCode={item.item_code}
+            />
         );
 
       default:

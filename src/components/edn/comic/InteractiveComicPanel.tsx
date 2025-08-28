@@ -1,10 +1,5 @@
 import { useState } from 'react';
-import { Card } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Loader2, Wand2 } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { Play, Pause, Volume2, Maximize2, MessageSquare, Lightbulb } from 'lucide-react';
 
 interface InteractiveComicPanelProps {
   panel: {
@@ -13,162 +8,162 @@ interface InteractiveComicPanelProps {
     text: string;
     imageUrl: string;
     competences?: string[];
-    isGenerated?: boolean;
   };
 }
 
 export const InteractiveComicPanel = ({ panel }: InteractiveComicPanelProps) => {
-  const [imageUrl, setImageUrl] = useState(panel.imageUrl);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const { toast } = useToast();
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [showDialog, setShowDialog] = useState(false);
+  const [showDetails, setShowDetails] = useState(false);
 
-  const isPlaceholder = imageUrl.startsWith('placeholder-') || imageUrl.startsWith('data:image/svg+xml') || !imageUrl;
-  
-  const generateImage = async () => {
-    setIsGenerating(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('generate-comic-images', {
-        body: {
-          scene_description: `Medical scenario: ${panel.text}. Show healthcare professionals in a clinical setting`,
-          style: 'medical comic book illustration, professional healthcare art style',
-          item_code: panel.id
-        }
-      });
-
-      if (error) throw error;
-      
-      setImageUrl(data.imageUrl);
-      
-      toast({
-        title: "Image générée !",
-        description: "L'illustration de la vignette a été créée avec succès.",
-      });
-    } catch (error) {
-      console.error('Erreur génération image:', error);
-      toast({
-        title: "Erreur de génération",
-        description: "Impossible de générer l'image. Veuillez réessayer.",
-        variant: "destructive"
-      });
-    } finally {
-      setIsGenerating(false);
+  const togglePlay = () => {
+    setIsPlaying(!isPlaying);
+    // Ici on pourrait intégrer la synthèse vocale
+    if (!isPlaying) {
+      // Simuler la lecture audio du texte
+      setTimeout(() => setIsPlaying(false), 3000);
     }
   };
 
   return (
-    <Card className="relative overflow-hidden bg-white border-4 border-blue-400 shadow-2xl transform hover:scale-105 transition-all duration-300 hover:shadow-3xl group">
-      {/* Effet de bande dessinée avec bordure stylée */}
-      <div className="absolute inset-0 bg-gradient-to-br from-blue-100 via-white to-purple-100 opacity-20"></div>
+    <div className="group relative bg-white rounded-3xl shadow-2xl border-4 border-gray-200 overflow-hidden transform transition-all duration-500 hover:scale-102 hover:shadow-3xl hover:border-blue-500">
       
-      <div className="relative p-6 space-y-4">
-        {/* En-tête de la vignette */}
-        <div className="flex items-center justify-between mb-4">
-          <Badge 
-            variant="outline" 
-            className="text-blue-800 border-blue-500 bg-blue-100 font-bold text-sm px-3 py-1 shadow-sm"
-          >
-            Panel {panel.id}
-          </Badge>
-          <div className="bg-blue-600 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg">
-            {panel.title}
-          </div>
-        </div>
-        
-        {/* Image principale avec effet bande dessinée */}
-        <div className="relative overflow-hidden rounded-xl border-3 border-blue-300 shadow-xl">
-          {!isPlaceholder ? (
-            <img 
-              src={imageUrl} 
-              alt={panel.title}
-              className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-110"
-            />
-          ) : (
-            <div className="w-full h-48 bg-gradient-to-br from-blue-100 to-purple-100 flex flex-col items-center justify-center space-y-4">
-              <div className="text-center">
-                <div className="w-16 h-16 bg-blue-200 rounded-full flex items-center justify-center mb-3 mx-auto">
-                  <span className="text-2xl">🎬</span>
-                </div>
-                <p className="text-blue-600 font-medium mb-4">Image à générer</p>
-                <Button 
-                  onClick={generateImage}
-                  disabled={isGenerating}
-                  className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
-                >
-                  {isGenerating ? (
-                    <>
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      Génération...
-                    </>
-                  ) : (
-                    <>
-                      <Wand2 className="h-4 w-4" />
-                      Générer Image
-                    </>
-                  )}
-                </Button>
-              </div>
-            </div>
-          )}
-          
-          {/* Effet de dégradé pour donner un aspect comic */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent"></div>
-          
-          {/* Bulle de dialogue stylée */}
-          <div className="absolute top-2 right-2 bg-white rounded-full p-2 shadow-lg border-2 border-blue-400">
-            <div className="w-3 h-3 bg-blue-500 rounded-full animate-pulse"></div>
-          </div>
+      {/* Numéro stylé BD */}
+      <div className="absolute top-4 left-4 z-30 bg-gradient-to-br from-yellow-400 to-orange-500 text-white font-black text-xl w-12 h-12 rounded-full flex items-center justify-center border-4 border-white shadow-xl transform rotate-12 group-hover:rotate-0 transition-transform duration-300">
+        {panel.id}
+      </div>
 
-          {/* Bouton de régénération si image existe */}
-          {!isPlaceholder && (
-            <div className="absolute bottom-2 right-2">
-              <Button 
-                size="sm"
-                variant="secondary"
-                onClick={generateImage}
-                disabled={isGenerating}
-                className="flex items-center gap-1 bg-white/90 hover:bg-white text-blue-600"
-              >
-                {isGenerating ? (
-                  <Loader2 className="h-3 w-3 animate-spin" />
-                ) : (
-                  <Wand2 className="h-3 w-3" />
-                )}
-                <span className="text-xs">Régénérer</span>
-              </Button>
-            </div>
-          )}
-        </div>
+      {/* Zone image interactive */}
+      <div className="relative h-56 bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50 overflow-hidden">
+        <img
+          src={panel.imageUrl}
+          alt={panel.title}
+          className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110"
+          onError={(e) => {
+            e.currentTarget.src = `data:image/svg+xml;base64,${btoa(`
+              <svg width="400" height="300" viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                  <linearGradient id="bg${panel.id}" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#F0F9FF"/>
+                    <stop offset="100%" stop-color="#DBEAFE"/>
+                  </linearGradient>
+                </defs>
+                <rect width="400" height="300" fill="url(#bg${panel.id})"/>
+                <rect x="50" y="50" width="300" height="200" fill="#FFF" stroke="#3B82F6" stroke-width="4" rx="15"/>
+                <circle cx="150" cy="130" r="30" fill="#FED8D8"/>
+                <circle cx="250" cy="130" r="30" fill="#60A5FA"/>
+                <text x="200" y="250" font-family="Arial" font-size="18" fill="#1E40AF" text-anchor="middle" font-weight="bold">${panel.title}</text>
+                <circle cx="150" cy="130" r="10" fill="#374151"/>
+                <circle cx="250" cy="130" r="10" fill="#374151"/>
+                <path d="M170 150 Q200 140 230 150" stroke="#059669" stroke-width="3" fill="none"/>
+              </svg>
+            `)}`;
+          }}
+        />
         
-        {/* Texte narratif avec style bande dessinée */}
-        <div className="relative bg-gradient-to-r from-blue-50 to-purple-50 p-4 rounded-xl border-2 border-blue-200 shadow-inner">
-          {/* Petite décoration en coin */}
-          <div className="absolute -top-1 -left-1 w-4 h-4 bg-blue-400 rotate-45 border border-blue-500"></div>
-          <div className="absolute -top-1 -right-1 w-4 h-4 bg-blue-400 rotate-45 border border-blue-500"></div>
+        {/* Contrôles overlay */}
+        <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
+          <div className="flex space-x-4">
+            <button
+              onClick={togglePlay}
+              className="bg-white/90 backdrop-blur-sm rounded-full p-3 shadow-lg hover:scale-110 transition-transform duration-200"
+            >
+              {isPlaying ? (
+                <Pause className="h-6 w-6 text-blue-600" />
+              ) : (
+                <Play className="h-6 w-6 text-blue-600" />
+              )}
+            </button>
+            
+            <button
+              onClick={() => setShowDialog(!showDialog)}
+              className="bg-white/90 backdrop-blur-sm rounded-full p-3 shadow-lg hover:scale-110 transition-transform duration-200"
+            >
+              <MessageSquare className="h-6 w-6 text-purple-600" />
+            </button>
+            
+            <button
+              onClick={() => setShowDetails(!showDetails)}
+              className="bg-white/90 backdrop-blur-sm rounded-full p-3 shadow-lg hover:scale-110 transition-transform duration-200"
+            >
+              <Lightbulb className="h-6 w-6 text-orange-600" />
+            </button>
+          </div>
+        </div>
+
+        {/* Indicateur de lecture */}
+        {isPlaying && (
+          <div className="absolute bottom-4 left-4 right-4">
+            <div className="bg-blue-500 h-1 rounded-full animate-pulse">
+              <div className="bg-white h-full w-1/3 rounded-full animate-pulse"></div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Bulle de dialogue animée */}
+      <div className="relative -mt-8 mx-6 z-20">
+        <div className="bg-white rounded-2xl border-4 border-blue-400 p-4 shadow-xl relative">
+          {/* Queue de bulle */}
+          <div className="absolute -top-3 left-8 w-0 h-0 border-l-4 border-r-4 border-b-6 border-transparent border-b-blue-400"></div>
+          <div className="absolute -top-2 left-8 w-0 h-0 border-l-3 border-r-3 border-b-5 border-transparent border-b-white"></div>
           
-          <p className="text-blue-900 font-medium italic leading-relaxed text-sm">
-            {panel.text}
-          </p>
+          <h3 className="text-xl font-black text-blue-800 mb-2 text-center">
+            {panel.title}
+          </h3>
           
-          {/* Informations sur les compétences */}
-          {panel.competences && panel.competences.length > 0 && (
-            <div className="mt-3 pt-2 border-t border-blue-200">
-              <p className="text-xs text-blue-700 font-semibold">
-                🎯 {panel.competences.length} compétence(s) abordée(s)
+          {showDialog && (
+            <div className="mt-3 p-3 bg-blue-50 rounded-lg border-2 border-blue-200 animate-fade-in">
+              <p className="text-sm text-blue-800 font-medium italic">
+                "Cette étape est cruciale pour comprendre {panel.title.toLowerCase()}..."
               </p>
             </div>
           )}
-          
-          {/* Signature artistique */}
-          <div className="flex justify-end mt-2">
-            <div className="text-xs text-blue-600 font-bold opacity-70">
-              #{panel.id}
-            </div>
-          </div>
         </div>
       </div>
-      
-      {/* Effet d'ombre portée pour donner de la profondeur */}
-      <div className="absolute -bottom-2 -right-2 w-full h-full bg-blue-200 rounded-lg -z-10 opacity-30"></div>
-    </Card>
+
+      {/* Contenu principal */}
+      <div className="p-6 pt-2">
+        <p className="text-gray-700 leading-relaxed text-sm mb-4">
+          {panel.text}
+        </p>
+
+        {/* Détails expandables */}
+        {showDetails && (
+          <div className="bg-gradient-to-r from-orange-50 to-yellow-50 rounded-xl p-4 border-2 border-orange-200 animate-slide-in-down">
+            <h4 className="font-bold text-orange-800 mb-2">💡 Points clés à retenir :</h4>
+            <ul className="text-sm text-orange-700 space-y-1">
+              <li>• Application pratique en situation clinique</li>
+              <li>• Importance de la communication patient</li>
+              <li>• Respect des protocoles et de l'éthique</li>
+            </ul>
+          </div>
+        )}
+      </div>
+
+      {/* Compétences avec animations */}
+      {panel.competences && panel.competences.length > 0 && (
+        <div className="px-6 pb-6">
+          <div className="flex items-center gap-2 mb-3">
+            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+            <span className="text-sm font-bold text-green-700">Compétences développées</span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {panel.competences.map((comp, idx) => (
+              <span
+                key={idx}
+                className="text-xs bg-gradient-to-r from-green-100 to-emerald-100 text-green-800 px-3 py-2 rounded-full font-semibold border-2 border-green-200 hover:scale-105 transition-transform duration-200 cursor-default"
+                style={{ animationDelay: `${idx * 0.1}s` }}
+              >
+                ✨ {comp}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Bordure magique animée */}
+      <div className="absolute inset-0 rounded-3xl bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10 animate-gradient-x"></div>
+    </div>
   );
 };
