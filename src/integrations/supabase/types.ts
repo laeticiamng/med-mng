@@ -128,6 +128,127 @@ export type Database = {
         }
         Relationships: []
       }
+      ambition_artifacts: {
+        Row: {
+          description: string | null
+          icon: string | null
+          id: string
+          name: string
+          obtained_at: string | null
+          rarity: string | null
+          run_id: string | null
+        }
+        Insert: {
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name: string
+          obtained_at?: string | null
+          rarity?: string | null
+          run_id?: string | null
+        }
+        Update: {
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
+          obtained_at?: string | null
+          rarity?: string | null
+          run_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ambition_artifacts_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "ambition_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ambition_quests: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          est_minutes: number | null
+          flavor: string | null
+          id: string
+          notes: string | null
+          result: string | null
+          run_id: string | null
+          status: string | null
+          title: string
+          xp_reward: number | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          est_minutes?: number | null
+          flavor?: string | null
+          id?: string
+          notes?: string | null
+          result?: string | null
+          run_id?: string | null
+          status?: string | null
+          title: string
+          xp_reward?: number | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          est_minutes?: number | null
+          flavor?: string | null
+          id?: string
+          notes?: string | null
+          result?: string | null
+          run_id?: string | null
+          status?: string | null
+          title?: string
+          xp_reward?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ambition_quests_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "ambition_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ambition_runs: {
+        Row: {
+          completed_at: string | null
+          created_at: string | null
+          id: string
+          metadata: Json | null
+          objective: string | null
+          status: string | null
+          tags: string[] | null
+          user_id: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          objective?: string | null
+          status?: string | null
+          tags?: string[] | null
+          user_id?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          objective?: string | null
+          status?: string | null
+          tags?: string[] | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       api_integrations: {
         Row: {
           base_url: string
@@ -614,6 +735,138 @@ export type Database = {
         }
         Relationships: []
       }
+      bounce_battles: {
+        Row: {
+          created_at: string | null
+          duration_seconds: number | null
+          ended_at: string | null
+          id: string
+          mode: string | null
+          started_at: string | null
+          status: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          duration_seconds?: number | null
+          ended_at?: string | null
+          id?: string
+          mode?: string | null
+          started_at?: string | null
+          status?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          duration_seconds?: number | null
+          ended_at?: string | null
+          id?: string
+          mode?: string | null
+          started_at?: string | null
+          status?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      bounce_coping_responses: {
+        Row: {
+          battle_id: string | null
+          created_at: string | null
+          id: string
+          question_id: string
+          response_value: number
+        }
+        Insert: {
+          battle_id?: string | null
+          created_at?: string | null
+          id?: string
+          question_id: string
+          response_value: number
+        }
+        Update: {
+          battle_id?: string | null
+          created_at?: string | null
+          id?: string
+          question_id?: string
+          response_value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bounce_coping_responses_battle_id_fkey"
+            columns: ["battle_id"]
+            isOneToOne: false
+            referencedRelation: "bounce_battles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bounce_events: {
+        Row: {
+          battle_id: string | null
+          event_data: Json | null
+          event_type: string
+          id: string
+          timestamp: number
+        }
+        Insert: {
+          battle_id?: string | null
+          event_data?: Json | null
+          event_type: string
+          id?: string
+          timestamp: number
+        }
+        Update: {
+          battle_id?: string | null
+          event_data?: Json | null
+          event_type?: string
+          id?: string
+          timestamp?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bounce_events_battle_id_fkey"
+            columns: ["battle_id"]
+            isOneToOne: false
+            referencedRelation: "bounce_battles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bounce_pair_tips: {
+        Row: {
+          battle_id: string | null
+          id: string
+          pair_token: string
+          received_tip: string | null
+          sent_at: string | null
+          tip_content: string | null
+        }
+        Insert: {
+          battle_id?: string | null
+          id?: string
+          pair_token: string
+          received_tip?: string | null
+          sent_at?: string | null
+          tip_content?: string | null
+        }
+        Update: {
+          battle_id?: string | null
+          id?: string
+          pair_token?: string
+          received_tip?: string | null
+          sent_at?: string | null
+          tip_content?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bounce_pair_tips_battle_id_fkey"
+            columns: ["battle_id"]
+            isOneToOne: false
+            referencedRelation: "bounce_battles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       buddies: {
         Row: {
           buddy_user_id: string
@@ -718,6 +971,110 @@ export type Database = {
           created_by?: string | null
           details?: Json | null
           id?: string
+        }
+        Relationships: []
+      }
+      coach_conversations: {
+        Row: {
+          coach_mode: string | null
+          created_at: string | null
+          id: string
+          last_message_at: string | null
+          message_count: number | null
+          title: string | null
+          user_id: string
+        }
+        Insert: {
+          coach_mode?: string | null
+          created_at?: string | null
+          id?: string
+          last_message_at?: string | null
+          message_count?: number | null
+          title?: string | null
+          user_id: string
+        }
+        Update: {
+          coach_mode?: string | null
+          created_at?: string | null
+          id?: string
+          last_message_at?: string | null
+          message_count?: number | null
+          title?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      coach_messages: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string | null
+          id: string
+          message_type: string | null
+          sender: string
+        }
+        Insert: {
+          content: string
+          conversation_id: string
+          created_at?: string | null
+          id?: string
+          message_type?: string | null
+          sender: string
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string | null
+          id?: string
+          message_type?: string | null
+          sender?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "coach_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "coach_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      cocon_content: {
+        Row: {
+          content: string
+          content_type: string
+          created_at: string | null
+          id: string
+          is_private: boolean | null
+          mood: string | null
+          tags: string[] | null
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          content: string
+          content_type: string
+          created_at?: string | null
+          id?: string
+          is_private?: boolean | null
+          mood?: string | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          content?: string
+          content_type?: string
+          created_at?: string | null
+          id?: string
+          is_private?: boolean | null
+          mood?: string | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -1391,6 +1748,42 @@ export type Database = {
           subject?: string
           updated_at?: string | null
           variables?: Json | null
+        }
+        Relationships: []
+      }
+      emotion_scans: {
+        Row: {
+          confidence: number | null
+          created_at: string | null
+          emotions: Json
+          id: string
+          mood: string | null
+          recommendations: Json | null
+          scan_type: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          confidence?: number | null
+          created_at?: string | null
+          emotions?: Json
+          id?: string
+          mood?: string | null
+          recommendations?: Json | null
+          scan_type: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          confidence?: number | null
+          created_at?: string | null
+          emotions?: Json
+          id?: string
+          mood?: string | null
+          recommendations?: Json | null
+          scan_type?: string
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -5620,6 +6013,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      vr_sessions: {
+        Row: {
+          category: string | null
+          completed: boolean | null
+          completed_at: string | null
+          created_at: string | null
+          duration_minutes: number | null
+          experience_id: string
+          experience_title: string
+          id: string
+          rating: number | null
+          user_id: string
+        }
+        Insert: {
+          category?: string | null
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          duration_minutes?: number | null
+          experience_id: string
+          experience_title: string
+          id?: string
+          rating?: number | null
+          user_id: string
+        }
+        Update: {
+          category?: string | null
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          duration_minutes?: number | null
+          experience_id?: string
+          experience_title?: string
+          id?: string
+          rating?: number | null
+          user_id?: string
+        }
+        Relationships: []
       }
     }
     Views: {
