@@ -1,5 +1,5 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Music, BookOpen, MessageSquare, Users, Sparkles, LogIn, CreditCard, Star, Zap, Shield, Award, Play, Heart, Clock } from "lucide-react";
 import { TranslatedText } from "@/components/TranslatedText";
 import { Card, CardContent } from "@/components/ui/card";
@@ -357,9 +357,9 @@ const Index = () => {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 text-sm text-gray-300">
             <span>&copy; 2024 MED MNG. Tous droits réservés.</span>
             <div className="flex gap-4">
-              <a href="#" className="hover:text-white transition-colors">Conditions</a>
-              <a href="#" className="hover:text-white transition-colors">Confidentialité</a>
-              <a href="#" className="hover:text-white transition-colors">Support</a>
+              <Link to="/conditions" className="hover:text-white transition-colors">Conditions</Link>
+              <Link to="/politique-confidentialite" className="hover:text-white transition-colors">Confidentialité</Link>
+              <Link to="/support" className="hover:text-white transition-colors">Support</Link>
             </div>
           </div>
         </div>

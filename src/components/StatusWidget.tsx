@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
@@ -136,13 +137,13 @@ export const StatusWidget: React.FC = () => {
         {/* Liens d'accès rapide pour les administrateurs */}
         <div className="flex flex-wrap gap-2 pt-2 border-t border-blue-200/30">
           <Button asChild variant="ghost" size="sm" className="text-xs">
-            <a href="/admin-panel">Administration</a>
+            <Link to="/admin-panel">Administration</Link>
           </Button>
           <Button asChild variant="ghost" size="sm" className="text-xs">
-            <a href="/monitoring">Monitoring</a>
+            <Link to="/monitoring">Monitoring</Link>
           </Button>
           <Button asChild variant="ghost" size="sm" className="text-xs">
-            <a href="/system-health">Santé Système</a>
+            <Link to="/system-health">Santé Système</Link>
           </Button>
         </div>
       </div>

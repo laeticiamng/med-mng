@@ -7,6 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { ConsistentBackground } from '@/components/layout/ConsistentBackground';
 import { Search, Book, Code, Zap, Users, Settings, ChevronRight, ExternalLink } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 const Documentation: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -161,11 +162,11 @@ const Documentation: React.FC = () => {
                         className="w-full justify-start text-white/80 hover:text-white hover:bg-white/10"
                         asChild
                       >
-                        <a href={link.url} className="flex items-center gap-2">
+                        <Link to={link.url} className="flex items-center gap-2">
                           <link.icon className="h-4 w-4" />
                           {link.title}
                           <ExternalLink className="h-3 w-3 ml-auto" />
-                        </a>
+                        </Link>
                       </Button>
                     ))}
                   </CardContent>

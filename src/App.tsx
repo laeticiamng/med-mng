@@ -83,6 +83,10 @@ const PlatformOverview = lazy(() => import("./pages/PlatformOverview"));
 const UserSettings = lazy(() => import("./pages/UserSettings"));
 const Documentation = lazy(() => import("./pages/Documentation"));
 const Community = lazy(() => import("./pages/Community"));
+const Profile = lazy(() => import("./pages/Profile"));
+const Notifications = lazy(() => import("./pages/Notifications"));
+const FAQ = lazy(() => import("./pages/FAQ"));
+const HelpCenter = lazy(() => import("./pages/HelpCenter"));
 
 import { AuthProvider } from "./components/med-mng/AuthProvider";
 import { ProtectedRoute } from "./components/med-mng/withAuth";
@@ -181,6 +185,10 @@ const AppWithUX = () => {
                                              <Route path="/settings" element={<UserSettings />} />
                                              <Route path="/documentation" element={<Documentation />} />
                                              <Route path="/community" element={<Community />} />
+                                             <Route path="/profile" element={<Profile />} />
+                                             <Route path="/notifications" element={<Notifications />} />
+                                             <Route path="/faq" element={<FAQ />} />
+                                             <Route path="/help" element={<HelpCenter />} />
                                             
                                             {/* EDN Interface Unifiée */}
                                             <Route path="/edn" element={<EdnComplete />} />
