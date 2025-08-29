@@ -46,8 +46,6 @@ export default {
 		extend: {
 			fontFamily: {
 				sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'system-ui', 'sans-serif'],
-				serif: ['Playfair Display', 'Georgia', 'Times New Roman', 'serif'],
-				display: ['Nunito', 'Inter', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'sans-serif'],
 				mono: ['JetBrains Mono', 'SF Mono', 'Monaco', 'Cascadia Code', 'Roboto Mono', 'Courier New', 'monospace'],
 			},
 			colors: {
@@ -247,9 +245,7 @@ export default {
 				'premium-lg': '0 35px 60px -12px rgba(59, 130, 246, 0.2)',
 				'inner-premium': 'inset 0 2px 4px 0 rgba(59, 130, 246, 0.05)',
 				'medical': '0 4px 6px -1px rgba(59, 130, 246, 0.1), 0 2px 4px -1px rgba(59, 130, 246, 0.06)',
-				'medical-lg': '0 10px 15px -3px rgba(59, 130, 246, 0.1), 0 4px 6px -2px rgba(59, 130, 246, 0.05)',
-				'glow': '0 0 40px rgba(59, 130, 246, 0.15)',
-				'glow-lg': '0 0 60px rgba(59, 130, 246, 0.25)'
+				'medical-lg': '0 10px 15px -3px rgba(59, 130, 246, 0.1), 0 4px 6px -2px rgba(59, 130, 246, 0.05)'
 			},
 			backgroundImage: {
 				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',

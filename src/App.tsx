@@ -77,9 +77,7 @@ const AuditCompleteness = lazy(() => import("./pages/AuditCompleteness"));
 // Development-only components
 const UXValidationDashboard = lazy(() => import("./components/validation/UXValidationDashboard").then(module => ({ default: module.UXValidationDashboard })));
 const EdnImmersive = lazy(() => import("./pages/EdnImmersive"));
-import EdnComplete from "./pages/EdnComplete";
-import { PremiumEdnPage } from "@/components/pages/PremiumEdnPage";
-import { PremiumLayout } from "@/components/layout/PremiumLayout";
+const EdnComplete = lazy(() => import("./pages/EdnComplete"));
 const EdnItem = lazy(() => import("./pages/EdnItem"));
 const PlatformOverview = lazy(() => import("./pages/PlatformOverview"));
 const UserSettings = lazy(() => import("./pages/UserSettings"));
@@ -192,12 +190,8 @@ const AppWithUX = () => {
                                              <Route path="/faq" element={<FAQ />} />
                                              <Route path="/help" element={<HelpCenter />} />
                                             
-                                            {/* EDN Interface Premium */}
-                                            <Route path="/edn" element={
-                                              <PremiumLayout>
-                                                <PremiumEdnPage />
-                                              </PremiumLayout>
-                                            } />
+                                            {/* EDN Interface Unifiée */}
+                                            <Route path="/edn" element={<EdnComplete />} />
                                             <Route path="/edn/:slug" element={<EdnItem />} />
                                             
                                             {/* Redirections automatiques vers l'interface unifiée */}
