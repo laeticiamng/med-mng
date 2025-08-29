@@ -87,7 +87,7 @@ const CompetenceCard: React.FC<{
                       {competence.objectif_id}
                     </Badge>
                   )}
-                  <h3 className={`font-semibold ${themeColors.text} text-sm leading-tight`}>
+                  <h3 className={`font-semibold ${themeColors.text} text-sm leading-tight title-container-multiline`}>
                     {competence.titre_complet || competence.intitule}
                   </h3>
                 </div>
@@ -127,7 +127,7 @@ const CompetenceCard: React.FC<{
                   )}
                 </div>
                 <div 
-                  className="text-sm text-foreground leading-relaxed prose prose-sm max-w-none bg-background p-3 rounded border"
+                  className="text-sm text-foreground leading-relaxed prose prose-sm max-w-none bg-background p-3 rounded border description-text-scrollable"
                   style={{ 
                     whiteSpace: 'pre-wrap', 
                     wordWrap: 'break-word', 
@@ -183,7 +183,7 @@ const CompetenceCard: React.FC<{
                           <Book className="w-4 h-4" />
                           Sommaire
                         </h4>
-                        <p className="text-amber-700 text-sm">{competence.sommaire}</p>
+                        <p className="text-amber-700 text-sm description-text">{competence.sommaire}</p>
                       </div>
                     )}
                     {competence.mecanismes && (
@@ -192,7 +192,7 @@ const CompetenceCard: React.FC<{
                           <Settings className="w-4 h-4" />
                           Mécanismes
                         </h4>
-                        <p className="text-green-700 text-sm">{competence.mecanismes}</p>
+                        <p className="text-green-700 text-sm description-text">{competence.mecanismes}</p>
                       </div>
                     )}
                   </TabsContent>
@@ -206,7 +206,7 @@ const CompetenceCard: React.FC<{
                           <Target className="w-4 h-4" />
                           Indications
                         </h4>
-                        <p className="text-blue-700 text-sm">{competence.indications}</p>
+                        <p className="text-blue-700 text-sm description-text">{competence.indications}</p>
                       </div>
                     )}
                     {competence.modalites_surveillance && (
@@ -215,7 +215,7 @@ const CompetenceCard: React.FC<{
                           <Eye className="w-4 h-4" />
                           Surveillance
                         </h4>
-                        <p className="text-purple-700 text-sm">{competence.modalites_surveillance}</p>
+                        <p className="text-purple-700 text-sm description-text">{competence.modalites_surveillance}</p>
                       </div>
                     )}
                   </TabsContent>
@@ -229,7 +229,7 @@ const CompetenceCard: React.FC<{
                           <AlertTriangle className="w-4 h-4" />
                           Effets indésirables
                         </h4>
-                        <p className="text-red-700 text-sm">{competence.effets_indesirables}</p>
+                        <p className="text-red-700 text-sm description-text">{competence.effets_indesirables}</p>
                       </div>
                     )}
                     {competence.interactions && (
@@ -238,7 +238,7 @@ const CompetenceCard: React.FC<{
                           <Settings className="w-4 h-4" />
                           Interactions
                         </h4>
-                        <p className="text-orange-700 text-sm">{competence.interactions}</p>
+                        <p className="text-orange-700 text-sm description-text">{competence.interactions}</p>
                       </div>
                     )}
                     {competence.causes_echec && (
@@ -247,7 +247,7 @@ const CompetenceCard: React.FC<{
                           <AlertTriangle className="w-4 h-4" />
                           Causes d'échec
                         </h4>
-                        <p className="text-gray-700 text-sm">{competence.causes_echec}</p>
+                        <p className="text-gray-700 text-sm description-text">{competence.causes_echec}</p>
                       </div>
                     )}
                   </TabsContent>
@@ -261,13 +261,13 @@ const CompetenceCard: React.FC<{
                           <Users className="w-4 h-4" />
                           Contributeurs
                         </h4>
-                        <p className="text-blue-700 text-sm">{competence.contributeurs}</p>
+                        <p className="text-blue-700 text-sm description-text">{competence.contributeurs}</p>
                       </div>
                     )}
                     {competence.rubrique && competence.rubrique !== 'Non spécifiée' && (
                       <div className="p-3 bg-indigo-50 border border-indigo-200 rounded-lg">
                         <h4 className="font-semibold text-indigo-800 text-sm mb-2">Rubrique</h4>
-                        <Badge variant="secondary" className="text-indigo-700">
+                        <Badge variant="secondary" className="text-indigo-700 badge-text">
                           {competence.rubrique}
                         </Badge>
                       </div>

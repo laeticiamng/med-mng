@@ -107,10 +107,10 @@ export const ParolesMusicalesMainContent: React.FC<ParolesMusicalesMainContentPr
     return (
       <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
         <div className="flex items-center gap-2 text-yellow-800">
-          <AlertTriangle className="h-5 w-5" />
-          <span className="font-semibold">Aucune parole disponible</span>
+          <AlertTriangle className="h-5 w-5 flex-shrink-0" />
+          <span className="font-semibold text-container">Aucune parole disponible</span>
         </div>
-        <p className="text-yellow-700 mt-2">
+        <p className="text-yellow-700 mt-2 text-container">
           Cet item ne contient pas encore de paroles musicales pour Suno.
         </p>
       </div>
@@ -118,8 +118,8 @@ export const ParolesMusicalesMainContent: React.FC<ParolesMusicalesMainContentPr
   }
 
   return (
-    <div className="space-y-4">
-      <h3 className="font-semibold">Paroles disponibles pour génération musicale Suno :</h3>
+    <div className="space-y-4 main-content-container">
+      <h3 className="font-semibold title-container-multiline">Paroles disponibles pour génération musicale Suno :</h3>
       
       {normalizedParoles[0] && (
         <div className="space-y-2">
@@ -184,8 +184,8 @@ export const ParolesMusicalesMainContent: React.FC<ParolesMusicalesMainContentPr
       )}
 
       {normalizedParoles[0] && normalizedParoles[1] && (
-        <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg">
-          <h4 className="font-semibold text-blue-800 mb-3 flex items-center gap-2">
+        <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg main-content-container">
+          <h4 className="font-semibold text-blue-800 mb-3 flex items-center gap-2 title-container-multiline">
             🎵 Section Combinée Rang A+B - Fusion des compétences
           </h4>
           <ParolesMusicalesRangSection
@@ -212,7 +212,7 @@ export const ParolesMusicalesMainContent: React.FC<ParolesMusicalesMainContentPr
             generationProgress={generationProgress?.rangA}
             title="Musique Complète A+B"
           />
-          <p className="text-blue-600 text-sm mt-2">
+          <p className="text-blue-600 text-sm mt-2 description-text">
             ✨ Cette section combine les compétences Rang A et Rang B pour une expérience musicale complète de {itemCode}
           </p>
         </div>

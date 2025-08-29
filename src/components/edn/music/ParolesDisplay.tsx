@@ -43,43 +43,45 @@ export const ParolesDisplay = ({ parolesArray, rang, textColor }: ParolesDisplay
 
   if (!lines.length) {
     return (
-      <div className={`prose prose-lg max-w-none ${textColor} mb-8`}>
-        <div className="text-sm opacity-80 italic">Paroles indisponibles pour ce rang. Veuillez régénérer.</div>
+      <div className={`prose prose-lg max-w-none ${textColor} mb-8 text-container`}>
+        <div className="text-sm opacity-80 italic text-container">Paroles indisponibles pour ce rang. Veuillez régénérer.</div>
       </div>
     );
   }
 
   return (
-    <div className={`prose prose-lg max-w-none ${textColor} mb-8`}>
-      {lines.map((ligne, index) => {
-        if (ligne.startsWith('[') && ligne.endsWith(']')) {
+    <div className={`lyrics-container ${textColor} mb-8 custom-scroll`}>
+      <div className="music-content">
+        {lines.map((ligne, index) => {
+          if (ligne.startsWith('[') && ligne.endsWith(']')) {
+            return (
+              <div
+                key={index}
+                className={`music-section text-xl font-bold ${rang === 'AB' ? 'text-purple-800' : rang === 'A' ? 'text-amber-800' : 'text-blue-800'} my-4 text-center title-container-multiline`}
+              >
+                {ligne}
+              </div>
+            );
+          }
+          if (ligne.includes(' - ')) {
+            return (
+              <div
+                key={index}
+                className={`music-section text-2xl font-bold ${textColor} mb-6 text-center border-b-2 ${
+                  rang === 'AB' ? 'border-purple-300' : rang === 'A' ? 'border-amber-300' : 'border-blue-300'
+                } pb-3 title-container-three-lines`}
+              >
+                {ligne}
+              </div>
+            );
+          }
           return (
-            <div
-              key={index}
-              className={`text-xl font-bold ${rang === 'AB' ? 'text-purple-800' : rang === 'A' ? 'text-amber-800' : 'text-blue-800'} my-4 text-center`}
-            >
+            <div key={index} className="music-verse text-lg leading-relaxed mb-2 italic font-medium description-text">
               {ligne}
             </div>
           );
-        }
-        if (ligne.includes(' - ')) {
-          return (
-            <div
-              key={index}
-              className={`text-2xl font-bold ${textColor} mb-6 text-center border-b-2 ${
-                rang === 'AB' ? 'border-purple-300' : rang === 'A' ? 'border-amber-300' : 'border-blue-300'
-              } pb-3`}
-            >
-              {ligne}
-            </div>
-          );
-        }
-        return (
-          <div key={index} className="text-lg leading-relaxed mb-2 italic font-medium">
-            {ligne}
-          </div>
-        );
-      })}
+        })}
+      </div>
     </div>
   );
 };

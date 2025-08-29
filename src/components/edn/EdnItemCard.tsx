@@ -37,11 +37,11 @@ export const EdnItemCard = memo<EdnItemCardProps>(({ item, onClick }) => {
           
           {/* Titre */}
           <div>
-            <h3 className="font-bold text-foreground text-sm leading-tight line-clamp-2 group-hover:text-primary transition-colors">
+            <h3 className="font-bold text-foreground text-sm leading-tight title-container-multiline group-hover:text-primary transition-colors">
               {item.title}
             </h3>
             {item.specialite && (
-              <p className="text-xs text-muted-foreground mt-1 font-medium">
+              <p className="text-xs text-muted-foreground mt-1 font-medium title-container">
                 {item.specialite}
               </p>
             )}

@@ -1,0 +1,291 @@
+/* Correctifs pour les débordements de texte */
+
+/* Classes utilitaires pour la gestion du débordement de texte */
+.text-container {
+  word-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+  overflow-wrap: break-word;
+}
+
+.text-container-strict {
+  word-break: break-all;
+  overflow-wrap: anywhere;
+}
+
+.scrollable-text {
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: 400px;
+  scroll-behavior: smooth;
+}
+
+.scrollable-text-large {
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: 600px;
+  scroll-behavior: smooth;
+}
+
+/* Styles pour les paroles musicales longues */
+.lyrics-container {
+  max-height: 500px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 1rem;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(10px);
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  line-height: 1.6;
+}
+
+.lyrics-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.lyrics-container::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+}
+
+.lyrics-container::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+}
+
+.lyrics-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.5);
+}
+
+/* Styles pour les titres longs */
+.title-container {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+}
+
+.title-container-multiline {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.4;
+  max-height: 2.8em; /* 2 lignes * 1.4 line-height */
+}
+
+.title-container-three-lines {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.4;
+  max-height: 4.2em; /* 3 lignes * 1.4 line-height */
+}
+
+/* Styles pour les cartes avec contenu débordant */
+.card-content-safe {
+  overflow: hidden;
+  word-wrap: break-word;
+  padding: 1rem;
+}
+
+.card-text-content {
+  overflow-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+}
+
+/* Styles pour les tableaux responsifs */
+.table-container {
+  overflow-x: auto;
+  overflow-y: visible;
+  max-width: 100%;
+  border-radius: 8px;
+}
+
+.table-cell-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 200px; /* Ajustable selon le besoin */
+}
+
+.table-cell-text-multiline {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
+  word-break: break-word;
+  line-height: 1.4;
+  max-height: 2.8em;
+}
+
+/* Styles pour les badges et labels */
+.badge-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 120px;
+}
+
+/* Styles pour les descriptions et contenus longs */
+.description-text {
+  overflow-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+  line-height: 1.6;
+}
+
+.description-text-scrollable {
+  max-height: 300px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 8px;
+  word-wrap: break-word;
+  line-height: 1.6;
+}
+
+/* Styles pour les codes et textes techniques */
+.code-text {
+  word-break: break-all;
+  overflow-wrap: anywhere;
+  font-family: 'Courier New', Courier, monospace;
+  background: rgba(0, 0, 0, 0.05);
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+/* Styles pour les alertes et messages */
+.alert-text {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  line-height: 1.5;
+}
+
+/* Styles pour le contenu principal responsive */
+.main-content-container {
+  max-width: 100%;
+  overflow-x: hidden;
+  padding: 0 1rem;
+}
+
+@media (max-width: 768px) {
+  .main-content-container {
+    padding: 0 0.5rem;
+  }
+  
+  .lyrics-container {
+    max-height: 350px;
+    padding: 0.75rem;
+  }
+  
+  .table-cell-text {
+    max-width: 150px;
+  }
+  
+  .title-container-multiline {
+    -webkit-line-clamp: 3;
+    max-height: 4.2em;
+  }
+}
+
+@media (max-width: 480px) {
+  .lyrics-container {
+    max-height: 250px;
+    padding: 0.5rem;
+  }
+  
+  .table-cell-text {
+    max-width: 100px;
+  }
+  
+  .badge-text {
+    max-width: 80px;
+  }
+  
+  .description-text-scrollable {
+    max-height: 200px;
+  }
+}
+
+/* Styles pour les animations sans débordement */
+.animate-safe {
+  overflow: hidden;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+/* Classes d'aide pour forcer la coupure de mots longs */
+.break-words-force {
+  word-break: break-all !important;
+  overflow-wrap: anywhere !important;
+}
+
+.break-words-normal {
+  word-break: normal !important;
+  overflow-wrap: normal !important;
+  hyphens: auto;
+}
+
+/* Styles pour les conteneurs avec scroll personnalisé */
+.custom-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(156, 163, 175, 0.5) transparent;
+}
+
+.custom-scroll::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.custom-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scroll::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.5);
+  border-radius: 3px;
+}
+
+.custom-scroll::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(156, 163, 175, 0.7);
+}
+
+/* Styles pour le contenu musical */
+.music-content {
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  line-height: 1.8;
+  font-family: 'Georgia', serif;
+  letter-spacing: 0.02em;
+}
+
+.music-section {
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  border-left: 4px solid rgba(139, 92, 246, 0.5);
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: 0 8px 8px 0;
+}
+
+.music-verse {
+  margin-bottom: 1rem;
+  padding-left: 1rem;
+}
+
+.music-refrain {
+  margin-bottom: 1rem;
+  padding: 0.75rem;
+  background: rgba(139, 92, 246, 0.1);
+  border-radius: 6px;
+  border: 1px solid rgba(139, 92, 246, 0.2);
+}
