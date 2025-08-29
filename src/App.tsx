@@ -87,6 +87,7 @@ const Profile = lazy(() => import("./pages/Profile"));
 const Notifications = lazy(() => import("./pages/Notifications"));
 const FAQ = lazy(() => import("./pages/FAQ"));
 const HelpCenter = lazy(() => import("./pages/HelpCenter"));
+const MonitoringCenter = lazy(() => import("./pages/MonitoringCenter"));
 
 import { AuthProvider } from "./components/med-mng/AuthProvider";
 import { ProtectedRoute } from "./components/med-mng/withAuth";
