@@ -16,6 +16,10 @@ import { PerformanceOptimizer } from '@/components/optimization/PerformanceOptim
 import { SmartCacheManager } from '@/components/optimization/SmartCacheManager';
 import { SmartNotificationSystem } from '@/components/notifications/SmartNotificationSystem';
 import { AdvancedAccessibility } from '@/components/accessibility/AdvancedAccessibility';
+import { AdvancedPerformanceDashboard } from '@/components/analytics/AdvancedPerformanceDashboard';
+import { IntelligentResourcePreloader } from '@/components/optimization/IntelligentResourcePreloader';
+import { MemoryManagementSystem } from '@/components/optimization/MemoryManagementSystem';
+import { NetworkOptimizer } from '@/components/optimization/NetworkOptimizer';
 
 const OptimizationCenter = memo(() => {
   const optimizationStats = {
