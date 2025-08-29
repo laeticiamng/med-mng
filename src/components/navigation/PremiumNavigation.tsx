@@ -68,6 +68,8 @@ export const PremiumNavigation: React.FC = () => {
 
     // Admin & Tools
     { id: 'admin', label: 'Administration', path: '/admin', icon: Shield, color: 'from-red-500 to-pink-600', category: 'admin', description: 'Panneau d\'administration' },
+    { id: 'system-admin', label: 'Admin Système', path: '/system-admin', icon: Settings, color: 'from-purple-500 to-indigo-600', category: 'admin', description: 'Administration système avancée', isNew: true },
+    { id: 'system-dashboard', label: 'Dashboard Système', path: '/system-dashboard', icon: BarChart3, color: 'from-cyan-500 to-blue-600', category: 'admin', description: 'Tableau de bord système complet', isNew: true },
     { id: 'monitoring', label: 'Monitoring', path: '/monitoring', icon: Target, color: 'from-yellow-500 to-orange-600', category: 'admin', description: 'Surveillance système' },
     { id: 'settings', label: 'Paramètres', path: '/settings', icon: Settings, color: 'from-gray-500 to-slate-600', category: 'admin', description: 'Configuration utilisateur' }
   ];

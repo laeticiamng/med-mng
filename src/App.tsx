@@ -29,7 +29,9 @@ const AllFeaturesPage = lazy(() => import("./pages/AllFeaturesPage"));
 const PremiumAllFeatures = lazy(() => import("./pages/PremiumAllFeatures"));
 const PremiumAnalytics = lazy(() => import("./pages/PremiumAnalytics"));
 const Generator = lazy(() => import("./pages/Generator"));
-const Monitoring = lazy(() => import("./pages/Monitoring"));
+const MonitoringCenter = lazy(() => import("./pages/MonitoringCenter"));
+const SystemAdmin = lazy(() => import("./pages/SystemAdmin"));
+const SystemDashboard = lazy(() => import("./pages/SystemDashboard"));
 const CompleteDashboard = lazy(() => import("./pages/CompleteDashboard"));
 const SuperDashboard = lazy(() => import("./pages/SuperDashboard"));
 const PremiumDashboard = lazy(() => import("./pages/PremiumDashboard"));
@@ -182,7 +184,9 @@ const AppWithUX = () => {
                                                   <Route path="/features" element={<PremiumAllFeatures />} />
                                                   <Route path="/all-features" element={<AllFeaturesPage />} />
                                                  <Route path="/generator" element={<Generator />} />
-                                                 <Route path="/monitoring" element={<Monitoring />} />
+                                                  <Route path="/monitoring" element={<MonitoringCenter />} />
+                                                  <Route path="/system-admin" element={<SystemAdmin />} />
+                                                  <Route path="/system-dashboard" element={<SystemDashboard />} />
                                                  <Route path="/analytics" element={<PremiumAnalytics />} />
                                                  <Route path="/old-analytics" element={<Analytics />} />
                                                  <Route path="/dashboard" element={<PremiumDashboard />} />
@@ -264,7 +268,7 @@ const AppWithUX = () => {
                                              {/* Routes de gestion avancées */}
                                              <Route path="/system-health" element={<SystemHealth />} />
                                              <Route path="/content-quality" element={<ContentQualityDashboard />} />
-                                             <Route path="/monitoring-center" element={<Monitoring />} />
+                                             <Route path="/monitoring-center" element={<MonitoringCenter />} />
                                              
                                              {/* Routes de redirection pour éviter 404 */}
                                              <Route path="/med-mng" element={<Navigate to="/med-mng/dashboard" replace />} />
