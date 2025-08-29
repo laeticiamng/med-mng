@@ -11,6 +11,9 @@ import { EnhancedQuizFinal } from '@/components/edn/EnhancedQuizFinal';
 import { TranslatedText } from '@/components/TranslatedText';
 import { EnhancedTableauDisplay } from '@/components/edn/immersive/EnhancedTableauDisplay';
 import { ImmersiveSceneDisplay } from '@/components/edn/immersive/ImmersiveSceneDisplay';
+import { EnhancedBandeDessinee } from '@/components/edn/immersive/EnhancedBandeDessinee';
+import { EnhancedGenerationMusicale } from '@/components/edn/immersive/EnhancedGenerationMusicale';
+import { EnhancedQuizFinal } from '@/components/edn/immersive/EnhancedQuizFinal';
 
 type SectionType = 'tableau-a' | 'tableau-b' | 'scene' | 'bd' | 'music' | 'quiz';
 
@@ -96,38 +99,16 @@ export const EdnItemContent = ({ activeSection, item }: EdnItemContentProps) => 
         );
       
       case 'music':
-        const hasLyrics = (item.paroles_rang_a && item.paroles_rang_a.length > 0) || 
-                         (item.paroles_rang_b && item.paroles_rang_b.length > 0);
-        
-        if (!hasLyrics) {
-          return (
-            <div className="text-center py-8 bg-amber-50 rounded-lg border border-amber-200">
-              <Music className="h-12 w-12 text-amber-600 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-amber-800 mb-2">
-                <TranslatedText text="Paroles musicales en préparation" />
-              </h3>
-              <p className="text-amber-600 mb-4">
-                <TranslatedText text="Les paroles pour cet item sont en cours de création." />
-              </p>
-              <Link to="/library">
-                <Button className="bg-amber-600 hover:bg-amber-700">
-                  <Music className="h-4 w-4 mr-2" />
-                  <TranslatedText text="Voir ma bibliothèque musicale" />
-                </Button>
-              </Link>
-            </div>
-          );
-        }
-        
         return (
-          <ParolesMusicales 
-            paroles={item.paroles_musicales} 
-            paroles_rang_a={item.paroles_rang_a}
-            paroles_rang_b={item.paroles_rang_b}
-            paroles_rang_ab={item.paroles_rang_ab}
+          <EnhancedGenerationMusicale
             itemCode={item.item_code}
-            tableauRangA={item.tableau_rang_a}
-            tableauRangB={item.tableau_rang_b}
+            title={item.title}
+            paroles={{
+              rang_a: item.paroles_rang_a,
+              rang_b: item.paroles_rang_b,
+              rang_ab: item.paroles_rang_ab
+            }}
+            tableauData={{ tableau_rang_a: item.tableau_rang_a, tableau_rang_b: item.tableau_rang_b }}
           />
         );
       
