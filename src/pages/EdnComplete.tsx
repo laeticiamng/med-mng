@@ -1,8 +1,9 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
   Search, BookOpen, Filter, Grid, List, Music, Brain, Zap, 
-  TrendingUp, CheckCircle, Award, Users
+  TrendingUp, CheckCircle, Award, Users, Sparkles, Star,
+  Play, Pause, Volume2, VolumeX, Heart, Share2, Bookmark
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -14,6 +15,9 @@ import { EdnItemGrid } from '@/components/edn/EdnItemGrid';
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useBreakpoints, useResponsiveGrid, useResponsiveSpacing } from "@/hooks/useBreakpoints";
 import { GlobalLyricsManager } from '@/components/edn/GlobalLyricsManager';
+import { EdnRecommendations } from '@/components/edn/EdnRecommendations';
+import { EdnProgressTracker } from '@/components/edn/EdnProgressTracker';
+import { EdnQuickActions } from '@/components/edn/EdnQuickActions';
 import { Breadcrumbs } from '@/components/ux/Breadcrumbs';
 import { LoadingFeedback } from '@/components/ux/LoadingFeedback';
 
@@ -88,13 +92,81 @@ export default function EdnComplete() {
     setCurrentPage(1);
   };
 
+  // États pour l'expérience immersive
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [isHovering, setIsHovering] = useState(false);
+  const [particles, setParticles] = useState<Array<{id: number, x: number, y: number, size: number}>>([]);
+
+  // Gestion des particules interactives
+  useEffect(() => {
+    const generateParticles = () => {
+      const newParticles = Array.from({ length: 20 }, (_, i) => ({
+        id: i,
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
+        size: Math.random() * 4 + 2
+      }));
+      setParticles(newParticles);
+    };
+
+    generateParticles();
+    const interval = setInterval(generateParticles, 10000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Suivi de la souris pour les effets interactifs
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      setMousePosition({ x: e.clientX, y: e.clientY });
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900/95 via-purple-900/90 to-indigo-900/95 relative">
-      {/* Suno-style aura effects */}
+    <div className="min-h-screen bg-gradient-to-br from-slate-900/95 via-purple-900/90 to-indigo-900/95 relative overflow-hidden">
+      {/* Particules interactives flottantes */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-blue-500/20 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-indigo-500/20 rounded-full blur-3xl animate-pulse delay-500"></div>
+        {particles.map((particle) => (
+          <div
+            key={particle.id}
+            className="absolute animate-float opacity-30"
+            style={{
+              left: `${particle.x}px`,
+              top: `${particle.y}px`,
+              width: `${particle.size}px`,
+              height: `${particle.size}px`,
+              background: 'radial-gradient(circle, rgba(168, 85, 247, 0.8), rgba(59, 130, 246, 0.4))',
+              borderRadius: '50%',
+              filter: 'blur(1px)',
+              animationDelay: `${Math.random() * 2}s`,
+              animationDuration: `${3 + Math.random() * 2}s`
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Effets d'aura interactifs basés sur la position de la souris */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div 
+          className="absolute w-96 h-96 bg-purple-500/20 rounded-full blur-3xl transition-all duration-700 ease-out"
+          style={{
+            left: `${mousePosition.x - 192}px`,
+            top: `${mousePosition.y - 192}px`,
+            transform: `scale(${isHovering ? 1.2 : 1})`,
+            opacity: isHovering ? 0.4 : 0.2
+          }}
+        />
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/15 rounded-full blur-3xl animate-pulse"></div>
+        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-blue-500/15 rounded-full blur-3xl animate-pulse delay-1000"></div>
+        <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-indigo-500/15 rounded-full blur-3xl animate-pulse delay-500"></div>
+        
+        {/* Ligne de lumière qui suit la souris */}
+        <div 
+          className="absolute w-1 h-full bg-gradient-to-b from-transparent via-purple-400/30 to-transparent transition-all duration-300"
+          style={{ left: `${mousePosition.x}px` }}
+        />
       </div>
 
       <div className="relative z-10">
@@ -114,8 +186,12 @@ export default function EdnComplete() {
           </Button>
         </div>
 
-        {/* Header Suno-inspired */}
-      <div className="bg-black/20 backdrop-blur-xl border-b border-white/10 sticky top-0 z-40 shadow-2xl shadow-purple-500/10">
+        {/* Header Suno-inspired avec interactions avancées */}
+        <div 
+          className="bg-black/20 backdrop-blur-xl border-b border-white/10 sticky top-0 z-40 shadow-2xl shadow-purple-500/10"
+          onMouseEnter={() => setIsHovering(true)}
+          onMouseLeave={() => setIsHovering(false)}
+        >
           <div className="container mx-auto px-6 py-6 relative">
             <Breadcrumbs />
             <div className="text-center mb-8">
@@ -301,16 +377,25 @@ export default function EdnComplete() {
         {/* Contenu des onglets */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsContent value="immersive">
-            <EdnItemGrid
-              items={items}
-              loading={loading}
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={setCurrentPage}
-              onItemClick={handleItemClick}
-              searchTerm={searchTerm}
-              selectedCategory={selectedCategory}
-            />
+            <div className="grid lg:grid-cols-4 gap-6">
+              <div className="lg:col-span-3">
+                <EdnItemGrid
+                  items={items}
+                  loading={loading}
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={setCurrentPage}
+                  onItemClick={handleItemClick}
+                  searchTerm={searchTerm}
+                  selectedCategory={selectedCategory}
+                />
+              </div>
+              <div className="space-y-6">
+                <EdnRecommendations />
+                <EdnQuickActions />
+                <EdnProgressTracker />
+              </div>
+            </div>
           </TabsContent>
           
            <TabsContent value="music">
@@ -348,20 +433,70 @@ export default function EdnComplete() {
              </React.Suspense>
            </TabsContent>
           
-          <TabsContent value="revision">
-            <React.Suspense fallback={<div className="text-center py-8">Chargement...</div>}>
-              <RevisionDashboard />
-            </React.Suspense>
-          </TabsContent>
-          
-          <TabsContent value="subscription">
-            <React.Suspense fallback={<div className="text-center py-8">Chargement...</div>}>
-              <PricingPlans />
-            </React.Suspense>
-          </TabsContent>
+           <TabsContent value="revision">
+             <React.Suspense fallback={<div className="text-center py-8">Chargement...</div>}>
+               <div className="grid lg:grid-cols-3 gap-6">
+                 <div className="lg:col-span-2">
+                   <RevisionDashboard />
+                 </div>
+                 <div className="space-y-6">
+                   <EdnProgressTracker />
+                 </div>
+               </div>
+             </React.Suspense>
+           </TabsContent>
+           
+           <TabsContent value="subscription">
+             <React.Suspense fallback={<div className="text-center py-8">Chargement...</div>}>
+               <div className="grid lg:grid-cols-2 gap-8">
+                 <div>
+                   <PricingPlans />
+                 </div>
+                 <div className="space-y-6">
+                   <EdnRecommendations />
+                   
+                   <Card className="bg-white/10 backdrop-blur-sm border border-white/20">
+                     <CardHeader>
+                       <CardTitle className="text-white flex items-center gap-2">
+                         <Sparkles className="h-5 w-5 text-yellow-400" />
+                         Avantages Premium
+                       </CardTitle>
+                     </CardHeader>
+                     <CardContent className="space-y-4">
+                       <div className="space-y-3">
+                         <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-lg border border-purple-400/30">
+                           <CheckCircle className="h-5 w-5 text-green-400" />
+                           <span className="text-white">Génération illimitée de paroles</span>
+                         </div>
+                         <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-lg border border-blue-400/30">
+                           <Music className="h-5 w-5 text-blue-400" />
+                           <span className="text-white">Accès à tous les styles musicaux</span>
+                         </div>
+                         <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-lg border border-green-400/30">
+                           <Brain className="h-5 w-5 text-green-400" />
+                           <span className="text-white">IA de recommandation avancée</span>
+                         </div>
+                         <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-orange-500/20 to-red-500/20 rounded-lg border border-orange-400/30">
+                           <Users className="h-5 w-5 text-orange-400" />
+                           <span className="text-white">Collaboration en équipe</span>
+                         </div>
+                       </div>
+                       
+                       <Button 
+                         className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-white font-semibold py-3"
+                         onClick={() => navigate('/med-mng/pricing')}
+                       >
+                         <Star className="h-4 w-4 mr-2" />
+                         Découvrir Premium
+                       </Button>
+                     </CardContent>
+                   </Card>
+                 </div>
+               </div>
+             </React.Suspense>
+           </TabsContent>
         </Tabs>
-
-      </div>
+        </div>
       </div>
     </div>
   );
