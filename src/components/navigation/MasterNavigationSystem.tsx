@@ -66,49 +66,67 @@ const navigationItems: NavigationItem[] = [
   // Dashboard & Vue d'ensemble
   { id: 'home', title: 'Accueil', path: '/', icon: <Home className="h-4 w-4" />, category: 'dashboard', description: 'Page d\'accueil principale' },
   { id: 'dashboard', title: 'Dashboard Complet', path: '/dashboard', icon: <BarChart3 className="h-4 w-4" />, category: 'dashboard', description: 'Vue d\'ensemble complète', isPopular: true },
+  { id: 'platform', title: 'Vue Plateforme', path: '/platform', icon: <Target className="h-4 w-4" />, category: 'dashboard', description: 'Navigation master complète', isNew: true },
   { id: 'features', title: 'Toutes les Fonctionnalités', path: '/features', icon: <Zap className="h-4 w-4" />, category: 'dashboard', description: 'Découvrir toutes les fonctionnalités' },
+  { id: 'optimization', title: 'Centre d\'Optimisation', path: '/optimization', icon: <TrendingUp className="h-4 w-4" />, category: 'dashboard', description: 'Optimisation et performances' },
   
   // Apprentissage EDN
-  { id: 'edn', title: 'Items EDN', path: '/edn', icon: <BookOpen className="h-4 w-4" />, category: 'learning', description: 'Contenus pédagogiques EDN', isPopular: true },
+  { id: 'edn', title: 'Items EDN Immersifs', path: '/edn', icon: <BookOpen className="h-4 w-4" />, category: 'learning', description: 'Contenus pédagogiques EDN immersifs', isPopular: true },
   { id: 'ecos', title: 'Situations ECOS', path: '/ecos', icon: <Target className="h-4 w-4" />, category: 'learning', description: 'Examens cliniques objectifs structurés' },
   
-  // MED-MNG Musical
+  // MED-MNG Musical (Authentifié)
   { id: 'med-dashboard', title: 'Dashboard Musical', path: '/med-mng/dashboard', icon: <Headphones className="h-4 w-4" />, category: 'music', description: 'Tableau de bord musical', requiresAuth: true },
-  { id: 'create', title: 'Créateur Musical', path: '/med-mng/create', icon: <Music className="h-4 w-4" />, category: 'music', description: 'Générer des musiques pédagogiques', requiresAuth: true, isNew: true },
-  { id: 'library', title: 'Bibliothèque', path: '/med-mng/library', icon: <BookOpen className="h-4 w-4" />, category: 'music', description: 'Vos musiques et collections', requiresAuth: true },
-  { id: 'playlists', title: 'Playlists', path: '/med-mng/playlists', icon: <Heart className="h-4 w-4" />, category: 'music', description: 'Organiser vos apprentissages', requiresAuth: true },
+  { id: 'create', title: 'Studio Création', path: '/med-mng/create', icon: <Music className="h-4 w-4" />, category: 'music', description: 'Générer des musiques pédagogiques', requiresAuth: true, isNew: true },
+  { id: 'library', title: 'Bibliothèque Musicale', path: '/med-mng/library', icon: <BookOpen className="h-4 w-4" />, category: 'music', description: 'Vos musiques et collections', requiresAuth: true },
+  { id: 'playlists', title: 'Playlists Collaboratives', path: '/med-mng/playlists', icon: <Heart className="h-4 w-4" />, category: 'music', description: 'Organiser vos apprentissages', requiresAuth: true },
+  { id: 'med-settings', title: 'Paramètres MED-MNG', path: '/med-mng/settings', icon: <Settings className="h-4 w-4" />, category: 'music', description: 'Configuration musicale', requiresAuth: true },
   
   // Analytics & Monitoring  
-  { id: 'analytics', title: 'Analytics', path: '/analytics', icon: <TrendingUp className="h-4 w-4" />, category: 'analysis', description: 'Analyses et statistiques' },
-  { id: 'med-analytics', title: 'Analytics Musical', path: '/med-mng/analytics', icon: <BarChart3 className="h-4 w-4" />, category: 'analysis', description: 'Statistiques d\'apprentissage musical', requiresAuth: true },
-  { id: 'monitoring', title: 'Monitoring', path: '/monitoring', icon: <Shield className="h-4 w-4" />, category: 'analysis', description: 'Surveillance du système' },
-  { id: 'system-health', title: 'Santé Système', path: '/system-health', icon: <Heart className="h-4 w-4" />, category: 'analysis', description: 'État de santé du système' },
+  { id: 'analytics', title: 'Analytics Avancées', path: '/analytics', icon: <TrendingUp className="h-4 w-4" />, category: 'analysis', description: 'Analyses et statistiques détaillées' },
+  { id: 'med-analytics', title: 'Analytics Musicales', path: '/med-mng/analytics', icon: <BarChart3 className="h-4 w-4" />, category: 'analysis', description: 'Statistiques d\'apprentissage musical', requiresAuth: true },
+  { id: 'monitoring', title: 'Monitoring Temps Réel', path: '/monitoring', icon: <Shield className="h-4 w-4" />, category: 'analysis', description: 'Surveillance du système en temps réel' },
+  { id: 'system-health', title: 'Santé Système', path: '/system-health', icon: <Heart className="h-4 w-4" />, category: 'analysis', description: 'État de santé et diagnostic système' },
   
-  // Outils Générateurs
-  { id: 'generator', title: 'Générateur', path: '/generator', icon: <Zap className="h-4 w-4" />, category: 'medical', description: 'Générateur de contenu IA' },
-  { id: 'chat', title: 'Chat IA Médical', path: '/chat', icon: <MessageSquare className="h-4 w-4" />, category: 'medical', description: 'Assistant IA conversationnel', isNew: true },
+  // Outils Générateurs & IA
+  { id: 'generator', title: 'Générateur IA', path: '/generator', icon: <Zap className="h-4 w-4" />, category: 'medical', description: 'Générateur de contenu IA avancé' },
+  { id: 'chat', title: 'Assistant IA Médical', path: '/chat', icon: <MessageSquare className="h-4 w-4" />, category: 'medical', description: 'Chat IA spécialisé médecine', isNew: true },
   
-  // Communauté
-  { id: 'community', title: 'Communauté', path: '/med-mng/community', icon: <Users className="h-4 w-4" />, category: 'community', description: 'Connecter avec d\'autres étudiants', requiresAuth: true },
-  { id: 'profile', title: 'Mon Profil', path: '/med-mng/profile', icon: <Users className="h-4 w-4" />, category: 'community', description: 'Gérer votre profil', requiresAuth: true },
+  // Communauté & Social
+  { id: 'community', title: 'Communauté Étudiante', path: '/med-mng/community', icon: <Users className="h-4 w-4" />, category: 'community', description: 'Réseau social d\'étudiants', requiresAuth: true },
+  { id: 'profile', title: 'Profil Personnel', path: '/med-mng/profile', icon: <Users className="h-4 w-4" />, category: 'community', description: 'Gérer votre profil et achievements', requiresAuth: true },
   
-  // Administration
-  { id: 'admin', title: 'Administration', path: '/admin', icon: <Shield className="h-4 w-4" />, category: 'admin', description: 'Panel d\'administration' },
-  { id: 'admin-panel', title: 'Panel Admin', path: '/admin-panel', icon: <Settings className="h-4 w-4" />, category: 'admin', description: 'Interface d\'administration complète' },
-  { id: 'audit', title: 'Audit Complet', path: '/audit', icon: <FileText className="h-4 w-4" />, category: 'admin', description: 'Audit et qualité des données' },
-  { id: 'content-quality', title: 'Qualité Contenu', path: '/content-quality', icon: <Award className="h-4 w-4" />, category: 'admin', description: 'Contrôle qualité du contenu' },
+  // Administration Complète
+  { id: 'admin', title: 'Administration Générale', path: '/admin', icon: <Shield className="h-4 w-4" />, category: 'admin', description: 'Panel d\'administration principal' },
+  { id: 'admin-panel', title: 'Panel Admin Avancé', path: '/admin-panel', icon: <Settings className="h-4 w-4" />, category: 'admin', description: 'Interface d\'administration complète' },
+  { id: 'audit', title: 'Audit Qualité Complet', path: '/audit', icon: <FileText className="h-4 w-4" />, category: 'admin', description: 'Audit et contrôle qualité' },
+  { id: 'audit-completeness', title: 'Audit Complétude', path: '/audit-completeness', icon: <Award className="h-4 w-4" />, category: 'admin', description: 'Vérification complétude données' },
+  { id: 'content-quality', title: 'Qualité Contenu', path: '/content-quality', icon: <Award className="h-4 w-4" />, category: 'admin', description: 'Dashboard qualité contenu' },
   
-  // Import & Export
-  { id: 'admin-import', title: 'Import Données', path: '/admin/import', icon: <FileText className="h-4 w-4" />, category: 'admin', description: 'Import de données' },
-  { id: 'export', title: 'Export', path: '/export', icon: <FileText className="h-4 w-4" />, category: 'admin', description: 'Export de données' },
+  // Import, Export & Data Management
+  { id: 'admin-import', title: 'Import Données', path: '/admin/import', icon: <FileText className="h-4 w-4" />, category: 'admin', description: 'Import de données massif' },
+  { id: 'admin-audit', title: 'Audit Admin', path: '/admin/audit', icon: <FileText className="h-4 w-4" />, category: 'admin', description: 'Audit administratif' },
+  { id: 'admin-extract-edn', title: 'Extract EDN', path: '/admin/extract-edn', icon: <FileText className="h-4 w-4" />, category: 'admin', description: 'Extraction données EDN' },
+  { id: 'admin-extract-ecos', title: 'Extract ECOS', path: '/admin/extract-ecos', icon: <FileText className="h-4 w-4" />, category: 'admin', description: 'Extraction données ECOS' },
+  { id: 'admin-extract-objectifs', title: 'Extract Objectifs', path: '/admin/extract-objectifs', icon: <FileText className="h-4 w-4" />, category: 'admin', description: 'Extraction objectifs pédagogiques' },
+  { id: 'admin-oic-quality', title: 'Qualité OIC', path: '/admin/oic-quality', icon: <FileText className="h-4 w-4" />, category: 'admin', description: 'Management qualité OIC' },
+  { id: 'admin-complete', title: 'Process Complet', path: '/admin/complete', icon: <FileText className="h-4 w-4" />, category: 'admin', description: 'Processus administratif complet' },
+  { id: 'export', title: 'Export Données', path: '/export', icon: <FileText className="h-4 w-4" />, category: 'admin', description: 'Export et sauvegarde' },
   
-  // Authentification
+  // Authentification & Abonnements
   { id: 'login', title: 'Connexion', path: '/med-mng/login', icon: <Users className="h-4 w-4" />, category: 'community', description: 'Se connecter à votre compte' },
   { id: 'signup', title: 'Inscription', path: '/med-mng/signup', icon: <Users className="h-4 w-4" />, category: 'community', description: 'Créer un nouveau compte' },
-  { id: 'pricing', title: 'Tarifs', path: '/med-mng/pricing', icon: <Star className="h-4 w-4" />, category: 'community', description: 'Plans et tarification' },
+  { id: 'pricing', title: 'Plans & Tarifs', path: '/med-mng/pricing', icon: <Star className="h-4 w-4" />, category: 'community', description: 'Plans d\'abonnement et tarification' },
+  { id: 'subscribe', title: 'S\'abonner', path: '/med-mng/subscribe', icon: <Star className="h-4 w-4" />, category: 'community', description: 'Processus d\'abonnement', requiresAuth: true },
+  { id: 'success', title: 'Confirmation', path: '/med-mng/success', icon: <Award className="h-4 w-4" />, category: 'community', description: 'Confirmation abonnement', requiresAuth: true },
   
-  // Support
-  { id: 'support', title: 'Support', path: '/support', icon: <MessageSquare className="h-4 w-4" />, category: 'community', description: 'Centre d\'aide et support' },
+  // Support & Documentation
+  { id: 'support', title: 'Support & Aide', path: '/support', icon: <MessageSquare className="h-4 w-4" />, category: 'community', description: 'Centre d\'aide et documentation' },
+  { id: 'mentions-legales', title: 'Mentions Légales', path: '/mentions-legales', icon: <FileText className="h-4 w-4" />, category: 'community', description: 'Informations légales' },
+  { id: 'politique-confidentialite', title: 'Confidentialité', path: '/politique-confidentialite', icon: <FileText className="h-4 w-4" />, category: 'community', description: 'Politique de confidentialité' },
+  { id: 'conditions', title: 'Conditions d\'Usage', path: '/conditions', icon: <FileText className="h-4 w-4" />, category: 'community', description: 'Conditions générales d\'utilisation' },
+  
+  // Routes Spécialisées (Development)
+  { id: 'mng-method', title: 'Méthode MNG', path: '/mng-method', icon: <Brain className="h-4 w-4" />, category: 'medical', description: 'Méthodologie MNG' }
 ];
 
 export const MasterNavigationSystem: React.FC = () => {

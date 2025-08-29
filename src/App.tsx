@@ -29,6 +29,7 @@ const AllFeaturesPage = lazy(() => import("./pages/AllFeaturesPage"));
 const Generator = lazy(() => import("./pages/Generator"));
 const Monitoring = lazy(() => import("./pages/Monitoring"));
 const CompleteDashboard = lazy(() => import("./pages/CompleteDashboard"));
+const SuperDashboard = lazy(() => import("./pages/SuperDashboard"));
 const Analytics = lazy(() => import("./pages/Analytics").then(module => ({ default: module.Analytics })));
 const Admin = lazy(() => import("./pages/Admin").then(module => ({ default: module.Admin })));
 const Export = lazy(() => import("./pages/Export").then(module => ({ default: module.Export })));
@@ -120,6 +121,7 @@ const PageLoadingFallback = memo(() => (
 
 // Import skeleton loader
 import { PageSkeleton } from "@/components/loading/SkeletonLoader";
+import { UniversalNavBar } from "@/components/navigation/UniversalNavBar";
 
 // ⚡ OPTIMISATION QueryClient - Configuration pour performances maximales
 const queryClient = new QueryClient({
@@ -154,23 +156,23 @@ const AppWithUX = () => {
                             <UXToastProvider>
                                 <SkipToMain />
                                 <SkipLinks />
-                                <div id="app-root" className="min-h-screen flex flex-col" style={{ display: 'block' }}>
-                                  {/* Navigation globale */}
-                                  <GlobalNavigation />
-                                  
-                                  <main id="main-content" tabIndex={-1} className="flex-1 pb-20">
+                                 <div id="app-root" className="min-h-screen flex flex-col" style={{ display: 'block' }}>
+                                   {/* Navigation universelle */}
+                                   <UniversalNavBar />
+                                   
+                                   <main id="main-content" tabIndex={-1} className="flex-1 pb-20">
                                     <PageThemeProvider>
                                       <GlobalErrorBoundary>
                                         <Suspense fallback={<PageSkeleton />}>
                                           <Routes>
-                                              <Route path="/" element={<Index />} />
-                                               <Route path="/platform" element={<PlatformOverview />} />
-                                               <Route path="/features" element={<AllFeaturesPage />} />
-                                              <Route path="/generator" element={<Generator />} />
-                                              <Route path="/monitoring" element={<Monitoring />} />
-                                              <Route path="/analytics" element={<Analytics />} />
-                                              <Route path="/dashboard" element={<CompleteDashboard />} />
-                                              <Route path="/optimization" element={<OptimizationCenter />} />
+                                               <Route path="/" element={<Index />} />
+                                                <Route path="/platform" element={<PlatformOverview />} />
+                                                <Route path="/features" element={<AllFeaturesPage />} />
+                                               <Route path="/generator" element={<Generator />} />
+                                               <Route path="/monitoring" element={<Monitoring />} />
+                                               <Route path="/analytics" element={<Analytics />} />
+                                               <Route path="/dashboard" element={<SuperDashboard />} />
+                                               <Route path="/optimization" element={<OptimizationCenter />} />
                                             <Route path="/admin" element={<Admin />} />
                                             <Route path="/export" element={<Export />} />
                                             
