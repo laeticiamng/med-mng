@@ -26,6 +26,8 @@ import { GlobalMusicPlayer } from "@/components/layout/GlobalMusicPlayer";
 // ⚡ PAGES LAZY LOADED pour performances optimales
 const Index = lazy(() => import("./pages/Index"));
 const AllFeaturesPage = lazy(() => import("./pages/AllFeaturesPage"));
+const PremiumAllFeatures = lazy(() => import("./pages/PremiumAllFeatures"));
+const PremiumAnalytics = lazy(() => import("./pages/PremiumAnalytics"));
 const Generator = lazy(() => import("./pages/Generator"));
 const Monitoring = lazy(() => import("./pages/Monitoring"));
 const CompleteDashboard = lazy(() => import("./pages/CompleteDashboard"));
@@ -84,6 +86,7 @@ const PlatformOverview = lazy(() => import("./pages/PlatformOverview"));
 const UserSettings = lazy(() => import("./pages/UserSettings"));
 const Documentation = lazy(() => import("./pages/Documentation"));
 const Community = lazy(() => import("./pages/Community"));
+const PremiumCommunity = lazy(() => import("./pages/PremiumCommunity"));
 const Profile = lazy(() => import("./pages/Profile"));
 const Notifications = lazy(() => import("./pages/Notifications"));
 const FAQ = lazy(() => import("./pages/FAQ"));
@@ -175,10 +178,12 @@ const AppWithUX = () => {
                                           <Routes>
                                                 <Route path="/" element={<Index />} />
                                                  <Route path="/platform" element={<PlatformOverview />} />
-                                                 <Route path="/features" element={<AllFeaturesPage />} />
-                                                <Route path="/generator" element={<Generator />} />
-                                                <Route path="/monitoring" element={<Monitoring />} />
-                                                <Route path="/analytics" element={<Analytics />} />
+                                                  <Route path="/features" element={<PremiumAllFeatures />} />
+                                                  <Route path="/all-features" element={<AllFeaturesPage />} />
+                                                 <Route path="/generator" element={<Generator />} />
+                                                 <Route path="/monitoring" element={<Monitoring />} />
+                                                 <Route path="/analytics" element={<PremiumAnalytics />} />
+                                                 <Route path="/old-analytics" element={<Analytics />} />
                                                  <Route path="/dashboard" element={<PremiumDashboard />} />
                                                  <Route path="/super-dashboard" element={<SuperDashboard />} />
                                                 <Route path="/optimization" element={<OptimizationCenter />} />
@@ -186,8 +191,10 @@ const AppWithUX = () => {
                                              <Route path="/export" element={<Export />} />
                                              <Route path="/settings" element={<UserSettings />} />
                                              <Route path="/documentation" element={<Documentation />} />
-                                             <Route path="/community" element={<Community />} />
-                                             <Route path="/profile" element={<Profile />} />
+                                                  <Route path="/community" element={<PremiumCommunity />} />
+                                                  <Route path="/old-community" element={<Community />} />
+                                                  <Route path="/profile" element={<PremiumProfile />} />
+                                                  <Route path="/old-profile" element={<Profile />} />
                                              <Route path="/notifications" element={<Notifications />} />
                                              <Route path="/faq" element={<FAQ />} />
                                              <Route path="/help" element={<HelpCenter />} />
