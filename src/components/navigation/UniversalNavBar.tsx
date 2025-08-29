@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { motion, AnimatePresence } from 'framer-motion';
+import { UniversalSearchWidget } from '@/components/features/UniversalSearchWidget';
+import { QuickAccessPanel } from '@/components/features/QuickAccessPanel';
 import { 
   Home, 
   BookOpen, 
@@ -40,6 +42,7 @@ export const UniversalNavBar: React.FC = () => {
   const navigate = useNavigate();
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isQuickAccessOpen, setIsQuickAccessOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
 
   const quickActions: QuickAction[] = [
@@ -132,14 +135,20 @@ export const UniversalNavBar: React.FC = () => {
 
             {/* Actions Droite */}
             <div className="flex items-center space-x-3">
-              {/* Recherche Rapide */}
+              {/* Widget de recherche universel */}
+              <div className="hidden sm:block">
+                <UniversalSearchWidget />
+              </div>
+
+              {/* Accès rapide */}
               <Button
-                variant="ghost"
+                variant="outline"
                 size="sm"
-                onClick={() => setIsSearchOpen(!isSearchOpen)}
-                className="text-white/70 hover:text-white hover:bg-white/10 hidden sm:flex"
+                onClick={() => setIsQuickAccessOpen(true)}
+                className="border-white/20 text-white/70 hover:text-white hover:bg-white/10 hidden md:flex"
               >
-                <Search className="w-4 h-4" />
+                <Zap className="w-4 h-4 mr-2" />
+                Accès Rapide
               </Button>
 
               {/* Navigation Master */}
@@ -147,7 +156,7 @@ export const UniversalNavBar: React.FC = () => {
                 variant="outline"
                 size="sm"
                 onClick={() => navigate('/platform')}
-                className="border-white/20 text-white/70 hover:text-white hover:bg-white/10 hidden md:flex"
+                className="border-white/20 text-white/70 hover:text-white hover:bg-white/10 hidden lg:flex"
               >
                 <Globe className="w-4 h-4 mr-2" />
                 Navigation Master
@@ -316,6 +325,12 @@ export const UniversalNavBar: React.FC = () => {
           )}
         </AnimatePresence>
       </header>
+
+      {/* Panel d'accès rapide */}
+      <QuickAccessPanel 
+        isOpen={isQuickAccessOpen} 
+        onClose={() => setIsQuickAccessOpen(false)} 
+      />
 
       {/* Overlay de fermeture */}
       {(isSearchOpen || isMobileMenuOpen) && (

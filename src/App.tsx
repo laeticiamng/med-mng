@@ -249,19 +249,28 @@ const AppWithUX = () => {
                                             <Route path="/admin/extract-objectifs" element={<EdnObjectifsExtractionPage />} />
                                             <Route path="/admin/oic-quality" element={<OicDataQualityManager />} />
                                             <Route path="/admin/complete" element={<AdminCompleteProcess />} />
-                                            <Route path="/admin-panel" element={<AdminPanel />} />
-                                            
-                                             {/* Production Routes Only - Test routes removed */}
+                                             <Route path="/admin-panel" element={<AdminPanel />} />
+                                             
+                                             {/* Routes de gestion avancées */}
+                                             <Route path="/system-health" element={<SystemHealth />} />
+                                             <Route path="/content-quality" element={<ContentQualityDashboard />} />
+                                             <Route path="/monitoring-center" element={<MonitoringCenter />} />
+                                             
+                                             {/* Routes de redirection pour éviter 404 */}
+                                             <Route path="/med-mng" element={<Navigate to="/med-mng/dashboard" replace />} />
+                                             <Route path="/platform-overview" element={<Navigate to="/platform" replace />} />
+                                             <Route path="/complete-dashboard" element={<Navigate to="/dashboard" replace />} />
                                              <Route path="/library" element={<Navigate to="/med-mng/library" replace />} />
                                              <Route path="/music-library" element={<Navigate to="/med-mng/library" replace />} />
                                              
-                                              {/* Development/Admin Test Routes (conditional) */}
-                                              {process.env.NODE_ENV === 'development' && (
-                                                <>
-                                                  <Route path="/validation-ux" element={<UXValidationDashboard />} />
-                                                </>
-                                              )}
-                                             
+                                             {/* Development/Admin Test Routes (conditional) */}
+                                             {process.env.NODE_ENV === 'development' && (
+                                               <>
+                                                 <Route path="/validation-ux" element={<UXValidationDashboard />} />
+                                               </>
+                                             )}
+                                              
+                                             {/* Fallback 404 avec suggestions intelligentes */}
                                              <Route path="*" element={<NotFound />} />
                                           </Routes>
                                         </Suspense>
