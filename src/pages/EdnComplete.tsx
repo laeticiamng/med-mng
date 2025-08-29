@@ -20,6 +20,10 @@ import { EdnProgressTracker } from '@/components/edn/EdnProgressTracker';
 import { EdnQuickActions } from '@/components/edn/EdnQuickActions';
 import { Breadcrumbs } from '@/components/ux/Breadcrumbs';
 import { LoadingFeedback } from '@/components/ux/LoadingFeedback';
+import { ErgonomicEnhancements } from '@/components/ux/ErgonomicEnhancements';
+import { SmartTooltip, ContextualHelp } from '@/components/ux/SmartTooltips';
+import { ProgressiveDisclosure, ProgressiveList } from '@/components/ux/ProgressiveDisclosure';
+import { PulseButton, AnimatedLike, MagneticHover } from '@/components/ux/MicroInteractions';
 
 // Composants lazy pour les onglets non-critiques
 const LyricsCompletionStatus = React.lazy(() => 
@@ -247,15 +251,16 @@ export default function EdnComplete() {
                 </TabsList>
               </Tabs>
               
-              <Button 
+            <ContextualHelp page="edn" element="lyrics">
+              <PulseButton 
                 onClick={() => setShowLyricsManager(true)}
-                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white shadow-2xl shadow-purple-500/50 border border-white/20 backdrop-blur-sm transition-all duration-300 hover:scale-105"
-                size="sm"
-                aria-label="Ouvrir le gestionnaire global des paroles musicales"
+                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white shadow-2xl shadow-purple-500/50 border border-white/20 backdrop-blur-sm"
+                variant="primary"
               >
                 <Music className="h-4 w-4 mr-2" />
                 Paroles Globales
-              </Button>
+              </PulseButton>
+            </ContextualHelp>
             </div>
           </div>
         </div>
@@ -265,15 +270,17 @@ export default function EdnComplete() {
         {/* Statistiques style Suno - Optimisées pour mobile et tablettes */}
         {!statsLoading && (
           <div className={`grid ${gridConfig.stats} ${gridConfig.gap} mb-6 md:mb-8`}>
-            <Card className="bg-white/10 backdrop-blur-sm border border-blue-400/30 hover:border-blue-400/50 transition-all duration-300 hover:scale-105 shadow-xl shadow-blue-500/20 group">
-              <CardContent className="p-4 text-center relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div className="relative z-10">
-                  <div className="text-3xl font-bold text-blue-400 mb-1">{stats.total}</div>
-                  <div className="text-sm text-blue-300">Items Total</div>
-                </div>
-              </CardContent>
-            </Card>
+            <MagneticHover>
+              <Card className="bg-white/10 backdrop-blur-sm border border-blue-400/30 hover:border-blue-400/50 transition-all duration-300 hover:scale-105 shadow-xl shadow-blue-500/20 group cursor-pointer">
+                <CardContent className="p-4 text-center relative overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                  <div className="relative z-10">
+                    <div className="text-3xl font-bold text-blue-400 mb-1">{stats.total}</div>
+                    <div className="text-sm text-blue-300">Items Total</div>
+                  </div>
+                </CardContent>
+              </Card>
+            </MagneticHover>
             
             <Card className="bg-white/10 backdrop-blur-sm border border-green-400/30 hover:border-green-400/50 transition-all duration-300 hover:scale-105 shadow-xl shadow-green-500/20 group">
               <CardContent className="p-4 text-center relative overflow-hidden">
@@ -318,17 +325,27 @@ export default function EdnComplete() {
         )}
 
         {/* Contrôles de filtrage style Suno - Layout mobile optimisé */}
-        <div className={`flex ${gridConfig.navigation} ${gridConfig.gap} mb-6 md:mb-8 bg-black/20 backdrop-blur-xl rounded-2xl ${spacing.element} border border-white/10 shadow-2xl`}>
-          <div className="relative flex-1">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-            <Input
-              placeholder="Rechercher par titre ou code medical..."
-              value={searchTerm}
-              onChange={(e) => handleSearchChange(e.target.value)}
-              className="pl-12 bg-white/10 border-white/20 text-white placeholder-gray-400 focus:border-purple-400/50 focus:ring-2 focus:ring-purple-400/20 h-12 text-lg rounded-xl"
-              aria-label="Rechercher des items EDN par titre ou code médical"
-            />
-          </div>
+        <ProgressiveDisclosure 
+          title="Contrôles de recherche et filtrage"
+          initialOpen={true}
+          level={1}
+          persistState={true}
+          storageKey="edn-filters"
+          previewContent="Recherche avancée et filtres intelligents"
+        >
+          <div className={`flex ${gridConfig.navigation} ${gridConfig.gap} bg-black/20 backdrop-blur-xl rounded-xl ${spacing.element} border border-white/10 shadow-xl`}>
+            <ContextualHelp page="edn" element="search">
+            <div className="relative flex-1">
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+              <Input
+                placeholder="Rechercher par titre ou code medical... (Appuyez sur /)"
+                value={searchTerm}
+                onChange={(e) => handleSearchChange(e.target.value)}
+                className="pl-12 bg-white/10 border-white/20 text-white placeholder-gray-400 focus:border-purple-400/50 focus:ring-2 focus:ring-purple-400/20 h-12 text-lg rounded-xl transition-all duration-200"
+                aria-label="Rechercher des items EDN par titre ou code médical"
+              />
+            </div>
+          </ContextualHelp>
 
           <div className="flex gap-3">
             <Select 
@@ -372,7 +389,7 @@ export default function EdnComplete() {
               </Button>
             </div>
           </div>
-        </div>
+        </ProgressiveDisclosure>
 
         {/* Contenu des onglets */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -497,6 +514,15 @@ export default function EdnComplete() {
            </TabsContent>
         </Tabs>
         </div>
+        
+        {/* Améliorations ergonomiques */}
+        <ErgonomicEnhancements 
+          page="edn"
+          showQuickActions={true}
+          showScrollToTop={true}
+          showKeyboardHints={true}
+          showFocusMode={true}
+        />
       </div>
     </div>
   );

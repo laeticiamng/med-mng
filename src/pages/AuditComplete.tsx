@@ -18,6 +18,9 @@ import { AuditComparatif } from '@/components/edn/audit/AuditComparatif';
 import { TranslatedText } from '@/components/TranslatedText';
 import { Breadcrumbs } from '@/components/ux/Breadcrumbs';
 import { LoadingFeedback } from '@/components/ux/LoadingFeedback';
+import { ErgonomicEnhancements } from '@/components/ux/ErgonomicEnhancements';
+import { SmartTooltip, ContextualHelp } from '@/components/ux/SmartTooltips';
+import { PulseButton, MagneticHover } from '@/components/ux/MicroInteractions';
 import { 
   FileText, 
   TrendingUp, 
@@ -171,27 +174,34 @@ const AuditComplete = () => {
           showBackButton
           backTo="/edn"
           actions={
-            <Button 
-              onClick={handleExportReport} 
-              className="flex items-center space-x-2 bg-white text-primary hover:bg-white/90"
-            >
-              <Download className="h-4 w-4" />
-              <span><TranslatedText text="Exporter rapport" /></span>
-            </Button>
+            <ContextualHelp page="audit" element="export">
+              <PulseButton 
+                onClick={handleExportReport} 
+                variant="success"
+                className="bg-white text-primary hover:bg-white/90"
+              >
+                <Download className="h-4 w-4 mr-2" />
+                <span><TranslatedText text="Exporter rapport" /></span>
+              </PulseButton>
+            </ContextualHelp>
           }
         />
 
         {/* Statistics Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <Card className="p-4 bg-white/10 backdrop-blur border-white/20">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-white/80 text-sm">Items Total</p>
-                <p className="text-2xl font-bold text-white">367</p>
-              </div>
-              <Database className="h-8 w-8 text-white/60" />
-            </div>
-          </Card>
+          <MagneticHover>
+            <Card className="p-4 bg-white/10 backdrop-blur border-white/20 hover:border-blue-400/50 transition-all duration-300 cursor-pointer">
+              <SmartTooltip content="Nombre total d'items EDN analysés dans l'audit" type="info">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-white/80 text-sm">Items Total</p>
+                    <p className="text-2xl font-bold text-white">367</p>
+                  </div>
+                  <Database className="h-8 w-8 text-white/60" />
+                </div>
+              </SmartTooltip>
+            </Card>
+          </MagneticHover>
           <Card className="p-4 bg-white/10 backdrop-blur border-white/20">
             <div className="flex items-center justify-between">
               <div>
@@ -338,6 +348,15 @@ const AuditComplete = () => {
             <span className="ml-2">Version 2.0</span>
           </p>
         </div>
+        
+        {/* Améliorations ergonomiques */}
+        <ErgonomicEnhancements 
+          page="audit"
+          showQuickActions={true}
+          showScrollToTop={true}
+          showKeyboardHints={true}
+          showFocusMode={true}
+        />
       </div>
     </ConsistentBackground>
   );

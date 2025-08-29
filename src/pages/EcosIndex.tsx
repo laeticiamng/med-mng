@@ -15,6 +15,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Breadcrumbs } from '@/components/ux/Breadcrumbs';
 import { LoadingFeedback } from '@/components/ux/LoadingFeedback';
+import { ErgonomicEnhancements } from '@/components/ux/ErgonomicEnhancements';
+import { SmartTooltip, ContextualHelp } from '@/components/ux/SmartTooltips';
+import { PulseButton, AnimatedLike, MagneticHover } from '@/components/ux/MicroInteractions';
 import { ConsistentBackground } from '@/components/layout/ConsistentBackground';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -253,13 +256,15 @@ const EcosIndex = () => {
           animate={{ opacity: 1, y: 0 }}
           className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8"
         >
-          <Card className="bg-white/10 backdrop-blur-sm border border-white/20 hover:border-purple-400/50 transition-all duration-300 group">
-            <CardContent className="p-4 text-center">
-              <Trophy className="h-8 w-8 text-yellow-400 mx-auto mb-2 group-hover:scale-110 transition-transform" />
-              <div className="text-2xl font-bold text-white">{userStats.completedScenarios}</div>
-              <div className="text-xs text-gray-300">Scénarios réussis</div>
-            </CardContent>
-          </Card>
+          <MagneticHover>
+            <Card className="bg-white/10 backdrop-blur-sm border border-white/20 hover:border-purple-400/50 transition-all duration-300 group cursor-pointer">
+              <CardContent className="p-4 text-center">
+                <Trophy className="h-8 w-8 text-yellow-400 mx-auto mb-2 group-hover:scale-110 transition-transform" />
+                <div className="text-2xl font-bold text-white">{userStats.completedScenarios}</div>
+                <div className="text-xs text-gray-300">Scénarios réussis</div>
+              </CardContent>
+            </Card>
+          </MagneticHover>
           
           <Card className="bg-white/10 backdrop-blur-sm border border-white/20 hover:border-green-400/50 transition-all duration-300 group">
             <CardContent className="p-4 text-center">
@@ -303,15 +308,17 @@ const EcosIndex = () => {
         >
           <div className="flex flex-col md:flex-row gap-4 mb-6">
             {/* Barre de recherche */}
-            <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-              <Input
-                placeholder="Rechercher par spécialité, pathologie, compétence..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-12 bg-white/10 border-white/20 text-white placeholder-gray-400 focus:border-purple-400/50 h-12 rounded-xl"
-              />
-            </div>
+            <ContextualHelp page="ecos" element="search">
+              <div className="relative flex-1">
+                <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+                <Input
+                  placeholder="Rechercher par spécialité, pathologie, compétence... (Appuyez sur /)"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-12 bg-white/10 border-white/20 text-white placeholder-gray-400 focus:border-purple-400/50 h-12 rounded-xl transition-all duration-200"
+                />
+              </div>
+            </ContextualHelp>
             
             {/* Filtres */}
             <div className="flex gap-3">

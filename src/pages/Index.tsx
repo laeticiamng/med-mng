@@ -14,6 +14,9 @@ import { AdvancedMusicPlayer } from "@/components/immersive/AdvancedMusicPlayer"
 import { LiveStatsWidget } from "@/components/immersive/LiveStatsWidget";
 import { SearchAndRecommendations } from "@/components/immersive/SearchAndRecommendations";
 import { useToast } from "@/hooks/use-toast";
+import { ErgonomicEnhancements } from '@/components/ux/ErgonomicEnhancements';
+import { SmartTooltip, ContextualHelp } from '@/components/ux/SmartTooltips';
+import { PulseButton, AnimatedLike, MagneticHover } from '@/components/ux/MicroInteractions';
 
 const Index = () => {
   const navigate = useNavigate();
@@ -209,31 +212,45 @@ const Index = () => {
 
         {/* Sections principales optimisées mobile */}
         <div className="grid sm:grid-cols-2 gap-4 sm:gap-8 max-w-6xl mx-auto mb-12 sm:mb-16 px-2">
-          <Card 
-            className="group cursor-pointer hover:shadow-2xl transition-all duration-500 bg-black/20 backdrop-blur-xl border border-white/10 hover:border-pink-400/50 overflow-hidden will-change-transform gpu-accelerated" 
-            onClick={() => navigate('/edn')}
-          >
-            <CardContent className="p-4 sm:p-8 relative">
-              <div className="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 bg-gradient-to-br from-pink-500/20 to-purple-500/20 rounded-full blur-xl group-hover:scale-150 transition-transform duration-700"></div>
-              <div className="relative">
-                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl sm:rounded-2xl flex items-center justify-center mb-4 sm:mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
-                  <BookOpen className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+          <MagneticHover>
+            <Card 
+              className="group cursor-pointer hover:shadow-2xl transition-all duration-500 bg-black/20 backdrop-blur-xl border border-white/10 hover:border-pink-400/50 overflow-hidden will-change-transform gpu-accelerated" 
+              onClick={() => navigate('/edn')}
+            >
+              <CardContent className="p-4 sm:p-8 relative">
+                <div className="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 bg-gradient-to-br from-pink-500/20 to-purple-500/20 rounded-full blur-xl group-hover:scale-150 transition-transform duration-700"></div>
+                <div className="relative">
+                  <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-pink-500 to-purple-600 rounded-xl sm:rounded-2xl flex items-center justify-center mb-4 sm:mb-6 shadow-lg group-hover:scale-110 transition-transform duration-300">
+                    <BookOpen className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
+                  </div>
+                  <div className="flex items-start justify-between mb-2 sm:mb-3">
+                    <h3 className="text-lg sm:text-2xl font-bold text-white">Items EDN</h3>
+                    <AnimatedLike 
+                      type="bookmark" 
+                      size="sm"
+                      onToggle={(liked) => liked && navigate('/edn')}
+                    />
+                  </div>
+                  <p className="text-gray-300 mb-4 sm:mb-6 leading-relaxed text-sm sm:text-base">
+                    Base complète IC-1 à IC-367 avec 4,872 compétences OIC intégrées pour une maîtrise totale
+                  </p>
+                  <div className="flex flex-wrap gap-1 sm:gap-2 mb-4 sm:mb-6">
+                    <SmartTooltip content="367 items EDN complets avec analyses détaillées" type="info">
+                      <Badge className="bg-pink-500/20 text-pink-300 border-pink-400/30 text-xs cursor-help">367 Items</Badge>
+                    </SmartTooltip>
+                    <Badge className="bg-purple-500/20 text-purple-300 border-purple-400/30 text-xs">4,872 Compétences</Badge>
+                    <Badge className="bg-blue-500/20 text-blue-300 border-blue-400/30 text-xs">Immersif</Badge>
+                  </div>
+                  <PulseButton 
+                    onClick={() => navigate('/edn')}
+                    className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white border-0"
+                  >
+                    Explorer EDN
+                  </PulseButton>
                 </div>
-                <h3 className="text-lg sm:text-2xl font-bold text-white mb-2 sm:mb-3">Items EDN</h3>
-                <p className="text-gray-300 mb-4 sm:mb-6 leading-relaxed text-sm sm:text-base">
-                  Base complète IC-1 à IC-367 avec 4,872 compétences OIC intégrées pour une maîtrise totale
-                </p>
-                <div className="flex flex-wrap gap-1 sm:gap-2 mb-4 sm:mb-6">
-                  <Badge className="bg-pink-500/20 text-pink-300 border-pink-400/30 text-xs">367 Items</Badge>
-                  <Badge className="bg-purple-500/20 text-purple-300 border-purple-400/30 text-xs">4,872 Compétences</Badge>
-                  <Badge className="bg-blue-500/20 text-blue-300 border-blue-400/30 text-xs">Immersif</Badge>
-                </div>
-                <Button className="w-full bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white border-0 touch-target" size="lg">
-                  Explorer EDN
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </MagneticHover>
 
           <Card 
             className="group cursor-pointer hover:shadow-2xl transition-all duration-500 bg-black/20 backdrop-blur-xl border border-white/10 hover:border-blue-400/50 overflow-hidden will-change-transform gpu-accelerated" 
@@ -363,6 +380,15 @@ const Index = () => {
             </div>
           </div>
         </div>
+        
+        {/* Améliorations ergonomiques */}
+        <ErgonomicEnhancements 
+          page="home"
+          showQuickActions={true}
+          showScrollToTop={true}
+          showKeyboardHints={true}
+          showFocusMode={true}
+        />
       </div>
     </ConsistentBackground>
   );
