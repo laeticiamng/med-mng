@@ -1,161 +1,34 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { CheckCircle, Music, ArrowRight, Home, Settings } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useSubscription } from '@/hooks/useSubscription';
-import { useAuth } from '@/components/med-mng/AuthProvider';
-import { TranslatedText } from '@/components/TranslatedText';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
-import { ConsistentBackground } from '@/components/layout/ConsistentBackground';
-import { PageHeader } from '@/components/layout/PageHeader';
+import React from 'react';
+import { PremiumLayout } from '@/components/layout/PremiumLayout';
+import { PremiumCard } from '@/components/ui/premium-card';
+import { PremiumButton } from '@/components/ui/premium-button';
+import { CheckCircle } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
-export const MedMngSuccess = () => {
-  const navigate = useNavigate();
-  const [searchParams] = useSearchParams();
-  const sessionId = searchParams.get('session_id');
-  const { user } = useAuth();
-  const { fetchSubscription, subscription } = useSubscription();
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const refreshData = async () => {
-      if (sessionId && user) {
-        // Wait for webhook to process
-        setTimeout(async () => {
-          await fetchSubscription();
-          setLoading(false);
-        }, 3000);
-      } else {
-        setLoading(false);
-      }
-    };
-
-    refreshData();
-  }, [sessionId, user, fetchSubscription]);
-
-  const handleManageSubscription = async () => {
-    if (!user) {
-      toast.error('Vous devez être connecté');
-      return;
-    }
-
-    try {
-      const { data, error } = await supabase.functions.invoke('customer-portal', {
-        headers: { Authorization: `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}` }
-      });
-
-      if (error) throw error;
-
-      if (data?.url) {
-        window.open(data.url, '_blank');
-      }
-    } catch (error) {
-      console.error('Error opening customer portal:', error);
-      toast.error('Erreur lors de l\'ouverture du portail client');
-    }
-  };
-
-  if (loading) {
-    return (
-      <ConsistentBackground variant="secondary">
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="text-center">
-            <div className="animate-spin h-12 w-12 border-4 border-success border-t-transparent rounded-full mx-auto mb-4"></div>
-            <p className="text-lg text-muted-foreground">Vérification de votre abonnement...</p>
-          </div>
-        </div>
-      </ConsistentBackground>
-    );
-  }
-
+export const MedMngSuccess: React.FC = () => {
   return (
-    <ConsistentBackground variant="secondary">
-      <PageHeader
-        title="Paiement réussi !"
-        subtitle="Votre abonnement MED-MNG est maintenant actif"
-        icon={CheckCircle}
-        showBackButton
-        backTo="/"
-      />
-      
-      <div className="container mx-auto max-w-2xl px-4 py-8">
-        <Card className="shadow-lg bg-card/80 backdrop-blur-sm">          
-          <CardContent className="p-8">
-            {subscription && (
-              <div className="bg-success/10 rounded-lg p-6 mb-6">
-                <h3 className="font-semibold text-success mb-4">✨ Votre plan {subscription.plan_name} est actif !</h3>
-                <ul className="space-y-2 text-muted-foreground">
-                  <li className="flex items-center gap-2">
-                    <Music className="h-4 w-4 text-success" />
-                    <span>{subscription.monthly_quota} générations musicales par mois</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 text-success" />
-                    <span>Sauvegarde dans votre bibliothèque</span>
-                  </li>
-                  {subscription.features.tableaux && (
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-success" />
-                      <span>Accès aux tableaux Rang A et B</span>
-                    </li>
-                  )}
-                  {subscription.features.quiz && (
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-success" />
-                      <span>Quiz complets disponibles</span>
-                    </li>
-                  )}
-                  {subscription.features.bande_dessinee && (
-                    <li className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-success" />
-                      <span>Bandes dessinées éducatives</span>
-                    </li>
-                  )}
-                </ul>
-              </div>
-            )}
-
-            <div className="space-y-4">
-              <Button
-                onClick={() => navigate('/generator')}
-                className="w-full bg-success hover:bg-success/90 text-success-foreground py-3"
-                size="lg"
-              >
-                <Music className="h-5 w-5 mr-2" />
-                Commencer à générer de la musique
-                <ArrowRight className="h-5 w-5 ml-2" />
-              </Button>
-
-              <Button
-                onClick={handleManageSubscription}
-                variant="outline"
-                className="w-full py-3"
-                size="lg"
-              >
-                <Settings className="h-5 w-5 mr-2" />
-                Gérer mon abonnement
-              </Button>
-
-              <Button
-                onClick={() => navigate('/')}
-                variant="ghost"
-                className="w-full py-3"
-                size="lg"
-              >
-                <Home className="h-5 w-5 mr-2" />
-                Retour à l'accueil
-              </Button>
-            </div>
-
-            <div className="text-center text-sm text-muted-foreground mt-6">
-              <p>📧 Vous recevrez un email de confirmation sous peu</p>
-              <p>❓ Questions ? Contactez notre support</p>
-            </div>
-          </CardContent>
-        </Card>
+    <PremiumLayout variant="gradient">
+      <div className="container mx-auto px-4 py-16 max-w-2xl">
+        <PremiumCard className="p-8 text-center">
+          <CheckCircle className="w-20 h-20 text-green-500 mx-auto mb-6" />
+          
+          <h1 className="text-3xl font-bold mb-4">
+            🎉 Félicitations !
+          </h1>
+          
+          <p className="text-xl text-muted-foreground mb-8">
+            Votre abonnement MED-MNG Premium a été activé avec succès.
+          </p>
+          
+          <PremiumButton asChild className="text-lg px-8 py-6">
+            <Link to="/med-mng/dashboard">
+              Accéder au tableau de bord
+            </Link>
+          </PremiumButton>
+        </PremiumCard>
       </div>
-    </ConsistentBackground>
+    </PremiumLayout>
   );
 };
+
+export default MedMngSuccess;
