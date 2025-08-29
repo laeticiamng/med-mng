@@ -77,6 +77,7 @@ const UXValidationDashboard = lazy(() => import("./components/validation/UXValid
 const EdnImmersive = lazy(() => import("./pages/EdnImmersive"));
 const EdnComplete = lazy(() => import("./pages/EdnComplete"));
 const EdnItem = lazy(() => import("./pages/EdnItem"));
+const PlatformOverview = lazy(() => import("./pages/PlatformOverview"));
 
 import { AuthProvider } from "./components/med-mng/AuthProvider";
 import { ProtectedRoute } from "./components/med-mng/withAuth";
@@ -161,8 +162,9 @@ const AppWithUX = () => {
                                       <GlobalErrorBoundary>
                                         <Suspense fallback={<PageSkeleton />}>
                                           <Routes>
-                                            <Route path="/" element={<Index />} />
-                                             <Route path="/features" element={<AllFeaturesPage />} />
+                                             <Route path="/" element={<Index />} />
+                                              <Route path="/platform" element={<PlatformOverview />} />
+                                              <Route path="/features" element={<AllFeaturesPage />} />
                                              <Route path="/generator" element={<Generator />} />
                                              <Route path="/monitoring" element={<Monitoring />} />
                                              <Route path="/analytics" element={<Analytics />} />
