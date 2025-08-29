@@ -245,7 +245,8 @@ const AppWithUX = () => {
                                              <Route path="/med-mng/pricing" element={<MedMngPricing />} />
                                              <Route path="/med-mng/platform" element={<MedicalPlatform />} />
                                              <Route path="/administration" element={<UltimateAdministration />} />
-                                             <Route path="/ai-hub" element={<UltimateAIHub />} />
+          <Route path="/ai-hub" element={<UltimateAIHub />} />
+          <Route path="/analytics-hub" element={lazy(() => import('@/pages/UltimateAnalyticsHub'))} />
                                              <Route path="/med-mng/subscribe/:planId" element={<ProtectedRoute><MedMngSubscribe /></ProtectedRoute>} />
                                              <Route path="/med-mng/success" element={<ProtectedRoute><MedMngSuccess /></ProtectedRoute>} />
                                              <Route path="/med-mng/create" element={<ProtectedRoute><MedMngCreate /></ProtectedRoute>} />
