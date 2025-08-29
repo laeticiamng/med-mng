@@ -19,6 +19,8 @@ import { AdvancedAccessibility } from '@/components/accessibility/AdvancedAccess
 import { AdvancedPerformanceDashboard } from '@/components/analytics/AdvancedPerformanceDashboard';
 import { IntelligentResourcePreloader } from '@/components/optimization/IntelligentResourcePreloader';
 import { MemoryManagementSystem } from '@/components/optimization/MemoryManagementSystem';
+import { BundleAnalyzer } from '@/components/optimization/BundleAnalyzer';
+import { RealTimeMonitor } from '@/components/optimization/RealTimeMonitor';
 import { NetworkOptimizer } from '@/components/optimization/NetworkOptimizer';
 
 const OptimizationCenter = memo(() => {
@@ -104,14 +106,22 @@ const OptimizationCenter = memo(() => {
 
       {/* Onglets d'optimisation */}
       <Tabs defaultValue="performance" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-6 md:grid-cols-6">
           <TabsTrigger value="performance" className="flex items-center gap-2">
             <Zap className="h-4 w-4" />
             <span className="hidden sm:inline">Performance</span>
           </TabsTrigger>
-          <TabsTrigger value="cache" className="flex items-center gap-2">
+          <TabsTrigger value="analytics" className="flex items-center gap-2">
+            <TrendingUp className="h-4 w-4" />
+            <span className="hidden sm:inline">Analytics</span>
+          </TabsTrigger>
+          <TabsTrigger value="memory" className="flex items-center gap-2">
+            <Monitor className="h-4 w-4" />
+            <span className="hidden sm:inline">Mémoire</span>
+          </TabsTrigger>
+          <TabsTrigger value="network" className="flex items-center gap-2">
             <Database className="h-4 w-4" />
-            <span className="hidden sm:inline">Cache</span>
+            <span className="hidden sm:inline">Réseau</span>
           </TabsTrigger>
           <TabsTrigger value="notifications" className="flex items-center gap-2">
             <Bell className="h-4 w-4" />
@@ -124,40 +134,61 @@ const OptimizationCenter = memo(() => {
         </TabsList>
 
         <TabsContent value="performance" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-blue-500" />
-                Optimisation des Performances
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground mb-6">
-                Analysez et optimisez les performances de l'application en temps réel. 
-                Surveillez le FPS, l'utilisation mémoire, et la vitesse réseau pour une expérience fluide.
-              </p>
-              <PerformanceOptimizer />
-            </CardContent>
-          </Card>
+          <div className="grid lg:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Zap className="h-5 w-5 text-blue-500" />
+                  Optimiseur de Performance
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <PerformanceOptimizer />
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5 text-green-500" />
+                  Préchargeur Intelligent
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <IntelligentResourcePreloader />
+              </CardContent>
+            </Card>
+          </div>
+          <div className="grid lg:grid-cols-2 gap-6">
+            <BundleAnalyzer />
+            <RealTimeMonitor />
+          </div>
         </TabsContent>
 
-        <TabsContent value="cache" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Shield className="h-5 w-5 text-green-500" />
-                Gestion Intelligente du Cache
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground mb-6">
-                Optimisez l'utilisation du stockage local avec un système de cache intelligent. 
-                Nettoyage automatique, préchargement prédictif, et analyse détaillée.
-              </p>
-              <SmartCacheManager />
-            </CardContent>
-          </Card>
+        <TabsContent value="analytics" className="space-y-6">
+          <AdvancedPerformanceDashboard />
         </TabsContent>
+
+        <TabsContent value="memory" className="space-y-6">
+          <MemoryManagementSystem />
+        </TabsContent>
+
+        <TabsContent value="network" className="space-y-6">
+          <div className="grid lg:grid-cols-2 gap-6">
+            <NetworkOptimizer />
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Database className="h-5 w-5 text-purple-500" />
+                  Cache Intelligent
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <SmartCacheManager />
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
 
         <TabsContent value="notifications" className="space-y-6">
           <Card>
