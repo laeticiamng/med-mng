@@ -87,7 +87,6 @@ const Profile = lazy(() => import("./pages/Profile"));
 const Notifications = lazy(() => import("./pages/Notifications"));
 const FAQ = lazy(() => import("./pages/FAQ"));
 const HelpCenter = lazy(() => import("./pages/HelpCenter"));
-const MonitoringCenter = lazy(() => import("./pages/MonitoringCenter"));
 
 import { AuthProvider } from "./components/med-mng/AuthProvider";
 import { ProtectedRoute } from "./components/med-mng/withAuth";
@@ -255,7 +254,7 @@ const AppWithUX = () => {
                                              {/* Routes de gestion avancées */}
                                              <Route path="/system-health" element={<SystemHealth />} />
                                              <Route path="/content-quality" element={<ContentQualityDashboard />} />
-                                             <Route path="/monitoring-center" element={<MonitoringCenter />} />
+                                             <Route path="/monitoring-center" element={<Monitoring />} />
                                              
                                              {/* Routes de redirection pour éviter 404 */}
                                              <Route path="/med-mng" element={<Navigate to="/med-mng/dashboard" replace />} />
