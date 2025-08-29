@@ -88,6 +88,7 @@ const Documentation = lazy(() => import("./pages/Documentation"));
 const Community = lazy(() => import("./pages/Community"));
 const PremiumCommunity = lazy(() => import("./pages/PremiumCommunity"));
 const Profile = lazy(() => import("./pages/Profile"));
+const PremiumProfile = lazy(() => import("./pages/PremiumProfile"));
 const Notifications = lazy(() => import("./pages/Notifications"));
 const FAQ = lazy(() => import("./pages/FAQ"));
 const HelpCenter = lazy(() => import("./pages/HelpCenter"));
