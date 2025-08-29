@@ -39,7 +39,7 @@ export const MusicCardActions = ({
       />
       
       {!hasValidParolesData && (
-        <p className="text-center text-sm text-gray-600">
+        <p className="text-center text-sm text-gray-600 description-text card-content-safe">
           La génération nécessite des paroles valides depuis la base de données Supabase.
         </p>
       )}
