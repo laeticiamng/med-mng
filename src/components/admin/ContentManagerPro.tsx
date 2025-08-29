@@ -81,7 +81,7 @@ export const ContentManagerPro = () => {
         ...(profiles.data || []).map(profile => ({
           id: profile.id,
           type: 'user' as const,
-          title: profile.username || profile.email || 'Utilisateur sans nom',
+          title: profile.email || 'Utilisateur sans nom',
           status: 'active' as const,
           lastModified: profile.updated_at || profile.created_at,
           author: 'Système',
@@ -90,8 +90,8 @@ export const ContentManagerPro = () => {
         ...(subscriptions.data || []).map(sub => ({
           id: sub.id,
           type: 'subscription' as const,
-          title: `Abonnement ${sub.plan_name || 'Standard'}`,
-          status: sub.status === 'active' ? 'active' : 'archived' as const,
+          title: 'Abonnement Standard',
+          status: sub.status === 'active' ? 'active' as const : 'archived' as const,
           lastModified: sub.updated_at || sub.created_at,
           author: 'Système',
           metadata: sub

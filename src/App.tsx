@@ -85,6 +85,7 @@ const UXValidationDashboard = lazy(() => import("./components/validation/UXValid
 const EdnImmersive = lazy(() => import("./pages/EdnImmersive"));
 const EdnComplete = lazy(() => import("./pages/EdnComplete"));
 const EdnItem = lazy(() => import("./pages/EdnItem"));
+const UltimateAdministration = lazy(() => import("./pages/UltimateAdministration"));
 const PlatformOverview = lazy(() => import("./pages/PlatformOverview"));
 const UserSettings = lazy(() => import("./pages/UserSettings"));
 const Documentation = lazy(() => import("./pages/Documentation"));
@@ -242,6 +243,7 @@ const AppWithUX = () => {
                                             <Route path="/med-mng/signup" element={<MedMngSignup />} />
                                              <Route path="/med-mng/pricing" element={<MedMngPricing />} />
                                              <Route path="/med-mng/platform" element={<MedicalPlatform />} />
+                                             <Route path="/administration" element={<UltimateAdministration />} />
                                              <Route path="/med-mng/subscribe/:planId" element={<ProtectedRoute><MedMngSubscribe /></ProtectedRoute>} />
                                              <Route path="/med-mng/success" element={<ProtectedRoute><MedMngSuccess /></ProtectedRoute>} />
                                              <Route path="/med-mng/create" element={<ProtectedRoute><MedMngCreate /></ProtectedRoute>} />
