@@ -1,78 +1,152 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { PremiumLayout } from '@/components/layout/PremiumLayout';
+import { PremiumCard } from '@/components/ui/premium-card';
+import { PremiumButton } from '@/components/ui/premium-button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { toast } from 'sonner';
 import { 
   Download, 
   FileText, 
-  Database, 
-  Archive, 
-  Clock,
-  CheckCircle,
-  AlertCircle,
+  Table, 
+  FileSpreadsheet, 
+  Archive,
+  Database,
   Music,
-  BookOpen,
-  Settings,
-  Zap
+  Image,
+  Video,
+  CheckCircle
 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
 
-export function Export() {
-  const { toast } = useToast();
-  const [selectedItems, setSelectedItems] = useState<string[]>([]);
-  const [exportFormat, setExportFormat] = useState('pdf');
-  const [exportName, setExportName] = useState('');
+const exportFormats = [
+  {
+    id: 'pdf',
+    name: 'PDF',
+    description: 'Document portable optimisé pour l\'impression',
+    icon: FileText,
+    extensions: ['.pdf'],
+    suitable: ['Rapports', 'Documentation', 'Analyses']
+  },
+  {
+    id: 'excel',
+    name: 'Excel',
+    description: 'Tableur avec formules et graphiques',
+    icon: FileSpreadsheet,
+    extensions: ['.xlsx', '.xls'],
+    suitable: ['Données', 'Statistiques', 'Tableaux']
+  },
+  {
+    id: 'csv',
+    name: 'CSV',
+    description: 'Données tabulaires séparées par virgules',
+    icon: Table,
+    extensions: ['.csv'],
+    suitable: ['Données brutes', 'Import/Export', 'Analytics']
+  },
+  {
+    id: 'zip',
+    name: 'Archive ZIP',
+    description: 'Fichiers compressés en archive',
+    icon: Archive,
+    extensions: ['.zip'],
+    suitable: ['Multiples fichiers', 'Médias', 'Sauvegarde']
+  }
+];
+
+const dataTypes = [
+  {
+    id: 'edn',
+    name: 'Données EDN',
+    description: 'Questions, réponses et statistiques EDN',
+    icon: FileText,
+    size: '45.2 MB',
+    count: '12,456 items'
+  },
+  {
+    id: 'ecos',
+    name: 'Simulations ECOS',
+    description: 'Scénarios et résultats ECOS',
+    icon: Video,
+    size: '128.7 MB',
+    count: '3,789 simulations'
+  },
+  {
+    id: 'music',
+    name: 'Bibliothèque musicale',
+    description: 'Morceaux et playlists thérapeutiques',
+    icon: Music,
+    size: '2.1 GB',
+    count: '1,234 morceaux'
+  },
+  {
+    id: 'analytics',
+    name: 'Données d\'analyse',
+    description: 'Métriques et performances utilisateur',
+    icon: Database,
+    size: '23.4 MB',
+    count: '8,901 métriques'
+  },
+  {
+    id: 'media',
+    name: 'Fichiers média',
+    description: 'Images, vidéos et documents',
+    icon: Image,
+    size: '892.3 MB',
+    count: '4,567 fichiers'
+  }
+];
+
+const recentExports = [
+  {
+    name: 'Rapport_EDN_2024.pdf',
+    type: 'PDF',
+    size: '12.4 MB',
+    date: '2024-01-15 14:30',
+    status: 'completed'
+  },
+  {
+    name: 'Analytics_Data.xlsx',
+    type: 'Excel', 
+    size: '8.7 MB',
+    date: '2024-01-14 09:15',
+    status: 'completed'
+  },
+  {
+    name: 'Music_Library.zip',
+    type: 'ZIP',
+    size: '245.8 MB',
+    date: '2024-01-12 16:45',
+    status: 'completed'
+  }
+];
+
+export const Export: React.FC = () => {
+  const [selectedDataTypes, setSelectedDataTypes] = useState<string[]>([]);
+  const [selectedFormat, setSelectedFormat] = useState('');
+  const [dateRange, setDateRange] = useState('all');
   const [isExporting, setIsExporting] = useState(false);
   const [exportProgress, setExportProgress] = useState(0);
 
-  const exportOptions = [
-    {
-      id: 'edn-items',
-      name: 'Items EDN Complets',
-      description: 'Tous les contenus pédagogiques EDN avec tableaux, quiz et musiques',
-      icon: BookOpen,
-      estimatedTime: '5-10 min',
-      dataSize: '2.3 GB',
-    },
-    {
-      id: 'music-library',
-      name: 'Bibliothèque Musicale',
-      description: 'Collections musicales personnalisées et métadonnées',
-      icon: Music,
-      estimatedTime: '15-30 min',
-      dataSize: '5.7 GB',
-    },
-    {
-      id: 'user-analytics',
-      name: 'Analytics Personnelles',
-      description: 'Statistiques d\'utilisation et progression d\'apprentissage',
-      icon: FileText,
-      estimatedTime: '2-5 min',
-      dataSize: '45 MB',
-    },
-    {
-      id: 'complete-backup',
-      name: 'Sauvegarde Complète',
-      description: 'Exportation intégrale de toutes vos données',
-      icon: Archive,
-      estimatedTime: '45-90 min',
-      dataSize: '12.8 GB',
-    }
-  ];
+  const handleDataTypeToggle = (typeId: string) => {
+    setSelectedDataTypes(prev => 
+      prev.includes(typeId) 
+        ? prev.filter(id => id !== typeId)
+        : [...prev, typeId]
+    );
+  };
 
   const handleExport = async () => {
-    if (selectedItems.length === 0) {
-      toast({
-        title: "Sélection requise",
-        description: "Veuillez sélectionner au moins un élément à exporter.",
-        variant: "destructive"
-      });
+    if (selectedDataTypes.length === 0) {
+      toast.error('Veuillez sélectionner au moins un type de données');
+      return;
+    }
+    
+    if (!selectedFormat) {
+      toast.error('Veuillez sélectionner un format d\'export');
       return;
     }
 
@@ -80,219 +154,223 @@ export function Export() {
     setExportProgress(0);
 
     // Simulation du processus d'export
-    for (let i = 0; i <= 100; i += 5) {
+    for (let i = 0; i <= 100; i += 10) {
       await new Promise(resolve => setTimeout(resolve, 200));
       setExportProgress(i);
     }
 
+    toast.success('Export terminé avec succès !');
     setIsExporting(false);
-    toast({
-      title: "Export terminé !",
-      description: `${selectedItems.length} élément(s) exporté(s) avec succès.`,
-    });
-  };
-
-  const handleItemSelection = (itemId: string, checked: boolean) => {
-    if (checked) {
-      setSelectedItems([...selectedItems, itemId]);
-    } else {
-      setSelectedItems(selectedItems.filter(id => id !== itemId));
-    }
+    setExportProgress(0);
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/10 to-primary/5">
-      <div className="container mx-auto px-4 py-8 space-y-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center"
-        >
-          <h1 className="text-4xl font-bold gradient-text mb-4 flex items-center justify-center gap-3">
-            <Download className="h-10 w-10" />
-            Centre d'Export
+    <PremiumLayout variant="gradient">
+      <div className="container mx-auto px-4 py-8 max-w-6xl">
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-white mb-4">
+            Centre d'Export MED-MNG
           </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Exportez et sauvegardez vos données MED-MNG dans différents formats
+          <p className="text-white/80 text-lg">
+            Exportez vos données dans le format de votre choix
           </p>
-        </motion.div>
+        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Settings className="h-5 w-5" />
-                Configuration d'Export
-              </CardTitle>
-              <CardDescription>
-                Sélectionnez les données à exporter et configurez les paramètres
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
-              {exportOptions.map((option) => (
-                <motion.div
-                  key={option.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  className="flex items-start space-x-3 p-4 border rounded-lg hover:bg-muted/50 transition-colors"
-                >
-                  <Checkbox
-                    id={option.id}
-                    checked={selectedItems.includes(option.id)}
-                    onCheckedChange={(checked) => handleItemSelection(option.id, checked as boolean)}
-                  />
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
-                      <option.icon className="h-4 w-4 text-primary flex-shrink-0" />
-                      <Label htmlFor={option.id} className="font-medium cursor-pointer">
-                        {option.name}
-                      </Label>
-                    </div>
-                    <p className="text-sm text-muted-foreground mb-2">
-                      {option.description}
-                    </p>
-                    <div className="flex gap-2 text-xs">
-                      <span className="flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
-                        {option.estimatedTime}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Database className="h-3 w-3" />
-                        {option.dataSize}
-                      </span>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
+        <Tabs defaultValue="export" className="space-y-8">
+          <TabsList className="grid grid-cols-2 w-full max-w-lg">
+            <TabsTrigger value="export">Nouvel Export</TabsTrigger>
+            <TabsTrigger value="history">Historique</TabsTrigger>
+          </TabsList>
 
-              <div className="space-y-4 pt-4 border-t">
-                <h3 className="font-semibold">Paramètres d'Export</h3>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="export-format">Format de sortie</Label>
-                    <Select value={exportFormat} onValueChange={setExportFormat}>
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="pdf">PDF</SelectItem>
-                        <SelectItem value="json">JSON</SelectItem>
-                        <SelectItem value="csv">CSV</SelectItem>
-                        <SelectItem value="xlsx">Excel (XLSX)</SelectItem>
-                        <SelectItem value="zip">Archive (ZIP)</SelectItem>
-                      </SelectContent>
-                    </Select>
+          <TabsContent value="export" className="space-y-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              {/* Selection des données */}
+              <div className="lg:col-span-2 space-y-6">
+                <PremiumCard className="p-6">
+                  <h2 className="text-xl font-semibold mb-6">Sélection des données</h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {dataTypes.map((dataType) => {
+                      const IconComponent = dataType.icon;
+                      return (
+                        <div
+                          key={dataType.id}
+                          className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                            selectedDataTypes.includes(dataType.id)
+                              ? 'border-primary bg-primary/5'
+                              : 'border-muted hover:border-primary/50'
+                          }`}
+                          onClick={() => handleDataTypeToggle(dataType.id)}
+                        >
+                          <div className="flex items-start space-x-3">
+                            <Checkbox
+                              checked={selectedDataTypes.includes(dataType.id)}
+                              className="mt-1"
+                            />
+                            <div className="flex-1">
+                              <div className="flex items-center space-x-2 mb-2">
+                                <IconComponent className="w-4 h-4 text-primary" />
+                                <h3 className="font-medium">{dataType.name}</h3>
+                              </div>
+                              <p className="text-sm text-muted-foreground mb-2">
+                                {dataType.description}
+                              </p>
+                              <div className="flex items-center space-x-4 text-xs text-muted-foreground">
+                                <span>{dataType.size}</span>
+                                <span>{dataType.count}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
+                </PremiumCard>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="export-name">Nom de l'export</Label>
-                    <Input
-                      id="export-name"
-                      placeholder="Mon export personnalisé"
-                      value={exportName}
-                      onChange={(e) => setExportName(e.target.value)}
-                    />
+                <PremiumCard className="p-6">
+                  <h2 className="text-xl font-semibold mb-6">Format d'export</h2>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {exportFormats.map((format) => {
+                      const IconComponent = format.icon;
+                      return (
+                        <div
+                          key={format.id}
+                          className={`p-4 border-2 rounded-lg cursor-pointer transition-all ${
+                            selectedFormat === format.id
+                              ? 'border-primary bg-primary/5'
+                              : 'border-muted hover:border-primary/50'
+                          }`}
+                          onClick={() => setSelectedFormat(format.id)}
+                        >
+                          <div className="flex items-start space-x-3">
+                            <div className="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center">
+                              <IconComponent className="w-5 h-5 text-primary" />
+                            </div>
+                            <div className="flex-1">
+                              <h3 className="font-medium mb-1">{format.name}</h3>
+                              <p className="text-sm text-muted-foreground mb-2">
+                                {format.description}
+                              </p>
+                              <div className="flex flex-wrap gap-1">
+                                {format.suitable.map((use) => (
+                                  <Badge key={use} variant="secondary" className="text-xs">
+                                    {use}
+                                  </Badge>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
-                </div>
+                </PremiumCard>
               </div>
 
-              {isExporting && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="space-y-4 p-4 bg-primary/5 rounded-lg border"
-                >
-                  <div className="flex items-center gap-2">
-                    <Zap className="h-5 w-5 text-primary animate-pulse" />
-                    <span className="font-medium">Export en cours...</span>
+              {/* Options et aperçu */}
+              <div className="space-y-6">
+                <PremiumCard className="p-6">
+                  <h2 className="text-lg font-semibold mb-4">Options d'export</h2>
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <Label htmlFor="dateRange" className="text-sm font-medium">
+                        Période
+                      </Label>
+                      <Select value={dateRange} onValueChange={setDateRange}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Sélectionner une période" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">Toutes les données</SelectItem>
+                          <SelectItem value="year">Cette année</SelectItem>
+                          <SelectItem value="month">Ce mois</SelectItem>
+                          <SelectItem value="week">Cette semaine</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
-                  <Progress value={exportProgress} />
-                  <p className="text-sm text-muted-foreground">
-                    {exportProgress}% complété - Traitement des données sélectionnées
-                  </p>
-                </motion.div>
-              )}
+                </PremiumCard>
 
-              <Button
-                onClick={handleExport}
-                disabled={selectedItems.length === 0 || isExporting}
-                size="lg"
-                className="w-full"
-              >
-                {isExporting ? (
-                  <>
-                    <Clock className="mr-2 h-5 w-5 animate-spin" />
-                    Export en cours...
-                  </>
-                ) : (
-                  <>
-                    <Download className="mr-2 h-5 w-5" />
-                    Lancer l'export ({selectedItems.length} sélectionné{selectedItems.length > 1 ? 's' : ''})
-                  </>
-                )}
-              </Button>
-            </CardContent>
-          </Card>
+                <PremiumCard className="p-6">
+                  <h2 className="text-lg font-semibold mb-4">Aperçu</h2>
+                  
+                  <div className="space-y-3">
+                    <div className="flex justify-between text-sm">
+                      <span>Types sélectionnés:</span>
+                      <span>{selectedDataTypes.length}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span>Format:</span>
+                      <span>{selectedFormat || 'Non défini'}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span>Taille estimée:</span>
+                      <span>~125.4 MB</span>
+                    </div>
+                  </div>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Archive className="h-5 w-5" />
-                Historique des Exports
-              </CardTitle>
-              <CardDescription>
-                Vos exports récents et leur statut
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {[
-                  { id: '1', name: 'Export Analytics Décembre 2024', status: 'completed', size: '45.2 MB', date: '2024-01-15' },
-                  { id: '2', name: 'Sauvegarde Items EDN', status: 'processing', size: '2.1 GB', date: '2024-01-14' },
-                  { id: '3', name: 'Export Musiques Personnel', status: 'pending', size: '890 MB', date: '2024-01-14' }
-                ].map((task, index) => (
-                  <motion.div
-                    key={task.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.1 }}
-                    className="p-3 border rounded-lg space-y-2"
-                  >
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium truncate">{task.name}</p>
-                        <p className="text-sm text-muted-foreground">{task.date}</p>
+                  {isExporting && (
+                    <div className="mt-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm">Export en cours...</span>
+                        <span className="text-sm">{exportProgress}%</span>
                       </div>
-                      {task.status === 'completed' && <CheckCircle className="h-4 w-4 text-green-500" />}
-                      {task.status === 'processing' && <Clock className="h-4 w-4 text-blue-500 animate-spin" />}
-                      {task.status === 'pending' && <AlertCircle className="h-4 w-4 text-gray-400" />}
+                      <Progress value={exportProgress} />
+                    </div>
+                  )}
+
+                  <PremiumButton 
+                    onClick={handleExport}
+                    className="w-full mt-6"
+                    disabled={isExporting || selectedDataTypes.length === 0 || !selectedFormat}
+                  >
+                    <Download className="w-4 h-4 mr-2" />
+                    {isExporting ? 'Export en cours...' : 'Démarrer l\'export'}
+                  </PremiumButton>
+                </PremiumCard>
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="history" className="space-y-6">
+            <PremiumCard className="p-6">
+              <h2 className="text-xl font-semibold mb-6">Historique des exports</h2>
+              
+              <div className="space-y-4">
+                {recentExports.map((exportItem, index) => (
+                  <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div className="flex items-center space-x-4">
+                      <div className="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center">
+                        <FileText className="w-5 h-5 text-primary" />
+                      </div>
+                      <div>
+                        <h3 className="font-medium">{exportItem.name}</h3>
+                        <div className="flex items-center space-x-4 text-sm text-muted-foreground">
+                          <span>{exportItem.type}</span>
+                          <span>{exportItem.size}</span>
+                          <span>{exportItem.date}</span>
+                        </div>
+                      </div>
                     </div>
                     
-                    <div className="flex items-center justify-between text-xs">
-                      <Badge className={
-                        task.status === 'completed' ? 'bg-green-100 text-green-800' :
-                        task.status === 'processing' ? 'bg-blue-100 text-blue-800' :
-                        'bg-gray-100 text-gray-800'
-                      }>
-                        {task.status}
+                    <div className="flex items-center space-x-2">
+                      <Badge className="bg-green-500/10 text-green-600">
+                        <CheckCircle className="w-3 h-3 mr-1" />
+                        Terminé
                       </Badge>
-                      <span className="text-muted-foreground">{task.size}</span>
+                      <PremiumButton size="sm" variant="outline">
+                        <Download className="w-4 h-4" />
+                      </PremiumButton>
                     </div>
-                    
-                    {task.status === 'completed' && (
-                      <Button size="sm" variant="outline" className="w-full">
-                        <Download className="mr-2 h-3 w-3" />
-                        Télécharger
-                      </Button>
-                    )}
-                  </motion.div>
+                  </div>
                 ))}
               </div>
-            </CardContent>
-          </Card>
-        </div>
+            </PremiumCard>
+          </TabsContent>
+        </Tabs>
       </div>
-    </div>
+    </PremiumLayout>
   );
-}
+};
+
+export default Export;

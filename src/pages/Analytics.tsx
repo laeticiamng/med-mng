@@ -1,299 +1,341 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { PremiumLayout } from '@/components/layout/PremiumLayout';
+import { PremiumCard } from '@/components/ui/premium-card';
+import { PremiumButton } from '@/components/ui/premium-button';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   BarChart3, 
   TrendingUp, 
   Users, 
-  BookOpen, 
-  Music,
+  Clock, 
   Target,
-  Award,
-  Clock,
   Brain,
-  Eye,
-  Heart,
-  Star,
-  Download,
-  RefreshCw
+  Music,
+  BookOpen,
+  Activity,
+  Download
 } from 'lucide-react';
-import { 
-  LineChart, 
-  Line, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer,
-  AreaChart,
-  Area,
-  PieChart,
-  Pie,
-  Cell
-} from 'recharts';
 
-export function Analytics() {
-  const [selectedPeriod, setSelectedPeriod] = useState('30d');
+const performanceMetrics = [
+  { label: 'Score moyen EDN', value: 78.5, unit: '%', change: '+5.2%', trend: 'up' },
+  { label: 'Temps d\'étude', value: 142, unit: 'min/jour', change: '+12%', trend: 'up' },
+  { label: 'Taux de réussite ECOS', value: 85.2, unit: '%', change: '+3.8%', trend: 'up' },
+  { label: 'Sessions complétées', value: 28, unit: 'cette semaine', change: '+15%', trend: 'up' }
+];
 
-  const metrics = [
-    { id: 'users', title: 'Utilisateurs Actifs', value: '12,847', change: +18, icon: Users, color: 'text-blue-500' },
-    { id: 'sessions', title: 'Sessions d\'Étude', value: '45,632', change: +25, icon: BookOpen, color: 'text-green-500' },
-    { id: 'music', title: 'Musiques Générées', value: '3,421', change: +42, icon: Music, color: 'text-purple-500' },
-    { id: 'quiz', title: 'Quiz Complétés', value: '18,965', change: +12, icon: Target, color: 'text-orange-500' },
-    { id: 'time', title: 'Temps d\'Étude', value: '2,847h', change: +8, icon: Clock, color: 'text-red-500' },
-    { id: 'success', title: 'Taux de Réussite', value: '87.3%', change: +5, icon: Award, color: 'text-yellow-500' }
-  ];
+const studyPatterns = [
+  { period: 'Matin (6h-12h)', sessions: 45, percentage: 35 },
+  { period: 'Après-midi (12h-18h)', sessions: 38, percentage: 30 },
+  { period: 'Soirée (18h-22h)', sessions: 32, percentage: 25 },
+  { period: 'Nuit (22h-6h)', sessions: 13, percentage: 10 }
+];
 
-  const learningData = [
-    { month: 'Jan', users: 8500, sessions: 25000, success: 82 },
-    { month: 'Fév', users: 9200, sessions: 28500, success: 84 },
-    { month: 'Mar', users: 10100, sessions: 32000, success: 85 },
-    { month: 'Avr', users: 11300, sessions: 35500, success: 86 },
-    { month: 'Mai', users: 12100, sessions: 38000, success: 86 },
-    { month: 'Juin', users: 12847, sessions: 45632, success: 87 }
-  ];
+const subjects = [
+  { name: 'Cardiologie', progress: 85, questions: 234, time: '45h 30m' },
+  { name: 'Pneumologie', progress: 72, questions: 198, time: '38h 15m' },
+  { name: 'Neurologie', progress: 68, questions: 156, time: '32h 45m' },
+  { name: 'Gastro-entérologie', progress: 91, questions: 287, time: '52h 20m' },
+  { name: 'Endocrinologie', progress: 59, questions: 134, time: '28h 10m' }
+];
 
-  const subjectData = [
-    { name: 'Cardiologie', value: 23, sessions: 1250 },
-    { name: 'Neurologie', value: 18, sessions: 980 },
-    { name: 'Pneumologie', value: 15, sessions: 820 },
-    { name: 'Gastro-entérologie', value: 14, sessions: 760 },
-    { name: 'Psychiatrie', value: 12, sessions: 650 },
-    { name: 'Autres', value: 18, sessions: 975 }
-  ];
+const musicTherapyStats = [
+  { genre: 'Relaxation', usage: 78, effect: 'Concentration +15%' },
+  { genre: 'Focus', usage: 65, effect: 'Mémorisation +12%' },
+  { genre: 'Motivation', usage: 52, effect: 'Performance +8%' },
+  { genre: 'Méditation', usage: 43, effect: 'Stress -20%' }
+];
 
-  const COLORS = ['#8884d8', '#82ca9d', '#ffc658', '#ff7300', '#8dd1e1', '#d084d0'];
-
-  const progressData = [
-    { subject: 'Items EDN', progress: 67, timeSpent: 145, accuracy: 89, rank: 1 },
-    { subject: 'ECOS', progress: 23, timeSpent: 67, accuracy: 76, rank: 2 },
-    { subject: 'Musique Médicale', progress: 89, timeSpent: 203, accuracy: 94, rank: 1 },
-    { subject: 'Quiz Interactifs', progress: 78, timeSpent: 89, accuracy: 85, rank: 3 }
-  ];
+export const Analytics: React.FC = () => {
+  const [timeRange, setTimeRange] = useState('week');
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-muted/10 to-primary/5">
-      <div className="container mx-auto px-4 py-8 space-y-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex flex-col md:flex-row md:items-center justify-between gap-4"
-        >
+    <PremiumLayout variant="gradient">
+      <div className="container mx-auto px-4 py-8 max-w-7xl">
+        <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-4xl font-bold gradient-text mb-2 flex items-center gap-3">
-              <BarChart3 className="h-10 w-10" />
-              Analytics Avancées
+            <h1 className="text-4xl font-bold text-white mb-4">
+              Analytics MED-MNG
             </h1>
-            <p className="text-muted-foreground">
-              Analyses détaillées des performances et de l'engagement utilisateur
+            <p className="text-white/80 text-lg">
+              Suivez vos progrès et optimisez vos performances d'étude
             </p>
           </div>
-          <div className="flex items-center gap-3">
-            <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
-              <SelectTrigger className="w-32">
-                <SelectValue />
+          
+          <div className="flex items-center space-x-4">
+            <Select value={timeRange} onValueChange={setTimeRange}>
+              <SelectTrigger className="w-40">
+                <SelectValue placeholder="Période" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="7d">7 jours</SelectItem>
-                <SelectItem value="30d">30 jours</SelectItem>
-                <SelectItem value="90d">3 mois</SelectItem>
-                <SelectItem value="1y">1 an</SelectItem>
+                <SelectItem value="day">Aujourd'hui</SelectItem>
+                <SelectItem value="week">Cette semaine</SelectItem>
+                <SelectItem value="month">Ce mois</SelectItem>
+                <SelectItem value="year">Cette année</SelectItem>
               </SelectContent>
             </Select>
-            <Button size="sm" variant="outline">
-              <Download className="h-4 w-4 mr-2" />
-              Export
-            </Button>
-            <Button size="sm">
-              <RefreshCw className="h-4 w-4 mr-2" />
-              Actualiser
-            </Button>
+            
+            <PremiumButton variant="outline">
+              <Download className="w-4 h-4 mr-2" />
+              Exporter
+            </PremiumButton>
           </div>
-        </motion.div>
-
-        {/* Metrics Overview */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          {metrics.map((metric, index) => (
-            <motion.div
-              key={metric.id}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: index * 0.1 }}
-            >
-              <Card className="relative overflow-hidden">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <metric.icon className={`h-5 w-5 ${metric.color}`} />
-                    <Badge variant={metric.change > 0 ? "default" : "destructive"}>
-                      {metric.change > 0 ? '+' : ''}{metric.change}%
-                    </Badge>
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-2xl font-bold">{metric.value}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {metric.title}
-                    </p>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
         </div>
 
-        {/* Charts Section */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Croissance des Utilisateurs</CardTitle>
-              <CardDescription>Évolution mensuelle des utilisateurs actifs</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <AreaChart data={learningData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" />
-                  <YAxis />
-                  <Tooltip />
-                  <Area 
-                    type="monotone" 
-                    dataKey="users" 
-                    stroke="hsl(var(--primary))" 
-                    fill="hsl(var(--primary))" 
-                    fillOpacity={0.3}
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
+        <Tabs defaultValue="overview" className="space-y-8">
+          <TabsList className="grid grid-cols-4 w-full max-w-2xl">
+            <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
+            <TabsTrigger value="performance">Performance</TabsTrigger>
+            <TabsTrigger value="study">Étude</TabsTrigger>
+            <TabsTrigger value="music">Musicothérapie</TabsTrigger>
+          </TabsList>
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Répartition par Spécialité</CardTitle>
-              <CardDescription>Sessions d'étude par domaine médical</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie
-                    data={subjectData}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                    outerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                  >
-                    {subjectData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Learning Progress */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {progressData.map((item, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-            >
-              <Card>
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg">{item.subject}</CardTitle>
-                    <Badge variant="outline" className="flex items-center gap-1">
-                      <Star className="h-3 w-3" />
-                      #{item.rank}
+          <TabsContent value="overview" className="space-y-8">
+            {/* Métriques principales */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {performanceMetrics.map((metric, index) => (
+                <PremiumCard key={index} className="p-6">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-sm font-medium text-muted-foreground">
+                      {metric.label}
+                    </h3>
+                    <Badge variant={metric.trend === 'up' ? 'default' : 'secondary'}>
+                      <TrendingUp className="w-3 h-3 mr-1" />
+                      {metric.change}
                     </Badge>
                   </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <div className="flex justify-between text-sm">
-                      <span>Progression</span>
-                      <span>{item.progress}%</span>
+                  <div className="text-3xl font-bold mb-2">
+                    {metric.value}
+                    <span className="text-sm text-muted-foreground ml-1">
+                      {metric.unit}
+                    </span>
+                  </div>
+                </PremiumCard>
+              ))}
+            </div>
+
+            {/* Graphique de progression */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <PremiumCard className="p-6">
+                <h2 className="text-xl font-semibold mb-6 flex items-center">
+                  <BarChart3 className="w-5 h-5 mr-2 text-primary" />
+                  Progression hebdomadaire
+                </h2>
+                <div className="space-y-4">
+                  {['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'].map((day, index) => {
+                    const score = Math.floor(Math.random() * 40) + 60;
+                    return (
+                      <div key={day} className="flex items-center space-x-4">
+                        <span className="w-8 text-sm">{day}</span>
+                        <Progress value={score} className="flex-1" />
+                        <span className="w-12 text-sm font-medium">{score}%</span>
+                      </div>
+                    );
+                  })}
+                </div>
+              </PremiumCard>
+
+              <PremiumCard className="p-6">
+                <h2 className="text-xl font-semibold mb-6 flex items-center">
+                  <Clock className="w-5 h-5 mr-2 text-primary" />
+                  Habitudes d'étude
+                </h2>
+                <div className="space-y-4">
+                  {studyPatterns.map((pattern, index) => (
+                    <div key={index} className="space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span>{pattern.period}</span>
+                        <span>{pattern.sessions} sessions</span>
+                      </div>
+                      <Progress value={pattern.percentage} />
                     </div>
-                    <Progress value={item.progress} />
+                  ))}
+                </div>
+              </PremiumCard>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="performance" className="space-y-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <PremiumCard className="p-6">
+                <h2 className="text-xl font-semibold mb-6 flex items-center">
+                  <Target className="w-5 h-5 mr-2 text-primary" />
+                  Scores par matière
+                </h2>
+                <div className="space-y-6">
+                  {subjects.map((subject, index) => (
+                    <div key={index} className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <h3 className="font-medium">{subject.name}</h3>
+                        <Badge>{subject.progress}%</Badge>
+                      </div>
+                      <Progress value={subject.progress} />
+                      <div className="flex justify-between text-xs text-muted-foreground">
+                        <span>{subject.questions} questions</span>
+                        <span>{subject.time}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </PremiumCard>
+
+              <PremiumCard className="p-6">
+                <h2 className="text-xl font-semibold mb-6 flex items-center">
+                  <Brain className="w-5 h-5 mr-2 text-primary" />
+                  Analyse cognitive
+                </h2>
+                <div className="space-y-6">
+                  <div className="p-4 bg-blue-500/10 rounded-lg border border-blue-200">
+                    <h3 className="font-medium text-blue-600 mb-2">Force principale</h3>
+                    <p className="text-sm">Excellent en raisonnement clinique</p>
+                    <Badge variant="secondary" className="mt-2">+18% vs moyenne</Badge>
                   </div>
                   
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4 text-muted-foreground" />
-                      <span>{item.timeSpent}h étudiées</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Target className="h-4 w-4 text-muted-foreground" />
-                      <span>{item.accuracy}% précision</span>
-                    </div>
+                  <div className="p-4 bg-orange-500/10 rounded-lg border border-orange-200">
+                    <h3 className="font-medium text-orange-600 mb-2">À améliorer</h3>
+                    <p className="text-sm">Vitesse de résolution des QCM</p>
+                    <Badge variant="secondary" className="mt-2">-12% vs objectif</Badge>
                   </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
-        </div>
+                  
+                  <div className="p-4 bg-green-500/10 rounded-lg border border-green-200">
+                    <h3 className="font-medium text-green-600 mb-2">Progression</h3>
+                    <p className="text-sm">Constante amélioration en pharmacologie</p>
+                    <Badge variant="secondary" className="mt-2">+25% ce mois</Badge>
+                  </div>
+                </div>
+              </PremiumCard>
+            </div>
+          </TabsContent>
 
-        {/* Engagement Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Eye className="h-5 w-5" />
-                Pages Vues
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold mb-2">2.4M</div>
-              <div className="flex items-center gap-1 text-sm text-green-600">
-                <TrendingUp className="h-4 w-4" />
-                +32% ce mois
-              </div>
-            </CardContent>
-          </Card>
+          <TabsContent value="study" className="space-y-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+              <PremiumCard className="p-6">
+                <h2 className="text-lg font-semibold mb-4 flex items-center">
+                  <BookOpen className="w-5 h-5 mr-2 text-primary" />
+                  Sessions d'étude
+                </h2>
+                <div className="text-center">
+                  <div className="text-4xl font-bold mb-2">28</div>
+                  <p className="text-sm text-muted-foreground mb-4">Cette semaine</p>
+                  <Progress value={70} />
+                  <p className="text-xs text-muted-foreground mt-2">70% de l'objectif</p>
+                </div>
+              </PremiumCard>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Clock className="h-5 w-5" />
-                Durée Moyenne
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold mb-2">24m 35s</div>
-              <div className="flex items-center gap-1 text-sm text-green-600">
-                <TrendingUp className="h-4 w-4" />
-                +18% ce mois
-              </div>
-            </CardContent>
-          </Card>
+              <PremiumCard className="p-6">
+                <h2 className="text-lg font-semibold mb-4 flex items-center">
+                  <Clock className="w-5 h-5 mr-2 text-primary" />
+                  Temps total
+                </h2>
+                <div className="text-center">
+                  <div className="text-4xl font-bold mb-2">16h</div>
+                  <p className="text-sm text-muted-foreground mb-4">42 minutes</p>
+                  <Progress value={85} />
+                  <p className="text-xs text-muted-foreground mt-2">+12% vs semaine précédente</p>
+                </div>
+              </PremiumCard>
 
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Heart className="h-5 w-5" />
-                Satisfaction
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-3xl font-bold mb-2">4.7/5</div>
-              <div className="flex items-center gap-1 text-sm text-green-600">
-                <TrendingUp className="h-4 w-4" />
-                +0.3 ce mois
+              <PremiumCard className="p-6">
+                <h2 className="text-lg font-semibold mb-4 flex items-center">
+                  <Target className="w-5 h-5 mr-2 text-primary" />
+                  Efficacité
+                </h2>
+                <div className="text-center">
+                  <div className="text-4xl font-bold mb-2">92%</div>
+                  <p className="text-sm text-muted-foreground mb-4">Score d'efficacité</p>
+                  <Progress value={92} />
+                  <p className="text-xs text-muted-foreground mt-2">Excellent niveau</p>
+                </div>
+              </PremiumCard>
+            </div>
+
+            <PremiumCard className="p-6">
+              <h2 className="text-xl font-semibold mb-6 flex items-center">
+                <Activity className="w-5 h-5 mr-2 text-primary" />
+                Calendrier d'activité
+              </h2>
+              <div className="grid grid-cols-7 gap-1 mb-4">
+                {['L', 'M', 'M', 'J', 'V', 'S', 'D'].map((day) => (
+                  <div key={day} className="text-center text-sm font-medium p-2">
+                    {day}
+                  </div>
+                ))}
+                {Array.from({ length: 35 }, (_, i) => (
+                  <div
+                    key={i}
+                    className={`aspect-square rounded ${
+                      Math.random() > 0.3
+                        ? Math.random() > 0.7
+                          ? 'bg-primary/80'
+                          : Math.random() > 0.5
+                          ? 'bg-primary/50'
+                          : 'bg-primary/20'
+                        : 'bg-muted'
+                    }`}
+                  />
+                ))}
               </div>
-            </CardContent>
-          </Card>
-        </div>
+              <div className="flex items-center justify-between text-sm text-muted-foreground">
+                <span>Moins actif</span>
+                <div className="flex space-x-1">
+                  <div className="w-3 h-3 bg-muted rounded-sm" />
+                  <div className="w-3 h-3 bg-primary/20 rounded-sm" />
+                  <div className="w-3 h-3 bg-primary/50 rounded-sm" />
+                  <div className="w-3 h-3 bg-primary/80 rounded-sm" />
+                </div>
+                <span>Plus actif</span>
+              </div>
+            </PremiumCard>
+          </TabsContent>
+
+          <TabsContent value="music" className="space-y-8">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <PremiumCard className="p-6">
+                <h2 className="text-xl font-semibold mb-6 flex items-center">
+                  <Music className="w-5 h-5 mr-2 text-primary" />
+                  Usage par genre
+                </h2>
+                <div className="space-y-4">
+                  {musicTherapyStats.map((stat, index) => (
+                    <div key={index} className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="font-medium">{stat.genre}</span>
+                        <span className="text-sm text-muted-foreground">{stat.usage}%</span>
+                      </div>
+                      <Progress value={stat.usage} />
+                      <p className="text-xs text-green-600">{stat.effect}</p>
+                    </div>
+                  ))}
+                </div>
+              </PremiumCard>
+
+              <PremiumCard className="p-6">
+                <h2 className="text-xl font-semibold mb-6">Impact thérapeutique</h2>
+                <div className="space-y-6">
+                  <div className="text-center p-4 bg-green-500/10 rounded-lg">
+                    <div className="text-2xl font-bold text-green-600 mb-1">+23%</div>
+                    <p className="text-sm">Amélioration concentration</p>
+                  </div>
+                  
+                  <div className="text-center p-4 bg-blue-500/10 rounded-lg">
+                    <div className="text-2xl font-bold text-blue-600 mb-1">-35%</div>
+                    <p className="text-sm">Réduction du stress</p>
+                  </div>
+                  
+                  <div className="text-center p-4 bg-purple-500/10 rounded-lg">
+                    <div className="text-2xl font-bold text-purple-600 mb-1">+18%</div>
+                    <p className="text-sm">Rétention mémoire</p>
+                  </div>
+                </div>
+              </PremiumCard>
+            </div>
+          </TabsContent>
+        </Tabs>
       </div>
-    </div>
+    </PremiumLayout>
   );
-}
+};
+
+export default Analytics;

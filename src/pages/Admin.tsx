@@ -1,302 +1,308 @@
-import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Button } from '@/components/ui/button';
+import React, { useState } from 'react';
+import { PremiumLayout } from '@/components/layout/PremiumLayout';
+import { PremiumCard } from '@/components/ui/premium-card';
+import { PremiumButton } from '@/components/ui/premium-button';
 import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Link } from 'react-router-dom';
 import { 
-  Shield, 
-  Users, 
   Settings, 
-  Database,
-  FileText,
+  Users, 
+  Database, 
+  Activity, 
+  Shield, 
+  FileText, 
+  BarChart3, 
+  Upload,
+  Download,
+  Wrench,
   AlertTriangle,
   CheckCircle,
-  XCircle,
-  Clock,
-  Search,
-  Plus,
-  Edit,
-  Trash2,
-  Download,
-  Upload
+  Server,
+  Zap
 } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
-import { Link } from 'react-router-dom';
 
-export function Admin() {
-  const { toast } = useToast();
-  const [searchTerm, setSearchTerm] = useState('');
+const adminModules = [
+  {
+    title: 'Gestion des utilisateurs',
+    description: 'Administrer les comptes et permissions',
+    icon: Users,
+    link: '/admin-panel',
+    status: 'active',
+    badge: '1,247 utilisateurs'
+  },
+  {
+    title: 'Base de données',
+    description: 'Maintenance et sauvegarde des données',
+    icon: Database,
+    link: '/system-health',
+    status: 'active',
+    badge: '99.9% uptime'
+  },
+  {
+    title: 'Monitoring système',
+    description: 'Surveillance des performances',
+    icon: Activity,
+    link: '/system-health',
+    status: 'warning',
+    badge: 'CPU: 68%'
+  },
+  {
+    title: 'Sécurité',
+    description: 'Logs et contrôles de sécurité',
+    icon: Shield,
+    link: '/admin-panel',
+    status: 'active',
+    badge: 'Sécurisé'
+  },
+  {
+    title: 'Audit complet',
+    description: 'Audit et vérification des données',
+    icon: FileText,
+    link: '/admin/audit',
+    status: 'active',
+    badge: 'Dernière: Hier'
+  },
+  {
+    title: 'Analytics',
+    description: 'Statistiques d\'utilisation',
+    icon: BarChart3,
+    link: '/analytics',
+    status: 'active',
+    badge: '+12% ce mois'
+  },
+  {
+    title: 'Import de données',
+    description: 'Importer des nouvelles données',
+    icon: Upload,
+    link: '/admin/import',
+    status: 'active',
+    badge: 'Prêt'
+  },
+  {
+    title: 'Export système',
+    description: 'Exporter les données',
+    icon: Download,
+    link: '/export',
+    status: 'active',
+    badge: 'Disponible'
+  },
+  {
+    title: 'Extraction EDN',
+    description: 'Extraire et traiter les données EDN',
+    icon: Wrench,
+    link: '/admin/extract-edn',
+    status: 'active',
+    badge: 'Prêt'
+  },
+  {
+    title: 'Extraction ECOS',
+    description: 'Extraire et traiter les données ECOS',
+    icon: Wrench,
+    link: '/admin/extract-ecos',
+    status: 'active',
+    badge: 'Prêt'
+  },
+  {
+    title: 'Qualité OIC',
+    description: 'Gestionnaire de qualité des données OIC',
+    icon: CheckCircle,
+    link: '/admin/oic-quality',
+    status: 'active',
+    badge: 'Optimal'
+  },
+  {
+    title: 'Processus complet',
+    description: 'Processus d\'administration complet',
+    icon: Settings,
+    link: '/admin/complete',
+    status: 'active',
+    badge: 'Automatisé'
+  }
+];
 
-  const systemStats = [
-    { label: "Utilisateurs actifs", value: "1,247", icon: Users, color: "text-blue-600" },
-    { label: "Erreurs système", value: "3", icon: AlertTriangle, color: "text-red-600" },
-    { label: "Tâches en cours", value: "12", icon: Clock, color: "text-orange-600" },
-    { label: "Système", value: "Opérationnel", icon: CheckCircle, color: "text-green-600" }
-  ];
+const systemStats = [
+  { label: 'Utilisateurs actifs', value: '1,247', change: '+8.2%', icon: Users },
+  { label: 'Requêtes/min', value: '8,432', change: '+12.1%', icon: Zap },
+  { label: 'Uptime', value: '99.98%', change: '+0.02%', icon: Server },
+  { label: 'Stockage utilisé', value: '2.8TB', change: '+5.4%', icon: Database }
+];
 
-  const quickActions = [
-    { title: "Import de données", href: "/admin/import", icon: Upload, description: "Importer des fichiers de données" },
-    { title: "Audit système", href: "/admin/audit", description: "Vérifier l'intégrité du système", icon: Shield },
-    { title: "Extraction EDN", href: "/admin/extract-edn", description: "Extraire les données EDN", icon: FileText },
-    { title: "Extraction ECOS", href: "/admin/extract-ecos", description: "Extraire les données ECOS", icon: Database },
-    { title: "Panel admin complet", href: "/admin-panel", description: "Interface d'administration avancée", icon: Settings }
-  ];
+export const Admin: React.FC = () => {
+  const [activeTab, setActiveTab] = useState('overview');
 
-  const recentLogs = [
-    { user: "Système", action: "Sauvegarde automatique effectuée", time: "Il y a 10 min", status: "success" },
-    { user: "Admin", action: "Mise à jour configuration", time: "Il y a 25 min", status: "success" },
-    { user: "Système", action: "Erreur connexion DB détectée", time: "Il y a 1h", status: "error" },
-    { user: "Admin", action: "Import données terminé", time: "Il y a 2h", status: "success" },
-    { user: "Système", action: "Maintenance programmée", time: "Il y a 3h", status: "warning" }
-  ];
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'active':
+        return <CheckCircle className="w-4 h-4 text-green-500" />;
+      case 'warning':
+        return <AlertTriangle className="w-4 h-4 text-yellow-500" />;
+      default:
+        return <CheckCircle className="w-4 h-4 text-green-500" />;
+    }
+  };
 
-  const handleQuickAction = (action: string) => {
-    toast({
-      title: "Action déclenchée",
-      description: `${action} en cours d'exécution...`,
-    });
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'active':
+        return 'bg-green-500/10 text-green-600 border-green-200';
+      case 'warning':
+        return 'bg-yellow-500/10 text-yellow-600 border-yellow-200';
+      default:
+        return 'bg-green-500/10 text-green-600 border-green-200';
+    }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
-      <div className="container mx-auto px-4 py-8 space-y-8">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <h1 className="text-3xl font-bold flex items-center gap-3">
-              <Shield className="h-8 w-8 text-primary" />
-              Administration
-            </h1>
-            <p className="text-muted-foreground mt-2">
-              Gestion et supervision du système MedMNG
-            </p>
-          </div>
-          <div className="flex gap-2">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                placeholder="Rechercher..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 w-64"
-              />
-            </div>
-            <Button size="sm">
-              <Plus className="h-4 w-4 mr-2" />
-              Nouveau
-            </Button>
-          </div>
+    <PremiumLayout variant="gradient">
+      <div className="container mx-auto px-4 py-8 max-w-7xl">
+        <div className="mb-8">
+          <h1 className="text-4xl font-bold text-white mb-4">
+            Centre d'Administration MED-MNG
+          </h1>
+          <p className="text-white/80 text-lg">
+            Gestion complète de la plateforme et supervision système
+          </p>
         </div>
 
-        {/* System Status Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {systemStats.map((stat, index) => (
-            <Card key={index} className="relative overflow-hidden">
-              <CardHeader className="pb-2">
-                <div className="flex items-center justify-between">
-                  <CardDescription>{stat.label}</CardDescription>
-                  <stat.icon className={`h-4 w-4 ${stat.color}`} />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{stat.value}</div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {/* Admin Tabs */}
-        <Tabs defaultValue="dashboard" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
-            <TabsTrigger value="dashboard">Tableau de bord</TabsTrigger>
-            <TabsTrigger value="users">Utilisateurs</TabsTrigger>
-            <TabsTrigger value="content">Contenu</TabsTrigger>
-            <TabsTrigger value="system">Système</TabsTrigger>
-            <TabsTrigger value="logs">Logs</TabsTrigger>
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-8">
+          <TabsList className="grid grid-cols-3 w-full max-w-2xl">
+            <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
+            <TabsTrigger value="modules">Modules</TabsTrigger>
+            <TabsTrigger value="monitoring">Monitoring</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="dashboard" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Quick Actions */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Settings className="h-5 w-5" />
-                    Actions rapides
-                  </CardTitle>
-                  <CardDescription>
-                    Accès direct aux fonctions d'administration principales
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {quickActions.map((action, index) => (
-                    <Link
-                      key={index}
-                      to={action.href}
-                      className="flex items-center justify-between p-3 rounded-lg border hover:bg-muted/50 transition-colors"
-                    >
-                      <div className="flex items-center gap-3">
-                        <action.icon className="h-5 w-5 text-primary" />
+          <TabsContent value="overview" className="space-y-8">
+            {/* Stats Dashboard */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {systemStats.map((stat, index) => {
+                const IconComponent = stat.icon;
+                return (
+                  <PremiumCard key={index} className="p-6">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center space-x-2">
+                        <IconComponent className="w-4 h-4 text-primary" />
+                        <h3 className="text-sm font-medium text-muted-foreground">
+                          {stat.label}
+                        </h3>
+                      </div>
+                      <Badge variant={stat.change.startsWith('+') ? 'default' : 'secondary'}>
+                        {stat.change}
+                      </Badge>
+                    </div>
+                    <div className="text-3xl font-bold">{stat.value}</div>
+                  </PremiumCard>
+                );
+              })}
+            </div>
+
+            {/* Quick Actions */}
+            <PremiumCard className="p-8">
+              <h2 className="text-2xl font-semibold mb-6">Actions rapides</h2>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Link to="/system-health" className="block">
+                  <PremiumButton className="h-16 w-full flex flex-col space-y-1">
+                    <Activity className="w-6 h-6" />
+                    <span>Vérifier la santé système</span>
+                  </PremiumButton>
+                </Link>
+                <Link to="/admin/audit" className="block">
+                  <PremiumButton variant="outline" className="h-16 w-full flex flex-col space-y-1">
+                    <FileText className="w-6 h-6" />
+                    <span>Lancer un audit</span>
+                  </PremiumButton>
+                </Link>
+                <Link to="/admin/import" className="block">
+                  <PremiumButton variant="outline" className="h-16 w-full flex flex-col space-y-1">
+                    <Upload className="w-6 h-6" />
+                    <span>Importer des données</span>
+                  </PremiumButton>
+                </Link>
+              </div>
+            </PremiumCard>
+          </TabsContent>
+
+          <TabsContent value="modules" className="space-y-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {adminModules.map((module, index) => {
+                const IconComponent = module.icon;
+                return (
+                  <PremiumCard key={index} className="p-6 hover:scale-105 transition-transform">
+                    <div className="flex items-start justify-between mb-4">
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 bg-primary/20 rounded-lg flex items-center justify-center">
+                          <IconComponent className="w-5 h-5 text-primary" />
+                        </div>
                         <div>
-                          <p className="font-medium">{action.title}</p>
-                          <p className="text-sm text-muted-foreground">{action.description}</p>
+                          <h3 className="font-semibold">{module.title}</h3>
+                          <div className="flex items-center space-x-2">
+                            {getStatusIcon(module.status)}
+                            <Badge className={getStatusColor(module.status)}>
+                              {module.badge}
+                            </Badge>
+                          </div>
                         </div>
                       </div>
-                      <Button variant="ghost" size="sm">
+                    </div>
+                    
+                    <p className="text-sm text-muted-foreground mb-4">
+                      {module.description}
+                    </p>
+                    
+                    <Link to={module.link} className="block">
+                      <PremiumButton className="w-full">
                         Accéder
-                      </Button>
+                      </PremiumButton>
                     </Link>
-                  ))}
-                </CardContent>
-              </Card>
-
-              {/* System Overview */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Database className="h-5 w-5" />
-                    État du système
-                  </CardTitle>
-                  <CardDescription>
-                    Surveillance en temps réel des composants
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between p-3 rounded-lg bg-green-50 dark:bg-green-900/20">
-                    <div className="flex items-center gap-3">
-                      <CheckCircle className="h-5 w-5 text-green-600" />
-                      <span>Base de données</span>
-                    </div>
-                    <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100">
-                      Opérationnelle
-                    </Badge>
-                  </div>
-                  
-                  <div className="flex items-center justify-between p-3 rounded-lg bg-green-50 dark:bg-green-900/20">
-                    <div className="flex items-center gap-3">
-                      <CheckCircle className="h-5 w-5 text-green-600" />
-                      <span>API Gateway</span>
-                    </div>
-                    <Badge className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100">
-                      Opérationnelle
-                    </Badge>
-                  </div>
-                  
-                  <div className="flex items-center justify-between p-3 rounded-lg bg-orange-50 dark:bg-orange-900/20">
-                    <div className="flex items-center gap-3">
-                      <AlertTriangle className="h-5 w-5 text-orange-600" />
-                      <span>Stockage</span>
-                    </div>
-                    <Badge className="bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-100">
-                      Surveillance
-                    </Badge>
-                  </div>
-                </CardContent>
-              </Card>
+                  </PremiumCard>
+                );
+              })}
             </div>
           </TabsContent>
 
-          <TabsContent value="users" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Gestion des utilisateurs</CardTitle>
-                <CardDescription>Administration des comptes utilisateurs</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-12">
-                  <Users className="h-16 w-16 mx-auto mb-4 text-muted-foreground opacity-50" />
-                  <p className="text-muted-foreground mb-4">Interface de gestion des utilisateurs</p>
-                  <Button asChild>
-                    <Link to="/admin-panel">Accéder au panel complet</Link>
-                  </Button>
+          <TabsContent value="monitoring" className="space-y-8">
+            <PremiumCard className="p-8">
+              <h2 className="text-2xl font-semibold mb-6">Surveillance système</h2>
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <div>
+                  <h3 className="text-lg font-medium mb-4">État des services</h3>
+                  <div className="space-y-3">
+                    {['API Principal', 'Base de données', 'Stockage fichiers', 'Service de mail'].map((service) => (
+                      <div key={service} className="flex items-center justify-between p-3 border rounded-lg">
+                        <span>{service}</span>
+                        <div className="flex items-center space-x-2">
+                          <CheckCircle className="w-4 h-4 text-green-500" />
+                          <span className="text-sm text-green-600">Opérationnel</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="content" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Gestion du contenu</CardTitle>
-                <CardDescription>Administration des données et du contenu</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Button asChild variant="outline" className="h-auto p-4">
-                    <Link to="/admin/extract-edn" className="flex flex-col items-center gap-2">
-                      <FileText className="h-8 w-8" />
-                      <span>Extraction EDN</span>
-                    </Link>
-                  </Button>
-                  <Button asChild variant="outline" className="h-auto p-4">
-                    <Link to="/admin/extract-ecos" className="flex flex-col items-center gap-2">
-                      <Database className="h-8 w-8" />
-                      <span>Extraction ECOS</span>
-                    </Link>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="system" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Configuration système</CardTitle>
-                <CardDescription>Paramètres et configuration avancée</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="text-center py-12">
-                  <Settings className="h-16 w-16 mx-auto mb-4 text-muted-foreground opacity-50" />
-                  <p className="text-muted-foreground">Configuration système en cours de développement</p>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="logs" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="h-5 w-5" />
-                  Journaux système
-                </CardTitle>
-                <CardDescription>
-                  Historique des actions et événements système
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {recentLogs.map((log, index) => (
-                  <div key={index} className="flex items-center justify-between p-3 rounded-lg border">
-                    <div className="flex-1">
-                      <p className="font-medium">{log.user}</p>
-                      <p className="text-sm text-muted-foreground">{log.action}</p>
+                
+                <div>
+                  <h3 className="text-lg font-medium mb-4">Alertes récentes</h3>
+                  <div className="space-y-3">
+                    <div className="p-3 bg-yellow-500/10 border border-yellow-200 rounded-lg">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm">CPU usage élevé</span>
+                        <span className="text-xs text-muted-foreground">Il y a 2h</span>
+                      </div>
                     </div>
-                    <div className="text-right flex items-center gap-3">
-                      <Badge variant={
-                        log.status === 'success' ? 'default' : 
-                        log.status === 'error' ? 'destructive' : 'secondary'
-                      }>
-                        {log.status === 'success' ? 'Succès' : 
-                         log.status === 'error' ? 'Erreur' : 'Attention'}
-                      </Badge>
-                      <p className="text-xs text-muted-foreground">{log.time}</p>
+                    <div className="p-3 bg-green-500/10 border border-green-200 rounded-lg">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm">Backup complété</span>
+                        <span className="text-xs text-muted-foreground">Il y a 6h</span>
+                      </div>
                     </div>
                   </div>
-                ))}
-                
-                <div className="text-center pt-4">
-                  <Button variant="outline">
-                    <Download className="h-4 w-4 mr-2" />
-                    Télécharger les logs complets
-                  </Button>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </PremiumCard>
           </TabsContent>
         </Tabs>
       </div>
-    </div>
+    </PremiumLayout>
   );
-}
+};
+
+export default Admin;
