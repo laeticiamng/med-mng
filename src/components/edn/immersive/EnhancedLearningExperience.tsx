@@ -44,7 +44,7 @@ interface UserProgress {
 interface EnhancedLearningExperienceProps {
   itemCode: string;
   currentSection: string;
-  onSectionChange: (section: string) => void;
+  onSectionChange: (section: 'tableau-a' | 'tableau-b' | 'scene' | 'bd' | 'music' | 'quiz') => void;
   children: React.ReactNode;
 }
 

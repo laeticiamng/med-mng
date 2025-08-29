@@ -9,6 +9,8 @@ import { ConsistentBackground } from '@/components/layout/ConsistentBackground';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { BookOpen } from 'lucide-react';
 import { ImmersiveEdnExperience } from '@/components/edn/immersive/ImmersiveEdnExperience';
+import { EnhancedLearningExperience } from '@/components/edn/immersive/EnhancedLearningExperience';
+import { AdvancedInteractionTracker } from '@/components/edn/immersive/AdvancedInteractionTracker';
 
 type SectionType = 'tableau-a' | 'tableau-b' | 'scene' | 'bd' | 'music' | 'quiz';
 
@@ -53,13 +55,24 @@ const EdnItem = () => {
   }
 
   return (
-    <ImmersiveEdnExperience
-      activeSection={activeSection}
+    <EnhancedLearningExperience
+      itemCode={item.item_code}
+      currentSection={activeSection}
       onSectionChange={setActiveSection}
-      item={item}
     >
-      <EdnItemContent activeSection={activeSection} item={item} />
-    </ImmersiveEdnExperience>
+      <AdvancedInteractionTracker
+        sectionId={activeSection}
+        onDataUpdate={(data) => console.log('Interaction data:', data)}
+      >
+        <ImmersiveEdnExperience
+          activeSection={activeSection}
+          onSectionChange={setActiveSection}
+          item={item}
+        >
+          <EdnItemContent activeSection={activeSection} item={item} />
+        </ImmersiveEdnExperience>
+      </AdvancedInteractionTracker>
+    </EnhancedLearningExperience>
   );
 };
 
