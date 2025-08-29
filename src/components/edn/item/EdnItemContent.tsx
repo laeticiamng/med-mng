@@ -8,10 +8,10 @@ import { SceneImmersive } from '@/components/edn/SceneImmersive';
 import { ParolesMusicales } from '@/components/edn/ParolesMusicales';
 import { TranslatedText } from '@/components/TranslatedText';
 import { EnhancedTableauDisplay } from '@/components/edn/immersive/EnhancedTableauDisplay';
-import { ImmersiveSceneDisplay } from '@/components/edn/immersive/ImmersiveSceneDisplay';
-import { EnhancedBandeDessinee } from '@/components/edn/immersive/EnhancedBandeDessinee';
-import { EnhancedGenerationMusicale } from '@/components/edn/immersive/EnhancedGenerationMusicale';
-import { EnhancedQuizFinal } from '@/components/edn/immersive/EnhancedQuizFinal';
+import { AdvancedSceneImmersive } from '@/components/edn/scene/AdvancedSceneImmersive';
+import { AdvancedBandeDessinee } from '@/components/edn/comic/AdvancedBandeDessinee';
+import { AdvancedGenerationMusicale } from '@/components/edn/music/AdvancedGenerationMusicale';
+import { AdvancedQuizInteractif } from '@/components/edn/quiz/AdvancedQuizInteractif';
 
 type SectionType = 'tableau-a' | 'tableau-b' | 'scene' | 'bd' | 'music' | 'quiz';
 
@@ -45,6 +45,45 @@ export const EdnItemContent = ({ activeSection, item }: EdnItemContentProps) => 
   console.log('📊 EdnItemContent - Item data:', item);
   console.log('🚨 FORCE UPDATE - Current timestamp:', new Date().toISOString());
   
+  // Extraire les compétences depuis les données des tableaux
+  const extractCompetences = () => {
+    const competences = new Set<string>();
+    
+    // Ajouter des compétences basées sur l'item_code
+    if (item.item_code?.includes('CARDIO') || item.title?.toLowerCase().includes('cardiologie')) {
+      competences.add('Cardiologie');
+    }
+    if (item.item_code?.includes('NEURO') || item.title?.toLowerCase().includes('neurologie')) {
+      competences.add('Neurologie');
+    }
+    if (item.item_code?.includes('DERMATO') || item.title?.toLowerCase().includes('dermatologie')) {
+      competences.add('Dermatologie');
+    }
+    
+    // Compétences par défaut selon le rang
+    if (item.tableau_rang_a || item.competences_oic_rang_a) {
+      competences.add('Diagnostic');
+      competences.add('Anamnèse');
+      competences.add('Examen clinique');
+    }
+    if (item.tableau_rang_b || item.competences_oic_rang_b) {
+      competences.add('Thérapeutique');
+      competences.add('Suivi patient');
+      competences.add('Prise de décision');
+    }
+    
+    // Si aucune compétence spécifique, ajouter des compétences générales
+    if (competences.size === 0) {
+      competences.add('Médecine Générale');
+      competences.add('Communication');
+      competences.add('Raisonnement clinique');
+    }
+    
+    return Array.from(competences);
+  };
+  
+  const competences = extractCompetences();
+  
   const renderActiveSection = () => {
     switch (activeSection) {
       case 'tableau-a':
@@ -68,59 +107,59 @@ export const EdnItemContent = ({ activeSection, item }: EdnItemContentProps) => 
         );
       
       case 'scene':
-        return item.scene_immersive ? (
-          <ImmersiveSceneDisplay 
-            data={item.scene_immersive}
-            itemCode={item.item_code}
-            title={item.title}
-          />
-        ) : (
-          <ImmersiveSceneDisplay 
-            data={null}
-            itemCode={item.item_code}
-            title={item.title}
+        return (
+          <AdvancedSceneImmersive 
+            itemData={{
+              title: item.title,
+              subtitle: item.subtitle || '',
+              item_code: item.item_code,
+              tableau_rang_a: item.tableau_rang_a,
+              tableau_rang_b: item.tableau_rang_b
+            }}
+            competences={competences}
           />
         );
       
       case 'bd':
         return (
-          <EnhancedBandeDessinee 
+          <AdvancedBandeDessinee 
             itemData={{
               title: item.title,
               subtitle: item.subtitle || '',
-              slug: item.slug,
               item_code: item.item_code,
               tableau_rang_a: item.tableau_rang_a,
               tableau_rang_b: item.tableau_rang_b
             }}
+            competences={competences}
           />
         );
       
       case 'music':
         return (
-          <EnhancedGenerationMusicale
-            itemCode={item.item_code}
-            title={item.title}
-            paroles={{
-              rang_a: item.paroles_rang_a,
-              rang_b: item.paroles_rang_b,
-              rang_ab: item.paroles_rang_ab
+          <AdvancedGenerationMusicale
+            itemData={{
+              title: item.title,
+              subtitle: item.subtitle || '',
+              item_code: item.item_code,
+              tableau_rang_a: item.tableau_rang_a,
+              tableau_rang_b: item.tableau_rang_b
             }}
-            tableauData={{ tableau_rang_a: item.tableau_rang_a, tableau_rang_b: item.tableau_rang_b }}
+            competences={competences}
           />
         );
       
       case 'quiz':
-        return item.quiz_questions ? (
-          <EnhancedQuizFinal 
-            questions={item.quiz_questions} 
-            itemCode={item.item_code}
-            itemTitle={item.title}
+        return (
+          <AdvancedQuizInteractif 
+            itemData={{
+              title: item.title,
+              subtitle: item.subtitle || '',
+              item_code: item.item_code,
+              tableau_rang_a: item.tableau_rang_a,
+              tableau_rang_b: item.tableau_rang_b
+            }}
+            competences={competences}
           />
-        ) : (
-          <div className="text-center py-8">
-            <TranslatedText text="Quiz en cours de développement" />
-          </div>
         );
       
       default:
