@@ -42,6 +42,7 @@ const MentionsLegales = lazy(() => import("./pages/MentionsLegales"));
 const PolitiqueConfidentialite = lazy(() => import("./pages/PolitiqueConfidentialite"));
 const Conditions = lazy(() => import("./pages/Conditions"));
 const Support = lazy(() => import("./pages/Support"));
+const OptimizationCenter = lazy(() => import("./pages/OptimizationCenter"));
 const MedMngLogin = lazy(() => import("./pages/MedMngLogin").then(module => ({ default: module.MedMngLogin })));
 const MedMngSignup = lazy(() => import("./pages/MedMngSignup").then(module => ({ default: module.MedMngSignup })));
 const MedMngPricing = lazy(() => import("./pages/MedMngPricing").then(module => ({ default: module.MedMngPricing })));
@@ -162,13 +163,14 @@ const AppWithUX = () => {
                                       <GlobalErrorBoundary>
                                         <Suspense fallback={<PageSkeleton />}>
                                           <Routes>
-                                             <Route path="/" element={<Index />} />
-                                              <Route path="/platform" element={<PlatformOverview />} />
-                                              <Route path="/features" element={<AllFeaturesPage />} />
-                                             <Route path="/generator" element={<Generator />} />
-                                             <Route path="/monitoring" element={<Monitoring />} />
-                                             <Route path="/analytics" element={<Analytics />} />
-                                             <Route path="/dashboard" element={<CompleteDashboard />} />
+                                              <Route path="/" element={<Index />} />
+                                               <Route path="/platform" element={<PlatformOverview />} />
+                                               <Route path="/features" element={<AllFeaturesPage />} />
+                                              <Route path="/generator" element={<Generator />} />
+                                              <Route path="/monitoring" element={<Monitoring />} />
+                                              <Route path="/analytics" element={<Analytics />} />
+                                              <Route path="/dashboard" element={<CompleteDashboard />} />
+                                              <Route path="/optimization" element={<OptimizationCenter />} />
                                             <Route path="/admin" element={<Admin />} />
                                             <Route path="/export" element={<Export />} />
                                             
