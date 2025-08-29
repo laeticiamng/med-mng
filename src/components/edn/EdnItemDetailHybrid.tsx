@@ -303,7 +303,7 @@ export const EdnItemDetailHybrid: React.FC<EdnItemDetailHybridProps> = ({
             </div>
 
             {/* Métadonnées compactes */}
-            <div className="flex items-center gap-3 md:gap-6 mt-3 text-xs md:text-sm text-muted-foreground overflow-x-auto pb-2">
+            <div className="flex items-center gap-3 md:gap-6 mt-3 text-xs md:text-sm text-muted-foreground flex-container-safe badge-container pb-2">
               {item.specialite && (
                 <div className="flex items-center gap-1 flex-shrink-0">
                   <Tag className="h-3 w-3" />
@@ -375,7 +375,7 @@ export const EdnItemDetailHybrid: React.FC<EdnItemDetailHybridProps> = ({
               </Button>
             </div>
 
-            <div className="flex items-center gap-1 overflow-x-auto">
+            <div className="flex items-center gap-1 flex-container-safe badge-container">
               {availableSections.map((section, index) => (
                 <Button
                   key={section.id}

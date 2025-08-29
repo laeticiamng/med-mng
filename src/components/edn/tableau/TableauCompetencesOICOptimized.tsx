@@ -83,11 +83,11 @@ const CompetenceCard: React.FC<{
                 </div>
                 <div className="flex-1">
                   {competence.objectif_id && (
-                    <Badge variant="outline" className={`${themeColors.text} text-xs mb-2`}>
+                    <Badge variant="outline" className={`${themeColors.text} text-xs mb-2 badge-text`}>
                       {competence.objectif_id}
                     </Badge>
                   )}
-                  <h3 className={`font-semibold ${themeColors.text} text-sm leading-tight title-container-multiline`}>
+                  <h3 className={`font-semibold ${themeColors.text} text-sm leading-tight title-container-three-lines`}>
                     {competence.titre_complet || competence.intitule}
                   </h3>
                 </div>

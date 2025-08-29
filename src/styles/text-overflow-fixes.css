@@ -260,6 +260,75 @@
   background-color: rgba(156, 163, 175, 0.7);
 }
 
+/* Styles pour les boutons et éléments interactifs */
+.button-text-safe {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 200px;
+}
+
+.flex-container-safe {
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-width: 100%;
+}
+
+.dialog-content-safe {
+  overflow: hidden;
+  word-wrap: break-word;
+  max-width: 100vw;
+  max-height: 100vh;
+}
+
+.music-card-content {
+  overflow: hidden;
+  word-wrap: break-word;
+  max-width: 100%;
+}
+
+.badge-container {
+  overflow-x: auto;
+  max-width: 100%;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.badge-container::-webkit-scrollbar {
+  display: none;
+}
+
+/* Styles pour les grilles et cartes */
+.grid-container-safe {
+  overflow: hidden;
+  max-width: 100%;
+}
+
+.card-header-safe {
+  overflow: hidden;
+  word-wrap: break-word;
+  max-width: 100%;
+}
+
+.card-title-safe {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
+  line-height: 1.2;
+}
+
+.card-description-safe {
+  overflow-wrap: break-word;
+  word-break: break-word;
+  hyphens: auto;
+  max-height: 6em;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+}
+
 /* Styles pour le contenu musical */
 .music-content {
   word-wrap: break-word;
