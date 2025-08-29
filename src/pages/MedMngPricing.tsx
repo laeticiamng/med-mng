@@ -60,11 +60,11 @@ export const MedMngPricing: React.FC = () => {
                 ))}
               </div>
 
-              <PremiumButton asChild className="w-full">
-                <Link to="/med-mng/signup">
+              <Link to="/med-mng/signup" className="block w-full">
+                <PremiumButton className="w-full">
                   Choisir ce plan
-                </Link>
-              </PremiumButton>
+                </PremiumButton>
+              </Link>
             </PremiumCard>
           ))}
         </div>

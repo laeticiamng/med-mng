@@ -20,11 +20,11 @@ export const MedMngSuccess: React.FC = () => {
             Votre abonnement MED-MNG Premium a été activé avec succès.
           </p>
           
-          <PremiumButton asChild className="text-lg px-8 py-6">
-            <Link to="/med-mng/dashboard">
+          <Link to="/med-mng/dashboard" className="block">
+            <PremiumButton className="text-lg px-8 py-6">
               Accéder au tableau de bord
-            </Link>
-          </PremiumButton>
+            </PremiumButton>
+          </Link>
         </PremiumCard>
       </div>
     </PremiumLayout>
