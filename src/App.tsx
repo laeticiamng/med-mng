@@ -27,6 +27,7 @@ import { GlobalMusicPlayer } from "@/components/layout/GlobalMusicPlayer";
 const Index = lazy(() => import("./pages/Index"));
 const Generator = lazy(() => import("./pages/Generator"));
 const Monitoring = lazy(() => import("./pages/Monitoring"));
+const CompleteDashboard = lazy(() => import("./pages/CompleteDashboard"));
 const Analytics = lazy(() => import("./pages/Analytics").then(module => ({ default: module.Analytics })));
 const Admin = lazy(() => import("./pages/Admin").then(module => ({ default: module.Admin })));
 const Export = lazy(() => import("./pages/Export").then(module => ({ default: module.Export })));
@@ -161,9 +162,10 @@ const AppWithUX = () => {
                                         <Suspense fallback={<PageSkeleton />}>
                                           <Routes>
                                             <Route path="/" element={<Index />} />
-                                            <Route path="/generator" element={<Generator />} />
-                                            <Route path="/monitoring" element={<Monitoring />} />
-                                            <Route path="/analytics" element={<Analytics />} />
+                                             <Route path="/generator" element={<Generator />} />
+                                             <Route path="/monitoring" element={<Monitoring />} />
+                                             <Route path="/analytics" element={<Analytics />} />
+                                             <Route path="/dashboard" element={<CompleteDashboard />} />
                                             <Route path="/admin" element={<Admin />} />
                                             <Route path="/export" element={<Export />} />
                                             
