@@ -35,69 +35,89 @@
 }
 
 /* ==========================================
-   MED-MNG DESIGN SYSTEM
+   MED-MNG PREMIUM DESIGN SYSTEM v2.0
    ========================================== */
 
 @layer base {
   :root {
-    /* Core Colors - Medical Theme */
-    --background: 0 0% 98%;
-    --foreground: 213 32% 19%;
+    /* Premium Medical Theme - Light Mode */
+    --background: 210 20% 98%;
+    --foreground: 213 31% 15%;
 
     --card: 0 0% 100%;
-    --card-foreground: 213 32% 19%;
+    --card-foreground: 213 31% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 213 32% 19%;
+    --popover-foreground: 213 31% 15%;
 
-    /* Medical Primary - Professional Blue - WCAG AA Compliant */
-    --primary: 213 94% 35%;
+    /* Premium Primary - Medical Azure */
+    --primary: 213 94% 40%;
     --primary-foreground: 0 0% 100%;
-    --primary-hover: 213 94% 28%;
-    --primary-muted: 213 94% 85%;
+    --primary-hover: 213 94% 35%;
+    --primary-muted: 213 94% 92%;
+    --primary-glow: 213 94% 65%;
 
-    /* Medical Secondary - Soft Blue */
-    --secondary: 213 27% 95%;
-    --secondary-foreground: 51 65% 20%;
-    --secondary-hover: 213 27% 88%;
+    /* Premium Secondary - Healing Sage */
+    --secondary: 142 30% 92%;
+    --secondary-foreground: 142 45% 15%;
+    --secondary-hover: 142 30% 88%;
 
-    /* Muted Colors */
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%;
+    /* Muted Premium */
+    --muted: 213 20% 96%;
+    --muted-foreground: 213 25% 45%;
 
-    /* Accent Colors - Healing Green - WCAG AA Compliant */
-    --accent: 142 76% 25%;
-    --accent-foreground: 355 7% 97%;
-    --accent-hover: 142 76% 20%;
-    --accent-muted: 142 76% 85%;
+    /* Premium Accent - Therapeutic Gold */
+    --accent: 45 100% 45%;
+    --accent-foreground: 0 0% 100%;
+    --accent-hover: 45 100% 40%;
+    --accent-muted: 45 100% 92%;
+    --accent-glow: 45 100% 65%;
 
-    /* Success/Warning/Error */
-    --success: 142 71% 45%;
-    --success-foreground: 355 7% 97%;
-    --warning: 48 96% 53%;
-    --warning-foreground: 213 32% 19%;
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
+    /* Status Colors Premium */
+    --success: 142 76% 35%;
+    --success-foreground: 0 0% 100%;
+    --success-glow: 142 76% 55%;
+    
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    --warning-glow: 38 92% 70%;
+    
+    --destructive: 0 84% 55%;
+    --destructive-foreground: 0 0% 100%;
+    --destructive-glow: 0 84% 75%;
 
-    /* Borders & Inputs */
-    --border: 213 27% 84%;
-    --input: 213 27% 84%;
-    --ring: 213 94% 35%;
+    /* Premium Info */
+    --info: 200 98% 45%;
+    --info-foreground: 0 0% 100%;
+    --info-glow: 200 98% 65%;
 
-    /* Gradients */
-    --gradient-medical: linear-gradient(135deg, hsl(213 94% 35%) 0%, hsl(142 76% 25%) 100%);
-    --gradient-header: linear-gradient(135deg, hsl(213 94% 95%) 0%, hsl(213 94% 98%) 100%);
-    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%) 0%, hsl(213 27% 98%) 100%);
+    /* Borders & Inputs Premium */
+    --border: 213 25% 88%;
+    --input: 213 25% 94%;
+    --ring: 213 94% 40%;
 
-    /* Shadows */
-    --shadow-soft: 0 4px 6px -1px rgba(59, 130, 246, 0.1), 0 2px 4px -1px rgba(59, 130, 246, 0.06);
-    --shadow-medium: 0 10px 15px -3px rgba(59, 130, 246, 0.1), 0 4px 6px -2px rgba(59, 130, 246, 0.05);
-    --shadow-large: 0 25px 50px -12px rgba(59, 130, 246, 0.25);
+    /* Premium Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(213 94% 40%) 0%, hsl(213 94% 55%) 100%);
+    --gradient-secondary: linear-gradient(135deg, hsl(142 76% 35%) 0%, hsl(142 76% 50%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(45 100% 45%) 0%, hsl(45 100% 60%) 100%);
+    --gradient-medical: linear-gradient(135deg, hsl(213 94% 40%) 0%, hsl(142 76% 35%) 50%, hsl(45 100% 45%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(213 94% 8%) 0%, hsl(213 94% 15%) 50%, hsl(213 94% 20%) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%) 0%, hsl(213 25% 98%) 100%);
+    --gradient-glass: linear-gradient(135deg, hsla(0 0% 100% / 0.1) 0%, hsla(0 0% 100% / 0.05) 100%);
 
-    /* Radius */
-    --radius: 0.75rem;
-    --radius-sm: 0.5rem;
-    --radius-lg: 1rem;
+    /* Premium Shadows with Color */
+    --shadow-soft: 0 4px 6px -1px hsla(213 94% 40% / 0.08), 0 2px 4px -1px hsla(213 94% 40% / 0.04);
+    --shadow-medium: 0 10px 15px -3px hsla(213 94% 40% / 0.12), 0 4px 6px -2px hsla(213 94% 40% / 0.06);
+    --shadow-large: 0 25px 50px -12px hsla(213 94% 40% / 0.20);
+    --shadow-glow: 0 0 40px hsla(213 94% 65% / 0.3);
+    --shadow-accent-glow: 0 0 40px hsla(45 100% 65% / 0.3);
+    --shadow-success-glow: 0 0 40px hsla(142 76% 55% / 0.3);
+
+    /* Premium Radius */
+    --radius: 0.875rem;
+    --radius-sm: 0.625rem;
+    --radius-lg: 1.25rem;
+    --radius-xl: 1.5rem;
 
     /* Sidebar - Medical Professional */
     --sidebar-background: 0 0% 100%;
