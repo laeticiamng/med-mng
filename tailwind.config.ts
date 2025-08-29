@@ -46,6 +46,8 @@ export default {
 		extend: {
 			fontFamily: {
 				sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'system-ui', 'sans-serif'],
+				serif: ['Playfair Display', 'Georgia', 'Times New Roman', 'serif'],
+				display: ['Nunito', 'Inter', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'sans-serif'],
 				mono: ['JetBrains Mono', 'SF Mono', 'Monaco', 'Cascadia Code', 'Roboto Mono', 'Courier New', 'monospace'],
 			},
 			colors: {

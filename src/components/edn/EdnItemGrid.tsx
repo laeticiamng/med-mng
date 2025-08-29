@@ -51,33 +51,35 @@ export const EdnItemGrid = memo<EdnItemGridProps>(({
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="text-center space-y-4">
-          <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
-          <p className="text-muted-foreground">Chargement des items EDN...</p>
+    <div className="glass-medical p-8 rounded-2xl">
+      <div className="text-center space-y-6">
+        <div className="glow-primary p-4 rounded-full inline-block">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
         </div>
+        <p className="text-premium">Chargement des items EDN...</p>
       </div>
+    </div>
     );
   }
 
   if (filteredItems.length === 0) {
     return (
-      <div className="text-center py-12">
-        <div className="space-y-4">
-          <div className="text-4xl">📚</div>
-          <h3 className="text-lg font-semibold">Aucun item trouvé</h3>
-          <p className="text-muted-foreground">
-            {searchTerm ? `Aucun résultat pour "${searchTerm}"` : 'Aucun item ne correspond aux filtres sélectionnés'}
-          </p>
-        </div>
+    <div className="glass-medical p-8 rounded-2xl backdrop-blur-3xl">
+      <div className="space-y-6">
+        <div className="text-4xl">📚</div>
+        <h3 className="heading-premium text-xl font-bold">Aucun item trouvé</h3>
+        <p className="text-premium">
+          {searchTerm ? `Aucun résultat pour "${searchTerm}"` : 'Aucun item ne correspond aux filtres sélectionnés'}
+        </p>
       </div>
+    </div>
     );
   }
 
   return (
     <div className="space-y-6">
       {/* Grid des items */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
+      <div className="medical-grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5">
         {filteredItems.map(item => (
           <EdnItemCard 
             key={item.id}
