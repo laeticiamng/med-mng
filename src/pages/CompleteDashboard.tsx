@@ -2,6 +2,7 @@ import React from 'react';
 import { CompleteDashboardLayout } from '@/components/dashboard/CompleteDashboardLayout';
 import { UnifiedNavigation } from '@/components/navigation/UnifiedNavigation';
 import { GlobalNavigation } from '@/components/navigation/GlobalNavigation';
+import { ImmersiveExperienceOrchestrator } from '@/components/immersive/ImmersiveExperienceOrchestrator';
 import { Separator } from '@/components/ui/separator';
 
 const CompleteDashboard: React.FC = () => {
@@ -10,8 +11,8 @@ const CompleteDashboard: React.FC = () => {
       {/* Global Navigation */}
       <GlobalNavigation />
       
-      {/* Main Dashboard Layout */}
-      <CompleteDashboardLayout />
+      {/* Immersive Experience Orchestrator */}
+      <ImmersiveExperienceOrchestrator />
       
       {/* Unified Navigation Section */}
       <div className="container mx-auto px-6 py-12">
