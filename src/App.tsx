@@ -80,6 +80,9 @@ const EdnImmersive = lazy(() => import("./pages/EdnImmersive"));
 const EdnComplete = lazy(() => import("./pages/EdnComplete"));
 const EdnItem = lazy(() => import("./pages/EdnItem"));
 const PlatformOverview = lazy(() => import("./pages/PlatformOverview"));
+const UserSettings = lazy(() => import("./pages/UserSettings"));
+const Documentation = lazy(() => import("./pages/Documentation"));
+const Community = lazy(() => import("./pages/Community"));
 
 import { AuthProvider } from "./components/med-mng/AuthProvider";
 import { ProtectedRoute } from "./components/med-mng/withAuth";
@@ -165,16 +168,19 @@ const AppWithUX = () => {
                                       <GlobalErrorBoundary>
                                         <Suspense fallback={<PageSkeleton />}>
                                           <Routes>
-                                               <Route path="/" element={<Index />} />
-                                                <Route path="/platform" element={<PlatformOverview />} />
-                                                <Route path="/features" element={<AllFeaturesPage />} />
-                                               <Route path="/generator" element={<Generator />} />
-                                               <Route path="/monitoring" element={<Monitoring />} />
-                                               <Route path="/analytics" element={<Analytics />} />
-                                               <Route path="/dashboard" element={<SuperDashboard />} />
-                                               <Route path="/optimization" element={<OptimizationCenter />} />
-                                            <Route path="/admin" element={<Admin />} />
-                                            <Route path="/export" element={<Export />} />
+                                                <Route path="/" element={<Index />} />
+                                                 <Route path="/platform" element={<PlatformOverview />} />
+                                                 <Route path="/features" element={<AllFeaturesPage />} />
+                                                <Route path="/generator" element={<Generator />} />
+                                                <Route path="/monitoring" element={<Monitoring />} />
+                                                <Route path="/analytics" element={<Analytics />} />
+                                                <Route path="/dashboard" element={<SuperDashboard />} />
+                                                <Route path="/optimization" element={<OptimizationCenter />} />
+                                             <Route path="/admin" element={<Admin />} />
+                                             <Route path="/export" element={<Export />} />
+                                             <Route path="/settings" element={<UserSettings />} />
+                                             <Route path="/documentation" element={<Documentation />} />
+                                             <Route path="/community" element={<Community />} />
                                             
                                             {/* EDN Interface Unifiée */}
                                             <Route path="/edn" element={<EdnComplete />} />

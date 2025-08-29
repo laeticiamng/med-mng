@@ -98,6 +98,51 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_coach_sessions: {
+        Row: {
+          coach_personality: string | null
+          created_at: string | null
+          emotions_detected: Json | null
+          id: string
+          messages_count: number | null
+          resources_provided: Json | null
+          session_duration: number | null
+          session_notes: string | null
+          techniques_suggested: string[] | null
+          updated_at: string | null
+          user_id: string | null
+          user_satisfaction: number | null
+        }
+        Insert: {
+          coach_personality?: string | null
+          created_at?: string | null
+          emotions_detected?: Json | null
+          id?: string
+          messages_count?: number | null
+          resources_provided?: Json | null
+          session_duration?: number | null
+          session_notes?: string | null
+          techniques_suggested?: string[] | null
+          updated_at?: string | null
+          user_id?: string | null
+          user_satisfaction?: number | null
+        }
+        Update: {
+          coach_personality?: string | null
+          created_at?: string | null
+          emotions_detected?: Json | null
+          id?: string
+          messages_count?: number | null
+          resources_provided?: Json | null
+          session_duration?: number | null
+          session_notes?: string | null
+          techniques_suggested?: string[] | null
+          updated_at?: string | null
+          user_id?: string | null
+          user_satisfaction?: number | null
+        }
+        Relationships: []
+      }
       ai_generated_content: {
         Row: {
           content: Json
@@ -2437,6 +2482,30 @@ export type Database = {
           },
         ]
       }
+      exports: {
+        Row: {
+          created_at: string | null
+          file_path: string | null
+          id: string
+          status: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          file_path?: string | null
+          id?: string
+          status?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          file_path?: string | null
+          id?: string
+          status?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       extraction_events: {
         Row: {
           created_at: string
@@ -2532,6 +2601,48 @@ export type Database = {
           status?: string
           total_items?: number | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      gamification_activities: {
+        Row: {
+          achievements_unlocked: string[] | null
+          activity_name: string
+          activity_type: string
+          completion_percentage: number | null
+          created_at: string | null
+          difficulty_level: string | null
+          duration: number | null
+          id: string
+          points_earned: number | null
+          session_data: Json | null
+          user_id: string | null
+        }
+        Insert: {
+          achievements_unlocked?: string[] | null
+          activity_name: string
+          activity_type: string
+          completion_percentage?: number | null
+          created_at?: string | null
+          difficulty_level?: string | null
+          duration?: number | null
+          id?: string
+          points_earned?: number | null
+          session_data?: Json | null
+          user_id?: string | null
+        }
+        Update: {
+          achievements_unlocked?: string[] | null
+          activity_name?: string
+          activity_type?: string
+          completion_percentage?: number | null
+          created_at?: string | null
+          difficulty_level?: string | null
+          duration?: number | null
+          id?: string
+          points_earned?: number | null
+          session_data?: Json | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -2655,6 +2766,33 @@ export type Database = {
           updated_at?: string
           user_id?: string
           voice_id?: string
+        }
+        Relationships: []
+      }
+      goals: {
+        Row: {
+          created_at: string | null
+          id: string
+          status: string | null
+          title: string
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          status?: string | null
+          title: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          status?: string | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -3206,6 +3344,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      journal: {
+        Row: {
+          audio_path: string | null
+          created_at: string | null
+          id: string
+          sentiment_label: string | null
+          text: string | null
+          ts: string | null
+          user_id: string | null
+        }
+        Insert: {
+          audio_path?: string | null
+          created_at?: string | null
+          id?: string
+          sentiment_label?: string | null
+          text?: string | null
+          ts?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          audio_path?: string | null
+          created_at?: string | null
+          id?: string
+          sentiment_label?: string | null
+          text?: string | null
+          ts?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
       }
       journal_entries: {
         Row: {
@@ -4353,6 +4521,150 @@ export type Database = {
         }
         Relationships: []
       }
+      metrics_bubble_beat: {
+        Row: {
+          id: string
+          payload: Json | null
+          session_id: string | null
+          ts: string | null
+          user_id: string | null
+        }
+        Insert: {
+          id?: string
+          payload?: Json | null
+          session_id?: string | null
+          ts?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          id?: string
+          payload?: Json | null
+          session_id?: string | null
+          ts?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      metrics_emotion_scan: {
+        Row: {
+          id: string
+          payload: Json | null
+          session_id: string | null
+          ts: string | null
+          user_id: string | null
+        }
+        Insert: {
+          id?: string
+          payload?: Json | null
+          session_id?: string | null
+          ts?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          id?: string
+          payload?: Json | null
+          session_id?: string | null
+          ts?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      metrics_face_filter: {
+        Row: {
+          id: string
+          payload: Json | null
+          session_id: string | null
+          ts: string | null
+          user_id: string | null
+        }
+        Insert: {
+          id?: string
+          payload?: Json | null
+          session_id?: string | null
+          ts?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          id?: string
+          payload?: Json | null
+          session_id?: string | null
+          ts?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      metrics_flash_glow: {
+        Row: {
+          id: string
+          payload: Json | null
+          session_id: string | null
+          ts: string | null
+          user_id: string | null
+        }
+        Insert: {
+          id?: string
+          payload?: Json | null
+          session_id?: string | null
+          ts?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          id?: string
+          payload?: Json | null
+          session_id?: string | null
+          ts?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      metrics_vr_breath: {
+        Row: {
+          id: string
+          payload: Json | null
+          session_id: string | null
+          ts: string | null
+          user_id: string | null
+        }
+        Insert: {
+          id?: string
+          payload?: Json | null
+          session_id?: string | null
+          ts?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          id?: string
+          payload?: Json | null
+          session_id?: string | null
+          ts?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      metrics_vr_galaxy: {
+        Row: {
+          id: string
+          payload: Json | null
+          session_id: string | null
+          ts: string | null
+          user_id: string | null
+        }
+        Insert: {
+          id?: string
+          payload?: Json | null
+          session_id?: string | null
+          ts?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          id?: string
+          payload?: Json | null
+          session_id?: string | null
+          ts?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       monitoring_incidents: {
         Row: {
           created_at: string
@@ -4435,6 +4747,75 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      music_playlists: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          id: string
+          is_public: boolean | null
+          mood: string | null
+          name: string
+          play_count: number | null
+          tags: string[] | null
+          total_duration: number | null
+          tracks: Json | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          mood?: string | null
+          name: string
+          play_count?: number | null
+          tags?: string[] | null
+          total_duration?: number | null
+          tracks?: Json | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          is_public?: boolean | null
+          mood?: string | null
+          name?: string
+          play_count?: number | null
+          tags?: string[] | null
+          total_duration?: number | null
+          tracks?: Json | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      music_sessions: {
+        Row: {
+          created_at: string | null
+          id: string
+          mood_tag: string | null
+          suno_track_ids: string[] | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          mood_tag?: string | null
+          suno_track_ids?: string[] | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          mood_tag?: string | null
+          suno_track_ids?: string[] | null
+          user_id?: string | null
+        }
+        Relationships: []
       }
       notification_preferences: {
         Row: {
@@ -4889,6 +5270,39 @@ export type Database = {
         }
         Relationships: []
       }
+      org_aggregates: {
+        Row: {
+          created_at: string | null
+          id: string
+          label_bins: Json | null
+          min_n: number | null
+          org_id: string | null
+          period: string
+          team_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          label_bins?: Json | null
+          min_n?: number | null
+          org_id?: string | null
+          period: string
+          team_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          label_bins?: Json | null
+          min_n?: number | null
+          org_id?: string | null
+          period?: string
+          team_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       page_analytics: {
         Row: {
           id: string
@@ -5186,6 +5600,33 @@ export type Database = {
           subscription_plan?: string | null
           updated_at?: string | null
           website?: string | null
+        }
+        Relationships: []
+      }
+      push_subscriptions: {
+        Row: {
+          auth: string
+          created_at: string | null
+          endpoint: string
+          id: string
+          p256dh: string
+          user_id: string | null
+        }
+        Insert: {
+          auth: string
+          created_at?: string | null
+          endpoint: string
+          id?: string
+          p256dh: string
+          user_id?: string | null
+        }
+        Update: {
+          auth?: string
+          created_at?: string | null
+          endpoint?: string
+          id?: string
+          p256dh?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -6141,6 +6582,51 @@ export type Database = {
         }
         Relationships: []
       }
+      user_preferences_advanced: {
+        Row: {
+          accessibility_settings: Json | null
+          created_at: string | null
+          daily_reminders: boolean | null
+          data_sharing_consent: boolean | null
+          id: string
+          notification_preferences: Json | null
+          preferred_coach_personality: string | null
+          privacy_settings: Json | null
+          ui_customization: Json | null
+          updated_at: string | null
+          user_id: string | null
+          wellbeing_goals: Json | null
+        }
+        Insert: {
+          accessibility_settings?: Json | null
+          created_at?: string | null
+          daily_reminders?: boolean | null
+          data_sharing_consent?: boolean | null
+          id?: string
+          notification_preferences?: Json | null
+          preferred_coach_personality?: string | null
+          privacy_settings?: Json | null
+          ui_customization?: Json | null
+          updated_at?: string | null
+          user_id?: string | null
+          wellbeing_goals?: Json | null
+        }
+        Update: {
+          accessibility_settings?: Json | null
+          created_at?: string | null
+          daily_reminders?: boolean | null
+          data_sharing_consent?: boolean | null
+          id?: string
+          notification_preferences?: Json | null
+          preferred_coach_personality?: string | null
+          privacy_settings?: Json | null
+          ui_customization?: Json | null
+          updated_at?: string | null
+          user_id?: string | null
+          wellbeing_goals?: Json | null
+        }
+        Relationships: []
+      }
       user_profiles: {
         Row: {
           achievements: Json | null
@@ -6367,6 +6853,51 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      voice_journal_entries: {
+        Row: {
+          ai_insights: string | null
+          audio_url: string | null
+          created_at: string
+          duration: number | null
+          emotion: string | null
+          id: string
+          keywords: string[] | null
+          sentiment: number | null
+          title: string
+          transcription: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          ai_insights?: string | null
+          audio_url?: string | null
+          created_at?: string
+          duration?: number | null
+          emotion?: string | null
+          id?: string
+          keywords?: string[] | null
+          sentiment?: number | null
+          title: string
+          transcription: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          ai_insights?: string | null
+          audio_url?: string | null
+          created_at?: string
+          duration?: number | null
+          emotion?: string | null
+          id?: string
+          keywords?: string[] | null
+          sentiment?: number | null
+          title?: string
+          transcription?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
       }
       vr_sessions: {
         Row: {
