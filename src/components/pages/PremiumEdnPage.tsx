@@ -60,7 +60,7 @@ export const PremiumEdnPage: React.FC = () => {
     { id: 'withMusic', label: 'Avec musique', count: stats?.withMusic || 0 },
     { id: 'complete', label: 'Complétés', count: stats?.complete || 0 },
     { id: 'validated', label: 'Validés', count: stats?.validated || 0 },
-    { id: 'highPriority', label: 'Priorité haute', count: stats?.highPriority || 0 }
+    { id: 'highPriority', label: 'Priorité haute', count: stats ? stats.total - stats.complete : 0 }
   ];
 
   return (
@@ -206,7 +206,7 @@ export const PremiumEdnPage: React.FC = () => {
         <div className="medical-grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filteredItems.map((item) => {
             const completionPercentage = item.completeness_score || 0;
-            const competencies_count = item.competencies_count || 0;
+            const competences_count = item.competences_count_total || 0;
 
             return (
               <Card 
@@ -258,10 +258,10 @@ export const PremiumEdnPage: React.FC = () => {
                         <span className="text-xs font-medium">Musique IA</span>
                       </div>
                     )}
-                    {item.has_scene_analysis && (
+                    {item.has_scene && (
                       <div className="flex items-center gap-1.5 text-primary">
                         <Brain className="h-4 w-4" />
-                        <span className="text-xs font-medium">Analyse</span>
+                        <span className="text-xs font-medium">Scène</span>
                       </div>
                     )}
                     {item.has_quiz && (
@@ -281,11 +281,11 @@ export const PremiumEdnPage: React.FC = () => {
                       </Badge>
                     )}
                     
-                    {competencies_count > 0 && (
+                    {competences_count > 0 && (
                       <div className="flex items-center gap-1 text-muted-foreground">
                         <Award className="h-4 w-4" />
                         <span className="text-xs font-medium">
-                          {competencies_count} compétences
+                          {competences_count} compétences
                         </span>
                       </div>
                     )}
