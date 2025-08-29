@@ -388,6 +388,7 @@ export default function EdnComplete() {
                 {isMobile && <span className="ml-2">Liste</span>}
               </Button>
             </div>
+            </div>
           </div>
         </ProgressiveDisclosure>
 

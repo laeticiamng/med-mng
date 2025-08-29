@@ -203,7 +203,7 @@ export const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({
       x: '100%',
       transition: { 
         duration: 1.5, 
-        ease: "easeInOut", 
+        ease: "easeInOut" as const, 
         repeat: Infinity,
         repeatDelay: 0.5
       }
