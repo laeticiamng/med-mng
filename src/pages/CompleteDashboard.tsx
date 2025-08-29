@@ -13,6 +13,8 @@ import { EnhancedNavigation } from '@/components/immersive/EnhancedNavigation';
 import { UserDashboardEnhanced } from '@/components/immersive/UserDashboardEnhanced';
 import { SmartContentRecommendations } from '@/components/immersive/SmartContentRecommendations';
 import { RealTimeCollaboration } from '@/components/immersive/RealTimeCollaboration';
+import { AdvancedMusicPlayer } from '@/components/immersive/AdvancedMusicPlayer';
+import { AchievementSystem } from '@/components/immersive/AchievementSystem';
 
 const CompleteDashboard: React.FC = () => {
   return (
@@ -30,6 +32,12 @@ const CompleteDashboard: React.FC = () => {
         
         {/* Real-time Collaboration */}
         <RealTimeCollaboration />
+        
+        {/* Advanced Music Player */}
+        <AdvancedMusicPlayer />
+        
+        {/* Achievement System */}
+        <AchievementSystem />
         
         {/* Legacy Components Integration */}
         <ImmersiveLayout showWelcome={false} showParticles={true}>
