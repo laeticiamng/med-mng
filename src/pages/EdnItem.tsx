@@ -8,6 +8,7 @@ import { TranslatedText } from '@/components/TranslatedText';
 import { ConsistentBackground } from '@/components/layout/ConsistentBackground';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { BookOpen } from 'lucide-react';
+import { ImmersiveEdnExperience } from '@/components/edn/immersive/ImmersiveEdnExperience';
 
 type SectionType = 'tableau-a' | 'tableau-b' | 'scene' | 'bd' | 'music' | 'quiz';
 
@@ -52,33 +53,13 @@ const EdnItem = () => {
   }
 
   return (
-    <ConsistentBackground variant="secondary">
-      <PageHeader
-        title={item.title}
-        subtitle={`Item EDN ${item.item_code} - Contenu pédagogique complet`}
-        icon={BookOpen}
-        badge={{
-          text: item.item_code,
-          variant: "outline"
-        }}
-        showBackButton
-        backTo="/edn"
-      />
-      
-      <div className="container mx-auto px-4 py-8">
-        <EdnItemNavigation 
-          activeSection={activeSection} 
-          onSectionChange={setActiveSection} 
-        />
-        
-        {/* Content area with modern styling */}
-        <div className="bg-card/50 backdrop-blur-xl rounded-3xl border border-border shadow-2xl overflow-hidden">
-          <div className="p-8">
-            <EdnItemContent activeSection={activeSection} item={item} />
-          </div>
-        </div>
-      </div>
-    </ConsistentBackground>
+    <ImmersiveEdnExperience
+      activeSection={activeSection}
+      onSectionChange={setActiveSection}
+      item={item}
+    >
+      <EdnItemContent activeSection={activeSection} item={item} />
+    </ImmersiveEdnExperience>
   );
 };
 

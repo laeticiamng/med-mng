@@ -9,6 +9,8 @@ import { SceneImmersive } from '@/components/edn/SceneImmersive';
 import { ParolesMusicales } from '@/components/edn/ParolesMusicales';
 import { EnhancedQuizFinal } from '@/components/edn/EnhancedQuizFinal';
 import { TranslatedText } from '@/components/TranslatedText';
+import { EnhancedTableauDisplay } from '@/components/edn/immersive/EnhancedTableauDisplay';
+import { ImmersiveSceneDisplay } from '@/components/edn/immersive/ImmersiveSceneDisplay';
 
 type SectionType = 'tableau-a' | 'tableau-b' | 'scene' | 'bd' | 'music' | 'quiz';
 
@@ -47,54 +49,36 @@ export const EdnItemContent = ({ activeSection, item }: EdnItemContentProps) => 
       case 'tableau-a':
         console.log('🚀 [' + new Date().toISOString() + '] CHARGEMENT RANG A AVEC VRAIES DONNÉES OIC');
         return (
-          <div>
-            <div style={{ 
-              padding: '15px', 
-              background: '#e8f5e8', 
-              border: '2px solid #4ade80',
-              marginBottom: '20px',
-              borderRadius: '8px',
-              fontWeight: 'bold',
-              color: '#166534'
-            }}>
-              ✅ NOUVEAU: Chargement des compétences OIC RÉELLES depuis backup_oic_competences pour {item.item_code} Rang A
-            </div>
-            <TableauCompetencesOICWithRealData 
-              itemCode={item.item_code} 
-              rang="A" 
-            />
-          </div>
+          <EnhancedTableauDisplay
+            itemCode={item.item_code}
+            rang="A"
+            title={item.title}
+          />
         );
       
       case 'tableau-b':
         console.log('🚀 [' + new Date().toISOString() + '] CHARGEMENT RANG B AVEC VRAIES DONNÉES OIC');
         return (
-          <div>
-            <div style={{ 
-              padding: '15px', 
-              background: '#e0e7ff', 
-              border: '2px solid #6366f1',
-              marginBottom: '20px',
-              borderRadius: '8px',
-              fontWeight: 'bold',
-              color: '#3730a3'
-            }}>
-              ✅ NOUVEAU: Chargement des compétences OIC RÉELLES depuis backup_oic_competences pour {item.item_code} Rang B
-            </div>
-            <TableauCompetencesOICWithRealData 
-              itemCode={item.item_code} 
-              rang="B" 
-            />
-          </div>
+          <EnhancedTableauDisplay
+            itemCode={item.item_code}
+            rang="B"
+            title={item.title}
+          />
         );
       
       case 'scene':
         return item.scene_immersive ? (
-          <SceneImmersive data={item.scene_immersive} />
+          <ImmersiveSceneDisplay 
+            data={item.scene_immersive}
+            itemCode={item.item_code}
+            title={item.title}
+          />
         ) : (
-          <div className="text-center py-8">
-            <TranslatedText text="Scène immersive en cours de développement" />
-          </div>
+          <ImmersiveSceneDisplay 
+            data={null}
+            itemCode={item.item_code}
+            title={item.title}
+          />
         );
       
       case 'bd':
