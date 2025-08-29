@@ -60,7 +60,6 @@ const PlaylistManager = lazy(() => import("./components/playlists/PlaylistManage
 const PlaylistDetail = lazy(() => import("./components/playlists/PlaylistDetail").then(module => ({ default: module.PlaylistDetail })));
 const MusicAnalytics = lazy(() => import("./components/analytics/MusicAnalytics").then(module => ({ default: module.MusicAnalytics })));
 const MedChat = lazy(() => import("./pages/MedChat"));
-const SubscriptionTest = lazy(() => import("./pages/SubscriptionTest").then(module => ({ default: module.SubscriptionTest })));
 const AdminImport = lazy(() => import("./pages/AdminImport"));
 const AdminAudit = lazy(() => import("./pages/AdminAudit"));
 const AdminExtractEdn = lazy(() => import("./pages/AdminExtractEdn"));
@@ -72,8 +71,8 @@ const SystemHealth = lazy(() => import("./pages/SystemHealth"));
 const EdnObjectifsExtractionPage = lazy(() => import("./pages/EdnObjectifsExtraction"));
 const OicDataQualityManager = lazy(() => import("./pages/OicDataQualityManager"));
 const AuditCompleteness = lazy(() => import("./pages/AuditCompleteness"));
+// Development-only components
 const UXValidationDashboard = lazy(() => import("./components/validation/UXValidationDashboard").then(module => ({ default: module.UXValidationDashboard })));
-const TestExtraction = lazy(() => import("./pages/TestExtraction"));
 const EdnImmersive = lazy(() => import("./pages/EdnImmersive"));
 const EdnComplete = lazy(() => import("./pages/EdnComplete"));
 const EdnItem = lazy(() => import("./pages/EdnItem"));
@@ -230,12 +229,18 @@ const AppWithUX = () => {
                                             <Route path="/admin/complete" element={<AdminCompleteProcess />} />
                                             <Route path="/admin-panel" element={<AdminPanel />} />
                                             
-                                            <Route path="/test-subscriptions" element={<SubscriptionTest />} />
-                                            <Route path="/library" element={<Navigate to="/med-mng/library" replace />} />
-                                            <Route path="/music-library" element={<Navigate to="/med-mng/library" replace />} />
-                                            <Route path="/validation-ux" element={<UXValidationDashboard />} />
-                                            <Route path="/test-extraction" element={<TestExtraction />} />
-                                            <Route path="*" element={<NotFound />} />
+                                             {/* Production Routes Only - Test routes removed */}
+                                             <Route path="/library" element={<Navigate to="/med-mng/library" replace />} />
+                                             <Route path="/music-library" element={<Navigate to="/med-mng/library" replace />} />
+                                             
+                                              {/* Development/Admin Test Routes (conditional) */}
+                                              {process.env.NODE_ENV === 'development' && (
+                                                <>
+                                                  <Route path="/validation-ux" element={<UXValidationDashboard />} />
+                                                </>
+                                              )}
+                                             
+                                             <Route path="*" element={<NotFound />} />
                                           </Routes>
                                         </Suspense>
                                         {/* UX Toolbar - Floating bottom-right */}
