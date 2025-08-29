@@ -52,6 +52,7 @@ const OptimizationCenter = lazy(() => import("./pages/OptimizationCenter"));
 const MedMngLogin = lazy(() => import("./pages/MedMngLogin").then(module => ({ default: module.MedMngLogin })));
 const MedMngSignup = lazy(() => import("./pages/MedMngSignup").then(module => ({ default: module.MedMngSignup })));
 const MedMngPricing = lazy(() => import("./pages/MedMngPricing").then(module => ({ default: module.MedMngPricing })));
+const MedicalPlatform = lazy(() => import("./pages/MedicalPlatform").then(module => ({ default: module.MedicalPlatform })));
 const MedMngSubscribe = lazy(() => import("./pages/MedMngSubscribe").then(module => ({ default: module.MedMngSubscribe })));
 const MedMngSuccess = lazy(() => import("./pages/MedMngSuccess").then(module => ({ default: module.MedMngSuccess })));
 const MedMngDashboard = lazy(() => import("./pages/med-mng/Dashboard"));
@@ -240,6 +241,7 @@ const AppWithUX = () => {
                                             <Route path="/med-mng/login" element={<MedMngLogin />} />
                                             <Route path="/med-mng/signup" element={<MedMngSignup />} />
                                              <Route path="/med-mng/pricing" element={<MedMngPricing />} />
+                                             <Route path="/med-mng/platform" element={<MedicalPlatform />} />
                                              <Route path="/med-mng/subscribe/:planId" element={<ProtectedRoute><MedMngSubscribe /></ProtectedRoute>} />
                                              <Route path="/med-mng/success" element={<ProtectedRoute><MedMngSuccess /></ProtectedRoute>} />
                                              <Route path="/med-mng/create" element={<ProtectedRoute><MedMngCreate /></ProtectedRoute>} />
