@@ -25,13 +25,14 @@ import { GlobalMusicPlayer } from "@/components/layout/GlobalMusicPlayer";
 
 // ⚡ PAGES LAZY LOADED pour performances optimales
 const Index = lazy(() => import("./pages/Index"));
+const AllFeaturesPage = lazy(() => import("./pages/AllFeaturesPage"));
 const Generator = lazy(() => import("./pages/Generator"));
 const Monitoring = lazy(() => import("./pages/Monitoring"));
 const CompleteDashboard = lazy(() => import("./pages/CompleteDashboard"));
 const Analytics = lazy(() => import("./pages/Analytics").then(module => ({ default: module.Analytics })));
 const Admin = lazy(() => import("./pages/Admin").then(module => ({ default: module.Admin })));
 const Export = lazy(() => import("./pages/Export").then(module => ({ default: module.Export })));
-const LibraryPage = lazy(() => import("./pages/LibraryPage"));
+
 const EcosIndex = lazy(() => import("./pages/EcosIndex"));
 const EcosScenario = lazy(() => import("./pages/EcosScenario"));
 const AuditComplete = lazy(() => import("./pages/AuditComplete"));
@@ -161,6 +162,7 @@ const AppWithUX = () => {
                                         <Suspense fallback={<PageSkeleton />}>
                                           <Routes>
                                             <Route path="/" element={<Index />} />
+                                             <Route path="/features" element={<AllFeaturesPage />} />
                                              <Route path="/generator" element={<Generator />} />
                                              <Route path="/monitoring" element={<Monitoring />} />
                                              <Route path="/analytics" element={<Analytics />} />
