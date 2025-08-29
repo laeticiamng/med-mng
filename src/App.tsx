@@ -31,7 +31,7 @@ const PremiumAnalytics = lazy(() => import("./pages/PremiumAnalytics"));
 const Generator = lazy(() => import("./pages/Generator"));
 const MonitoringCenter = lazy(() => import("./pages/MonitoringCenter"));
 const SystemAdmin = lazy(() => import("./pages/SystemAdmin"));
-const SystemDashboard = lazy(() => import("./pages/SystemDashboard"));
+const MeditationCenter = lazy(() => import("./pages/MeditationCenter"));
 const CompleteDashboard = lazy(() => import("./pages/CompleteDashboard"));
 const SuperDashboard = lazy(() => import("./pages/SuperDashboard"));
 const PremiumDashboard = lazy(() => import("./pages/PremiumDashboard"));
@@ -186,7 +186,7 @@ const AppWithUX = () => {
                                                  <Route path="/generator" element={<Generator />} />
                                                   <Route path="/monitoring" element={<MonitoringCenter />} />
                                                   <Route path="/system-admin" element={<SystemAdmin />} />
-                                                  <Route path="/system-dashboard" element={<SystemDashboard />} />
+                                                  <Route path="/meditation/*" element={<MeditationCenter />} />
                                                  <Route path="/analytics" element={<PremiumAnalytics />} />
                                                  <Route path="/old-analytics" element={<Analytics />} />
                                                  <Route path="/dashboard" element={<PremiumDashboard />} />

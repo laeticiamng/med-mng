@@ -57,6 +57,7 @@ export const PremiumNavigation: React.FC = () => {
 
     // Tools
     { id: 'generator', label: 'Générateur IA', path: '/generator', icon: Music, color: 'from-accent to-accent-glow', category: 'tools', description: 'Créez des musiques pédagogiques', isPremium: true, isPopular: true },
+    { id: 'meditation', label: 'Méditation IA', path: '/meditation', icon: Brain, color: 'from-purple-500 to-indigo-600', category: 'tools', description: 'Suite complète méditation IA', isNew: true, isPremium: true },
     { id: 'chat', label: 'Assistant IA', path: '/chat', icon: Brain, color: 'from-success to-success-glow', category: 'tools', description: 'Assistant médical intelligent', isNew: true },
     { id: 'ecos', label: 'Simulations ECOS', path: '/ecos', icon: Play, color: 'from-green-500 to-emerald-600', category: 'tools', description: 'Examens cliniques simulés' },
     { id: 'analytics', label: 'Analytics', path: '/analytics', icon: BarChart3, color: 'from-info to-info-glow', category: 'tools', description: 'Analyses avancées de performance' },
