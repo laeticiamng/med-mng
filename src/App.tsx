@@ -92,6 +92,7 @@ const UltimateAnalyticsHub = lazy(() => import("./pages/UltimateAnalyticsHub"));
 const UltimateSecurityHub = lazy(() => import("./pages/UltimateSecurityHub"));
 const UltimateUXHub = lazy(() => import("./pages/UltimateUXHub"));
 const NavigationAuditPage = lazy(() => import("./pages/NavigationAuditPage"));
+const RouteValidator = lazy(() => import("@/components/navigation/RouteValidator").then(module => ({ default: module.RouteValidator })));
 const PlatformOverview = lazy(() => import("./pages/PlatformOverview"));
 const UserSettings = lazy(() => import("./pages/UserSettings"));
 const Documentation = lazy(() => import("./pages/Documentation"));
@@ -255,6 +256,7 @@ const AppWithUX = () => {
           <Route path="/security-hub" element={<UltimateSecurityHub />} />
           <Route path="/ux-hub" element={<UltimateUXHub />} />
           <Route path="/navigation-audit" element={<NavigationAuditPage />} />
+          <Route path="/route-validator" element={<RouteValidator />} />
                                              <Route path="/med-mng/subscribe/:planId" element={<ProtectedRoute><MedMngSubscribe /></ProtectedRoute>} />
                                              <Route path="/med-mng/success" element={<ProtectedRoute><MedMngSuccess /></ProtectedRoute>} />
                                              <Route path="/med-mng/create" element={<ProtectedRoute><MedMngCreate /></ProtectedRoute>} />
