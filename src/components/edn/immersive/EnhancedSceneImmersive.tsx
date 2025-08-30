@@ -497,8 +497,8 @@ export const EnhancedSceneImmersive = ({ data, itemCode, title }: EnhancedSceneI
                     key={interaction.id}
                     className="absolute w-8 h-8 bg-yellow-400/80 rounded-full flex items-center justify-center cursor-pointer"
                     style={{
-                      left: `${20 + index * 15}%`,
-                      top: `${30 + (index % 2) * 40}%`
+                       left: `${Math.min(20 + index * 10, 80)}%`,
+                       top: `${Math.min(30 + (index % 2) * 30, 70)}%`
                     }}
                     animate={{
                       scale: [1, 1.3, 1],

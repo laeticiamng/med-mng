@@ -154,16 +154,19 @@ export const BandeDessineDisplay: React.FC<BandeDessineDisplayProps> = ({
               </div>
 
               {/* Panel unique */}
-              <div className={`flex flex-col items-center p-6 ${isFullscreen ? 'flex-1' : 'min-h-[500px]'}`}>
-                <div 
-                  className="relative bg-white border-2 border-gray-300 rounded-lg shadow-lg overflow-hidden"
-                  style={{ 
-                    transform: `scale(${zoom})`,
-                    transformOrigin: 'center',
-                    maxWidth: isFullscreen ? '80vw' : '600px',
-                    maxHeight: isFullscreen ? '70vh' : '400px'
-                  }}
-                >
+              <div className={`flex flex-col items-center p-6 ${isFullscreen ? 'flex-1' : 'min-h-[500px]'} overflow-hidden`}>
+                <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
+                  <div 
+                    className="relative bg-white border-2 border-gray-300 rounded-lg shadow-lg transition-transform duration-200"
+                    style={{ 
+                      transform: `scale(${zoom})`,
+                      transformOrigin: 'center',
+                      maxWidth: isFullscreen ? '80vw' : '600px',
+                      maxHeight: isFullscreen ? '70vh' : '400px',
+                      width: 'fit-content',
+                      height: 'fit-content'
+                    }}
+                  >
                   <img
                     src={data.panels[currentPanel]?.image_url || '/placeholder-bd-panel.png'}
                     alt={`Panel ${currentPanel + 1}`}
@@ -172,21 +175,22 @@ export const BandeDessineDisplay: React.FC<BandeDessineDisplayProps> = ({
                       const target = e.target as HTMLImageElement;
                       target.src = '/placeholder-bd-panel.png';
                     }}
-                  />
-                  
-                  {/* Texte du panel */}
-                  {data.panels[currentPanel]?.text && (
-                    <div className="absolute bottom-0 left-0 right-0 bg-white bg-opacity-90 p-3 border-t">
-                      <p className="text-sm font-medium text-gray-800">
-                        {data.panels[currentPanel].text}
-                      </p>
-                      {data.panels[currentPanel].character && (
-                        <p className="text-xs text-blue-600 mt-1">
-                          — {data.panels[currentPanel].character}
+                    />
+                    
+                    {/* Texte du panel */}
+                    {data.panels[currentPanel]?.text && (
+                      <div className="absolute bottom-0 left-0 right-0 bg-white bg-opacity-90 p-3 border-t">
+                        <p className="text-sm font-medium text-gray-800">
+                          {data.panels[currentPanel].text}
                         </p>
-                      )}
-                    </div>
-                  )}
+                        {data.panels[currentPanel].character && (
+                          <p className="text-xs text-blue-600 mt-1">
+                            — {data.panels[currentPanel].character}
+                          </p>
+                        )}
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

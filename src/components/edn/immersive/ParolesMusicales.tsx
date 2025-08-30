@@ -64,14 +64,14 @@ export const ParolesMusicales = ({ paroles, itemCode = "IC-1", title = "Paroles 
     <div className="bg-gradient-to-br from-purple-600 via-pink-600 to-red-500 text-white p-8 rounded-3xl shadow-2xl overflow-hidden relative">
       
       {/* Effets visuels de fond */}
-      <div className="absolute inset-0 opacity-20">
+      <div className="absolute inset-0 opacity-20 overflow-hidden">
         {Array.from({ length: 20 }).map((_, i) => (
           <div
             key={i}
             className="absolute text-4xl animate-pulse"
             style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
+              left: `${Math.min(Math.max(Math.random() * 90, 5), 85)}%`,
+              top: `${Math.min(Math.max(Math.random() * 90, 5), 85)}%`,
               animationDelay: `${i * 0.3}s`,
               animationDuration: `${3 + Math.random() * 2}s`
             }}

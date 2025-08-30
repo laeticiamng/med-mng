@@ -1,0 +1,105 @@
+/* Corrections pour les problèmes de zoom et débordement */
+
+/* Conteneurs de zoom avec débordement contrôlé */
+.zoom-container {
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.zoom-content {
+  transition: transform 0.2s ease;
+  transform-origin: center;
+  max-width: fit-content;
+  max-height: fit-content;
+}
+
+/* Prévention du débordement pour les éléments positionnés */
+.safe-positioned {
+  position: absolute;
+  max-width: 90%;
+  max-height: 90%;
+  left: 5%;
+  top: 5%;
+  right: 5%;
+  bottom: 5%;
+}
+
+/* Conteneur sécurisé pour les animations flottantes */
+.floating-container {
+  position: relative;
+  overflow: hidden;
+}
+
+.floating-element {
+  position: absolute;
+  left: clamp(5%, var(--pos-x, 50%), 85%);
+  top: clamp(5%, var(--pos-y, 50%), 85%);
+}
+
+/* Correction pour les images zoomables */
+.zoomable-image {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* Wrapper pour les éléments qui peuvent déborder */
+.overflow-safe {
+  overflow: hidden;
+  contain: layout style;
+}
+
+/* Styles pour les éléments avec transforms */
+.transform-safe {
+  will-change: transform;
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+/* Correction spécifique pour les panneaux BD */
+.bd-panel-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+}
+
+.bd-panel-content {
+  transform-origin: center center;
+  transition: transform 0.2s ease;
+  max-width: 100%;
+  max-height: 100%;
+}
+
+/* Styles pour les contrôles de zoom */
+.zoom-controls {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(5px);
+}
+
+/* Protection contre les débordements lors des animations */
+@media (max-width: 768px) {
+  .zoom-content {
+    max-width: 95vw;
+    max-height: 95vh;
+  }
+  
+  .floating-element {
+    left: clamp(10%, var(--pos-x, 50%), 80%);
+    top: clamp(10%, var(--pos-y, 50%), 80%);
+  }
+}
+
+/* Amélioration de la performance pour les transforms */
+.gpu-accelerated {
+  transform: translateZ(0);
+  will-change: transform;
+}
