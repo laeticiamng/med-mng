@@ -11,7 +11,7 @@ import {
   Wifi, 
   Battery, 
   Zap, 
-  Touch, 
+  Hand, 
   Eye, 
   CheckCircle,
   Gauge,
@@ -241,7 +241,7 @@ export const PerfectMobile = () => {
             </div>
 
             <div className="flex items-center space-x-2 p-3 bg-muted/30 rounded-lg">
-              <Touch className="h-4 w-4 text-purple-500" />
+              <Hand className="h-4 w-4 text-purple-500" />
               <div>
                 <div className="text-sm font-medium">{deviceMetrics.touchSupport ? 'Oui' : 'Non'}</div>
                 <div className="text-xs text-muted-foreground">Tactile</div>
@@ -271,7 +271,7 @@ export const PerfectMobile = () => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Touch className="h-4 w-4" />
+            <Hand className="h-4 w-4" />
             Optimisations Tactiles
           </CardTitle>
         </CardHeader>
