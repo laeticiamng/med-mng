@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { PremiumLayout } from '@/components/layout/PremiumLayout';
 import { PremiumCard } from '@/components/ui/premium-card';
@@ -8,10 +8,27 @@ import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
-  BarChart3, TrendingUp, TrendingDown, Users, BookOpen, Music, Clock,
-  Target, Award, Brain, Heart, Zap, Calendar, Download, Share,
-  Activity, Eye, PlayCircle, CheckCircle, AlertCircle, Sparkles
+  BarChart3, TrendingUp, Users, Clock, Target, BookOpen, Music, Brain,
+  Calendar, Filter, Download, Share2, Eye, Heart, Zap, Award,
+  LineChart, PieChart, Activity, RefreshCw, CheckCircle, AlertCircle, Sparkles
 } from 'lucide-react';
+
+interface AnalyticsMetric {
+  id: string;
+  title: string;
+  value: string | number;
+  change: string;
+  trend: 'up' | 'down' | 'stable';
+  icon: React.ComponentType<any>;
+  color: string;
+  description?: string;
+}
+
+interface ChartData {
+  name: string;
+  value: number;
+  color: string;
+}
 
 interface AnalyticsData {
   period: string;
@@ -20,83 +37,106 @@ interface AnalyticsData {
   trend: 'up' | 'down' | 'stable';
 }
 
-interface MetricCard {
-  id: string;
-  title: string;
-  value: string;
-  change: string;
-  trend: 'up' | 'down' | 'stable';
-  icon: React.ComponentType<any>;
-  color: string;
-  description: string;
-}
-
 export default function PremiumAnalytics() {
+  const [selectedPeriod, setSelectedPeriod] = useState('7d');
+  const [activeView, setActiveView] = useState('overview');
   const [timeRange, setTimeRange] = useState('7d');
   const [activeTab, setActiveTab] = useState('overview');
   const [isLoading, setIsLoading] = useState(false);
 
-  const metrics: MetricCard[] = [
+  const mainMetrics: AnalyticsMetric[] = [
     {
-      id: 'study-time',
-      title: 'Temps d\'Étude Total',
-      value: '127h 45m',
-      change: '+12.5%',
+      id: 'study-sessions',
+      title: 'Sessions d\'étude',
+      value: 247,
+      change: '+18%',
       trend: 'up',
       icon: Clock,
       color: 'from-blue-500 to-cyan-600',
-      description: 'Temps cumulé cette semaine'
-    },
-    {
-      id: 'items-completed',
-      title: 'Items EDN Complétés',
-      value: '156/367',
-      change: '+23',
-      trend: 'up',
-      icon: BookOpen,
-      color: 'from-green-500 to-emerald-600',
-      description: '42.5% de progression totale'
-    },
-    {
-      id: 'quiz-score',
-      title: 'Score Moyen Quiz',
-      value: '87.3%',
-      change: '+3.2%',
-      trend: 'up',
-      icon: Target,
-      color: 'from-purple-500 to-pink-600',
-      description: 'Amélioration constante'
-    },
-    {
-      id: 'music-created',
-      title: 'Musiques Créées',
-      value: '42',
-      change: '+8',
-      trend: 'up',
-      icon: Music,
-      color: 'from-orange-500 to-red-600',
       description: 'Cette semaine'
     },
     {
-      id: 'streak',
-      title: 'Série d\'Apprentissage',
-      value: '15 jours',
-      change: 'Record !',
+      id: 'completion-rate',
+      title: 'Taux de completion',
+      value: '89.3%',
+      change: '+5.2%',
       trend: 'up',
-      icon: Award,
-      color: 'from-yellow-500 to-amber-600',
-      description: 'Meilleure série actuelle'
+      icon: Target,
+      color: 'from-green-500 to-emerald-600',
+      description: 'Amélioration constante'
     },
     {
-      id: 'retention',
-      title: 'Taux de Rétention',
-      value: '94.2%',
-      change: '+1.8%',
+      id: 'learning-time',
+      title: 'Temps d\'apprentissage',
+      value: '156h',
+      change: '+12h',
+      trend: 'up',
+      icon: BookOpen,
+      color: 'from-purple-500 to-pink-600',
+      description: 'Temps total cette période'
+    },
+    {
+      id: 'ai-interactions',
+      title: 'Interactions IA',
+      value: 342,
+      change: '+28%',
       trend: 'up',
       icon: Brain,
-      color: 'from-indigo-500 to-blue-600',
-      description: 'Mémoire à long terme'
+      color: 'from-orange-500 to-red-600',
+      description: 'Questions posées à l\'IA'
     }
+  ];
+
+  const metrics = mainMetrics;
+
+  const learningData: ChartData[] = [
+    { name: 'Cardiologie', value: 35, color: '#ef4444' },
+    { name: 'Neurologie', value: 28, color: '#8b5cf6' },
+    { name: 'Pneumologie', value: 22, color: '#3b82f6' },
+    { name: 'Gastro', value: 18, color: '#10b981' },
+    { name: 'Endocrino', value: 15, color: '#f59e0b' },
+    { name: 'Autres', value: 12, color: '#6b7280' }
+  ];
+
+  const weeklyProgress = [
+    { day: 'Lun', items: 12, time: 180, score: 85 },
+    { day: 'Mar', items: 15, time: 220, score: 88 },
+    { day: 'Mer', items: 8, time: 120, score: 92 },
+    { day: 'Jeu', items: 18, time: 270, score: 87 },
+    { day: 'Ven', items: 22, time: 310, score: 91 },
+    { day: 'Sam', items: 10, time: 150, score: 89 },
+    { day: 'Dim', items: 6, time: 90, score: 85 }
+  ];
+
+  const achievements = [
+    {
+      title: 'Série Parfaite',
+      description: '7 jours consécutifs d\'apprentissage',
+      date: 'Il y a 2 jours',
+      rarity: 'epic',
+      icon: Award
+    },
+    {
+      title: 'Maître Cardiologue',
+      description: 'Tous les items de cardiologie complétés',
+      date: 'Il y a 1 semaine',
+      rarity: 'legendary',
+      icon: Heart
+    },
+    {
+      title: 'Créateur Musical',
+      description: '25 musiques générées avec succès',
+      date: 'Il y a 2 semaines',
+      rarity: 'rare',
+      icon: Music
+    }
+  ];
+
+  const periods = [
+    { id: '7d', label: '7 jours' },
+    { id: '30d', label: '30 jours' },
+    { id: '90d', label: '3 mois' },
+    { id: '1y', label: '1 an' }
   ];
 
   const studyData: AnalyticsData[] = [

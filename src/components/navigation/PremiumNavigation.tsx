@@ -50,10 +50,11 @@ export const PremiumNavigation: React.FC = () => {
   const navigationItems: NavigationItem[] = [
     // Main Navigation
     { id: 'home', label: 'Accueil', path: '/', icon: Home, color: 'from-blue-500 to-cyan-600', category: 'main', description: 'Page d\'accueil de la plateforme', isPopular: true },
-    { id: 'edn', label: 'Items EDN', path: '/edn', icon: BookOpen, color: 'from-primary to-primary-glow', category: 'main', description: '367 items EDN avec contenus immersifs', isPopular: true },
-    { id: 'platform', label: 'Vue Plateforme', path: '/platform', icon: Globe, color: 'from-teal-500 to-cyan-600', category: 'main', description: 'Navigation master complète', isNew: true },
+    { id: 'platform', label: 'Plateforme', path: '/platform', icon: Globe, color: 'from-teal-500 to-cyan-600', category: 'main', description: 'Navigation master complète', isNew: true },
     { id: 'dashboard', label: 'Dashboard', path: '/dashboard', icon: BarChart3, color: 'from-indigo-500 to-blue-600', category: 'main', description: 'Tableau de bord principal' },
     { id: 'features', label: 'Fonctionnalités', path: '/features', icon: Layers, color: 'from-purple-500 to-pink-600', category: 'main', description: 'Toutes les fonctionnalités disponibles' },
+    { id: 'edn', label: 'Items EDN', path: '/edn', icon: BookOpen, color: 'from-primary to-primary-glow', category: 'main', description: '367 items EDN avec contenus immersifs', isPopular: true },
+    { id: 'community', label: 'Communauté', path: '/community', icon: Users, color: 'from-orange-500 to-red-600', category: 'main', description: 'Échangez avec la communauté' },
 
     // Tools
     { id: 'generator', label: 'Générateur IA', path: '/generator', icon: Music, color: 'from-accent to-accent-glow', category: 'tools', description: 'Créez des musiques pédagogiques', isPremium: true, isPopular: true },
@@ -129,7 +130,7 @@ export const PremiumNavigation: React.FC = () => {
 
             {/* Navigation Desktop */}
             <nav className="hidden lg:flex items-center space-x-1">
-              {navigationItems.filter(item => item.category === 'main').slice(0, 5).map((item) => {
+              {navigationItems.filter(item => item.category === 'main').slice(0, 6).map((item) => {
                 const IconComponent = item.icon;
                 return (
                   <motion.div key={item.id} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
