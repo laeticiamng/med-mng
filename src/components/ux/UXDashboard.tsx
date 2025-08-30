@@ -11,6 +11,7 @@ import { PerfectPerformance } from './PerfectPerformance';
 import { PerfectMobile } from './PerfectMobile';
 import { UltimateUXAnalytics } from './UltimateUXAnalytics';
 import { UXMonitoring } from './UXMonitoring';
+import { UltimateEdnNavigation } from '../edn/navigation/UltimateEdnNavigation';
 import { 
   Accessibility, Gauge, TrendingUp, Heart, CheckCircle, Monitor, Smartphone, Tablet
 } from 'lucide-react';
@@ -29,8 +30,9 @@ export const UXDashboard = () => {
         </div>
 
         <Tabs value={activeView} onValueChange={setActiveView}>
-          <TabsList className="grid grid-cols-6 w-full">
+          <TabsList className="grid grid-cols-7 w-full">
             <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
+            <TabsTrigger value="navigation">Navigation EDN</TabsTrigger>
             <TabsTrigger value="accessibility">Accessibilité 100%</TabsTrigger>
             <TabsTrigger value="performance">Performance 100%</TabsTrigger>
             <TabsTrigger value="mobile">Mobile 100%</TabsTrigger>
@@ -71,6 +73,20 @@ export const UXDashboard = () => {
                 </div>
               </CardContent>
             </Card>
+          </TabsContent>
+
+          <TabsContent value="navigation">
+            <UltimateEdnNavigation 
+              activeSection={'tableau-a'}
+              onSectionChange={() => {}}
+              competences={['Diagnostic médical', 'Prise en charge thérapeutique', 'Communication']}
+              itemTitle="Démo Navigation EDN"
+              itemCode="IC-DEMO"
+              progress={[
+                { sectionId: 'tableau-a', completed: true, timeSpent: 300, interactions: 15, score: 95 },
+                { sectionId: 'tableau-b', completed: false, timeSpent: 120, interactions: 8, score: 78 }
+              ]}
+            />
           </TabsContent>
 
           <TabsContent value="accessibility">
