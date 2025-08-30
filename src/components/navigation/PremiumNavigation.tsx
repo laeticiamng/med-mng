@@ -128,35 +128,46 @@ export const PremiumNavigation: React.FC = () => {
               </div>
             </Link>
 
-            {/* Navigation Desktop */}
+            {/* Navigation Desktop - Simplifiée */}
             <nav className="hidden lg:flex items-center space-x-1">
-              {navigationItems.filter(item => item.category === 'main').slice(0, 6).map((item) => {
+              {navigationItems.filter(item => item.category === 'main').slice(0, 5).map((item) => {
                 const IconComponent = item.icon;
                 return (
-                  <motion.div key={item.id} whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                  <motion.div 
+                    key={item.id} 
+                    whileHover={{ scale: 1.02 }} 
+                    whileTap={{ scale: 0.98 }}
+                    className="relative"
+                  >
                     <Button
                       variant={isActive(item.path) ? "default" : "ghost"}
                       size="sm"
                       onClick={() => handleNavigate(item)}
-                      className={`relative flex items-center space-x-2 transition-all ${
+                      className={`flex items-center space-x-2 transition-all hover-lift click-feedback ${
                         isActive(item.path)
                           ? 'bg-primary text-primary-foreground shadow-medium'
                           : 'hover:bg-muted'
                       }`}
+                      aria-label={`Naviguer vers ${item.label} - ${item.description}`}
                     >
                       <IconComponent className="w-4 h-4" />
-                      <span>{item.label}</span>
+                      <span className="hidden xl:inline">{item.label}</span>
                       {item.isPremium && (
-                        <Badge className="bg-gradient-accent text-white text-xs ml-1">
+                        <Badge className="bg-gradient-accent text-white text-xs ml-1 hidden xl:inline">
                           Pro
                         </Badge>
                       )}
                       {item.isNew && (
-                        <Badge className="bg-success/20 text-success text-xs ml-1">
+                        <Badge className="bg-success/20 text-success text-xs ml-1 hidden xl:inline">
                           New
                         </Badge>
                       )}
                     </Button>
+                    
+                    {/* Tooltip descriptif */}
+                    <div className="absolute bottom-full left-1/2 transform -translate-x-1/2 mb-2 px-2 py-1 bg-popover text-popover-foreground text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+                      {item.description}
+                    </div>
                   </motion.div>
                 );
               })}

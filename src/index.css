@@ -494,9 +494,234 @@ html.reduced-motion *::after {
 }
 
 /* Font Size Controls */
-html[data-font-size="small"] {
-  font-size: 14px;
-}
+  html[data-font-size="small"] {
+    font-size: 14px;
+  }
+  
+  html[data-font-size="normal"] {
+    font-size: 16px;
+  }
+  
+  html[data-font-size="large"] {
+    font-size: 18px;
+  }
+  
+  html[data-font-size="extra-large"] {
+    font-size: 20px;
+  }
+  
+  /* ==========================================
+     UX ENHANCEMENTS & ACCESSIBILITY FIXES
+     ========================================== */
+  
+  /* Fix Yellow Color Bug - Ensure all colors use proper HSL */
+  .text-yellow-500, .bg-yellow-500 {
+    color: hsl(45 100% 50%) !important;
+    background-color: hsl(45 100% 50%) !important;
+  }
+  
+  .text-yellow-600, .bg-yellow-600 {
+    color: hsl(45 100% 40%) !important;
+    background-color: hsl(45 100% 40%) !important;
+  }
+  
+  .text-yellow-700, .bg-yellow-700 {
+    color: hsl(45 100% 30%) !important;
+    background-color: hsl(45 100% 30%) !important;
+  }
+  
+  .text-yellow-800, .bg-yellow-800 {
+    color: hsl(45 100% 25%) !important;
+    background-color: hsl(45 100% 25%) !important;
+  }
+  
+  .bg-yellow-50 {
+    background-color: hsl(45 100% 95%) !important;
+  }
+  
+  .bg-yellow-100 {
+    background-color: hsl(45 100% 90%) !important;
+  }
+  
+  .border-yellow-200 {
+    border-color: hsl(45 100% 85%) !important;
+  }
+  
+  /* Enhanced Focus States for Better Accessibility */
+  button:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible,
+  [role="button"]:focus-visible {
+    outline: 2px solid hsl(var(--primary));
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  
+  /* Improved Dropdown Styles to Fix Transparency Issues */
+  [data-radix-popper-content-wrapper] {
+    z-index: 1000 !important;
+  }
+  
+  .dropdown-content,
+  .popover-content,
+  .menu-content {
+    background: hsl(var(--popover)) !important;
+    border: 1px solid hsl(var(--border)) !important;
+    box-shadow: var(--shadow-large) !important;
+    backdrop-filter: blur(8px) !important;
+    z-index: 1000 !important;
+  }
+  
+  /* Enhanced Loading States */
+  .skeleton-enhanced {
+    background: linear-gradient(
+      90deg,
+      hsl(var(--muted)) 25%,
+      hsl(var(--muted) / 0.5) 50%,
+      hsl(var(--muted)) 75%
+    );
+    background-size: 200% 100%;
+    animation: shimmer-medical 1.2s infinite ease-in-out;
+  }
+  
+  /* Micro-interactions for Better UX */
+  .hover-lift {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-medium);
+  }
+  
+  .click-feedback:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
+  }
+  
+  /* Enhanced Button States */
+  .btn-premium {
+    background: var(--gradient-medical);
+    color: white;
+    border: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .btn-premium::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+  }
+  
+  .btn-premium:hover::before {
+    left: 100%;
+  }
+  
+  .btn-premium:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-glow);
+  }
+  
+  /* Improved Typography Hierarchy */
+  .text-hierarchy-1 {
+    font-size: clamp(2rem, 5vw, 4rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+  
+  .text-hierarchy-2 {
+    font-size: clamp(1.5rem, 3vw, 2.5rem);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+  }
+  
+  .text-hierarchy-3 {
+    font-size: clamp(1.2rem, 2vw, 1.8rem);
+    font-weight: 600;
+    line-height: 1.3;
+  }
+  
+  /* Enhanced Mobile Experience */
+  @media (max-width: 768px) {
+    .mobile-optimized {
+      padding: 1rem;
+      font-size: 0.9rem;
+    }
+    
+    .touch-friendly {
+      min-height: 44px;
+      min-width: 44px;
+      padding: 0.75rem;
+    }
+    
+    .mobile-spacing {
+      margin-bottom: clamp(1rem, 3vw, 2rem);
+    }
+  }
+  
+  /* Improved Contrast for Dark Mode */
+  .dark .high-contrast-text {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  }
+  
+  /* Enhanced Card Interactions */
+  .interactive-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+  }
+  
+  .interactive-card:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: var(--shadow-large);
+  }
+  
+  /* Smooth Page Transitions */
+  .page-transition {
+    animation: fade-in-up 0.6s ease-out;
+  }
+  
+  /* Loading Spinner Enhancement */
+  .spinner-medical {
+    border: 3px solid hsl(var(--muted));
+    border-top: 3px solid hsl(var(--primary));
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  /* Enhanced Success/Error States */
+  .success-state {
+    background: linear-gradient(135deg, hsl(var(--success) / 0.1), hsl(var(--success) / 0.05));
+    border: 1px solid hsl(var(--success) / 0.2);
+    color: hsl(var(--success));
+  }
+  
+  .error-state {
+    background: linear-gradient(135deg, hsl(var(--destructive) / 0.1), hsl(var(--destructive) / 0.05));
+    border: 1px solid hsl(var(--destructive) / 0.2);
+    color: hsl(var(--destructive));
+  }
+  
+  .warning-state {
+    background: linear-gradient(135deg, hsl(45 100% 95%), hsl(45 100% 92%));
+    border: 1px solid hsl(45 100% 80%);
+    color: hsl(45 100% 25%);
+  }
 
 html[data-font-size="medium"] {
   font-size: 16px;
