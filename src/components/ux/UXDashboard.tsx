@@ -9,6 +9,8 @@ import { SmartLoadingStates } from './SmartLoadingStates';
 import { PerfectAccessibility } from './PerfectAccessibility';
 import { PerfectPerformance } from './PerfectPerformance';
 import { PerfectMobile } from './PerfectMobile';
+import { UltimateUXAnalytics } from './UltimateUXAnalytics';
+import { UXMonitoring } from './UXMonitoring';
 import { 
   Accessibility, Gauge, TrendingUp, Heart, CheckCircle, Monitor, Smartphone, Tablet
 } from 'lucide-react';
@@ -27,11 +29,13 @@ export const UXDashboard = () => {
         </div>
 
         <Tabs value={activeView} onValueChange={setActiveView}>
-          <TabsList className="grid grid-cols-4 w-full">
+          <TabsList className="grid grid-cols-6 w-full">
             <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
             <TabsTrigger value="accessibility">Accessibilité 100%</TabsTrigger>
             <TabsTrigger value="performance">Performance 100%</TabsTrigger>
             <TabsTrigger value="mobile">Mobile 100%</TabsTrigger>
+            <TabsTrigger value="analytics">Analytics UX</TabsTrigger>
+            <TabsTrigger value="monitoring">Monitoring</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview">
@@ -79,6 +83,14 @@ export const UXDashboard = () => {
 
           <TabsContent value="mobile">
             <PerfectMobile />
+          </TabsContent>
+
+          <TabsContent value="analytics">
+            <UltimateUXAnalytics />
+          </TabsContent>
+
+          <TabsContent value="monitoring">
+            <UXMonitoring />
           </TabsContent>
         </Tabs>
       </div>
