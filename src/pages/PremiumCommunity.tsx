@@ -560,7 +560,7 @@ export default function PremiumCommunity() {
                   <p className="text-muted-foreground mb-6">
                     Participez aux webinaires, conférences et sessions d'étude collaborative
                   </p>
-                  <PremiumButton variant="accent" icon={<Plus className="w-4 h-4" />}>
+                  <PremiumButton variant="primary" icon={<Plus className="w-4 h-4" />}>
                     Voir les Événements
                   </PremiumButton>
                 </PremiumCard>

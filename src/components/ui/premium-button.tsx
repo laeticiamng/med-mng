@@ -12,6 +12,7 @@ interface PremiumButtonProps {
   disabled?: boolean;
   className?: string;
   onClick?: () => void;
+  type?: 'button' | 'submit' | 'reset';
 }
 
 export const PremiumButton: React.FC<PremiumButtonProps> = ({
@@ -23,6 +24,7 @@ export const PremiumButton: React.FC<PremiumButtonProps> = ({
   disabled = false,
   className,
   onClick,
+  type = 'button',
   ...props
 }) => {
   return (
@@ -31,6 +33,7 @@ export const PremiumButton: React.FC<PremiumButtonProps> = ({
       size={size}
       disabled={disabled || loading}
       onClick={onClick}
+      type={type}
       className={cn('transition-all duration-200', className)}
       {...props}
     >

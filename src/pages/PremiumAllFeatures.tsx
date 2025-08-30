@@ -504,7 +504,6 @@ export default function PremiumAllFeatures() {
                 size="lg"
                 onClick={() => navigate('/dashboard')}
                 icon={<ArrowRight className="w-5 h-5" />}
-                glow
               >
                 Commencer Maintenant
               </PremiumButton>

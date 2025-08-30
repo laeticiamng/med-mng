@@ -159,7 +159,7 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
         <div className="flex flex-col md:flex-row gap-4 md:gap-6 pt-6">
           <PremiumButton
             variant="primary"
-            size="xl"
+            size="lg"
             onClick={handleGenerate}
             disabled={!canGenerate() || isGenerating || (!user && remainingFree <= 0) || (user && !canGenerateMusic()) || lyricsLoading}
             className="flex-1"
@@ -179,7 +179,7 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
           
           <PremiumButton
             variant="secondary"
-            size="xl"
+            size="lg"
             onClick={resetForm}
           >
             <TranslatedText text="Réinitialiser" />
