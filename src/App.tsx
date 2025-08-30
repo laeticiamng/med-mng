@@ -77,6 +77,7 @@ const AdminExtractEcos = lazy(() => import("./pages/AdminExtractEcos"));
 const AdminPanel = lazy(() => import("./pages/AdminPanel").then(module => ({ default: module.AdminPanel })));
 const ContentQualityDashboard = lazy(() => import("./components/admin/ContentQualityDashboard").then(module => ({ default: module.ContentQualityDashboard })));
 const SystemHealth = lazy(() => import("./pages/SystemHealth"));
+const SystemDashboard = lazy(() => import("./pages/SystemDashboard"));
 const EdnObjectifsExtractionPage = lazy(() => import("./pages/EdnObjectifsExtraction"));
 const OicDataQualityManager = lazy(() => import("./pages/OicDataQualityManager"));
 const AuditCompleteness = lazy(() => import("./pages/AuditCompleteness"));
@@ -90,6 +91,7 @@ const UltimateAIHub = lazy(() => import("./pages/UltimateAIHub"));
 const UltimateAnalyticsHub = lazy(() => import("./pages/UltimateAnalyticsHub"));
 const UltimateSecurityHub = lazy(() => import("./pages/UltimateSecurityHub"));
 const UltimateUXHub = lazy(() => import("./pages/UltimateUXHub"));
+const NavigationAuditPage = lazy(() => import("./pages/NavigationAuditPage"));
 const PlatformOverview = lazy(() => import("./pages/PlatformOverview"));
 const UserSettings = lazy(() => import("./pages/UserSettings"));
 const Documentation = lazy(() => import("./pages/Documentation"));
@@ -252,6 +254,7 @@ const AppWithUX = () => {
           <Route path="/analytics-hub" element={<UltimateAnalyticsHub />} />
           <Route path="/security-hub" element={<UltimateSecurityHub />} />
           <Route path="/ux-hub" element={<UltimateUXHub />} />
+          <Route path="/navigation-audit" element={<NavigationAuditPage />} />
                                              <Route path="/med-mng/subscribe/:planId" element={<ProtectedRoute><MedMngSubscribe /></ProtectedRoute>} />
                                              <Route path="/med-mng/success" element={<ProtectedRoute><MedMngSuccess /></ProtectedRoute>} />
                                              <Route path="/med-mng/create" element={<ProtectedRoute><MedMngCreate /></ProtectedRoute>} />
@@ -281,6 +284,7 @@ const AppWithUX = () => {
                                              <Route path="/system-health" element={<SystemHealth />} />
                                              <Route path="/content-quality" element={<ContentQualityDashboard />} />
                                              <Route path="/monitoring-center" element={<MonitoringCenter />} />
+                                             <Route path="/system-dashboard" element={<SystemDashboard />} />
                                              
                                              {/* Routes de redirection pour éviter 404 */}
                                              <Route path="/med-mng" element={<Navigate to="/med-mng/dashboard" replace />} />
