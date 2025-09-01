@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { OptimizedImage } from '@/components/ui/OptimizedImage';
+import { UltraResponsiveImage } from '@/components/ui/UltraResponsiveImage';
 import { 
   Music, 
   Mic, 
@@ -286,14 +287,16 @@ export const ContentLibrary = () => {
                       {/* Aperçu du contenu */}
                       {item.type === 'image' && item.image_base64 && (
                         <div className="relative overflow-hidden">
-                          <OptimizedImage
+                          <UltraResponsiveImage
                             src={`data:image/png;base64,${item.image_base64}`}
                             alt="Image générée"
                             width={300}
                             height={128}
-                            className="w-full h-32 object-cover rounded-md zoomable-image"
+                            className="w-full h-32 rounded-md"
                             objectFit="cover"
                             loading="lazy"
+                            priority={false}
+                            enableProgressiveLoading={true}
                           />
                         </div>
                       )}
