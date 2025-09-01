@@ -100,10 +100,11 @@ export const TableauRangB: React.FC<TableauRangBProps> = ({ data, itemCode }) =>
                     
                     {competence.description && (
                       <div 
-                        className="text-sm text-gray-700 leading-relaxed p-3 bg-white rounded border"
+                        className="text-sm text-gray-700 leading-relaxed p-3 bg-white rounded border text-container overflow-safe"
                         role="definition"
                       >
                         <div 
+                          className="break-words-force"
                           dangerouslySetInnerHTML={{ 
                             __html: competence.description 
                               .replace(/&nbsp;/g, ' ')
@@ -263,7 +264,7 @@ export const TableauRangB: React.FC<TableauRangBProps> = ({ data, itemCode }) =>
                           <Brain className="h-4 w-4" />
                           Analyse Experte
                         </h5>
-                        <p className="text-sm text-gray-700 bg-purple-50 p-3 rounded">
+                        <p className="text-sm text-gray-700 bg-purple-50 p-3 rounded text-container break-words-force overflow-safe">
                           {concept.analyse}
                         </p>
                       </div>

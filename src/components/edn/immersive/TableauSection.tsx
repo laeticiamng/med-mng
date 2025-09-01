@@ -59,12 +59,12 @@ export const TableauSection: React.FC<TableauSectionProps> = ({ data, title, typ
                 </h4>
                 
                 <div className="space-y-3">
-                  {concept.definition && (
-                    <div>
-                      <span className="font-medium text-gray-700">Définition : </span>
-                      <p className="text-gray-600">{concept.definition}</p>
-                    </div>
-                  )}
+                   {concept.definition && (
+                     <div className="text-container overflow-safe">
+                       <span className="font-medium text-gray-700">Définition : </span>
+                       <p className="text-gray-600 break-words-force">{concept.definition}</p>
+                     </div>
+                   )}
                   
                   {type === 'rang_a' && concept.exemple && (
                     <div>

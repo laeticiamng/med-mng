@@ -101,10 +101,11 @@ export const TableauRangA = ({ data, itemCode }: TableauRangAProps) => {
                     
                     {competence.description && (
                       <div 
-                        className="text-sm text-gray-700 leading-relaxed p-3 bg-white rounded border"
+                        className="text-sm text-gray-700 leading-relaxed p-3 bg-white rounded border text-container overflow-safe"
                         role="definition"
                       >
                         <div 
+                          className="break-words-force"
                           dangerouslySetInnerHTML={{ 
                             __html: competence.description 
                               .replace(/&nbsp;/g, ' ')
@@ -195,7 +196,7 @@ export const TableauRangA = ({ data, itemCode }: TableauRangAProps) => {
                             </div>
                             
                             {competence.definition && (
-                              <p className="text-sm text-gray-700" role="definition">
+                              <p className="text-sm text-gray-700 text-container break-words-force overflow-safe" role="definition">
                                 {competence.definition}
                               </p>
                             )}
