@@ -276,7 +276,7 @@ export const ContentLibrary = () => {
                         {formatDate(item.created_at)}
                       </div>
                     </div>
-                    <CardTitle className="text-sm line-clamp-2">
+                    <CardTitle className="text-sm line-clamp-2 text-container break-words-force">
                       {getItemTitle(item)}
                     </CardTitle>
                   </CardHeader>
@@ -300,7 +300,7 @@ export const ContentLibrary = () => {
                             {item.metadata?.duration ? `${item.metadata.duration}s` : 'Audio généré'}
                           </div>
                           {item.type === 'voice' && item.text && (
-                            <p className="text-xs mt-1 line-clamp-2">{item.text}</p>
+                            <p className="text-xs mt-1 line-clamp-2 text-container break-words-normal">{item.text}</p>
                           )}
                         </div>
                       )}
