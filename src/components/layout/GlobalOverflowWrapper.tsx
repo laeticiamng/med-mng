@@ -17,14 +17,28 @@ export const GlobalOverflowWrapper: React.FC<GlobalOverflowWrapperProps> = ({
   useEffect(() => {
     // Application des classes de sécurité à TOUS les éléments
     const applyOverflowFixes = () => {
+      // TOUS les éléments sans exception - FORCE BRUTE
+      document.querySelectorAll('*').forEach(el => {
+        const htmlEl = el as HTMLElement;
+        if (htmlEl.tagName !== 'SVG' && htmlEl.tagName !== 'PATH') {
+          htmlEl.style.maxWidth = '100%';
+          htmlEl.style.wordWrap = 'break-word';
+          htmlEl.style.overflowWrap = 'break-word';
+          htmlEl.style.overflowX = 'hidden';
+          htmlEl.style.wordBreak = 'break-word';
+          htmlEl.style.contain = 'layout style';
+        }
+      });
+      
       // TOUS les éléments textuels sans exception
       document.querySelectorAll('h1, h2, h3, h4, h5, h6, p, span, div, section, article, header, footer, nav, aside').forEach(el => {
         const htmlEl = el as HTMLElement;
-        el.classList.add('text-container', 'break-words-force', 'overflow-safe');
+        el.classList.add('text-container', 'break-words-force', 'overflow-safe', 'emergency-no-overflow');
         htmlEl.style.maxWidth = '100%';
         htmlEl.style.wordWrap = 'break-word';
         htmlEl.style.overflowWrap = 'break-word';
         htmlEl.style.overflowX = 'hidden';
+        htmlEl.style.wordBreak = 'break-all';
       });
       
       // Boutons et éléments interactifs - PROTECTION RENFORCÉE
