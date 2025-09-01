@@ -13,40 +13,56 @@ export const GlobalOverflowWrapper: React.FC<GlobalOverflowWrapperProps> = ({
   enableDebug = false,
 }) => {
   
-  // Application des correctifs globaux au montage
+  // Application des correctifs globaux au montage - VERSION ULTRA-AGRESSIVE
   useEffect(() => {
-    // Application des classes de sécurité à tous les éléments critiques
+    // Application des classes de sécurité à TOUS les éléments
     const applyOverflowFixes = () => {
-      // Titres et headers
-      document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(el => {
+      // TOUS les éléments textuels sans exception
+      document.querySelectorAll('h1, h2, h3, h4, h5, h6, p, span, div, section, article, header, footer, nav, aside').forEach(el => {
+        const htmlEl = el as HTMLElement;
         el.classList.add('text-container', 'break-words-force', 'overflow-safe');
+        htmlEl.style.maxWidth = '100%';
+        htmlEl.style.wordWrap = 'break-word';
+        htmlEl.style.overflowWrap = 'break-word';
+        htmlEl.style.overflowX = 'hidden';
       });
       
-      // Éléments avec du texte
-      document.querySelectorAll('p, span, div[class*="text-"]').forEach(el => {
-        if (!el.classList.contains('text-container')) {
-          el.classList.add('text-container', 'break-words-normal', 'overflow-safe');
-        }
+      // Boutons et éléments interactifs - PROTECTION RENFORCÉE
+      document.querySelectorAll('button, [role="button"], a, input, textarea, select').forEach(el => {
+        const htmlEl = el as HTMLElement;
+        el.classList.add('overflow-safe', 'text-container', 'break-words-force');
+        htmlEl.style.maxWidth = '100%';
+        htmlEl.style.overflow = 'hidden';
+        htmlEl.style.wordWrap = 'break-word';
       });
       
-      // Boutons et éléments interactifs
-      document.querySelectorAll('button, [role="button"]').forEach(el => {
-        el.classList.add('overflow-safe', 'text-container');
-      });
-      
-      // Cartes et conteneurs avec gradients
-      document.querySelectorAll('[class*="bg-gradient"], .card, [class*="card"]').forEach(el => {
+      // TOUS les conteneurs - VERROUILLAGE TOTAL
+      document.querySelectorAll('[class*="bg-gradient"], .card, [class*="card"], [class*="container"], [class*="wrapper"]').forEach(el => {
+        const htmlEl = el as HTMLElement;
         el.classList.add('overflow-safe');
+        htmlEl.style.maxWidth = '100%';
+        htmlEl.style.overflowX = 'hidden';
       });
       
-      // Conteneurs flex et grid
+      // Conteneurs flex et grid - AUCUNE FUITE
       document.querySelectorAll('[class*="flex"], [class*="grid"]').forEach(el => {
+        const htmlEl = el as HTMLElement;
         el.classList.add('overflow-safe');
+        htmlEl.style.maxWidth = '100%';
+        htmlEl.style.overflowX = 'hidden';
+        // Appliquer aux enfants aussi
+        el.querySelectorAll('*').forEach(child => {
+          const childHtmlEl = child as HTMLElement;
+          childHtmlEl.style.maxWidth = '100%';
+          childHtmlEl.style.wordWrap = 'break-word';
+        });
       });
       
-      // Éléments avec transform ou position absolute
-      document.querySelectorAll('[style*="transform"], [class*="absolute"]').forEach(el => {
+      // Éléments positionnés - SÉCURITÉ ABSOLUE
+      document.querySelectorAll('[style*="transform"], [class*="absolute"], [class*="fixed"]').forEach(el => {
+        const htmlEl = el as HTMLElement;
         el.classList.add('overflow-safe');
+        htmlEl.style.maxWidth = 'calc(100vw - 2rem)';
       });
     };
     
