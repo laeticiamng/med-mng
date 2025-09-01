@@ -24,6 +24,9 @@ import { ErgonomicEnhancements } from '@/components/ux/ErgonomicEnhancements';
 import { SmartTooltip, ContextualHelp } from '@/components/ux/SmartTooltips';
 import { ProgressiveDisclosure, ProgressiveList } from '@/components/ux/ProgressiveDisclosure';
 import { PulseButton, AnimatedLike, MagneticHover } from '@/components/ux/MicroInteractions';
+import { AchievementsPanel } from '@/components/edn/gamification/AchievementsPanel';
+import { StatisticsCards } from '@/components/edn/gamification/StatisticsCards';
+import { ProgressOverview } from '@/components/edn/gamification/ProgressOverview';
 
 // Composants lazy pour les onglets non-critiques
 const LyricsCompletionStatus = React.lazy(() => 
@@ -245,6 +248,9 @@ export default function EdnComplete() {
                   <TabsTrigger value="revision" className="text-sm font-medium rounded-xl text-gray-300 data-[state=active]:text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600">
                     📚 Révisions
                   </TabsTrigger>
+                  <TabsTrigger value="progress" className="text-sm font-medium rounded-xl text-gray-300 data-[state=active]:text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600">
+                    🏆 Progrès
+                  </TabsTrigger>
                   <TabsTrigger value="subscription" className="text-sm font-medium rounded-xl text-gray-300 data-[state=active]:text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600">
                     ⭐ Premium
                   </TabsTrigger>
@@ -267,6 +273,11 @@ export default function EdnComplete() {
       </div>
 
       <div className={`container mx-auto relative ${spacing.container}`}>
+        {/* Statistiques gamifiées */}
+        <div className="mb-8">
+          <StatisticsCards />
+        </div>
+
         {/* Statistiques style Suno - Optimisées pour mobile et tablettes */}
         {!statsLoading && (
           <div className={`grid ${gridConfig.stats} ${gridConfig.gap} mb-6 md:mb-8`}>
@@ -462,6 +473,18 @@ export default function EdnComplete() {
                  </div>
                </div>
              </React.Suspense>
+           </TabsContent>
+           
+           <TabsContent value="progress">
+             <div className="grid lg:grid-cols-3 gap-6">
+               <div className="lg:col-span-2 space-y-6">
+                 <AchievementsPanel />
+               </div>
+               <div className="space-y-6">
+                 <ProgressOverview />
+                 <EdnProgressTracker />
+               </div>
+             </div>
            </TabsContent>
            
            <TabsContent value="subscription">
