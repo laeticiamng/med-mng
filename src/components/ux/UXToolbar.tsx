@@ -35,7 +35,91 @@ export const UXToolbar: React.FC = () => {
     const headingsCount = document.querySelectorAll('h1, h2, h3, h4, h5, h6').length;
     announce(`Page ${pageTitle}. ${headingsCount} titres trouvés.`, 'assertive');
   };
-  return <TooltipProvider>
-      
-    </TooltipProvider>;
+  return (
+    <TooltipProvider>
+      <div className="flex items-center gap-2 p-2 bg-background/80 backdrop-blur-sm border rounded-lg">
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={undo}
+              disabled={!canUndo}
+            >
+              <Undo2 className="h-4 w-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Annuler</TooltipContent>
+        </Tooltip>
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={redo}
+              disabled={!canRedo}
+            >
+              <Redo2 className="h-4 w-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Refaire</TooltipContent>
+        </Tooltip>
+
+        <Separator orientation="vertical" className="h-6" />
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={showShortcutsHelp}
+            >
+              <Keyboard className="h-4 w-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Raccourcis clavier</TooltipContent>
+        </Tooltip>
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={toggleAccessibilityMode}
+            >
+              <Accessibility className="h-4 w-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Mode accessibilité</TooltipContent>
+        </Tooltip>
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={toggleHighContrast}
+            >
+              <Eye className="h-4 w-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Contraste élevé</TooltipContent>
+        </Tooltip>
+
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={announcePageInfo}
+            >
+              <Volume2 className="h-4 w-4" />
+            </Button>
+          </TooltipTrigger>
+          <TooltipContent>Annoncer la page</TooltipContent>
+        </Tooltip>
+      </div>
+    </TooltipProvider>
+  );
 };
