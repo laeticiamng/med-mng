@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import { 
   Music, 
   Mic, 
@@ -284,11 +285,15 @@ export const ContentLibrary = () => {
                     <div className="space-y-3">
                       {/* Aperçu du contenu */}
                       {item.type === 'image' && item.image_base64 && (
-                        <div className="relative">
-                          <img
+                        <div className="relative overflow-hidden">
+                          <OptimizedImage
                             src={`data:image/png;base64,${item.image_base64}`}
                             alt="Image générée"
-                            className="w-full h-32 object-cover rounded-md"
+                            width={300}
+                            height={128}
+                            className="w-full h-32 object-cover rounded-md zoomable-image"
+                            objectFit="cover"
+                            loading="lazy"
                           />
                         </div>
                       )}
