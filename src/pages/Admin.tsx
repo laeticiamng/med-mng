@@ -157,10 +157,10 @@ export const Admin: React.FC = () => {
     <PremiumLayout variant="gradient">
       <div className="container mx-auto px-4 py-8 max-w-7xl">
         <div className="mb-8">
-          <h1 className="text-4xl font-bold text-white mb-4">
+          <h1 className="text-4xl font-bold text-white mb-4 text-container break-words-force overflow-safe">
             Centre d'Administration MED-MNG
           </h1>
-          <p className="text-white/80 text-lg">
+          <p className="text-white/80 text-lg text-container break-words-normal overflow-safe">
             Gestion complète de la plateforme et supervision système
           </p>
         </div>

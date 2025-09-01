@@ -1,0 +1,300 @@
+/* ==========================================
+   CORRECTIFS UNIVERSELS DE DÉBORDEMENT
+   Solution globale pour tous les supports
+   ========================================== */
+
+/* Règles globales de prévention du débordement */
+* {
+  /* Prévention du débordement horizontal */
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+*:not(svg):not(path):not(circle):not(rect):not(line):not(polygon) {
+  /* Application sélective pour éviter de casser les SVG */
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+/* Conteneurs de base */
+html, body {
+  overflow-x: hidden;
+  width: 100%;
+  max-width: 100vw;
+}
+
+/* Tous les conteneurs principaux */
+#root,
+.container,
+.main-content,
+[role="main"],
+main {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Correctifs spécifiques pour les éléments problématiques */
+
+/* Texte et titres */
+h1, h2, h3, h4, h5, h6,
+p, span, div,
+.text-4xl, .text-3xl, .text-2xl, .text-xl, .text-lg,
+.font-bold, .font-semibold {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+  max-width: 100%;
+}
+
+/* Boutons et éléments interactifs */
+button, .btn, [role="button"],
+a, .link {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-wrap: break-word;
+}
+
+/* Cards et conteneurs */
+.card, [class*="card"],
+.bg-gradient-to, [class*="bg-gradient"],
+.rounded, [class*="rounded"] {
+  max-width: 100%;
+  overflow: hidden;
+}
+
+/* Flexbox et Grid */
+.flex, [class*="flex-"],
+.grid, [class*="grid-"] {
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.flex > *,
+.grid > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* Images et médias */
+img, video, iframe,
+.image, [class*="image"] {
+  max-width: 100% !important;
+  height: auto !important;
+  object-fit: contain;
+}
+
+/* Correctifs pour les classes Tailwind problématiques */
+.text-transparent {
+  background-clip: text;
+  -webkit-background-clip: text;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+/* Conteneurs avec padding */
+[class*="px-"], [class*="py-"], [class*="p-"] {
+  box-sizing: border-box;
+  max-width: 100%;
+}
+
+/* Correctifs responsive par breakpoint */
+@media (max-width: 640px) {
+  /* Mobile - Sécurité maximale */
+  * {
+    max-width: 100vw !important;
+  }
+  
+  h1, .text-4xl, .text-3xl {
+    font-size: clamp(1.5rem, 8vw, 2.5rem) !important;
+    line-height: 1.2 !important;
+  }
+  
+  h2, .text-2xl {
+    font-size: clamp(1.25rem, 6vw, 2rem) !important;
+  }
+  
+  h3, .text-xl {
+    font-size: clamp(1.125rem, 5vw, 1.5rem) !important;
+  }
+  
+  .container {
+    padding-left: 0.5rem !important;
+    padding-right: 0.5rem !important;
+  }
+  
+  /* Forcer la coupure des mots longs */
+  .break-words-force {
+    word-break: break-all !important;
+    overflow-wrap: break-word !important;
+    hyphens: auto !important;
+  }
+}
+
+@media (max-width: 768px) {
+  /* Tablette Portrait */
+  .text-4xl, .text-3xl {
+    font-size: clamp(1.75rem, 6vw, 2.25rem) !important;
+  }
+}
+
+/* Classes utilitaires universelles */
+.overflow-safe {
+  overflow: hidden !important;
+  max-width: 100% !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+}
+
+.text-container {
+  max-width: 100% !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+  hyphens: auto !important;
+}
+
+.break-words-force {
+  word-break: break-all !important;
+  overflow-wrap: break-word !important;
+  hyphens: auto !important;
+}
+
+.break-words-normal {
+  word-break: normal !important;
+  overflow-wrap: break-word !important;
+  hyphens: auto !important;
+}
+
+.flex-safe {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  max-width: 100% !important;
+  overflow: hidden !important;
+}
+
+.flex-safe > * {
+  min-width: 0 !important;
+  flex-shrink: 1 !important;
+}
+
+/* Correctifs pour les éléments positionnés absolument */
+[class*="absolute"],
+[class*="fixed"] {
+  max-width: calc(100vw - 2rem) !important;
+}
+
+/* Correctifs spécifiques pour les bandeaux et headers */
+.bg-gradient-to-r,
+.bg-gradient-to-l,
+.bg-gradient-to-br,
+.bg-gradient-to-bl {
+  overflow: hidden !important;
+  max-width: 100% !important;
+}
+
+.bg-gradient-to-r > *,
+.bg-gradient-to-l > *,
+.bg-gradient-to-br > *,
+.bg-gradient-to-bl > * {
+  max-width: 100% !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+}
+
+/* Correctifs pour les éléments avec texte centré */
+.text-center {
+  max-width: 100% !important;
+}
+
+.text-center > * {
+  max-width: 100% !important;
+  word-wrap: break-word !important;
+  overflow-wrap: break-word !important;
+}
+
+/* Correctifs pour les badges et labels */
+.badge, [class*="badge"],
+.label, [class*="label"] {
+  max-width: 100% !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  white-space: nowrap;
+}
+
+.badge.text-container,
+.label.text-container {
+  white-space: normal !important;
+  word-wrap: break-word !important;
+}
+
+/* Performance - Désactiver les animations problématiques sur mobile */
+@media (max-width: 640px) {
+  .animate-shimmer,
+  .animate-pulse,
+  .animate-float {
+    animation: none !important;
+  }
+}
+
+/* Mode debug pour identifier les éléments problématiques */
+.debug-overflow * {
+  outline: 1px solid red !important;
+  background: rgba(255, 0, 0, 0.1) !important;
+}
+
+/* Correctifs d'urgence */
+.emergency-fix {
+  max-width: 95vw !important;
+  overflow: hidden !important;
+  word-break: break-all !important;
+}
+
+/* Classes d'aide contextuelle */
+.mobile-safe {
+  max-width: 100vw !important;
+  overflow-x: hidden !important;
+}
+
+.tablet-safe {
+  max-width: 100% !important;
+  overflow: hidden !important;
+}
+
+.desktop-safe {
+  max-width: 100% !important;
+  overflow: visible;
+}
+
+/* Application des correctifs selon le type d'appareil */
+@media (max-width: 640px) {
+  .mobile-layout * {
+    max-width: 100vw !important;
+  }
+}
+
+@media (min-width: 641px) and (max-width: 1024px) {
+  .tablet-layout * {
+    max-width: 100% !important;
+  }
+}
+
+/* Correctifs pour les éléments Radix UI */
+[data-radix-collection-item],
+[data-radix-scroll-area-content] {
+  max-width: 100% !important;
+  overflow: hidden !important;
+}
+
+/* Correctifs pour les éléments avec transform */
+[style*="transform"] {
+  max-width: 100% !important;
+}
+
+/* Protection contre les débordements JavaScript */
+.js-safe {
+  max-width: 100% !important;
+  overflow: hidden !important;
+  contain: layout style !important;
+}

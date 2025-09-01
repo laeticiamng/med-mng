@@ -12,6 +12,9 @@
 /* Import des styles adaptatifs */
 @import './styles/adaptive-display.css';
 
+/* Import des correctifs universels de débordement */
+@import './styles/universal-overflow-fixes.css';
+
 @keyframes shimmer {
   0% { transform: translateX(-100%) skewX(-12deg); }
   100% { transform: translateX(200%) skewX(-12deg); }

@@ -1,3 +1,4 @@
+import { GlobalOverflowWrapper } from "@/components/layout/GlobalOverflowWrapper";
 import React, { Suspense, lazy, memo, StrictMode } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -116,8 +117,8 @@ const PageLoadingFallback = memo(() => (
           <div className="w-16 h-16 bg-gradient-to-r from-purple-400/20 to-blue-400/20 rounded-full mx-auto blur-sm gpu-accelerated"></div>
         </div>
       </div>
-      <p className="text-white font-medium text-lg mb-2">Chargement MED-MNG</p>
-      <p className="text-gray-300 text-sm">Préparation de votre environnement d'apprentissage...</p>
+      <p className="text-white font-medium text-lg mb-2 text-container break-words-normal overflow-safe">Chargement MED-MNG</p>
+      <p className="text-gray-300 text-sm text-container break-words-normal overflow-safe">Préparation de votre environnement d'apprentissage...</p>
     </div>
   </div>
 ));
@@ -150,20 +151,21 @@ const AppWithUX = () => {
                     <AuthProvider>
                       <ToastProvider>
                         <UndoRedoProvider>
-                          <BrowserRouter>
-                            <NavigatorBridge />
-                            <AppKeyboardShortcuts />
-                            <UXToastProvider>
-                                <SkipToMain />
-                                <SkipLinks />
-                                 <div id="app-root" className="min-h-screen flex flex-col" style={{ display: 'block' }}>
-                                    {/* Navigation Premium Unifiée */}
-                                    <PremiumNavigation />
-                                   
-                                   <main id="main-content" tabIndex={-1} className="flex-1 pb-20">
-                                    <PageThemeProvider>
-                                      <GlobalErrorBoundary>
-                                        <Suspense fallback={<PageSkeleton />}>
+                          <GlobalOverflowWrapper className="min-h-screen">
+                            <BrowserRouter>
+                              <NavigatorBridge />
+                              <AppKeyboardShortcuts />
+                              <UXToastProvider>
+                                  <SkipToMain />
+                                  <SkipLinks />
+                                   <div id="app-root" className="min-h-screen flex flex-col overflow-safe" style={{ display: 'block' }}>
+                                      {/* Navigation Premium Unifiée */}
+                                      <PremiumNavigation />
+                                     
+                                     <main id="main-content" tabIndex={-1} className="flex-1 pb-20 overflow-safe">
+                                      <PageThemeProvider>
+                                        <GlobalErrorBoundary>
+                                          <Suspense fallback={<PageSkeleton />}>
                                            <Routes>
                                              {/* ⚡ CORE ROUTES */}
                                              <Route path="/" element={<Index />} />
@@ -243,20 +245,21 @@ const AppWithUX = () => {
                                              {/* ⚡ FALLBACK */}
                                              <Route path="*" element={<NotFound />} />
                                            </Routes>
-                                        </Suspense>
-                                        {/* UX Toolbar - Floating bottom-right */}
-                                        <UXToolbar />
-                                      </GlobalErrorBoundary>
-                                    </PageThemeProvider>
-                                  </main>
-                                
-                                  {/* Lecteur musical global */}
-                                  <GlobalMusicPlayer />
-                                
-                                </div>
-                                <Sonner richColors closeButton />
-                              </UXToastProvider>
-                          </BrowserRouter>
+                                          </Suspense>
+                                          {/* UX Toolbar - Floating bottom-right */}
+                                          <UXToolbar />
+                                        </GlobalErrorBoundary>
+                                      </PageThemeProvider>
+                                    </main>
+                                  
+                                    {/* Lecteur musical global */}
+                                    <GlobalMusicPlayer />
+                                  
+                                  </div>
+                                  <Sonner richColors closeButton />
+                                </UXToastProvider>
+                            </BrowserRouter>
+                          </GlobalOverflowWrapper>
                         </UndoRedoProvider>
                       </ToastProvider>
                     </AuthProvider>
