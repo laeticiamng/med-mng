@@ -17,28 +17,44 @@ export const GlobalOverflowWrapper: React.FC<GlobalOverflowWrapperProps> = ({
   useEffect(() => {
     // Application des classes de sécurité à TOUS les éléments
     const applyOverflowFixes = () => {
-      // TOUS les éléments sans exception - FORCE BRUTE
+      // TOUS les éléments sans exception - FORCE BRUTE MAXIMALE
       document.querySelectorAll('*').forEach(el => {
         const htmlEl = el as HTMLElement;
-        if (htmlEl.tagName !== 'SVG' && htmlEl.tagName !== 'PATH') {
+        if (htmlEl.tagName !== 'SVG' && htmlEl.tagName !== 'PATH' && htmlEl.tagName !== 'CIRCLE') {
           htmlEl.style.maxWidth = '100%';
           htmlEl.style.wordWrap = 'break-word';
-          htmlEl.style.overflowWrap = 'break-word';
+          htmlEl.style.overflowWrap = 'anywhere';
           htmlEl.style.overflowX = 'hidden';
-          htmlEl.style.wordBreak = 'break-word';
+          htmlEl.style.wordBreak = 'break-all';
           htmlEl.style.contain = 'layout style';
+          htmlEl.style.lineBreak = 'anywhere';
+          htmlEl.style.hyphens = 'auto';
+          htmlEl.style.whiteSpace = 'pre-wrap';
+          // Force sur les styles calculés
+          if (htmlEl.offsetWidth > window.innerWidth) {
+            htmlEl.style.width = '100%';
+            htmlEl.style.maxWidth = '100vw';
+          }
         }
       });
       
-      // TOUS les éléments textuels sans exception
-      document.querySelectorAll('h1, h2, h3, h4, h5, h6, p, span, div, section, article, header, footer, nav, aside').forEach(el => {
+      // TOUS les éléments textuels - COUPURE ULTRA-AGRESSIVE
+      document.querySelectorAll('h1, h2, h3, h4, h5, h6, p, span, div, section, article, header, footer, nav, aside, a, button, label').forEach(el => {
         const htmlEl = el as HTMLElement;
-        el.classList.add('text-container', 'break-words-force', 'overflow-safe', 'emergency-no-overflow');
+        el.classList.add('text-container', 'break-words-force', 'overflow-safe', 'emergency-no-overflow', 'emergency-fix');
         htmlEl.style.maxWidth = '100%';
         htmlEl.style.wordWrap = 'break-word';
-        htmlEl.style.overflowWrap = 'break-word';
+        htmlEl.style.overflowWrap = 'anywhere';
         htmlEl.style.overflowX = 'hidden';
         htmlEl.style.wordBreak = 'break-all';
+        htmlEl.style.whiteSpace = 'pre-wrap';
+        htmlEl.style.lineBreak = 'anywhere';
+        htmlEl.style.hyphens = 'auto';
+        // Force la largeur si débordement détecté
+        if (htmlEl.scrollWidth > htmlEl.clientWidth) {
+          htmlEl.style.width = 'auto';
+          htmlEl.style.maxWidth = '95vw';
+        }
       });
       
       // Boutons et éléments interactifs - PROTECTION RENFORCÉE
@@ -83,20 +99,32 @@ export const GlobalOverflowWrapper: React.FC<GlobalOverflowWrapperProps> = ({
     // Application initiale
     applyOverflowFixes();
     
-    // Observer les changements du DOM
-    const observer = new MutationObserver((mutations) => {
-      let shouldApplyFixes = false;
-      
-      mutations.forEach((mutation) => {
-        if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
-          shouldApplyFixes = true;
+      // Observer les changements du DOM avec intervention immédiate
+      const observer = new MutationObserver((mutations) => {
+        let shouldApplyFixes = false;
+        
+        mutations.forEach((mutation) => {
+          if (mutation.type === 'childList' && mutation.addedNodes.length > 0) {
+            shouldApplyFixes = true;
+            // Application immédiate sur les nouveaux éléments
+            mutation.addedNodes.forEach(node => {
+              if (node.nodeType === Node.ELEMENT_NODE) {
+                const el = node as HTMLElement;
+                if (el.tagName !== 'SVG' && el.tagName !== 'PATH') {
+                  el.style.maxWidth = '100%';
+                  el.style.overflowX = 'hidden';
+                  el.style.wordBreak = 'break-all';
+                  el.style.overflowWrap = 'anywhere';
+                }
+              }
+            });
+          }
+        });
+        
+        if (shouldApplyFixes) {
+          setTimeout(applyOverflowFixes, 10); // Application plus rapide
         }
       });
-      
-      if (shouldApplyFixes) {
-        setTimeout(applyOverflowFixes, 100);
-      }
-    });
     
     observer.observe(document.body, {
       childList: true,
