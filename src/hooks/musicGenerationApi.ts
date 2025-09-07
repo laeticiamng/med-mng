@@ -37,8 +37,17 @@ export const callSunoApi = async (requestBody: GenerateMusicRequest) => {
   };
 
   try {
-    const { data, error } = await supabase.functions.invoke('generate-music', {
-      body: optimizedRequest
+    // Utiliser suno-music-optimized pour une meilleure fiabilité
+    const { data, error } = await supabase.functions.invoke('suno-music-optimized', {
+      body: {
+        paroles: [optimizedRequest.lyrics],
+        style: optimizedRequest.style,
+        rang: optimizedRequest.rang,
+        duration: optimizedRequest.duration,
+        customMode: optimizedRequest.customMode !== false,
+        instrumental: optimizedRequest.instrumental || false,
+        model: optimizedRequest.model || "V4_5"
+      }
     });
 
     const callDuration = Math.floor((Date.now() - startTime) / 1000);
