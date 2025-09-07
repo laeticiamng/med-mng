@@ -109,16 +109,16 @@ const EdnCompleteRedirect = () => {
 
 // ⚡ LOADING FALLBACK optimisé pour étudiant médical
 const PageLoadingFallback = memo(() => (
-  <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900">
-    <div className="text-center bg-white/10 backdrop-blur-sm rounded-2xl p-8 border border-white/20 gpu-accelerated">
+  <div className="min-h-screen flex items-center justify-center bg-background">
+    <div className="text-center bg-card/80 backdrop-blur-sm rounded-2xl p-8 border border-border gpu-accelerated">
       <div className="relative">
-        <div className="animate-spin rounded-full h-16 w-16 border-4 border-purple-200/30 border-t-purple-400 mx-auto mb-6 will-change-transform"></div>
+        <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary/30 border-t-primary mx-auto mb-6 will-change-transform"></div>
         <div className="absolute inset-0 animate-pulse">
-          <div className="w-16 h-16 bg-gradient-to-r from-purple-400/20 to-blue-400/20 rounded-full mx-auto blur-sm gpu-accelerated"></div>
+          <div className="w-16 h-16 bg-gradient-to-r from-primary/20 to-accent/20 rounded-full mx-auto blur-sm gpu-accelerated"></div>
         </div>
       </div>
-      <p className="text-white font-medium text-lg mb-2 text-container break-words-normal overflow-safe">Chargement MED-MNG</p>
-      <p className="text-gray-300 text-sm text-container break-words-normal overflow-safe">Préparation de votre environnement d'apprentissage...</p>
+      <p className="text-foreground font-medium text-lg mb-2 text-container break-words-normal overflow-safe">Chargement MED-MNG</p>
+      <p className="text-muted-foreground text-sm text-container break-words-normal overflow-safe">Préparation de votre environnement d'apprentissage...</p>
     </div>
   </div>
 ));
