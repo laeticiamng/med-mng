@@ -7,12 +7,6 @@ schemas = ["public", "graphql_public"]
 extra_search_path = ["public", "extensions"]
 max_rows = 1000
 
-[functions.secure-music-generation]
-verify_jwt = true
-
-[functions.med-analytics-dashboard]
-verify_jwt = true
-
 [db]
 port = 54322
 
