@@ -25,6 +25,8 @@ const UnifiedPlatform = lazy(() => import("./pages/unified/UnifiedPlatform"));
 const UnifiedAdmin = lazy(() => import("./pages/unified/UnifiedAdmin"));
 const UnifiedAnalytics = lazy(() => import("./pages/unified/UnifiedAnalytics"));
 const OptimizedPlatform = lazy(() => import("./pages/OptimizedPlatform"));
+const FinalOptimizedPlatform = lazy(() => import("./pages/FinalOptimizedPlatform"));
+const PlatformOptimizedDashboard = lazy(() => import("./pages/PlatformOptimizedDashboard"));
 
 // ⚡ CORE PAGES - Essentielles
 const Index = lazy(() => import("./pages/Index"));
@@ -177,6 +179,8 @@ const AppWithUX = () => {
                               <Route path="/platform" element={<PlatformOverview />} />
                               <Route path="/features" element={<Navigate to="/platform" replace />} />
                               <Route path="/optimized" element={<OptimizedPlatform />} />
+                              <Route path="/final-optimized" element={<FinalOptimizedPlatform />} />
+                              <Route path="/platform-dashboard" element={<PlatformOptimizedDashboard />} />
                               <Route path="/unified" element={<UnifiedPlatform />} />
                               <Route path="/admin" element={<UnifiedAdmin />} />
                               <Route path="/analytics" element={<UnifiedAnalytics />} />
