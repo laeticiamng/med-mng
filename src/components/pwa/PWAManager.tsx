@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { logger } from '@/lib/logger';
-import { useAppStore } from '@/store';
+import { useAppStore } from '@/stores/appStore';
 import { Button } from '@/components/ui/button';
 import { Download, Bell, BellOff, Wifi, WifiOff } from 'lucide-react';
 
@@ -54,7 +54,7 @@ const PWAUtils = {
 // ==========================================
 
 export const PWAManager: React.FC = () => {
-  const { addNotification, trackUserAction } = useAppStore();
+  const { addNotification } = useAppStore();
   
   const [pwaState, setPWAState] = useState<PWAState>({
     isInstallable: false,
@@ -75,10 +75,8 @@ export const PWAManager: React.FC = () => {
       const { outcome } = await deferredPrompt.userChoice;
       
       if (outcome === 'accepted') {
-        trackUserAction('pwa_installed');
         addNotification({
           type: 'success',
-          title: 'Application installée',
           message: 'L\'application a été installée avec succès!'
         });
         
@@ -90,14 +88,13 @@ export const PWAManager: React.FC = () => {
     } catch (error) {
       logger.error('pwa', 'Installation failed', error);
     }
-  }, [deferredPrompt, trackUserAction, addNotification]);
+  }, [deferredPrompt, addNotification]);
 
   // Gestion des notifications
   const handleNotificationToggle = useCallback(async () => {
     if (pwaState.notificationsEnabled) {
       addNotification({
         type: 'info',
-        title: 'Notifications désactivées',
         message: 'Désactivez les notifications dans les paramètres du navigateur.'
       });
     } else {
@@ -105,10 +102,9 @@ export const PWAManager: React.FC = () => {
       
       if (granted) {
         setPWAState(prev => ({ ...prev, notificationsEnabled: true }));
-        trackUserAction('notifications_enabled');
       }
     }
-  }, [pwaState.notificationsEnabled, addNotification, trackUserAction]);
+  }, [pwaState.notificationsEnabled, addNotification]);
 
   useEffect(() => {
     // Listener pour l'installation PWA
