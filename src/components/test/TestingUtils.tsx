@@ -328,16 +328,16 @@ export const cleanupTest = () => {
 // Vérifier qu'un élément a les classes CSS attendues
 export const expectToHaveClasses = (element: HTMLElement, classes: string[]) => {
   classes.forEach(className => {
-    expect(element).toHaveClass(className);
+    expect(element.className.split(' ')).toContain(className);
   });
 };
 
 // Vérifier qu'un élément est accessible
 export const expectToBeAccessible = (element: HTMLElement) => {
   // Vérifier les attributs ARIA basiques
-  expect(element).toHaveAttribute('role');
+  expect(element.getAttribute('role')).toBeTruthy();
   if (element.tagName === 'BUTTON') {
-    expect(element).not.toHaveAttribute('disabled');
+    expect(element.getAttribute('disabled')).toBeNull();
   }
 };
 
