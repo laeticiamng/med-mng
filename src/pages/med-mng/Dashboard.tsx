@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -19,11 +19,16 @@ import {
   BookOpen,
   Heart,
   Flame,
-  ArrowRight
+  ArrowRight,
+  Music2,
+  Library,
+  Settings
 } from 'lucide-react';
 import { MedMngLayout } from '@/components/med-mng/MedMngLayout';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
+import { useUnifiedMedicalMusicGeneration } from '@/hooks/useUnifiedMedicalMusicGeneration';
+import { UnifiedMedicalMusicPlayer } from '@/components/UnifiedMedicalMusicPlayer';
 
 interface DashboardStats {
   totalTracks: number;
@@ -55,15 +60,23 @@ interface QuickStats {
 const Dashboard = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
+  
+  const {
+    generateMedicalMusic,
+    activeGenerations,
+    generatedTracks,
+    isGenerating,
+    stats: unifiedStats
+  } = useUnifiedMedicalMusicGeneration();
 
-  // Stats utilisateur (simulées)
+  // Stats utilisateur (combinées des vraies données et simulées)
   const [stats] = useState<DashboardStats>({
-    totalTracks: 24,
+    totalTracks: unifiedStats.completedCount || 24,
     totalListeningTime: 847, // minutes
     streakDays: 12,
     completedSessions: 18,
     favoriteGenre: 'Trap Médical',
-    weeklyProgress: 75,
+    weeklyProgress: Math.round(unifiedStats.totalProgress) || 75,
     monthlyGoal: 30,
     achievements: 8
   });
@@ -390,6 +403,44 @@ const Dashboard = () => {
                 </CardContent>
               </Card>
             </div>
+          </div>
+
+          {/* Générations actives intégrées */}
+          {activeGenerations.length > 0 && (
+            <Card className="bg-white/80 backdrop-blur-sm border-0 shadow-lg mt-8">
+              <CardHeader>
+                <CardTitle className="flex items-center space-x-2">
+                  <Music2 className="h-5 w-5 text-primary animate-pulse" />
+                  <span>Générations en cours</span>
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  {activeGenerations.map((generation) => (
+                    <div key={generation.taskId} className="p-4 border rounded-lg">
+                      <div className="flex items-center justify-between mb-2">
+                        <div>
+                          <h4 className="font-medium">{generation.taskId}</h4>
+                          <p className="text-sm text-muted-foreground">{generation.stage}</p>
+                        </div>
+                        <Badge variant={generation.status === 'generating' ? 'default' : 'secondary'}>
+                          {generation.status}
+                        </Badge>
+                      </div>
+                      <Progress value={generation.progress} className="mb-2" />
+                      <div className="text-xs text-muted-foreground">
+                        {generation.progress}% - {Math.ceil(generation.estimatedTime / 60)}min restantes
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Lecteur unifié */}
+          <div className="mt-8">
+            <UnifiedMedicalMusicPlayer />
           </div>
         </div>
       </div>

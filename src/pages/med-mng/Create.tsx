@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -35,10 +35,9 @@ import {
   Waves
 } from 'lucide-react';
 import { MedMngLayout } from '@/components/med-mng/MedMngLayout';
-import { MusicWaveform } from '@/components/immersive/MusicWaveform';
-import { RealtimePreview } from '@/components/med-mng/create/RealtimePreview';
-import { SmartCreationAssistant } from '@/components/immersive/SmartCreationAssistant';
 import { useToast } from '@/hooks/use-toast';
+import { useUnifiedMedicalMusicGeneration } from '@/hooks/useUnifiedMedicalMusicGeneration';
+import { UnifiedMedicalMusicPlayer } from '@/components/UnifiedMedicalMusicPlayer';
 
 interface CreationStep {
   id: string;
@@ -60,6 +59,14 @@ interface MusicStyle {
 
 const Create = () => {
   const { toast } = useToast();
+  
+  const {
+    generateMedicalMusic,
+    generateBatchMusic,
+    activeGenerations,
+    generatedTracks,
+    isGenerating: unifiedIsGenerating
+  } = useUnifiedMedicalMusicGeneration();
   
   // États principaux
   const [activeStep, setActiveStep] = useState(0);
@@ -165,7 +172,7 @@ const Create = () => {
     { id: 'nephro', name: 'Néphrologie', items: 19, difficulty: 'Avancé' }
   ];
 
-  // Génération réelle avec API
+  // Génération réelle avec système unifié
   const handleGeneration = async () => {
     if (!selectedContent && !customPrompt) {
       toast({
@@ -185,88 +192,35 @@ const Create = () => {
       return;
     }
 
-    setIsGenerating(true);
-    setGenerationProgress(0);
-
     try {
-      // Étape 1: Génération des paroles
-      setGenerationProgress(20);
-      toast({
-        title: "Étape 1/3",
-        description: "Génération des paroles pédagogiques...",
-      });
-
       const selectedTopic = medicalTopics.find(t => t.id === selectedContent);
       const medicalContent = customPrompt || selectedTopic?.name || '';
-
-      const { supabase } = await import('@/integrations/supabase/client');
       
-      const lyricsResponse = await supabase.functions.invoke('content-ai-generator', {
-        body: {
-          type: 'lyrics',
-          medical_content: medicalContent,
-          style: selectedStyle,
-          difficulty: difficulty,
-          parameters: { duration }
+      // Préparation des paroles médicales
+      const lyrics = [medicalContent];
+      
+      // Génération avec le système unifié
+      await generateMedicalMusic({
+        itemCode: selectedContent || 'custom',
+        rang: 'A',
+        lyrics,
+        style: selectedStyle,
+        duration: parseInt(duration.split('-')[1]) * 60 || 180,
+        medicalContext: {
+          specialty: selectedTopic?.name || 'Général',
+          difficulty: difficulty as 'beginner' | 'intermediate' | 'advanced',
+          keywords: [medicalContent],
+          learningObjectives: []
         }
       });
 
-      if (lyricsResponse.error) {
-        throw new Error(lyricsResponse.error.message);
-      }
-
-      setGenerationProgress(60);
-      
-      // Étape 2: Génération musicale
       toast({
-        title: "Étape 2/3",
-        description: "Composition musicale IA en cours...",
+        title: "🎵 Génération lancée !",
+        description: "Votre musique médicale est en cours de création...",
       });
-
-      const musicResponse = await supabase.functions.invoke('music-generation-secure', {
-        body: {
-          lyrics: lyricsResponse.data.content,
-          style: selectedStyle,
-          title: `${medicalContent} - ${selectedStyle}`,
-          medical_topic: medicalContent,
-          difficulty: difficulty,
-          duration: parseInt(duration.split('-')[1]) * 60 || 180
-        }
-      });
-
-      if (musicResponse.error) {
-        throw new Error(musicResponse.error.message);
-      }
-
-      setGenerationProgress(90);
-
-      // Étape 3: Finalisation
-      toast({
-        title: "Étape 3/3",
-        description: "Finalisation et sauvegarde...",
-      });
-
-      // Simulation d'attente pour l'expérience utilisateur
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      setGenerationProgress(100);
-      
-      toast({
-        title: "🎵 Génération réussie !",
-        description: "Votre musique pédagogique est prête. Redirection vers le lecteur...",
-      });
-
-      setTimeout(() => {
-        setIsGenerating(false);
-        setGenerationProgress(0);
-        // Redirection vers le lecteur avec la nouvelle musique
-        window.location.href = `/med-mng/player/${musicResponse.data.track.id}`;
-      }, 1500);
 
     } catch (error) {
       console.error('Erreur génération:', error);
-      setIsGenerating(false);
-      setGenerationProgress(0);
       
       toast({
         title: "Erreur de génération",

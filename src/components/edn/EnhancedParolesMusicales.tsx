@@ -85,7 +85,7 @@ export const EnhancedParolesMusicales: React.FC<EnhancedParolesMusicalesProps> =
                 selectedVersion={selectedVersion}
                 onVersionChange={setSelectedVersion}
                 onGenerate={handleGenerate}
-                isGenerating={isGenerating.rangA || isGenerating.rangB}
+                isGenerating={isGenerating.rangA || isGenerating.rangB || isGenerating.rangAB}
                 generatedAudio={generatedAudio}
               />
             </div>

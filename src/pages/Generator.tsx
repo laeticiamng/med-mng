@@ -6,7 +6,7 @@ import { TranslatedText } from '@/components/TranslatedText';
 import { GeneratorMusicPlayer } from '@/components/GeneratorMusicPlayer';
 import { useFreeTrialLimit } from '@/hooks/useFreeTrialLimit';
 import { useSubscription } from '@/hooks/useSubscription';
-import { useMusicGenerationWithTranslation } from '@/hooks/useMusicGenerationWithTranslation';
+import { useUnifiedMedicalMusicGeneration } from '@/hooks/useUnifiedMedicalMusicGeneration';
 import { useEdnItemLyrics } from '@/hooks/useEdnItemLyrics';
 import { useAllEdnItems } from '@/hooks/useAllEdnItems';
 import { useAuth } from '@/components/med-mng/AuthProvider';
@@ -21,7 +21,7 @@ const Generator = () => {
   const { user } = useAuth();
   const { getRemainingGenerations, maxFreeGenerations } = useFreeTrialLimit();
   const { subscription, musicQuota, incrementMusicUsage, canGenerateMusic, canSaveMusic, getUsageDisplay } = useSubscription();
-  const musicGeneration = useMusicGenerationWithTranslation();
+  const musicGeneration = useUnifiedMedicalMusicGeneration();
   
   const [contentType, setContentType] = useState('');
   const [selectedItem, setSelectedItem] = useState('');
@@ -37,7 +37,7 @@ const Generator = () => {
   );
   
   const remainingFree = getRemainingGenerations();
-  const isGenerating = musicGeneration.isGenerating?.rangA || musicGeneration.isGenerating?.rangB;
+  const isGenerating = musicGeneration.isGenerating;
   const { items: allEdnItems, loading: itemsLoading, error: itemsError } = useAllEdnItems();
 
   const canGenerate = () => {
@@ -133,7 +133,13 @@ const Generator = () => {
         estimatedTimeRemaining: 90
       });
       
-      const audioUrl = await musicGeneration.generateMusicInLanguage(actualRang, lyricsToUse, selectedStyle, 240);
+      const taskId = await musicGeneration.generateMedicalMusic({
+        itemCode: contentType === 'edn' ? selectedItem : selectedSituation,
+        rang: actualRang,
+        lyrics: lyricsToUse,
+        style: selectedStyle,
+        duration: 240
+      });
       
       if (user) {
         const success = await incrementMusicUsage();
@@ -142,10 +148,13 @@ const Generator = () => {
         }
       }
       
+      // Attendre que la génération soit terminée pour obtenir l'URL audio
+      // Pour l'instant, on stocke juste le taskId
       const song = {
         id: Date.now(),
         title: `${titlePrefix} - ${selectedStyle}`,
-        audioUrl: audioUrl,
+        audioUrl: '', // Sera rempli quand la génération sera terminée
+        taskId: taskId,
         style: selectedStyle,
         rang: rang,
         duration: 240,

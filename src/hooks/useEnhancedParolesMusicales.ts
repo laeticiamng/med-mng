@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { useMusicGenerationWithTranslation } from '@/hooks/useMusicGenerationWithTranslation';
+import { useUnifiedMedicalMusicGeneration } from '@/hooks/useUnifiedMedicalMusicGeneration';
 import { useGlobalAudio } from '@/contexts/GlobalAudioContext';
 import { useSunoCallbackListener } from '@/hooks/useSunoCallbackListener';
 
@@ -14,13 +14,33 @@ export const useEnhancedParolesMusicales = (
   const { toast } = useToast();
 
   const {
-    isGenerating,
-    generatedAudio,
-    generationProgress,
-    lastError,
-    generateMusicInLanguage,
-    currentLanguage
-  } = useMusicGenerationWithTranslation();
+    generateMedicalMusic,
+    activeGenerations,
+    generatedTracks,
+    isGenerating: unifiedIsGenerating
+  } = useUnifiedMedicalMusicGeneration();
+
+  // Adapter l'interface pour compatibilité
+  const isGenerating = {
+    rangA: activeGenerations.some(gen => gen.taskId.includes('rang-a')),
+    rangB: activeGenerations.some(gen => gen.taskId.includes('rang-b')),
+    rangAB: activeGenerations.some(gen => gen.taskId.includes('rang-ab'))
+  };
+
+  const generatedAudio = generatedTracks.reduce((acc, track) => {
+    if (track.taskId.includes('rang-a')) {
+      acc.rangA = track.streamUrl;
+    } else if (track.taskId.includes('rang-b')) {
+      acc.rangB = track.streamUrl;
+    } else if (track.taskId.includes('rang-ab')) {
+      acc.rangAB = track.streamUrl;
+    }
+    return acc;
+  }, {} as any);
+
+  const generationProgress = activeGenerations[0] || null;
+  const lastError = '';
+  const currentLanguage = 'fr';
 
   const {
     currentTrack,
@@ -94,16 +114,18 @@ Pour une expertise qui se rassemble`;
     }
 
     try {
-      console.log('🚀 APPEL generateMusicInLanguage...');
+      console.log('🚀 APPEL generateMedicalMusic...');
       const rang = version === 'AB' ? 'AB' : version; // Utiliser 'AB' pour la version combinée
-      const audioUrl = await generateMusicInLanguage(rang, [enhancedParoles[parolesIndex]], selectedStyle, musicDuration);
-      console.log(`✅ GÉNÉRATION TERMINÉE POUR VERSION ${version}, URL:`, audioUrl);
+      const taskId = await generateMedicalMusic({
+        itemCode: `rang-${version.toLowerCase()}`,
+        rang,
+        lyrics: [enhancedParoles[parolesIndex]],
+        style: selectedStyle,
+        duration: musicDuration
+      });
+      console.log(`✅ GÉNÉRATION LANCÉE POUR VERSION ${version}, TaskID:`, taskId);
       
-      // L'audio est automatiquement stocké par generateMusicInLanguage
-      if (version === 'AB') {
-        console.log('🎵 Audio AB généré:', audioUrl);
-        // Le stockage est géré automatiquement par le hook de génération
-      }
+      // L'audio sera automatiquement disponible via generatedTracks une fois terminé
       
     } catch (error) {
       console.error(`❌ ERREUR GÉNÉRATION VERSION ${version}:`, error);
