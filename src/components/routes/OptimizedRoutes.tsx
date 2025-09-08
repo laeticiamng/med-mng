@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { usePremiumStore } from '@/stores/premiumStoreFixed';
+import { useFinalStore as usePremiumStore } from '@/stores/finalStore';
 
 // Lazy loading optimisé pour tous les composants
 const HomePage = React.lazy(() => import('@/pages/Index'));
