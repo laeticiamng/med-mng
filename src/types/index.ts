@@ -1,100 +1,177 @@
-/**
- * Centralized type definitions to eliminate 'any' types
- */
+// ==========================================
+// MED-MNG TYPES BARREL - Export centralisé
+// ==========================================
 
-export interface EDNItem {
+// Music Types
+export type {
+  MusicTrack,
+  MusicMetadata,
+  GenerationRequest,
+  GenerationStatus,
+  GenerationStage,
+  UserMusicPreferences,
+  EqualizerSettings,
+  Playlist,
+  PlaybackSession,
+  DeviceInfo,
+  AudioCapabilities,
+  MusicAnalytics,
+  StyleStats,
+  EngagementStats,
+  PerformanceStats,
+  RealtimeUpdate,
+  SupabaseMusicTrack
+} from './music';
+
+// EDN Types
+export type {
+  EDNItem,
+  ProcessingData,
+  ColonneConfig,
+  TableauResult
+} from './edn';
+export type {
+  MedicalItem,
+  MedicalItemMetadata,
+  UsageStats,
+  MedicalCategory,
+  MedicalSpecialty,
+  Competency,
+  CompetencyLevel,
+  CompetencyDomain,
+  EcosScenario,
+  EcosType,
+  PatientInfo,
+  VitalSigns,
+  EcosStation,
+  AssessmentPoint,
+  AssessmentCriteria,
+  LearningProgress,
+  PerformanceMetrics,
+  MedicalUserProfile,
+  LearningPreferences,
+  PerformanceSummary,
+  Achievement
+} from './medical';
+
+// Hooks Types
+export interface MusicGenerationProgress {
+  rang: 'A' | 'B' | 'AB';
+  status: 'pending' | 'processing' | 'completed' | 'failed' | 'timeout';
+  progress: number;
+  stage: 'initializing' | 'generating_lyrics' | 'creating_music' | 'processing_audio' | 'finalizing' | 'uploading';
+  currentTask?: string;
+  estimatedTimeRemaining?: number;
+}
+
+export interface GlobalAudioState {
+  currentTrack: MusicTrack | null;
+  isPlaying: boolean;
+  currentTime: number;
+  duration: number;
+  volume: number;
+  playbackRate: number;
+  isLoading: boolean;
+  error: string | null;
+  queue: MusicTrack[];
+  currentIndex: number;
+  repeatMode: 'none' | 'track' | 'queue';
+  shuffleMode: boolean;
+}
+
+export interface UserSubscription {
   id: string;
-  item_code: string;
+  user_id: string;
+  plan_type: 'free' | 'premium' | 'professional' | 'institution';
+  status: 'active' | 'canceled' | 'expired' | 'trial';
+  current_period_start: string;
+  current_period_end: string;
+  credits_remaining: number;
+  credits_total: number;
+  features_enabled: SubscriptionFeature[];
+  auto_renew: boolean;
+}
+
+export interface SubscriptionFeature {
+  feature_name: string;
+  enabled: boolean;
+  usage_limit?: number;
+  usage_count: number;
+}
+
+// UI/UX Types
+export interface ToastNotification {
+  id: string;
+  type: 'success' | 'error' | 'warning' | 'info';
   title: string;
-  theme?: string;
-  slug?: string;
-  content?: string;
-  created_at?: string;
-  updated_at?: string;
-  tableau_rang_a?: TableauData;
-  tableau_rang_b?: TableauData;
-}
-
-// Type pour les données temporaires de traitement
-export interface ProcessingData {
-  theme?: string;
-  title?: string;
-  subtitle?: string;
-  colonnes?: string[];
-  lignes?: string[][];
-  sections?: any[];
-  competences_oic?: any[];
-  id?: string;
-  item_code?: string;
-  rang?: string;
-  tableau_rang_a?: TableauData;
-  tableau_rang_b?: TableauData;
-}
-
-export interface TableauData {
-  sections?: TableauSection[];
-  metadata?: Record<string, unknown>;
-}
-
-export interface TableauSection {
-  title?: string;
-  concepts?: TableauConcept[];
-}
-
-export interface TableauConcept {
-  concept: string;
-  definition: string;
-  exemple: string;
-  piege: string;
-  mnemo: string;
-  subtilite: string;
-  application: string;
-  vigilance: string;
-}
-
-export interface ColonneConfig {
-  nom: string;
   description?: string;
-  couleur?: string;
-  couleurCellule?: string;
-  couleurTexte?: string;
+  duration?: number;
+  action?: {
+    label: string;
+    onClick: () => void;
+  };
 }
 
-export interface TableauResult {
-  lignesEnrichies: string[][];
-  colonnesUtiles: ColonneConfig[];
-  theme: string;
-  isRangB?: boolean;
-  isComplete?: boolean;
-  expertiseLevel?: 'basic' | 'intermediate' | 'advanced';
+export interface AccessibilitySettings {
+  high_contrast: boolean;
+  reduced_motion: boolean;
+  font_size: 'small' | 'normal' | 'large' | 'extra-large';
+  focus_indicators: boolean;
+  screen_reader_optimized: boolean;
+  keyboard_navigation_enhanced: boolean;
 }
 
-export interface AuditResult {
-  item_code: string;
-  status: 'valid' | 'invalid' | 'error';
-  issues: string[];
-  score: number;
-}
-
-export interface AuditReport {
+// API Response Types
+export interface ApiResponse<T = any> {
+  success: boolean;
+  data?: T;
+  error?: string;
+  message?: string;
   timestamp: string;
-  totalItems: number;
-  validItems: number;
-  invalidItems: number;
-  errorItems: number;
-  results: AuditResult[];
+  request_id: string;
 }
 
-export interface PerformanceMetrics {
-  loadTime: number;
-  renderTime: number;
-  memoryUsage: number;
-  bundleSize: number;
+export interface PaginatedResponse<T> extends ApiResponse<T[]> {
+  pagination: {
+    page: number;
+    per_page: number;
+    total_count: number;
+    total_pages: number;
+    has_next: boolean;
+    has_previous: boolean;
+  };
 }
 
-export interface OptimizationConfig {
-  enableVirtualization: boolean;
-  enableLazyLoading: boolean;
-  enablePreloading: boolean;
-  maxConcurrentRequests: number;
+// Error Types
+export interface AppError {
+  code: string;
+  message: string;
+  details?: Record<string, any>;
+  timestamp: string;
+  user_id?: string;
+  session_id?: string;
+  stack_trace?: string;
+}
+
+// Search and Filter Types
+export interface SearchFilters {
+  query?: string;
+  category?: MedicalCategory;
+  specialty?: MedicalSpecialty;
+  difficulty_level?: string[];
+  tags?: string[];
+  date_range?: {
+    start: string;
+    end: string;
+  };
+  sort_by?: 'relevance' | 'date' | 'popularity' | 'difficulty';
+  sort_order?: 'asc' | 'desc';
+}
+
+export interface SearchResult<T> {
+  items: T[];
+  total_count: number;
+  search_time_ms: number;
+  suggestions?: string[];
+  filters_applied: SearchFilters;
 }
