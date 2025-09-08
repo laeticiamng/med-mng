@@ -1,0 +1,346 @@
+/**
+ * 🎨 ACCESSIBILITY STYLES - MED-MNG v3.0
+ * Styles CSS pour l'accessibilité et conformité WCAG 2.1 AA
+ */
+
+/* ==========================================
+   UTILITAIRES SCREEN READER
+   ========================================== */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.sr-only-focusable:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: inherit;
+  margin: inherit;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
+
+/* ==========================================
+   NAVIGATION CLAVIER
+   ========================================== */
+
+.keyboard-navigation *:focus {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+.keyboard-navigation button:focus,
+.keyboard-navigation input:focus,
+.keyboard-navigation select:focus,
+.keyboard-navigation textarea:focus {
+  box-shadow: 0 0 0 2px hsl(var(--background)), 
+              0 0 0 4px hsl(var(--ring));
+}
+
+/* ==========================================
+   TAILLES DE POLICE
+   ========================================== */
+
+[data-font-size="small"] {
+  font-size: 14px;
+}
+
+[data-font-size="medium"] {
+  font-size: 16px;
+}
+
+[data-font-size="large"] {
+  font-size: 18px;
+}
+
+[data-font-size="extra-large"] {
+  font-size: 20px;
+}
+
+/* ==========================================
+   CONTRASTE ÉLEVÉ
+   ========================================== */
+
+.high-contrast {
+  --background: 0 0% 0%;
+  --foreground: 0 0% 100%;
+  --card: 0 0% 10%;
+  --card-foreground: 0 0% 100%;
+  --popover: 0 0% 5%;
+  --popover-foreground: 0 0% 100%;
+  --primary: 0 0% 100%;
+  --primary-foreground: 0 0% 0%;
+  --secondary: 0 0% 20%;
+  --secondary-foreground: 0 0% 100%;
+  --muted: 0 0% 15%;
+  --muted-foreground: 0 0% 85%;
+  --accent: 0 0% 25%;
+  --accent-foreground: 0 0% 100%;
+  --destructive: 0 84% 60%;
+  --destructive-foreground: 0 0% 100%;
+  --border: 0 0% 30%;
+  --input: 0 0% 20%;
+  --ring: 0 0% 100%;
+}
+
+.high-contrast * {
+  border-color: currentColor !important;
+}
+
+.high-contrast img {
+  filter: contrast(1.2) brightness(1.1);
+}
+
+/* ==========================================
+   MOUVEMENT RÉDUIT
+   ========================================== */
+
+.reduced-motion *,
+.reduced-motion *::before,
+.reduced-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* ==========================================
+   FILTRES DALTONISME
+   ========================================== */
+
+.filter-protanopia {
+  filter: 
+    sepia(1) 
+    saturate(0.8) 
+    hue-rotate(-50deg) 
+    contrast(1.2);
+}
+
+.filter-deuteranopia {
+  filter: 
+    sepia(1) 
+    saturate(0.7) 
+    hue-rotate(60deg) 
+    contrast(1.1);
+}
+
+.filter-tritanopia {
+  filter: 
+    sepia(1) 
+    saturate(0.9) 
+    hue-rotate(200deg) 
+    contrast(1.15);
+}
+
+/* ==========================================
+   INDICATEURS DE FOCUS AMÉLIORÉS
+   ========================================== */
+
+[data-focus-indicators="enhanced"] *:focus {
+  outline: 3px solid hsl(var(--ring));
+  outline-offset: 3px;
+  box-shadow: 0 0 0 1px hsl(var(--background)), 
+              0 0 0 4px hsl(var(--ring));
+}
+
+[data-focus-indicators="high-visibility"] *:focus {
+  outline: 4px solid hsl(var(--ring));
+  outline-offset: 4px;
+  box-shadow: 0 0 0 2px hsl(var(--background)), 
+              0 0 0 8px hsl(var(--ring)),
+              0 0 20px hsl(var(--ring) / 0.3);
+  background: hsl(var(--ring) / 0.1) !important;
+}
+
+/* ==========================================
+   CIBLES TACTILES
+   ========================================== */
+
+.touch-target {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ==========================================
+   LIENS ACCESSIBLES
+   ========================================== */
+
+a:focus {
+  text-decoration: underline;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 2px;
+}
+
+/* ==========================================
+   TABLEAUX ACCESSIBLES
+   ========================================== */
+
+table {
+  border-collapse: collapse;
+}
+
+th {
+  text-align: left;
+  font-weight: 600;
+  background: hsl(var(--muted));
+}
+
+th, td {
+  padding: 0.75rem;
+  border: 1px solid hsl(var(--border));
+}
+
+tr:nth-child(even) {
+  background: hsl(var(--muted) / 0.3);
+}
+
+/* ==========================================
+   FORMULAIRES ACCESSIBLES
+   ========================================== */
+
+label {
+  display: block;
+  margin-bottom: 0.25rem;
+  font-weight: 500;
+}
+
+input:invalid,
+select:invalid,
+textarea:invalid {
+  border-color: hsl(var(--destructive));
+  box-shadow: 0 0 0 1px hsl(var(--destructive));
+}
+
+.error-message {
+  color: hsl(var(--destructive));
+  font-size: 0.875rem;
+  margin-top: 0.25rem;
+}
+
+/* ==========================================
+   MESSAGES D'ÉTAT
+   ========================================== */
+
+[role="status"],
+[role="alert"] {
+  padding: 1rem;
+  margin: 1rem 0;
+  border-radius: var(--radius);
+  border-left: 4px solid currentColor;
+}
+
+[role="status"] {
+  background: hsl(var(--muted));
+  color: hsl(var(--muted-foreground));
+  border-color: hsl(var(--primary));
+}
+
+[role="alert"] {
+  background: hsl(var(--destructive) / 0.1);
+  color: hsl(var(--destructive));
+  border-color: hsl(var(--destructive));
+}
+
+/* ==========================================
+   RESPONSIVE DESIGN
+   ========================================== */
+
+@media (max-width: 640px) {
+  .touch-target {
+    min-width: 48px;
+    min-height: 48px;
+  }
+  
+  [data-font-size="small"] {
+    font-size: 16px; /* Minimum 16px sur mobile */
+  }
+}
+
+/* ==========================================
+   PRINT STYLES
+   ========================================== */
+
+@media print {
+  .no-print,
+  .skip-links,
+  .accessibility-toolbar {
+    display: none !important;
+  }
+  
+  * {
+    color: black !important;
+    background: white !important;
+  }
+  
+  a::after {
+    content: " (" attr(href) ")";
+    font-size: 0.8em;
+  }
+}
+
+/* ==========================================
+   ANIMATIONS RESPECTUEUSES
+   ========================================== */
+
+@media (prefers-reduced-motion: no-preference) {
+  .smooth-animation {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .focus-animation:focus {
+    transform: scale(1.02);
+    transition: transform 0.15s ease-out;
+  }
+}
+
+/* ==========================================
+   DARK MODE OVERRIDES
+   ========================================== */
+
+@media (prefers-color-scheme: dark) {
+  :root:not(.high-contrast) {
+    color-scheme: dark;
+  }
+}
+
+/* ==========================================
+   UTILITAIRES COMPLÉMENTAIRES
+   ========================================== */
+
+.skip-to-content:focus {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  padding: 1rem;
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  text-align: center;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.landmark-navigation {
+  outline: 2px dashed hsl(var(--muted-foreground));
+  outline-offset: 4px;
+}
+
+.keyboard-navigation .landmark-navigation:focus-within {
+  outline-color: hsl(var(--ring));
+  outline-style: solid;
+}
