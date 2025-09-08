@@ -64,7 +64,7 @@ export const MedicalMusicLibrary: React.FC = () => {
 
       if (error) throw error;
       
-      setGenerations((data || []) as MusicGeneration[]);
+      setGenerations((data || []) as any[]);
     } catch (error) {
       console.error('Load generations error:', error);
       toast({
