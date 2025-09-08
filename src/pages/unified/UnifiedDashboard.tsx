@@ -1,9 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
 import { ConsistentBackground } from '@/components/layout/ConsistentBackground';
+import { useOptimizedAccessibility } from '@/hooks/useOptimizedAccessibility';
+import { useEnhancedPerformance } from '@/hooks/useEnhancedPerformance';
+import { logger } from '@/utils/structuredLogger';
 import { 
   Activity,
   BarChart3, 
@@ -16,19 +21,34 @@ import {
   Clock,
   Award,
   Brain,
-  HeartHandshake
+  HeartHandshake,
+  AlertTriangle,
+  CheckCircle,
+  RefreshCw
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const UnifiedDashboard: React.FC = () => {
+  const { announceToScreenReader, isScreenReader } = useOptimizedAccessibility();
+  const { 
+    startRenderMeasurement, 
+    endRenderMeasurement,
+    getPerformanceScore,
+    isPerformant 
+  } = useEnhancedPerformance('UnifiedDashboard');
+
   const [stats, setStats] = useState({
     totalUsers: 12847,
     activeToday: 3421,
     musicGenerated: 8765,
     edmItems: 367,
     successRate: 94.2,
-    learningHours: 15320
+    learningHours: 15320,
+    weeklyGrowth: 12.5,
+    platformHealth: 98.7
   });
+
+  const [isLoading, setIsLoading] = useState(true);
 
   const [recentActivity, setRecentActivity] = useState([
     {
@@ -91,12 +111,75 @@ const UnifiedDashboard: React.FC = () => {
     }
   ];
 
-  const performanceMetrics = [
-    { label: 'Utilisateurs actifs', value: stats.activeToday, icon: Users, trend: '+12%' },
-    { label: 'Musiques générées', value: stats.musicGenerated, icon: Music, trend: '+8%' },
-    { label: 'Taux de réussite', value: `${stats.successRate}%`, icon: Target, trend: '+2.1%' },
-    { label: 'Heures d\'apprentissage', value: stats.learningHours, icon: Clock, trend: '+15%' }
-  ];
+  const performanceMetrics = useMemo(() => [
+    { 
+      label: 'Utilisateurs actifs', 
+      value: stats.activeToday, 
+      icon: Users, 
+      trend: '+12%',
+      color: 'text-blue-500',
+      bgColor: 'bg-blue-500/10'
+    },
+    { 
+      label: 'Musiques générées', 
+      value: stats.musicGenerated, 
+      icon: Music, 
+      trend: '+8%',
+      color: 'text-purple-500',
+      bgColor: 'bg-purple-500/10'
+    },
+    { 
+      label: 'Taux de réussite', 
+      value: `${stats.successRate}%`, 
+      icon: Target, 
+      trend: '+2.1%',
+      color: 'text-green-500',
+      bgColor: 'bg-green-500/10'
+    },
+    { 
+      label: 'Heures d\'apprentissage', 
+      value: stats.learningHours, 
+      icon: Clock, 
+      trend: '+15%',
+      color: 'text-orange-500',
+      bgColor: 'bg-orange-500/10'
+    }
+  ], [stats]);
+
+  // Effect de performance et accessibilité
+  useEffect(() => {
+    startRenderMeasurement();
+    
+    const loadData = async () => {
+      try {
+        logger.info('Chargement du dashboard unifié', { component: 'UnifiedDashboard' });
+        
+        // Simulation du chargement des données
+        await new Promise(resolve => setTimeout(resolve, 800));
+        
+        setIsLoading(false);
+        
+        if (isScreenReader) {
+          announceToScreenReader(
+            'Dashboard unifié chargé. Vous pouvez naviguer entre les différentes sections avec Tab.',
+            'polite'
+          );
+        }
+        
+        logger.info('Dashboard unifié chargé avec succès', { 
+          component: 'UnifiedDashboard',
+          metadata: { performanceScore: getPerformanceScore() }
+        });
+        
+      } catch (error) {
+        logger.error('Erreur lors du chargement du dashboard', 
+          { component: 'UnifiedDashboard' }, error as Error);
+      }
+    };
+
+    loadData();
+    endRenderMeasurement();
+  }, [startRenderMeasurement, endRenderMeasurement, isScreenReader, announceToScreenReader, getPerformanceScore]);
 
   return (
     <ConsistentBackground>
