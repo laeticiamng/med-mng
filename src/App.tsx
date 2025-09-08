@@ -7,13 +7,16 @@ import React, { StrictMode, memo, useEffect } from 'react';
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 
+// Console replacer - DOIT être importé en premier
+import '@/utils/consoleReplacer';
+
 // Composants refactorisés
 import AppProviders from '@/components/app/AppProviders';
 import AppRoutes from '@/components/app/AppRoutes';
 
-// Utilitaires
+// Utilitaires optimisés
 import { logger } from '@/lib/logger';
-import { usePerformanceMonitor } from '@/hooks/useOptimizedState';
+import { useRenderMonitor } from '@/hooks/usePerformanceOptimizer';
 
 // ==========================================
 // COMPONENT KEYBOARD SHORTCUTS
@@ -31,14 +34,12 @@ AppKeyboardShortcuts.displayName = 'AppKeyboardShortcuts';
 // ==========================================
 
 const AppWithUX = memo(() => {
-  const { logRender } = usePerformanceMonitor('App');
+  const { logPerformance } = useRenderMonitor('App');
 
   useEffect(() => {
-    logger.info('app', 'MED-MNG Application initialized');
-  }, []);
-
-  // Log chaque render pour le monitoring
-  logRender();
+    logger.info('app', '🚀 MED-MNG Application v3.0 initialized with performance optimizations');
+    logPerformance('App startup completed');
+  }, [logPerformance]);
 
   return (
     <AppProviders>

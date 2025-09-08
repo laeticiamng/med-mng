@@ -10,7 +10,7 @@ import {
 } from 'lucide-react';
 import { contentQualityAnalyzer } from '@/services/contentQualityAnalyzer';
 import { useToast } from '@/hooks/use-toast';
-import { logger } from '@/services/logger';
+import { logger } from '@/lib/logger';
 
 interface ContentQualityScore {
   itemCode: string;
@@ -45,7 +45,7 @@ export const ContentQualityDashboard = () => {
         description: `${results.analyzed} items analysés. Score moyen: ${Math.round(results.averageQuality)}%`
       });
       
-      logger.info('Analyse de qualité du contenu terminée', {
+      logger.info('ui', 'Analyse de qualité du contenu terminée', {
         component: 'ContentQualityDashboard',
         action: 'runQualityAnalysis',
         metadata: {

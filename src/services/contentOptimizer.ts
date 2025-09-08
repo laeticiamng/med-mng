@@ -1,7 +1,7 @@
 // Service d'optimisation automatique du contenu pour améliorer l'expérience utilisateur
 
 import { supabase } from '@/integrations/supabase/client';
-import { logger } from './logger';
+import { logger } from '@/lib/logger';
 import { contentQualityAnalyzer } from './contentQualityAnalyzer';
 
 interface OptimizationResult {

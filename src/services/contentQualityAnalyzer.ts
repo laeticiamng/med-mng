@@ -1,7 +1,7 @@
 // Service d'analyse de qualité du contenu pour optimiser l'expérience utilisateur
 
 import { supabase } from '@/integrations/supabase/client';
-import { logger } from './logger';
+import { logger } from '@/lib/logger';
 
 interface ContentQualityScore {
   itemCode: string;

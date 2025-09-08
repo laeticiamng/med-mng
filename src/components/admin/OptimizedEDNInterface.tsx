@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { useOptimizedEdnItems } from '@/hooks/useOptimizedEdnItems';
 import { useToast } from '@/hooks/use-toast';
-import { logger } from '@/services/logger';
+import { logger } from '@/lib/logger';
 
 export const OptimizedEDNInterface = () => {
   const {

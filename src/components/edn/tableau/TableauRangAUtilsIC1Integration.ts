@@ -1,10 +1,10 @@
 
 import { determinerColonnesUtilesIC1, generateLignesRangAIC1 } from './TableauRangAUtilsIC1';
 import { logger } from '@/lib/logger';
-import type { EDNItem, ProcessingData, TableauResult } from '@/types';
+import type { EdnItem, ProcessingData, TableauResult } from '@/types';
 
 // Fonction principale pour traiter les données IC-1 selon E-LiSA officielle
-export function processTableauRangAIC1(data: ProcessingData | EDNItem): TableauResult {
+export function processTableauRangAIC1(data: ProcessingData | EdnItem): TableauResult {
   logger.info('ui', 'Processing IC-1 selon fiche E-LiSA officielle', { 
     component: 'TableauRangAUtilsIC1Integration',
     itemCode: data.item_code || 'unknown'
@@ -34,7 +34,7 @@ export function processTableauRangAIC1(data: ProcessingData | EDNItem): TableauR
 }
 
 // Fonction pour vérifier si c'est l'item IC-1
-export function isIC1Item(data: ProcessingData | EDNItem): boolean {
+export function isIC1Item(data: ProcessingData | EdnItem): boolean {
   if (!data) return false;
   
   const theme = data.theme?.toLowerCase() || '';

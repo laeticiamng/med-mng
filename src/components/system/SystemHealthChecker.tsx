@@ -11,7 +11,7 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
-import { logger } from '@/services/logger';
+import { logger } from '@/lib/logger';
 
 interface HealthCheck {
   name: string;
