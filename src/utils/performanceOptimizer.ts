@@ -1,6 +1,53 @@
 /**
- * Utilitaires d'optimisation des performances
+ * ⚡ PERFORMANCE OPTIMIZER - MED-MNG v3.0 ENHANCED
+ * Système complet d'optimisation des performances
  */
+
+import { logger } from '@/lib/logger';
+
+// ==========================================
+// MONITORING DES PERFORMANCES
+// ==========================================
+
+class PerformanceMonitor {
+  private metrics = new Map<string, number[]>();
+
+  recordMetric(name: string, value: number): void {
+    if (!this.metrics.has(name)) {
+      this.metrics.set(name, []);
+    }
+    const values = this.metrics.get(name)!;
+    values.push(value);
+    
+    // Garder seulement les 100 dernières mesures
+    if (values.length > 100) {
+      values.shift();
+    }
+  }
+
+  getMetrics(): Record<string, { avg: number; min: number; max: number; count: number }> {
+    const result: Record<string, any> = {};
+    
+    for (const [name, values] of this.metrics.entries()) {
+      if (values.length > 0) {
+        result[name] = {
+          avg: Math.round(values.reduce((a, b) => a + b, 0) / values.length),
+          min: Math.round(Math.min(...values)),
+          max: Math.round(Math.max(...values)),
+          count: values.length
+        };
+      }
+    }
+    
+    return result;
+  }
+}
+
+export const performanceMonitor = new PerformanceMonitor();
+
+// ==========================================
+// UTILITAIRES DE BASE
+// ==========================================
 
 // Debounce pour éviter les appels trop fréquents
 export const debounce = <T extends (...args: any[]) => any>(
