@@ -1,306 +1,409 @@
 import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Helmet } from 'react-helmet-async';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { ConsistentBackground } from '@/components/layout/ConsistentBackground';
-import { Search, Book, Code, Zap, Users, Settings, ChevronRight, ExternalLink } from 'lucide-react';
+import { 
+  Book, 
+  Search, 
+  Music, 
+  Settings, 
+  Users, 
+  Zap,
+  ExternalLink,
+  PlayCircle,
+  Download,
+  Code,
+  Lightbulb,
+  Stethoscope
+} from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const Documentation: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
 
-  const sections = [
+  const documentationSections = [
     {
       id: 'getting-started',
-      title: 'Démarrage rapide',
+      title: 'Commencer',
+      description: 'Guides pour débuter avec MED-MNG',
       icon: Zap,
-      items: [
+      color: 'from-blue-500 to-cyan-500',
+      articles: [
         {
           title: 'Installation et configuration',
-          description: 'Guide pour configurer votre environnement',
-          content: 'Instructions détaillées pour installer et configurer la plateforme...'
+          description: 'Comment configurer MED-MNG pour la première fois',
+          duration: '5 min',
+          level: 'Débutant'
         },
         {
-          title: 'Premier pas',
-          description: 'Créez votre premier projet',
-          content: 'Tutoriel étape par étape pour créer votre premier projet...'
+          title: 'Votre première génération musicale',
+          description: 'Guide étape par étape pour créer votre première musique',
+          duration: '10 min',
+          level: 'Débutant'
         },
         {
           title: 'Interface utilisateur',
-          description: 'Navigation dans la plateforme',
-          content: 'Guide complet de navigation et d\'utilisation de l\'interface...'
+          description: 'Tour d\'horizon des fonctionnalités principales',
+          duration: '8 min',
+          level: 'Débutant'
         }
       ]
     },
     {
-      id: 'features',
-      title: 'Fonctionnalités',
-      icon: Book,
-      items: [
+      id: 'music-generation',
+      title: 'Génération musicale',
+      description: 'Tout sur la création de musique IA',
+      icon: Music,
+      color: 'from-purple-500 to-pink-500',
+      articles: [
         {
-          title: 'EDN - Examens Dématérialisés',
-          description: 'Système d\'examens numériques avancé',
-          content: 'Le module EDN permet de créer et gérer des examens dématérialisés...'
+          title: 'Paramètres de génération',
+          description: 'Comment optimiser vos paramètres pour de meilleurs résultats',
+          duration: '12 min',
+          level: 'Intermédiaire'
         },
         {
-          title: 'MED-MNG - Gestion Médicale',
-          description: 'Plateforme de gestion médicale complète',
-          content: 'MED-MNG offre une suite complète d\'outils de gestion médicale...'
+          title: 'Styles musicaux disponibles',
+          description: 'Découvrez tous les styles musicaux et leurs usages',
+          duration: '15 min',
+          level: 'Débutant'
         },
         {
-          title: 'Analytics & Monitoring',
-          description: 'Suivi et analyse des performances',
-          content: 'Outils d\'analyse et de monitoring pour optimiser vos processus...'
-        },
-        {
-          title: 'Export & Import',
-          description: 'Gestion des données',
-          content: 'Fonctionnalités avancées d\'import et export de données...'
+          title: 'Génération avancée',
+          description: 'Techniques avancées pour des créations personnalisées',
+          duration: '20 min',
+          level: 'Avancé'
         }
       ]
     },
     {
-      id: 'api',
-      title: 'API & Intégrations',
+      id: 'medical-content',
+      title: 'Contenu médical',
+      description: 'Integration du contenu éducatif médical',
+      icon: Stethoscope,
+      color: 'from-green-500 to-emerald-500',
+      articles: [
+        {
+          title: 'Référentiels médicaux',
+          description: 'Sources et validation du contenu médical',
+          duration: '8 min',
+          level: 'Débutant'
+        },
+        {
+          title: 'Personnalisation par spécialité',
+          description: 'Adapter le contenu à votre spécialité',
+          duration: '12 min',
+          level: 'Intermédiaire'
+        },
+        {
+          title: 'Création de contenu personnalisé',
+          description: 'Ajouter vos propres contenus d\'apprentissage',
+          duration: '18 min',
+          level: 'Avancé'
+        }
+      ]
+    },
+    {
+      id: 'api-integration',
+      title: 'API et intégrations',
+      description: 'Intégrer MED-MNG dans vos applications',
       icon: Code,
-      items: [
+      color: 'from-orange-500 to-red-500',
+      articles: [
         {
-          title: 'API REST',
-          description: 'Documentation de l\'API REST',
-          content: 'Guide complet de l\'API REST avec exemples de code...'
+          title: 'API Reference',
+          description: 'Documentation complète de l\'API REST',
+          duration: '25 min',
+          level: 'Avancé'
         },
         {
           title: 'Webhooks',
-          description: 'Configuration des webhooks',
-          content: 'Comment configurer et utiliser les webhooks...'
+          description: 'Recevoir des notifications en temps réel',
+          duration: '15 min',
+          level: 'Avancé'
         },
         {
-          title: 'Intégrations tierces',
-          description: 'Connecter des services externes',
-          content: 'Guide d\'intégration avec des services tiers populaires...'
-        }
-      ]
-    },
-    {
-      id: 'administration',
-      title: 'Administration',
-      icon: Settings,
-      items: [
-        {
-          title: 'Gestion des utilisateurs',
-          description: 'Administration des comptes utilisateurs',
-          content: 'Guide d\'administration des utilisateurs et des permissions...'
-        },
-        {
-          title: 'Configuration système',
-          description: 'Paramètres avancés de la plateforme',
-          content: 'Configuration avancée du système et des paramètres...'
-        },
-        {
-          title: 'Sécurité',
-          description: 'Bonnes pratiques de sécurité',
-          content: 'Guide des bonnes pratiques de sécurité...'
+          title: 'SDK et bibliothèques',
+          description: 'Outils de développement disponibles',
+          duration: '10 min',
+          level: 'Intermédiaire'
         }
       ]
     }
   ];
 
-  const filteredSections = searchQuery
-    ? sections.map(section => ({
-        ...section,
-        items: section.items.filter(item =>
-          item.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          item.description.toLowerCase().includes(searchQuery.toLowerCase())
-        )
-      })).filter(section => section.items.length > 0)
-    : sections;
-
-  const quickLinks = [
-    { title: 'API Reference', url: '/api-docs', icon: Code },
-    { title: 'Guide utilisateur', url: '/user-guide', icon: Users },
-    { title: 'FAQ', url: '/faq', icon: Book },
-    { title: 'Support', url: '/support', icon: Settings }
+  const tutorials = [
+    {
+      title: 'Créer une playlist d\'étude',
+      description: 'Organisez vos musiques par matière et objectif',
+      duration: '12 min',
+      thumbnail: '/api/placeholder/300/200',
+      category: 'Organisation'
+    },
+    {
+      title: 'Optimiser sa concentration',
+      description: 'Techniques et musiques pour améliorer votre focus',
+      duration: '18 min',
+      thumbnail: '/api/placeholder/300/200',
+      category: 'Productivité'
+    },
+    {
+      title: 'Intégration avec vos outils',
+      description: 'Connecter MED-MNG à vos applications préférées',
+      duration: '15 min',
+      thumbnail: '/api/placeholder/300/200',
+      category: 'Intégration'
+    }
   ];
 
+  const filteredSections = documentationSections.map(section => ({
+    ...section,
+    articles: section.articles.filter(article =>
+      searchQuery === '' ||
+      article.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      article.description.toLowerCase().includes(searchQuery.toLowerCase())
+    )
+  })).filter(section => section.articles.length > 0);
+
+  const getLevelColor = (level: string) => {
+    switch (level) {
+      case 'Débutant': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+      case 'Intermédiaire': return 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200';
+      case 'Avancé': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
+      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200';
+    }
+  };
+
   return (
-    <ConsistentBackground variant="secondary">
-      <div className="min-h-screen py-8">
-        <div className="container mx-auto px-4 max-w-6xl">
-          <div className="mb-8 text-center">
-            <h1 className="text-4xl font-bold text-white mb-4">Documentation</h1>
-            <p className="text-white/70 text-lg mb-6">
-              Guide complet pour utiliser la plateforme MED-MNG
-            </p>
-            
-            <div className="max-w-md mx-auto relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/50 h-4 w-4" />
-              <Input
-                placeholder="Rechercher dans la documentation..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-white/50"
-              />
-            </div>
+    <ConsistentBackground>
+      <Helmet>
+        <title>Documentation | MED-MNG</title>
+        <meta name="description" content="Documentation complète de MED-MNG, guides d'utilisation et tutoriels pour la génération de musique thérapeutique." />
+      </Helmet>
+
+      <div className="container mx-auto px-6 py-12 max-w-6xl">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-primary/20 to-accent/20 rounded-full mb-6">
+            <Book className="w-8 h-8 text-primary" />
           </div>
+          <h1 className="text-4xl font-bold text-foreground mb-4">
+            Documentation
+          </h1>
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            Guides complets, tutoriels et références pour maîtriser MED-MNG
+          </p>
+        </div>
 
-          <div className="grid lg:grid-cols-4 gap-8">
-            {/* Sidebar */}
-            <div className="lg:col-span-1">
-              <div className="sticky top-8 space-y-6">
-                <Card className="bg-white/10 backdrop-blur-sm border-white/20">
-                  <CardHeader>
-                    <CardTitle className="text-white text-sm">Liens rapides</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-2">
-                    {quickLinks.map((link, index) => (
-                      <Button
-                        key={index}
-                        variant="ghost"
-                        className="w-full justify-start text-white/80 hover:text-white hover:bg-white/10"
-                        asChild
-                      >
-                        <Link to={link.url} className="flex items-center gap-2">
-                          <link.icon className="h-4 w-4" />
-                          {link.title}
-                          <ExternalLink className="h-3 w-3 ml-auto" />
-                        </Link>
-                      </Button>
-                    ))}
-                  </CardContent>
-                </Card>
+        {/* Search */}
+        <div className="relative mb-8 max-w-md mx-auto">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-5 h-5" />
+          <Input
+            placeholder="Rechercher dans la documentation..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10 h-12"
+          />
+        </div>
 
-                <Card className="bg-white/10 backdrop-blur-sm border-white/20">
-                  <CardHeader>
-                    <CardTitle className="text-white text-sm">Navigation</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-1">
-                    {sections.map((section) => (
-                      <Button
-                        key={section.id}
-                        variant="ghost"
-                        className="w-full justify-start text-white/80 hover:text-white hover:bg-white/10"
-                        onClick={() => {
-                          const element = document.getElementById(section.id);
-                          element?.scrollIntoView({ behavior: 'smooth' });
-                        }}
-                      >
-                        <section.icon className="h-4 w-4 mr-2" />
-                        {section.title}
-                      </Button>
-                    ))}
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
+        <Tabs defaultValue="guides" className="space-y-8">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="guides">Guides</TabsTrigger>
+            <TabsTrigger value="tutorials">Tutoriels vidéo</TabsTrigger>
+            <TabsTrigger value="reference">Référence API</TabsTrigger>
+          </TabsList>
 
-            {/* Main Content */}
-            <div className="lg:col-span-3 space-y-8">
-              {searchQuery && (
-                <div className="mb-6">
-                  <Badge variant="secondary" className="bg-blue-500/20 text-blue-200">
-                    {filteredSections.reduce((acc, section) => acc + section.items.length, 0)} résultats trouvés
-                  </Badge>
-                </div>
-              )}
-
-              {filteredSections.map((section) => (
-                <div key={section.id} id={section.id}>
-                  <Card className="bg-white/5 backdrop-blur-sm border-white/10">
-                    <CardHeader>
-                      <CardTitle className="text-white flex items-center gap-3">
-                        <section.icon className="h-6 w-6" />
-                        {section.title}
-                      </CardTitle>
-                      <CardDescription className="text-white/70">
-                        {section.items.length} articles disponibles
-                      </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <Accordion type="single" collapsible className="space-y-2">
-                        {section.items.map((item, index) => (
-                          <AccordionItem
-                            key={index}
-                            value={`${section.id}-${index}`}
-                            className="border-white/10"
-                          >
-                            <AccordionTrigger className="text-white hover:text-white/80">
-                              <div className="flex items-center gap-3">
-                                <ChevronRight className="h-4 w-4" />
-                                <div className="text-left">
-                                  <div className="font-medium">{item.title}</div>
-                                  <div className="text-sm text-white/60">{item.description}</div>
-                                </div>
-                              </div>
-                            </AccordionTrigger>
-                            <AccordionContent className="text-white/80 pl-7">
-                              <div className="prose prose-invert max-w-none">
-                                <p>{item.content}</p>
-                                
-                                {/* Code example */}
-                                {section.id === 'api' && (
-                                  <div className="mt-4 p-4 bg-black/30 rounded-lg">
-                                    <pre className="text-sm text-green-400">
-                                      <code>
-{`// Exemple d'utilisation
-const response = await fetch('/api/endpoint', {
-  method: 'GET',
-  headers: {
-    'Authorization': 'Bearer your-token',
-    'Content-Type': 'application/json'
-  }
-});
-
-const data = await response.json();
-console.log(data);`}
-                                      </code>
-                                    </pre>
-                                  </div>
-                                )}
-
-                                <div className="mt-4 flex gap-2">
-                                  <Badge variant="outline" className="border-white/20 text-white/80">
-                                    Guide
-                                  </Badge>
-                                  <Badge variant="outline" className="border-green-400/20 text-green-400">
-                                    Mis à jour
-                                  </Badge>
-                                </div>
-                              </div>
-                            </AccordionContent>
-                          </AccordionItem>
-                        ))}
-                      </Accordion>
-                    </CardContent>
-                  </Card>
-                </div>
-              ))}
-
-              {filteredSections.length === 0 && searchQuery && (
-                <Card className="bg-white/10 backdrop-blur-sm border-white/20">
-                  <CardContent className="py-12 text-center">
-                    <Book className="h-12 w-12 text-white/50 mx-auto mb-4" />
-                    <h3 className="text-white text-lg font-medium mb-2">
-                      Aucun résultat trouvé
-                    </h3>
-                    <p className="text-white/60 mb-4">
-                      Essayez avec d'autres mots-clés ou parcourez les sections ci-dessus.
+          <TabsContent value="guides" className="space-y-8">
+            {/* Quick Start */}
+            <Card className="bg-gradient-to-r from-primary/5 to-accent/5">
+              <CardContent className="p-8">
+                <div className="flex items-center gap-4 mb-4">
+                  <div className="p-3 rounded-full bg-primary/20">
+                    <Lightbulb className="w-6 h-6 text-primary" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-bold text-foreground">
+                      Démarrage rapide
+                    </h2>
+                    <p className="text-muted-foreground">
+                      Commencez à utiliser MED-MNG en moins de 5 minutes
                     </p>
-                    <Button
-                      variant="outline"
-                      onClick={() => setSearchQuery('')}
-                      className="bg-white/5 border-white/20 text-white hover:bg-white/10"
-                    >
-                      Effacer la recherche
+                  </div>
+                </div>
+                <div className="flex gap-4">
+                  <Button asChild>
+                    <Link to="/med-mng/create">
+                      <PlayCircle className="w-4 h-4 mr-2" />
+                      Créer ma première musique
+                    </Link>
+                  </Button>
+                  <Button variant="outline" asChild>
+                    <Link to="/help">
+                      <Book className="w-4 h-4 mr-2" />
+                      Guide complet
+                    </Link>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Documentation Sections */}
+            <div className="grid lg:grid-cols-2 gap-8">
+              {filteredSections.map((section) => (
+                <Card key={section.id} className="h-full">
+                  <CardHeader>
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className={`p-2 rounded-lg bg-gradient-to-r ${section.color}`}>
+                        <section.icon className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <CardTitle className="text-xl">{section.title}</CardTitle>
+                        <p className="text-sm text-muted-foreground">
+                          {section.description}
+                        </p>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <div className="space-y-4">
+                      {section.articles.map((article, index) => (
+                        <div key={index} className="p-4 rounded-lg border hover:bg-muted/50 transition-colors cursor-pointer">
+                          <div className="flex items-start justify-between gap-4">
+                            <div className="flex-1">
+                              <h4 className="font-medium text-foreground mb-1">
+                                {article.title}
+                              </h4>
+                              <p className="text-sm text-muted-foreground mb-2">
+                                {article.description}
+                              </p>
+                              <div className="flex items-center gap-2">
+                                <Badge variant="outline" className="text-xs">
+                                  {article.duration}
+                                </Badge>
+                                <Badge className={`text-xs ${getLevelColor(article.level)}`}>
+                                  {article.level}
+                                </Badge>
+                              </div>
+                            </div>
+                            <ExternalLink className="w-4 h-4 text-muted-foreground" />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="tutorials" className="space-y-8">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {tutorials.map((tutorial, index) => (
+                <Card key={index} className="overflow-hidden hover:shadow-lg transition-shadow">
+                  <div className="aspect-video bg-muted flex items-center justify-center">
+                    <PlayCircle className="w-16 h-16 text-primary" />
+                  </div>
+                  <CardContent className="p-6">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Badge variant="secondary" className="text-xs">
+                        {tutorial.category}
+                      </Badge>
+                      <Badge variant="outline" className="text-xs">
+                        {tutorial.duration}
+                      </Badge>
+                    </div>
+                    <h3 className="font-semibold text-foreground mb-2">
+                      {tutorial.title}
+                    </h3>
+                    <p className="text-sm text-muted-foreground mb-4">
+                      {tutorial.description}
+                    </p>
+                    <Button size="sm" className="w-full">
+                      <PlayCircle className="w-4 h-4 mr-2" />
+                      Regarder
                     </Button>
                   </CardContent>
                 </Card>
-              )}
+              ))}
             </div>
-          </div>
-        </div>
+          </TabsContent>
+
+          <TabsContent value="reference" className="space-y-8">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-orange-500">
+                    <Code className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <CardTitle>API REST de MED-MNG</CardTitle>
+                    <p className="text-muted-foreground">
+                      Documentation technique complète pour les développeurs
+                    </p>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="grid md:grid-cols-2 gap-6">
+                  <div className="space-y-4">
+                    <h3 className="font-semibold text-foreground">Endpoints principaux</h3>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="font-mono">POST</Badge>
+                        <code className="text-muted-foreground">/api/music/generate</code>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="font-mono">GET</Badge>
+                        <code className="text-muted-foreground">/api/music/status/{id}</code>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="font-mono">GET</Badge>
+                        <code className="text-muted-foreground">/api/library/tracks</code>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <h3 className="font-semibold text-foreground">Ressources</h3>
+                    <div className="space-y-2">
+                      <Button variant="outline" size="sm" className="w-full justify-start">
+                        <Download className="w-4 h-4 mr-2" />
+                        Télécharger OpenAPI Spec
+                      </Button>
+                      <Button variant="outline" size="sm" className="w-full justify-start">
+                        <Code className="w-4 h-4 mr-2" />
+                        Collection Postman
+                      </Button>
+                      <Button variant="outline" size="sm" className="w-full justify-start">
+                        <ExternalLink className="w-4 h-4 mr-2" />
+                        Documentation interactive
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="p-4 bg-muted rounded-lg">
+                  <h4 className="font-medium text-foreground mb-2">Exemple de requête</h4>
+                  <pre className="text-sm text-muted-foreground overflow-x-auto">
+{`curl -X POST https://api.med-mng.com/v1/music/generate \\
+  -H "Authorization: Bearer YOUR_API_KEY" \\
+  -H "Content-Type: application/json" \\
+  -d '{
+    "lyrics": ["Anatomie du coeur", "Circulation sanguine"],
+    "style": "ambient",
+    "duration": 240,
+    "rang": "A"
+  }'`}
+                  </pre>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </ConsistentBackground>
   );
