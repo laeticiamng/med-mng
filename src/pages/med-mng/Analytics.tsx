@@ -1,476 +1,235 @@
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { 
-  BarChart3, 
-  TrendingUp, 
-  Clock, 
-  Users, 
-  Brain, 
+import { Progress } from '@/components/ui/progress';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import {
+  BarChart3,
+  Clock,
   Target,
-  Calendar,
+  Music,
   Award,
-  PlayCircle,
-  BookOpen,
-  Activity,
-  Download
+  RefreshCw
 } from 'lucide-react';
-import { MedMngLayout } from '@/components/med-mng/MedMngLayout';
-import { withAuth } from '@/components/med-mng/withAuth';
+import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
-interface LearningMetric {
-  id: string;
-  name: string;
-  value: number;
-  target: number;
-  trend: 'up' | 'down' | 'stable';
-  color: string;
-}
+// ===============================================
+// MED-MNG ANALYTICS - LEARNING INSIGHTS
+// ===============================================
 
-interface StudySession {
-  id: string;
-  date: string;
-  duration: number;
-  itemsCovered: number;
+interface AnalyticsData {
+  totalStudyTime: number;
+  tracksGenerated: number;
+  itemsMastered: number;
+  weeklyStreak: number;
   completionRate: number;
-  difficulty: 'facile' | 'moyen' | 'difficile';
 }
 
-interface WeakArea {
-  id: string;
-  domain: string;
-  score: number;
-  items: string[];
-  recommendations: string[];
-}
+const Analytics: React.FC = () => {
+  // States
+  const [data, setData] = useState<AnalyticsData | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [timeRange, setTimeRange] = useState('30d');
 
-const Analytics = () => {
-  const [selectedPeriod, setSelectedPeriod] = useState('7j');
-  const [learningMetrics] = useState<LearningMetric[]>([
-    {
-      id: '1',
-      name: 'Items Maîtrisés',
-      value: 127,
-      target: 200,
-      trend: 'up',
-      color: 'bg-green-500'
-    },
-    {
-      id: '2',
-      name: 'Temps d\'Étude Total',
-      value: 45.5,
-      target: 60,
-      trend: 'up',
-      color: 'bg-blue-500'
-    },
-    {
-      id: '3',
-      name: 'Taux de Réussite Moyen',
-      value: 78,
-      target: 85,
-      trend: 'stable',
-      color: 'bg-purple-500'
-    },
-    {
-      id: '4',
-      name: 'Sessions Complètes',
-      value: 32,
-      target: 40,
-      trend: 'up',
-      color: 'bg-orange-500'
-    }
-  ]);
+  // Hooks
+  const navigate = useNavigate();
+  const { toast } = useToast();
 
-  const [studySessions] = useState<StudySession[]>([
-    {
-      id: '1',
-      date: '2024-01-15',
-      duration: 120,
-      itemsCovered: 8,
-      completionRate: 85,
-      difficulty: 'moyen'
-    },
-    {
-      id: '2',
-      date: '2024-01-14',
-      duration: 90,
-      itemsCovered: 6,
-      completionRate: 92,
-      difficulty: 'facile'
-    },
-    {
-      id: '3',
-      date: '2024-01-13',
-      duration: 150,
-      itemsCovered: 12,
-      completionRate: 75,
-      difficulty: 'difficile'
-    }
-  ]);
+  // Load analytics data
+  useEffect(() => {
+    loadAnalyticsData();
+  }, [timeRange]);
 
-  const [weakAreas] = useState<WeakArea[]>([
-    {
-      id: '1',
-      domain: 'Cardiologie',
-      score: 65,
-      items: ['IC-221', 'IC-224', 'IC-229'],
-      recommendations: [
-        'Réviser les arythmies cardiaques',
-        'Approfondir l\'ECG pathologique',
-        'Étudier l\'insuffisance cardiaque'
-      ]
-    },
-    {
-      id: '2',
-      domain: 'Neurologie',
-      score: 70,
-      items: ['IC-91', 'IC-95', 'IC-98'],
-      recommendations: [
-        'Travailler les AVC et leurs complications',
-        'Revoir les épilepsies',
-        'Approfondir les démences'
-      ]
-    }
-  ]);
+  const loadAnalyticsData = async () => {
+    setLoading(true);
+    try {
+      // Fetch tracks
+      // Mock tracks data until database is ready
+      const tracksData = [];
 
-  const getTrendIcon = (trend: string) => {
-    switch (trend) {
-      case 'up': return <TrendingUp className="h-4 w-4 text-green-500" />;
-      case 'down': return <TrendingUp className="h-4 w-4 text-red-500 rotate-180" />;
-      default: return <Activity className="h-4 w-4 text-gray-500" />;
+      // Mock analytics data
+      setData({
+        totalStudyTime: 1200,
+        tracksGenerated: tracksData?.length || 0,
+        itemsMastered: 12,
+        weeklyStreak: 5,
+        completionRate: 78
+      });
+    } catch (error) {
+      console.error('Error loading analytics:', error);
+      toast({
+        title: "Erreur de chargement",
+        description: "Impossible de charger les données analytiques",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty) {
-      case 'facile': return 'bg-green-100 text-green-800';
-      case 'moyen': return 'bg-yellow-100 text-yellow-800';
-      case 'difficile': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
+  // Format time
+  const formatTime = (minutes: number) => {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return hours > 0 ? `${hours}h ${mins}min` : `${mins}min`;
   };
 
-  const exportData = () => {
-    const data = {
-      metrics: learningMetrics,
-      sessions: studySessions,
-      weakAreas: weakAreas,
-      exportDate: new Date().toISOString()
-    };
-    
-    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `medmng-analytics-${new Date().toISOString().split('T')[0]}.json`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  };
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary/30 border-t-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Chargement des analyses...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!data) return null;
 
   return (
-    <MedMngLayout>
-      <div className="container mx-auto px-4 py-8 max-w-7xl">
-        {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Analytiques d'Apprentissage
-            </h1>
-            <p className="text-gray-600">
-              Suivez votre progression et optimisez votre préparation
-            </p>
-          </div>
-          <div className="flex gap-3 mt-4 md:mt-0">
-            <Button variant="outline" onClick={exportData}>
-              <Download className="h-4 w-4 mr-2" />
-              Exporter
-            </Button>
-            <select
-              value={selectedPeriod}
-              onChange={(e) => setSelectedPeriod(e.target.value)}
-              className="px-3 py-2 border border-gray-200 rounded-md"
-            >
-              <option value="7j">7 derniers jours</option>
-              <option value="30j">30 derniers jours</option>
-              <option value="3m">3 derniers mois</option>
-              <option value="1a">1 année</option>
-            </select>
-          </div>
+    <div className="container mx-auto p-6 space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold flex items-center gap-3">
+            <BarChart3 className="h-8 w-8 text-primary" />
+            Analyses d'apprentissage
+          </h1>
+          <p className="text-muted-foreground mt-2">
+            Suivez vos progrès et optimisez votre formation médicale
+          </p>
         </div>
-
-        {/* Métriques principales */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          {learningMetrics.map((metric) => (
-            <Card key={metric.id}>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div className={`p-2 rounded-lg ${metric.color.replace('bg-', 'bg-').replace('-500', '-100')}`}>
-                    <Target className={`h-5 w-5 ${metric.color.replace('bg-', 'text-')}`} />
-                  </div>
-                  {getTrendIcon(metric.trend)}
-                </div>
-                <div className="space-y-2">
-                  <p className="text-sm font-medium text-gray-600">{metric.name}</p>
-                  <p className="text-2xl font-bold text-gray-900">{metric.value}</p>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-gray-500">Objectif: {metric.target}</span>
-                    <span className={`${
-                      metric.value >= metric.target ? 'text-green-600' : 'text-gray-500'
-                    }`}>
-                      {Math.round((metric.value / metric.target) * 100)}%
-                    </span>
-                  </div>
-                  <Progress 
-                    value={(metric.value / metric.target) * 100} 
-                    className="h-2"
-                  />
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+        <div className="flex gap-3">
+          <Select value={timeRange} onValueChange={setTimeRange}>
+            <SelectTrigger className="w-48">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="7d">7 derniers jours</SelectItem>
+              <SelectItem value="30d">30 derniers jours</SelectItem>
+              <SelectItem value="90d">90 derniers jours</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button variant="outline" onClick={loadAnalyticsData}>
+            <RefreshCw className="h-4 w-4 mr-2" />
+            Actualiser
+          </Button>
         </div>
-
-        <Tabs defaultValue="progression" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="progression">Progression</TabsTrigger>
-            <TabsTrigger value="sessions">Sessions</TabsTrigger>
-            <TabsTrigger value="faiblesses">Points Faibles</TabsTrigger>
-            <TabsTrigger value="recommandations">Recommandations</TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="progression" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <BarChart3 className="h-5 w-5" />
-                    Progression par Domaine
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {[
-                      { domain: 'Cardiologie', progress: 85, total: 45 },
-                      { domain: 'Neurologie', progress: 72, total: 38 },
-                      { domain: 'Pneumologie', progress: 90, total: 32 },
-                      { domain: 'Gastroentérologie', progress: 78, total: 29 }
-                    ].map((item, index) => (
-                      <div key={index} className="space-y-2">
-                        <div className="flex justify-between">
-                          <span className="text-sm font-medium">{item.domain}</span>
-                          <span className="text-sm text-gray-500">{item.progress}%</span>
-                        </div>
-                        <Progress value={item.progress} className="h-2" />
-                        <p className="text-xs text-gray-500">{item.total} items disponibles</p>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Award className="h-5 w-5" />
-                    Badges Obtenus
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 gap-4">
-                    {[
-                      { name: 'Spécialiste Cardiologie', icon: '🫀', earned: true },
-                      { name: 'Expert Neurologie', icon: '🧠', earned: true },
-                      { name: 'Maître Pneumologie', icon: '🫁', earned: false },
-                      { name: 'As des Urgences', icon: '🚨', earned: false }
-                    ].map((badge, index) => (
-                      <div key={index} className={`p-4 rounded-lg border text-center ${
-                        badge.earned ? 'bg-yellow-50 border-yellow-200' : 'bg-gray-50 border-gray-200'
-                      }`}>
-                        <div className="text-2xl mb-2">{badge.icon}</div>
-                        <p className={`text-sm font-medium ${
-                          badge.earned ? 'text-yellow-800' : 'text-gray-500'
-                        }`}>
-                          {badge.name}
-                        </p>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-
-          <TabsContent value="sessions" className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Clock className="h-5 w-5" />
-                  Historique des Sessions
-                </CardTitle>
-                <CardDescription>
-                  Détail de vos dernières sessions d'étude
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {studySessions.map((session) => (
-                    <div key={session.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-                      <div className="flex items-center gap-4">
-                        <div className="p-2 bg-blue-100 rounded-lg">
-                          <PlayCircle className="h-5 w-5 text-blue-600" />
-                        </div>
-                        <div>
-                          <p className="font-medium">Session du {session.date}</p>
-                          <p className="text-sm text-gray-600">
-                            {session.itemsCovered} items étudiés • {session.duration}min
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <Badge className={getDifficultyColor(session.difficulty)}>
-                          {session.difficulty}
-                        </Badge>
-                        <span className="font-medium text-green-600">
-                          {session.completionRate}%
-                        </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          <TabsContent value="faiblesses" className="space-y-6">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {weakAreas.map((area) => (
-                <Card key={area.id}>
-                  <CardHeader>
-                    <CardTitle className="flex items-center justify-between">
-                      <span className="flex items-center gap-2">
-                        <Brain className="h-5 w-5" />
-                        {area.domain}
-                      </span>
-                      <Badge variant={area.score < 70 ? "destructive" : "secondary"}>
-                        {area.score}%
-                      </Badge>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div>
-                        <p className="text-sm font-medium mb-2">Items à réviser:</p>
-                        <div className="flex flex-wrap gap-2">
-                          {area.items.map((item, index) => (
-                            <Badge key={index} variant="outline">
-                              {item}
-                            </Badge>
-                          ))}
-                        </div>
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium mb-2">Recommandations:</p>
-                        <ul className="text-sm text-gray-600 space-y-1">
-                          {area.recommendations.map((rec, index) => (
-                            <li key={index} className="flex items-start gap-2">
-                              <span className="text-blue-500 mt-1">•</span>
-                              {rec}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="recommandations" className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Target className="h-5 w-5" />
-                    Objectifs Suggérés
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {[
-                      {
-                        title: 'Améliorer la Cardiologie',
-                        description: 'Consacrer 30min/jour pendant 2 semaines',
-                        priority: 'Haute',
-                        color: 'text-red-600'
-                      },
-                      {
-                        title: 'Révisions Neurologie',
-                        description: 'Reprendre les items IC-91 à IC-98',
-                        priority: 'Moyenne',
-                        color: 'text-yellow-600'
-                      },
-                      {
-                        title: 'Consolidation Générale',
-                        description: 'Maintenir le rythme actuel',
-                        priority: 'Basse',
-                        color: 'text-green-600'
-                      }
-                    ].map((objective, index) => (
-                      <div key={index} className="p-4 border rounded-lg">
-                        <div className="flex items-start justify-between mb-2">
-                          <h4 className="font-medium">{objective.title}</h4>
-                          <Badge variant="outline" className={objective.color}>
-                            {objective.priority}
-                          </Badge>
-                        </div>
-                        <p className="text-sm text-gray-600">{objective.description}</p>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Calendar className="h-5 w-5" />
-                    Planning Suggéré
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {[
-                      { day: 'Lundi', focus: 'Cardiologie - Arythmies', duration: '45min' },
-                      { day: 'Mardi', focus: 'Neurologie - AVC', duration: '60min' },
-                      { day: 'Mercredi', focus: 'Révisions générales', duration: '30min' },
-                      { day: 'Jeudi', focus: 'Pneumologie - Asthme', duration: '45min' },
-                      { day: 'Vendredi', focus: 'Quiz général', duration: '30min' }
-                    ].map((day, index) => (
-                      <div key={index} className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-                        <div>
-                          <p className="font-medium text-blue-900">{day.day}</p>
-                          <p className="text-sm text-blue-700">{day.focus}</p>
-                        </div>
-                        <Badge className="bg-blue-100 text-blue-800">
-                          {day.duration}
-                        </Badge>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
-          </TabsContent>
-        </Tabs>
       </div>
-    </MedMngLayout>
+
+      {/* Key Metrics */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-blue-600 mb-1">Temps d'étude total</p>
+                <p className="text-2xl font-bold text-blue-900">
+                  {formatTime(data.totalStudyTime / 60)}
+                </p>
+              </div>
+              <Clock className="h-8 w-8 text-blue-600" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-green-600 mb-1">Items maîtrisés</p>
+                <p className="text-2xl font-bold text-green-900">
+                  {data.itemsMastered}
+                </p>
+              </div>
+              <Target className="h-8 w-8 text-green-600" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-purple-600 mb-1">Pistes générées</p>
+                <p className="text-2xl font-bold text-purple-900">
+                  {data.tracksGenerated}
+                </p>
+              </div>
+              <Music className="h-8 w-8 text-purple-600" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-orange-600 mb-1">Taux de complétion</p>
+                <p className="text-2xl font-bold text-orange-900">
+                  {data.completionRate}%
+                </p>
+              </div>
+              <Award className="h-8 w-8 text-orange-600" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Performance Overview */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Vue d'ensemble des performances</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="text-center p-6 rounded-lg bg-gradient-to-br from-blue-50 to-blue-100">
+              <div className="text-3xl font-bold text-blue-900 mb-2">
+                {data.weeklyStreak}
+              </div>
+              <p className="text-blue-600 font-medium">Jours consécutifs</p>
+              <p className="text-xs text-blue-600 mt-1">Série d'étude actuelle</p>
+            </div>
+
+            <div className="text-center p-6 rounded-lg bg-gradient-to-br from-green-50 to-green-100">
+              <div className="text-3xl font-bold text-green-900 mb-2">
+                {Math.round((data.itemsMastered / Math.max(data.tracksGenerated, 1)) * 100)}%
+              </div>
+              <p className="text-green-600 font-medium">Taux de maîtrise</p>
+              <p className="text-xs text-green-600 mt-1">Items maîtrisés/générés</p>
+            </div>
+
+            <div className="text-center p-6 rounded-lg bg-gradient-to-br from-purple-50 to-purple-100">
+              <div className="text-3xl font-bold text-purple-900 mb-2">
+                {Math.round(data.totalStudyTime / Math.max(data.weeklyStreak, 1) / 60)}min
+              </div>
+              <p className="text-purple-600 font-medium">Moyenne quotidienne</p>
+              <p className="text-xs text-purple-600 mt-1">Temps/jour actif</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Progress Chart Placeholder */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Évolution des performances</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-64 flex items-center justify-center text-muted-foreground">
+            <div className="text-center">
+              <BarChart3 className="h-12 w-12 mx-auto mb-4 opacity-50" />
+              <p>Graphiques détaillés disponibles prochainement</p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 
-export default withAuth(Analytics);
+export default Analytics;

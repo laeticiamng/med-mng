@@ -1,6 +1,5 @@
 import { useState, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { useMusicLibrary } from './useMusicLibrary';
 
 export type RangType = 'A' | 'B' | 'Mix';
 
@@ -22,11 +21,13 @@ interface GenerationResponse {
   };
 }
 
+// ⚠️ DEPRECATED: Use useUnifiedMedicalMusicGeneration instead
 export const useMusicGeneration = () => {
+  console.warn('🚨 useMusicGeneration is deprecated. Use useUnifiedMedicalMusicGeneration instead.');
+  
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationProgress, setGenerationProgress] = useState<string>('');
   const { toast } = useToast();
-  const { loadLibrary } = useMusicLibrary();
 
   const generateMusic = useCallback(async ({
     itemCode,
@@ -80,8 +81,7 @@ export const useMusicGeneration = () => {
         }),
       });
 
-      // Rafraîchir la bibliothèque
-      await loadLibrary();
+      // Library refresh removed (deprecated)
 
       toast({
         title: "🎵 Musique générée avec succès !",
@@ -101,7 +101,7 @@ export const useMusicGeneration = () => {
       setIsGenerating(false);
       setGenerationProgress('');
     }
-  }, [toast, loadLibrary]);
+  }, [toast]);
 
   return {
     generateMusic,
