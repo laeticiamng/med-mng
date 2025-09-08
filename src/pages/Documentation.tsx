@@ -358,7 +358,7 @@ const Documentation: React.FC = () => {
                       </div>
                       <div className="flex items-center gap-2">
                         <Badge variant="outline" className="font-mono">GET</Badge>
-                        <code className="text-muted-foreground">/api/music/status/{id}</code>
+                        <code className="text-muted-foreground">/api/music/status/&#123;id&#125;</code>
                       </div>
                       <div className="flex items-center gap-2">
                         <Badge variant="outline" className="font-mono">GET</Badge>
