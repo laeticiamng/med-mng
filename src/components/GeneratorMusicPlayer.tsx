@@ -2,9 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Music, Play, Pause, Download, Library, Bug, Loader2 } from 'lucide-react';
+import { Music, Play, Pause, Download, Library, Loader2 } from 'lucide-react';
 import { useGlobalAudio } from '@/contexts/GlobalAudioContext';
-import { DebugAudioButton } from './DebugAudioButton';
 import { useMusicGenerationStatus } from '@/hooks/useMusicGenerationStatus';
 import { Progress } from '@/components/ui/progress';
 
@@ -20,7 +19,6 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
   onSongUpdate
 }) => {
   const { currentTrack, isPlaying, play, pause, resume } = useGlobalAudio();
-  const [showDebug, setShowDebug] = useState(false);
 
   // Détecter si c'est une génération en cours (trackId de 32 caractères hexadécimaux)
   const isTrackId = generatedSong?.audioUrl && 
@@ -31,12 +29,7 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
     !generatedSong.audioUrl.includes('.'); // Exclure les URLs avec des extensions
   const trackIdForPolling = isTrackId ? generatedSong.audioUrl : null;
   
-  console.log('🔍 Détection trackId:', {
-    audioUrl: generatedSong?.audioUrl,
-    isTrackId,
-    trackIdForPolling,
-    audioUrlType: typeof generatedSong?.audioUrl
-  });
+  // Optimized tracking - remove console.log for production
   
   // Utiliser le hook de statut pour suivre la génération
   const { 
@@ -63,7 +56,7 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
   // Mettre à jour l'objet song quand l'URL audio finale arrive
   useEffect(() => {
     if (audioUrl && isTrackId && onSongUpdate) {
-      console.log('🔄 URL audio finale reçue, mise à jour du song:', {
+  console.log('🔄 URL audio finale reçue, mise à jour du song:', {
         trackId: generatedSong.audioUrl,
         finalAudioUrl: audioUrl
       });
@@ -302,39 +295,9 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
             <Bug className="h-4 w-4" />
           </Button>
           
-          {/* Bouton de test du polling si c'est un trackId */}
-          {isTrackId && !timeoutReached && (
-            <Button
-              onClick={() => {
-                console.log('🔄 Force polling manuel pour:', trackIdForPolling);
-                startPolling();
-              }}
-              variant="outline"
-              size="lg"
-              className="text-blue-600 border-blue-300 hover:bg-blue-50"
-              title="Forcer la vérification"
-            >
-              🔄
-            </Button>
-          )}
         </div>
-
-        {/* Debug Panel */}
-        {showDebug && (
-          <div className="mt-4 space-y-2">
-            <h4 className="font-semibold text-sm text-gray-700">🐛 Debug Audio</h4>
-            <DebugAudioButton 
-              audioUrl={generatedSong.audioUrl} 
-              title={generatedSong.title}
-            />
-            <div className="text-xs text-gray-500 space-y-1">
-              <div><strong>Generated Song:</strong> {JSON.stringify(generatedSong, null, 2).substring(0, 200)}...</div>
-              <div><strong>Is Track ID:</strong> {isTrackId ? 'Oui' : 'Non'}</div>
-              <div><strong>Track ID:</strong> {trackIdForPolling || 'N/A'}</div>
-              <div><strong>Polling Audio URL:</strong> {audioUrl || 'En attente...'}</div>
-              <div><strong>Final Audio URL:</strong> {finalAudioUrl || 'N/A'}</div>
-              <div><strong>Current Track:</strong> {currentTrack?.url || 'Aucun'}</div>
-              <div><strong>Is Playing:</strong> {isPlaying ? 'Oui' : 'Non'}</div>
+      </CardContent>
+    </Card>
               <div><strong>Is Generating:</strong> {isGenerating ? 'Oui' : 'Non'}</div>
               <div><strong>Progress:</strong> {Math.round(progress || 0)}%</div>
               <div><strong>Status:</strong> {status?.status || 'N/A'}</div>

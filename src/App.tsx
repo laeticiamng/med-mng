@@ -20,10 +20,14 @@ import GlobalErrorBoundary from "@/components/error/GlobalErrorBoundary";
 import { GlobalNavigation } from "@/components/layout/GlobalNavigation";
 import { GlobalMusicPlayer } from "@/components/layout/GlobalMusicPlayer";
 
+// ⚡ UNIFIED ROUTES - Optimisées et nettoyées
+const UnifiedPlatform = lazy(() => import("./pages/unified/UnifiedPlatform"));
+const UnifiedAdmin = lazy(() => import("./pages/unified/UnifiedAdmin"));
+const UnifiedAnalytics = lazy(() => import("./pages/unified/UnifiedAnalytics"));
+
 // ⚡ CORE PAGES - Essentielles
 const Index = lazy(() => import("./pages/Index"));
 const PlatformOverview = lazy(() => import("./pages/PlatformOverview"));
-const PremiumAllFeatures = lazy(() => import("./pages/PremiumAllFeatures"));
 const Generator = lazy(() => import("./pages/Generator"));
 const MeditationCenter = lazy(() => import("./pages/MeditationCenter"));
 const PremiumDashboard = lazy(() => import("./pages/PremiumDashboard"));
@@ -170,7 +174,7 @@ const AppWithUX = () => {
                                              {/* ⚡ CORE ROUTES */}
                                              <Route path="/" element={<Index />} />
                                              <Route path="/platform" element={<PlatformOverview />} />
-                                             <Route path="/features" element={<PremiumAllFeatures />} />
+                                             <Route path="/features" element={<Navigate to="/platform" replace />} />
                                              <Route path="/generator" element={<Generator />} />
                                              <Route path="/meditation/*" element={<MeditationCenter />} />
                                              <Route path="/dashboard" element={<PremiumDashboard />} />
