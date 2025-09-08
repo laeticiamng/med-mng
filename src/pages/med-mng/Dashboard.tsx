@@ -440,7 +440,24 @@ const Dashboard = () => {
 
           {/* Lecteur unifié */}
           <div className="mt-8">
-            <UnifiedMedicalMusicPlayer />
+            {generatedTracks.length > 0 && (
+              <UnifiedMedicalMusicPlayer 
+                track={{
+                  id: generatedTracks[0].taskId || 'default',
+                  title: generatedTracks[0].songId || 'Piste médicale',
+                  audioUrl: generatedTracks[0].streamUrl || '',
+                  rang: 'A',
+                  itemCode: 'Génération',
+                  duration: 240,
+                  lyrics: [],
+                  medicalContext: {
+                    specialty: 'Général',
+                    difficulty: 'Intermédiaire'
+                  }
+                }}
+                isCompact={true}
+              />
+            )}
           </div>
         </div>
       </div>

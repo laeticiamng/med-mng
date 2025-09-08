@@ -605,15 +605,55 @@ const Create = () => {
               {/* Aperçu en temps réel */}
               <div className="lg:col-span-1">
                 <div className="sticky top-24">
-                  <RealtimePreview
-                    selectedContent={selectedContent}
-                    selectedStyle={selectedStyle}
-                    customPrompt={customPrompt}
-                    difficulty={difficulty}
-                    duration={duration}
-                    isGenerating={isGenerating}
-                    onGenerate={handleGeneration}
-                  />
+                  {/* Générations en cours et conseils */}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Aperçu en temps réel</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      {/* Contenu sélectionné */}
+                      {selectedContent && (
+                        <div className="p-3 border rounded-lg">
+                          <h4 className="font-medium mb-2">Contenu médical</h4>
+                          <Badge variant="outline">{selectedContent}</Badge>
+                        </div>
+                      )}
+                      
+                      {/* Style sélectionné */}
+                      {selectedStyle && (
+                        <div className="p-3 border rounded-lg">
+                          <h4 className="font-medium mb-2">Style musical</h4>
+                          <Badge variant="outline">{selectedStyle}</Badge>
+                        </div>
+                      )}
+                      
+                      {/* Générations actives */}
+                      {activeGenerations.length > 0 && (
+                        <div className="space-y-3">
+                          <h4 className="font-medium">Générations en cours</h4>
+                          {activeGenerations.map((generation) => (
+                            <div key={generation.taskId} className="p-3 border rounded-lg">
+                              <div className="text-sm font-medium mb-2">{generation.taskId}</div>
+                              <Progress value={generation.progress} className="mb-2" />
+                              <div className="text-xs text-muted-foreground">
+                                {generation.stage} - {generation.progress}%
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      
+                      {/* Bouton de génération */}
+                      <Button 
+                        onClick={handleGeneration}
+                        disabled={unifiedIsGenerating || !selectedContent || !selectedStyle}
+                        className="w-full"
+                      >
+                        <Wand2 className="w-4 h-4 mr-2" />
+                        {unifiedIsGenerating ? 'Génération...' : 'Générer la musique'}
+                      </Button>
+                    </CardContent>
+                  </Card>
                 </div>
               </div>
             </div>
