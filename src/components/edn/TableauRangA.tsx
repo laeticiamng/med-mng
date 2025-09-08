@@ -16,16 +16,17 @@ import { processTableauRangAIC4, isIC4Item } from './tableau/TableauRangAUtilsIC
 import { processTableauRangAIC5, isIC5Item } from './tableau/TableauRangAUtilsIC5Integration';
 import { processTableauRangAIC10, isIC10Item } from './tableau/TableauRangAUtilsIC10Integration';
 import { determinerColonnesUtiles, generateLignesRangAIntelligent } from './tableau/TableauRangAUtils';
+import { ColonneConfig, TableauData } from '@/types/edn';
 
 interface TableauRangAProps {
   data: {
     theme?: string;
     title?: string;
     subtitle?: string;
-    colonnes?: string[];
+    colonnes?: string[] | ColonneConfig[];
     lignes?: string[][];
     sections?: any[];
-    competences_oic?: any[]; // Ajout des compétences OIC réelles
+    competences_oic?: any[];
   };
   itemCode?: string;
 }
@@ -300,7 +301,28 @@ export const TableauRangA = ({ data, itemCode }: TableauRangAProps) => {
     footerComponent = <TableauRangAFooterIC10 colonnesCount={colonnesUtiles.length} lignesCount={lignesEnrichies.length} />;
   } else {
     // Traitement générique pour les autres items
-    lignesEnrichies = generateLignesRangAIntelligent(data);
+    // Convert data to proper TableauData format
+    let colonnesConverties: ColonneConfig[] = [];
+    
+    if (Array.isArray(data.colonnes) && data.colonnes.length > 0) {
+      if (typeof data.colonnes[0] === 'string') {
+        // Convert string[] to ColonneConfig[]
+        colonnesConverties = (data.colonnes as string[]).map((col: string) => ({ 
+          nom: col, 
+          description: col 
+        }));
+      } else {
+        // Already ColonneConfig[]
+        colonnesConverties = data.colonnes as ColonneConfig[];
+      }
+    }
+    
+    const tableauData: TableauData = {
+      ...data,
+      colonnes: colonnesConverties
+    };
+    
+    lignesEnrichies = generateLignesRangAIntelligent(tableauData);
     colonnesUtiles = determinerColonnesUtiles(lignesEnrichies);
     theme = data.theme || data.title || 'Tableau Rang A';
     footerComponent = <TableauRangAFooter colonnesCount={colonnesUtiles.length} lignesCount={lignesEnrichies.length} />;
