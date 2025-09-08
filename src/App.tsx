@@ -9,6 +9,7 @@ import { PremiumAppProviders } from '@/components/app/PremiumAppProviders';
 import { PremiumLayout } from '@/components/layout/PremiumLayout';
 import { PremiumErrorFallback } from '@/components/error/PremiumErrorFallback';
 import { PremiumLoadingFallback } from '@/components/loading/PremiumLoadingFallback';
+import { AppRoutes } from '@/components/routes/AppRoutes';
 import { logger } from '@/lib/logger';
 
 // ==========================================
@@ -44,14 +45,7 @@ const PremiumApp: React.FC = () => {
         <PremiumAppProviders>
           <Suspense fallback={<PremiumLoadingFallback />}>
             <PremiumLayout>
-              <div className="p-8 text-center">
-                <h1 className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
-                  MED-MNG v4.0 Premium
-                </h1>
-                <p className="text-muted-foreground mt-2">
-                  Plateforme médicale avancée - Chargement en cours...
-                </p>
-              </div>
+              <AppRoutes />
             </PremiumLayout>
           </Suspense>
         </PremiumAppProviders>

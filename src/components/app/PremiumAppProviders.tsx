@@ -14,7 +14,6 @@ import { SidebarProvider } from '@/components/ui/sidebar';
 import { PremiumAccessibilityProvider } from '@/components/accessibility/PremiumAccessibilityProvider';
 import { PremiumKeyboardProvider } from '@/components/keyboard/PremiumKeyboardProvider';
 import { PremiumPerformanceProvider } from '@/components/performance/PremiumPerformanceProvider';
-import { PremiumSEO } from '@/components/seo/PremiumSEO';
 import { logger } from '@/lib/logger';
 
 // ==========================================
@@ -80,35 +79,50 @@ export const PremiumAppProviders: React.FC<PremiumAppProvidersProps> = ({ childr
     if (!localStorage.getItem('theme')) {
       document.documentElement.classList.toggle('dark', prefersDark);
     }
+
+    // Configuration SEO basique
+    document.title = 'MED-MNG v4.0 Premium - Plateforme Médicale Avancée';
+    
+    // Ajouter les meta tags essentiels
+    const addMetaTag = (name: string, content: string) => {
+      let meta = document.querySelector(`meta[name="${name}"]`);
+      if (!meta) {
+        meta = document.createElement('meta');
+        meta.setAttribute('name', name);
+        document.head.appendChild(meta);
+      }
+      meta.setAttribute('content', content);
+    };
+
+    addMetaTag('description', 'La plateforme médicale la plus avancée au monde. Interface premium, sécurité maximale, accessibilité totale.');
+    addMetaTag('keywords', 'médical, premium, santé, plateforme, sécurisé, accessible, professionnel');
+    addMetaTag('theme-color', '#3b82f6');
   }, []);
 
   return (
-    <HelmetProvider>
-      <QueryClientProvider client={queryClient}>
-        <BrowserRouter>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange={false}
-            storageKey="med-mng-theme"
-          >
-            <SidebarProvider defaultOpen={true}>
-              <PremiumAccessibilityProvider>
-                <PremiumKeyboardProvider>
-                  <PremiumPerformanceProvider>
-                    <TooltipProvider delayDuration={300}>
-                      <PremiumSEO />
-                      {children}
-                      <Toaster />
-                    </TooltipProvider>
-                  </PremiumPerformanceProvider>
-                </PremiumKeyboardProvider>
-              </PremiumAccessibilityProvider>
-            </SidebarProvider>
-          </ThemeProvider>
-        </BrowserRouter>
-      </QueryClientProvider>
-    </HelmetProvider>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange={false}
+          storageKey="med-mng-theme"
+        >
+          <SidebarProvider defaultOpen={true}>
+            <PremiumAccessibilityProvider>
+              <PremiumKeyboardProvider>
+                <PremiumPerformanceProvider>
+                  <TooltipProvider delayDuration={300}>
+                    {children}
+                    <Toaster />
+                  </TooltipProvider>
+                </PremiumPerformanceProvider>
+              </PremiumKeyboardProvider>
+            </PremiumAccessibilityProvider>
+          </SidebarProvider>
+        </ThemeProvider>
+      </BrowserRouter>
+    </QueryClientProvider>
   );
 };
