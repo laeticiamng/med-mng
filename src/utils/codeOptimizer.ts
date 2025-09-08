@@ -37,7 +37,7 @@ export const replaceConsoleLogsInFile = (content: string, filename: string): str
   );
 
   if (replacements > 0) {
-    logger.info('performance', `Code optimized: ${replacements} console statements replaced`, {
+    logger.info(`Code optimized: ${replacements} console statements replaced`, {
       component: 'codeOptimizer',
       filename,
       replacements

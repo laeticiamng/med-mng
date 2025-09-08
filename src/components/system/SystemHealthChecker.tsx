@@ -11,7 +11,7 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
-import { logger } from '@/lib/logger';
+import { logger } from '@/services/logger';
 
 interface HealthCheck {
   name: string;
@@ -97,7 +97,7 @@ export const SystemHealthChecker = () => {
       });
       
     } catch (error) {
-      logger.error('app', 'Erreur lors de l\'audit système', {
+      logger.error('Erreur lors de l\'audit système', {
         component: 'SystemHealthChecker',
         action: 'runHealthCheck',
         metadata: { error }

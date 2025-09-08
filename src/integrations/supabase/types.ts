@@ -8821,10 +8821,6 @@ export type Database = {
         Args: { p_period_days?: number }
         Returns: Json
       }
-      get_user_organization_role: {
-        Args: { org_id: string }
-        Returns: string
-      }
       get_user_subscription: {
         Args: { user_uuid: string }
         Returns: {
@@ -8865,10 +8861,6 @@ export type Database = {
           success_count: number
           updated_items: number
         }[]
-      }
-      is_admin: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
       }
       log_admin_change: {
         Args: {

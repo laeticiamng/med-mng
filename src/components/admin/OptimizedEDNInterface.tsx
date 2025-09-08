@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { useOptimizedEdnItems } from '@/hooks/useOptimizedEdnItems';
 import { useToast } from '@/hooks/use-toast';
-import { logger } from '@/lib/logger';
+import { logger } from '@/services/logger';
 
 export const OptimizedEDNInterface = () => {
   const {
@@ -30,7 +30,7 @@ export const OptimizedEDNInterface = () => {
 
   const handleSearch = (query: string) => {
     search(query);
-    logger.info('ui', 'Recherche EDN optimisée', {
+    logger.info('Recherche EDN optimisée', {
       component: 'OptimizedEDNInterface',
       action: 'search',
       metadata: { query, totalItems: totalCount }
@@ -77,7 +77,7 @@ export const OptimizedEDNInterface = () => {
 
       speechSynthesis.speak(utterance);
 
-      logger.info('ui', 'Lecture paroles démarrée', {
+      logger.info('Lecture paroles démarrée', {
         component: 'OptimizedEDNInterface',
         action: 'playLyrics',
         metadata: { itemCode, lyricsLength: lyrics.length }

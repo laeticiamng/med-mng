@@ -1,333 +1,915 @@
-/**
- * 🎨 MED-MNG v3.0 PREMIUM - DESIGN SYSTEM
- * Système de design médical premium avec thèmes et accessibilité
- */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* ==========================================
-   🎯 VARIABLES CSS SÉMANTIQUES PREMIUM
-   ========================================== */
-
-:root {
-  /* ===== COULEURS PRIMAIRES MÉDICALES ===== */
-  --primary: 210 100% 56%; /* Bleu médical professionnel */
-  --primary-foreground: 0 0% 100%;
-  --primary-hover: 210 100% 50%;
-  --primary-muted: 210 80% 85%;
-  
-  /* ===== COULEURS SECONDAIRES APAISANTES ===== */
-  --secondary: 150 30% 60%; /* Vert apaisant */
-  --secondary-foreground: 0 0% 15%;
-  --secondary-hover: 150 35% 55%;
-  
-  /* ===== COULEURS DE FOND ET SURFACES ===== */
-  --background: 0 0% 100%;
-  --foreground: 0 0% 6%;
-  --muted: 210 20% 98%;
-  --muted-foreground: 0 0% 45%;
-  
-  /* ===== COULEURS D'ACCENT PREMIUM ===== */
-  --accent: 280 60% 65%; /* Violet premium */
-  --accent-foreground: 0 0% 100%;
-  --accent-hover: 280 65% 60%;
-  --accent-muted: 280 30% 95%;
-  
-  /* ===== COULEURS DE STATUT MÉDICALES ===== */
-  --success: 142 76% 36%; /* Vert santé */
-  --success-foreground: 0 0% 100%;
-  --warning: 45 93% 47%; /* Orange attention */
-  --warning-foreground: 0 0% 100%;
-  --destructive: 0 84% 60%; /* Rouge urgence */
-  --destructive-foreground: 0 0% 100%;
-  
-  /* ===== ÉLÉMENTS D'INTERFACE ===== */
-  --border: 210 20% 90%;
-  --input: 210 20% 96%;
-  --ring: 210 100% 56%;
-  --card: 0 0% 100%;
-  --card-foreground: 0 0% 6%;
-  --popover: 0 0% 100%;
-  --popover-foreground: 0 0% 6%;
-  
-  /* ===== SIDEBAR PREMIUM ===== */
-  --sidebar-background: 210 30% 98%;
-  --sidebar-foreground: 0 0% 15%;
-  --sidebar-primary: 210 100% 56%;
-  --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 210 20% 94%;
-  --sidebar-accent-foreground: 0 0% 20%;
-  --sidebar-border: 210 20% 90%;
-  --sidebar-ring: 210 100% 56%;
-  
-  /* ===== RAYONS ET ESPACEMENTS ===== */
-  --radius: 8px;
-  --radius-sm: 4px;
-  --radius-lg: 12px;
-  
-  /* ===== OMBRES PREMIUM ===== */
-  --shadow-soft: 0 2px 8px rgba(59, 130, 246, 0.08);
-  --shadow-medium: 0 8px 24px rgba(59, 130, 246, 0.12);
-  --shadow-large: 0 16px 40px rgba(59, 130, 246, 0.16);
-  
-  /* ===== GRADIENTS MÉDICAUX ===== */
-  --gradient-medical: linear-gradient(135deg, hsl(210, 100%, 56%) 0%, hsl(150, 60%, 50%) 100%);
-  --gradient-header: linear-gradient(90deg, hsl(210, 100%, 56%) 0%, hsl(280, 60%, 65%) 100%);
-  --gradient-card: linear-gradient(145deg, hsl(0, 0%, 100%) 0%, hsl(210, 20%, 98%) 100%);
-  
-  /* ===== ANIMATIONS PREMIUM ===== */
-  --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-fast: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
-  --transition-slow: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+@keyframes shimmer {
+  0% { transform: translateX(-100%) skewX(-12deg); }
+  100% { transform: translateX(200%) skewX(-12deg); }
 }
 
-/* ===== THÈME SOMBRE PREMIUM ===== */
-.dark {
-  /* Couleurs primaires adaptées */
-  --primary: 210 100% 65%;
-  --primary-foreground: 0 0% 10%;
-  --primary-hover: 210 100% 60%;
-  --primary-muted: 210 50% 20%;
-  
-  /* Couleurs secondaires sombres */
-  --secondary: 150 25% 25%;
-  --secondary-foreground: 0 0% 90%;
-  --secondary-hover: 150 30% 30%;
-  
-  /* Fonds sombres */
-  --background: 0 0% 8%;
-  --foreground: 0 0% 95%;
-  --muted: 210 15% 12%;
-  --muted-foreground: 0 0% 65%;
-  
-  /* Accents sombres */
-  --accent: 280 50% 50%;
-  --accent-foreground: 0 0% 95%;
-  --accent-hover: 280 55% 55%;
-  --accent-muted: 280 20% 15%;
-  
-  /* Éléments sombres */
-  --border: 210 15% 18%;
-  --input: 210 15% 15%;
-  --ring: 210 100% 65%;
-  --card: 0 0% 10%;
-  --card-foreground: 0 0% 95%;
-  --popover: 0 0% 10%;
-  --popover-foreground: 0 0% 95%;
-  
-  /* Sidebar sombre */
-  --sidebar-background: 210 20% 10%;
-  --sidebar-foreground: 0 0% 85%;
-  --sidebar-primary: 210 100% 65%;
-  --sidebar-primary-foreground: 0 0% 10%;
-  --sidebar-accent: 210 15% 18%;
-  --sidebar-accent-foreground: 0 0% 75%;
-  --sidebar-border: 210 15% 18%;
-  --sidebar-ring: 210 100% 65%;
-  
-  /* Ombres sombres */
-  --shadow-soft: 0 2px 8px rgba(0, 0, 0, 0.3);
-  --shadow-medium: 0 8px 24px rgba(0, 0, 0, 0.4);
-  --shadow-large: 0 16px 40px rgba(0, 0, 0, 0.5);
-  
-  /* Gradients sombres */
-  --gradient-medical: linear-gradient(135deg, hsl(210, 80%, 35%) 0%, hsl(150, 40%, 30%) 100%);
-  --gradient-header: linear-gradient(90deg, hsl(210, 80%, 35%) 0%, hsl(280, 40%, 40%) 100%);
-  --gradient-card: linear-gradient(145deg, hsl(0, 0%, 10%) 0%, hsl(210, 15%, 12%) 100%);
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) translateX(0px);
+    opacity: 0.3;
+  }
+  33% {
+    transform: translateY(-20px) translateX(10px);
+    opacity: 0.6;
+  }
+  66% {
+    transform: translateY(10px) translateX(-10px);  
+    opacity: 0.4;
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
 }
 
 /* ==========================================
-   🎯 BASE STYLES PREMIUM
+   MED-MNG PREMIUM DESIGN SYSTEM v2.0
    ========================================== */
 
-* {
-  border-color: hsl(var(--border));
-  scroll-behavior: smooth;
+@layer base {
+  :root {
+    /* Premium Medical Theme - Light Mode */
+    --background: 210 20% 98%;
+    --foreground: 213 31% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 213 31% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 213 31% 15%;
+
+    /* Premium Primary - Medical Azure */
+    --primary: 213 94% 40%;
+    --primary-foreground: 0 0% 100%;
+    --primary-hover: 213 94% 35%;
+    --primary-muted: 213 94% 92%;
+    --primary-glow: 213 94% 65%;
+
+    /* Premium Secondary - Healing Sage */
+    --secondary: 142 30% 92%;
+    --secondary-foreground: 142 45% 15%;
+    --secondary-hover: 142 30% 88%;
+
+    /* Muted Premium */
+    --muted: 213 20% 96%;
+    --muted-foreground: 213 25% 45%;
+
+    /* Premium Accent - Therapeutic Gold */
+    --accent: 45 100% 45%;
+    --accent-foreground: 0 0% 100%;
+    --accent-hover: 45 100% 40%;
+    --accent-muted: 45 100% 92%;
+    --accent-glow: 45 100% 65%;
+
+    /* Status Colors Premium */
+    --success: 142 76% 35%;
+    --success-foreground: 0 0% 100%;
+    --success-glow: 142 76% 55%;
+    
+    --warning: 38 92% 50%;
+    --warning-foreground: 0 0% 100%;
+    --warning-glow: 38 92% 70%;
+    
+    --destructive: 0 84% 55%;
+    --destructive-foreground: 0 0% 100%;
+    --destructive-glow: 0 84% 75%;
+
+    /* Premium Info */
+    --info: 200 98% 45%;
+    --info-foreground: 0 0% 100%;
+    --info-glow: 200 98% 65%;
+
+    /* Borders & Inputs Premium */
+    --border: 213 25% 88%;
+    --input: 213 25% 94%;
+    --ring: 213 94% 40%;
+
+    /* Premium Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(213 94% 40%) 0%, hsl(213 94% 55%) 100%);
+    --gradient-secondary: linear-gradient(135deg, hsl(142 76% 35%) 0%, hsl(142 76% 50%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(45 100% 45%) 0%, hsl(45 100% 60%) 100%);
+    --gradient-medical: linear-gradient(135deg, hsl(213 94% 40%) 0%, hsl(142 76% 35%) 50%, hsl(45 100% 45%) 100%);
+    --gradient-hero: linear-gradient(135deg, hsl(213 94% 8%) 0%, hsl(213 94% 15%) 50%, hsl(213 94% 20%) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(0 0% 100%) 0%, hsl(213 25% 98%) 100%);
+    --gradient-glass: linear-gradient(135deg, hsla(0 0% 100% / 0.1) 0%, hsla(0 0% 100% / 0.05) 100%);
+
+    /* Premium Shadows with Color */
+    --shadow-soft: 0 4px 6px -1px hsla(213 94% 40% / 0.08), 0 2px 4px -1px hsla(213 94% 40% / 0.04);
+    --shadow-medium: 0 10px 15px -3px hsla(213 94% 40% / 0.12), 0 4px 6px -2px hsla(213 94% 40% / 0.06);
+    --shadow-large: 0 25px 50px -12px hsla(213 94% 40% / 0.20);
+    --shadow-glow: 0 0 40px hsla(213 94% 65% / 0.3);
+    --shadow-accent-glow: 0 0 40px hsla(45 100% 65% / 0.3);
+    --shadow-success-glow: 0 0 40px hsla(142 76% 55% / 0.3);
+
+    /* Premium Radius */
+    --radius: 0.875rem;
+    --radius-sm: 0.625rem;
+    --radius-lg: 1.25rem;
+    --radius-xl: 1.5rem;
+
+    /* Sidebar - Medical Professional */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 51 65% 20%;
+    --sidebar-primary: 213 94% 35%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 213 27% 95%;
+    --sidebar-accent-foreground: 51 65% 20%;
+    --sidebar-border: 213 27% 84%;
+    --sidebar-ring: 213 94% 35%;
+  }
+
+  .dark {
+    /* Dark Mode - Medical Professional */
+    --background: 213 32% 19%;
+    --foreground: 226 71% 93%;
+
+    --card: 215 28% 17%;
+    --card-foreground: 226 71% 93%;
+
+    --popover: 215 28% 17%;
+    --popover-foreground: 226 71% 93%;
+
+    /* Medical Primary - Brighter in dark */
+    --primary: 213 94% 65%;
+    --primary-foreground: 213 32% 19%;
+    --primary-hover: 213 94% 75%;
+    --primary-muted: 213 94% 25%;
+
+    /* Secondary - Darker blues */
+    --secondary: 215 25% 15%;
+    --secondary-foreground: 226 71% 93%;
+    --secondary-hover: 215 25% 20%;
+
+    --muted: 215 25% 15%;
+    --muted-foreground: 217 33% 65%;
+
+    /* Accent - Softer green in dark */
+    --accent: 142 76% 40%;
+    --accent-foreground: 226 71% 93%;
+    --accent-hover: 142 76% 50%;
+    --accent-muted: 142 76% 25%;
+
+    /* Status colors for dark mode */
+    --success: 142 71% 55%;
+    --success-foreground: 213 32% 19%;
+    --warning: 48 96% 63%;
+    --warning-foreground: 213 32% 19%;
+    --destructive: 0 63% 51%;
+    --destructive-foreground: 226 71% 93%;
+
+    --border: 215 25% 18%;
+    --input: 215 25% 18%;
+    --ring: 213 94% 65%;
+
+    /* Dark gradients */
+    --gradient-medical: linear-gradient(135deg, hsl(213 94% 65%) 0%, hsl(142 76% 40%) 100%);
+    --gradient-header: linear-gradient(135deg, hsl(215 28% 17%) 0%, hsl(215 25% 10%) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(215 28% 17%) 0%, hsl(215 25% 8%) 100%);
+
+    /* Dark shadows */
+    --shadow-soft: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+    --shadow-medium: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+    --shadow-large: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+
+    /* Dark Sidebar */
+    --sidebar-background: 215 28% 17%;
+    --sidebar-foreground: 226 71% 93%;
+    --sidebar-primary: 213 94% 65%;
+    --sidebar-primary-foreground: 213 32% 19%;
+    --sidebar-accent: 215 25% 15%;
+    --sidebar-accent-foreground: 226 71% 93%;
+    --sidebar-border: 215 25% 18%;
+    --sidebar-ring: 213 94% 65%;
+  }
 }
 
-html {
-  font-feature-settings: "cv01", "cv02", "cv03", "cv04";
-  font-optical-sizing: auto;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html, body {
+    @apply bg-background text-foreground;
+    overflow-x: hidden; /* Empêche scroll horizontal uniquement */
+    overflow-y: auto; /* Permet scroll vertical */
+    font-family: 'Inter', 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    font-optical-sizing: auto;
+  }
 }
 
-body {
-  background-color: hsl(var(--background));
-  color: hsl(var(--foreground));
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  line-height: 1.6;
-  font-weight: 400;
-  min-height: 100vh;
-  transition: var(--transition-smooth);
+/* ==========================================
+   MED-MNG ANIMATIONS & EFFECTS
+   ========================================== */
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
-/* ===== SCROLL BARS PREMIUM ===== */
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes medical-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+  }
+}
+
+@keyframes gentle-float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes shimmer-medical {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Animation Classes */
+.animate-fade-in-up {
+  animation: fade-in-up 0.6s ease-out forwards;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.4s ease-out forwards;
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.5s ease-out forwards;
+}
+
+.animate-medical-pulse {
+  animation: medical-pulse 2s infinite;
+}
+
+.animate-gentle-float {
+  animation: gentle-float 4s ease-in-out infinite;
+}
+
+.animate-shimmer-medical {
+  background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.2), transparent);
+  background-size: 200% 100%;
+  animation: shimmer-medical 1.5s infinite ease-in-out;
+}
+
+/* ==========================================
+   MED-MNG COMPONENT CLASSES
+   ========================================== */
+
+/* Medical Card Styles */
+.medical-card {
+  @apply bg-card border border-border rounded-lg shadow-sm;
+  background: var(--gradient-card);
+  box-shadow: var(--shadow-soft);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.medical-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-medium);
+}
+
+.medical-card-premium {
+  @apply medical-card;
+  border: 1px solid hsl(var(--primary) / 0.2);
+  background: linear-gradient(145deg, hsl(var(--card)) 0%, hsl(var(--primary) / 0.02) 100%);
+}
+
+/* Medical Button Styles */
+.medical-btn-primary {
+  @apply bg-primary text-primary-foreground hover:bg-primary/90;
+  @apply rounded-lg font-medium transition-all duration-200;
+  @apply shadow-sm hover:shadow-md focus:ring-2 focus:ring-primary/20;
+  background: var(--gradient-medical);
+}
+
+.medical-btn-secondary {
+  @apply bg-secondary text-secondary-foreground hover:bg-secondary/80;
+  @apply border border-border rounded-lg font-medium transition-all duration-200;
+  @apply hover:shadow-sm focus:ring-2 focus:ring-primary/20;
+}
+
+.medical-btn-outline {
+  @apply border border-primary text-primary hover:bg-primary hover:text-primary-foreground;
+  @apply rounded-lg font-medium transition-all duration-200;
+  @apply focus:ring-2 focus:ring-primary/20;
+}
+
+/* Medical Navigation */
+.medical-nav {
+  @apply bg-card border-b border-border;
+  background: var(--gradient-header);
+  backdrop-filter: blur(8px);
+}
+
+.medical-nav-item {
+  @apply text-muted-foreground hover:text-foreground;
+  @apply transition-colors duration-200 relative;
+}
+
+.medical-nav-item.active {
+  @apply text-primary font-medium;
+}
+
+.medical-nav-item.active::after {
+  content: '';
+  @apply absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full;
+}
+
+/* Medical Form Styles */
+.medical-input {
+  @apply border border-input bg-background rounded-lg px-3 py-2;
+  @apply focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary;
+  @apply transition-all duration-200;
+}
+
+.medical-input:focus {
+  box-shadow: var(--shadow-soft);
+}
+
+.medical-label {
+  @apply text-sm font-medium text-foreground mb-2 block;
+}
+
+/* Medical Status Indicators */
+.status-success {
+  @apply bg-success/10 text-success border border-success/20 rounded-full px-3 py-1 text-sm font-medium;
+}
+
+.status-warning {
+  @apply bg-warning/10 text-warning-foreground border border-warning/20 rounded-full px-3 py-1 text-sm font-medium;
+}
+
+.status-error {
+  @apply bg-destructive/10 text-destructive border border-destructive/20 rounded-full px-3 py-1 text-sm font-medium;
+}
+
+/* Medical Layout */
+.medical-container {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+.medical-section {
+  @apply py-12 lg:py-16;
+}
+
+.medical-grid {
+  @apply grid gap-6 md:gap-8;
+}
+
+/* ==========================================
+   PREMIUM EFFECTS
+   ========================================== */
+
+/* Glassmorphism */
+.glass-medical {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px) saturate(180%);
+  border: 1px solid rgba(59, 130, 246, 0.1);
+}
+
+.dark .glass-medical {
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+/* Professional scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
   background: hsl(var(--muted));
-  border-radius: 6px;
+  border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: hsl(var(--primary) / 0.3);
-  border-radius: 6px;
-  border: 2px solid transparent;
-  background-clip: content-box;
+  background: hsl(var(--primary) / 0.5);
+  border-radius: 3px;
+  transition: background 0.2s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--primary) / 0.5);
-  background-clip: content-box;
+  background: hsl(var(--primary) / 0.8);
 }
 
-/* ===== FOCUS PREMIUM ===== */
-*:focus-visible {
-  outline: 2px solid hsl(var(--ring));
+/* Selection */
+::selection {
+  background: hsl(var(--primary) / 0.2);
+  color: hsl(var(--foreground));
+}
+
+/* Focus ring */
+.medical-focus-ring:focus {
+  outline: 2px solid hsl(var(--primary) / 0.5);
   outline-offset: 2px;
-  border-radius: var(--radius-sm);
 }
 
-/* ==========================================
-   🎯 COMPOSANTS PREMIUM
-   ========================================== */
-
-/* ===== CARTES PREMIUM ===== */
-.card-premium {
-  background: var(--gradient-card);
-  border: 1px solid hsl(var(--border));
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-medium);
-  transition: var(--transition-smooth);
-  backdrop-filter: blur(8px);
+/* Loading states */
+.medical-skeleton {
+  background: linear-gradient(90deg, hsl(var(--muted)) 25%, hsl(var(--muted) / 0.5) 50%, hsl(var(--muted)) 75%);
+  background-size: 200% 100%;
+  animation: shimmer-medical 1.5s infinite;
 }
 
-.card-premium:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-large);
+/* Accessibility Styles */
+/* High Contrast Mode */
+html.high-contrast {
+  --background: 0 0% 0%;
+  --foreground: 0 0% 100%;
+  --card: 0 0% 5%;
+  --card-foreground: 0 0% 100%;
+  --primary: 60 100% 50%;
+  --primary-foreground: 0 0% 0%;
+  --border: 0 0% 30%;
+  --input: 0 0% 10%;
+  --ring: 60 100% 50%;
 }
 
-/* ===== BOUTONS PREMIUM ===== */
-.btn-premium {
-  background: var(--gradient-medical);
+/* Focus Visible Enhancement */
+html.focus-visible *:focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Reduced Motion */
+html.reduced-motion *,
+html.reduced-motion *::before,
+html.reduced-motion *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Font Size Controls */
+  html[data-font-size="small"] {
+    font-size: 14px;
+  }
+  
+  html[data-font-size="normal"] {
+    font-size: 16px;
+  }
+  
+  html[data-font-size="large"] {
+    font-size: 18px;
+  }
+  
+  html[data-font-size="extra-large"] {
+    font-size: 20px;
+  }
+  
+/* Optimisation CSS pour les performances - Version allégée */
+
+/* Base pour tous les éléments avec overflow-safe */
+.overflow-safe {
+  overflow: visible !important;
+  text-overflow: unset !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: break-word !important;
+  hyphens: auto !important;
+  max-width: 100% !important;
+}
+
+/* Containers avec débordement contrôlé */
+.container-safe {
+  max-width: 100vw !important;
+  overflow-x: hidden !important;
+  word-wrap: break-word !important;
+  hyphens: auto !important;
+  box-sizing: border-box !important;
+}
+
+/* Texte avec débordement intelligent */
+.text-container {
+  overflow-wrap: break-word !important;
+  word-break: break-word !important;
+  hyphens: auto !important;
+  max-width: 100% !important;
+}
+
+/* Correction des débordements de mots normaux */
+.break-words-normal {
+  word-break: normal !important;
+  overflow-wrap: break-word !important;
+  hyphens: auto !important;
+}
+  
+  /* Micro-interactions for Better UX */
+  .hover-lift {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-medium);
+  }
+  
+  .click-feedback:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
+  }
+  
+  /* Enhanced Button States */
+  .btn-premium {
+    background: var(--gradient-medical);
+    color: white;
+    border: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .btn-premium::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+  }
+  
+  .btn-premium:hover::before {
+    left: 100%;
+  }
+  
+  .btn-premium:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-glow);
+  }
+  
+  /* Improved Typography Hierarchy */
+  .text-hierarchy-1 {
+    font-size: clamp(2rem, 5vw, 4rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+  
+  .text-hierarchy-2 {
+    font-size: clamp(1.5rem, 3vw, 2.5rem);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+  }
+  
+  .text-hierarchy-3 {
+    font-size: clamp(1.2rem, 2vw, 1.8rem);
+    font-weight: 600;
+    line-height: 1.3;
+  }
+  
+  /* Enhanced Mobile Experience */
+  @media (max-width: 768px) {
+    .mobile-optimized {
+      padding: 1rem;
+      font-size: 0.9rem;
+    }
+    
+    .touch-friendly {
+      min-height: 44px;
+      min-width: 44px;
+      padding: 0.75rem;
+    }
+    
+    .mobile-spacing {
+      margin-bottom: clamp(1rem, 3vw, 2rem);
+    }
+  }
+  
+  /* Improved Contrast for Dark Mode */
+  .dark .high-contrast-text {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  }
+  
+  /* Enhanced Card Interactions */
+  .interactive-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+  }
+  
+  .interactive-card:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: var(--shadow-large);
+  }
+  
+  /* Smooth Page Transitions */
+  .page-transition {
+    animation: fade-in-up 0.6s ease-out;
+  }
+  
+  /* Loading Spinner Enhancement */
+  .spinner-medical {
+    border: 3px solid hsl(var(--muted));
+    border-top: 3px solid hsl(var(--primary));
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+  
+  /* Enhanced Success/Error States */
+  .success-state {
+    background: linear-gradient(135deg, hsl(var(--success) / 0.1), hsl(var(--success) / 0.05));
+    border: 1px solid hsl(var(--success) / 0.2);
+    color: hsl(var(--success));
+  }
+  
+  .error-state {
+    background: linear-gradient(135deg, hsl(var(--destructive) / 0.1), hsl(var(--destructive) / 0.05));
+    border: 1px solid hsl(var(--destructive) / 0.2);
+    color: hsl(var(--destructive));
+  }
+  
+  .warning-state {
+    background: linear-gradient(135deg, hsl(45 100% 95%), hsl(45 100% 92%));
+    border: 1px solid hsl(45 100% 80%);
+    color: hsl(45 100% 25%);
+  }
+
+html[data-font-size="medium"] {
+  font-size: 16px;
+}
+
+html[data-font-size="large"] {
+  font-size: 18px;
+}
+
+/* Touch Target Minimum Size */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Skip Link Styles */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 6px;
+  background: hsl(var(--primary));
   color: hsl(var(--primary-foreground));
-  border: none;
-  border-radius: var(--radius);
-  padding: 0.75rem 1.5rem;
-  font-weight: 500;
-  font-size: 0.875rem;
-  cursor: pointer;
-  transition: var(--transition-fast);
-  box-shadow: var(--shadow-soft);
-  position: relative;
-  overflow: hidden;
+  padding: 8px;
+  z-index: 1000;
+  text-decoration: none;
+  border-radius: 4px;
+  transition: top 0.3s;
 }
 
-.btn-premium::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-  transition: left 0.5s;
-}
-
-.btn-premium:hover::before {
-  left: 100%;
-}
-
-.btn-premium:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-medium);
-}
-
-/* ===== NAVIGATION PREMIUM ===== */
-.nav-premium {
-  background: hsl(var(--background) / 0.8);
-  backdrop-filter: blur(12px);
-  border-bottom: 1px solid hsl(var(--border));
-  transition: var(--transition-smooth);
-}
-
-/* ===== INPUTS PREMIUM ===== */
-.input-premium {
-  background: hsl(var(--input));
-  border: 1px solid hsl(var(--border));
-  border-radius: var(--radius);
-  padding: 0.75rem;
-  transition: var(--transition-fast);
-}
-
-.input-premium:focus {
-  border-color: hsl(var(--ring));
-  background: hsl(var(--background));
-  box-shadow: 0 0 0 3px hsl(var(--ring) / 0.1);
+.skip-link:focus {
+  top: 6px;
 }
 
 /* ==========================================
-   🎯 ANIMATIONS PREMIUM AVANCÉES
+   MED-MNG MOBILE OPTIMIZATIONS 
    ========================================== */
 
-/* ===== CHARGEMENT SHIMMER ===== */
-@keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+/* Mobile Touch Optimization Framework */
+@media (max-width: 768px) {
+  body {
+    -webkit-text-size-adjust: 100%;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    overscroll-behavior: contain;
+  }
+  
+  /* Touch-friendly interactive elements */
+  button, 
+  [role="button"], 
+  [role="tab"],
+  .touch-target {
+    min-height: 48px;
+    min-width: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+    transition: transform 0.15s ease;
+  }
+  
+  /* Active state feedback */
+  button:active, 
+  [role="button"]:active, 
+  [role="tab"]:active,
+  .touch-target:active {
+    transform: scale(0.95);
+  }
+  
+  /* Optimisation des zones de texte sur mobile */
+  input[type="text"], 
+  input[type="search"], 
+  input[type="email"],
+  input[type="password"],
+  textarea, select {
+    font-size: 16px; /* Évite le zoom automatique sur iOS */
+    border-radius: 8px;
+    padding: 12px 16px;
+    -webkit-appearance: none;
+  }
+  
+  /* Amélioration des cartes sur mobile */
+  .medical-card {
+    margin-bottom: 12px;
+    padding: 16px;
+  }
+  
+  /* Navigation mobile padding de sécurité */
+  .pb-safe {
+    padding-bottom: calc(env(safe-area-inset-bottom) + 80px);
+  }
+  
+  /* Optimisation du scroll */
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+  }
+  
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  /* Grille responsive optimisée */
+  .grid-mobile-1 { grid-template-columns: repeat(1, 1fr); }
+  .grid-mobile-2 { grid-template-columns: repeat(2, 1fr); }
+  .grid-mobile-3 { grid-template-columns: repeat(3, 1fr); }
+  
+  /* Espacement mobile optimisé */
+  .gap-mobile-2 { gap: 8px; }
+  .gap-mobile-3 { gap: 12px; }
+  .gap-mobile-4 { gap: 16px; }
+  
+  /* Padding mobile optimisé */
+  .p-mobile-2 { padding: 8px; }
+  .p-mobile-3 { padding: 12px; }
+  .p-mobile-4 { padding: 16px; }
+  .p-mobile-6 { padding: 24px; }
+  
+  /* Amélioration des animations pour mobile */
+  .hover\\:scale-105:hover {
+    transform: scale(1.02); /* Réduction pour mobile */
+  }
+  
+  .active\\:scale-95:active {
+    transform: scale(0.98);
+  }
+  
+  /* Modal improvements for mobile */
+  [data-radix-portal] {
+    position: fixed !important;
+    inset: 0 !important;
+    z-index: 9999 !important;
+  }
+  
+  /* Medical buttons optimisés pour mobile */
+  .medical-btn-primary,
+  .medical-btn-secondary,
+  .medical-btn-outline {
+    min-height: 48px;
+    padding: 12px 16px;
+    font-size: 16px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  
+  .medical-btn-primary:active {
+    transform: scale(0.95);
+    background: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--accent)) 100%);
+  }
 }
 
-.skeleton {
-  position: relative;
-  background: hsl(var(--muted));
-  border-radius: var(--radius);
-  overflow: hidden;
+/* Optimisation pour très petits écrans */
+@media (max-width: 375px) {
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Texte plus petit sur très petits écrans */
+  .text-responsive-sm {
+    font-size: 14px;
+  }
+  
+  /* Padding réduit pour très petits écrans */
+  .container {
+    padding-left: 12px;
+    padding-right: 12px;
+  }
 }
 
-.skeleton::after {
-  position: absolute;
-  top: 0;
-  right: 0;
+/* Navigation mobile en bas */
+.mobile-bottom-nav {
+  position: fixed;
   bottom: 0;
   left: 0;
-  transform: translateX(-100%);
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-  animation: shimmer 1.5s infinite;
-  content: '';
+  right: 0;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(12px) saturate(180%);
+  border-top: 1px solid rgba(59, 130, 246, 0.1);
+  padding-bottom: env(safe-area-inset-bottom);
 }
 
-/* ===== PULSE PREMIUM ===== */
-@keyframes pulse-premium {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.7; }
+.dark .mobile-bottom-nav {
+  background: rgba(15, 23, 42, 0.95);
+  border-top-color: rgba(59, 130, 246, 0.2);
 }
 
-.pulse-premium {
-  animation: pulse-premium 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+/* iOS Safari specific optimizations */
+@supports (-webkit-touch-callout: none) {
+  .modal-content {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+  }
+  
+  /* Safe area inset support for notched devices */
+  .safe-area-inset {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+  
+  .safe-area-top { 
+    padding-top: env(safe-area-inset-top); 
+  }
+  
+  .safe-area-bottom { 
+    padding-bottom: env(safe-area-inset-bottom); 
+  }
 }
 
-/* ===== FLOAT ANIMATION ===== */
-@keyframes float-gentle {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-5px); }
-}
-
-.float-gentle {
-  animation: float-gentle 4s ease-in-out infinite;
+/* Amélioration des focus states sur mobile */
+@media (hover: none) and (pointer: coarse) {
+  .focus-visible:focus {
+    outline: 2px solid hsl(var(--primary));
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
 }
 
 /* ==========================================
-   🎯 ACCESSIBILITÉ PREMIUM
+   ENHANCED MEDICAL COMPONENTS & ACCESSIBILITY
    ========================================== */
 
-/* ===== LECTEURS D'ÉCRAN ===== */
+/* Screen Reader Only Content */
 .sr-only {
   position: absolute;
   width: 1px;
@@ -340,149 +922,384 @@ body {
   border: 0;
 }
 
-/* ===== FOCUS VISIBLE ===== */
-.focus-ring:focus-visible {
-  outline: 2px solid hsl(var(--ring));
-  outline-offset: 2px;
-}
-
-/* ===== NAVIGATION CLAVIER ===== */
-.keyboard-navigation :focus {
-  outline: 2px solid hsl(var(--ring));
-  outline-offset: 2px;
-}
-
-/* ===== CONTRASTE ÉLEVÉ ===== */
-@media (prefers-contrast: high) {
-  :root {
-    --border: 0 0% 50%;
-    --ring: 210 100% 40%;
-  }
-  
-  .dark {
-    --border: 0 0% 70%;
-    --ring: 210 100% 70%;
-  }
-}
-
-/* ===== MOUVEMENT RÉDUIT ===== */
+/* Reduced motion support */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  * {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+}
+
+/* ==========================================
+   PERFECT ACCESSIBILITY ENHANCEMENTS
+   ========================================== */
+
+/* High contrast mode */
+.high-contrast-mode {
+  --background: 0 0% 0%;
+  --foreground: 0 0% 100%;
+  --primary: 47 100% 70%;
+  --primary-foreground: 0 0% 0%;
+  --muted: 0 0% 15%;
+  --muted-foreground: 0 0% 85%;
+  --border: 0 0% 30%;
+}
+
+/* Large cursor for accessibility */
+.large-cursor * {
+  cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32"><path d="M2 2l12 24 6-6 24-12z" fill="black"/></svg>'), auto !important;
+}
+
+/* Text magnification */
+.magnify-text {
+  font-size: 120% !important;
+  line-height: 1.5 !important;
+}
+
+.magnify-text * {
+  font-size: inherit !important;
+  line-height: inherit !important;
+}
+
+/* Enhanced focus visibility */
+.focus-visible *:focus-visible {
+  outline: 3px solid hsl(var(--primary));
+  outline-offset: 3px;
+  border-radius: 4px;
+  box-shadow: 0 0 0 6px hsl(var(--primary) / 0.2);
+}
+
+/* Reduced motion for low battery */
+.reduced-motion *,
+.low-battery * {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+}
+
+/* Skip links enhancement */
+.sr-only:not(:focus):not(:focus-within) {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* Skip link when focused */
+.sr-only:focus {
+  position: fixed !important;
+  top: 1rem !important;
+  left: 1rem !important;
+  width: auto !important;
+  height: auto !important;
+  padding: 0.75rem 1rem !important;
+  margin: 0 !important;
+  overflow: visible !important;
+  clip: auto !important;
+  white-space: normal !important;
+  background: hsl(var(--primary)) !important;
+  color: hsl(var(--primary-foreground)) !important;
+  border-radius: 0.5rem !important;
+  z-index: 9999 !important;
+  text-decoration: none !important;
+  font-weight: 600 !important;
+}
+
+/* Touch enhancements for mobile */
+@media (hover: none) and (pointer: coarse) {
+  /* Ensure minimum touch target size */
+  button, a, [role="button"], [role="tab"], [role="menuitem"] {
+    min-width: 44px;
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
   
-  .scroll-smooth {
-    scroll-behavior: auto !important;
+  /* Enhanced tap feedback */
+  button:active, a:active, [role="button"]:active {
+    transform: scale(0.95);
+    transition: transform 0.1s ease;
   }
 }
 
 /* ==========================================
-   🎯 RESPONSIVE DESIGN PREMIUM
+   ULTIMATE UX MICRO-INTERACTIONS
    ========================================== */
 
-/* ===== MOBILE FIRST ===== */
-@media (max-width: 640px) {
-  .container {
-    padding-left: 1rem;
-    padding-right: 1rem;
+/* Smooth page transitions */
+.page-transition {
+  animation: pageEnter 0.3s ease-out forwards;
+}
+
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Enhanced button interactions */
+button, [role="button"] {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+button:hover:not(:disabled), [role="button"]:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px hsl(var(--primary) / 0.15);
+}
+
+button:active:not(:disabled), [role="button"]:active {
+  transform: translateY(0);
+  transition-duration: 0.1s;
+}
+
+/* Ripple effect for buttons */
+button::after, [role="button"]::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.3s, height 0.3s;
+  pointer-events: none;
+}
+
+button:active::after, [role="button"]:active::after {
+  width: 300px;
+  height: 300px;
+}
+
+/* Card hover effects */
+.card {
+  transition: all 0.2s ease;
+  border: 1px solid hsl(var(--border));
+}
+
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px hsl(var(--primary) / 0.1);
+  border-color: hsl(var(--primary) / 0.3);
+}
+
+/* Interactive focus rings */
+*:focus-visible {
+  outline: 2px solid hsl(var(--primary));
+  outline-offset: 2px;
+  border-radius: 4px;
+  animation: focusPulse 0.5s ease-out;
+}
+
+@keyframes focusPulse {
+  0% {
+    box-shadow: 0 0 0 0 hsl(var(--primary) / 0.4);
+  }
+  70% {
+    box-shadow: 0 0 0 10px hsl(var(--primary) / 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 hsl(var(--primary) / 0);
+  }
+}
+
+/* Loading skeleton animations */
+.skeleton {
+  background: linear-gradient(90deg, 
+    hsl(var(--muted)) 25%, 
+    hsl(var(--muted-foreground) / 0.1) 50%, 
+    hsl(var(--muted)) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-loading 2s infinite;
+}
+
+@keyframes skeleton-loading {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* Toast notification animations */
+.toast-enter {
+  animation: toastSlideIn 0.3s ease-out;
+}
+
+.toast-exit {
+  animation: toastSlideOut 0.2s ease-in;
+}
+
+@keyframes toastSlideIn {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes toastSlideOut {
+  from {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  to {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+}
+
+/* Progress bar animations */
+.progress-bar {
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent, 
+    rgba(255, 255, 255, 0.4), 
+    transparent
+  );
+  animation: progressShimmer 2s infinite;
+}
+
+@keyframes progressShimmer {
+  to {
+    left: 100%;
+  }
+}
+
+/* Tab transitions */
+.tab-content {
+  animation: tabFadeIn 0.3s ease-out;
+}
+
+@keyframes tabFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Stagger animations for lists */
+.stagger-item {
+  animation: staggerFadeIn 0.4s ease-out backwards;
+}
+
+.stagger-item:nth-child(1) { animation-delay: 0.1s; }
+.stagger-item:nth-child(2) { animation-delay: 0.2s; }
+.stagger-item:nth-child(3) { animation-delay: 0.3s; }
+.stagger-item:nth-child(4) { animation-delay: 0.4s; }
+.stagger-item:nth-child(5) { animation-delay: 0.5s; }
+
+@keyframes staggerFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Success state animations */
+.success-bounce {
+  animation: successBounce 0.6s ease-out;
+}
+
+@keyframes successBounce {
+  0%, 20%, 53%, 80%, 100% {
+    transform: scale(1);
+  }
+  40%, 43% {
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(1.02);
+  }
+  90% {
+    transform: scale(1.01);
+  }
+}
+
+/* Enhanced scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: hsl(var(--muted));
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.3);
+  border-radius: 4px;
+  transition: background 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--primary) / 0.6);
+}
+
+/* Dark mode optimizations */
+@media (prefers-color-scheme: dark) {
+  .card:hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
   }
   
-  .card-premium {
-    border-radius: var(--radius);
-    margin: 0.5rem 0;
+  button::after, [role="button"]::after {
+    background: rgba(255, 255, 255, 0.1);
   }
 }
 
-/* ===== TABLET ===== */
-@media (min-width: 641px) and (max-width: 1024px) {
-  .container {
-    padding-left: 1.5rem;
-    padding-right: 1.5rem;
-  }
-}
-
-/* ===== DESKTOP ===== */
-@media (min-width: 1025px) {
-  .container {
-    padding-left: 2rem;
-    padding-right: 2rem;
+/* High performance mode - simplified animations */
+@media (prefers-reduced-motion: reduce) {
+  .page-transition,
+  .tab-content,
+  .stagger-item {
+    animation: none;
   }
   
-  .card-premium:hover {
-    transform: translateY(-4px);
-  }
-}
-
-/* ==========================================
-   🎯 UTILITÉS PREMIUM
-   ========================================== */
-
-/* ===== PERFORMANCES ===== */
-.gpu-accelerated {
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  perspective: 1000px;
-}
-
-.will-change-transform {
-  will-change: transform;
-}
-
-/* ===== GRADIENTS TEXTE ===== */
-.text-gradient-primary {
-  background: var(--gradient-medical);
-  -webkit-background-clip: text;
-  background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
-
-/* ===== GLASS MORPHISM ===== */
-.glass {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.dark .glass {
-  background: rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-/* ===== CRITIQUES POUR LCP ===== */
-.critical-layout {
-  contain: layout;
-}
-
-.critical-container {
-  contain: layout style;
-}
-
-.critical-header {
-  contain: layout style paint;
-}
-
-.critical-hero {
-  contain: layout style paint;
-  content-visibility: auto;
-}
-
-.critical-title {
-  font-display: swap;
-  content-visibility: auto;
-}
-
-/* ===== PRINT STYLES ===== */
-@media print {
-  * {
-    background: transparent !important;
-    color: black !important;
-    box-shadow: none !important;
-    text-shadow: none !important;
+  button:hover, [role="button"]:hover,
+  .card:hover {
+    transform: none;
   }
   
-  .no-print {
-    display: none !important;
+  .progress-bar::after {
+    animation: none;
   }
 }

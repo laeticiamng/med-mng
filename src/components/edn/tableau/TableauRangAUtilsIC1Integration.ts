@@ -1,11 +1,11 @@
 
 import { determinerColonnesUtilesIC1, generateLignesRangAIC1 } from './TableauRangAUtilsIC1';
 import { logger } from '@/lib/logger';
-import type { EdnItem, ProcessingData, TableauResult } from '@/types';
+import type { EDNItem, ProcessingData, TableauResult } from '@/types';
 
 // Fonction principale pour traiter les données IC-1 selon E-LiSA officielle
-export function processTableauRangAIC1(data: ProcessingData | EdnItem): TableauResult {
-  logger.info('ui', 'Processing IC-1 selon fiche E-LiSA officielle', { 
+export function processTableauRangAIC1(data: ProcessingData | EDNItem): TableauResult {
+  logger.info('Processing IC-1 selon fiche E-LiSA officielle', { 
     component: 'TableauRangAUtilsIC1Integration',
     itemCode: data.item_code || 'unknown'
   });
@@ -19,7 +19,7 @@ export function processTableauRangAIC1(data: ProcessingData | EdnItem): TableauR
   const expectedCount = 15;
   const actualCount = lignesEnrichies.length;
   
-  logger.info('ui', `IC-1 E-LiSA : ${actualCount}/${expectedCount} connaissances`, {
+  logger.info(`IC-1 E-LiSA : ${actualCount}/${expectedCount} connaissances`, {
     component: 'TableauRangAUtilsIC1Integration',
     expectedCount,
     actualCount
@@ -34,7 +34,7 @@ export function processTableauRangAIC1(data: ProcessingData | EdnItem): TableauR
 }
 
 // Fonction pour vérifier si c'est l'item IC-1
-export function isIC1Item(data: ProcessingData | EdnItem): boolean {
+export function isIC1Item(data: ProcessingData | EDNItem): boolean {
   if (!data) return false;
   
   const theme = data.theme?.toLowerCase() || '';

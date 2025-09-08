@@ -34,19 +34,19 @@ class PerformanceCache {
     const entry = this.cache.get(key);
     
     if (!entry) {
-      logger.debug('performance', 'Cache miss', { key });
+      logger.debug('Cache miss', { key });
       return null;
     }
 
     const now = Date.now();
     if (now - entry.timestamp > entry.ttl) {
       this.cache.delete(key);
-      logger.debug('performance', 'Cache expired', { key });
+      logger.debug('Cache expired', { key });
       return null;
     }
 
     entry.hitCount++;
-    logger.debug('performance', 'Cache hit', { key, hitCount: entry.hitCount });
+    logger.debug('Cache hit', { key, hitCount: entry.hitCount });
     return entry.data;
   }
 
@@ -64,7 +64,7 @@ class PerformanceCache {
     };
 
     this.cache.set(key, entry);
-    logger.debug('performance', 'Cache set', { key, size: this.cache.size });
+    logger.debug('Cache set', { key, size: this.cache.size });
   }
 
   // Supprimer les entrées les moins utilisées
@@ -81,7 +81,7 @@ class PerformanceCache {
 
     if (leastUsedKey) {
       this.cache.delete(leastUsedKey);
-      logger.debug('performance', 'Cache evicted', { key: leastUsedKey });
+      logger.debug('Cache evicted', { key: leastUsedKey });
     }
   }
 
@@ -97,7 +97,7 @@ class PerformanceCache {
       }
     }
 
-    logger.info('performance', 'Cache cleanup completed', { deletedCount, remainingSize: this.cache.size });
+    logger.info('Cache cleanup completed', { deletedCount, remainingSize: this.cache.size });
   }
 
   // Statistiques du cache
@@ -124,7 +124,7 @@ class PerformanceCache {
   // Vider le cache
   clear(): void {
     this.cache.clear();
-    logger.info('performance', 'Cache cleared');
+    logger.info('Cache cleared');
   }
 }
 

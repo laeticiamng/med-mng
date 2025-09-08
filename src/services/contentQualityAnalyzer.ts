@@ -1,7 +1,7 @@
 // Service d'analyse de qualité du contenu pour optimiser l'expérience utilisateur
 
 import { supabase } from '@/integrations/supabase/client';
-import { logger } from '@/lib/logger';
+import { logger } from './logger';
 
 interface ContentQualityScore {
   itemCode: string;
@@ -214,7 +214,7 @@ class ContentQualityAnalyzer {
       };
 
     } catch (error) {
-      logger.error('ui', `Erreur analyse qualité item ${itemCode}`, {
+      logger.error(`Erreur analyse qualité item ${itemCode}`, {
         component: 'ContentQualityAnalyzer',
         action: 'analyzeEdnItem',
         metadata: { itemCode, error }
@@ -305,7 +305,7 @@ class ContentQualityAnalyzer {
       };
 
     } catch (error) {
-      logger.error('ui', 'Erreur analyse complète du contenu', {
+      logger.error('Erreur analyse complète du contenu', {
         component: 'ContentQualityAnalyzer',
         action: 'analyzeAllContent',
         metadata: { error }

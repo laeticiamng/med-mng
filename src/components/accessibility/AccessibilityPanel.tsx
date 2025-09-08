@@ -16,7 +16,7 @@ export const AccessibilityPanel: React.FC<{ isOpen: boolean; onClose: () => void
 
   const handleSettingChange = (key: keyof typeof settings, value: any) => {
     updateSettings({ [key]: value });
-    announceToScreenReader(`Paramètre ${String(key)} modifié`);
+    announceToScreenReader(`Paramètre ${key} modifié`);
   };
 
   return (
