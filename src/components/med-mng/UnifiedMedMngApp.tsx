@@ -4,6 +4,8 @@ import { Helmet } from 'react-helmet-async';
 import { GlobalMedMngLayout } from './GlobalMedMngLayout';
 import { ComprehensiveDashboard } from './ComprehensiveDashboard';
 import { EnhancedErrorBoundary } from './EnhancedErrorBoundary';
+import { AdvancedAnalytics } from './AdvancedAnalytics';
+import InteractiveStudyTools from './InteractiveStudyTools';
 import { initializePWA } from './AdvancedPWAFeatures';
 import { logger } from '@/utils/logger';
 import { useUnifiedErrorHandling } from '@/hooks/useUnifiedErrorHandling';
@@ -134,10 +136,11 @@ export const UnifiedMedMngApp: React.FC = () => {
             <Route path="/comprehensive" element={<ComprehensiveDashboard />} />
             <Route path="/create" element={<Create />} />
             <Route path="/library" element={<Library />} />
-            <Route path="/analytics" element={<Analytics />} />
+            <Route path="/analytics" element={<AdvancedAnalytics />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/community" element={<Community />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/study-tools" element={<InteractiveStudyTools />} />
             
             {/* Playlists */}
             <Route path="/playlists" element={<Playlists />} />

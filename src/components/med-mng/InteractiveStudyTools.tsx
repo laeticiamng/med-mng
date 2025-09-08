@@ -585,3 +585,6 @@ export const StudyTimer: React.FC<StudyTimerProps> = ({ onComplete, className = 
     </motion.div>
   );
 };
+
+export { InteractiveStudyTools };
+export default InteractiveStudyTools;

@@ -251,7 +251,7 @@ export const LazyComponentWrapper: React.FC<LazyComponentWrapperProps> = memo(({
   fallback,
   className = ''
 }) => {
-  const { startRenderTiming, timeEnd } = usePerformanceMonitoring('LazyComponent');
+  const { startRenderTiming, endInteractionTiming } = usePerformanceMonitoring('LazyComponent');
 
   const defaultFallback = (
     <div className="flex items-center justify-center p-8">
@@ -265,8 +265,8 @@ export const LazyComponentWrapper: React.FC<LazyComponentWrapperProps> = memo(({
 
   React.useEffect(() => {
     startRenderTiming();
-    return () => timeEnd('LazyComponent load');
-  }, [startRenderTiming, timeEnd]);
+    return () => endInteractionTiming();
+  }, [startRenderTiming, endInteractionTiming]);
 
   return (
     <div className={className}>
@@ -297,7 +297,7 @@ export const PerformanceOptimizedList: React.FC<PerformanceOptimizedListProps> =
   onEndReachedThreshold = 0.8,
   className = ''
 }) => {
-  const { startRenderTiming, timeEnd } = usePerformanceMonitoring('PerformanceOptimizedList');
+  const { startRenderTiming, endInteractionTiming } = usePerformanceMonitoring('PerformanceOptimizedList');
   const scrollElementRef = React.useRef<HTMLDivElement>(null);
 
   startRenderTiming();
@@ -332,7 +332,7 @@ export const PerformanceOptimizedList: React.FC<PerformanceOptimizedListProps> =
   }, [onEndReached, onEndReachedThreshold]);
 
   React.useEffect(() => {
-    timeEnd('PerformanceOptimizedList render');
+    endInteractionTiming();
   });
 
   return (
