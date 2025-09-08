@@ -1,85 +1,54 @@
 /**
- * Production-ready logging system
- * Replaces console.log with structured logging
+ * 🚀 SYSTÈME DE LOGGING OPTIMISÉ MED-MNG v2.0
+ * Remplace tous les console.log pour de meilleures performances
  */
 
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
-
-interface LogContext {
-  component?: string;
-  action?: string;
-  userId?: string;
-  itemCode?: string;
-  count?: number;
-  expectedCount?: number;
-  actualCount?: number;
-  duration?: string;
-  filename?: string;
-  key?: string;
-  hitCount?: number;
-  replacements?: number;
-  deletedCount?: number;
-  remainingSize?: number;
-  size?: number;
-  metadata?: Record<string, unknown>;
-}
+export type LogContext = 'app' | 'api' | 'auth' | 'music' | 'ui' | 'performance' | 'security';
 
 class Logger {
   private isDevelopment = import.meta.env.DEV;
 
-  private formatMessage(level: LogLevel, message: string, context?: LogContext): void {
-    if (!this.isDevelopment && level === 'debug') return;
-    
-    const timestamp = new Date().toISOString();
-    const logData = {
-      timestamp,
-      level: level.toUpperCase(),
-      message,
-      ...context
-    };
-
-    // In development, use console for better debugging experience
+  private log(level: LogLevel, context: LogContext, message: string, data?: any): void {
     if (this.isDevelopment) {
-      const method = level === 'error' ? 'error' : level === 'warn' ? 'warn' : 'info';
-      console[method](`[${level.toUpperCase()}]`, message, context || '');
-      return;
+      const emoji = context === 'music' ? '🎵' : context === 'performance' ? '📊' : '⚡';
+      const prefix = `${emoji} [${context.toUpperCase()}]`;
+      
+      switch (level) {
+        case 'debug':
+          console.debug(`${prefix} ${message}`, data || '');
+          break;
+        case 'info':
+          console.info(`${prefix} ${message}`, data || '');
+          break;
+        case 'warn':
+          console.warn(`${prefix} ${message}`, data || '');
+          break;
+        case 'error':
+          console.error(`${prefix} ${message}`, data || '');
+          break;
+      }
     }
-
-    // In production, send to monitoring service
-    this.sendToMonitoring(logData);
   }
 
-  private sendToMonitoring(logData: any): void {
-    // Integration with monitoring service (Sentry, etc.)
-    if (typeof window !== 'undefined' && window.gtag) {
-      window.gtag('event', 'log', {
-        custom_parameter: JSON.stringify(logData)
-      });
-    }
+  debug(context: LogContext, message: string, data?: any): void {
+    this.log('debug', context, message, data);
   }
 
-  debug(message: string, context?: LogContext): void {
-    this.formatMessage('debug', message, context);
+  info(context: LogContext, message: string, data?: any): void {
+    this.log('info', context, message, data);
   }
 
-  info(message: string, context?: LogContext): void {
-    this.formatMessage('info', message, context);
+  warn(context: LogContext, message: string, data?: any): void {
+    this.log('warn', context, message, data);
   }
 
-  warn(message: string, context?: LogContext): void {
-    this.formatMessage('warn', message, context);
+  error(context: LogContext, message: string, data?: any): void {
+    this.log('error', context, message, data);
   }
 
-  error(message: string, context?: LogContext): void {
-    this.formatMessage('error', message, context);
-  }
-
-  performance(label: string, startTime: number, context?: LogContext): void {
-    const duration = performance.now() - startTime;
-    this.info(`Performance: ${label}`, {
-      ...context,
-      duration: `${duration.toFixed(2)}ms`
-    });
+  performance(message: string, data?: any): void {
+    this.info('performance', message, data);
   }
 }
 
