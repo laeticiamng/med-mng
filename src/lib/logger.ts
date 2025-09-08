@@ -3,6 +3,17 @@
  * Logger unique ultra-performant avec gestion avancée des erreurs
  */
 
+// IMPORTANT: Sauvegarder les références console AVANT tout remplacement
+const nativeConsole = {
+  log: console.log.bind(console),
+  info: console.info.bind(console),
+  warn: console.warn.bind(console),
+  error: console.error.bind(console),
+  debug: console.debug.bind(console),
+  time: console.time.bind(console),
+  timeEnd: console.timeEnd.bind(console),
+};
+
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 export type LogContext = 'app' | 'api' | 'auth' | 'music' | 'ui' | 'performance' | 'security' | 'database' | 'cache' | 'validation';
 
@@ -108,6 +119,7 @@ class UnifiedLogger {
 
     this.addToHistory(entry);
 
+    // Utiliser les méthodes console natives pour éviter les boucles infinies
     if (this.config.enableConsole) {
       const emoji = this.getContextEmoji(context);
       const prefix = `${emoji} [${context.toUpperCase()}]`;
@@ -115,17 +127,17 @@ class UnifiedLogger {
       
       switch (level) {
         case 'debug':
-          console.debug(`${timestamp} ${prefix} ${message}`, filteredData || '');
+          nativeConsole.debug(`${timestamp} ${prefix} ${message}`, filteredData || '');
           break;
         case 'info':
-          console.info(`${timestamp} ${prefix} ${message}`, filteredData || '');
+          nativeConsole.info(`${timestamp} ${prefix} ${message}`, filteredData || '');
           break;
         case 'warn':
-          console.warn(`${timestamp} ${prefix} ${message}`, filteredData || '');
+          nativeConsole.warn(`${timestamp} ${prefix} ${message}`, filteredData || '');
           break;
         case 'error':
-          console.error(`${timestamp} ${prefix} ${message}`, filteredData || '');
-          if (entry.stack) console.error('Stack:', entry.stack);
+          nativeConsole.error(`${timestamp} ${prefix} ${message}`, filteredData || '');
+          if (entry.stack) nativeConsole.error('Stack:', entry.stack);
           break;
       }
     }
@@ -202,13 +214,13 @@ class UnifiedLogger {
   // Monitoring des performances
   time(label: string): void {
     if (this.isDevelopment) {
-      console.time(label);
+      nativeConsole.time(label);
     }
   }
 
   timeEnd(label: string): void {
     if (this.isDevelopment) {
-      console.timeEnd(label);
+      nativeConsole.timeEnd(label);
     }
   }
 }
