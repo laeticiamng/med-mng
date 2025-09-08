@@ -21,9 +21,10 @@ interface GenerationResponse {
   };
 }
 
-// ⚠️ DEPRECATED: Use useUnifiedMedicalMusicGeneration instead
+// ⚠️ DEPRECATED: This hook has been removed for production optimization.
+// Use useUnifiedMedicalMusicGeneration from the unified system instead.
 export const useMusicGeneration = () => {
-  console.warn('🚨 useMusicGeneration is deprecated. Use useUnifiedMedicalMusicGeneration instead.');
+  // Removed console.warn for production optimization
   
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationProgress, setGenerationProgress] = useState<string>('');

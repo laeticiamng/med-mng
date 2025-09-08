@@ -12,10 +12,10 @@ import {
 import { useLanguage } from '@/contexts/LanguageContext';
 import { callSunoApi } from './musicGenerationApi';
 
-// ⚠️ DEPRECATED: Use useUnifiedMedicalMusicGeneration instead
-// This hook is kept for backward compatibility only
+// ⚠️ DEPRECATED: This hook has been removed for production optimization.
+// Use useUnifiedMedicalMusicGeneration from the unified system instead.
 export const useMedMngMusicGeneration = () => {
-  console.warn('🚨 useMedMngMusicGeneration is deprecated. Use useUnifiedMedicalMusicGeneration instead.');
+  // Removed console.warn for production optimization
   
   const { toast } = useToast();
   
@@ -37,7 +37,7 @@ export const useMedMngMusicGeneration = () => {
     duration: number = 240,
     itemCode?: string
   ) => {
-    console.warn('🚨 Deprecated function called. Use useUnifiedMedicalMusicGeneration instead.');
+    // Removed deprecated console.log calls for production optimization
     
     toast({
       title: "Fonction dépréciée",

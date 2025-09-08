@@ -1,7 +1,8 @@
 
-// ⚠️ DEPRECATED: Use useUnifiedMedicalMusicGeneration instead
+// ⚠️ DEPRECATED: This hook has been removed for production optimization.
+// Use useUnifiedMedicalMusicGeneration from the unified system instead.
 export const useMusicGenerationWithTranslation = () => {
-  console.warn('🚨 useMusicGenerationWithTranslation is deprecated. Use useUnifiedMedicalMusicGeneration instead.');
+  // Removed console.warn for production optimization
   
   // Mock subscription for compatibility
   const getSunoModel = () => 'V3_5';
@@ -12,7 +13,7 @@ export const useMusicGenerationWithTranslation = () => {
     selectedStyle: string, 
     duration: number = 240
   ) => {
-    console.warn('🚨 Deprecated function. Use useUnifiedMedicalMusicGeneration instead.');
+    // Removed deprecated console.warn for production optimization
     return '';
   };
 
