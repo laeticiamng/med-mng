@@ -30,7 +30,7 @@ const PlatformOptimizedDashboard = lazy(() => import("./pages/PlatformOptimizedD
 const UltimatePlatform = lazy(() => import("./pages/UltimatePlatform"));
 
 // ⚡ CORE PAGES - Essentielles
-const Index = lazy(() => import("./pages/Index"));
+const OptimizedIndex = lazy(() => import("./pages/OptimizedIndex"));
 const PlatformOverview = lazy(() => import("./pages/PlatformOverview"));
 const Generator = lazy(() => import("./pages/Generator"));
 const MeditationCenter = lazy(() => import("./pages/MeditationCenter"));
@@ -102,7 +102,7 @@ import { UXToolbar } from '@/components/ux/UXToolbar';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { SkipToMain } from '@/components/ux/AccessibilityEnhancements';
 import { PageSkeleton } from "@/components/loading/SkeletonLoader";
-import { PremiumNavigation } from "@/components/navigation/PremiumNavigation";
+import { PremiumGlobalNavigation } from "@/components/layout/PremiumGlobalNavigation";
 
 // Component to handle keyboard shortcuts inside Router context
 const AppKeyboardShortcuts = memo(() => {
@@ -169,7 +169,7 @@ const AppWithUX = () => {
                                   <SkipLinks />
                                    <div id="app-root" className="min-h-screen flex flex-col overflow-safe" style={{ display: 'block' }}>
                                       {/* Navigation Premium Unifiée */}
-                                      <PremiumNavigation />
+                                      <PremiumGlobalNavigation />
                                      
                                      <main id="main-content" tabIndex={-1} className="flex-1 pb-20 overflow-safe">
                                       <PageThemeProvider>
@@ -177,7 +177,7 @@ const AppWithUX = () => {
                                           <Suspense fallback={<PageSkeleton />}>
                                            <Routes>
                                              {/* ⚡ CORE ROUTES */}
-                                             <Route path="/" element={<Index />} />
+                                             <Route path="/" element={<OptimizedIndex />} />
                               <Route path="/platform" element={<PlatformOverview />} />
                               <Route path="/features" element={<Navigate to="/platform" replace />} />
                               <Route path="/optimized" element={<OptimizedPlatform />} />
