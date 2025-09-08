@@ -6,7 +6,7 @@
 import { nativeConsole } from '@/utils/nativeConsole';
 
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
-export type LogContext = 'app' | 'api' | 'auth' | 'music' | 'ui' | 'performance' | 'security' | 'database' | 'cache' | 'validation' | 'pwa' | 'testing' | 'accessibility' | 'i18n' | 'audio' | 'analytics';
+export type LogContext = 'app' | 'api' | 'auth' | 'music' | 'ui' | 'performance' | 'security' | 'database' | 'cache' | 'validation' | 'pwa' | 'testing' | 'accessibility' | 'i18n' | 'audio' | 'analytics' | 'audit';
 
 interface LogEntry {
   level: LogLevel;
@@ -96,7 +96,8 @@ class UnifiedLogger {
       accessibility: '♿',
       i18n: '🌍',
       audio: '🔊',
-      analytics: '📈'
+      analytics: '📈',
+      audit: '🔍'
     };
     return emojis[context] || '⚡';
   }
