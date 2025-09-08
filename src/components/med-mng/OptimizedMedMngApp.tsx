@@ -12,6 +12,7 @@ import { NotificationProvider } from './NotificationProvider';
 import { FavoritesSidebar } from './FavoritesSidebar';
 import { SearchResults } from './SearchResults';
 import { NotificationCenter } from './NotificationCenter';
+import { PWAInstallPrompt, OfflineStatus, NotificationManager } from './PWAFeatures';
 import { AnalyticsDashboard } from './AnalyticsDashboard';
 import { ProfilePage } from './ProfilePage';
 import { HelpPage } from './HelpPage';
@@ -97,8 +98,12 @@ const OptimizedLayout: React.FC<{ children: React.ReactNode }> = memo(({ childre
     
     <div className="flex min-h-screen">
       {/* Sidebar des favoris */}
-      <aside className="hidden lg:block w-80 border-r border-border bg-card/50">
+      <aside className="hidden lg:block w-80 border-r border-border bg-card/50 space-y-4 p-4">
         <FavoritesSidebar />
+        <div className="space-y-4">
+          <OfflineStatus />
+          <NotificationManager />
+        </div>
       </aside>
 
       {/* Contenu principal */}
@@ -113,6 +118,10 @@ const OptimizedLayout: React.FC<{ children: React.ReactNode }> = memo(({ childre
 
         {/* Zone de contenu */}
         <div className="flex-1 p-6">
+          <PWAInstallPrompt 
+            onInstall={() => console.log('PWA installed')} 
+            className="mb-4" 
+          />
           {children}
         </div>
       </main>
