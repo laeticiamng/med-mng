@@ -38,7 +38,7 @@ interface InteractiveMusicPlayerProps {
   className?: string;
 }
 
-export const InteractiveMusicPlayer: React.FC<InteractiveMusicPlayerProps> = ({ 
+const InteractiveMusicPlayer: React.FC<InteractiveMusicPlayerProps> = ({ 
   track,
   className = "" 
 }) => {
@@ -258,7 +258,7 @@ interface InteractiveQuizProps {
   className?: string;
 }
 
-export const InteractiveQuiz: React.FC<InteractiveQuizProps> = ({ 
+const InteractiveQuiz: React.FC<InteractiveQuizProps> = ({ 
   questions, 
   onComplete, 
   className = "" 
@@ -476,7 +476,7 @@ interface StudyTimerProps {
   className?: string;
 }
 
-export const StudyTimer: React.FC<StudyTimerProps> = ({ onComplete, className = "" }) => {
+const StudyTimer: React.FC<StudyTimerProps> = ({ onComplete, className = "" }) => {
   const [minutes, setMinutes] = useState(25);
   const [seconds, setSeconds] = useState(0);
   const [isActive, setIsActive] = useState(false);
