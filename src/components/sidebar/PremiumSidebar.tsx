@@ -217,7 +217,7 @@ const navigationGroups: NavigationGroup[] = [
 // ==========================================
 
 export const PremiumSidebar: React.FC = () => {
-  const { collapsed } = useSidebar();
+  const { state } = useSidebar();
   const location = useLocation();
   const { user } = useFinalStore();
   const currentPath = location.pathname;
@@ -245,16 +245,16 @@ export const PremiumSidebar: React.FC = () => {
       id="sidebar-navigation"
       className={cn(
         "border-r bg-card/50 backdrop-blur-sm",
-        collapsed ? "w-14" : "w-72"
+        state === 'collapsed' ? "w-14" : "w-72"
       )}
-      collapsible
+      collapsible="icon"
     >
       <SidebarContent className="gap-0">
         
         {/* Header avec logo et utilisateur */}
-        <div className={cn(
+          <div className={cn(
           "flex flex-col gap-4 p-4 border-b",
-          collapsed && "items-center p-2"
+          state === 'collapsed' && "items-center p-2"
         )}>
           
           {/* Logo */}
@@ -262,7 +262,7 @@ export const PremiumSidebar: React.FC = () => {
             <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
               <Stethoscope className="w-4 h-4 text-white" />
             </div>
-            {!collapsed && (
+            {state !== 'collapsed' && (
               <div className="flex flex-col">
                 <span className="font-bold text-lg bg-gradient-primary bg-clip-text text-transparent">
                   MED-MNG
@@ -276,15 +276,15 @@ export const PremiumSidebar: React.FC = () => {
           {user && (
             <div className={cn(
               "flex items-center gap-3 p-2 rounded-lg bg-muted/50",
-              collapsed && "justify-center"
+              state === 'collapsed' && "justify-center"
             )}>
               <Avatar className="w-8 h-8">
-                <AvatarImage src={user.avatar} alt={user.name} />
+                <AvatarImage src={user?.avatar_url} alt={user?.name} />
                 <AvatarFallback className="bg-primary text-primary-foreground text-xs">
                   {user.name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'U'}
                 </AvatarFallback>
               </Avatar>
-              {!collapsed && (
+              {state !== 'collapsed' && (
                 <div className="flex flex-col min-w-0 flex-1">
                   <span className="text-sm font-medium truncate">{user.name}</span>
                   <span className="text-xs text-muted-foreground capitalize">{user.role}</span>
@@ -302,10 +302,9 @@ export const PremiumSidebar: React.FC = () => {
             return (
               <SidebarGroup 
                 key={group.label}
-                defaultOpen={hasActiveItem}
                 className="mb-4"
               >
-                {!collapsed && (
+                {state !== 'collapsed' && (
                   <SidebarGroupLabel className="px-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
                     {group.label}
                   </SidebarGroupLabel>
@@ -319,7 +318,7 @@ export const PremiumSidebar: React.FC = () => {
                           <NavLink
                             to={item.url}
                             className={getNavClasses(item.url)}
-                            title={collapsed ? `${item.title} ${item.shortcut ? `(${item.shortcut})` : ''}` : undefined}
+                            title={state === 'collapsed' ? `${item.title} ${item.shortcut ? `(${item.shortcut})` : ''}` : undefined}
                             aria-label={`${item.title}${item.description ? ` - ${item.description}` : ''}`}
                           >
                             <item.icon 
@@ -329,7 +328,7 @@ export const PremiumSidebar: React.FC = () => {
                               )} 
                             />
                             
-                            {!collapsed && (
+                            {state !== 'collapsed' && (
                               <>
                                 <span className="flex-1 truncate">{item.title}</span>
                                 

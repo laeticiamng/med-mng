@@ -83,7 +83,9 @@ const PremiumApp: React.FC = () => {
       >
         <PremiumAppProviders>
           <Suspense fallback={<PremiumLoadingFallback />}>
-            <PremiumLayout />
+            <PremiumLayout>
+              <div>MED-MNG v4.0 Premium is loading...</div>
+            </PremiumLayout>
           </Suspense>
         </PremiumAppProviders>
       </ErrorBoundary>
