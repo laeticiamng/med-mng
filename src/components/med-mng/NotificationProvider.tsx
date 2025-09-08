@@ -56,8 +56,9 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
           .eq('user_id', user.id)
           .single();
 
-        if (data && 'notification_settings' in data) {
-          setSettings({ ...defaultSettings, ...data.notification_settings });
+        const typedData = data as any;
+        if (typedData?.notification_settings) {
+          setSettings({ ...defaultSettings, ...typedData.notification_settings });
         }
       } catch (error) {
         console.error('Failed to load notification settings:', error);

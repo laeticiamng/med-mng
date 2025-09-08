@@ -6,6 +6,10 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ProtectedRoute } from './ProtectedRoute';
 import { AuthProvider, useAuth } from './AuthProvider';
+import { MusicGenerationProvider } from './MusicGenerationProvider';
+import { StudySessionProvider } from './StudySessionProvider';
+import { NotificationProvider } from './NotificationProvider';
+import { AccessibilityProvider } from './AccessibilityProvider';
 import { Loader2, Music, BarChart3, BookOpen, Settings, Sparkles, User, LogOut } from 'lucide-react';
 
 // Lazy load components for better performance
