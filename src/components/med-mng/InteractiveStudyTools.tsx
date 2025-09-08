@@ -674,4 +674,5 @@ const InteractiveStudyTools: React.FC = () => {
   );
 };
 
+export { InteractiveMusicPlayer, InteractiveQuiz, StudyTimer };
 export default InteractiveStudyTools;
