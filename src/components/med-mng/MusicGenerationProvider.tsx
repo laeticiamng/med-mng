@@ -151,9 +151,9 @@ export const MusicGenerationProvider: React.FC<{ children: ReactNode }> = ({ chi
         ...prev,
         history: [
           {
-            id: generatedMusic.id,
-            title: generatedMusic.title,
-            style: generatedMusic.style,
+        id: generatedMusic.id,
+        title: generatedMusic.title,
+        style: 'generated',
             createdAt: generatedMusic.createdAt,
             status: 'completed',
             audioUrl: generatedMusic.audioUrl
@@ -243,7 +243,7 @@ export const MusicGenerationProvider: React.FC<{ children: ReactNode }> = ({ chi
       const history: GenerationHistory[] = data?.map(song => ({
         id: song.id,
         title: song.title,
-        style: song.style || 'Unknown',
+        style: 'Chanson générée',
         createdAt: new Date(song.created_at),
         status: 'completed',
         audioUrl: song.suno_audio_id

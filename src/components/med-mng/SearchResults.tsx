@@ -42,7 +42,7 @@ interface SearchResult {
 interface SearchCategory {
   id: string;
   name: string;
-  icon: React.ComponentType<{ size?: number; className?: string }>;
+  icon: any;
   color: string;
   count: number;
 }
@@ -223,20 +223,22 @@ export const SearchResults: React.FC = () => {
   }, [debouncedSearchTerm]);
 
   // Raccourcis clavier pour la recherche
-  useKeyboardShortcuts({
-    'Ctrl+K': (e) => {
-      e.preventDefault();
-      setIsSearchOpen(true);
-      setTimeout(() => searchInputRef.current?.focus(), 100);
-    },
-    'Escape': () => {
-      if (isSearchOpen) {
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.ctrlKey && e.key === 'k') {
+        e.preventDefault();
+        setIsSearchOpen(true);
+        setTimeout(() => searchInputRef.current?.focus(), 100);
+      } else if (e.key === 'Escape' && isSearchOpen) {
         setIsSearchOpen(false);
         setSearchTerm('');
         setSelectedIndex(-1);
       }
-    }
-  });
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [isSearchOpen]);
 
   // Filtrer les résultats
   const filteredResults = useMemo(() => {

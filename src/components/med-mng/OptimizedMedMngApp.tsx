@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { AlertCircle, RefreshCw } from 'lucide-react';
 import { AuthProvider } from './AuthProvider';
 import { MusicGenerationProvider } from './MusicGenerationProvider';
-import { StudySessionProvider } from './StudySessionProvider';
+import { StudySessionProvider } from './StudySessionProviderSimplified';
 import { NotificationProvider } from './NotificationProvider';
 import { FavoritesSidebar } from './FavoritesSidebar';
 import { SearchResults } from './SearchResults';

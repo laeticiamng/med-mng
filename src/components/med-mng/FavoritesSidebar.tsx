@@ -135,7 +135,7 @@ export const FavoritesSidebar: React.FC = memo(() => {
         await play({
           title: song.title,
           url: song.suno_audio_id,
-          duration: 0
+          rang: 'A'
         });
       }
     } catch (error) {

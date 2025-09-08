@@ -1,5 +1,4 @@
 import React from 'react';
-<parameter name="content">import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 export const HelpPage: React.FC = () => {
