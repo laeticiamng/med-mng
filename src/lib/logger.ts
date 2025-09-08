@@ -3,16 +3,7 @@
  * Logger unique ultra-performant avec gestion avancée des erreurs
  */
 
-// IMPORTANT: Sauvegarder les références console AVANT tout remplacement
-const nativeConsole = {
-  log: console.log.bind(console),
-  info: console.info.bind(console),
-  warn: console.warn.bind(console),
-  error: console.error.bind(console),
-  debug: console.debug.bind(console),
-  time: console.time.bind(console),
-  timeEnd: console.timeEnd.bind(console),
-};
+import { nativeConsole } from '@/utils/nativeConsole';
 
 export type LogLevel = 'debug' | 'info' | 'warn' | 'error';
 export type LogContext = 'app' | 'api' | 'auth' | 'music' | 'ui' | 'performance' | 'security' | 'database' | 'cache' | 'validation';

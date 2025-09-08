@@ -7,7 +7,9 @@ import React, { StrictMode, memo, useEffect } from 'react';
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 
-// Console replacer - DOIT être importé en premier
+// Native console DOIT être importé avant tout
+import '@/utils/nativeConsole';
+// Console replacer - DOIT être importé en second
 import '@/utils/consoleReplacer';
 
 // Composants refactorisés

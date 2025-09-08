@@ -3,6 +3,7 @@
  * Outil automatique pour remplacer tous les console.log par le logger unifié
  */
 
+import { nativeConsole } from '@/utils/nativeConsole';
 import { logger } from '@/lib/logger';
 
 // Remplacement automatique des console.* par le logger unifié
@@ -34,6 +35,15 @@ if (import.meta.env.DEV) {
     const data = args.slice(1);
     logger.error('app', message, data.length ? data : undefined);
   };
+
+  // Conserver les méthodes utiles non remplacées
+  console.debug = nativeConsole.debug;
+  console.time = nativeConsole.time;
+  console.timeEnd = nativeConsole.timeEnd;
+  console.table = nativeConsole.table;
+  console.group = nativeConsole.group;
+  console.groupEnd = nativeConsole.groupEnd;
+  console.clear = nativeConsole.clear;
 
   logger.info('app', '🔧 Console methods replaced with unified logger');
 }
