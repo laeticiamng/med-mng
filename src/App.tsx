@@ -20,24 +20,11 @@ import GlobalErrorBoundary from "@/components/error/GlobalErrorBoundary";
 import { GlobalNavigation } from "@/components/layout/GlobalNavigation";
 import { GlobalMusicPlayer } from "@/components/layout/GlobalMusicPlayer";
 
-// ⚡ UNIFIED ROUTES - Optimisées et nettoyées
-const UnifiedPlatform = lazy(() => import("./pages/unified/UnifiedPlatform"));
-const UnifiedAdmin = lazy(() => import("./pages/unified/UnifiedAdmin"));
-const UnifiedAnalytics = lazy(() => import("./pages/unified/UnifiedAnalytics"));
-const OptimizedPlatform = lazy(() => import("./pages/OptimizedPlatform"));
-const FinalOptimizedPlatform = lazy(() => import("./pages/FinalOptimizedPlatform"));
-const PlatformOptimizedDashboard = lazy(() => import("./pages/PlatformOptimizedDashboard"));
-const UltimatePlatform = lazy(() => import("./pages/UltimatePlatform"));
-
-// ⚡ CORE PAGES - Essentielles
+// ⚡ CORE PAGES - Architecture unifiée et optimisée
 const OptimizedIndex = lazy(() => import("./pages/OptimizedIndex"));
 const PlatformOverview = lazy(() => import("./pages/PlatformOverview"));
 const Generator = lazy(() => import("./pages/Generator"));
 const MeditationCenter = lazy(() => import("./pages/MeditationCenter"));
-const PremiumDashboard = lazy(() => import("./pages/PremiumDashboard"));
-const PremiumAnalytics = lazy(() => import("./pages/PremiumAnalytics"));
-const PremiumCommunity = lazy(() => import("./pages/PremiumCommunity"));
-const PremiumProfile = lazy(() => import("./pages/PremiumProfile"));
 const UserSettings = lazy(() => import("./pages/UserSettings"));
 const Documentation = lazy(() => import("./pages/Documentation"));
 const Notifications = lazy(() => import("./pages/Notifications"));
@@ -45,12 +32,27 @@ const FAQ = lazy(() => import("./pages/FAQ"));
 const HelpCenter = lazy(() => import("./pages/HelpCenter"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 
-// ⚡ EDN & ECOS SYSTEM
+// ⚡ ANALYTICS & DASHBOARDS - Version unifiée
+const UnifiedAnalytics = lazy(() => import("./pages/unified/UnifiedAnalytics"));
+const UnifiedDashboard = lazy(() => import("./pages/unified/UnifiedDashboard"));
+
+// ⚡ COMMUNITY & SOCIAL
+const Community = lazy(() => import("./pages/Community"));
+const Profile = lazy(() => import("./pages/Profile"));
+
+// ⚡ EDN & ECOS SYSTEM - Architecture épurée
 const EdnComplete = lazy(() => import("./pages/EdnComplete"));
 const EdnItem = lazy(() => import("./pages/EdnItem"));
 const EdnImmersive = lazy(() => import("./pages/EdnImmersive"));
 const EcosIndex = lazy(() => import("./pages/EcosIndex"));
 const EcosScenario = lazy(() => import("./pages/EcosScenario"));
+
+// ⚡ ADMIN & MONITORING - Composants manquants
+const UnifiedAdmin = lazy(() => import("./pages/unified/UnifiedAdmin"));
+const MonitoringCenter = lazy(() => import("./pages/MonitoringCenter"));
+const SystemHealth = lazy(() => import("./pages/SystemHealth"));
+const AuditComplete = lazy(() => import("./pages/AuditComplete"));
+const UltimateAIHub = lazy(() => import("./pages/UltimateAIHub"));
 
 // ⚡ MEDICAL PLATFORM
 const EnhancedMedicalPlatform = lazy(() => import("./pages/EnhancedMedicalPlatform"));
@@ -71,25 +73,8 @@ const MedMngPlaylists = lazy(() => import("./pages/med-mng/Playlists"));
 const MedMngPlaylistDetail = lazy(() => import("./pages/med-mng/PlaylistDetail"));
 const ComprehensiveDashboard = lazy(() => import("./components/med-mng/ComprehensiveDashboard").then(module => ({ default: module.ComprehensiveDashboard })));
 
-// ⚡ ADMIN & MONITORING
-const MonitoringCenter = lazy(() => import("./pages/MonitoringCenter"));
-const SystemAdmin = lazy(() => import("./pages/SystemAdmin"));
-const SystemHealth = lazy(() => import("./pages/SystemHealth"));
-const SystemDashboard = lazy(() => import("./pages/SystemDashboard"));
-const UltimateAdministration = lazy(() => import("./pages/UltimateAdministration"));
-const AdminPanel = lazy(() => import("./pages/AdminPanel").then(module => ({ default: module.AdminPanel })));
-const RouteValidator = lazy(() => import("./pages/RouteValidator"));
-
-// ⚡ AUDIT & ANALYSIS
-const AuditComplete = lazy(() => import("./pages/AuditComplete"));
-const AuditCompleteness = lazy(() => import("./pages/AuditCompleteness"));
-const NavigationAuditPage = lazy(() => import("./pages/NavigationAuditPage"));
-
-// ⚡ CHAT & AI
+// ⚡ CHAT & LEGAL
 const MedChat = lazy(() => import("./pages/MedChat"));
-const UltimateAIHub = lazy(() => import("./pages/UltimateAIHub"));
-
-// ⚡ LEGAL PAGES
 const MentionsLegales = lazy(() => import("./pages/MentionsLegales"));
 const PolitiqueConfidentialite = lazy(() => import("./pages/PolitiqueConfidentialite"));
 const Conditions = lazy(() => import("./pages/Conditions"));
@@ -201,29 +186,27 @@ const AppWithUX = () => {
                                       <PageThemeProvider>
                                         <GlobalErrorBoundary>
                                           <Suspense fallback={<PageSkeleton />}>
-                                           <Routes>
-                                             {/* ⚡ CORE ROUTES */}
-                                             <Route path="/" element={<OptimizedIndex />} />
-                              <Route path="/platform" element={<PlatformOverview />} />
-                              <Route path="/features" element={<Navigate to="/platform" replace />} />
-                              <Route path="/optimized" element={<OptimizedPlatform />} />
-                              <Route path="/final-optimized" element={<FinalOptimizedPlatform />} />
-                              <Route path="/platform-dashboard" element={<PlatformOptimizedDashboard />} />
-                              <Route path="/ultimate" element={<UltimatePlatform />} />
-                              <Route path="/unified" element={<UnifiedPlatform />} />
-                              <Route path="/admin" element={<UnifiedAdmin />} />
-                              <Route path="/analytics" element={<UnifiedAnalytics />} />
-                                             <Route path="/generator" element={<Generator />} />
-                                             <Route path="/meditation/*" element={<MeditationCenter />} />
-                                             <Route path="/dashboard" element={<PremiumDashboard />} />
-                                             <Route path="/analytics" element={<PremiumAnalytics />} />
-                                             <Route path="/community" element={<PremiumCommunity />} />
-                                             <Route path="/profile" element={<PremiumProfile />} />
-                                             <Route path="/settings" element={<UserSettings />} />
-                                             <Route path="/documentation" element={<Documentation />} />
-                                             <Route path="/notifications" element={<Notifications />} />
-                                             <Route path="/faq" element={<FAQ />} />
-                                             <Route path="/help" element={<HelpCenter />} />
+                                            <Routes>
+                                              {/* ⚡ CORE ROUTES - Architecture propre */}
+                                              <Route path="/" element={<OptimizedIndex />} />
+                                              <Route path="/platform" element={<PlatformOverview />} />
+                                              <Route path="/generator" element={<Generator />} />
+                                              <Route path="/meditation/*" element={<MeditationCenter />} />
+                                              
+                                              {/* ⚡ DASHBOARD & ANALYTICS - Version unifiée */}
+                                              <Route path="/dashboard" element={<UnifiedDashboard />} />
+                                              <Route path="/analytics" element={<UnifiedAnalytics />} />
+                                              
+                                              {/* ⚡ COMMUNITY & PROFILE */}
+                                              <Route path="/community" element={<Community />} />
+                                              <Route path="/profile" element={<Profile />} />
+                                              
+                                              {/* ⚡ SUPPORT & SETTINGS */}
+                                              <Route path="/settings" element={<UserSettings />} />
+                                              <Route path="/documentation" element={<Documentation />} />
+                                              <Route path="/notifications" element={<Notifications />} />
+                                              <Route path="/faq" element={<FAQ />} />
+                                              <Route path="/help" element={<HelpCenter />} />
 
                                              {/* ⚡ EDN SYSTEM */}
                                              <Route path="/edn" element={<EdnComplete />} />
@@ -255,17 +238,11 @@ const AppWithUX = () => {
                                               <Route path="/med-mng/playlists/:playlistId" element={<ProtectedRoute><MedMngPlaylistDetail /></ProtectedRoute>} />
                                               <Route path="/med-mng/player/:trackId" element={<ProtectedRoute><MedMngPlayer /></ProtectedRoute>} />
 
-                                             {/* ⚡ AUDIT & MONITORING */}
-                                             <Route path="/audit" element={<AuditComplete />} />
-                                             <Route path="/audit-completeness" element={<AuditCompleteness />} />
-                                             <Route path="/navigation-audit" element={<NavigationAuditPage />} />
-                                             <Route path="/route-validator" element={<RouteValidator />} />
-                                             <Route path="/monitoring" element={<MonitoringCenter />} />
-                                             <Route path="/system-admin" element={<SystemAdmin />} />
-                                             <Route path="/system-health" element={<SystemHealth />} />
-                                             <Route path="/system-dashboard" element={<SystemDashboard />} />
-                                             <Route path="/administration" element={<UltimateAdministration />} />
-                                             <Route path="/admin-panel" element={<AdminPanel />} />
+                                              {/* ⚡ ADMIN & MONITORING - Architecture consolidée */}
+                                              <Route path="/admin" element={<UnifiedAdmin />} />
+                                              <Route path="/monitoring" element={<MonitoringCenter />} />
+                                              <Route path="/system-health" element={<SystemHealth />} />
+                                              <Route path="/audit" element={<AuditComplete />} />
 
                                              {/* ⚡ AI & CHAT */}
                                              <Route path="/chat" element={<MedChat />} />
@@ -279,11 +256,24 @@ const AppWithUX = () => {
                                              <Route path="/conditions" element={<Conditions />} />
                                              <Route path="/support" element={<Support />} />
 
-                                             {/* ⚡ REDIRECTIONS */}
-                                             <Route path="/med-mng" element={<Navigate to="/med-mng/dashboard" replace />} />
-                                             <Route path="/audit-general" element={<Navigate to="/audit" replace />} />
-                                             <Route path="/audit-edn" element={<Navigate to="/audit" replace />} />
-                                             <Route path="/audit-complete" element={<Navigate to="/audit" replace />} />
+                                              {/* ⚡ REDIRECTIONS - Nettoyage routes obsolètes */}
+                                              <Route path="/med-mng" element={<Navigate to="/med-mng/dashboard" replace />} />
+                                              <Route path="/features" element={<Navigate to="/platform" replace />} />
+                                              <Route path="/optimized" element={<Navigate to="/platform" replace />} />
+                                              <Route path="/final-optimized" element={<Navigate to="/platform" replace />} />
+                                              <Route path="/platform-dashboard" element={<Navigate to="/dashboard" replace />} />
+                                              <Route path="/ultimate" element={<Navigate to="/platform" replace />} />
+                                              <Route path="/unified" element={<Navigate to="/platform" replace />} />
+                                              <Route path="/audit-general" element={<Navigate to="/audit" replace />} />
+                                              <Route path="/audit-edn" element={<Navigate to="/audit" replace />} />
+                                              <Route path="/audit-complete" element={<Navigate to="/audit" replace />} />
+                                              <Route path="/audit-completeness" element={<Navigate to="/audit" replace />} />
+                                              <Route path="/navigation-audit" element={<Navigate to="/audit" replace />} />
+                                              <Route path="/route-validator" element={<Navigate to="/audit" replace />} />
+                                              <Route path="/system-admin" element={<Navigate to="/admin" replace />} />
+                                              <Route path="/system-dashboard" element={<Navigate to="/dashboard" replace />} />
+                                              <Route path="/administration" element={<Navigate to="/admin" replace />} />
+                                              <Route path="/admin-panel" element={<Navigate to="/admin" replace />} />
 
                                              {/* ⚡ FALLBACK */}
                                              <Route path="*" element={<NotFound />} />
