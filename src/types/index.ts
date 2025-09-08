@@ -28,8 +28,23 @@ export type {
   EDNItem,
   ProcessingData,
   ColonneConfig,
-  TableauResult
+  ColumnConfig,
+  TableauResult,
+  TableauData,
+  TableauGenerationResult,
+  EdnItemData,
+  TableauProcessingData,
+  EdnItemImmersive,
+  SceneImmersive,
+  InteractionPoint,
+  QuizConfig,
+  QuizQuestion,
+  VisualAmbiance,
+  AudioAmbiance,
+  InteractionConfig,
+  RewardMessages
 } from './edn';
+// Medical Types
 export type {
   MedicalItem,
   MedicalItemMetadata,
@@ -65,7 +80,7 @@ export interface MusicGenerationProgress {
 }
 
 export interface GlobalAudioState {
-  currentTrack: MusicTrack | null;
+  currentTrack: any | null; // Temporairement any pour éviter l'erreur circulaire
   isPlaying: boolean;
   currentTime: number;
   duration: number;
@@ -73,7 +88,7 @@ export interface GlobalAudioState {
   playbackRate: number;
   isLoading: boolean;
   error: string | null;
-  queue: MusicTrack[];
+  queue: any[];
   currentIndex: number;
   repeatMode: 'none' | 'track' | 'queue';
   shuffleMode: boolean;
@@ -156,8 +171,8 @@ export interface AppError {
 // Search and Filter Types
 export interface SearchFilters {
   query?: string;
-  category?: MedicalCategory;
-  specialty?: MedicalSpecialty;
+  category?: string; // Temporairement string
+  specialty?: string; // Temporairement string
   difficulty_level?: string[];
   tags?: string[];
   date_range?: {

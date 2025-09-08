@@ -33,6 +33,13 @@ export interface MusicMetadata {
   medical_concepts?: string[];
   difficulty_level?: 'beginner' | 'intermediate' | 'advanced';
   learning_objectives?: string[];
+  // Propriétés spécifiques MED-MNG
+  rang?: 'A' | 'B' | 'AB';
+  item_code?: string;
+  generation_started_at?: string;
+  status?: string;
+  progress?: number;
+  stage?: string;
 }
 
 export interface GenerationRequest {

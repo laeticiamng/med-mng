@@ -26,6 +26,7 @@ export function processTableauRangAIC1(data: ProcessingData | EDNItem): TableauR
   });
   
   return {
+    success: true,
     lignesEnrichies,
     colonnesUtiles,
     theme: "IC-1 : La relation médecin-malade - 15 connaissances E-LiSA",

@@ -91,19 +91,40 @@ export const useParolesMusicales = (
     }
   };
 
+  // Compatibilité avec l'interface existante
+  const legacyGeneratedAudio = {
+    rangA: getTrackByRang('A')?.audio_url,
+    rangB: getTrackByRang('B')?.audio_url,
+    rangAB: getTrackByRang('AB')?.audio_url
+  };
+
+  const legacyGenerationProgress = progress ? {
+    rangA: progress.rang === 'A' ? {
+      progress: progress.progress,
+      attempts: 1,
+      maxAttempts: 3,
+      estimatedTimeRemaining: progress.estimatedTimeRemaining
+    } : undefined,
+    rangB: progress.rang === 'B' ? {
+      progress: progress.progress,
+      attempts: 1,
+      maxAttempts: 3,
+      estimatedTimeRemaining: progress.estimatedTimeRemaining
+    } : undefined
+  } : { rangA: undefined, rangB: undefined };
+
   return {
     selectedStyle,
     setSelectedStyle,
     musicDuration,
     setMusicDuration,
-    isGenerating,
-    generatedAudio: {
-      rangA: getTrackByRang('A')?.audio_url,
-      rangB: getTrackByRang('B')?.audio_url,
-      rangAB: getTrackByRang('AB')?.audio_url
+    isGenerating: {
+      rangA: isGenerating && progress?.rang === 'A',
+      rangB: isGenerating && progress?.rang === 'B'
     },
-    pollingTracks: itemTracks,
-    generationProgress: progress,
+    generatedAudio: legacyGeneratedAudio,
+    pollingTracks: itemTracks.length,
+    generationProgress: legacyGenerationProgress,
     lastError: generationError,
     currentLanguage: 'fr',
     currentTrack,
