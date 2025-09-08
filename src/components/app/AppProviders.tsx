@@ -13,7 +13,7 @@ import { TooltipProvider } from '@/components/ui/tooltip';
 import { HelmetProvider } from 'react-helmet-async';
 
 // Store global
-import { useAuthStore } from '@/stores/authStore';
+import { useSimpleAppStore as useAuthStore } from '@/stores/simpleAppStore';
 
 // Accessibility Provider
 import { AccessibilityProvider } from '@/components/accessibility/AccessibilityProvider';
@@ -94,11 +94,11 @@ const AppLoading: React.FC = () => (
 
 // Auth Initializer
 const AuthInitializer: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { initialize, isAuthenticated } = useAuthStore();
+  const { setAuthenticated } = useAuthStore();
 
   React.useEffect(() => {
-    initialize();
-  }, [initialize]);
+    setAuthenticated(false); // Simple initialization
+  }, [setAuthenticated]);
 
   return <>{children}</>;
 };
