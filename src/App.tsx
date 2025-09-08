@@ -69,6 +69,7 @@ const MedMngSettings = lazy(() => import("./pages/med-mng/Settings"));
 const MedMngCommunity = lazy(() => import("./pages/med-mng/Community"));
 const MedMngPlaylists = lazy(() => import("./pages/med-mng/Playlists"));
 const MedMngPlaylistDetail = lazy(() => import("./pages/med-mng/PlaylistDetail"));
+const ComprehensiveDashboard = lazy(() => import("./components/med-mng/ComprehensiveDashboard").then(module => ({ default: module.ComprehensiveDashboard })));
 
 // ⚡ ADMIN & MONITORING
 const MonitoringCenter = lazy(() => import("./pages/MonitoringCenter"));
@@ -209,23 +210,24 @@ const AppWithUX = () => {
                                              <Route path="/ecos" element={<EcosIndex />} />
                                              <Route path="/ecos/:scenarioId" element={<EcosScenario />} />
 
-                                             {/* ⚡ MEDICAL PLATFORM */}
-                                             <Route path="/med-mng/login" element={<MedMngLogin />} />
-                                             <Route path="/med-mng/signup" element={<MedMngSignup />} />
-                                             <Route path="/med-mng/pricing" element={<MedMngPricing />} />
-                                             <Route path="/med-mng/platform" element={<MedicalPlatform />} />
-                                             <Route path="/med-mng/subscribe/:planId" element={<ProtectedRoute><MedMngSubscribe /></ProtectedRoute>} />
-                                             <Route path="/med-mng/success" element={<ProtectedRoute><MedMngSuccess /></ProtectedRoute>} />
-                                             <Route path="/med-mng/dashboard" element={<ProtectedRoute><MedMngDashboard /></ProtectedRoute>} />
-                                             <Route path="/med-mng/create" element={<ProtectedRoute><MedMngCreate /></ProtectedRoute>} />
-                                             <Route path="/med-mng/library" element={<ProtectedRoute><MedMngLibrary /></ProtectedRoute>} />
-                                             <Route path="/med-mng/profile" element={<ProtectedRoute><MedMngProfile /></ProtectedRoute>} />
-                                             <Route path="/med-mng/analytics" element={<ProtectedRoute><MedMngAnalytics /></ProtectedRoute>} />
-                                             <Route path="/med-mng/settings" element={<ProtectedRoute><MedMngSettings /></ProtectedRoute>} />
-                                             <Route path="/med-mng/community" element={<ProtectedRoute><MedMngCommunity /></ProtectedRoute>} />
-                                             <Route path="/med-mng/playlists" element={<ProtectedRoute><MedMngPlaylists /></ProtectedRoute>} />
-                                             <Route path="/med-mng/playlists/:playlistId" element={<ProtectedRoute><MedMngPlaylistDetail /></ProtectedRoute>} />
-                                             <Route path="/med-mng/player/:trackId" element={<ProtectedRoute><MedMngPlayer /></ProtectedRoute>} />
+                                              {/* ⚡ MEDICAL PLATFORM */}
+                                              <Route path="/med-mng/login" element={<MedMngLogin />} />
+                                              <Route path="/med-mng/signup" element={<MedMngSignup />} />
+                                              <Route path="/med-mng/pricing" element={<MedMngPricing />} />
+                                              <Route path="/med-mng/platform" element={<MedicalPlatform />} />
+                                              <Route path="/med-mng/comprehensive" element={<ComprehensiveDashboard />} />
+                                              <Route path="/med-mng/subscribe/:planId" element={<ProtectedRoute><MedMngSubscribe /></ProtectedRoute>} />
+                                              <Route path="/med-mng/success" element={<ProtectedRoute><MedMngSuccess /></ProtectedRoute>} />
+                                              <Route path="/med-mng/dashboard" element={<ProtectedRoute><MedMngDashboard /></ProtectedRoute>} />
+                                              <Route path="/med-mng/create" element={<ProtectedRoute><MedMngCreate /></ProtectedRoute>} />
+                                              <Route path="/med-mng/library" element={<ProtectedRoute><MedMngLibrary /></ProtectedRoute>} />
+                                              <Route path="/med-mng/profile" element={<ProtectedRoute><MedMngProfile /></ProtectedRoute>} />
+                                              <Route path="/med-mng/analytics" element={<ProtectedRoute><MedMngAnalytics /></ProtectedRoute>} />
+                                              <Route path="/med-mng/settings" element={<ProtectedRoute><MedMngSettings /></ProtectedRoute>} />
+                                              <Route path="/med-mng/community" element={<ProtectedRoute><MedMngCommunity /></ProtectedRoute>} />
+                                              <Route path="/med-mng/playlists" element={<ProtectedRoute><MedMngPlaylists /></ProtectedRoute>} />
+                                              <Route path="/med-mng/playlists/:playlistId" element={<ProtectedRoute><MedMngPlaylistDetail /></ProtectedRoute>} />
+                                              <Route path="/med-mng/player/:trackId" element={<ProtectedRoute><MedMngPlayer /></ProtectedRoute>} />
 
                                              {/* ⚡ AUDIT & MONITORING */}
                                              <Route path="/audit" element={<AuditComplete />} />
