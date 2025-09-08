@@ -15,6 +15,9 @@ import { HelmetProvider } from 'react-helmet-async';
 // Store global
 import { useAuthStore } from '@/stores/authStore';
 
+// Accessibility Provider
+import { AccessibilityProvider } from '@/components/accessibility/AccessibilityProvider';
+
 // Performance et sécurité
 import { logger } from '@/lib/logger';
 
@@ -118,14 +121,16 @@ const AppProviders: React.FC<{ children: React.ReactNode }> = ({ children }) => 
               enableSystem
               disableTransitionOnChange
             >
-              <TooltipProvider>
-                <AuthInitializer>
-                  <Suspense fallback={<AppLoading />}>
-                    {children}
-                  </Suspense>
-                </AuthInitializer>
-                <Toaster />
-              </TooltipProvider>
+              <AccessibilityProvider>
+                <TooltipProvider>
+                  <AuthInitializer>
+                    <Suspense fallback={<AppLoading />}>
+                      {children}
+                    </Suspense>
+                  </AuthInitializer>
+                  <Toaster />
+                </TooltipProvider>
+              </AccessibilityProvider>
             </ThemeProvider>
           </BrowserRouter>
         </QueryClientProvider>
