@@ -7,10 +7,8 @@ import React, { StrictMode, memo, useEffect } from 'react';
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 
-// Native console DOIT être importé avant tout
-import '@/utils/nativeConsole';
-// Console replacer - DOIT être importé en second
-import '@/utils/consoleReplacer';
+// Production optimizer - Auto-initialisation
+import '@/utils/productionOptimizer';
 
 // Composants refactorisés
 import AppProviders from '@/components/app/AppProviders';
