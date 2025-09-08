@@ -56,6 +56,16 @@ interface AccessibilityContextType extends AccessibilityState {
   enableKeyboardNavigation: () => void;
   disableKeyboardNavigation: () => void;
   getAccessibilityScore: () => number;
+  
+  // Compatibility aliases for existing components
+  settings: {
+    highContrast: boolean;
+    focusVisible: boolean;
+    reducedMotion: boolean;
+    fontSize: 'small' | 'medium' | 'large';
+  };
+  updateSettings: (updates: Partial<AccessibilityContextType['settings']>) => void;
+  announceToScreenReader: (message: string) => void;
 }
 
 // ==========================================
@@ -326,6 +336,21 @@ export const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ ch
   // CONTEXT VALUE
   // ==========================================
 
+  // Compatibility functions
+  const updateSettings = useCallback((updates: Partial<AccessibilityContextType['settings']>) => {
+    Object.entries(updates).forEach(([key, value]) => {
+      if (key === 'focusVisible') {
+        updatePreference('focusIndicators', value ? 'enhanced' : 'default');
+      } else if (key in state.preferences) {
+        updatePreference(key as keyof AccessibilityPreferences, value as any);
+      }
+    });
+  }, [updatePreference, state.preferences]);
+
+  const announceToScreenReader = useCallback((message: string) => {
+    announce(message, 'polite');
+  }, [announce]);
+
   const contextValue: AccessibilityContextType = {
     ...state,
     updatePreference,
@@ -335,6 +360,16 @@ export const AccessibilityProvider: React.FC<AccessibilityProviderProps> = ({ ch
     enableKeyboardNavigation,
     disableKeyboardNavigation,
     getAccessibilityScore,
+    
+    // Compatibility aliases
+    settings: {
+      highContrast: state.preferences.highContrast,
+      focusVisible: state.preferences.focusIndicators !== 'default',
+      reducedMotion: state.preferences.reducedMotion,
+      fontSize: state.preferences.fontSize === 'extra-large' ? 'large' : state.preferences.fontSize,
+    },
+    updateSettings,
+    announceToScreenReader,
   };
 
   return (
