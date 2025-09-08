@@ -5,7 +5,7 @@ import type { EDNItem, ProcessingData, TableauResult } from '@/types';
 
 // Fonction principale pour traiter les données IC-1 selon E-LiSA officielle
 export function processTableauRangAIC1(data: ProcessingData | EDNItem): TableauResult {
-  logger.info('Processing IC-1 selon fiche E-LiSA officielle', { 
+  logger.info('ui', 'Processing IC-1 selon fiche E-LiSA officielle', { 
     component: 'TableauRangAUtilsIC1Integration',
     itemCode: data.item_code || 'unknown'
   });
@@ -19,7 +19,7 @@ export function processTableauRangAIC1(data: ProcessingData | EDNItem): TableauR
   const expectedCount = 15;
   const actualCount = lignesEnrichies.length;
   
-  logger.info(`IC-1 E-LiSA : ${actualCount}/${expectedCount} connaissances`, {
+  logger.info('ui', `IC-1 E-LiSA : ${actualCount}/${expectedCount} connaissances`, {
     component: 'TableauRangAUtilsIC1Integration',
     expectedCount,
     actualCount

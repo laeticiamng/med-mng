@@ -52,11 +52,6 @@ const queryClient = new QueryClient({
       retry: false, // Pas de retry automatique pour les mutations
     },
   },
-  logger: {
-    log: (message, ...args) => logger.debug('api', message, args),
-    warn: (message, ...args) => logger.warn('api', message, args),
-    error: (message, ...args) => logger.error('api', message, args),
-  },
 });
 
 // ==========================================
