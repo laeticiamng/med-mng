@@ -3,18 +3,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Import des correctifs de débordement de texte */
-@import './styles/text-overflow-fixes.css';
-
-/* Import des correctifs de zoom */
-@import './styles/zoom-fixes.css';
-
-/* Import des styles adaptatifs */
-@import './styles/adaptive-display.css';
-
-/* Import des correctifs universels de débordement */
-@import './styles/universal-overflow-fixes.css';
-
 @keyframes shimmer {
   0% { transform: translateX(-100%) skewX(-12deg); }
   100% { transform: translateX(200%) skewX(-12deg); }
@@ -519,80 +507,42 @@ html.reduced-motion *::after {
     font-size: 20px;
   }
   
-  /* ==========================================
-     UX ENHANCEMENTS & ACCESSIBILITY FIXES
-     ========================================== */
-  
-  /* Fix Yellow Color Bug - Ensure all colors use proper HSL */
-  .text-yellow-500, .bg-yellow-500 {
-    color: hsl(45 100% 50%) !important;
-    background-color: hsl(45 100% 50%) !important;
-  }
-  
-  .text-yellow-600, .bg-yellow-600 {
-    color: hsl(45 100% 40%) !important;
-    background-color: hsl(45 100% 40%) !important;
-  }
-  
-  .text-yellow-700, .bg-yellow-700 {
-    color: hsl(45 100% 30%) !important;
-    background-color: hsl(45 100% 30%) !important;
-  }
-  
-  .text-yellow-800, .bg-yellow-800 {
-    color: hsl(45 100% 25%) !important;
-    background-color: hsl(45 100% 25%) !important;
-  }
-  
-  .bg-yellow-50 {
-    background-color: hsl(45 100% 95%) !important;
-  }
-  
-  .bg-yellow-100 {
-    background-color: hsl(45 100% 90%) !important;
-  }
-  
-  .border-yellow-200 {
-    border-color: hsl(45 100% 85%) !important;
-  }
-  
-  /* Enhanced Focus States for Better Accessibility */
-  button:focus-visible,
-  input:focus-visible,
-  select:focus-visible,
-  textarea:focus-visible,
-  [role="button"]:focus-visible {
-    outline: 2px solid hsl(var(--primary));
-    outline-offset: 2px;
-    border-radius: 4px;
-  }
-  
-  /* Improved Dropdown Styles to Fix Transparency Issues */
-  [data-radix-popper-content-wrapper] {
-    z-index: 1000 !important;
-  }
-  
-  .dropdown-content,
-  .popover-content,
-  .menu-content {
-    background: hsl(var(--popover)) !important;
-    border: 1px solid hsl(var(--border)) !important;
-    box-shadow: var(--shadow-large) !important;
-    backdrop-filter: blur(8px) !important;
-    z-index: 1000 !important;
-  }
-  
-  /* Enhanced Loading States */
-  .skeleton-enhanced {
-    background: linear-gradient(
-      90deg,
-      hsl(var(--muted)) 25%,
-      hsl(var(--muted) / 0.5) 50%,
-      hsl(var(--muted)) 75%
-    );
-    background-size: 200% 100%;
-    animation: shimmer-medical 1.2s infinite ease-in-out;
-  }
+/* Optimisation CSS pour les performances - Version allégée */
+
+/* Base pour tous les éléments avec overflow-safe */
+.overflow-safe {
+  overflow: visible !important;
+  text-overflow: unset !important;
+  white-space: normal !important;
+  word-break: break-word !important;
+  overflow-wrap: break-word !important;
+  hyphens: auto !important;
+  max-width: 100% !important;
+}
+
+/* Containers avec débordement contrôlé */
+.container-safe {
+  max-width: 100vw !important;
+  overflow-x: hidden !important;
+  word-wrap: break-word !important;
+  hyphens: auto !important;
+  box-sizing: border-box !important;
+}
+
+/* Texte avec débordement intelligent */
+.text-container {
+  overflow-wrap: break-word !important;
+  word-break: break-word !important;
+  hyphens: auto !important;
+  max-width: 100% !important;
+}
+
+/* Correction des débordements de mots normaux */
+.break-words-normal {
+  word-break: normal !important;
+  overflow-wrap: break-word !important;
+  hyphens: auto !important;
+}
   
   /* Micro-interactions for Better UX */
   .hover-lift {

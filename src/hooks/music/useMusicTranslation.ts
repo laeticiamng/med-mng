@@ -1,22 +1,11 @@
 
 import { useLanguage, SupportedLanguage } from '@/contexts/LanguageContext';
+import { useCallback, useMemo } from 'react';
 
 export const useMusicTranslation = () => {
-  let currentLanguage, translate;
-  
-  try {
-    console.log('🎵 HOOK - Tentative d\'utilisation de useLanguage');
-    const languageContext = useLanguage();
-    currentLanguage = languageContext.currentLanguage;
-    translate = languageContext.translate;
-    console.log('🎵 HOOK - useLanguage réussi, langue:', currentLanguage);
-  } catch (error) {
-    console.error('❌ HOOK - Erreur avec useLanguage:', error);
-    currentLanguage = 'fr';
-    translate = async (text: string) => text;
-  }
+  const { currentLanguage, translate } = useLanguage();
 
-  const translateLyricsIfNeeded = async (lyrics: string): Promise<string> => {
+  const translateLyricsIfNeeded = useCallback(async (lyrics: string): Promise<string> => {
     if (currentLanguage === 'fr' || !lyrics) {
       return lyrics;
     }
@@ -25,10 +14,10 @@ export const useMusicTranslation = () => {
     const translatedLyrics = await translate(lyrics, currentLanguage);
     console.log(`✅ Paroles traduites`);
     return translatedLyrics;
-  };
+  }, [currentLanguage, translate]);
 
-  return {
+  return useMemo(() => ({
     currentLanguage,
     translateLyricsIfNeeded
-  };
+  }), [currentLanguage, translateLyricsIfNeeded]);
 };

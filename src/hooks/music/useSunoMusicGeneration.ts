@@ -1,5 +1,6 @@
 
 import { useToast } from '@/hooks/use-toast';
+import { useCallback, useMemo } from 'react';
 import { useMusicGenerationState } from '../useMusicGenerationState';
 import { callSunoApi } from '../musicGenerationApi';
 import { 
@@ -12,8 +13,6 @@ import { useMusicTranslation } from './useMusicTranslation';
 import { useMusicValidation } from './useMusicValidation';
 
 export const useSunoMusicGeneration = () => {
-  console.log('🎵 HOOK - useSunoMusicGeneration initialisé');
-
   const { toast } = useToast();
   const {
     isGenerating,
@@ -31,14 +30,14 @@ export const useSunoMusicGeneration = () => {
   const { currentLanguage, translateLyricsIfNeeded } = useMusicTranslation();
   const { validateAndNormalizeAudioUrl } = useMusicValidation();
 
-  const generateMusicInLanguage = async (
+  const generateMusicInLanguage = useCallback(async (
     rang: 'A' | 'B' | 'AB', 
     paroles: string[], 
     selectedStyle: string, 
     duration: number = 240,
     model: "V3_5" | "V4" | "V4_5" = "V3_5"
   ) => {
-    console.log('🎵 HOOK - generateMusicInLanguage appelé:', { rang, paroles, selectedStyle, duration });
+    console.log('🎵 GÉNÉRATION - Démarrage pour Rang', rang, 'Style:', selectedStyle);
     
     if (isAlreadyGenerating(rang)) {
       console.log(`⚠️ Génération déjà en cours pour le Rang ${rang}, ignoré`);
@@ -103,14 +102,14 @@ export const useSunoMusicGeneration = () => {
       unmarkAsGenerating(rang);
       setGeneratingState(rang, false);
     }
-  };
+  }, [isAlreadyGenerating, markAsGenerating, setGeneratingState, setLastError, translateLyricsIfNeeded, currentLanguage, callSunoApi, toast, unmarkAsGenerating]);
 
-  return {
+  return useMemo(() => ({
     isGenerating,
     generatedAudio,
     generationProgress,
     lastError,
     generateMusicInLanguage,
     currentLanguage
-  };
+  }), [isGenerating, generatedAudio, generationProgress, lastError, generateMusicInLanguage, currentLanguage]);
 };
