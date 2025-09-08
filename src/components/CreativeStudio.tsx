@@ -219,7 +219,7 @@ export const CreativeStudio = () => {
 
               <div className="bg-muted/50 p-3 rounded-lg">
                 <p className="text-sm text-muted-foreground">
-                  ℹ️ La synthèse vocale utilise ElevenLabs pour créer des voix naturelles et expressives.
+                  ℹ️ La synthèse vocale utilise OpenAI TTS pour créer des voix naturelles et expressives.
                 </p>
               </div>
             </CardContent>

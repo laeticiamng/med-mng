@@ -86,11 +86,11 @@ const MeditationDashboard: React.FC = () => {
     {
       id: 'voice-synthesis',
       name: 'Synthèse Vocale Avancée',
-      description: 'Voix naturelles avec ElevenLabs et templates de méditation',
+      description: 'Voix naturelles avec OpenAI TTS et templates de méditation',
       icon: Mic,
       color: 'from-blue-500 to-cyan-600',
       status: '100%',
-      features: ['ElevenLabs', '4 voix', 'Tons émotionnels', 'Templates guidés']
+      features: ['OpenAI TTS', '6 voix', 'Qualité premium', 'Templates guidés']
     },
     {
       id: 'ambient-images',

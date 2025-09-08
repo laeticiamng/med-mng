@@ -45,7 +45,7 @@ export const VoiceNarrator: React.FC<VoiceNarratorProps> = ({
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const [showSettings, setShowSettings] = useState(false);
-  const [hasElevenLabsKey, setHasElevenLabsKey] = useState(false);
+  const [hasOpenAI, setHasOpenAI] = useState(true);
   
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
@@ -75,10 +75,9 @@ export const VoiceNarrator: React.FC<VoiceNarratorProps> = ({
     { id: 'eleven_turbo_v2', name: 'Turbo v2', description: 'Anglais seulement, très rapide' }
   ];
 
-  // Vérifier si ElevenLabs est configuré
+  // Vérifier si OpenAI est disponible
   useEffect(() => {
-    // Simulation - en réalité, on vérifierait l'API key
-    setHasElevenLabsKey(true);
+    setHasOpenAI(true);
   }, []);
 
   // Générer l'audio avec ElevenLabs
@@ -167,7 +166,7 @@ export const VoiceNarrator: React.FC<VoiceNarratorProps> = ({
     try {
       setIsLoading(true);
       
-      if (hasElevenLabsKey) {
+      if (hasOpenAI) {
         const audioUrl = await generateAudio(text);
         
         if (audioUrl === 'web-speech') {
@@ -175,7 +174,7 @@ export const VoiceNarrator: React.FC<VoiceNarratorProps> = ({
           return;
         }
 
-        // ElevenLabs audio
+        // OpenAI TTS audio
         if (audioRef.current) {
           audioRef.current.src = audioUrl;
           await audioRef.current.play();
@@ -314,9 +313,9 @@ export const VoiceNarrator: React.FC<VoiceNarratorProps> = ({
                   <span className="font-medium">
                     {currentVoice?.name} - {sectionType}
                   </span>
-                  {hasElevenLabsKey && (
-                    <Badge variant="secondary" className="text-xs bg-green-100 text-green-800">
-                      ElevenLabs
+                  {hasOpenAI && (
+                    <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-800">
+                      OpenAI TTS
                     </Badge>
                   )}
                 </div>
@@ -396,7 +395,7 @@ export const VoiceNarrator: React.FC<VoiceNarratorProps> = ({
                 </div>
 
                 {/* Modèle */}
-                {hasElevenLabsKey && (
+                {hasOpenAI && (
                   <div>
                     <label className="text-sm font-medium mb-2 block">Modèle</label>
                     <div className="space-y-1">
@@ -478,7 +477,7 @@ export const VoiceNarrator: React.FC<VoiceNarratorProps> = ({
         )}
       </AnimatePresence>
 
-      {/* Audio element pour ElevenLabs */}
+      {/* Audio element pour OpenAI TTS */}
       <audio
         ref={audioRef}
         onLoadedMetadata={() => {

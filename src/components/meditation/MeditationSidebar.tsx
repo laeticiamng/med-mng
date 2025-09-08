@@ -58,7 +58,7 @@ const meditationItems = [
     title: 'Synthèse Vocale',
     url: '/meditation/voice-synthesis',
     icon: Mic,
-    description: 'ElevenLabs + Templates guidés',
+    description: 'OpenAI TTS + Templates guidés',
     category: 'tools',
     status: '100%',
     color: 'from-blue-500 to-cyan-600'

@@ -52,12 +52,12 @@ const UltimateAIHub: React.FC = () => {
     {
       id: 'generator',
       title: 'Générateur Contenu',
-      description: 'Création multi-modale avec OpenAI, Suno & ElevenLabs',
+      description: 'Création multi-modale avec OpenAI & Suno',
       icon: Wand2,
       component: ContentGeneratorAI,
       color: 'emerald',
       progress: 100,
-      features: ['Multi-Modal', 'OpenAI GPT', 'Suno Audio', 'ElevenLabs Voice']
+      features: ['Multi-Modal', 'OpenAI GPT', 'Suno Audio', 'OpenAI TTS']
     },
     {
       id: 'therapeutic',
@@ -290,7 +290,7 @@ const UltimateAIHub: React.FC = () => {
                 <div className="text-sm opacity-75">Création Musicale</div>
               </div>
               <div className="text-center">
-                <div className="text-2xl font-bold">ElevenLabs</div>
+                <div className="text-2xl font-bold">OpenAI TTS</div>
                 <div className="text-sm opacity-75">Synthèse Vocale</div>
               </div>
             </div>

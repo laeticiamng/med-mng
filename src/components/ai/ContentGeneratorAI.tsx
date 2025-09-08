@@ -179,7 +179,7 @@ const ContentGeneratorAI: React.FC = () => {
             <div>
               <CardTitle className="text-emerald-900">Générateur de Contenu IA</CardTitle>
               <CardDescription className="text-emerald-700">
-                Création multi-modale avec OpenAI, Suno & ElevenLabs
+                Création multi-modale avec OpenAI & Suno
               </CardDescription>
             </div>
           </div>
@@ -277,7 +277,7 @@ const ContentGeneratorAI: React.FC = () => {
                 {type.id === 'audio' && (
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <label className="text-sm font-medium">Voix ElevenLabs</label>
+                      <label className="text-sm font-medium">Voix OpenAI</label>
                       <Select value={settings.audioVoice} onValueChange={(v) => setSettings(prev => ({...prev, audioVoice: v}))}>
                         <SelectTrigger>
                           <SelectValue />

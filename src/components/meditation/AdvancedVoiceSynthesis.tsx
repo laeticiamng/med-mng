@@ -250,7 +250,7 @@ export const AdvancedVoiceSynthesis: React.FC = () => {
             </div>
             Synthèse Vocale Avancée
             <Badge className="bg-gradient-to-r from-success to-success-glow text-white">
-              ElevenLabs Pro
+              OpenAI TTS Pro
             </Badge>
           </CardTitle>
         </CardHeader>
