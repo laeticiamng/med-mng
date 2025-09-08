@@ -214,7 +214,7 @@ class ContentQualityAnalyzer {
       };
 
     } catch (error) {
-      logger.error(`Erreur analyse qualité item ${itemCode}`, {
+      logger.error('ui', `Erreur analyse qualité item ${itemCode}`, {
         component: 'ContentQualityAnalyzer',
         action: 'analyzeEdnItem',
         metadata: { itemCode, error }
@@ -305,7 +305,7 @@ class ContentQualityAnalyzer {
       };
 
     } catch (error) {
-      logger.error('Erreur analyse complète du contenu', {
+      logger.error('ui', 'Erreur analyse complète du contenu', {
         component: 'ContentQualityAnalyzer',
         action: 'analyzeAllContent',
         metadata: { error }

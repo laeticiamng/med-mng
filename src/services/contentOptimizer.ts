@@ -70,7 +70,7 @@ class ContentOptimizer {
       };
 
     } catch (error) {
-      logger.error(`Erreur optimisation paroles ${itemCode}`, {
+      logger.error('ui', `Erreur optimisation paroles ${itemCode}`, {
         component: 'ContentOptimizer',
         action: 'optimizeLyrics',
         metadata: { itemCode, error }
@@ -215,7 +215,7 @@ class ContentOptimizer {
             .eq('objectif_id', competence.objectif_id);
 
           if (updateError) {
-            logger.error(`Erreur mise à jour compétence ${competence.objectif_id}`, {
+            logger.error('ui', `Erreur mise à jour compétence ${competence.objectif_id}`, {
               component: 'ContentOptimizer',
               metadata: { updateError }
             });
@@ -233,7 +233,7 @@ class ContentOptimizer {
       };
 
     } catch (error) {
-      logger.error(`Erreur optimisation compétences ${itemParent}`, {
+      logger.error('ui', `Erreur optimisation compétences ${itemParent}`, {
         component: 'ContentOptimizer',
         action: 'optimizeCompetences',
         metadata: { itemParent, error }
@@ -309,7 +309,7 @@ class ContentOptimizer {
       let optimized = 0;
       let failed = 0;
 
-      logger.info('Début de l\'optimisation automatique du contenu', {
+      logger.info('ui', 'Début de l\'optimisation automatique du contenu', {
         component: 'ContentOptimizer',
         action: 'optimizeAllLowQualityContent',
         metadata: { 
@@ -348,7 +348,7 @@ class ContentOptimizer {
           await new Promise(resolve => setTimeout(resolve, 100));
 
         } catch (error) {
-          logger.error(`Erreur optimisation item ${item.itemCode}`, {
+          logger.error('ui', `Erreur optimisation item ${item.itemCode}`, {
             component: 'ContentOptimizer',
             metadata: { error }
           });
@@ -356,7 +356,7 @@ class ContentOptimizer {
         }
       }
 
-      logger.info('Optimisation automatique terminée', {
+      logger.info('ui', 'Optimisation automatique terminée', {
         component: 'ContentOptimizer',
         metadata: { 
           processed: analysis.lowQualityItems.length,
@@ -373,7 +373,7 @@ class ContentOptimizer {
       };
 
     } catch (error) {
-      logger.error('Erreur optimisation globale du contenu', {
+      logger.error('ui', 'Erreur optimisation globale du contenu', {
         component: 'ContentOptimizer',
         action: 'optimizeAllLowQualityContent',
         metadata: { error }

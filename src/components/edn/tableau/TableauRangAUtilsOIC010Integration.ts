@@ -1,12 +1,12 @@
 
-import type { ProcessingData, EDNItem } from '@/types';
+import type { ProcessingData, EdnItem } from '@/types';
 
 // Utilitaires pour l'intégration des données OIC-010-03-B
-export const processTableauRangAOIC010 = (data: ProcessingData | EDNItem) => {
+export const processTableauRangAOIC010 = (data: ProcessingData | EdnItem) => {
   console.log('🔍 Traitement OIC-010-03-B - Impact des maladies sur l\'expérience du corps');
   
   // Extraire les données du tableau
-  const tableauData = (data as EDNItem).tableau_rang_a || data;
+  const tableauData = (data as any).tableau_rang_a || data;
   const concepts = (tableauData as any)?.sections?.[0]?.concepts || [];
   
   const colonnesUtiles = [
@@ -43,7 +43,7 @@ export const processTableauRangAOIC010 = (data: ProcessingData | EDNItem) => {
   };
 };
 
-export const isOIC010Item = (data: ProcessingData | EDNItem): boolean => {
+export const isOIC010Item = (data: ProcessingData | EdnItem): boolean => {
   return data?.item_code === 'OIC-010-03-B' || 
          data?.title?.includes('impact des différentes maladies') ||
          data?.title?.includes('expérience du corps') ||

@@ -56,7 +56,7 @@ export const ContentQualityDashboard = () => {
       });
       
     } catch (error) {
-      logger.error('Erreur lors de l\'analyse de qualité', {
+      logger.error('ui', 'Erreur lors de l\'analyse de qualité', {
         component: 'ContentQualityDashboard',
         action: 'runQualityAnalysis',
         metadata: { error }

@@ -97,7 +97,7 @@ export const SystemHealthChecker = () => {
       });
       
     } catch (error) {
-      logger.error('Erreur lors de l\'audit système', {
+      logger.error('app', 'Erreur lors de l\'audit système', {
         component: 'SystemHealthChecker',
         action: 'runHealthCheck',
         metadata: { error }

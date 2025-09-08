@@ -61,11 +61,16 @@ export interface ColonneConfig {
 }
 
 export interface ProcessingData {
-  item_code: string;
-  title: string;
+  item_code?: string;
+  title?: string; 
   theme?: string;
+  subtitle?: string;
   rang?: string;
   content?: JSONObject;
+  colonnes?: string[];
+  lignes?: string[][];
+  sections?: unknown[];
+  competences_oic?: unknown[];
 }
 
 export interface TableauResult {

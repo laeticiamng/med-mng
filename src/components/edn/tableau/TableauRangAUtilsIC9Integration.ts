@@ -1,12 +1,12 @@
 
-import type { ProcessingData, EDNItem } from '@/types';
+import type { ProcessingData, EdnItem } from '@/types';
 
 // Utilitaires pour l'intégration des données IC-9
-export const processTableauRangAIC9 = (data: ProcessingData | EDNItem) => {
+export const processTableauRangAIC9 = (data: ProcessingData | EdnItem) => {
   console.log('🔍 Traitement IC-9 - Certificats médicaux violences');
   
   // Extraire les données du tableau
-  const tableauData = (data as EDNItem).tableau_rang_a || data;
+  const tableauData = (data as any).tableau_rang_a || data;
   const concepts = (tableauData as any)?.sections?.[0]?.concepts || [];
   
   const colonnesUtiles = [
@@ -43,7 +43,7 @@ export const processTableauRangAIC9 = (data: ProcessingData | EDNItem) => {
   };
 };
 
-export const isIC9Item = (data: ProcessingData | EDNItem): boolean => {
+export const isIC9Item = (data: ProcessingData | EdnItem): boolean => {
   return data?.item_code === 'IC-9' || 
          data?.title?.includes('Certificats médicaux') ||
          data?.title?.includes('violences') ||
