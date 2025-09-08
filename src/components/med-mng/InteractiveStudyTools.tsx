@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Slider } from '@/components/ui/slider';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Play, 
   Pause, 
@@ -18,7 +19,10 @@ import {
   CheckCircle,
   XCircle,
   Clock,
-  Award
+  Award,
+  Timer,
+  Brain,
+  BookOpen
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { AnimatedProgress } from './AnimatedComponents';
@@ -583,6 +587,90 @@ export const StudyTimer: React.FC<StudyTimerProps> = ({ onComplete, className = 
         </CardContent>
       </Card>
     </motion.div>
+  );
+};
+
+// Main InteractiveStudyTools component that combines all tools
+const InteractiveStudyTools: React.FC = () => {
+  const [activeTab, setActiveTab] = useState('quiz');
+
+  const sampleQuestions = [
+    {
+      id: '1',
+      question: 'Quels sont les principaux signes cliniques de l\'infarctus du myocarde ?',
+      options: [
+        'Douleur thoracique, dyspnée, nausées',
+        'Fièvre, maux de tête, fatigue',
+        'Toux, expectorations, dyspnée',
+        'Douleur abdominale, vomissements'
+      ],
+      correctAnswer: 0,
+      explanation: 'L\'infarctus du myocarde se manifeste typiquement par une douleur thoracique intense, de la dyspnée et des nausées.'
+    },
+    {
+      id: '2',
+      question: 'Quelle est la valeur normale de la pression artérielle systolique ?',
+      options: ['90-110 mmHg', '120-140 mmHg', '100-120 mmHg', '140-160 mmHg'],
+      correctAnswer: 2,
+      explanation: 'La pression artérielle systolique normale est généralement comprise entre 100 et 120 mmHg.'
+    }
+  ];
+
+  const sampleTrack = {
+    title: 'Musique de Concentration',
+    artist: 'MED-MNG',
+    duration: 180,
+    audioUrl: '/sample-audio.mp3',
+    imageUrl: '/sample-cover.jpg'
+  };
+
+  return (
+    <div className="container mx-auto p-6 space-y-6">
+      <div className="text-center mb-8">
+        <h1 className="text-3xl font-bold mb-2">Outils d'Étude Interactifs</h1>
+        <p className="text-muted-foreground">
+          Optimisez votre apprentissage avec nos outils intégrés
+        </p>
+      </div>
+
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="quiz" className="flex items-center gap-2">
+            <Brain className="h-4 w-4" />
+            Quiz Médical
+          </TabsTrigger>
+          <TabsTrigger value="timer" className="flex items-center gap-2">
+            <Timer className="h-4 w-4" />
+            Timer Pomodoro
+          </TabsTrigger>
+          <TabsTrigger value="music" className="flex items-center gap-2">
+            <BookOpen className="h-4 w-4" />
+            Musique d'Étude
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="quiz" className="mt-6">
+          <InteractiveQuiz 
+            questions={sampleQuestions}
+            onComplete={(score) => {
+              console.log('Quiz completed with score:', score);
+            }}
+          />
+        </TabsContent>
+
+        <TabsContent value="timer" className="mt-6">
+          <StudyTimer 
+            onComplete={() => {
+              console.log('Study session completed');
+            }}
+          />
+        </TabsContent>
+
+        <TabsContent value="music" className="mt-6">
+          <InteractiveMusicPlayer track={sampleTrack} />
+        </TabsContent>
+      </Tabs>
+    </div>
   );
 };
 
