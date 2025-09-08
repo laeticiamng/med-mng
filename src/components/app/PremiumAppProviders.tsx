@@ -14,6 +14,7 @@ import { SidebarProvider } from '@/components/ui/sidebar';
 import { PremiumAccessibilityProvider } from '@/components/accessibility/PremiumAccessibilityProvider';
 import { PremiumKeyboardProvider } from '@/components/keyboard/PremiumKeyboardProvider';
 import { PremiumPerformanceProvider } from '@/components/performance/PremiumPerformanceProvider';
+import { PremiumSEO } from '@/components/seo/PremiumSEO';
 import { logger } from '@/lib/logger';
 
 // ==========================================
@@ -97,6 +98,7 @@ export const PremiumAppProviders: React.FC<PremiumAppProvidersProps> = ({ childr
                 <PremiumKeyboardProvider>
                   <PremiumPerformanceProvider>
                     <TooltipProvider delayDuration={300}>
+                      <PremiumSEO />
                       {children}
                       <Toaster />
                     </TooltipProvider>
