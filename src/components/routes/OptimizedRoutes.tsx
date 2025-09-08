@@ -5,11 +5,11 @@
 
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
-import { useAuthStore } from '@/stores/authStore';
+import { usePremiumStore } from '@/stores/premiumStore';
 
 // Lazy loading optimisé pour tous les composants
 const HomePage = React.lazy(() => import('@/pages/Index'));
-const Dashboard = React.lazy(() => import('@/components/premium/UltimateDashboard').then(module => ({ default: module.UltimateDashboard })));
+const Dashboard = React.lazy(() => import('@/components/premium/UltimatePremiumDashboard').then(module => ({ default: module.UltimatePremiumDashboard })));
 const MedicalDataManager = React.lazy(() => import('@/components/medical/MedicalDataManager').then(module => ({ default: module.MedicalDataManager })));
 const SystemOptimizer = React.lazy(() => import('@/components/optimization/SystemOptimizer').then(module => ({ default: module.SystemOptimizer })));
 const DebugCleaner = React.lazy(() => import('@/components/cleanup/DebugCleaner').then(module => ({ default: module.DebugCleaner })));
@@ -22,7 +22,7 @@ const MedMngSettings = React.lazy(() => import('@/pages/med-mng/Settings'));
 
 // Composant de protection des routes
 const ProtectedRoute: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated } = usePremiumStore();
   
   return isAuthenticated ? <>{children}</> : <Navigate to="/med-mng/login" replace />;
 };

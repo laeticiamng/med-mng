@@ -9,6 +9,8 @@ import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 
 // Production optimizer - Auto-initialisation
 import '@/utils/productionOptimizer';
+import '@/utils/premiumCleaner';
+import '@/utils/consoleReplacer';
 
 // Composants refactorisés
 import AppProviders from '@/components/app/AppProviders';
