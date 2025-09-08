@@ -567,10 +567,6 @@ export const useMedicalMusicOrchestrator = (
       // Simulation d'ajout à la bibliothèque (table à créer)
       console.log('Ajout à la bibliothèque:', track.id);
       
-      if (error) {
-        throw new Error(error.message);
-      }
-      
       // Mettre à jour les métadonnées du track
       track.interaction_metadata.is_in_library = true;
       
@@ -590,10 +586,6 @@ export const useMedicalMusicOrchestrator = (
     try {
       // Simulation de suppression de la bibliothèque
       console.log('Suppression de la bibliothèque:', trackId);
-      
-      if (error) {
-        throw new Error(error.message);
-      }
       
       toast({
         title: "🗑️ Retiré de la bibliothèque",
