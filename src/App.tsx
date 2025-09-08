@@ -1,5 +1,5 @@
 import { GlobalOverflowWrapper } from "@/components/layout/GlobalOverflowWrapper";
-import React, { Suspense, lazy, memo, StrictMode } from "react";
+import React, { Suspense, lazy, memo, StrictMode, useState, useEffect } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -53,7 +53,7 @@ const EcosIndex = lazy(() => import("./pages/EcosIndex"));
 const EcosScenario = lazy(() => import("./pages/EcosScenario"));
 
 // ⚡ MEDICAL PLATFORM
-const MedicalPlatform = lazy(() => import("./pages/MedicalPlatform").then(module => ({ default: module.MedicalPlatform })));
+const EnhancedMedicalPlatform = lazy(() => import("./pages/EnhancedMedicalPlatform"));
 const MedMngLogin = lazy(() => import("./pages/MedMngLogin").then(module => ({ default: module.MedMngLogin })));
 const MedMngSignup = lazy(() => import("./pages/MedMngSignup").then(module => ({ default: module.MedMngSignup })));
 const MedMngPricing = lazy(() => import("./pages/MedMngPricing").then(module => ({ default: module.MedMngPricing })));
@@ -103,11 +103,37 @@ import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { SkipToMain } from '@/components/ux/AccessibilityEnhancements';
 import { PageSkeleton } from "@/components/loading/SkeletonLoader";
 import { PremiumGlobalNavigation } from "@/components/layout/PremiumGlobalNavigation";
+import { AccessibilityOverlay } from "@/components/premium/AccessibilityOverlay";
 
 // Component to handle keyboard shortcuts inside Router context
 const AppKeyboardShortcuts = memo(() => {
   useKeyboardShortcuts(); // Called inside Router context
   return null; // This component only provides keyboard functionality
+});
+
+// Global Accessibility State
+const GlobalAccessibilityProvider = memo(() => {
+  const [isAccessibilityOpen, setIsAccessibilityOpen] = useState(false);
+  
+  // Global keyboard shortcut for accessibility
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.altKey && event.key === 'a') {
+        event.preventDefault();
+        setIsAccessibilityOpen(prev => !prev);
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  return (
+    <AccessibilityOverlay 
+      isOpen={isAccessibilityOpen} 
+      onClose={() => setIsAccessibilityOpen(false)} 
+    />
+  );
 });
 
 // Composant de redirection pour /edn-complete/:slug vers /edn/:slug
@@ -214,7 +240,7 @@ const AppWithUX = () => {
                                               <Route path="/med-mng/login" element={<MedMngLogin />} />
                                               <Route path="/med-mng/signup" element={<MedMngSignup />} />
                                               <Route path="/med-mng/pricing" element={<MedMngPricing />} />
-                                              <Route path="/med-mng/platform" element={<MedicalPlatform />} />
+                                              <Route path="/med-mng/platform" element={<EnhancedMedicalPlatform />} />
                                               <Route path="/med-mng/comprehensive" element={<ComprehensiveDashboard />} />
                                               <Route path="/med-mng/subscribe/:planId" element={<ProtectedRoute><MedMngSubscribe /></ProtectedRoute>} />
                                               <Route path="/med-mng/success" element={<ProtectedRoute><MedMngSuccess /></ProtectedRoute>} />
@@ -263,8 +289,8 @@ const AppWithUX = () => {
                                              <Route path="*" element={<NotFound />} />
                                            </Routes>
                                           </Suspense>
-                                          {/* UX Toolbar - Floating bottom-right */}
-                                          <UXToolbar />
+                                         {/* Global Accessibility Overlay */}
+                                         <GlobalAccessibilityProvider />
                                         </GlobalErrorBoundary>
                                       </PageThemeProvider>
                                     </main>

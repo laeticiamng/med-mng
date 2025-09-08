@@ -463,20 +463,46 @@ const OptimizedIndex = () => {
             </p>
           </motion.div>
 
-          <Suspense 
-            fallback={
-              <div className="h-96 bg-muted/20 rounded-2xl flex items-center justify-center">
-                <div className="text-center">
-                  <div className="animate-spin w-8 h-8 border-4 border-primary/30 border-t-primary rounded-full mx-auto mb-4" />
-                  <p className="text-muted-foreground">Chargement du dashboard...</p>
+          <div className="bg-background/50 backdrop-blur border border-border rounded-2xl overflow-hidden p-8">
+            <div className="text-center">
+              <div className="inline-flex items-center gap-3 mb-6">
+                <div className="w-12 h-12 rounded-xl bg-gradient-medical flex items-center justify-center">
+                  <Crown className="w-6 h-6 text-white" />
+                </div>
+                <div>
+                  <h3 className="text-2xl font-bold">Dashboard Premium</h3>
+                  <p className="text-muted-foreground">Interface complète d'apprentissage</p>
                 </div>
               </div>
-            }
-          >
-            <div className="bg-background/50 backdrop-blur border border-border rounded-2xl overflow-hidden">
-              <UnifiedMedicalDashboard />
+              
+              <div className="grid md:grid-cols-3 gap-6 mb-8">
+                <div className="bg-card/50 rounded-lg p-4 border">
+                  <Music className="w-8 h-8 text-primary mx-auto mb-3" />
+                  <h4 className="font-semibold mb-2">Génération IA</h4>
+                  <p className="text-sm text-muted-foreground">Chansons éducatives personnalisées</p>
+                </div>
+                <div className="bg-card/50 rounded-lg p-4 border">
+                  <Brain className="w-8 h-8 text-primary mx-auto mb-3" />
+                  <h4 className="font-semibold mb-2">Quiz Adaptatifs</h4>
+                  <p className="text-sm text-muted-foreground">Évaluations intelligentes</p>
+                </div>
+                <div className="bg-card/50 rounded-lg p-4 border">
+                  <Target className="w-8 h-8 text-primary mx-auto mb-3" />
+                  <h4 className="font-semibold mb-2">Suivi Progrès</h4>
+                  <p className="text-sm text-muted-foreground">Analytics en temps réel</p>
+                </div>
+              </div>
+              
+              <Button 
+                size="lg"
+                className="medical-btn-primary"
+                onClick={() => navigate('/med-mng/dashboard')}
+              >
+                <Crown className="w-5 h-5 mr-2" />
+                Accéder au Dashboard Complet
+              </Button>
             </div>
-          </Suspense>
+          </div>
         </div>
       </section>
 
