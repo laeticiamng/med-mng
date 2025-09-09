@@ -135,36 +135,57 @@ export const EnhancedTableauDisplay: React.FC<EnhancedTableauDisplayProps> = ({
               {oicCompetences.length > 0 ? (
                 <div className="space-y-3">
                   {oicCompetences
-                    .sort((a, b) => (a.ordre || 0) - (b.ordre || 0)) // Tri supplémentaire côté client pour sécurité
-                    .map((competence, index) => (
-                    <div key={competence.objectif_id} className="border rounded-lg p-4 hover:bg-muted/50 transition-colors">
-                      <div className="flex items-start space-x-3">
-                        <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0 shadow-md">
-                          {competence.ordre || (index + 1)}
-                        </div>
-                        <div className="flex-1 space-y-3">
-                          <div className="flex items-center space-x-2">
-                            <Badge variant="outline" className="font-mono text-xs">
-                              {competence.objectif_id}
-                            </Badge>
-                            <Badge variant="secondary" className="text-xs">
-                              Ordre {competence.ordre || (index + 1)}
-                            </Badge>
-                          </div>
-                          <h4 className="font-semibold text-base leading-tight text-foreground">
-                            {competence.intitule}
-                          </h4>
-                          {competence.description && competence.description.trim() && (
-                            <div className="p-3 bg-muted/30 rounded-md border-l-4 border-l-blue-500">
-                              <p className="text-sm text-muted-foreground leading-relaxed">
-                                {competence.description}
-                              </p>
+                    .sort((a, b) => {
+                      // Extraire le numéro d'ordre depuis l'objectif_id (ex: OIC-001-03-A -> 3)
+                      const getOrderFromId = (objectifId: string) => {
+                        const match = objectifId.match(/OIC-\d+-(\d+)-[AB]/);
+                        return match ? parseInt(match[1], 10) : 0;
+                      };
+                      
+                      const orderA = getOrderFromId(a.objectif_id);
+                      const orderB = getOrderFromId(b.objectif_id);
+                      
+                      return orderA - orderB;
+                    })
+                    .map((competence, index) => {
+                      // Calculer l'ordre réel depuis l'objectif_id
+                      const getOrderFromId = (objectifId: string) => {
+                        const match = objectifId.match(/OIC-\d+-(\d+)-[AB]/);
+                        return match ? parseInt(match[1], 10) : (index + 1);
+                      };
+                      
+                      const realOrder = getOrderFromId(competence.objectif_id);
+                      
+                      return (
+                        <div key={competence.objectif_id} className="border rounded-lg p-4 hover:bg-muted/50 transition-colors">
+                          <div className="flex items-start space-x-3">
+                            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0 shadow-md">
+                              {realOrder}
                             </div>
-                          )}
+                            <div className="flex-1 space-y-3">
+                              <div className="flex items-center space-x-2">
+                                <Badge variant="outline" className="font-mono text-xs">
+                                  {competence.objectif_id}
+                                </Badge>
+                                <Badge variant="secondary" className="text-xs">
+                                  Ordre {realOrder}
+                                </Badge>
+                              </div>
+                              <h4 className="font-semibold text-base leading-tight text-foreground">
+                                {competence.intitule}
+                              </h4>
+                              {competence.description && competence.description.trim() && (
+                                <div className="p-3 bg-muted/30 rounded-md border-l-4 border-l-blue-500">
+                                  <p className="text-sm text-muted-foreground leading-relaxed">
+                                    {competence.description}
+                                  </p>
+                                </div>
+                              )}
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    </div>
-                  ))}
+                      );
+                    })}
                 </div>
               ) : (
                 <div className="text-center py-8 text-muted-foreground">
