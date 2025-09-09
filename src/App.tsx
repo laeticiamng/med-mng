@@ -23,6 +23,8 @@ import { GlobalMusicPlayer } from "@/components/layout/GlobalMusicPlayer";
 // ⚡ CORE PAGES - Architecture unifiée et optimisée
 const OptimizedIndex = lazy(() => import("./pages/OptimizedIndex"));
 const PlatformOverview = lazy(() => import("./pages/PlatformOverview"));
+const PlatformComplete = lazy(() => import("./pages/PlatformComplete"));
+const QuickStart = lazy(() => import("./pages/QuickStart"));
 const Generator = lazy(() => import("./pages/Generator"));
 const MeditationCenter = lazy(() => import("./pages/MeditationCenter"));
 const UserSettings = lazy(() => import("./pages/UserSettings"));
