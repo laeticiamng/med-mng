@@ -2,10 +2,9 @@
 // FEATURE: EDN SYSTEM - Fonctionnalité complète (autonome)
 // ============================================================================
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -18,21 +17,19 @@ import {
   Star,
   TrendingUp,
   CheckCircle,
-  Play,
-  Bookmark,
   BarChart3
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { Helmet } from 'react-helmet-async';
 
-// Hooks et services (à créer)
+// Hooks et services
 import { useEdnController } from './hooks/useEdnController';
 import { EdnItemCard } from './components/EdnItemCard';
 import { EdnProgressChart } from './components/EdnProgressChart';
 import { EdnSearchFilters } from './components/EdnSearchFilters';
 
 // Types
-import { EDNCategory, DifficultyLevel } from '@med-mng/types';
+import type { EDNItemDTO } from '@/types/temp-types';
 
 // ============================================================================
 // FEATURE COMPONENT PRINCIPAL
@@ -131,7 +128,7 @@ export const EdnSystemFeature: React.FC = () => {
               </CardContent>
             </Card>
 
-            <Card className="border-l-4 border-l-gold">
+            <Card className="border-l-4 border-l-yellow-500">
               <CardContent className="p-4">
                 <div className="flex items-center justify-between">
                   <div>
@@ -163,10 +160,7 @@ export const EdnSystemFeature: React.FC = () => {
                   <EdnItemCard
                     key={item.id}
                     item={item}
-                    progress={userProgress.find(p => p.itemId === item.id)}
-                    onStart={() => startItem(item.id)}
-                    onBookmark={() => bookmarkItem(item.id)}
-                    variant="compact"
+                    onSelect={() => startItem(item.id)}
                   />
                 ))}
               </div>
@@ -256,10 +250,7 @@ export const EdnSystemFeature: React.FC = () => {
                   <EdnItemCard
                     key={item.id}
                     item={item}
-                    progress={userProgress.find(p => p.itemId === item.id)}
-                    onStart={() => startItem(item.id)}
-                    onBookmark={() => bookmarkItem(item.id)}
-                    variant={viewMode === 'grid' ? 'full' : 'list'}
+                    onSelect={() => startItem(item.id)}
                   />
                 ))}
               </div>
@@ -275,8 +266,8 @@ export const EdnSystemFeature: React.FC = () => {
                   className="mt-4" 
                   onClick={() => {
                     setSearchQuery('');
-                    setSelectedCategory(undefined);
-                    setSelectedDifficulty(undefined);
+                    setSelectedCategory('');
+                    setSelectedDifficulty('');
                   }}
                 >
                   Réinitialiser les filtres
