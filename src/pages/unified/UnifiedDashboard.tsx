@@ -1,157 +1,118 @@
-import React, { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
-import { 
-  BookOpen, 
-  Brain, 
-  Music, 
-  Users, 
-  Trophy, 
-  Clock, 
-  Target, 
-  TrendingUp,
-  Zap,
-  Heart,
-  Star,
-  Activity,
-  Award,
-  BarChart3,
-  ArrowRight,
-  Lightbulb,
-  HeadphonesIcon,
-  GraduationCap
-} from 'lucide-react';
+import React, { memo } from 'react';
 import { motion } from 'framer-motion';
-import { Helmet } from 'react-helmet-async';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Progress } from '@/components/ui/progress';
+import { Clock, BookOpen, Music, Users, Star, TrendingUp, Target } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 
 const UnifiedDashboard: React.FC = () => {
   const navigate = useNavigate();
-  const [stats] = useState({
-    studyTime: 12450, // minutes
-    itemsCompleted: 127,
-    streakDays: 15,
-    level: 8,
-    experience: 2850,
-    nextLevelExp: 3500
-  });
 
-  const formatTime = (minutes: number): string => {
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    return `${hours}h${mins.toString().padStart(2, '0')}`;
-  };
+  const stats = [
+    { label: 'Temps d\'étude', value: '124h', icon: Clock, color: 'text-blue-500' },
+    { label: 'Items EDN', value: '189', icon: BookOpen, color: 'text-green-500' },
+    { label: 'Musiques créées', value: '24', icon: Music, color: 'text-purple-500' },
+    { label: 'XP Total', value: '8,945', icon: Star, color: 'text-amber-500' }
+  ];
+
+  const quickActions = [
+    { title: 'Créer Musique', path: '/med-mng/create', icon: Music, color: 'from-purple-500 to-pink-500' },
+    { title: 'Explorer EDN', path: '/edn', icon: BookOpen, color: 'from-blue-500 to-cyan-500' },
+    { title: 'Communauté', path: '/community', icon: Users, color: 'from-green-500 to-emerald-500' },
+    { title: 'Analytics', path: '/analytics', icon: TrendingUp, color: 'from-amber-500 to-orange-500' }
+  ];
 
   return (
     <>
       <Helmet>
-        <title>Dashboard Unifié - MED-MNG</title>
-        <meta name="description" content="Tableau de bord principal de votre apprentissage médical avec analytics avancées et outils IA" />
+        <title>Dashboard - MED-MNG</title>
+        <meta name="description" content="Tableau de bord MED-MNG - Suivez votre progression et accédez à tous vos outils d'apprentissage médical." />
       </Helmet>
 
-      <div className="container mx-auto p-6 space-y-8 max-w-7xl">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center space-y-4"
-        >
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-            Dashboard Unifié 🏥
-          </h1>
-          <p className="text-xl text-muted-foreground">
-            Vue d'ensemble complète de votre progression médicale
-          </p>
-        </motion.div>
+      <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-accent/5">
+        <div className="container mx-auto p-6 space-y-8">
+          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }}>
+            <h1 className="text-3xl font-bold">Tableau de Bord</h1>
+            <p className="text-muted-foreground">Bienvenue sur votre espace personnel MED-MNG</p>
+          </motion.div>
 
-        {/* Statistiques principales */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <Card className="border-l-4 border-l-blue-500">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Temps d'étude</CardTitle>
-              <Clock className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{formatTime(stats.studyTime)}</div>
-              <p className="text-xs text-muted-foreground">+2h cette semaine</p>
-            </CardContent>
-          </Card>
-
-          <Card className="border-l-4 border-l-green-500">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Items complétés</CardTitle>
-              <Trophy className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.itemsCompleted}/367</div>
-              <Progress value={(stats.itemsCompleted / 367) * 100} className="mt-2 h-2" />
-            </CardContent>
-          </Card>
-
-          <Card className="border-l-4 border-l-purple-500">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Série active</CardTitle>
-              <Zap className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats.streakDays} jours</div>
-              <p className="text-xs text-muted-foreground">Record personnel !</p>
-            </CardContent>
-          </Card>
-
-          <Card className="border-l-4 border-l-orange-500">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Niveau</CardTitle>
-              <Star className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">Niveau {stats.level}</div>
-              <Progress value={(stats.experience / stats.nextLevelExp) * 100} className="mt-2 h-2" />
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Actions rapides */}
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Zap className="h-5 w-5" />
-              Actions Rapides
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {[
-                { title: 'Explorer EDN', path: '/edn', icon: BookOpen, color: 'bg-blue-500' },
-                { title: 'Créer avec IA', path: '/generator', icon: Brain, color: 'bg-purple-500' },
-                { title: 'Studio Musical', path: '/med-mng/dashboard', icon: Music, color: 'bg-green-500' },
-                { title: 'Simulations ECOS', path: '/ecos', icon: Target, color: 'bg-orange-500' },
-                { title: 'Assistant IA', path: '/chat', icon: Lightbulb, color: 'bg-indigo-500' },
-                { title: 'Communauté', path: '/community', icon: Users, color: 'bg-pink-500' }
-              ].map((action, index) => (
-                <Card key={index} className="cursor-pointer hover:shadow-lg transition-all duration-200" onClick={() => navigate(action.path)}>
-                  <CardContent className="p-4">
-                    <div className="flex items-center gap-3">
-                      <div className={`p-2 rounded-lg ${action.color} text-white`}>
-                        <action.icon className="h-5 w-5" />
+          {/* Stats rapides */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+            {stats.map((stat, index) => (
+              <motion.div key={index} initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: index * 0.1 }}>
+                <Card>
+                  <CardContent className="p-6">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm text-muted-foreground">{stat.label}</p>
+                        <p className="text-2xl font-bold">{stat.value}</p>
                       </div>
-                      <div className="flex-1">
-                        <h3 className="font-semibold">{action.title}</h3>
-                        <Button variant="ghost" size="sm" className="mt-1 p-0 h-auto">
-                          Accéder <ArrowRight className="h-3 w-3 ml-1" />
-                        </Button>
-                      </div>
+                      <stat.icon className={`h-8 w-8 ${stat.color}`} />
                     </div>
                   </CardContent>
                 </Card>
-              ))}
+              </motion.div>
+            ))}
+          </div>
+
+          <div className="grid lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2 space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Target className="h-5 w-5" />
+                    Progression Générale
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  {[
+                    { label: 'Items EDN', current: 189, total: 367 },
+                    { label: 'Musiques créées', current: 24, total: 50 },
+                    { label: 'Modules complétés', current: 12, total: 20 }
+                  ].map((item, index) => (
+                    <div key={index} className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-sm font-medium">{item.label}</span>
+                        <span className="text-sm text-muted-foreground">{item.current}/{item.total}</span>
+                      </div>
+                      <Progress value={(item.current / item.total) * 100} />
+                    </div>
+                  ))}
+                </CardContent>
+              </Card>
             </div>
-          </CardContent>
-        </Card>
+
+            <div className="space-y-6">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Actions Rapides</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 gap-4">
+                    {quickActions.map((action, index) => (
+                      <Button
+                        key={index}
+                        variant="outline"
+                        className="h-auto p-4 flex flex-col items-center gap-2"
+                        onClick={() => navigate(action.path)}
+                      >
+                        <div className={`p-2 rounded-full bg-gradient-to-br ${action.color}`}>
+                          <action.icon className="h-5 w-5 text-white" />
+                        </div>
+                        <span className="text-sm font-medium">{action.title}</span>
+                      </Button>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        </div>
       </div>
     </>
   );
 };
 
-export default UnifiedDashboard;
+export default memo(UnifiedDashboard);
