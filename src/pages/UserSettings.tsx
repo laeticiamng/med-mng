@@ -1,372 +1,340 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
+import { Slider } from '@/components/ui/slider';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { useAuth } from '@/components/med-mng/AuthProvider';
-import { usePlatformAnalytics } from '@/hooks/usePlatformAnalytics';
-import { usePlatformFeatures } from '@/hooks/usePlatformFeatures';
-import { ConsistentBackground } from '@/components/layout/ConsistentBackground';
-import { Settings, User, Bell, Shield, Download, Trash2, Save } from 'lucide-react';
+import { 
+  Settings,
+  Palette,
+  Volume2,
+  Bell,
+  Shield,
+  Globe,
+  Accessibility,
+  Monitor,
+  Moon,
+  Sun,
+  Smartphone,
+  Download,
+  Trash2,
+  Save,
+  RotateCcw,
+  Zap,
+  Brain,
+  Music,
+  BookOpen,
+  Timer
+} from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Helmet } from 'react-helmet-async';
+import { useToast } from '@/hooks/use-toast';
 
-const UserSettings: React.FC = () => {
-  const { user } = useAuth();
-  const { updateProfile, getDashboardStats, loading: analyticsLoading } = usePlatformAnalytics();
-  const { exportData, loading: featuresLoading } = usePlatformFeatures();
-  
-  const [profile, setProfile] = useState({
-    display_name: '',
-    bio: '',
-    preferences: {
-      notifications: {
-        email: true,
-        push: true,
-        marketing: false
-      },
-      privacy: {
-        profile_visible: true,
-        activity_visible: false
-      },
-      interface: {
-        dark_mode: false,
-        compact_view: false,
-        animations: true
-      }
-    }
+const UserSettingsPage: React.FC = () => {
+  const { toast } = useToast();
+  const [settings, setSettings] = useState({
+    theme: 'system',
+    language: 'fr',
+    fontSize: 16,
+    masterVolume: 80,
+    musicVolume: 70,
+    effectsVolume: 60,
+    emailNotifications: true,
+    pushNotifications: true,
+    studyReminders: true,
+    highContrast: false,
+    reducedMotion: false,
+    profileVisibility: 'public',
+    shareProgress: true,
+    allowAnalytics: true,
+    studyGoalDaily: 120,
+    autoSave: true,
+    aiAssistance: true,
+    musicTherapy: true
   });
 
-  const [loading, setLoading] = useState(false);
-  const [saved, setSaved] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
-  useEffect(() => {
-    const loadProfile = async () => {
-      const stats = await getDashboardStats();
-      if (stats?.profile) {
-        setProfile({
-          display_name: stats.profile.display_name || '',
-          bio: stats.profile.bio || '',
-          preferences: stats.profile.preferences || profile.preferences
-        });
-      }
-    };
+  const updateSetting = (key: string, value: any) => {
+    setSettings(prev => ({ ...prev, [key]: value }));
+    setHasUnsavedChanges(true);
+  };
 
-    if (user) {
-      loadProfile();
-    }
-  }, [user, getDashboardStats]);
-
-  const handleSave = async () => {
-    setLoading(true);
-    const result = await updateProfile({
-      display_name: profile.display_name,
-      bio: profile.bio,
-      preferences: profile.preferences
+  const saveSettings = () => {
+    toast({
+      title: "Paramètres sauvegardés",
+      description: "Vos préférences ont été mises à jour avec succès.",
     });
-    
-    if (result.success) {
-      setSaved(true);
-      setTimeout(() => setSaved(false), 3000);
-    }
-    setLoading(false);
+    setHasUnsavedChanges(false);
   };
 
-  const handleExport = async (type: 'user_data' | 'analytics_summary', format: 'json' | 'csv' = 'json') => {
-    await exportData(type, format);
-  };
-
-  const updatePreference = (category: string, key: string, value: any) => {
-    setProfile(prev => ({
-      ...prev,
-      preferences: {
-        ...prev.preferences,
-        [category]: {
-          ...prev.preferences[category],
-          [key]: value
-        }
-      }
-    }));
+  const formatTime = (minutes: number): string => {
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return hours > 0 ? `${hours}h ${mins}min` : `${mins}min`;
   };
 
   return (
-    <ConsistentBackground variant="secondary">
-      <div className="min-h-screen py-8">
-        <div className="container mx-auto px-4 max-w-4xl">
-          <div className="mb-8">
-            <h1 className="text-4xl font-bold text-white mb-2">Paramètres</h1>
-            <p className="text-white/70">Gérez votre profil et vos préférences</p>
+    <>
+      <Helmet>
+        <title>Paramètres - MED-MNG</title>
+        <meta name="description" content="Personnalisez votre expérience MED-MNG - Apparence, notifications, accessibilité et confidentialité" />
+      </Helmet>
+
+      <div className="container mx-auto p-6 space-y-8 max-w-6xl">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold flex items-center gap-3">
+              <Settings className="h-8 w-8 text-primary" />
+              Paramètres
+            </h1>
+            <p className="text-muted-foreground mt-2">Personnalisez votre expérience d'apprentissage médical</p>
           </div>
-
-          <Tabs defaultValue="profile" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-4 bg-white/10 backdrop-blur-sm">
-              <TabsTrigger value="profile" className="flex items-center gap-2">
-                <User className="h-4 w-4" />
-                Profil
-              </TabsTrigger>
-              <TabsTrigger value="notifications" className="flex items-center gap-2">
-                <Bell className="h-4 w-4" />
-                Notifications
-              </TabsTrigger>
-              <TabsTrigger value="privacy" className="flex items-center gap-2">
-                <Shield className="h-4 w-4" />
-                Confidentialité
-              </TabsTrigger>
-              <TabsTrigger value="data" className="flex items-center gap-2">
-                <Download className="h-4 w-4" />
-                Données
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="profile" className="space-y-6">
-              <Card className="bg-white/10 backdrop-blur-sm border-white/20">
-                <CardHeader>
-                  <CardTitle className="text-white">Informations du profil</CardTitle>
-                  <CardDescription className="text-white/70">
-                    Modifiez vos informations personnelles
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="email" className="text-white">Email</Label>
-                    <Input
-                      id="email"
-                      value={user?.email || ''}
-                      disabled
-                      className="bg-white/5 border-white/20 text-white"
-                    />
-                    <Badge variant="secondary" className="bg-blue-500/20 text-blue-200">
-                      Vérifié
-                    </Badge>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="display_name" className="text-white">Nom d'affichage</Label>
-                    <Input
-                      id="display_name"
-                      value={profile.display_name}
-                      onChange={(e) => setProfile(prev => ({ ...prev, display_name: e.target.value }))}
-                      placeholder="Votre nom d'affichage"
-                      className="bg-white/5 border-white/20 text-white placeholder:text-white/50"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="bio" className="text-white">Biographie</Label>
-                    <Textarea
-                      id="bio"
-                      value={profile.bio}
-                      onChange={(e) => setProfile(prev => ({ ...prev, bio: e.target.value }))}
-                      placeholder="Parlez-nous de vous..."
-                      rows={4}
-                      className="bg-white/5 border-white/20 text-white placeholder:text-white/50"
-                    />
-                  </div>
-
-                  <Separator className="bg-white/10" />
-
-                  <div className="space-y-4">
-                    <h4 className="text-white font-medium">Préférences d'interface</h4>
-                    
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <Label className="text-white">Mode sombre</Label>
-                        <p className="text-sm text-white/70">Utilisez le thème sombre</p>
-                      </div>
-                      <Switch
-                        checked={profile.preferences.interface?.dark_mode}
-                        onCheckedChange={(checked) => updatePreference('interface', 'dark_mode', checked)}
-                      />
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <Label className="text-white">Vue compacte</Label>
-                        <p className="text-sm text-white/70">Affichage plus dense</p>
-                      </div>
-                      <Switch
-                        checked={profile.preferences.interface?.compact_view}
-                        onCheckedChange={(checked) => updatePreference('interface', 'compact_view', checked)}
-                      />
-                    </div>
-
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <Label className="text-white">Animations</Label>
-                        <p className="text-sm text-white/70">Activer les animations</p>
-                      </div>
-                      <Switch
-                        checked={profile.preferences.interface?.animations}
-                        onCheckedChange={(checked) => updatePreference('interface', 'animations', checked)}
-                      />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="notifications" className="space-y-6">
-              <Card className="bg-white/10 backdrop-blur-sm border-white/20">
-                <CardHeader>
-                  <CardTitle className="text-white">Paramètres de notification</CardTitle>
-                  <CardDescription className="text-white/70">
-                    Choisissez comment vous souhaitez être notifié
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label className="text-white">Notifications par email</Label>
-                      <p className="text-sm text-white/70">Recevez des emails pour les mises à jour importantes</p>
-                    </div>
-                    <Switch
-                      checked={profile.preferences.notifications?.email}
-                      onCheckedChange={(checked) => updatePreference('notifications', 'email', checked)}
-                    />
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label className="text-white">Notifications push</Label>
-                      <p className="text-sm text-white/70">Notifications dans le navigateur</p>
-                    </div>
-                    <Switch
-                      checked={profile.preferences.notifications?.push}
-                      onCheckedChange={(checked) => updatePreference('notifications', 'push', checked)}
-                    />
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label className="text-white">Communications marketing</Label>
-                      <p className="text-sm text-white/70">Nouveautés et offres spéciales</p>
-                    </div>
-                    <Switch
-                      checked={profile.preferences.notifications?.marketing}
-                      onCheckedChange={(checked) => updatePreference('notifications', 'marketing', checked)}
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="privacy" className="space-y-6">
-              <Card className="bg-white/10 backdrop-blur-sm border-white/20">
-                <CardHeader>
-                  <CardTitle className="text-white">Paramètres de confidentialité</CardTitle>
-                  <CardDescription className="text-white/70">
-                    Contrôlez la visibilité de vos informations
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label className="text-white">Profil visible</Label>
-                      <p className="text-sm text-white/70">Permettre aux autres utilisateurs de voir votre profil</p>
-                    </div>
-                    <Switch
-                      checked={profile.preferences.privacy?.profile_visible}
-                      onCheckedChange={(checked) => updatePreference('privacy', 'profile_visible', checked)}
-                    />
-                  </div>
-
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <Label className="text-white">Activité visible</Label>
-                      <p className="text-sm text-white/70">Afficher votre activité récente aux autres</p>
-                    </div>
-                    <Switch
-                      checked={profile.preferences.privacy?.activity_visible}
-                      onCheckedChange={(checked) => updatePreference('privacy', 'activity_visible', checked)}
-                    />
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="data" className="space-y-6">
-              <Card className="bg-white/10 backdrop-blur-sm border-white/20">
-                <CardHeader>
-                  <CardTitle className="text-white">Gestion des données</CardTitle>
-                  <CardDescription className="text-white/70">
-                    Exportez ou supprimez vos données
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="space-y-4">
-                    <div>
-                      <h4 className="text-white font-medium mb-2">Exporter mes données</h4>
-                      <div className="flex gap-2 flex-wrap">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleExport('user_data', 'json')}
-                          disabled={featuresLoading}
-                          className="bg-white/5 border-white/20 text-white hover:bg-white/10"
-                        >
-                          <Download className="h-4 w-4 mr-2" />
-                          Données utilisateur (JSON)
-                        </Button>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => handleExport('analytics_summary', 'csv')}
-                          disabled={featuresLoading}
-                          className="bg-white/5 border-white/20 text-white hover:bg-white/10"
-                        >
-                          <Download className="h-4 w-4 mr-2" />
-                          Analytiques (CSV)
-                        </Button>
-                      </div>
-                    </div>
-
-                    <Separator className="bg-white/10" />
-
-                    <div>
-                      <h4 className="text-white font-medium mb-2 text-red-400">Zone de danger</h4>
-                      <p className="text-sm text-white/70 mb-4">
-                        Actions irréversibles concernant votre compte
-                      </p>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        className="bg-red-500/20 border-red-500/50 text-red-200 hover:bg-red-500/30"
-                      >
-                        <Trash2 className="h-4 w-4 mr-2" />
-                        Supprimer mon compte
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
-
-          <div className="flex justify-end mt-8">
-            <Button
-              onClick={handleSave}
-              disabled={loading || analyticsLoading}
-              className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8"
-            >
-              {loading ? (
-                'Sauvegarde...'
-              ) : saved ? (
-                'Sauvegardé ✓'
-              ) : (
-                <>
-                  <Save className="h-4 w-4 mr-2" />
-                  Sauvegarder
-                </>
-              )}
+          
+          <div className="flex items-center gap-3">
+            {hasUnsavedChanges && <Badge variant="secondary" className="animate-pulse">Modifications non sauvegardées</Badge>}
+            <Button variant="outline" onClick={() => setHasUnsavedChanges(false)}>
+              <RotateCcw className="h-4 w-4 mr-2" />
+              Réinitialiser
+            </Button>
+            <Button onClick={saveSettings} disabled={!hasUnsavedChanges}>
+              <Save className="h-4 w-4 mr-2" />
+              Sauvegarder
             </Button>
           </div>
-        </div>
+        </motion.div>
+
+        <Tabs defaultValue="appearance" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="appearance">Apparence</TabsTrigger>
+            <TabsTrigger value="audio">Audio</TabsTrigger>
+            <TabsTrigger value="notifications">Notifications</TabsTrigger>
+            <TabsTrigger value="accessibility">Accessibilité</TabsTrigger>
+            <TabsTrigger value="privacy">Confidentialité</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="appearance" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Palette className="h-5 w-5" />
+                  Thème et Apparence
+                </CardTitle>
+                <CardDescription>Personnalisez l'interface selon vos préférences</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-3">
+                  <Label>Thème</Label>
+                  <div className="grid grid-cols-3 gap-3">
+                    {[
+                      { value: 'light', label: 'Clair', icon: Sun },
+                      { value: 'dark', label: 'Sombre', icon: Moon },
+                      { value: 'system', label: 'Système', icon: Monitor }
+                    ].map(({ value, label, icon: Icon }) => (
+                      <Card
+                        key={value}
+                        className={`cursor-pointer transition-all ${settings.theme === value ? 'ring-2 ring-primary' : ''}`}
+                        onClick={() => updateSetting('theme', value)}
+                      >
+                        <CardContent className="p-4 text-center">
+                          <Icon className="h-6 w-6 mx-auto mb-2" />
+                          <p className="font-medium">{label}</p>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <Label>Langue</Label>
+                  <Select value={settings.language} onValueChange={(value) => updateSetting('language', value)}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="fr">🇫🇷 Français</SelectItem>
+                      <SelectItem value="en">🇬🇧 English</SelectItem>
+                      <SelectItem value="es">🇪🇸 Español</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-3">
+                  <Label>Taille de police: {settings.fontSize}px</Label>
+                  <Slider
+                    value={[settings.fontSize]}
+                    onValueChange={([value]) => updateSetting('fontSize', value)}
+                    min={12}
+                    max={24}
+                    step={2}
+                    className="w-full"
+                  />
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="audio" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Volume2 className="h-5 w-5" />
+                  Paramètres Audio
+                </CardTitle>
+                <CardDescription>Contrôlez les niveaux sonores de l'application</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {[
+                  { key: 'masterVolume', label: 'Volume principal', icon: Volume2 },
+                  { key: 'musicVolume', label: 'Musique thérapeutique', icon: Music },
+                  { key: 'effectsVolume', label: 'Effets sonores', icon: Zap }
+                ].map(({ key, label, icon: Icon }) => (
+                  <div key={key} className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <Label className="flex items-center gap-2">
+                        <Icon className="h-4 w-4" />
+                        {label}
+                      </Label>
+                      <span className="text-sm text-muted-foreground">{settings[key]}%</span>
+                    </div>
+                    <Slider
+                      value={[settings[key]]}
+                      onValueChange={([value]) => updateSetting(key, value)}
+                      min={0}
+                      max={100}
+                      step={5}
+                      className="w-full"
+                    />
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="notifications" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Bell className="h-5 w-5" />
+                  Notifications
+                </CardTitle>
+                <CardDescription>Gérez vos préférences de notification</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {[
+                  { key: 'emailNotifications', title: 'Notifications email', description: 'Recevoir des mises à jour par email' },
+                  { key: 'pushNotifications', title: 'Notifications push', description: 'Notifications en temps réel dans le navigateur' },
+                  { key: 'studyReminders', title: 'Rappels d\'étude', description: 'Rappels pour vos sessions d\'apprentissage' }
+                ].map(({ key, title, description }) => (
+                  <div key={key} className="flex items-center justify-between">
+                    <div className="space-y-1">
+                      <p className="font-medium">{title}</p>
+                      <p className="text-sm text-muted-foreground">{description}</p>
+                    </div>
+                    <Switch
+                      checked={settings[key]}
+                      onCheckedChange={(checked) => updateSetting(key, checked)}
+                    />
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="accessibility" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Accessibility className="h-5 w-5" />
+                  Accessibilité
+                </CardTitle>
+                <CardDescription>Options pour améliorer l'accessibilité de l'interface</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {[
+                  { key: 'highContrast', title: 'Contraste élevé', description: 'Améliore la lisibilité pour les troubles visuels' },
+                  { key: 'reducedMotion', title: 'Mouvement réduit', description: 'Réduit les animations pour éviter les vertiges' }
+                ].map(({ key, title, description }) => (
+                  <div key={key} className="flex items-center justify-between">
+                    <div className="space-y-1">
+                      <p className="font-medium">{title}</p>
+                      <p className="text-sm text-muted-foreground">{description}</p>
+                    </div>
+                    <Switch
+                      checked={settings[key]}
+                      onCheckedChange={(checked) => updateSetting(key, checked)}
+                    />
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="privacy" className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Shield className="h-5 w-5" />
+                  Confidentialité et Sécurité
+                </CardTitle>
+                <CardDescription>Contrôlez vos données et votre confidentialité</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                <div className="space-y-3">
+                  <Label>Visibilité du profil</Label>
+                  <Select value={settings.profileVisibility} onValueChange={(value) => updateSetting('profileVisibility', value)}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="public">Public</SelectItem>
+                      <SelectItem value="friends">Amis uniquement</SelectItem>
+                      <SelectItem value="private">Privé</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <Separator />
+
+                {[
+                  { key: 'shareProgress', title: 'Partager la progression', description: 'Permettre le partage de votre progression d\'étude' },
+                  { key: 'allowAnalytics', title: 'Analytics anonymes', description: 'Aider à améliorer l\'application avec des données anonymes' }
+                ].map(({ key, title, description }) => (
+                  <div key={key} className="flex items-center justify-between">
+                    <div className="space-y-1">
+                      <p className="font-medium">{title}</p>
+                      <p className="text-sm text-muted-foreground">{description}</p>
+                    </div>
+                    <Switch
+                      checked={settings[key]}
+                      onCheckedChange={(checked) => updateSetting(key, checked)}
+                    />
+                  </div>
+                ))}
+
+                <Separator />
+
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 text-destructive">
+                    <Trash2 className="h-4 w-4" />
+                    <span className="font-medium">Zone de danger</span>
+                  </div>
+                  <Button variant="destructive" className="w-full">
+                    Supprimer mon compte
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
-    </ConsistentBackground>
+    </>
   );
 };
 
-export default UserSettings;
+export default UserSettingsPage;
