@@ -225,8 +225,9 @@ const AppWithUX = () => {
                   <OptimizedEdnRouter />
                 </Suspense>
               } />
-              <Route path="/edn/:slug" element={<EdnItem />} />
-              <Route path="/edn/:slug/immersive" element={<EdnImmersive />} />
+              {/* Compatibilité routes anciennes EDN */}
+              <Route path="/edn/:slug" element={<Navigate to="/edn-production" replace />} />
+              <Route path="/edn/:slug/immersive" element={<Navigate to="/edn-production" replace />} />
               <Route path="/edn-complete" element={<Navigate to="/edn-production" replace />} />
               <Route path="/edn-complete/:slug" element={<EdnCompleteRedirect />} />
 

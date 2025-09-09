@@ -155,6 +155,12 @@ verify_jwt = false
 [functions.fix-incomplete-oic]
 verify_jwt = false
 
+[functions.openai-content-generator]
+verify_jwt = false
+
+[functions.suno-music-optimized]
+verify_jwt = false
+
 [functions.complete-oic-urls]
 verify_jwt = false
 
