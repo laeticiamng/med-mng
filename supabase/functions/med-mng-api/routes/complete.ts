@@ -86,18 +86,37 @@ async function generateComic(supabase: any, itemId: string) {
   });
 }
 
-async function generateMusic(supabase: any, itemId: string) {
+async function generateMusicForErrors(supabase: any, itemId: string) {
+  // Récupérer l'item et ses compétences OIC
   const { data: item } = await supabase
     .from('med_mng_items')
-    .select('item_number')
+    .select('item_number, title')
     .eq('id', itemId)
     .single();
+  
   if (!item) return;
+
+  // Récupérer les compétences OIC pour des paroles plus riches
+  const itemNumber = String(item.item_number).padStart(3, '0');
+  const { data: oicCompetences } = await supabase
+    .from('backup_oic_competences')
+    .select('objectif_id, intitule, description, rang')
+    .eq('item_parent', itemNumber)
+    .order('ordre, rang');
+
+  // Créer des paroles basées sur les compétences OIC
+  const parolesFromOIC = oicCompetences && oicCompetences.length > 0 
+    ? oicCompetences.slice(0, 3).map(c => 
+        `${c.intitule} - rappel essentiel pour IC-${item.item_number}`
+      )
+    : [`Item ${item.item_number} - ${item.title} - révision importante`];
+
   await callFunction('generate-music', {
-    lyrics: `Item ${item.item_number}`,
-    style: 'pop',
-    rang: 'A',
-    itemCode: `IC-${item.item_number}`
+    lyrics: parolesFromOIC,
+    style: 'educational',
+    rang: 'revision',
+    itemCode: `IC-${item.item_number}`,
+    purpose: 'error_correction'
   });
 }
 
@@ -107,13 +126,29 @@ async function generateQuiz(supabase: any, itemId: string) {
     .select('item_number, title')
     .eq('id', itemId)
     .single();
+  
   if (!item) return;
-  const prompt = `Crée un quiz médical corrigé pour l\'item ${item.item_number} - ${item.title}`;
+
+  // Récupérer les compétences OIC pour des quiz plus précis
+  const itemNumber = String(item.item_number).padStart(3, '0');
+  const { data: oicCompetences } = await supabase
+    .from('backup_oic_competences')
+    .select('objectif_id, intitule, description, rang')
+    .eq('item_parent', itemNumber)
+    .order('ordre, rang');
+
+  const competenceContext = oicCompetences && oicCompetences.length > 0
+    ? `\n\nCompétences OIC à couvrir:\n${oicCompetences.map(c => `- ${c.objectif_id}: ${c.intitule}`).join('\n')}`
+    : '';
+
+  const prompt = `Crée un quiz médical corrigé pour l'item ${item.item_number} - ${item.title}${competenceContext}`;
+  
   await callFunction('generate-content', {
     prompt,
     format: 'quiz',
     item_code: item.item_number,
-    content_type: 'quiz'
+    content_type: 'quiz',
+    oic_competences: oicCompetences || []
   });
 }
 

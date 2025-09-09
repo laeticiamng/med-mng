@@ -167,36 +167,70 @@ async function searchEdnKnowledgeBase(
   try {
     // Mots-clés pour la recherche
     const searchTerms = extractMedicalKeywords(query);
-    
-    let baseQuery = supabase
-      .from('edn_items_immersive')
-      .select('item_code, title, tableau_rang_a, tableau_rang_b');
+  async function findRelevantEDN(
+    query: string, 
+    supabase: any,
+    contextItems: string[] = []
+  ): Promise<EdnContext[]> {
+    try {
+      const searchTerms = extractMedicalKeywords(query);
+      
+      let baseQuery = supabase
+        .from('edn_items_immersive')
+        .select('item_code, title, tableau_rang_a, tableau_rang_b');
 
-    // Si des items spécifiques sont demandés, les prioriser
-    if (contextItems.length > 0) {
-      baseQuery = baseQuery.in('item_code', contextItems);
-    } else {
-      // Recherche par mots-clés dans le titre
-      baseQuery = baseQuery.or(
-        searchTerms.map(term => `title.ilike.%${term}%`).join(',')
-      );
-    }
+      // Si des items spécifiques sont demandés, les prioriser
+      if (contextItems.length > 0) {
+        baseQuery = baseQuery.in('item_code', contextItems);
+      } else {
+        // Recherche par mots-clés dans le titre
+        baseQuery = baseQuery.or(
+          searchTerms.map(term => `title.ilike.%${term}%`).join(',')
+        );
+      }
 
-    const { data: ednItems, error } = await baseQuery.limit(5);
+      const { data: ednItems, error } = await baseQuery.limit(5);
 
-    if (error) {
-      console.error('Erreur recherche EDN:', error);
+      if (error) {
+        console.error('Erreur recherche EDN:', error);
+        return [];
+      }
+
+      if (!ednItems || ednItems.length === 0) {
+        console.log('Aucun item EDN trouvé, recherche élargie...');
+        
+        // Recherche élargie si aucun résultat spécifique
+        const { data: fallbackItems, error: fallbackError } = await supabase
+          .from('edn_items_immersive')
+          .select('item_code, title, tableau_rang_a, tableau_rang_b')
+          .limit(3);
+
+        if (fallbackError) {
+          console.error('Erreur recherche élargie:', fallbackError);
+          return [];
+        }
+
+        return await Promise.all((fallbackItems || []).map(async item => ({
+          item_code: item.item_code,
+          title: item.title,
+          content: await formatItemContent(item, supabase),
+          relevance: 0.3
+        })));
+      }
+
+      // Enrichir avec les compétences OIC et formater le contenu
+      return await Promise.all(ednItems.map(async item => ({
+        item_code: item.item_code,
+        title: item.title,
+        content: await formatItemContent(item, supabase),
+        relevance: calculateRelevance(item, searchTerms)
+      })));
+
+    } catch (error) {
+      console.error('Erreur lors de la recherche EDN:', error);
       return [];
     }
-
-    if (!ednItems || ednItems.length === 0) {
-      console.log('Aucun item EDN trouvé, recherche élargie...');
-      
-      // Recherche élargie si aucun résultat spécifique
-      const { data: fallbackItems, error: fallbackError } = await supabase
-        .from('edn_items_immersive')
-        .select('item_code, title, tableau_rang_a, tableau_rang_b')
-        .limit(3);
+  }
 
       if (fallbackError) return [];
       return (fallbackItems || []).map((item: any) => ({

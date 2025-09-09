@@ -99,12 +99,38 @@ Deno.serve(async (req) => {
           }
         }
 
-        // Ensure quiz_questions is complete
+        // Ensure quiz_questions is complete - utiliser les compétences OIC si disponibles
         if (!item.quiz_questions || !item.quiz_questions.questions) {
-          item.quiz_questions = {
-            title: `Quiz ${item.item_code} - ${item.title}`,
-            description: `Évaluation des connaissances sur ${item.title}`,
-            questions: [
+          // Récupérer les compétences OIC pour des questions plus précises
+          const itemNumberPadded = String(itemNumber).padStart(3, '0');
+          const { data: oicCompetences } = await supabase
+            .from('backup_oic_competences')
+            .select('objectif_id, intitule, description, rang')
+            .eq('item_parent', itemNumberPadded)
+            .order('ordre, rang')
+            .limit(3);
+
+          let questions = [];
+          
+          if (oicCompetences && oicCompetences.length > 0) {
+            // Créer des questions basées sur les vraies compétences OIC
+            questions = oicCompetences.map((comp, index) => ({
+              id: index + 1,
+              question: `Concernant ${comp.intitule}, quelle affirmation est exacte ?`,
+              options: [
+                comp.description?.substring(0, 60) || 'Compétence fondamentale',
+                'Approche non recommandée',
+                'Méthode obsolète',
+                'Technique secondaire'
+              ],
+              correct: 0,
+              explanation: comp.description || `${comp.intitule} est une compétence essentielle à maîtriser`,
+              rang: comp.rang,
+              objectif_id: comp.objectif_id
+            }));
+          } else {
+            // Questions génériques si pas de compétences OIC
+            questions = [
               {
                 id: 1,
                 question: `Concernant ${item.title}, quelle affirmation est exacte ?`,
@@ -117,35 +143,16 @@ Deno.serve(async (req) => {
                 correct: 2,
                 explanation: `${item.title} nécessite une approche individualisée tenant compte du contexte clinique`,
                 rang: itemNumber <= 100 ? 'A' : 'B'
-              },
-              {
-                id: 2,
-                question: `Dans la prise en charge de ${item.title}, l'élément prioritaire est :`,
-                options: [
-                  'Diagnostic précoce',
-                  'Traitement symptomatique',
-                  'Prévention complications',
-                  'Orientation spécialisée'
-                ],
-                correct: 0,
-                explanation: `Le diagnostic précoce est essentiel pour optimiser la prise en charge`,
-                rang: 'A'
-              },
-              {
-                id: 3,
-                question: `Les complications de ${item.title} incluent :`,
-                options: [
-                  'Complications mineures uniquement',
-                  'Complications potentiellement graves',
-                  'Aucune complication décrite',
-                  'Complications toujours bénignes'
-                ],
-                correct: 1,
-                explanation: `${item.title} peut présenter des complications graves nécessitant surveillance`,
-                rang: 'B'
               }
-            ]
+            ];
           }
+
+          item.quiz_questions = {
+            title: `Quiz ${item.item_code} - ${item.title}`,
+            description: `Évaluation des compétences OIC sur ${item.title}`,
+            questions: questions,
+            source: oicCompetences && oicCompetences.length > 0 ? 'OIC_competences' : 'generated'
+          };
         }
 
         // Ensure scene_immersive is complete
