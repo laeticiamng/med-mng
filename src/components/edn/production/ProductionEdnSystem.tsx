@@ -150,6 +150,7 @@ const useProductionEdn = () => {
 // Composant principal du système EDN de production
 export const ProductionEdnSystem: React.FC = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const { items, stats, loading, error, refetch } = useProductionEdn();
   
   const [filters, setFilters] = useState<ProductionFilters>({
