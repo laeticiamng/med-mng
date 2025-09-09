@@ -12,6 +12,9 @@ import { Badge } from '@/components/ui/badge';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { cn } from '@/lib/utils';
+import { usePerformanceOptimization } from '@/hooks/usePerformanceOptimization';
+import { useAdvancedAccessibility } from '@/hooks/useAdvancedAccessibility';
+import { useUserPreferences } from '@/hooks/useUserPreferences';
 
 // Lazy load components for performance
 const FeatureShowcase = lazy(() => import('@/components/home/FeatureShowcase'));
@@ -215,6 +218,16 @@ const PremiumHero = memo(() => {
 // Main Component
 const OptimizedIndex: React.FC = () => {
   const { user } = useAuth();
+  const { preferences } = useUserPreferences();
+  const { announceToScreenReader } = useAdvancedAccessibility();
+  
+  // Activer les optimisations de performance
+  usePerformanceOptimization();
+
+  // Annoncer le chargement de la page pour les lecteurs d'écran
+  useEffect(() => {
+    announceToScreenReader('Page d\'accueil MED-MNG chargée', 'polite');
+  }, [announceToScreenReader]);
 
   return (
     <>
