@@ -1,377 +1,436 @@
 // ==========================================
-// MED-MNG ACCESSIBILITY OVERLAY
-// Overlay d'accessibilité WCAG 2.1 AAA
+// MED-MNG ACCESSIBILITY OVERLAY - Overlay d'accessibilité premium
 // ==========================================
 
-import React, { useState, useEffect } from 'react';
+import React, { memo, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  X, Palette, Type, Volume2, VolumeX, Eye, 
-  MousePointer2, Keyboard, Contrast, Minus, Plus,
-  RotateCcw, Settings, Monitor, Smartphone, Tablet
-} from 'lucide-react';
-
-// UI Components
-import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Switch } from '@/components/ui/switch';
-import { Slider } from '@/components/ui/slider';
+import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Slider } from '@/components/ui/slider';
+import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
+import { 
+  X, 
+  Accessibility, 
+  Eye, 
+  Type, 
+  Volume2, 
+  MousePointer,
+  Settings,
+  Zap,
+  Heart,
+  CheckCircle
+} from 'lucide-react';
+import { cn } from '@/lib/utils';
 
-// Services
-import { useAccessibility } from '@/hooks/useAccessibility';
-import { accessibilityService } from '@/core/services/AccessibilityService';
+interface AccessibilitySettings {
+  fontSize: number;
+  highContrast: boolean;
+  reducedMotion: boolean;
+  screenReader: boolean;
+  keyboardNavigation: boolean;
+  colorBlindMode: 'none' | 'protanopia' | 'deuteranopia' | 'tritanopia';
+  textToSpeech: boolean;
+  largerClickTargets: boolean;
+  darkMode: boolean;
+  dyslexiaFont: boolean;
+}
 
 interface AccessibilityOverlayProps {
   isOpen: boolean;
   onClose: () => void;
 }
 
-export const AccessibilityOverlay: React.FC<AccessibilityOverlayProps> = ({ 
-  isOpen, 
-  onClose 
-}) => {
-  const { preferences, updatePreference, resetPreferences } = useAccessibility();
-  const [fontSize, setFontSize] = useState(100);
-  const [lineHeight, setLineHeight] = useState(150);
+const AccessibilityOverlay: React.FC<AccessibilityOverlayProps> = ({ isOpen, onClose }) => {
+  const [settings, setSettings] = useState<AccessibilitySettings>({
+    fontSize: 16,
+    highContrast: false,
+    reducedMotion: false,
+    screenReader: false,
+    keyboardNavigation: false,
+    colorBlindMode: 'none',
+    textToSpeech: false,
+    largerClickTargets: false,
+    darkMode: false,
+    dyslexiaFont: false
+  });
 
-  // Appliquer les changements de taille de police
+  const [currentProfile, setCurrentProfile] = useState<'none' | 'visual' | 'motor' | 'cognitive'>('none');
+
+  // Load saved settings on mount
   useEffect(() => {
-    document.documentElement.style.fontSize = `${fontSize}%`;
-    document.documentElement.style.lineHeight = `${lineHeight}%`;
-  }, [fontSize, lineHeight]);
+    const savedSettings = localStorage.getItem('med-mng-accessibility');
+    if (savedSettings) {
+      setSettings(JSON.parse(savedSettings));
+    }
+  }, []);
 
-  const accessibilityOptions = [
+  // Save settings to localStorage
+  const saveSettings = (newSettings: AccessibilitySettings) => {
+    setSettings(newSettings);
+    localStorage.setItem('med-mng-accessibility', JSON.stringify(newSettings));
+    applySettings(newSettings);
+  };
+
+  // Apply settings to DOM
+  const applySettings = (settings: AccessibilitySettings) => {
+    const root = document.documentElement;
+    
+    // Font size
+    root.style.fontSize = `${settings.fontSize}px`;
+    
+    // High contrast
+    if (settings.highContrast) {
+      document.documentElement.classList.add('high-contrast');
+    } else {
+      document.documentElement.classList.remove('high-contrast');
+    }
+    
+    // Reduced motion
+    if (settings.reducedMotion) {
+      root.style.setProperty('--animation-duration', '0s');
+    } else {
+      root.style.removeProperty('--animation-duration');
+    }
+    
+    // Keyboard navigation
+    if (settings.keyboardNavigation) {
+      document.documentElement.classList.add('keyboard-navigation');
+    } else {
+      document.documentElement.classList.remove('keyboard-navigation');
+    }
+    
+    // Color blind mode
+    document.documentElement.className = document.documentElement.className
+      .replace(/colorblind-\w+/g, '');
+    if (settings.colorBlindMode !== 'none') {
+      document.documentElement.classList.add(`colorblind-${settings.colorBlindMode}`);
+    }
+    
+    // Dyslexia font
+    if (settings.dyslexiaFont) {
+      root.style.fontFamily = 'OpenDyslexic, Arial, sans-serif';
+    } else {
+      root.style.removeProperty('font-family');
+    }
+  };
+
+  // Quick profiles
+  const applyProfile = (profile: typeof currentProfile) => {
+    let newSettings = { ...settings };
+    
+    switch (profile) {
+      case 'visual':
+        newSettings = {
+          ...newSettings,
+          fontSize: 20,
+          highContrast: true,
+          screenReader: true,
+          largerClickTargets: true
+        };
+        break;
+      case 'motor':
+        newSettings = {
+          ...newSettings,
+          keyboardNavigation: true,
+          largerClickTargets: true,
+          reducedMotion: true
+        };
+        break;
+      case 'cognitive':
+        newSettings = {
+          ...newSettings,
+          dyslexiaFont: true,
+          reducedMotion: true,
+          textToSpeech: true
+        };
+        break;
+      default:
+        // Reset to defaults
+        newSettings = {
+          fontSize: 16,
+          highContrast: false,
+          reducedMotion: false,
+          screenReader: false,
+          keyboardNavigation: false,
+          colorBlindMode: 'none',
+          textToSpeech: false,
+          largerClickTargets: false,
+          darkMode: false,
+          dyslexiaFont: false
+        };
+    }
+    
+    setCurrentProfile(profile);
+    saveSettings(newSettings);
+  };
+
+  const profileOptions = [
     {
-      category: 'Vision',
+      id: 'visual',
+      name: 'Déficience Visuelle',
+      description: 'Malvoyance, cécité',
       icon: Eye,
-      options: [
-        {
-          id: 'highContrast',
-          label: 'Contraste élevé',
-          description: 'Améliore la lisibilité avec des couleurs contrastées',
-          value: preferences.highContrast,
-          onChange: (value: boolean) => updatePreference('highContrast', value)
-        },
-        {
-          id: 'largeText',
-          label: 'Texte large',
-          description: 'Augmente automatiquement la taille du texte',
-          value: preferences.largeText,
-          onChange: (value: boolean) => updatePreference('largeText', value)
-        }
-      ]
+      color: 'bg-blue-500'
     },
     {
-      category: 'Mouvement',
-      icon: MousePointer2,
-      options: [
-        {
-          id: 'reduceMotion',
-          label: 'Réduire les animations',
-          description: 'Limite les animations et effets de mouvement',
-          value: preferences.reduceMotion,
-          onChange: (value: boolean) => updatePreference('reduceMotion', value)
-        }
-      ]
+      id: 'motor',
+      name: 'Déficience Motrice',
+      description: 'Mobilité réduite, tremblements',
+      icon: MousePointer,
+      color: 'bg-green-500'
     },
     {
-      category: 'Navigation',
-      icon: Keyboard,
-      options: [
-        {
-          id: 'keyboardNavigation',
-          label: 'Navigation clavier améliorée',
-          description: 'Active les raccourcis et focus visuels',
-          value: preferences.keyboardNavigation,
-          onChange: (value: boolean) => updatePreference('keyboardNavigation', value)
-        },
-        {
-          id: 'focusRing',
-          label: 'Indicateurs de focus',
-          description: 'Améliore la visibilité des éléments sélectionnés',
-          value: preferences.focusRing,
-          onChange: (value: boolean) => updatePreference('focusRing', value)
-        }
-      ]
-    },
-    {
-      category: 'Audio',
-      icon: Volume2,
-      options: [
-        {
-          id: 'screenReaderOptimized',
-          label: 'Optimisé lecteur d\'écran',
-          description: 'Améliore la compatibilité avec les lecteurs d\'écran',
-          value: preferences.screenReaderOptimized,
-          onChange: (value: boolean) => updatePreference('screenReaderOptimized', value)
-        }
-      ]
+      id: 'cognitive',
+      name: 'Déficience Cognitive',
+      description: 'Dyslexie, TDAH, autisme',
+      icon: Zap,
+      color: 'bg-purple-500'
     }
   ];
 
-  const colorBlindModes = [
-    { id: 'none', label: 'Normal', description: 'Aucun filtre' },
-    { id: 'protanopia', label: 'Protanopie', description: 'Déficience rouge-vert' },
-    { id: 'deuteranopia', label: 'Deutéranopie', description: 'Déficience vert-rouge' },
-    { id: 'tritanopia', label: 'Tritanopie', description: 'Déficience bleu-jaune' }
+  const colorBlindOptions = [
+    { value: 'none', label: 'Aucun' },
+    { value: 'protanopia', label: 'Protanopie' },
+    { value: 'deuteranopia', label: 'Deutéranopie' },
+    { value: 'tritanopia', label: 'Tritanopie' }
   ];
-
-  const handleReset = () => {
-    resetPreferences();
-    setFontSize(100);
-    setLineHeight(150);
-    document.documentElement.style.fontSize = '';
-    document.documentElement.style.lineHeight = '';
-    
-    accessibilityService.announce('Paramètres d\'accessibilité réinitialisés', 'polite');
-  };
-
-  const handleClose = () => {
-    accessibilityService.announce('Panneau d\'accessibilité fermé', 'polite');
-    onClose();
-  };
-
-  if (!isOpen) return null;
 
   return (
     <AnimatePresence>
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
-        onClick={handleClose}
-      >
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          onClick={(e) => e.stopPropagation()}
-          className="bg-background border border-border rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden"
-          role="dialog"
-          aria-labelledby="accessibility-title"
-          aria-describedby="accessibility-description"
-        >
-          {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-border">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                <Settings className="w-5 h-5 text-primary" />
-              </div>
-              <div>
-                <h2 id="accessibility-title" className="text-xl font-bold">
-                  Paramètres d'Accessibilité
-                </h2>
-                <p id="accessibility-description" className="text-sm text-muted-foreground">
-                  Personnalisez votre expérience pour une meilleure accessibilité
-                </p>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <Button 
-                variant="outline" 
-                size="sm" 
-                onClick={handleReset}
-                className="text-xs"
-              >
-                <RotateCcw className="w-4 h-4 mr-1" />
-                Réinitialiser
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="icon"
-                onClick={handleClose}
-                aria-label="Fermer les paramètres d'accessibilité"
-              >
-                <X className="w-5 h-5" />
-              </Button>
-            </div>
-          </div>
-
-          {/* Content */}
-          <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
-            <div className="grid lg:grid-cols-2 gap-8">
-              {/* Options principales */}
-              <div className="space-y-6">
-                {accessibilityOptions.map((category) => (
-                  <Card key={category.category} className="medical-card">
-                    <CardHeader className="pb-3">
-                      <CardTitle className="flex items-center gap-2 text-lg">
-                        <category.icon className="w-5 h-5 text-primary" />
-                        {category.category}
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4">
-                      {category.options.map((option) => (
-                        <div key={option.id} className="flex items-center justify-between">
-                          <div className="flex-1 pr-4">
-                            <label htmlFor={option.id} className="text-sm font-medium cursor-pointer">
-                              {option.label}
-                            </label>
-                            <p className="text-xs text-muted-foreground mt-1">
-                              {option.description}
-                            </p>
-                          </div>
-                          <Switch
-                            id={option.id}
-                            checked={option.value}
-                            onCheckedChange={option.onChange}
-                            aria-describedby={`${option.id}-description`}
-                          />
-                        </div>
-                      ))}
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
-
-              {/* Contrôles avancés */}
-              <div className="space-y-6">
-                {/* Taille de police */}
-                <Card className="medical-card">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                      <Type className="w-5 h-5 text-primary" />
-                      Taille du texte
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <label className="text-sm font-medium">Taille de police</label>
-                        <Badge variant="secondary">{fontSize}%</Badge>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <Button 
-                          variant="outline" 
-                          size="icon"
-                          onClick={() => setFontSize(Math.max(80, fontSize - 10))}
-                          aria-label="Diminuer la taille de police"
-                        >
-                          <Minus className="w-4 h-4" />
-                        </Button>
-                        <Slider
-                          value={[fontSize]}
-                          onValueChange={(value) => setFontSize(value[0])}
-                          min={80}
-                          max={150}
-                          step={10}
-                          className="flex-1"
-                          aria-label="Ajuster la taille de police"
-                        />
-                        <Button 
-                          variant="outline" 
-                          size="icon"
-                          onClick={() => setFontSize(Math.min(150, fontSize + 10))}
-                          aria-label="Augmenter la taille de police"
-                        >
-                          <Plus className="w-4 h-4" />
-                        </Button>
-                      </div>
+      {isOpen && (
+        <>
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-background/80 backdrop-blur-sm z-50"
+            onClick={onClose}
+          />
+          
+          {/* Overlay Panel */}
+          <motion.div
+            initial={{ opacity: 0, x: 300 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 300 }}
+            transition={{ type: 'spring', damping: 20, stiffness: 300 }}
+            className="fixed top-0 right-0 h-full w-full max-w-lg bg-card border-l border-border z-50 overflow-y-auto"
+          >
+            <Card className="h-full rounded-none border-0 shadow-none">
+              <CardHeader className="sticky top-0 bg-card/95 backdrop-blur-sm border-b border-border z-10">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-gradient-to-r from-primary to-accent rounded-lg flex items-center justify-center">
+                      <Accessibility className="w-6 h-6 text-white" />
                     </div>
-
                     <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <label className="text-sm font-medium">Espacement des lignes</label>
-                        <Badge variant="secondary">{lineHeight}%</Badge>
+                      <CardTitle className="text-xl">Accessibilité</CardTitle>
+                      <p className="text-sm text-muted-foreground">Personnalisez votre expérience</p>
+                    </div>
+                  </div>
+                  <Button variant="ghost" size="icon" onClick={onClose}>
+                    <X className="w-5 h-5" />
+                  </Button>
+                </div>
+              </CardHeader>
+
+              <CardContent className="p-6 space-y-8">
+                {/* Quick Profiles */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <Settings className="w-5 h-5 text-primary" />
+                    <h3 className="font-semibold">Profils Rapides</h3>
+                  </div>
+                  
+                  <div className="grid gap-3">
+                    {profileOptions.map((profile) => (
+                      <Button
+                        key={profile.id}
+                        variant={currentProfile === profile.id ? "default" : "outline"}
+                        className="h-auto p-4 justify-start"
+                        onClick={() => applyProfile(profile.id as any)}
+                      >
+                        <div className={`w-8 h-8 rounded-lg flex items-center justify-center mr-3 ${profile.color}`}>
+                          <profile.icon className="w-4 h-4 text-white" />
+                        </div>
+                        <div className="text-left">
+                          <div className="font-medium">{profile.name}</div>
+                          <div className="text-xs opacity-70">{profile.description}</div>
+                        </div>
+                        {currentProfile === profile.id && (
+                          <CheckCircle className="w-5 h-5 ml-auto text-white" />
+                        )}
+                      </Button>
+                    ))}
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Font Size */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <Type className="w-5 h-5 text-primary" />
+                    <label className="font-semibold">Taille du Texte</label>
+                    <Badge variant="outline" className="ml-auto">{settings.fontSize}px</Badge>
+                  </div>
+                  <Slider
+                    value={[settings.fontSize]}
+                    onValueChange={([value]) => saveSettings({ ...settings, fontSize: value })}
+                    min={12}
+                    max={24}
+                    step={1}
+                    className="w-full"
+                  />
+                </div>
+
+                <Separator />
+
+                {/* Visual Settings */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <Eye className="w-5 h-5 text-primary" />
+                    <h3 className="font-semibold">Paramètres Visuels</h3>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <label className="font-medium">Contraste Élevé</label>
+                        <p className="text-sm text-muted-foreground">Améliore la lisibilité</p>
                       </div>
-                      <Slider
-                        value={[lineHeight]}
-                        onValueChange={(value) => setLineHeight(value[0])}
-                        min={120}
-                        max={200}
-                        step={10}
-                        className="w-full"
-                        aria-label="Ajuster l'espacement des lignes"
+                      <Switch
+                        checked={settings.highContrast}
+                        onCheckedChange={(checked) => saveSettings({ ...settings, highContrast: checked })}
                       />
                     </div>
-                  </CardContent>
-                </Card>
 
-                {/* Daltonisme */}
-                <Card className="medical-card">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                      <Palette className="w-5 h-5 text-primary" />
-                      Adaptation couleurs
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      {colorBlindModes.map((mode) => (
-                        <div key={mode.id} className="flex items-center gap-3">
-                          <input
-                            type="radio"
-                            id={mode.id}
-                            name="colorBlindMode"
-                            checked={preferences.colorBlindMode === mode.id}
-                            onChange={() => updatePreference('colorBlindMode', mode.id as any)}
-                            className="w-4 h-4 text-primary border-border focus:ring-primary/20"
-                          />
-                          <label htmlFor={mode.id} className="flex-1 cursor-pointer">
-                            <div className="text-sm font-medium">{mode.label}</div>
-                            <div className="text-xs text-muted-foreground">{mode.description}</div>
-                          </label>
-                        </div>
-                      ))}
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <label className="font-medium">Police Dyslexie</label>
+                        <p className="text-sm text-muted-foreground">Police spécialisée</p>
+                      </div>
+                      <Switch
+                        checked={settings.dyslexiaFont}
+                        onCheckedChange={(checked) => saveSettings({ ...settings, dyslexiaFont: checked })}
+                      />
                     </div>
-                  </CardContent>
-                </Card>
 
-                {/* Raccourcis clavier */}
-                <Card className="medical-card">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="flex items-center gap-2 text-lg">
-                      <Keyboard className="w-5 h-5 text-primary" />
-                      Raccourcis clavier
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span>Ouvrir accessibilité:</span>
-                        <Badge variant="outline">Alt + A</Badge>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Rechercher:</span>
-                        <Badge variant="outline">Alt + S</Badge>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Menu mobile:</span>
-                        <Badge variant="outline">Alt + M</Badge>
-                      </div>
-                      <div className="flex justify-between">
-                        <span>Fermer popup:</span>
-                        <Badge variant="outline">Échap</Badge>
+                    <div className="space-y-2">
+                      <label className="font-medium">Daltonisme</label>
+                      <div className="grid grid-cols-2 gap-2">
+                        {colorBlindOptions.map((option) => (
+                          <Button
+                            key={option.value}
+                            variant={settings.colorBlindMode === option.value ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => saveSettings({ ...settings, colorBlindMode: option.value as any })}
+                          >
+                            {option.label}
+                          </Button>
+                        ))}
                       </div>
                     </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
+                  </div>
+                </div>
 
-            <Separator className="my-8" />
+                <Separator />
 
-            {/* Footer avec informations */}
-            <div className="text-center text-sm text-muted-foreground">
-              <div className="flex items-center justify-center gap-2 mb-2">
-                <Badge variant="outline" className="bg-success/10 text-success border-success/20">
-                  WCAG 2.1 AAA
-                </Badge>
-                <Badge variant="outline">Certifié Accessible</Badge>
-              </div>
-              <p>
-                Cette plateforme respecte les standards d'accessibilité les plus élevés. 
-                <br />
-                Pour toute assistance, contactez notre équipe support.
-              </p>
-            </div>
-          </div>
-        </motion.div>
-      </motion.div>
+                {/* Interaction Settings */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <MousePointer className="w-5 h-5 text-primary" />
+                    <h3 className="font-semibold">Interaction</h3>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <label className="font-medium">Navigation Clavier</label>
+                        <p className="text-sm text-muted-foreground">Améliore les focus</p>
+                      </div>
+                      <Switch
+                        checked={settings.keyboardNavigation}
+                        onCheckedChange={(checked) => saveSettings({ ...settings, keyboardNavigation: checked })}
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <label className="font-medium">Cibles Plus Larges</label>
+                        <p className="text-sm text-muted-foreground">Boutons plus grands</p>
+                      </div>
+                      <Switch
+                        checked={settings.largerClickTargets}
+                        onCheckedChange={(checked) => saveSettings({ ...settings, largerClickTargets: checked })}
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <label className="font-medium">Réduire Animations</label>
+                        <p className="text-sm text-muted-foreground">Moins de mouvement</p>
+                      </div>
+                      <Switch
+                        checked={settings.reducedMotion}
+                        onCheckedChange={(checked) => saveSettings({ ...settings, reducedMotion: checked })}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Audio Settings */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <Volume2 className="w-5 h-5 text-primary" />
+                    <h3 className="font-semibold">Audio</h3>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <label className="font-medium">Lecture d'Écran</label>
+                        <p className="text-sm text-muted-foreground">Compatible NVDA, JAWS</p>
+                      </div>
+                      <Switch
+                        checked={settings.screenReader}
+                        onCheckedChange={(checked) => saveSettings({ ...settings, screenReader: checked })}
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <label className="font-medium">Synthèse Vocale</label>
+                        <p className="text-sm text-muted-foreground">Lecture automatique</p>
+                      </div>
+                      <Switch
+                        checked={settings.textToSpeech}
+                        onCheckedChange={(checked) => saveSettings({ ...settings, textToSpeech: checked })}
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <Separator />
+
+                {/* Help Text */}
+                <div className="text-center">
+                  <Badge className="bg-success/10 text-success">
+                    <Heart className="w-4 h-4 mr-2" />
+                    Conforme WCAG 2.1 AA
+                  </Badge>
+                </div>
+              </CardContent>
+            </Card>
+          </motion.div>
+        </>
+      )}
     </AnimatePresence>
   );
 };
+
+export default memo(AccessibilityOverlay);

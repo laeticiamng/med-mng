@@ -87,8 +87,8 @@ import { UXToolbar } from '@/components/ux/UXToolbar';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { SkipToMain } from '@/components/ux/AccessibilityEnhancements';
 import { PageSkeleton } from "@/components/loading/SkeletonLoader";
-import { PremiumGlobalNavigation } from "@/components/layout/PremiumGlobalNavigation";
-import { AccessibilityOverlay } from "@/components/premium/AccessibilityOverlay";
+import PremiumGlobalNavigation from "@/components/layout/PremiumGlobalNavigation";
+import AccessibilityOverlay from "@/components/premium/AccessibilityOverlay";
 
 // Component to handle keyboard shortcuts inside Router context
 const AppKeyboardShortcuts = memo(() => {

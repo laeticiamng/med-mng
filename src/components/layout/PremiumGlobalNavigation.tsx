@@ -1,525 +1,423 @@
 // ==========================================
-// MED-MNG PREMIUM GLOBAL NAVIGATION
-// Navigation de niveau mondial avec accessibilité AAA
+// MED-MNG PREMIUM GLOBAL NAVIGATION - Navigation premium unifiée
 // ==========================================
 
-import React, { useState, useEffect, useRef } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import React, { memo, useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { 
-  Home, BookOpen, Music, User, Menu, X, ChevronDown, 
-  Settings, LogOut, Crown, Zap, Brain, Heart, 
-  Stethoscope, GraduationCap, Target, Award,
-  Search, Bell, HelpCircle, Palette
+  Menu, 
+  X, 
+  Home, 
+  BookOpen, 
+  Music, 
+  Users, 
+  Settings, 
+  User, 
+  ChevronDown,
+  Sparkles,
+  Stethoscope,
+  GraduationCap,
+  Bell,
+  Search,
+  Headphones,
+  Zap
 } from 'lucide-react';
-import { useAccessibility } from '@/hooks/useAccessibility';
-import { accessibilityService } from '@/core/services/AccessibilityService';
 import { cn } from '@/lib/utils';
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
 
-interface NavigationItem {
-  path: string;
-  icon: React.ComponentType<{ className?: string }>;
-  label: string;
-  description?: string;
-  badge?: string;
-  premium?: boolean;
-  children?: NavigationItem[];
-}
+// Navigation items configuration
+const navigationItems = [
+  {
+    id: 'home',
+    label: 'Accueil',
+    href: '/',
+    icon: Home,
+    description: 'Retour à l\'accueil'
+  },
+  {
+    id: 'platform',
+    label: 'Plateforme',
+    href: '/platform',
+    icon: Stethoscope,
+    description: 'Découvrir la plateforme'
+  },
+  {
+    id: 'edn',
+    label: 'EDN',
+    href: '/edn',
+    icon: BookOpen,
+    badge: 'Premium',
+    description: 'Items et contenus EDN'
+  },
+  {
+    id: 'med-mng',
+    label: 'MED-MNG',
+    href: '/med-mng/dashboard',
+    icon: Music,
+    badge: 'IA',
+    description: 'Plateforme IA musicale'
+  },
+  {
+    id: 'community',
+    label: 'Communauté',
+    href: '/community',
+    icon: Users,
+    description: 'Rejoindre la communauté'
+  }
+];
 
-export const PremiumGlobalNavigation = () => {
+// User menu items
+const userMenuItems = [
+  { label: 'Mon Profil', href: '/profile', icon: User },
+  { label: 'Mes Playlists', href: '/med-mng/playlists', icon: Headphones },
+  { label: 'Paramètres', href: '/settings', icon: Settings },
+  { label: 'Notifications', href: '/notifications', icon: Bell }
+];
+
+// Premium Status Component
+const PremiumStatus = memo(() => {
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      className="flex items-center gap-2 px-3 py-1 bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20 rounded-full"
+    >
+      <Sparkles className="w-4 h-4 text-primary" />
+      <span className="text-sm font-medium text-primary">Premium</span>
+    </motion.div>
+  );
+});
+
+// Mobile Navigation Component
+const MobileNavigation = memo(({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { preferences, updatePreference } = useAccessibility();
-  
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isSearchFocused, setIsSearchFocused] = useState(false);
-  
-  const searchInputRef = useRef<HTMLInputElement>(null);
-  const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const navigationItems: NavigationItem[] = [
-    { 
-      path: '/', 
-      icon: Home, 
-      label: 'Accueil',
-      description: 'Tableau de bord principal'
-    },
-    { 
-      path: '/edn', 
-      icon: BookOpen, 
-      label: 'Items EDN',
-      description: 'Base complète des 367 items',
-      badge: '367',
-      children: [
-        { path: '/edn', icon: BookOpen, label: 'Explorer tout' },
-        { path: '/edn/favorites', icon: Heart, label: 'Mes favoris' },
-        { path: '/edn/progress', icon: Target, label: 'Mon progrès' },
-      ]
-    },
-    { 
-      path: '/med-mng', 
-      icon: Music, 
-      label: 'Studio Musical',
-      description: 'Génération IA et bibliothèque',
-      premium: true,
-      children: [
-        { path: '/med-mng/dashboard', icon: Crown, label: 'Dashboard Premium' },
-        { path: '/med-mng/create', icon: Zap, label: 'Générer Musique' },
-        { path: '/med-mng/library', icon: Music, label: 'Ma Bibliothèque' },
-        { path: '/med-mng/playlists', icon: Heart, label: 'Mes Playlists' },
-      ]
-    },
-    { 
-      path: '/study', 
-      icon: Brain, 
-      label: 'Outils d\'Étude',
-      description: 'Quiz, timer, analytics',
-      children: [
-        { path: '/med-mng/comprehensive', icon: Brain, label: 'Outils Interactifs' },
-        { path: '/study/quiz', icon: GraduationCap, label: 'Quiz Adaptatifs' },
-        { path: '/study/analytics', icon: Target, label: 'Analyses' },
-        { path: '/study/timer', icon: Award, label: 'Timer Pomodoro' },
-      ]
-    },
-    { 
-      path: '/ecos', 
-      icon: Stethoscope, 
-      label: 'Simulations ECOS',
-      description: 'Examens cliniques immersifs'
-    }
-  ];
-
-  // Raccourcis clavier pour l'accessibilité
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      // Alt + M pour ouvrir/fermer le menu mobile
-      if (event.altKey && event.key === 'm') {
-        event.preventDefault();
-        setIsMobileMenuOpen(!isMobileMenuOpen);
-        accessibilityService.announce(
-          isMobileMenuOpen ? 'Menu fermé' : 'Menu ouvert', 
-          'polite'
-        );
-      }
-      
-      // Alt + S pour focus sur la recherche
-      if (event.altKey && event.key === 's') {
-        event.preventDefault();
-        searchInputRef.current?.focus();
-        accessibilityService.announce('Focus sur la recherche', 'polite');
-      }
-      
-      // Escape pour fermer les dropdowns
-      if (event.key === 'Escape') {
-        setActiveDropdown(null);
-        setIsMobileMenuOpen(false);
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isMobileMenuOpen]);
-
-  // Fermer les dropdowns lors du clic à l'extérieur
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setActiveDropdown(null);
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
-  const isActive = (path: string) => {
-    if (path === '/') {
-      return location.pathname === '/';
-    }
-    return location.pathname.startsWith(path);
+  const handleNavigation = (href: string) => {
+    navigate(href);
+    onClose();
   };
-
-  const hasActiveChild = (item: NavigationItem) => {
-    return item.children?.some(child => isActive(child.path)) || false;
-  };
-
-  const handleNavigation = (path: string, label: string) => {
-    navigate(path);
-    setIsMobileMenuOpen(false);
-    setActiveDropdown(null);
-    accessibilityService.announceNavigation(label);
-  };
-
-  const toggleDropdown = (itemPath: string) => {
-    setActiveDropdown(activeDropdown === itemPath ? null : itemPath);
-  };
-
-  const quickSearchResults = navigationItems
-    .filter(item => 
-      item.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.description?.toLowerCase().includes(searchQuery.toLowerCase())
-    )
-    .slice(0, 5);
 
   return (
-    <header 
-      className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur-md supports-[backdrop-filter]:bg-background/60 medical-nav"
-      role="banner"
-    >
-      <div className="container mx-auto px-4">
-        <div className="flex h-16 items-center justify-between">
-          {/* Logo Premium */}
-          <Link 
-            to="/" 
-            className="flex items-center space-x-3 group focus:ring-2 focus:ring-primary/20 rounded-lg p-1 transition-all"
-            onClick={() => accessibilityService.announceNavigation('Accueil')}
+    <AnimatePresence>
+      {isOpen && (
+        <>
+          {/* Backdrop */}
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40 lg:hidden"
+            onClick={onClose}
+          />
+          
+          {/* Mobile Menu */}
+          <motion.div
+            initial={{ x: '-100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '-100%' }}
+            transition={{ type: 'spring', damping: 20, stiffness: 300 }}
+            className="fixed top-0 left-0 h-full w-80 bg-card border-r border-border z-50 lg:hidden"
           >
-            <div className="relative">
-              <div className="h-10 w-10 rounded-xl bg-gradient-medical flex items-center justify-center shadow-lg group-hover:scale-110 transition-transform">
-                <Stethoscope className="text-white h-5 w-5" />
+            {/* Header */}
+            <div className="flex items-center justify-between p-6 border-b border-border">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-gradient-to-r from-primary to-accent rounded-lg flex items-center justify-center">
+                  <Stethoscope className="w-5 h-5 text-white" />
+                </div>
+                <span className="font-bold text-lg">MED-MNG</span>
               </div>
-              <div className="absolute -top-1 -right-1 w-4 h-4 bg-accent rounded-full flex items-center justify-center">
-                <Crown className="text-accent-foreground h-2 w-2" />
-              </div>
+              <Button variant="ghost" size="icon" onClick={onClose}>
+                <X className="w-5 h-5" />
+              </Button>
             </div>
-            <div className="hidden sm:block">
-              <span className="font-bold text-xl bg-gradient-medical bg-clip-text text-transparent">
-                MED-MNG
-              </span>
-              <div className="flex items-center gap-1">
-                <Badge className="bg-accent/20 text-accent-foreground text-xs">Premium</Badge>
-                <Badge className="bg-primary/20 text-primary text-xs">v2.0</Badge>
-              </div>
-            </div>
-          </Link>
 
-          {/* Recherche Intelligente */}
-          <div className="hidden md:flex items-center flex-1 max-w-md mx-8 relative">
-            <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-              <input
-                ref={searchInputRef}
-                type="text"
-                placeholder="Rechercher... (Alt+S)"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                onFocus={() => setIsSearchFocused(true)}
-                onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
-                className="medical-input pl-10 pr-4 py-2 w-full bg-muted/50 border-border focus:bg-background"
-                aria-label="Recherche intelligente dans la plateforme"
-              />
-              
-              {/* Résultats de recherche */}
-              {isSearchFocused && searchQuery && (
-                <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="absolute top-full left-0 right-0 mt-2 bg-background border border-border rounded-lg shadow-lg z-50"
-                >
-                  {quickSearchResults.length > 0 ? (
-                    quickSearchResults.map((item) => (
-                      <button
-                        key={item.path}
-                        onClick={() => {
-                          handleNavigation(item.path, item.label);
-                          setSearchQuery('');
-                        }}
-                        className="w-full text-left px-4 py-3 hover:bg-muted/50 first:rounded-t-lg last:rounded-b-lg flex items-center gap-3"
-                      >
-                        <item.icon className="h-4 w-4 text-muted-foreground" />
-                        <div>
-                          <div className="font-medium">{item.label}</div>
-                          {item.description && (
-                            <div className="text-sm text-muted-foreground">{item.description}</div>
-                          )}
-                        </div>
-                      </button>
-                    ))
-                  ) : (
-                    <div className="px-4 py-3 text-muted-foreground text-center">
-                      Aucun résultat trouvé
-                    </div>
-                  )}
-                </motion.div>
-              )}
+            {/* Navigation Items */}
+            <div className="p-4 space-y-2">
+              {navigationItems.map((item) => {
+                const isActive = location.pathname === item.href || 
+                                (item.href !== '/' && location.pathname.startsWith(item.href));
+                
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => handleNavigation(item.href)}
+                    className={cn(
+                      "w-full flex items-center gap-3 px-4 py-3 rounded-lg text-left transition-all duration-200",
+                      isActive 
+                        ? "bg-primary text-primary-foreground shadow-md" 
+                        : "hover:bg-muted text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    <item.icon className="w-5 h-5" />
+                    <span className="font-medium">{item.label}</span>
+                    {item.badge && (
+                      <Badge variant="secondary" className="ml-auto bg-accent/20 text-accent text-xs">
+                        {item.badge}
+                      </Badge>
+                    )}
+                  </button>
+                );
+              })}
             </div>
-          </div>
 
-          {/* Navigation Desktop */}
-          <nav className="hidden lg:flex items-center space-x-1" role="navigation" aria-label="Navigation principale">
-            {navigationItems.map((item) => (
-              <div key={item.path} className="relative" ref={dropdownRef}>
-                {item.children ? (
-                  <Button
-                    variant="ghost"
-                    className={cn(
-                      "medical-nav-item flex items-center space-x-2 px-3 py-2 h-10",
-                      (isActive(item.path) || hasActiveChild(item)) && "active"
-                    )}
-                    onClick={() => toggleDropdown(item.path)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Enter' || e.key === ' ') {
-                        e.preventDefault();
-                        toggleDropdown(item.path);
-                      }
-                    }}
-                    aria-expanded={activeDropdown === item.path}
-                    aria-haspopup="menu"
+            {/* User Section */}
+            <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-border bg-muted/20">
+              <div className="space-y-2">
+                {userMenuItems.map((item) => (
+                  <button
+                    key={item.href}
+                    onClick={() => handleNavigation(item.href)}
+                    className="w-full flex items-center gap-3 px-4 py-2 rounded-lg text-left hover:bg-muted transition-colors"
                   >
-                    <item.icon className="h-4 w-4" />
-                    <span>{item.label}</span>
-                    {item.premium && <Crown className="h-3 w-3 text-accent" />}
-                    {item.badge && (
-                      <Badge variant="secondary" className="text-xs">{item.badge}</Badge>
-                    )}
-                    <ChevronDown className={cn(
-                      "h-3 w-3 transition-transform",
-                      activeDropdown === item.path && "rotate-180"
-                    )} />
-                  </Button>
-                ) : (
-                  <Button
-                    variant="ghost"
-                    className={cn(
-                      "medical-nav-item flex items-center space-x-2 px-3 py-2 h-10",
-                      isActive(item.path) && "active"
-                    )}
-                    onClick={() => handleNavigation(item.path, item.label)}
-                  >
-                    <item.icon className="h-4 w-4" />
-                    <span>{item.label}</span>
-                    {item.premium && <Crown className="h-3 w-3 text-accent" />}
-                    {item.badge && (
-                      <Badge variant="secondary" className="text-xs">{item.badge}</Badge>
-                    )}
-                  </Button>
+                    <item.icon className="w-4 h-4" />
+                    <span className="text-sm">{item.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+  );
+});
+
+// Desktop Navigation Component
+const DesktopNavigation = memo(() => {
+  const location = useLocation();
+  
+  return (
+    <nav className="hidden lg:flex items-center gap-1">
+      {navigationItems.map((item) => {
+        const isActive = location.pathname === item.href || 
+                        (item.href !== '/' && location.pathname.startsWith(item.href));
+        
+        return (
+          <Link
+            key={item.id}
+            to={item.href}
+            className={cn(
+              "flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 group relative",
+              isActive 
+                ? "bg-primary/10 text-primary font-medium" 
+                : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+            )}
+          >
+            <item.icon className="w-4 h-4" />
+            <span>{item.label}</span>
+            {item.badge && (
+              <Badge 
+                variant="secondary" 
+                className={cn(
+                  "text-xs transition-colors",
+                  item.badge === 'IA' ? "bg-accent/20 text-accent" : "bg-primary/20 text-primary"
                 )}
+              >
+                {item.badge}
+              </Badge>
+            )}
+            
+            {/* Active Indicator */}
+            {isActive && (
+              <motion.div
+                layoutId="activeIndicator"
+                className="absolute bottom-0 left-2 right-2 h-0.5 bg-primary rounded-full"
+                transition={{ type: "spring", duration: 0.5 }}
+              />
+            )}
+          </Link>
+        );
+      })}
+    </nav>
+  );
+});
 
-                {/* Dropdown Menu */}
-                <AnimatePresence>
-                  {activeDropdown === item.path && item.children && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                      className="absolute top-full left-0 mt-1 w-64 bg-background border border-border rounded-lg shadow-lg z-50"
-                      role="menu"
-                    >
-                      <div className="p-2">
-                        <div className="px-3 py-2 text-sm font-medium text-foreground border-b border-border mb-2">
-                          {item.label}
-                        </div>
-                        {item.children.map((child) => (
-                          <button
-                            key={child.path}
-                            onClick={() => handleNavigation(child.path, child.label)}
-                            className={cn(
-                              "w-full text-left px-3 py-2 rounded-md text-sm hover:bg-muted/50 flex items-center gap-3 transition-colors",
-                              isActive(child.path) && "bg-muted text-foreground font-medium"
-                            )}
-                            role="menuitem"
-                          >
-                            <child.icon className="h-4 w-4 text-muted-foreground" />
-                            <span>{child.label}</span>
-                          </button>
-                        ))}
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+// Search Component
+const GlobalSearch = memo(() => {
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+
+  return (
+    <div className="relative">
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => setIsSearchOpen(!isSearchOpen)}
+        className="hidden md:flex items-center gap-2 w-64 justify-start text-muted-foreground"
+      >
+        <Search className="w-4 h-4" />
+        <span>Rechercher...</span>
+        <kbd className="ml-auto pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
+          <span className="text-xs">⌘</span>K
+        </kbd>
+      </Button>
+
+      <Button
+        variant="outline"
+        size="icon"
+        className="md:hidden"
+        onClick={() => setIsSearchOpen(!isSearchOpen)}
+      >
+        <Search className="w-4 h-4" />
+      </Button>
+    </div>
+  );
+});
+
+// User Menu Component
+const UserMenu = memo(() => {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" className="flex items-center gap-2 px-3 py-2">
+          <div className="w-8 h-8 bg-gradient-to-r from-primary to-accent rounded-full flex items-center justify-center text-white text-sm font-bold">
+            U
+          </div>
+          <span className="hidden sm:block font-medium">Utilisateur</span>
+          <ChevronDown className="w-4 h-4 opacity-50" />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-56">
+        <div className="flex items-center gap-2 p-2">
+          <div className="w-8 h-8 bg-gradient-to-r from-primary to-accent rounded-full flex items-center justify-center text-white text-sm font-bold">
+            U
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-medium">Utilisateur</p>
+            <p className="text-xs text-muted-foreground">user@med-mng.com</p>
+          </div>
+          <PremiumStatus />
+        </div>
+        <DropdownMenuSeparator />
+        {userMenuItems.map((item) => (
+          <DropdownMenuItem key={item.href} asChild>
+            <Link to={item.href} className="flex items-center gap-2">
+              <item.icon className="w-4 h-4" />
+              {item.label}
+            </Link>
+          </DropdownMenuItem>
+        ))}
+        <DropdownMenuSeparator />
+        <DropdownMenuItem className="text-destructive">
+          Déconnexion
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+});
+
+// Main Navigation Component
+const PremiumGlobalNavigation: React.FC = () => {
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const location = useLocation();
+
+  // Handle scroll effect
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 20);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    setIsMobileOpen(false);
+  }, [location.pathname]);
+
+  return (
+    <>
+      <motion.header
+        className={cn(
+          "sticky top-0 z-40 w-full transition-all duration-200",
+          isScrolled 
+            ? "bg-background/80 backdrop-blur-md border-b border-border shadow-sm" 
+            : "bg-background/50"
+        )}
+        initial={{ y: -100 }}
+        animate={{ y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        <div className="medical-container">
+          <div className="flex h-16 items-center justify-between">
+            {/* Logo */}
+            <Link to="/" className="flex items-center gap-3 group">
+              <motion.div 
+                className="w-10 h-10 bg-gradient-to-r from-primary to-accent rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300"
+                whileHover={{ scale: 1.05, rotate: 5 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Stethoscope className="w-6 h-6 text-white" />
+              </motion.div>
+              <div className="hidden sm:block">
+                <h1 className="font-bold text-xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                  MED-MNG
+                </h1>
+                <p className="text-xs text-muted-foreground -mt-1">Excellence Médicale</p>
               </div>
-            ))}
-          </nav>
+            </Link>
 
-          {/* Actions Utilisateur */}
-          <div className="flex items-center space-x-2">
-            {/* Notifications */}
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="hidden sm:flex relative medical-focus-ring"
-              onClick={() => navigate('/notifications')}
-              aria-label="Notifications"
-            >
-              <Bell className="h-4 w-4" />
-              <div className="absolute -top-1 -right-1 w-3 h-3 bg-destructive rounded-full animate-pulse" />
-            </Button>
+            {/* Desktop Navigation */}
+            <DesktopNavigation />
 
-            {/* Accessibilité */}
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="hidden sm:flex medical-focus-ring"
-              onClick={() => updatePreference('highContrast', !preferences.highContrast)}
-              aria-label="Basculer le contraste élevé"
-              title="Accessibility (Alt+A)"
-            >
-              <Palette className="h-4 w-4" />
-            </Button>
+            {/* Right Section */}
+            <div className="flex items-center gap-3">
+              {/* Search */}
+              <GlobalSearch />
 
-            {/* Aide */}
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="hidden sm:flex medical-focus-ring"
-              onClick={() => navigate('/help')}
-              aria-label="Centre d'aide"
-            >
-              <HelpCircle className="h-4 w-4" />
-            </Button>
+              {/* Notifications */}
+              <Button variant="outline" size="icon" className="relative">
+                <Bell className="w-4 h-4" />
+                <Badge className="absolute -top-2 -right-2 w-5 h-5 flex items-center justify-center p-0 bg-destructive text-destructive-foreground text-xs">
+                  3
+                </Badge>
+              </Button>
 
-            {/* Profil */}
-            <Button 
-              variant="ghost" 
-              size="icon" 
-              className="hidden sm:flex medical-focus-ring"
-              onClick={() => navigate('/med-mng/profile')}
-              aria-label="Mon profil utilisateur"
-            >
-              <User className="h-4 w-4" />
-            </Button>
+              {/* User Menu */}
+              <UserMenu />
 
-            {/* Menu Mobile */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="lg:hidden medical-focus-ring"
-              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              aria-label={isMobileMenuOpen ? "Fermer le menu" : "Ouvrir le menu"}
-              aria-expanded={isMobileMenuOpen}
-            >
-              {isMobileMenuOpen ? (
-                <X className="h-5 w-5" />
-              ) : (
-                <Menu className="h-5 w-5" />
-              )}
-            </Button>
+              {/* Mobile Menu Button */}
+              <Button
+                variant="outline"
+                size="icon"
+                className="lg:hidden"
+                onClick={() => setIsMobileOpen(true)}
+              >
+                <Menu className="w-5 h-5" />
+              </Button>
+            </div>
           </div>
         </div>
 
-        {/* Menu Mobile */}
-        <AnimatePresence>
-          {isMobileMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="lg:hidden border-t py-4 space-y-2"
-              role="navigation"
-              aria-label="Navigation mobile"
-            >
-              {/* Recherche Mobile */}
-              <div className="mb-4">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                  <input
-                    type="text"
-                    placeholder="Rechercher..."
-                    className="medical-input pl-10 pr-4 py-2 w-full"
-                    aria-label="Recherche mobile"
-                  />
-                </div>
-              </div>
+        {/* Progress Bar */}
+        {isScrolled && (
+          <motion.div
+            className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-primary via-accent to-primary"
+            initial={{ width: "0%" }}
+            animate={{ width: "100%" }}
+            transition={{ duration: 0.3 }}
+          />
+        )}
+      </motion.header>
 
-              {navigationItems.map((item) => (
-                <div key={item.path}>
-                  <button
-                    onClick={() => 
-                      item.children 
-                        ? setActiveDropdown(activeDropdown === item.path ? null : item.path)
-                        : handleNavigation(item.path, item.label)
-                    }
-                    className={cn(
-                      "w-full flex items-center justify-between px-3 py-3 rounded-md text-left transition-colors",
-                      (isActive(item.path) || hasActiveChild(item)) 
-                        ? "bg-accent text-accent-foreground" 
-                        : "hover:bg-muted/50"
-                    )}
-                  >
-                    <div className="flex items-center space-x-3">
-                      <item.icon className="h-5 w-5" />
-                      <div>
-                        <div className="font-medium">{item.label}</div>
-                        {item.description && (
-                          <div className="text-xs text-muted-foreground">{item.description}</div>
-                        )}
-                      </div>
-                      {item.premium && <Crown className="h-4 w-4 text-accent ml-2" />}
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      {item.badge && (
-                        <Badge variant="secondary" className="text-xs">{item.badge}</Badge>
-                      )}
-                      {item.children && (
-                        <ChevronDown className={cn(
-                          "h-4 w-4 transition-transform",
-                          activeDropdown === item.path && "rotate-180"
-                        )} />
-                      )}
-                    </div>
-                  </button>
-
-                  {/* Sous-menu Mobile */}
-                  <AnimatePresence>
-                    {activeDropdown === item.path && item.children && (
-                      <motion.div
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                        exit={{ opacity: 0, height: 0 }}
-                        className="ml-6 mt-2 space-y-2"
-                      >
-                        {item.children.map((child) => (
-                          <button
-                            key={child.path}
-                            onClick={() => handleNavigation(child.path, child.label)}
-                            className={cn(
-                              "w-full flex items-center space-x-3 px-3 py-2 rounded-md text-left transition-colors",
-                              isActive(child.path) 
-                                ? "bg-primary/10 text-primary" 
-                                : "hover:bg-muted/50"
-                            )}
-                          >
-                            <child.icon className="h-4 w-4" />
-                            <span>{child.label}</span>
-                          </button>
-                        ))}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
-              ))}
-
-              {/* Actions Mobiles */}
-              <div className="border-t pt-4 mt-4">
-                <div className="grid grid-cols-2 gap-2">
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => handleNavigation('/notifications', 'Notifications')}
-                    className="justify-start"
-                  >
-                    <Bell className="h-4 w-4 mr-2" />
-                    Notifications
-                  </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => handleNavigation('/help', 'Aide')}
-                    className="justify-start"
-                  >
-                    <HelpCircle className="h-4 w-4 mr-2" />
-                    Aide
-                  </Button>
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-    </header>
+      {/* Mobile Navigation */}
+      <MobileNavigation 
+        isOpen={isMobileOpen} 
+        onClose={() => setIsMobileOpen(false)} 
+      />
+    </>
   );
 };
+
+export default memo(PremiumGlobalNavigation);
