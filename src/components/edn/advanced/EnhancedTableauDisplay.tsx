@@ -12,6 +12,7 @@ interface OICCompetence {
   description: string;
   rang: string;
   item_parent: string;
+  ordre: number;
 }
 
 interface EnhancedTableauDisplayProps {
@@ -53,10 +54,10 @@ export const EnhancedTableauDisplay: React.FC<EnhancedTableauDisplayProps> = ({
         
         const { data: competences, error } = await supabase
           .from('oic_competences')
-          .select('objectif_id, intitule, description, rang, item_parent')
+          .select('objectif_id, intitule, description, rang, item_parent, ordre')
           .eq('item_parent', itemCode)
           .eq('rang', rang)
-          .order('ordre');
+          .order('ordre', { ascending: true });
         
         if (!error && competences) {
           setOicCompetences(competences);
@@ -132,26 +133,33 @@ export const EnhancedTableauDisplay: React.FC<EnhancedTableauDisplayProps> = ({
             </CardHeader>
             <CardContent>
               {oicCompetences.length > 0 ? (
-                <div className="space-y-4">
-                  {oicCompetences.map((competence, index) => (
+                <div className="space-y-3">
+                  {oicCompetences
+                    .sort((a, b) => (a.ordre || 0) - (b.ordre || 0)) // Tri supplémentaire côté client pour sécurité
+                    .map((competence, index) => (
                     <div key={competence.objectif_id} className="border rounded-lg p-4 hover:bg-muted/50 transition-colors">
                       <div className="flex items-start space-x-3">
-                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-xs font-bold text-blue-600 mt-0.5 shrink-0">
-                          {index + 1}
+                        <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center text-xs font-bold text-white shrink-0 shadow-md">
+                          {competence.ordre || (index + 1)}
                         </div>
-                        <div className="flex-1 space-y-2">
+                        <div className="flex-1 space-y-3">
                           <div className="flex items-center space-x-2">
                             <Badge variant="outline" className="font-mono text-xs">
                               {competence.objectif_id}
                             </Badge>
+                            <Badge variant="secondary" className="text-xs">
+                              Ordre {competence.ordre || (index + 1)}
+                            </Badge>
                           </div>
-                          <h4 className="font-semibold text-sm leading-tight">
+                          <h4 className="font-semibold text-base leading-tight text-foreground">
                             {competence.intitule}
                           </h4>
                           {competence.description && competence.description.trim() && (
-                            <p className="text-sm text-muted-foreground">
-                              {competence.description}
-                            </p>
+                            <div className="p-3 bg-muted/30 rounded-md border-l-4 border-l-blue-500">
+                              <p className="text-sm text-muted-foreground leading-relaxed">
+                                {competence.description}
+                              </p>
+                            </div>
                           )}
                         </div>
                       </div>
@@ -161,7 +169,8 @@ export const EnhancedTableauDisplay: React.FC<EnhancedTableauDisplayProps> = ({
               ) : (
                 <div className="text-center py-8 text-muted-foreground">
                   <Brain className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                  <p>Aucune compétence OIC disponible pour le rang {rang}</p>
+                  <p className="text-base">Aucune compétence OIC disponible pour le rang {rang}</p>
+                  <p className="text-sm mt-2">Les compétences seront chargées automatiquement depuis le référentiel</p>
                 </div>
               )}
             </CardContent>
