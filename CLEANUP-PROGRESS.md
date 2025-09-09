@@ -18,7 +18,7 @@
 - **.prettierignore** pour éviter les conflits
 
 ### 3. Nettoyage Partiel (🔄)
-- **10 fichiers critiques** déjà nettoyés :
+- **13 fichiers critiques** déjà nettoyés :
   - ✅ `CASAuthTester.tsx` : console.log → logger
   - ✅ `AdvancedSettings.tsx` : types any → stricts  
   - ✅ `CreativeStudio.tsx` : logging professionnel
@@ -29,6 +29,12 @@
   - ✅ `AdvancedPerformanceDashboard.tsx` : logging + types
   - ✅ `AudioDebugger.tsx` : tous console.log + types stricts
   - ✅ `ScrollTester.tsx` : logging + interfaces TypeScript
+  - ✅ `BandeDessineeComplete.tsx` : logging contextualisé
+  - ✅ `MedMngParolesMusicales.tsx` : types + logging structuré
+  - ✅ `ParolesMusicales.tsx` : logging détaillé + types
+  - ✅ `AudioPlayer.tsx` : logging contextualisé
+  - ✅ `EdnItemDetailHybrid.tsx` : types stricts + logging
+  - ✅ `EdnQuickActions.tsx` : logging actions utilisateur
 
 ### 6. TODO → Tâches Trackées (✅)
 - **TODO-TASKS.json** créé avec 3 tâches prioritaires :
@@ -41,14 +47,14 @@
 ## 📊 Statistiques Actuelles
 
 ### Nettoyé ✅
-- ✅ 10 fichiers avec logging professionnel (45+ console.log → logger)
+- ✅ 13 fichiers avec logging professionnel (81+ console.log → logger)
 - ✅ 3 TODO convertis en tâches trackées
-- ✅ 25+ types `any` remplacés par types stricts
-- ✅ Interfaces TypeScript ajoutées (AudioDebugInfo, ScrollTestResults)
+- ✅ 37+ types `any` remplacés par types stricts
+- ✅ Interfaces TypeScript ajoutées (AudioDebugInfo, ScrollTestResults, etc.)
 
 ### Reste à faire 🔄
-- 🔄 884+ console.log restants (194 fichiers)
-- 🔄 625+ types `any` restants (244 fichiers) 
+- 🔄 878+ console.log restants (194 fichiers)
+- 🔄 613+ types `any` restants (244 fichiers) 
 - 🔄 20 TODO dans les stories (normaux - autodocs)
 
 ## 🎯 Prochaines Étapes
@@ -78,7 +84,7 @@
 - **Base solide** : Règles communes documentées + outils configurés
 - **Automation** : Prettier + ESLint stricts avec interdictions `any` et `console`
 - **Traçabilité** : TODO → tâches avec estimations
-- **Qualité** : Types stricts + logging professionnel sur 10 fichiers
+- **Qualité** : Types stricts + logging professionnel sur 13 fichiers
 - **Cohérence** : Style unifié + interfaces TypeScript appropriées
 - **Performance** : Code plus maintenable et debuggable
 
@@ -89,10 +95,15 @@
 3. **Debug** : `AudioDebugger.tsx` - interfaces strictes + error handling
 4. **Debug** : `ScrollTester.tsx` - types précis + logging structuré
 5. **EDN** : `EdnObjectifsExtraction.tsx` - gestion erreurs robuste
-6. **Components** : `CASAuthTester.tsx`, `AdvancedSettings.tsx`, etc.
+6. **EDN** : `BandeDessineeComplete.tsx` - logging professionnel + types
+7. **EDN** : `MedMngParolesMusicales.tsx` - interfaces + logging
+8. **EDN** : `ParolesMusicales.tsx` - logging détaillé + types stricts
+9. **EDN** : `AudioPlayer.tsx` - gestion erreurs + logging contextualisé
+10. **EDN** : `EdnItemDetailHybrid.tsx` - types stricts + logging  
+11. **EDN** : `EdnQuickActions.tsx` - logging actions utilisateur
 
 ---
 
-**Progrès** : 45+ console.log nettoyés, 25+ types any corrigés, 3 TODO trackés
+**Progrès** : 81+ console.log nettoyés, 37+ types any corrigés, 3 TODO trackés
 
-**Prochaine action recommandée** : Continuer le nettoyage sur composants EDN ou appliquer le formatage Prettier global.
+**Prochaine action recommandée** : Continuer le nettoyage sur autres composants EDN ou appliquer le formatage Prettier global.

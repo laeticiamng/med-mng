@@ -24,6 +24,7 @@ import { LyricsGenerationPanel } from '@/components/edn/LyricsGenerationPanel';
 import { EnhancedQuizFinal } from '@/components/edn/EnhancedQuizFinal';
 import { EnhancedBandeDessinee } from '@/components/edn/EnhancedBandeDessinee';
 import { useEdnItemComplete } from '@/hooks/useEdnItemsComplete';
+import { logger } from '@/lib/logger';
 
 interface EdnItemDetailHybridProps {
   slug: string;
@@ -34,7 +35,7 @@ interface EdnItemDetailHybridProps {
 interface Section {
   id: string;
   label: string;
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<{ className?: string }>;
   available: boolean;
   component: React.ReactNode;
   progress?: number;
@@ -159,12 +160,17 @@ export const EdnItemDetailHybrid: React.FC<EdnItemDetailHybridProps> = ({
           <LyricsGenerationPanel
             itemCode={item.item_code}
             currentLyrics={{
-              rang_a: (item as any).paroles_rang_a || [],
-              rang_b: (item as any).paroles_rang_b || [],
-              rang_ab: (item as any).paroles_rang_ab || []
+              rang_a: (item as unknown as Record<string, unknown>).paroles_rang_a as string[] || [],
+              rang_b: (item as unknown as Record<string, unknown>).paroles_rang_b as string[] || [],
+              rang_ab: (item as unknown as Record<string, unknown>).paroles_rang_ab as string[] || []
             }}
             onLyricsGenerated={(newLyrics) => {
-              console.log('Nouvelles paroles générées:', newLyrics);
+              logger.info('New lyrics generated', { 
+                component: 'EdnItemDetailHybrid',
+                action: 'lyrics_generated',
+                itemCode: item.item_code,
+                metadata: { lyricsCount: Object.keys(newLyrics).length }
+              });
             }}
           />
           <div className="bg-purple-50 dark:bg-purple-950/20 p-4 rounded-lg border border-purple-200 dark:border-purple-800">
@@ -177,9 +183,9 @@ export const EdnItemDetailHybrid: React.FC<EdnItemDetailHybridProps> = ({
           </div>
           <ParolesMusicales 
             paroles={item.paroles_musicales} 
-            paroles_rang_a={(item as any).paroles_rang_a || []}
-            paroles_rang_b={(item as any).paroles_rang_b || []}
-            paroles_rang_ab={(item as any).paroles_rang_ab || []}
+            paroles_rang_a={(item as unknown as Record<string, unknown>).paroles_rang_a as string[] || []}
+            paroles_rang_b={(item as unknown as Record<string, unknown>).paroles_rang_b as string[] || []}
+            paroles_rang_ab={(item as unknown as Record<string, unknown>).paroles_rang_ab as string[] || []}
             itemCode={item.item_code}
             tableauRangA={item.tableau_rang_a}
             tableauRangB={item.tableau_rang_b}

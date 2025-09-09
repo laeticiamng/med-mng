@@ -6,6 +6,7 @@ import {
   Clock, Sparkles, Target, Users 
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { logger } from '@/lib/logger';
 
 export const EdnQuickActions = () => {
   const navigate = useNavigate();
@@ -25,7 +26,10 @@ export const EdnQuickActions = () => {
       description: 'Recommandations personnalisées',
       icon: <Sparkles className="h-5 w-5" />,
       color: 'from-purple-500/20 to-pink-500/20 border-purple-400/30',
-      action: () => console.log('AI suggestions')
+      action: () => logger.info('AI suggestions clicked', { 
+        component: 'EdnQuickActions',
+        action: 'ai_suggestions_clicked' 
+      })
     },
     {
       id: 'objectives',
@@ -33,7 +37,10 @@ export const EdnQuickActions = () => {
       description: 'Définir vos priorités',
       icon: <Target className="h-5 w-5" />,
       color: 'from-green-500/20 to-emerald-500/20 border-green-400/30',
-      action: () => console.log('Daily objectives')
+      action: () => logger.info('Daily objectives clicked', { 
+        component: 'EdnQuickActions',
+        action: 'daily_objectives_clicked' 
+      })
     },
     {
       id: 'collaborate',
