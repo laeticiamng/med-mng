@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { logger } from '@/lib/logger';
 
 interface GlobalStats {
   totalItems: number;
@@ -95,7 +96,11 @@ export const GlobalLyricsManager: React.FC = () => {
     setGenerationResult(null);
     
     try {
-      console.log('🚀 Lancement génération RICHE avec OpenAI pour tous les items');
+      logger.info('Starting global rich lyrics generation', {
+        component: 'GlobalLyricsManager',
+        action: 'generate_all_lyrics',
+        metadata: { mode }
+      });
       
       // Utiliser la nouvelle Edge Function optimisée
       const { data, error } = await supabase.functions.invoke('generate-all-lyrics-rich', {
@@ -124,8 +129,17 @@ export const GlobalLyricsManager: React.FC = () => {
     }
   };
 
+interface ItemData {
+  item_code?: string;
+}
+
+interface Competence {
+  description?: string;
+  intitule?: string;
+}
+
   // Fonction de génération locale des paroles
-  const generateLocalLyrics = (itemData: any, competences: any[], rang: 'A' | 'B' | 'AB'): string[] => {
+  const generateLocalLyrics = (itemData: ItemData, competences: Competence[], rang: 'A' | 'B' | 'AB'): string[] => {
     const lines: string[] = [];
     
     lines.push(`[Couplet 1]`);
@@ -187,7 +201,7 @@ export const GlobalLyricsManager: React.FC = () => {
     title: string; 
     value: string | number; 
     description: string; 
-    icon: any; 
+    icon: React.ComponentType<{ className?: string }>; 
     variant?: 'default' | 'success' | 'warning' | 'destructive';
   }) => (
     <Card className={`${

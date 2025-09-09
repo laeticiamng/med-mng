@@ -17,6 +17,30 @@ import { processTableauRangAIC5, isIC5Item } from './tableau/TableauRangAUtilsIC
 import { processTableauRangAIC10, isIC10Item } from './tableau/TableauRangAUtilsIC10Integration';
 import { determinerColonnesUtiles, generateLignesRangAIntelligent } from './tableau/TableauRangAUtils';
 import { ColonneConfig, TableauData } from '@/types/edn';
+import { logger } from '@/lib/logger';
+
+interface Section {
+  title: string;
+  content?: string;
+  competences?: Competence[];
+  keywords?: string[];
+}
+
+interface Competence {
+  competence_id: string;
+  concept?: string;
+  title?: string;
+  definition?: string;
+  exemple?: string;
+  application?: string;
+}
+
+interface OICCompetence {
+  objectif_id: string;
+  intitule: string;
+  description?: string;
+  rubrique?: string;
+}
 
 interface TableauRangAProps {
   data: {
@@ -25,14 +49,23 @@ interface TableauRangAProps {
     subtitle?: string;
     colonnes?: string[] | ColonneConfig[];
     lignes?: string[][];
-    sections?: any[];
-    competences_oic?: any[];
+    sections?: Section[];
+    competences_oic?: OICCompetence[];
   };
   itemCode?: string;
 }
 
 export const TableauRangA = ({ data, itemCode }: TableauRangAProps) => {
-  console.log('TableauRangA - Received data:', data);
+  logger.info('TableauRangA render', {
+    component: 'TableauRangA',
+    action: 'render',
+    itemCode,
+    metadata: {
+      hasData: !!data,
+      hasCompetencesOIC: !!(data?.competences_oic?.length),
+      hasSections: !!(data?.sections?.length)
+    }
+  });
 
   if (!data) {
     return (
@@ -45,7 +78,12 @@ export const TableauRangA = ({ data, itemCode }: TableauRangAProps) => {
 
   // PRIORITÉ 1: Afficher les compétences OIC réelles si disponibles
   if (data.competences_oic && Array.isArray(data.competences_oic) && data.competences_oic.length > 0) {
-    console.log('📚 Affichage des compétences OIC réelles:', data.competences_oic);
+    logger.info('Displaying real OIC competences', {
+      component: 'TableauRangA',
+      action: 'display_oic_competences',
+      itemCode,
+      metadata: { competencesCount: data.competences_oic.length }
+    });
     
     return (
       <div className="space-y-6">
@@ -60,7 +98,7 @@ export const TableauRangA = ({ data, itemCode }: TableauRangAProps) => {
         </div>
 
         <div className="space-y-4">
-          {data.competences_oic.map((competence: any, idx: number) => {
+          {data.competences_oic.map((competence: OICCompetence, idx: number) => {
             const competenceId = `competence-oic-${idx}`;
             return (
               <Card 
@@ -169,7 +207,7 @@ export const TableauRangA = ({ data, itemCode }: TableauRangAProps) => {
                   >
                     Compétences ({section.competences.length})
                   </h4>
-                  {section.competences.map((competence: any, compIdx: number) => {
+                  {section.competences.map((competence: Competence, compIdx: number) => {
                     const competenceId = `competence-${idx}-${compIdx}`;
                     return (
                       <Card 
@@ -328,10 +366,13 @@ export const TableauRangA = ({ data, itemCode }: TableauRangAProps) => {
     footerComponent = <TableauRangAFooter colonnesCount={colonnesUtiles.length} lignesCount={lignesEnrichies.length} />;
   }
 
-  console.log('TableauRangA - Processed data:', {
-    theme,
-    colonnesUtiles: colonnesUtiles.length,
-    lignesEnrichies: lignesEnrichies.length
+  logger.debug('TableauRangA processed data', {
+    component: 'TableauRangA',
+    metadata: {
+      theme,
+      colonnesUtilesCount: colonnesUtiles.length,
+      lignesEnrichiesCount: lignesEnrichies.length
+    }
   });
 
   return (

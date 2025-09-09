@@ -3,38 +3,40 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { BookOpen, Brain, Target, Award, CheckCircle } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { logger } from '@/lib/logger';
+
+interface OICCompetence {
+  objectif_id: string;
+  intitule: string;
+  description?: string;
+  rubrique?: string;
+}
+
+interface Concept {
+  competence_id: string;
+  concept: string;
+  analyse?: string;
+  cas?: string;
+  ecueil?: string;
+  technique?: string;
+  maitrise?: string;
+  excellence?: string;
+  paroles_chantables?: string[];
+}
+
+interface Section {
+  title: string;
+  content?: string;
+  objectif_id?: string;
+  concepts?: Concept[];
+  competences?: Concept[];
+}
 
 interface TableauRangBProps {
   data: {
     title?: string;
-    sections?: Array<{
-      title: string;
-      content?: string;
-      objectif_id?: string;
-      concepts?: Array<{
-        competence_id: string;
-        concept: string;
-        analyse?: string;
-        cas?: string;
-        ecueil?: string;
-        technique?: string;
-        maitrise?: string;
-        excellence?: string;
-        paroles_chantables?: string[];
-      }>;
-      competences?: Array<{
-        competence_id: string;
-        concept: string;
-        analyse?: string;
-        cas?: string;
-        ecueil?: string;
-        technique?: string;
-        maitrise?: string;
-        excellence?: string;
-        paroles_chantables?: string[];
-      }>;
-    }>;
-    competences_oic?: any[]; // Ajout des compétences OIC réelles
+    sections?: Section[];
+    competences_oic?: OICCompetence[];
   };
   itemCode: string;
 }
@@ -43,7 +45,12 @@ export const TableauRangB: React.FC<TableauRangBProps> = ({ data, itemCode }) =>
   const isMobile = useIsMobile();
   // PRIORITÉ 1: Afficher les compétences OIC réelles si disponibles
   if (data?.competences_oic && Array.isArray(data.competences_oic) && data.competences_oic.length > 0) {
-    console.log('📚 Affichage des compétences OIC réelles Rang B:', data.competences_oic);
+    logger.info('Displaying real OIC competences Rang B', {
+      component: 'TableauRangB',
+      action: 'display_oic_competences',
+      itemCode,
+      metadata: { competencesCount: data.competences_oic.length }
+    });
     
     return (
       <div className="space-y-6">
@@ -58,7 +65,7 @@ export const TableauRangB: React.FC<TableauRangBProps> = ({ data, itemCode }) =>
         </div>
 
         <div className="space-y-4">
-          {data.competences_oic.map((competence: any, idx: number) => {
+          {data.competences_oic.map((competence: OICCompetence, idx: number) => {
             const competenceId = `competence-oic-b-${idx}`;
             return (
               <Card 
