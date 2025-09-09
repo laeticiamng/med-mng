@@ -74,6 +74,8 @@ const MedMngCommunity = lazy(() => import("./pages/med-mng/Community"));
 const MedMngPlaylists = lazy(() => import("./pages/med-mng/Playlists"));
 const MedMngPlaylistDetail = lazy(() => import("./pages/med-mng/PlaylistDetail"));
 const ComprehensiveDashboard = lazy(() => import("./components/med-mng/ComprehensiveDashboard").then(module => ({ default: module.ComprehensiveDashboard })));
+const ComprehensivePlatform = lazy(() => import("./pages/ComprehensivePlatform"));
+const UniversalPlatform = lazy(() => import("./pages/UniversalPlatform"));
 
 // ⚡ CHAT & LEGAL
 const MedChat = lazy(() => import("./pages/MedChat"));
@@ -199,9 +201,11 @@ const AppWithUX = () => {
                                               <Route path="/dashboard" element={<UnifiedDashboard />} />
                                               <Route path="/analytics" element={<UnifiedAnalytics />} />
                                               
-                                              {/* ⚡ COMMUNITY & PROFILE */}
-                                              <Route path="/community" element={<Community />} />
-                                              <Route path="/profile" element={<Profile />} />
+                                               {/* ⚡ COMMUNITY & PROFILE */}
+                                               <Route path="/community" element={<Community />} />
+                                               <Route path="/profile" element={<Profile />} />
+                                               <Route path="/platform-complete" element={<ComprehensivePlatform />} />
+                                               <Route path="/universal" element={<UniversalPlatform />} />
                                               
                                               {/* ⚡ SUPPORT & SETTINGS */}
                                               <Route path="/settings" element={<UserSettings />} />

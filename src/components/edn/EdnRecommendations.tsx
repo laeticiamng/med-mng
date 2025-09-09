@@ -23,6 +23,19 @@ export const EdnRecommendations = () => {
   const navigate = useNavigate();
   const [recommendations, setRecommendations] = useState<RecommendedItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [favorites, setFavorites] = useState<Set<string>>(new Set());
+
+  const handleToggleFavorite = (itemCode: string) => {
+    setFavorites(prev => {
+      const newFavorites = new Set(prev);
+      if (newFavorites.has(itemCode)) {
+        newFavorites.delete(itemCode);
+      } else {
+        newFavorites.add(itemCode);
+      }
+      return newFavorites;
+    });
+  };
 
   useEffect(() => {
     // Simulation de données de recommandations personnalisées
@@ -170,8 +183,7 @@ export const EdnRecommendations = () => {
                 className="text-red-300 hover:text-red-200 hover:bg-red-500/20 p-2 h-auto"
                 onClick={(e) => {
                   e.stopPropagation();
-                  // Feature: Implement favorites system
-                  // Tracked in TODO-TASKS.json as TODO-1
+                  handleToggleFavorite(item.item_code);
                 }}
               >
                 <Heart className="h-3 w-3" />
