@@ -42,8 +42,7 @@ const UnifiedDashboard = lazy(() => import("./pages/unified/UnifiedDashboard"));
 const Community = lazy(() => import("./pages/Community"));
 const Profile = lazy(() => import("./pages/Profile"));
 
-// ⚡ EDN & ECOS SYSTEM - Architecture épurée
-const EdnComplete = lazy(() => import("./pages/EdnComplete"));
+import { OptimizedEdnRouter } from '@/components/edn/production/OptimizedEdnRouter';
 const EdnItem = lazy(() => import("./pages/EdnItem"));
 const EdnImmersive = lazy(() => import("./pages/EdnImmersive"));
 const EcosIndex = lazy(() => import("./pages/EcosIndex"));
@@ -219,12 +218,17 @@ const AppWithUX = () => {
                                                <Route path="/feature-hub" element={<FeatureHub />} />
                                                <Route path="/learning-path" element={<LearningPath />} />
 
-                                             {/* ⚡ EDN SYSTEM */}
-                                             <Route path="/edn" element={<EdnComplete />} />
-                                             <Route path="/edn/:slug" element={<EdnItem />} />
-                                             <Route path="/edn/:slug/immersive" element={<EdnImmersive />} />
-                                             <Route path="/edn-complete" element={<Navigate to="/edn" replace />} />
-                                             <Route path="/edn-complete/:slug" element={<EdnCompleteRedirect />} />
+              {/* ⚡ EDN SYSTEM - Production optimisée */}
+              <Route path="/edn" element={<Navigate to="/edn-production" replace />} />
+              <Route path="/edn-production/*" element={
+                <Suspense fallback={<PageSkeleton />}>
+                  <OptimizedEdnRouter />
+                </Suspense>
+              } />
+              <Route path="/edn/:slug" element={<EdnItem />} />
+              <Route path="/edn/:slug/immersive" element={<EdnImmersive />} />
+              <Route path="/edn-complete" element={<Navigate to="/edn-production" replace />} />
+              <Route path="/edn-complete/:slug" element={<EdnCompleteRedirect />} />
 
                                              {/* ⚡ ECOS SYSTEM */}
                                              <Route path="/ecos" element={<EcosIndex />} />
