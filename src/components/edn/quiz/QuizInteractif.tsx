@@ -22,7 +22,7 @@ interface QuizInteractifProps {
   onProgress?: (progress: number) => void;
 }
 
-const QuizInteractif: React.FC<QuizInteractifProps> = ({ 
+export const QuizInteractif: React.FC<QuizInteractifProps> = ({ 
   item, 
   questions = [], 
   onProgress 
@@ -494,5 +494,3 @@ const QuizInteractif: React.FC<QuizInteractifProps> = ({
     </div>
   );
 };
-
-export default QuizInteractif;

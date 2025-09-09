@@ -17,13 +17,13 @@ import {
 import { TranslatedText } from '@/components/TranslatedText';
 import { useOptimizedAccessibility } from '@/hooks/useOptimizedAccessibility';
 
-// Lazy load des composants pour optimiser le chargement
-const TableauRangA = React.lazy(() => import('@/components/edn/tableau/TableauRangA').then(module => ({ default: module.default })));
-const TableauRangB = React.lazy(() => import('@/components/edn/tableau/TableauRangB').then(module => ({ default: module.default })));
-const SceneImmersive = React.lazy(() => import('@/components/edn/scene/SceneImmersive').then(module => ({ default: module.default })));
-const GenerationMusicale = React.lazy(() => import('@/components/edn/music/GenerationMusicale').then(module => ({ default: module.default })));
-const QuizInteractif = React.lazy(() => import('@/components/edn/quiz/QuizInteractif').then(module => ({ default: module.default })));
-const BandeDessinee = React.lazy(() => import('@/components/edn/comic/BandeDessinee').then(module => ({ default: module.default })));
+// Import des composants avec imports nommés
+import { TableauRangA } from '@/components/edn/tableau/TableauRangA';
+import { TableauRangB } from '@/components/edn/tableau/TableauRangB';
+import { SceneImmersive } from '@/components/edn/scene/SceneImmersive';
+import { GenerationMusicale } from '@/components/edn/music/GenerationMusicale';
+import { QuizInteractif } from '@/components/edn/quiz/QuizInteractif';
+import { BandeDessinee } from '@/components/edn/comic/BandeDessinee';
 
 type SectionType = 'tableau-a' | 'tableau-b' | 'scene' | 'bd' | 'music' | 'quiz';
 
@@ -130,64 +130,54 @@ export const EdnItemContent = memo(({
     switch (activeSection) {
       case 'tableau-a':
         return (
-          <Suspense fallback={<LoadingFallback />}>
-            <TableauRangA 
-              {...commonProps}
-              data={item.tableau_rang_a}
-              competences={item.competences_oic_rang_a}
-            />
-          </Suspense>
+          <TableauRangA 
+            data={item.tableau_rang_a}
+            itemCode={item.item_code}
+          />
         );
       
       case 'tableau-b':
         return (
-          <Suspense fallback={<LoadingFallback />}>
-            <TableauRangB 
-              {...commonProps}
-              data={item.tableau_rang_b}
-              competences={item.competences_oic_rang_b}
-            />
-          </Suspense>
+          <TableauRangB 
+            data={item.tableau_rang_b}
+            itemCode={item.item_code}
+          />
         );
       
       case 'scene':
         return (
-          <Suspense fallback={<LoadingFallback />}>
-            <SceneImmersive 
-              {...commonProps}
-              sceneData={item.scene_immersive}
-            />
-          </Suspense>
+          <SceneImmersive 
+            item={item}
+            sceneData={item.scene_immersive}
+            onProgress={handleProgressUpdate}
+          />
         );
       
       case 'bd':
         return (
-          <Suspense fallback={<LoadingFallback />}>
-            <BandeDessinee 
-              {...commonProps}
-              storyData={item}
-            />
-          </Suspense>
+          <BandeDessinee 
+            item={item}
+            storyData={item}
+            onProgress={handleProgressUpdate}
+          />
         );
       
       case 'music':
         return (
-          <Suspense fallback={<LoadingFallback />}>
-            <GenerationMusicale 
-              {...commonProps}
-              paroles={item.paroles_musicales}
-            />
-          </Suspense>
+          <GenerationMusicale 
+            item={item}
+            paroles={item.paroles_musicales}
+            onProgress={handleProgressUpdate}
+          />
         );
       
       case 'quiz':
         return (
-          <Suspense fallback={<LoadingFallback />}>
-            <QuizInteractif 
-              {...commonProps}
-              questions={item.quiz_questions}
-            />
-          </Suspense>
+          <QuizInteractif 
+            item={item}
+            questions={item.quiz_questions}
+            onProgress={handleProgressUpdate}
+          />
         );
       
       default:

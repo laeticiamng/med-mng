@@ -24,7 +24,7 @@ interface GenerationMusicaleProps {
   onProgress?: (progress: number) => void;
 }
 
-const GenerationMusicale: React.FC<GenerationMusicaleProps> = ({ 
+export const GenerationMusicale: React.FC<GenerationMusicaleProps> = ({ 
   item, 
   paroles = [], 
   onProgress 
@@ -391,5 +391,3 @@ Médecine humaine, art bienveillant`;
     </div>
   );
 };
-
-export default GenerationMusicale;

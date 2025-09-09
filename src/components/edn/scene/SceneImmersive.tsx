@@ -22,7 +22,7 @@ interface SceneImmersiveProps {
   onProgress?: (progress: number) => void;
 }
 
-const SceneImmersive: React.FC<SceneImmersiveProps> = ({ 
+export const SceneImmersive: React.FC<SceneImmersiveProps> = ({ 
   item, 
   sceneData, 
   onProgress 
@@ -396,5 +396,3 @@ const SceneImmersive: React.FC<SceneImmersiveProps> = ({
     </div>
   );
 };
-
-export default SceneImmersive;

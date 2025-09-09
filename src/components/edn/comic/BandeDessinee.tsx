@@ -22,7 +22,7 @@ interface BandeDessineeProps {
   onProgress?: (progress: number) => void;
 }
 
-const BandeDessinee: React.FC<BandeDessineeProps> = ({ 
+export const BandeDessinee: React.FC<BandeDessineeProps> = ({ 
   item, 
   storyData, 
   onProgress 
@@ -434,5 +434,3 @@ const BandeDessinee: React.FC<BandeDessineeProps> = ({
     </div>
   );
 };
-
-export default BandeDessinee;
