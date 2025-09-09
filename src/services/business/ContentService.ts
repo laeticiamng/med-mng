@@ -24,7 +24,15 @@ class ContentService {
         metadata: { filters }
       });
 
-      return await apiService.getPaginated<EdnItem>('/api/content/edn-items', filters || {});
+      return await apiService.getPaginated<EdnItem>('/api/content/edn-items', 
+        filters ? {
+          search: filters.search,
+          item_code: filters.item_code,
+          content_status: filters.content_status,
+          limit: filters.limit,
+          offset: filters.offset
+        } : {}
+      );
     } catch (error) {
       logger.error('Erreur récupération items EDN', {
         component: 'ContentService',

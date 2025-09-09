@@ -16,4 +16,4 @@ export { contentService } from './business/ContentService';
 
 // Types
 export type { ApiServiceConfig } from './core/ApiService';
-export type { GenerationRequest, GenerationResponse } from './business/GenerationService';
+export type { ExtendedGenerationRequest, ExtendedGenerationResponse } from './business/GenerationService';

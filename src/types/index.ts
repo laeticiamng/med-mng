@@ -39,6 +39,7 @@ export interface EdnItem extends BaseEntity {
   scene_immersive?: Record<string, unknown>;
   is_premium: boolean;
   content_status: 'draft' | 'published' | 'archived';
+  theme?: string;
 }
 
 // Music types
@@ -58,35 +59,86 @@ export interface MusicTrack extends BaseEntity {
 // Legacy types for compatibility
 export type EDNItem = EdnItem;
 
+// Import des types legacy
+export type { SupabaseMusicTrack, LegacyColonneConfig } from './legacy';
+
 export interface ColonneConfig {
   key: string;
   label: string;
   width?: string;
   align?: 'left' | 'center' | 'right';
+  // Propriétés legacy pour compatibilité
+  nom?: string;
+  couleur?: string;
+  couleurCellule?: string;
+  couleurTexte?: string;
 }
 
 export interface ProcessingData {
   sections?: unknown[];
   competences?: unknown[];
   items?: unknown[];
+  item_code?: string;
+  title?: string;
+  theme?: string;
+  rang?: 'A' | 'B';
 }
 
 export interface TableauResult {
-  headers: string[];
-  rows: unknown[][];
+  headers?: string[];
+  rows?: unknown[][];
   metadata?: Record<string, unknown>;
+  // Propriétés spécifiques au tableau
+  lignesEnrichies?: string[][];
+  colonnesUtiles?: ColonneConfig[];
+  theme?: string;
+  success?: boolean;
+  isComplete?: boolean;
+}
+
+// Generation types complets
+export interface GenerationRequest {
+  type: 'music' | 'lyrics' | 'quiz' | 'content';
+  prompt: string;
+  parameters: Record<string, unknown>;
+  user_id: string;
+  // Propriétés étendues pour compatibilité
+  item_code?: string;
+  rang?: 'A' | 'B' | 'AB';
+  lyrics?: string[];
+  style?: string;
+  duration?: number;
+  fast_mode?: boolean;
+  priority?: 'low' | 'normal' | 'high';
+  language?: string;
+}
+
+export interface GenerationResponse {
+  id: string;
+  status: 'pending' | 'processing' | 'completed' | 'failed';
+  result?: unknown;
+  error?: string;
+  progress?: number;
+  estimated_time?: number;
 }
 
 export interface GenerationStatus {
   status: 'idle' | 'pending' | 'processing' | 'completed' | 'failed';
   progress?: number;
   error?: string;
+  stage?: string;
+  error_message?: string;
 }
 
 export interface MusicGenerationProgress {
-  percentage: number;
+  percentage?: number;
   stage: string;
   estimated_time?: number;
+  rang?: 'A' | 'B' | 'AB';
+  status?: string;
+  progress?: number;
+  estimatedTimeRemaining?: number;
+  currentTask?: string;
 }
 
 export interface MedicalCategory {
@@ -106,6 +158,9 @@ export interface MedicalItem {
   code: string;
   title: string;
   category: string;
+  item_code?: string;
+  description?: string;
+  competencies?: string[];
 }
 
 export interface Playlist extends BaseEntity {
@@ -132,23 +187,6 @@ export interface PaginatedResponse<T> extends ApiResponse<T[]> {
     total: number;
     total_pages: number;
   };
-}
-
-// Generation types
-export interface GenerationRequest {
-  type: 'music' | 'lyrics' | 'quiz' | 'content';
-  prompt: string;
-  parameters: Record<string, unknown>;
-  user_id: string;
-}
-
-export interface GenerationResponse {
-  id: string;
-  status: 'pending' | 'processing' | 'completed' | 'failed';
-  result?: unknown;
-  error?: string;
-  progress?: number;
-  estimated_time?: number;
 }
 
 // Analytics types

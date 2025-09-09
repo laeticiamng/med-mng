@@ -6,7 +6,7 @@ import { logger } from '@/lib/logger';
 import { apiService } from '../core/ApiService';
 import type { ApiResponse } from '@/types';
 
-export interface GenerationRequest {
+export interface ExtendedGenerationRequest {
   type: 'music' | 'lyrics' | 'quiz' | 'content';
   prompt: string;
   parameters: Record<string, unknown>;
@@ -20,7 +20,7 @@ export interface GenerationRequest {
   priority?: 'low' | 'normal' | 'high';
 }
 
-export interface GenerationResponse {
+export interface ExtendedGenerationResponse {
   id: string;
   status: 'pending' | 'processing' | 'completed' | 'failed';
   result?: unknown;
@@ -32,7 +32,7 @@ export interface GenerationResponse {
 class GenerationService {
   private pollingIntervals = new Map<string, NodeJS.Timeout>();
 
-  async startGeneration(request: GenerationRequest): Promise<ApiResponse<GenerationResponse>> {
+  async startGeneration(request: ExtendedGenerationRequest): Promise<ApiResponse<ExtendedGenerationResponse>> {
     try {
       logger.info('Démarrage génération', {
         component: 'GenerationService',
@@ -43,7 +43,7 @@ class GenerationService {
         }
       });
 
-      const response = await apiService.post<GenerationResponse>('/api/generation/start', request);
+      const response = await apiService.post<ExtendedGenerationResponse>('/api/generation/start', request);
       
       if (response.success && response.data) {
         // Démarrer le polling automatique pour suivre le statut
@@ -65,9 +65,9 @@ class GenerationService {
     }
   }
 
-  async getGenerationStatus(generationId: string): Promise<ApiResponse<GenerationResponse>> {
+  async getGenerationStatus(generationId: string): Promise<ApiResponse<ExtendedGenerationResponse>> {
     try {
-      return await apiService.get<GenerationResponse>(`/api/generation/${generationId}/status`);
+      return await apiService.get<ExtendedGenerationResponse>(`/api/generation/${generationId}/status`);
     } catch (error) {
       logger.error('Erreur récupération statut génération', {
         component: 'GenerationService',
@@ -100,9 +100,9 @@ class GenerationService {
     }
   }
 
-  async getGenerationHistory(userId: string, limit = 20): Promise<ApiResponse<GenerationResponse[]>> {
+  async getGenerationHistory(userId: string, limit = 20): Promise<ApiResponse<ExtendedGenerationResponse[]>> {
     try {
-      return await apiService.getPaginated<GenerationResponse>('/api/generation/history', {
+      return await apiService.getPaginated<ExtendedGenerationResponse>('/api/generation/history', {
         user_id: userId,
         limit
       });
