@@ -83,7 +83,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signOut = async () => {
-    await supabase.auth.signOut();
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
+      
+      // Clear user state immediately
+      setUser(null);
+      setLoading(false);
+      
+      console.log('✅ Déconnexion réussie');
+    } catch (error) {
+      console.error('❌ Erreur lors de la déconnexion:', error);
+      throw error;
+    }
   };
 
   const signInWithGoogle = async () => {

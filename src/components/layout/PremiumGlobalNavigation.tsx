@@ -23,7 +23,8 @@ import {
   Bell,
   Search,
   Headphones,
-  Zap
+  Zap,
+  LogOut
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { 
@@ -33,6 +34,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger
 } from '@/components/ui/dropdown-menu';
+import { useAuth } from '@/components/med-mng/AuthProvider';
+import { toast } from 'sonner';
 
 // Navigation items configuration
 const navigationItems = [
@@ -99,12 +102,28 @@ const PremiumStatus = memo(() => {
 
 // Mobile Navigation Component
 const MobileNavigation = memo(({ isOpen, onClose }: { isOpen: boolean, onClose: () => void }) => {
+  const { user, signOut } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
+  const [isSigningOut, setIsSigningOut] = useState(false);
 
   const handleNavigation = (href: string) => {
     navigate(href);
     onClose();
+  };
+
+  const handleSignOut = async () => {
+    setIsSigningOut(true);
+    try {
+      await signOut();
+      toast.success('Déconnexion réussie');
+      onClose();
+      navigate('/');
+    } catch (error) {
+      toast.error('Erreur lors de la déconnexion');
+    } finally {
+      setIsSigningOut(false);
+    }
   };
 
   return (
@@ -171,20 +190,57 @@ const MobileNavigation = memo(({ isOpen, onClose }: { isOpen: boolean, onClose: 
             </div>
 
             {/* User Section */}
-            <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-border bg-muted/20">
-              <div className="space-y-2">
-                {userMenuItems.map((item) => (
+            {user ? (
+              <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-border bg-muted/20">
+                <div className="flex items-center gap-3 mb-3 px-2">
+                  <div className="w-10 h-10 bg-gradient-to-r from-primary to-accent rounded-full flex items-center justify-center text-white font-bold">
+                    {user.email?.slice(0, 2).toUpperCase()}
+                  </div>
+                  <div className="flex-1">
+                    <p className="font-medium text-sm">{user.user_metadata?.name || user.email?.split('@')[0]}</p>
+                    <p className="text-xs text-muted-foreground">{user.email}</p>
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  {userMenuItems.map((item) => (
+                    <button
+                      key={item.href}
+                      onClick={() => handleNavigation(item.href)}
+                      className="w-full flex items-center gap-3 px-4 py-2 rounded-lg text-left hover:bg-muted transition-colors"
+                    >
+                      <item.icon className="w-4 h-4" />
+                      <span className="text-sm">{item.label}</span>
+                    </button>
+                  ))}
                   <button
-                    key={item.href}
-                    onClick={() => handleNavigation(item.href)}
-                    className="w-full flex items-center gap-3 px-4 py-2 rounded-lg text-left hover:bg-muted transition-colors"
+                    onClick={handleSignOut}
+                    disabled={isSigningOut}
+                    className="w-full flex items-center gap-3 px-4 py-2 rounded-lg text-left hover:bg-muted transition-colors text-destructive"
                   >
-                    <item.icon className="w-4 h-4" />
-                    <span className="text-sm">{item.label}</span>
+                    <LogOut className="w-4 h-4" />
+                    <span className="text-sm">{isSigningOut ? 'Déconnexion...' : 'Se déconnecter'}</span>
                   </button>
-                ))}
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-border">
+                <div className="space-y-2">
+                  <Button 
+                    className="w-full" 
+                    onClick={() => handleNavigation('/med-mng/login')}
+                  >
+                    Se connecter
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="w-full"
+                    onClick={() => handleNavigation('/med-mng/signup')}
+                  >
+                    S'inscrire
+                  </Button>
+                </div>
+              </div>
+            )}
           </motion.div>
         </>
       )}
@@ -275,25 +331,70 @@ const GlobalSearch = memo(() => {
 
 // User Menu Component
 const UserMenu = memo(() => {
+  const { user, signOut, loading } = useAuth();
+  const navigate = useNavigate();
+  const [isSigningOut, setIsSigningOut] = useState(false);
+
+  const handleSignOut = async () => {
+    setIsSigningOut(true);
+    try {
+      await signOut();
+      toast.success('Déconnexion réussie');
+      navigate('/');
+    } catch (error) {
+      toast.error('Erreur lors de la déconnexion');
+    } finally {
+      setIsSigningOut(false);
+    }
+  };
+
+  // Si pas d'utilisateur connecté, afficher les boutons de connexion
+  if (loading) {
+    return (
+      <div className="flex items-center gap-2">
+        <div className="w-8 h-8 bg-muted rounded-full animate-pulse" />
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="flex items-center gap-2">
+        <Button variant="ghost" size="sm" asChild>
+          <Link to="/med-mng/login">Connexion</Link>
+        </Button>
+        <Button size="sm" asChild>
+          <Link to="/med-mng/signup">S'inscrire</Link>
+        </Button>
+      </div>
+    );
+  }
+
+  const userInitials = user.user_metadata?.name 
+    ? user.user_metadata.name.split(' ').map((n: string) => n[0]).join('').toUpperCase()
+    : user.email?.slice(0, 2).toUpperCase() || 'U';
+  
+  const userName = user.user_metadata?.name || user.email?.split('@')[0] || 'Utilisateur';
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" className="flex items-center gap-2 px-3 py-2">
           <div className="w-8 h-8 bg-gradient-to-r from-primary to-accent rounded-full flex items-center justify-center text-white text-sm font-bold">
-            U
+            {userInitials}
           </div>
-          <span className="hidden sm:block font-medium">Utilisateur</span>
+          <span className="hidden sm:block font-medium">{userName}</span>
           <ChevronDown className="w-4 h-4 opacity-50" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
         <div className="flex items-center gap-2 p-2">
           <div className="w-8 h-8 bg-gradient-to-r from-primary to-accent rounded-full flex items-center justify-center text-white text-sm font-bold">
-            U
+            {userInitials}
           </div>
           <div className="flex-1">
-            <p className="text-sm font-medium">Utilisateur</p>
-            <p className="text-xs text-muted-foreground">user@med-mng.com</p>
+            <p className="text-sm font-medium">{userName}</p>
+            <p className="text-xs text-muted-foreground">{user.email}</p>
           </div>
           <PremiumStatus />
         </div>
@@ -307,8 +408,13 @@ const UserMenu = memo(() => {
           </DropdownMenuItem>
         ))}
         <DropdownMenuSeparator />
-        <DropdownMenuItem className="text-destructive">
-          Déconnexion
+        <DropdownMenuItem 
+          onClick={handleSignOut}
+          className="text-destructive cursor-pointer"
+          disabled={isSigningOut}
+        >
+          <LogOut className="w-4 h-4 mr-2" />
+          {isSigningOut ? 'Déconnexion...' : 'Déconnexion'}
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
