@@ -12,7 +12,8 @@ import {
   Award,
   Clock,
   Target,
-  Sparkles
+  Sparkles,
+  Circle
 } from 'lucide-react';
 import { TranslatedText } from '@/components/TranslatedText';
 import { useOptimizedAccessibility } from '@/hooks/useOptimizedAccessibility';
