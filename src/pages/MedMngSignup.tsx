@@ -3,8 +3,10 @@ import { PremiumLayout } from '@/components/layout/PremiumLayout';
 import { PremiumCard } from '@/components/ui/premium-card';
 import { PremiumButton } from '@/components/ui/premium-button';
 import { Input } from '@/components/ui/input';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { GraduationCap, User, Mail, Lock } from 'lucide-react';
+import { useAuth } from '@/components/med-mng/AuthProvider';
+import { toast } from 'sonner';
 
 export const MedMngSignup: React.FC = () => {
   const [formData, setFormData] = useState({
@@ -12,6 +14,29 @@ export const MedMngSignup: React.FC = () => {
     email: '',
     password: ''
   });
+  const [loading, setLoading] = useState(false);
+  const { signUp } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const { error } = await signUp(formData.email, formData.password, formData.name);
+      
+      if (error) {
+        toast.error(error.message);
+      } else {
+        toast.success('Compte créé avec succès ! Vérifiez votre email.');
+        navigate('/med-mng/login');
+      }
+    } catch (err) {
+      toast.error('Erreur lors de la création du compte');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <PremiumLayout variant="gradient" className="min-h-screen flex items-center justify-center">
@@ -21,7 +46,7 @@ export const MedMngSignup: React.FC = () => {
           <h1 className="text-2xl font-bold">Rejoindre MED-MNG</h1>
         </div>
         
-        <form className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div className="relative">
             <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
             <Input
@@ -54,8 +79,8 @@ export const MedMngSignup: React.FC = () => {
             />
           </div>
           
-          <PremiumButton type="submit" className="w-full">
-            Créer un compte
+          <PremiumButton type="submit" className="w-full" disabled={loading}>
+            {loading ? 'Création...' : 'Créer un compte'}
           </PremiumButton>
         </form>
         
