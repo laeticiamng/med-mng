@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { CheckCircle, BookOpen, Users, Clock, Play, Target, Brain } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { FixOicCompetences } from '@/components/admin/FixOicCompetences';
 
 interface OICCompetence {
   objectif_id: string;
@@ -117,6 +118,14 @@ export const EnhancedTableauDisplay: React.FC<EnhancedTableauDisplayProps> = ({
 
   return (
     <div className="space-y-6">
+      {/* Correction automatique pour IC-205 si compétences incomplètes */}
+      {item.item_code === 'IC-205' && oicCompetences.some(c => 
+        c.description && (c.description.includes('Les 2 diagnostics différentiels sont  :') || 
+        c.description.length < 20 || c.intitule.length < 5)
+      ) && (
+        <FixOicCompetences />
+      )}
+
       {/* Header avec progression */}
       <Card className="border-l-4 border-l-primary">
         <CardHeader>
