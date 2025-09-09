@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { testOICAccessWithRealCAS, extractOICWithCASCookies } from '@/utils/testOICAccessWithCAS';
 import { validateCASCookies } from '@/utils/getCASCookies';
 import { CASAuthResult, CASExample } from '@/types/cas';
+import { logger } from '@/lib/logger';
 
 export default function CASAuthTester() {
   const [loading, setLoading] = useState(false);
@@ -19,7 +20,10 @@ export default function CASAuthTester() {
     setResult(null);
     
     try {
-      console.log('🔐 Test authentification CAS...');
+      logger.info('Test authentification CAS', { 
+        component: 'CASAuthTester',
+        action: 'testCASAuthentication'
+      });
       
       const { data, error } = await supabase.functions.invoke('cas-auth-puppeteer', {
         body: { action: 'authenticate', testOnly: true }
@@ -29,7 +33,13 @@ export default function CASAuthTester() {
         throw error;
       }
       
-      console.log('📊 Résultat:', data);
+      logger.info('Résultat authentification CAS', { 
+        component: 'CASAuthTester',
+        metadata: { 
+          success: data?.success,
+          hasData: !!data 
+        }
+      });
       setResult(data);
       
       if (data.success) {
@@ -60,11 +70,19 @@ export default function CASAuthTester() {
     setLoading(true);
     
     try {
-      console.log('🍪 Validation cookies avec nouveau système...');
+      logger.info('Validation cookies CAS', { 
+        component: 'CASAuthTester',
+        action: 'validateCookies'
+      });
       
       const validationResult = await validateCASCookies(cookies.trim());
       
-      console.log('📊 Résultat validation:', validationResult);
+      logger.info('Résultat validation cookies', { 
+        component: 'CASAuthTester',
+        metadata: {
+          success: validationResult.success
+        }
+      });
       
       if (validationResult.success) {
         setResult({ 
@@ -101,12 +119,21 @@ export default function CASAuthTester() {
     setResult(null);
     
     try {
-      console.log('🎯 TEST COMPLET - Accès OIC avec authentification CAS réelle');
+      logger.info('Test complet accès OIC avec CAS', { 
+        component: 'CASAuthTester',
+        action: 'testRealCASAccess'
+      });
       toast.info('Test d\'accès complet en cours...');
       
       const testResult = await testOICAccessWithRealCAS();
       
-      console.log('📊 Résultat test complet:', testResult);
+      logger.info('Résultat test complet OIC', { 
+        component: 'CASAuthTester',
+        metadata: {
+          success: testResult.success,
+          improvement: testResult.improvement
+        }
+      });
       
       if (testResult.success) {
         setResult({ 

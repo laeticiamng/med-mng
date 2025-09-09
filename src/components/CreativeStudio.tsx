@@ -23,6 +23,7 @@ import {
   AudioLines
 } from 'lucide-react';
 import { useContentGeneration, type ContentGenerationRequest } from '@/hooks/useContentGeneration';
+import { logger } from '@/lib/logger';
 
 const MUSIC_STYLES = [
   { id: 'ambient', label: 'Ambient', description: 'Sons apaisants et atmosphériques' },
@@ -80,12 +81,16 @@ export const CreativeStudio = () => {
 
     const result = await generateContent(request);
     if (result) {
-      console.log('Contenu généré:', result);
+      logger.info('Contenu généré', { 
+        component: 'CreativeStudio',
+        action: 'handleGenerate',
+        metadata: { contentType: activeTab }
+      });
       // Ici vous pourriez ajouter le contenu à une liste ou l'afficher
     }
   };
 
-  const updateFormData = (field: string, value: any) => {
+  const updateFormData = (field: string, value: unknown) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 

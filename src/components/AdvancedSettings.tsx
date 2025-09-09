@@ -25,6 +25,7 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useAIRecommendations } from '@/hooks/useAIRecommendations';
+import { logger } from '@/lib/logger';
 
 interface UserSettings {
   general: {
@@ -107,7 +108,10 @@ export const AdvancedSettings = () => {
       });
 
       // Ici, vous sauvegarderiez les autres paramètres dans Supabase
-      console.log('Paramètres sauvegardés:', settings);
+      logger.info('Paramètres sauvegardés', { 
+        component: 'AdvancedSettings',
+        action: 'handleSaveSettings'
+      });
       
       toast({
         title: "Paramètres sauvegardés !",
@@ -173,7 +177,7 @@ export const AdvancedSettings = () => {
     reader.readAsText(file);
   };
 
-  const updateSetting = (category: keyof UserSettings, key: string, value: any) => {
+  const updateSetting = (category: keyof UserSettings, key: string, value: unknown) => {
     setSettings(prev => ({
       ...prev,
       [category]: {

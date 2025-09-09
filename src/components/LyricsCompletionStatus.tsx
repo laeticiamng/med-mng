@@ -11,13 +11,17 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { logger } from '@/lib/logger';
+
+type EdnItemCompetences = unknown;
+type FilterStatus = 'all' | 'complete' | 'partial' | 'missing';
 
 interface EdnItemLyrics {
   id: string;
   item_code: string;
   title: string;
-  competences_oic_rang_a?: any;
-  competences_oic_rang_b?: any;
+  competences_oic_rang_a?: EdnItemCompetences;
+  competences_oic_rang_b?: EdnItemCompetences;
   paroles_musicales?: string[];
   updated_at: string;
 }
@@ -34,7 +38,7 @@ export const LyricsCompletionStatus: React.FC = () => {
   const [items, setItems] = useState<EdnItemLyrics[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState<'all' | 'complete' | 'partial' | 'missing'>('all');
+  const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
   const { toast } = useToast();
 
@@ -64,7 +68,13 @@ export const LyricsCompletionStatus: React.FC = () => {
         description: `${data?.length || 0} items analysés`
       });
     } catch (error) {
-      console.error('Erreur:', error);
+      logger.error('Erreur lors du chargement du statut des paroles', { 
+        component: 'LyricsCompletionStatus',
+        action: 'fetchLyricsStatus',
+        metadata: {
+          errorMessage: error instanceof Error ? error.message : 'Erreur inconnue'
+        }
+      });
       toast({
         title: "❌ Erreur",
         description: "Impossible de charger le statut",
@@ -186,7 +196,7 @@ export const LyricsCompletionStatus: React.FC = () => {
                 className="pl-7 h-8 text-xs"
               />
             </div>
-            <Select value={filterStatus} onValueChange={(value: any) => setFilterStatus(value)}>
+            <Select value={filterStatus} onValueChange={(value: FilterStatus) => setFilterStatus(value)}>
               <SelectTrigger className="w-20 h-8 text-xs">
                 <SelectValue />
               </SelectTrigger>
