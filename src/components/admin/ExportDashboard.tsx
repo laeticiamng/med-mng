@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Download, Calendar, Database, FileText, AlertCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { logger } from '@/lib/logger';
 
 const AVAILABLE_TABLES = [
   { id: 'edn_items_complete', name: 'Items EDN Complets', description: 'Contenu pédagogique principal' },
@@ -46,11 +47,15 @@ export const ExportDashboard = () => {
     setIsExporting(true);
     
     try {
-      console.log('Démarrage export admin avec:', {
-        format,
-        tables: selectedTables,
-        dateRange: dateRange.start && dateRange.end ? dateRange : undefined,
-        includeMetadata
+      logger.info('Démarrage export admin', {
+        component: 'ExportDashboard',
+        action: 'handleExport',
+        metadata: {
+          format,
+          tableCount: selectedTables.length,
+          hasDateRange: !!(dateRange.start && dateRange.end),
+          includeMetadata
+        }
       });
 
       const { data, error } = await supabase.functions.invoke('admin-export', {

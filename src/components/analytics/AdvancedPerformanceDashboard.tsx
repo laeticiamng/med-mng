@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 import { Activity, Zap, Clock, TrendingUp, AlertTriangle, CheckCircle, Target, Gauge } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { logger } from '@/lib/logger';
 
 interface PerformanceMetric {
   name: string;
@@ -106,7 +107,11 @@ export const AdvancedPerformanceDashboard: React.FC = () => {
     });
 
     // Simuler le téléchargement du rapport
-    console.log('Performance Report:', report);
+    logger.info('Rapport de performance généré', {
+      component: 'AdvancedPerformanceDashboard',
+      action: 'generateReport',
+      metadata: { performanceScore }
+    });
   };
 
   if (isLoading) {
