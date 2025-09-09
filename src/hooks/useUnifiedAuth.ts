@@ -55,7 +55,6 @@ export function useUnifiedAuth(): AuthContextType {
       name: profile?.full_name || profile?.display_name || supabaseUser.email?.split('@')[0] || 'Utilisateur',
       role: profile?.role || 'user',
       subscription_status: profile?.subscription_status || 'free',
-      avatar_url: profile?.avatar_url,
       preferences: {
         theme: profile?.preferences?.theme || 'system',
         language: profile?.preferences?.language || 'fr',
@@ -78,13 +77,13 @@ export function useUnifiedAuth(): AuthContextType {
         .single();
 
       if (error && error.code !== 'PGRST116') {
-        logger.error('Erreur récupération profil', { error });
+        logger.error('Erreur récupération profil');
         return null;
       }
 
       return profile;
     } catch (error) {
-      logger.error('Erreur fetchUserProfile', { error });
+      logger.error('Erreur fetchUserProfile');
       return null;
     }
   }, []);
@@ -139,7 +138,7 @@ export function useUnifiedAuth(): AuthContextType {
       logger.error('Erreur de connexion', {
         component: 'useUnifiedAuth',
         action: 'login',
-        metadata: { email, error: errorMessage }
+        metadata: { email }
       });
 
       return { success: false, error: errorMessage };
@@ -192,7 +191,7 @@ export function useUnifiedAuth(): AuthContextType {
       logger.error('Erreur d\'inscription', {
         component: 'useUnifiedAuth',
         action: 'signup',
-        metadata: { email, error: errorMessage }
+        metadata: { email }
       });
 
       return { success: false, error: errorMessage };
@@ -292,8 +291,6 @@ export function useUnifiedAuth(): AuthContextType {
         .update({
           full_name: data.name,
           display_name: data.name,
-          avatar_url: data.avatar_url,
-          preferences: data.preferences,
           updated_at: new Date().toISOString()
         })
         .eq('id', state.user.id);
@@ -340,7 +337,7 @@ export function useUnifiedAuth(): AuthContextType {
         });
       }
     } catch (error) {
-      logger.error('Erreur refresh auth', { error });
+      logger.error('Erreur refresh auth');
       setState(prev => ({ ...prev, isLoading: false }));
     }
   }, [convertSupabaseUser, fetchUserProfile]);
@@ -352,8 +349,8 @@ export function useUnifiedAuth(): AuthContextType {
 
     // Listen to auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        logger.debug('Auth state changed', { event, hasSession: !!session });
+      async (authEvent, session) => {
+        logger.debug('Auth state changed');
         
         if (session?.user) {
           const profile = await fetchUserProfile(session.user.id);
@@ -392,19 +389,6 @@ export function useUnifiedAuth(): AuthContextType {
     updateProfile,
     refreshAuth
   };
-}
-
-/**
- * Provider component pour l'authentification unifiée
- */
-export function UnifiedAuthProvider({ children }: { children: React.ReactNode }) {
-  const authValue = useUnifiedAuth();
-  
-  return (
-    <UnifiedAuthContext.Provider value={authValue}>
-      {children}
-    </UnifiedAuthContext.Provider>
-  );
 }
 
 /**
