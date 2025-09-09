@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -36,8 +36,19 @@ export const EnhancedTableauDisplay: React.FC<EnhancedTableauDisplayProps> = ({
   const [oicCompetences, setOicCompetences] = useState<OICCompetence[]>([]);
   const [progress, setProgress] = useState(0);
   const [loading, setLoading] = useState(true);
+  const hasLoadedRef = useRef<string | null>(null);
+  const progressTimeoutRef = useRef<NodeJS.Timeout>();
+  
+  // Mémoriser la fonction onProgress pour éviter les re-renders
+  const onProgressCallback = useCallback(onProgress || (() => {}), [onProgress]);
   
   useEffect(() => {
+    // Éviter les rechargements multiples pour le même item/rang
+    const loadKey = `${item?.id}-${rang}`;
+    if (hasLoadedRef.current === loadKey) {
+      return;
+    }
+
     const loadData = async () => {
       setLoading(true);
       
@@ -67,18 +78,29 @@ export const EnhancedTableauDisplay: React.FC<EnhancedTableauDisplayProps> = ({
       }
       
       setLoading(false);
+      hasLoadedRef.current = loadKey;
       
-      // Simuler progression
-      const timer = setTimeout(() => {
+      // Simuler progression une seule fois
+      if (progressTimeoutRef.current) {
+        clearTimeout(progressTimeoutRef.current);
+      }
+      
+      progressTimeoutRef.current = setTimeout(() => {
         setProgress(85);
-        onProgress?.(85);
+        onProgressCallback(85);
       }, 1500);
-      
-      return () => clearTimeout(timer);
     };
     
-    loadData();
-  }, [item, rang, onProgress]);
+    if (item) {
+      loadData();
+    }
+
+    return () => {
+      if (progressTimeoutRef.current) {
+        clearTimeout(progressTimeoutRef.current);
+      }
+    };
+  }, [item?.id, rang, item?.tableau_rang_a, item?.tableau_rang_b, item?.item_code, onProgressCallback]);
 
   const competenceLevel = rang === 'A' ? 'Application clinique' : 'Expertise approfondie';
   

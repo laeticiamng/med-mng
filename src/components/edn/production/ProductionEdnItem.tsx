@@ -6,7 +6,7 @@
  * ✅ Expérience utilisateur premium
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -124,12 +124,12 @@ const ProductionEdnItem: React.FC = () => {
   }, [slug, toast]);
 
   // Gestion du progrès des sections
-  const handleSectionProgress = (section: SectionType, progress: number) => {
+  const handleSectionProgress = useCallback((section: SectionType, progress: number) => {
     setSectionProgress(prev => ({
       ...prev,
       [section]: progress
     }));
-  };
+  }, []);
 
   // Calcul du progrès global
   const getOverallProgress = () => {

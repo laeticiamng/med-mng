@@ -3,7 +3,7 @@
  * Intègre tous les composants avec les vraies APIs
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import { useEdnAdvanced, EdnAdvancedItem } from '@/hooks/useEdnAdvanced';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -49,7 +49,7 @@ export const ProductionEdnRouter: React.FC = () => {
     }
   }, [item, sectionProgress, completedSections, activeSection, saveProgress]);
 
-  const handleSectionProgress = (section: SectionType, progress: number) => {
+  const handleSectionProgress = useCallback((section: SectionType, progress: number) => {
     setSectionProgress(prev => ({
       ...prev,
       [section]: progress
@@ -58,7 +58,7 @@ export const ProductionEdnRouter: React.FC = () => {
     if (progress >= 100) {
       setCompletedSections(prev => new Set([...prev, section]));
     }
-  };
+  }, []);
 
   const getOverallProgress = () => {
     const sections: SectionType[] = ['tableau-a', 'tableau-b', 'scene', 'bd', 'music', 'quiz'];
