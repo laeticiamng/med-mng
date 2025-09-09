@@ -211,12 +211,12 @@ export const OptimizedMusicPlayer: React.FC<OptimizedMusicPlayerProps> = ({
             </h3>
             {track.metadata?.rang && (
               <Badge variant="secondary" className="ml-2">
-                Rang {track.metadata.rang}
+                Rang {String(track.metadata.rang)}
               </Badge>
             )}
           </div>
           <p className="text-sm text-muted-foreground">
-            {track.metadata?.style || 'Style non défini'} • {track.metadata?.item_code || 'Item médical'}
+            {String(track.metadata?.style || 'Style non défini')} • {String(track.metadata?.item_code || 'Item médical')}
           </p>
           {error && (
             <p className="text-sm text-destructive mt-1">{error}</p>

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { useOptimizedMusicGeneration } from '@/hooks/music/useOptimizedMusicGeneration';
 import { useGlobalAudio } from '@/contexts/GlobalAudioContext';
+import type { MusicTrack } from '@/types';
 
 export const useParolesMusicales = (
   paroles: string[] = [], 
@@ -87,7 +88,7 @@ export const useParolesMusicales = (
 
     const track = itemTracks.find(t => t.audio_url === audioUrl);
     if (track) {
-      playTrackSmart(track);
+      playTrackSmart(track as MusicTrack);
     }
   };
 

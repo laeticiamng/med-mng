@@ -67,14 +67,19 @@ export const useAdvancedMusicGeneration = () => {
       setProgress(60);
 
       const generationRequest: GenerationRequest = {
-        item_code: config.itemCode,
-        rang,
-        style,
-        duration: 240,
-        lyrics,
-        language: 'fr',
-        fast_mode: config.qualityLevel === 'fast',
-        priority: config.qualityLevel === 'high' ? 'high' : 'normal'
+        type: 'music',
+        prompt: `Génération musicale pour ${config.itemCode} - Rang ${rang}`,
+        parameters: {
+          item_code: config.itemCode,
+          rang,
+          style,
+          duration: 240,
+          lyrics,
+          language: 'fr',
+          fast_mode: config.qualityLevel === 'fast',
+          priority: config.qualityLevel === 'high' ? 'high' : 'normal'
+        },
+        user_id: 'current-user'
       };
 
       const { data, error } = await supabase.functions.invoke('generate-music-v2', {

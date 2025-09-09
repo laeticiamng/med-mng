@@ -4,7 +4,7 @@
 
 import { MedicalCategory, MedicalSpecialty, MedicalItem } from '@/types';
 
-export const MEDICAL_CATEGORIES: Record<MedicalCategory, string> = {
+export const MEDICAL_CATEGORIES: Record<string, string> = {
   IC1: 'Colloque Singulier',
   IC2: 'Situations Cliniques Courantes',
   IC3: 'Diagnostic et Investigations',
@@ -18,7 +18,7 @@ export const MEDICAL_CATEGORIES: Record<MedicalCategory, string> = {
   Prevention: 'Médecine Préventive'
 };
 
-export const MEDICAL_SPECIALTIES: Record<MedicalSpecialty, string> = {
+export const MEDICAL_SPECIALTIES: Record<string, string> = {
   Cardiology: 'Cardiologie',
   Pulmonology: 'Pneumologie',
   Neurology: 'Neurologie',
@@ -94,46 +94,15 @@ export const MUSIC_STYLES = [
 export const SAMPLE_MEDICAL_ITEMS: MedicalItem[] = [
   {
     id: 'ic1-001',
-    item_code: 'IC1-001',
+    code: 'IC1-001',
     title: 'Insuffisance Cardiaque - Approche Diagnostique',
     description: 'Démarche diagnostique face à une insuffisance cardiaque',
     category: 'IC1',
     competencies: [
-      {
-        id: 'comp-001',
-        code: 'DG-CARD-001',
-        title: 'Diagnostic d\'insuffisance cardiaque',
-        description: 'Capacité à diagnostiquer une insuffisance cardiaque',
-        level: 'Intermediate',
-        domain: 'Clinical_Skills',
-        assessment_criteria: [
-          'Anamnèse complète',
-          'Examen physique ciblé',
-          'Interprétation des examens complémentaires'
-        ]
-      }
-    ],
-    difficulty_level: 'R2',
-    estimated_study_time: 45,
-    learning_objectives: [
-      'Identifier les signes cliniques d\'insuffisance cardiaque',
-      'Prescrire les examens complémentaires appropriés',
-      'Établir un plan thérapeutique adapté'
-    ],
-    tags: ['cardiologie', 'insuffisance cardiaque', 'diagnostic'],
-    metadata: {
-      speciality: 'Cardiology',
-      last_updated: new Date().toISOString(),
-      version: '1.0',
-      author: 'Dr. MED-MNG',
-      validation_status: 'validated',
-      usage_stats: {
-        total_generations: 0,
-        avg_completion_rate: 0,
-        user_feedback_score: 0,
-        last_accessed: new Date().toISOString()
-      }
-    }
+      'Anamnèse complète',
+      'Examen physique ciblé',
+      'Interprétation des examens complémentaires'
+    ]
   }
 ];
 

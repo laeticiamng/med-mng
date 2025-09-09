@@ -91,22 +91,19 @@ export const useOptimizedMusicGeneration = (props: UseOptimizedMusicGenerationPr
 
       // Requête de génération optimisée
       const request: GenerationRequest = {
-        item_code: itemCode,
-        rang,
-        style,
-        duration,
-        lyrics: optimizedLyrics,
-        language: 'fr',
-        fast_mode: true,
-        priority: 'normal',
-        user_preferences: {
-          preferred_styles: [style],
-          preferred_duration: duration,
-          auto_play: false,
-          volume_level: 0.8,
-          playback_speed: 1.0,
-          lyrics_display: true
-        }
+        type: 'music',
+        prompt: `Génération musicale optimisée pour ${itemCode} - Rang ${rang}`,
+        parameters: {
+          item_code: itemCode,
+          rang,
+          style,
+          duration,
+          lyrics: optimizedLyrics,
+          language: 'fr',
+          fast_mode: true,
+          priority: 'normal'
+        },
+        user_id: 'current-user'
       };
 
       // Lancer la génération
@@ -195,11 +192,12 @@ export const useOptimizedMusicGeneration = (props: UseOptimizedMusicGenerationPr
 
   // Recherche de tracks par rang
   const getTrackByRang = useCallback((rang: string): MusicTrack | null => {
-    return itemTracks.find(track => 
-      (track as any).rang === rang || 
-      track.metadata?.rang === rang ||
-      track.title?.includes(`Rang ${rang}`)
-    ) || null;
+    return itemTracks.find(track => {
+      const supabaseTrack = track as any;
+      return supabaseTrack.rang === rang || 
+             track.metadata?.rang === rang ||
+             track.title?.includes(`Rang ${rang}`);
+    }) as MusicTrack || null;
   }, [itemTracks]);
 
   // Stats et métriques
