@@ -3,12 +3,12 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { analyticsService } from '@/services/business/SimpleAnalyticsService';
+import { analyticsService } from '@/services/UnifiedAnalyticsService';
+import type { UserStats, LearningAnalytics } from '@/services/UnifiedAnalyticsService';
 import { userService } from '@/services/business/SimpleUserService';
+import type { UserProfile, UserAchievement } from '@/services/business/SimpleUserService';
 import { useAuth } from './useAuth';
 import { useErrorHandler } from './useErrorHandler';
-import type { UserStats, LearningAnalytics } from '@/services/business/SimpleAnalyticsService';
-import type { UserProfile, UserAchievement } from '@/services/business/SimpleUserService';
 
 export const useUserStats = () => {
   const { user } = useAuth();

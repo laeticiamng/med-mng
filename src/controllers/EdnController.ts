@@ -3,7 +3,7 @@
 // ============================================================================
 
 import { EdnService } from '@/services/EdnService';
-import { AnalyticsService } from '@/services/AnalyticsService';
+import { analyticsService } from '@/services/UnifiedAnalyticsService';
 import { EDNItemDTO, UserProgressDTO, APIResponse, EdnOperationResult } from '../types/temp-types';
 
 export class EdnController {
@@ -34,7 +34,7 @@ export class EdnController {
       const response = await this.ednService.getItems(filters);
       
       // Track analytics
-      AnalyticsService.trackFeatureUsage('edn', 'items_viewed', {
+      analyticsService.trackUserAction('edn', 'items_viewed', {
         filters,
         resultCount: response.data?.length || 0
       });
@@ -66,7 +66,7 @@ export class EdnController {
       
       if (response.success && response.data) {
         // Track item access
-        AnalyticsService.trackFeatureUsage('edn', 'item_accessed', {
+        analyticsService.trackUserAction('edn', 'item_accessed', {
           itemId,
           category: response.data.category
         });
@@ -128,7 +128,7 @@ export class EdnController {
       });
 
       // 3. Analytics
-      AnalyticsService.trackFeatureUsage('edn', 'study_started', {
+      analyticsService.trackUserAction('edn', 'study_started', {
         userId,
         itemId,
         sessionId: sessionResponse.data?.sessionId
@@ -186,7 +186,7 @@ export class EdnController {
       });
 
       // 3. Analytics
-      AnalyticsService.trackFeatureUsage('edn', 'study_completed', {
+      analyticsService.trackUserAction('edn', 'study_completed', {
         userId,
         itemId,
         sessionId,
@@ -216,7 +216,7 @@ export class EdnController {
       const response = await this.ednService.toggleBookmark(userId, itemId);
       
       // Analytics
-      AnalyticsService.trackFeatureUsage('edn', 'item_bookmarked', {
+      analyticsService.trackUserAction('edn', 'item_bookmarked', {
         userId,
         itemId,
         isBookmarked: response.data?.isBookmarked
@@ -270,7 +270,7 @@ export class EdnController {
       ) || [];
 
       // 4. Analytics
-      AnalyticsService.trackFeatureUsage('edn', 'recommendations_generated', {
+      analyticsService.trackUserAction('edn', 'recommendations_generated', {
         userId,
         userLevel,
         recommendationCount: recommendedDTOs.length

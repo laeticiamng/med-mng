@@ -18,9 +18,9 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/hooks/unified/useAuth';
 import { contentService } from '@/services/business/SimpleContentService';
-import { analyticsService } from '@/services/business/SimpleAnalyticsService';
+import { analyticsService } from '@/services/UnifiedAnalyticsService';
 import type { ContentModule } from '@/services/business/SimpleContentService';
-import type { UserStats } from '@/services/business/SimpleAnalyticsService';
+import type { UserStats } from '@/services/UnifiedAnalyticsService';
 
 interface AdaptiveLearningEngineProps {
   focusArea?: string;

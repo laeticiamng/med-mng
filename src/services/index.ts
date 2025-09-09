@@ -1,18 +1,20 @@
 /**
- * Barrel exports pour les services du projet
- * Centralise l'accès aux services business
+ * Services unifiés - doublons supprimés
  */
 
-// Core services
-export { apiService } from './core/ApiService';
-export { authService } from './core/AuthService';
-export { errorService } from './core/ErrorService';
-export { analyticsService } from './core/AnalyticsService';
+// Service analytics unifié (remplace tous les anciens services analytics)
+export { analyticsService } from './UnifiedAnalyticsService';
 
-// Business services
+// Services business
 export { musicService } from './business/MusicService';
 export { generationService } from './business/GenerationService';
 export { contentService } from './business/ContentService';
+
+// Services core
+export { apiService } from './core/ApiService';
+export { authService } from './core/AuthService';
+export { errorService } from './core/ErrorService';
+export { cacheService } from './core/CacheService';
 
 // Types
 export type { ApiServiceConfig } from './core/ApiService';
