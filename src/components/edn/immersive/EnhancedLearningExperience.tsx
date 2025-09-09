@@ -7,6 +7,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ProgressAnalytics } from './ProgressAnalytics';
 import { SmartHints } from './SmartHints';
 import { LearningPathSuggestions } from './LearningPathSuggestions';
+import { logger } from '@/lib/logger';
+interface LearningPath {
+  id: string;
+  sections?: Array<{ type: 'tableau-a' | 'tableau-b' | 'scene' | 'bd' | 'music' | 'quiz' }>;
+}
+
 interface LearningSettings {
   soundEnabled: boolean;
   immersiveMode: boolean;
@@ -123,10 +129,14 @@ export const EnhancedLearningExperience: React.FC<EnhancedLearningExperienceProp
   };
 
   // Gestion des parcours d'apprentissage
-  const handlePathSelect = (path: any) => {
-    console.log('Parcours sélectionné:', path);
+  const handlePathSelect = (path: LearningPath) => {
+    logger.info('Learning path selected', {
+      component: 'EnhancedLearningExperience',
+      action: 'path_selected',
+      metadata: { pathId: path.id, sectionsCount: path.sections?.length || 0 }
+    });
     // Logique pour démarrer le parcours
-    if (path.sections.length > 0) {
+    if (path.sections && path.sections.length > 0) {
       onSectionChange(path.sections[0].type);
     }
   };

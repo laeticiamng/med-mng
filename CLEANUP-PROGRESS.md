@@ -18,7 +18,7 @@
 - **.prettierignore** pour éviter les conflits
 
 ### 3. Nettoyage Partiel (🔄)
-- **18 fichiers critiques** déjà nettoyés :
+- **22 fichiers critiques** déjà nettoyés :
   - ✅ `CASAuthTester.tsx` : console.log → logger
   - ✅ `AdvancedSettings.tsx` : types any → stricts  
   - ✅ `CreativeStudio.tsx` : logging professionnel
@@ -40,6 +40,10 @@
   - ✅ `QuizFinal.tsx` : logging professionnel
   - ✅ `TableauRangA.tsx` : interfaces complètes + logging
   - ✅ `TableauRangB.tsx` : types stricts + logging
+  - ✅ `AuditIC2CompletionButton.tsx` : logging + error handling
+  - ✅ `EnhancedLearningExperience.tsx` : interfaces + logging
+  - ✅ `SmartHints.tsx` : logging actions + types
+  - ✅ `EdnItemContent.tsx` : interfaces complètes + logging
 
 ### 6. TODO → Tâches Trackées (✅)
 - **TODO-TASKS.json** créé avec 3 tâches prioritaires :
@@ -52,14 +56,14 @@
 ## 📊 Statistiques Actuelles
 
 ### Nettoyé ✅
-- ✅ 18 fichiers avec logging professionnel (91+ console.log → logger)
+- ✅ 22 fichiers avec logging professionnel (98+ console.log → logger)
 - ✅ 3 TODO convertis en tâches trackées
-- ✅ 47+ types `any` remplacés par types stricts
-- ✅ Interfaces TypeScript ajoutées (TableauData, OICCompetence, Section, etc.)
+- ✅ 52+ types `any` remplacés par types stricts
+- ✅ Interfaces TypeScript ajoutées (LearningPath, TableauData, OICCompetence, etc.)
 
 ### Reste à faire 🔄
-- 🔄 868+ console.log restants (194 fichiers)
-- 🔄 603+ types `any` restants (244 fichiers) 
+- 🔄 861+ console.log restants (194 fichiers)
+- 🔄 598+ types `any` restants (244 fichiers) 
 - 🔄 20 TODO dans les stories (normaux - autodocs)
 
 ## 🎯 Prochaines Étapes
@@ -89,7 +93,7 @@
 - **Base solide** : Règles communes documentées + outils configurés
 - **Automation** : Prettier + ESLint stricts avec interdictions `any` et `console`
 - **Traçabilité** : TODO → tâches avec estimations
-- **Qualité** : Types stricts + logging professionnel sur 18 fichiers
+- **Qualité** : Types stricts + logging professionnel sur 22 fichiers
 - **Cohérence** : Style unifié + interfaces TypeScript appropriées
 - **Performance** : Code plus maintenable et debuggable
 
@@ -111,9 +115,13 @@
 14. **EDN** : `QuizFinal.tsx` - logging professionnel + types
 15. **EDN** : `TableauRangA.tsx` - interfaces OIC + logging contextualisé
 16. **EDN** : `TableauRangB.tsx` - types complets + logging
+17. **Audit** : `AuditIC2CompletionButton.tsx` - error handling + logging
+18. **Immersive** : `EnhancedLearningExperience.tsx` - interfaces + logging 
+19. **Immersive** : `SmartHints.tsx` - actions logging + types stricts
+20. **Item** : `EdnItemContent.tsx` - interfaces complètes + logging
 
 ---
 
-**Progrès** : 91+ console.log nettoyés, 47+ types any corrigés, 3 TODO trackés
+**Progrès** : 98+ console.log nettoyés, 52+ types any corrigés, 3 TODO trackés
 
 **Prochaine action recommandée** : Continuer le nettoyage sur autres composants EDN ou appliquer le formatage Prettier global.

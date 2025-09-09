@@ -15,6 +15,7 @@ import {
   ArrowRight
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { logger } from '@/lib/logger';
 
 interface Hint {
   id: string;
@@ -60,7 +61,10 @@ export const SmartHints: React.FC<SmartHintsProps> = ({
       trigger: 'time',
       icon: Clock,
       actionLabel: 'Mode Focus',
-      onAction: () => console.log('Activation mode focus')
+      onAction: () => logger.info('Focus mode activated', { 
+        component: 'SmartHints',
+        action: 'focus_mode_activation' 
+      })
     },
     {
       id: 'tableau-strategy',
@@ -104,7 +108,10 @@ export const SmartHints: React.FC<SmartHintsProps> = ({
       trigger: 'performance',
       icon: Trophy,
       actionLabel: 'Réviser',
-      onAction: () => console.log('Retour aux sections précédentes')
+      onAction: () => logger.info('Review sections requested', { 
+        component: 'SmartHints',
+        action: 'review_sections_requested' 
+      })
     },
     {
       id: 'bd-visual',

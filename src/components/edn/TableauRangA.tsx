@@ -306,7 +306,7 @@ export const TableauRangA = ({ data, itemCode }: TableauRangAProps) => {
       isRangB={processed.isRangB}
     />;
   } else if (isIC3Item(data)) {
-    const processed = processTableauRangAIC3(data);
+    const processed = processTableauRangAIC3(data as any);
     lignesEnrichies = processed.lignesEnrichies;
     colonnesUtiles = processed.colonnesUtiles;
     theme = processed.theme;
@@ -315,14 +315,14 @@ export const TableauRangA = ({ data, itemCode }: TableauRangAProps) => {
       lignesCount={lignesEnrichies.length}
       isRangB={processed.isRangB}
     />;
-  } else if (isIC4Item(data)) {
-    const processed = processTableauRangAIC4(data);
+  } else if (isIC4Item(data as any)) {
+    const processed = processTableauRangAIC4(data as any);
     lignesEnrichies = processed.lignesEnrichies;
     colonnesUtiles = processed.colonnesUtiles;
     theme = processed.theme;
     footerComponent = <TableauRangAFooterIC4 colonnesCount={colonnesUtiles.length} lignesCount={lignesEnrichies.length} />;
-  } else if (isIC5Item(data)) {
-    const processed = processTableauRangAIC5(data);
+  } else if (isIC5Item(data as any)) {
+    const processed = processTableauRangAIC5(data as any);
     lignesEnrichies = processed.lignesEnrichies;
     colonnesUtiles = processed.colonnesUtiles;
     theme = processed.theme;
@@ -331,8 +331,8 @@ export const TableauRangA = ({ data, itemCode }: TableauRangAProps) => {
       lignesCount={lignesEnrichies.length}
       isRangB={processed.isRangB}
     />;
-  } else if (isIC10Item(data)) {
-    const processed = processTableauRangAIC10(data);
+  } else if (isIC10Item(data as any)) {
+    const processed = processTableauRangAIC10(data as any);
     lignesEnrichies = processed.lignesEnrichies;
     colonnesUtiles = processed.colonnesUtiles;
     theme = processed.theme;

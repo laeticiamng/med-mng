@@ -12,8 +12,17 @@ import { AdvancedSceneImmersive } from '@/components/edn/scene/AdvancedSceneImme
 import { AdvancedBandeDessinee } from '@/components/edn/comic/AdvancedBandeDessinee';
 import { AdvancedGenerationMusicale } from '@/components/edn/music/AdvancedGenerationMusicale';
 import { AdvancedQuizInteractif } from '@/components/edn/quiz/AdvancedQuizInteractif';
+import { logger } from '@/lib/logger';
 
 type SectionType = 'tableau-a' | 'tableau-b' | 'scene' | 'bd' | 'music' | 'quiz';
+
+interface TableauData {
+  title?: string;
+  subtitle?: string;
+  item_code?: string;
+  tableau_rang_a?: unknown;
+  tableau_rang_b?: unknown;
+}
 
 interface EdnItemData {
   id: string;
@@ -25,12 +34,12 @@ interface EdnItemData {
   paroles_rang_a?: string[];
   paroles_rang_b?: string[];
   paroles_rang_ab?: string[];
-  tableau_rang_a?: any;
-  tableau_rang_b?: any;
-  scene_immersive?: any;
-  quiz_questions?: any;
-  competences_oic_rang_a?: any[];
-  competences_oic_rang_b?: any[];
+  tableau_rang_a?: TableauData;
+  tableau_rang_b?: TableauData;
+  scene_immersive?: unknown;
+  quiz_questions?: unknown;
+  competences_oic_rang_a?: unknown[];
+  competences_oic_rang_b?: unknown[];
   created_at: string;
   updated_at: string;
 }
@@ -41,9 +50,14 @@ interface EdnItemContentProps {
 }
 
 export const EdnItemContent = ({ activeSection, item }: EdnItemContentProps) => {
-  console.log('🔍 EdnItemContent - Active section:', activeSection);
-  console.log('📊 EdnItemContent - Item data:', item);
-  console.log('🚨 FORCE UPDATE - Current timestamp:', new Date().toISOString());
+  logger.debug('EdnItemContent render', {
+    component: 'EdnItemContent',
+    itemCode: item.item_code,
+    metadata: { 
+      activeSection,
+      timestamp: new Date().toISOString() 
+    }
+  });
   
   // Extraire les compétences depuis les données des tableaux
   const extractCompetences = () => {
@@ -87,7 +101,11 @@ export const EdnItemContent = ({ activeSection, item }: EdnItemContentProps) => 
   const renderActiveSection = () => {
     switch (activeSection) {
       case 'tableau-a':
-        console.log('🚀 [' + new Date().toISOString() + '] CHARGEMENT RANG A AVEC VRAIES DONNÉES OIC');
+        logger.debug('Loading Rang A with real OIC data', {
+          component: 'EdnItemContent',
+          action: 'load_rang_a',
+          itemCode: item.item_code
+        });
         return (
           <EnhancedTableauDisplay
             itemCode={item.item_code}
@@ -97,7 +115,11 @@ export const EdnItemContent = ({ activeSection, item }: EdnItemContentProps) => 
         );
       
       case 'tableau-b':
-        console.log('🚀 [' + new Date().toISOString() + '] CHARGEMENT RANG B AVEC VRAIES DONNÉES OIC');
+        logger.debug('Loading Rang B with real OIC data', {
+          component: 'EdnItemContent',
+          action: 'load_rang_b',
+          itemCode: item.item_code
+        });
         return (
           <EnhancedTableauDisplay
             itemCode={item.item_code}
