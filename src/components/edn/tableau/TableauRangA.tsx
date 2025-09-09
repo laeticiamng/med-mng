@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { BookOpen, CheckCircle, Circle, AlertCircle } from 'lucide-react';
 import { TranslatedText } from '@/components/TranslatedText';
-import { toast } from 'sonner';
+import { useToast } from '@/hooks/use-toast';
 
 interface TableauRangAProps {
   data?: any;
