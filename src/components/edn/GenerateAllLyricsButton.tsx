@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Wand2, Music } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { logger } from '@/services/logger';
 
 export const GenerateAllLyricsButton: React.FC = () => {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -35,14 +36,16 @@ export const GenerateAllLyricsButton: React.FC = () => {
         window.location.reload();
       }, 2000);
 
-    } catch (error) {
-      // Log to console in development only to avoid SEO audit penalties
-      if (process.env.NODE_ENV === 'development') {
-        console.warn('⚠️ Erreur génération paroles:', error);
-      }
+    } catch (error: unknown) {
+      logger.warn('Erreur génération paroles', {
+        component: 'GenerateAllLyricsButton',
+        action: 'handleGenerateAllLyrics',
+        metadata: { error }
+      });
+      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
       toast({
         title: "Erreur",
-        description: "Erreur lors de la génération des paroles: " + (error.message || 'Erreur inconnue'),
+        description: "Erreur lors de la génération des paroles: " + errorMessage,
         variant: "destructive",
         duration: 10000
       });

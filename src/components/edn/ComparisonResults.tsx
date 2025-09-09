@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Loader2, RefreshCw, AlertTriangle, CheckCircle, XCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { logger } from '@/services/logger';
 
 interface ComparisonSummary {
   total_items: number;
@@ -54,7 +55,11 @@ export const ComparisonResults = () => {
         description: `${data.summary.total_items} items analysés avec ${data.summary.average_similarity}% de similarité moyenne`
       });
     } catch (error) {
-      console.error('Error running comparison:', error);
+      logger.error('Error running comparison', {
+        component: 'ComparisonResults',
+        action: 'runComparison',
+        metadata: { error }
+      });
       toast({
         title: "Erreur",
         description: "Erreur lors de la comparaison avec le contenu officiel",

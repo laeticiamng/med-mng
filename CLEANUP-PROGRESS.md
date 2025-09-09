@@ -51,6 +51,13 @@
 - [x] src/components/edn/quiz/QuizManager.tsx - ✅ console.log → logger, any → strict types
 - [x] src/components/edn/tableau/TableauCompetencesOICWithRealData.tsx - ✅ console.log → logger
 
+#### EDN Utilities & Sync Components (Batch 6)
+- [x] src/components/edn/ComparisonResults.tsx - ✅ console.log → logger, any → strict types
+- [x] src/components/edn/GenerateAllLyricsButton.tsx - ✅ console.log → logger, any → strict types
+- [x] src/components/edn/LyricsGenerationManager.tsx - ✅ console.log → logger, any → strict types
+- [x] src/components/edn/SyncAllItemsButton.tsx - ✅ console.log → logger, any → strict types
+- [x] src/components/edn/SyncEdnButton.tsx - ✅ console.log → logger, any → strict types
+
 ### 6. TODO → Tâches Trackées (✅)
 - **TODO-TASKS.json** créé avec 3 tâches prioritaires :
   - TODO-1 : Système de favoris (medium, 4h)
@@ -62,10 +69,10 @@
 ## 📊 Statistiques Actuelles
 
 ### Nettoyé ✅
-- ✅ 37 fichiers avec logging professionnel (140+ console.log → logger)
+- ✅ 42 fichiers avec logging professionnel (155+ console.log → logger)
 - ✅ 3 TODO convertis en tâches trackées
-- ✅ 85+ types `any` remplacés par types stricts
-- ✅ Interfaces TypeScript ajoutées (EdnItem, EdnItemFixed, QuizItem, TableauSection, etc.)
+- ✅ 90+ types `any` remplacés par types stricts
+- ✅ Interfaces TypeScript ajoutées (EdnItem, EdnItemFixed, QuizItem, TableauSection, GenerationStats, SyncStats, SyncStatus, etc.)
 
 ### Reste à faire 🔄
 - 🔄 861+ console.log restants (194 fichiers)
@@ -105,6 +112,6 @@
 
 ---
 
-**Progrès** : 140+ console.log nettoyés, 85+ types any corrigés, 3 TODO trackés, composants premium & quiz EDN nettoyés
+**Progrès** : 155+ console.log nettoyés, 90+ types any corrigés, 3 TODO trackés, composants utilities & sync EDN nettoyés
 
 **Prochaine action recommandée** : Continuer le nettoyage sur autres composants EDN ou appliquer le formatage Prettier global.

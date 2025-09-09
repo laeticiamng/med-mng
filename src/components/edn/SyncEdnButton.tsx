@@ -6,19 +6,22 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { useToast } from '@/hooks/use-toast';
 import { syncAllEdnContent, getLastSyncStatus, type SyncResult } from '@/utils/sync/syncEdnContent';
+import { logger } from '@/services/logger';
 
 interface SyncEdnButtonProps {
   onSyncComplete?: () => void;
 }
 
+interface SyncStatus {
+  lastSync?: string;
+  itemsCount: number;
+  completedOicCount: number;
+}
+
 export const SyncEdnButton = ({ onSyncComplete }: SyncEdnButtonProps) => {
   const [isSyncing, setIsSyncing] = useState(false);
   const [lastSync, setLastSync] = useState<SyncResult | null>(null);
-  const [syncStatus, setSyncStatus] = useState<{
-    lastSync?: string;
-    itemsCount: number;
-    completedOicCount: number;
-  } | null>(null);
+  const [syncStatus, setSyncStatus] = useState<SyncStatus | null>(null);
   
   const { toast } = useToast();
 
@@ -31,7 +34,11 @@ export const SyncEdnButton = ({ onSyncComplete }: SyncEdnButtonProps) => {
       const status = await getLastSyncStatus();
       setSyncStatus(status);
     } catch (error) {
-      console.error('Erreur chargement status:', error);
+      logger.error('Erreur chargement status', {
+        component: 'SyncEdnButton',
+        action: 'loadSyncStatus',
+        metadata: { error }
+      });
     }
   };
 
@@ -65,7 +72,11 @@ export const SyncEdnButton = ({ onSyncComplete }: SyncEdnButtonProps) => {
       }
       
     } catch (error) {
-      console.error('Erreur synchronisation:', error);
+      logger.error('Erreur synchronisation', {
+        component: 'SyncEdnButton',
+        action: 'handleSync',
+        metadata: { error }
+      });
       toast({
         title: "❌ Erreur de synchronisation",
         description: error instanceof Error ? error.message : "Une erreur s'est produite",

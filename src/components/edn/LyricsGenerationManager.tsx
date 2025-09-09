@@ -10,17 +10,29 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { generateAllSpecificLyrics, checkLyricsProgress } from '@/scripts/generateAllLyrics';
+import { logger } from '@/services/logger';
+
+interface GenerationStats {
+  totalItems: number;
+  itemsWithLyrics: number;
+  progress: number;
+  sampleWithoutLyrics: Array<{item_code: string, title: string}>;
+}
+
+interface GenerationResult {
+  stats?: {
+    processed?: number;
+    success?: number;
+    errors?: number;
+    total?: number;
+  };
+}
 
 export const LyricsGenerationManager: React.FC = () => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
-  const [stats, setStats] = useState<{
-    totalItems: number;
-    itemsWithLyrics: number;
-    progress: number;
-    sampleWithoutLyrics: Array<{item_code: string, title: string}>;
-  } | null>(null);
-  const [lastResult, setLastResult] = useState<any>(null);
+  const [stats, setStats] = useState<GenerationStats | null>(null);
+  const [lastResult, setLastResult] = useState<GenerationResult | null>(null);
   const { toast } = useToast();
 
   // Charger les statistiques au démarrage
@@ -34,7 +46,11 @@ export const LyricsGenerationManager: React.FC = () => {
       setStats(progressData);
       setProgress(progressData.progress);
     } catch (error) {
-      console.error('Erreur chargement progrès:', error);
+      logger.error('Erreur chargement progrès', {
+        component: 'LyricsGenerationManager',
+        action: 'loadProgress',
+        metadata: { error }
+      });
       toast({
         title: "Erreur",
         description: "Impossible de charger les statistiques",
@@ -64,11 +80,16 @@ export const LyricsGenerationManager: React.FC = () => {
         description: `Paroles générées avec succès: ${result?.stats?.success || 0} items`,
       });
 
-    } catch (error: any) {
-      console.error('Erreur génération:', error);
+    } catch (error: unknown) {
+      logger.error('Erreur génération', {
+        component: 'LyricsGenerationManager',
+        action: 'handleGenerateAll',
+        metadata: { error }
+      });
+      const errorMessage = error instanceof Error ? error.message : "Une erreur est survenue";
       toast({
         title: "❌ Erreur génération",
-        description: error.message || "Une erreur est survenue",
+        description: errorMessage,
         variant: "destructive"
       });
     } finally {

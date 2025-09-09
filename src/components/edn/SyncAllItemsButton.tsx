@@ -4,14 +4,17 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { RefreshCw, Database, CheckCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { syncAllItemsWithOic } from '@/utils/sync/syncAllItems';
+import { logger } from '@/services/logger';
+
+interface SyncStats {
+  timestamp: string;
+  itemsProcessed: number;
+  itemsUpdated: number;
+}
 
 export const SyncAllItemsButton = () => {
   const [isSync, setIsSync] = useState(false);
-  const [lastSync, setLastSync] = useState<{
-    timestamp: string;
-    itemsProcessed: number;
-    itemsUpdated: number;
-  } | null>(null);
+  const [lastSync, setLastSync] = useState<SyncStats | null>(null);
   
   const { toast } = useToast();
 
@@ -40,7 +43,11 @@ export const SyncAllItemsButton = () => {
       });
 
     } catch (error) {
-      console.error('Erreur synchronisation globale:', error);
+      logger.error('Erreur synchronisation globale', {
+        component: 'SyncAllItemsButton',
+        action: 'handleSyncAll',
+        metadata: { error }
+      });
       toast({
         title: "❌ Erreur de synchronisation",
         description: error instanceof Error ? error.message : "Une erreur s'est produite",
