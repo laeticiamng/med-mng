@@ -32,7 +32,8 @@ import {
   Repeat,
   PlusCircle,
   Library,
-  Search
+  Search,
+  BarChart3
 } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
 import { useNavAction } from '@/hooks/useNavAction';

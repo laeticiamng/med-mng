@@ -201,7 +201,7 @@ export default function PlatformOverview({ className }: PlatformOverviewProps) {
         <div className="grid grid-cols-3 gap-2 mb-4 text-xs">
           {Object.entries(feature.stats).map(([key, value]) => (
             <div key={key} className="text-center">
-              <div className="font-bold text-lg">{typeof value === 'number' ? value.toLocaleString() : value}</div>
+              <div className="font-bold text-lg">{typeof value === 'number' ? value.toLocaleString() : String(value)}</div>
               <div className="text-muted-foreground capitalize">{key}</div>
             </div>
           ))}
