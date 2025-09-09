@@ -22,7 +22,7 @@ import {
   Clock,
   Calendar
 } from "lucide-react"
-import { musicService } from "@/services/musicService"
+import { musicService } from "@/services/UnifiedMusicService"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 
@@ -65,7 +65,7 @@ export function SpotifyLibrary() {
       const [libraryData, favoritesData, playlistsData] = await Promise.all([
         musicService.getUserLibrary(),
         musicService.getFavorites(),
-        musicService.getUserPlaylists()
+        musicService.getPlaylists()
       ])
 
       setLibrary(libraryData.map(item => ({
@@ -73,7 +73,7 @@ export function SpotifyLibrary() {
         added_at: item.created_at
       })))
       setFavorites(favoritesData)
-      setPlaylists(playlistsData)
+      setPlaylists(playlistsData.success ? playlistsData.data : [])
 
       toast.success('Bibliothèque chargée', {
         description: `${libraryData.length} chansons dans votre bibliothèque`

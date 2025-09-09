@@ -3,7 +3,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import { contentService } from '@/services/business/SimpleContentService';
+import { contentService } from '@/services/UnifiedContentService';
 import { useErrorHandler } from './useErrorHandler';
 import type { ContentModule, ContentFilters, StudyPlan } from '@/services/business/SimpleContentService';
 

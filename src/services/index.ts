@@ -5,10 +5,11 @@
 // Service analytics unifié (remplace tous les anciens services analytics)
 export { analyticsService } from './UnifiedAnalyticsService';
 
-// Services business
-export { musicService } from './business/MusicService';
+// Service musical unifié (remplace tous les anciens services musicaux)
+export { musicService } from './UnifiedMusicService';
 export { generationService } from './business/GenerationService';
-export { contentService } from './business/ContentService';
+// Service de contenu unifié (remplace tous les anciens services de contenu)
+export { contentService } from './UnifiedContentService';
 
 // Services core
 export { apiService } from './core/ApiService';
