@@ -164,3 +164,24 @@ verify_jwt = false
 [functions.complete-oic-urls]
 verify_jwt = false
 
+[functions.advanced-search]
+verify_jwt = false
+
+[functions.audit-system]
+verify_jwt = true
+
+[functions.platform-analytics]
+verify_jwt = true
+
+[functions.security-scanner]
+verify_jwt = true
+
+[functions.generate-image]
+verify_jwt = true
+
+[functions.generate-voice]
+verify_jwt = true
+
+[functions.monitoring-alerts]
+verify_jwt = true
+
