@@ -23,8 +23,8 @@ interface ChangelogEntry {
   table_name: string;
   record_id: string;
   field_name?: string;
-  old_value?: any;
-  new_value?: any;
+  old_value?: Record<string, unknown>;
+  new_value?: Record<string, unknown>;
   reason?: string;
   created_at: string;
   profiles?: {
@@ -93,7 +93,7 @@ export const ChangelogDashboard: React.FC = () => {
     );
   };
 
-  const formatValue = (value: any) => {
+  const formatValue = (value: Record<string, unknown> | string | number | null) => {
     if (value === null || value === undefined) return 'null';
     if (typeof value === 'object') return JSON.stringify(value, null, 2);
     return String(value);

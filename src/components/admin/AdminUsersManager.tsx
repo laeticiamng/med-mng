@@ -95,7 +95,7 @@ export const AdminUsersManager = () => {
 
   const handleUserAction = async (userId: string, action: 'ban' | 'unban' | 'promote' | 'demote') => {
     try {
-      let updateData: any = {};
+      let updateData: Record<string, boolean | string> = {};
       
       switch (action) {
         case 'ban':

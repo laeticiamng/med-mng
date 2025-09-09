@@ -8,6 +8,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { EdnObjectifsExtractor } from '@/scripts/launch-edn-objectifs-extraction';
 import { PlayCircle, Pause, RefreshCw, BarChart3, CheckCircle, AlertCircle, Clock, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { logger } from '@/lib/logger';
 
 interface ExtractionStatus {
   session_id: string;
@@ -36,7 +37,9 @@ interface ExtractionStats {
 }
 
 export const EdnObjectifsExtraction: React.FC = () => {
-  console.log('🔍 DEBUG: EdnObjectifsExtraction component loaded');
+  logger.info('EdnObjectifsExtraction component chargé', {
+    component: 'EdnObjectifsExtraction'
+  });
   
   const [extractor] = useState(() => new EdnObjectifsExtractor());
   const [status, setStatus] = useState<ExtractionStatus | null>(null);
@@ -46,22 +49,31 @@ export const EdnObjectifsExtraction: React.FC = () => {
   const [resumeSessionId, setResumeSessionId] = useState<string>('');
 
   const handleStartExtraction = async () => {
-    console.log('🔍 DEBUG: handleStartExtraction called');
+    logger.info('Démarrage extraction EDN', {
+      component: 'EdnObjectifsExtraction',
+      action: 'handleStartExtraction'
+    });
     
     try {
-      console.log('🔍 DEBUG: Setting states...');
       setError(null);
       setIsExtracting(true);
       
-      console.log('🔍 DEBUG: Calling extractor.startExtraction()...');
       const result = await extractor.startExtraction();
       
-      console.log('🔍 DEBUG: Extraction started successfully:', result);
+      logger.info('Extraction démarrée avec succès', {
+        component: 'EdnObjectifsExtraction',
+        metadata: { sessionId: result?.session_id }
+      });
       
       // Démarre le polling du statut
-      console.log('🔍 DEBUG: Starting status polling...');
       extractor.startStatusPolling((newStatus) => {
-        console.log('🔍 DEBUG: Status update received:', newStatus);
+        logger.debug('Mise à jour statut extraction', {
+          component: 'EdnObjectifsExtraction',
+          metadata: {
+            status: newStatus.status,
+            progress: `${newStatus.items_extracted}/${newStatus.total_expected}`
+          }
+        });
         setStatus(newStatus);
         
         if (newStatus.status === 'termine' || newStatus.status === 'erreur') {
@@ -72,9 +84,14 @@ export const EdnObjectifsExtraction: React.FC = () => {
         }
       });
       
-    } catch (err: any) {
-      console.error('❌ DEBUG: Error in handleStartExtraction:', err);
-      setError(err.message);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+      logger.error('Erreur lors du démarrage extraction', {
+        component: 'EdnObjectifsExtraction',
+        action: 'handleStartExtraction',
+        metadata: { errorMessage }
+      });
+      setError(errorMessage);
       setIsExtracting(false);
     }
   };
@@ -102,8 +119,14 @@ export const EdnObjectifsExtraction: React.FC = () => {
         }
       });
       
-    } catch (err: any) {
-      setError(err.message);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+      logger.error('Erreur lors de la reprise extraction', {
+        component: 'EdnObjectifsExtraction',
+        action: 'handleResumeExtraction',
+        metadata: { sessionId: resumeSessionId, errorMessage }
+      });
+      setError(errorMessage);
       setIsExtracting(false);
     }
   };
@@ -118,8 +141,14 @@ export const EdnObjectifsExtraction: React.FC = () => {
       setError(null);
       const rapport = await extractor.generateRapport();
       setStats(rapport);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+      logger.error('Erreur génération rapport', {
+        component: 'EdnObjectifsExtraction',
+        action: 'handleGenerateRapport',
+        metadata: { errorMessage }
+      });
+      setError(errorMessage);
     }
   };
 

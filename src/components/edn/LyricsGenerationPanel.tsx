@@ -18,6 +18,7 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { generateRichAdvancedLyrics } from '@/utils/lyrics/generateRichAdvancedLyrics';
+import { logger } from '@/lib/logger';
 
 interface LyricsGenerationPanelProps {
   itemCode: string;
@@ -26,7 +27,7 @@ interface LyricsGenerationPanelProps {
     rang_b?: string[];
     rang_ab?: string[];
   };
-  onLyricsGenerated?: (lyrics: any) => void;
+  onLyricsGenerated?: (lyrics: Record<string, string[]>) => void;
 }
 
 interface GenerationProgress {
@@ -56,7 +57,11 @@ export const LyricsGenerationPanel: React.FC<LyricsGenerationPanelProps> = ({
   const generateSingleRang = async (rang: 'A' | 'B' | 'AB') => {
     setIsGenerating(true);
     try {
-      console.log(`🎵 Génération ${rang} pour ${itemCode}...`);
+      logger.info('Génération paroles pour rang spécifique', {
+        component: 'LyricsGenerationPanel',
+        action: 'generateSingleRang',
+        metadata: { itemCode, rang }
+      });
       
       // Fallback : génération locale avec les données existantes
       const { data: itemData, error: itemError } = await supabase
@@ -83,7 +88,14 @@ export const LyricsGenerationPanel: React.FC<LyricsGenerationPanelProps> = ({
       }
       
       const { data: competences } = await compQuery;
-      console.log(`📋 ${competences?.length || 0} compétences trouvées pour ${rang}`);
+      logger.info('Compétences trouvées pour génération paroles', {
+        component: 'LyricsGenerationPanel',
+        metadata: {
+          itemCode,
+          rang,
+          count: competences?.length || 0
+        }
+      });
 
       // Génération RICHE avec OpenAI musicale
       const lines = await generateRichAdvancedLyrics(itemCode, rang);
