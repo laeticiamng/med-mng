@@ -5,7 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Music, BookOpen, Users, BarChart3, ArrowRight, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { PremiumElement, PremiumCard, PremiumButton } from '@/components/global/PremiumThemeProvider';
+import { PremiumElement, PremiumButton } from '@/components/global/PremiumThemeProvider';
+import { PremiumCard } from '@/components/ui/premium-card';
 
 const FeatureShowcase: React.FC = () => {
   const features = [

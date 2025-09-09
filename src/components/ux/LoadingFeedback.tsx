@@ -1,13 +1,17 @@
 import React from 'react';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Zap, Activity } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Card, CardContent } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
 
 interface LoadingFeedbackProps {
   isLoading: boolean;
   message?: string;
-  variant?: 'spinner' | 'dots' | 'skeleton' | 'pulse';
+  variant?: 'spinner' | 'dots' | 'skeleton' | 'pulse' | 'smart' | 'progress';
   size?: 'sm' | 'md' | 'lg';
   className?: string;
+  progress?: number;
+  type?: 'default' | 'medical' | 'upload' | 'processing';
 }
 
 export const LoadingFeedback: React.FC<LoadingFeedbackProps> = ({
@@ -15,7 +19,9 @@ export const LoadingFeedback: React.FC<LoadingFeedbackProps> = ({
   message = 'Chargement...',
   variant = 'spinner',
   size = 'md',
-  className
+  className,
+  progress,
+  type = 'default'
 }) => {
   if (!isLoading) return null;
 
@@ -25,17 +31,19 @@ export const LoadingFeedback: React.FC<LoadingFeedbackProps> = ({
     lg: 'h-8 w-8'
   };
 
+  const getIcon = () => {
+    switch (type) {
+      case 'medical': return <Activity className={cn('text-blue-500', sizeClasses[size])} />;
+      case 'upload': return <Zap className={cn('text-green-500', sizeClasses[size])} />;
+      case 'processing': return <Loader2 className={cn('animate-spin text-purple-500', sizeClasses[size])} />;
+      default: return <Loader2 className={cn('animate-spin text-primary', sizeClasses[size])} />;
+    }
+  };
+
   const renderLoader = () => {
     switch (variant) {
       case 'spinner':
-        return (
-          <Loader2 
-            className={cn(
-              'animate-spin text-primary',
-              sizeClasses[size]
-            )} 
-          />
-        );
+        return getIcon();
       
       case 'dots':
         return (
@@ -71,6 +79,37 @@ export const LoadingFeedback: React.FC<LoadingFeedbackProps> = ({
             'bg-primary/20 rounded-full animate-pulse',
             sizeClasses[size]
           )} />
+        );
+      
+      case 'smart':
+        return (
+          <Card className="w-full max-w-md">
+            <CardContent className="p-6">
+              <div className="flex items-center gap-2 mb-4">
+                {getIcon()}
+                <h3 className="font-semibold">{message}</h3>
+              </div>
+              {progress !== undefined && (
+                <div className="space-y-2">
+                  <Progress value={progress} className="h-2" />
+                  <p className="text-sm text-muted-foreground">{progress}% complété</p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        );
+      
+      case 'progress':
+        return progress !== undefined ? (
+          <div className="w-full space-y-2">
+            <div className="flex justify-between items-center">
+              <span className="text-sm font-medium">{message}</span>
+              <span className="text-sm text-muted-foreground">{progress}%</span>
+            </div>
+            <Progress value={progress} className="h-2" />
+          </div>
+        ) : (
+          getIcon()
         );
       
       default:

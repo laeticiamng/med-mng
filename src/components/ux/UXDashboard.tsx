@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { UXEnhancements } from './UXEnhancements';
 import { PerformanceOptimizer } from './PerformanceOptimizer';
-import { SmartLoadingStates } from './SmartLoadingStates';
+import { LoadingFeedback } from './LoadingFeedback';
 import { PerfectAccessibility } from './PerfectAccessibility';
 import { PerfectPerformance } from './PerfectPerformance';
 import { PerfectMobile } from './PerfectMobile';

@@ -202,48 +202,7 @@ export const PremiumButton: React.FC<{
   );
 };
 
-// Composant pour les cartes premium
-export const PremiumCard: React.FC<{
-  children: React.ReactNode;
-  className?: string;
-  variant?: 'default' | 'elevated' | 'glass' | 'gradient';
-  interactive?: boolean;
-}> = ({ children, className = '', variant = 'default', interactive = true }) => {
-  const variantClasses = {
-    default: `
-      bg-card border border-border shadow-soft
-      hover:shadow-medium hover:border-primary/20
-    `,
-    elevated: `
-      bg-gradient-to-br from-card to-card/80
-      border border-border shadow-large
-      hover:shadow-xl hover:shadow-primary/10
-    `,
-    glass: `
-      bg-card/80 backdrop-blur-md border border-border/50
-      shadow-soft hover:bg-card/90
-    `,
-    gradient: `
-      bg-gradient-to-br from-primary/5 via-card to-accent/5
-      border border-primary/10 shadow-medium
-      hover:from-primary/10 hover:to-accent/10
-    `
-  };
-
-  return (
-    <PremiumElement
-      className={`
-        premium-card rounded-xl transition-all duration-300
-        ${variantClasses[variant]}
-        ${interactive ? 'cursor-pointer' : ''}
-        ${className}
-      `}
-      enableHover={interactive}
-    >
-      {children}
-    </PremiumElement>
-  );
-};
+// Note: PremiumCard component moved to @/components/ui/premium-card.tsx to avoid duplication
 
 export const PremiumThemeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const applyPremiumEffects = (element: HTMLElement) => {

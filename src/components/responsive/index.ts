@@ -1,11 +1,12 @@
 // Export des composants responsive optimisés
 export { TabletOptimizedCard } from './TabletOptimizedCard';
-export { TabletOptimizedButton } from './TabletOptimizedButton';
 export { TabletOptimizedInput } from './TabletOptimizedInput';
 export { MobileOptimizedCard } from './MobileOptimizedCard';
-export { MobileOptimizedButton } from './MobileOptimizedButton';
 export { MobileOptimizedInput } from './MobileOptimizedInput';
 export { ResponsiveGrid, ResponsiveCard, LibraryGrid, TouchTarget } from '../ui/responsive';
+
+// Export du composant unifié pour remplacer les boutons optimisés
+export { ResponsiveButton } from '../ui/responsive-button';
 
 // Export des layouts responsive
 export { TabletOptimizedLayout } from '../layouts/TabletOptimizedLayout';
