@@ -247,7 +247,7 @@ export const ProductionEdnSystem: React.FC = () => {
 
   // Navigation vers un item
   const handleItemClick = (item: ProductionEdnItem) => {
-    navigate(`/edn/${item.slug}`);
+    navigate(`/edn-production/${item.slug}`);
   };
 
   // Génération musicale
