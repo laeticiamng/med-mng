@@ -17,6 +17,7 @@ import {
   User
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { logger } from '@/services/logger';
 
 interface VoiceSettings {
   voice: string;
@@ -24,6 +25,19 @@ interface VoiceSettings {
   volume: number;
   language: 'fr' | 'en';
   model: string;
+}
+
+interface VoiceEntry {
+  id: string;
+  name: string;
+  personality: string;
+  gender: string;
+}
+
+interface ModelEntry {
+  id: string;
+  name: string;
+  description: string;
 }
 
 interface VoiceNarratorProps {
@@ -59,7 +73,7 @@ export const VoiceNarrator: React.FC<VoiceNarratorProps> = ({
   });
 
   // Voix disponibles avec personnalités
-  const availableVoices = [
+  const availableVoices: VoiceEntry[] = [
     { id: '9BWtsMINqrJLrRacOk9x', name: 'Aria', personality: 'Claire et pédagogique', gender: 'F' },
     { id: 'EXAVITQu4vr4xnSDxMaL', name: 'Sarah', personality: 'Douce et rassurante', gender: 'F' },
     { id: 'FGY2WhTYpPnrIDTdsKH5', name: 'Laura', personality: 'Professionnelle', gender: 'F' },
@@ -69,7 +83,7 @@ export const VoiceNarrator: React.FC<VoiceNarratorProps> = ({
   ];
 
   // Modèles ElevenLabs disponibles
-  const availableModels = [
+  const availableModels: ModelEntry[] = [
     { id: 'eleven_turbo_v2_5', name: 'Turbo v2.5', description: 'Rapide, multilingue' },
     { id: 'eleven_multilingual_v2', name: 'Multilingual v2', description: 'Haute qualité émotionnelle' },
     { id: 'eleven_turbo_v2', name: 'Turbo v2', description: 'Anglais seulement, très rapide' }
@@ -111,7 +125,11 @@ export const VoiceNarrator: React.FC<VoiceNarratorProps> = ({
       
       return audioUrl;
     } catch (error) {
-      console.error('Erreur ElevenLabs:', error);
+      logger.error('Erreur ElevenLabs', {
+        component: 'VoiceNarrator',
+        action: 'generateAudio',
+        metadata: { voiceId: settings.voice, modelId: settings.model, error }
+      });
       
       // Fallback vers Web Speech API
       return generateWithWebSpeech(textToSpeak);
@@ -186,7 +204,11 @@ export const VoiceNarrator: React.FC<VoiceNarratorProps> = ({
         await generateWithWebSpeech(text);
       }
     } catch (error) {
-      console.error('Erreur de lecture:', error);
+      logger.error('Erreur de lecture', {
+        component: 'VoiceNarrator',
+        action: 'play',
+        metadata: { hasOpenAI, error }
+      });
     } finally {
       setIsLoading(false);
     }

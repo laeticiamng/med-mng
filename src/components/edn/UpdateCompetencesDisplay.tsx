@@ -5,19 +5,22 @@ import { Badge } from '@/components/ui/badge';
 import { RefreshCw, Database, CheckCircle, AlertCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { logger } from '@/services/logger';
 
 interface UpdateCompetencesDisplayProps {
   itemCode: string;
   onUpdate?: () => void;
 }
 
+interface UpdateResult {
+  timestamp: string;
+  rangA: number;
+  rangB: number;
+}
+
 export const UpdateCompetencesDisplay = ({ itemCode, onUpdate }: UpdateCompetencesDisplayProps) => {
   const [isUpdating, setIsUpdating] = useState(false);
-  const [lastUpdate, setLastUpdate] = useState<{
-    timestamp: string;
-    rangA: number;
-    rangB: number;
-  } | null>(null);
+  const [lastUpdate, setLastUpdate] = useState<UpdateResult | null>(null);
   
   const { toast } = useToast();
 
@@ -149,7 +152,11 @@ export const UpdateCompetencesDisplay = ({ itemCode, onUpdate }: UpdateCompetenc
       onUpdate?.();
 
     } catch (error) {
-      console.error('Erreur mise à jour compétences:', error);
+      logger.error('Erreur mise à jour compétences', {
+        component: 'UpdateCompetencesDisplay',
+        action: 'updateItemCompetences',
+        metadata: { itemCode, error }
+      });
       toast({
         title: "❌ Erreur de mise à jour",
         description: error instanceof Error ? error.message : "Une erreur s'est produite",

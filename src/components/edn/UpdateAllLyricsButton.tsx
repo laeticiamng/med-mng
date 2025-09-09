@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { logger } from '@/services/logger';
 
 interface UpdateStats {
   processed: number;
@@ -88,14 +89,16 @@ export const UpdateAllLyricsButton: React.FC = () => {
         window.location.reload();
       }, 3000);
 
-    } catch (error) {
-      // Log to console in development only to avoid SEO audit penalties
-      if (process.env.NODE_ENV === 'development') {
-        console.warn('⚠️ Erreur mise à jour paroles:', error);
-      }
+    } catch (error: unknown) {
+      logger.warn('Erreur mise à jour paroles', {
+        component: 'UpdateAllLyricsButton',
+        action: 'updateAllLyrics',
+        metadata: { error }
+      });
+      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
       toast({
         title: "❌ Erreur",
-        description: `Erreur lors de la mise à jour: ${error.message || 'Erreur inconnue'}`,
+        description: `Erreur lors de la mise à jour: ${errorMessage}`,
         variant: "destructive",
         duration: 10000
       });

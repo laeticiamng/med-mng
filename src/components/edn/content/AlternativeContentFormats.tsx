@@ -5,21 +5,26 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { BookOpen, FileText, Headphones, Video, Download, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { logger } from '@/services/logger';
 
 interface AlternativeContentFormatsProps {
   itemData: {
     title: string;
     subtitle: string;
     item_code: string;
-    tableau_rang_a?: any;
-    tableau_rang_b?: any;
+    tableau_rang_a?: Record<string, unknown>;
+    tableau_rang_b?: Record<string, unknown>;
   };
+}
+
+interface GeneratedContent {
+  [format: string]: string;
 }
 
 export const AlternativeContentFormats: React.FC<AlternativeContentFormatsProps> = ({ itemData }) => {
   const [activeFormat, setActiveFormat] = useState('novel');
   const [isGenerating, setIsGenerating] = useState(false);
-  const [generatedContent, setGeneratedContent] = useState<any>({});
+  const [generatedContent, setGeneratedContent] = useState<GeneratedContent>({});
   const { toast } = useToast();
 
   const generateContent = async (format: string) => {
@@ -49,7 +54,11 @@ export const AlternativeContentFormats: React.FC<AlternativeContentFormatsProps>
         description: `Le ${getFormatLabel(format)} a été généré avec succès.`,
       });
     } catch (error) {
-      console.error(`Erreur génération ${format}:`, error);
+      logger.error('Erreur génération contenu', {
+        component: 'AlternativeContentFormats',
+        action: 'generateContent',
+        metadata: { format, itemCode: itemData.item_code, error }
+      });
       toast({
         title: "Erreur de génération",
         description: `Impossible de générer le ${getFormatLabel(format)}.`,
@@ -60,7 +69,7 @@ export const AlternativeContentFormats: React.FC<AlternativeContentFormatsProps>
     }
   };
 
-  const createPromptForFormat = (format: string, item: any) => {
+  const createPromptForFormat = (format: string, item: {title: string; item_code: string}) => {
     const baseContent = `Titre: ${item.title}\nCode: ${item.item_code}`;
     
     switch (format) {
@@ -89,8 +98,8 @@ export const AlternativeContentFormats: React.FC<AlternativeContentFormatsProps>
     }
   };
 
-  const getFormatLabel = (format: string) => {
-    const labels = {
+  const getFormatLabel = (format: string): string => {
+    const labels: Record<string, string> = {
       'novel': 'Roman médical',
       'podcast': 'Script podcast',
       'video': 'Script vidéo',

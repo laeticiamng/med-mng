@@ -51,12 +51,12 @@
 - [x] src/components/edn/quiz/QuizManager.tsx - ✅ console.log → logger, any → strict types
 - [x] src/components/edn/tableau/TableauCompetencesOICWithRealData.tsx - ✅ console.log → logger
 
-#### EDN Utilities & Sync Components (Batch 6)
-- [x] src/components/edn/ComparisonResults.tsx - ✅ console.log → logger, any → strict types
-- [x] src/components/edn/GenerateAllLyricsButton.tsx - ✅ console.log → logger, any → strict types
-- [x] src/components/edn/LyricsGenerationManager.tsx - ✅ console.log → logger, any → strict types
-- [x] src/components/edn/SyncAllItemsButton.tsx - ✅ console.log → logger, any → strict types
-- [x] src/components/edn/SyncEdnButton.tsx - ✅ console.log → logger, any → strict types
+#### EDN Content & Generation Components (Batch 7)
+- [x] src/components/edn/UpdateAllLyricsButton.tsx - ✅ console.log → logger, any → strict types
+- [x] src/components/edn/UpdateCompetencesDisplay.tsx - ✅ console.log → logger, any → strict types
+- [x] src/components/edn/content/AlternativeContentFormats.tsx - ✅ console.log → logger, any → strict types
+- [x] src/components/edn/content/ContentGenerator.tsx - ✅ console.log → logger, any → strict types
+- [x] src/components/edn/immersive/VoiceNarrator.tsx - ✅ console.log → logger, any → strict types
 
 ### 6. TODO → Tâches Trackées (✅)
 - **TODO-TASKS.json** créé avec 3 tâches prioritaires :
@@ -69,10 +69,10 @@
 ## 📊 Statistiques Actuelles
 
 ### Nettoyé ✅
-- ✅ 42 fichiers avec logging professionnel (155+ console.log → logger)
+- ✅ 47 fichiers avec logging professionnel (175+ console.log → logger)
 - ✅ 3 TODO convertis en tâches trackées
-- ✅ 90+ types `any` remplacés par types stricts
-- ✅ Interfaces TypeScript ajoutées (EdnItem, EdnItemFixed, QuizItem, TableauSection, GenerationStats, SyncStats, SyncStatus, etc.)
+- ✅ 105+ types `any` remplacés par types stricts
+- ✅ Interfaces TypeScript ajoutées (EdnItem, EdnItemFixed, QuizItem, TableauSection, GenerationStats, SyncStats, SyncStatus, UpdateResult, GeneratedContent, VoiceEntry, ModelEntry, etc.)
 
 ### Reste à faire 🔄
 - 🔄 861+ console.log restants (194 fichiers)
@@ -112,6 +112,6 @@
 
 ---
 
-**Progrès** : 155+ console.log nettoyés, 90+ types any corrigés, 3 TODO trackés, composants utilities & sync EDN nettoyés
+**Progrès** : 175+ console.log nettoyés, 105+ types any corrigés, 3 TODO trackés, composants content & generation EDN nettoyés
 
 **Prochaine action recommandée** : Continuer le nettoyage sur autres composants EDN ou appliquer le formatage Prettier global.
