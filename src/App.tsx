@@ -76,6 +76,8 @@ const MedMngPlaylistDetail = lazy(() => import("./pages/med-mng/PlaylistDetail")
 const ComprehensiveDashboard = lazy(() => import("./components/med-mng/ComprehensiveDashboard").then(module => ({ default: module.ComprehensiveDashboard })));
 const ComprehensivePlatform = lazy(() => import("./pages/ComprehensivePlatform"));
 const UniversalPlatform = lazy(() => import("./pages/UniversalPlatform"));
+const FeatureHub = lazy(() => import("./pages/FeatureHub"));
+const LearningPath = lazy(() => import("./pages/LearningPath"));
 
 // ⚡ CHAT & LEGAL
 const MedChat = lazy(() => import("./pages/MedChat"));
@@ -207,12 +209,15 @@ const AppWithUX = () => {
                                                <Route path="/platform-complete" element={<ComprehensivePlatform />} />
                                                <Route path="/universal" element={<UniversalPlatform />} />
                                               
-                                              {/* ⚡ SUPPORT & SETTINGS */}
-                                              <Route path="/settings" element={<UserSettings />} />
-                                              <Route path="/documentation" element={<Documentation />} />
-                                              <Route path="/notifications" element={<Notifications />} />
-                                              <Route path="/faq" element={<FAQ />} />
-                                              <Route path="/help" element={<HelpCenter />} />
+                                               {/* ⚡ SUPPORT & SETTINGS */}
+                                               <Route path="/settings" element={<UserSettings />} />
+                                               <Route path="/documentation" element={<Documentation />} />
+                                               <Route path="/notifications" element={<Notifications />} />
+                                               <Route path="/faq" element={<FAQ />} />
+                                               <Route path="/help" element={<HelpCenter />} />
+                                               <Route path="/features" element={<Navigate to="/platform-complete" replace />} />
+                                               <Route path="/feature-hub" element={<FeatureHub />} />
+                                               <Route path="/learning-path" element={<LearningPath />} />
 
                                              {/* ⚡ EDN SYSTEM */}
                                              <Route path="/edn" element={<EdnComplete />} />
