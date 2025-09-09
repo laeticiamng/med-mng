@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -191,12 +192,12 @@ const FAQ: React.FC = () => {
             <p className="text-muted-foreground mb-6">
               Notre équipe de support est là pour vous aider
             </p>
-            <a
-              href="/support"
+            <Link
+              to="/support"
               className="inline-flex items-center px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
             >
               Contacter le support
-            </a>
+            </Link>
           </Card>
         </div>
       </div>
