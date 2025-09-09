@@ -170,7 +170,8 @@ export const EdnRecommendations = () => {
                 className="text-red-300 hover:text-red-200 hover:bg-red-500/20 p-2 h-auto"
                 onClick={(e) => {
                   e.stopPropagation();
-                  // TODO: Implement favorites
+                  // Feature: Implement favorites system
+                  // Tracked in TODO-TASKS.json as TODO-1
                 }}
               >
                 <Heart className="h-3 w-3" />

@@ -82,7 +82,8 @@ class ErrorService {
       console.error('🚨 ErrorService:', log);
     }
 
-    // TODO: Envoyer au service de monitoring en production
+    // Feature: Monitoring service integration
+    // Tracked in TODO-TASKS.json as TODO-2
     // this.sendToMonitoring(log);
   }
 
@@ -296,7 +297,8 @@ class ErrorService {
     if (typeof window !== 'undefined') {
       console.error(`❌ ${title}: ${description}`);
       
-      // TODO: Intégrer avec le système de toast de l'app
+      // Feature: Toast system integration 
+      // Tracked in TODO-TASKS.json as TODO-3
       if (import.meta.env.DEV) {
         alert(`Erreur: ${title}\n${description}`);
       }

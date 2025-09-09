@@ -1,0 +1,38 @@
+[
+  {
+    "id": "TODO-1",
+    "title": "Implement favorites system",
+    "description": "Ajouter un système de favoris dans EdnRecommendations - issu du fichier src/components/edn/EdnRecommendations.tsx ligne 173",
+    "priority": "medium",
+    "status": "open",
+    "created": "2025-01-09T08:30:00Z",
+    "file": "src/components/edn/EdnRecommendations.tsx",
+    "line": 173,
+    "estimatedHours": 4,
+    "category": "feature"
+  },
+  {
+    "id": "TODO-2", 
+    "title": "Monitoring service integration",
+    "description": "Intégrer l'envoi des logs vers le service de monitoring en production - issu du fichier src/services/core/ErrorService.ts ligne 85",
+    "priority": "high",
+    "status": "open", 
+    "created": "2025-01-09T08:30:00Z",
+    "file": "src/services/core/ErrorService.ts",
+    "line": 85,
+    "estimatedHours": 6,
+    "category": "infrastructure"
+  },
+  {
+    "id": "TODO-3",
+    "title": "Toast system integration", 
+    "description": "Remplacer les alerts par le système de toast de l'application - issu du fichier src/services/core/ErrorService.ts ligne 299",
+    "priority": "high",
+    "status": "open",
+    "created": "2025-01-09T08:30:00Z", 
+    "file": "src/services/core/ErrorService.ts",
+    "line": 299,
+    "estimatedHours": 2,
+    "category": "ux"
+  }
+]
