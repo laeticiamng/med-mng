@@ -3,7 +3,16 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { CheckCircle, BookOpen, Users, Clock, Play } from 'lucide-react';
+import { CheckCircle, BookOpen, Users, Clock, Play, Target, Brain } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+
+interface OICCompetence {
+  objectif_id: string;
+  intitule: string;
+  description: string;
+  rang: string;
+  item_parent: string;
+}
 
 interface EnhancedTableauDisplayProps {
   item: {
@@ -23,66 +32,65 @@ export const EnhancedTableauDisplay: React.FC<EnhancedTableauDisplayProps> = ({
   onProgress
 }) => {
   const [tableauData, setTableauData] = useState<any>(null);
+  const [oicCompetences, setOicCompetences] = useState<OICCompetence[]>([]);
   const [progress, setProgress] = useState(0);
+  const [loading, setLoading] = useState(true);
   
   useEffect(() => {
-    if (rang === 'A' && item?.tableau_rang_a) {
-      setTableauData(item.tableau_rang_a);
-    } else if (rang === 'B' && item?.tableau_rang_b) {
-      setTableauData(item.tableau_rang_b);
-    }
+    const loadData = async () => {
+      setLoading(true);
+      
+      // Charger les données du tableau
+      if (rang === 'A' && item?.tableau_rang_a) {
+        setTableauData(item.tableau_rang_a);
+      } else if (rang === 'B' && item?.tableau_rang_b) {
+        setTableauData(item.tableau_rang_b);
+      }
+      
+      // Charger les compétences OIC depuis la base
+      try {
+        const itemCode = item.item_code.replace('IC-', '').padStart(3, '0'); // IC-1 -> 001
+        
+        const { data: competences, error } = await supabase
+          .from('oic_competences')
+          .select('objectif_id, intitule, description, rang, item_parent')
+          .eq('item_parent', itemCode)
+          .eq('rang', rang)
+          .order('ordre');
+        
+        if (!error && competences) {
+          setOicCompetences(competences);
+        }
+      } catch (error) {
+        console.error('Erreur chargement compétences OIC:', error);
+      }
+      
+      setLoading(false);
+      
+      // Simuler progression
+      const timer = setTimeout(() => {
+        setProgress(85);
+        onProgress?.(85);
+      }, 1500);
+      
+      return () => clearTimeout(timer);
+    };
     
-    // Simuler progression
-    const timer = setTimeout(() => {
-      setProgress(85);
-      onProgress?.(85);
-    }, 1000);
-    
-    return () => clearTimeout(timer);
+    loadData();
   }, [item, rang, onProgress]);
 
-  // Générer du contenu par défaut basé sur l'item
-  const generateDefaultContent = () => {
-    const competenceLevel = rang === 'A' ? 'Application clinique' : 'Expertise approfondie';
-    const objectives = rang === 'A' 
-      ? [
-          'Comprendre les concepts fondamentaux',
-          'Appliquer les connaissances en pratique clinique',
-          'Reconnaître les situations typiques',
-          'Prendre des décisions adaptées'
-        ]
-      : [
-          'Maîtriser les situations complexes',
-          'Développer une expertise spécialisée',
-          'Enseigner et transmettre',
-          'Innover et rechercher'
-        ];
-
-    return {
-      title: `${item.item_code} Rang ${rang} - ${item.title}`,
-      competence_level: competenceLevel,
-      objectives,
-      content_sections: [
-        {
-          type: 'introduction',
-          title: 'Introduction',
-          content: `Ce module de rang ${rang} couvre les aspects ${competenceLevel.toLowerCase()} de ${item.title.toLowerCase()}.`
-        },
-        {
-          type: 'objectives',
-          title: 'Objectifs pédagogiques',
-          content: objectives
-        },
-        {
-          type: 'clinical_cases',
-          title: 'Cas cliniques',
-          content: `Études de cas adaptées au niveau ${rang} pour ${item.title}.`
-        }
-      ]
-    };
-  };
-
-  const displayData = tableauData?.sections?.length > 0 ? tableauData : generateDefaultContent();
+  const competenceLevel = rang === 'A' ? 'Application clinique' : 'Expertise approfondie';
+  
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center p-8">
+        <div className="text-center space-y-4">
+          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p className="text-muted-foreground">Chargement des compétences...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -113,52 +121,76 @@ export const EnhancedTableauDisplay: React.FC<EnhancedTableauDisplayProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Section principale */}
         <div className="lg:col-span-2 space-y-6">
-          {/* Objectifs */}
+          {/* Compétences OIC */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center space-x-2">
-                <CheckCircle className="h-5 w-5 text-green-500" />
-                <span>Objectifs pédagogiques - Rang {rang}</span>
+                <Target className="h-5 w-5 text-blue-500" />
+                <span>Compétences OIC - Rang {rang}</span>
+                <Badge variant="secondary">{oicCompetences.length} compétences</Badge>
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
-                {displayData.objectives?.map((objective: string, index: number) => (
-                  <div key={index} className="flex items-start space-x-3">
-                    <div className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center text-xs font-bold text-primary mt-0.5">
-                      {index + 1}
+              {oicCompetences.length > 0 ? (
+                <div className="space-y-4">
+                  {oicCompetences.map((competence, index) => (
+                    <div key={competence.objectif_id} className="border rounded-lg p-4 hover:bg-muted/50 transition-colors">
+                      <div className="flex items-start space-x-3">
+                        <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-xs font-bold text-blue-600 mt-0.5 shrink-0">
+                          {index + 1}
+                        </div>
+                        <div className="flex-1 space-y-2">
+                          <div className="flex items-center space-x-2">
+                            <Badge variant="outline" className="font-mono text-xs">
+                              {competence.objectif_id}
+                            </Badge>
+                          </div>
+                          <h4 className="font-semibold text-sm leading-tight">
+                            {competence.intitule}
+                          </h4>
+                          {competence.description && competence.description.trim() && (
+                            <p className="text-sm text-muted-foreground">
+                              {competence.description}
+                            </p>
+                          )}
+                        </div>
+                      </div>
                     </div>
-                    <p className="text-sm">{objective}</p>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  <Brain className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                  <p>Aucune compétence OIC disponible pour le rang {rang}</p>
+                </div>
+              )}
             </CardContent>
           </Card>
 
           {/* Contenu détaillé */}
           <Card>
             <CardHeader>
-              <CardTitle>📚 Contenu détaillé</CardTitle>
+              <CardTitle>📚 Contenu pédagogique</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
                 <div className="p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg border border-blue-200">
                   <h4 className="font-semibold text-blue-900 mb-2">Niveau de compétence</h4>
-                  <p className="text-blue-800">{displayData.competence_level}</p>
+                  <p className="text-blue-800">{competenceLevel}</p>
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="p-4 bg-green-50 rounded-lg border border-green-200">
-                    <h4 className="font-semibold text-green-900 mb-2">🎯 Focus clinique</h4>
+                    <h4 className="font-semibold text-green-900 mb-2">🎯 Compétences</h4>
                     <p className="text-green-800 text-sm">
-                      Application pratique des connaissances en situation clinique réelle.
+                      {oicCompetences.length} compétences officielles du référentiel OIC
                     </p>
                   </div>
                   
                   <div className="p-4 bg-purple-50 rounded-lg border border-purple-200">
-                    <h4 className="font-semibold text-purple-900 mb-2">⚡ Évaluation</h4>
+                    <h4 className="font-semibold text-purple-900 mb-2">⚡ Niveau</h4>
                     <p className="text-purple-800 text-sm">
-                      Évaluation continue des compétences acquises.
+                      {rang === 'A' ? 'Formation initiale - Application' : 'Formation approfondie - Expertise'}
                     </p>
                   </div>
                 </div>
@@ -173,7 +205,7 @@ export const EnhancedTableauDisplay: React.FC<EnhancedTableauDisplayProps> = ({
                     </Button>
                   </div>
                   <p className="text-amber-800 text-sm">
-                    Explorez des cas cliniques adaptés au niveau {rang} pour {item.title}.
+                    Mettez en pratique les compétences OIC dans des situations cliniques réelles.
                   </p>
                 </div>
               </div>
@@ -195,6 +227,14 @@ export const EnhancedTableauDisplay: React.FC<EnhancedTableauDisplayProps> = ({
               </div>
               
               <div className="space-y-2">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Compétences OIC</span>
+                  <div className="flex items-center space-x-1">
+                    <Target className="h-3 w-3" />
+                    <span>{oicCompetences.length}</span>
+                  </div>
+                </div>
+                
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-muted-foreground">Durée estimée</span>
                   <div className="flex items-center space-x-1">
