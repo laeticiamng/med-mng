@@ -19,7 +19,7 @@ import {
 import { useAuth } from '@/hooks/unified/useAuth';
 import { contentService } from '@/services/UnifiedContentService';
 import { analyticsService } from '@/services/UnifiedAnalyticsService';
-import type { ContentModule } from '@/services/business/SimpleContentService';
+import type { ContentModule } from '@/services/UnifiedContentService';
 import type { UserStats } from '@/services/UnifiedAnalyticsService';
 
 interface AdaptiveLearningEngineProps {

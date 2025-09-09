@@ -5,7 +5,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { contentService } from '@/services/UnifiedContentService';
 import { useErrorHandler } from './useErrorHandler';
-import type { ContentModule, ContentFilters, StudyPlan } from '@/services/business/SimpleContentService';
+import type { ContentModule, ContentFilters, StudyPlan } from '@/services/UnifiedContentService';
 
 export const useSimpleContent = () => {
   const { handleError } = useErrorHandler();

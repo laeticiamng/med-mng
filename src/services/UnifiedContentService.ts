@@ -1,6 +1,5 @@
 /**
- * Service de contenu unifié - Consolidation des services de contenu existants
- * Combine ContentService.ts et SimpleContentService.ts
+ * Service de contenu unifié - Version simplifiée sans références circulaires
  */
 
 import { supabase } from '@/integrations/supabase/client';
@@ -8,9 +7,25 @@ import { analyticsService } from './UnifiedAnalyticsService';
 import { cacheService } from './core/CacheService';
 import { errorService } from './core/ErrorService';
 import { logger } from '@/lib/logger';
-import type { EdnItem, ApiResponse, PaginatedResponse } from '@/types';
 
-// Types unifiés pour le service de contenu
+// Types locaux pour éviter les références circulaires
+interface EdnItemData {
+  id: string;
+  item_code: string;
+  title: string;
+  subtitle?: string;
+  tableau_rang_a?: any;
+  tableau_rang_b?: any;
+  paroles_musicales?: string[];
+  quiz_questions?: any;
+  scene_immersive?: any;
+  is_premium?: boolean;
+  content_status?: 'draft' | 'published' | 'archived';
+  theme?: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface ContentModule {
   id: string;
   title: string;
@@ -28,11 +43,13 @@ export interface ContentModule {
 
 export interface StudyPlan {
   id: string;
-  title: string;
+  name: string;
+  description: string;
   modules: string[];
   estimatedDuration: number;
-  difficulty: string;
-  progress: number;
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  objectives: string[];
+  createdAt: Date;
 }
 
 export interface ContentFilters {
@@ -45,6 +62,12 @@ export interface ContentFilters {
   type?: string;
   limit?: number;
   offset?: number;
+}
+
+export interface ServiceResponse<T> {
+  success: boolean;
+  data?: T;
+  error?: string;
 }
 
 export interface ContentValidation {
@@ -68,192 +91,9 @@ class UnifiedContentService {
     return UnifiedContentService.instance;
   }
 
-  // ========== GESTION DES ITEMS EDN (du ContentService) ==========
+  // ========== MODULES DE CONTENU ==========
 
-  /**
-   * Récupère les items EDN avec pagination et filtres
-   */
-  async getEdnItems(filters?: ContentFilters): Promise<PaginatedResponse<EdnItem>> {
-    try {
-      const cacheKey = `${this.CACHE_PREFIX}_edn_items_${JSON.stringify(filters || {})}`;
-      const cached = cacheService.get<PaginatedResponse<EdnItem>>(cacheKey);
-      
-      if (cached) {
-        return cached;
-      }
-
-      let query = supabase
-        .from('edn_items_immersive')
-        .select('*', { count: 'exact' });
-
-      // Appliquer les filtres
-      if (filters?.search) {
-        query = query.or(`title.ilike.%${filters.search}%,item_code.ilike.%${filters.search}%`);
-      }
-
-      if (filters?.item_code) {
-        query = query.eq('item_code', filters.item_code);
-      }
-
-      if (filters?.is_premium !== undefined) {
-        query = query.eq('is_premium', filters.is_premium);
-      }
-
-      // Pagination
-      const limit = filters?.limit || 20;
-      const offset = filters?.offset || 0;
-      query = query.range(offset, offset + limit - 1);
-
-      const { data, error, count } = await query.order('created_at', { ascending: false });
-
-      if (error) throw error;
-
-      const result: PaginatedResponse<EdnItem> = {
-        success: true,
-        data: (data || []).map(this.mapToEdnItem),
-        pagination: {
-          total: count || 0,
-          page: Math.floor(offset / limit) + 1,
-          limit,
-          total_pages: Math.ceil((count || 0) / limit)
-        }
-      };
-
-      cacheService.set(cacheKey, result, { ttl: this.DEFAULT_TTL });
-
-      // Analytics
-      analyticsService.trackUserAction('content', 'edn_items_retrieved', {
-        count: data?.length || 0,
-        filters
-      });
-
-      logger.debug('Items EDN récupérés', {
-        component: 'UnifiedContentService',
-        action: 'get_edn_items',
-        metadata: { count: data?.length || 0, filters }
-      });
-
-      return result;
-    } catch (error) {
-      analyticsService.trackError(error as Error, { action: 'get_edn_items', filters });
-      
-      logger.error('Erreur récupération items EDN', {
-        component: 'UnifiedContentService',
-        action: 'get_edn_items',
-        metadata: { filters }
-      });
-
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Erreur récupération items EDN',
-        data: [],
-        pagination: { total: 0, page: 1, limit: 20, total_pages: 0 }
-      };
-    }
-  }
-
-  /**
-   * Récupère un item EDN spécifique
-   */
-  async getEdnItem(itemCode: string): Promise<ApiResponse<EdnItem>> {
-    try {
-      const { data, error } = await supabase
-        .from('edn_items_immersive')
-        .select('*')
-        .eq('item_code', itemCode)
-        .single();
-
-      if (error) throw error;
-
-      const mappedItem = this.mapToEdnItem(data);
-
-      // Analytics
-      analyticsService.trackUserAction('content', 'edn_item_retrieved', { itemCode });
-
-      logger.debug('Item EDN récupéré', {
-        component: 'UnifiedContentService',
-        action: 'get_edn_item',
-        metadata: { itemCode }
-      });
-
-      return { success: true, data: mappedItem };
-    } catch (error) {
-      analyticsService.trackError(error as Error, { action: 'get_edn_item', itemCode });
-      
-      logger.error('Erreur récupération item EDN', {
-        component: 'UnifiedContentService',
-        action: 'get_edn_item',
-        metadata: { itemCode }
-      });
-
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Erreur récupération item EDN'
-      };
-    }
-  }
-
-  /**
-   * Met à jour un item EDN
-   */
-  async updateEdnItem(itemCode: string, updates: Partial<EdnItem>): Promise<ApiResponse<EdnItem>> {
-    try {
-      const { data, error } = await supabase
-        .from('edn_items_immersive')
-        .update({
-          title: updates.title,
-          subtitle: updates.description,
-          tableau_rang_a: updates.tableau_rang_a as any,
-          tableau_rang_b: updates.tableau_rang_b as any,
-          paroles_musicales: updates.paroles_musicales,
-          updated_at: new Date().toISOString()
-        })
-        .eq('item_code', itemCode)
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      const mappedItem = this.mapToEdnItem(data);
-
-      // Invalider le cache
-      cacheService.delete(`${this.CACHE_PREFIX}_edn_items_`);
-
-      // Analytics
-      analyticsService.trackUserAction('content', 'edn_item_updated', {
-        itemCode,
-        updateFields: Object.keys(updates)
-      });
-
-      logger.info('Item EDN mis à jour', {
-        component: 'UnifiedContentService',
-        action: 'update_edn_item',
-        metadata: { itemCode, updateFields: Object.keys(updates) }
-      });
-
-      return { success: true, data: mappedItem };
-    } catch (error) {
-      analyticsService.trackError(error as Error, { action: 'update_edn_item', itemCode });
-      
-      logger.error('Erreur mise à jour item EDN', {
-        component: 'UnifiedContentService',
-        action: 'update_edn_item',
-        metadata: { itemCode }
-      });
-
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Erreur mise à jour item EDN'
-      };
-    }
-  }
-
-  // ========== MODULES DE CONTENU (du SimpleContentService) ==========
-
-  /**
-   * Récupère les modules de contenu
-   */
-  async getModules(filters?: ContentFilters): Promise<ApiResponse<ContentModule[]>> {
+  async getModules(filters?: ContentFilters): Promise<ServiceResponse<ContentModule[]>> {
     try {
       const cacheKey = `${this.CACHE_PREFIX}_modules_${JSON.stringify(filters || {})}`;
       const cached = cacheService.get<ContentModule[]>(cacheKey);
@@ -271,7 +111,6 @@ class UnifiedContentService {
       }
 
       if (filters?.category) {
-        // Filtrer par catégorie basée sur le code item
         const categoryRange = this.getCategoryRange(filters.category);
         if (categoryRange) {
           query = query.gte('item_code', categoryRange.min).lte('item_code', categoryRange.max);
@@ -286,7 +125,6 @@ class UnifiedContentService {
 
       cacheService.set(cacheKey, modules, { ttl: this.DEFAULT_TTL });
 
-      // Analytics
       analyticsService.trackUserAction('content', 'modules_retrieved', {
         count: modules.length,
         filters
@@ -305,10 +143,7 @@ class UnifiedContentService {
     }
   }
 
-  /**
-   * Récupère un module spécifique
-   */
-  async getModule(id: string): Promise<ApiResponse<ContentModule | null>> {
+  async getModule(id: string): Promise<ServiceResponse<ContentModule | null>> {
     try {
       const { data, error } = await supabase
         .from('edn_items_immersive')
@@ -321,7 +156,6 @@ class UnifiedContentService {
 
       const module = this.mapToContentModule(data);
 
-      // Analytics
       analyticsService.trackUserAction('content', 'module_retrieved', { moduleId: id });
 
       return { success: true, data: module };
@@ -337,12 +171,7 @@ class UnifiedContentService {
     }
   }
 
-  // ========== GESTION DES PROGRÈS ==========
-
-  /**
-   * Enregistre le progrès utilisateur
-   */
-  async saveProgress(moduleId: string, progress: number): Promise<ApiResponse<boolean>> {
+  async saveProgress(moduleId: string, progress: number): Promise<ServiceResponse<boolean>> {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Utilisateur non connecté');
@@ -377,7 +206,6 @@ class UnifiedContentService {
         if (error) throw error;
       }
 
-      // Analytics
       analyticsService.trackUserAction('content', 'progress_saved', {
         moduleId,
         progress
@@ -396,170 +224,59 @@ class UnifiedContentService {
     }
   }
 
-  // ========== GÉNÉRATION ET VALIDATION DE CONTENU ==========
-
-  /**
-   * Génère du contenu via edge functions
-   */
-  async generateContent(
-    itemCode: string, 
-    contentType: 'tableau_rang_a' | 'tableau_rang_b' | 'paroles_musicales' | 'quiz_questions'
-  ): Promise<ApiResponse<{ content: unknown }>> {
+  async generateStudyPlan(preferences: any): Promise<ServiceResponse<StudyPlan>> {
     try {
-      const { data, error } = await supabase.functions.invoke('content-generator', {
-        body: {
-          item_code: itemCode,
-          content_type: contentType
-        }
+      const studyPlan: StudyPlan = {
+        id: crypto.randomUUID(),
+        name: `Plan d'étude personnalisé`,
+        description: 'Plan généré selon vos préférences',
+        modules: [],
+        estimatedDuration: 30,
+        difficulty: preferences.difficulty || 'intermediate',
+        objectives: preferences.objectives || [],
+        createdAt: new Date()
+      };
+
+      analyticsService.trackUserAction('content', 'study_plan_generated', {
+        difficulty: studyPlan.difficulty,
+        estimatedDuration: studyPlan.estimatedDuration
       });
 
-      if (error) throw error;
-
-      // Analytics
-      analyticsService.trackUserAction('content', 'content_generated', {
-        itemCode,
-        contentType
-      });
-
-      logger.info('Contenu généré', {
-        component: 'UnifiedContentService',
-        action: 'generate_content',
-        metadata: { itemCode, contentType }
-      });
-
-      return { success: true, data: { content: data.content } };
+      return { success: true, data: studyPlan };
     } catch (error) {
-      analyticsService.trackError(error as Error, { 
-        action: 'generate_content', 
-        itemCode, 
-        contentType 
-      });
-      
-      logger.error('Erreur génération contenu', {
-        component: 'UnifiedContentService',
-        action: 'generate_content',
-        metadata: { itemCode, contentType }
-      });
-
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Erreur génération contenu'
+      analyticsService.trackError(error as Error, { action: 'generate_study_plan' });
+      return { 
+        success: false, 
+        error: error instanceof Error ? error.message : 'Erreur génération plan d\'étude' 
       };
     }
   }
 
-  /**
-   * Valide le contenu d'un item
-   */
-  async validateContent(itemCode: string): Promise<ApiResponse<ContentValidation>> {
-    try {
-      const itemResponse = await this.getEdnItem(itemCode);
-      if (!itemResponse.success || !itemResponse.data) {
-        throw new Error('Item non trouvé');
-      }
-
-      const item = itemResponse.data;
-      const issues: ContentValidation['issues'] = [];
-
-      // Validation du titre
-      if (!item.title || item.title.trim().length === 0) {
-        issues.push({
-          field: 'title',
-          message: 'Le titre est requis',
-          severity: 'error'
-        });
-      }
-
-      // Validation du contenu
-      if (!item.tableau_rang_a && !item.tableau_rang_b) {
-        issues.push({
-          field: 'content',
-          message: 'Au moins un tableau (A ou B) doit être présent',
-          severity: 'error'
-        });
-      }
-
-      // Validation des paroles musicales
-      if (!item.paroles_musicales || item.paroles_musicales.length === 0) {
-        issues.push({
-          field: 'paroles_musicales',
-          message: 'Les paroles musicales sont recommandées',
-          severity: 'warning'
-        });
-      }
-
-      const validation: ContentValidation = {
-        isValid: issues.filter(i => i.severity === 'error').length === 0,
-        issues
-      };
-
-      // Analytics
-      analyticsService.trackUserAction('content', 'content_validated', {
-        itemCode,
-        isValid: validation.isValid,
-        issuesCount: issues.length
-      });
-
-      logger.debug('Contenu validé', {
-        component: 'UnifiedContentService',
-        action: 'validate_content',
-        metadata: { itemCode, isValid: validation.isValid }
-      });
-
-      return { success: true, data: validation };
-    } catch (error) {
-      analyticsService.trackError(error as Error, { action: 'validate_content', itemCode });
-      
-      logger.error('Erreur validation contenu', {
-        component: 'UnifiedContentService',
-        action: 'validate_content',
-        metadata: { itemCode }
-      });
-
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Erreur validation contenu'
-      };
-    }
-  }
-
-  // ========== RECHERCHE ==========
-
-  /**
-   * Recherche de contenu
-   */
   async searchContent(
     query: string, 
     filters?: { content_type?: string; limit?: number }
-  ): Promise<ApiResponse<EdnItem[]>> {
+  ): Promise<ServiceResponse<ContentModule[]>> {
     try {
       const searchFilters: ContentFilters = {
         search: query,
         limit: filters?.limit || 50
       };
 
-      const result = await this.getEdnItems(searchFilters);
+      const modulesResponse = await this.getModules(searchFilters);
       
-      if (result.success) {
-        // Analytics
+      if (modulesResponse.success) {
         analyticsService.trackUserAction('content', 'content_searched', {
           query,
-          resultsCount: result.data?.length || 0
+          resultsCount: modulesResponse.data?.length || 0
         });
 
-        return { success: true, data: result.data || [] };
+        return { success: true, data: modulesResponse.data || [] };
       }
 
-      return { success: false, error: result.error || 'Erreur recherche', data: [] };
+      return { success: false, error: modulesResponse.error || 'Erreur recherche', data: [] };
     } catch (error) {
       analyticsService.trackError(error as Error, { action: 'search_content', query });
       
-      logger.error('Erreur recherche contenu', {
-        component: 'UnifiedContentService',
-        action: 'search_content',
-        metadata: { query }
-      });
-
       return {
         success: false,
         error: error instanceof Error ? error.message : 'Erreur recherche contenu',
@@ -568,131 +285,16 @@ class UnifiedContentService {
     }
   }
 
-  // ========== GESTION DU STATUT ==========
-
-  /**
-   * Publie un contenu
-   */
-  async publishContent(itemCode: string): Promise<ApiResponse<EdnItem>> {
-    try {
-      const { data, error } = await supabase
-        .from('edn_items_immersive')
-        .update({ 
-          content_status: 'published',
-          updated_at: new Date().toISOString()
-        })
-        .eq('item_code', itemCode)
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      const mappedItem = this.mapToEdnItem(data);
-
-      // Invalider le cache
-      cacheService.delete(`${this.CACHE_PREFIX}_edn_items_`);
-
-      // Analytics
-      analyticsService.trackUserAction('content', 'content_published', { itemCode });
-
-      logger.info('Contenu publié', {
-        component: 'UnifiedContentService',
-        action: 'publish_content',
-        metadata: { itemCode }
-      });
-
-      return { success: true, data: mappedItem };
-    } catch (error) {
-      analyticsService.trackError(error as Error, { action: 'publish_content', itemCode });
-      
-      logger.error('Erreur publication contenu', {
-        component: 'UnifiedContentService',
-        action: 'publish_content',
-        metadata: { itemCode }
-      });
-
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Erreur publication contenu'
-      };
-    }
-  }
-
-  /**
-   * Archive un contenu
-   */
-  async archiveContent(itemCode: string): Promise<ApiResponse<EdnItem>> {
-    try {
-      const { data, error } = await supabase
-        .from('edn_items_immersive')
-        .update({ 
-          content_status: 'archived',
-          updated_at: new Date().toISOString()
-        })
-        .eq('item_code', itemCode)
-        .select()
-        .single();
-
-      if (error) throw error;
-
-      const mappedItem = this.mapToEdnItem(data);
-
-      // Invalider le cache
-      cacheService.delete(`${this.CACHE_PREFIX}_edn_items_`);
-
-      // Analytics
-      analyticsService.trackUserAction('content', 'content_archived', { itemCode });
-
-      logger.info('Contenu archivé', {
-        component: 'UnifiedContentService',
-        action: 'archive_content',
-        metadata: { itemCode }
-      });
-
-      return { success: true, data: mappedItem };
-    } catch (error) {
-      analyticsService.trackError(error as Error, { action: 'archive_content', itemCode });
-      
-      logger.error('Erreur archivage contenu', {
-        component: 'UnifiedContentService',
-        action: 'archive_content',
-        metadata: { itemCode }
-      });
-
-      return {
-        success: false,
-        error: error instanceof Error ? error.message : 'Erreur archivage contenu'
-      };
-    }
-  }
-
   // ========== MÉTHODES PRIVÉES ==========
 
-  private mapToEdnItem = (data: any): EdnItem => ({
-    id: data.id,
-    item_code: data.item_code,
-    title: data.title || data.item_code,
-    description: data.subtitle,
-    tableau_rang_a: data.tableau_rang_a,
-    tableau_rang_b: data.tableau_rang_b,
-    paroles_musicales: data.paroles_musicales || [],
-    quiz_questions: data.quiz_questions,
-    scene_immersive: data.scene_immersive,
-    is_premium: data.is_premium || false,
-    content_status: data.content_status || 'draft',
-    theme: data.theme,
-    created_at: data.created_at,
-    updated_at: data.updated_at
-  });
-
-  private mapToContentModule = (data: any): ContentModule => ({
+  private mapToContentModule = (data: EdnItemData): ContentModule => ({
     id: data.id,
     title: data.title || data.item_code,
     description: data.subtitle || `Module ${data.item_code}`,
     content: data.tableau_rang_a || data.tableau_rang_b,
-    difficulty: 'medium',
+    difficulty: 'medium' as const,
     category: this.getCategoryFromItemCode(data.item_code),
-    type: 'interactive',
+    type: 'interactive' as const,
     estimatedTime: 30,
     tags: [data.item_code],
     createdAt: new Date(data.created_at),
@@ -727,6 +329,5 @@ class UnifiedContentService {
   }
 }
 
-// Export instance et types
+// Export singleton instance
 export const contentService = UnifiedContentService.getInstance();
-export default UnifiedContentService;
