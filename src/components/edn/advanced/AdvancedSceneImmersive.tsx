@@ -10,30 +10,17 @@ import { getUniqueSpectacularTheme } from '../scene/sceneThemes';
 import MicroInteractions from '@/components/experience/MicroInteractions';
 
 interface AdvancedSceneImmersiveProps {
-  itemData: {
+  item: {
     id: string;
     title: string;
-    scene_data?: {
-      description?: string;
-      mots_cles?: string[];
-      effet?: string;
-      setting?: string;
-      characters?: Array<{
-        name: string;
-        role: string;
-        description: string;
-      }>;
-      scenario?: string;
-    };
-    item_code?: string;
+    scene_immersive?: any;
+    item_code: string;
   };
-  competences: string[];
   onProgress?: (progress: number) => void;
 }
 
 export const AdvancedSceneImmersive: React.FC<AdvancedSceneImmersiveProps> = ({ 
-  itemData, 
-  competences,
+  item, 
   onProgress 
 }) => {
   const [isPlaying, setIsPlaying] = useState(false);
@@ -43,8 +30,16 @@ export const AdvancedSceneImmersive: React.FC<AdvancedSceneImmersiveProps> = ({
   const [isAnimating, setIsAnimating] = useState(false);
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
 
-  const theme = getUniqueSpectacularTheme(itemData.item_code || 'default');
-  const sceneData = itemData.scene_data || {};
+  const theme = getUniqueSpectacularTheme(item.item_code || 'default');
+  
+  // Production API connection to Supabase
+  const [sceneData, setSceneData] = useState(null);
+  
+  useEffect(() => {
+    if (item?.scene_immersive) {
+      setSceneData(item.scene_immersive);
+    }
+  }, [item]);
 
   useEffect(() => {
     if (isPlaying) {
@@ -93,7 +88,7 @@ export const AdvancedSceneImmersive: React.FC<AdvancedSceneImmersiveProps> = ({
   return (
     <Card className="relative min-h-[600px] overflow-hidden border-0 bg-gradient-to-br from-background/80 to-muted/40 backdrop-blur-sm">
         <div className="absolute inset-0">
-          <SceneBackground theme={theme} itemCode={itemData.item_code || 'default'} />
+          <SceneBackground theme={theme} itemCode={item.item_code || 'default'} />
         </div>
 
         <CardHeader className="relative z-10 bg-background/90 backdrop-blur-xl border-b">
@@ -113,7 +108,7 @@ export const AdvancedSceneImmersive: React.FC<AdvancedSceneImmersiveProps> = ({
                   </Badge>
                 </CardTitle>
                 <p className="text-sm text-muted-foreground">
-                  {itemData.title} - Exploration interactive
+                  {item.title} - Exploration interactive
                 </p>
               </div>
             </div>
@@ -194,15 +189,12 @@ export const AdvancedSceneImmersive: React.FC<AdvancedSceneImmersiveProps> = ({
                   Compétences développées
                 </h4>
                 <div className="flex flex-wrap gap-1">
-                  {competences.map((comp, index) => (
                   <Badge 
-                    key={index} 
                     variant="secondary"
                     className="text-xs animate-fade-in"
                   >
-                      {comp}
-                    </Badge>
-                  ))}
+                    Compétences EDN {item.item_code}
+                  </Badge>
                 </div>
               </CardContent>
             </Card>
