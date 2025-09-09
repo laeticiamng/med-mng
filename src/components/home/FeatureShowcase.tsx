@@ -4,11 +4,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Music, BookOpen, Users, BarChart3, ArrowRight, Sparkles } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 const FeatureShowcase: React.FC = () => {
-  const navigate = useNavigate();
-
   const features = [
     {
       icon: Music,
@@ -63,19 +61,22 @@ const FeatureShowcase: React.FC = () => {
               transition={{ delay: index * 0.1 }}
               whileHover={{ scale: 1.05 }}
             >
-              <Card className="h-full hover:shadow-xl transition-all duration-300 cursor-pointer"
-                    onClick={() => navigate(feature.path)}>
-                <CardContent className="p-6 text-center">
-                  <div className={`w-16 h-16 mx-auto mb-4 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center`}>
-                    <feature.icon className="w-8 h-8 text-white" />
-                  </div>
-                  <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
-                  <p className="text-muted-foreground mb-4">{feature.description}</p>
-                  <Button variant="outline" size="sm" className="group">
-                    Explorer
-                    <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                  </Button>
-                </CardContent>
+              <Card className="h-full hover:shadow-xl transition-all duration-300 group">
+                <Link to={feature.path} className="block h-full">
+                  <CardContent className="p-6 text-center h-full flex flex-col justify-between">
+                    <div>
+                      <div className={`w-16 h-16 mx-auto mb-4 rounded-xl bg-gradient-to-br ${feature.color} flex items-center justify-center`}>
+                        <feature.icon className="w-8 h-8 text-white" />
+                      </div>
+                      <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
+                      <p className="text-muted-foreground mb-4">{feature.description}</p>
+                    </div>
+                    <Button variant="outline" size="sm" className="group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
+                      Explorer
+                      <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                    </Button>
+                  </CardContent>
+                </Link>
               </Card>
             </motion.div>
           ))}
