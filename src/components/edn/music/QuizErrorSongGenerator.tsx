@@ -6,6 +6,7 @@ import { Music, AlertTriangle, Brain, Target } from 'lucide-react';
 import { useQuizErrorTracker } from '@/hooks/useQuizErrorTracker';
 import { useSpotifyAI } from '@/hooks/useSpotifyAI';
 import { useToast } from '@/hooks/use-toast';
+import { logger } from '@/utils/structuredLogger';
 
 interface QuizErrorSongGeneratorProps {
   itemCode: string;
@@ -89,7 +90,14 @@ Grâce à mes erreurs... quelle surprise !`;
 
     try {
       const lyrics = generateLyricsFromErrors();
-      console.log('🎵 Génération chanson d\'erreurs:', { lyrics, style: selectedStyle });
+      logger.info('Génération chanson erreurs', {
+        component: 'QuizErrorSongGenerator',
+        metadata: {
+          itemCode,
+          style: selectedStyle,
+          errorCount: currentErrors.length
+        }
+      });
       
       await generateMusic({
         item_code: itemCode,
@@ -105,7 +113,10 @@ Grâce à mes erreurs... quelle surprise !`;
       });
       
     } catch (error) {
-      console.error('❌ Erreur génération chanson erreurs:', error);
+      logger.error('Erreur génération chanson erreurs', {
+        component: 'QuizErrorSongGenerator',
+        metadata: { itemCode }
+      }, error as Error);
       toast({
         title: "Erreur de génération",
         description: "Impossible de générer la chanson d'erreurs",

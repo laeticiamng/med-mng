@@ -516,8 +516,7 @@ export const EnhancedSceneImmersive = ({ data, itemCode, title }: EnhancedSceneI
                     }}
                     whileHover={{ scale: 1.5 }}
                     onClick={() => {
-                      // Interaction click handler
-                      console.log(`Interaction: ${interaction.response}`);
+                      // Interaction click handler - no logging for UI interactions
                     }}
                   >
                     <Zap className="h-4 w-4 text-white" />
