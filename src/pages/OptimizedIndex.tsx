@@ -15,30 +15,24 @@ import { cn } from '@/lib/utils';
 import { usePerformanceOptimization } from '@/hooks/usePerformanceOptimization';
 import { useAdvancedAccessibility } from '@/hooks/useAdvancedAccessibility';
 import { useUserPreferences } from '@/hooks/useUserPreferences';
+import { PremiumThemeProvider, PremiumElement, PremiumCard, PremiumButton } from '@/components/global/PremiumThemeProvider';
+import { PremiumLayoutWrapper } from '@/components/global/PremiumLayoutWrapper';
+import EnhancedInteractionLayer from '@/components/home/EnhancedInteractionLayer';
+import SmartLoadingIndicator from '@/components/home/SmartLoadingIndicator';
 
 // Lazy load components for performance
 const FeatureShowcase = lazy(() => import('@/components/home/FeatureShowcase'));
 const TestimonialCarousel = lazy(() => import('@/components/home/TestimonialCarousel'));
 
-// Composant de squelette amélioré
+// Composant de squelette premium amélioré
 const FeatureSkeleton = memo(() => (
   <div className="medical-section bg-gradient-to-br from-background via-primary/5 to-accent/5">
     <div className="medical-container">
-      <div className="text-center mb-16">
-        <div className="h-6 w-48 bg-muted/20 animate-pulse rounded mx-auto mb-4" />
-        <div className="h-12 w-96 bg-muted/20 animate-pulse rounded mx-auto mb-6" />
-        <div className="h-6 w-80 bg-muted/20 animate-pulse rounded mx-auto" />
-      </div>
-      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
-        {[...Array(4)].map((_, i) => (
-          <div key={i} className="bg-card rounded-lg border p-6">
-            <div className="w-16 h-16 bg-muted/20 animate-pulse rounded-xl mx-auto mb-4" />
-            <div className="h-6 w-32 bg-muted/20 animate-pulse rounded mx-auto mb-2" />
-            <div className="h-4 w-full bg-muted/20 animate-pulse rounded mb-4" />
-            <div className="h-9 w-24 bg-muted/20 animate-pulse rounded mx-auto" />
-          </div>
-        ))}
-      </div>
+      <SmartLoadingIndicator 
+        message="Chargement des fonctionnalités..." 
+        variant="detailed" 
+        showProgress={false}
+      />
     </div>
   </div>
 ));
@@ -46,30 +40,11 @@ const FeatureSkeleton = memo(() => (
 const TestimonialSkeleton = memo(() => (
   <div className="medical-section bg-gradient-to-br from-muted/20 to-background">
     <div className="medical-container">
-      <div className="text-center mb-16">
-        <div className="h-6 w-40 bg-muted/20 animate-pulse rounded mx-auto mb-4" />
-        <div className="h-12 w-80 bg-muted/20 animate-pulse rounded mx-auto mb-6" />
-        <div className="h-6 w-96 bg-muted/20 animate-pulse rounded mx-auto" />
-      </div>
-      <div className="grid md:grid-cols-3 gap-8">
-        {[...Array(3)].map((_, i) => (
-          <div key={i} className="bg-card rounded-lg border p-6">
-            <div className="w-8 h-8 bg-muted/20 animate-pulse rounded mb-4" />
-            <div className="space-y-2 mb-6">
-              <div className="h-4 w-full bg-muted/20 animate-pulse rounded" />
-              <div className="h-4 w-4/5 bg-muted/20 animate-pulse rounded" />
-              <div className="h-4 w-3/4 bg-muted/20 animate-pulse rounded" />
-            </div>
-            <div className="flex gap-1 mb-2">
-              {[...Array(5)].map((_, j) => (
-                <div key={j} className="w-4 h-4 bg-muted/20 animate-pulse rounded" />
-              ))}
-            </div>
-            <div className="h-5 w-32 bg-muted/20 animate-pulse rounded mb-1" />
-            <div className="h-4 w-24 bg-muted/20 animate-pulse rounded" />
-          </div>
-        ))}
-      </div>
+      <SmartLoadingIndicator 
+        message="Chargement des témoignages..." 
+        variant="interactive" 
+        showProgress={false}
+      />
     </div>
   </div>
 ));
@@ -138,38 +113,38 @@ const PremiumHero = memo(() => {
     if (user) {
       return (
         <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8">
-          <Button asChild size="lg" className="medical-btn-primary px-8 py-4 text-lg font-semibold group">
-            <Link to="/med-mng/dashboard">
+          <PremiumButton size="lg" className="px-8 py-4 text-lg font-semibold">
+            <Link to="/med-mng/dashboard" className="flex items-center gap-2">
               Accéder au Dashboard
-              <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+              <ArrowRight className="w-5 h-5" />
             </Link>
-          </Button>
+          </PremiumButton>
           
-          <Button asChild size="lg" variant="outline" className="medical-btn-outline px-8 py-4 text-lg font-semibold group">
-            <Link to="/med-mng/create">
-              <Play className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
+          <PremiumButton variant="outline" size="lg" className="px-8 py-4 text-lg font-semibold">
+            <Link to="/med-mng/create" className="flex items-center gap-2">
+              <Play className="w-5 h-5" />
               Créer du Contenu
             </Link>
-          </Button>
+          </PremiumButton>
         </div>
       );
     }
 
     return (
       <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8">
-        <Button asChild size="lg" className="medical-btn-primary px-8 py-4 text-lg font-semibold group">
-          <Link to="/med-mng/signup">
+        <PremiumButton size="lg" className="px-8 py-4 text-lg font-semibold">
+          <Link to="/med-mng/signup" className="flex items-center gap-2">
             Commencer Gratuitement
-            <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+            <ArrowRight className="w-5 h-5" />
           </Link>
-        </Button>
+        </PremiumButton>
         
-        <Button asChild size="lg" variant="outline" className="medical-btn-outline px-8 py-4 text-lg font-semibold group">
-          <Link to="/platform">
-            <Play className="w-5 h-5 mr-2 group-hover:scale-110 transition-transform" />
+        <PremiumButton variant="outline" size="lg" className="px-8 py-4 text-lg font-semibold">
+          <Link to="/platform" className="flex items-center gap-2">
+            <Play className="w-5 h-5" />
             Voir la Démo
           </Link>
-        </Button>
+        </PremiumButton>
       </div>
     );
   };
@@ -230,97 +205,96 @@ const OptimizedIndex: React.FC = () => {
   }, [announceToScreenReader]);
 
   return (
-    <>
-      <Helmet>
-        <title>MED-MNG - Révolutionnez votre Apprentissage Médical avec l'IA</title>
-        <meta name="description" content="Plateforme d'apprentissage médical révolutionnaire avec IA musicale, tableaux interactifs et contenu personnalisé pour réussir les ECN." />
-        <meta name="keywords" content="médecine, ECN, apprentissage, IA, musique éducative, étudiants médecine" />
-        <link rel="canonical" href="/" />
-        <meta property="og:title" content="MED-MNG - L'IA au Service de l'Excellence Médicale" />
-        <meta property="og:description" content="Transformez votre préparation ECN avec notre IA révolutionnaire." />
-        <meta property="og:type" content="website" />
-        <meta name="twitter:card" content="summary_large_image" />
-        
-        {/* Structured Data */}
-        <script type="application/ld+json">
-          {JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "EducationalOrganization",
-            "name": "MED-MNG",
-            "description": "Plateforme d'apprentissage médical avec IA",
-            "url": "https://med-mng.com",
-            "logo": "https://med-mng.com/logo.png",
-            "sameAs": [
-              "https://twitter.com/medmng",
-              "https://linkedin.com/company/medmng"
-            ]
-          })}
-        </script>
-      </Helmet>
+    <PremiumThemeProvider>
+      <PremiumLayoutWrapper enableBackgroundEffects={true}>
+        <EnhancedInteractionLayer enableParticles={true}>
+          <Helmet>
+            <title>MED-MNG - Révolutionnez votre Apprentissage Médical avec l'IA</title>
+            <meta name="description" content="Plateforme d'apprentissage médical révolutionnaire avec IA musicale, tableaux interactifs et contenu personnalisé pour réussir les ECN." />
+            <meta name="keywords" content="médecine, ECN, apprentissage, IA, musique éducative, étudiants médecine" />
+            <link rel="canonical" href="/" />
+            <meta property="og:title" content="MED-MNG - L'IA au Service de l'Excellence Médicale" />
+            <meta property="og:description" content="Transformez votre préparation ECN avec notre IA révolutionnaire." />
+            <meta property="og:type" content="website" />
+            <meta name="twitter:card" content="summary_large_image" />
+            
+            {/* Structured Data */}
+            <script type="application/ld+json">
+              {JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "EducationalOrganization",
+                "name": "MED-MNG",
+                "description": "Plateforme d'apprentissage médical avec IA",
+                "url": "https://med-mng.com",
+                "logo": "https://med-mng.com/logo.png",
+                "sameAs": [
+                  "https://twitter.com/medmng",
+                  "https://linkedin.com/company/medmng"
+                ]
+              })}
+            </script>
+          </Helmet>
 
-      <main className="min-h-screen">
-        <PremiumHero />
-        
-        <Suspense fallback={<FeatureSkeleton />}>
-          <FeatureShowcase />
-        </Suspense>
-        
-        <Suspense fallback={<TestimonialSkeleton />}>
-          <TestimonialCarousel />
-        </Suspense>
+          <main className="min-h-screen">
+            <PremiumHero />
+            
+            <Suspense fallback={<FeatureSkeleton />}>
+              <FeatureShowcase />
+            </Suspense>
+            
+            <Suspense fallback={<TestimonialSkeleton />}>
+              <TestimonialCarousel />
+            </Suspense>
 
-        {/* Final CTA avec authentification */}
-        <motion.section 
-          className="medical-section bg-gradient-to-r from-primary via-accent to-primary text-white"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-        >
-          <div className="medical-container text-center">
-            <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              whileInView={{ scale: 1, opacity: 1 }}
-              transition={{ duration: 0.8 }}
-              className="space-y-8"
-            >
-              <h2 className="text-4xl md:text-5xl font-bold">
-                {user ? 'Continuez Votre Parcours d\'Excellence' : 'Prêt à Révolutionner Votre Apprentissage ?'}
-              </h2>
-              <p className="text-xl opacity-90 max-w-2xl mx-auto">
-                {user 
-                  ? 'Explorez de nouvelles fonctionnalités et poursuivez votre progression'
-                  : 'Rejoignez des milliers d\'étudiants qui ont déjà transformé leur préparation ECN'
-                }
-              </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                {user ? (
-                  <>
-                    <Button asChild size="lg" variant="secondary" className="px-8 py-4 text-lg font-semibold bg-white text-primary hover:bg-gray-100">
-                      <Link to="/med-mng/create">
-                        Créer du Contenu
-                        <ArrowRight className="w-5 h-5 ml-2" />
-                      </Link>
-                    </Button>
-                    <Button asChild size="lg" variant="outline" className="px-8 py-4 text-lg font-semibold border-white text-white hover:bg-white/10">
-                      <Link to="/med-mng/library">
-                        Ma Bibliothèque
-                      </Link>
-                    </Button>
-                  </>
-                ) : (
-                  <Button asChild size="lg" variant="secondary" className="px-8 py-4 text-lg font-semibold bg-white text-primary hover:bg-gray-100">
-                    <Link to="/med-mng/signup">
-                      Commencer Maintenant
-                      <ArrowRight className="w-5 h-5 ml-2" />
-                    </Link>
-                  </Button>
-                )}
-              </div>
-            </motion.div>
-          </div>
-        </motion.section>
-      </main>
-    </>
+            {/* Final CTA avec authentification */}
+            <PremiumElement className="medical-section">
+              <PremiumCard 
+                variant="gradient" 
+                className="bg-gradient-to-r from-primary via-accent to-primary text-primary-foreground p-12 border-none"
+              >
+                <div className="medical-container text-center">
+                  <div className="space-y-8">
+                    <h2 className="text-4xl md:text-5xl font-bold text-white">
+                      {user ? 'Continuez Votre Parcours d\'Excellence' : 'Prêt à Révolutionner Votre Apprentissage ?'}
+                    </h2>
+                    <p className="text-xl opacity-90 max-w-2xl mx-auto text-white">
+                      {user 
+                        ? 'Explorez de nouvelles fonctionnalités et poursuivez votre progression'
+                        : 'Rejoignez des milliers d\'étudiants qui ont déjà transformé leur préparation ECN'
+                      }
+                    </p>
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                      {user ? (
+                        <>
+                          <PremiumButton variant="secondary" size="lg" className="bg-card text-foreground hover:bg-card/90">
+                            <Link to="/med-mng/create" className="flex items-center gap-2">
+                              Créer du Contenu
+                              <ArrowRight className="w-5 h-5" />
+                            </Link>
+                          </PremiumButton>
+                          <PremiumButton variant="outline" size="lg" className="border-white/20 text-white hover:bg-white/10">
+                            <Link to="/med-mng/library">
+                              Ma Bibliothèque
+                            </Link>
+                          </PremiumButton>
+                        </>
+                      ) : (
+                        <PremiumButton variant="secondary" size="lg" className="bg-card text-foreground hover:bg-card/90">
+                          <Link to="/med-mng/signup" className="flex items-center gap-2">
+                            Commencer Maintenant
+                            <ArrowRight className="w-5 h-5" />
+                          </Link>
+                        </PremiumButton>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </PremiumCard>
+            </PremiumElement>
+          </main>
+        </EnhancedInteractionLayer>
+      </PremiumLayoutWrapper>
+    </PremiumThemeProvider>
   );
 };
 
