@@ -23,7 +23,7 @@ import {
 import { useAuth } from '@/hooks/unified/useAuth';
 import { useUserStats } from '@/hooks/unified/useUserStats';
 import { AdaptiveLearningEngine } from '@/components/learning/AdaptiveLearningEngine';
-import { InteractiveQuizEngine } from '@/components/learning/InteractiveQuizEngine';
+// Import removed - component will be loaded dynamically when needed
 
 const UnifiedDashboard = () => {
   const { user } = useAuth();

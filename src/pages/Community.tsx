@@ -2,23 +2,27 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Badge } from '@/components/ui/badge';
+import { Textarea } from '@/components/ui/textarea';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Separator } from '@/components/ui/separator';
+import { useAuth } from '@/hooks/unified/useAuth';
 import { ConsistentBackground } from '@/components/layout/ConsistentBackground';
-import { usePlatformAnalytics } from '@/hooks/usePlatformAnalytics';
 import { 
-  MessageSquare, 
   Users, 
-  TrendingUp, 
-  Search, 
+  MessageSquare, 
   Heart, 
-  MessageCircle, 
-  Share, 
-  Star,
+  Share2, 
+  TrendingUp,
   Calendar,
-  Award,
-  Bookmark
+  Filter,
+  Search,
+  Plus,
+  Star,
+  Trophy,
+  BookOpen,
+  Target
 } from 'lucide-react';
 
 interface Post {
@@ -26,388 +30,374 @@ interface Post {
   author: {
     name: string;
     avatar: string;
-    role: string;
-    verified: boolean;
+    level: number;
+    specialty: string;
   };
   content: string;
-  category: string;
   timestamp: string;
   likes: number;
   comments: number;
-  shares: number;
   tags: string[];
-  isLiked: boolean;
-  isBookmarked: boolean;
+  type: 'discussion' | 'question' | 'study_group' | 'achievement';
 }
 
-interface CommunityUser {
+interface StudyGroup {
   id: string;
   name: string;
-  avatar: string;
-  role: string;
-  badges: string[];
-  contributions: number;
-  reputation: number;
+  description: string;
+  members: number;
+  maxMembers: number;
+  subject: string;
+  nextSession: string;
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
 }
 
 const Community: React.FC = () => {
-  const { trackEvent } = usePlatformAnalytics();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [activeFilter, setActiveFilter] = useState('all');
+  const { user } = useAuth();
   
   const [posts, setPosts] = useState<Post[]>([
     {
       id: '1',
       author: {
-        name: 'Dr. Sophie Martin',
-        avatar: '/avatars/sophie.jpg',
-        role: 'Médecin urgentiste',
-        verified: true
+        name: 'Dr. Marie Martin',
+        avatar: '',
+        level: 5,
+        specialty: 'Cardiologie'
       },
-      content: 'Excellente session de formation sur les nouvelles techniques de réanimation. Le module EDN permet vraiment une approche immersive qui améliore la rétention des connaissances. Recommandé pour tous les praticiens !',
-      category: 'Formation',
+      content: 'Excellent article sur les nouveaux protocoles de traitement de l\'insuffisance cardiaque. Qu\'en pensez-vous ?',
       timestamp: '2h',
       likes: 24,
       comments: 8,
-      shares: 3,
-      tags: ['EDN', 'Réanimation', 'Formation'],
-      isLiked: false,
-      isBookmarked: true
+      tags: ['cardiologie', 'traitement'],
+      type: 'discussion'
     },
     {
       id: '2',
       author: {
-        name: 'Prof. Antoine Dubois',
-        avatar: '/avatars/antoine.jpg',
-        role: 'Professeur de médecine',
-        verified: true
+        name: 'Thomas Dubois',
+        avatar: '',
+        level: 3,
+        specialty: 'Étudiant M4'
       },
-      content: 'Je partage avec vous cette étude de cas intéressante sur l\'utilisation de l\'IA dans le diagnostic précoce. Les outils MED-MNG offrent des perspectives prometteuses pour l\'analyse prédictive.',
-      category: 'Recherche',
+      content: 'Quelqu\'un peut-il m\'expliquer la différence entre tachycardie ventriculaire et fibrillation ventriculaire ?',
       timestamp: '4h',
-      likes: 45,
-      comments: 12,
-      shares: 7,
-      tags: ['IA', 'Diagnostic', 'Recherche'],
-      isLiked: true,
-      isBookmarked: false
-    },
-    {
-      id: '3',
-      author: {
-        name: 'Dr. Marie Leroy',
-        avatar: '/avatars/marie.jpg',
-        role: 'Cardiologue',
-        verified: false
-      },
-      content: 'Question à la communauté : quelles sont vos meilleures pratiques pour l\'utilisation des simulations ECOS ? J\'aimerais optimiser mes sessions de formation.',
-      category: 'Discussion',
-      timestamp: '6h',
-      likes: 18,
+      likes: 12,
       comments: 15,
-      shares: 2,  
-      tags: ['ECOS', 'Simulation', 'Bonnes pratiques'],
-      isLiked: false,
-      isBookmarked: false
+      tags: ['urgences', 'cardiologie'],
+      type: 'question'
     }
   ]);
 
-  const [topUsers, setTopUsers] = useState<CommunityUser[]>([
+  const [studyGroups, setStudyGroups] = useState<StudyGroup[]>([
     {
       id: '1',
-      name: 'Dr. Sophie Martin',
-      avatar: '/avatars/sophie.jpg',
-      role: 'Médecin urgentiste',
-      badges: ['Expert', 'Contributeur actif', 'Mentor'],
-      contributions: 156,
-      reputation: 2850
+      name: 'ECN Cardiologie',
+      description: 'Préparation intensive pour les ECN en cardiologie',
+      members: 15,
+      maxMembers: 20,
+      subject: 'Cardiologie',
+      nextSession: '2024-01-15T18:00',
+      difficulty: 'advanced'
     },
     {
-      id: '2',  
-      name: 'Prof. Antoine Dubois',
-      avatar: '/avatars/antoine.jpg',
-      role: 'Professeur',
-      badges: ['Chercheur', 'Innovateur', 'Leader'],
-      contributions: 203,
-      reputation: 3240
-    },
-    {
-      id: '3',
-      name: 'Dr. Claire Moreau',
-      avatar: '/avatars/claire.jpg',
-      role: 'Pédiatre',
-      badges: ['Spécialiste', 'Éducateur'],
-      contributions: 89,
-      reputation: 1920
+      id: '2',
+      name: 'Anatomie Débutants',
+      description: 'Révisions d\'anatomie pour les premières années',
+      members: 8,
+      maxMembers: 12,
+      subject: 'Anatomie',
+      nextSession: '2024-01-14T16:00',
+      difficulty: 'beginner'
     }
   ]);
 
-  useEffect(() => {
-    trackEvent('community_visit');
-  }, [trackEvent]);
+  const [newPost, setNewPost] = useState('');
+  const [selectedFilter, setSelectedFilter] = useState('all');
 
-  const handleLike = (postId: string) => {
-    setPosts(prev => prev.map(post => 
-      post.id === postId 
-        ? { 
-            ...post, 
-            isLiked: !post.isLiked,
-            likes: post.isLiked ? post.likes - 1 : post.likes + 1
-          }
-        : post
-    ));
-    trackEvent('community_like', { post_id: postId });
-  };
-
-  const handleBookmark = (postId: string) => {
-    setPosts(prev => prev.map(post => 
-      post.id === postId 
-        ? { ...post, isBookmarked: !post.isBookmarked }
-        : post
-    ));
-    trackEvent('community_bookmark', { post_id: postId });
-  };
-
-  const filteredPosts = posts.filter(post => {
-    const matchesSearch = searchQuery === '' || 
-      post.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      post.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()));
+  const handleCreatePost = () => {
+    if (!newPost.trim()) return;
     
-    const matchesFilter = activeFilter === 'all' || 
-      post.category.toLowerCase() === activeFilter.toLowerCase();
-      
-    return matchesSearch && matchesFilter;
-  });
+    const post: Post = {
+      id: Date.now().toString(),
+      author: {
+        name: user?.user_metadata?.name || 'Utilisateur',
+        avatar: '',
+        level: 2,
+        specialty: 'Étudiant'
+      },
+      content: newPost,
+      timestamp: 'maintenant',
+      likes: 0,
+      comments: 0,
+      tags: [],
+      type: 'discussion'
+    };
+    
+    setPosts(prev => [post, ...prev]);
+    setNewPost('');
+  };
 
-  const categories = ['all', 'formation', 'recherche', 'discussion', 'annonces'];
+  const getDifficultyColor = (difficulty: string) => {
+    const colors = {
+      beginner: 'bg-green-500/20 text-green-200',
+      intermediate: 'bg-yellow-500/20 text-yellow-200',
+      advanced: 'bg-red-500/20 text-red-200'
+    };
+    return colors[difficulty as keyof typeof colors] || colors.beginner;
+  };
+
+  const getTypeIcon = (type: string) => {
+    const icons = {
+      discussion: MessageSquare,
+      question: Target,
+      study_group: Users,
+      achievement: Trophy
+    };
+    return icons[type as keyof typeof icons] || MessageSquare;
+  };
 
   return (
     <ConsistentBackground variant="secondary">
       <div className="min-h-screen py-8">
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="mb-8">
-            <h1 className="text-4xl font-bold text-white mb-2">Communauté MED-MNG</h1>
-            <p className="text-white/70">Partagez, apprenez et collaborez avec la communauté médicale</p>
+            <h1 className="text-4xl font-bold text-white mb-2">Communauté Médicale</h1>
+            <p className="text-white/70">Échangez, apprenez et progressez ensemble</p>
           </div>
 
-          <div className="grid lg:grid-cols-4 gap-8">
-            {/* Sidebar */}
-            <div className="lg:col-span-1">
-              <div className="sticky top-8 space-y-6">
-                {/* Stats de la communauté */}
-                <Card className="bg-white/10 backdrop-blur-sm border-white/20">
-                  <CardHeader>
-                    <CardTitle className="text-white text-sm">Statistiques</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Users className="h-4 w-4 text-blue-400" />
-                        <span className="text-white/80 text-sm">Membres</span>
-                      </div>
-                      <span className="text-white font-medium">1,247</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <MessageSquare className="h-4 w-4 text-green-400" />
-                        <span className="text-white/80 text-sm">Posts</span>
-                      </div>
-                      <span className="text-white font-medium">3,891</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <TrendingUp className="h-4 w-4 text-purple-400" />
-                        <span className="text-white/80 text-sm">Actifs</span>
-                      </div>
-                      <span className="text-white font-medium">423</span>
-                    </div>
-                  </CardContent>
-                </Card>
+          <Tabs defaultValue="feed" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-4 bg-white/10 backdrop-blur-sm">
+              <TabsTrigger value="feed" className="flex items-center gap-2">
+                <MessageSquare className="h-4 w-4" />
+                Fil d'actualité
+              </TabsTrigger>
+              <TabsTrigger value="questions" className="flex items-center gap-2">
+                <Target className="h-4 w-4" />
+                Questions
+              </TabsTrigger>
+              <TabsTrigger value="study-groups" className="flex items-center gap-2">
+                <Users className="h-4 w-4" />
+                Groupes d'étude
+              </TabsTrigger>
+              <TabsTrigger value="leaderboard" className="flex items-center gap-2">
+                <Trophy className="h-4 w-4" />
+                Classement
+              </TabsTrigger>
+            </TabsList>
 
-                {/* Top contributeurs */}
-                <Card className="bg-white/10 backdrop-blur-sm border-white/20">
-                  <CardHeader>
-                    <CardTitle className="text-white text-sm flex items-center gap-2">
-                      <Award className="h-4 w-4" />
-                      Top Contributeurs
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    {topUsers.slice(0, 3).map((user, index) => (
-                      <div key={user.id} className="flex items-center gap-3">
-                        <div className="flex items-center gap-2">
-                          <span className="text-yellow-400 font-bold text-sm">#{index + 1}</span>
-                          <Avatar className="h-8 w-8">
-                            <AvatarImage src={user.avatar} />
-                            <AvatarFallback className="bg-white/20 text-white text-xs">
-                              {user.name.split(' ').map(n => n[0]).join('')}
-                            </AvatarFallback>
-                          </Avatar>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-white text-sm font-medium truncate">{user.name}</p>
-                          <p className="text-white/60 text-xs">{user.reputation} pts</p>
-                        </div>
-                      </div>
-                    ))}
-                  </CardContent>
-                </Card>
-              </div>
-            </div>
-
-            {/* Main Content */}
-            <div className="lg:col-span-3 space-y-6">
-              {/* Search and Filters */}
-              <Card className="bg-white/10 backdrop-blur-sm border-white/20">
-                <CardContent className="pt-6">
-                  <div className="flex flex-col sm:flex-row gap-4">
-                    <div className="flex-1 relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/50 h-4 w-4" />
-                      <Input
-                        placeholder="Rechercher dans la communauté..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-10 bg-white/5 border-white/20 text-white placeholder:text-white/50"
-                      />
-                    </div>
-                    <div className="flex gap-2">
-                      {categories.map((category) => (
-                        <Button
-                          key={category}
-                          variant={activeFilter === category ? "default" : "outline"}
-                          size="sm"
-                          onClick={() => setActiveFilter(category)}
-                          className={`${
-                            activeFilter === category
-                              ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white'
-                              : 'bg-white/5 border-white/20 text-white hover:bg-white/10'
-                          } capitalize`}
-                        >
-                          {category === 'all' ? 'Tout' : category}
-                        </Button>
-                      ))}
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              {/* Posts */}
-              <div className="space-y-6">
-                {filteredPosts.map((post) => (
-                  <Card key={post.id} className="bg-white/10 backdrop-blur-sm border-white/20">
+            <TabsContent value="feed" className="space-y-6">
+              <div className="grid lg:grid-cols-4 gap-6">
+                {/* Main Feed */}
+                <div className="lg:col-span-3 space-y-6">
+                  {/* Create Post */}
+                  <Card className="bg-white/10 backdrop-blur-sm border-white/20">
                     <CardContent className="pt-6">
-                      {/* Author info */}
-                      <div className="flex items-start gap-3 mb-4">
-                        <Avatar className="h-10 w-10">
-                          <AvatarImage src={post.author.avatar} />
+                      <div className="flex gap-4">
+                        <Avatar>
                           <AvatarFallback className="bg-white/20 text-white">
-                            {post.author.name.split(' ').map(n => n[0]).join('')}
+                            {user?.email?.slice(0, 2).toUpperCase()}
                           </AvatarFallback>
                         </Avatar>
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            <h4 className="text-white font-medium">{post.author.name}</h4>
-                            {post.author.verified && (
-                              <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                            )}
-                            <Badge variant="secondary" className="bg-blue-500/20 text-blue-200 text-xs">
-                              {post.author.role}
-                            </Badge>
+                        <div className="flex-1 space-y-4">
+                          <Textarea
+                            placeholder="Partagez vos connaissances, posez une question..."
+                            value={newPost}
+                            onChange={(e) => setNewPost(e.target.value)}
+                            className="bg-white/5 border-white/20 text-white placeholder:text-white/50"
+                          />
+                          <div className="flex justify-between items-center">
+                            <div className="flex gap-2">
+                              <Badge variant="outline" className="text-xs">
+                                <MessageSquare className="h-3 w-3 mr-1" />
+                                Discussion
+                              </Badge>
+                            </div>
+                            <Button onClick={handleCreatePost} size="sm">
+                              <Plus className="h-4 w-4 mr-2" />
+                              Publier
+                            </Button>
                           </div>
-                          <div className="flex items-center gap-2 text-white/60 text-sm">
-                            <Calendar className="h-3 w-3" />
-                            <span>Il y a {post.timestamp}</span>
-                            <span>•</span>
-                            <Badge variant="outline" className="border-white/20 text-white/60 text-xs">
-                              {post.category}
-                            </Badge>
-                          </div>
                         </div>
                       </div>
+                    </CardContent>
+                  </Card>
 
-                      {/* Content */}
-                      <div className="mb-4">
-                        <p className="text-white/90 leading-relaxed">{post.content}</p>
-                        
-                        {/* Tags */}
-                        <div className="flex flex-wrap gap-2 mt-3">
-                          {post.tags.map((tag, index) => (
-                            <Badge 
-                              key={index} 
-                              variant="outline" 
-                              className="border-white/20 text-white/70 text-xs"
-                            >
-                              #{tag}
-                            </Badge>
-                          ))}
+                  {/* Posts Feed */}
+                  <div className="space-y-4">
+                    {posts.map((post) => {
+                      const TypeIcon = getTypeIcon(post.type);
+                      return (
+                        <Card key={post.id} className="bg-white/10 backdrop-blur-sm border-white/20">
+                          <CardContent className="pt-6">
+                            <div className="flex gap-4">
+                              <Avatar>
+                                <AvatarImage src={post.author.avatar} />
+                                <AvatarFallback className="bg-white/20 text-white">
+                                  {post.author.name.split(' ').map(n => n[0]).join('')}
+                                </AvatarFallback>
+                              </Avatar>
+                              <div className="flex-1">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <h4 className="text-white font-medium">{post.author.name}</h4>
+                                  <Badge variant="outline" className="text-xs">
+                                    Niveau {post.author.level}
+                                  </Badge>
+                                  <span className="text-white/60 text-sm">{post.author.specialty}</span>
+                                  <span className="text-white/40 text-sm">•</span>
+                                  <span className="text-white/60 text-sm">{post.timestamp}</span>
+                                </div>
+                                <p className="text-white/90 mb-3">{post.content}</p>
+                                <div className="flex items-center gap-4 text-sm text-white/60">
+                                  <button className="flex items-center gap-1 hover:text-white transition-colors">
+                                    <Heart className="h-4 w-4" />
+                                    {post.likes}
+                                  </button>
+                                  <button className="flex items-center gap-1 hover:text-white transition-colors">
+                                    <MessageSquare className="h-4 w-4" />
+                                    {post.comments}
+                                  </button>
+                                  <button className="flex items-center gap-1 hover:text-white transition-colors">
+                                    <Share2 className="h-4 w-4" />
+                                    Partager
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Sidebar */}
+                <div className="space-y-6">
+                  <Card className="bg-white/10 backdrop-blur-sm border-white/20">
+                    <CardHeader>
+                      <CardTitle className="text-white text-lg">Statistiques</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <span className="text-white/70">Membres actifs</span>
+                        <span className="text-white font-semibold">1,247</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-white/70">Questions cette semaine</span>
+                        <span className="text-white font-semibold">89</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-white/70">Discussions actives</span>
+                        <span className="text-white font-semibold">34</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="bg-white/10 backdrop-blur-sm border-white/20">
+                    <CardHeader>
+                      <CardTitle className="text-white text-lg">Sujets populaires</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="flex flex-wrap gap-2">
+                        {['cardiologie', 'urgences', 'anatomie', 'ECN', 'pédiatrie'].map((tag) => (
+                          <Badge key={tag} variant="secondary" className="text-xs">
+                            #{tag}
+                          </Badge>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="study-groups" className="space-y-6">
+              <div className="flex justify-between items-center">
+                <h2 className="text-2xl font-bold text-white">Groupes d'étude</h2>
+                <Button>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Créer un groupe
+                </Button>
+              </div>
+              
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {studyGroups.map((group) => (
+                  <Card key={group.id} className="bg-white/10 backdrop-blur-sm border-white/20">
+                    <CardHeader>
+                      <CardTitle className="text-white">{group.name}</CardTitle>
+                      <CardDescription className="text-white/70">
+                        {group.description}
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <Badge className={getDifficultyColor(group.difficulty)}>
+                          {group.difficulty}
+                        </Badge>
+                        <span className="text-white/60 text-sm">
+                          {group.members}/{group.maxMembers} membres
+                        </span>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 text-white/70 text-sm">
+                          <BookOpen className="h-4 w-4" />
+                          {group.subject}
+                        </div>
+                        <div className="flex items-center gap-2 text-white/70 text-sm">
+                          <Calendar className="h-4 w-4" />
+                          Prochaine session: {new Date(group.nextSession).toLocaleDateString('fr-FR')}
                         </div>
                       </div>
-
-                      {/* Actions */}
-                      <div className="flex items-center justify-between pt-4 border-t border-white/10">
-                        <div className="flex items-center gap-4">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleLike(post.id)}
-                            className={`text-white/70 hover:text-white ${
-                              post.isLiked ? 'text-red-400 hover:text-red-300' : ''
-                            }`}
-                          >
-                            <Heart className={`h-4 w-4 mr-1 ${post.isLiked ? 'fill-current' : ''}`} />
-                            {post.likes}
-                          </Button>
-                          
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-white/70 hover:text-white"
-                          >
-                            <MessageCircle className="h-4 w-4 mr-1" />
-                            {post.comments}
-                          </Button>
-                          
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            className="text-white/70 hover:text-white"
-                          >
-                            <Share className="h-4 w-4 mr-1" />
-                            {post.shares}
-                          </Button>
-                        </div>
-
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleBookmark(post.id)}
-                          className={`text-white/70 hover:text-white ${
-                            post.isBookmarked ? 'text-yellow-400 hover:text-yellow-300' : ''
-                          }`}
-                        >
-                          <Bookmark className={`h-4 w-4 ${post.isBookmarked ? 'fill-current' : ''}`} />
-                        </Button>
-                      </div>
+                      
+                      <Button variant="outline" className="w-full bg-white/5 border-white/20 text-white">
+                        Rejoindre le groupe
+                      </Button>
                     </CardContent>
                   </Card>
                 ))}
-
-                {filteredPosts.length === 0 && (
-                  <Card className="bg-white/10 backdrop-blur-sm border-white/20">
-                    <CardContent className="py-12 text-center">
-                      <MessageSquare className="h-12 w-12 text-white/50 mx-auto mb-4" />
-                      <h3 className="text-white text-lg font-medium mb-2">
-                        Aucun post trouvé
-                      </h3>
-                      <p className="text-white/60">
-                        Essayez de modifier vos filtres ou votre recherche.
-                      </p>
-                    </CardContent>
-                  </Card>
-                )}
               </div>
-            </div>
-          </div>
+            </TabsContent>
+
+            <TabsContent value="leaderboard" className="space-y-6">
+              <Card className="bg-white/10 backdrop-blur-sm border-white/20">
+                <CardHeader>
+                  <CardTitle className="text-white">Top Contributeurs</CardTitle>
+                  <CardDescription className="text-white/70">
+                    Classement basé sur l'activité et la qualité des contributions
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {[
+                      { name: 'Dr. Marie Martin', points: 2890, specialty: 'Cardiologie', rank: 1 },
+                      { name: 'Prof. Jean Dupont', points: 2756, specialty: 'Neurologie', rank: 2 },
+                      { name: 'Dr. Sarah Chen', points: 2634, specialty: 'Urgences', rank: 3 },
+                      { name: 'Thomas Dubois', points: 1890, specialty: 'Étudiant M4', rank: 4 },
+                    ].map((user) => (
+                      <div key={user.rank} className="flex items-center gap-4 p-3 bg-white/5 rounded-lg">
+                        <div className="flex items-center justify-center w-8 h-8 bg-primary rounded-full text-white font-bold">
+                          {user.rank}
+                        </div>
+                        <Avatar>
+                          <AvatarFallback className="bg-white/20 text-white">
+                            {user.name.split(' ').map(n => n[0]).join('')}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1">
+                          <h4 className="text-white font-medium">{user.name}</h4>
+                          <p className="text-white/60 text-sm">{user.specialty}</p>
+                        </div>
+                        <div className="text-right">
+                          <div className="text-white font-semibold">{user.points.toLocaleString()}</div>
+                          <div className="text-white/60 text-sm">points</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
         </div>
       </div>
     </ConsistentBackground>
