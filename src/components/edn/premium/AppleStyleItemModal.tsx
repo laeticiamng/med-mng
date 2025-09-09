@@ -17,9 +17,27 @@ import { BdGallery } from "@/components/edn/BdGallery";
 import { RomanNarratif } from "@/components/edn/RomanNarratif";
 import { useEdnItemV2Process } from "@/hooks/useEdnItemV2Process";
 import { supabase } from "@/integrations/supabase/client";
+import { logger } from '@/utils/structuredLogger';
+
+interface EdnItem {
+  item_code: string;
+  title: string;
+  subtitle?: string;
+  pitch_intro?: string;
+  tableau_rang_a?: Record<string, unknown>;
+  tableau_rang_b?: Record<string, unknown>;
+  competences_oic_rang_a?: unknown[];
+  competences_oic_rang_b?: unknown[];
+  paroles_musicales?: string[];
+  paroles_rang_a?: string[];
+  paroles_rang_b?: string[];
+  paroles_rang_ab?: string[];
+  scene_immersive?: Record<string, unknown>;
+  quiz_questions?: Record<string, unknown>;
+}
 
 interface AppleStyleItemModalProps {
-  item: any;
+  item: EdnItem;
   isOpen: boolean;
   onClose: () => void;
 }
@@ -27,7 +45,7 @@ interface AppleStyleItemModalProps {
 interface Section {
   id: string;
   label: string;
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<{ className?: string; [key: string]: unknown }>;
   available: boolean;
   component: React.ReactNode;
   progress?: number;
@@ -40,7 +58,7 @@ export const AppleStyleItemModal: React.FC<AppleStyleItemModalProps> = ({
 }) => {
   const [activeSection, setActiveSection] = useState('overview');
   const [expandedSections, setExpandedSections] = useState<Set<string>>(new Set(['overview']));
-  const [completeItemData, setCompleteItemData] = useState<any>(null);
+  const [completeItemData, setCompleteItemData] = useState<EdnItem | null>(null);
   const isMobile = useIsMobile();
 
   // Traitement des données V2 si nécessaire
@@ -60,13 +78,22 @@ export const AppleStyleItemModal: React.FC<AppleStyleItemModalProps> = ({
           .maybeSingle();
         
         if (completeData) {
-          console.log('✅ Données complètes récupérées:', completeData);
-          setCompleteItemData(completeData);
+          logger.info('Données complètes Apple modal récupérées', {
+            component: 'AppleStyleItemModal',
+            metadata: { itemCode: finalItem.item_code }
+          });
+          setCompleteItemData(completeData as EdnItem);
         } else {
-          console.warn('⚠️ Aucune donnée complète trouvée pour:', finalItem.item_code);
+          logger.warn('Aucune donnée complète trouvée', {
+            component: 'AppleStyleItemModal',
+            metadata: { itemCode: finalItem.item_code }
+          });
         }
       } catch (error) {
-        console.error('❌ Erreur récupération données complètes:', error);
+        logger.error('Erreur récupération données complètes', {
+          component: 'AppleStyleItemModal',
+          metadata: { itemCode: finalItem.item_code }
+        }, error as Error);
       }
     };
     

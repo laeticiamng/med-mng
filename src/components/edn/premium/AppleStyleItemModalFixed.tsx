@@ -15,9 +15,27 @@ import { EnhancedQuizFinal } from "@/components/edn/EnhancedQuizFinal";
 import { BdGallery } from "@/components/edn/BdGallery";
 import { RomanNarratif } from "@/components/edn/RomanNarratif";
 import { supabase } from "@/integrations/supabase/client";
+import { logger } from '@/utils/structuredLogger';
+
+interface EdnItemFixed {
+  item_code: string;
+  title: string;
+  subtitle?: string;
+  pitch_intro?: string;
+  tableau_rang_a?: Record<string, unknown>;
+  tableau_rang_b?: Record<string, unknown>;
+  competences_oic_rang_a?: unknown[];
+  competences_oic_rang_b?: unknown[];
+  paroles_musicales?: string[];
+  paroles_rang_a?: string[];
+  paroles_rang_b?: string[];
+  paroles_rang_ab?: string[];
+  scene_immersive?: Record<string, unknown>;
+  quiz_questions?: Record<string, unknown>;
+}
 
 interface AppleStyleItemModalProps {
-  item: any;
+  item: EdnItemFixed;
   isOpen: boolean;
   onClose: () => void;
 }
@@ -25,7 +43,7 @@ interface AppleStyleItemModalProps {
 interface Section {
   id: string;
   label: string;
-  icon: React.ComponentType<any>;
+  icon: React.ComponentType<{ className?: string; [key: string]: unknown }>;
   available: boolean;
   component: React.ReactNode;
   progress?: number;
@@ -37,7 +55,7 @@ export const AppleStyleItemModalFixed: React.FC<AppleStyleItemModalProps> = ({
   onClose
 }) => {
   const [activeSection, setActiveSection] = useState('overview');
-  const [completeItemData, setCompleteItemData] = useState<any>(null);
+  const [completeItemData, setCompleteItemData] = useState<EdnItemFixed | null>(null);
   const isMobile = useIsMobile();
 
   // Utiliser les données passées en props ou récupérer depuis la base
@@ -56,13 +74,22 @@ export const AppleStyleItemModalFixed: React.FC<AppleStyleItemModalProps> = ({
           .maybeSingle();
         
         if (completeData) {
-          console.log('✅ Données complètes récupérées:', completeData);
-          setCompleteItemData(completeData);
+          logger.info('Données complètes Apple modal fixed récupérées', {
+            component: 'AppleStyleItemModalFixed',
+            metadata: { itemCode: item.item_code }
+          });
+          setCompleteItemData(completeData as EdnItemFixed);
         } else {
-          console.warn('⚠️ Aucune donnée complète trouvée pour:', item.item_code);
+          logger.warn('Aucune donnée complète trouvée', {
+            component: 'AppleStyleItemModalFixed',
+            metadata: { itemCode: item.item_code }
+          });
         }
       } catch (error) {
-        console.error('❌ Erreur récupération données complètes:', error);
+        logger.error('Erreur récupération données complètes', {
+          component: 'AppleStyleItemModalFixed',
+          metadata: { itemCode: item.item_code }
+        }, error as Error);
       }
     };
     
@@ -233,7 +260,7 @@ export const AppleStyleItemModalFixed: React.FC<AppleStyleItemModalProps> = ({
         component: (
           <div className="p-6">
             <EnhancedQuizFinal 
-              questions={finalItem?.quiz_questions || []} 
+              questions={finalItem?.quiz_questions as unknown || []} 
               itemCode={finalItem?.item_code}
               itemTitle={finalItem?.title || ''}
             />

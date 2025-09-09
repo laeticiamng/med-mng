@@ -21,9 +21,25 @@ import { CompetencesBadges } from "@/components/edn/CompetencesBadges";
 import { CompetenceValidation } from "@/components/edn/CompetenceValidation";
 import { useEdnItemV2Process } from "@/hooks/useEdnItemV2Process";
 import { supabase } from "@/integrations/supabase/client";
+import { logger } from '@/utils/structuredLogger';
+
+interface EdnItemForModal {
+  item_code: string;
+  title: string;
+  subtitle?: string;
+  pitch_intro?: string;
+  tableau_rang_a?: Record<string, unknown>;
+  tableau_rang_b?: Record<string, unknown>;
+  paroles_musicales?: string[];
+  paroles_rang_a?: string[];
+  paroles_rang_b?: string[];
+  paroles_rang_ab?: string[];
+  scene_immersive?: Record<string, unknown>;
+  quiz_questions?: Record<string, unknown>;
+}
 
 interface EdnItemModalProps {
-  item: any;
+  item: EdnItemForModal;
   isOpen: boolean;
   onClose: () => void;
 }
@@ -36,7 +52,7 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
   const [activeTab, setActiveTab] = useState('competences');
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [audioPlaying, setAudioPlaying] = useState(false);
-  const [completeItemData, setCompleteItemData] = useState<any>(null);
+  const [completeItemData, setCompleteItemData] = useState<Record<string, unknown> | null>(null);
   const isMobile = useIsMobile();
 
   // Traitement des données V2 si nécessaire
@@ -57,12 +73,24 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
 
         if (data && !error) {
           setCompleteItemData(data);
-          console.log('🔥 Données OIC récupérées pour', finalItem.item_code, ':', data);
+          logger.info('Données OIC récupérées', {
+            component: 'EdnItemModal',
+            metadata: { 
+              itemCode: finalItem.item_code,
+              hasData: !!data
+            }
+          });
         } else if (!data) {
-          console.warn('⚠️ Aucune donnée OIC trouvée pour:', finalItem.item_code);
+          logger.warn('Aucune donnée OIC trouvée', {
+            component: 'EdnItemModal',
+            metadata: { itemCode: finalItem.item_code }
+          });
         }
       } catch (error) {
-        console.error('Erreur récupération données OIC:', error);
+        logger.error('Erreur récupération données OIC', {
+          component: 'EdnItemModal',
+          metadata: { itemCode: finalItem.item_code }
+        }, error as Error);
       }
     };
 

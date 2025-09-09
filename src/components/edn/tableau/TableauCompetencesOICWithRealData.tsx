@@ -2,6 +2,7 @@
 import React from 'react';
 import { TableauCompetencesOICOptimized } from './TableauCompetencesOICOptimized';
 import { useOicCompetences } from '@/hooks/useOicCompetences';
+import { logger } from '@/utils/structuredLogger';
 
 interface TableauCompetencesOICWithRealDataProps {
   itemCode: string;
@@ -15,10 +16,15 @@ export const TableauCompetencesOICWithRealData: React.FC<TableauCompetencesOICWi
   // Récupération directe depuis backup_oic_competences
   const { competences, loading, error } = useOicCompetences(itemCode, rang);
 
-  console.log(`🔍 TableauCompetencesOICWithRealData - ${itemCode} rang ${rang}:`, {
-    competences: competences?.length || 0,
-    loading,
-    error
+  logger.debug('TableauCompetencesOICWithRealData rendu', {
+    component: 'TableauCompetencesOICWithRealData',
+    metadata: {
+      itemCode,
+      rang,
+      competencesCount: competences?.length || 0,
+      loading,
+      hasError: !!error
+    }
   });
 
   if (loading) {
@@ -102,7 +108,14 @@ export const TableauCompetencesOICWithRealData: React.FC<TableauCompetencesOICWi
     theme: `Compétences OIC ${rang === 'A' ? 'fondamentales' : 'avancées'} - Base backup_oic_competences`
   };
 
-  console.log(`✅ Affichage de ${sortedCompetences.length} compétences OIC pour ${itemCode} rang ${rang}`);
+  logger.info('Affichage compétences OIC avec données réelles', {
+    component: 'TableauCompetencesOICWithRealData',
+    metadata: {
+      itemCode,
+      rang,
+      count: sortedCompetences.length
+    }
+  });
 
   return (
     <div>

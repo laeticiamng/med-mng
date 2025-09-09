@@ -8,16 +8,33 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { RotateCcw, Music, Brain, Trophy, AlertTriangle } from 'lucide-react';
+import { logger } from '@/utils/structuredLogger';
+
+interface QuizQuestion {
+  id: string;
+  question: string;
+  options: string[];
+  correctAnswer: number;
+  explanation?: string;
+  rang: 'A' | 'B';
+  difficulty?: string;
+}
+
+interface TableauSection {
+  concepts?: Array<Record<string, unknown>>;
+}
+
+interface QuizItem {
+  id: string;
+  item_code: string;
+  title: string;
+  tableau_rang_a?: TableauSection;
+  tableau_rang_b?: TableauSection;
+  quiz_questions?: Record<string, unknown>;
+}
 
 interface QuizManagerProps {
-  item: {
-    id: string;
-    item_code: string;
-    title: string;
-    tableau_rang_a?: any;
-    tableau_rang_b?: any;
-    quiz_questions?: any;
-  };
+  item: QuizItem;
   onClose?: () => void;
 }
 
@@ -45,7 +62,7 @@ interface QuizResults {
 export const QuizManager: React.FC<QuizManagerProps> = ({ item, onClose }) => {
   const [currentView, setCurrentView] = useState<'config' | 'quiz' | 'results'>('config');
   const [quizConfig, setQuizConfig] = useState<QuizConfig | null>(null);
-  const [quizQuestions, setQuizQuestions] = useState<any[]>([]);
+  const [quizQuestions, setQuizQuestions] = useState<unknown[]>([]);
   const [quizResults, setQuizResults] = useState<QuizResults | null>(null);
   
   const { 
@@ -60,24 +77,20 @@ export const QuizManager: React.FC<QuizManagerProps> = ({ item, onClose }) => {
     let total = 0;
     
     // Compter les questions existantes dans quiz_questions
-    if (item.quiz_questions?.questions) {
-      total += item.quiz_questions.questions.length;
+    if (item.quiz_questions?.questions && Array.isArray(item.quiz_questions.questions)) {
+      total += (item.quiz_questions.questions as unknown[]).length;
     }
     
     // Compter les compétences disponibles pour générer des questions
-    if (item.tableau_rang_a?.sections) {
-      item.tableau_rang_a.sections.forEach((section: any) => {
-        if (section.concepts) {
-          total += section.concepts.length * 2; // 2 questions par concept
-        }
+    if (item.tableau_rang_a?.concepts) {
+      item.tableau_rang_a.concepts.forEach((concept: Record<string, unknown>) => {
+        total += 2; // 2 questions par concept
       });
     }
     
-    if (item.tableau_rang_b?.sections) {
-      item.tableau_rang_b.sections.forEach((section: any) => {
-        if (section.concepts) {
-          total += section.concepts.length * 2; // 2 questions par concept
-        }
+    if (item.tableau_rang_b?.concepts) {
+      item.tableau_rang_b.concepts.forEach((concept: Record<string, unknown>) => {
+        total += 2; // 2 questions par concept
       });
     }
     
@@ -86,7 +99,14 @@ export const QuizManager: React.FC<QuizManagerProps> = ({ item, onClose }) => {
   };
 
   const handleStartQuiz = (config: QuizConfig) => {
-    console.log('🎯 Configuration du quiz:', config);
+    logger.info('Configuration du quiz', {
+      component: 'QuizManager',
+      metadata: {
+        itemCode: item.item_code,
+        numberOfQuestions: config.numberOfQuestions,
+        difficulty: config.difficulty
+      }
+    });
     
     // Démarrer une session de tracking des erreurs
     startQuizSession(item.item_code, item.title, config.numberOfQuestions);
@@ -94,7 +114,13 @@ export const QuizManager: React.FC<QuizManagerProps> = ({ item, onClose }) => {
     // Générer les questions selon la configuration
     const generatedQuestions = QuizGenerator.generateQuestions(item, config);
     
-    console.log(`🎯 ${generatedQuestions.length} questions générées`);
+    logger.info('Questions générées', {
+      component: 'QuizManager',
+      metadata: {
+        itemCode: item.item_code,
+        questionsGenerated: generatedQuestions.length
+      }
+    });
     
     setQuizConfig(config);
     setQuizQuestions(generatedQuestions);
@@ -102,7 +128,15 @@ export const QuizManager: React.FC<QuizManagerProps> = ({ item, onClose }) => {
   };
 
   const handleQuizComplete = (results: QuizResults) => {
-    console.log('🎯 Quiz terminé:', results);
+    logger.info('Quiz terminé', {
+      component: 'QuizManager',
+      metadata: {
+        itemCode: item.item_code,
+        score: results.score,
+        totalQuestions: results.totalQuestions,
+        correctAnswers: results.correctAnswers
+      }
+    });
     setQuizResults(results);
     
     // Terminer la session de tracking des erreurs
@@ -141,7 +175,7 @@ export const QuizManager: React.FC<QuizManagerProps> = ({ item, onClose }) => {
         itemCode={item.item_code}
         itemTitle={item.title}
         config={quizConfig}
-        questions={quizQuestions}
+        questions={quizQuestions as any}
         onQuizComplete={handleQuizComplete}
         onReturnToConfig={handleReturnToConfig}
       />

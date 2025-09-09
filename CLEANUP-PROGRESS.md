@@ -44,12 +44,12 @@
 - [x] src/components/edn/ParolesMusicales.tsx - ✅ console.log → logger, any → strict types
 - [x] src/components/edn/music/ParolesMusicalesMainContent.tsx - ✅ console.log → logger, any → strict types
 
-#### EDN Immersive Components (Batch 4)
-- [x] src/components/edn/immersive/EnhancedSceneImmersive.tsx - ✅ console.log → logger
-- [x] src/components/edn/immersive/ImmersiveContent.tsx - ✅ console.log → logger, any → strict types
-- [x] src/components/edn/immersive/useImmersiveLogic.ts - ✅ console.log → logger, strict types
-- [x] src/components/edn/music/QuizErrorSongGenerator.tsx - ✅ console.log → logger, strict types
-- [x] src/components/edn/music/hooks/useMusicCardState.ts - ✅ console.log → logger, strict types
+#### EDN Premium & Quiz Components (Batch 5)
+- [x] src/components/edn/premium/AppleStyleItemModal.tsx - ✅ console.log → logger, any → strict types
+- [x] src/components/edn/premium/AppleStyleItemModalFixed.tsx - ✅ console.log → logger, any → strict types
+- [x] src/components/edn/premium/EdnItemModal.tsx - ✅ console.log → logger, any → strict types
+- [x] src/components/edn/quiz/QuizManager.tsx - ✅ console.log → logger, any → strict types
+- [x] src/components/edn/tableau/TableauCompetencesOICWithRealData.tsx - ✅ console.log → logger
 
 ### 6. TODO → Tâches Trackées (✅)
 - **TODO-TASKS.json** créé avec 3 tâches prioritaires :
@@ -62,10 +62,10 @@
 ## 📊 Statistiques Actuelles
 
 ### Nettoyé ✅
-- ✅ 32 fichiers avec logging professionnel (125+ console.log → logger)
+- ✅ 37 fichiers avec logging professionnel (140+ console.log → logger)
 - ✅ 3 TODO convertis en tâches trackées
-- ✅ 70+ types `any` remplacés par types stricts
-- ✅ Interfaces TypeScript ajoutées (ImmersiveItem, Character, SceneImmersive, etc.)
+- ✅ 85+ types `any` remplacés par types stricts
+- ✅ Interfaces TypeScript ajoutées (EdnItem, EdnItemFixed, QuizItem, TableauSection, etc.)
 
 ### Reste à faire 🔄
 - 🔄 861+ console.log restants (194 fichiers)
@@ -105,6 +105,6 @@
 
 ---
 
-**Progrès** : 125+ console.log nettoyés, 70+ types any corrigés, 3 TODO trackés, composants immersifs EDN nettoyés
+**Progrès** : 140+ console.log nettoyés, 85+ types any corrigés, 3 TODO trackés, composants premium & quiz EDN nettoyés
 
 **Prochaine action recommandée** : Continuer le nettoyage sur autres composants EDN ou appliquer le formatage Prettier global.
