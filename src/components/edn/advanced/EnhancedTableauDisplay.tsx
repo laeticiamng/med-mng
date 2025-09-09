@@ -157,7 +157,6 @@ export const EnhancedTableauDisplay: React.FC<EnhancedTableauDisplayProps> = ({
 
   return (
     <Card className="min-h-[600px] bg-gradient-to-br from-background/80 to-muted/40 backdrop-blur-sm">
-      <MicroInteractions>
         <CardHeader className="bg-background/90 backdrop-blur-xl border-b">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -356,7 +355,6 @@ export const EnhancedTableauDisplay: React.FC<EnhancedTableauDisplayProps> = ({
             </CardContent>
           </Card>
         </CardContent>
-      </MicroInteractions>
     </Card>
   );
 };

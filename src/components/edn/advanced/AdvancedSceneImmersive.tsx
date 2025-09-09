@@ -92,7 +92,6 @@ export const AdvancedSceneImmersive: React.FC<AdvancedSceneImmersiveProps> = ({
 
   return (
     <Card className="relative min-h-[600px] overflow-hidden border-0 bg-gradient-to-br from-background/80 to-muted/40 backdrop-blur-sm">
-      <MicroInteractions>
         <div className="absolute inset-0">
           <SceneBackground theme={theme} itemCode={itemData.item_code || 'default'} />
         </div>
@@ -174,12 +173,15 @@ export const AdvancedSceneImmersive: React.FC<AdvancedSceneImmersiveProps> = ({
           <div className="relative">
             <SceneCentralArea
               theme={theme}
-              activeSection={activeSection}
+              activeSection={
+                activeSection === 'characters' ? 0 : 
+                activeSection === 'competences' ? 1 : 2
+              }
               characters={sceneData.characters}
-              motsCles={sceneData.mots_cles}
+              motsCles={sceneData.mots_cles || []}
               currentWordIndex={currentWordIndex}
               isAnimating={isAnimating}
-              effet={sceneData.effet}
+              effet={sceneData.effet || ''}
             />
           </div>
 
@@ -193,12 +195,11 @@ export const AdvancedSceneImmersive: React.FC<AdvancedSceneImmersiveProps> = ({
                 </h4>
                 <div className="flex flex-wrap gap-1">
                   {competences.map((comp, index) => (
-                    <Badge 
-                      key={index} 
-                      variant="secondary"
-                      className="text-xs animate-fade-in"
-                      style={{ animationDelay: `${index * 100}ms` } as React.CSSProperties}
-                    >
+                  <Badge 
+                    key={index} 
+                    variant="secondary"
+                    className="text-xs animate-fade-in"
+                  >
                       {comp}
                     </Badge>
                   ))}
@@ -221,7 +222,6 @@ export const AdvancedSceneImmersive: React.FC<AdvancedSceneImmersiveProps> = ({
             )}
           </div>
         </CardContent>
-      </MicroInteractions>
     </Card>
   );
 };

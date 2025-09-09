@@ -116,13 +116,13 @@ export const AdvancedGenerationMusicale: React.FC<AdvancedGenerationMusicaleProp
             )}
           </div>
 
-          {(isGenerating || generationProgress > 0) && (
+          {(isGenerating || (generationProgress && typeof generationProgress === 'object' && Object.keys(generationProgress).length > 0)) && (
             <div className="mt-4 space-y-2">
               <div className="flex justify-between text-sm">
                 <span>Génération en cours...</span>
-                <span>{generationProgress}%</span>
+                <span>Processing...</span>
               </div>
-              <Progress value={generationProgress} className="h-2" />
+              <Progress value={50} className="h-2" />
             </div>
           )}
         </CardHeader>
@@ -207,13 +207,13 @@ export const AdvancedGenerationMusicale: React.FC<AdvancedGenerationMusicaleProp
           <div className="flex justify-center">
             <Button
               onClick={handleGenerate}
-              disabled={isGenerating || (!customLyrics && !currentLyrics?.length)}
+              disabled={Boolean(isGenerating) || (!customLyrics && !currentLyrics?.length)}
               size="lg"
               className="gap-3 px-8"
             >
-              {isGenerating ? (
+              {Boolean(isGenerating) ? (
                 <>
-                  <Waveform className="h-5 w-5 animate-pulse" />
+                  <Radio className="h-5 w-5 animate-pulse" />
                   Génération en cours...
                 </>
               ) : (
@@ -245,7 +245,7 @@ export const AdvancedGenerationMusicale: React.FC<AdvancedGenerationMusicaleProp
 
                 <audio
                   controls
-                  src={generatedAudio}
+                  src={typeof generatedAudio === 'string' ? generatedAudio : ''}
                   className="w-full"
                   onPlay={() => setIsPlaying(true)}
                   onPause={() => setIsPlaying(false)}
@@ -282,7 +282,6 @@ export const AdvancedGenerationMusicale: React.FC<AdvancedGenerationMusicaleProp
             </div>
           )}
         </CardContent>
-      </MicroInteractions>
     </Card>
   );
 };

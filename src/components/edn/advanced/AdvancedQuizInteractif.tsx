@@ -152,7 +152,6 @@ export const AdvancedQuizInteractif: React.FC<AdvancedQuizInteractifProps> = ({
   if (showResults) {
     return (
       <Card className="min-h-[600px] bg-gradient-to-br from-background/80 to-muted/40 backdrop-blur-sm">
-        <MicroInteractions>
           <CardHeader className="bg-background/90 backdrop-blur-xl border-b">
             <CardTitle className="flex items-center gap-3">
               <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center">
@@ -222,14 +221,12 @@ export const AdvancedQuizInteractif: React.FC<AdvancedQuizInteractifProps> = ({
               </Button>
             </div>
           </CardContent>
-        </MicroInteractions>
       </Card>
     );
   }
 
   return (
     <Card className="min-h-[600px] bg-gradient-to-br from-background/80 to-muted/40 backdrop-blur-sm">
-      <MicroInteractions>
         <CardHeader className="bg-background/90 backdrop-blur-xl border-b">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -382,7 +379,6 @@ export const AdvancedQuizInteractif: React.FC<AdvancedQuizInteractifProps> = ({
             </CardContent>
           </Card>
         </CardContent>
-      </MicroInteractions>
     </Card>
   );
 };

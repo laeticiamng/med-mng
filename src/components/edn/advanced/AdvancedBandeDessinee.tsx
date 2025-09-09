@@ -115,7 +115,6 @@ export const AdvancedBandeDessinee: React.FC<AdvancedBandeDessineeProps> = ({
 
   return (
     <Card className="min-h-[700px] bg-gradient-to-br from-background/80 to-muted/40 backdrop-blur-sm">
-      <MicroInteractions>
         <CardHeader className="bg-background/90 backdrop-blur-xl border-b">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -325,7 +324,6 @@ export const AdvancedBandeDessinee: React.FC<AdvancedBandeDessineeProps> = ({
             </CardContent>
           </Card>
         </CardContent>
-      </MicroInteractions>
     </Card>
   );
 };
