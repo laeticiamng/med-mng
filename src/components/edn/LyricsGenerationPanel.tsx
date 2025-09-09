@@ -114,7 +114,10 @@ export const LyricsGenerationPanel: React.FC<LyricsGenerationPanelProps> = ({
         throw new Error('Aucune parole générée');
       }
     } catch (error) {
-      console.error(`Erreur génération ${rang}:`, error);
+      logger.error(`Erreur génération ${rang}`, {
+        component: 'LyricsGenerationPanel',
+        metadata: { rang, itemCode }
+      });
       toast({
         title: `❌ Erreur Rang ${rang}`,
         description: error.message || 'Erreur lors de la génération',
@@ -128,7 +131,10 @@ export const LyricsGenerationPanel: React.FC<LyricsGenerationPanelProps> = ({
   const generateAllRangs = async () => {
     setIsGenerating(true);
     try {
-      console.log(`🎵 Génération complète pour ${itemCode}...`);
+      logger.info('Génération complète paroles', {
+        component: 'LyricsGenerationPanel',
+        itemCode
+      });
       
       // Génération RICHE avec OpenAI pour les 3 rangs
       const results = await Promise.allSettled(['A', 'B', 'AB'].map(async (rang) => {
@@ -160,7 +166,10 @@ export const LyricsGenerationPanel: React.FC<LyricsGenerationPanelProps> = ({
         });
       }
     } catch (error) {
-      console.error('Erreur génération complète:', error);
+      logger.error('Erreur génération complète', {
+        component: 'LyricsGenerationPanel',
+        metadata: { itemCode }
+      });
       toast({
         title: '❌ Erreur génération',
         description: 'Génération locale effectuée avec données disponibles',
@@ -182,7 +191,10 @@ export const LyricsGenerationPanel: React.FC<LyricsGenerationPanelProps> = ({
     });
 
     try {
-      console.log('🚀 Démarrage génération globale locale...');
+      logger.info('Démarrage génération globale', {
+        component: 'LyricsGenerationPanel',
+        action: 'generateAllItems'
+      });
       
       // Récupérer tous les items
       const { data: items, error } = await supabase
@@ -241,8 +253,11 @@ export const LyricsGenerationPanel: React.FC<LyricsGenerationPanelProps> = ({
             success++;
           } catch (e) {
             failed++;
-            errors.push(`${item.item_code}: ${e.message}`);
-            console.error(`Erreur pour ${item.item_code}:`, e);
+            errors.push(`${item.item_code}: ${(e as Error).message}`);
+            logger.error(`Erreur pour item ${item.item_code}`, {
+              component: 'LyricsGenerationPanel',
+              metadata: { itemCode: item.item_code }
+            });
           }
           
           processed++;
@@ -265,7 +280,9 @@ export const LyricsGenerationPanel: React.FC<LyricsGenerationPanelProps> = ({
         description: `${success} items traités avec paroles musicales de qualité`,
       });
     } catch (error) {
-      console.error('Erreur génération globale:', error);
+      logger.error('Erreur génération globale', {
+        component: 'LyricsGenerationPanel'
+      });
       toast({
         title: '❌ Erreur génération globale',
         description: 'Problème lors de la génération locale',
@@ -277,7 +294,7 @@ export const LyricsGenerationPanel: React.FC<LyricsGenerationPanelProps> = ({
   };
 
   // Fonction de génération locale en fallback
-  const generateLocalLyrics = (itemData: any, competences: any[], rang: 'A' | 'B' | 'AB'): string[] => {
+  const generateLocalLyrics = (itemData: Record<string, unknown>, competences: Array<Record<string, unknown>>, rang: 'A' | 'B' | 'AB'): string[] => {
     const lines: string[] = [];
     
     // Structure musicale avec contenu médical
@@ -286,7 +303,7 @@ export const LyricsGenerationPanel: React.FC<LyricsGenerationPanelProps> = ({
     if (competences.length > 0) {
       // Utiliser les vraies compétences
       competences.slice(0, 3).forEach((comp, i) => {
-        const description = comp.description?.substring(0, 200) || comp.intitule || '';
+        const description = (comp.description as string)?.substring(0, 200) || (comp.intitule as string) || '';
         const cleanText = description.replace(/[<>=\[\]]/g, '').trim();
         lines.push(`${cleanText.split(' ').slice(0, 12).join(' ')}, essence médicale révélée`);
         
@@ -296,7 +313,7 @@ export const LyricsGenerationPanel: React.FC<LyricsGenerationPanelProps> = ({
       });
     } else {
       // Contenu par défaut si pas de compétences
-      lines.push(`Item ${itemData?.item_code || itemCode} dévoile ses mystères profonds`);
+      lines.push(`Item ${(itemData?.item_code as string) || itemCode} dévoile ses mystères profonds`);
       lines.push(`Rang ${rang} déploie sa science, méthodique et sûre`);
       lines.push(`Chaque connaissance s'ancre, solide fondation`);
     }
@@ -306,14 +323,14 @@ export const LyricsGenerationPanel: React.FC<LyricsGenerationPanelProps> = ({
     lines.push(`Médecine flow, savoir et technique s'entremêlent`);
     lines.push(`${rang === 'AB' ? 'Synthèse complète' : `Rang ${rang} essentiel`}, expertise qui se révèle`);
     lines.push(`Dans le rythme des mots, la connaissance danse`);
-    lines.push(`${itemData?.title?.split(' ').slice(0, 8).join(' ') || itemCode} - notre référence`);
+    lines.push(`${(itemData?.title as string)?.split(' ').slice(0, 8).join(' ') || itemCode} - notre référence`);
     
     lines.push('');
     lines.push(`[Couplet 2]`);
     
     if (competences.length > 3) {
       competences.slice(3, 6).forEach((comp) => {
-        const cleanText = (comp.description || comp.intitule || '').replace(/[<>=\[\]]/g, '').substring(0, 150);
+        const cleanText = ((comp.description as string) || (comp.intitule as string) || '').replace(/[<>=\[\]]/g, '').substring(0, 150);
         lines.push(`${cleanText.split(' ').slice(0, 10).join(' ')}, précision clinique`);
       });
     } else {

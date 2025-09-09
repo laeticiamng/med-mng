@@ -2,6 +2,7 @@ import React from 'react';
 import { AlertTriangle } from 'lucide-react';
 import { ParolesMusicalesRangSection } from './ParolesMusicalesRangSection';
 import { SunoGenerationStatus } from './SunoGenerationStatus';
+import { logger } from '@/utils/structuredLogger';
 
 interface ParolesMusicalesMainContentProps {
   paroles: string[] | string[][];
@@ -59,49 +60,82 @@ export const ParolesMusicalesMainContent: React.FC<ParolesMusicalesMainContentPr
   onStop,
   pollingTracks = 0
 }) => {
-  console.log('🎵 ParolesMusicalesMainContent - Received paroles:', paroles);
-  console.log('🎵 ParolesMusicalesMainContent - itemCode:', itemCode);
-  console.log('🎵 ParolesMusicalesMainContent - Type of paroles:', typeof paroles, Array.isArray(paroles));
+  logger.debug('ParolesMusicalesMainContent reçu', {
+    component: 'ParolesMusicalesMainContent',
+    metadata: {
+      itemCode,
+      parolesType: typeof paroles,
+      isArray: Array.isArray(paroles)
+    }
+  });
   
   // Normaliser les paroles en format attendu avec debugging renforcé
   let normalizedParoles: string[] = [];
   
   if (Array.isArray(paroles) && paroles.length > 0) {
-    console.log('🔍 Première entrée paroles[0]:', paroles[0], typeof paroles[0]);
+    logger.debug('Première entrée paroles analysée', {
+      component: 'ParolesMusicalesMainContent',
+      metadata: {
+        firstEntryType: typeof paroles[0],
+        isFirstArray: Array.isArray(paroles[0])
+      }
+    });
     
     if (Array.isArray(paroles[0])) {
       // Format string[][]
-      console.log('📝 Format détecté: string[][]');
+      logger.debug('Format détecté: string[][]', {
+        component: 'ParolesMusicalesMainContent'
+      });
       normalizedParoles = (paroles as string[][]).map((section, index) => {
         const result = Array.isArray(section) ? section.join('\n') : String(section);
-        console.log(`📝 Section ${index}:`, result.substring(0, 100) + '...');
+        logger.trace(`Section ${index} normalisée`, {
+          component: 'ParolesMusicalesMainContent',
+          metadata: { sectionIndex: index, preview: result.substring(0, 100) }
+        });
         return result;
       });
     } else {
       // Format string[]
-      console.log('📝 Format détecté: string[]');
+      logger.debug('Format détecté: string[]', {
+        component: 'ParolesMusicalesMainContent'
+      });
       normalizedParoles = (paroles as string[]).map((section, index) => {
         const result = String(section);
-        console.log(`📝 Section ${index}:`, result.substring(0, 100) + '...');
+        logger.trace(`Section ${index} convertie`, {
+          component: 'ParolesMusicalesMainContent',
+          metadata: { sectionIndex: index, preview: result.substring(0, 100) }
+        });
         return result;
       });
     }
   } else {
-    console.log('❌ Paroles non valides ou vides:', paroles);
+    logger.warn('Paroles non valides ou vides', {
+      component: 'ParolesMusicalesMainContent',
+      metadata: { paroles }
+    });
   }
 
-  console.log('🎵 ParolesMusicalesMainContent - Normalized paroles count:', normalizedParoles.length);
+  logger.debug('Paroles normalisées', {
+    component: 'ParolesMusicalesMainContent',
+    metadata: { count: normalizedParoles.length }
+  });
 
-  // Vérifier si on a vraiment des paroles utilisables avec debugging
+  // Vérifier si on a vraiment des paroles utilisables
   const hasUsableParoles = normalizedParoles && 
     normalizedParoles.length > 0 && 
     normalizedParoles.some((p, index) => {
       const isUsable = p && typeof p === 'string' && p.trim().length > 0;
-      console.log(`🔍 Parole ${index} utilisable:`, isUsable, 'Longueur:', p?.length || 0);
+      logger.trace(`Parole ${index} analysée`, {
+        component: 'ParolesMusicalesMainContent',
+        metadata: { index, isUsable, length: p?.length || 0 }
+      });
       return isUsable;
     });
 
-  console.log('✅ Has usable paroles:', hasUsableParoles);
+  logger.debug('Paroles utilisables vérifiées', {
+    component: 'ParolesMusicalesMainContent',
+    metadata: { hasUsableParoles }
+  });
 
   if (!hasUsableParoles) {
     return (

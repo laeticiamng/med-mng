@@ -3,6 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Music } from 'lucide-react';
 import { useParolesMusicales } from '@/hooks/useParolesMusicales';
+import { logger } from '@/utils/structuredLogger';
 import { ParolesMusicalesDebugInfo } from './music/ParolesMusicalesDebugInfo';
 import { ParolesMusicalesControls } from './music/ParolesMusicalesControls';
 import { ParolesMusicalesErrorSection } from './music/ParolesMusicalesErrorSection';
@@ -14,8 +15,8 @@ interface ParolesMusicalesProps {
   paroles_rang_b?: string[];
   paroles_rang_ab?: string[];
   itemCode: string;
-  tableauRangA?: any;
-  tableauRangB?: any;
+  tableauRangA?: Record<string, unknown>;
+  tableauRangB?: Record<string, unknown>;
 }
 
 export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
@@ -27,18 +28,18 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
   tableauRangA,
   tableauRangB
 }) => {
-  console.log('🎵 ParolesMusicales - Rendu avec props:', { 
-    paroles: paroles?.length,
-    paroles_rang_a: paroles_rang_a?.length,
-    paroles_rang_b: paroles_rang_b?.length,
-    paroles_rang_ab: paroles_rang_ab?.length,
-    itemCode, 
-    hasTableauA: !!tableauRangA, 
-    hasTableauB: !!tableauRangB 
+  logger.debug('ParolesMusicales rendu', {
+    component: 'ParolesMusicales',
+    metadata: {
+      parolesCount: paroles?.length,
+      parolesRangACount: paroles_rang_a?.length,
+      parolesRangBCount: paroles_rang_b?.length,
+      parolesRangAbCount: paroles_rang_ab?.length,
+      itemCode,
+      hasTableauA: !!tableauRangA,
+      hasTableauB: !!tableauRangB
+    }
   });
-
-  console.log('🎵 DETAILED paroles_rang_a:', paroles_rang_a);
-  console.log('🎵 DETAILED paroles_rang_b:', paroles_rang_b);
   
   // Créer le format final qui sera passé à ParolesMusicalesMainContent
   // Si on a des champs spécifiques, les utiliser, sinon utiliser paroles_musicales
@@ -57,13 +58,19 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
     const allLyrics = Array.isArray(paroles) ? paroles : [paroles];
     finalParoles = [allLyrics]; // Utiliser comme Rang A pour l'instant
     
-    console.log('🎵 Utilisation de paroles_musicales comme fallback:', {
-      originalParoles: paroles,
-      finalParoles
+    logger.debug('Utilisation paroles_musicales fallback', {
+      component: 'ParolesMusicales',
+      metadata: {
+        originalCount: paroles?.length,
+        finalCount: finalParoles.length
+      }
     });
   }
         
-  console.log('🎵 FINAL paroles qui vont être passées:', finalParoles);
+  logger.debug('Paroles finales préparées', {
+    component: 'ParolesMusicales',
+    metadata: { finalParolesCount: finalParoles.length }
+  });
 
   const {
     selectedStyle,
@@ -94,8 +101,13 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
     item_code: itemCode 
   });
 
-  console.log('🎵 ÉTAT ACTUEL generatedAudio:', generatedAudio);
-  console.log('🎵 ÉTAT ACTUEL generationProgress:', generationProgress);
+  logger.debug('État actuel hook ParolesMusicales', {
+    component: 'ParolesMusicales',
+    metadata: {
+      hasGeneratedAudio: !!generatedAudio,
+      hasGenerationProgress: !!generationProgress
+    }
+  });
 
   return (
     <div className="space-y-6">

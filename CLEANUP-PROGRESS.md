@@ -56,10 +56,10 @@
 ## 📊 Statistiques Actuelles
 
 ### Nettoyé ✅
-- ✅ 22 fichiers avec logging professionnel (98+ console.log → logger)
+- ✅ 27 fichiers avec logging professionnel (110+ console.log → logger)
 - ✅ 3 TODO convertis en tâches trackées
-- ✅ 52+ types `any` remplacés par types stricts
-- ✅ Interfaces TypeScript ajoutées (LearningPath, TableauData, OICCompetence, etc.)
+- ✅ 60+ types `any` remplacés par types stricts
+- ✅ Interfaces TypeScript ajoutées (LearningPath, TableauData, OICCompetence, BandeDessineeCompleteProps, etc.)
 
 ### Reste à faire 🔄
 - 🔄 861+ console.log restants (194 fichiers)
@@ -122,6 +122,6 @@
 
 ---
 
-**Progrès** : 98+ console.log nettoyés, 52+ types any corrigés, 3 TODO trackés
+**Progrès** : 110+ console.log nettoyés, 60+ types any corrigés, 3 TODO trackés, 5 composants musicaux EDN nettoyés
 
 **Prochaine action recommandée** : Continuer le nettoyage sur autres composants EDN ou appliquer le formatage Prettier global.
