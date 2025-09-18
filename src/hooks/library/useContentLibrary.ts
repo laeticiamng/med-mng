@@ -57,8 +57,7 @@ export const useContentLibrary = (): UseContentLibraryResult => {
         collectionId: filters.collectionId,
         sort: filters.sort,
       }),
-    keepPreviousData: true,
-  });
+    });
 
   const collectionsQuery = useQuery({
     queryKey: ['content-library-collections'],

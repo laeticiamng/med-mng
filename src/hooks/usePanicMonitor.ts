@@ -57,7 +57,7 @@ async function fetchHealthSnapshot(): Promise<HealthSnapshot> {
     const overlay = data?.overlay
       ? {
           active: Boolean(data.overlay.active),
-          severity: data.overlay.severity === 'recovering' ? 'recovering' : 'critical',
+          severity: data.overlay.severity === 'recovering' ? ('recovering' as const) : ('critical' as const),
           message: data.overlay.message ?? null,
           details: data.overlay.details ?? null,
           retrySeconds:

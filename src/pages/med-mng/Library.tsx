@@ -42,7 +42,7 @@ const RESOURCE_CONFIG: Record<string, { label: string; description: string; icon
   track: { label: 'Piste générée', description: 'Audio IA + paroles synchronisées', icon: <Music className="h-4 w-4" /> },
   edn: { label: 'Fiche EDN', description: 'Données unifiées EDN/ECOS', icon: <BookOpen className="h-4 w-4" /> },
   qcm: { label: 'Session QCM', description: 'Questionnaires générés & scores', icon: <GraduationCap className="h-4 w-4" /> },
-  note: { label: 'Note personnelle', description: 'Annotations & rappels de révision', icon: <NoteText className="h-4 w-4" /> },
+  note: { label: 'Note personnelle', description: 'Annotations & rappels de révision', icon: <FileText className="h-4 w-4" /> },
 };
 
 interface CollectionSummary {
@@ -158,7 +158,7 @@ const typeFilters: Array<{ type: ContentResourceType; label: string; icon: React
   { type: 'track', label: 'Pistes', icon: <Music className="h-4 w-4" /> },
   { type: 'edn', label: 'Fiches', icon: <BookOpen className="h-4 w-4" /> },
   { type: 'qcm', label: 'QCM', icon: <GraduationCap className="h-4 w-4" /> },
-  { type: 'note', label: 'Notes', icon: <NoteText className="h-4 w-4" /> },
+  { type: 'note', label: 'Notes', icon: <FileText className="h-4 w-4" /> },
 ];
 
 const QUICK_FILTERS = [
@@ -725,7 +725,7 @@ const LibraryPage: React.FC = () => {
                         onClick={() => handleOpenNote(item.resource_identifier)}
                         disabled={isNoteLoading && notePreview?.id === item.resource_identifier}
                       >
-                        <NoteText className="h-4 w-4" />
+                        <FileText className="h-4 w-4" />
                         Consulter la note
                       </Button>
                     )}

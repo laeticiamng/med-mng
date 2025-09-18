@@ -287,32 +287,6 @@ export const EightMinuteSessionBuilder: React.FC<EightMinuteSessionBuilderProps>
     return codes.slice(0, 3);
   }, [resolvedInitialCode, suggestions]);
 
-  const startTimer = useCallback(() => {
-    if (isRunning || !selectedItem) {
-      return;
-    }
-
-    const runId = createRunId();
-    const contentId = selectedItem.id ?? selectedItem.item_code ?? null;
-    activeRunRef.current = {
-      runId,
-      startedAt: Date.now(),
-      itemCode: selectedItem.item_code ?? null,
-      contentId,
-    };
-
-    setIsRunning(true);
-    void trackCanonicalEvent({
-      type: 'study_start',
-      contentId: contentId ?? undefined,
-      metadata: {
-        runId,
-        itemCode: selectedItem.item_code ?? null,
-        title: selectedItem.title ?? null,
-      },
-    });
-  }, [isRunning, selectedItem]);
-
   const toggleStep = (category: keyof SessionPlanContent, value: string) => {
     const key = `${category}-${value}`;
     setCompletedSteps((previous) => ({

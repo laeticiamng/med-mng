@@ -43,7 +43,12 @@ export const AnalyticsConsentManager = () => {
       if ((event.type === 'job-completed' || event.type === 'job-failed') && !trackedOutcomes.current.has(job.id)) {
         trackedOutcomes.current.add(job.id);
         const errorValue = event.error ?? job.error;
-        const errorMessage = errorValue instanceof Error ? errorValue.message : (typeof errorValue === 'string' ? errorValue : null);
+        let errorMessage: string | null = null;
+        if (typeof errorValue === 'object' && errorValue && 'message' in errorValue) {
+          errorMessage = (errorValue as Error).message;
+        } else if (typeof errorValue === 'string') {
+          errorMessage = errorValue;
+        }
         const baseMetadata = {
           jobId: job.id,
           requestId: job.requestId,

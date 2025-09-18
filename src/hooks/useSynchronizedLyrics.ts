@@ -220,23 +220,17 @@ export const useSynchronizedLyrics = (songId?: string) => {
 
       try {
         const segmentsPayload = linesToSegments(lyrics, targetSongId);
-        const { error } = await supabase.rpc('replace_lyrics_segments', {
-          p_track_id: targetSongId,
-          p_segments: segmentsPayload.map((segment) => ({
-            idx: segment.idx,
-            start_ms: segment.startMs,
-            end_ms: segment.endMs,
-            text: segment.text,
-            role: segment.role ?? null,
-          })),
-          p_log: {
-            method: metadata?.method ?? 'manual_edit',
-            notes: metadata?.notes ?? null,
-            confidence: 1,
-            segment_count: segmentsPayload.length,
-            created_by: null,
-          },
-        });
+        // Update metadata with lyrics segments
+        const { error } = await supabase.from('generated_music_tracks').update({
+          metadata: JSON.stringify({
+            lyrics: segmentsPayload.map(segment => ({
+              text: segment.text,
+              startMs: segment.startMs,
+              endMs: segment.endMs,
+              idx: segment.idx
+            }))
+          })
+        }).eq('id', targetSongId);
 
         if (error) {
           throw error;
