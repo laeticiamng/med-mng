@@ -62,23 +62,27 @@ serve(async (req) => {
   const supabase = createClient(supabaseUrl, serviceRoleKey);
 
   try {
-    const timeframe = (() => {
-      if (req.method === 'POST') {
-        try {
-          const body = req.body ? JSON.parse(await req.text()) : {};
-          return typeof body?.timeframe === 'string' ? body.timeframe : undefined;
-        } catch (error) {
-          console.warn('analytics-engine invalid body', error);
-          return undefined;
-        }
-      }
+    let timeframe: string | undefined;
 
+    if (req.method === 'POST') {
+      try {
+        const bodyText = req.body ? await req.text() : undefined;
+        const body = bodyText ? JSON.parse(bodyText) : {};
+        timeframe = typeof body?.timeframe === 'string' ? body.timeframe : undefined;
+      } catch (error) {
+        console.warn('analytics-engine invalid body', error);
+      }
+    }
+
+    if (!timeframe) {
       const url = new URL(req.url);
-      return url.searchParams.get('timeframe') ?? undefined;
-    })() ?? '7d';
+      timeframe = url.searchParams.get('timeframe') ?? undefined;
+    }
+
+    const resolvedTimeframe = timeframe ?? '7d';
 
     const { data, error } = await supabase.rpc('get_analytics_dashboard', {
-      p_timeframe: timeframe,
+      p_timeframe: resolvedTimeframe,
     });
 
     if (error) {
@@ -91,7 +95,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({
         success: true,
-        timeframe,
+        timeframe: resolvedTimeframe,
         generated_at: payload?.generated_at ?? new Date().toISOString(),
         metrics: payload,
       }),
