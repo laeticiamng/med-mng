@@ -243,9 +243,10 @@ export const useMusicQueueStore = create<MusicQueueState>()(
             state.activeJobId = undefined;
             state.lastCompletedJobId = undefined;
           }),
-      })),
-    persistConfig,
-  ),
+      }))
+    ),
+    persistConfig
+  )
 );
 
 export type MusicQueueStore = typeof useMusicQueueStore;

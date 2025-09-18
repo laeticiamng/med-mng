@@ -186,6 +186,35 @@ export const EightMinuteSessionBuilder: React.FC<EightMinuteSessionBuilderProps>
 
   const selectedItem = useMemo(() => items.find((item) => item.item_code === selectedItemCode) ?? null, [items, selectedItemCode]);
 
+  const startTimer = useCallback(() => {
+    if (isRunning || !selectedItem) {
+      return;
+    }
+
+    const runId = createRunId();
+    const contentId = selectedItem.id ?? selectedItem.item_code ?? null;
+    activeRunRef.current = {
+      runId,
+      startedAt: Date.now(),
+      itemCode: selectedItem.item_code,
+      contentId,
+    };
+
+    setIsRunning(true);
+    setRemainingSeconds(8 * 60);
+    setCompletedSteps({});
+
+    void trackCanonicalEvent({
+      type: 'study_start',
+      contentId: contentId ?? undefined,
+      metadata: {
+        runId,
+        itemCode: selectedItem.item_code,
+        timerDurationSeconds: 8 * 60,
+      },
+    });
+  }, [isRunning, selectedItem, setIsRunning, setRemainingSeconds, setCompletedSteps]);
+
   useEffect(() => {
     if (!autoStart) return;
     if (hasAutoStarted) return;

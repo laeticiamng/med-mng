@@ -24,7 +24,7 @@ import {
   Layers,
   ListPlus,
   Music,
-  NoteText,
+  FileText,
   Pause,
   Play,
   Search,
