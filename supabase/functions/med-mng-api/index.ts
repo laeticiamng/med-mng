@@ -22,28 +22,38 @@ import { SecurityService } from './middleware/security.ts';
 import { RetryService } from './middleware/retry.ts';
 import { csrfProtection, generateCSRFToken } from './middleware/csrf.ts';
 import { alertingService, alertCriticalError } from './middleware/alerting.ts';
-
-const rateMap = new Map<string, { count: number; reset: number }>();
-
-function checkRate(key: string, limit: number, windowMs: number) {
-  const now = Date.now();
-  const entry = rateMap.get(key);
-  if (entry && now < entry.reset) {
-    if (entry.count >= limit) return false;
-    entry.count++;
-    return true;
-  }
-  rateMap.set(key, { count: 1, reset: now + windowMs });
-  return true;
-}
+import { enforceDistributedRateLimit } from './middleware/rateLimit.ts';
 
 serve(async (req) => {
+  const rateLimitHeaders = new Map<string, string>();
+  const mergeRateLimitHeaders = (headers?: Record<string, string>) => {
+    if (!headers) return;
+    for (const [key, value] of Object.entries(headers)) {
+      if (typeof value === 'string') {
+        rateLimitHeaders.set(key, value);
+      }
+    }
+  };
+  const applyRateLimitHeaders = (response: Response): Response => {
+    if (!response || rateLimitHeaders.size === 0) {
+      return response;
+    }
+    const finalHeaders = new Headers(response.headers);
+    rateLimitHeaders.forEach((value, key) => {
+      finalHeaders.set(key, value);
+    });
+    return new Response(response.body, {
+      status: response.status,
+      headers: finalHeaders,
+    });
+  };
+
   let requestId: string | null = null;
 
   try {
     // CORS preflight
     if (req.method === 'OPTIONS') {
-      return new Response(null, { headers: { ...corsHeaders, ...securityHeaders } });
+      return applyRateLimitHeaders(new Response(null, { headers: { ...corsHeaders, ...securityHeaders } }));
     }
 
     const url = new URL(req.url);
@@ -52,16 +62,26 @@ serve(async (req) => {
 
     // Security checks
     const securityCheck = SecurityService.checkSecurityThreats(req, ip);
-    if (securityCheck) return securityCheck;
+    if (securityCheck) return applyRateLimitHeaders(securityCheck);
 
     const contentTypeCheck = SecurityService.validateContentType(req);
-    if (contentTypeCheck) return contentTypeCheck;
+    if (contentTypeCheck) return applyRateLimitHeaders(contentTypeCheck);
 
-    // Rate limiting
-    if (!checkRate(ip, 60, 60_000)) {
+    // Distributed rate limiting (global)
+    const globalRateLimit = await enforceDistributedRateLimit(req, {
+      action: 'med_mng_api.global',
+      maxRequests: Number(Deno.env.get('RATE_LIMIT_API_MAX_REQUESTS') ?? '120'),
+      windowSeconds: Number(Deno.env.get('RATE_LIMIT_API_WINDOW_SECONDS') ?? '60'),
+      defaultRetrySeconds: Number(Deno.env.get('RATE_LIMIT_API_RETRY_SECONDS') ?? '60'),
+      context: { path, ip },
+    });
+
+    if (globalRateLimit.blocked && globalRateLimit.response) {
       log('warn', `Rate limit exceeded for IP: ${ip}`);
-      return errorResponse(429, 'RATE_LIMIT', 'Too Many Requests');
+      return applyRateLimitHeaders(globalRateLimit.response);
     }
+
+    mergeRateLimitHeaders(globalRateLimit.headers);
 
     // Start monitoring
     requestId = MonitoringService.startRequest(req, path);
@@ -76,10 +96,12 @@ serve(async (req) => {
         security: SecurityService.getSecurityMetrics(),
         alerts: alertingService.getAlertStats()
       };
-      MonitoringService.endRequest(requestId, 200);
-      return new Response(JSON.stringify(health), {
+      const healthResponse = new Response(JSON.stringify(health), {
         headers: { ...corsHeaders, ...securityHeaders, 'Content-Type': 'application/json' }
       });
+      const finalHealthResponse = applyRateLimitHeaders(healthResponse);
+      MonitoringService.endRequest(requestId, finalHealthResponse.status);
+      return finalHealthResponse;
     }
 
     // CSRF Token endpoint (public)
@@ -87,22 +109,23 @@ serve(async (req) => {
       try {
         const { user_id } = await req.json();
         if (!user_id) {
-          return errorResponse(400, 'MISSING_USER_ID', 'User ID required for CSRF token');
+          return applyRateLimitHeaders(errorResponse(400, 'MISSING_USER_ID', 'User ID required for CSRF token'));
         }
         const token = generateCSRFToken(user_id);
-        return new Response(JSON.stringify({ csrf_token: token }), {
+        return applyRateLimitHeaders(new Response(JSON.stringify({ csrf_token: token }), {
           headers: { ...corsHeaders, ...securityHeaders, 'Content-Type': 'application/json' }
-        });
+        }));
       } catch (error) {
-        return errorResponse(400, 'INVALID_REQUEST', 'Invalid request body');
+        return applyRateLimitHeaders(errorResponse(400, 'INVALID_REQUEST', 'Invalid request body'));
       }
     }
 
     // Public endpoints before auth check
     let publicRes = await handleHelp(req, null, path, url);
     if (publicRes) {
-      MonitoringService.endRequest(requestId, publicRes.status);
-      return publicRes;
+      const finalPublicRes = applyRateLimitHeaders(publicRes);
+      MonitoringService.endRequest(requestId, finalPublicRes.status);
+      return finalPublicRes;
     }
 
     const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2.50.3');
@@ -112,26 +135,30 @@ serve(async (req) => {
 
     publicRes = await handleStatus(req, publicSupabase, path, url);
     if (publicRes) {
-      MonitoringService.endRequest(requestId, publicRes.status);
-      return publicRes;
+      const finalPublicRes = applyRateLimitHeaders(publicRes);
+      MonitoringService.endRequest(requestId, finalPublicRes.status);
+      return finalPublicRes;
     }
 
     publicRes = await handleAudit(req, publicSupabase, path, url);
     if (publicRes) {
-      MonitoringService.endRequest(requestId, publicRes.status);
-      return publicRes;
+      const finalPublicRes = applyRateLimitHeaders(publicRes);
+      MonitoringService.endRequest(requestId, finalPublicRes.status);
+      return finalPublicRes;
     }
 
     publicRes = await handleRGPD(req, publicSupabase, path, url);
     if (publicRes) {
-      MonitoringService.endRequest(requestId, publicRes.status);
-      return publicRes;
+      const finalPublicRes = applyRateLimitHeaders(publicRes);
+      MonitoringService.endRequest(requestId, finalPublicRes.status);
+      return finalPublicRes;
     }
 
     publicRes = await handleDocs(req, publicSupabase, path);
     if (publicRes) {
-      MonitoringService.endRequest(requestId, publicRes.status);
-      return publicRes;
+      const finalPublicRes = applyRateLimitHeaders(publicRes);
+      MonitoringService.endRequest(requestId, finalPublicRes.status);
+      return finalPublicRes;
     }
 
     // Handle quota endpoint without authentication for read-only operations
@@ -145,15 +172,18 @@ serve(async (req) => {
         
         const quotaResponse = await handleQuota(req, tempSupabase, path);
         if (quotaResponse) {
-          MonitoringService.endRequest(requestId, quotaResponse.status);
-          return quotaResponse;
+          const finalQuotaResponse = applyRateLimitHeaders(quotaResponse);
+          MonitoringService.endRequest(requestId, finalQuotaResponse.status);
+          return finalQuotaResponse;
         }
       } catch (error) {
         console.warn('Quota endpoint failed, returning default:', error);
-        MonitoringService.endRequest(requestId, 200);
-        return new Response(JSON.stringify({ remaining_credits: 0 }), {
+        const fallbackQuotaResponse = new Response(JSON.stringify({ remaining_credits: 0 }), {
           headers: { ...corsHeaders, ...securityHeaders, 'Content-Type': 'application/json' }
         });
+        const finalFallbackResponse = applyRateLimitHeaders(fallbackQuotaResponse);
+        MonitoringService.endRequest(requestId, finalFallbackResponse.status);
+        return finalFallbackResponse;
       }
     }
 
@@ -165,8 +195,9 @@ serve(async (req) => {
     );
 
     if (authResult.error) {
-      MonitoringService.endRequest(requestId, 401);
-      return authResult.error;
+      const finalAuthError = applyRateLimitHeaders(authResult.error);
+      MonitoringService.endRequest(requestId, finalAuthError.status);
+      return finalAuthError;
     }
 
     const { supabase, user } = authResult;
@@ -174,8 +205,9 @@ serve(async (req) => {
     // CSRF Protection for authenticated routes
     const csrfError = csrfProtection(req, user?.id || '');
     if (csrfError) {
-      MonitoringService.endRequest(requestId, 403);
-      return csrfError;
+      const finalCsrfError = applyRateLimitHeaders(csrfError);
+      MonitoringService.endRequest(requestId, finalCsrfError.status);
+      return finalCsrfError;
     }
     
     // Update monitoring with user info
@@ -222,20 +254,23 @@ serve(async (req) => {
       log('error', `Route handler error for ${path}`, routeError);
       
       if (RetryService.isRetryableError(routeError as Error)) {
-        MonitoringService.endRequest(requestId, 503, routeError as Error);
-        return errorResponse(503, 'SERVICE_UNAVAILABLE', 'Service temporarily unavailable');
+        const retryableResponse = errorResponse(503, 'SERVICE_UNAVAILABLE', 'Service temporarily unavailable');
+        const finalRetryableResponse = applyRateLimitHeaders(retryableResponse);
+        MonitoringService.endRequest(requestId, finalRetryableResponse.status, routeError as Error);
+        return finalRetryableResponse;
       }
       
       throw routeError;
     }
 
     if (response) {
-      MonitoringService.endRequest(requestId, response.status);
-      return response;
+      const finalResponse = applyRateLimitHeaders(response);
+      MonitoringService.endRequest(requestId, finalResponse.status);
+      return finalResponse;
     }
 
     MonitoringService.endRequest(requestId, 404);
-    return errorResponse(404, 'NOT_FOUND', 'Route not found');
+    return applyRateLimitHeaders(errorResponse(404, 'NOT_FOUND', 'Route not found'));
 
   } catch (error) {
     const statusCode = error instanceof Error && error.message.includes('validation') ? 400 : 500;
@@ -259,10 +294,10 @@ serve(async (req) => {
       MonitoringService.endRequest(requestId, statusCode, error as Error);
     }
 
-    return errorResponse(
-      statusCode, 
-      statusCode === 400 ? 'VALIDATION_ERROR' : 'SERVER_ERROR', 
+    return applyRateLimitHeaders(errorResponse(
+      statusCode,
+      statusCode === 400 ? 'VALIDATION_ERROR' : 'SERVER_ERROR',
       error instanceof Error ? error.message : 'An unexpected error occurred'
-    );
+    ));
   }
 });

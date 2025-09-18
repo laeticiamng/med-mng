@@ -1,17 +1,49 @@
 import { corsHeaders, securityHeaders } from '../types.ts';
+import { enforceDistributedRateLimit } from '../middleware/rateLimit.ts';
 import { verifyItem } from './verify.ts';
 
 export async function handleComplete(req: Request, supabase: any, path: string) {
   if (path.startsWith('/complete-item/') && req.method === 'POST') {
     const itemId = path.split('/')[2];
+    const rateLimit = await enforceDistributedRateLimit(req, {
+      action: 'med_mng_api.complete.item',
+      maxRequests: Number(Deno.env.get('RATE_LIMIT_COMPLETE_ITEM_MAX_REQUESTS') ?? '6'),
+      windowSeconds: Number(Deno.env.get('RATE_LIMIT_COMPLETE_ITEM_WINDOW_SECONDS') ?? '300'),
+      defaultRetrySeconds: Number(Deno.env.get('RATE_LIMIT_COMPLETE_ITEM_RETRY_SECONDS') ?? '120'),
+      context: { itemId },
+    });
+
+    if (rateLimit.blocked && rateLimit.response) {
+      return rateLimit.response;
+    }
+
     const report = await completeItem(supabase, itemId);
     return new Response(
       JSON.stringify(report),
-      { headers: { ...corsHeaders, ...securityHeaders, 'Content-Type': 'application/json' } }
+      {
+        headers: {
+          ...corsHeaders,
+          ...securityHeaders,
+          'Content-Type': 'application/json',
+          ...rateLimit.headers,
+        },
+      }
     );
   }
 
   if (path === '/complete-all' && req.method === 'POST') {
+    const rateLimit = await enforceDistributedRateLimit(req, {
+      action: 'med_mng_api.complete.bulk',
+      maxRequests: Number(Deno.env.get('RATE_LIMIT_COMPLETE_BULK_MAX_REQUESTS') ?? '2'),
+      windowSeconds: Number(Deno.env.get('RATE_LIMIT_COMPLETE_BULK_WINDOW_SECONDS') ?? '3600'),
+      defaultRetrySeconds: Number(Deno.env.get('RATE_LIMIT_COMPLETE_BULK_RETRY_SECONDS') ?? '900'),
+      context: { mode: 'bulk' },
+    });
+
+    if (rateLimit.blocked && rateLimit.response) {
+      return rateLimit.response;
+    }
+
     const { data: items, error } = await supabase
       .from('med_mng_items')
       .select('id');
@@ -24,7 +56,14 @@ export async function handleComplete(req: Request, supabase: any, path: string) 
 
     return new Response(
       JSON.stringify(results),
-      { headers: { ...corsHeaders, ...securityHeaders, 'Content-Type': 'application/json' } }
+      {
+        headers: {
+          ...corsHeaders,
+          ...securityHeaders,
+          'Content-Type': 'application/json',
+          ...rateLimit.headers,
+        },
+      }
     );
   }
 

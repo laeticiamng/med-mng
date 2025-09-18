@@ -21,6 +21,19 @@ export function PanicOverlay({ state, retryCountdown, onRetry }: PanicOverlayPro
   }
 
   const isWaiting = retryCountdown > 0;
+  const severityStyles = state.severity === 'recovering'
+    ? {
+        gradient: 'from-amber-500/25 via-background to-background',
+        accent: 'bg-amber-600/30 text-white',
+        badge: 'bg-amber-500/30 text-white',
+        indicator: 'bg-amber-200',
+      }
+    : {
+        gradient: 'from-red-600/25 via-background to-background',
+        accent: 'bg-red-600/30 text-white',
+        badge: 'bg-red-500/30 text-white',
+        indicator: 'bg-red-100',
+      };
 
   return (
     <div
@@ -30,19 +43,34 @@ export function PanicOverlay({ state, retryCountdown, onRetry }: PanicOverlayPro
       aria-labelledby="panic-overlay-title"
       aria-describedby="panic-overlay-description"
     >
-      <div className="max-w-2xl w-full mx-4 rounded-2xl border border-white/20 bg-gradient-to-br from-red-500/20 via-background to-background shadow-2xl">
+      <div className={`max-w-2xl w-full mx-4 rounded-2xl border border-white/20 bg-gradient-to-br ${severityStyles.gradient} shadow-2xl`}>
         <div className="p-8 space-y-6">
           <div className="flex items-center gap-4">
-            <span className="inline-flex h-12 w-12 items-center justify-center rounded-full bg-red-500/20 text-red-100">
+            <span className={`inline-flex h-12 w-12 items-center justify-center rounded-full ${severityStyles.accent}`}>
               <AlertTriangle className="h-7 w-7" aria-hidden />
             </span>
             <div>
               <h2 id="panic-overlay-title" className="text-2xl font-semibold">
                 Incident en cours
               </h2>
-              <p id="panic-overlay-description" className="text-sm text-white/80">
+              <p
+                id="panic-overlay-description"
+                className="text-sm text-white/80"
+                aria-live="assertive"
+              >
                 {state.message || 'La plateforme est momentanément indisponible.'}
               </p>
+              <div className="mt-2 inline-flex items-center gap-2 text-xs text-white/70">
+                <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 ${severityStyles.badge}`}>
+                  <span className={`h-2 w-2 rounded-full ${severityStyles.indicator}`} aria-hidden />
+                  {state.severity === 'recovering' ? 'Rétablissement en cours' : 'Incident critique'}
+                </span>
+                {state.lastTriggeredAt && (
+                  <span className="text-white/60">
+                    Dernier signal: {new Date(state.lastTriggeredAt).toLocaleTimeString()}
+                  </span>
+                )}
+              </div>
             </div>
           </div>
 
@@ -72,7 +100,7 @@ export function PanicOverlay({ state, retryCountdown, onRetry }: PanicOverlayPro
           )}
 
           {state.details && (
-            <div className="rounded-lg bg-white/5 p-4 text-sm text-white/80">
+            <div className="rounded-lg bg-white/5 p-4 text-sm text-white/80 whitespace-pre-line">
               {state.details}
             </div>
           )}

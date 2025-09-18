@@ -22,7 +22,7 @@ serve(async (req) => {
     switch (action) {
       case 'check_health':
         const healthChecks = []
-        
+
         // Database connectivity check
         const dbStart = performance.now()
         try {
@@ -88,10 +88,35 @@ serve(async (req) => {
           })
         }
 
+        // Panic overlay state
+        let overlayState: any = null
+        try {
+          const { data: overlayData, error: overlayError } = await supabaseClient
+            .rpc('panic_overlay_get_state')
+
+          if (overlayError) {
+            console.error('Panic overlay state fetch error', overlayError)
+          } else if (Array.isArray(overlayData) && overlayData.length > 0) {
+            overlayState = overlayData[0]
+          } else if (overlayData && !Array.isArray(overlayData)) {
+            overlayState = overlayData
+          }
+        } catch (overlayFetchError) {
+          console.error('Failed to retrieve panic overlay state', overlayFetchError)
+        }
+
+        const overlayActive = Boolean(overlayState?.is_active)
+
         // Overall system status
         const hasErrors = healthChecks.some(check => check.status === 'error')
         const hasWarnings = healthChecks.some(check => check.status === 'warning')
-        const overallStatus = hasErrors ? 'error' : hasWarnings ? 'warning' : 'healthy'
+        const overallStatus = overlayActive
+          ? 'error'
+          : hasErrors
+            ? 'error'
+            : hasWarnings
+              ? 'warning'
+              : 'healthy'
 
         // Log health check
         await supabaseClient
@@ -112,6 +137,15 @@ serve(async (req) => {
             healthy: healthChecks.filter(c => c.status === 'healthy').length,
             warnings: healthChecks.filter(c => c.status === 'warning').length,
             errors: healthChecks.filter(c => c.status === 'error').length
+          },
+          overlay: {
+            active: overlayActive,
+            severity: overlayState?.severity ?? (overlayActive ? 'critical' : 'recovering'),
+            message: overlayState?.message ?? null,
+            details: overlayState?.details ?? null,
+            retry_seconds: overlayState?.retry_seconds ?? 60,
+            last_triggered_at: overlayState?.last_triggered_at ?? null,
+            updated_at: overlayState?.updated_at ?? null
           }
         }), {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },

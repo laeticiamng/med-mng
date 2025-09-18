@@ -1,7 +1,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import { addDays, differenceInCalendarDays, isBefore, parseISO } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
-import { ednProgressService, type EdnUnifiedRow, type UserProgressRow } from '@/services/EdnProgressService';
+import {
+  ednProgressService,
+  type NormalizedEdnItem,
+  type UserProgressRow,
+} from '@/services/EdnProgressService';
 import { isTestEnvironment } from '@/utils/environment';
 
 export interface ThemeProgressMetrics {
@@ -40,7 +44,7 @@ export interface SpacedRepetitionItem {
 interface EdnProgressionState {
   loading: boolean;
   error: string | null;
-  items: EdnUnifiedRow[];
+  items: NormalizedEdnItem[];
   themeProgress: ThemeProgressMetrics[];
   history: ProgressHistoryEntry[];
   repetitionPlan: SpacedRepetitionItem[];
@@ -73,12 +77,12 @@ const parseDateOrNull = (value?: string | null): Date | null => {
   }
 };
 
-const resolveProgressForItem = (item: EdnUnifiedRow, progress: UserProgressRow[]): UserProgressRow | null => {
+const resolveProgressForItem = (item: NormalizedEdnItem, progress: UserProgressRow[]): UserProgressRow | null => {
   const candidates = [item.item_code, item.slug ?? undefined, item.item_id ?? undefined].filter(Boolean);
   return progress.find((entry) => candidates.includes(entry.content_id)) ?? null;
 };
 
-const buildThemeProgress = (items: EdnUnifiedRow[], progress: UserProgressRow[]): ThemeProgressMetrics[] => {
+const buildThemeProgress = (items: NormalizedEdnItem[], progress: UserProgressRow[]): ThemeProgressMetrics[] => {
   const themeMap = new Map<string, ThemeProgressMetrics>();
 
   items.forEach((item) => {
@@ -128,7 +132,7 @@ const buildThemeProgress = (items: EdnUnifiedRow[], progress: UserProgressRow[])
   }).sort((a, b) => b.masteryRate - a.masteryRate);
 };
 
-const buildHistory = (items: EdnUnifiedRow[], progress: UserProgressRow[]): ProgressHistoryEntry[] => {
+const buildHistory = (items: NormalizedEdnItem[], progress: UserProgressRow[]): ProgressHistoryEntry[] => {
   const history: ProgressHistoryEntry[] = [];
 
   items.forEach((item) => {
@@ -148,7 +152,7 @@ const buildHistory = (items: EdnUnifiedRow[], progress: UserProgressRow[]): Prog
   return history.sort((a, b) => (a.updatedAt > b.updatedAt ? -1 : 1));
 };
 
-const buildRepetitionPlan = (items: EdnUnifiedRow[], progress: UserProgressRow[]): SpacedRepetitionItem[] => {
+const buildRepetitionPlan = (items: NormalizedEdnItem[], progress: UserProgressRow[]): SpacedRepetitionItem[] => {
   const now = new Date();
   const plan: SpacedRepetitionItem[] = [];
 
@@ -189,7 +193,7 @@ const buildRepetitionPlan = (items: EdnUnifiedRow[], progress: UserProgressRow[]
 export const useEdnProgressionData = (): EdnProgressionState => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [items, setItems] = useState<EdnUnifiedRow[]>([]);
+  const [items, setItems] = useState<NormalizedEdnItem[]>([]);
   const [progressRecords, setProgressRecords] = useState<UserProgressRow[]>([]);
   const [reloadKey, setReloadKey] = useState(0);
 

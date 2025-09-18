@@ -67,6 +67,20 @@ async function ensureSeedFiles() {
   } else {
     record('seed-files', 'pass', 'Environment seed files contain deployment_integrity_checks inserts');
   }
+
+  const missingDbConstraintCheck = contents
+    .map((content, index) => (!/'db_constraints_valid'/.test(content) ? requiredFiles[index] : null))
+    .filter(Boolean);
+
+  if (missingDbConstraintCheck.length > 0) {
+    record(
+      'seed-db-constraints',
+      'fail',
+      `Seed files missing db_constraints_valid check: ${missingDbConstraintCheck.join(', ')}`
+    );
+  } else {
+    record('seed-db-constraints', 'pass', 'db_constraints_valid seeded across environments');
+  }
 }
 
 async function ensureMigrationGuards() {
@@ -140,7 +154,7 @@ async function checkSupabaseConnectivity() {
   const { data: checks, error: checksError } = await client
     .from('deployment_integrity_checks')
     .select('check_name, severity')
-    .limit(10);
+    .limit(50);
 
   if (checksError) {
     record('supabase-registry', 'fail', `Unable to read deployment_integrity_checks: ${checksError.message}`);
@@ -151,6 +165,16 @@ async function checkSupabaseConnectivity() {
     record('supabase-registry', 'warn', 'No deployment_integrity_checks rows returned');
   } else {
     record('supabase-registry', 'pass', `Retrieved ${checks.length} integrity checks from Supabase`);
+  }
+
+  if (checks && checks.some((row) => row.check_name === 'db_constraints_valid')) {
+    record('supabase-registry-db-constraints', 'pass', 'db_constraints_valid registered in Supabase');
+  } else {
+    record(
+      'supabase-registry-db-constraints',
+      'warn',
+      'db_constraints_valid missing from deployment_integrity_checks registry'
+    );
   }
 
   const { data: latest, error: latestError } = await client

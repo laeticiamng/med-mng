@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { MedMngLayout } from '@/components/med-mng/MedMngLayout';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -32,10 +32,11 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
-import { useContentLibrary } from '@/hooks/library/useContentLibrary';
+import { useContentLibrary, type ContentLibraryFilters } from '@/hooks/library/useContentLibrary';
 import { contentLibraryService } from '@/services/library/ContentLibraryService';
 import { musicService } from '@/services';
-import type { StudyNoteRow } from '@/services/library/ContentLibraryService';
+import type { StudyNoteRow, ContentResourceType } from '@/services/library/ContentLibraryService';
+import { useUser } from '@/stores/appStore';
 
 const RESOURCE_CONFIG: Record<string, { label: string; description: string; icon: React.ReactNode }> = {
   track: { label: 'Piste générée', description: 'Audio IA + paroles synchronisées', icon: <Music className="h-4 w-4" /> },
@@ -153,22 +154,87 @@ const renderMetadata = (resourceType: string, metadata: any) => {
   }
 };
 
-const typeFilters = [
+const typeFilters: Array<{ type: ContentResourceType; label: string; icon: React.ReactNode }> = [
   { type: 'track', label: 'Pistes', icon: <Music className="h-4 w-4" /> },
   { type: 'edn', label: 'Fiches', icon: <BookOpen className="h-4 w-4" /> },
   { type: 'qcm', label: 'QCM', icon: <GraduationCap className="h-4 w-4" /> },
   { type: 'note', label: 'Notes', icon: <NoteText className="h-4 w-4" /> },
+];
+
+const QUICK_FILTERS = [
+  { id: 'all', label: 'Tout', description: 'Tous les contenus de la bibliothèque', icon: <Layers className="h-3.5 w-3.5" /> },
+  { id: 'favorites', label: 'Favoris', description: 'Vos éléments enregistrés en favoris', icon: <Heart className="h-3.5 w-3.5" /> },
+  { id: 'my-creations', label: 'Mes créations', description: 'Pistes générées par vous', icon: <Music className="h-3.5 w-3.5" /> },
+  { id: 'recent', label: 'Récents', description: 'Derniers ajouts et modifications', icon: <Clock className="h-3.5 w-3.5" /> },
 ] as const;
+
+type QuickFilterId = (typeof QUICK_FILTERS)[number]['id'];
+
+const applyPresetForFilter = (
+  current: ContentLibraryFilters,
+  preset: QuickFilterId,
+): ContentLibraryFilters => {
+  switch (preset) {
+    case 'favorites': {
+      if (current.favoritesOnly) return current;
+      return {
+        ...current,
+        favoritesOnly: true,
+      };
+    }
+    case 'my-creations': {
+      const nextTypes: ContentResourceType[] = ['track'];
+      const sameTypes =
+        current.types.length === nextTypes.length &&
+        current.types.every((type, index) => type === nextTypes[index]);
+
+      if (!current.favoritesOnly && sameTypes && current.sort === 'recent') {
+        return current;
+      }
+
+      return {
+        ...current,
+        favoritesOnly: false,
+        sort: 'recent',
+        types: nextTypes,
+      };
+    }
+    case 'recent': {
+      if (!current.favoritesOnly && current.sort === 'recent') {
+        return current;
+      }
+
+      return {
+        ...current,
+        favoritesOnly: false,
+        sort: 'recent',
+      };
+    }
+    case 'all':
+    default: {
+      if (!current.favoritesOnly) {
+        return current;
+      }
+
+      return {
+        ...current,
+        favoritesOnly: false,
+      };
+    }
+  }
+};
 
 const LibraryPage: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const user = useUser();
   const {
     items,
     collections,
     filters,
+    setFilters,
     setQuery,
     toggleType,
-    toggleFavoritesOnly,
     setCollection,
     setSort,
     saveItem,
@@ -188,6 +254,10 @@ const LibraryPage: React.FC = () => {
   const [newCollectionDescription, setNewCollectionDescription] = useState('');
   const [notePreview, setNotePreview] = useState<StudyNoteRow | null>(null);
   const [isNoteLoading, setIsNoteLoading] = useState(false);
+  const activeQuickFilter = useMemo<QuickFilterId>(() => {
+    const filterParam = searchParams.get('filter');
+    return (QUICK_FILTERS.find((filter) => filter.id === filterParam)?.id ?? 'all') as QuickFilterId;
+  }, [searchParams]);
 
   useEffect(() => {
     return () => {
@@ -196,6 +266,17 @@ const LibraryPage: React.FC = () => {
       }
     };
   }, [audioState.player]);
+
+  useEffect(() => {
+    setFilters((current) => applyPresetForFilter(current, activeQuickFilter));
+  }, [activeQuickFilter, setFilters]);
+
+  const displayedItems = useMemo(() => {
+    if (activeQuickFilter === 'my-creations' && user?.id) {
+      return items.filter((item) => item.owner_id === user.id);
+    }
+    return items;
+  }, [activeQuickFilter, items, user?.id]);
 
   const handlePlay = useCallback(
     async (resourceIdentifier: string, title: string) => {
@@ -269,6 +350,45 @@ const LibraryPage: React.FC = () => {
 
   const collectionOptions = useMemo(() => [{ id: 'all', name: 'Toutes les collections' }, ...collections], [collections]);
 
+  const handleQuickFilter = useCallback(
+    (nextFilter: QuickFilterId) => {
+      setFilters((current) => applyPresetForFilter(current, nextFilter));
+      setSearchParams((prev) => {
+        const params = new URLSearchParams(prev);
+        if (nextFilter === 'all') {
+          params.delete('filter');
+        } else {
+          params.set('filter', nextFilter);
+        }
+        return params;
+      }, { replace: true });
+    },
+    [setFilters, setSearchParams],
+  );
+
+  const handleFavoritesSwitch = useCallback(
+    (checked: boolean) => {
+      const targetFilter: QuickFilterId = checked ? 'favorites' : 'all';
+      handleQuickFilter(targetFilter);
+    },
+    [handleQuickFilter],
+  );
+
+  const handleResetFilters = useCallback(() => {
+    setFilters(() => ({
+      query: '',
+      types: [],
+      favoritesOnly: false,
+      collectionId: null,
+      sort: 'recent',
+    }));
+    setSearchParams((prev) => {
+      const params = new URLSearchParams(prev);
+      params.delete('filter');
+      return params;
+    }, { replace: true });
+  }, [setFilters, setSearchParams]);
+
   return (
     <MedMngLayout>
       <div className="flex-1 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white">
@@ -307,6 +427,37 @@ const LibraryPage: React.FC = () => {
           </header>
 
           <section className="mb-8 rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur">
+            <div className="mb-6 flex flex-wrap gap-3">
+              {QUICK_FILTERS.map((filter) => {
+                const isActive = activeQuickFilter === filter.id;
+                return (
+                  <Button
+                    key={filter.id}
+                    type="button"
+                    size="sm"
+                    variant={isActive ? 'default' : 'outline'}
+                    className={cn(
+                      'gap-2 rounded-full border-white/10',
+                      isActive ? 'bg-emerald-500 text-white' : 'bg-slate-900/60 text-slate-200',
+                    )}
+                    onClick={() => handleQuickFilter(filter.id)}
+                  >
+                    {filter.icon}
+                    <span>{filter.label}</span>
+                  </Button>
+                );
+              })}
+              <Button
+                type="button"
+                size="sm"
+                variant="ghost"
+                className="ml-auto gap-2 text-slate-300 hover:text-white"
+                onClick={handleResetFilters}
+              >
+                <Filter className="h-4 w-4" />
+                Réinitialiser
+              </Button>
+            </div>
             <div className="grid gap-6 lg:grid-cols-4">
               <div className="lg:col-span-2">
                 <label className="mb-2 block text-sm font-medium text-slate-200">Recherche</label>
@@ -360,14 +511,14 @@ const LibraryPage: React.FC = () => {
               </div>
               <div className="flex flex-wrap gap-2">
                 {typeFilters.map((filter) => {
-                  const active = filters.types.includes(filter.type as any);
+                  const active = filters.types.includes(filter.type);
                   return (
                     <Button
                       key={filter.type}
                       size="sm"
                       variant={active ? 'default' : 'outline'}
                       className={cn('gap-2 rounded-full border-white/10', active ? 'bg-emerald-500 text-white' : 'bg-slate-900/60')}
-                      onClick={() => toggleType(filter.type as any)}
+                      onClick={() => toggleType(filter.type)}
                       type="button"
                     >
                       {filter.icon}
@@ -377,7 +528,7 @@ const LibraryPage: React.FC = () => {
                 })}
               </div>
               <div className="ml-auto flex items-center gap-2">
-                <Switch checked={filters.favoritesOnly} onCheckedChange={toggleFavoritesOnly} id="favorites-only" />
+                <Switch checked={filters.favoritesOnly} onCheckedChange={handleFavoritesSwitch} id="favorites-only" />
                 <label htmlFor="favorites-only" className="text-sm text-slate-200">
                   Favoris uniquement
                 </label>
@@ -406,19 +557,22 @@ const LibraryPage: React.FC = () => {
             </div>
           )}
 
-          {!isLoading && items.length === 0 && (
+          {!isLoading && displayedItems.length === 0 && (
             <Alert className="border-emerald-500/30 bg-emerald-500/10 text-emerald-100">
               <Sparkles className="h-4 w-4" />
               <AlertTitle>Aucun contenu trouvé</AlertTitle>
               <AlertDescription>
-                Ajuste ta recherche, explore un autre type de ressource ou ajoute des éléments depuis les modules génération et
-                EDN.
+                {activeQuickFilter === 'favorites'
+                  ? 'Aucun favori ne correspond à ces filtres. Essaie de retirer certains filtres ou d’ajouter des éléments en favoris.'
+                  : activeQuickFilter === 'my-creations'
+                  ? 'Tu n’as pas encore de créations personnelles enregistrées. Lance une génération musicale pour alimenter cet espace.'
+                  : 'Ajuste ta recherche, explore un autre type de ressource ou ajoute des éléments depuis les modules génération et EDN.'}
               </AlertDescription>
             </Alert>
           )}
 
           <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-            {items.map((item) => {
+            {displayedItems.map((item) => {
               const config = RESOURCE_CONFIG[item.resource_type] ?? RESOURCE_CONFIG.track;
               const collectionsForItem = parseCollections(item.collections as CollectionJson);
               const isFavorite = Boolean(item.is_favorite);
@@ -434,13 +588,28 @@ const LibraryPage: React.FC = () => {
                           {config.label}
                         </div>
                         <CardTitle className="mt-2 text-xl text-white">{item.title}</CardTitle>
+                        <div className="mt-2 flex flex-wrap gap-2">
+                          {item.owner_id && user?.id === item.owner_id && (
+                            <Badge className="bg-emerald-500/20 text-emerald-100">Création perso</Badge>
+                          )}
+                          {item.is_public && (
+                            <Badge variant="outline" className="border-white/10 bg-transparent text-xs text-slate-200">
+                              Partagé
+                            </Badge>
+                          )}
+                          {activeQuickFilter !== 'all' && (
+                            <Badge variant="outline" className="border-white/10 bg-white/10 text-xs text-slate-200">
+                              {QUICK_FILTERS.find((filter) => filter.id === activeQuickFilter)?.label}
+                            </Badge>
+                          )}
+                        </div>
                       </div>
                       <div className="flex gap-2">
                         <Button
                           size="icon"
                           variant="ghost"
                           className={cn('h-9 w-9 rounded-full border border-white/10', isFavorite ? 'text-emerald-400' : 'text-slate-300')}
-                          onClick={() => toggleFavorite(item.resource_type as any, item.resource_identifier, !isFavorite)}
+                          onClick={() => toggleFavorite(item.resource_type as ContentResourceType, item.resource_identifier, !isFavorite)}
                           disabled={isMutating}
                         >
                           {isFavorite ? <Heart className="h-4 w-4" /> : <HeartOff className="h-4 w-4" />}
@@ -463,8 +632,8 @@ const LibraryPage: React.FC = () => {
                                   key={collection.id}
                                   onClick={() =>
                                     assigned
-                                      ? removeFromCollection(item.resource_type as any, item.resource_identifier, collection.id)
-                                      : addToCollection(item.resource_type as any, item.resource_identifier, collection.id)
+                                      ? removeFromCollection(item.resource_type as ContentResourceType, item.resource_identifier, collection.id)
+                                      : addToCollection(item.resource_type as ContentResourceType, item.resource_identifier, collection.id)
                                   }
                                 >
                                   <div className="flex w-full items-center justify-between">
@@ -574,7 +743,7 @@ const LibraryPage: React.FC = () => {
                         size="sm"
                         variant="ghost"
                         className="gap-2 text-slate-200"
-                        onClick={() => removeItem(item.resource_type as any, item.resource_identifier)}
+                        onClick={() => removeItem(item.resource_type as ContentResourceType, item.resource_identifier)}
                         disabled={isMutating}
                       >
                         Retirer
@@ -584,7 +753,7 @@ const LibraryPage: React.FC = () => {
                         size="sm"
                         variant="ghost"
                         className="gap-2 text-slate-200"
-                        onClick={() => saveItem(item.resource_type as any, item.resource_identifier)}
+                        onClick={() => saveItem(item.resource_type as ContentResourceType, item.resource_identifier)}
                         disabled={isMutating}
                       >
                         Ajouter à la bibliothèque

@@ -34,3 +34,4 @@ export { useContentLibrary } from './library/useContentLibrary';
 
 // Analytics
 export { useAnalyticsConsent } from './analytics/useAnalyticsConsent';
+export { useAnalyticsDashboard } from './analytics/useAnalyticsDashboard';

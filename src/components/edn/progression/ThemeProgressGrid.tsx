@@ -4,16 +4,23 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import type { ThemeProgressMetrics } from '@/hooks/edn/useEdnProgressionData';
+import { cn } from '@/lib/utils';
 
 interface ThemeProgressGridProps {
   themes: ThemeProgressMetrics[];
   rankFilter: 'all' | 'A' | 'B';
   onRankFilterChange: (filter: 'all' | 'A' | 'B') => void;
+  highlightedTheme?: string;
 }
 
 const formatLabel = (value: number) => `${value.toString().padStart(2, '0')}`;
 
-export const ThemeProgressGrid: React.FC<ThemeProgressGridProps> = ({ themes, rankFilter, onRankFilterChange }) => {
+export const ThemeProgressGrid: React.FC<ThemeProgressGridProps> = ({
+  themes,
+  rankFilter,
+  onRankFilterChange,
+  highlightedTheme,
+}) => {
   const sortedThemes = React.useMemo(() => {
     if (rankFilter === 'A') {
       return [...themes].sort((a, b) => b.rankACount - a.rankACount);
@@ -50,11 +57,21 @@ export const ThemeProgressGrid: React.FC<ThemeProgressGridProps> = ({ themes, ra
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-        {sortedThemes.map((theme) => (
-          <Card key={theme.theme} className="relative overflow-hidden border-border/50">
-            <CardHeader className="pb-4">
-              <div className="flex items-center justify-between">
-                <CardTitle className="text-lg font-semibold flex-1 pr-4">{theme.theme}</CardTitle>
+        {sortedThemes.map((theme) => {
+          const isHighlighted = highlightedTheme
+            ? theme.theme.toLowerCase() === highlightedTheme.toLowerCase()
+            : false;
+          return (
+            <Card
+              key={theme.theme}
+              className={cn(
+                'relative overflow-hidden border-border/50 transition-shadow',
+                isHighlighted && 'border-primary/60 shadow-lg shadow-primary/20',
+              )}
+            >
+              <CardHeader className="pb-4">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-lg font-semibold flex-1 pr-4">{theme.theme}</CardTitle>
                 <Badge variant="secondary" className="text-xs font-medium">
                   {formatLabel(theme.mastered)}/{formatLabel(theme.totalItems)} maîtrisés
                 </Badge>
@@ -90,9 +107,10 @@ export const ThemeProgressGrid: React.FC<ThemeProgressGridProps> = ({ themes, ra
                 <span>Non commencés</span>
                 <span className="font-medium text-foreground">{theme.notStarted}</span>
               </div>
-            </CardContent>
-          </Card>
-        ))}
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
     </div>
   );
