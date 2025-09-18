@@ -2,8 +2,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Slider } from '@/components/ui/slider';
-import { 
-  Play, 
+import {
+  Play,
   Pause, 
   SkipBack, 
   SkipForward, 
@@ -13,6 +13,7 @@ import {
   Minimize2,
   Maximize2
 } from 'lucide-react';
+import { trackCanonicalEvent } from '@/services/CanonicalAnalyticsTracker';
 
 interface GlobalMusicPlayerProps {
   className?: string;
@@ -40,14 +41,48 @@ export const GlobalMusicPlayer = ({ className = '' }: GlobalMusicPlayerProps) =>
   };
 
   const togglePlay = () => {
-    if (audioRef.current) {
-      if (isPlaying) {
-        audioRef.current.pause();
-      } else {
-        audioRef.current.play();
-      }
-      setIsPlaying(!isPlaying);
+    const audio = audioRef.current;
+    if (!audio) {
+      return;
     }
+
+    if (isPlaying) {
+      audio.pause();
+      setIsPlaying(false);
+      return;
+    }
+
+    const playPromise = audio.play();
+    if (playPromise && typeof playPromise.then === 'function') {
+      playPromise
+        .then(() => {
+          setIsPlaying(true);
+          void trackCanonicalEvent({
+            type: 'play',
+            metadata: {
+              title: currentTrack.title,
+              artist: currentTrack.artist,
+              album: currentTrack.album,
+              context: 'global-player',
+            },
+          });
+        })
+        .catch((error) => {
+          console.warn('[global-player] unable to start playback', error);
+        });
+      return;
+    }
+
+    setIsPlaying(true);
+    void trackCanonicalEvent({
+      type: 'play',
+      metadata: {
+        title: currentTrack.title,
+        artist: currentTrack.artist,
+        album: currentTrack.album,
+        context: 'global-player',
+      },
+    });
   };
 
   const toggleMute = () => {

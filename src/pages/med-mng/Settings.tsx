@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,6 +24,8 @@ import {
 import { MedMngLayout } from '@/components/med-mng/MedMngLayout';
 import { withAuth } from '@/components/med-mng/withAuth';
 import { useToast } from '@/hooks/use-toast';
+import { useAnalyticsConsent } from '@/hooks/analytics/useAnalyticsConsent';
+import { ANALYTICS_CONSENT_VERSION } from '@/services/CanonicalAnalyticsTracker';
 
 const Settings = () => {
   const { toast } = useToast();
@@ -48,7 +50,6 @@ const Settings = () => {
     privacy: {
       profileVisibility: 'friends',
       shareProgress: true,
-      anonymousAnalytics: true,
       marketingEmails: false
     },
     appearance: {
@@ -73,6 +74,19 @@ const Settings = () => {
     }
   });
 
+  const {
+    optIn: analyticsOptIn,
+    retentionDays,
+    loading: analyticsLoading,
+    updateConsent,
+  } = useAnalyticsConsent();
+  const [retentionValue, setRetentionValue] = useState(retentionDays);
+  const [updatingAnalytics, setUpdatingAnalytics] = useState(false);
+
+  useEffect(() => {
+    setRetentionValue(retentionDays);
+  }, [retentionDays]);
+
   const updateSetting = (section: string, key: string, value: any) => {
     setSettings(prev => ({
       ...prev,
@@ -81,11 +95,59 @@ const Settings = () => {
         [key]: value
       }
     }));
-    
+
     toast({
       title: "Paramètre mis à jour",
       description: "Vos modifications ont été sauvegardées.",
     });
+  };
+
+  const handleToggleAnalytics = async (checked: boolean) => {
+    setUpdatingAnalytics(true);
+    try {
+      await updateConsent(checked, retentionValue);
+      toast({
+        title: checked ? 'Analytics activées' : 'Analytics désactivées',
+        description: checked
+          ? 'Merci de contribuer à l’amélioration de la plateforme.'
+          : 'Vos données d’usage ne seront plus collectées.',
+      });
+    } catch (error) {
+      console.error('analytics opt-in error', error);
+      toast({
+        title: 'Erreur analytics',
+        description: 'Impossible de mettre à jour vos préférences pour le moment.',
+        variant: 'destructive',
+      });
+    } finally {
+      setUpdatingAnalytics(false);
+    }
+  };
+
+  const handleRetentionChange = async (value: string) => {
+    const parsed = Number.parseInt(value, 10) || retentionDays;
+    setRetentionValue(parsed);
+    if (!analyticsOptIn) {
+      return;
+    }
+
+    setUpdatingAnalytics(true);
+    try {
+      await updateConsent(true, parsed);
+      toast({
+        title: 'Période de conservation mise à jour',
+        description: `Les événements seront conservés ${parsed} jours au maximum.`,
+      });
+    } catch (error) {
+      console.error('analytics retention update error', error);
+      toast({
+        title: 'Erreur analytics',
+        description: 'Impossible de modifier la durée de conservation.',
+        variant: 'destructive',
+      });
+    } finally {
+      setUpdatingAnalytics(false);
+    }
   };
 
   const exportData = () => {
@@ -368,17 +430,68 @@ const Settings = () => {
                   </Select>
                 </div>
 
-                {Object.entries(settings.privacy).filter(([key]) => key !== 'profileVisibility').map(([key, value]) => (
+                <div className="rounded-lg border border-purple-200/70 bg-purple-50/40 p-4 space-y-3">
+                  <div className="flex flex-wrap items-start justify-between gap-4">
+                    <div className="max-w-xl space-y-1">
+                      <p className="font-medium text-purple-900">Analytics canoniques (opt-in)</p>
+                      <p className="text-sm text-purple-900/80">
+                        Collecte distribuée des événements génération, sync EDN et séances pour identifier les frictions sans
+                        exposer vos données personnelles.
+                      </p>
+                      <p className="text-xs text-purple-900/70">
+                        Conservation maximale&nbsp;: {retentionValue} jours · Consentement v{ANALYTICS_CONSENT_VERSION}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Switch
+                        checked={analyticsOptIn}
+                        onCheckedChange={handleToggleAnalytics}
+                        disabled={analyticsLoading || updatingAnalytics}
+                        aria-label="Activer les analytics canoniques"
+                      />
+                      <Badge variant={analyticsOptIn ? 'default' : 'secondary'}>
+                        {analyticsLoading ? 'Chargement…' : analyticsOptIn ? 'Activé' : 'Désactivé'}
+                      </Badge>
+                    </div>
+                  </div>
+                  <div className="grid gap-3 sm:flex sm:items-center sm:gap-6">
+                    <div className="space-y-1">
+                      <Label htmlFor="analytics-retention" className="text-xs uppercase tracking-wide text-purple-900/80">
+                        Durée de conservation
+                      </Label>
+                      <Select
+                        value={String(retentionValue)}
+                        onValueChange={handleRetentionChange}
+                        disabled={!analyticsOptIn || analyticsLoading || updatingAnalytics}
+                      >
+                        <SelectTrigger id="analytics-retention" className="w-40">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="90">90 jours</SelectItem>
+                          <SelectItem value="180">180 jours</SelectItem>
+                          <SelectItem value="365">365 jours</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <p className="text-xs text-purple-900/70 max-w-md">
+                      Les événements sont pseudonymisés, stockés côté Supabase et purgés automatiquement selon votre choix. Vous
+                      pouvez désactiver la collecte à tout moment.
+                    </p>
+                  </div>
+                </div>
+
+                {Object.entries(settings.privacy)
+                  .filter(([key]) => key !== 'profileVisibility')
+                  .map(([key, value]) => (
                   <div key={key} className="flex items-center justify-between">
                     <div>
                       <p className="font-medium">
                         {key === 'shareProgress' && 'Partager la progression'}
-                        {key === 'anonymousAnalytics' && 'Analyses anonymes'}
                         {key === 'marketingEmails' && 'Emails marketing'}
                       </p>
                       <p className="text-sm text-gray-600">
                         {key === 'shareProgress' && 'Permettre aux autres de voir votre progression'}
-                        {key === 'anonymousAnalytics' && 'Aider à améliorer la plateforme'}
                         {key === 'marketingEmails' && 'Recevoir des offres et actualités'}
                       </p>
                     </div>

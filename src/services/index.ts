@@ -8,6 +8,9 @@ export { analyticsService } from './UnifiedAnalyticsService';
 // Service musical unifié (remplace tous les anciens services musicaux)
 export { musicService } from './UnifiedMusicService';
 export { generationService } from './business/GenerationService';
+export { musicOrchestrator } from './musicOrchestrator';
+export { contentLibraryService } from './library/ContentLibraryService';
+export { trackCanonicalEvent, setAnalyticsContext } from './CanonicalAnalyticsTracker';
 // Service de contenu unifié (remplace tous les anciens services de contenu)
 export { contentService } from './UnifiedContentService';
 

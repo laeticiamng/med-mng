@@ -1,7 +1,8 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 import { User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 import { useEmailNotifications } from '@/hooks/useEmailNotifications';
+import { isTestEnvironment } from '@/utils/environment';
 
 interface AuthContextType {
   user: User | null;
@@ -20,8 +21,36 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const { sendWelcomeEmail } = useEmailNotifications();
+  const testEnvironment = isTestEnvironment();
+
+  const testUser = useMemo<User>(() => ({
+    id: 'test-user-id',
+    app_metadata: { provider: 'cypress', providers: ['cypress'] },
+    user_metadata: { name: 'QA Tester' },
+    aud: 'authenticated',
+    confirmation_sent_at: null,
+    confirmed_at: null,
+    created_at: new Date().toISOString(),
+    email: 'qa.tester@med-mng.test',
+    email_confirmed_at: new Date().toISOString(),
+    last_sign_in_at: new Date().toISOString(),
+    phone: null,
+    phone_confirmed_at: null,
+    role: 'authenticated',
+    updated_at: new Date().toISOString(),
+    factors: [],
+    identities: [],
+    invited_at: null,
+    recovery_sent_at: null,
+  } as unknown as User), []);
 
   useEffect(() => {
+    if (testEnvironment) {
+      setUser(testUser);
+      setLoading(false);
+      return;
+    }
+
     // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
@@ -58,9 +87,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     );
 
     return () => subscription.unsubscribe();
-  }, [sendWelcomeEmail]);
+  }, [sendWelcomeEmail, testEnvironment, testUser]);
 
   const signIn = async (email: string, password: string) => {
+    if (testEnvironment) {
+      setUser(testUser);
+      return { error: null };
+    }
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
@@ -69,6 +102,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signUp = async (email: string, password: string, name: string) => {
+    if (testEnvironment) {
+      setUser(testUser);
+      return { error: null };
+    }
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -83,10 +120,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signOut = async () => {
+    if (testEnvironment) {
+      setUser(null);
+      return;
+    }
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
-      
+
       // Clear user state immediately
       setUser(null);
       setLoading(false);
@@ -99,6 +140,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signInWithGoogle = async () => {
+    if (testEnvironment) {
+      setUser(testUser);
+      return { error: null };
+    }
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
@@ -109,6 +154,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signInWithFacebook = async () => {
+    if (testEnvironment) {
+      setUser(testUser);
+      return { error: null };
+    }
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'facebook',
       options: {
@@ -119,6 +168,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   };
 
   const signInWithApple = async () => {
+    if (testEnvironment) {
+      setUser(testUser);
+      return { error: null };
+    }
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'apple',
       options: {

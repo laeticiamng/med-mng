@@ -2,16 +2,18 @@ import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
 import { logService, httpLoggerMiddleware } from './services/logService';
-import { 
-  globalRateLimit, 
+import {
+  globalRateLimit,
   distributedRateLimitMiddleware,
-  corsOptions, 
-  securityHeadersMiddleware 
+  corsOptions,
+  securityHeadersMiddleware
 } from './middleware/security';
-import { validateSecurityConfig } from './config/security';
+import { validateSecurityConfig, getSecurityConfig } from './config/security';
+import { createCSPMiddleware } from './utils/security/cspHelper';
 
 const app = express();
 const port = process.env.PORT ? Number(process.env.PORT) : 3000;
+const securityConfig = getSecurityConfig();
 
 // Masquer la technologie du serveur
 app.disable('x-powered-by');
@@ -19,9 +21,20 @@ app.disable('x-powered-by');
 // Configuration du proxy de confiance pour les load balancers
 app.set('trust proxy', 1);
 
-// Middleware de sécurité avec CSP centralisée
-import { createCSPMiddleware } from './utils/security/cspHelper';
-app.use(createCSPMiddleware('production'));
+// Middleware Helmet avec configuration renforcée
+app.use(helmet({
+  contentSecurityPolicy: false,
+  crossOriginEmbedderPolicy: false,
+}));
+app.use(helmet.referrerPolicy({ policy: 'strict-origin-when-cross-origin' }));
+app.use(helmet.frameguard({ action: 'deny' }));
+
+if (securityConfig.headers.enableHSTS) {
+  app.use(helmet.hsts({ maxAge: 63_072_000, includeSubDomains: true, preload: true }));
+}
+
+const cspEnvironment = process.env.NODE_ENV === 'development' ? 'development' : 'production';
+app.use(createCSPMiddleware(cspEnvironment));
 
 // CORS avec configuration personnalisée
 app.use(cors(corsOptions));

@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { enforceRateLimit } from "../_shared/rateLimit.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -24,7 +25,31 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  let rateLimitHeaders: Record<string, string> = {};
+
   try {
+    const rateLimit = await enforceRateLimit(req, {
+      action: 'admin.export',
+      maxRequests: Number(Deno.env.get('RATE_LIMIT_EXPORT_MAX_REQUESTS') ?? '4'),
+      windowSeconds: Number(Deno.env.get('RATE_LIMIT_EXPORT_WINDOW_SECONDS') ?? String(15 * 60)),
+      context: { function: 'admin-export' }
+    });
+
+    if (!rateLimit.allowed && rateLimit.response) {
+      const body = await rateLimit.response.text();
+      return new Response(body, {
+        status: rateLimit.response.status,
+        headers: {
+          ...corsHeaders,
+          ...rateLimit.headers,
+          'Retry-After': rateLimit.response.headers.get('Retry-After') ?? '900',
+          'Content-Type': 'application/json'
+        }
+      });
+    }
+
+    rateLimitHeaders = rateLimit.headers;
+
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
@@ -127,6 +152,7 @@ serve(async (req) => {
     return new Response(content, {
       headers: {
         ...corsHeaders,
+        ...rateLimitHeaders,
         'Content-Type': contentType,
         'Content-Disposition': `attachment; filename="${filename}"`,
         'Content-Length': content.length.toString(),
@@ -140,9 +166,9 @@ serve(async (req) => {
         error: 'Erreur lors de l\'export', 
         details: error.message 
       }), 
-      { 
-        status: 500, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json', ...rateLimitHeaders }
       }
     );
   }

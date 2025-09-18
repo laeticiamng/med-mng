@@ -53,7 +53,32 @@ The [`extract-oic.yml`](.github/workflows/extract-oic.yml) workflow runs the OIC
 
 Badges in the main README reflect the CI status and project version.
 
-## 4. Secrets & env
+## 4. Post-deploy integrity checks
+
+Run the automated integrity sweep after every staging or production deployment:
+
+```bash
+pnpm postdeploy:check
+```
+
+The script validates the presence of the idempotent migration, environment seed files and, when Supabase credentials are available, reads the live `deployment_integrity_checks` registry and the `deployment_integrity_latest` view.
+In CI you can export the service role credentials to capture live evidence and fail fast if the registry is unreachable:
+
+```bash
+SUPABASE_URL=... SUPABASE_SERVICE_ROLE_KEY=... pnpm postdeploy:check
+```
+
+To persist audit evidence after a successful deploy, call the helper from the migration bundle:
+
+```bash
+psql $SUPABASE_DB_URL -c "select record_deployment_integrity('staging', 'database_migrations_applied', 'pass');"
+```
+
+The latest snapshot is available via the `deployment_integrity_latest` view and remediation guidance is detailed in `/docs/runbooks`.
+
+Reference checklist: [`docs/DEPLOYMENT-INTEGRITY-CHECKLIST.md`](docs/DEPLOYMENT-INTEGRITY-CHECKLIST.md).
+
+## 5. Secrets & env
 
 All secrets are loaded from environment variables. Important keys include:
 - `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`, `SUPABASE_ANON_KEY`
@@ -66,14 +91,14 @@ All secrets are loaded from environment variables. Important keys include:
 
 Store them in `.env` for local use and configure the same variables as project secrets in Supabase and GitHub.
 
-## 5. Monitoring / logs / alertes
+## 6. Monitoring / logs / alertes
 
 - Supabase provides logs for edge functions, database and storage (dashboard ➜ Logs).
 - The Express API logs to stdout via `supabase/functions/med-mng-api/logger.ts`.
 - Alerts can be sent to Discord or Slack when `DISCORD_WEBHOOK_URL` or `SLACK_WEBHOOK_URL` are defined. See `src/services/alertService.ts`.
 - Database logs are stored in the `operation_logs` table via `logService.ts` and can feed a Metabase or Grafana dashboard (see `docs/dashboard-monitoring.md`).
 
-## 6. Extraction batch / cleaning data
+## 7. Extraction batch / cleaning data
 
 OIC extraction can be triggered via the admin interface `/admin/extract-objectifs` or with the helper scripts:
 ```bash
@@ -82,7 +107,7 @@ node fix-oic-data-script.js fix   # clean corrupted OIC data
 ```
 Database utilities like `cleanup_old_extractions` are defined in `schema-oic.sql` and migrations.
 
-## 7. Process incidents / runbook
+## 8. Process incidents / runbook
 
 Common incidents and how to react:
 - **Extraction failure**: check GitHub Action `extract-oic.yml` logs, retry the workflow or run `node run-extraction.js` locally.
@@ -91,7 +116,12 @@ Common incidents and how to react:
 - **Payment or Stripe issues**: ensure `STRIPE_SECRET_KEY` and webhook secrets are valid. Check Stripe dashboard.
 - **Production down**: inspect Supabase status and container logs, restart the container or redeploy.
 
-## 8. FAQ onboarding/support
+Detailed remediation guides live in `/docs/runbooks`:
+- [`incident-response.md`](docs/runbooks/incident-response.md) – triage checklist, escalation matrix and panic overlay handling.
+- [`rollback.md`](docs/runbooks/rollback.md) – safe rollback flow using `record_deployment_integrity`.
+- [`large-migrations.md`](docs/runbooks/large-migrations.md) – phased rollout strategy with dry-run validation.
+
+## 9. FAQ onboarding/support
 
 **How do I reset my local database?**
 ```bash
@@ -102,11 +132,11 @@ supabase start
 
 For additional questions check the other README files (`README-MED-MNG.md`, `README-OIC-EXTRACTION.md`) or contact the maintainers below.
 
-## 9. Contacts & ownership
+## 10. Contacts & ownership
 
 - Primary contact: [support@medmng.com](mailto:support@medmng.com)
 - Issues can be opened on the GitHub repository
 - Keep this document updated whenever the infrastructure or process changes.
 
 ---
-_Last updated: 2025_
+_Last updated: 2025 (post-deploy integrity refresh)_

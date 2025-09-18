@@ -1,6 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { isTestEnvironment } from '@/utils/environment';
 
 // ===============================================
 // UNIFIED MEDICAL MUSIC GENERATION SYSTEM
@@ -43,6 +44,7 @@ export const useUnifiedMedicalMusicGeneration = () => {
   const [activeGenerations, setActiveGenerations] = useState<Map<string, GenerationProgress>>(new Map());
   const [generatedTracks, setGeneratedTracks] = useState<Map<string, MedicalMusicResponse>>(new Map());
   const { toast } = useToast();
+  const testEnvironment = isTestEnvironment();
 
   // Génération musicale unifiée
   const generateMedicalMusic = useCallback(async (request: MedicalMusicRequest): Promise<string> => {
@@ -52,6 +54,70 @@ export const useUnifiedMedicalMusicGeneration = () => {
       // Validation des données
       if (!request.itemCode || !request.rang || !request.lyrics?.length) {
         throw new Error('Données de génération incomplètes');
+      }
+
+      if (testEnvironment) {
+        const taskId = `test-task-${Date.now()}`;
+        const simulatedStages: Array<Pick<GenerationProgress, 'progress' | 'stage'>> = [
+          { progress: 25, stage: 'Analyse des paramètres' },
+          { progress: 55, stage: 'Génération harmonique' },
+          { progress: 80, stage: 'Assemblage des segments' },
+          { progress: 100, stage: 'Finalisation et mastering' },
+        ];
+
+        setActiveGenerations((prev) => new Map(prev).set(taskId, {
+          taskId,
+          progress: 0,
+          stage: 'Initialisation...',
+          estimatedTime: request.duration || 240,
+          status: 'queued',
+        }));
+
+        simulatedStages.forEach((stage, index) => {
+          window.setTimeout(() => {
+            setActiveGenerations((prev) => {
+              const updated = new Map(prev);
+              const existing = updated.get(taskId);
+              if (!existing) {
+                return prev;
+              }
+              updated.set(taskId, {
+                ...existing,
+                progress: stage.progress,
+                stage: stage.stage,
+                status: stage.progress >= 100 ? 'completed' : 'generating',
+              });
+              return updated;
+            });
+
+            if (stage.progress >= 100) {
+              setGeneratedTracks((prev) => {
+                const next = new Map(prev);
+                next.set(taskId, {
+                  taskId,
+                  songId: `${request.itemCode}-demo`,
+                  streamUrl: '/audio/mock-track.mp3',
+                  status: 'completed',
+                  progress: 100,
+                });
+                return next;
+              });
+
+              setActiveGenerations((prev) => {
+                const updated = new Map(prev);
+                updated.delete(taskId);
+                return updated;
+              });
+
+              toast({
+                title: '🎉 Génération terminée !',
+                description: 'Votre musique médicale de test est prête à être utilisée.',
+              });
+            }
+          }, 350 * (index + 1));
+        });
+
+        return taskId;
       }
 
       // Préparation du payload optimisé
@@ -109,10 +175,13 @@ export const useUnifiedMedicalMusicGeneration = () => {
       });
       throw error;
     }
-  }, [toast]);
+  }, [toast, testEnvironment]);
 
   // Polling du progrès de génération
   const startProgressPolling = useCallback(async (taskId: string) => {
+    if (testEnvironment) {
+      return;
+    }
     const pollInterval = setInterval(async () => {
       try {
         const { data } = await supabase.functions.invoke('generate-music-premium', {
@@ -179,7 +248,7 @@ export const useUnifiedMedicalMusicGeneration = () => {
 
     // Cleanup après 10 minutes max
     setTimeout(() => clearInterval(pollInterval), 10 * 60 * 1000);
-  }, [toast]);
+  }, [toast, testEnvironment]);
 
   // Génération batch (A + B simultanément)
   const generateBatchMusic = useCallback(async (

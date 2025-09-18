@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { MedMngLayout } from '@/components/med-mng/MedMngLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,10 +9,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Slider } from '@/components/ui/slider';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
-import { 
-  Settings, 
-  User, 
-  Volume2, 
+import { Badge } from '@/components/ui/badge';
+import {
+  Settings,
+  User,
+  Volume2,
   Bell, 
   Shield, 
   Palette,
@@ -21,11 +22,13 @@ import {
 } from 'lucide-react';
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { toast } from 'sonner';
+import { useAnalyticsConsent } from '@/hooks/analytics/useAnalyticsConsent';
+import { ANALYTICS_CONSENT_VERSION } from '@/services/CanonicalAnalyticsTracker';
 
 const NewSettings = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('profile');
-  
+
   const [settings, setSettings] = useState({
     // Profile
     displayName: user?.user_metadata?.name || '',
@@ -51,12 +54,57 @@ const NewSettings = () => {
     language: 'fr'
   });
 
+  const {
+    optIn: analyticsOptIn,
+    retentionDays,
+    loading: analyticsLoading,
+    updateConsent,
+  } = useAnalyticsConsent();
+  const [retentionValue, setRetentionValue] = useState(retentionDays);
+  const [updatingAnalytics, setUpdatingAnalytics] = useState(false);
+
+  useEffect(() => {
+    setRetentionValue(retentionDays);
+  }, [retentionDays]);
+
   const handleSave = (section: string) => {
     toast.success(`Paramètres ${section} sauvegardés`);
   };
 
   const updateSetting = (key: string, value: any) => {
     setSettings(prev => ({ ...prev, [key]: value }));
+  };
+
+  const handleAnalyticsToggle = async (checked: boolean) => {
+    setUpdatingAnalytics(true);
+    try {
+      await updateConsent(checked, retentionValue);
+      toast.success(checked ? 'Analytics canoniques activées' : 'Analytics canoniques désactivées');
+    } catch (error) {
+      console.error('analytics opt-in error', error);
+      toast.error('Impossible de mettre à jour vos préférences analytics');
+    } finally {
+      setUpdatingAnalytics(false);
+    }
+  };
+
+  const handleRetentionChange = async (value: string) => {
+    const parsed = Number.parseInt(value, 10) || retentionDays;
+    setRetentionValue(parsed);
+    if (!analyticsOptIn) {
+      return;
+    }
+
+    setUpdatingAnalytics(true);
+    try {
+      await updateConsent(true, parsed);
+      toast.success(`Conservation des événements: ${parsed} jours`);
+    } catch (error) {
+      console.error('analytics retention update error', error);
+      toast.error('Impossible de modifier la durée de conservation');
+    } finally {
+      setUpdatingAnalytics(false);
+    }
   };
 
   return (
@@ -278,6 +326,57 @@ const NewSettings = () => {
                       checked={settings.shareStats}
                       onCheckedChange={(checked) => updateSetting('shareStats', checked)}
                     />
+                  </div>
+
+                  <Separator />
+
+                  <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 space-y-3">
+                    <div className="flex flex-wrap items-start justify-between gap-4">
+                      <div className="space-y-1">
+                        <p className="font-medium text-primary">Analytics canoniques (opt-in)</p>
+                        <p className="text-sm text-primary/80">
+                          Événements normalisés pour suivre génération, sync EDN et séances. Données pseudonymisées et purgées automatiquement.
+                        </p>
+                        <p className="text-xs text-primary/70">
+                          Conservation max&nbsp;: {retentionValue} jours · Consentement v{ANALYTICS_CONSENT_VERSION}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Switch
+                          checked={analyticsOptIn}
+                          onCheckedChange={handleAnalyticsToggle}
+                          disabled={analyticsLoading || updatingAnalytics}
+                          aria-label="Activer les analytics canoniques"
+                        />
+                        <Badge variant={analyticsOptIn ? 'default' : 'secondary'}>
+                          {analyticsLoading ? 'Chargement…' : analyticsOptIn ? 'Activé' : 'Désactivé'}
+                        </Badge>
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap items-center gap-4">
+                      <div className="space-y-1">
+                        <Label htmlFor="analytics-retention-new" className="text-xs uppercase tracking-wide text-primary/80">
+                          Durée de conservation
+                        </Label>
+                        <Select
+                          value={String(retentionValue)}
+                          onValueChange={handleRetentionChange}
+                          disabled={!analyticsOptIn || analyticsLoading || updatingAnalytics}
+                        >
+                          <SelectTrigger id="analytics-retention-new" className="w-36">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="90">90 jours</SelectItem>
+                            <SelectItem value="180">180 jours</SelectItem>
+                            <SelectItem value="365">365 jours</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <p className="text-xs text-primary/70 max-w-md">
+                        L’opt-in peut être modifié à tout moment. Les événements expirés sont purgés automatiquement selon votre choix.
+                      </p>
+                    </div>
                   </div>
 
                   <Separator />

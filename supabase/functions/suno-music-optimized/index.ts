@@ -8,6 +8,7 @@
 
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { enforceRateLimit } from "../_shared/rateLimit.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -29,6 +30,26 @@ serve(async (req) => {
         JSON.stringify({ error: 'Méthode non autorisée' }),
         { status: 405, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
+    }
+
+    const rateLimit = await enforceRateLimit(req, {
+      action: 'music.generate',
+      maxRequests: Number(Deno.env.get('RATE_LIMIT_MUSIC_MAX_REQUESTS') ?? '12'),
+      windowSeconds: Number(Deno.env.get('RATE_LIMIT_MUSIC_WINDOW_SECONDS') ?? String(15 * 60)),
+      context: { function: 'suno-music-optimized' }
+    });
+
+    if (!rateLimit.allowed && rateLimit.response) {
+      const body = await rateLimit.response.text();
+      return new Response(body, {
+        status: rateLimit.response.status,
+        headers: {
+          ...corsHeaders,
+          ...rateLimit.headers,
+          'Retry-After': rateLimit.response.headers.get('Retry-After') ?? '60',
+          'Content-Type': 'application/json'
+        }
+      });
     }
 
     const { lyrics, title, style, duration, rang, fastMode, optimized } = await req.json();
@@ -73,7 +94,7 @@ serve(async (req) => {
           success: true,
           message: 'Mode simulation - Intégrez votre clé Suno API pour la production'
         }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json', ...rateLimit.headers } }
       );
     }
 
@@ -177,7 +198,7 @@ La musique doit être:
 
     return new Response(
       JSON.stringify(response),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json', ...rateLimit.headers } }
     );
 
   } catch (error) {
@@ -189,9 +210,9 @@ La musique doit être:
         message: error.message || 'Erreur inconnue lors de la génération musicale',
         timestamp: new Date().toISOString()
       }),
-      { 
-        status: 500, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     );
   }

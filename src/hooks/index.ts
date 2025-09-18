@@ -13,6 +13,7 @@ export { useKeyboardShortcuts } from './useKeyboardShortcuts';
 export { useAuth } from './useAuth';
 export { usePlayer } from './usePlayer';
 export { useGeneration } from './useGeneration';
+export { usePanicMonitor } from './usePanicMonitor';
 
 // Error handling
 export { useErrorHandler } from './unified/useErrorHandler';
@@ -20,3 +21,16 @@ export { useErrorHandler } from './unified/useErrorHandler';
 // Performance hooks
 export { useOptimizedRender } from './useOptimizedRender';
 export { useIntersectionObserver } from './useIntersectionObserver';
+
+// Music orchestration hooks
+export { useMusicQueue } from './music/useMusicQueue';
+export { useMusicJob } from './music/useMusicJob';
+
+// EDN progression
+export { useEdnProgressionData } from './edn/useEdnProgressionData';
+
+// Unified content library
+export { useContentLibrary } from './library/useContentLibrary';
+
+// Analytics
+export { useAnalyticsConsent } from './analytics/useAnalyticsConsent';

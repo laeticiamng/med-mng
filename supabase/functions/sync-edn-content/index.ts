@@ -1,40 +1,42 @@
 import { serve } from "https://deno.land/std@0.208.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.3';
+import { enforceRateLimit } from "../_shared/rateLimit.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-interface OicCompetence {
-  objectif_id: string;
-  intitule: string;
-  description: string;
-  rubrique: string;
-  rang: string;
-  item_parent: string;
-  ordre?: number;
-  url_source?: string;
-}
-
-interface EdnItem {
-  id: string;
-  item_code: string;
-  title: string;
-  competences_oic_rang_a: any[];
-  competences_oic_rang_b: any[];
-  competences_count_rang_a: number;
-  competences_count_rang_b: number;
-  tableau_rang_a: any;
-  tableau_rang_b: any;
-}
-
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
+  let rateLimitHeaders: Record<string, string> = {};
+
   try {
+    const rateLimit = await enforceRateLimit(req, {
+      action: 'edn.sync',
+      maxRequests: Number(Deno.env.get('RATE_LIMIT_SYNC_MAX_REQUESTS') ?? '6'),
+      windowSeconds: Number(Deno.env.get('RATE_LIMIT_SYNC_WINDOW_SECONDS') ?? String(60 * 30)),
+      context: { function: 'sync-edn-content' }
+    });
+
+    if (!rateLimit.allowed && rateLimit.response) {
+      const body = await rateLimit.response.text();
+      return new Response(body, {
+        status: rateLimit.response.status,
+        headers: {
+          ...corsHeaders,
+          ...rateLimit.headers,
+          'Retry-After': rateLimit.response.headers.get('Retry-After') ?? '300',
+          'Content-Type': 'application/json'
+        }
+      });
+    }
+
+    rateLimitHeaders = rateLimit.headers;
+
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
@@ -56,8 +58,10 @@ serve(async (req) => {
 
     let itemsProcessed = 0;
     let itemsUpdated = 0;
+    let itemsUnchanged = 0;
     let errors = 0;
     const updateReport: any[] = [];
+    const updatesPayload: any[] = [];
 
     // 2. Pour chaque item EDN, récupérer et synchroniser les compétences OIC
     for (const item of ednItems || []) {
@@ -181,47 +185,63 @@ serve(async (req) => {
           JSON.stringify(item.competences_oic_rang_b) !== JSON.stringify(competencesRangB)
         );
 
-        if (needsUpdate) {
-          // Mettre à jour l'item EDN
-          const { error: updateError } = await supabase
-            .from('edn_items_complete')
-            .update({
-              competences_oic_rang_a: competencesRangA,
-              competences_oic_rang_b: competencesRangB,
-              competences_count_rang_a: competencesRangA.length,
-              competences_count_rang_b: competencesRangB.length,
-              competences_count_total: competencesRangA.length + competencesRangB.length,
-              tableau_rang_a: tableauRangA,
-              tableau_rang_b: tableauRangB,
-              updated_at: new Date().toISOString()
-            })
-            .eq('id', item.id);
+        const beforeCounts = {
+          rang_a: item.competences_count_rang_a ?? 0,
+          rang_b: item.competences_count_rang_b ?? 0,
+          total: item.competences_count_total ??
+            ((item.competences_count_rang_a ?? 0) + (item.competences_count_rang_b ?? 0))
+        };
 
-          if (updateError) {
-            console.error(`❌ Erreur mise à jour ${item.item_code}:`, updateError);
-            errors++;
-          } else {
-            console.log(`✅ ${item.item_code} mis à jour: ${competencesRangA.length}A + ${competencesRangB.length}B`);
-            itemsUpdated++;
-            
-            updateReport.push({
-              item_code: item.item_code,
-              rang_a_before: item.competences_count_rang_a,
-              rang_a_after: competencesRangA.length,
-              rang_b_before: item.competences_count_rang_b,
-              rang_b_after: competencesRangB.length,
-              updated: true
-            });
-          }
-        } else {
-          console.log(`⚪ ${item.item_code} déjà à jour: ${competencesRangA.length}A + ${competencesRangB.length}B`);
-          updateReport.push({
+        const afterCounts = {
+          rang_a: competencesRangA.length,
+          rang_b: competencesRangB.length,
+          total: competencesRangA.length + competencesRangB.length
+        };
+
+        const diffSummary = {
+          before: beforeCounts,
+          after: afterCounts,
+          delta: {
+            rang_a: afterCounts.rang_a - beforeCounts.rang_a,
+            rang_b: afterCounts.rang_b - beforeCounts.rang_b,
+            total: afterCounts.total - beforeCounts.total
+          },
+          changed: needsUpdate
+        };
+
+        if (needsUpdate) {
+          console.log(`✅ ${item.item_code} marqué pour mise à jour: ${afterCounts.rang_a}A + ${afterCounts.rang_b}B`);
+          updatesPayload.push({
+            item_id: item.id,
             item_code: item.item_code,
-            rang_a: competencesRangA.length,
-            rang_b: competencesRangB.length,
-            updated: false
+            status: 'update',
+            competences_rang_a: competencesRangA,
+            competences_rang_b: competencesRangB,
+            tableau_rang_a: tableauRangA,
+            tableau_rang_b: tableauRangB,
+            rang_a_count: afterCounts.rang_a,
+            rang_b_count: afterCounts.rang_b,
+            total_count: afterCounts.total,
+            diff_summary: diffSummary
           });
+          itemsUpdated++;
+        } else {
+          console.log(`⚪ ${item.item_code} déjà à jour: ${afterCounts.rang_a}A + ${afterCounts.rang_b}B`);
+          updatesPayload.push({
+            item_id: item.id,
+            item_code: item.item_code,
+            status: 'unchanged',
+            diff_summary: diffSummary
+          });
+          itemsUnchanged++;
         }
+
+        updateReport.push({
+          item_code: item.item_code,
+          before: beforeCounts,
+          after: afterCounts,
+          updated: needsUpdate
+        });
 
         // Petite pause pour éviter la surcharge
         if (itemsProcessed % 20 === 0) {
@@ -234,38 +254,57 @@ serve(async (req) => {
       }
     }
 
+    const triggeredByHeader = req.headers.get('x-medmng-user');
+    const triggeredBy = triggeredByHeader && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(triggeredByHeader)
+      ? triggeredByHeader
+      : null;
+
+    const { data: syncResult, error: syncError } = await supabase.rpc('apply_edn_sync', {
+      payload: updatesPayload,
+      source: 'sync-edn-content',
+      triggered_by: triggeredBy
+    });
+
+    if (syncError) {
+      console.error('❌ Erreur lors de l\'appel apply_edn_sync:', syncError);
+      throw new Error(`Erreur application sync: ${syncError.message}`);
+    }
+
     const summary = {
       success: true,
       timestamp: new Date().toISOString(),
       statistics: {
         items_processed: itemsProcessed,
+        items_submitted: updatesPayload.length,
         items_updated: itemsUpdated,
-        items_unchanged: itemsProcessed - itemsUpdated - errors,
-        errors: errors
+        items_unchanged: itemsUnchanged,
+        errors
       },
+      run: syncResult,
       update_report: updateReport.slice(0, 50) // Limiter le rapport pour éviter les réponses trop grandes
     };
 
     console.log('📊 SYNCHRONISATION TERMINÉE');
     console.log(`   - Items traités: ${itemsProcessed}`);
-    console.log(`   - Items mis à jour: ${itemsUpdated}`);
-    console.log(`   - Items inchangés: ${itemsProcessed - itemsUpdated - errors}`);
-    console.log(`   - Erreurs: ${errors}`);
+    console.log(`   - Items soumis: ${updatesPayload.length}`);
+    console.log(`   - Items à mettre à jour: ${itemsUpdated}`);
+    console.log(`   - Items déjà alignés: ${itemsUnchanged}`);
+    console.log(`   - Erreurs pré-traitement: ${errors}`);
 
     return new Response(JSON.stringify(summary), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders, 'Content-Type': 'application/json', ...rateLimitHeaders },
     });
 
   } catch (error) {
     console.error('❌ Erreur globale synchronisation:', error);
-    
+
     return new Response(JSON.stringify({
       success: false,
       error: error.message,
       timestamp: new Date().toISOString()
     }), {
       status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { ...corsHeaders, 'Content-Type': 'application/json', ...rateLimitHeaders },
     });
   }
 });
