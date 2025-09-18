@@ -1,404 +1,665 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { MedMngLayout } from '@/components/med-mng/MedMngLayout';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import { 
-  Library as LibraryIcon,
-  Search,
-  Heart,
-  Play,
-  Download,
-  Share,
-  Plus,
-  Music,
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { Switch } from '@/components/ui/switch';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import {
+  BookOpen,
   Clock,
-  Calendar,
-  Grid,
-  List,
-  SortAsc,
-  SortDesc,
-  Trash2
+  Download,
+  Filter,
+  Folder,
+  FolderPlus,
+  GraduationCap,
+  Heart,
+  HeartOff,
+  Layers,
+  ListPlus,
+  Music,
+  NoteText,
+  Pause,
+  Play,
+  Search,
+  Sparkles,
 } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
-import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
+import { useContentLibrary } from '@/hooks/library/useContentLibrary';
+import { contentLibraryService } from '@/services/library/ContentLibraryService';
+import { musicService } from '@/services';
+import type { StudyNoteRow } from '@/services/library/ContentLibraryService';
 
-// ===============================================
-// MED-MNG LIBRARY - COMPLETE MUSIC MANAGEMENT
-// ===============================================
+const RESOURCE_CONFIG: Record<string, { label: string; description: string; icon: React.ReactNode }> = {
+  track: { label: 'Piste générée', description: 'Audio IA + paroles synchronisées', icon: <Music className="h-4 w-4" /> },
+  edn: { label: 'Fiche EDN', description: 'Données unifiées EDN/ECOS', icon: <BookOpen className="h-4 w-4" /> },
+  qcm: { label: 'Session QCM', description: 'Questionnaires générés & scores', icon: <GraduationCap className="h-4 w-4" /> },
+  note: { label: 'Note personnelle', description: 'Annotations & rappels de révision', icon: <NoteText className="h-4 w-4" /> },
+};
 
-interface Track {
+interface CollectionSummary {
   id: string;
-  title: string;
-  item_code: string;
-  rang: 'A' | 'B' | 'AB';
-  audio_url?: string;
-  stream_url?: string;
-  duration_seconds: number;
-  style: string;
-  language: string;
-  is_favorite: boolean;
-  play_count: number;
-  created_at: string;
+  name: string;
 }
 
-const Library: React.FC = () => {
-  // States
-  const [tracks, setTracks] = useState<Track[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedSpecialty, setSelectedSpecialty] = useState<string>('all');
-  const [selectedRang, setSelectedRang] = useState<string>('all');
-  const [sortBy, setSortBy] = useState<string>('created_at');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+type CollectionJson = { id?: string; name?: string }[] | null | undefined;
 
-  // Hooks
-  const navigate = useNavigate();
-  const { toast } = useToast();
+const parseCollections = (value: CollectionJson): CollectionSummary[] => {
+  if (!value) return [];
+  if (!Array.isArray(value)) return [];
+  return value
+    .map((entry) => ({ id: entry?.id ?? '', name: entry?.name ?? '' }))
+    .filter((entry) => Boolean(entry.id) && Boolean(entry.name));
+};
 
-  // Load library data
-  useEffect(() => {
-    loadLibrary();
-  }, []);
+const formatDuration = (seconds?: number | null) => {
+  if (!seconds || seconds <= 0) return '—';
+  const minutes = Math.floor(seconds / 60);
+  const remaining = Math.round(seconds % 60)
+    .toString()
+    .padStart(2, '0');
+  return `${minutes}:${remaining}`;
+};
 
-  const loadLibrary = async () => {
-    setLoading(true);
-    try {
-      // Mock data until database is ready
-      const mockTracks: Track[] = [
-        {
-          id: '1',
-          title: 'IC-225 Cardiologie Rang A',
-          item_code: 'IC-225',
-          rang: 'A',
-          duration_seconds: 240,
-          style: 'medical-educational',
-          language: 'fr',
-          is_favorite: false,
-          play_count: 5,
-          created_at: new Date().toISOString()
-        }
-      ];
-      
-      setTracks(mockTracks);
-    } catch (error) {
-      console.error('Error loading library:', error);
-      toast({
-        title: "Erreur de chargement",
-        description: "Impossible de charger votre bibliothèque",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
+const buildMarkdownExport = async (
+  resourceType: string,
+  resourceIdentifier: string,
+  title: string,
+  metadata: any,
+): Promise<string> => {
+  const header = `# ${title}\nType : ${resourceType.toUpperCase()}\nRéférence : ${resourceIdentifier}\n`;
 
-  // Filtered and sorted tracks
-  const filteredTracks = useMemo(() => {
-    let filtered = tracks.filter(track => {
-      const matchesSearch = track.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                           track.item_code.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesRang = selectedRang === 'all' || track.rang === selectedRang;
-
-      return matchesSearch && matchesRang;
-    });
-
-    // Sort
-    filtered.sort((a, b) => {
-      let aValue, bValue;
-
-      switch (sortBy) {
-        case 'title':
-          aValue = a.title;
-          bValue = b.title;
-          break;
-        case 'created_at':
-          aValue = new Date(a.created_at);
-          bValue = new Date(b.created_at);
-          break;
-        case 'play_count':
-          aValue = a.play_count;
-          bValue = b.play_count;
-          break;
-        case 'duration':
-          aValue = a.duration_seconds;
-          bValue = b.duration_seconds;
-          break;
-        default:
-          aValue = a.created_at;
-          bValue = b.created_at;
-      }
-
-      if (sortOrder === 'asc') {
-        return aValue < bValue ? -1 : aValue > bValue ? 1 : 0;
-      } else {
-        return aValue > bValue ? -1 : aValue < bValue ? 1 : 0;
-      }
-    });
-
-    return filtered;
-  }, [tracks, searchQuery, selectedRang, sortBy, sortOrder]);
-
-  // Format duration
-  const formatDuration = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
-  };
-
-  // Handle favorite toggle
-  const handleToggleFavorite = async (trackId: string) => {
-    try {
-      const track = tracks.find(t => t.id === trackId);
-      if (!track) return;
-
-      // Mock update until database is ready
-      const error = null;
-
-      if (error) throw error;
-
-      setTracks(prev => prev.map(t => 
-        t.id === trackId ? { ...t, is_favorite: !t.is_favorite } : t
-      ));
-
-      toast({
-        title: track.is_favorite ? "Retiré des favoris" : "Ajouté aux favoris",
-        description: track.title
-      });
-    } catch (error) {
-      toast({
-        title: "Erreur",
-        description: "Impossible de modifier les favoris",
-        variant: "destructive"
-      });
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary/30 border-t-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Chargement de votre bibliothèque...</p>
-        </div>
-      </div>
-    );
+  if (resourceType === 'track') {
+    const duration = formatDuration(Number(metadata?.duration_seconds));
+    const bpm = metadata?.bpm ? `${metadata.bpm} BPM` : 'N/A';
+    const lyricsInfo = metadata?.has_lyrics ? `${metadata?.lyric_segments ?? 0} segments synchronisés` : 'Paroles non disponibles';
+    return `${header}\n- Durée : ${duration}\n- Tempo : ${bpm}\n- Audio status : ${metadata?.audio_status ?? 'Inconnu'}\n- Lyrics : ${lyricsInfo}\n`;
   }
 
+  if (resourceType === 'edn') {
+    const ednItem = await contentLibraryService.getEdnItem(resourceIdentifier);
+    const rangA = ednItem?.rang_a_competence_count ?? metadata?.rang_a ?? 0;
+    const rangB = ednItem?.rang_b_competence_count ?? metadata?.rang_b ?? 0;
+    const domaines = [ednItem?.specialite, ednItem?.domaine_medical].filter(Boolean).join(' · ');
+    const valeurs = ednItem?.valeurs_professionnelles ? JSON.stringify(ednItem.valeurs_professionnelles, null, 2) : '—';
+    return `${header}\n- Spécialité : ${domaines || '—'}\n- Compétences Rang A : ${rangA}\n- Compétences Rang B : ${rangB}\n- Valeurs professionnelles :\n\n${valeurs}\n`;
+  }
+
+  if (resourceType === 'qcm') {
+    const questionCount = metadata?.question_count ?? 0;
+    const completed = metadata?.completed_at ? `Terminé le ${new Date(metadata.completed_at).toLocaleString()}` : 'Session en cours';
+    const errors = metadata?.errors ? JSON.stringify(metadata.errors, null, 2) : '—';
+    return `${header}\n- Questions : ${questionCount}\n- Statut : ${completed}\n- Diagnostics :\n${errors}\n`;
+  }
+
+  if (resourceType === 'note') {
+    const note = await contentLibraryService.getStudyNote(resourceIdentifier);
+    const content = note?.content ?? metadata?.preview ?? '—';
+    const lastReviewed = note?.last_reviewed_at
+      ? new Date(note.last_reviewed_at).toLocaleString()
+      : metadata?.last_reviewed_at
+      ? new Date(metadata.last_reviewed_at).toLocaleString()
+      : 'Jamais';
+    return `${header}\nDernière révision : ${lastReviewed}\n\n${content}\n`;
+  }
+
+  return header;
+};
+
+const renderMetadata = (resourceType: string, metadata: any) => {
+  switch (resourceType) {
+    case 'track':
+      return (
+        <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
+          <span>Durée : {formatDuration(Number(metadata?.duration_seconds))}</span>
+          <span>Tempo : {metadata?.bpm ? `${metadata.bpm} BPM` : '—'}</span>
+          <span>Lyrics : {metadata?.has_lyrics ? `${metadata?.lyric_segments ?? 0} segments` : 'Non synchronisées'}</span>
+        </div>
+      );
+    case 'edn':
+      return (
+        <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
+          <span>Rang A : {metadata?.rang_a ?? 0}</span>
+          <span>Rang B : {metadata?.rang_b ?? 0}</span>
+          <span>Valeurs pro : {metadata?.valeurs_professionnelles ? 'Disponibles' : '—'}</span>
+        </div>
+      );
+    case 'qcm':
+      return (
+        <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
+          <span>Questions : {metadata?.question_count ?? 0}</span>
+          <span>{metadata?.completed_at ? `Terminé le ${new Date(metadata.completed_at).toLocaleDateString()}` : 'Session en cours'}</span>
+        </div>
+      );
+    case 'note':
+      return (
+        <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
+          <span>{metadata?.item_code ? `Référence : ${metadata.item_code}` : 'Sans rattachement'}</span>
+          <span>
+            Dernière révision :{' '}
+            {metadata?.last_reviewed_at ? new Date(metadata.last_reviewed_at).toLocaleDateString() : 'Jamais'}
+          </span>
+        </div>
+      );
+    default:
+      return null;
+  }
+};
+
+const typeFilters = [
+  { type: 'track', label: 'Pistes', icon: <Music className="h-4 w-4" /> },
+  { type: 'edn', label: 'Fiches', icon: <BookOpen className="h-4 w-4" /> },
+  { type: 'qcm', label: 'QCM', icon: <GraduationCap className="h-4 w-4" /> },
+  { type: 'note', label: 'Notes', icon: <NoteText className="h-4 w-4" /> },
+] as const;
+
+const LibraryPage: React.FC = () => {
+  const navigate = useNavigate();
+  const {
+    items,
+    collections,
+    filters,
+    setQuery,
+    toggleType,
+    toggleFavoritesOnly,
+    setCollection,
+    setSort,
+    saveItem,
+    removeItem,
+    toggleFavorite,
+    addToCollection,
+    removeFromCollection,
+    createCollection,
+    isLoading,
+    isFetching,
+    isMutating,
+  } = useContentLibrary();
+
+  const [audioState, setAudioState] = useState<{ id: string | null; player: HTMLAudioElement | null }>({ id: null, player: null });
+  const [isCreateCollectionOpen, setIsCreateCollectionOpen] = useState(false);
+  const [newCollectionName, setNewCollectionName] = useState('');
+  const [newCollectionDescription, setNewCollectionDescription] = useState('');
+  const [notePreview, setNotePreview] = useState<StudyNoteRow | null>(null);
+  const [isNoteLoading, setIsNoteLoading] = useState(false);
+
+  useEffect(() => {
+    return () => {
+      if (audioState.player) {
+        audioState.player.pause();
+      }
+    };
+  }, [audioState.player]);
+
+  const handlePlay = useCallback(
+    async (resourceIdentifier: string, title: string) => {
+      try {
+        if (audioState.id === resourceIdentifier) {
+          audioState.player?.pause();
+          setAudioState({ id: null, player: null });
+          return;
+        }
+
+        audioState.player?.pause();
+
+        const streamUrl = musicService.getSecureStreamingUrl(resourceIdentifier);
+        const audio = new Audio(streamUrl);
+        audio.onended = () => setAudioState({ id: null, player: null });
+        await audio.play();
+        setAudioState({ id: resourceIdentifier, player: audio });
+        toast.success(`Lecture de ${title}`);
+      } catch (error) {
+        console.error(error);
+        toast.error("Impossible de lire la piste");
+      }
+    },
+    [audioState.id, audioState.player],
+  );
+
+  const handleExport = useCallback(async (resourceType: string, resourceIdentifier: string, title: string, metadata: any) => {
+    try {
+      const markdown = await buildMarkdownExport(resourceType, resourceIdentifier, title, metadata);
+      const blob = new Blob([markdown], { type: 'text/markdown;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const anchor = document.createElement('a');
+      anchor.href = url;
+      anchor.download = `${title.replace(/[^a-z0-9]/gi, '_')}_${resourceType}.md`;
+      document.body.appendChild(anchor);
+      anchor.click();
+      document.body.removeChild(anchor);
+      URL.revokeObjectURL(url);
+      toast.success('Export généré');
+    } catch (error) {
+      console.error(error);
+      toast.error("Impossible d'exporter l'élément");
+    }
+  }, []);
+
+  const handleOpenNote = useCallback(async (resourceIdentifier: string) => {
+    try {
+      setIsNoteLoading(true);
+      const note = await contentLibraryService.getStudyNote(resourceIdentifier);
+      if (note) {
+        setNotePreview(note);
+      } else {
+        toast.info('Note introuvable');
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error('Impossible de charger la note');
+    } finally {
+      setIsNoteLoading(false);
+    }
+  }, []);
+
+  const handleCreateCollection = useCallback(async () => {
+    const created = await createCollection(newCollectionName, newCollectionDescription);
+    if (created) {
+      setIsCreateCollectionOpen(false);
+      setNewCollectionName('');
+      setNewCollectionDescription('');
+    }
+  }, [createCollection, newCollectionDescription, newCollectionName]);
+
+  const collectionOptions = useMemo(() => [{ id: 'all', name: 'Toutes les collections' }, ...collections], [collections]);
+
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold flex items-center gap-3">
-            <LibraryIcon className="h-8 w-8 text-primary" />
-            Ma bibliothèque musicale
-          </h1>
-          <p className="text-muted-foreground mt-2">
-            Gérez et organisez vos musiques d'apprentissage médical
-          </p>
-        </div>
-        <Button asChild>
-          <Link to="/med-mng/create">
-            <Plus className="h-4 w-4 mr-2" />
-            Créer une musique
-          </Link>
-        </Button>
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <Music className="h-8 w-8 text-blue-500" />
+    <MedMngLayout>
+      <div className="flex-1 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-white">
+        <div className="mx-auto w-full max-w-7xl px-6 py-10">
+          <header className="mb-10">
+            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Total pistes</p>
-                <p className="text-xl font-bold">{tracks.length}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <Heart className="h-8 w-8 text-red-500" />
-              <div>
-                <p className="text-sm text-muted-foreground">Favoris</p>
-                <p className="text-xl font-bold">{tracks.filter(t => t.is_favorite).length}</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <Clock className="h-8 w-8 text-green-500" />
-              <div>
-                <p className="text-sm text-muted-foreground">Durée totale</p>
-                <p className="text-xl font-bold">
-                  {Math.floor(tracks.reduce((sum, t) => sum + t.duration_seconds, 0) / 60)}min
+                <h1 className="text-3xl font-semibold tracking-tight">Bibliothèque unifiée</h1>
+                <p className="mt-2 max-w-2xl text-sm text-slate-300">
+                  Retrouve toutes tes pistes générées, fiches EDN/ECOS, sessions QCM et notes personnelles dans un seul espace avec
+                  recherche unifiée, favoris et collections.
                 </p>
               </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center gap-3">
-              <Calendar className="h-8 w-8 text-purple-500" />
-              <div>
-                <p className="text-sm text-muted-foreground">Cette semaine</p>
-                <p className="text-xl font-bold">
-                  {tracks.filter(track => 
-                    new Date(track.created_at) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
-                  ).length}
-                </p>
+              <div className="flex items-center gap-3">
+                <Button
+                  variant="secondary"
+                  size="sm"
+                  className="gap-2"
+                  onClick={() => setIsCreateCollectionOpen(true)}
+                  disabled={isMutating}
+                >
+                  <FolderPlus className="h-4 w-4" />
+                  Nouvelle collection
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2 text-white"
+                  onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                >
+                  <Layers className="h-4 w-4" />
+                  Parcours complets
+                </Button>
               </div>
             </div>
-          </CardContent>
-        </Card>
-      </div>
+          </header>
 
-      {/* Filters */}
-      <Card>
-        <CardContent className="p-6">
-          <div className="flex flex-wrap items-center gap-4">
-            {/* Search */}
-            <div className="flex-1 min-w-64">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Rechercher par titre ou code item..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-            </div>
-
-            {/* Rang Filter */}
-            <Select value={selectedRang} onValueChange={setSelectedRang}>
-              <SelectTrigger className="w-32">
-                <SelectValue placeholder="Rang" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">Tous rangs</SelectItem>
-                <SelectItem value="A">Rang A</SelectItem>
-                <SelectItem value="B">Rang B</SelectItem>
-                <SelectItem value="AB">Rang AB</SelectItem>
-              </SelectContent>
-            </Select>
-
-            {/* Sort */}
-            <Select value={sortBy} onValueChange={setSortBy}>
-              <SelectTrigger className="w-48">
-                <SelectValue placeholder="Trier par" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="created_at">Date création</SelectItem>
-                <SelectItem value="title">Titre</SelectItem>
-                <SelectItem value="play_count">Écoutes</SelectItem>
-                <SelectItem value="duration">Durée</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setSortOrder(prev => prev === 'asc' ? 'desc' : 'asc')}
-            >
-              {sortOrder === 'asc' ? <SortAsc className="h-4 w-4" /> : <SortDesc className="h-4 w-4" />}
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Tracks */}
-      {filteredTracks.length === 0 ? (
-        <Card>
-          <CardContent className="p-12 text-center">
-            <Music className="h-16 w-16 mx-auto mb-4 text-muted-foreground opacity-50" />
-            <h3 className="text-lg font-semibold mb-2">Aucune piste trouvée</h3>
-            <p className="text-muted-foreground mb-6">
-              {tracks.length === 0 
-                ? "Votre bibliothèque est vide. Commencez par créer votre première musique !" 
-                : "Aucune piste ne correspond à vos critères de recherche."
-              }
-            </p>
-            <Button asChild>
-              <Link to="/med-mng/create">
-                <Plus className="h-4 w-4 mr-2" />
-                Créer ma première musique
-              </Link>
-            </Button>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-          {filteredTracks.map((track) => (
-            <Card key={track.id} className="group hover:shadow-lg transition-all duration-200">
-              <CardHeader className="pb-3">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1 min-w-0">
-                    <CardTitle className="text-base truncate">{track.title}</CardTitle>
-                    <div className="flex items-center gap-2 mt-2">
-                      <Badge variant="outline">{track.item_code}</Badge>
-                      <Badge 
-                        variant={track.rang === 'A' ? 'default' : track.rang === 'B' ? 'secondary' : 'destructive'}
-                      >
-                        Rang {track.rang}
-                      </Badge>
-                    </div>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleToggleFavorite(track.id)}
-                    className={track.is_favorite ? 'text-red-500' : 'text-muted-foreground'}
-                  >
-                    <Heart className={`h-4 w-4 ${track.is_favorite ? 'fill-current' : ''}`} />
-                  </Button>
+          <section className="mb-8 rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur">
+            <div className="grid gap-6 lg:grid-cols-4">
+              <div className="lg:col-span-2">
+                <label className="mb-2 block text-sm font-medium text-slate-200">Recherche</label>
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <Input
+                    value={filters.query}
+                    onChange={(event) => setQuery(event.target.value)}
+                    placeholder="Par titre, tag ou référence médicale"
+                    className="bg-slate-900/80 pl-9 text-slate-100 placeholder:text-slate-500"
+                  />
                 </div>
-              </CardHeader>
-              
-              <CardContent>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between text-sm text-muted-foreground">
-                    <span>{formatDuration(track.duration_seconds)}</span>
-                    <span>{track.play_count} écoutes</span>
-                  </div>
-                  
-                  <div className="flex gap-2 pt-2">
-                    <Button 
-                      size="sm" 
-                      className="flex-1"
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-200">Trier par</label>
+                <Select value={filters.sort} onValueChange={(value) => setSort(value as typeof filters.sort)}>
+                  <SelectTrigger className="bg-slate-900/80 text-slate-100">
+                    <SelectValue placeholder="Trier" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-slate-900 text-slate-100">
+                    <SelectItem value="recent">Récents</SelectItem>
+                    <SelectItem value="alphabetical">Alphabétique</SelectItem>
+                    <SelectItem value="type">Par type</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-200">Collections</label>
+                <Select
+                  value={filters.collectionId ?? 'all'}
+                  onValueChange={(value) => setCollection(value === 'all' ? null : value)}
+                >
+                  <SelectTrigger className="bg-slate-900/80 text-slate-100">
+                    <SelectValue placeholder="Toutes les collections" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-slate-900 text-slate-100">
+                    {collectionOptions.map((collection) => (
+                      <SelectItem key={collection.id} value={collection.id}>
+                        {collection.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <div className="mt-6 flex flex-wrap items-center gap-4">
+              <div className="flex items-center gap-2 text-sm text-slate-200">
+                <Filter className="h-4 w-4" />
+                Types de contenu
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {typeFilters.map((filter) => {
+                  const active = filters.types.includes(filter.type as any);
+                  return (
+                    <Button
+                      key={filter.type}
+                      size="sm"
+                      variant={active ? 'default' : 'outline'}
+                      className={cn('gap-2 rounded-full border-white/10', active ? 'bg-emerald-500 text-white' : 'bg-slate-900/60')}
+                      onClick={() => toggleType(filter.type as any)}
+                      type="button"
                     >
-                      <Play className="h-4 w-4 mr-2" />
-                      Écouter
+                      {filter.icon}
+                      {filter.label}
                     </Button>
-                    
-                    <Button variant="outline" size="sm">
-                      <Share className="h-4 w-4" />
-                    </Button>
-                    
-                    <Button variant="outline" size="sm">
+                  );
+                })}
+              </div>
+              <div className="ml-auto flex items-center gap-2">
+                <Switch checked={filters.favoritesOnly} onCheckedChange={toggleFavoritesOnly} id="favorites-only" />
+                <label htmlFor="favorites-only" className="text-sm text-slate-200">
+                  Favoris uniquement
+                </label>
+              </div>
+            </div>
+          </section>
+
+          {(isLoading || isFetching) && (
+            <div className="mb-8 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+              {Array.from({ length: 6 }).map((_, index) => (
+                <Card key={index} className="border-white/5 bg-white/5">
+                  <CardHeader>
+                    <Skeleton className="h-5 w-1/2 bg-white/10" />
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <Skeleton className="h-4 w-full bg-white/10" />
+                    <Skeleton className="h-4 w-3/4 bg-white/10" />
+                    <Skeleton className="h-4 w-2/3 bg-white/10" />
+                  </CardContent>
+                  <CardFooter className="flex gap-3">
+                    <Skeleton className="h-9 w-24 bg-white/10" />
+                    <Skeleton className="h-9 w-24 bg-white/10" />
+                  </CardFooter>
+                </Card>
+              ))}
+            </div>
+          )}
+
+          {!isLoading && items.length === 0 && (
+            <Alert className="border-emerald-500/30 bg-emerald-500/10 text-emerald-100">
+              <Sparkles className="h-4 w-4" />
+              <AlertTitle>Aucun contenu trouvé</AlertTitle>
+              <AlertDescription>
+                Ajuste ta recherche, explore un autre type de ressource ou ajoute des éléments depuis les modules génération et
+                EDN.
+              </AlertDescription>
+            </Alert>
+          )}
+
+          <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
+            {items.map((item) => {
+              const config = RESOURCE_CONFIG[item.resource_type] ?? RESOURCE_CONFIG.track;
+              const collectionsForItem = parseCollections(item.collections as CollectionJson);
+              const isFavorite = Boolean(item.is_favorite);
+              const inLibrary = Boolean(item.in_library);
+
+              return (
+                <Card key={`${item.resource_type}-${item.resource_identifier}`} className="border-white/5 bg-white/5">
+                  <CardHeader>
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-emerald-300">
+                          {config.icon}
+                          {config.label}
+                        </div>
+                        <CardTitle className="mt-2 text-xl text-white">{item.title}</CardTitle>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className={cn('h-9 w-9 rounded-full border border-white/10', isFavorite ? 'text-emerald-400' : 'text-slate-300')}
+                          onClick={() => toggleFavorite(item.resource_type as any, item.resource_identifier, !isFavorite)}
+                          disabled={isMutating}
+                        >
+                          {isFavorite ? <Heart className="h-4 w-4" /> : <HeartOff className="h-4 w-4" />}
+                        </Button>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button size="icon" variant="ghost" className="h-9 w-9 rounded-full border border-white/10">
+                              <Folder className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent className="w-56 bg-slate-900 text-slate-100">
+                            <DropdownMenuItem className="text-xs uppercase text-slate-400" disabled>
+                              Gérer les collections
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator className="bg-white/10" />
+                            {collections.map((collection) => {
+                              const assigned = collectionsForItem.some((c) => c.id === collection.id);
+                              return (
+                                <DropdownMenuItem
+                                  key={collection.id}
+                                  onClick={() =>
+                                    assigned
+                                      ? removeFromCollection(item.resource_type as any, item.resource_identifier, collection.id)
+                                      : addToCollection(item.resource_type as any, item.resource_identifier, collection.id)
+                                  }
+                                >
+                                  <div className="flex w-full items-center justify-between">
+                                    <span>{collection.name}</span>
+                                    {assigned && <Badge className="bg-emerald-500/20 text-emerald-200">Assigné</Badge>}
+                                  </div>
+                                </DropdownMenuItem>
+                              );
+                            })}
+                            <DropdownMenuSeparator className="bg-white/10" />
+                            <DropdownMenuItem onClick={() => setIsCreateCollectionOpen(true)}>
+                              <ListPlus className="mr-2 h-4 w-4" />Nouvelle collection
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    </div>
+                    <p className="mt-3 text-sm text-slate-300">{config.description}</p>
+                    {collectionsForItem.length > 0 && (
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {collectionsForItem.map((collection) => (
+                          <Badge key={collection.id} className="bg-emerald-500/20 text-emerald-100">
+                            {collection.name}
+                          </Badge>
+                        ))}
+                      </div>
+                    )}
+                  </CardHeader>
+                  <CardContent className="space-y-4 text-slate-200">
+                    <div className="flex flex-wrap gap-2">
+                      {item.tags?.map((tag) => (
+                        <Badge key={tag} variant="outline" className="border-white/10 bg-white/5 text-xs text-slate-200">
+                          {tag}
+                        </Badge>
+                      ))}
+                    </div>
+                    {renderMetadata(item.resource_type, item.metadata)}
+                  </CardContent>
+                  <CardFooter className="flex flex-wrap gap-2">
+                    {item.resource_type === 'track' && (
+                      <Button
+                        size="sm"
+                        className="gap-2"
+                        onClick={() => handlePlay(item.resource_identifier, item.title ?? 'Piste')}
+                        variant="secondary"
+                      >
+                        {audioState.id === item.resource_identifier ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+                        {audioState.id === item.resource_identifier ? 'Pause' : 'Lire'}
+                      </Button>
+                    )}
+                    {item.resource_type === 'edn' && (
+                      <>
+                        <Button
+                          size="sm"
+                          variant="secondary"
+                          className="gap-2"
+                          onClick={() => navigate(`/edn?focus=${item.resource_identifier}`)}
+                        >
+                          <BookOpen className="h-4 w-4" />
+                          Ouvrir la fiche
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="gap-2"
+                          onClick={() => navigate(`/edn-production/progression?item=${item.resource_identifier}&session=8min`)}
+                        >
+                          <Clock className="h-4 w-4" />
+                          Séance 8 min
+                        </Button>
+                      </>
+                    )}
+                    {item.resource_type === 'qcm' && (
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        className="gap-2"
+                        onClick={() => navigate(`/qcm?s=${item.resource_identifier}`)}
+                      >
+                        <GraduationCap className="h-4 w-4" />
+                        Reprendre le QCM
+                      </Button>
+                    )}
+                    {item.resource_type === 'note' && (
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        className="gap-2"
+                        onClick={() => handleOpenNote(item.resource_identifier)}
+                        disabled={isNoteLoading && notePreview?.id === item.resource_identifier}
+                      >
+                        <NoteText className="h-4 w-4" />
+                        Consulter la note
+                      </Button>
+                    )}
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="gap-2"
+                      onClick={() => handleExport(item.resource_type, item.resource_identifier, item.title ?? 'Export', item.metadata)}
+                    >
                       <Download className="h-4 w-4" />
+                      Exporter
                     </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                    {inLibrary ? (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="gap-2 text-slate-200"
+                        onClick={() => removeItem(item.resource_type as any, item.resource_identifier)}
+                        disabled={isMutating}
+                      >
+                        Retirer
+                      </Button>
+                    ) : (
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="gap-2 text-slate-200"
+                        onClick={() => saveItem(item.resource_type as any, item.resource_identifier)}
+                        disabled={isMutating}
+                      >
+                        Ajouter à la bibliothèque
+                      </Button>
+                    )}
+                  </CardFooter>
+                </Card>
+              );
+            })}
+          </div>
         </div>
-      )}
-    </div>
+      </div>
+
+      <Dialog open={isCreateCollectionOpen} onOpenChange={setIsCreateCollectionOpen}>
+        <DialogContent className="bg-slate-900 text-slate-100">
+          <DialogHeader>
+            <DialogTitle>Nouvelle collection</DialogTitle>
+            <DialogDescription className="text-slate-400">
+              Organise ta bibliothèque en regroupant des ressources par thématique, projet ou préparation d'examen.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label className="mb-2 block text-sm text-slate-200">Nom de la collection</label>
+              <Input
+                value={newCollectionName}
+                onChange={(event) => setNewCollectionName(event.target.value)}
+                placeholder="Ex : Chirurgie – Rythmes & Fiches"
+                className="bg-slate-800 text-slate-100 placeholder:text-slate-500"
+              />
+            </div>
+            <div>
+              <label className="mb-2 block text-sm text-slate-200">Description (optionnel)</label>
+              <Input
+                value={newCollectionDescription}
+                onChange={(event) => setNewCollectionDescription(event.target.value)}
+                placeholder="Notes sur l'usage ou le public cible"
+                className="bg-slate-800 text-slate-100 placeholder:text-slate-500"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => setIsCreateCollectionOpen(false)}>
+              Annuler
+            </Button>
+            <Button onClick={handleCreateCollection} disabled={!newCollectionName.trim()}>
+              <FolderPlus className="mr-2 h-4 w-4" />Créer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={Boolean(notePreview)} onOpenChange={(open) => !open && setNotePreview(null)}>
+        <DialogContent className="max-w-2xl bg-slate-900 text-slate-100">
+          <DialogHeader>
+            <DialogTitle>{notePreview?.title ?? 'Note'}</DialogTitle>
+            <DialogDescription className="text-slate-400">
+              Dernière révision :{' '}
+              {notePreview?.last_reviewed_at
+                ? new Date(notePreview.last_reviewed_at).toLocaleString()
+                : 'Jamais'}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="max-h-[60vh] overflow-y-auto whitespace-pre-line rounded-lg bg-slate-950/70 p-4 text-sm leading-6 text-slate-200">
+            {notePreview?.content ?? 'Aucun contenu disponible'}
+          </div>
+          <DialogFooter>
+            <Button variant="secondary" onClick={() => setNotePreview(null)}>
+              Fermer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </MedMngLayout>
   );
 };
 
-export default Library;
+export default LibraryPage;

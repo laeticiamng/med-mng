@@ -20,12 +20,16 @@ const ProductionEdnSystem = React.lazy(() =>
   import('./ProductionEdnSystem').then(module => ({ default: module.ProductionEdnSystem }))
 );
 
-const ProductionEdnItem = React.lazy(() => 
+const ProductionEdnItem = React.lazy(() =>
   import('./ProductionEdnItem')
 );
 
-const ProductionEdnImmersive = React.lazy(() => 
+const ProductionEdnImmersive = React.lazy(() =>
   import('./ProductionEdnImmersive')
+);
+
+const ProductionEdnProgression = React.lazy(() =>
+  import('./ProductionEdnProgression').then(module => ({ default: module.ProductionEdnProgression }))
 );
 
 // Interface pour le contexte EDN
@@ -267,20 +271,31 @@ export const OptimizedEdnRouter: React.FC = () => {
     <ErrorBoundary FallbackComponent={PremiumErrorFallback}>
       <Routes>
         {/* Route principale du système EDN */}
-        <Route 
-          path="/" 
+        <Route
+          path="/"
           element={
             <ProtectedRoute>
               <Suspense fallback={<PremiumLoadingSpinner message="Chargement du système EDN..." />}>
                 <ProductionEdnSystem />
               </Suspense>
             </ProtectedRoute>
-          } 
+          }
+        />
+
+        <Route
+          path="/progression"
+          element={
+            <ProtectedRoute>
+              <Suspense fallback={<PremiumLoadingSpinner message="Analyse de votre progression EDN..." />}>
+                <ProductionEdnProgression />
+              </Suspense>
+            </ProtectedRoute>
+          }
         />
 
         {/* Route pour un item EDN spécifique */}
-        <Route 
-          path="/:slug" 
+        <Route
+          path="/:slug"
           element={
             <ProtectedRoute>
               <Suspense fallback={<PremiumLoadingSpinner message="Chargement de l'item EDN..." />}>

@@ -95,6 +95,9 @@ import { SkipToMain } from '@/components/ux/AccessibilityEnhancements';
 import { PageSkeleton } from "@/components/loading/SkeletonLoader";
 import PremiumGlobalNavigation from "@/components/layout/PremiumGlobalNavigation";
 import AccessibilityOverlay from "@/components/premium/AccessibilityOverlay";
+import { PanicOverlay } from '@/components/system/PanicOverlay';
+import { usePanicMonitor } from '@/hooks/usePanicMonitor';
+import { AnalyticsConsentManager } from '@/components/analytics/AnalyticsConsentManager';
 
 // Component to handle keyboard shortcuts inside Router context
 const AppKeyboardShortcuts = memo(() => {
@@ -165,6 +168,8 @@ const queryClient = new QueryClient({
 });
 
 const AppWithUX = () => {
+  const panic = usePanicMonitor();
+
   return (
     <QueryClientProvider client={queryClient}>
       <StrictMode>
@@ -175,9 +180,15 @@ const AppWithUX = () => {
                 <LanguageProvider>
                   <GlobalAudioProvider>
                     <AuthProvider>
+                      <AnalyticsConsentManager />
                       <ToastProvider>
                         <UndoRedoProvider>
                           <GlobalOverflowWrapper className="min-h-screen">
+                            <PanicOverlay
+                              state={panic.state}
+                              retryCountdown={panic.retryCountdown}
+                              onRetry={panic.retry}
+                            />
                             <BrowserRouter>
                               <NavigatorBridge />
                               <AppKeyboardShortcuts />

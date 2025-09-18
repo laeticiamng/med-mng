@@ -1,4 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
+import { describeRateLimitError } from '@/utils/errors/rateLimit';
+import { trackCanonicalEvent } from '@/services/CanonicalAnalyticsTracker';
 
 export interface SyncResult {
   success: boolean;
@@ -32,14 +34,35 @@ export async function syncAllEdnContent(): Promise<SyncResult> {
 
     if (error) {
       console.error('❌ Erreur fonction sync:', error);
+      const rateLimit = describeRateLimitError(error, "Impossible de lancer la synchronisation EDN pour le moment.");
+      if (rateLimit.isRateLimited) {
+        throw new Error(rateLimit.message);
+      }
       throw error;
     }
 
     console.log('✅ Synchronisation terminée:', data);
+    void trackCanonicalEvent({
+      type: 'sync_success',
+      metadata: {
+        itemsProcessed: data?.statistics?.items_processed ?? null,
+        itemsUpdated: data?.statistics?.items_updated ?? null,
+        errors: data?.statistics?.errors ?? null,
+        timestamp: data?.timestamp ?? null,
+      },
+    });
     return data;
-    
+
   } catch (error) {
     console.error('❌ Erreur synchronisation:', error);
+    void trackCanonicalEvent({
+      type: 'sync_fail',
+      metadata: {
+        message: error instanceof Error ? error.message : 'Unknown error',
+        stack: error instanceof Error ? error.stack ?? null : null,
+        details: error instanceof Error ? undefined : error,
+      },
+    });
     throw error;
   }
 }

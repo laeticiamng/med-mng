@@ -2,6 +2,30 @@
 // MED-MNG MUSIC TYPES - Architecture centralisée
 // ==========================================
 
+import type { GenerateMusicPayload } from '@/music/generate';
+
+export interface LyricsSegment {
+  trackId: string;
+  idx: number;
+  startMs: number;
+  endMs: number;
+  text: string;
+  role?: string | null;
+}
+
+export interface LyricsAlignmentLog {
+  id: string;
+  trackId: string;
+  runAt: string;
+  durationMs?: number | null;
+  segmentCount?: number | null;
+  method: string;
+  confidence?: number | null;
+  notes?: string | null;
+  metadata?: Record<string, unknown>;
+  createdBy?: string | null;
+}
+
 export interface MusicTrack {
   id: string;
   title: string;
@@ -163,6 +187,51 @@ export interface RealtimeUpdate {
   type: 'track_completed' | 'track_updated' | 'generation_progress';
   data: MusicTrack | GenerationStatus;
   timestamp: string;
+}
+
+export type MusicJobStatus = 'queued' | 'running' | 'success' | 'failed' | 'canceled' | 'paused';
+
+export type MusicJobSegmentStatus = 'pending' | 'generating' | 'success' | 'failed' | 'canceled';
+
+export interface MusicJobSegment {
+  id: string;
+  index: number;
+  status: MusicJobSegmentStatus;
+  taskId?: string;
+  audioId?: string;
+  audioUrl?: string;
+  imageUrl?: string;
+  duration?: number;
+  progress: number;
+  error?: string | null;
+  startedAt?: number;
+  completedAt?: number;
+}
+
+export interface MusicJob {
+  id: string;
+  requestId: string;
+  status: MusicJobStatus;
+  createdAt: number;
+  updatedAt: number;
+  startedAt?: number;
+  completedAt?: number;
+  progress: number;
+  targetDuration: number;
+  segmentDuration: number;
+  retryCount: number;
+  maxRetries: number;
+  payload: GenerateMusicPayload;
+  segments: MusicJobSegment[];
+  metadata: Record<string, unknown>;
+  error: string | null;
+  backoffUntil?: number;
+  finalMixUrl?: string;
+  loudnessNormalization?: {
+    targetLUFS: number;
+    appliedGainDb: number;
+    measuredLUFS: number;
+  };
 }
 
 // Export type alias for backward compatibility

@@ -95,6 +95,39 @@ export type Database = {
         }
         Relationships: []
       }
+      analytics_events: {
+        Row: {
+          content_ref: string | null
+          created_at: string
+          event_type: Database["public"]["Enums"]["analytics_event_type"]
+          id: string
+          metadata: Json
+          occurred_at: string
+          pseudonymized_user_id: string
+          session_id: string | null
+        }
+        Insert: {
+          content_ref?: string | null
+          created_at?: string
+          event_type: Database["public"]["Enums"]["analytics_event_type"]
+          id?: string
+          metadata?: Json
+          occurred_at?: string
+          pseudonymized_user_id: string
+          session_id?: string | null
+        }
+        Update: {
+          content_ref?: string | null
+          created_at?: string
+          event_type?: Database["public"]["Enums"]["analytics_event_type"]
+          id?: string
+          metadata?: Json
+          occurred_at?: string
+          pseudonymized_user_id?: string
+          session_id?: string | null
+        }
+        Relationships: []
+      }
       admin_changelog: {
         Row: {
           action_type: string
@@ -1288,6 +1321,199 @@ export type Database = {
           },
         ]
       }
+      content_library_collection_items: {
+        Row: {
+          added_at: string
+          collection_id: string
+          library_item_id: string
+        }
+        Insert: {
+          added_at?: string
+          collection_id: string
+          library_item_id: string
+        }
+        Update: {
+          added_at?: string
+          collection_id?: string
+          library_item_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_library_collection_items_collection_id_fkey"
+            columns: ["collection_id"]
+            isOneToOne: false
+            referencedRelation: "content_library_collections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "content_library_collection_items_library_item_id_fkey"
+            columns: ["library_item_id"]
+            isOneToOne: false
+            referencedRelation: "content_library_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      content_library_collections: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_default: boolean | null
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_default?: boolean | null
+          name: string
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_default?: boolean | null
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_library_collections_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "medical_dashboard_view"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "content_library_collections_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_activity_summary"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      content_library_items: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_favorite: boolean | null
+          last_accessed_at: string | null
+          metadata: Json
+          resource_identifier: string
+          resource_type: string
+          search_vector: unknown
+          source_table: string
+          tags: string[] | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_favorite?: boolean | null
+          last_accessed_at?: string | null
+          metadata?: Json
+          resource_identifier: string
+          resource_type: string
+          source_table: string
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_favorite?: boolean | null
+          last_accessed_at?: string | null
+          metadata?: Json
+          resource_identifier?: string
+          resource_type?: string
+          source_table?: string
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_library_items_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "medical_dashboard_view"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "content_library_items_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_activity_summary"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      study_notes: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          item_code: string | null
+          last_reviewed_at: string | null
+          tags: string[] | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          item_code?: string | null
+          last_reviewed_at?: string | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          item_code?: string | null
+          last_reviewed_at?: string | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "study_notes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "medical_dashboard_view"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "study_notes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_activity_summary"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       coach_conversations: {
         Row: {
           coach_mode: string | null
@@ -2008,6 +2234,129 @@ export type Database = {
           updated_at?: string
           validation_date?: string | null
           visual_ambiance?: Json | null
+        }
+        Relationships: []
+      }
+      edn_session_plans: {
+        Row: {
+          created_at: string
+          duration_minutes: number
+          focus_item_code: string | null
+          focus_theme: string | null
+          id: string
+          plan: Json
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          duration_minutes?: number
+          focus_item_code?: string | null
+          focus_theme?: string | null
+          id?: string
+          plan: Json
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          duration_minutes?: number
+          focus_item_code?: string | null
+          focus_theme?: string | null
+          id?: string
+          plan?: Json
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      edn_sync_run_items: {
+        Row: {
+          after_counts: Json
+          before_counts: Json
+          created_at: string
+          diff_summary: Json
+          error_message: string | null
+          id: string
+          item_code: string | null
+          item_id: string | null
+          run_id: string
+          status: string
+        }
+        Insert: {
+          after_counts?: Json
+          before_counts?: Json
+          created_at?: string
+          diff_summary?: Json
+          error_message?: string | null
+          id?: string
+          item_code?: string | null
+          item_id?: string | null
+          run_id: string
+          status: string
+        }
+        Update: {
+          after_counts?: Json
+          before_counts?: Json
+          created_at?: string
+          diff_summary?: Json
+          error_message?: string | null
+          id?: string
+          item_code?: string | null
+          item_id?: string | null
+          run_id?: string
+          status?: string
+        }
+        Relationships: []
+      }
+      edn_sync_runs: {
+        Row: {
+          error_message: string | null
+          finished_at: string | null
+          id: string
+          items_failed: number
+          items_processed: number
+          items_unchanged: number
+          items_updated: number
+          metadata: Json
+          notes: string | null
+          source: string | null
+          started_at: string
+          status: string
+          triggered_by: string | null
+        }
+        Insert: {
+          error_message?: string | null
+          finished_at?: string | null
+          id?: string
+          items_failed?: number
+          items_processed?: number
+          items_unchanged?: number
+          items_updated?: number
+          metadata?: Json
+          notes?: string | null
+          source?: string | null
+          started_at?: string
+          status?: string
+          triggered_by?: string | null
+        }
+        Update: {
+          error_message?: string | null
+          finished_at?: string | null
+          id?: string
+          items_failed?: number
+          items_processed?: number
+          items_unchanged?: number
+          items_updated?: number
+          metadata?: Json
+          notes?: string | null
+          source?: string | null
+          started_at?: string
+          status?: string
+          triggered_by?: string | null
         }
         Relationships: []
       }
@@ -3965,6 +4314,66 @@ export type Database = {
           },
         ]
       }
+      lyrics_alignment_logs: {
+        Row: {
+          confidence: number | null
+          created_at: string
+          created_by: string | null
+          duration_ms: number | null
+          id: string
+          metadata: Json
+          method: string
+          notes: string | null
+          run_at: string
+          segment_count: number | null
+          track_id: string
+          updated_at: string
+        }
+        Insert: {
+          confidence?: number | null
+          created_at?: string
+          created_by?: string | null
+          duration_ms?: number | null
+          id?: string
+          metadata?: Json
+          method?: string
+          notes?: string | null
+          run_at?: string
+          segment_count?: number | null
+          track_id: string
+          updated_at?: string
+        }
+        Update: {
+          confidence?: number | null
+          created_at?: string
+          created_by?: string | null
+          duration_ms?: number | null
+          id?: string
+          metadata?: Json
+          method?: string
+          notes?: string | null
+          run_at?: string
+          segment_count?: number | null
+          track_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lyrics_alignment_logs_track_id_fkey",
+            columns: ["track_id"],
+            isOneToOne: false,
+            referencedRelation: "med_mng_songs",
+            referencedColumns: ["id"],
+          },
+          {
+            foreignKeyName: "lyrics_alignment_logs_track_id_fkey",
+            columns: ["track_id"],
+            isOneToOne: false,
+            referencedRelation: "med_mng_view_library",
+            referencedColumns: ["id"],
+          },
+        ]
+      }
       lyrics_generation_jobs: {
         Row: {
           attempt_count: number
@@ -4015,6 +4424,54 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      lyrics_segments: {
+        Row: {
+          created_at: string
+          end_ms: number
+          idx: number
+          role: string | null
+          start_ms: number
+          text: string
+          track_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          end_ms: number
+          idx: number
+          role?: string | null
+          start_ms: number
+          text: string
+          track_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          end_ms?: number
+          idx?: number
+          role?: string | null
+          start_ms?: number
+          text?: string
+          track_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lyrics_segments_track_id_fkey",
+            columns: ["track_id"],
+            isOneToOne: false,
+            referencedRelation: "med_mng_songs",
+            referencedColumns: ["id"],
+          },
+          {
+            foreignKeyName: "lyrics_segments_track_id_fkey",
+            columns: ["track_id"],
+            isOneToOne: false,
+            referencedRelation: "med_mng_view_library",
+            referencedColumns: ["id"],
+          },
+        ]
       }
       lyrics_texts: {
         Row: {
@@ -7990,6 +8447,39 @@ export type Database = {
         }
         Relationships: []
       }
+      user_privacy_preferences: {
+        Row: {
+          analytics_opt_in: boolean
+          consent_updated_at: string
+          consent_version: string
+          created_at: string
+          pseudonymized_user_id: string
+          retention_days: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          analytics_opt_in?: boolean
+          consent_updated_at?: string
+          consent_version?: string
+          created_at?: string
+          pseudonymized_user_id?: string
+          retention_days?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          analytics_opt_in?: boolean
+          consent_updated_at?: string
+          consent_version?: string
+          created_at?: string
+          pseudonymized_user_id?: string
+          retention_days?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_analytics: {
         Row: {
           analytics_data: Json | null
@@ -8817,6 +9307,45 @@ export type Database = {
         }
         Relationships: []
       }
+      content_library_catalog: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          is_public: boolean | null
+          metadata: Json | null
+          owner_id: string | null
+          resource_identifier: string | null
+          resource_type: string | null
+          source_table: string | null
+          tags: string[] | null
+          title: string | null
+          updated_at: string | null
+        }
+        Relationships: []
+      }
+      edn_unified_materialized: {
+        Row: {
+          competences_oic: Json | null
+          created_at: string | null
+          domaine_medical: string | null
+          ecos_contexts: Json | null
+          item_code: string | null
+          item_id: string | null
+          mots_cles: string[] | null
+          niveau_complexite: string | null
+          rang_a_competence_count: number | null
+          rang_b_competence_count: number | null
+          slug: string | null
+          specialite: string | null
+          tableaux: Json | null
+          title: string | null
+          total_competence_count: number | null
+          updated_at: string | null
+          valeurs_professionnelles: Json | null
+          tags_medicaux: string[] | null
+        }
+        Relationships: []
+      }
       lyrics_texts_latest: {
         Row: {
           content: string | null
@@ -8982,9 +9511,25 @@ export type Database = {
       }
     }
     Functions: {
+      add_library_item_to_collection: {
+        Args: {
+          p_collection_id: string
+          p_resource_identifier: string
+          p_resource_type: string
+        }
+        Returns: Database["public"]["Tables"]["content_library_items"]["Row"]
+      }
       accept_invitation: {
         Args: { token_param: string }
         Returns: boolean
+      }
+      apply_edn_sync: {
+        Args: {
+          payload: Json
+          source?: string
+          triggered_by?: string
+        }
+        Returns: Json
       }
       audit_and_correct_edn_content: {
         Args: Record<PropertyKey, never>
@@ -9019,6 +9564,35 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      get_analytics_dashboard: {
+        Args: {
+          p_timeframe?: string
+        }
+        Returns: Json
+      }
+      log_analytics_event: {
+        Args: {
+          p_user_id: string
+          p_event_type: Database["public"]["Enums"]["analytics_event_type"]
+          p_metadata?: Json
+          p_content_ref?: string | null
+          p_session_id?: string | null
+        }
+        Returns: string | null
+      }
+      purge_expired_analytics_events: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
+      set_analytics_opt_in: {
+        Args: {
+          p_user_id: string
+          p_opt_in: boolean
+          p_consent_version?: string
+          p_retention_days?: number
+        }
+        Returns: Database["public"]["Tables"]["user_privacy_preferences"]["Row"]
+      }
       calculate_completeness_score: {
         Args: { item_data: Json } | { item_id: string }
         Returns: number
@@ -9037,6 +9611,13 @@ export type Database = {
       calculate_sla_metrics: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      create_library_collection: {
+        Args: {
+          p_description?: string | null
+          p_name: string
+        }
+        Returns: Database["public"]["Tables"]["content_library_collections"]["Row"]
       }
       check_music_generation_quota: {
         Args: { user_uuid: string }
@@ -9122,6 +9703,58 @@ export type Database = {
       cleanup_security_scan_false_positives: {
         Args: Record<PropertyKey, never>
         Returns: number
+      }
+      get_content_library: {
+        Args: {
+          p_collection_id?: string | null
+          p_limit?: number
+          p_offset?: number
+          p_only_favorites?: boolean
+          p_search?: string | null
+          p_sort?: string
+          p_types?: string[] | null
+        }
+        Returns: {
+          collections: Json
+          created_at: string
+          description: string | null
+          in_library: boolean
+          is_favorite: boolean
+          is_public: boolean
+          metadata: Json
+          owner_id: string | null
+          resource_identifier: string
+          resource_type: string
+          saved_at: string | null
+          source_table: string
+          tags: string[] | null
+          title: string
+          updated_at: string
+        }[]
+      }
+      remove_content_library_item: {
+        Args: {
+          p_resource_identifier: string
+          p_resource_type: string
+        }
+        Returns: undefined
+      }
+      remove_library_item_from_collection: {
+        Args: {
+          p_collection_id: string
+          p_resource_identifier: string
+          p_resource_type: string
+        }
+        Returns: undefined
+      }
+      save_content_library_item: {
+        Args: {
+          p_collection_ids?: string[] | null
+          p_is_favorite?: boolean | null
+          p_resource_identifier: string
+          p_resource_type: string
+        }
+        Returns: Database["public"]["Tables"]["content_library_items"]["Row"]
       }
       complete_all_items_with_competences: {
         Args: Record<PropertyKey, never>
@@ -9772,6 +10405,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      refresh_edn_unified_materialized: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       med_mng_refund_credits: {
         Args: { p_credits: number; p_user_id: string }
         Returns: boolean
@@ -9970,6 +10607,17 @@ export type Database = {
       }
     }
     Enums: {
+      analytics_event_type:
+        | "generate_start"
+        | "generate_success"
+        | "generate_fail"
+        | "lyrics_timecode_done"
+        | "play"
+        | "seek_segment"
+        | "study_start"
+        | "study_end"
+        | "sync_success"
+        | "sync_fail"
       invitation_status: "pending" | "accepted" | "expired"
     }
     CompositeTypes: {

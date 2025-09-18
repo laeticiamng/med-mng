@@ -9,6 +9,7 @@ import { Download, Calendar, Database, FileText, AlertCircle } from 'lucide-reac
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { logger } from '@/lib/logger';
+import { describeRateLimitError } from '@/utils/errors/rateLimit';
 
 const AVAILABLE_TABLES = [
   { id: 'edn_items_complete', name: 'Items EDN Complets', description: 'Contenu pédagogique principal' },
@@ -69,6 +70,11 @@ export const ExportDashboard = () => {
 
       if (error) {
         console.error('Erreur export:', error);
+        const rateLimit = describeRateLimitError(error, "Export impossible pour le moment. Réessayez plus tard.");
+        if (rateLimit.isRateLimited) {
+          toast.warning(rateLimit.message);
+          return;
+        }
         toast.error(`Erreur lors de l'export: ${error.message}`);
         return;
       }
@@ -94,7 +100,12 @@ export const ExportDashboard = () => {
       
     } catch (exportError) {
       console.error('Erreur export:', exportError);
-      toast.error('Erreur lors de la génération de l\'export');
+      const rateLimit = describeRateLimitError(exportError, "L'exportation est temporairement indisponible.");
+      if (rateLimit.isRateLimited) {
+        toast.warning(rateLimit.message);
+      } else {
+        toast.error('Erreur lors de la génération de l\'export');
+      }
     } finally {
       setIsExporting(false);
     }

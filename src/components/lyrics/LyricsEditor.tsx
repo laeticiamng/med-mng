@@ -45,9 +45,11 @@ export const LyricsEditor: React.FC<LyricsEditorProps> = ({
   // Synchroniser les paroles avec l'état local
   useEffect(() => {
     if (lyricsData?.lyrics_data) {
-      setRawLyrics(lyricsData.lyrics_data.map(line => 
-        `[${formatTime(line.time)}] ${line.text}`
-      ).join('\n'));
+      setRawLyrics(
+        lyricsData.lyrics_data
+          .map((line) => `[${formatTime(line.startMs / 1000)}] ${line.text}`)
+          .join('\n'),
+      );
     }
   }, [lyricsData]);
 
@@ -128,7 +130,14 @@ export const LyricsEditor: React.FC<LyricsEditorProps> = ({
         const time = minutes * 60 + seconds;
         const text = match[3].trim();
         if (text) {
-          parsed.push({ time, text });
+          const startMs = Math.round(time * 1000);
+          parsed.push({
+            time,
+            text,
+            startMs,
+            endMs: startMs + 4000,
+            role: null,
+          });
         }
       }
     });
@@ -139,14 +148,14 @@ export const LyricsEditor: React.FC<LyricsEditorProps> = ({
   // Sauvegarde
   const handleSave = async () => {
     const parsed = parseLyrics(rawLyrics);
-    const success = await saveSynchronizedLyrics(songId, parsed, 'manual');
+    const success = await saveSynchronizedLyrics(songId, parsed, { method: 'manual_editor' });
     if (success && onSave) {
       onSave(parsed);
     }
   };
 
   // Export
-  const handleExport = (format: 'lrc' | 'srt' | 'txt') => {
+  const handleExport = (format: 'lrc' | 'srt' | 'txt' | 'json' | 'md') => {
     const content = exportLyrics(format);
     const blob = new Blob([content], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
