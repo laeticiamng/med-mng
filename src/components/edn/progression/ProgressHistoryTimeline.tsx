@@ -3,12 +3,14 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import type { ProgressHistoryEntry } from '@/hooks/edn/useEdnProgressionData';
 import { format, parseISO } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 interface ProgressHistoryTimelineProps {
   entries: ProgressHistoryEntry[];
+  focusItemCode?: string | null;
 }
 
-export const ProgressHistoryTimeline: React.FC<ProgressHistoryTimelineProps> = ({ entries }) => {
+export const ProgressHistoryTimeline: React.FC<ProgressHistoryTimelineProps> = ({ entries, focusItemCode }) => {
   if (entries.length === 0) {
     return (
       <Card>
@@ -30,8 +32,12 @@ export const ProgressHistoryTimeline: React.FC<ProgressHistoryTimelineProps> = (
       <CardContent className="space-y-4">
         {entries.slice(0, 12).map((entry) => {
           const date = parseISO(entry.updatedAt);
+          const isFocused = focusItemCode ? entry.itemCode.toLowerCase() === focusItemCode.toLowerCase() : false;
           return (
-            <div key={`${entry.itemCode}-${entry.updatedAt}`} className="flex items-start gap-4">
+            <div
+              key={`${entry.itemCode}-${entry.updatedAt}`}
+              className={cn('flex items-start gap-4 rounded-lg p-2 transition-colors', isFocused && 'bg-primary/5')}
+            >
               <div className="flex flex-col items-center">
                 <span className="w-2 h-2 rounded-full bg-primary mt-1" />
                 <span className="flex-1 w-px bg-border" />

@@ -1,466 +1,395 @@
-import React, { useState } from 'react';
+import { useMemo } from 'react';
+import { cn } from '@/lib/utils';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import {
-  BarChart3,
-  TrendingUp,
-  TrendingDown,
-  Users,
-  Music,
-  BookOpen,
-  Clock,
-  Target,
-  Award,
-  Brain,
-  Zap,
-  Calendar,
-  Filter,
+  Activity,
+  AlertTriangle,
+  CalendarClock,
   Download,
-  Share2,
-  Eye,
-  Heart,
-  Play
+  Loader2,
+  RefreshCw,
+  Target,
+  TrendingDown,
+  TrendingUp,
 } from 'lucide-react';
-
-// Mock data pour les analytics avancées
-const mockAnalyticsData = {
-  overview: {
-    totalUsers: 15420,
-    activeUsers: 8934,
-    totalSessions: 45678,
-    avgSessionTime: '12m 34s',
-    retentionRate: 78.5,
-    conversionRate: 23.4
-  },
-  userGrowth: [
-    { month: 'Jan', users: 1200, active: 890 },
-    { month: 'Fév', users: 1850, active: 1340 },
-    { month: 'Mar', users: 2100, active: 1580 },
-    { month: 'Avr', users: 2650, active: 1920 },
-    { month: 'Mai', users: 3200, active: 2340 },
-    { month: 'Juin', users: 3800, active: 2850 }
-  ],
-  contentStats: {
-    totalContent: 892,
-    ednItems: 360,
-    musicTracks: 428,
-    ecosScenarios: 104,
-    avgEngagement: 85.2,
-    topPerformers: [
-      { id: 'IC-331', title: 'Arrêt cardio-circulatoire', type: 'EDN', engagement: 94.5, completions: 1250 },
-      { id: 'TRACK-45', title: 'Cardiologie Flow', type: 'Music', engagement: 92.1, plays: 2340 },
-      { id: 'ECOS-12', title: 'Urgences Pédiatriques', type: 'ECOS', engagement: 89.7, attempts: 890 }
-    ]
-  },
-  learningPathways: {
-    completionRates: {
-      cardiology: 87.3,
-      pneumology: 78.9,
-      neurology: 82.1,
-      emergency: 91.2,
-      pediatrics: 75.6
-    },
-    avgTimeSpent: {
-      cardiology: '45m',
-      pneumology: '38m',
-      neurology: '52m',
-      emergency: '41m',
-      pediatrics: '36m'
-    }
-  },
-  engagement: {
-    dailyActive: 3420,
-    weeklyActive: 8934,
-    monthlyActive: 15420,
-    avgSessionsPerUser: 4.2,
-    bounceRate: 12.3,
-    pageViews: 234567
-  }
-};
-
-const mockRealtimeData = {
-  currentUsers: 247,
-  trending: [
-    { content: 'IC-290 Trap Beat', type: 'Music', users: 89, trend: '+15%' },
-    { content: 'Pneumothorax Study', type: 'EDN', users: 67, trend: '+8%' },
-    { content: 'Emergency Protocol', type: 'ECOS', users: 45, trend: '+22%' }
-  ]
-};
+import {
+  ResponsiveContainer,
+  BarChart,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Bar,
+  Cell,
+  LineChart,
+  Line,
+  Legend,
+} from 'recharts';
+import {
+  useAnalyticsDashboard,
+  DASHBOARD_TIMEFRAMES,
+  type DashboardTimeframe,
+  type AnalyticsDashboardPayload,
+} from '@/hooks/analytics/useAnalyticsDashboard';
+import { formatCanonicalEventLabel, getCanonicalEventColor } from '@/constants/canonicalAnalytics';
 
 interface AnalyticsDashboardProps {
   className?: string;
 }
 
+const TIMEFRAME_LABELS: Record<DashboardTimeframe, string> = {
+  '24h': '24 dernières heures',
+  '7d': '7 derniers jours',
+  '30d': '30 derniers jours',
+  '90d': '90 derniers jours',
+};
+
+const formatBucketLabel = (value: string) => {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return value;
+  }
+  return date.toLocaleDateString('fr-FR', {
+    month: 'short',
+    day: 'numeric',
+  });
+};
+
+const getEventCount = (payload: AnalyticsDashboardPayload | null, type: string) =>
+  payload?.event_breakdown?.find((entry) => entry.event_type === type)?.count ?? 0;
+
 export default function AdvancedAnalyticsDashboard({ className }: AnalyticsDashboardProps) {
-  const [selectedPeriod, setSelectedPeriod] = useState('7d');
-  const [selectedMetric, setSelectedMetric] = useState('users');
+  const { data, loading, error, timeframe, generatedAt, refresh, setTimeframe } = useAnalyticsDashboard();
 
-  const MetricCard = ({ icon: Icon, title, value, change, trend, subtitle }: any) => (
-    <Card className="relative overflow-hidden hover:shadow-lg transition-all duration-300">
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-        <CardTitle className="text-sm font-medium text-muted-foreground">{title}</CardTitle>
-        <Icon className="h-5 w-5 text-primary" />
-      </CardHeader>
-      <CardContent>
-        <div className="flex items-end gap-2 mb-1">
-          <span className="text-3xl font-bold">{value}</span>
-          {change && (
-            <div className={`flex items-center text-sm ${trend === 'up' ? 'text-green-600' : 'text-red-600'}`}>
-              {trend === 'up' ? <TrendingUp className="w-4 h-4 mr-1" /> : <TrendingDown className="w-4 h-4 mr-1" />}
-              {change}
-            </div>
-          )}
-        </div>
-        {subtitle && <p className="text-xs text-muted-foreground">{subtitle}</p>}
-      </CardContent>
-    </Card>
-  );
+  const totalEvents = useMemo(() => data?.event_breakdown?.reduce((sum, entry) => sum + entry.count, 0) ?? 0, [data]);
+  const generationSuccess = useMemo(() => getEventCount(data, 'generate_success'), [data]);
+  const generationFail = useMemo(() => getEventCount(data, 'generate_fail'), [data]);
+  const syncFail = useMemo(() => getEventCount(data, 'sync_fail'), [data]);
+  const studySessions = useMemo(() => getEventCount(data, 'study_start'), [data]);
 
-  const ContentPerformanceCard = ({ item }: { item: any }) => {
-    const getTypeIcon = () => {
-      switch (item.type) {
-        case 'EDN': return <BookOpen className="w-4 h-4" />;
-        case 'Music': return <Music className="w-4 h-4" />;
-        case 'ECOS': return <Brain className="w-4 h-4" />;
-        default: return <Target className="w-4 h-4" />;
+  const successRate = useMemo(() => {
+    const denominator = generationSuccess + generationFail;
+    if (denominator === 0) {
+      return null;
+    }
+    return Math.round((generationSuccess / denominator) * 100);
+  }, [generationSuccess, generationFail]);
+
+  const breakdownChartData = useMemo(() => {
+    const entries = data?.event_breakdown ?? [];
+    return entries.map((entry, index) => ({
+      ...entry,
+      label: formatCanonicalEventLabel(entry.event_type),
+      color: getCanonicalEventColor(entry.event_type, index),
+    }));
+  }, [data]);
+
+  const topEventTypes = useMemo(() => {
+    const entries = data?.event_breakdown ?? [];
+    return entries
+      .slice()
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 4)
+      .map((entry) => entry.event_type);
+  }, [data]);
+
+  const timeseriesChartData = useMemo(() => {
+    const timeseries = data?.timeseries ?? [];
+    if (timeseries.length === 0) {
+      return [] as Array<Record<string, number | string>>;
+    }
+    const buckets = new Map<string, Record<string, number | string>>();
+    timeseries.forEach(({ bucket, event_type, count }) => {
+      const key = new Date(bucket).toISOString();
+      if (!buckets.has(key)) {
+        buckets.set(key, { bucket: key });
       }
-    };
+      buckets.get(key)![event_type] = count;
+    });
 
-    const getTypeColor = () => {
-      switch (item.type) {
-        case 'EDN': return 'text-blue-600';
-        case 'Music': return 'text-purple-600';
-        case 'ECOS': return 'text-green-600';
-        default: return 'text-gray-600';
-      }
-    };
+    return Array.from(buckets.entries())
+      .sort((a, b) => new Date(a[0]).getTime() - new Date(b[0]).getTime())
+      .map(([, value]) => value);
+  }, [data]);
 
-    return (
-      <div className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
-        <div className="flex items-center gap-3">
-          <div className={`p-2 rounded-full bg-muted ${getTypeColor()}`}>
-            {getTypeIcon()}
-          </div>
-          <div>
-            <h4 className="font-semibold text-sm">{item.title}</h4>
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <span>{item.id}</span>
-              <Badge variant="outline" className="text-xs">{item.type}</Badge>
-            </div>
-          </div>
-        </div>
-        <div className="text-right space-y-1">
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-semibold">{item.engagement}%</span>
-            <div className="w-16 bg-muted rounded-full h-2">
-              <div 
-                className="bg-primary h-2 rounded-full" 
-                style={{ width: `${item.engagement}%` }}
-              />
-            </div>
-          </div>
-          <p className="text-xs text-muted-foreground">
-            {item.type === 'Music' ? `${item.plays} écoutes` : 
-             item.type === 'EDN' ? `${item.completions} complétions` :
-             `${item.attempts} tentatives`}
-          </p>
-        </div>
-      </div>
-    );
+  const topFrictions = data?.top_frictions ?? [];
+  const topContents = data?.top_contents ?? [];
+  const lastUpdatedLabel = generatedAt
+    ? new Date(generatedAt).toLocaleString('fr-FR', {
+        dateStyle: 'medium',
+        timeStyle: 'short',
+      })
+    : null;
+  const hasData = totalEvents > 0;
+
+  const handleExport = () => {
+    const payload = data;
+    if (!payload) {
+      return;
+    }
+    const exportPayload = {
+      generatedAt: generatedAt ?? new Date().toISOString(),
+      timeframe,
+      metrics: payload,
+    };
+    const blob = new Blob([JSON.stringify(exportPayload, null, 2)], {
+      type: 'application/json',
+    });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `canonical-analytics-${timeframe}-${new Date().toISOString().split('T')[0]}.json`;
+    link.click();
+    URL.revokeObjectURL(url);
   };
 
-  const RealtimeActivity = () => (
-    <Card className="border-2 border-primary/20 bg-gradient-to-r from-primary/5 to-accent/5">
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
-            <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse" />
-            Activité en temps réel
-          </CardTitle>
-          <Badge variant="secondary" className="text-lg px-3 py-1">
-            {mockRealtimeData.currentUsers} utilisateurs actifs
-          </Badge>
-        </div>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-3">
-          <h4 className="font-semibold text-sm text-muted-foreground mb-3">Contenu tendance maintenant</h4>
-          {mockRealtimeData.trending.map((item, index) => (
-            <div key={index} className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-6 h-6 rounded-full bg-gradient-to-r from-primary to-accent flex items-center justify-center text-white text-xs font-bold">
-                  {index + 1}
-                </div>
-                <div>
-                  <p className="font-medium text-sm">{item.content}</p>
-                  <p className="text-xs text-muted-foreground">{item.type}</p>
-                </div>
-              </div>
-              <div className="text-right">
-                <p className="font-semibold text-sm">{item.users} users</p>
-                <p className="text-xs text-green-600">{item.trend}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
-  );
-
   return (
-    <div className={`space-y-8 ${className}`}>
-      {/* Header Controls */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h2 className="text-3xl font-bold">Analytics Avancées</h2>
-          <p className="text-muted-foreground">Insights détaillés sur l'utilisation de la plateforme</p>
+    <div className={cn('space-y-6', className)}>
+      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+        <div className="space-y-1">
+          <h2 className="text-3xl font-semibold tracking-tight">Analytics canoniques</h2>
+          <CardDescription>
+            Vue unifiée des événements clés (génération, karaoké, EDN, séances 8 minutes).
+          </CardDescription>
+          {lastUpdatedLabel ? (
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <CalendarClock className="h-4 w-4" />
+              <span>Dernière actualisation&nbsp;: {lastUpdatedLabel}</span>
+            </div>
+          ) : null}
         </div>
-        <div className="flex items-center gap-3">
-          <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
-            <SelectTrigger className="w-32">
-              <SelectValue />
+        <div className="flex flex-wrap items-center gap-3">
+          <Select value={timeframe} onValueChange={(value) => setTimeframe(value as DashboardTimeframe)}>
+            <SelectTrigger className="w-[220px]">
+              <SelectValue placeholder="Période" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="24h">24 heures</SelectItem>
-              <SelectItem value="7d">7 jours</SelectItem>
-              <SelectItem value="30d">30 jours</SelectItem>
-              <SelectItem value="90d">3 mois</SelectItem>
+              {DASHBOARD_TIMEFRAMES.map((option) => (
+                <SelectItem key={option} value={option}>
+                  {TIMEFRAME_LABELS[option]}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
-          <Button variant="outline" size="sm">
-            <Download className="w-4 h-4 mr-2" />
-            Export
+          <Button variant="outline" onClick={() => refresh()} disabled={loading}>
+            {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
+            Actualiser
           </Button>
-          <Button variant="outline" size="sm">
-            <Share2 className="w-4 h-4 mr-2" />
-            Partager
+          <Button onClick={handleExport} variant="secondary" disabled={!data}>
+            <Download className="mr-2 h-4 w-4" />
+            Export JSON
           </Button>
+          <Badge variant="outline">{TIMEFRAME_LABELS[timeframe]}</Badge>
         </div>
       </div>
 
-      {/* Overview Metrics */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
-        <MetricCard
-          icon={Users}
-          title="Utilisateurs totaux"
-          value={mockAnalyticsData.overview.totalUsers.toLocaleString()}
-          change="+12.5%"
-          trend="up"
-          subtitle="vs mois dernier"
-        />
-        <MetricCard
-          icon={Zap}
-          title="Utilisateurs actifs"
-          value={mockAnalyticsData.overview.activeUsers.toLocaleString()}
-          change="+8.2%"
-          trend="up"
-          subtitle="7 derniers jours"
-        />
-        <MetricCard
-          icon={Eye}
-          title="Sessions"
-          value={mockAnalyticsData.overview.totalSessions.toLocaleString()}
-          change="+15.3%"
-          trend="up"
-          subtitle="Ce mois"
-        />
-        <MetricCard
-          icon={Clock}
-          title="Temps moyen"
-          value={mockAnalyticsData.overview.avgSessionTime}
-          change="+2.1%"
-          trend="up"
-          subtitle="Par session"
-        />
-        <MetricCard
-          icon={Target}
-          title="Rétention"
-          value={`${mockAnalyticsData.overview.retentionRate}%`}
-          change="+3.4%"
-          trend="up"
-          subtitle="7 jours"
-        />
-        <MetricCard
-          icon={Award}
-          title="Conversion"
-          value={`${mockAnalyticsData.overview.conversionRate}%`}
-          change="+5.7%"
-          trend="up"
-          subtitle="Visiteur → Utilisateur"
-        />
+      {error ? (
+        <Card className="border-destructive/30 bg-destructive/5">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0">
+            <CardTitle className="flex items-center gap-2 text-destructive">
+              <AlertTriangle className="h-5 w-5" />
+              Récupération des analytics impossible
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-destructive/80">{error}</p>
+          </CardContent>
+        </Card>
+      ) : null}
+
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Événements analysés</CardTitle>
+            <Activity className="h-5 w-5 text-primary" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">{hasData ? totalEvents.toLocaleString('fr-FR') : '—'}</div>
+            <p className="text-xs text-muted-foreground">Toutes les occurrences reçues sur la période</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Taux de réussite génération</CardTitle>
+            {(successRate ?? 0) >= 80 ? (
+              <TrendingUp className="h-5 w-5 text-green-500" />
+            ) : (
+              <TrendingDown className="h-5 w-5 text-amber-500" />
+            )}
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">{successRate !== null ? `${successRate}%` : '—'}</div>
+            <p className="text-xs text-muted-foreground">
+              {generationSuccess} succès / {generationFail} échecs
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Séances 8 minutes</CardTitle>
+            <Target className="h-5 w-5 text-purple-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">{studySessions > 0 ? studySessions.toLocaleString('fr-FR') : '—'}</div>
+            <p className="text-xs text-muted-foreground">Démarrées avec export et suivi progression</p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Frictions critiques</CardTitle>
+            <AlertTriangle className="h-5 w-5 text-amber-500" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-3xl font-bold">{(generationFail + syncFail) > 0 ? (generationFail + syncFail).toLocaleString('fr-FR') : '—'}</div>
+            <p className="text-xs text-muted-foreground">Échecs génération + synchronisation EDN</p>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Real-time Activity */}
-      <RealtimeActivity />
-
-      {/* Detailed Analytics */}
-      <Tabs defaultValue="content" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="content">Performance Contenu</TabsTrigger>
-          <TabsTrigger value="learning">Parcours d'apprentissage</TabsTrigger>
-          <TabsTrigger value="engagement">Engagement</TabsTrigger>
-          <TabsTrigger value="retention">Rétention</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="content" className="space-y-6">
-          <div className="grid gap-6 lg:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <BarChart3 className="h-5 w-5" />
-                  Top Performers
-                </CardTitle>
-                <CardDescription>
-                  Contenu le plus engageant par type
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {mockAnalyticsData.contentStats.topPerformers.map((item, index) => (
-                    <ContentPerformanceCard key={index} item={item} />
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Target className="h-5 w-5" />
-                  Répartition par type
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <BookOpen className="w-4 h-4 text-blue-600" />
-                      <span className="font-medium">Items EDN</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-24 bg-muted rounded-full h-2">
-                        <div className="bg-blue-600 h-2 rounded-full" style={{ width: '60%' }} />
-                      </div>
-                      <span className="font-semibold">{mockAnalyticsData.contentStats.ednItems}</span>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Music className="w-4 h-4 text-purple-600" />
-                      <span className="font-medium">Tracks Musicales</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-24 bg-muted rounded-full h-2">
-                        <div className="bg-purple-600 h-2 rounded-full" style={{ width: '70%' }} />
-                      </div>
-                      <span className="font-semibold">{mockAnalyticsData.contentStats.musicTracks}</span>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <Brain className="w-4 h-4 text-green-600" />
-                      <span className="font-medium">Scénarios ECOS</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-24 bg-muted rounded-full h-2">
-                        <div className="bg-green-600 h-2 rounded-full" style={{ width: '40%' }} />
-                      </div>
-                      <span className="font-semibold">{mockAnalyticsData.contentStats.ecosScenarios}</span>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+      <Card>
+        <CardHeader className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+          <div>
+            <CardTitle>Répartition des événements</CardTitle>
+            <CardDescription>Volumes par type d’événement canonique.</CardDescription>
           </div>
-        </TabsContent>
-
-        <TabsContent value="learning" className="space-y-6">
-          <div className="grid gap-6 lg:grid-cols-2">
-            <Card>
-              <CardHeader>
-                <CardTitle>Taux de complétion par spécialité</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {Object.entries(mockAnalyticsData.learningPathways.completionRates).map(([specialty, rate]) => (
-                    <div key={specialty} className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span className="font-medium capitalize">{specialty}</span>
-                        <span>{rate}%</span>
-                      </div>
-                      <Progress value={rate} className="h-2" />
-                    </div>
+        </CardHeader>
+        <CardContent className="h-[320px]">
+          {hasData ? (
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={breakdownChartData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis dataKey="label" tick={{ fontSize: 12 }} />
+                <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
+                <Tooltip
+                  formatter={(value: number | string, name: string) => [
+                    typeof value === 'number' ? value.toLocaleString('fr-FR') : value,
+                    formatCanonicalEventLabel(name),
+                  ]}
+                />
+                <Bar dataKey="count">
+                  {breakdownChartData.map((entry) => (
+                    <Cell key={entry.event_type} fill={entry.color} />
                   ))}
-                </div>
-              </CardContent>
-            </Card>
+                </Bar>
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+              Aucune donnée enregistrée sur la période sélectionnée.
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Temps moyen par spécialité</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4">
-                  {Object.entries(mockAnalyticsData.learningPathways.avgTimeSpent).map(([specialty, time]) => (
-                    <div key={specialty} className="flex items-center justify-between">
-                      <span className="font-medium capitalize">{specialty}</span>
-                      <Badge variant="outline">{time}</Badge>
+      <Card>
+        <CardHeader className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+          <div>
+            <CardTitle>Chronologie des interactions</CardTitle>
+            <CardDescription>Évolution quotidienne des événements majeurs.</CardDescription>
+          </div>
+        </CardHeader>
+        <CardContent className="h-[360px]">
+          {hasData && timeseriesChartData.length > 0 ? (
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={timeseriesChartData}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis dataKey="bucket" tickFormatter={formatBucketLabel} tick={{ fontSize: 12 }} />
+                <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
+                <Tooltip
+                  labelFormatter={(value) => formatBucketLabel(value as string)}
+                  formatter={(value: number | string, name: string) => [
+                    typeof value === 'number' ? value.toLocaleString('fr-FR') : value,
+                    formatCanonicalEventLabel(name),
+                  ]}
+                />
+                <Legend wrapperStyle={{ fontSize: 12 }} />
+                {topEventTypes.map((eventType, index) => (
+                  <Line
+                    key={eventType}
+                    type="monotone"
+                    dataKey={eventType}
+                    stroke={getCanonicalEventColor(eventType, index)}
+                    strokeWidth={2}
+                    dot={false}
+                  />
+                ))}
+              </LineChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
+              Pas encore de séries temporelles pour la période.
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Top frictions à adresser</CardTitle>
+            <CardDescription>Derniers échecs de génération ou synchronisation EDN.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {topFrictions.length > 0 ? (
+              topFrictions.map((friction) => (
+                <div key={`${friction.event_type}-${friction.last_occurrence ?? 'unknown'}`} className="rounded-lg border p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <p className="text-sm font-semibold">
+                        {formatCanonicalEventLabel(friction.event_type)}
+                      </p>
+                      <p className="text-xs text-muted-foreground">
+                        Dernière occurrence&nbsp;:
+                        {' '}
+                        {friction.last_occurrence
+                          ? new Date(friction.last_occurrence).toLocaleString('fr-FR', {
+                              dateStyle: 'short',
+                              timeStyle: 'short',
+                            })
+                          : 'n/a'}
+                      </p>
                     </div>
-                  ))}
+                    <Badge variant="destructive">{friction.count}</Badge>
+                  </div>
+                  {friction.sample_metadata ? (
+                    <pre className="mt-3 max-h-40 overflow-auto rounded bg-muted/40 p-3 text-xs text-muted-foreground">
+                      {JSON.stringify(friction.sample_metadata, null, 2)}
+                    </pre>
+                  ) : null}
                 </div>
-              </CardContent>
-            </Card>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="engagement" className="space-y-6">
-          <div className="grid gap-6 md:grid-cols-3">
-            <MetricCard
-              icon={Users}
-              title="Utilisateurs quotidiens"
-              value={mockAnalyticsData.engagement.dailyActive.toLocaleString()}
-              change="+5.2%"
-              trend="up"
-            />
-            <MetricCard
-              icon={Calendar}
-              title="Sessions par utilisateur"
-              value={mockAnalyticsData.engagement.avgSessionsPerUser.toString()}
-              change="+0.3"
-              trend="up"
-            />
-            <MetricCard
-              icon={Eye}
-              title="Taux de rebond"
-              value={`${mockAnalyticsData.engagement.bounceRate}%`}
-              change="-2.1%"
-              trend="down"
-            />
-          </div>
-        </TabsContent>
-
-        <TabsContent value="retention">
-          <Card>
-            <CardHeader>
-              <CardTitle>Courbes de rétention</CardTitle>
-              <CardDescription>
-                Analyse de la rétention utilisateur sur différentes périodes
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="h-64 flex items-center justify-center text-muted-foreground">
-                📊 Graphique de rétention interactive sera implémenté ici
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+              ))
+            ) : (
+              <p className="text-sm text-muted-foreground">Aucune friction critique détectée sur la période.</p>
+            )}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Top contenus performants</CardTitle>
+            <CardDescription>Pistes, lyrics et séances générant le plus d’engagement.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {topContents.length > 0 ? (
+              topContents.map((content) => (
+                <div key={`${content.event_type}-${content.content_ref ?? 'none'}`} className="flex items-center justify-between gap-3 rounded-lg border p-4">
+                  <div>
+                    <p className="text-sm font-semibold">{content.content_ref ?? 'Référence non fournie'}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {formatCanonicalEventLabel(content.event_type)}
+                    </p>
+                  </div>
+                  <Badge variant="secondary">{content.count}</Badge>
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-muted-foreground">Pas encore de contenus en tête sur cette période.</p>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }

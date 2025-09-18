@@ -234,3 +234,23 @@ DELETE FROM public.rate_limit_counters WHERE identifier = '192.168.1.1';
 ✅ **Integration Express** transparente avec headers appropriés  
 
 La limitation de débit fonctionne maintenant de manière cohérente sur toutes les instances déployées.
+## ⚙️ Variables d'environnement MED-MNG API
+
+La fonction Deno `med-mng-api` expose plusieurs garde-fous configurables via les variables d'environnement suivantes (valeurs par défaut indiquées entre parenthèses) :
+
+| Variable | Description | Valeur par défaut |
+| --- | --- | --- |
+| `RATE_LIMIT_API_MAX_REQUESTS` | Plafond global par fenêtre pour tout appel à l'API | `120` |
+| `RATE_LIMIT_API_WINDOW_SECONDS` | Durée de la fenêtre glissante globale (secondes) | `60` |
+| `RATE_LIMIT_API_RETRY_SECONDS` | Délai conseillé avant nouvelle tentative quand la limite globale est atteinte | `60` |
+| `RATE_LIMIT_COMPLETE_ITEM_MAX_REQUESTS` | Requêtes autorisées pour `/complete-item/:id` par fenêtre | `6` |
+| `RATE_LIMIT_COMPLETE_ITEM_WINDOW_SECONDS` | Fenêtre de contrôle pour la complétion unitaire (secondes) | `300` |
+| `RATE_LIMIT_COMPLETE_ITEM_RETRY_SECONDS` | Délai de ré-essai suggéré pour la complétion unitaire | `120` |
+| `RATE_LIMIT_COMPLETE_BULK_MAX_REQUESTS` | Nombre d'exécutions `/complete-all` autorisées par fenêtre | `2` |
+| `RATE_LIMIT_COMPLETE_BULK_WINDOW_SECONDS` | Fenêtre de contrôle du bulk (secondes) | `3600` |
+| `RATE_LIMIT_COMPLETE_BULK_RETRY_SECONDS` | Délai conseillé avant de retenter un bulk | `900` |
+| `RATE_LIMIT_RGPD_EXPORT_MAX_REQUESTS` | Limite pour `/rgpd/export` | `3` |
+| `RATE_LIMIT_RGPD_EXPORT_WINDOW_SECONDS` | Fenêtre associée au rate limit RGPD (secondes) | `3600` |
+| `RATE_LIMIT_RGPD_EXPORT_RETRY_SECONDS` | Délai conseillé avant un nouvel export RGPD | `900` |
+
+⚠️ **Important** : les limites spécifiques s'appuient sur Supabase (`increment_rate_limit_counter`). Veillez à définir `SUPABASE_URL` et `SUPABASE_SERVICE_ROLE_KEY` côté Edge Functions, sans quoi le throttling repassera en mode permissif.

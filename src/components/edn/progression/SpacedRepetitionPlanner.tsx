@@ -11,10 +11,12 @@ import {
 } from '@/components/ui/table';
 import type { SpacedRepetitionItem } from '@/hooks/edn/useEdnProgressionData';
 import { format, parseISO } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 interface SpacedRepetitionPlannerProps {
   items: SpacedRepetitionItem[];
   rankFilter: 'all' | 'A' | 'B';
+  focusItemCode?: string | null;
 }
 
 const priorityColor: Record<SpacedRepetitionItem['priority'], string> = {
@@ -23,11 +25,17 @@ const priorityColor: Record<SpacedRepetitionItem['priority'], string> = {
   low: 'bg-emerald-100/40 text-emerald-800 border-emerald-400/60',
 };
 
-export const SpacedRepetitionPlanner: React.FC<SpacedRepetitionPlannerProps> = ({ items, rankFilter }) => {
+export const SpacedRepetitionPlanner: React.FC<SpacedRepetitionPlannerProps> = ({
+  items,
+  rankFilter,
+  focusItemCode,
+}) => {
   const filtered = React.useMemo(() => {
     if (rankFilter === 'all') return items;
     return items.filter((item) => item.rankFocus === rankFilter);
   }, [items, rankFilter]);
+
+  const normalizedFocus = focusItemCode?.toLowerCase();
 
   return (
     <Card className="border-border/60">
@@ -52,8 +60,12 @@ export const SpacedRepetitionPlanner: React.FC<SpacedRepetitionPlannerProps> = (
           <TableBody>
             {filtered.slice(0, 15).map((item) => {
               const nextReviewDate = parseISO(item.nextReview);
+              const isFocused = normalizedFocus ? item.itemCode.toLowerCase() === normalizedFocus : false;
               return (
-                <TableRow key={`${item.itemCode}-${item.nextReview}`}>
+                <TableRow
+                  key={`${item.itemCode}-${item.nextReview}`}
+                  className={cn(isFocused && 'border-l-2 border-l-primary bg-primary/5 text-foreground')}
+                >
                   <TableCell className="font-medium text-foreground">
                     <div>{item.title}</div>
                     <div className="text-xs text-muted-foreground">{item.itemCode}</div>

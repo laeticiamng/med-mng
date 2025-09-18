@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -6,16 +6,19 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
-import { ednProgressService, type EdnUnifiedRow, type SessionPlanRow } from '@/services/EdnProgressService';
+import { ednProgressService, type NormalizedEdnItem, type SessionPlanRow } from '@/services/EdnProgressService';
 import type { SpacedRepetitionItem } from '@/hooks/edn/useEdnProgressionData';
 import { jsPDF } from 'jspdf';
 import { trackCanonicalEvent } from '@/services/CanonicalAnalyticsTracker';
 import { isTestEnvironment } from '@/utils/environment';
 
 interface EightMinuteSessionBuilderProps {
-  items: EdnUnifiedRow[];
+  items: NormalizedEdnItem[];
   suggestions: SpacedRepetitionItem[];
   onSessionSaved?: () => void;
+  initialItemCode?: string | null;
+  focusTheme?: string | null;
+  autoStart?: boolean;
 }
 
 type SessionPlanContent = {
@@ -31,16 +34,25 @@ const formatTime = (seconds: number) => {
   return `${minutes}:${remaining}`;
 };
 
-export const EightMinuteSessionBuilder: React.FC<EightMinuteSessionBuilderProps> = ({ items, suggestions, onSessionSaved }) => {
+export const EightMinuteSessionBuilder: React.FC<EightMinuteSessionBuilderProps> = ({
+  items,
+  suggestions,
+  onSessionSaved,
+  initialItemCode,
+  focusTheme,
+  autoStart = false,
+}) => {
   const [userId, setUserId] = useState<string | null>(null);
   const [savedPlans, setSavedPlans] = useState<SessionPlanRow[]>([]);
   const [loadingPlans, setLoadingPlans] = useState(true);
-  const [selectedItemCode, setSelectedItemCode] = useState<string | undefined>(suggestions[0]?.itemCode ?? items[0]?.item_code);
+  const [selectedItemCode, setSelectedItemCode] = useState<string | undefined>();
   const [notes, setNotes] = useState('');
   const [completedSteps, setCompletedSteps] = useState<Record<string, boolean>>({});
   const [isRunning, setIsRunning] = useState(false);
   const [remainingSeconds, setRemainingSeconds] = useState(8 * 60);
   const [isSaving, setIsSaving] = useState(false);
+  const [appliedDeepLink, setAppliedDeepLink] = useState<string | null>(null);
+  const [hasAutoStarted, setHasAutoStarted] = useState(false);
   const activeRunRef = useRef<{
     runId: string;
     startedAt: number;
@@ -48,6 +60,15 @@ export const EightMinuteSessionBuilder: React.FC<EightMinuteSessionBuilderProps>
     contentId: string | null;
   } | null>(null);
   const testEnvironment = isTestEnvironment();
+
+  const resolvedInitialCode = useMemo(() => {
+    if (!initialItemCode) return null;
+    const normalized = initialItemCode.toLowerCase();
+    const match = items.find(
+      (item) => item.item_code.toLowerCase() === normalized || item.slug.toLowerCase() === normalized,
+    );
+    return match?.item_code ?? null;
+  }, [initialItemCode, items]);
 
   const createRunId = () => {
     if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
@@ -66,6 +87,26 @@ export const EightMinuteSessionBuilder: React.FC<EightMinuteSessionBuilderProps>
       setUserId(data.user?.id ?? null);
     });
   }, [testEnvironment]);
+
+  useEffect(() => {
+    if (resolvedInitialCode) {
+      const normalized = resolvedInitialCode.toLowerCase();
+      if (appliedDeepLink?.toLowerCase() !== normalized || !selectedItemCode) {
+        setSelectedItemCode(resolvedInitialCode);
+        setAppliedDeepLink(resolvedInitialCode);
+        return;
+      }
+    } else if (appliedDeepLink) {
+      setAppliedDeepLink(null);
+    }
+
+    if (!selectedItemCode) {
+      const fallback = suggestions[0]?.itemCode ?? items[0]?.item_code;
+      if (fallback) {
+        setSelectedItemCode(fallback);
+      }
+    }
+  }, [resolvedInitialCode, appliedDeepLink, selectedItemCode, suggestions, items]);
 
   useEffect(() => {
     if (!userId) {
@@ -124,25 +165,53 @@ export const EightMinuteSessionBuilder: React.FC<EightMinuteSessionBuilderProps>
     }
   }, [isRunning, remainingSeconds]);
 
+  useEffect(() => {
+    if (!appliedDeepLink) {
+      return;
+    }
+    setCompletedSteps({});
+    setIsRunning(false);
+    setRemainingSeconds(8 * 60);
+    activeRunRef.current = null;
+    setNotes('');
+  }, [appliedDeepLink]);
+
+  useEffect(() => {
+    if (!autoStart) {
+      setHasAutoStarted(false);
+      return;
+    }
+    setHasAutoStarted(false);
+  }, [autoStart, resolvedInitialCode]);
+
   const selectedItem = useMemo(() => items.find((item) => item.item_code === selectedItemCode) ?? null, [items, selectedItemCode]);
+
+  useEffect(() => {
+    if (!autoStart) return;
+    if (hasAutoStarted) return;
+    if (!selectedItem) return;
+    startTimer();
+    setHasAutoStarted(true);
+  }, [autoStart, hasAutoStarted, selectedItem, startTimer]);
 
   const sessionContent: SessionPlanContent = useMemo(() => {
     if (!selectedItem) {
       return { jeDis: [], jeFais: [], jeConclue: [], notes };
     }
 
-    const tableaux = (selectedItem.tableaux ?? {}) as any;
-    const rangASections: any[] = tableaux?.rang_a?.sections ?? [];
-    const rangBSections: any[] = tableaux?.rang_b?.sections ?? [];
-    const ecos = Array.isArray(selectedItem.ecos_contexts) ? (selectedItem.ecos_contexts as any[]) : [];
-    const valeurs = Array.isArray(selectedItem.valeurs_professionnelles) ? (selectedItem.valeurs_professionnelles as any[]) : [];
+    const rangASections = (selectedItem.tableaux.rang_a.sections ?? []) as Array<Record<string, unknown>>;
+    const rangBSections = (selectedItem.tableaux.rang_b.sections ?? []) as Array<Record<string, unknown>>;
+    const ecos = (selectedItem.ecos_contexts ?? []) as Array<Record<string, unknown>>;
+    const valeurs = (selectedItem.valeurs_professionnelles ?? []) as Array<Record<string, unknown>>;
 
-    const safeMap = (source: any[], keys: string[], limit: number) =>
+    const safeMap = (source: Array<Record<string, unknown>>, keys: string[], limit: number) =>
       source
         .map((section) => {
           for (const key of keys) {
-            const value = section?.[key];
-            if (value && typeof value === 'string') return value;
+            const raw = section?.[key];
+            if (typeof raw === 'string' && raw.trim().length > 0) {
+              return raw.trim();
+            }
           }
           return null;
         })
@@ -151,7 +220,7 @@ export const EightMinuteSessionBuilder: React.FC<EightMinuteSessionBuilderProps>
 
     const jeDis = safeMap(rangASections, ['title', 'concept', 'definition'], 4);
     const jeFais = safeMap(rangBSections, ['title', 'technique', 'cas'], 4);
-    const jeConclueCandidates = safeMap(ecos, ['title', 'content'], 4);
+    const jeConclueCandidates = safeMap(ecos, ['title', 'content', 'scenario'], 4);
 
     const jeConclue = jeConclueCandidates.length > 0
       ? jeConclueCandidates
@@ -173,6 +242,48 @@ export const EightMinuteSessionBuilder: React.FC<EightMinuteSessionBuilderProps>
     };
   }, [selectedItem, notes]);
 
+  const suggestionCodes = useMemo(() => {
+    const seen = new Set<string>();
+    const codes: string[] = [];
+    if (resolvedInitialCode) {
+      seen.add(resolvedInitialCode);
+      codes.push(resolvedInitialCode);
+    }
+    suggestions.forEach((suggestion) => {
+      if (!seen.has(suggestion.itemCode)) {
+        seen.add(suggestion.itemCode);
+        codes.push(suggestion.itemCode);
+      }
+    });
+    return codes.slice(0, 3);
+  }, [resolvedInitialCode, suggestions]);
+
+  const startTimer = useCallback(() => {
+    if (isRunning || !selectedItem) {
+      return;
+    }
+
+    const runId = createRunId();
+    const contentId = selectedItem.id ?? selectedItem.item_code ?? null;
+    activeRunRef.current = {
+      runId,
+      startedAt: Date.now(),
+      itemCode: selectedItem.item_code ?? null,
+      contentId,
+    };
+
+    setIsRunning(true);
+    void trackCanonicalEvent({
+      type: 'study_start',
+      contentId: contentId ?? undefined,
+      metadata: {
+        runId,
+        itemCode: selectedItem.item_code ?? null,
+        title: selectedItem.title ?? null,
+      },
+    });
+  }, [isRunning, selectedItem]);
+
   const toggleStep = (category: keyof SessionPlanContent, value: string) => {
     const key = `${category}-${value}`;
     setCompletedSteps((previous) => ({
@@ -187,30 +298,13 @@ export const EightMinuteSessionBuilder: React.FC<EightMinuteSessionBuilderProps>
     activeRunRef.current = null;
   };
 
-  const toggleTimer = () => {
-    setIsRunning((running) => {
-      const next = !running;
-      if (!running && next) {
-        const runId = createRunId();
-        activeRunRef.current = {
-          runId,
-          startedAt: Date.now(),
-          itemCode: selectedItem?.item_code ?? null,
-          contentId: (selectedItem?.id as string | null | undefined) ?? selectedItem?.item_code ?? null,
-        };
-        void trackCanonicalEvent({
-          type: 'study_start',
-          contentId: activeRunRef.current.contentId ?? undefined,
-          metadata: {
-            runId,
-            itemCode: selectedItem?.item_code ?? null,
-            title: selectedItem?.title ?? null,
-          },
-        });
-      }
-      return next;
-    });
-  };
+  const toggleTimer = useCallback(() => {
+    if (isRunning) {
+      setIsRunning(false);
+      return;
+    }
+    startTimer();
+  }, [isRunning, startTimer]);
 
   const exportMarkdown = () => {
     if (!selectedItem) return;
@@ -361,8 +455,6 @@ export const EightMinuteSessionBuilder: React.FC<EightMinuteSessionBuilderProps>
     }
   };
 
-  const suggestionBadges = suggestions.slice(0, 3);
-
   return (
     <Card className="border-border/60" data-testid="eight-minute-session-builder">
       <CardHeader className="space-y-4">
@@ -373,17 +465,25 @@ export const EightMinuteSessionBuilder: React.FC<EightMinuteSessionBuilderProps>
               Préparez une mini-séance structurée en trois actes : Je dis, Je fais, Je conclus.
             </p>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            {focusTheme && (
+              <Badge variant="outline" className="text-xs uppercase tracking-wide text-foreground/80">
+                Focus {focusTheme}
+              </Badge>
+            )}
             <span className="text-sm text-muted-foreground">Suggestions :</span>
-            {suggestionBadges.map((suggestion) => (
+            {suggestionCodes.map((code) => (
               <Badge
-                key={suggestion.itemCode}
-                variant="secondary"
+                key={code}
+                variant={selectedItemCode === code ? 'default' : 'secondary'}
                 className="cursor-pointer"
-                onClick={() => setSelectedItemCode(suggestion.itemCode)}
-                data-testid={`session-suggestion-${suggestion.itemCode}`}
+                onClick={() => setSelectedItemCode(code)}
+                data-testid={`session-suggestion-${code}`}
               >
-                {suggestion.itemCode}
+                {code}
+                {resolvedInitialCode && code === resolvedInitialCode && (
+                  <span className="ml-1 text-[10px] uppercase text-primary-foreground/80">Focus</span>
+                )}
               </Badge>
             ))}
           </div>
@@ -405,6 +505,13 @@ export const EightMinuteSessionBuilder: React.FC<EightMinuteSessionBuilderProps>
               ))}
             </SelectContent>
           </Select>
+          {selectedItem && (
+            <div className="text-xs text-muted-foreground">
+              {(selectedItem.specialite ?? selectedItem.domaine_medical ?? 'Thème général')}
+              {' · '}Rang A {selectedItem.rang_a_competence_count}
+              {' · '}Rang B {selectedItem.rang_b_competence_count}
+            </div>
+          )}
           <div className="ml-auto flex items-center gap-2 text-sm">
             <span className="font-medium text-foreground">Timer :</span>
             <span className="font-mono text-lg" data-testid="session-timer">{formatTime(remainingSeconds)}</span>

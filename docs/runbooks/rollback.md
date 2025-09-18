@@ -51,6 +51,7 @@ Provide a controlled procedure to revert a faulty deployment while keeping the d
    Attach the snapshot ID in the incident channel.
 7. **Verification**
    - Re-run `pnpm postdeploy:check`
+   - Execute `pnpm integrity:audit` to confirm migrations include the hardened indexes/policies
    - Execute smoke tests (music generation, EDN sync, analytics ping)
    - Disable panic overlay and communicate recovery
 

@@ -58,10 +58,12 @@ Badges in the main README reflect the CI status and project version.
 Run the automated integrity sweep after every staging or production deployment:
 
 ```bash
+pnpm integrity:audit
 pnpm postdeploy:check
 ```
 
-The script validates the presence of the idempotent migration, environment seed files and, when Supabase credentials are available, reads the live `deployment_integrity_checks` registry and the `deployment_integrity_latest` view.
+`pnpm integrity:audit` statically verifies that RLS statements, `IF NOT EXISTS` policy guards and the required indexes/constraints live in the SQL migrations and environment seed bundles.
+`pnpm postdeploy:check` validates the presence of the idempotent migration, environment seed files and, when Supabase credentials are available, reads the live `deployment_integrity_checks` registry and the `deployment_integrity_latest` view while confirming the `db_constraints_valid` registry entry.
 In CI you can export the service role credentials to capture live evidence and fail fast if the registry is unreachable:
 
 ```bash

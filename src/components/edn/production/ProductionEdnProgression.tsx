@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
@@ -11,6 +12,21 @@ import { useEdnProgressionData } from '@/hooks/edn/useEdnProgressionData';
 export const ProductionEdnProgression: React.FC = () => {
   const { loading, error, items, themeProgress, history, repetitionPlan, suggestions, refresh } = useEdnProgressionData();
   const [rankFilter, setRankFilter] = useState<'all' | 'A' | 'B'>('all');
+  const [searchParams] = useSearchParams();
+
+  const deepLinkedItem = useMemo(() => {
+    const focus = searchParams.get('item');
+    if (!focus) return null;
+    const normalized = focus.toLowerCase();
+    return (
+      items.find((item) => item.item_code.toLowerCase() === normalized) ??
+      items.find((item) => item.slug.toLowerCase() === normalized)
+    ) ?? null;
+  }, [items, searchParams]);
+
+  const focusTheme = deepLinkedItem?.specialite ?? deepLinkedItem?.domaine_medical ?? null;
+  const shouldAutoStart = (searchParams.get('session') ?? '').toLowerCase() === '8min';
+  const focusItemCode = deepLinkedItem?.item_code;
 
   if (loading) {
     return (
@@ -37,14 +53,26 @@ export const ProductionEdnProgression: React.FC = () => {
         </Alert>
       )}
 
-      <ThemeProgressGrid themes={themeProgress} rankFilter={rankFilter} onRankFilterChange={setRankFilter} />
+      <ThemeProgressGrid
+        themes={themeProgress}
+        rankFilter={rankFilter}
+        onRankFilterChange={setRankFilter}
+        highlightedTheme={focusTheme ?? undefined}
+      />
 
       <div className="grid gap-6 xl:grid-cols-2">
-        <SpacedRepetitionPlanner items={repetitionPlan} rankFilter={rankFilter} />
-        <ProgressHistoryTimeline entries={history} />
+        <SpacedRepetitionPlanner items={repetitionPlan} rankFilter={rankFilter} focusItemCode={focusItemCode} />
+        <ProgressHistoryTimeline entries={history} focusItemCode={focusItemCode} />
       </div>
 
-      <EightMinuteSessionBuilder items={items} suggestions={suggestions} onSessionSaved={refresh} />
+      <EightMinuteSessionBuilder
+        items={items}
+        suggestions={suggestions}
+        onSessionSaved={refresh}
+        initialItemCode={focusItemCode}
+        focusTheme={focusTheme}
+        autoStart={shouldAutoStart}
+      />
     </div>
   );
 };

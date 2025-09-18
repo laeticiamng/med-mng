@@ -22,6 +22,7 @@ import {
   Download
 } from 'lucide-react';
 import { toast } from 'sonner';
+import { KaraokePlayer } from '@/components/lyrics/KaraokePlayer';
 
 const MedMngPlayerComponent = () => {
   const { songId } = useParams<{ songId: string }>();
@@ -41,13 +42,6 @@ const MedMngPlayerComponent = () => {
   const { data: library } = useQuery({
     queryKey: ['med-mng-library'],
     queryFn: () => medMngApi.getLibrary(1, 100),
-  });
-
-  // Fetch lyrics
-  const { data: lyrics } = useQuery({
-    queryKey: ['med-mng-lyrics', songId],
-    queryFn: () => songId ? medMngApi.getLyrics(songId) : null,
-    enabled: !!songId,
   });
 
   const song = library?.find(s => s.id === songId);
@@ -119,6 +113,26 @@ const MedMngPlayerComponent = () => {
     }
   };
 
+  const handleKaraokeSeek = (timeInSeconds: number) => {
+    if (!audioRef.current) {
+      return;
+    }
+
+    audioRef.current.currentTime = timeInSeconds;
+    setCurrentTime(timeInSeconds);
+
+    if (!audioRef.current.paused) {
+      return;
+    }
+
+    try {
+      void audioRef.current.play();
+      setIsPlaying(true);
+    } catch (error) {
+      console.error('Erreur lors du seek karaoké:', error);
+    }
+  };
+
   const handleVolumeChange = (value: number[]) => {
     const newVolume = value[0] / 100;
     setVolume(newVolume);
@@ -167,7 +181,7 @@ const MedMngPlayerComponent = () => {
     return `${minutes}:${seconds.toString().padStart(2, '0')}`;
   };
 
-  if (!song) {
+  if (!songId || !song) {
     return (
       <ConsistentBackground variant="primary">
         <div className="container mx-auto px-4 py-8">
@@ -208,9 +222,7 @@ const MedMngPlayerComponent = () => {
                     <Music className="h-24 w-24 text-white/80" />
                   </div>
                   <div className="p-6">
-                    <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                      {song.title}
-                    </h1>
+                    <h1 className="text-2xl font-bold text-gray-900 mb-2">{song.title}</h1>
                     <p className="text-gray-600 mb-4">
                       Créé le {new Date(song.created_at).toLocaleDateString('fr-FR')}
                     </p>
@@ -239,7 +251,7 @@ const MedMngPlayerComponent = () => {
               <Card className="mb-6">
                 <CardContent className="p-6">
                   <h2 className="text-lg font-semibold mb-4">Lecteur musical</h2>
-                  
+
                   {/* Progress Bar */}
                   <div className="mb-4">
                     <Slider
@@ -257,11 +269,7 @@ const MedMngPlayerComponent = () => {
 
                   {/* Control Buttons */}
                   <div className="flex items-center justify-center gap-4 mb-4">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => skipTime(-10)}
-                    >
+                    <Button variant="outline" size="sm" onClick={() => skipTime(-10)}>
                       <SkipBack className="h-4 w-4" />
                     </Button>
 
@@ -279,26 +287,19 @@ const MedMngPlayerComponent = () => {
                       )}
                     </Button>
 
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => skipTime(10)}
-                    >
+                    <Button variant="outline" size="sm" onClick={() => skipTime(10)}>
                       <SkipForward className="h-4 w-4" />
                     </Button>
                   </div>
 
                   {/* Volume Control */}
                   <div className="flex items-center gap-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={toggleMute}
-                    >
-                      {isMuted || volume === 0 ? 
-                        <VolumeX className="h-4 w-4" /> : 
+                    <Button variant="ghost" size="sm" onClick={toggleMute}>
+                      {isMuted || volume === 0 ? (
+                        <VolumeX className="h-4 w-4" />
+                      ) : (
                         <Volume2 className="h-4 w-4" />
-                      }
+                      )}
                     </Button>
                     <Slider
                       value={[volume * 100]}
@@ -307,37 +308,21 @@ const MedMngPlayerComponent = () => {
                       onValueChange={handleVolumeChange}
                       className="flex-1"
                     />
-                    <span className="text-sm text-gray-500 w-12">
-                      {Math.round(volume * 100)}%
-                    </span>
+                    <span className="text-sm text-gray-500 w-12">{Math.round(volume * 100)}%</span>
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Lyrics */}
-              {lyrics && (
-                <Card>
-                  <CardContent className="p-6">
-                    <h2 className="text-lg font-semibold mb-4">Paroles</h2>
-                    <div className="space-y-2 text-sm">
-                      {lyrics.segments?.map((segment: any, index: number) => (
-                        <div 
-                          key={index}
-                          className={`p-2 rounded ${
-                            currentTime >= segment.start && currentTime <= segment.end
-                              ? 'bg-blue-100 text-blue-900'
-                              : 'text-gray-700'
-                          }`}
-                        >
-                          {segment.text}
-                        </div>
-                      )) || (
-                        <p className="text-gray-500">Paroles non disponibles</p>
-                      )}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
+              <Card>
+                <CardContent className="p-0">
+                  <KaraokePlayer
+                    songId={songId}
+                    currentTime={currentTime}
+                    isPlaying={isPlaying}
+                    onSeek={handleKaraokeSeek}
+                  />
+                </CardContent>
+              </Card>
             </div>
           </div>
         </div>

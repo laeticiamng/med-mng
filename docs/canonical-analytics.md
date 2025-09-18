@@ -41,7 +41,7 @@ L’edge function `analytics-tracker` valide le type d’événement avant d’a
 
 ## Dashboard
 
-Le composant `AdvancedAnalyticsDashboard` consomme l’edge function `analytics-engine` (RPC `get_analytics_dashboard`). Il affiche :
+Le hook `useAnalyticsDashboard` appelle l’edge function `analytics-engine` (RPC `get_analytics_dashboard`) et fournit les métriques agrégées, l’état de chargement et les messages d’erreur éventuels. Les composants `AdvancedAnalyticsDashboard` (page produit) et `components/admin/AdvancedAnalyticsDashboard` (back-office) s’appuient dessus pour restituer les données :
 
 - Statistiques principales (totaux, taux de réussite, erreurs EDN, séances démarrées).
 - Graphique en barres par type d’événement.

@@ -6,16 +6,16 @@ import { useMusicQueueStore } from '@/stores/musicQueueStore';
 import type { MusicJob, MusicJobSegment } from '@/types/music';
 import { buildFinalMix } from './music/audioPostProcessor';
 
-const POLL_INTERVAL = 5000;
-const MAX_POLL_ATTEMPTS = 48; // 4 minutes de suivi par segment
-const DEFAULT_TARGET_DURATION = 180; // 3 minutes
-const DEFAULT_SEGMENT_DURATION = 60; // 1 minute par segment
-const MAX_RETRIES = 3;
-const MIN_SEGMENTS = 3;
-const MAX_SEGMENTS = 5;
-const MIN_SEGMENT_DURATION = 30;
-const RETRY_BASE_DELAY_MS = 5000;
-const RETRY_MAX_DELAY_MS = 60000;
+export const POLL_INTERVAL = 5000;
+export const MAX_POLL_ATTEMPTS = 48; // 4 minutes de suivi par segment
+export const DEFAULT_TARGET_DURATION = 180; // 3 minutes
+export const DEFAULT_SEGMENT_DURATION = 60; // 1 minute par segment
+export const MAX_RETRIES = 3;
+export const MIN_SEGMENTS = 3;
+export const MAX_SEGMENTS = 5;
+export const MIN_SEGMENT_DURATION = 30;
+export const RETRY_BASE_DELAY_MS = 5000;
+export const RETRY_MAX_DELAY_MS = 60000;
 
 export interface CreateMusicJobOptions {
   payload: GenerateMusicPayload;
@@ -46,7 +46,7 @@ type EventListener = (event: OrchestratorEvent) => void;
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
-function isFailureStatus(status: MusicStatus['status']): boolean {
+export function isFailureStatus(status: MusicStatus['status']): boolean {
   return (
     status === 'CREATE_TASK_FAILED' ||
     status === 'GENERATE_AUDIO_FAILED' ||
@@ -55,7 +55,7 @@ function isFailureStatus(status: MusicStatus['status']): boolean {
   );
 }
 
-function statusToProgress(status: MusicStatus['status']): number {
+export function statusToProgress(status: MusicStatus['status']): number {
   switch (status) {
     case 'PENDING':
       return 5;
@@ -70,7 +70,7 @@ function statusToProgress(status: MusicStatus['status']): number {
   }
 }
 
-function createJobFromOptions(options: CreateMusicJobOptions): MusicJob {
+export function createJobFromOptions(options: CreateMusicJobOptions): MusicJob {
   const targetDuration = Math.max(options.targetDuration ?? DEFAULT_TARGET_DURATION, MIN_SEGMENT_DURATION);
   const requestedSegmentDuration = Math.min(
     Math.max(options.segmentDuration ?? DEFAULT_SEGMENT_DURATION, MIN_SEGMENT_DURATION),
@@ -582,3 +582,9 @@ class MusicOrchestrator {
 }
 
 export const musicOrchestrator = new MusicOrchestrator();
+
+export const musicOrchestratorTestUtils = {
+  createJobFromOptions,
+  statusToProgress,
+  isFailureStatus,
+};

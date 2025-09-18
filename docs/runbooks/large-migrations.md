@@ -29,14 +29,15 @@ Activate this playbook when a database change:
    ```
 3. **Measure** query timings before/after using saved `EXPLAIN ANALYZE` plans.
 4. **Run automated tests** (`pnpm test`, Cypress happy path, analytics smoke tests).
-5. **Capture integrity snapshot** with status `warn` to highlight pending production roll-out.
+5. **Run integrity automation** (`pnpm integrity:audit && pnpm postdeploy:check`).
+6. **Capture integrity snapshot** with status `warn` to highlight pending production roll-out.
 
 ## Deployment Day
 
 1. Schedule a maintenance window and announce to stakeholders.
 2. Run migrations using CI or manual `supabase db push`.
 3. Execute environment-specific seed.
-4. Run `pnpm postdeploy:check` with Supabase credentials.
+4. Run `pnpm integrity:audit && pnpm postdeploy:check` with Supabase credentials.
 5. Validate dashboards, analytics ingestion and panic overlay toggling.
 6. Record `record_deployment_integrity('production', '<check>', 'pass', details)` for each critical check.
 

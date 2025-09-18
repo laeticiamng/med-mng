@@ -5,6 +5,8 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { describeRateLimitError } from "@/utils/errors/rateLimit";
 import { toast } from "sonner";
+import { type AnalyticsDashboardPayload } from '@/hooks/analytics/useAnalyticsDashboard';
+import { formatCanonicalEventLabel, getCanonicalEventColor } from '@/constants/canonicalAnalytics';
 import {
   BarChart,
   Bar,
@@ -16,66 +18,9 @@ import {
   Tooltip,
   ResponsiveContainer,
   Legend,
+  Cell,
 } from 'recharts';
 import { TrendingUp, Activity, AlertTriangle, RefreshCw, Download, Calendar } from "lucide-react";
-
-interface EventBreakdownEntry {
-  event_type: string;
-  count: number;
-}
-
-interface FrictionEntry {
-  event_type: string;
-  count: number;
-  last_occurrence: string | null;
-  sample_metadata: Record<string, unknown> | null;
-}
-
-interface ContentEntry {
-  content_ref: string | null;
-  event_type: string;
-  count: number;
-}
-
-interface TimeseriesEntry {
-  bucket: string;
-  event_type: string;
-  count: number;
-}
-
-interface AnalyticsDashboardPayload {
-  generated_at: string;
-  timeframe: string;
-  event_breakdown: EventBreakdownEntry[];
-  top_frictions: FrictionEntry[];
-  top_contents: ContentEntry[];
-  timeseries: TimeseriesEntry[];
-}
-
-const EVENT_LABELS: Record<string, string> = {
-  generate_start: 'Génération démarrée',
-  generate_success: 'Génération réussie',
-  generate_fail: 'Échec génération',
-  lyrics_timecode_done: 'Lyrics timecodées',
-  play: 'Lecture audio',
-  seek_segment: 'Recherche segment',
-  study_start: 'Début séance',
-  study_end: 'Fin séance',
-  sync_success: 'Sync EDN réussie',
-  sync_fail: 'Sync EDN échouée',
-};
-
-const EVENT_COLORS = [
-  '#6366f1',
-  '#0ea5e9',
-  '#f97316',
-  '#22c55e',
-  '#ec4899',
-  '#a855f7',
-  '#14b8a6',
-];
-
-const formatEventLabel = (eventType: string) => EVENT_LABELS[eventType] ?? eventType;
 
 const formatDateLabel = (value: string) => {
   const date = new Date(value);
@@ -86,11 +31,6 @@ const formatDateLabel = (value: string) => {
     month: 'short',
     day: 'numeric',
   });
-};
-
-const getEventColor = (eventType: string, index: number) => {
-  const existing = EVENT_COLORS[index % EVENT_COLORS.length];
-  return existing;
 };
 
 export default function AdvancedAnalyticsDashboard() {
@@ -303,10 +243,14 @@ export default function AdvancedAnalyticsDashboard() {
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={breakdownChartData}>
                 <CartesianGrid strokeDasharray="3 3" opacity={0.2} />
-                <XAxis dataKey="event_type" tickFormatter={formatEventLabel} angle={-30} textAnchor="end" height={80} />
+                <XAxis dataKey="event_type" tickFormatter={formatCanonicalEventLabel} angle={-30} textAnchor="end" height={80} />
                 <YAxis allowDecimals={false} />
-                <Tooltip formatter={(value: number, name: string) => [value, formatEventLabel(name)]} />
-                <Bar dataKey="count" fill="#6366f1" radius={[4, 4, 0, 0]} />
+                <Tooltip formatter={(value: number, name: string) => [value, formatCanonicalEventLabel(name)]} />
+                <Bar dataKey="count" radius={[4, 4, 0, 0]}>
+                  {breakdownChartData.map((entry, index) => (
+                    <Cell key={entry.event_type} fill={getCanonicalEventColor(entry.event_type, index)} />
+                  ))}
+                </Bar>
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -324,15 +268,15 @@ export default function AdvancedAnalyticsDashboard() {
                 <YAxis allowDecimals={false} />
                 <Tooltip
                   labelFormatter={(value) => formatDateLabel(value as string)}
-                  formatter={(value: number, name: string) => [value, formatEventLabel(name)]}
+                  formatter={(value: number, name: string) => [value, formatCanonicalEventLabel(name)]}
                 />
-                <Legend formatter={(value) => formatEventLabel(value as string)} />
+                <Legend formatter={(value) => formatCanonicalEventLabel(value as string)} />
                 {topEventTypes.map((eventType, index) => (
                   <Line
                     key={eventType}
                     type="monotone"
                     dataKey={eventType}
-                    stroke={getEventColor(eventType, index)}
+                    stroke={getCanonicalEventColor(eventType, index)}
                     strokeWidth={2}
                     dot={false}
                   />
@@ -356,7 +300,7 @@ export default function AdvancedAnalyticsDashboard() {
                 <div key={`${friction.event_type}-${friction.last_occurrence ?? 'none'}`} className="rounded-lg border p-3">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="font-medium">{formatEventLabel(friction.event_type)}</p>
+                      <p className="font-medium">{formatCanonicalEventLabel(friction.event_type)}</p>
                       <p className="text-xs text-muted-foreground">
                         Dernier cas&nbsp;: {friction.last_occurrence ? new Date(friction.last_occurrence).toLocaleString('fr-FR') : 'N/A'}
                       </p>
@@ -387,7 +331,7 @@ export default function AdvancedAnalyticsDashboard() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="font-medium">{content.content_ref ?? 'Sans identifiant'}</p>
-                      <p className="text-xs text-muted-foreground">{formatEventLabel(content.event_type)}</p>
+                      <p className="text-xs text-muted-foreground">{formatCanonicalEventLabel(content.event_type)}</p>
                     </div>
                     <Badge variant="secondary">{content.count}</Badge>
                   </div>

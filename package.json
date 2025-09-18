@@ -8,13 +8,18 @@
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint src/index.ts src/controllers src/services src/middleware test eslint.config.js",
+    "typecheck": "tsc --noEmit",
     "preview": "vite preview",
     "format": "prettier --write .",
     "start:server": "node --loader ts-node/esm src/index.ts",
     "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "test:watch": "vitest",
+    "test:e2e:cypress": "cypress run --browser chrome --headless --config baseUrl=http://127.0.0.1:4173",
     "integrity:audit": "node --loader ts-node/esm scripts/dataIntegrityAudit.ts",
     "audit": "node scripts/run-audit.js",
-    "postdeploy:check": "node scripts/postdeployIntegrityCheck.mjs"
+    "postdeploy:check": "node scripts/postdeployIntegrityCheck.mjs",
+    "lighthouse:ci": "node scripts/run-lighthouse-ci.mjs"
   },
   "dependencies": {
     "@11labs/react": "^0.2.0",

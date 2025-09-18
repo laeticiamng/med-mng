@@ -48,6 +48,7 @@ Classify severity immediately:
    - Roll back to the last green release following [`rollback.md`](rollback.md) if migrations are involved.
    - Restart failing edge functions (`supabase functions deploy <name>`).
    - Re-sync EDN data using `supabase functions invoke sync-edn-content` if alignment failures are the root cause.
+   - Execute `pnpm integrity:audit` to detect missing RLS statements or indexes before promoting a hotfix.
 5. **Communication**
    - Update `#announcements` and affected customer channels every 30 minutes.
    - Once resolved, post-mortem summary (impact, root cause, fix) in `#incidents` and attach the integrity snapshot ID.
@@ -75,3 +76,4 @@ Classify severity immediately:
 - [ ] Integrity snapshot recorded via `record_deployment_integrity`
 - [ ] Follow-up tasks created and prioritised
 - [ ] Runbook updated if new steps were needed
+- [ ] `pnpm integrity:audit` and `pnpm postdeploy:check` archived in incident thread
