@@ -22,9 +22,10 @@ import { useMusicQueue } from '@/hooks/music/useMusicQueue';
 import { useMusicJob } from '@/hooks/music/useMusicJob';
 import { useMusicQueueStore } from '@/stores/musicQueueStore';
 import { musicOrchestrator } from '@/services/musicOrchestrator';
+import { buildMedicalPrompt, type RangType } from '@/hooks/useMusicGeneration';
 import type { MusicJobSegment } from '@/types/music';
 
-export type RangType = 'A' | 'B' | 'Mix';
+export type { RangType } from '@/hooks/useMusicGeneration';
 
 interface MusicGeneratorProps {
   itemCode: string;

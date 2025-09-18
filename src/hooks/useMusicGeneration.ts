@@ -112,7 +112,7 @@ export const useMusicGeneration = () => {
 };
 
 // Helper function pour construire le prompt médical structuré
-function buildMedicalPrompt(itemCode: string, rang: RangType, tableauData?: any): string {
+export function buildMedicalPrompt(itemCode: string, rang: RangType, tableauData?: any): string {
   const baseStructure = `
 Structure imposée :
 [Couplet 1] - Introduction des concepts
