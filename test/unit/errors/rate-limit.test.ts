@@ -1,4 +1,4 @@
-import { describeRateLimitError } from '@/utils/errors/rateLimit';
+import { describeRateLimitError, toRateLimitError, RateLimitExceededError } from '@/utils/errors/rateLimit';
 
 describe('describeRateLimitError', () => {
   it('detects rate limit errors with retry information', () => {
@@ -25,5 +25,29 @@ describe('describeRateLimitError', () => {
 
     expect(result.isRateLimited).toBe(false);
     expect(result.message).toBe('fallback message');
+  });
+
+  it('wraps rate limit metadata into a dedicated error instance', () => {
+    const error = {
+      status: 429,
+      message: JSON.stringify({
+        message: 'Rate limit reached',
+        retry_after_seconds: 90,
+      }),
+    };
+
+    const wrapped = toRateLimitError(error, 'fallback', 'music.generate');
+
+    expect(wrapped).toBeInstanceOf(RateLimitExceededError);
+    expect(wrapped?.message).toContain('Rate limit reached');
+    expect(wrapped?.retryAfterSeconds).toBe(90);
+    expect(wrapped?.scope).toBe('music.generate');
+    expect(wrapped?.retryAt).toBeGreaterThan(Date.now());
+  });
+
+  it('returns null when the payload is not a rate limit error', () => {
+    const wrapped = toRateLimitError({ status: 400, message: 'Bad request' }, 'fallback');
+
+    expect(wrapped).toBeNull();
   });
 });

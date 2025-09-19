@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { checkAndUseCredits } from '@/hooks/useIAQuota';
 import type { LyricsAlignmentLog, LyricsSegment } from '@/types/music';
+import { trackCanonicalEvent } from '@/services/CanonicalAnalyticsTracker';
 
 export interface LyricsLine {
   time: number; // start time in seconds for compatibility
@@ -51,7 +52,26 @@ export const useSynchronizedLyrics = (songId?: string) => {
       }
 
       if (!data || data.length === 0) {
-        setLyricsData(null);
+        const { data: track, error: trackError } = await supabase
+          .from('generated_music_tracks')
+          .select('metadata, duration')
+          .eq('id', id)
+          .maybeSingle();
+
+        if (trackError && trackError.code !== 'PGRST116') {
+          throw trackError;
+        }
+
+        const fallback = buildLyricsFromMetadata(track?.metadata, track?.duration);
+        if (fallback) {
+          setLyricsData({
+            song_id: id,
+            lyrics_data: fallback.lines,
+            source: fallback.source,
+          });
+        } else {
+          setLyricsData(null);
+        }
         setAlignmentLog(null);
         return;
       }
@@ -220,25 +240,90 @@ export const useSynchronizedLyrics = (songId?: string) => {
 
       try {
         const segmentsPayload = linesToSegments(lyrics, targetSongId);
-        // Update metadata with lyrics segments
-        const { error } = await supabase.from('generated_music_tracks').update({
-          metadata: JSON.stringify({
-            lyrics: segmentsPayload.map(segment => ({
-              text: segment.text,
-              startMs: segment.startMs,
-              endMs: segment.endMs,
-              idx: segment.idx
-            }))
-          })
-        }).eq('id', targetSongId);
+        const { data: existingTrack, error: metadataError } = await supabase
+          .from('generated_music_tracks')
+          .select('metadata')
+          .eq('id', targetSongId)
+          .maybeSingle();
 
-        if (error) {
-          throw error;
+        if (metadataError && metadataError.code !== 'PGRST116') {
+          throw metadataError;
+        }
+
+        const existingMetadata = isRecord(existingTrack?.metadata)
+          ? { ...(existingTrack!.metadata as Record<string, unknown>) }
+          : {};
+
+        const segmentsForRpc = segmentsPayload.map((segment) => ({
+          idx: segment.idx,
+          start_ms: segment.startMs,
+          end_ms: segment.endMs,
+          text: segment.text,
+          role: segment.role ?? null,
+        }));
+
+        const lastEnd = segmentsPayload.reduce((max, segment) => Math.max(max, segment.endMs), 0);
+        const { data: userData } = await supabase.auth.getUser();
+
+        const { error: rpcError } = await supabase.rpc('replace_lyrics_segments', {
+          p_track_id: targetSongId,
+          p_segments: segmentsForRpc,
+          p_log: {
+            method: metadata?.method ?? 'manual_editor',
+            notes: metadata?.notes ?? null,
+            duration_ms: lastEnd,
+            segment_count: segmentsPayload.length,
+            created_by: userData.user?.id ?? null,
+          },
+        });
+
+        if (rpcError) {
+          throw rpcError;
+        }
+
+        const nextMetadata = {
+          ...existingMetadata,
+          lyricsSegments: segmentsForRpc,
+          lyrics: lyrics.map((line) => line.text),
+          lyricsRoles: lyrics.map((line) => line.role ?? undefined),
+          lyricsUpdatedAt: new Date().toISOString(),
+        } satisfies Record<string, unknown>;
+
+        const { error: updateError } = await supabase
+          .from('generated_music_tracks')
+          .update({ metadata: nextMetadata })
+          .eq('id', targetSongId);
+
+        if (updateError) {
+          throw updateError;
         }
 
         toast({
           title: '💾 Paroles sauvegardées',
           description: 'Synchronisation mise à jour avec succès',
+        });
+
+        const analyticsMetadata: Record<string, unknown> = {
+          segment_count: segmentsPayload.length,
+          duration_ms: lastEnd,
+          method: metadata?.method ?? 'manual_editor',
+          notes_present: Boolean(metadata?.notes),
+        };
+
+        if (typeof existingMetadata.itemCode === 'string') {
+          analyticsMetadata.item_code = existingMetadata.itemCode;
+        }
+        if (typeof existingMetadata.itemId === 'string') {
+          analyticsMetadata.item_id = existingMetadata.itemId;
+        }
+        if (typeof existingMetadata.itemTitle === 'string') {
+          analyticsMetadata.item_title = existingMetadata.itemTitle;
+        }
+
+        void trackCanonicalEvent({
+          type: 'lyrics_timecode_done',
+          contentId: targetSongId,
+          metadata: analyticsMetadata,
         });
 
         await loadSynchronizedLyrics(targetSongId);
@@ -414,6 +499,136 @@ function linesToSegments(lyrics: LyricsLine[], trackId: string): LyricsSegment[]
   });
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function buildLyricsFromMetadata(
+  metadata: unknown,
+  durationSeconds?: number | null,
+): { lines: LyricsLine[]; source: SynchronizedLyricsData['source'] } | null {
+  if (!isRecord(metadata)) {
+    return null;
+  }
+
+  const durationMs = resolveDurationMs(metadata, durationSeconds);
+
+  const segments = (metadata.lyricsSegments ?? metadata.lyrics_segments) as unknown;
+  if (Array.isArray(segments) && segments.length > 0) {
+    const step = Math.max(1500, Math.round(durationMs / Math.max(segments.length, 1)));
+    const mapped = (segments as Array<unknown>)
+      .map((segment, index) => {
+        if (!isRecord(segment) || typeof segment.text !== 'string') {
+          return null;
+        }
+        const rawStart = typeof segment.startMs === 'number' ? segment.startMs : (segment.start_ms as number | undefined);
+        const rawEnd = typeof segment.endMs === 'number' ? segment.endMs : (segment.end_ms as number | undefined);
+        const start = Math.max(0, rawStart ?? index * step);
+        const end = Math.max(start + 800, Math.min(rawEnd ?? start + step, durationMs));
+        return {
+          time: start / 1000,
+          text: segment.text,
+          startMs: start,
+          endMs: end,
+          role: typeof segment.role === 'string' ? segment.role : null,
+        } satisfies LyricsLine;
+      })
+      .filter((line): line is LyricsLine => Boolean(line));
+
+    if (mapped.length > 0) {
+      return { lines: mapped, source: 'manual' };
+    }
+  }
+
+  const lyricsArray = (metadata.lyrics ?? metadata.generatedLyrics ?? metadata.generated_lyrics) as unknown;
+  if (Array.isArray(lyricsArray) && lyricsArray.length > 0) {
+    const roles = Array.isArray(metadata.lyricsRoles)
+      ? (metadata.lyricsRoles as Array<unknown>)
+      : Array.isArray(metadata.lyrics_roles)
+        ? (metadata.lyrics_roles as Array<unknown>)
+        : [];
+    const step = Math.max(2500, Math.round(durationMs / Math.max(lyricsArray.length, 1)));
+    const mapped = lyricsArray
+      .map((entry, index) => {
+        if (typeof entry !== 'string' || !entry.trim()) {
+          return null;
+        }
+        const start = index * step;
+        const end = index === lyricsArray.length - 1 ? Math.max(start + 800, durationMs) : Math.min(start + step, durationMs);
+        const roleCandidate = roles[index];
+        return {
+          time: start / 1000,
+          text: entry.trim(),
+          startMs: start,
+          endMs: end,
+          role: typeof roleCandidate === 'string' ? roleCandidate : null,
+        } satisfies LyricsLine;
+      })
+      .filter((line): line is LyricsLine => Boolean(line));
+
+    if (mapped.length > 0) {
+      return { lines: mapped, source: 'ai_generated' };
+    }
+  }
+
+  const lyricsText = metadata.lyricsText ?? metadata.lyrics_text ?? metadata.lyricsPreview;
+  if (typeof lyricsText === 'string' && lyricsText.trim()) {
+    const parts = lyricsText.split(/\r?\n+/).filter((line) => line.trim().length > 0);
+    if (parts.length > 0) {
+      const step = Math.max(2500, Math.round(durationMs / Math.max(parts.length, 1)));
+      const mapped = parts.map((line, index) => {
+        const start = index * step;
+        const end = index === parts.length - 1 ? Math.max(start + 800, durationMs) : Math.min(start + step, durationMs);
+        return {
+          time: start / 1000,
+          text: line.trim(),
+          startMs: start,
+          endMs: end,
+          role: null,
+        } satisfies LyricsLine;
+      });
+      return { lines: mapped, source: 'ai_generated' };
+    }
+  }
+
+  return null;
+}
+
+function resolveDurationMs(metadata: Record<string, unknown>, durationSeconds?: number | null): number {
+  const candidates: number[] = [];
+
+  const push = (value: unknown) => {
+    if (typeof value === 'number' && Number.isFinite(value)) {
+      const normalised = value > 1000 ? value : value * 1000;
+      if (normalised > 1000) {
+        candidates.push(Math.round(normalised));
+      }
+    } else if (typeof value === 'string') {
+      const parsed = parseFloat(value);
+      if (!Number.isNaN(parsed) && parsed > 1) {
+        candidates.push(Math.round(parsed * (parsed > 1000 ? 1 : 1000)));
+      }
+    }
+  };
+
+  push(metadata.total_duration_ms);
+  push(metadata.duration_ms);
+  push(metadata.durationMs);
+  push(metadata.duration);
+  push(metadata.estimated_duration_ms);
+  push(metadata.estimatedDurationMs);
+
+  if (typeof durationSeconds === 'number' && Number.isFinite(durationSeconds)) {
+    push(durationSeconds);
+  }
+
+  if (candidates.length === 0) {
+    return 180_000;
+  }
+
+  return Math.max(60_000, Math.min(Math.max(...candidates), 420_000));
+}
+
 function exportToLRC(lyrics: LyricsLine[]): string {
   return lyrics
     .map((line) => {
@@ -461,3 +676,9 @@ function formatDisplayTime(ms: number): string {
   const seconds = totalSeconds % 60;
   return `${minutes}:${seconds.toString().padStart(2, '0')}`;
 }
+
+export const lyricsMapperTestUtils = {
+  mapSegmentToLyricsLine,
+  linesToSegments,
+  buildLyricsFromMetadata,
+};

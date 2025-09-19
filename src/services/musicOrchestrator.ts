@@ -4,7 +4,20 @@ import { extendMusic, type ExtendMusicPayload } from '@/music/extend';
 import { getMusicStatus, type MusicStatus } from '@/music/status';
 import { useMusicQueueStore } from '@/stores/musicQueueStore';
 import type { MusicJob, MusicJobSegment } from '@/types/music';
+import { supabase } from '@/integrations/supabase/client';
+import type { Database } from '@/integrations/supabase/types';
+import {
+  buildStyleBrief,
+  createSunoPrompt,
+  generateStructuredLyrics,
+  loadItemContext,
+  summariseCompetences,
+  type MusicMode,
+  type StyleBrief,
+} from '@/services/music/itemPromptService';
 import { buildFinalMix } from './music/audioPostProcessor';
+import { logger } from '@/utils/structuredLogger';
+import { trackCanonicalEvent } from '@/services/CanonicalAnalyticsTracker';
 
 export const POLL_INTERVAL = 5000;
 export const MAX_POLL_ATTEMPTS = 48; // 4 minutes de suivi par segment
@@ -16,6 +29,52 @@ export const MAX_SEGMENTS = 5;
 export const MIN_SEGMENT_DURATION = 30;
 export const RETRY_BASE_DELAY_MS = 5000;
 export const RETRY_MAX_DELAY_MS = 60000;
+
+type GeneratedMusicTrackInsert = Database['public']['Tables']['generated_music_tracks']['Insert'];
+type GeneratedMusicTrackUpdate = Database['public']['Tables']['generated_music_tracks']['Update'];
+
+const MODE_LABEL: Record<MusicMode, string> = {
+  A: 'Rang A',
+  B: 'Rang B',
+  AB: 'Mix A+B',
+};
+
+const SENSITIVE_LOG_KEYS = ['prompt', 'lyrics', 'token', 'secret', 'key', 'authorization', 'payload'];
+
+function sanitizeLogValue(value: unknown, depth = 0): unknown {
+  if (depth > 3) {
+    return '[redacted]';
+  }
+
+  if (Array.isArray(value)) {
+    if (value.length === 0) {
+      return [];
+    }
+
+    return value.slice(0, 5).map((entry) => sanitizeLogValue(entry, depth + 1));
+  }
+
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>).map(([key, entry]) => {
+        const lowerKey = key.toLowerCase();
+        if (SENSITIVE_LOG_KEYS.some((candidate) => lowerKey.includes(candidate))) {
+          return [key, '[redacted]'];
+        }
+        return [key, sanitizeLogValue(entry, depth + 1)];
+      }),
+    );
+  }
+
+  if (typeof value === 'string') {
+    if (value.length > 160) {
+      return `${value.slice(0, 120)}…[truncated]`;
+    }
+    return value;
+  }
+
+  return value;
+}
 
 export interface CreateMusicJobOptions {
   payload: GenerateMusicPayload;
@@ -45,6 +104,33 @@ export interface OrchestratorEvent {
 type EventListener = (event: OrchestratorEvent) => void;
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+async function computeSha256(value: string): Promise<string> {
+  try {
+    const cryptoObject = (globalThis as unknown as { crypto?: Crypto }).crypto;
+    if (!cryptoObject?.subtle) {
+      return value;
+    }
+    const encoder = new TextEncoder();
+    const encoded = encoder.encode(value);
+    const hashBuffer = await cryptoObject.subtle.digest('SHA-256', encoded);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map((byte) => byte.toString(16).padStart(2, '0')).join('');
+  } catch (error) {
+    console.warn('[musicOrchestrator] Unable to compute SHA-256 hash', error);
+    return value;
+  }
+}
+
+interface EnqueueItemGenerationOptions {
+  itemCode: string;
+  itemId?: string;
+  mode: MusicMode;
+  style?: string;
+  duration?: number;
+  segmentDuration?: number;
+  metadata?: Record<string, unknown>;
+}
 
 export function isFailureStatus(status: MusicStatus['status']): boolean {
   return (
@@ -159,6 +245,100 @@ class MusicOrchestrator {
     this.listeners.delete(listener);
   }
 
+  async enqueueItemGeneration(options: EnqueueItemGenerationOptions): Promise<MusicJob> {
+    let userId: string | null = null;
+    try {
+      const { data } = await supabase.auth.getUser();
+      userId = data.user?.id ?? null;
+    } catch (error) {
+      console.warn('[musicOrchestrator] Unable to resolve user for Supabase persistence', error);
+    }
+
+    const runId = nanoid();
+    const context = await loadItemContext({ itemId: options.itemId, itemCode: options.itemCode });
+    const summary = summariseCompetences(context, options.mode);
+    const lyricsResult = await generateStructuredLyrics(context.itemCode, options.mode, summary);
+    const brief = buildStyleBrief(options.style, options.mode);
+    const sunoPrompt = createSunoPrompt(context, options.mode, summary, brief, lyricsResult.lines);
+    const promptHash = await computeSha256(`${sunoPrompt}\n${lyricsResult.lines.join('\n')}`);
+    const callbackUrl =
+      typeof window !== 'undefined'
+        ? `${window.location.origin}/api/music/status`
+        : 'https://example.com/api/music/status';
+
+    const baseMetadata: Record<string, unknown> = {
+      ...options.metadata,
+      itemId: context.itemId,
+      itemCode: context.itemCode,
+      itemTitle: context.title,
+      slug: context.slug ?? undefined,
+      mode: options.mode,
+      styleInput: options.style ?? 'éducatif moderne',
+      styleResolved: brief.styleTag,
+      styleBrief: brief,
+      competenceSummary: summary,
+      lyrics: lyricsResult.lines,
+      lyricsSource: lyricsResult.source,
+      openaiPrompt: sunoPrompt,
+      openaiPromptHash: promptHash,
+      userId,
+      runId,
+    };
+
+    const job = await this.enqueueJob({
+      payload: {
+        prompt: sunoPrompt,
+        style: brief.styleTag,
+        title: `${context.itemCode} • ${MODE_LABEL[options.mode]}`,
+        customMode: true,
+        instrumental: false,
+        model: 'V4_5',
+        callBackUrl: callbackUrl,
+      },
+      targetDuration: options.duration ?? DEFAULT_TARGET_DURATION,
+      segmentDuration: options.segmentDuration,
+      metadata: baseMetadata,
+    });
+
+    const trackId = (job.metadata?.trackId as string | undefined) ?? job.id;
+    useMusicQueueStore.getState().updateJob(job.id, (draft) => {
+      draft.metadata = {
+        ...(draft.metadata ?? {}),
+        trackId,
+        supabaseTrackId: trackId,
+        userId,
+      } satisfies Record<string, unknown>;
+    });
+
+    void trackCanonicalEvent({
+      type: 'generate_start',
+      contentId: trackId,
+      metadata: {
+        item_code: context.itemCode,
+        item_id: context.itemId,
+        item_title: context.title,
+        mode: options.mode,
+        style_requested: options.style ?? null,
+        style_resolved: brief.styleTag,
+        target_duration_seconds: job.targetDuration,
+        segment_count: job.segments.length,
+        run_id: runId,
+      },
+    });
+
+    await this.persistTrackRecord(job.id);
+    this.log(job.id, 'info', 'Item generation enqueued', {
+      itemId: context.itemId,
+      itemCode: context.itemCode,
+      mode: options.mode,
+      style: brief.styleTag,
+      summaryCount: summary.length,
+      lyricsSource: lyricsResult.source,
+    });
+
+    return useMusicQueueStore.getState().jobs[job.id] ?? job;
+  }
+
   async enqueueJob(options: CreateMusicJobOptions): Promise<MusicJob> {
     const job = createJobFromOptions(options);
     useMusicQueueStore.getState().enqueueJob(job);
@@ -180,6 +360,8 @@ class MusicOrchestrator {
       this.emit({ type: 'job-canceled', job, error: reason ?? 'Job canceled' });
       this.log(jobId, 'warn', 'Job canceled', { reason });
     }
+
+    void this.updateTrackRecord(jobId, { status: 'canceled', generation_status: 'canceled' });
 
     if (this.processingJobId === jobId) {
       this.processingJobId = undefined;
@@ -207,6 +389,16 @@ class MusicOrchestrator {
     store.requeueJob(jobId);
     this.emit({ type: 'job-updated', job: store.jobs[jobId] });
     this.log(jobId, 'info', 'Manual retry requested');
+    await this.updateTrackRecord(jobId, {
+      status: 'queued',
+      generation_status: 'pending',
+      task_id: null,
+      suno_job_id: null,
+      audio_url: null,
+      image_url: null,
+      stream_url: null,
+      suno_track_id: null,
+    });
     await this.waitForBootstrap();
     this.processQueue();
   }
@@ -244,6 +436,142 @@ class MusicOrchestrator {
     });
   }
 
+  private getTrackId(job: MusicJob): string {
+    if (job.metadata && typeof job.metadata === 'object' && job.metadata) {
+      const metadata = job.metadata as { supabaseTrackId?: string };
+      if (metadata.supabaseTrackId) {
+        return metadata.supabaseTrackId;
+      }
+    }
+    return job.id;
+  }
+
+  private buildTrackMetadata(job: MusicJob): Record<string, unknown> {
+    const base = job.metadata && typeof job.metadata === 'object' ? { ...(job.metadata as Record<string, unknown>) } : {};
+    base.jobStatus = job.status;
+    base.progress = job.progress;
+    base.retryCount = job.retryCount;
+    base.maxRetries = job.maxRetries;
+    base.segments = job.segments.map((segment) => ({
+      id: segment.id,
+      index: segment.index,
+      status: segment.status,
+      progress: segment.progress,
+      taskId: segment.taskId ?? null,
+      audioId: segment.audioId ?? null,
+      audioUrl: segment.audioUrl ?? null,
+      imageUrl: segment.imageUrl ?? null,
+      duration: segment.duration ?? null,
+      error: segment.error ?? null,
+      startedAt: segment.startedAt ?? null,
+      completedAt: segment.completedAt ?? null,
+    }));
+    if (job.finalMixUrl) {
+      base.finalMixUrl = job.finalMixUrl;
+    }
+    if (job.loudnessNormalization) {
+      base.loudnessNormalization = job.loudnessNormalization;
+    }
+    if (job.completedAt) {
+      base.completedAt = job.completedAt;
+    }
+    base.updatedAt = new Date().toISOString();
+    base.supabaseTrackId = this.getTrackId(job);
+    return base;
+  }
+
+  private async persistTrackRecord(jobId: string) {
+    const job = useMusicQueueStore.getState().jobs[jobId];
+    if (!job) {
+      return;
+    }
+    if (job.metadata && typeof job.metadata === 'object') {
+      const metadataObject = job.metadata as Record<string, unknown>;
+      if (metadataObject.supabaseTrackPersisted === true) {
+        return;
+      }
+      if (!metadataObject.itemId || !metadataObject.itemCode) {
+        this.log(jobId, 'warn', 'Missing item metadata, skipping Supabase persistence');
+        return;
+      }
+
+      const trackId = this.getTrackId(job);
+      const insert: GeneratedMusicTrackInsert = {
+        id: trackId,
+        item_id: metadataObject.itemId as string,
+        title:
+          typeof metadataObject.itemTitle === 'string' && metadataObject.itemTitle
+            ? (metadataObject.itemTitle as string)
+            : `${metadataObject.itemCode as string} • ${MODE_LABEL[(metadataObject.mode as MusicMode) ?? 'A']}`,
+        mode: (metadataObject.mode as MusicMode) ?? 'A',
+        style:
+          (metadataObject.styleResolved as string | undefined) ??
+          (metadataObject.styleInput as string | undefined) ??
+          'éducatif moderne',
+        duration: job.targetDuration,
+        status: 'queued',
+        generation_status: 'pending',
+        openai_prompt_hash: (metadataObject.openaiPromptHash as string | undefined) ?? null,
+        metadata: this.buildTrackMetadata(job),
+        user_id: (metadataObject.userId as string | undefined) ?? null,
+      } satisfies GeneratedMusicTrackInsert;
+
+      try {
+        const { error } = await supabase.from('generated_music_tracks').insert(insert);
+        if (error) {
+          this.log(jobId, 'warn', 'Failed to persist Supabase track', { error: error.message });
+          return;
+        }
+
+        useMusicQueueStore.getState().updateJob(jobId, (draft) => {
+          draft.metadata = {
+            ...(draft.metadata ?? {}),
+            supabaseTrackPersisted: true,
+            supabaseTrackId: trackId,
+          } satisfies Record<string, unknown>;
+        });
+      } catch (error) {
+        this.log(jobId, 'warn', 'Unexpected Supabase persistence failure', {
+          error: error instanceof Error ? error.message : String(error),
+        });
+      }
+    }
+  }
+
+  private async updateTrackRecord(jobId: string, patch: GeneratedMusicTrackUpdate) {
+    const job = useMusicQueueStore.getState().jobs[jobId];
+    if (!job) {
+      return;
+    }
+    if (!job.metadata || typeof job.metadata !== 'object') {
+      return;
+    }
+    const metadataObject = job.metadata as Record<string, unknown>;
+    if (metadataObject.supabaseTrackPersisted !== true) {
+      return;
+    }
+
+    const updatePayload: GeneratedMusicTrackUpdate = {
+      ...patch,
+      metadata: this.buildTrackMetadata(job),
+      updated_at: new Date().toISOString(),
+    } satisfies GeneratedMusicTrackUpdate;
+
+    try {
+      const { error } = await supabase
+        .from('generated_music_tracks')
+        .update(updatePayload)
+        .eq('id', this.getTrackId(job));
+      if (error) {
+        this.log(jobId, 'warn', 'Supabase track update failed', { error: error.message });
+      }
+    } catch (error) {
+      this.log(jobId, 'warn', 'Unexpected Supabase track update failure', {
+        error: error instanceof Error ? error.message : String(error),
+      });
+    }
+  }
+
   private async processQueue() {
     if (this.processingJobId) {
       return;
@@ -260,6 +588,11 @@ class MusicOrchestrator {
     this.log(nextJob.id, 'info', 'Job started');
     this.emit({ type: 'job-started', job: { ...nextJob } });
 
+    await this.updateTrackRecord(nextJob.id, {
+      status: 'running',
+      generation_status: 'generating',
+    });
+
     try {
       await this.runJob(nextJob.id);
       const completedJob = useMusicQueueStore.getState().jobs[nextJob.id];
@@ -268,6 +601,54 @@ class MusicOrchestrator {
         this.log(nextJob.id, 'info', 'Job completed successfully', {
           totalSegments: completedJob.segments.length,
           duration: completedJob.targetDuration,
+        });
+
+        const successfulSegments = completedJob.segments.filter((segment) => segment.status === 'success');
+        const representativeSegment = [...successfulSegments].reverse().find((segment) => segment.audioUrl);
+        const finalMixDuration =
+          typeof completedJob.metadata?.finalMixDuration === 'number'
+            ? Math.round(completedJob.metadata.finalMixDuration)
+            : undefined;
+        const derivedDuration = Math.max(
+          0,
+          successfulSegments.reduce(
+            (max, segment) => (segment.duration ? Math.max(max, Math.round(segment.duration)) : max),
+            0,
+          ),
+        );
+        const resolvedDuration = finalMixDuration ?? (derivedDuration > 0 ? derivedDuration : null);
+
+        await this.updateTrackRecord(nextJob.id, {
+          status: 'completed',
+          generation_status: 'completed',
+          duration: resolvedDuration ?? undefined,
+          audio_url: representativeSegment?.audioUrl ?? null,
+          image_url: representativeSegment?.imageUrl ?? null,
+          suno_track_id: representativeSegment?.audioId ?? null,
+          stream_url: representativeSegment?.audioUrl ?? null,
+        });
+
+        const completedMetadata = (completedJob.metadata ?? {}) as Record<string, unknown>;
+        const successfulSunoJobId =
+          typeof completedMetadata.suno_job_id === 'string'
+            ? (completedMetadata.suno_job_id as string)
+            : representativeSegment?.taskId ?? undefined;
+        const resolvedDurationSeconds = typeof resolvedDuration === 'number' ? resolvedDuration : undefined;
+
+        void trackCanonicalEvent({
+          type: 'generate_success',
+          contentId: this.getTrackId(completedJob),
+          metadata: {
+            item_code: typeof completedMetadata.itemCode === 'string' ? completedMetadata.itemCode : undefined,
+            item_id: typeof completedMetadata.itemId === 'string' ? completedMetadata.itemId : undefined,
+            item_title: typeof completedMetadata.itemTitle === 'string' ? completedMetadata.itemTitle : undefined,
+            mode: completedMetadata.mode ?? undefined,
+            style_resolved: completedMetadata.styleResolved ?? completedMetadata.styleInput ?? undefined,
+            run_id: completedMetadata.runId ?? completedJob.id,
+            suno_job_id: successfulSunoJobId,
+            segment_count: completedJob.segments.length,
+            duration_ms: resolvedDurationSeconds ? Math.max(0, Math.round(resolvedDurationSeconds * 1000)) : undefined,
+          },
         });
       }
     } catch (error) {
@@ -302,6 +683,16 @@ class MusicOrchestrator {
           backoffUntil: updatedJob?.backoffUntil,
           error: message,
         });
+        await this.updateTrackRecord(nextJob.id, {
+          status: 'queued',
+          generation_status: 'pending',
+          task_id: null,
+          suno_job_id: null,
+          audio_url: null,
+          image_url: null,
+          stream_url: null,
+          suno_track_id: null,
+        });
         this.scheduleNextWakeup();
       } else {
         useMusicQueueStore.getState().setJobStatus(nextJob.id, 'failed', message);
@@ -313,7 +704,38 @@ class MusicOrchestrator {
             maxRetries: failedJob.maxRetries,
             error: message,
           });
+
+          const failedMetadata = (failedJob.metadata ?? {}) as Record<string, unknown>;
+          const failedSunoJobId =
+            typeof failedMetadata.suno_job_id === 'string'
+              ? (failedMetadata.suno_job_id as string)
+              : failedJob.segments.find((segment) => typeof segment.taskId === 'string')?.taskId;
+
+          void trackCanonicalEvent({
+            type: 'generate_fail',
+            contentId: this.getTrackId(failedJob),
+            metadata: {
+              item_code: typeof failedMetadata.itemCode === 'string' ? failedMetadata.itemCode : undefined,
+              item_id: typeof failedMetadata.itemId === 'string' ? failedMetadata.itemId : undefined,
+              item_title: typeof failedMetadata.itemTitle === 'string' ? failedMetadata.itemTitle : undefined,
+              mode: failedMetadata.mode ?? undefined,
+              style_resolved: failedMetadata.styleResolved ?? failedMetadata.styleInput ?? undefined,
+              run_id: failedMetadata.runId ?? failedJob.id,
+              suno_job_id: failedSunoJobId,
+              retry_count: failedJob.retryCount,
+              max_retries: failedJob.maxRetries,
+              error: message,
+            },
+          });
         }
+        await this.updateTrackRecord(nextJob.id, {
+          status: 'failed',
+          generation_status: 'failed',
+          audio_url: null,
+          image_url: null,
+          stream_url: null,
+          suno_track_id: null,
+        });
       }
     } finally {
       this.processingJobId = undefined;
@@ -408,6 +830,12 @@ class MusicOrchestrator {
     }
 
     store.updateSegment(jobId, segment.id, { taskId: response.taskId });
+    await this.updateTrackRecord(jobId, {
+      status: 'running',
+      task_id: response.taskId,
+      suno_job_id: response.taskId,
+      generation_status: 'generating',
+    });
     await this.pollSegment(jobId, segment.id, response.taskId);
   }
 
@@ -440,6 +868,14 @@ class MusicOrchestrator {
           error: message,
         });
         this.log(jobId, 'warn', 'Polling failed for segment', { segmentId, error: message });
+        await this.updateTrackRecord(jobId, {
+          status: 'failed',
+          generation_status: 'failed',
+          audio_url: null,
+          image_url: null,
+          stream_url: null,
+          suno_track_id: null,
+        });
         throw error;
       }
 
@@ -465,6 +901,14 @@ class MusicOrchestrator {
         imageUrl: audio?.image_url,
         duration: audio?.duration,
         completedAt: Date.now(),
+      });
+      void this.updateTrackRecord(jobId, {
+        generation_status: 'generating',
+        audio_url: audio?.audio_url ?? null,
+        image_url: audio?.image_url ?? null,
+        suno_track_id: audio?.id ?? null,
+        duration: audio?.duration ? Math.round(audio.duration) : undefined,
+        stream_url: audio?.audio_url ?? null,
       });
       const job = store.jobs[jobId];
       if (job) {
@@ -573,11 +1017,52 @@ class MusicOrchestrator {
 
   private log(jobId: string, level: 'info' | 'warn' | 'error', message: string, context?: Record<string, unknown>) {
     const job = useMusicQueueStore.getState().jobs[jobId];
-    const requestId = job?.requestId ?? (job?.metadata?.requestId as string | undefined);
-    const prefix = requestId ? `[musicOrchestrator][${requestId}]` : '[musicOrchestrator]';
-    const payload = context ? { jobId, ...context } : { jobId };
-    const consoleFn = level === 'error' ? console.error : level === 'warn' ? console.warn : console.info;
-    consoleFn.call(console, `${prefix} ${message}`, payload);
+    const metadata = (job?.metadata as Record<string, unknown> | undefined) ?? {};
+    const requestId =
+      typeof job?.requestId === 'string'
+        ? job.requestId
+        : typeof metadata.requestId === 'string'
+          ? (metadata.requestId as string)
+          : undefined;
+    const runId = typeof metadata.runId === 'string' ? (metadata.runId as string) : jobId;
+    const sunoJobId =
+      typeof metadata.suno_job_id === 'string'
+        ? (metadata.suno_job_id as string)
+        : typeof metadata.sunoJobId === 'string'
+          ? (metadata.sunoJobId as string)
+          : job?.segments.find((segment) => typeof segment.taskId === 'string')?.taskId;
+
+    const sanitizedContext = context ? (sanitizeLogValue(context) as Record<string, unknown>) : undefined;
+    const baseMetadata: Record<string, unknown> = {
+      jobId,
+      requestId,
+      runId,
+      sunoJobId,
+      supabaseTrackId: metadata.supabaseTrackId,
+    };
+
+    if (sanitizedContext) {
+      Object.assign(baseMetadata, sanitizedContext);
+    }
+
+    const filteredMetadata = Object.fromEntries(
+      Object.entries(baseMetadata).filter(([, value]) => value !== undefined && value !== null),
+    );
+
+    const logContext = {
+      component: 'MusicOrchestrator',
+      action: message,
+      itemCode: typeof metadata.itemCode === 'string' ? (metadata.itemCode as string) : undefined,
+      metadata: filteredMetadata,
+    };
+
+    if (level === 'error') {
+      logger.error(message, logContext);
+    } else if (level === 'warn') {
+      logger.warn(message, logContext);
+    } else {
+      logger.info(message, logContext);
+    }
   }
 }
 

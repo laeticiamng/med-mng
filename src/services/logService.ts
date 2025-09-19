@@ -24,6 +24,60 @@ function ensureLogDir(): void {
 // S'assurer que le répertoire de logs existe avant la configuration
 ensureLogDir();
 
+const SENSITIVE_META_KEYS = ['authorization', 'token', 'secret', 'key', 'cookie', 'password', 'prompt', 'lyrics'];
+
+function sanitizeMetaValue(value: unknown, depth = 0): unknown {
+  if (depth > 3) {
+    return '[redacted]';
+  }
+
+  if (Array.isArray(value)) {
+    return value.slice(0, 5).map((entry) => sanitizeMetaValue(entry, depth + 1));
+  }
+
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(
+      Object.entries(value as Record<string, unknown>).map(([key, entry]) => {
+        const lowerKey = key.toLowerCase();
+        if (SENSITIVE_META_KEYS.some((candidate) => lowerKey.includes(candidate))) {
+          return [key, '[redacted]'];
+        }
+        return [key, sanitizeMetaValue(entry, depth + 1)];
+      }),
+    );
+  }
+
+  if (typeof value === 'string' && value.length > 512) {
+    return `${value.slice(0, 256)}…[truncated]`;
+  }
+
+  return value;
+}
+
+function sanitizeLogContext(context?: LogContext): LogContext | undefined {
+  if (!context) {
+    return context;
+  }
+
+  const sanitized: LogContext = { ...context };
+
+  for (const key of Object.keys(sanitized)) {
+    const lowerKey = key.toLowerCase();
+    const value = (sanitized as Record<string, unknown>)[key];
+    if (SENSITIVE_META_KEYS.some((candidate) => lowerKey.includes(candidate))) {
+      (sanitized as Record<string, unknown>)[key] = '[redacted]';
+    } else if (typeof value === 'string' && value.length > 512) {
+      (sanitized as Record<string, unknown>)[key] = `${value.slice(0, 256)}…[truncated]`;
+    }
+  }
+
+  if (context.metadata) {
+    sanitized.metadata = sanitizeMetaValue(context.metadata, 0) as Record<string, unknown>;
+  }
+
+  return sanitized;
+}
+
 // Configuration du logger centralisé
 const logger = winston.createLogger({
   level: process.env.LOG_LEVEL || 'info',
@@ -103,11 +157,11 @@ export interface LogService {
 // Implémentation du service
 export const logService: LogService = {
   info(message: string, meta?: LogContext): void {
-    logger.info(message, meta);
+    logger.info(message, sanitizeLogContext(meta));
   },
 
   warn(message: string, meta?: LogContext): void {
-    logger.warn(message, meta);
+    logger.warn(message, sanitizeLogContext(meta));
   },
 
   error(message: string, error?: Error, meta?: LogContext): void {
@@ -119,15 +173,15 @@ export const logService: LogService = {
         name: error.name
       } : undefined
     };
-    logger.error(message, errorMeta);
+    logger.error(message, sanitizeLogContext(errorMeta));
   },
 
   debug(message: string, meta?: LogContext): void {
-    logger.debug(message, meta);
+    logger.debug(message, sanitizeLogContext(meta));
   },
 
   http(message: string, meta?: LogContext): void {
-    logger.http(message, meta);
+    logger.http(message, sanitizeLogContext(meta));
   }
 };
 

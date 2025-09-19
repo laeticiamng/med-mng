@@ -206,13 +206,13 @@ const envSchema = z.object({
 
 ```bash
 # Validation complète
-npm run validate:env
+pnpm env:check
 
 # Validation stricte (mode CI)
-npm run validate:env -- --strict
+pnpm env:check -- --strict
 
 # Test avec variables manquantes
-SKIP_ENV_VALIDATION=false npm run dev
+SKIP_ENV_VALIDATION=false pnpm dev
 ```
 
 ### Exemple de Validation Réussie
@@ -237,6 +237,9 @@ Missing or invalid environment variables:
 💡 Required environment variables:
   - VITE_SUPABASE_URL: Your Supabase project URL
   - VITE_SUPABASE_ANON_KEY: Your Supabase anonymous key
+  - SUPABASE_SERVICE_ROLE_KEY: Required for secure orchestration calls
+  - OPENAI_API_KEY: Required for prompt generation
+  - SUNO_API_KEY: Required for music generation
   - JWT_SECRET: Strong JWT signing secret (min 32 chars)
 ```
 

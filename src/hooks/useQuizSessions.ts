@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { toRateLimitError } from '@/utils/errors/rateLimit';
 
 export interface QuizSessionData {
   id: string;
@@ -52,6 +53,13 @@ export const useQuizSessions = () => {
 
       setSessions((data || []) as QuizSessionData[]);
     } catch (err) {
+      const rateLimitError = toRateLimitError(err, 'Historique des quiz temporairement indisponible.', 'quiz');
+      if (rateLimitError) {
+        setError(rateLimitError.message);
+        toast.warning(rateLimitError.message);
+        return;
+      }
+
       const errorMessage = err instanceof Error ? err.message : 'Erreur lors du chargement des sessions';
       setError(errorMessage);
       toast.error(errorMessage);
@@ -78,6 +86,13 @@ export const useQuizSessions = () => {
 
       setSessions((data || []) as QuizSessionData[]);
     } catch (err) {
+      const rateLimitError = toRateLimitError(err, 'Historique des quiz temporairement indisponible.', 'quiz');
+      if (rateLimitError) {
+        setError(rateLimitError.message);
+        toast.warning(rateLimitError.message);
+        return;
+      }
+
       const errorMessage = err instanceof Error ? err.message : 'Erreur lors du chargement des sessions';
       setError(errorMessage);
       toast.error(errorMessage);
@@ -105,10 +120,17 @@ export const useQuizSessions = () => {
       
       return data;
     } catch (err) {
+      const rateLimitError = toRateLimitError(err, 'Limite atteinte pour la sauvegarde des résultats de quiz.', 'quiz');
+      if (rateLimitError) {
+        setError(rateLimitError.message);
+        toast.warning(rateLimitError.message);
+        throw rateLimitError;
+      }
+
       const errorMessage = err instanceof Error ? err.message : 'Erreur lors de la sauvegarde';
       setError(errorMessage);
       toast.error(errorMessage);
-      throw err;
+      throw err instanceof Error ? err : new Error(errorMessage);
     }
   };
 

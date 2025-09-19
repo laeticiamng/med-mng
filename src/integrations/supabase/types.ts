@@ -3499,9 +3499,15 @@ export type Database = {
           generation_status: string | null
           id: string
           image_url: string | null
-          metadata: Json | null
+          item_id: string
+          metadata: Json
+          mode: "A" | "B" | "AB"
+          openai_prompt_hash: string | null
           original_task_id: string | null
+          status: string | null
           stream_url: string | null
+          style: string
+          suno_job_id: string | null
           suno_track_id: string | null
           task_id: string | null
           title: string
@@ -3515,9 +3521,15 @@ export type Database = {
           generation_status?: string | null
           id?: string
           image_url?: string | null
-          metadata?: Json | null
+          item_id: string
+          metadata?: Json
+          mode?: "A" | "B" | "AB"
+          openai_prompt_hash?: string | null
           original_task_id?: string | null
+          status?: string | null
           stream_url?: string | null
+          style?: string
+          suno_job_id?: string | null
           suno_track_id?: string | null
           task_id?: string | null
           title: string
@@ -3531,16 +3543,30 @@ export type Database = {
           generation_status?: string | null
           id?: string
           image_url?: string | null
-          metadata?: Json | null
+          item_id?: string
+          metadata?: Json
+          mode?: "A" | "B" | "AB"
+          openai_prompt_hash?: string | null
           original_task_id?: string | null
+          status?: string | null
           stream_url?: string | null
+          style?: string
+          suno_job_id?: string | null
           suno_track_id?: string | null
           task_id?: string | null
           title?: string
           updated_at?: string
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "generated_music_tracks_item_id_fkey",
+            columns: ["item_id"],
+            isOneToOne: false,
+            referencedRelation: "edn_items_immersive",
+            referencedColumns: ["id"],
+          },
+        ]
       }
       generated_voice_tracks: {
         Row: {
@@ -4321,6 +4347,7 @@ export type Database = {
           created_by: string | null
           duration_ms: number | null
           id: string
+          item_id: string
           metadata: Json
           method: string
           notes: string | null
@@ -4335,6 +4362,7 @@ export type Database = {
           created_by?: string | null
           duration_ms?: number | null
           id?: string
+          item_id: string
           metadata?: Json
           method?: string
           notes?: string | null
@@ -4349,6 +4377,7 @@ export type Database = {
           created_by?: string | null
           duration_ms?: number | null
           id?: string
+          item_id?: string
           metadata?: Json
           method?: string
           notes?: string | null
@@ -4359,17 +4388,17 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "lyrics_alignment_logs_track_id_fkey",
-            columns: ["track_id"],
+            foreignKeyName: "lyrics_alignment_logs_item_id_fkey",
+            columns: ["item_id"],
             isOneToOne: false,
-            referencedRelation: "med_mng_songs",
+            referencedRelation: "edn_items_immersive",
             referencedColumns: ["id"],
           },
           {
             foreignKeyName: "lyrics_alignment_logs_track_id_fkey",
             columns: ["track_id"],
             isOneToOne: false,
-            referencedRelation: "med_mng_view_library",
+            referencedRelation: "generated_music_tracks",
             referencedColumns: ["id"],
           },
         ]
@@ -4429,6 +4458,7 @@ export type Database = {
         Row: {
           created_at: string
           end_ms: number
+          item_id: string
           idx: number
           role: string | null
           start_ms: number
@@ -4439,6 +4469,7 @@ export type Database = {
         Insert: {
           created_at?: string
           end_ms: number
+          item_id: string
           idx: number
           role?: string | null
           start_ms: number
@@ -4449,6 +4480,7 @@ export type Database = {
         Update: {
           created_at?: string
           end_ms?: number
+          item_id?: string
           idx?: number
           role?: string | null
           start_ms?: number
@@ -4458,17 +4490,17 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "lyrics_segments_track_id_fkey",
-            columns: ["track_id"],
+            foreignKeyName: "lyrics_segments_item_id_fkey",
+            columns: ["item_id"],
             isOneToOne: false,
-            referencedRelation: "med_mng_songs",
+            referencedRelation: "edn_items_immersive",
             referencedColumns: ["id"],
           },
           {
             foreignKeyName: "lyrics_segments_track_id_fkey",
             columns: ["track_id"],
             isOneToOne: false,
-            referencedRelation: "med_mng_view_library",
+            referencedRelation: "generated_music_tracks",
             referencedColumns: ["id"],
           },
         ]
@@ -9323,6 +9355,20 @@ export type Database = {
         }
         Relationships: []
       }
+      item_with_competences: {
+        Row: {
+          competence_description: string | null
+          competence_id: string | null
+          competence_rang: string | null
+          competence_rubrique: string | null
+          competence_title: string | null
+          item_code: string
+          item_id: string
+          slug: string | null
+          title: string
+        }
+        Relationships: []
+      }
       edn_unified_materialized: {
         Row: {
           competences_oic: Json | null
@@ -9710,9 +9756,12 @@ export type Database = {
           p_limit?: number
           p_offset?: number
           p_only_favorites?: boolean
+          p_item_code?: string | null
+          p_mode?: string | null
           p_search?: string | null
           p_sort?: string
           p_types?: string[] | null
+          p_style?: string | null
         }
         Returns: {
           collections: Json
@@ -9729,6 +9778,7 @@ export type Database = {
           source_table: string
           tags: string[] | null
           title: string
+          total_count: number | null
           updated_at: string
         }[]
       }
@@ -10614,6 +10664,12 @@ export type Database = {
         | "lyrics_timecode_done"
         | "play"
         | "seek_segment"
+        | "qcm_start"
+        | "qcm_submit"
+        | "qcm_complete"
+        | "bd_generate_start"
+        | "bd_generate_success"
+        | "bd_generate_fail"
         | "study_start"
         | "study_end"
         | "sync_success"

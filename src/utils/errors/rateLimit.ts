@@ -2,6 +2,21 @@ export interface RateLimitErrorInfo {
   isRateLimited: boolean;
   message: string;
   retryAfterSeconds?: number;
+  retryAt?: number;
+}
+
+export class RateLimitExceededError extends Error {
+  readonly retryAfterSeconds?: number;
+  readonly retryAt?: number;
+  readonly scope?: string;
+
+  constructor(message: string, retryAfterSeconds?: number, options: { scope?: string; retryAt?: number } = {}) {
+    super(message);
+    this.name = 'RateLimitExceededError';
+    this.retryAfterSeconds = retryAfterSeconds;
+    this.retryAt = options.retryAt;
+    this.scope = options.scope;
+  }
 }
 
 function parseJSON(value: unknown): any | null {
@@ -80,9 +95,31 @@ export function describeRateLimitError(
     }
   }
 
+  const retryAt = retryAfterSeconds && Number.isFinite(retryAfterSeconds)
+    ? Date.now() + retryAfterSeconds * 1000
+    : undefined;
+
   return {
     isRateLimited: true,
     message: humanMessage,
     retryAfterSeconds,
+    retryAt,
   };
+}
+
+export function toRateLimitError(
+  error: unknown,
+  fallbackMessage: string,
+  scope?: string
+): RateLimitExceededError | null {
+  const info = describeRateLimitError(error, fallbackMessage);
+
+  if (!info.isRateLimited) {
+    return null;
+  }
+
+  return new RateLimitExceededError(info.message, info.retryAfterSeconds, {
+    scope,
+    retryAt: info.retryAt,
+  });
 }

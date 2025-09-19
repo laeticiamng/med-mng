@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { CheckCircle, XCircle, Clock, ArrowRight, ArrowLeft, RotateCcw } from 'lucide-react';
 import { QuizConfig } from './QuizSelector';
 import { useToast } from '@/hooks/use-toast';
+import { trackCanonicalEvent } from '@/services/CanonicalAnalyticsTracker';
 
 interface QuizQuestion {
   id: number;
@@ -116,8 +117,21 @@ export const QuizInterface: React.FC<QuizInterfaceProps> = ({
     const quizResults = calculateResults();
     setResults(quizResults);
     setIsCompleted(true);
+    void trackCanonicalEvent({
+      type: 'qcm_submit',
+      metadata: {
+        item_code: itemCode,
+        item_title: itemTitle,
+        score: quizResults.score,
+        question_count: quizResults.totalQuestions,
+        correct_answers: quizResults.correctAnswers,
+        time_spent_seconds: quizResults.timeSpent,
+        difficulty: config.difficulty,
+        question_type: config.questionType,
+      },
+    });
     onQuizComplete(quizResults);
-    
+
     toast({
       title: "Quiz terminé !",
       description: `Score: ${quizResults.score}% (${quizResults.correctAnswers}/${quizResults.totalQuestions})`,

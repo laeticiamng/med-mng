@@ -10,6 +10,7 @@
     "lint": "eslint src/index.ts src/controllers src/services src/middleware test eslint.config.js",
     "typecheck": "tsc --noEmit",
     "preview": "vite preview",
+    "env:check": "node --loader ts-node/esm scripts/validateEnvironment.ts",
     "format": "prettier --write .",
     "start:server": "node --loader ts-node/esm src/index.ts",
     "test": "vitest run",

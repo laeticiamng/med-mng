@@ -7,7 +7,8 @@ Cette note résume l'implémentation des paroles synchronisées côté MED-MNG.
 - `public.lyrics_segments`
   - Clef primaire composite `(track_id, idx)`.
   - Champs temps en millisecondes (`start_ms`, `end_ms`) et rôle optionnel (`intro`, `verse`, `chorus`, `marker`, etc.).
-  - RLS stricte : seuls les propriétaires d'une piste (`med_mng_songs.created_by` ou `user_id`) peuvent lire/écrire.
+  - Référence directe à la piste (`track_id`) **et** à l'item canonique (`item_id`).
+  - RLS stricte : seuls les propriétaires d'une piste (`generated_music_tracks.user_id`) ou le `service_role` peuvent lire/écrire.
 - `public.lyrics_alignment_logs`
   - Historique des alignements (durée, méthode, confiance, métadonnées heuristiques).
   - RLS lecture/écriture propriétaire.
