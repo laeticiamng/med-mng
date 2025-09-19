@@ -129,6 +129,17 @@ supabase/functions/
 - **Analytics d'Écoute** : Suivi détaillé des habitudes
 - **Système d'Abonnements** : Plans freemium et premium
 
+### 🎧 Parcours « Item → Musique »
+| Étape | Détails | Observabilité |
+| --- | --- | --- |
+| **1. Préparation** | L'étudiant sélectionne un **mode** (A, B ou AB) et choisit un **style** (liste de suggestions + saisie libre). Les compétences Rang A/B sont affichées dans le panneau latéral. | `generate_start` (payload : `item_id`, `mode`, `style`)
+| **2. Prompting OpenAI** | Le service `itemPromptService` compacte les compétences selon le mode, génère des paroles structurées (couplets/refrains/pont) et produit un brief de style cohérent pour Suno. | `generate_prompt_compiled`, logs `requestId` + `openai_prompt_hash`
+| **3. Orchestration Suno** | `musicOrchestrator.enqueue()` crée une exécution persistée (`generated_music_tracks`). Le service applique un backoff exponentiel, gère l'annulation/reprise et journalise `suno_job_id`. | `generate_polling`, `generate_retry`, `generate_fail` + métriques durée moyenne
+| **4. Stockage & RLS** | À la finalisation, les métadonnées (style, durée, statut, `openai_prompt_hash`) et les paroles brutes sont stockées pour l'utilisateur propriétaire uniquement (RLS stricte). | `generate_success`, traces corrélées `requestId` ↔ `runId`
+| **5. Timecode & Karaoké** | L'edge function `lyrics-aligner` tente un alignement ; si indisponible, fallback sur `metadata.lyrics`. Le player met en évidence le segment actif, permet le seek précis et offre des exports JSON/MD. | `lyrics_timecode_done`, `play`, `seek_segment`, logs alignement (durée, confiance)
+
+> 💡 **Erreurs gérées** : quotas Suno/OpenAI (circuit breaker + message UX « réessayer plus tard »), alignement impossible (fallback manuel), annulation utilisateur (toast dédié) et reprise après reconnexion (`activeRunRef`).
+
 ### 📚 Contenu Éducatif EDN/ECOS
 - **Interface Unifiée** : Navigation fluide entre les items
 - **Paroles Musicales** : Transformation des cours en chansons

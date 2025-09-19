@@ -79,28 +79,30 @@ serve(async (req) => {
       return responseWithError('trackId is required', 400);
     }
 
-    const { data: song, error: songError } = await supabase
-      .from('med_mng_songs')
-      .select('id, created_by, user_id, meta, lyrics')
+    const { data: track, error: trackError } = await supabase
+      .from('generated_music_tracks')
+      .select('id, user_id, metadata, duration')
       .eq('id', payload.trackId)
       .single();
 
-    if (songError || !song) {
-      console.error('Song lookup failed', songError);
+    if (trackError || !track) {
+      console.error('Track lookup failed', trackError);
       return responseWithError('Track not found', 404);
     }
 
-    if (!ownsSong(user, song)) {
+    if (!ownsTrack(user, track)) {
       return responseWithError('Forbidden', 403);
     }
 
-    const rawLines = normaliseLyricsInput(payload.lyrics, song.lyrics, song.meta);
+    const metadata = isRecord(track.metadata) ? track.metadata : {};
+    const metadataLyrics = extractLyricsFromMetadata(metadata);
+    const rawLines = normaliseLyricsInput(payload.lyrics, metadataLyrics, metadata);
     if (rawLines.length === 0) {
       return responseWithError('No lyrics available to align', 400);
     }
 
     const runStart = performance.now();
-    const totalDurationMs = inferDurationMs(rawLines, song.meta);
+    const totalDurationMs = inferDurationMs(rawLines, metadata, track.duration);
     const segments = buildSegments(rawLines, totalDurationMs);
     const runDuration = Math.round(performance.now() - runStart);
 
@@ -187,6 +189,43 @@ function responseWithError(message: string, status: number) {
   );
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null && !Array.isArray(value);
+}
+
+function extractLyricsFromMetadata(metadata: Record<string, unknown>): AlignRequest['lyrics'] | undefined {
+  const candidateSegments = (metadata.lyricsSegments ?? metadata.lyrics_segments) as unknown;
+  if (Array.isArray(candidateSegments) && candidateSegments.length > 0) {
+    return candidateSegments
+      .map((segment) => {
+        if (!isRecord(segment)) {
+          return null;
+        }
+        const text = typeof segment.text === 'string' ? segment.text : '';
+        if (!text) {
+          return null;
+        }
+        const start = typeof segment.start_ms === 'number' ? segment.start_ms : (segment.startMs as number | undefined);
+        const end = typeof segment.end_ms === 'number' ? segment.end_ms : (segment.endMs as number | undefined);
+        const role = typeof segment.role === 'string' ? segment.role : undefined;
+        return { text, role, start_ms: start, end_ms: end };
+      })
+      .filter((segment): segment is { text: string; role?: string; start_ms?: number; end_ms?: number } => Boolean(segment));
+  }
+
+  const lyricsArray = (metadata.lyrics ?? metadata.generatedLyrics ?? metadata.generated_lyrics) as unknown;
+  if (Array.isArray(lyricsArray) && lyricsArray.every((line) => typeof line === 'string')) {
+    return lyricsArray as string[];
+  }
+
+  const lyricsText = metadata.lyricsText ?? metadata.lyrics_text ?? metadata.lyricsPreview ?? metadata.openaiLyrics;
+  if (typeof lyricsText === 'string') {
+    return lyricsText;
+  }
+
+  return undefined;
+}
+
 interface NormalisedLine {
   text: string;
   role?: string | null;
@@ -214,6 +253,29 @@ function normaliseLyricsInput(
     return textToLines(songLyrics);
   }
 
+  if (Array.isArray(songLyrics)) {
+    const resolved = (songLyrics as Array<unknown>)
+      .map((entry) => {
+        if (typeof entry === 'string') {
+          return toNormalisedLine(entry);
+        }
+        if (isRecord(entry)) {
+          return toNormalisedLine(
+            typeof entry.text === 'string' ? entry.text : '',
+            typeof entry.role === 'string' ? entry.role : undefined,
+            typeof entry.start_ms === 'number' ? entry.start_ms : (entry.startMs as number | undefined),
+            typeof entry.end_ms === 'number' ? entry.end_ms : (entry.endMs as number | undefined),
+          );
+        }
+        return null;
+      })
+      .filter((line): line is NormalisedLine => Boolean(line && line.text.length > 0));
+
+    if (resolved.length > 0) {
+      return resolved;
+    }
+  }
+
   if (Array.isArray((songLyrics as any)?.lines)) {
     const lines = (songLyrics as any).lines as Array<{ text: string; role?: string }>;
     return lines.map((line) => toNormalisedLine(line.text, line.role)).filter((line) => line.text.length > 0);
@@ -231,6 +293,26 @@ function normaliseLyricsInput(
     return ((songMeta as any).lyrics as Array<string>)
       .map((text) => toNormalisedLine(text))
       .filter((line) => line.text.length > 0);
+  }
+
+  const metaSegments = (songMeta as any)?.lyricsSegments ?? (songMeta as any)?.lyrics_segments;
+  if (Array.isArray(metaSegments)) {
+    const mapped = (metaSegments as Array<unknown>)
+      .map((segment) => {
+        if (!isRecord(segment)) {
+          return null;
+        }
+        const start = typeof segment.start_ms === 'number' ? segment.start_ms : (segment.startMs as number | undefined);
+        const end = typeof segment.end_ms === 'number' ? segment.end_ms : (segment.endMs as number | undefined);
+        const text = typeof segment.text === 'string' ? segment.text : '';
+        const role = typeof segment.role === 'string' ? segment.role : undefined;
+        return toNormalisedLine(text, role, start, end);
+      })
+      .filter((line): line is NormalisedLine => Boolean(line && line.text.length > 0));
+
+    if (mapped.length > 0) {
+      return mapped;
+    }
   }
 
   return [];
@@ -277,13 +359,16 @@ function detectRoleFromText(text: string): string | null {
   return null;
 }
 
-function inferDurationMs(lines: NormalisedLine[], songMeta: unknown): number {
+function inferDurationMs(lines: NormalisedLine[], songMeta: unknown, fallbackDuration?: number | null): number {
   const meta = songMeta as Record<string, unknown> | null | undefined;
   const candidates: number[] = [];
 
   const pushCandidate = (value: unknown) => {
-    if (typeof value === 'number' && Number.isFinite(value) && value > 1000) {
-      candidates.push(Math.round(value));
+    if (typeof value === 'number' && Number.isFinite(value)) {
+      const normalised = value > 1000 ? value : value * 1000;
+      if (normalised > 1000) {
+        candidates.push(Math.round(normalised));
+      }
     }
     if (typeof value === 'string') {
       const parsed = parseFloat(value);
@@ -298,6 +383,14 @@ function inferDurationMs(lines: NormalisedLine[], songMeta: unknown): number {
     pushCandidate(meta.durationMs);
     pushCandidate(meta.duration);
     pushCandidate(meta.total_duration_ms);
+    pushCandidate((meta as any).durationSeconds);
+    pushCandidate((meta as any).duration_sec);
+    pushCandidate((meta as any).duration_s);
+    pushCandidate((meta as any).estimated_duration_ms);
+  }
+
+  if (typeof fallbackDuration === 'number') {
+    pushCandidate(fallbackDuration);
   }
 
   const providedStarts = lines
@@ -366,6 +459,17 @@ function estimateConfidence(lines: NormalisedLine[]): number {
   return 0.68;
 }
 
-function ownsSong(user: User, song: { created_by: string | null; user_id: string | null }): boolean {
-  return Boolean(song.created_by && song.created_by === user.id) || Boolean(song.user_id && song.user_id === user.id);
+function ownsTrack(user: User, track: { user_id: string | null; metadata: unknown }): boolean {
+  if (track.user_id && track.user_id === user.id) {
+    return true;
+  }
+
+  if (isRecord(track.metadata)) {
+    const owner = track.metadata.userId ?? track.metadata.user_id ?? track.metadata.ownerId;
+    if (typeof owner === 'string' && owner === user.id) {
+      return true;
+    }
+  }
+
+  return false;
 }

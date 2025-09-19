@@ -29,6 +29,28 @@ export interface TimeseriesEntry {
   count: number;
 }
 
+export interface AnalyticsKpis {
+  total_events: number;
+  generation_success_rate: number | null;
+  average_generation_time_ms: number | null;
+  average_qcm_score: number | null;
+  qcm_attempts: number;
+  karaoke_seek_events: number;
+}
+
+export interface TopPlayedItemEntry {
+  item_code: string | null;
+  item_title: string | null;
+  play_count: number;
+}
+
+export interface QcmScoreEntry {
+  item_code: string | null;
+  score: number | null;
+  time_spent_seconds: number | null;
+  occurred_at: string;
+}
+
 export interface AnalyticsDashboardPayload {
   generated_at: string;
   timeframe: string;
@@ -36,6 +58,9 @@ export interface AnalyticsDashboardPayload {
   top_frictions: FrictionEntry[];
   top_contents: ContentEntry[];
   timeseries: TimeseriesEntry[];
+  top_played_items?: TopPlayedItemEntry[];
+  recent_qcm_scores?: QcmScoreEntry[];
+  kpis?: AnalyticsKpis;
 }
 
 interface AnalyticsDashboardState {

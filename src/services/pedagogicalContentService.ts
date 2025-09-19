@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { toRateLimitError } from "@/utils/errors/rateLimit";
 
 export interface ContentMetadata {
   total_contents: number;
@@ -58,6 +59,10 @@ class PedagogicalContentService {
 
     if (error) {
       console.error('Error fetching pedagogical content:', error);
+      const rateLimitError = toRateLimitError(error, 'Contenu temporairement indisponible.', 'comic');
+      if (rateLimitError) {
+        throw rateLimitError;
+      }
       throw new Error('Failed to fetch content');
     }
 
@@ -72,6 +77,10 @@ class PedagogicalContentService {
 
     if (error) {
       console.error('Error generating missing content:', error);
+      const rateLimitError = toRateLimitError(error, 'Trop de générations de bande dessinée. Réessayez plus tard.', 'comic');
+      if (rateLimitError) {
+        throw rateLimitError;
+      }
       throw new Error('Failed to generate content');
     }
 
@@ -86,6 +95,10 @@ class PedagogicalContentService {
 
     if (error) {
       console.error('Error fetching content analytics:', error);
+      const rateLimitError = toRateLimitError(error, 'Analytics temporairement indisponibles.', 'comic');
+      if (rateLimitError) {
+        throw rateLimitError;
+      }
       throw new Error('Failed to fetch analytics');
     }
 

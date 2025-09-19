@@ -11,6 +11,11 @@ export interface ContentLibraryFilters {
   favoritesOnly: boolean;
   collectionId: string | null;
   sort: ContentLibrarySort;
+  itemCode: string | null;
+  mode: 'A' | 'B' | 'AB' | null;
+  style: string | null;
+  page: number;
+  pageSize: number;
 }
 
 const DEFAULT_FILTERS: ContentLibraryFilters = {
@@ -19,22 +24,33 @@ const DEFAULT_FILTERS: ContentLibraryFilters = {
   favoritesOnly: false,
   collectionId: null,
   sort: 'recent',
+  itemCode: null,
+  mode: null,
+  style: null,
+  page: 1,
+  pageSize: 12,
 };
 
 export interface UseContentLibraryResult {
   items: ContentLibraryEntry[];
+  totalCount: number;
   collections: ContentLibraryCollection[];
   filters: ContentLibraryFilters;
   setFilters: (updater: (filters: ContentLibraryFilters) => ContentLibraryFilters) => void;
   isLoading: boolean;
   isFetching: boolean;
   isMutating: boolean;
+  error: unknown;
   refresh: () => Promise<void>;
   toggleType: (type: ContentResourceType) => void;
   toggleFavoritesOnly: () => void;
   setCollection: (collectionId: string | null) => void;
   setSort: (sort: ContentLibrarySort) => void;
   setQuery: (query: string) => void;
+  setItemCode: (itemCode: string | null) => void;
+  setMode: (mode: 'A' | 'B' | 'AB' | null) => void;
+  setStyle: (style: string | null) => void;
+  setPage: (page: number) => void;
   saveItem: (resourceType: ContentResourceType, resourceIdentifier: string) => Promise<void>;
   removeItem: (resourceType: ContentResourceType, resourceIdentifier: string) => Promise<void>;
   toggleFavorite: (resourceType: ContentResourceType, resourceIdentifier: string, nextValue: boolean) => Promise<void>;
@@ -56,8 +72,14 @@ export const useContentLibrary = (): UseContentLibraryResult => {
         favoritesOnly: filters.favoritesOnly,
         collectionId: filters.collectionId,
         sort: filters.sort,
+        itemCode: filters.itemCode,
+        mode: filters.mode,
+        style: filters.style,
+        limit: filters.pageSize,
+        offset: (filters.page - 1) * filters.pageSize,
       }),
-    });
+    keepPreviousData: true,
+  });
 
   const collectionsQuery = useQuery({
     queryKey: ['content-library-collections'],
@@ -143,24 +165,40 @@ export const useContentLibrary = (): UseContentLibraryResult => {
     setFilters((current) => {
       const exists = current.types.includes(type);
       const nextTypes = exists ? current.types.filter((t) => t !== type) : [...current.types, type];
-      return { ...current, types: nextTypes };
+      return { ...current, types: nextTypes, page: 1 };
     });
   }, [setFilters]);
 
   const toggleFavoritesOnly = useCallback(() => {
-    setFilters((current) => ({ ...current, favoritesOnly: !current.favoritesOnly }));
+    setFilters((current) => ({ ...current, favoritesOnly: !current.favoritesOnly, page: 1 }));
   }, [setFilters]);
 
   const setCollection = useCallback((collectionId: string | null) => {
-    setFilters((current) => ({ ...current, collectionId }));
+    setFilters((current) => ({ ...current, collectionId, page: 1 }));
   }, [setFilters]);
 
   const setSort = useCallback((sort: ContentLibrarySort) => {
-    setFilters((current) => ({ ...current, sort }));
+    setFilters((current) => ({ ...current, sort, page: 1 }));
   }, [setFilters]);
 
   const setQuery = useCallback((query: string) => {
-    setFilters((current) => ({ ...current, query }));
+    setFilters((current) => ({ ...current, query, page: 1 }));
+  }, [setFilters]);
+
+  const setItemCode = useCallback((itemCode: string | null) => {
+    setFilters((current) => ({ ...current, itemCode, page: 1 }));
+  }, [setFilters]);
+
+  const setMode = useCallback((mode: 'A' | 'B' | 'AB' | null) => {
+    setFilters((current) => ({ ...current, mode, page: 1 }));
+  }, [setFilters]);
+
+  const setStyle = useCallback((style: string | null) => {
+    setFilters((current) => ({ ...current, style, page: 1 }));
+  }, [setFilters]);
+
+  const setPage = useCallback((page: number) => {
+    setFilters((current) => ({ ...current, page: Math.max(1, page) }));
   }, [setFilters]);
 
   const saveItem = useCallback(
@@ -243,19 +281,25 @@ export const useContentLibrary = (): UseContentLibraryResult => {
   );
 
   return {
-    items: libraryQuery.data ?? [],
+    items: libraryQuery.data?.items ?? [],
+    totalCount: libraryQuery.data?.totalCount ?? 0,
     collections: collectionsQuery.data ?? [],
     filters,
     setFilters,
     isLoading: libraryQuery.isLoading,
     isFetching: libraryQuery.isFetching,
     isMutating,
+    error: libraryQuery.error,
     refresh,
     toggleType,
     toggleFavoritesOnly,
     setCollection,
     setSort,
     setQuery,
+    setItemCode,
+    setMode,
+    setStyle,
+    setPage,
     saveItem,
     removeItem,
     toggleFavorite,

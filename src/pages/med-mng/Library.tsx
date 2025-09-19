@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { MedMngLayout } from '@/components/med-mng/MedMngLayout';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -9,8 +10,20 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Switch } from '@/components/ui/switch';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
+import { OptimizedImage } from '@/components/ui/OptimizedImage';
 import {
   BookOpen,
   Clock,
@@ -21,27 +34,38 @@ import {
   GraduationCap,
   Heart,
   HeartOff,
+  Image as ImageIcon,
   Layers,
   ListPlus,
+  Mic,
   Music,
   FileText,
   Pause,
   Play,
+  RefreshCcw,
   Search,
   Sparkles,
+  AlertCircle,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useContentLibrary, type ContentLibraryFilters } from '@/hooks/library/useContentLibrary';
 import { contentLibraryService } from '@/services/library/ContentLibraryService';
 import { musicService } from '@/services';
-import type { StudyNoteRow, ContentResourceType } from '@/services/library/ContentLibraryService';
+import type {
+  ContentLibraryEntry,
+  ContentResourceType,
+  StudyNoteRow,
+} from '@/services/library/ContentLibraryService';
 import { useUser } from '@/stores/appStore';
+import { musicStyles } from '@/components/med-mng/create/StyleSelector';
 
 const RESOURCE_CONFIG: Record<string, { label: string; description: string; icon: React.ReactNode }> = {
-  track: { label: 'Piste générée', description: 'Audio IA + paroles synchronisées', icon: <Music className="h-4 w-4" /> },
+  track: { label: 'Piste générée', description: 'Audio Suno orchestré par item', icon: <Music className="h-4 w-4" /> },
+  lyrics: { label: 'Paroles synchronisées', description: 'Segments temps réel pour karaoké', icon: <Mic className="h-4 w-4" /> },
   edn: { label: 'Fiche EDN', description: 'Données unifiées EDN/ECOS', icon: <BookOpen className="h-4 w-4" /> },
   qcm: { label: 'Session QCM', description: 'Questionnaires générés & scores', icon: <GraduationCap className="h-4 w-4" /> },
+  comic: { label: 'Bande dessinée', description: 'Script et planches pédagogiques', icon: <ImageIcon className="h-4 w-4" /> },
   note: { label: 'Note personnelle', description: 'Annotations & rappels de révision', icon: <FileText className="h-4 w-4" /> },
 };
 
@@ -69,19 +93,106 @@ const formatDuration = (seconds?: number | null) => {
   return `${minutes}:${remaining}`;
 };
 
-const buildMarkdownExport = async (
+const formatTimestamp = (ms?: number | null) => {
+  if (ms === null || ms === undefined) return '0:00';
+  const totalSeconds = Math.max(0, Math.round(ms / 1000));
+  const minutes = Math.floor(totalSeconds / 60);
+  const seconds = String(totalSeconds % 60).padStart(2, '0');
+  return `${minutes}:${seconds}`;
+};
+
+type ExportFormat = 'md' | 'json';
+
+const buildExportPayload = async (
   resourceType: string,
   resourceIdentifier: string,
   title: string,
   metadata: any,
-): Promise<string> => {
+  format: ExportFormat,
+): Promise<{ content: string; mimeType: string; extension: string }> => {
   const header = `# ${title}\nType : ${resourceType.toUpperCase()}\nRéférence : ${resourceIdentifier}\n`;
 
+  if (format === 'json') {
+    const payload: Record<string, unknown> = {
+      type: resourceType,
+      id: resourceIdentifier,
+      title,
+      metadata,
+    };
+
+    switch (resourceType) {
+      case 'lyrics': {
+        payload.segments = await contentLibraryService.getLyricsSegments(resourceIdentifier);
+        break;
+      }
+      case 'comic': {
+        payload.comic = await contentLibraryService.getComicEntry(resourceIdentifier);
+        break;
+      }
+      case 'note': {
+        payload.note = await contentLibraryService.getStudyNote(resourceIdentifier);
+        break;
+      }
+      case 'edn': {
+        if (metadata?.item_code) {
+          payload.item = await contentLibraryService.getEdnItem(metadata.item_code);
+        }
+        break;
+      }
+      default:
+        break;
+    }
+
+    return {
+      content: JSON.stringify(payload, null, 2),
+      mimeType: 'application/json;charset=utf-8',
+      extension: 'json',
+    };
+  }
+
   if (resourceType === 'track') {
-    const duration = formatDuration(Number(metadata?.duration_seconds));
-    const bpm = metadata?.bpm ? `${metadata.bpm} BPM` : 'N/A';
-    const lyricsInfo = metadata?.has_lyrics ? `${metadata?.lyric_segments ?? 0} segments synchronisés` : 'Paroles non disponibles';
-    return `${header}\n- Durée : ${duration}\n- Tempo : ${bpm}\n- Audio status : ${metadata?.audio_status ?? 'Inconnu'}\n- Lyrics : ${lyricsInfo}\n`;
+    const duration = formatDuration(Number(metadata?.duration_seconds ?? metadata?.duration));
+    const segmentCount = metadata?.segment_count ?? 0;
+    const status = metadata?.generation_status ?? metadata?.status ?? 'Inconnu';
+    const style = metadata?.style ?? '—';
+    const mode = metadata?.mode ?? '—';
+    const itemCode = metadata?.item_code ?? '—';
+    const lines = [
+      `- Item : ${itemCode}`,
+      `- Mode : ${mode}`,
+      `- Style : ${style}`,
+      `- Durée : ${duration}`,
+      `- Segments synchronisés : ${segmentCount}`,
+      `- Statut : ${status}`,
+    ];
+    return {
+      content: `${header}\n${lines.join('\n')}\n`,
+      mimeType: 'text/markdown;charset=utf-8',
+      extension: 'md',
+    };
+  }
+
+  if (resourceType === 'lyrics') {
+    const segments = await contentLibraryService.getLyricsSegments(resourceIdentifier);
+    const mode = metadata?.mode ?? '—';
+    const style = metadata?.style ?? '—';
+    const itemCode = metadata?.item_code ?? '—';
+    const lines = segments.length
+      ? segments
+          .map(
+            (segment) =>
+              `- [${formatTimestamp(segment.start_ms)} → ${formatTimestamp(segment.end_ms)}] ${segment.text ?? ''}`,
+          )
+          .join('\n')
+      : 'Aucun segment synchronisé.';
+
+    const intro = [`- Item : ${itemCode}`, `- Mode : ${mode}`, `- Style : ${style}`, `- Segments : ${segments.length}`];
+
+    return {
+      content: `${header}\n${intro.join('\n')}\n\nSegments synchronisés :\n\n${lines}\n`,
+      mimeType: 'text/markdown;charset=utf-8',
+      extension: 'md',
+    };
   }
 
   if (resourceType === 'edn') {
@@ -90,14 +201,22 @@ const buildMarkdownExport = async (
     const rangB = ednItem?.rang_b_competence_count ?? metadata?.rang_b ?? 0;
     const domaines = [ednItem?.specialite, ednItem?.domaine_medical].filter(Boolean).join(' · ');
     const valeurs = ednItem?.valeurs_professionnelles ? JSON.stringify(ednItem.valeurs_professionnelles, null, 2) : '—';
-    return `${header}\n- Spécialité : ${domaines || '—'}\n- Compétences Rang A : ${rangA}\n- Compétences Rang B : ${rangB}\n- Valeurs professionnelles :\n\n${valeurs}\n`;
+    return {
+      content: `${header}\n- Spécialité : ${domaines || '—'}\n- Compétences Rang A : ${rangA}\n- Compétences Rang B : ${rangB}\n- Valeurs professionnelles :\n\n${valeurs}\n`,
+      mimeType: 'text/markdown;charset=utf-8',
+      extension: 'md',
+    };
   }
 
   if (resourceType === 'qcm') {
     const questionCount = metadata?.question_count ?? 0;
     const completed = metadata?.completed_at ? `Terminé le ${new Date(metadata.completed_at).toLocaleString()}` : 'Session en cours';
     const errors = metadata?.errors ? JSON.stringify(metadata.errors, null, 2) : '—';
-    return `${header}\n- Questions : ${questionCount}\n- Statut : ${completed}\n- Diagnostics :\n${errors}\n`;
+    return {
+      content: `${header}\n- Questions : ${questionCount}\n- Statut : ${completed}\n- Diagnostics :\n${errors}\n`,
+      mimeType: 'text/markdown;charset=utf-8',
+      extension: 'md',
+    };
   }
 
   if (resourceType === 'note') {
@@ -108,22 +227,75 @@ const buildMarkdownExport = async (
       : metadata?.last_reviewed_at
       ? new Date(metadata.last_reviewed_at).toLocaleString()
       : 'Jamais';
-    return `${header}\nDernière révision : ${lastReviewed}\n\n${content}\n`;
+    return {
+      content: `${header}\nDernière révision : ${lastReviewed}\n\n${content}\n`,
+      mimeType: 'text/markdown;charset=utf-8',
+      extension: 'md',
+    };
   }
 
-  return header;
+  if (resourceType === 'comic') {
+    const comicEntry = await contentLibraryService.getComicEntry(resourceIdentifier);
+    const rawPanels = comicEntry?.comic_panels as any;
+    const panels: any[] = Array.isArray(rawPanels)
+      ? rawPanels
+      : Array.isArray(rawPanels?.panels)
+      ? rawPanels.panels
+      : [];
+    const lines = panels.length
+      ? panels
+          .map((panel, index) => `- Case ${index + 1} : ${panel?.dialogue ?? '—'}`)
+          .join('\n')
+      : 'Aucune case disponible.';
+    const itemCode = metadata?.item_code ?? comicEntry?.item_id ?? '—';
+    const generatedAt = comicEntry?.generated_at ? new Date(comicEntry.generated_at).toLocaleString() : '—';
+
+    return {
+      content: `${header}\n- Item : ${itemCode}\n- Nombre de cases : ${panels.length}\n- Généré le : ${generatedAt}\n\nScénario :\n\n${lines}\n`,
+      mimeType: 'text/markdown;charset=utf-8',
+      extension: 'md',
+    };
+  }
+
+  return {
+    content: header,
+    mimeType: 'text/markdown;charset=utf-8',
+    extension: 'md',
+  };
 };
 
 const renderMetadata = (resourceType: string, metadata: any) => {
   switch (resourceType) {
-    case 'track':
+    case 'track': {
+      const mode = metadata?.mode ?? '—';
+      const style = metadata?.style ?? '—';
+      const duration = formatDuration(Number(metadata?.duration_seconds ?? metadata?.duration));
+      const segments = metadata?.segment_count ?? 0;
+      const status = metadata?.generation_status ?? metadata?.status ?? '—';
       return (
         <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
-          <span>Durée : {formatDuration(Number(metadata?.duration_seconds))}</span>
-          <span>Tempo : {metadata?.bpm ? `${metadata.bpm} BPM` : '—'}</span>
-          <span>Lyrics : {metadata?.has_lyrics ? `${metadata?.lyric_segments ?? 0} segments` : 'Non synchronisées'}</span>
+          <span>Mode : {mode}</span>
+          <span>Style : {style}</span>
+          <span>Durée : {duration}</span>
+          <span>Segments : {segments}</span>
+          <span>Statut : {status}</span>
         </div>
       );
+    }
+    case 'lyrics': {
+      const mode = metadata?.mode ?? '—';
+      const style = metadata?.style ?? '—';
+      const segments = metadata?.segment_count ?? 0;
+      const isAligned = metadata?.has_segments ?? segments > 0;
+      return (
+        <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
+          <span>Mode : {mode}</span>
+          <span>Style : {style}</span>
+          <span>Segments : {segments}</span>
+          <span>{isAligned ? 'Synchronisé' : 'À synchroniser'}</span>
+        </div>
+      );
+    }
     case 'edn':
       return (
         <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
@@ -137,6 +309,14 @@ const renderMetadata = (resourceType: string, metadata: any) => {
         <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
           <span>Questions : {metadata?.question_count ?? 0}</span>
           <span>{metadata?.completed_at ? `Terminé le ${new Date(metadata.completed_at).toLocaleDateString()}` : 'Session en cours'}</span>
+        </div>
+      );
+    case 'comic':
+      return (
+        <div className="flex flex-wrap gap-3 text-sm text-muted-foreground">
+          <span>Item : {metadata?.item_code ?? '—'}</span>
+          <span>Cases : {metadata?.panel_count ?? 0}</span>
+          <span>{metadata?.generated_at ? `Généré le ${new Date(metadata.generated_at).toLocaleDateString()}` : '—'}</span>
         </div>
       );
     case 'note':
@@ -154,10 +334,82 @@ const renderMetadata = (resourceType: string, metadata: any) => {
   }
 };
 
+const renderPreview = (resourceType: string, metadata: any) => {
+  if (resourceType === 'track' && metadata?.image_url) {
+    return (
+      <div className="relative overflow-hidden rounded-lg border border-white/10">
+        <OptimizedImage
+          src={metadata.image_url}
+          alt="Couverture de la piste"
+          className="h-36 w-full object-cover"
+          loading="lazy"
+        />
+      </div>
+    );
+  }
+
+  if (resourceType === 'lyrics') {
+    const previewSegments = Array.isArray(metadata?.preview_segments) ? metadata.preview_segments : [];
+    if (previewSegments.length === 0) {
+      return (
+        <div className="rounded-lg border border-dashed border-white/10 bg-slate-950/40 p-3 text-sm text-slate-400">
+          Aucune prévisualisation disponible. Lance une synchronisation pour générer les segments.
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-2 rounded-lg border border-white/10 bg-slate-950/60 p-3 text-sm leading-6 text-slate-100">
+        {previewSegments.map((segment: any) => (
+          <div key={segment?.idx ?? Math.random()} className="flex items-start gap-3">
+            <span className="font-mono text-xs text-emerald-300">{formatTimestamp(segment?.start_ms)}</span>
+            <span className="flex-1 text-slate-200">{segment?.text ?? ''}</span>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (resourceType === 'comic') {
+    if (metadata?.preview_image) {
+      return (
+        <div className="relative overflow-hidden rounded-lg border border-white/10">
+          <OptimizedImage
+            src={metadata.preview_image}
+            alt="Aperçu de la bande dessinée"
+            className="h-40 w-full object-cover"
+            loading="lazy"
+          />
+        </div>
+      );
+    }
+
+    if (metadata?.preview_dialogue) {
+      return (
+        <div className="rounded-lg border border-white/10 bg-slate-950/50 p-3 text-sm text-slate-200">
+          « {metadata.preview_dialogue} »
+        </div>
+      );
+    }
+  }
+
+  if (resourceType === 'note' && metadata?.preview) {
+    return (
+      <div className="rounded-lg border border-white/10 bg-slate-950/50 p-3 text-sm text-slate-200">
+        {metadata.preview}
+      </div>
+    );
+  }
+
+  return null;
+};
+
 const typeFilters: Array<{ type: ContentResourceType; label: string; icon: React.ReactNode }> = [
   { type: 'track', label: 'Pistes', icon: <Music className="h-4 w-4" /> },
+  { type: 'lyrics', label: 'Lyrics', icon: <Mic className="h-4 w-4" /> },
   { type: 'edn', label: 'Fiches', icon: <BookOpen className="h-4 w-4" /> },
   { type: 'qcm', label: 'QCM', icon: <GraduationCap className="h-4 w-4" /> },
+  { type: 'comic', label: 'BD', icon: <ImageIcon className="h-4 w-4" /> },
   { type: 'note', label: 'Notes', icon: <FileText className="h-4 w-4" /> },
 ];
 
@@ -180,10 +432,11 @@ const applyPresetForFilter = (
       return {
         ...current,
         favoritesOnly: true,
+        page: 1,
       };
     }
     case 'my-creations': {
-      const nextTypes: ContentResourceType[] = ['track'];
+      const nextTypes: ContentResourceType[] = ['track', 'lyrics'];
       const sameTypes =
         current.types.length === nextTypes.length &&
         current.types.every((type, index) => type === nextTypes[index]);
@@ -197,6 +450,7 @@ const applyPresetForFilter = (
         favoritesOnly: false,
         sort: 'recent',
         types: nextTypes,
+        page: 1,
       };
     }
     case 'recent': {
@@ -208,6 +462,7 @@ const applyPresetForFilter = (
         ...current,
         favoritesOnly: false,
         sort: 'recent',
+        page: 1,
       };
     }
     case 'all':
@@ -219,6 +474,7 @@ const applyPresetForFilter = (
       return {
         ...current,
         favoritesOnly: false,
+        page: 1,
       };
     }
   }
@@ -230,6 +486,7 @@ const LibraryPage: React.FC = () => {
   const user = useUser();
   const {
     items,
+    totalCount,
     collections,
     filters,
     setFilters,
@@ -237,6 +494,10 @@ const LibraryPage: React.FC = () => {
     toggleType,
     setCollection,
     setSort,
+    setItemCode,
+    setMode,
+    setStyle,
+    setPage,
     saveItem,
     removeItem,
     toggleFavorite,
@@ -246,6 +507,7 @@ const LibraryPage: React.FC = () => {
     isLoading,
     isFetching,
     isMutating,
+    error: libraryError,
   } = useContentLibrary();
 
   const [audioState, setAudioState] = useState<{ id: string | null; player: HTMLAudioElement | null }>({ id: null, player: null });
@@ -254,6 +516,78 @@ const LibraryPage: React.FC = () => {
   const [newCollectionDescription, setNewCollectionDescription] = useState('');
   const [notePreview, setNotePreview] = useState<StudyNoteRow | null>(null);
   const [isNoteLoading, setIsNoteLoading] = useState(false);
+  const [isItemPopoverOpen, setIsItemPopoverOpen] = useState(false);
+
+  const { data: itemOptionsData, isLoading: isItemsLoading } = useQuery({
+    queryKey: ['library-item-options'],
+    queryFn: () => contentLibraryService.listItemOptions(),
+    staleTime: 1000 * 60 * 30,
+  });
+
+  const itemOptions = itemOptionsData ?? [];
+  const selectedItemOption = useMemo(
+    () => itemOptions.find((option) => option.item_code === filters.itemCode) ?? null,
+    [itemOptions, filters.itemCode],
+  );
+
+  const styleOptions = useMemo(
+    () => musicStyles.map((style) => ({ value: style.value, label: style.label })),
+    [],
+  );
+
+  const totalPages = useMemo(() => {
+    if (!filters.pageSize) return 1;
+    return Math.max(1, Math.ceil((totalCount ?? 0) / filters.pageSize));
+  }, [filters.pageSize, totalCount]);
+
+  const paginationPages = useMemo(() => {
+    const windowSize = 5;
+    const pages: number[] = [];
+
+    if (!Number.isFinite(totalPages) || totalPages <= 0) {
+      return [1];
+    }
+
+    if (totalPages <= windowSize) {
+      for (let page = 1; page <= totalPages; page += 1) {
+        pages.push(page);
+      }
+      return pages;
+    }
+
+    const halfWindow = Math.floor(windowSize / 2);
+    let start = filters.page - halfWindow;
+    let end = filters.page + halfWindow;
+
+    if (start < 1) {
+      end += 1 - start;
+      start = 1;
+    }
+
+    if (end > totalPages) {
+      const diff = end - totalPages;
+      start = Math.max(1, start - diff);
+      end = totalPages;
+    }
+
+    for (let page = start; page <= end; page += 1) {
+      pages.push(page);
+    }
+
+    return pages;
+  }, [filters.page, totalPages]);
+
+  const shouldShowFirstPage = paginationPages.length > 0 && paginationPages[0] !== 1;
+  const shouldShowLastPage =
+    paginationPages.length > 0 && paginationPages[paginationPages.length - 1] !== totalPages;
+  const showStartEllipsis = shouldShowFirstPage && paginationPages[0] > 2;
+  const showEndEllipsis = shouldShowLastPage &&
+    paginationPages[paginationPages.length - 1] < totalPages - 1;
+
+  const libraryErrorMessage = useMemo(() => {
+    if (!libraryError) return null;
+    return libraryError instanceof Error ? libraryError.message : "Impossible de charger la bibliothèque";
+  }, [libraryError]);
   const activeQuickFilter = useMemo<QuickFilterId>(() => {
     const filterParam = searchParams.get('filter');
     return (QUICK_FILTERS.find((filter) => filter.id === filterParam)?.id ?? 'all') as QuickFilterId;
@@ -303,24 +637,40 @@ const LibraryPage: React.FC = () => {
     [audioState.id, audioState.player],
   );
 
-  const handleExport = useCallback(async (resourceType: string, resourceIdentifier: string, title: string, metadata: any) => {
-    try {
-      const markdown = await buildMarkdownExport(resourceType, resourceIdentifier, title, metadata);
-      const blob = new Blob([markdown], { type: 'text/markdown;charset=utf-8' });
-      const url = URL.createObjectURL(blob);
-      const anchor = document.createElement('a');
-      anchor.href = url;
-      anchor.download = `${title.replace(/[^a-z0-9]/gi, '_')}_${resourceType}.md`;
-      document.body.appendChild(anchor);
-      anchor.click();
-      document.body.removeChild(anchor);
-      URL.revokeObjectURL(url);
-      toast.success('Export généré');
-    } catch (error) {
-      console.error(error);
-      toast.error("Impossible d'exporter l'élément");
-    }
-  }, []);
+  const handleExport = useCallback(
+    async (
+      resourceType: string,
+      resourceIdentifier: string,
+      title: string,
+      metadata: any,
+      format: ExportFormat = 'md',
+    ) => {
+      try {
+        const { content, mimeType, extension } = await buildExportPayload(
+          resourceType,
+          resourceIdentifier,
+          title,
+          metadata,
+          format,
+        );
+        const blob = new Blob([content], { type: mimeType });
+        const url = URL.createObjectURL(blob);
+        const anchor = document.createElement('a');
+        anchor.href = url;
+        const safeTitle = title.replace(/[^a-z0-9_-]/gi, '_');
+        anchor.download = `${safeTitle}_${resourceType}.${extension}`;
+        document.body.appendChild(anchor);
+        anchor.click();
+        document.body.removeChild(anchor);
+        URL.revokeObjectURL(url);
+        toast.success('Export généré');
+      } catch (error) {
+        console.error(error);
+        toast.error("Impossible d'exporter l'élément");
+      }
+    },
+    [],
+  );
 
   const handleOpenNote = useCallback(async (resourceIdentifier: string) => {
     try {
@@ -339,6 +689,31 @@ const LibraryPage: React.FC = () => {
     }
   }, []);
 
+  const handleRelaunch = useCallback(
+    (item: ContentLibraryEntry) => {
+      if (item.resource_type !== 'track' && item.resource_type !== 'lyrics') {
+        return;
+      }
+
+      const metadata = item.metadata as any;
+      const itemCode = metadata?.item_code;
+      const mode = metadata?.mode ?? undefined;
+      const style = metadata?.style ?? undefined;
+
+      if (!itemCode) {
+        navigate('/med-mng/create');
+        return;
+      }
+
+      const params = new URLSearchParams();
+      params.set('item', itemCode);
+      if (mode) params.set('mode', mode);
+      if (style) params.set('style', style);
+      navigate(`/med-mng/create?${params.toString()}`);
+    },
+    [navigate],
+  );
+
   const handleCreateCollection = useCallback(async () => {
     const created = await createCollection(newCollectionName, newCollectionDescription);
     if (created) {
@@ -349,6 +724,38 @@ const LibraryPage: React.FC = () => {
   }, [createCollection, newCollectionDescription, newCollectionName]);
 
   const collectionOptions = useMemo(() => [{ id: 'all', name: 'Toutes les collections' }, ...collections], [collections]);
+
+  const handleSelectItemOption = useCallback(
+    (itemCode: string | null) => {
+      setItemCode(itemCode);
+      setPage(1);
+      setIsItemPopoverOpen(false);
+    },
+    [setItemCode, setPage],
+  );
+
+  const handleModeChange = useCallback(
+    (value: string) => {
+      setMode(value === 'all' ? null : (value as 'A' | 'B' | 'AB'));
+    },
+    [setMode],
+  );
+
+  const handleStyleChange = useCallback(
+    (value: string) => {
+      setStyle(value === 'all' ? null : value);
+    },
+    [setStyle],
+  );
+
+  const handlePageChange = useCallback(
+    (page: number) => {
+      const boundedPage = Math.min(Math.max(1, page), totalPages);
+      setPage(boundedPage);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    },
+    [setPage, totalPages],
+  );
 
   const handleQuickFilter = useCallback(
     (nextFilter: QuickFilterId) => {
@@ -375,12 +782,18 @@ const LibraryPage: React.FC = () => {
   );
 
   const handleResetFilters = useCallback(() => {
-    setFilters(() => ({
+    setFilters((current) => ({
+      ...current,
       query: '',
       types: [],
       favoritesOnly: false,
       collectionId: null,
       sort: 'recent',
+      itemCode: null,
+      mode: null,
+      style: null,
+      page: 1,
+      pageSize: current.pageSize,
     }));
     setSearchParams((prev) => {
       const params = new URLSearchParams(prev);
@@ -401,6 +814,10 @@ const LibraryPage: React.FC = () => {
                   Retrouve toutes tes pistes générées, fiches EDN/ECOS, sessions QCM et notes personnelles dans un seul espace avec
                   recherche unifiée, favoris et collections.
                 </p>
+                <div className="mt-3 flex items-center gap-3 text-xs text-slate-400">
+                  <span>{totalCount} éléments</span>
+                  {isFetching && !isLoading && <span className="text-emerald-300">Actualisation…</span>}
+                </div>
               </div>
               <div className="flex items-center gap-3">
                 <Button
@@ -504,6 +921,79 @@ const LibraryPage: React.FC = () => {
               </div>
             </div>
 
+            <div className="mt-6 grid gap-6 lg:grid-cols-4">
+              <div className="lg:col-span-2">
+                <label className="mb-2 block text-sm font-medium text-slate-200">Item EDN / ECN</label>
+                <Popover open={isItemPopoverOpen} onOpenChange={setIsItemPopoverOpen}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full justify-between bg-slate-900/80 text-slate-100"
+                      disabled={isItemsLoading}
+                    >
+                      <span className="truncate">
+                        {selectedItemOption
+                          ? `${selectedItemOption.item_code} · ${selectedItemOption.title}`
+                          : 'Tous les items'}
+                      </span>
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-80 p-0">
+                    <Command>
+                      <CommandInput placeholder="Rechercher un item..." />
+                      <CommandList>
+                        <CommandEmpty>Aucun item trouvé.</CommandEmpty>
+                        <CommandGroup>
+                          <CommandItem onSelect={() => handleSelectItemOption(null)}>Tous les items</CommandItem>
+                          {itemOptions.map((option) => (
+                            <CommandItem
+                              key={option.id}
+                              value={`${option.item_code} ${option.title}`}
+                              onSelect={() => handleSelectItemOption(option.item_code)}
+                            >
+                              <span className="font-medium">{option.item_code}</span>
+                              <span className="ml-2 text-xs text-slate-400">{option.title}</span>
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-200">Mode</label>
+                <Select value={filters.mode ?? 'all'} onValueChange={handleModeChange}>
+                  <SelectTrigger className="bg-slate-900/80 text-slate-100">
+                    <SelectValue placeholder="Tous les modes" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-slate-900 text-slate-100">
+                    <SelectItem value="all">Tous les modes</SelectItem>
+                    <SelectItem value="A">Rang A</SelectItem>
+                    <SelectItem value="B">Rang B</SelectItem>
+                    <SelectItem value="AB">Mix A+B</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="mb-2 block text-sm font-medium text-slate-200">Style musical</label>
+                <Select value={filters.style ?? 'all'} onValueChange={handleStyleChange}>
+                  <SelectTrigger className="bg-slate-900/80 text-slate-100">
+                    <SelectValue placeholder="Tous les styles" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-slate-900 text-slate-100">
+                    <SelectItem value="all">Tous les styles</SelectItem>
+                    {styleOptions.map((style) => (
+                      <SelectItem key={style.value} value={style.value}>
+                        {style.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
             <div className="mt-6 flex flex-wrap items-center gap-4">
               <div className="flex items-center gap-2 text-sm text-slate-200">
                 <Filter className="h-4 w-4" />
@@ -535,6 +1025,14 @@ const LibraryPage: React.FC = () => {
               </div>
             </div>
           </section>
+
+          {libraryErrorMessage && (
+            <Alert variant="destructive" className="mb-6 border-red-500/30 bg-red-950/40 text-red-100">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Chargement impossible</AlertTitle>
+              <AlertDescription>{libraryErrorMessage}</AlertDescription>
+            </Alert>
+          )}
 
           {(isLoading || isFetching) && (
             <div className="mb-8 grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
@@ -577,6 +1075,7 @@ const LibraryPage: React.FC = () => {
               const collectionsForItem = parseCollections(item.collections as CollectionJson);
               const isFavorite = Boolean(item.is_favorite);
               const inLibrary = Boolean(item.in_library);
+              const metadata = item.metadata as any;
 
               return (
                 <Card key={`${item.resource_type}-${item.resource_identifier}`} className="border-white/5 bg-white/5">
@@ -663,6 +1162,7 @@ const LibraryPage: React.FC = () => {
                     )}
                   </CardHeader>
                   <CardContent className="space-y-4 text-slate-200">
+                    {renderPreview(item.resource_type, metadata)}
                     <div className="flex flex-wrap gap-2">
                       {item.tags?.map((tag) => (
                         <Badge key={tag} variant="outline" className="border-white/10 bg-white/5 text-xs text-slate-200">
@@ -670,7 +1170,7 @@ const LibraryPage: React.FC = () => {
                         </Badge>
                       ))}
                     </div>
-                    {renderMetadata(item.resource_type, item.metadata)}
+                    {renderMetadata(item.resource_type, metadata)}
                   </CardContent>
                   <CardFooter className="flex flex-wrap gap-2">
                     {item.resource_type === 'track' && (
@@ -682,6 +1182,28 @@ const LibraryPage: React.FC = () => {
                       >
                         {audioState.id === item.resource_identifier ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
                         {audioState.id === item.resource_identifier ? 'Pause' : 'Lire'}
+                      </Button>
+                    )}
+                    {(item.resource_type === 'track' || item.resource_type === 'lyrics') && metadata?.item_code && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="gap-2"
+                        onClick={() => navigate(`/edn?focus=${metadata.item_code}`)}
+                      >
+                        <BookOpen className="h-4 w-4" />
+                        Voir l'item
+                      </Button>
+                    )}
+                    {(item.resource_type === 'track' || item.resource_type === 'lyrics') && (
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        className="gap-2"
+                        onClick={() => handleRelaunch(item)}
+                      >
+                        <RefreshCcw className="h-4 w-4" />
+                        Relancer
                       </Button>
                     )}
                     {item.resource_type === 'edn' && (
@@ -729,15 +1251,26 @@ const LibraryPage: React.FC = () => {
                         Consulter la note
                       </Button>
                     )}
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      className="gap-2"
-                      onClick={() => handleExport(item.resource_type, item.resource_identifier, item.title ?? 'Export', item.metadata)}
-                    >
-                      <Download className="h-4 w-4" />
-                      Exporter
-                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button size="sm" variant="outline" className="gap-2">
+                          <Download className="h-4 w-4" />
+                          Exporter
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="w-44 bg-slate-900 text-slate-100">
+                        <DropdownMenuItem
+                          onClick={() => handleExport(item.resource_type, item.resource_identifier, item.title ?? 'Export', metadata, 'md')}
+                        >
+                          Markdown
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          onClick={() => handleExport(item.resource_type, item.resource_identifier, item.title ?? 'Export', metadata, 'json')}
+                        >
+                          JSON
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                     {inLibrary ? (
                       <Button
                         size="sm"
@@ -764,6 +1297,90 @@ const LibraryPage: React.FC = () => {
               );
             })}
           </div>
+          {totalPages > 1 && (
+            <div className="mt-10 flex justify-center">
+              <Pagination>
+                <PaginationContent>
+                  <PaginationItem>
+                    <PaginationPrevious
+                      href="#"
+                      onClick={(event) => {
+                        event.preventDefault();
+                        if (filters.page > 1) {
+                          handlePageChange(filters.page - 1);
+                        }
+                      }}
+                      className={filters.page === 1 ? 'pointer-events-none opacity-50' : ''}
+                    />
+                  </PaginationItem>
+                  {shouldShowFirstPage && (
+                    <PaginationItem>
+                      <PaginationLink
+                        href="#"
+                        onClick={(event) => {
+                          event.preventDefault();
+                          handlePageChange(1);
+                        }}
+                        isActive={filters.page === 1}
+                      >
+                        1
+                      </PaginationLink>
+                    </PaginationItem>
+                  )}
+                  {showStartEllipsis && (
+                    <PaginationItem>
+                      <PaginationEllipsis className="text-slate-400" />
+                    </PaginationItem>
+                  )}
+                  {paginationPages.map((page) => (
+                    <PaginationItem key={page}>
+                      <PaginationLink
+                        href="#"
+                        onClick={(event) => {
+                          event.preventDefault();
+                          handlePageChange(page);
+                        }}
+                        isActive={page === filters.page}
+                      >
+                        {page}
+                      </PaginationLink>
+                    </PaginationItem>
+                  ))}
+                  {showEndEllipsis && (
+                    <PaginationItem>
+                      <PaginationEllipsis className="text-slate-400" />
+                    </PaginationItem>
+                  )}
+                  {shouldShowLastPage && (
+                    <PaginationItem>
+                      <PaginationLink
+                        href="#"
+                        onClick={(event) => {
+                          event.preventDefault();
+                          handlePageChange(totalPages);
+                        }}
+                        isActive={filters.page === totalPages}
+                      >
+                        {totalPages}
+                      </PaginationLink>
+                    </PaginationItem>
+                  )}
+                  <PaginationItem>
+                    <PaginationNext
+                      href="#"
+                      onClick={(event) => {
+                        event.preventDefault();
+                        if (filters.page < totalPages) {
+                          handlePageChange(filters.page + 1);
+                        }
+                      }}
+                      className={filters.page === totalPages ? 'pointer-events-none opacity-50' : ''}
+                    />
+                  </PaginationItem>
+                </PaginationContent>
+              </Pagination>
+            </div>
+          )}
         </div>
       </div>
 

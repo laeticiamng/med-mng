@@ -5,6 +5,8 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Separator } from '@/components/ui/separator';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Play,
   Music,
@@ -22,8 +24,11 @@ import { useMusicQueue } from '@/hooks/music/useMusicQueue';
 import { useMusicJob } from '@/hooks/music/useMusicJob';
 import { useMusicQueueStore } from '@/stores/musicQueueStore';
 import { musicOrchestrator } from '@/services/musicOrchestrator';
-import { buildMedicalPrompt, type RangType } from '@/hooks/useMusicGeneration';
+import type { RangType } from '@/hooks/useMusicGeneration';
+import type { MusicMode } from '@/services/music/itemPromptService';
 import type { MusicJobSegment } from '@/types/music';
+import { RateLimitNotice } from '@/components/system/RateLimitNotice';
+import { RateLimitExceededError } from '@/utils/errors/rateLimit';
 
 export type { RangType } from '@/hooks/useMusicGeneration';
 
@@ -33,6 +38,12 @@ interface MusicGeneratorProps {
   tableauRangB?: any;
   className?: string;
 }
+
+const RANG_LABEL: Record<RangType, string> = {
+  A: 'Rang A',
+  B: 'Rang B',
+  Mix: 'Mix A+B',
+};
 
 export const MusicGenerator: React.FC<MusicGeneratorProps> = ({
   itemCode,
@@ -59,6 +70,8 @@ export const MusicGenerator: React.FC<MusicGeneratorProps> = ({
     canRetry,
     isCancelable,
   } = useMusicJob(activeJobId);
+  const [styleInput, setStyleInput] = useState('éducatif moderne');
+  const styleInputId = useMemo(() => `music-style-${itemCode}`, [itemCode]);
   const [lastGenerated, setLastGenerated] = useState<{
     jobId: string;
     rang: RangType;
@@ -66,61 +79,67 @@ export const MusicGenerator: React.FC<MusicGeneratorProps> = ({
     streamUrl?: string;
     completedAt?: number;
     duration?: number;
+    style?: string;
   } | null>(null);
+  const [rateLimit, setRateLimit] = useState<{ message: string; retryAt?: number | null; retryAfterSeconds?: number } | null>(null);
+
+  const mapRangToMode = (rang: RangType): MusicMode => {
+    if (rang === 'Mix') {
+      return 'AB';
+    }
+    return rang;
+  };
 
   const handleGenerate = async (rang: RangType) => {
-    const tableauData = rang === 'A' ? tableauRangA :
-                       rang === 'B' ? tableauRangB :
-                       { // Mix A+B
-                         sections: [
-                           ...(tableauRangA?.sections || []),
-                           ...(tableauRangB?.sections || [])
-                         ]
-                       };
-
+    const mode = mapRangToMode(rang);
+    const normalizedStyle = styleInput.trim();
+    const styleUsed = normalizedStyle.length > 0 ? normalizedStyle : 'éducatif moderne';
     const metadata = {
-      itemCode,
-      rang,
-      trackId: `${itemCode}-${rang}-${Date.now()}`,
       source: 'MusicGenerator',
+      rang,
+      requestedStyle: styleUsed,
     } satisfies Record<string, unknown>;
 
     try {
-      const callbackUrl =
-        typeof window !== 'undefined'
-          ? `${window.location.origin}/api/music/status`
-          : 'https://example.com/api/music/status';
-
-      const jobCreated = await musicOrchestrator.enqueueJob({
-        payload: {
-          prompt: buildMedicalPrompt(itemCode, rang, tableauData),
-          style: 'educatif-medical',
-          title: `${itemCode} Rang ${rang} - Génération orchestrée`,
-          customMode: true,
-          instrumental: false,
-          model: 'V4_5',
-          callBackUrl: callbackUrl,
-        },
-        targetDuration: 180,
-        segmentDuration: 60,
+      const jobCreated = await musicOrchestrator.enqueueItemGeneration({
+        itemCode,
+        mode,
+        style: normalizedStyle.length > 0 ? normalizedStyle : undefined,
         metadata,
       });
 
       setActiveJobId(jobCreated.id);
       setLastGenerated(null);
+      setRateLimit(null);
 
       toast({
         title: '🎵 Génération ajoutée à la file',
-        description: `Rang ${rang} en préparation – ${jobCreated.segments.length} segments seront assemblés.`,
+        description: `${RANG_LABEL[rang]} (${styleUsed}) en préparation – ${jobCreated.segments.length} segments seront assemblés.`,
       });
     } catch (generationError) {
-      const message =
-        generationError instanceof Error ? generationError.message : 'Erreur inconnue lors de la génération.';
-      toast({
-        title: 'Erreur de génération',
-        description: message,
-        variant: 'destructive',
-      });
+      if (generationError instanceof RateLimitExceededError) {
+        const retryAt = generationError.retryAt ?? (generationError.retryAfterSeconds
+          ? Date.now() + generationError.retryAfterSeconds * 1000
+          : undefined);
+        setRateLimit({
+          message: generationError.message,
+          retryAt,
+          retryAfterSeconds: generationError.retryAfterSeconds,
+        });
+        toast({
+          title: 'Limite de génération atteinte',
+          description: generationError.message,
+          variant: 'destructive',
+        });
+      } else {
+        const message =
+          generationError instanceof Error ? generationError.message : 'Erreur inconnue lors de la génération.';
+        toast({
+          title: 'Erreur de génération',
+          description: message,
+          variant: 'destructive',
+        });
+      }
     }
   };
 
@@ -158,6 +177,12 @@ export const MusicGenerator: React.FC<MusicGeneratorProps> = ({
         const rang = (metadata.rang as RangType | undefined) ?? 'Mix';
         const trackId = (metadata.trackId as string | undefined) ?? job.id;
         const duration = typeof metadata.finalMixDuration === 'number' ? metadata.finalMixDuration : undefined;
+        const style =
+          typeof metadata.styleResolved === 'string'
+            ? metadata.styleResolved
+            : typeof metadata.styleInput === 'string'
+              ? metadata.styleInput
+              : undefined;
 
         return {
           jobId: job.id,
@@ -166,6 +191,7 @@ export const MusicGenerator: React.FC<MusicGeneratorProps> = ({
           streamUrl: job.finalMixUrl,
           completedAt: job.completedAt,
           duration,
+          style,
         };
       });
     }
@@ -220,8 +246,17 @@ export const MusicGenerator: React.FC<MusicGeneratorProps> = ({
           Transformez les compétences médicales en chansons mémorisables
         </p>
       </CardHeader>
-      
+
       <CardContent className="p-6 space-y-6">
+        {rateLimit && (
+          <RateLimitNotice
+            scope="music"
+            message={rateLimit.message}
+            retryAt={rateLimit.retryAt}
+            retryAfterSeconds={rateLimit.retryAfterSeconds}
+            onDismiss={() => setRateLimit(null)}
+          />
+        )}
         {job && (
           <Card className="border-blue-200 bg-blue-50">
             <CardContent className="p-4 space-y-4">
@@ -338,6 +373,29 @@ export const MusicGenerator: React.FC<MusicGeneratorProps> = ({
           </div>
         )}
 
+        <div className="grid gap-4 md:grid-cols-2">
+          <div className="space-y-2">
+            <Label htmlFor={styleInputId}>Style musical souhaité</Label>
+            <Input
+              id={styleInputId}
+              value={styleInput}
+              onChange={(event) => setStyleInput(event.target.value)}
+              placeholder="Ex. pop épique, orchestral moderne, lo-fi focus..."
+            />
+            <p className="text-xs text-muted-foreground">
+              Indiquez un style, une ambiance ou des instruments. Laissez vide pour un ton « éducatif moderne ».
+            </p>
+          </div>
+          <div className="rounded-lg border border-dashed border-blue-200 bg-blue-50 p-4 text-xs text-blue-700">
+            <p className="font-medium">Conseils</p>
+            <ul className="mt-2 list-disc space-y-1 pl-4">
+              <li>Combinez humeur + tempo : « pop lumineuse 110 BPM ».</li>
+              <li>Ajoutez des instruments clés : « cordes cinématiques, pads aériens ».</li>
+              <li>Le mode sélectionné adaptera automatiquement le brief OpenAI.</li>
+            </ul>
+          </div>
+        </div>
+
         {/* Options de génération */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Rang A */}
@@ -450,7 +508,7 @@ export const MusicGenerator: React.FC<MusicGeneratorProps> = ({
                 <div className="flex items-center gap-2">
                   <CheckCircle2 className="h-5 w-5 text-green-600" />
                   <span className="font-medium text-green-800">
-                    Dernière génération : Rang {lastGenerated.rang}
+                    Dernière génération : {RANG_LABEL[lastGenerated.rang]}
                   </span>
                 </div>
                 <Button
@@ -473,6 +531,9 @@ export const MusicGenerator: React.FC<MusicGeneratorProps> = ({
                   Écouter
                 </Button>
               </div>
+              {lastGenerated.style && (
+                <p className="mt-2 text-xs text-green-700">Style : {lastGenerated.style}</p>
+              )}
             </CardContent>
           </Card>
         )}

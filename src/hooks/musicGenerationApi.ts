@@ -1,7 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { secureSunoClient } from '@/lib/secureApiClient';
-import { describeRateLimitError } from '@/utils/errors/rateLimit';
+import { toRateLimitError } from '@/utils/errors/rateLimit';
 
 interface GenerateMusicRequest {
   lyrics: string;
@@ -55,13 +55,13 @@ export const callSunoApi = async (requestBody: GenerateMusicRequest) => {
     console.log(`⚡ Durée appel ultra-optimisée: ${callDuration}s`);
 
     // Gestion d'erreurs optimisée
-    if (error) {
-      console.error('❌ ERREUR SUPABASE FUNCTIONS:', error);
+      if (error) {
+        console.error('❌ ERREUR SUPABASE FUNCTIONS:', error);
 
-      const rateLimit = describeRateLimitError(error, 'Erreur lors de la génération musicale ultra-rapide');
-      if (rateLimit.isRateLimited) {
-        throw new Error(rateLimit.message);
-      }
+        const rateLimitError = toRateLimitError(error, 'Erreur lors de la génération musicale ultra-rapide', 'music');
+        if (rateLimitError) {
+          throw rateLimitError;
+        }
 
       let errorMessage = 'Erreur lors de la génération musicale ultra-rapide';
       
@@ -132,11 +132,15 @@ export const callSunoApi = async (requestBody: GenerateMusicRequest) => {
     console.log(`⚡ Durée appel (avec erreur): ${callDuration}s`);
     
     // Re-throw l'erreur pour qu'elle soit gérée par le caller
-    const rateLimit = describeRateLimitError(supabaseError, 'Erreur lors de la génération musicale');
-    if (rateLimit.isRateLimited) {
-      throw new Error(rateLimit.message);
+      const rateLimitError = toRateLimitError(supabaseError, 'Erreur lors de la génération musicale', 'music');
+      if (rateLimitError) {
+        throw rateLimitError;
+      }
+
+    if (supabaseError instanceof Error) {
+      throw supabaseError;
     }
 
-    throw supabaseError;
+    throw new Error('Erreur lors de la génération musicale');
   }
 };

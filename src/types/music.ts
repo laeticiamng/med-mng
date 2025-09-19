@@ -33,13 +33,19 @@ export interface MusicTrack {
   metadata: MusicMetadata;
   created_at: string;
   updated_at: string;
+  item_id: string;
+  mode: 'A' | 'B' | 'AB';
+  style: string;
   suno_track_id?: string;
+  suno_job_id?: string | null;
   task_id?: string;
   user_id?: string;
   item_code?: string;
   rang?: 'A' | 'B' | 'AB';
   duration?: number;
   generation_status?: GenerationStatus;
+  status?: string | null;
+  openai_prompt_hash?: string | null;
   play_count?: number;
   favorite?: boolean;
 }

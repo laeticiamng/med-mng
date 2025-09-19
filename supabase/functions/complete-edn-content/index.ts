@@ -1,5 +1,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.3'
+import { buildQuizQuestions, buildScenarioContent } from './generators.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -100,112 +101,23 @@ serve(async (req) => {
         // 2. GÉNÉRATION QCM
         // =====================
         
-        const quizQuestions = []
-        
-        // Question basée sur rang A
-        if (compA.length > 0) {
-          const compRandA = compA[Math.floor(Math.random() * compA.length)]
-          quizQuestions.push({
-            id: 1,
-            question: `Concernant ${item.title}, quelle est la notion fondamentale de rang A à retenir ?`,
-            options: [
-              compRandA.intitule?.substring(0, 80) || 'Notion essentielle à maîtriser',
-              'Concept secondaire non prioritaire',
-              'Détail technique avancé uniquement',
-              'Information optionnelle pour l\'ECN'
-            ],
-            correct: 0,
-            explanation: `${compRandA.intitule} est une compétence de rang A fondamentale pour l'item ${itemNum}. ${compRandA.description?.substring(0, 100) || 'Cette notion est essentielle à maîtriser.'}`
-          })
-        }
-
-        // Question basée sur rang B
-        if (compB.length > 0) {
-          const compRandB = compB[Math.floor(Math.random() * compB.length)]
-          quizQuestions.push({
-            id: 2,
-            question: `Pour l'expertise approfondie de l'item ${itemNum}, quelle compétence de rang B est importante ?`,
-            options: [
-              'Connaissance basique uniquement suffisante',
-              compRandB.intitule?.substring(0, 80) || 'Expertise spécialisée requise',
-              'Aucune compétence particulière nécessaire',
-              'Simple mémorisation sans compréhension'
-            ],
-            correct: 1,
-            explanation: `${compRandB.intitule} représente une expertise de rang B cruciale pour maîtriser complètement l'item ${itemNum}. ${compRandB.description?.substring(0, 100) || 'Cette compétence avancée est indispensable.'}`
-          })
-        }
-
-        // Question de synthèse
-        quizQuestions.push({
-          id: 3,
-          question: `Quelle approche est recommandée pour maîtriser complètement l'item ${itemNum} ?`,
-          options: [
-            'Se concentrer uniquement sur le rang A',
-            'Ignorer les détails du rang B',
-            'Maîtriser progressivement rang A puis rang B selon son niveau',
-            'Mémoriser sans comprendre les concepts'
-          ],
-          correct: 2,
-          explanation: `L'item ${itemNum} nécessite une approche progressive : maîtriser d'abord les compétences de rang A (${compA.length} compétences) puis approfondir avec le rang B (${compB.length} compétences) selon ses objectifs.`
+        const quizQuestions = buildQuizQuestions({
+          itemNumber: itemNum,
+          itemTitle: item.title,
+          competencesA: compA,
+          competencesB: compB,
         })
 
         // =====================
         // 3. GÉNÉRATION SCÉNARIO IMMERSIF
         // =====================
-        
-        const scenarioContent = {
-          theme: 'medical_case',
-          context: `Cas clinique interactif - Item ${itemNum}`,
-          setting: {
-            location: 'Service hospitalier',
-            atmosphere: 'Environnement médical réaliste',
-            characters: ['Patient', 'Médecin senior', 'Interne']
-          },
-          case_presentation: {
-            patient_profile: `Patient présentant des signes en lien avec l'item ${itemNum}`,
-            initial_symptoms: compA.length > 0 ? 
-              compA.slice(0, 2).map(comp => comp.intitule?.substring(0, 60) || 'Symptôme classique').join(', ') :
-              'Présentation clinique typique',
-            clinical_challenge: `Diagnostic et prise en charge selon les compétences de l'item ${itemNum}`
-          },
-          interactions: [
-            {
-              type: 'anamnesis',
-              content: `Interrogatoire du patient concernant ${item.title}`,
-              responses: [
-                'Poser les questions essentielles de rang A',
-                'Approfondir avec les éléments de rang B',
-                'Synthétiser les informations collectées',
-                'Demander l\'avis du médecin senior'
-              ],
-              feedback: {
-                rang_a: compA.length > 0 ? compA[0].intitule?.substring(0, 100) : 'Éléments de base à explorer',
-                rang_b: compB.length > 0 ? compB[0].intitule?.substring(0, 100) : 'Approfondissement diagnostique'
-              }
-            },
-            {
-              type: 'clinical_reasoning',
-              content: `Raisonnement clinique pour l'item ${itemNum}`,
-              responses: [
-                'Appliquer les connaissances de rang A',
-                'Intégrer l\'expertise de rang B',
-                'Proposer une stratégie thérapeutique',
-                'Évaluer le pronostic'
-              ],
-              learning_objectives: {
-                rang_a: `Maîtriser les ${compA.length} compétences fondamentales`,
-                rang_b: `Développer l'expertise avec les ${compB.length} compétences avancées`
-              }
-            }
-          ],
-          learning_outcomes: [
-            `Maîtrise des compétences de rang A de l'item ${itemNum}`,
-            `Développement de l'expertise rang B`,
-            `Application clinique pratique`,
-            `Préparation efficace à l'ECN`
-          ]
-        }
+
+        const scenarioContent = buildScenarioContent({
+          itemNumber: itemNum,
+          itemTitle: item.title,
+          competencesA: compA,
+          competencesB: compB,
+        })
 
         // =====================
         // 4. MISE À JOUR DE L'ITEM

@@ -58,25 +58,57 @@ const formatBucketLabel = (value: string) => {
   });
 };
 
+const formatDurationShort = (seconds: number | null | undefined) => {
+  if (seconds === null || seconds === undefined) {
+    return 'Durée inconnue';
+  }
+  const totalSeconds = Math.max(0, Math.round(seconds));
+  const minutes = Math.floor(totalSeconds / 60);
+  const remainingSeconds = totalSeconds % 60;
+  if (minutes === 0) {
+    return `${remainingSeconds}s`;
+  }
+  return `${minutes}m ${remainingSeconds.toString().padStart(2, '0')}s`;
+};
+
 const getEventCount = (payload: AnalyticsDashboardPayload | null, type: string) =>
   payload?.event_breakdown?.find((entry) => entry.event_type === type)?.count ?? 0;
 
 export default function AdvancedAnalyticsDashboard({ className }: AnalyticsDashboardProps) {
   const { data, loading, error, timeframe, generatedAt, refresh, setTimeframe } = useAnalyticsDashboard();
 
-  const totalEvents = useMemo(() => data?.event_breakdown?.reduce((sum, entry) => sum + entry.count, 0) ?? 0, [data]);
+  const kpis = data?.kpis;
+  const totalEvents = useMemo(
+    () => kpis?.total_events ?? data?.event_breakdown?.reduce((sum, entry) => sum + entry.count, 0) ?? 0,
+    [data, kpis?.total_events],
+  );
   const generationSuccess = useMemo(() => getEventCount(data, 'generate_success'), [data]);
   const generationFail = useMemo(() => getEventCount(data, 'generate_fail'), [data]);
-  const syncFail = useMemo(() => getEventCount(data, 'sync_fail'), [data]);
-  const studySessions = useMemo(() => getEventCount(data, 'study_start'), [data]);
 
   const successRate = useMemo(() => {
+    if (typeof kpis?.generation_success_rate === 'number') {
+      return Math.round(kpis.generation_success_rate);
+    }
     const denominator = generationSuccess + generationFail;
     if (denominator === 0) {
       return null;
     }
     return Math.round((generationSuccess / denominator) * 100);
-  }, [generationSuccess, generationFail]);
+  }, [generationSuccess, generationFail, kpis?.generation_success_rate]);
+
+  const averageGenerationTimeLabel = useMemo(() => {
+    if (!kpis?.average_generation_time_ms || kpis.average_generation_time_ms <= 0) {
+      return null;
+    }
+    const totalSeconds = Math.round(kpis.average_generation_time_ms / 1000);
+    const minutes = Math.floor(totalSeconds / 60);
+    const seconds = totalSeconds % 60;
+    return `${minutes}m ${seconds.toString().padStart(2, '0')}s`;
+  }, [kpis?.average_generation_time_ms]);
+
+  const averageQcmScore = typeof kpis?.average_qcm_score === 'number' ? Math.round(kpis.average_qcm_score) : null;
+  const qcmAttempts = kpis?.qcm_attempts ?? 0;
+  const karaokeSeekEvents = kpis?.karaoke_seek_events ?? 0;
 
   const breakdownChartData = useMemo(() => {
     const entries = data?.event_breakdown ?? [];
@@ -117,6 +149,8 @@ export default function AdvancedAnalyticsDashboard({ className }: AnalyticsDashb
 
   const topFrictions = data?.top_frictions ?? [];
   const topContents = data?.top_contents ?? [];
+  const topPlayedItems = data?.top_played_items ?? [];
+  const recentQcmScores = data?.recent_qcm_scores ?? [];
   const lastUpdatedLabel = generatedAt
     ? new Date(generatedAt).toLocaleString('fr-FR', {
         dateStyle: 'medium',
@@ -229,22 +263,30 @@ export default function AdvancedAnalyticsDashboard({ className }: AnalyticsDashb
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Séances 8 minutes</CardTitle>
-            <Target className="h-5 w-5 text-purple-500" />
+            <CardTitle className="text-sm font-medium text-muted-foreground">Temps moyen de génération</CardTitle>
+            <CalendarClock className="h-5 w-5 text-blue-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{studySessions > 0 ? studySessions.toLocaleString('fr-FR') : '—'}</div>
-            <p className="text-xs text-muted-foreground">Démarrées avec export et suivi progression</p>
+            <div className="text-3xl font-bold">{averageGenerationTimeLabel ?? '—'}</div>
+            <p className="text-xs text-muted-foreground">
+              {karaokeSeekEvents > 0
+                ? `${karaokeSeekEvents.toLocaleString('fr-FR')} interactions karaoké`
+                : 'Basé sur les pistes réussies'}
+            </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Frictions critiques</CardTitle>
-            <AlertTriangle className="h-5 w-5 text-amber-500" />
+            <CardTitle className="text-sm font-medium text-muted-foreground">Score QCM moyen</CardTitle>
+            <Target className="h-5 w-5 text-purple-500" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold">{(generationFail + syncFail) > 0 ? (generationFail + syncFail).toLocaleString('fr-FR') : '—'}</div>
-            <p className="text-xs text-muted-foreground">Échecs génération + synchronisation EDN</p>
+            <div className="text-3xl font-bold">{averageQcmScore !== null ? `${averageQcmScore}%` : '—'}</div>
+            <p className="text-xs text-muted-foreground">
+              {qcmAttempts > 0
+                ? `${qcmAttempts.toLocaleString('fr-FR')} tentatives suivies`
+                : 'Aucune tentative sur la période'}
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -386,6 +428,58 @@ export default function AdvancedAnalyticsDashboard({ className }: AnalyticsDashb
               ))
             ) : (
               <p className="text-sm text-muted-foreground">Pas encore de contenus en tête sur cette période.</p>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid gap-6 md:grid-cols-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Items les plus joués</CardTitle>
+            <CardDescription>Basé sur les événements de lecture karaoké.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {topPlayedItems.length > 0 ? (
+              topPlayedItems.slice(0, 6).map((entry, index) => (
+                <div key={`${entry.item_code ?? 'unknown'}-${index}`} className="flex items-center justify-between gap-3 rounded-lg border p-4">
+                  <div>
+                    <p className="text-sm font-semibold">{entry.item_code ?? 'Item inconnu'}</p>
+                    <p className="text-xs text-muted-foreground">{entry.item_title ?? 'Titre non renseigné'}</p>
+                  </div>
+                  <Badge variant="outline">{entry.play_count}</Badge>
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-muted-foreground">Aucune lecture enregistrée sur la période.</p>
+            )}
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Scores QCM récents</CardTitle>
+            <CardDescription>Tentatives terminées et corrigées par item.</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {recentQcmScores.length > 0 ? (
+              recentQcmScores.slice(0, 6).map((entry, index) => (
+                <div key={`qcm-${index}`} className="rounded-lg border p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="text-sm font-semibold">{entry.item_code ?? 'Item inconnu'}</p>
+                    <Badge variant="secondary">{entry.score !== null ? `${Math.round(entry.score)}%` : '—'}</Badge>
+                  </div>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {formatDurationShort(entry.time_spent_seconds)} ·
+                    {' '}
+                    {new Date(entry.occurred_at).toLocaleString('fr-FR', {
+                      dateStyle: 'short',
+                      timeStyle: 'short',
+                    })}
+                  </p>
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-muted-foreground">Aucun score QCM sauvegardé récemment.</p>
             )}
           </CardContent>
         </Card>

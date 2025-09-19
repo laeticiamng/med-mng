@@ -20,9 +20,11 @@ const envSchema = z.object({
   ),
   
   // API Keys (Server-side only)
-  SUPABASE_SERVICE_ROLE_KEY: z.string().min(100).optional(),
-  OPENAI_API_KEY: z.string().min(40).optional(),
-  SUNO_API_KEY: z.string().min(20).optional(),
+  SUPABASE_SERVICE_ROLE_KEY: z
+    .string()
+    .min(100, 'Supabase service role key is required for secured orchestration'),
+  OPENAI_API_KEY: z.string().min(40, 'OpenAI API key is required for prompting flows'),
+  SUNO_API_KEY: z.string().min(20, 'Suno API key is required for music generation'),
   
   // Security Configuration
   JWT_SECRET: z.string().min(32, 'JWT secret must be at least 32 characters').optional(),
@@ -103,6 +105,9 @@ export function validateEnvironment(): Environment {
       console.error('\n💡 Required environment variables:');
       console.error('  - VITE_SUPABASE_URL: Your Supabase project URL');
       console.error('  - VITE_SUPABASE_ANON_KEY: Your Supabase anonymous key');
+      console.error('  - SUPABASE_SERVICE_ROLE_KEY: Required for secure Supabase RPC calls');
+      console.error('  - OPENAI_API_KEY: Required for prompt generation');
+      console.error('  - SUNO_API_KEY: Required for music generation');
       console.error('  - NODE_ENV: development, staging, or production');
       console.error('  - PORT: Server port (default: 3000)');
       
@@ -110,6 +115,8 @@ export function validateEnvironment(): Environment {
         console.error('\n🔒 Production-specific requirements:');
         console.error('  - JWT_SECRET: Strong JWT signing secret');
         console.error('  - SUPABASE_SERVICE_ROLE_KEY: Service role key for admin operations');
+        console.error('  - OPENAI_API_KEY: OpenAI access for lyrics/style prompting');
+        console.error('  - SUNO_API_KEY: Suno access for track generation');
         console.error('  - SENTRY_DSN: Error monitoring (optional but recommended)');
       }
       

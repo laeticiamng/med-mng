@@ -53,6 +53,12 @@ create type public.analytics_event_type as enum (
   'lyrics_timecode_done',
   'play',
   'seek_segment',
+  'qcm_start',
+  'qcm_submit',
+  'qcm_complete',
+  'bd_generate_start',
+  'bd_generate_success',
+  'bd_generate_fail',
   'study_start',
   'study_end',
   'sync_success',
@@ -218,6 +224,33 @@ grant execute on function public.purge_expired_analytics_events() to authenticat
 
 grant execute on function public.purge_expired_analytics_events() to anon;
 
+create or replace function public.try_cast_numeric(value text)
+returns numeric
+language plpgsql
+security definer
+set search_path to 'public'
+as $$
+declare
+  v_numeric numeric;
+begin
+  if value is null then
+    return null;
+  end if;
+
+  begin
+    v_numeric := trim(value)::numeric;
+  exception when others then
+    return null;
+  end;
+
+  return v_numeric;
+end;
+$$;
+
+grant execute on function public.try_cast_numeric(text) to authenticated;
+
+grant execute on function public.try_cast_numeric(text) to anon;
+
 create or replace function public.get_analytics_dashboard(p_timeframe text default '7d')
 returns jsonb
 language plpgsql
@@ -263,7 +296,7 @@ begin
                (array_agg(metadata order by occurred_at desc))[1] as sample_metadata
         from public.analytics_events
         where occurred_at >= v_start
-          and event_type in ('generate_fail', 'sync_fail')
+          and event_type in ('generate_fail', 'sync_fail', 'bd_generate_fail')
         group by event_type
         order by event_count desc
         limit 5
@@ -281,13 +314,103 @@ begin
                count(*) as event_count
         from public.analytics_events
         where occurred_at >= v_start
-          and event_type in ('generate_success', 'lyrics_timecode_done', 'study_end', 'play')
+          and event_type in (
+            'generate_success',
+            'lyrics_timecode_done',
+            'study_end',
+            'play',
+            'qcm_complete',
+            'bd_generate_success'
+          )
           and content_ref is not null
         group by content_ref, event_type
         order by event_count desc
         limit 10
       ) contents
     ), '[]'::jsonb),
+    'top_played_items', coalesce((
+      select jsonb_agg(jsonb_build_object(
+        'item_code', item_code,
+        'item_title', item_title,
+        'play_count', play_count
+      ))
+      from (
+        select
+          nullif(trim(metadata ->> 'item_code'), '') as item_code,
+          max(nullif(trim(metadata ->> 'item_title'), '')) as item_title,
+          count(*) as play_count
+        from public.analytics_events
+        where occurred_at >= v_start
+          and event_type = 'play'
+          and metadata ? 'item_code'
+        group by nullif(trim(metadata ->> 'item_code'), '')
+        order by play_count desc
+        limit 10
+      ) plays
+    ), '[]'::jsonb),
+    'recent_qcm_scores', coalesce((
+      select jsonb_agg(jsonb_build_object(
+        'item_code', metadata ->> 'item_code',
+        'score', try_cast_numeric(metadata ->> 'score'),
+        'time_spent_seconds', try_cast_numeric(metadata ->> 'time_spent_seconds'),
+        'occurred_at', occurred_at
+      ) order by occurred_at desc)
+      from (
+        select metadata, occurred_at
+        from public.analytics_events
+        where occurred_at >= v_start
+          and event_type = 'qcm_complete'
+          and metadata ? 'score'
+        order by occurred_at desc
+        limit 10
+      ) qcm
+    ), '[]'::jsonb),
+    'kpis', jsonb_build_object(
+      'total_events', (
+        select count(*)
+        from public.analytics_events
+        where occurred_at >= v_start
+      ),
+      'generation_success_rate', (
+        select case
+          when generation_started > 0 then round((generation_success::numeric / generation_started) * 100, 2)
+          else null
+        end
+        from (
+          select
+            sum(case when event_type = 'generate_start' then 1 else 0 end) as generation_started,
+            sum(case when event_type = 'generate_success' then 1 else 0 end) as generation_success
+          from public.analytics_events
+          where occurred_at >= v_start
+        ) stats
+      ),
+      'average_generation_time_ms', (
+        select round(avg(try_cast_numeric(metadata ->> 'duration_ms')))
+        from public.analytics_events
+        where occurred_at >= v_start
+          and event_type = 'generate_success'
+          and metadata ? 'duration_ms'
+      ),
+      'average_qcm_score', (
+        select round(avg(try_cast_numeric(metadata ->> 'score')), 2)
+        from public.analytics_events
+        where occurred_at >= v_start
+          and event_type = 'qcm_complete'
+          and metadata ? 'score'
+      ),
+      'qcm_attempts', (
+        select count(*)
+        from public.analytics_events
+        where occurred_at >= v_start
+          and event_type = 'qcm_submit'
+      ),
+      'karaoke_seek_events', (
+        select count(*)
+        from public.analytics_events
+        where occurred_at >= v_start
+          and event_type = 'seek_segment'
+      )
+    ),
     'timeseries', coalesce((
       select jsonb_agg(jsonb_build_object(
         'bucket', bucket,

@@ -14,6 +14,12 @@ type CanonicalEventType =
   | 'lyrics_timecode_done'
   | 'play'
   | 'seek_segment'
+  | 'qcm_start'
+  | 'qcm_submit'
+  | 'qcm_complete'
+  | 'bd_generate_start'
+  | 'bd_generate_success'
+  | 'bd_generate_fail'
   | 'study_start'
   | 'study_end'
   | 'sync_success'
@@ -34,6 +40,12 @@ const ALLOWED_EVENTS = new Set<CanonicalEventType>([
   'lyrics_timecode_done',
   'play',
   'seek_segment',
+  'qcm_start',
+  'qcm_submit',
+  'qcm_complete',
+  'bd_generate_start',
+  'bd_generate_success',
+  'bd_generate_fail',
   'study_start',
   'study_end',
   'sync_success',
