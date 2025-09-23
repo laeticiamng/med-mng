@@ -1,0 +1,207 @@
+{
+  "labels": [
+    {
+      "name": "P0",
+      "color": "b60205",
+      "description": "Priorité critique : bloque la mise en production"
+    },
+    {
+      "name": "P1",
+      "color": "d93f0b",
+      "description": "Priorité haute : à planifier immédiatement"
+    },
+    {
+      "name": "P2",
+      "color": "0e8a16",
+      "description": "Priorité moyenne : à planifier prochainement"
+    },
+    {
+      "name": "frontend",
+      "color": "1d76db",
+      "description": "Travail interface utilisateur et accessibilité"
+    },
+    {
+      "name": "db",
+      "color": "5319e7",
+      "description": "Tâche base de données ou Supabase"
+    },
+    {
+      "name": "ci",
+      "color": "fbca04",
+      "description": "Pipeline d'intégration et de déploiement"
+    },
+    {
+      "name": "seo",
+      "color": "a2eeef",
+      "description": "Optimisation SEO et contenu indexable"
+    },
+    {
+      "name": "product",
+      "color": "0b5fff",
+      "description": "Pilotage produit et expérience utilisateur"
+    },
+    {
+      "name": "security",
+      "color": "d4c5f9",
+      "description": "Sécurité applicative ou données sensibles"
+    },
+    {
+      "name": "observability",
+      "color": "006b75",
+      "description": "Monitoring, alerting et analytics"
+    },
+    {
+      "name": "pm",
+      "color": "7057ff",
+      "description": "Organisation projet et coordination"
+    },
+    {
+      "name": "docs",
+      "color": "bfd4f2",
+      "description": "Documentation interne ou externe"
+    }
+  ],
+  "milestones": [
+    {
+      "title": "MVP Items",
+      "description": "Backlog prioritaire pour finaliser l'expérience utilisateur et l'accessibilité.",
+      "due_on": null
+    },
+    {
+      "title": "ECOS 8’",
+      "description": "Livraison du parcours d'entraînement ECOS 8 minutes détaillé dans docs/specs/page-ecos.md.",
+      "due_on": null
+    },
+    {
+      "title": "Karaoké",
+      "description": "Stabilisation et enrichissement du module karaoke/timecode décrit dans docs/lyrics-segmentation.md.",
+      "due_on": null
+    },
+    {
+      "title": "Infra",
+      "description": "Travaux sécurité, base de données, CI/CD et monitoring issus des audits récents.",
+      "due_on": null
+    }
+  ],
+  "issues": [
+    {
+      "title": "[Infra] Corriger les Security Definer Views Supabase",
+      "body": "## Contexte\n- Source : docs/OPTIMISATIONS-FINALISEES.md (section \"Critique - Sécurité Supabase\").\n\n## Tâches\n- [ ] Identifier toutes les views `SECURITY DEFINER` dans la base Supabase.\n- [ ] Les basculer en `SECURITY INVOKER` et valider les droits associés.\n- [ ] Mettre à jour les tests RLS automatiques.\n\n## Definition of Done\n- [ ] `npm run integrity:audit` et les scripts RLS passent sans alerte.\n- [ ] Documentation de sécurité actualisée.\n",
+      "labels": ["P0", "db", "security"],
+      "milestone": "Infra",
+      "assignees": ["${ASSIGNEE_SECURITY}", "${DEFAULT_ASSIGNEE}"]
+    },
+    {
+      "title": "[Infra] Optimiser la configuration OTP Supabase",
+      "body": "## Contexte\n- Source : docs/OPTIMISATIONS-FINALISEES.md (section \"Critique - Sécurité Supabase\").\n\n## Tâches\n- [ ] Ajuster la valeur `otp_exp_in` à 900 secondes et vérifier l'impact.\n- [ ] Documenter la nouvelle politique MFA/OTP.\n- [ ] Mettre à jour les tests d'authentification end-to-end.\n\n## Definition of Done\n- [ ] Les utilisateurs reçoivent une expiration cohérente dans les logs.\n- [ ] Documentation Supabase et runbooks mis à jour.\n",
+      "labels": ["P0", "db", "security"],
+      "milestone": "Infra",
+      "assignees": ["${ASSIGNEE_SECURITY}", "${DEFAULT_ASSIGNEE}"]
+    },
+    {
+      "title": "[Infra] Finaliser l'intégration Sentry + analytics back/front",
+      "body": "## Contexte\n- Source : docs/OPTIMISATIONS-FINALISEES.md (section \"Monitoring Avancé\").\n\n## Tâches\n- [ ] Activer l'envoi des erreurs front/back vers Sentry avec métadonnées.\n- [ ] Vérifier la corrélation avec les dashboards analytics existants.\n- [ ] Ajouter une alerte critique pour les erreurs P0.\n\n## Definition of Done\n- [ ] Les tableaux de bord reçoivent les événements dans les 5 minutes.\n- [ ] Procédure d'escalade documentée.\n",
+      "labels": ["P0", "observability", "security"],
+      "milestone": "Infra",
+      "assignees": ["${ASSIGNEE_OBSERVABILITY}", "${DEFAULT_ASSIGNEE}"]
+    },
+    {
+      "title": "[Infra] Automatiser les tests de charge orchestrateur",
+      "body": "## Contexte\n- Source : docs/OPTIMISATIONS-FINALISEES.md (section \"Court terme\").\n\n## Tâches\n- [ ] Script de tests de charge orchestrateur intégré à la CI.\n- [ ] Seuils de performance définis et suivis dans les rapports.\n- [ ] Rapport comparatif stocké dans artifacts GitHub Actions.\n\n## Definition of Done\n- [ ] Pipeline échoue si les seuils sont dépassés.\n- [ ] Rapport partagé dans le canal #infra.\n",
+      "labels": ["P1", "ci", "observability"],
+      "milestone": "Infra",
+      "assignees": ["${ASSIGNEE_CI}", "${ASSIGNEE_OBSERVABILITY}", "${DEFAULT_ASSIGNEE}"]
+    },
+    {
+      "title": "[Infra] Activer le cache npm/Docker dans la CI",
+      "body": "## Contexte\n- Source : docs/ci-cd-pipeline.md (liste \"Prochaines améliorations\").\n\n## Tâches\n- [ ] Mettre en place un cache npm sur les jobs build/test.\n- [ ] Ajouter un cache des layers Docker pour les images déploiement.\n- [ ] Mesurer le gain sur la durée moyenne du pipeline.\n\n## Definition of Done\n- [ ] Temps d'exécution réduit d'au moins 30 %.\n- [ ] Documentation CI mise à jour.\n",
+      "labels": ["P1", "ci"],
+      "milestone": "Infra",
+      "assignees": ["${ASSIGNEE_CI}", "${DEFAULT_ASSIGNEE}"]
+    },
+    {
+      "title": "[Infra] Exécuter les jobs CI en parallèle",
+      "body": "## Contexte\n- Source : docs/ci-cd-pipeline.md (liste \"Prochaines améliorations\").\n\n## Tâches\n- [ ] Découper les workflows pour lancer lint/test/build en parallèle.\n- [ ] Assurer l'agrégation des rapports (coverage, lint).\n- [ ] Mettre à jour la matrice de compatibilité des jobs.\n\n## Definition of Done\n- [ ] Pipeline plus rapide avec dépendances maîtrisées.\n- [ ] Documentation CI/CD ajustée.\n",
+      "labels": ["P1", "ci"],
+      "milestone": "Infra",
+      "assignees": ["${ASSIGNEE_CI}", "${DEFAULT_ASSIGNEE}"]
+    },
+    {
+      "title": "[Infra] Automatiser les déploiements contrôlés",
+      "body": "## Contexte\n- Source : docs/OPTIMISATIONS-FINALISEES.md (section \"Moyen terme\").\n\n## Tâches\n- [ ] Implémenter une stratégie de déploiement automatisé (blue/green ou canary).\n- [ ] Ajouter un rollback automatique en cas d'alerte critique.\n- [ ] Documenter la procédure et les garde-fous.\n\n## Definition of Done\n- [ ] Déploiement reproductible depuis GitHub Actions.\n- [ ] Check-list post-déploiement intégrée au pipeline.\n",
+      "labels": ["P1", "ci", "security"],
+      "milestone": "Infra",
+      "assignees": ["${ASSIGNEE_CI}", "${DEFAULT_ASSIGNEE}"]
+    },
+    {
+      "title": "[MVP] Audit des labels de formulaires",
+      "body": "## Contexte\n- Source : docs/CORRECTIONS-ACCESSIBILITE-CRITIQUES.md (Priorité Haute).\n\n## Tâches\n- [ ] Recenser tous les formulaires et champs sans label explicite.\n- [ ] Ajouter labels visibles ou `aria-label` cohérents.\n- [ ] Vérifier le rendu avec un lecteur d'écran.\n\n## Definition of Done\n- [ ] Score axe-core > 95 sur les formulaires audités.\n- [ ] Documentation accessibilité mise à jour.\n",
+      "labels": ["P0", "frontend", "docs"],
+      "milestone": "MVP Items",
+      "assignees": ["${ASSIGNEE_ACCESSIBILITY}", "${DEFAULT_ASSIGNEE}"]
+    },
+    {
+      "title": "[MVP] Gestion du focus dans les modales",
+      "body": "## Contexte\n- Source : docs/CORRECTIONS-ACCESSIBILITE-CRITIQUES.md (Priorité Haute).\n\n## Tâches\n- [ ] Implémenter le trap focus sur toutes les modales.\n- [ ] Restaurer le focus sur l'élément déclencheur à la fermeture.\n- [ ] Couvrir les cas d'ouverture via clavier.\n\n## Definition of Done\n- [ ] Tests Cypress accessibilité passent sur les modales.\n- [ ] Aucun feedback négatif des lecteurs d'écran.\n",
+      "labels": ["P0", "frontend"],
+      "milestone": "MVP Items",
+      "assignees": ["${ASSIGNEE_ACCESSIBILITY}", "${DEFAULT_ASSIGNEE}"]
+    },
+    {
+      "title": "[MVP] Audit global des contrastes",
+      "body": "## Contexte\n- Source : docs/CORRECTIONS-ACCESSIBILITE-CRITIQUES.md (Priorité Haute).\n\n## Tâches\n- [ ] Vérifier les contrastes des composants principaux (boutons, cartes, menus).\n- [ ] Mettre à jour le design system pour garantir AA minimum.\n- [ ] Ajouter un test automatisé (Lighthouse CI ou axe).\n\n## Definition of Done\n- [ ] Score Lighthouse accessibilité >= 95.\n- [ ] Documentation des tokens couleurs mise à jour.\n",
+      "labels": ["P1", "frontend"],
+      "milestone": "MVP Items",
+      "assignees": ["${ASSIGNEE_ACCESSIBILITY}", "${DEFAULT_ASSIGNEE}"]
+    },
+    {
+      "title": "[MVP] Compléter les textes alternatifs médias",
+      "body": "## Contexte\n- Source : docs/CORRECTIONS-ACCESSIBILITE-CRITIQUES.md (Priorité Haute).\n\n## Tâches\n- [ ] Lister les images/vidéos sans alt-text pertinent.\n- [ ] Ajouter descriptions conformes au contenu.\n- [ ] Vérifier l'impact SEO via audit.\n\n## Definition of Done\n- [ ] Axe DevTools ne signale plus d'alt manquants.\n- [ ] Documentation editors mise à jour.\n",
+      "labels": ["P1", "frontend", "docs", "seo"],
+      "milestone": "MVP Items",
+      "assignees": ["${ASSIGNEE_ACCESSIBILITY}", "${ASSIGNEE_PRODUCT}", "${DEFAULT_ASSIGNEE}"]
+    },
+    {
+      "title": "[MVP] Ajouter des ARIA live regions aux notifications",
+      "body": "## Contexte\n- Source : docs/CORRECTIONS-ACCESSIBILITE-CRITIQUES.md (Priorité Moyenne).\n\n## Tâches\n- [ ] Identifier les notifications dynamiques (toasts, bannière).\n- [ ] Ajouter `aria-live` et `role` adaptés.\n- [ ] Tester avec NVDA/VoiceOver.\n\n## Definition of Done\n- [ ] Notifications annoncées correctement par les lecteurs d'écran.\n- [ ] Tests d'accessibilité automatisés mis à jour.\n",
+      "labels": ["P2", "frontend"],
+      "milestone": "MVP Items",
+      "assignees": ["${ASSIGNEE_ACCESSIBILITY}", "${DEFAULT_ASSIGNEE}"]
+    },
+    {
+      "title": "[MVP] Vérifier la hiérarchie de titres",
+      "body": "## Contexte\n- Source : docs/CORRECTIONS-ACCESSIBILITE-CRITIQUES.md (Priorité Moyenne).\n\n## Tâches\n- [ ] Auditer les pages principales pour la hiérarchie H1-H6.\n- [ ] Corriger les composants partagés qui cassent la structure.\n- [ ] Ajouter une règle ESLint/remark si nécessaire.\n\n## Definition of Done\n- [ ] Aucune alerte Lighthouse sur la structure des titres.\n- [ ] Documentation rédactionnelle actualisée.\n",
+      "labels": ["P2", "frontend", "docs"],
+      "milestone": "MVP Items",
+      "assignees": ["${ASSIGNEE_ACCESSIBILITY}", "${DEFAULT_ASSIGNEE}"]
+    },
+    {
+      "title": "[MVP] Ajuster les cibles tactiles sur mobile",
+      "body": "## Contexte\n- Source : docs/CORRECTIONS-ACCESSIBILITE-CRITIQUES.md (Priorité Moyenne).\n\n## Tâches\n- [ ] Vérifier les boutons et liens critiques sur mobile.\n- [ ] Adapter le design system pour garantir 44x44px minimum.\n- [ ] Tester sur iOS et Android.\n\n## Definition of Done\n- [ ] Aucun composant critique en dessous de 44x44px.\n- [ ] Tests end-to-end mobile mis à jour.\n",
+      "labels": ["P2", "frontend"],
+      "milestone": "MVP Items",
+      "assignees": ["${ASSIGNEE_ACCESSIBILITY}", "${DEFAULT_ASSIGNEE}"]
+    },
+    {
+      "title": "[ECOS] Auto-save & reprise des sessions",
+      "body": "## Contexte\n- Source : docs/specs/page-ecos.md (sections Auto-save système et Routes).\n\n## Tâches\n- [ ] Implémenter l'auto-save toutes les 30 secondes côté front.\n- [ ] Sauvegarder la progression dans `user_ecos_sessions`.\n- [ ] Couvrir la reprise de session via route `/ecos/:caseId/session/:sessionId`.\n\n## Definition of Done\n- [ ] Tests e2e garantissent la reprise exacte d'une session interrompue.\n- [ ] Observabilité : métriques d'auto-save envoyées.\n",
+      "labels": ["P0", "frontend", "db", "product"],
+      "milestone": "ECOS 8’",
+      "assignees": ["${ASSIGNEE_PRODUCT}", "${ASSIGNEE_FRONTEND}", "${DEFAULT_ASSIGNEE}"]
+    },
+    {
+      "title": "[ECOS] Instrumentation analytics parcours ECOS",
+      "body": "## Contexte\n- Source : docs/specs/page-ecos.md (section Observabilité).\n\n## Tâches\n- [ ] Émettre les événements `ecos_case_started`, `ecos_station_completed`, `ecos_case_completed`.\n- [ ] Suivre les performances via `ecos_load_time`.\n- [ ] Documenter le schéma d'événements pour l'équipe produit.\n\n## Definition of Done\n- [ ] Dashboard analytics reçoit les événements clés.\n- [ ] Guide produit mis à jour avec les nouveaux KPIs.\n",
+      "labels": ["P2", "observability", "product"],
+      "milestone": "ECOS 8’",
+      "assignees": ["${ASSIGNEE_PRODUCT}", "${DEFAULT_ASSIGNEE}"]
+    },
+    {
+      "title": "[Karaoké] Stabiliser l'auto-scroll et le seek",
+      "body": "## Contexte\n- Source : docs/lyrics-segmentation.md (section KaraokeView).\n\n## Tâches\n- [ ] Vérifier l'auto-scroll via `IntersectionObserver`.\n- [ ] Corriger les offsets de `onSeek` pour les segments.\n- [ ] Ajouter des tests pour l'export multi-format.\n\n## Definition of Done\n- [ ] Lecture karaoke fluide sans désynchronisation.\n- [ ] Tests frontend couvrant les cas principaux.\n",
+      "labels": ["P1", "frontend", "product"],
+      "milestone": "Karaoké",
+      "assignees": ["${ASSIGNEE_FRONTEND}", "${DEFAULT_ASSIGNEE}"]
+    }
+  ]
+}

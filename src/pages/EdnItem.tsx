@@ -9,6 +9,7 @@ import { EnhancedLearningExperience } from '@/components/edn/immersive/EnhancedL
 import { AdvancedInteractionTracker } from '@/components/edn/immersive/AdvancedInteractionTracker';
 import { AdvancedEdnNavigation } from '@/components/edn/navigation/AdvancedEdnNavigation';
 import { useCompetenceAnalyzer } from '@/components/edn/immersive/CompetenceAnalyzer';
+import { Helmet } from 'react-helmet-async';
 
 type SectionType = 'tableau-a' | 'tableau-b' | 'scene' | 'bd' | 'music' | 'quiz';
 
@@ -17,6 +18,41 @@ const EdnItem = () => {
   const { item, loading } = useEdnItem(slug);
   const [activeSection, setActiveSection] = useState<SectionType>('tableau-a');
   const [sectionProgress, setSectionProgress] = useState<any[]>([]);
+
+  const siteUrl = ((import.meta.env.VITE_SITE_URL as string | undefined) ?? 'https://medmng.app').replace(/\/$/, '');
+  const canonicalUrl = slug ? `${siteUrl}/edn-production/${slug}` : `${siteUrl}/edn-production`;
+
+  const baseDescription = item
+    ? `Découvrez ${item.item_code} – ${item.title} sur MED-MNG avec tableaux, scènes immersives et quiz pour maîtriser l'EDN.`
+    : "Explorez les items EDN MED-MNG : contenus immersifs, tableaux clairs et quiz interactifs pour réviser l'examen.";
+
+  const metaDescription = baseDescription.length > 160
+    ? `${baseDescription.slice(0, 157)}...`
+    : baseDescription;
+
+  const metaTitle = item
+    ? `${item.item_code} – ${item.title} | MED-MNG`
+    : 'Item EDN | MED-MNG';
+
+  const defaultOgImage = `${siteUrl}/lovable-uploads/5de8d99e-d7d8-41b8-b318-b4f51265648b.png`;
+
+  const helmet = (
+    <Helmet>
+      <title>{metaTitle}</title>
+      <link rel="canonical" href={canonicalUrl} />
+      <meta name="description" content={metaDescription} />
+      <meta property="og:type" content="article" />
+      <meta property="og:site_name" content="MED-MNG" />
+      <meta property="og:title" content={metaTitle} />
+      <meta property="og:description" content={metaDescription} />
+      <meta property="og:url" content={canonicalUrl} />
+      <meta property="og:image" content={defaultOgImage} />
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:title" content={metaTitle} />
+      <meta name="twitter:description" content={metaDescription} />
+      <meta name="twitter:image" content={defaultOgImage} />
+    </Helmet>
+  );
 
   // Analyser les compétences de l'item
   const { competences, primaryCompetence } = useCompetenceAnalyzer({
@@ -47,46 +83,54 @@ const EdnItem = () => {
 
   if (loading) {
     return (
-      <ConsistentBackground variant="secondary">
-        <div className="min-h-screen flex items-center justify-center">        
-          <div className="text-center relative z-10">
-            <div className="w-20 h-20 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
-            <h2 className="text-3xl font-bold text-foreground mb-3">
-              <TranslatedText text="Chargement de l'item EDN" />
-            </h2>
-            <p className="text-muted-foreground text-lg">
-              <TranslatedText text="Préparation du contenu pédagogique complet..." />
-            </p>
+      <>
+        {helmet}
+        <ConsistentBackground variant="secondary">
+          <div className="min-h-screen flex items-center justify-center">
+            <div className="text-center relative z-10">
+              <div className="w-20 h-20 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-6"></div>
+              <h2 className="text-3xl font-bold text-foreground mb-3">
+                <TranslatedText text="Chargement de l'item EDN" />
+              </h2>
+              <p className="text-muted-foreground text-lg">
+                <TranslatedText text="Préparation du contenu pédagogique complet..." />
+              </p>
+            </div>
           </div>
-        </div>
-      </ConsistentBackground>
+        </ConsistentBackground>
+      </>
     );
   }
 
   if (!item) {
     return (
-      <ConsistentBackground variant="secondary">
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="text-center relative z-10">
-            <h1 className="text-3xl font-bold text-foreground mb-6">
-              <TranslatedText text="Item EDN non trouvé" />
-            </h1>
-            <p className="text-muted-foreground text-lg mb-8">
-              <TranslatedText text="L'item demandé n'existe pas ou n'est pas disponible." />
-            </p>
+      <>
+        {helmet}
+        <ConsistentBackground variant="secondary">
+          <div className="min-h-screen flex items-center justify-center">
+            <div className="text-center relative z-10">
+              <h1 className="text-3xl font-bold text-foreground mb-6">
+                <TranslatedText text="Item EDN non trouvé" />
+              </h1>
+              <p className="text-muted-foreground text-lg mb-8">
+                <TranslatedText text="L'item demandé n'existe pas ou n'est pas disponible." />
+              </p>
+            </div>
           </div>
-        </div>
-      </ConsistentBackground>
+        </ConsistentBackground>
+      </>
     );
   }
 
   return (
-    <ConsistentBackground variant="secondary">
-      <div className="min-h-screen">
-        <EnhancedLearningExperience
-          itemCode={item.item_code}
-          currentSection={activeSection}
-          onSectionChange={handleSectionChange}
+    <>
+      {helmet}
+      <ConsistentBackground variant="secondary">
+        <div className="min-h-screen">
+          <EnhancedLearningExperience
+            itemCode={item.item_code}
+            currentSection={activeSection}
+            onSectionChange={handleSectionChange}
         >
           <AdvancedInteractionTracker
             sectionId={activeSection}
@@ -122,7 +166,8 @@ const EdnItem = () => {
           </AdvancedInteractionTracker>
         </EnhancedLearningExperience>
       </div>
-    </ConsistentBackground>
+      </ConsistentBackground>
+    </>
   );
 };
 
