@@ -25,6 +25,7 @@
     "audit": "node scripts/run-audit.js",
     "postdeploy:check": "node scripts/postdeployIntegrityCheck.mjs",
     "lighthouse:ci": "node scripts/run-lighthouse-ci.mjs",
+    "pm:setup-backlog": "node scripts/github/setup-backlog.mjs"
     "prebuild": "npm run generate:sitemap"
   },
   "dependencies": {
