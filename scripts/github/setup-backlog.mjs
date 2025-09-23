@@ -202,7 +202,7 @@ function createIssues(repo, issues, milestoneMap, existingIssues) {
   }
 
   if (missingEnv.size > 0) {
-    console.warn('\nVariables d\'environnement manquantes détectées pour les placeholders :');
+    console.warn('\nMissing environment variables detected for placeholders:');
     missingEnv.forEach((name) => console.warn(` - ${name}`));
   }
 }
