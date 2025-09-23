@@ -27,6 +27,7 @@ import { AdvancedGenerationMusicale } from '../advanced/AdvancedGenerationMusica
 import { AdvancedBandeDessinee } from '../advanced/AdvancedBandeDessinee';
 import { AdvancedQuizInteractif } from '../advanced/AdvancedQuizInteractif';
 import { EnhancedTableauDisplay } from '../advanced/EnhancedTableauDisplay';
+import { Helmet } from 'react-helmet-async';
 
 interface ProductionEdnItemData {
   id: string;
@@ -68,6 +69,41 @@ const ProductionEdnItem: React.FC = () => {
     'music': 0,
     'quiz': 0
   });
+
+  const siteUrl = ((import.meta.env.VITE_SITE_URL as string | undefined) ?? 'https://medmng.app').replace(/\/$/, '');
+  const canonicalUrl = slug ? `${siteUrl}/edn-production/${slug}` : `${siteUrl}/edn-production`;
+
+  const baseDescription = item
+    ? `Préparez l'item ${item.item_code} – ${item.title} avec MED-MNG : tableaux, scènes immersives, quiz et musique pour réussir l'EDN.`
+    : "Révisez les items EDN avec MED-MNG : contenus immersifs, tableaux clairs et quiz pour progresser efficacement.";
+
+  const metaDescription = baseDescription.length > 160
+    ? `${baseDescription.slice(0, 157)}...`
+    : baseDescription;
+
+  const metaTitle = item
+    ? `${item.item_code} – ${item.title} | MED-MNG`
+    : 'Item EDN | MED-MNG';
+
+  const defaultOgImage = `${siteUrl}/lovable-uploads/5de8d99e-d7d8-41b8-b318-b4f51265648b.png`;
+
+  const helmet = (
+    <Helmet>
+      <title>{metaTitle}</title>
+      <link rel="canonical" href={canonicalUrl} />
+      <meta name="description" content={metaDescription} />
+      <meta property="og:type" content="article" />
+      <meta property="og:site_name" content="MED-MNG" />
+      <meta property="og:title" content={metaTitle} />
+      <meta property="og:description" content={metaDescription} />
+      <meta property="og:url" content={canonicalUrl} />
+      <meta property="og:image" content={defaultOgImage} />
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:title" content={metaTitle} />
+      <meta name="twitter:description" content={metaDescription} />
+      <meta name="twitter:image" content={defaultOgImage} />
+    </Helmet>
+  );
 
   // Chargement de l'item
   useEffect(() => {
@@ -181,42 +217,49 @@ const ProductionEdnItem: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted">
-        <div className="text-center space-y-4">
-          <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <h2 className="text-2xl font-semibold text-foreground">Chargement de l'item EDN</h2>
-          <p className="text-muted-foreground">Connexion aux données de production...</p>
+      <>
+        {helmet}
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted">
+          <div className="text-center space-y-4">
+            <div className="w-16 h-16 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+            <h2 className="text-2xl font-semibold text-foreground">Chargement de l'item EDN</h2>
+            <p className="text-muted-foreground">Connexion aux données de production...</p>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
   if (error || !item) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted">
-        <Card className="w-full max-w-md">
-          <CardHeader>
-            <CardTitle className="text-destructive">❌ Erreur</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <p className="text-muted-foreground">{error || 'Item EDN non trouvé'}</p>
-            <div className="space-y-2">
-              <Button onClick={() => navigate('/edn-production')} className="w-full">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Retour à la liste EDN
-              </Button>
-              <Button variant="outline" onClick={() => window.location.reload()} className="w-full">
-                Recharger la page
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+      <>
+        {helmet}
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background to-muted">
+          <Card className="w-full max-w-md">
+            <CardHeader>
+              <CardTitle className="text-destructive">❌ Erreur</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-muted-foreground">{error || 'Item EDN non trouvé'}</p>
+              <div className="space-y-2">
+                <Button onClick={() => navigate('/edn-production')} className="w-full">
+                  <ArrowLeft className="h-4 w-4 mr-2" />
+                  Retour à la liste EDN
+                </Button>
+                <Button variant="outline" onClick={() => window.location.reload()} className="w-full">
+                  Recharger la page
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </>
     );
   }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-muted/30 to-background">
+      {helmet}
       {/* Header de l'item */}
       <div className="sticky top-0 z-40 bg-background/80 backdrop-blur-xl border-b border-border shadow-lg">
         <div className="container mx-auto px-4 py-6">

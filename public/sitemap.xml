@@ -2825,5 +2825,63 @@
     <lastmod>2025-09-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.50</priority>
+    <loc>https://medmng.app/</loc>
+    <lastmod>2025-09-23T16:47:39.717Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://medmng.app/edn-production</loc>
+    <lastmod>2025-09-23T16:47:39.717Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://medmng.app/edn-production/progression</loc>
+    <lastmod>2025-09-23T16:47:39.717Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://medmng.app/med-mng</loc>
+    <lastmod>2025-09-23T16:47:39.717Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://medmng.app/med-mng/library</loc>
+    <lastmod>2025-09-23T16:47:39.717Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://medmng.app/med-mng/analytics</loc>
+    <lastmod>2025-09-23T16:47:39.717Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://medmng.app/med-mng/settings</loc>
+    <lastmod>2025-09-23T16:47:39.718Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://medmng.app/edn-production/item-001</loc>
+    <lastmod>2025-09-23T16:47:39.709Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://medmng.app/edn-production/item-002</loc>
+    <lastmod>2025-09-23T16:47:39.710Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <url>
+    <loc>https://medmng.app/edn-production/item-003</loc>
+    <lastmod>2025-09-23T16:47:39.710Z</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
   </url>
 </urlset>
