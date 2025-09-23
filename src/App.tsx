@@ -34,6 +34,7 @@ const Notifications = lazy(() => import("./pages/Notifications"));
 const FAQ = lazy(() => import("./pages/FAQ"));
 const HelpCenter = lazy(() => import("./pages/HelpCenter"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const ItemPage = lazy(() => import("./pages/ItemPage"));
 
 // ⚡ ANALYTICS & DASHBOARDS - Version unifiée
 const UnifiedAnalytics = lazy(() => import("./pages/unified/UnifiedAnalytics"));
@@ -208,6 +209,7 @@ const AppWithUX = () => {
                                               <Route path="/" element={<OptimizedIndex />} />
                                               <Route path="/platform" element={<PlatformOverview />} />
                                               <Route path="/generator" element={<Generator />} />
+                                              <Route path="/item/:id" element={<ItemPage />} />
                                               <Route path="/meditation/*" element={<MeditationCenter />} />
                                               
                                               {/* ⚡ DASHBOARD & ANALYTICS - Version unifiée */}

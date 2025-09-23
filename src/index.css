@@ -1,9 +1,9 @@
 
+@import './styles/premium-overrides.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import './styles/premium-overrides.css';
 
 @keyframes shimmer {
   0% { transform: translateX(-100%) skewX(-12deg); }
