@@ -11,6 +11,7 @@
     "typecheck": "tsc --noEmit",
     "preview": "vite preview",
     "env:check": "node --loader ts-node/esm scripts/validateEnvironment.ts",
+    "generate:sitemap": "node scripts/generateSitemap.mjs",
     "format": "prettier --write .",
     "start:server": "node --loader ts-node/esm src/index.ts",
     "test": "vitest run",
@@ -20,7 +21,8 @@
     "integrity:audit": "node --loader ts-node/esm scripts/dataIntegrityAudit.ts",
     "audit": "node scripts/run-audit.js",
     "postdeploy:check": "node scripts/postdeployIntegrityCheck.mjs",
-    "lighthouse:ci": "node scripts/run-lighthouse-ci.mjs"
+    "lighthouse:ci": "node scripts/run-lighthouse-ci.mjs",
+    "prebuild": "npm run generate:sitemap"
   },
   "dependencies": {
     "@11labs/react": "^0.2.0",
