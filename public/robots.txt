@@ -1,4 +1,6 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://medmng.app/sitemap.xml
+
+Sitemap: https://med-mng.com/sitemap.xml
+
