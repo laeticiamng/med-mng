@@ -195,7 +195,7 @@ function createIssues(repo, issues, milestoneMap, existingIssues) {
 
   if (issues.length > 0) {
     const ratio = assignedCount / issues.length;
-    console.log(`\nAssignation : ${assignedCount}/${issues.length} issues (${Math.round(ratio * 100)}%) disposent d'au moins un assigné.`);
+    console.log(`\nAttribution : ${assignedCount}/${issues.length} issues (${Math.round(ratio * 100)}%) disposent d'au moins un assigné.`);
     if (ratio < 0.8) {
       console.warn('⚠️  Moins de 80% des issues sont assignées. Ajoutez des variables d\'environnement (ex: DEFAULT_ASSIGNEE) pour atteindre l\'objectif.');
     }
