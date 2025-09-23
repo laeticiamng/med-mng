@@ -20,7 +20,8 @@
     "integrity:audit": "node --loader ts-node/esm scripts/dataIntegrityAudit.ts",
     "audit": "node scripts/run-audit.js",
     "postdeploy:check": "node scripts/postdeployIntegrityCheck.mjs",
-    "lighthouse:ci": "node scripts/run-lighthouse-ci.mjs"
+    "lighthouse:ci": "node scripts/run-lighthouse-ci.mjs",
+    "pm:setup-backlog": "node scripts/github/setup-backlog.mjs"
   },
   "dependencies": {
     "@11labs/react": "^0.2.0",
