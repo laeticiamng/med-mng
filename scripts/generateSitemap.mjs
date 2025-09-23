@@ -60,9 +60,9 @@ async function fetchItemSlugs() {
 function buildUrlEntry(pathname, lastmod) {
   const loc = `${siteUrl}${pathname}`;
   const lastModDate = lastmod ? new Date(lastmod) : new Date();
-  const isoDate = Number.isNaN(lastModDate.getTime())
-    ? new Date().toISOString()
-    : lastModDate.toISOString();
+  const isoDate = (lastModDate instanceof Date && !Number.isNaN(lastModDate.getTime()))
+    ? lastModDate.toISOString()
+    : new Date().toISOString();
 
   return `  <url>\n    <loc>${loc}</loc>\n    <lastmod>${isoDate}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.7</priority>\n  </url>`;
 }
