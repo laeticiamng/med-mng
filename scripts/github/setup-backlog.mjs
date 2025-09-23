@@ -213,7 +213,7 @@ function main() {
 
   ensureGhAvailable();
   const repo = getRepoSlug();
-  console.log(`Cible GitHub : ${repo}`);
+  console.log(`GitHub target: ${repo}`);
 
   ensureLabels(repo, config.labels ?? []);
   const milestoneMap = ensureMilestones(repo, config.milestones ?? []);
