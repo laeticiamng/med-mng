@@ -87,11 +87,7 @@ export async function loadItemContext(options: {
         return null;
       }
       const rang = normaliseMode(competence?.rang ?? null) ?? 'A';
-      const candidateIdx =
-        typeof competence?.idx === 'number'
-          ? competence.idx
-          : Number.parseInt(String(competence?.idx ?? ''), 10);
-      const idx = Number.isFinite(candidateIdx) ? Math.max(0, Math.trunc(candidateIdx)) : index + 1;
+      const idx = competence?.idx ?? index + 1;
       return {
         rang,
         idx,
