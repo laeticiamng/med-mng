@@ -108,7 +108,7 @@ jobs:
           fail_ci_if_error: true
 
   rls-policies:
-    name: 🔒 Vérification RLS
+    name: 🔒 RLS Verification
     runs-on: ubuntu-latest
     services:
       postgres:
