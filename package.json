@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "prebuild": "npm run sitemap:generate",
     "postbuild": "node scripts/generateItemPages.mjs",
     "prebuild": "node scripts/generateSitemap.mjs",
     "seo:generate": "node scripts/generateSitemap.mjs",
@@ -26,6 +27,7 @@
     "audit": "node scripts/run-audit.js",
     "postdeploy:check": "node scripts/postdeployIntegrityCheck.mjs",
     "lighthouse:ci": "node scripts/run-lighthouse-ci.mjs",
+    "sitemap:generate": "node scripts/generate-sitemap.mjs"
     "pm:setup-backlog": "node scripts/github/setup-backlog.mjs"
     "prebuild": "npm run generate:sitemap"
   },

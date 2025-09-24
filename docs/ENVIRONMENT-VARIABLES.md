@@ -133,6 +133,9 @@ NODE_ENV=development  # development|staging|production
 # Port du serveur
 PORT=3000
 
+# URL publique utilisée pour le sitemap et robots.txt
+SITE_URL=https://med-mng.com
+
 # Configuration proxy (load balancers)
 TRUST_PROXY=1
 ```
