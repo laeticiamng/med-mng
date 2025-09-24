@@ -2,3 +2,4 @@ User-agent: *
 Allow: /
 
 Sitemap: https://med-mng.com/sitemap.xml
+

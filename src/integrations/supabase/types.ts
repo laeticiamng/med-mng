@@ -4007,6 +4007,17 @@ export type Database = {
           },
         ]
       }
+      items_completeness: {
+        Row: {
+          item_id: string
+          has_a: boolean
+          has_b: boolean
+          oic_count: number
+          oic_expected: number
+          status: string
+        }
+        Relationships: []
+      }
       items_completeness_history: {
         Row: {
           completeness_score: number
@@ -9357,11 +9368,7 @@ export type Database = {
       }
       item_with_competences: {
         Row: {
-          competence_description: string | null
-          competence_id: string | null
-          competence_rang: string | null
-          competence_rubrique: string | null
-          competence_title: string | null
+          competences: Json | null
           item_code: string
           item_id: string
           slug: string | null
@@ -10482,6 +10489,32 @@ export type Database = {
       med_mng_track_listening: {
         Args: { p_listen_duration?: number; p_song_id: string }
         Returns: undefined
+      }
+      get_items_completeness: {
+        Args: {
+          p_status?: string | null
+          p_limit?: number | null
+          p_offset?: number | null
+        }
+        Returns: {
+          item_id: string
+          has_a: boolean
+          has_b: boolean
+          oic_count: number
+          oic_expected: number
+          status: string
+        }[]
+      }
+      get_items_completeness_summary: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          total_items: number
+          complete_items: number
+          partial_items: number
+          missing_items: number
+          completion_rate: number
+          average_oic_ratio: number
+        }[]
       }
       merge_all_tables_into_complete: {
         Args: Record<PropertyKey, never>
