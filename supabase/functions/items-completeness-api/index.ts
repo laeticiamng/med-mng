@@ -113,6 +113,52 @@ serve(async (req) => {
       });
     }
 
+    // GET /items-completeness-api?action=get-overview&status=partial
+    if (req.method === 'GET' && action === 'get-overview') {
+      const status = url.searchParams.get('status');
+      const limit = Math.min(
+        Math.max(parseInt(url.searchParams.get('limit') || '200', 10) || 200, 1),
+        1000
+      );
+      const offset = Math.max(parseInt(url.searchParams.get('offset') || '0', 10) || 0, 0);
+
+      const allowedStatuses = ['complete', 'partial', 'missing'];
+      const statusFilter = status && allowedStatuses.includes(status) ? status : null;
+
+      const { data: items, error: itemsError } = await supabase.rpc('get_items_completeness', {
+        p_status: statusFilter,
+        p_limit: limit,
+        p_offset: offset,
+      });
+
+      if (itemsError) {
+        console.error('❌ Error fetching items completeness:', itemsError);
+        throw itemsError;
+      }
+
+      const { data: summaryRows, error: summaryError } = await supabase.rpc(
+        'get_items_completeness_summary',
+      );
+
+      if (summaryError) {
+        console.error('❌ Error fetching completeness summary:', summaryError);
+        throw summaryError;
+      }
+
+      const summary = Array.isArray(summaryRows) ? summaryRows[0] ?? null : summaryRows;
+
+      return new Response(JSON.stringify({
+        success: true,
+        data: {
+          items: items ?? [],
+          summary,
+        },
+        count: items?.length ?? 0,
+      }), {
+        headers: { ...corsHeaders, ...securityHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
     // GET /items-completeness-api?action=get-item-status&item_code=IC-1
     if (req.method === 'GET' && action === 'get-item-status') {
       const itemCode = url.searchParams.get('item_code');
