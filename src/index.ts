@@ -12,6 +12,7 @@ import {
 } from './middleware/security';
 import { validateSecurityConfig, getSecurityConfig } from './config/security';
 import { createCSPMiddleware } from './utils/security/cspHelper';
+import { registerOgItemRoute } from './routes/ogItemRoute';
 import { getBuildInfo, getHealthStatus } from './services/healthService';
 
 const app = express();
@@ -114,6 +115,8 @@ app.get('/health', (_req, res) => {
   logService.debug('Health check endpoint accessed');
   res.json(getHealthStatus());
 });
+
+registerOgItemRoute(app);
 
 // Middleware de gestion des erreurs 404
 app.use((_req, res) => {

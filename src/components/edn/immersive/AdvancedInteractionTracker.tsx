@@ -4,7 +4,7 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Activity, Mouse, Keyboard, Eye, Clock, TrendingUp, Focus, Zap, Brain, Target } from 'lucide-react';
 import { motion } from 'framer-motion';
-interface InteractionData {
+export interface InteractionData {
   clicks: number;
   scrolls: number;
   keyPresses: number;
