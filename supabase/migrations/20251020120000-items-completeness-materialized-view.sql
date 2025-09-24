@@ -110,7 +110,7 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
 BEGIN
-  REFRESH MATERIALIZED VIEW CONCURRENTLY public.items_completeness;
+  REFRESH MATERIALIZED VIEW public.items_completeness;
 END;
 $$;
 
