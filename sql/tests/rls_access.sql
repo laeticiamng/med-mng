@@ -29,7 +29,7 @@ END;
 $$;
 
 -- service_role must bypass RLS in Supabase projects.
-ALTER ROLE service_role WITH BYPASSRLS;
+-- ALTER ROLE service_role WITH BYPASSRLS; -- Disabled for test security. Grant only if strictly required for a specific test, and revoke immediately after.
 
 -- Build the schema under test and enforce grants/policies.
 \i sql/001_types_enums.sql
