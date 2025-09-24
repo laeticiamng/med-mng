@@ -6,21 +6,28 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "postbuild": "node scripts/generateItemPages.mjs",
+    "prebuild": "node scripts/generateSitemap.mjs",
+    "seo:generate": "node scripts/generateSitemap.mjs",
     "build:dev": "vite build --mode development",
     "lint": "eslint src/index.ts src/controllers src/services src/middleware test eslint.config.js",
     "typecheck": "tsc --noEmit",
     "preview": "vite preview",
     "env:check": "node --loader ts-node/esm scripts/validateEnvironment.ts",
+    "generate:sitemap": "node scripts/generateSitemap.mjs",
     "format": "prettier --write .",
     "start:server": "node --loader ts-node/esm src/index.ts",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",
+    "monitor:uptime": "node --loader ts-node/esm scripts/uptimeMonitor.ts",
     "test:e2e:cypress": "cypress run --browser chrome --headless --config baseUrl=http://127.0.0.1:4173",
     "integrity:audit": "node --loader ts-node/esm scripts/dataIntegrityAudit.ts",
     "audit": "node scripts/run-audit.js",
     "postdeploy:check": "node scripts/postdeployIntegrityCheck.mjs",
-    "lighthouse:ci": "node scripts/run-lighthouse-ci.mjs"
+    "lighthouse:ci": "node scripts/run-lighthouse-ci.mjs",
+    "pm:setup-backlog": "node scripts/github/setup-backlog.mjs"
+    "prebuild": "npm run generate:sitemap"
   },
   "dependencies": {
     "@11labs/react": "^0.2.0",
@@ -99,6 +106,7 @@
     "next-themes": "^0.3.0",
     "playwright-lighthouse": "^4.0.0",
     "puppeteer": "^24.11.2",
+    "qrcode": "^1.5.4",
     "react": "^18.3.1",
     "react-day-picker": "^8.10.1",
     "react-dom": "^18.3.1",
