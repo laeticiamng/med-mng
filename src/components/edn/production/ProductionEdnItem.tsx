@@ -89,14 +89,11 @@ const ProductionEdnItem: React.FC = () => {
   const tableauBRef = useRef<HTMLElement | null>(null);
   const oicRef = useRef<HTMLElement | null>(null);
   const summarySectionOrder = useMemo<SummarySection[]>(() => ['tableau-a', 'tableau-b', 'oic'], []);
-  const sectionRefs = useMemo<Record<SummarySection, React.RefObject<HTMLElement>>>(
-    () => ({
-      'tableau-a': tableauARef,
-      'tableau-b': tableauBRef,
-      oic: oicRef
-    }),
-    [tableauARef, tableauBRef, oicRef]
-  );
+  const sectionRefs: Record<SummarySection, React.RefObject<HTMLElement>> = {
+    'tableau-a': tableauARef,
+    'tableau-b': tableauBRef,
+    oic: oicRef
+  };
 
   // Chargement de l'item
   useEffect(() => {
