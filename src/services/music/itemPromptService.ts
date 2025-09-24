@@ -119,7 +119,7 @@ export function summariseCompetences(context: ItemContext, mode: MusicMode): str
     }
     const summary = competence.label.replace(/\s+/g, ' ').trim();
     if (summary) {
-      uniqueEntries.set(`${competence.rang}-${competence.idx}-${summary.toLowerCase()}`, summary);
+      uniqueEntries.set(`${competence.rang}-${summary.toLowerCase()}`, summary);
     }
   });
 
