@@ -317,8 +317,6 @@ const EdnItem = () => {
           itemCode={item.item_code}
           currentSection={activeSection}
           onSectionChange={handleSectionChange}
-    <>
-
         >
           <AdvancedInteractionTracker
             sectionId={trackerSectionId}
