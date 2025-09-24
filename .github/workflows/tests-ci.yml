@@ -107,6 +107,34 @@ jobs:
           name: parsers-coverage
           fail_ci_if_error: true
 
+  rls-policies:
+    name: 🔒 Vérification RLS
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - name: 📦 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🛠️ Install PostgreSQL client
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y postgresql-client
+
+      - name: 🔐 Run RLS regression tests
+        env:
+          PGPASSWORD: postgres
+        run: |
+          psql -h localhost -U postgres -d postgres -v ON_ERROR_STOP=1 -f sql/tests/rls_medical_tables.sql
+
   # ⚡ TESTS DE PERFORMANCE PARSEURS
   performance-tests:
     name: ⚡ Tests Performance
