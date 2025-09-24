@@ -100,7 +100,7 @@ CREATE POLICY "medical_playlists read public"
   ON public.medical_playlists
   FOR SELECT
   TO authenticated
-  USING (auth.uid() = user_id OR is_public IS TRUE);
+  USING (auth.uid() = user_id OR is_public);
 
 -- study_sessions
 ALTER TABLE public.study_sessions ENABLE ROW LEVEL SECURITY;
