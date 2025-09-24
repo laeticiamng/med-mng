@@ -10,5 +10,10 @@ app.use(errorHandler);
 test('GET /health returns ok', async () => {
   const res = await request(app).get('/health');
   expect(res.status).toBe(200);
-  expect(res.body.status).toBe('ok');
+  expect(res.body.status).toBe('healthy');
+  expect(res.body).toHaveProperty('build');
+  expect(res.body.build).toMatchObject({
+    hash: expect.any(String),
+    timestamp: expect.any(String),
+  });
 });

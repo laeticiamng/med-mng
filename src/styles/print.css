@@ -109,5 +109,74 @@
   body.ecos-printing .ecos-print-qr img {
     width: 38mm;
     height: 38mm;
+@page {
+  size: A4 portrait;
+  margin: 1.5cm;
+}
+
+@media print {
+  html,
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    height: auto;
+  }
+
+  #app-root {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  #app-root > header,
+  #app-root > nav,
+  #app-root > footer,
+  #app-root .fixed,
+  #app-root [data-sonner-toaster],
+  #app-root .sonner-toaster,
+  #app-root .sonner-toast,
+  #app-root .print-hidden {
+    display: none !important;
+  }
+
+  #app-root .print-area {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    background: #ffffff !important;
+  }
+
+  #app-root .container {
+    max-width: 100% !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  .print-surface,
+  .print-surface * {
+    box-shadow: none !important;
+    background-image: none !important;
+  }
+
+  .print-surface {
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+
+  .print-surface .text-muted-foreground,
+  .print-surface .text-emerald-100,
+  .print-surface .text-emerald-100\/80,
+  .print-surface .text-emerald-100\/90,
+  .print-surface .text-white,
+  .print-surface .text-white\/90 {
+    color: #111111 !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  .print-hidden {
+    display: none !important;
   }
 }
