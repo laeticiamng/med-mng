@@ -14,6 +14,7 @@ export { useAuth } from './useAuth';
 export { usePlayer } from './usePlayer';
 export { useGeneration } from './useGeneration';
 export { usePanicMonitor } from './usePanicMonitor';
+export { useItemsWithCompleteness } from './useItemsWithCompleteness';
 
 // Error handling
 export { useErrorHandler } from './unified/useErrorHandler';

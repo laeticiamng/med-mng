@@ -35,6 +35,7 @@ const Notifications = lazy(() => import("./pages/Notifications"));
 const FAQ = lazy(() => import("./pages/FAQ"));
 const HelpCenter = lazy(() => import("./pages/HelpCenter"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const ItemPage = lazy(() => import("./pages/ItemPage"));
 
 // ⚡ ANALYTICS & DASHBOARDS - Version unifiée
 const UnifiedAnalytics = lazy(() => import("./pages/unified/UnifiedAnalytics"));
@@ -49,6 +50,7 @@ const EdnItem = lazy(() => import("./pages/EdnItem"));
 const EdnImmersive = lazy(() => import("./pages/EdnImmersive"));
 const EcosIndex = lazy(() => import("./pages/EcosIndex"));
 const EcosScenario = lazy(() => import("./pages/EcosScenario"));
+const EcosEightMinuteTemplate = lazy(() => import("./pages/ecos/EcosEightMinuteTemplate"));
 
 // ⚡ ADMIN & MONITORING - Composants manquants
 const UnifiedAdmin = lazy(() => import("./pages/unified/UnifiedAdmin"));
@@ -247,6 +249,7 @@ const AppWithUX = () => {
 
                                              {/* ⚡ ECOS SYSTEM */}
                                              <Route path="/ecos" element={<EcosIndex />} />
+                                             <Route path="/ecos/template" element={<EcosEightMinuteTemplate />} />
                                              <Route path="/ecos/:scenarioId" element={<EcosScenario />} />
 
                                               {/* ⚡ MEDICAL PLATFORM */}

@@ -1,0 +1,315 @@
+#!/usr/bin/env node
+import 'dotenv/config';
+import { promises as fs } from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const DEFAULT_BASE_URL = 'https://med-mng.com';
+const EDN_SQL_SOURCE = path.join(
+  process.cwd(),
+  'supabase',
+  'migrations',
+  '20250704083800-1544d62b-ba86-42f5-a480-ab240c6ea82e.sql'
+);
+const EDN_ITEM_REGEX = /WHEN 'IC-(\d+)' THEN '([^']+)'/g;
+const TODAY = new Date().toISOString().split('T')[0];
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const projectRoot = path.resolve(__dirname, '..');
+const publicDirectory = path.join(projectRoot, 'public');
+const outputPath = path.join(publicDirectory, 'sitemap.xml');
+
+const baseUrl = (process.env.SITEMAP_BASE_URL || process.env.PUBLIC_SITE_URL || DEFAULT_BASE_URL).replace(/\/+$/, '');
+
+const slugify = (value) =>
+  value
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+    .replace(/-+/g, '-');
+
+const buildUrl = (suffix) => {
+  const normalized = suffix.startsWith('/') ? suffix : `/${suffix}`;
+  return `${baseUrl}${normalized}`;
+};
+
+const readFileSafely = async (filePath) => {
+  try {
+    return await fs.readFile(filePath, 'utf8');
+  } catch (error) {
+    throw new Error(`Impossible de lire le fichier ${filePath}: ${error.message}`);
+  }
+};
+
+const loadEdnItems = async () => {
+  const sql = await readFileSafely(EDN_SQL_SOURCE);
+  const items = [];
+  let match;
+
+  while ((match = EDN_ITEM_REGEX.exec(sql)) !== null) {
+    const itemNumber = match[1];
+    const title = match[2];
+    const slug = `ic-${itemNumber}-${slugify(title)}`;
+
+    items.push({
+      loc: buildUrl(`/edn-production/${slug}`),
+      lastmod: TODAY,
+      changefreq: 'weekly',
+      priority: '0.80',
+    });
+  }
+
+  if (items.length === 0) {
+    throw new Error('Aucun item EDN trouvé dans le script SQL de migration.');
+  }
+
+  return items;
+};
+
+const generateSequentialEntries = (prefix, count, pad, builder) => {
+  const entries = [];
+
+  for (let index = 1; index <= count; index += 1) {
+    const id = `${prefix}${String(index).padStart(pad, '0')}`;
+    entries.push(builder(id));
+  }
+
+  return entries;
+};
+
+const loadEcosScenarios = () => {
+  const count = Number(process.env.SITEMAP_ECOS_COUNT || 60);
+
+  return generateSequentialEntries('SD', count, 3, (id) => ({
+    loc: buildUrl(`/ecos/${id}`),
+    lastmod: TODAY,
+    changefreq: 'monthly',
+    priority: '0.60',
+  }));
+};
+
+const loadKaraokeTracks = () => {
+  const count = Number(process.env.SITEMAP_KARAOKE_COUNT || 40);
+
+  return generateSequentialEntries('karaoke-track-', count, 3, (id) => ({
+    loc: buildUrl(`/med-mng/player/${id}`),
+    lastmod: TODAY,
+    changefreq: 'weekly',
+    priority: '0.50',
+  }));
+};
+
+const escapeXml = (value) =>
+  value
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&apos;');
+
+const buildSitemapXml = (entries) => {
+  const lines = [
+    '<?xml version="1.0" encoding="UTF-8"?>',
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+  ];
+
+  for (const entry of entries) {
+    lines.push('  <url>');
+    lines.push(`    <loc>${escapeXml(entry.loc)}</loc>`);
+
+    if (entry.lastmod) {
+      lines.push(`    <lastmod>${escapeXml(entry.lastmod)}</lastmod>`);
+    }
+
+    if (entry.changefreq) {
+      lines.push(`    <changefreq>${escapeXml(entry.changefreq)}</changefreq>`);
+    }
+
+    if (entry.priority) {
+      lines.push(`    <priority>${escapeXml(entry.priority)}</priority>`);
+    }
+
+    lines.push('  </url>');
+  }
+
+  lines.push('</urlset>');
+  lines.push('');
+
+  return lines.join('\n');
+};
+
+const generateSitemap = async () => {
+  console.log('🗺️  Génération du sitemap local...');
+
+  const itemEntries = await loadEdnItems();
+
+  if (itemEntries.length < 367) {
+    throw new Error(`Le sitemap doit contenir au moins 367 items EDN (trouvés: ${itemEntries.length}).`);
+  }
+
+  const ecosEntries = loadEcosScenarios();
+  const karaokeEntries = loadKaraokeTracks();
+
+  const seen = new Set();
+  const entries = [];
+
+  const addEntry = (entry) => {
+    if (seen.has(entry.loc)) {
+      return;
+    }
+
+    seen.add(entry.loc);
+    entries.push(entry);
+  };
+
+  const coreRoutes = [
+    { loc: buildUrl('/'), changefreq: 'daily', priority: '1.00', lastmod: TODAY },
+    { loc: buildUrl('/edn-production'), changefreq: 'daily', priority: '0.90', lastmod: TODAY },
+    { loc: buildUrl('/ecos'), changefreq: 'weekly', priority: '0.70', lastmod: TODAY },
+    { loc: buildUrl('/med-mng/library'), changefreq: 'weekly', priority: '0.60', lastmod: TODAY },
+  ];
+
+  coreRoutes.forEach(addEntry);
+  itemEntries.forEach(addEntry);
+  ecosEntries.forEach(addEntry);
+  karaokeEntries.forEach(addEntry);
+
+  const xml = buildSitemapXml(entries);
+
+  await fs.mkdir(publicDirectory, { recursive: true });
+  await fs.writeFile(outputPath, xml, 'utf8');
+
+  console.log(`✅ Sitemap généré (${entries.length} URLs)`);
+  console.log(`   • Items EDN : ${itemEntries.length}`);
+  console.log(`   • Scénarios ECOS : ${ecosEntries.length}`);
+  console.log(`   • Pistes karaoké : ${karaokeEntries.length}`);
+};
+
+generateSitemap().catch((error) => {
+  console.error('❌ Échec de la génération du sitemap:', error instanceof Error ? error.message : error);
+  process.exit(1);
+import { writeFile, readFile, mkdir } from 'fs/promises';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const publicDir = path.resolve(__dirname, '../public');
+
+const rawSiteUrl = (process.env.SITE_URL || process.env.VITE_SITE_URL || 'https://medmng.app').trim();
+const siteUrl = rawSiteUrl.replace(/\/$/, '');
+
+const staticRoutes = [
+  '/',
+  '/edn-production',
+  '/edn-production/progression',
+  '/med-mng',
+  '/med-mng/library',
+  '/med-mng/analytics',
+  '/med-mng/settings'
+];
+
+const fallbackItems = [
+  { slug: 'item-001', updated_at: new Date().toISOString() },
+  { slug: 'item-002', updated_at: new Date().toISOString() },
+  { slug: 'item-003', updated_at: new Date().toISOString() }
+];
+
+async function fetchItemSlugs() {
+  if (!process.env.SUPABASE_URL || !process.env.SUPABASE_ANON_KEY) {
+    console.warn('[sitemap] Missing Supabase credentials, using fallback slugs.');
+    return [];
+  }
+
+  try {
+    const { createClient } = await import('@supabase/supabase-js');
+    const client = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_ANON_KEY);
+    const { data, error } = await client
+      .from('edn_items_complete')
+      .select('slug, updated_at')
+      .not('slug', 'is', null)
+      .order('item_code', { ascending: true })
+      .limit(500);
+
+    if (error) {
+      throw error;
+    }
+
+    return (data ?? [])
+      .filter((item) => typeof item.slug === 'string' && item.slug.length > 0)
+      .map((item) => ({
+        slug: item.slug,
+        updated_at: item.updated_at ?? new Date().toISOString()
+      }));
+  } catch (error) {
+    console.warn('[sitemap] Failed to fetch items from Supabase:', error);
+    return [];
+  }
+}
+
+function buildUrlEntry(pathname, lastmod) {
+  const loc = `${siteUrl}${pathname}`;
+  const lastModDate = lastmod ? new Date(lastmod) : new Date();
+  const isoDate = (lastModDate instanceof Date && !Number.isNaN(lastModDate.getTime()))
+    ? lastModDate.toISOString()
+    : new Date().toISOString();
+
+  return `  <url>\n    <loc>${loc}</loc>\n    <lastmod>${isoDate}</lastmod>\n    <changefreq>weekly</changefreq>\n    <priority>0.7</priority>\n  </url>`;
+}
+
+async function updateRobotsFile() {
+  const robotsPath = path.join(publicDir, 'robots.txt');
+  const sitemapLine = `Sitemap: ${siteUrl}/sitemap.xml`;
+
+  try {
+    let content;
+    try {
+      content = await readFile(robotsPath, 'utf8');
+    } catch (readError) {
+      if (readError && readError.code === 'ENOENT') {
+        content = 'User-agent: *\nAllow: /\n';
+      } else {
+        throw readError;
+      }
+    }
+
+    const sanitized = content
+      .split('\n')
+      .filter((line) => !line.trim().toLowerCase().startsWith('sitemap:'))
+      .join('\n')
+      .trimEnd();
+
+    const finalContent = `${sanitized}\n\n${sitemapLine}\n`;
+    await writeFile(robotsPath, finalContent, 'utf8');
+  } catch (error) {
+    console.warn('[sitemap] Unable to update robots.txt:', error);
+  }
+}
+
+async function generateSitemap() {
+  await mkdir(publicDir, { recursive: true });
+
+  const dynamicItems = await fetchItemSlugs();
+  const items = dynamicItems.length > 0 ? dynamicItems : fallbackItems;
+
+  const entries = [
+    ...staticRoutes.map((route) => buildUrlEntry(route, new Date().toISOString())),
+    ...items.map((item) => buildUrlEntry(`/edn-production/${item.slug}`, item.updated_at))
+  ];
+
+  const sitemap = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${entries.join('\n')}\n</urlset>\n`;
+
+  const sitemapPath = path.join(publicDir, 'sitemap.xml');
+  await writeFile(sitemapPath, sitemap, 'utf8');
+  console.log(`[sitemap] Generated ${entries.length} entries at ${sitemapPath}`);
+
+  await updateRobotsFile();
+}
+
+generateSitemap().catch((error) => {
+  console.error('[sitemap] Generation failed:', error);
+  process.exitCode = 1;
+});
