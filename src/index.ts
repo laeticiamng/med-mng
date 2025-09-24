@@ -12,6 +12,7 @@ import {
 } from './middleware/security';
 import { validateSecurityConfig, getSecurityConfig } from './config/security';
 import { createCSPMiddleware } from './utils/security/cspHelper';
+import { getBuildInfo, getHealthStatus } from './services/healthService';
 
 const app = express();
 const port = process.env.PORT ? Number(process.env.PORT) : 3000;
@@ -97,11 +98,13 @@ app.get('/robots.txt', (_req, res, next) => {
 
 // Routes principales
 app.get('/', (_req, res) => {
-  logService.info('Health check endpoint accessed');
+  logService.info('Root endpoint accessed');
+  const build = getBuildInfo();
   res.json({
     status: 'ok',
     message: 'Medical Training API is running',
-    version: '1.0.0',
+    version: build.version,
+    build,
     timestamp: new Date().toISOString()
   });
 });
@@ -109,12 +112,7 @@ app.get('/', (_req, res) => {
 // Route de santé pour les monitoring
 app.get('/health', (_req, res) => {
   logService.debug('Health check endpoint accessed');
-  res.json({
-    status: 'healthy',
-    uptime: process.uptime(),
-    memory: process.memoryUsage(),
-    timestamp: new Date().toISOString()
-  });
+  res.json(getHealthStatus());
 });
 
 // Middleware de gestion des erreurs 404

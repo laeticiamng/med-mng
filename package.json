@@ -20,6 +20,7 @@
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest",
+    "monitor:uptime": "node --loader ts-node/esm scripts/uptimeMonitor.ts",
     "test:e2e:cypress": "cypress run --browser chrome --headless --config baseUrl=http://127.0.0.1:4173",
     "integrity:audit": "node --loader ts-node/esm scripts/dataIntegrityAudit.ts",
     "audit": "node scripts/run-audit.js",
