@@ -1,0 +1,109 @@
+name: Security Scan
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+  security-events: write
+
+jobs:
+  audit:
+    name: Consolidated security report
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run npm audit
+        run: |
+          npm audit --json > npm-audit.json || true
+
+      - name: Convert npm audit to SARIF
+        run: |
+          npx --yes audit2sarif --input npm-audit.json --output npm-audit.sarif
+
+      - name: Build application image
+        run: docker build -t mmg-security-scan:latest .
+
+      - name: Trivy image scan
+        uses: aquasecurity/trivy-action@v0.16.0
+        with:
+          image-ref: mmg-security-scan:latest
+          format: sarif
+          output: trivy-results.sarif
+          exit-code: '0'
+          ignore-unfixed: true
+          severity: 'CRITICAL,HIGH,MEDIUM,LOW'
+
+      - name: Generate consolidated report
+        run: |
+          node .github/scripts/security-report.mjs \
+            --npm-json npm-audit.json \
+            --npm-sarif npm-audit.sarif \
+            --trivy-sarif trivy-results.sarif \
+            --summary security-summary.json \
+            --merged security-aggregate.sarif
+
+      - name: Upload SARIF report
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: security-aggregate.sarif
+
+      - name: Comment security summary
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const summaryPath = 'security-summary.json';
+            if (!fs.existsSync(summaryPath)) {
+              core.warning('security-summary.json not found');
+              return;
+            }
+            const summary = JSON.parse(fs.readFileSync(summaryPath, 'utf8'));
+            const marker = '<!-- security-summary -->';
+            const body = `${marker}\n### 🔐 Security scan summary\n\n${summary.markdown}\n\n- **Critical vulnerabilities**: ${summary.totals.critical}\n- **High vulnerabilities**: ${summary.totals.high}\n- **Moderate vulnerabilities**: ${summary.totals.moderate}\n- **Low vulnerabilities**: ${summary.totals.low}\n- **Blocking issues**: ${summary.blocking ? 'Yes' : 'No'}\n`;
+
+            const { data: comments } = await github.rest.issues.listComments({
+              ...context.repo,
+              issue_number: context.issue.number,
+              per_page: 100,
+            });
+
+            const existing = comments.find(
+              (comment) =>
+                comment.user?.login === 'github-actions[bot]' &&
+                comment.body &&
+                comment.body.includes(marker)
+            );
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                ...context.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                ...context.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }
+
+      - name: Enforce high/critical vulnerability gate
+        run: |
+          node -e "const fs=require('fs'); const summary=JSON.parse(fs.readFileSync('security-summary.json','utf8')); const blocking=Number(summary.totals?.high ?? 0)+Number(summary.totals?.critical ?? 0); if (blocking > 0) { console.error(`Blocking vulnerabilities detected (high/critical): ${blocking}`); process.exit(1); } console.log('No blocking high or critical vulnerabilities detected.');"
