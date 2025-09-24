@@ -233,9 +233,9 @@ const ProductionEdnItem: React.FC = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
     setActiveSummarySection('tableau-a');
 
-    requestAnimationFrame(() => {
+    setTimeout(() => {
       topRef.current?.focus({ preventScroll: true });
-    });
+    }, 40);
   }, []);
 
   useEffect(() => {
