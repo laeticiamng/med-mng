@@ -245,6 +245,19 @@ const EcosIndex = () => {
         icon={Stethoscope}
         showBackButton
         backTo="/"
+        actions={(
+          <Button
+            asChild
+            variant="outline"
+            size="lg"
+            className="gap-2 border-white/20 text-white hover:bg-white/10"
+          >
+            <Link to="/ecos/template">
+              <Sparkles className="h-4 w-4" />
+              Gabarit ECOS 8'
+            </Link>
+          </Button>
+        )}
       />
       
       <div className="container mx-auto px-4 py-8">

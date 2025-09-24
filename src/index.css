@@ -4,6 +4,7 @@
 @tailwind utilities;
 
 @import './styles/premium-overrides.css';
+@import './styles/print.css';
 
 @keyframes shimmer {
   0% { transform: translateX(-100%) skewX(-12deg); }
