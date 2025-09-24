@@ -26,6 +26,7 @@ const PlatformOverview = lazy(() => import("./pages/PlatformOverview"));
 const PlatformComplete = lazy(() => import("./pages/PlatformComplete"));
 const QuickStart = lazy(() => import("./pages/QuickStart"));
 const Generator = lazy(() => import("./pages/Generator"));
+const ItemsPage = lazy(() => import("./pages/items/ItemsPage"));
 const MeditationCenter = lazy(() => import("./pages/MeditationCenter"));
 const UserSettings = lazy(() => import("./pages/UserSettings"));
 const DuplicateAnalysis = lazy(() => import("./pages/DuplicateAnalysis"));
@@ -34,6 +35,7 @@ const Notifications = lazy(() => import("./pages/Notifications"));
 const FAQ = lazy(() => import("./pages/FAQ"));
 const HelpCenter = lazy(() => import("./pages/HelpCenter"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const ItemPage = lazy(() => import("./pages/ItemPage"));
 
 // ⚡ ANALYTICS & DASHBOARDS - Version unifiée
 const UnifiedAnalytics = lazy(() => import("./pages/unified/UnifiedAnalytics"));
@@ -209,6 +211,7 @@ const AppWithUX = () => {
                                               <Route path="/" element={<OptimizedIndex />} />
                                               <Route path="/platform" element={<PlatformOverview />} />
                                               <Route path="/generator" element={<Generator />} />
+                                              <Route path="/items" element={<ItemsPage />} />
                                               <Route path="/meditation/*" element={<MeditationCenter />} />
                                               
                                               {/* ⚡ DASHBOARD & ANALYTICS - Version unifiée */}

@@ -6,11 +6,15 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "postbuild": "node scripts/generateItemPages.mjs",
+    "prebuild": "node scripts/generateSitemap.mjs",
+    "seo:generate": "node scripts/generateSitemap.mjs",
     "build:dev": "vite build --mode development",
     "lint": "eslint src/index.ts src/controllers src/services src/middleware test eslint.config.js",
     "typecheck": "tsc --noEmit",
     "preview": "vite preview",
     "env:check": "node --loader ts-node/esm scripts/validateEnvironment.ts",
+    "generate:sitemap": "node scripts/generateSitemap.mjs",
     "format": "prettier --write .",
     "start:server": "node --loader ts-node/esm src/index.ts",
     "test": "vitest run",
@@ -20,7 +24,9 @@
     "integrity:audit": "node --loader ts-node/esm scripts/dataIntegrityAudit.ts",
     "audit": "node scripts/run-audit.js",
     "postdeploy:check": "node scripts/postdeployIntegrityCheck.mjs",
-    "lighthouse:ci": "node scripts/run-lighthouse-ci.mjs"
+    "lighthouse:ci": "node scripts/run-lighthouse-ci.mjs",
+    "pm:setup-backlog": "node scripts/github/setup-backlog.mjs"
+    "prebuild": "npm run generate:sitemap"
   },
   "dependencies": {
     "@11labs/react": "^0.2.0",
