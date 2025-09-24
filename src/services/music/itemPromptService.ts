@@ -8,19 +8,17 @@ interface ItemWithCompetenceRow {
   item_code: string;
   title: string;
   slug: string | null;
-  competence_id: string | null;
-  competence_title: string | null;
-  competence_description: string | null;
-  competence_rang: string | null;
-  competence_rubrique: string | null;
+  competences: Array<{
+    rang?: string | null;
+    idx?: number | null;
+    label?: string | null;
+  }> | null;
 }
 
 export interface ItemCompetenceSummary {
-  id: string;
   rang: MusicMode;
-  rubrique?: string | null;
-  title?: string | null;
-  description?: string | null;
+  idx: number;
+  label: string;
 }
 
 export interface ItemContext {
@@ -64,20 +62,9 @@ export async function loadItemContext(options: {
 }): Promise<ItemContext> {
   const query = supabase
     .from('item_with_competences')
-    .select(
-      [
-        'item_id',
-        'item_code',
-        'title',
-        'slug',
-        'competence_id',
-        'competence_title',
-        'competence_description',
-        'competence_rang',
-        'competence_rubrique',
-      ].join(','),
-    )
-    .eq('item_code', options.itemCode);
+    .select(['item_id', 'item_code', 'title', 'slug', 'competences'].join(','))
+    .eq('item_code', options.itemCode)
+    .limit(1);
 
   if (options.itemId) {
     query.eq('item_id', options.itemId);
@@ -92,15 +79,26 @@ export async function loadItemContext(options: {
   }
 
   const [first] = data as ItemWithCompetenceRow[];
-  const competences = (data as ItemWithCompetenceRow[])
-    .filter((row) => Boolean(row.competence_id || row.competence_title || row.competence_description))
-    .map((row) => ({
-      id: row.competence_id ?? `${row.item_id}-${row.competence_title ?? 'competence'}`,
-      rang: normaliseMode(row.competence_rang) ?? 'A',
-      rubrique: row.competence_rubrique,
-      title: row.competence_title,
-      description: row.competence_description,
-    } satisfies ItemCompetenceSummary));
+  const rawCompetences = Array.isArray(first.competences) ? first.competences : [];
+  const competences = rawCompetences
+    .map((competence, index) => {
+      const label = typeof competence?.label === 'string' ? competence.label.trim() : '';
+      if (!label) {
+        return null;
+      }
+      const rang = normaliseMode(competence?.rang ?? null) ?? 'A';
+      const candidateIdx =
+        typeof competence?.idx === 'number'
+          ? competence.idx
+          : Number.parseInt(String(competence?.idx ?? ''), 10);
+      const idx = Number.isFinite(candidateIdx) ? Math.max(0, Math.trunc(candidateIdx)) : index + 1;
+      return {
+        rang,
+        idx,
+        label,
+      } satisfies ItemCompetenceSummary;
+    })
+    .filter((entry): entry is ItemCompetenceSummary => entry !== null);
 
   return {
     itemId: first.item_id,
@@ -119,19 +117,9 @@ export function summariseCompetences(context: ItemContext, mode: MusicMode): str
     if (!targetedModes.includes(competence.rang)) {
       return;
     }
-    const fragments: string[] = [];
-    if (competence.rubrique) {
-      fragments.push(competence.rubrique.trim());
-    }
-    if (competence.title) {
-      fragments.push(competence.title.trim());
-    }
-    if (competence.description) {
-      fragments.push(competence.description.trim());
-    }
-    const summary = fragments.join(' – ').replace(/\s+/g, ' ').trim();
+    const summary = competence.label.replace(/\s+/g, ' ').trim();
     if (summary) {
-      uniqueEntries.set(summary.toLowerCase(), summary);
+      uniqueEntries.set(`${competence.rang}-${competence.idx}-${summary.toLowerCase()}`, summary);
     }
   });
 

@@ -9357,11 +9357,7 @@ export type Database = {
       }
       item_with_competences: {
         Row: {
-          competence_description: string | null
-          competence_id: string | null
-          competence_rang: string | null
-          competence_rubrique: string | null
-          competence_title: string | null
+          competences: Json | null
           item_code: string
           item_id: string
           slug: string | null
