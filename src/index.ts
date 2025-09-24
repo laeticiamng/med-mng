@@ -10,6 +10,7 @@ import {
 } from './middleware/security';
 import { validateSecurityConfig, getSecurityConfig } from './config/security';
 import { createCSPMiddleware } from './utils/security/cspHelper';
+import { registerOgItemRoute } from './routes/ogItemRoute';
 
 const app = express();
 const port = process.env.PORT ? Number(process.env.PORT) : 3000;
@@ -75,6 +76,8 @@ app.get('/health', (_req, res) => {
     timestamp: new Date().toISOString()
   });
 });
+
+registerOgItemRoute(app);
 
 // Middleware de gestion des erreurs 404
 app.use((_req, res) => {
