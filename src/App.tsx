@@ -26,6 +26,7 @@ const PlatformOverview = lazy(() => import("./pages/PlatformOverview"));
 const PlatformComplete = lazy(() => import("./pages/PlatformComplete"));
 const QuickStart = lazy(() => import("./pages/QuickStart"));
 const Generator = lazy(() => import("./pages/Generator"));
+const ItemsPage = lazy(() => import("./pages/items/ItemsPage"));
 const MeditationCenter = lazy(() => import("./pages/MeditationCenter"));
 const UserSettings = lazy(() => import("./pages/UserSettings"));
 const DuplicateAnalysis = lazy(() => import("./pages/DuplicateAnalysis"));
@@ -209,7 +210,7 @@ const AppWithUX = () => {
                                               <Route path="/" element={<OptimizedIndex />} />
                                               <Route path="/platform" element={<PlatformOverview />} />
                                               <Route path="/generator" element={<Generator />} />
-                                              <Route path="/item/:id" element={<ItemPage />} />
+                                              <Route path="/items" element={<ItemsPage />} />
                                               <Route path="/meditation/*" element={<MeditationCenter />} />
                                               
                                               {/* ⚡ DASHBOARD & ANALYTICS - Version unifiée */}
