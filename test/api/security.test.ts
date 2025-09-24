@@ -142,6 +142,11 @@ describe('API Security Tests', () => {
       expect(response.body).toHaveProperty('uptime');
       expect(response.body).toHaveProperty('memory');
       expect(response.body).toHaveProperty('timestamp');
+      expect(response.body).toHaveProperty('build');
+      expect(response.body.build).toMatchObject({
+        hash: expect.any(String),
+        timestamp: expect.any(String),
+      });
     });
 
     it('should provide main endpoint with API info', async () => {
@@ -154,6 +159,12 @@ describe('API Security Tests', () => {
       expect(response.body.message).toBe('Medical Training API is running');
       expect(response.body).toHaveProperty('version');
       expect(response.body.version).toBe('1.0.0');
+      expect(response.body).toHaveProperty('build');
+      expect(response.body.build).toMatchObject({
+        hash: expect.any(String),
+        timestamp: expect.any(String),
+        version: '1.0.0',
+      });
     });
   });
 

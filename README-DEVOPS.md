@@ -98,6 +98,8 @@ Store them in `.env` for local use and configure the same variables as project s
 - Supabase provides logs for edge functions, database and storage (dashboard ➜ Logs).
 - The Express API logs to stdout via `supabase/functions/med-mng-api/logger.ts`.
 - Alerts can be sent to Discord or Slack when `DISCORD_WEBHOOK_URL` or `SLACK_WEBHOOK_URL` are defined. See `src/services/alertService.ts`.
+- Frontend errors are sent to Sentry when `VITE_SENTRY_DSN` is configured. The release tag is derived from `BUILD_SHA`/`APP_VERSION` to ease correlation with deployments.
+- A cron-compatible uptime probe is available via `npm run monitor:uptime` (recommended every 5 minutes). It pings `UPTIME_HEALTH_URL` and triggers Slack/email alerts through `ALERT_EMAIL` + webhooks when the check fails.
 - Database logs are stored in the `operation_logs` table via `logService.ts` and can feed a Metabase or Grafana dashboard (see `docs/dashboard-monitoring.md`).
 
 ## 7. Extraction batch / cleaning data
