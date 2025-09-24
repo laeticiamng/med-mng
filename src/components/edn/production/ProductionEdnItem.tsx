@@ -6,7 +6,7 @@
  * ✅ Expérience utilisateur premium
  */
 
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -15,10 +15,22 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  ArrowLeft, Play, Pause, Download, Share2, Heart,
-  BookOpen, Music, Brain, Zap, CheckCircle, Award,
-  Users, TrendingUp, Clock, Calendar
+import {
+  ArrowLeft,
+  Share2,
+  Heart,
+  BookOpen,
+  Music,
+  Brain,
+  Zap,
+  CheckCircle,
+  Users,
+  Clock,
+  Calendar,
+  List,
+  ArrowUp,
+  Mic,
+  Target
 } from 'lucide-react';
 
 // Import des composants avancés optimisés
@@ -51,6 +63,8 @@ interface ProductionEdnItemData {
 }
 
 type SectionType = 'tableau-a' | 'tableau-b' | 'scene' | 'bd' | 'music' | 'quiz';
+type ExperienceSection = 'scene' | 'bd' | 'music' | 'quiz';
+type SummarySection = 'tableau-a' | 'tableau-b' | 'oic';
 
 const ProductionEdnItem: React.FC = () => {
   const { slug } = useParams<{ slug: string }>();
@@ -60,7 +74,7 @@ const ProductionEdnItem: React.FC = () => {
   const [item, setItem] = useState<ProductionEdnItemData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeSection, setActiveSection] = useState<SectionType>('tableau-a');
+  const [activeExperience, setActiveExperience] = useState<ExperienceSection>('scene');
   const [sectionProgress, setSectionProgress] = useState<Record<SectionType, number>>({
     'tableau-a': 0,
     'tableau-b': 0,
@@ -69,6 +83,18 @@ const ProductionEdnItem: React.FC = () => {
     'music': 0,
     'quiz': 0
   });
+  const [activeSummarySection, setActiveSummarySection] = useState<SummarySection>('tableau-a');
+
+  const topRef = useRef<HTMLDivElement | null>(null);
+  const tableauARef = useRef<HTMLElement | null>(null);
+  const tableauBRef = useRef<HTMLElement | null>(null);
+  const oicRef = useRef<HTMLElement | null>(null);
+  const summarySectionOrder = useMemo<SummarySection[]>(() => ['tableau-a', 'tableau-b', 'oic'], []);
+  const sectionRefs: Record<SummarySection, React.RefObject<HTMLElement>> = {
+    'tableau-a': tableauARef,
+    'tableau-b': tableauBRef,
+    oic: oicRef
+  };
 
   const siteUrl = ((import.meta.env.VITE_SITE_URL as string | undefined) ?? 'https://medmng.app').replace(/\/$/, '');
   const canonicalUrl = slug ? `${siteUrl}/edn-production/${slug}` : `${siteUrl}/edn-production`;
@@ -158,6 +184,124 @@ const ProductionEdnItem: React.FC = () => {
 
     fetchItem();
   }, [slug, toast]);
+
+  const oicRangA = useMemo(() => (
+    Array.isArray(item?.competences_oic_rang_a) ? item.competences_oic_rang_a : []
+  ), [item?.competences_oic_rang_a]);
+
+  const oicRangB = useMemo(() => (
+    Array.isArray(item?.competences_oic_rang_b) ? item.competences_oic_rang_b : []
+  ), [item?.competences_oic_rang_b]);
+
+  const totalOic = oicRangA.length + oicRangB.length;
+
+  const summarySections = useMemo(() => ([
+    {
+      id: 'tableau-a' as SummarySection,
+      label: 'Tableau Rang A',
+      description: `${oicRangA.length} compétence${oicRangA.length > 1 ? 's' : ''} OIC`,
+      indicator: 'A'
+    },
+    {
+      id: 'tableau-b' as SummarySection,
+      label: 'Tableau Rang B',
+      description: `${oicRangB.length} compétence${oicRangB.length > 1 ? 's' : ''} OIC`,
+      indicator: 'B'
+    },
+    {
+      id: 'oic' as SummarySection,
+      label: 'Synthèse OIC',
+      description: `${totalOic} compétence${totalOic > 1 ? 's' : ''} intégrée${totalOic > 1 ? 's' : ''}`,
+      indicator: '🎯'
+    }
+  ]), [oicRangA.length, oicRangB.length, totalOic]);
+
+  const topCompetencesA = useMemo(() => oicRangA.slice(0, 3), [oicRangA]);
+  const topCompetencesB = useMemo(() => oicRangB.slice(0, 3), [oicRangB]);
+
+  const formatCompetenceLabel = useCallback((competence: any) => {
+    if (!competence || typeof competence !== 'object') {
+      return 'Compétence OIC';
+    }
+
+    const objectif = typeof competence.objectif_id === 'string' ? competence.objectif_id : undefined;
+    const intitule = typeof competence.intitule === 'string' ? competence.intitule : undefined;
+
+    if (objectif && intitule) {
+      return `${objectif} · ${intitule}`;
+    }
+
+    return objectif || intitule || 'Compétence OIC';
+  }, []);
+
+  const getCompetenceDescription = useCallback((competence: any) => {
+    if (!competence || typeof competence !== 'object') {
+      return 'Description en cours de synchronisation.';
+    }
+
+    const description = typeof competence.description === 'string' ? competence.description : '';
+
+    if (!description) {
+      return 'Description en cours de synchronisation.';
+    }
+
+    return description.length > 140 ? `${description.slice(0, 140)}…` : description;
+  }, []);
+
+  const scrollToSection = useCallback((section: SummarySection) => {
+    const target = sectionRefs[section]?.current;
+    if (!target) return;
+
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    setActiveSummarySection(section);
+
+    requestAnimationFrame(() => {
+      target.focus({ preventScroll: true });
+    });
+  }, [sectionRefs]);
+
+  const handleSummaryClick = useCallback((event: React.MouseEvent<HTMLAnchorElement>, section: SummarySection) => {
+    event.preventDefault();
+    scrollToSection(section);
+  }, [scrollToSection]);
+
+  const handleBackToTop = useCallback(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setActiveSummarySection('tableau-a');
+
+    setTimeout(() => {
+      topRef.current?.focus({ preventScroll: true });
+    }, 40);
+  }, []);
+
+  useEffect(() => {
+    if (!item) return;
+
+    const observer = new IntersectionObserver((entries) => {
+      const visible = entries
+        .filter(entry => entry.isIntersecting)
+        .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+
+      if (visible?.target?.id) {
+        const sectionId = visible.target.id.replace('item-section-', '') as SummarySection;
+        if (summarySectionOrder.includes(sectionId)) {
+          setActiveSummarySection(sectionId);
+        }
+      }
+    }, {
+      threshold: [0.2, 0.4, 0.6],
+      rootMargin: '-30% 0px -45% 0px'
+    });
+
+    summarySectionOrder.forEach((sectionId) => {
+      const element = sectionRefs[sectionId]?.current;
+      if (element) {
+        observer.observe(element);
+      }
+    });
+
+    return () => observer.disconnect();
+  }, [item, sectionRefs, summarySectionOrder]);
 
   // Gestion du progrès des sections
   const handleSectionProgress = useCallback((section: SectionType, progress: number) => {
@@ -344,98 +488,283 @@ const ProductionEdnItem: React.FC = () => {
         </div>
       </div>
 
-      {/* Contenu principal avec onglets */}
+      {/* Contenu principal avec navigation résumée */}
       <div className="container mx-auto px-4 py-8">
-        <Tabs value={activeSection} onValueChange={(value) => setActiveSection(value as SectionType)}>
-          <TabsList className="grid w-full grid-cols-6 max-w-4xl mx-auto mb-8">
-            <TabsTrigger value="tableau-a" className="flex items-center space-x-2">
-              <span>📊</span>
-              <span className="hidden sm:inline">Tableau A</span>
-              {sectionProgress['tableau-a'] >= 100 && <CheckCircle className="h-4 w-4 text-green-500" />}
-            </TabsTrigger>
-            <TabsTrigger value="tableau-b" className="flex items-center space-x-2">
-              <span>📈</span>
-              <span className="hidden sm:inline">Tableau B</span>
-              {sectionProgress['tableau-b'] >= 100 && <CheckCircle className="h-4 w-4 text-green-500" />}
-            </TabsTrigger>
-            <TabsTrigger value="scene" className="flex items-center space-x-2">
-              <Brain className="h-4 w-4" />
-              <span className="hidden sm:inline">Scène</span>
-              {sectionProgress['scene'] >= 100 && <CheckCircle className="h-4 w-4 text-green-500" />}
-            </TabsTrigger>
-            <TabsTrigger value="bd" className="flex items-center space-x-2">
-              <span>📚</span>
-              <span className="hidden sm:inline">BD</span>
-              {sectionProgress['bd'] >= 100 && <CheckCircle className="h-4 w-4 text-green-500" />}
-            </TabsTrigger>
-            <TabsTrigger value="music" className="flex items-center space-x-2">
-              <Music className="h-4 w-4" />
-              <span className="hidden sm:inline">Musique</span>
-              {sectionProgress['music'] >= 100 && <CheckCircle className="h-4 w-4 text-green-500" />}
-            </TabsTrigger>
-            <TabsTrigger value="quiz" className="flex items-center space-x-2">
-              <Zap className="h-4 w-4" />
-              <span className="hidden sm:inline">Quiz</span>
-              {sectionProgress['quiz'] >= 100 && <CheckCircle className="h-4 w-4 text-green-500" />}
-            </TabsTrigger>
-          </TabsList>
+        <div
+          id="item-top"
+          ref={topRef}
+          tabIndex={-1}
+          className="outline-none"
+        />
 
-          <TabsContent value="tableau-a">
-            <EnhancedTableauDisplay 
-              item={item} 
-              rang="A"
-              onProgress={(progress) => handleSectionProgress('tableau-a', progress)}
-            />
-          </TabsContent>
+        <div className="grid grid-cols-1 gap-8 lg:grid-cols-[280px_minmax(0,1fr)]">
+          <aside className="space-y-4 lg:sticky lg:top-32" aria-label="Sommaire de l'item EDN">
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <List className="h-4 w-4 text-primary" />
+                  Sommaire
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <nav aria-label="Navigation interne des sections">
+                  <ul className="space-y-2">
+                    {summarySections.map((section) => (
+                      <li key={section.id}>
+                        <a
+                          href={`#item-section-${section.id}`}
+                          onClick={(event) => handleSummaryClick(event, section.id)}
+                          className={`flex items-center gap-3 rounded-lg border px-3 py-2 text-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background ${
+                            activeSummarySection === section.id
+                              ? 'border-primary bg-primary/10 text-primary shadow-sm'
+                              : 'border-border hover:bg-muted/60'
+                          }`}
+                          aria-current={activeSummarySection === section.id ? 'true' : undefined}
+                        >
+                          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/10 font-semibold text-primary">
+                            {section.indicator}
+                          </span>
+                          <span className="flex-1 text-left">
+                            <span className="block font-medium">{section.label}</span>
+                            <span className="block text-xs text-muted-foreground">{section.description}</span>
+                          </span>
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </nav>
 
-          <TabsContent value="tableau-b">
-            <EnhancedTableauDisplay 
-              item={item} 
-              rang="B"
-              onProgress={(progress) => handleSectionProgress('tableau-b', progress)}
-            />
-          </TabsContent>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  className="w-full justify-start gap-2"
+                  onClick={handleBackToTop}
+                >
+                  <ArrowUp className="h-4 w-4" />
+                  Retour en haut
+                </Button>
 
-          <TabsContent value="scene">
-            <AdvancedSceneImmersive 
-              item={item}
-              onProgress={(progress) => handleSectionProgress('scene', progress)}
-            />
-          </TabsContent>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full justify-center gap-2"
+                  disabled
+                  aria-disabled="true"
+                >
+                  <Mic className="h-4 w-4" />
+                  Karaoké / Lyrics A/B (bientôt)
+                </Button>
+              </CardContent>
+            </Card>
+          </aside>
 
-          <TabsContent value="bd">
-            <AdvancedBandeDessinee 
-              item={item}
-              onProgress={(progress) => handleSectionProgress('bd', progress)}
-            />
-          </TabsContent>
+          <div className="space-y-12">
+            <section
+              id="item-section-tableau-a"
+              ref={sectionRefs['tableau-a']}
+              tabIndex={-1}
+              aria-labelledby="item-section-tableau-a-title"
+              className="scroll-mt-32 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            >
+              <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h2 id="item-section-tableau-a-title" className="flex items-center gap-2 text-2xl font-semibold">
+                    <span role="img" aria-hidden="true">📊</span>
+                    Tableau Rang A
+                  </h2>
+                  <p className="text-sm text-muted-foreground">
+                    Fondamentaux de l'item — {oicRangA.length} compétence{oicRangA.length > 1 ? 's' : ''} OIC synchronisée{oicRangA.length > 1 ? 's' : ''}.
+                  </p>
+                </div>
+                <Badge variant="secondary" className="w-fit">Rang A</Badge>
+              </div>
+              <EnhancedTableauDisplay
+                item={item}
+                rang="A"
+                onProgress={(progress) => handleSectionProgress('tableau-a', progress)}
+              />
+            </section>
 
-          <TabsContent value="music">
-            <AdvancedGenerationMusicale 
-              item={item}
-              onProgress={(progress) => handleSectionProgress('music', progress)}
-            />
-          </TabsContent>
+            <section
+              id="item-section-tableau-b"
+              ref={sectionRefs['tableau-b']}
+              tabIndex={-1}
+              aria-labelledby="item-section-tableau-b-title"
+              className="scroll-mt-32 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            >
+              <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h2 id="item-section-tableau-b-title" className="flex items-center gap-2 text-2xl font-semibold">
+                    <span role="img" aria-hidden="true">📈</span>
+                    Tableau Rang B
+                  </h2>
+                  <p className="text-sm text-muted-foreground">
+                    Approfondissements et expertise — {oicRangB.length} compétence{oicRangB.length > 1 ? 's' : ''} OIC synchronisée{oicRangB.length > 1 ? 's' : ''}.
+                  </p>
+                </div>
+                <Badge variant="secondary" className="w-fit">Rang B</Badge>
+              </div>
+              <EnhancedTableauDisplay
+                item={item}
+                rang="B"
+                onProgress={(progress) => handleSectionProgress('tableau-b', progress)}
+              />
+            </section>
 
-          <TabsContent value="quiz">
-            <AdvancedQuizInteractif 
-              item={item}
-              onProgress={(progress) => handleSectionProgress('quiz', progress)}
-            />
-          </TabsContent>
-        </Tabs>
+            <section
+              id="item-section-oic"
+              ref={sectionRefs['oic']}
+              tabIndex={-1}
+              aria-labelledby="item-section-oic-title"
+              className="scroll-mt-32 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            >
+              <Card>
+                <CardHeader>
+                  <CardTitle id="item-section-oic-title" className="flex items-center gap-2">
+                    <Target className="h-5 w-5 text-primary" />
+                    Synthèse des compétences OIC
+                  </CardTitle>
+                  <p className="text-sm text-muted-foreground">
+                    Référentiel officiel 2024 · {totalOic} compétence{totalOic > 1 ? 's' : ''} activée{totalOic > 1 ? 's' : ''} pour cet item.
+                  </p>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    <div className="rounded-lg border border-primary/20 bg-primary/5 p-4">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-primary">Rang A</span>
+                        <Badge variant="outline">{oicRangA.length}</Badge>
+                      </div>
+                      <p className="mt-2 text-sm text-muted-foreground">
+                        Compétences fondamentales validées pour l'item {item.item_code}.
+                      </p>
+                    </div>
+                    <div className="rounded-lg border border-secondary/30 bg-secondary/10 p-4">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm font-medium text-secondary-foreground">Rang B</span>
+                        <Badge variant="outline">{oicRangB.length}</Badge>
+                      </div>
+                      <p className="mt-2 text-sm text-muted-foreground">
+                        Compétences avancées orientées thérapeutique et gestion de cas.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div>
+                      <h3 className="text-sm font-semibold text-foreground">Focus Rang A</h3>
+                      {topCompetencesA.length > 0 ? (
+                        <ul className="mt-2 space-y-2 text-sm leading-relaxed">
+                          {topCompetencesA.map((competence, index) => (
+                            <li key={`oic-a-${index}`} className="rounded-lg border border-border/60 bg-muted/50 p-3">
+                              <div className="flex items-center gap-2">
+                                <Badge variant="secondary" className="text-xs">#{index + 1}</Badge>
+                                <span className="font-medium">{formatCompetenceLabel(competence)}</span>
+                              </div>
+                              <p className="mt-2 text-xs text-muted-foreground">{getCompetenceDescription(competence)}</p>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className="mt-2 text-sm text-muted-foreground">
+                          Les compétences du rang A seront synchronisées automatiquement.
+                        </p>
+                      )}
+                    </div>
+
+                    <div>
+                      <h3 className="text-sm font-semibold text-foreground">Focus Rang B</h3>
+                      {topCompetencesB.length > 0 ? (
+                        <ul className="mt-2 space-y-2 text-sm leading-relaxed">
+                          {topCompetencesB.map((competence, index) => (
+                            <li key={`oic-b-${index}`} className="rounded-lg border border-border/60 bg-muted/50 p-3">
+                              <div className="flex items-center gap-2">
+                                <Badge variant="outline" className="text-xs">#{index + 1}</Badge>
+                                <span className="font-medium">{formatCompetenceLabel(competence)}</span>
+                              </div>
+                              <p className="mt-2 text-xs text-muted-foreground">{getCompetenceDescription(competence)}</p>
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <p className="mt-2 text-sm text-muted-foreground">
+                          Les compétences du rang B seront synchronisées automatiquement.
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </section>
+          </div>
+        </div>
+
+        <div className="mt-16">
+          <Tabs value={activeExperience} onValueChange={(value) => setActiveExperience(value as ExperienceSection)}>
+            <TabsList className="mx-auto mb-8 grid w-full max-w-3xl grid-cols-4">
+              <TabsTrigger value="scene" className="flex items-center space-x-2">
+                <Brain className="h-4 w-4" />
+                <span className="hidden sm:inline">Scène</span>
+                {sectionProgress['scene'] >= 100 && <CheckCircle className="h-4 w-4 text-green-500" />}
+              </TabsTrigger>
+              <TabsTrigger value="bd" className="flex items-center space-x-2">
+                <span role="img" aria-hidden="true">📚</span>
+                <span className="hidden sm:inline">BD</span>
+                {sectionProgress['bd'] >= 100 && <CheckCircle className="h-4 w-4 text-green-500" />}
+              </TabsTrigger>
+              <TabsTrigger value="music" className="flex items-center space-x-2">
+                <Music className="h-4 w-4" />
+                <span className="hidden sm:inline">Musique</span>
+                {sectionProgress['music'] >= 100 && <CheckCircle className="h-4 w-4 text-green-500" />}
+              </TabsTrigger>
+              <TabsTrigger value="quiz" className="flex items-center space-x-2">
+                <Zap className="h-4 w-4" />
+                <span className="hidden sm:inline">Quiz</span>
+                {sectionProgress['quiz'] >= 100 && <CheckCircle className="h-4 w-4 text-green-500" />}
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="scene">
+              <AdvancedSceneImmersive
+                item={item}
+                onProgress={(progress) => handleSectionProgress('scene', progress)}
+              />
+            </TabsContent>
+
+            <TabsContent value="bd">
+              <AdvancedBandeDessinee
+                item={item}
+                onProgress={(progress) => handleSectionProgress('bd', progress)}
+              />
+            </TabsContent>
+
+            <TabsContent value="music">
+              <AdvancedGenerationMusicale
+                item={item}
+                onProgress={(progress) => handleSectionProgress('music', progress)}
+              />
+            </TabsContent>
+
+            <TabsContent value="quiz">
+              <AdvancedQuizInteractif
+                item={item}
+                onProgress={(progress) => handleSectionProgress('quiz', progress)}
+              />
+            </TabsContent>
+          </Tabs>
+        </div>
 
         {/* Progrès global */}
         <Card className="mt-8">
           <CardContent className="p-6">
-            <div className="flex items-center justify-between mb-4">
+            <div className="mb-4 flex items-center justify-between">
               <h3 className="text-lg font-semibold">Progression globale</h3>
               <div className="text-2xl font-bold text-primary">
                 {getOverallProgress()}%
               </div>
             </div>
             <Progress value={getOverallProgress()} className="h-3" />
-            <div className="flex justify-between text-sm text-muted-foreground mt-2">
+            <div className="mt-2 flex justify-between text-sm text-muted-foreground">
               <span>Débutant</span>
               <span>Intermédiaire</span>
               <span>Expert</span>
