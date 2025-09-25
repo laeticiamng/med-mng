@@ -27,7 +27,7 @@
     "lighthouse:ci": "node scripts/run-lighthouse-ci.mjs",
     "sitemap:generate": "node scripts/generate-sitemap.mjs",
     "pm:setup-backlog": "node scripts/github/setup-backlog.mjs",
-    "prebuild": "npm run generate:sitemap"
+    "prebuild": "npm run sitemap:generate"
   },
   "dependencies": {
     "@11labs/react": "^0.2.0",
