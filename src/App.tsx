@@ -336,6 +336,7 @@ const AppWithUX = () => {
                 </LanguageProvider>
               </ViewportProvider>
             </AccessibilityProvider>
+            </UXOrchestrator>
           </TooltipProvider>
         </HelmetProvider>
       </StrictMode>
