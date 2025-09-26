@@ -40,6 +40,17 @@ export const useAnalyticsConsent = (): AnalyticsConsentState => {
         .maybeSingle();
 
       if (error && error.code !== 'PGRST116') {
+        // Silently handle network errors and table missing errors during development
+        if (error.message?.includes('Failed to fetch') || error.message?.includes('relation') || error.message?.includes('does not exist')) {
+          console.debug('[analytics] Privacy preferences table not ready, using defaults');
+          const nextOptIn = false;
+          const nextRetention = DEFAULT_RETENTION_DAYS;
+          setOptIn(nextOptIn);
+          setRetentionDays(nextRetention);
+          setAnalyticsContext(user.id, nextOptIn);
+          setLoading(false);
+          return;
+        }
         console.warn('[analytics] Unable to load privacy preferences', error);
       }
 
@@ -49,6 +60,12 @@ export const useAnalyticsConsent = (): AnalyticsConsentState => {
       setOptIn(nextOptIn);
       setRetentionDays(nextRetention);
       setAnalyticsContext(user.id, nextOptIn);
+    } catch (networkError) {
+      // Handle any network or parsing errors gracefully
+      console.debug('[analytics] Network error loading preferences, using defaults:', networkError);
+      setOptIn(false);
+      setRetentionDays(DEFAULT_RETENTION_DAYS);
+      setAnalyticsContext(user.id, false);
     } finally {
       setLoading(false);
     }
