@@ -181,9 +181,9 @@ export const AdvancedGenerationMusicale: React.FC<AdvancedGenerationMusicaleProp
   const karaokeLyrics = useMemo(() => {
     if (!lyricsData) return [];
     return lyricsData.lyrics_data.map((line) => ({
-      time: typeof line.time === 'number' ? line.time : line.startMs / 1000,
+      time: typeof line.time === 'number' ? line.time : (line.startMs || 0) / 1000,
       text: line.text,
-      duration: typeof line.duration === 'number' ? line.duration : (line.endMs - line.startMs) / 1000,
+      duration: (line.endMs && line.startMs) ? (line.endMs - line.startMs) / 1000 : 3,
     }));
   }, [lyricsData]);
 

@@ -75,18 +75,18 @@ export const useEdnItemV2 = (slug: string | undefined): UseEdnItemV2Result => {
               console.log('✅ Item v2 valide');
               // On utilise directement les données validées
               const validatedData = validation.data;
-              parsedItem = EDNItemParser.parseItemV2(validatedData, data.id);
+              parsedItem = EDNItemParser.parseItemV2(validatedData, (data as any).id);
               valErrors = [];
             } else if ('success' in validation && validation.success === false && 'errors' in validation) {
               console.warn('⚠️ Item v2 invalide:', validation.errors);
               valErrors = validation.errors;
               // On continue quand même le parsing pour éviter la régression
-              parsedItem = EDNItemParser.parseAnyItem(data, data.id);
+              parsedItem = EDNItemParser.parseAnyItem(data, (data as any).id);
             }
           } catch (err) {
             console.error('❌ Erreur de validation:', err);
             // En cas d'erreur, on parse comme v1
-            parsedItem = EDNItemParser.parseAnyItem(data, data.id);
+              parsedItem = EDNItemParser.parseAnyItem(data, (data as any).id);
           }
         } else {
           // Item format v1

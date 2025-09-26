@@ -94,7 +94,7 @@ async function fetchItemMetadata(itemId: string): Promise<OgItemData> {
 
   try {
     const { data, error } = await client
-      .from<ItemRecord>('edn_items_complete')
+      .from('edn_items_complete')
       .select('item_code, title, subtitle, tableau_rang_a, tableau_rang_b, updated_at')
       .or(`item_code.eq.${itemId},slug.eq.${itemId}`)
       .maybeSingle();

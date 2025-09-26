@@ -82,8 +82,8 @@ export const useItemMusicTracks = ({ itemId, itemCode }: UseItemMusicTracksOptio
         'postgres_changes',
         { event: '*', schema: 'public', table: 'generated_music_tracks' },
         (payload) => {
-          const targetId = payload.new?.item_id ?? payload.old?.item_id;
-          const targetCode = (payload.new?.metadata as Record<string, unknown> | null)?.item_code as string | undefined;
+          const targetId = (payload.new as any)?.item_id ?? (payload.old as any)?.item_id;
+          const targetCode = ((payload.new as any)?.metadata as Record<string, unknown> | null)?.item_code as string | undefined;
 
           const matchById = itemId && targetId === itemId;
           const matchByCode = itemCode && targetCode === itemCode;

@@ -512,7 +512,7 @@ class MusicOrchestrator {
         status: 'queued',
         generation_status: 'pending',
         openai_prompt_hash: (metadataObject.openaiPromptHash as string | undefined) ?? null,
-        metadata: this.buildTrackMetadata(job),
+        metadata: this.buildTrackMetadata(job) as any,
         user_id: (metadataObject.userId as string | undefined) ?? null,
       } satisfies GeneratedMusicTrackInsert;
 
@@ -553,7 +553,7 @@ class MusicOrchestrator {
 
     const updatePayload: GeneratedMusicTrackUpdate = {
       ...patch,
-      metadata: this.buildTrackMetadata(job),
+      metadata: this.buildTrackMetadata(job) as any,
       updated_at: new Date().toISOString(),
     } satisfies GeneratedMusicTrackUpdate;
 

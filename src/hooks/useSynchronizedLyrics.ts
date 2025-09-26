@@ -533,7 +533,7 @@ function buildLyricsFromMetadata(
           role: typeof segment.role === 'string' ? segment.role : null,
         } satisfies LyricsLine;
       })
-      .filter((line): line is LyricsLine => Boolean(line));
+      .filter((line): line is { time: number; text: string; startMs: number; endMs: number; role: string | null } => Boolean(line));
 
     if (mapped.length > 0) {
       return { lines: mapped, source: 'manual' };
@@ -564,7 +564,7 @@ function buildLyricsFromMetadata(
           role: typeof roleCandidate === 'string' ? roleCandidate : null,
         } satisfies LyricsLine;
       })
-      .filter((line): line is LyricsLine => Boolean(line));
+      .filter((line): line is { time: number; text: string; startMs: number; endMs: number; role: string | null } => Boolean(line));
 
     if (mapped.length > 0) {
       return { lines: mapped, source: 'ai_generated' };

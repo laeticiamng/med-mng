@@ -63,7 +63,7 @@ export const RateLimitNotice = ({
 
   return (
     <Alert
-      variant="warning"
+      variant="destructive"
       className="border-amber-300/80 bg-amber-50 text-amber-900 shadow-sm"
       role="status"
     >

@@ -474,7 +474,7 @@ export const QuizManager: React.FC<QuizManagerProps> = ({ item, onClose, onQuizS
                       onChange={(event) =>
                         handleUpdateQuestion(index, (prev) => ({ ...prev, question: event.target.value }))
                       }
-                      minRows={3}
+                      rows={3}
                     />
                   </div>
 
@@ -515,7 +515,7 @@ export const QuizManager: React.FC<QuizManagerProps> = ({ item, onClose, onQuizS
                       onChange={(event) =>
                         handleUpdateQuestion(index, (prev) => ({ ...prev, explanation: event.target.value }))
                       }
-                      minRows={2}
+                      rows={2}
                       placeholder="Ajoutez la correction ou le raisonnement attendu."
                     />
                   </div>
@@ -528,7 +528,7 @@ export const QuizManager: React.FC<QuizManagerProps> = ({ item, onClose, onQuizS
                       onChange={(event) =>
                         handleUpdateQuestion(index, (prev) => ({ ...prev, notes: event.target.value }))
                       }
-                      minRows={2}
+                      rows={2}
                       placeholder="Ajouter une consigne, une statistique ou un complément clinique."
                     />
                   </div>

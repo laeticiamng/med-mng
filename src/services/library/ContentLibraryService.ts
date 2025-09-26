@@ -227,7 +227,7 @@ class ContentLibraryService {
       throw new Error(error.message || 'Impossible de charger la bande dessinée');
     }
 
-    return data ?? null;
+    return data as any ?? null;
   }
 }
 

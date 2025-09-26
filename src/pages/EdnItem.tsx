@@ -381,7 +381,15 @@ const EdnItem = () => {
                         onSectionChange={handleSectionChange}
                         competences={competences}
                         itemTitle={item.title}
-                        progress={sectionProgress}
+                        progress={sectionProgress.map(entry => ({
+                          sectionId: entry.sectionId as SectionType,
+                          completed: entry.timeSpent > 30,
+                          timeSpent: entry.timeSpent,
+                          interactions: entry.clicks + entry.scrolls + entry.keyPresses,
+                          score: entry.engagementLevel === 'peak' ? 95 : 
+                                entry.engagementLevel === 'high' ? 80 : 
+                                entry.engagementLevel === 'medium' ? 65 : 40
+                        }))}
                       />
                     </div>
                   </div>

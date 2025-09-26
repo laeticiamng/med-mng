@@ -78,7 +78,7 @@ export const useContentLibrary = (): UseContentLibraryResult => {
         limit: filters.pageSize,
         offset: (filters.page - 1) * filters.pageSize,
       }),
-    keepPreviousData: true,
+    placeholderData: (previousData) => previousData,
   });
 
   const collectionsQuery = useQuery({

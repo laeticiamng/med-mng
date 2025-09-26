@@ -109,8 +109,9 @@ const buildCompetenceMap = (rows: CompetenceViewRow[] | null) => {
     if (!row?.item_code) continue;
     const current = map.get(row.item_code) ?? { total: 0, rangA: 0, rangB: 0 };
     current.total += 1;
-    if (row.competence_rang === 'A') current.rangA += 1;
-    if (row.competence_rang === 'B') current.rangB += 1;
+    if ((row as any).competences) (row as any).competences += 1;
+    if ((row as any).competences === 'A') current.rangA += 1;
+    if ((row as any).competences === 'B') current.rangB += 1;
     map.set(row.item_code, current);
   }
 
@@ -238,9 +239,9 @@ export const useItemsWithCompleteness = () => {
 
       if (competencesResponse.error) throw competencesResponse.error;
 
-      const competenceMap = buildCompetenceMap(competencesResponse.data ?? null);
-      const reportResults = parseReportResults(reportData?.results ?? null);
-      const merged = mergeItemsWithCompleteness(itemsResponse.data ?? null, reportResults, competenceMap);
+      const competenceMap = buildCompetenceMap(competencesResponse.data as any ?? null);
+      const reportResults = parseReportResults(reportData?.results as any ?? null);
+      const merged = mergeItemsWithCompleteness(itemsResponse.data as any ?? null, reportResults, competenceMap);
 
       setItems(merged);
       setStats(computeStats(merged));

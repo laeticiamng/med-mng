@@ -78,7 +78,7 @@ export async function loadItemContext(options: {
     throw new Error(`Aucun item trouvé pour ${options.itemId ?? options.itemCode}`);
   }
 
-  const [first] = data as ItemWithCompetenceRow[];
+  const [first] = data as any;
   const rawCompetences = Array.isArray(first.competences) ? first.competences : [];
   const competences = rawCompetences
     .map((competence, index) => {
