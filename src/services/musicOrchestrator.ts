@@ -18,6 +18,7 @@ import {
 import { buildFinalMix } from './music/audioPostProcessor';
 import { logger } from '@/utils/structuredLogger';
 import { trackCanonicalEvent } from '@/services/CanonicalAnalyticsTracker';
+import { errorService } from '@/services/core/ErrorService';
 
 export const POLL_INTERVAL = 5000;
 export const MAX_POLL_ATTEMPTS = 48; // 4 minutes de suivi par segment
@@ -117,7 +118,7 @@ async function computeSha256(value: string): Promise<string> {
     const hashArray = Array.from(new Uint8Array(hashBuffer));
     return hashArray.map((byte) => byte.toString(16).padStart(2, '0')).join('');
   } catch (error) {
-    console.warn('[musicOrchestrator] Unable to compute SHA-256 hash', error);
+    errorService.handleWarning('[musicOrchestrator] Unable to compute SHA-256 hash', 'system', error);
     return value;
   }
 }
@@ -251,7 +252,7 @@ class MusicOrchestrator {
       const { data } = await supabase.auth.getUser();
       userId = data.user?.id ?? null;
     } catch (error) {
-      console.warn('[musicOrchestrator] Unable to resolve user for Supabase persistence', error);
+      errorService.handleWarning('[musicOrchestrator] Unable to resolve user for Supabase persistence', 'system', error);
     }
 
     const runId = nanoid();
@@ -431,7 +432,7 @@ class MusicOrchestrator {
       try {
         listener(event);
       } catch (error) {
-        console.error('[musicOrchestrator] Listener error', error);
+        errorService.handleError(error instanceof Error ? error : new Error('[musicOrchestrator] Listener error'), 'system');
       }
     });
   }
@@ -656,7 +657,7 @@ class MusicOrchestrator {
       const store = useMusicQueueStore.getState();
       const job = store.jobs[nextJob.id];
       if (!job) {
-        console.error('[musicOrchestrator] Job introuvable lors de l\'échec', nextJob.id);
+        errorService.handleError(new Error(`[musicOrchestrator] Job introuvable lors de l'échec: ${nextJob.id}`), 'system');
       } else if (job.retryCount < job.maxRetries) {
         const now = Date.now();
         store.updateJob(nextJob.id, (draft) => {

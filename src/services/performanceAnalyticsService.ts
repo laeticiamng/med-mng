@@ -1,4 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
+import { errorService } from '@/services/core/ErrorService';
 
 export interface PerformanceMetric {
   id?: string;
@@ -110,10 +111,10 @@ class PerformanceAnalyticsService {
         });
 
       if (error) {
-        console.error('Failed to record performance metric:', error);
+        errorService.handleError(error instanceof Error ? error : new Error('Failed to record performance metric'), 'system');
       }
     } catch (error) {
-      console.error('Error recording performance metric:', error);
+      errorService.handleError(error instanceof Error ? error : new Error('Error recording performance metric'), 'system');
     }
   }
 
@@ -307,10 +308,10 @@ class PerformanceAnalyticsService {
     try {
       const { error } = await supabase.rpc('calculate_sla_metrics');
       if (error) {
-        console.error('Failed to calculate SLA metrics:', error);
+        errorService.handleError(error instanceof Error ? error : new Error('Failed to calculate SLA metrics'), 'system');
       }
     } catch (error) {
-      console.error('Error calculating SLA metrics:', error);
+      errorService.handleError(error instanceof Error ? error : new Error('Error calculating SLA metrics'), 'system');
     }
   }
 

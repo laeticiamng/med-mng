@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { errorService } from '@/services/core/ErrorService';
 
 export interface QcmQuestion {
   id: string;
@@ -85,7 +86,7 @@ class QcmService {
     });
 
     if (error) {
-      console.error('Error generating QCM:', error);
+      errorService.handleError(error instanceof Error ? error : new Error('Error generating QCM'), 'api_call');
       throw new Error('Erreur lors de la génération du QCM');
     }
 
@@ -106,7 +107,7 @@ class QcmService {
     });
 
     if (error) {
-      console.error('Error starting QCM session:', error);
+      errorService.handleError(error instanceof Error ? error : new Error('Error starting QCM session'), 'api_call');
       throw new Error('Erreur lors du démarrage de la session QCM');
     }
 
@@ -137,7 +138,7 @@ class QcmService {
     });
 
     if (error) {
-      console.error('Error submitting QCM response:', error);
+      errorService.handleError(error instanceof Error ? error : new Error('Error submitting QCM response'), 'api_call');
       throw new Error('Erreur lors de la soumission de la réponse');
     }
 
@@ -159,7 +160,7 @@ class QcmService {
     });
 
     if (error) {
-      console.error('Error completing QCM session:', error);
+      errorService.handleError(error instanceof Error ? error : new Error('Error completing QCM session'), 'api_call');
       throw new Error('Erreur lors de la finalisation de la session');
     }
 
@@ -182,7 +183,7 @@ class QcmService {
     });
 
     if (error) {
-      console.error('Error generating error song:', error);
+      errorService.handleError(error instanceof Error ? error : new Error('Error generating error song'), 'api_call');
       throw new Error('Erreur lors de la génération de la chanson d\'erreurs');
     }
 
@@ -196,7 +197,7 @@ class QcmService {
     });
 
     if (error) {
-      console.error('Error fetching QCM history:', error);
+      errorService.handleError(error instanceof Error ? error : new Error('Error fetching QCM history'), 'api_call');
       throw new Error('Erreur lors de la récupération de l\'historique QCM');
     }
 
@@ -215,13 +216,13 @@ class QcmService {
         .single();
 
       if (error && error.code !== 'PGRST116') {
-        console.error('Error fetching quotas:', error);
+        errorService.handleError(error instanceof Error ? error : new Error('Error fetching quotas'), 'api_call');
         return null;
       }
 
       return data as UserQuota;
     } catch (error) {
-      console.error('Error in getUserQuotas:', error);
+      errorService.handleError(error instanceof Error ? error : new Error('Error in getUserQuotas'), 'api_call');
       return null;
     }
   }
@@ -243,7 +244,7 @@ class QcmService {
       .single();
 
     if (error) {
-      console.error('Error creating default quotas:', error);
+      errorService.handleError(error instanceof Error ? error : new Error('Error creating default quotas'), 'api_call');
       throw new Error('Erreur lors de la création des quotas');
     }
 
