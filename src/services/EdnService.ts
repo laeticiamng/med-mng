@@ -9,6 +9,7 @@ import {
   APIResponse, 
   PaginatedResponse 
 } from '@/types/temp-types';
+import { errorService } from '@/services/core/ErrorService';
 
 export class EdnService {
   private supabase: SupabaseClient;
@@ -63,7 +64,7 @@ export class EdnService {
         }
       };
     } catch (error) {
-      console.error('EdnService.getItems error:', error);
+      errorService.handleError(error instanceof Error ? error : new Error('Fetch items error'), 'api_call');
       return {
         success: false,
         data: [],
@@ -109,7 +110,7 @@ export class EdnService {
         data: mockItem
       };
     } catch (error) {
-      console.error('EdnService.getItem error:', error);
+      errorService.handleError(error instanceof Error ? error : new Error('Fetch item error'), 'api_call');
       return {
         success: false,
         error: {
@@ -135,7 +136,7 @@ export class EdnService {
         data: []
       };
     } catch (error) {
-      console.error('EdnService.getUserProgress error:', error);
+      errorService.handleError(error instanceof Error ? error : new Error('Fetch user progress error'), 'api_call');
       return {
         success: false,
         error: {
@@ -156,7 +157,7 @@ export class EdnService {
         data: null
       };
     } catch (error) {
-      console.error('EdnService.getUserProgressForItem error:', error);
+      errorService.handleError(error instanceof Error ? error : new Error('Fetch user progress for item error'), 'api_call');
       return {
         success: false,
         error: {
@@ -205,7 +206,7 @@ export class EdnService {
         data: mockProgress
       };
     } catch (error) {
-      console.error('EdnService.updateProgress error:', error);
+      errorService.handleError(error instanceof Error ? error : new Error('Update progress error'), 'api_call');
       return {
         success: false,
         error: {
@@ -235,7 +236,7 @@ export class EdnService {
         data: { sessionId: 'mock-session-id' }
       };
     } catch (error) {
-      console.error('EdnService.createStudySession error:', error);
+      errorService.handleError(error instanceof Error ? error : new Error('Create study session error'), 'api_call');
       return {
         success: false,
         error: {
@@ -260,7 +261,7 @@ export class EdnService {
     try {
       return { success: true };
     } catch (error) {
-      console.error('EdnService.updateStudySession error:', error);
+      errorService.handleError(error instanceof Error ? error : new Error('Update study session error'), 'api_call');
       return {
         success: false,
         error: {
@@ -285,7 +286,7 @@ export class EdnService {
         data: { isBookmarked: true }
       };
     } catch (error) {
-      console.error('EdnService.toggleBookmark error:', error);
+      errorService.handleError(error instanceof Error ? error : new Error('Toggle bookmark error'), 'api_call');
       return {
         success: false,
         error: {

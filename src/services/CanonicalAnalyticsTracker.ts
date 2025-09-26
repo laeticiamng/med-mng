@@ -1,4 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
+import { errorService } from '@/services/core/ErrorService';
 
 export type CanonicalAnalyticsEventType =
   | 'generate_start'
@@ -64,7 +65,7 @@ function ensureSessionId(): string {
       context.sessionId = fresh;
       return fresh;
     } catch (error) {
-      console.warn('[analytics] unable to persist session id', error);
+      errorService.handleWarning('[analytics] unable to persist session id', 'system', error);
     }
   }
 
@@ -114,7 +115,7 @@ export async function trackCanonicalEvent(
       if (error.message?.includes('Failed to fetch') || error.code === 'ENOTFOUND' || error.code === 'ECONNREFUSED') {
         console.debug('[analytics] Analytics service not accessible, event skipped silently');
       } else {
-        console.warn('[analytics] Tracking failed', error);
+        errorService.handleWarning('[analytics] Tracking failed', 'system', error);
       }
       return { tracked: false, skipped: false };
     }
@@ -126,7 +127,7 @@ export async function trackCanonicalEvent(
     if (error?.message?.includes('Failed to fetch') || error?.code === 'ENOTFOUND' || error?.code === 'ECONNREFUSED') {
       console.debug('[analytics] Network error, event tracking skipped');
     } else {
-      console.warn('[analytics] Unexpected tracking failure', error);
+      errorService.handleWarning('[analytics] Unexpected tracking failure', 'system', error);
     }
     return { tracked: false, skipped: false };
   }

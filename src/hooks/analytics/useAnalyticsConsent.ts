@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/med-mng/AuthProvider';
+import { errorService } from '@/services/core/ErrorService';
 import {
   ANALYTICS_CONSENT_VERSION,
   setAnalyticsContext,
@@ -89,7 +90,7 @@ export const useAnalyticsConsent = (): AnalyticsConsentState => {
           setLoading(false);
           return;
         }
-        errorService.handleWarning('Unable to load privacy preferences', 'system', error);
+        errorService.handleWarning('Unable to load privacy preferences', 'system', { ...error });
       }
 
       // Success case - ensure circuit breaker is reset

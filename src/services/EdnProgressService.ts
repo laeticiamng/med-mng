@@ -1,6 +1,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import type { Database, Json } from '@/integrations/supabase/types';
 import { isTestEnvironment } from '@/utils/environment';
+import { errorService } from '@/services/core/ErrorService';
 
 export type EdnUnifiedRow = Database['public']['Views']['edn_unified_materialized']['Row'];
 export type UserProgressRow = Database['public']['Tables']['user_progress']['Row'];
@@ -352,7 +353,7 @@ export class EdnProgressService {
       }
       return JSON.parse(raw) as SessionPlanRow[];
     } catch (error) {
-      console.warn('Impossible de lire les plans de session de test', error);
+      errorService.handleWarning('Impossible de lire les plans de session de test', 'system', error);
       return [];
     }
   }
@@ -374,7 +375,7 @@ export class EdnProgressService {
       .order('item_code');
 
     if (error) {
-      console.error('Erreur chargement edn_unified_materialized:', error);
+      errorService.handleError(error instanceof Error ? error : new Error('Erreur chargement edn_unified_materialized'), 'system');
       return [];
     }
 
@@ -395,7 +396,7 @@ export class EdnProgressService {
       .order('updated_at', { ascending: false });
 
     if (error) {
-      console.error('Erreur chargement user_progress:', error);
+      errorService.handleError(error instanceof Error ? error : new Error('Erreur chargement user_progress'), 'system');
       return [];
     }
 
@@ -413,7 +414,7 @@ export class EdnProgressService {
       .order('updated_at', { ascending: false });
 
     if (error) {
-      console.error('Erreur chargement edn_session_plans:', error);
+      errorService.handleError(error instanceof Error ? error : new Error('Erreur chargement edn_session_plans'), 'system');
       return [];
     }
 
@@ -466,7 +467,7 @@ export class EdnProgressService {
         .maybeSingle();
 
       if (error) {
-        console.error('Erreur mise à jour session plan:', error);
+        errorService.handleError(error instanceof Error ? error : new Error('Erreur mise à jour session plan'), 'system');
         return null;
       }
 
@@ -480,7 +481,7 @@ export class EdnProgressService {
       .maybeSingle();
 
     if (error) {
-      console.error('Erreur création session plan:', error);
+      errorService.handleError(error instanceof Error ? error : new Error('Erreur création session plan'), 'system');
       return null;
     }
 
@@ -500,7 +501,7 @@ export class EdnProgressService {
       .eq('id', planId);
 
     if (error) {
-      console.error('Erreur suppression session plan:', error);
+      errorService.handleError(error instanceof Error ? error : new Error('Erreur suppression session plan'), 'system');
       return false;
     }
 
