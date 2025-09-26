@@ -8,8 +8,6 @@ export const isIC4Item = (data: TableauProcessingData): boolean => {
 };
 
 export const processTableauRangAIC4 = (data: TableauProcessingData): TableauResult => {
-  console.log('🔍 Traitement IC-4 Qualité et sécurité des soins');
-  
   // Extraire les données des concepts depuis la nouvelle structure JSON
   const tableauData = data.tableau_rang_a || data;
   const concepts = (tableauData as any)?.sections?.[0]?.concepts || [];
@@ -52,7 +50,6 @@ export const processTableauRangAIC4 = (data: TableauProcessingData): TableauResu
 };
 
 export const processTableauRangBIC4 = (data: TableauProcessingData): TableauResult => {
-  console.log('🔍 Traitement IC-4 Rang B - Expertise qualité et sécurité');
   
   // Extraire les données des concepts experts depuis la nouvelle structure JSON
   const tableauData = data.tableau_rang_b || data;

@@ -4,13 +4,10 @@ import { ColumnConfig, TableauData, TableauGenerationResult } from '@/types/edn'
 import { adaptLegacyColumnConfig } from '@/utils/tableauConfigAdapter';
 
 export const generateLignesRangAIntelligentIC2 = (data: TableauData): string[][] => {
-  console.log('🎯 IC-2 Génération Rang A : 7 connaissances selon E-LiSA exactement');
-  
   const lignes: string[][] = [];
   
   // Utiliser uniquement les 7 concepts Rang A définis selon E-LiSA
   conceptsRangAIC2.forEach((concept, index) => {
-    console.log(`📝 Ajout concept IC-2 Rang A ${index + 1}/7: ${concept.concept.substring(0, 50)}...`);
     const ligne = [
       concept.concept,
       concept.definition,
