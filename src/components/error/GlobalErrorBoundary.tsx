@@ -3,6 +3,7 @@ import { ErrorBoundary } from 'react-error-boundary';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
 import { captureException } from '@/utils/monitoring/sentry';
+import { errorService } from '@/services/core/ErrorService';
 
 interface ErrorFallbackProps {
   error: Error;
@@ -101,10 +102,10 @@ const GlobalErrorBoundary: React.FC<GlobalErrorBoundaryProps> = ({ children }) =
 
     // Log to console in development
     if (import.meta.env.DEV) {
-      console.group('🚨 Global Error Boundary');
-      console.error('Error:', error);
-      console.error('Component Stack:', errorInfo.componentStack);
-      console.groupEnd();
+      errorService.handleInfo('Global Error Boundary triggered', 'system', { 
+        error: error.message, 
+        componentStack: errorInfo.componentStack 
+      });
     }
   };
 

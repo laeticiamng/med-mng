@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import { logger } from '@/lib/logger';
 import { toRateLimitError } from '@/utils/errors/rateLimit';
 import { RateLimitNotice } from '@/components/system/RateLimitNotice';
+import { errorService } from '@/services/core/ErrorService';
 
 const AVAILABLE_TABLES = [
   { id: 'edn_items_complete', name: 'Items EDN Complets', description: 'Contenu pédagogique principal' },
@@ -77,7 +78,7 @@ export const ExportDashboard = () => {
       });
 
       if (error) {
-        console.error('Erreur export:', error);
+        errorService.handleError(error instanceof Error ? error : new Error('Erreur export'), 'api_call');
         const rateLimitError = toRateLimitError(error, "Export impossible pour le moment. Réessayez plus tard.", 'export');
         if (rateLimitError) {
           setRateLimit({
@@ -115,7 +116,7 @@ export const ExportDashboard = () => {
       setRateLimit(null);
 
     } catch (exportError) {
-      console.error('Erreur export:', exportError);
+      errorService.handleError(exportError instanceof Error ? exportError : new Error('Erreur export'), 'api_call');
       const rateLimitError = toRateLimitError(exportError, "L'exportation est temporairement indisponible.", 'export');
       if (rateLimitError) {
         setRateLimit({

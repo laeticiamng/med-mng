@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { useTranslation } from '@/hooks/useTranslation';
+import { errorService } from '@/services/core/ErrorService';
 
 interface TranslatedTextProps {
   text: string;
@@ -33,7 +34,7 @@ export const TranslatedText: React.FC<TranslatedTextProps> = ({
   }
 
   if (error && import.meta.env.DEV) {
-    console.warn('Erreur de traduction pour:', text, error);
+    errorService.handleWarning(`Erreur de traduction pour: ${text}`, 'system', { error });
   }
 
   return (

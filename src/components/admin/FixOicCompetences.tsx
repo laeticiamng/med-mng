@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { Wrench, CheckCircle, AlertCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { errorService } from '@/services/core/ErrorService';
 
 export const FixOicCompetences: React.FC = () => {
   const [loading, setLoading] = useState(false);
@@ -23,7 +24,9 @@ export const FixOicCompetences: React.FC = () => {
         throw error;
       }
 
-      console.log('✅ Correction terminée:', data);
+      if (import.meta.env.DEV) {
+        errorService.handleInfo('Correction terminée', 'system', data);
+      }
       
       toast({
         title: "✅ Compétences corrigées",
@@ -38,7 +41,7 @@ export const FixOicCompetences: React.FC = () => {
       }, 2000);
       
     } catch (error) {
-      console.error('❌ Erreur:', error);
+      errorService.handleError(error instanceof Error ? error : new Error('Erreur lors de la correction'), 'api_call');
       toast({
         title: "❌ Erreur",
         description: `Erreur lors de la correction: ${error.message}`,

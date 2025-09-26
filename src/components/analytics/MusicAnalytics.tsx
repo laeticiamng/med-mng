@@ -20,6 +20,7 @@ import {
 import { TranslatedText } from '@/components/TranslatedText';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/med-mng/AuthProvider';
+import { errorService } from '@/services/core/ErrorService';
 
 interface ListeningStats {
   totalListenTime: number;
@@ -100,7 +101,7 @@ export const MusicAnalytics: React.FC = () => {
       setStats(calculatedStats);
 
     } catch (error) {
-      console.error('Erreur chargement analytics:', error);
+      errorService.handleError(error instanceof Error ? error : new Error('Erreur chargement analytics'), 'api_call');
     } finally {
       setLoading(false);
     }

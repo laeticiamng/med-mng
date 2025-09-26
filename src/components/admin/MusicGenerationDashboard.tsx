@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { useSpotifyAI } from '@/hooks/useSpotifyAI';
 import { toast } from 'sonner';
+import { errorService } from '@/services/core/ErrorService';
 
 export const MusicGenerationDashboard: React.FC = () => {
   const [activeTab, setActiveTab] = useState('overview');
@@ -30,7 +31,7 @@ export const MusicGenerationDashboard: React.FC = () => {
       const stats = await getAdminStats(timeframe);
       setAdminStats(stats);
     } catch (error) {
-      console.error('❌ Erreur chargement stats admin:', error);
+      errorService.handleError(error instanceof Error ? error : new Error('Erreur chargement stats admin'), 'api_call');
       toast.error('Erreur de chargement des statistiques');
     } finally {
       setLoading(false);

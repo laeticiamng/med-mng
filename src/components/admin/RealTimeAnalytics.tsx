@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { errorService } from '@/services/core/ErrorService';
 
 interface RealTimeMetrics {
   liveUsers: number;
@@ -156,7 +157,7 @@ export const RealTimeAnalytics = () => {
 
       if (loading) setLoading(false);
     } catch (error) {
-      console.error('Error fetching analytics:', error);
+      errorService.handleError(error instanceof Error ? error : new Error('Error fetching analytics'), 'api_call');
       toast.error('Erreur lors de la récupération des analytics');
     }
   };
@@ -196,7 +197,7 @@ export const RealTimeAnalytics = () => {
       
       toast.success('Rapport analytics exporté avec succès');
     } catch (error) {
-      console.error('Export error:', error);
+      errorService.handleError(error instanceof Error ? error : new Error('Export error'), 'api_call');
       toast.error('Erreur lors de l\'export');
     }
   };

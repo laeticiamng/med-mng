@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { cn } from '@/lib/utils';
+import { errorService } from '@/services/core/ErrorService';
 
 interface SecureAudioPlayerProps {
   src: string;
@@ -41,14 +42,14 @@ export const SecureAudioPlayer: React.FC<SecureAudioPlayerProps> = ({
       // Bloquer le clic droit
       audio.addEventListener('contextmenu', (e) => {
         e.preventDefault();
-        console.warn('Download blocked: Right-click disabled');
+        errorService.handleWarning('Download blocked: Right-click disabled', 'user_action');
       });
 
       // Bloquer les raccourcis de téléchargement
       audio.addEventListener('keydown', (e) => {
         if (e.ctrlKey && (e.key === 's' || e.key === 'S')) {
           e.preventDefault();
-          console.warn('Download blocked: Ctrl+S disabled');
+          errorService.handleWarning('Download blocked: Ctrl+S disabled', 'user_action');
         }
       });
 
@@ -59,7 +60,7 @@ export const SecureAudioPlayer: React.FC<SecureAudioPlayerProps> = ({
       createSecureSource(src).then(blobUrl => {
         audio.src = blobUrl;
       }).catch(error => {
-        console.error('Error creating secure source:', error);
+        errorService.handleError(error instanceof Error ? error : new Error('Error creating secure source'), 'system');
         onError?.('Erreur de chargement audio sécurisé');
       });
 
@@ -68,7 +69,7 @@ export const SecureAudioPlayer: React.FC<SecureAudioPlayerProps> = ({
         mutations.forEach((mutation) => {
           if (mutation.type === 'attributes' && mutation.attributeName === 'src') {
             if (audio.src && !audio.src.startsWith('blob:')) {
-              console.warn('Source modification blocked');
+              errorService.handleWarning('Source modification blocked', 'user_action');
               audio.src = '';
             }
           }
@@ -132,7 +133,7 @@ export const SecureAudioPlayer: React.FC<SecureAudioPlayerProps> = ({
           if (!devtools.open) {
             devtools.open = true;
             console.clear();
-            console.warn('🚫 Téléchargement bloqué - Contenu protégé');
+            errorService.handleWarning('Téléchargement bloqué - Contenu protégé', 'user_action');
           }
         } else {
           devtools.open = false;
@@ -225,7 +226,7 @@ const createSecureSource = async (originalSrc: string): Promise<string> => {
     
     return blobUrl;
   } catch (error) {
-    console.error('Error creating secure audio source:', error);
+    errorService.handleError(error instanceof Error ? error : new Error('Error creating secure audio source'), 'system');
     throw error;
   }
 };
@@ -236,7 +237,7 @@ export const useSecureAudioControl = (audioRef: React.RefObject<HTMLAudioElement
     try {
       await audioRef.current?.play();
     } catch (error) {
-      console.error('Error playing audio:', error);
+      errorService.handleError(error instanceof Error ? error : new Error('Error playing audio'), 'user_action');
     }
   };
 
@@ -279,7 +280,7 @@ export const DownloadBlocker: React.FC = () => {
         (e.ctrlKey && e.key === 'u')
       ) {
         e.preventDefault();
-        console.warn('Action bloquée - Contenu protégé');
+        errorService.handleWarning('Action bloquée - Contenu protégé', 'user_action');
       }
     };
 

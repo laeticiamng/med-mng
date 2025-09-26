@@ -5,6 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { RefreshCw, Home, AlertTriangle, Bug } from 'lucide-react';
 import { analytics } from '@/lib/analytics';
+import { errorService } from '@/services/core/ErrorService';
 
 interface Props {
   children: ReactNode;
@@ -52,7 +53,7 @@ export class FeatureErrorBoundary extends Component<Props, State> {
       this.props.onError(error, errorInfo);
     }
 
-    console.error(`Error in ${this.props.featureName}:`, error, errorInfo);
+    errorService.handleError(error, 'system', false);
   }
 
   handleRetry = () => {

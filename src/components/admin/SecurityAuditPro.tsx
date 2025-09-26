@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { errorService } from '@/services/core/ErrorService';
 
 interface SecurityScore {
   overall: number;
@@ -173,7 +174,7 @@ export const SecurityAuditPro = () => {
       setLastScan(new Date());
 
     } catch (error) {
-      console.error('Error fetching security data:', error);
+      errorService.handleError(error instanceof Error ? error : new Error('Error fetching security data'), 'api_call');
       toast.error('Erreur lors de la récupération des données de sécurité');
     } finally {
       setLoading(false);
@@ -200,7 +201,7 @@ export const SecurityAuditPro = () => {
       await fetchSecurityData();
       
     } catch (error) {
-      console.error('Security scan error:', error);
+      errorService.handleError(error instanceof Error ? error : new Error('Security scan error'), 'api_call');
       toast.error('Erreur lors du scan sécuritaire', { id: 'security-scan' });
     } finally {
       setScanning(false);
@@ -232,7 +233,7 @@ export const SecurityAuditPro = () => {
       
       toast.success('Rapport de sécurité exporté');
     } catch (error) {
-      console.error('Export error:', error);
+      errorService.handleError(error instanceof Error ? error : new Error('Export error'), 'api_call');
       toast.error('Erreur lors de l\'export');
     }
   };
