@@ -109,6 +109,9 @@
   body.ecos-printing .ecos-print-qr img {
     width: 38mm;
     height: 38mm;
+  }
+}
+
 @page {
   size: A4 portrait;
   margin: 1.5cm;
