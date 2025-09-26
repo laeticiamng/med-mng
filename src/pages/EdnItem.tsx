@@ -1,4 +1,3 @@
-import { useEffect, useMemo, useState } from 'react';
 import {
   useCallback,
   useEffect,
@@ -20,9 +19,8 @@ import {
 } from '@/components/edn/immersive/AdvancedInteractionTracker';
 import { AdvancedEdnNavigation } from '@/components/edn/navigation/AdvancedEdnNavigation';
 import { useCompetenceAnalyzer } from '@/components/edn/immersive/CompetenceAnalyzer';
-import { AdvancedInteractionTracker } from '@/components/edn/immersive/AdvancedInteractionTracker';
-import { useCompetenceAnalyzer } from '@/components/edn/immersive/CompetenceAnalyzer';
 import { EnhancedTableauDisplay } from '@/components/edn/advanced/EnhancedTableauDisplay';
+import { EdnItemContent } from '@/components/edn/item/EdnItemContent';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -317,8 +315,8 @@ const EdnItem = () => {
               <TranslatedText text="Préparation du contenu pédagogique complet..." />
             </p>
           </div>
-        </ConsistentBackground>
-      </>
+        </div>
+      </ConsistentBackground>
     );
   }
 
@@ -365,8 +363,6 @@ const EdnItem = () => {
           onSectionChange={handleSectionChange}
         >
           <AdvancedInteractionTracker
-            sectionId={activeSection}
-            onDataUpdate={data => handleProgressUpdate(activeSection, data)}
             sectionId={trackerSectionId}
             onDataUpdate={(data) => handleProgressUpdate(trackerSectionId, data)}
           >
@@ -393,6 +389,8 @@ const EdnItem = () => {
                   {/* Contenu principal */}
                   <div className="lg:col-span-3">
                     <EdnItemContent activeSection={activeSection} item={item} />
+                  </div>
+                  
                   <aside className="lg:col-span-1">
                     <nav
                       ref={summaryNavRef}
@@ -645,7 +643,6 @@ const EdnItem = () => {
         </EnhancedLearningExperience>
       </div>
       </ConsistentBackground>
-    </>
   );
 };
 
