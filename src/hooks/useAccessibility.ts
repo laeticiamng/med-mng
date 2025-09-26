@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { errorService } from '@/services/core/ErrorService';
 
 export type AccessibilityPreferences = {
   reduceMotion: boolean;
@@ -80,7 +81,7 @@ export const useAccessibility = () => {
         const parsed = JSON.parse(savedPrefs);
         setPreferences(prev => ({ ...prev, ...parsed }));
       } catch (error) {
-        console.error('Error loading accessibility preferences:', error);
+        errorService.handleWarning('Error loading accessibility preferences', 'system');
       }
     }
 

@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { EDNItemsAuditor, AuditReportGenerators } from '@/scripts/auditItems';
 import type { AuditResult, AuditReport } from '@/scripts/auditItems';
+import { errorService } from '@/services/core/ErrorService';
 
 interface UseAuditItemsResult {
   report: AuditReport | null;
@@ -26,7 +27,7 @@ export const useAuditItems = (): UseAuditItemsResult => {
       setReport(auditReport);
       console.log('✅ Audit terminé avec succès');
     } catch (err) {
-      console.error('❌ Erreur lors de l\'audit:', err);
+      errorService.handleError(err, 'system', true);
       setError(err instanceof Error ? err.message : 'Erreur inconnue lors de l\'audit');
     } finally {
       setLoading(false);
@@ -35,7 +36,7 @@ export const useAuditItems = (): UseAuditItemsResult => {
 
   const exportReport = (format: 'json' | 'markdown') => {
     if (!report) {
-      console.warn('Aucun rapport à exporter');
+      errorService.handleWarning('Aucun rapport à exporter', 'system');
       return;
     }
 

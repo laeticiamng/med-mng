@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/med-mng/AuthProvider';
+import { errorService } from '@/services/core/ErrorService';
 
 export const useAnalytics = () => {
   const { user } = useAuth();
@@ -18,7 +19,7 @@ export const useAnalytics = () => {
       
       if (error) throw error;
     } catch (error) {
-      console.error('Erreur tracking écoute:', error);
+      errorService.handleError(error, 'user_action', true);
     }
   };
 
@@ -41,7 +42,7 @@ export const useAnalytics = () => {
       
       if (error) throw error;
     } catch (error) {
-      console.error('Erreur log event:', error);
+      errorService.handleError(error, 'user_action', true);
     }
   };
 
@@ -58,7 +59,7 @@ export const useAnalytics = () => {
       if (error) throw error;
       return data;
     } catch (error) {
-      console.error('Erreur toggle favorite:', error);
+      errorService.handleError(error, 'user_action', true);
       return false;
     } finally {
       setLoading(false);
@@ -82,7 +83,7 @@ export const useAnalytics = () => {
       if (error) throw error;
       return data || [];
     } catch (error) {
-      console.error('Erreur récupération favoris:', error);
+      errorService.handleError(error, 'user_action', true);
       return [];
     }
   };
@@ -101,7 +102,7 @@ export const useAnalytics = () => {
       
       if (error) throw error;
     } catch (error) {
-      console.error('Erreur tracking performance:', error);
+      errorService.handleError(error, 'user_action', true);
     }
   };
 

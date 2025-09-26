@@ -1,5 +1,6 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
+import { errorService } from '@/services/core/ErrorService';
 
 interface AudioPlayerState {
   isPlaying: boolean;
@@ -42,7 +43,7 @@ export const useAudioPlayer = () => {
   }, []);
 
   const handleError = useCallback((e: Event) => {
-    console.error('Erreur audio:', e);
+    errorService.handleError(new Error('Erreur audio'), 'system', true);
     setState(prev => ({ 
       ...prev, 
       isPlaying: false, 
@@ -104,7 +105,7 @@ export const useAudioPlayer = () => {
     audio.play().then(() => {
       setState(prev => ({ ...prev, isPlaying: true }));
     }).catch((error) => {
-      console.error('Erreur lecture audio:', error);
+      errorService.handleError(error, 'user_action', true);
       setState(prev => ({ ...prev, isPlaying: false }));
     });
   }, [state.volume, cleanupAudio, handleLoadedMetadata, handleTimeUpdate, handleEnded, handleError]);
@@ -121,7 +122,7 @@ export const useAudioPlayer = () => {
       audioRef.current.play().then(() => {
         setState(prev => ({ ...prev, isPlaying: true }));
       }).catch((error) => {
-        console.error('Erreur reprise audio:', error);
+        errorService.handleError(error, 'user_action', true);
         setState(prev => ({ ...prev, isPlaying: false }));
       });
     }

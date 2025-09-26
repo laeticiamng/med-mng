@@ -6,8 +6,6 @@ import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { errorService } from '@/services/core/ErrorService';
-import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
 import type { 
   MedicalMusicTrack, 
   UnifiedPlayerState, 

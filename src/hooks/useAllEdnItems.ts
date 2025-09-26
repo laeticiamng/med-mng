@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { errorService } from '@/services/core/ErrorService';
 
 interface EdnItem {
   item_code: string;
@@ -26,7 +27,7 @@ export const useAllEdnItems = () => {
           .order('item_code', { ascending: true });
 
         if (supabaseError) {
-          console.error('❌ Erreur Supabase lors de la récupération des items:', supabaseError);
+          errorService.handleError(supabaseError, 'api_call', true);
           setError('Erreur lors du chargement des items');
           return;
         }
@@ -36,7 +37,7 @@ export const useAllEdnItems = () => {
           setItems(data);
         }
       } catch (err) {
-        console.error('❌ Erreur lors de la récupération des items:', err);
+        errorService.handleError(err, 'api_call', true);
         setError('Erreur lors du chargement');
       } finally {
         setLoading(false);

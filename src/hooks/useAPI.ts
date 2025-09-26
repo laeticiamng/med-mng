@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from './use-toast';
+import { errorService } from '@/services/core/ErrorService';
 
 interface APIState<T> {
   data: T | null;
@@ -79,7 +80,7 @@ export const useAPI = <T>() => {
         });
       }
 
-      console.error(`❌ ${functionName} échoué:`, error);
+      errorService.handleError(error, 'api_call', true);
       return { success: false, error: errorMessage };
     }
   };
