@@ -4,6 +4,7 @@ import { AlertTriangle, Wand2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { errorService } from '@/services/core/ErrorService';
 
 interface ParolesMusicalesErrorSectionProps {
   lastError: string;
@@ -46,7 +47,7 @@ export const ParolesMusicalesErrorSection: React.FC<ParolesMusicalesErrorSection
       }, 2000);
       
     } catch (error) {
-      console.error('Erreur génération contenu:', error);
+      errorService.handleError(error as Error, 'user_action', true);
       toast({
         title: "Erreur",
         description: "Erreur lors de la génération du contenu",

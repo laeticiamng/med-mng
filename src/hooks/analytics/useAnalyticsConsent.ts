@@ -89,7 +89,7 @@ export const useAnalyticsConsent = (): AnalyticsConsentState => {
           setLoading(false);
           return;
         }
-        console.warn('[analytics] Unable to load privacy preferences', error);
+        errorService.handleWarning('Unable to load privacy preferences', 'system', error);
       }
 
       // Success case - ensure circuit breaker is reset

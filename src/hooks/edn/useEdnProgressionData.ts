@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { addDays, differenceInCalendarDays, isBefore, parseISO } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
+import { errorService } from '@/services/core/ErrorService';
 import {
   ednProgressService,
   type NormalizedEdnItem,
@@ -72,7 +73,7 @@ const parseDateOrNull = (value?: string | null): Date | null => {
     if (Number.isNaN(parsed.getTime())) return null;
     return parsed;
   } catch (error) {
-    console.warn('Impossible de parser la date', value, error);
+    errorService.handleWarning('Impossible de parser la date', 'system', { value, error });
     return null;
   }
 };
@@ -225,7 +226,7 @@ export const useEdnProgressionData = (): EdnProgressionState => {
         setItems(unified);
         setProgressRecords(progress);
       } catch (err) {
-        console.error('Erreur chargement progression EDN:', err);
+        errorService.handleError(err as Error, 'system', false);
         if (isMounted) {
           setError(err instanceof Error ? err.message : 'Erreur inconnue');
         }

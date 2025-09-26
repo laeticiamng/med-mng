@@ -6,6 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { CheckCircle, BookOpen, Users, Clock, Play, Target, Brain } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { FixOicCompetences } from '@/components/admin/FixOicCompetences';
+import { errorService } from '@/services/core/ErrorService';
 
 interface OICCompetence {
   objectif_id: string;
@@ -75,7 +76,7 @@ export const EnhancedTableauDisplay: React.FC<EnhancedTableauDisplayProps> = ({
           setOicCompetences(competences);
         }
       } catch (error) {
-        console.error('Erreur chargement compétences OIC:', error);
+        errorService.handleError(error as Error, 'system', false);
       }
       
       setLoading(false);

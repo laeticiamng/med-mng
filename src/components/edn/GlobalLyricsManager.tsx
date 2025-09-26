@@ -17,6 +17,7 @@ import {
   BarChart3
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { errorService } from '@/services/core/ErrorService';
 import { useToast } from '@/hooks/use-toast';
 import { logger } from '@/lib/logger';
 
@@ -80,7 +81,7 @@ export const GlobalLyricsManager: React.FC = () => {
         recentlyUpdated
       });
     } catch (error) {
-      console.error('Erreur chargement stats:', error);
+      errorService.handleError(error as Error, 'system', false);
       toast({
         title: '❌ Erreur',
         description: 'Impossible de charger les statistiques',
@@ -118,7 +119,7 @@ export const GlobalLyricsManager: React.FC = () => {
       });
 
     } catch (genError) {
-      console.error('Erreur génération globale:', genError);
+      errorService.handleError(genError as Error, 'user_action', true);
       toast({
         title: '❌ Erreur génération',
         description: 'Problème lors de la génération avec OpenAI',

@@ -11,6 +11,7 @@ import { Routes, Route, Navigate, useNavigate, useLocation } from 'react-router-
 import { ErrorBoundary } from 'react-error-boundary';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { errorService } from '@/services/core/ErrorService';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Loader2, AlertTriangle, RefreshCw } from 'lucide-react';
@@ -73,7 +74,7 @@ const useEdnSecurity = () => {
           });
         }
       } catch (error) {
-        console.error('Erreur vérification sécurité:', error);
+        errorService.handleError(error as Error, 'authentication', false);
         setContext({
           isAuthenticated: false,
           userPermissions: [],

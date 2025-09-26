@@ -4,6 +4,7 @@
 
 import { useState, useCallback, useRef } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { errorService } from '@/services/core/ErrorService';
 import { supabase } from '@/integrations/supabase/client';
 import { generateOptimizedLyrics, generateRangAB } from '@/utils/lyrics/generateOptimizedLyrics';
 import type { MusicTrack, GenerationRequest } from '@/types';
@@ -115,7 +116,7 @@ export const useAdvancedMusicGeneration = () => {
       return track;
 
     } catch (error) {
-      console.error('❌ Erreur génération avancée:', error);
+      errorService.handleError(error as Error, 'user_action', true);
       
       toast({
         title: "Erreur génération avancée",
