@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { errorService } from '@/services/core/ErrorService';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -102,7 +103,7 @@ export const AdvancedDataExport = () => {
 
       setTables(tableData);
     } catch (error) {
-      console.error('Error fetching table info:', error);
+      errorService.handleError(error as Error, 'system', false);
       toast.error('Erreur lors de la récupération des informations des tables');
     } finally {
       setLoading(false);
@@ -221,7 +222,7 @@ export const AdvancedDataExport = () => {
       toast.success('Export terminé avec succès', { id: 'export' });
 
     } catch (error) {
-      console.error('Export error:', error);
+      errorService.handleError(error as Error, 'user_action', true);
       toast.error('Erreur lors de l\'export', { id: 'export' });
     } finally {
       setExporting(false);

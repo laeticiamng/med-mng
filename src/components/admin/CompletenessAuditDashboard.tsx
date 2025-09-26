@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { errorService } from '@/services/core/ErrorService';
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -34,7 +35,7 @@ export function CompletenessAuditDashboard() {
         )
       }
     } catch (error) {
-      console.error('❌ Error running audit:', error)
+      errorService.handleError(error as Error, 'system', true);
       toast.error('Erreur lors de l\'audit', {
         description: 'Impossible d\'exécuter la vérification de complétude'
       })

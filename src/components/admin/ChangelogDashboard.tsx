@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { errorService } from '@/services/core/ErrorService';
 import { 
   Clock, 
   User, 
@@ -56,7 +57,7 @@ export const ChangelogDashboard: React.FC = () => {
         setChangelog(data.data);
       }
     } catch (error) {
-      console.error('Erreur fetch changelog:', error);
+      errorService.handleError(error as Error, 'system', false);
       toast.error('Erreur lors du chargement du changelog');
     } finally {
       setLoading(false);

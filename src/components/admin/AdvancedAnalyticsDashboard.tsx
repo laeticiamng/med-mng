@@ -7,6 +7,7 @@ import { describeRateLimitError } from "@/utils/errors/rateLimit";
 import { toast } from "sonner";
 import { type AnalyticsDashboardPayload } from '@/hooks/analytics/useAnalyticsDashboard';
 import { formatCanonicalEventLabel, getCanonicalEventColor } from '@/constants/canonicalAnalytics';
+import { errorService } from '@/services/core/ErrorService';
 import {
   BarChart,
   Bar,
@@ -64,7 +65,7 @@ export default function AdvancedAnalyticsDashboard() {
         toast.info('Aucune donnée analytics disponible sur la période');
       }
     } catch (err) {
-      console.error('Erreur analytics:', err);
+      errorService.handleError(err as Error, 'system', false);
       toast.error('Erreur lors de la récupération des analytics');
     } finally {
       setLoading(false);

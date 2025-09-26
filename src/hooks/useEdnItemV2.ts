@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { validateItemEDN, ItemEDNV2 } from '@/schemas/itemEDNSchema';
 import { EDNItemParser, ParsedEDNItem } from '@/parsers/ednItemParser';
+import { errorService } from '@/services/core/ErrorService';
 
 interface UseEdnItemV2Result {
   item: ParsedEDNItem | null;

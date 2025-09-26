@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { errorService } from '@/services/core/ErrorService';
 import { toast } from "sonner";
 import { 
   BarChart, 
@@ -46,7 +47,7 @@ export const ContentGenerationMonitor: React.FC = () => {
       const data = await pedagogicalContentService.getContentAnalytics();
       setAnalytics(data);
     } catch (error) {
-      console.error('Error loading analytics:', error);
+      errorService.handleError(error as Error, 'system', false);
       if (!analytics) {
         toast.error('Erreur lors du chargement des analytics');
       }

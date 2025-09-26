@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { errorService } from '@/services/core/ErrorService';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -138,7 +139,7 @@ export const ContentManagerPro = () => {
       });
 
     } catch (error) {
-      console.error('Error fetching content:', error);
+      errorService.handleError(error as Error, 'system', false);
       toast.error('Erreur lors de la récupération du contenu');
     } finally {
       setLoading(false);
@@ -190,7 +191,7 @@ export const ContentManagerPro = () => {
       setEditingItem(null);
       
     } catch (error) {
-      console.error('Error saving edit:', error);
+      errorService.handleError(error as Error, 'user_action', true);
       toast.error('Erreur lors de la sauvegarde');
     }
   };
@@ -210,7 +211,7 @@ export const ContentManagerPro = () => {
       toast.success(`${bulkActions.length} éléments supprimés`);
       
     } catch (error) {
-      console.error('Bulk delete error:', error);
+      errorService.handleError(error as Error, 'user_action', true);
       toast.error('Erreur lors de la suppression');
     }
   };

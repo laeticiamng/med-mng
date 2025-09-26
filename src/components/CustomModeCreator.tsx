@@ -18,6 +18,7 @@ import {
   Palette
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { errorService } from '@/services/core/ErrorService';
 import type { ListeningMode } from '@/hooks/useListeningModes';
 
 export const CustomModeCreator = () => {
