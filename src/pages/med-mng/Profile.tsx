@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Progress } from '@/components/ui/progress';
-import { useAuth } from '@/components/med-mng/AuthProvider';
+import { useAuth } from '@/components/providers/AuthProvider';
 import { 
   User, 
   Mail, 

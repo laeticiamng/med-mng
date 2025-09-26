@@ -5,7 +5,7 @@ import { PremiumButton } from '@/components/ui/premium-button';
 import { Input } from '@/components/ui/input';
 import { Link, useNavigate } from 'react-router-dom';
 import { GraduationCap, User, Mail, Lock } from 'lucide-react';
-import { useAuth } from '@/components/med-mng/AuthProvider';
+import { useAuth } from '@/components/providers/AuthProvider';
 import { toast } from 'sonner';
 
 export const MedMngSignup: React.FC = () => {

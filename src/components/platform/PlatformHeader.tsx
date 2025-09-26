@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { GlobalSearch } from './GlobalSearch';
 import { NotificationCenter } from './NotificationCenter';
 import { UserProfile } from './UserProfile';
-import { useAuth } from '@/components/med-mng/AuthProvider';
+import { useAuth } from '@/components/providers/AuthProvider';
 
 export const PlatformHeader: React.FC = () => {
   const navigate = useNavigate();

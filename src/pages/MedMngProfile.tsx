@@ -5,7 +5,7 @@ import { withAuth } from '@/components/med-mng/withAuth';
 import { MedMngLayout } from '@/components/med-mng/MedMngLayout';
 import { ConsistentBackground } from '@/components/layout/ConsistentBackground';
 import { PageHeader } from '@/components/layout/PageHeader';
-import { useAuth } from '@/components/med-mng/AuthProvider';
+import { useAuth } from '@/components/providers/AuthProvider';
 import { useMedMngApi } from '@/hooks/useMedMngApi';
 import { ProfileHeader } from '@/components/med-mng/profile/ProfileHeader';
 import { ProfileStats } from '@/components/med-mng/profile/ProfileStats';

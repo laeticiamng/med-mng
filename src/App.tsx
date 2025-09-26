@@ -82,14 +82,15 @@ const UniversalPlatform = lazy(() => import("./pages/UniversalPlatform"));
 const FeatureHub = lazy(() => import("./pages/FeatureHub"));
 const LearningPath = lazy(() => import("./pages/LearningPath"));
 
-// ⚡ CHAT & LEGAL
+// ⚡ CHAT & LEGAL & ADDITIONAL
 const MedChat = lazy(() => import("./pages/MedChat"));
 const MentionsLegales = lazy(() => import("./pages/MentionsLegales"));
 const PolitiqueConfidentialite = lazy(() => import("./pages/PolitiqueConfidentialite"));
 const Conditions = lazy(() => import("./pages/Conditions"));
 const Support = lazy(() => import("./pages/Support"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 
-import { AuthProvider } from "./components/med-mng/AuthProvider";
+import { AuthProvider } from "./components/providers/AuthProvider";
 import { ProtectedRoute } from "./components/med-mng/withAuth";
 import { UndoRedoProvider } from '@/components/ux/UndoRedoProvider';
 import { UXToolbar } from '@/components/ux/UXToolbar';
@@ -284,7 +285,7 @@ const AppWithUX = () => {
                                              {/* ⚡ AUTH & LEGAL */}
                                              <Route path="/auth" element={<MedMngLogin />} />
                                              <Route path="/auth/signup" element={<MedMngSignup />} />
-                                             <Route path="/mentions-legales" element={<MentionsLegales />} />
+                                             <Route path="/reset-password" element={<ResetPassword />} />
                                              <Route path="/politique-confidentialite" element={<PolitiqueConfidentialite />} />
                                              <Route path="/conditions" element={<Conditions />} />
                                              <Route path="/support" element={<Support />} />

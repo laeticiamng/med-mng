@@ -12,7 +12,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { ConsistentBackground } from '@/components/layout/ConsistentBackground';
 import { PageHeader } from '@/components/layout/PageHeader';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/components/med-mng/AuthProvider';
+import { useAuth } from '@/components/providers/AuthProvider';
 import { toast } from 'sonner';
 
 // Components

@@ -20,7 +20,7 @@ import {
   Download,
   Cloud
 } from 'lucide-react';
-import { useAuth } from '@/components/med-mng/AuthProvider';
+import { useAuth } from '@/components/providers/AuthProvider';
 import { toast } from 'sonner';
 import { useAnalyticsConsent } from '@/hooks/analytics/useAnalyticsConsent';
 import { ANALYTICS_CONSENT_VERSION } from '@/services/CanonicalAnalyticsTracker';

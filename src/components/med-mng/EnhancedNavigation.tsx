@@ -42,7 +42,7 @@ import {
   X,
   ChevronDown,
 } from 'lucide-react';
-import { useAuth } from './AuthProvider';
+import { useAuth } from '@/components/providers/AuthProvider';
 import { useNotifications } from './NotificationProvider';
 import { useTheme } from 'next-themes';
 import { logger } from '@/utils/logger';

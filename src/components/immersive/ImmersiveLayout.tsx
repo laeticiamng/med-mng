@@ -17,7 +17,7 @@ import {
   Eye,
   EyeOff
 } from 'lucide-react';
-import { useAuth } from '@/components/med-mng/AuthProvider';
+import { useAuth } from '@/components/providers/AuthProvider';
 
 interface ImmersiveLayoutProps {
   children: React.ReactNode;

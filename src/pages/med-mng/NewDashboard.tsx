@@ -19,7 +19,7 @@ import {
   Users,
   BarChart3
 } from 'lucide-react';
-import { useAuth } from '@/components/med-mng/AuthProvider';
+import { useAuth } from '@/components/providers/AuthProvider';
 import { toast } from 'sonner';
 
 const NewDashboard = () => {

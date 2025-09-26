@@ -41,7 +41,7 @@ import {
   User,
   Crown,
 } from 'lucide-react';
-import { useAuth } from './AuthProvider';
+import { useAuth } from '@/components/providers/AuthProvider';
 import { useFavorites } from '@/hooks/useFavorites';
 import { logger } from '@/utils/logger';
 

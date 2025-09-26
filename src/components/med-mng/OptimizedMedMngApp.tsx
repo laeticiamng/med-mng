@@ -5,7 +5,7 @@ import { Helmet } from 'react-helmet-async';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertCircle, RefreshCw } from 'lucide-react';
-import { AuthProvider } from './AuthProvider';
+import { AuthProvider } from '@/components/providers/AuthProvider';
 import { MusicGenerationProvider } from './MusicGenerationProvider';
 import { StudySessionProvider } from './StudySessionProviderSimplified';
 import { NotificationProvider } from './NotificationProvider';

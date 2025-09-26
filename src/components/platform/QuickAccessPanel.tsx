@@ -17,7 +17,7 @@ import {
   BookOpen
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/components/med-mng/AuthProvider';
+import { useAuth } from '@/components/providers/AuthProvider';
 
 interface QuickAction {
   id: string;
