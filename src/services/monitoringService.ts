@@ -1,5 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import { notifyIncident } from './alertService';
+import { errorService } from '@/services/core/ErrorService';
 
 export interface SystemHealth {
   status: 'healthy' | 'degraded' | 'down';
@@ -151,7 +152,7 @@ class MonitoringService {
       return metrics;
 
     } catch (error) {
-      console.error('Error fetching performance metrics:', error);
+      errorService.handleError(error instanceof Error ? error : new Error('Error fetching performance metrics'), 'system');
       throw error;
     }
   }
@@ -165,10 +166,10 @@ class MonitoringService {
       });
 
       if (error) {
-        console.error('Failed to log operation:', error);
+        errorService.handleError(error instanceof Error ? error : new Error('Failed to log operation'), 'system');
       }
     } catch (error) {
-      console.error('Error logging operation:', error);
+      errorService.handleError(error instanceof Error ? error : new Error('Error logging operation'), 'system');
     }
   }
 

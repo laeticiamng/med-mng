@@ -3,6 +3,8 @@
  * Gestion mémoire, localStorage, sessionStorage avec TTL
  */
 
+import { errorService } from '@/services/core/ErrorService';
+
 export interface CacheItem<T> {
   data: T;
   timestamp: number;
@@ -71,7 +73,7 @@ class CacheService {
           break;
       }
     } catch (error) {
-      console.warn('Cache set failed:', error);
+      errorService.handleWarning('Cache set failed', 'system', error);
       // Fallback vers memory si storage échoue
       if (storage !== 'memory') {
         this.setMemory(key, item);
@@ -107,7 +109,7 @@ class CacheService {
 
       return item.data;
     } catch (error) {
-      console.warn('Cache get failed:', error);
+      errorService.handleWarning('Cache get failed', 'system', error);
       return null;
     }
   }

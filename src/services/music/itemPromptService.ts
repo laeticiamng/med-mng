@@ -1,5 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import { toRateLimitError } from '@/utils/errors/rateLimit';
+import { errorService } from '@/services/core/ErrorService';
 
 export type MusicMode = 'A' | 'B' | 'AB';
 
@@ -207,7 +208,7 @@ export async function generateStructuredLyrics(itemCode: string, mode: MusicMode
       throw rateLimitError;
     }
 
-    console.warn('[itemPromptService] OpenAI lyrics generation fallback', openAiError);
+    errorService.handleWarning('[itemPromptService] OpenAI lyrics generation fallback', 'system', openAiError);
   }
 
   return { lines: buildFallbackLyrics(itemCode, summary, mode), source: 'fallback' } satisfies LyricsResult;

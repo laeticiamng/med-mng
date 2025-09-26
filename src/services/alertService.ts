@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { errorService } from '@/services/core/ErrorService';
 
 export type IncidentType =
   | 'EXTRACTION_FAILURE'
@@ -31,7 +32,7 @@ export async function notifyIncident(incident: Incident): Promise<void> {
     tasks.push(
       axios
         .post(discordWebhook, { content: text })
-        .catch((err) => console.error('Discord alert failed', err))
+        .catch((err) => errorService.handleError(err instanceof Error ? err : new Error('Discord alert failed'), 'system'))
     );
   }
 
@@ -39,7 +40,7 @@ export async function notifyIncident(incident: Incident): Promise<void> {
     tasks.push(
       axios
         .post(slackWebhook, { text, incident })
-        .catch((err) => console.error('Slack alert failed', err))
+        .catch((err) => errorService.handleError(err instanceof Error ? err : new Error('Slack alert failed'), 'system'))
     );
   }
 
@@ -77,7 +78,7 @@ export async function notifyIncident(incident: Incident): Promise<void> {
               },
             }
           )
-          .catch((err) => console.error('Email alert failed', err))
+          .catch((err) => errorService.handleError(err instanceof Error ? err : new Error('Email alert failed'), 'system'))
       );
     }
   }

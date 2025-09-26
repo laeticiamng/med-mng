@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client"
+import { errorService } from '@/services/core/ErrorService';
 
 export interface TableauRang {
   title?: string
@@ -46,7 +47,7 @@ class EdnTableauxService {
       if (error) throw error
       return data
     } catch (error) {
-      console.error('❌ Error fetching tableau Rang A:', error)
+      errorService.handleError(error instanceof Error ? error : new Error('Error fetching tableau Rang A'), 'api_call');
       throw error
     }
   }
@@ -67,7 +68,7 @@ class EdnTableauxService {
 
       return await response.json()
     } catch (error) {
-      console.error('❌ Error fetching tableau Rang B:', error)
+      errorService.handleError(error instanceof Error ? error : new Error('Error fetching tableau Rang B'), 'api_call');
       throw error
     }
   }
@@ -88,7 +89,7 @@ class EdnTableauxService {
 
       return await response.json()
     } catch (error) {
-      console.error('❌ Error fetching both tableaux:', error)
+      errorService.handleError(error instanceof Error ? error : new Error('Error fetching both tableaux'), 'api_call');
       throw error
     }
   }
@@ -108,11 +109,11 @@ class EdnTableauxService {
       }
 
       const result = await response.json()
-      console.log('📊 Completeness audit results:', result.summary)
+      errorService.handleInfo('Completeness audit results', 'system', result.summary);
       
       return result
     } catch (error) {
-      console.error('❌ Error running completeness audit:', error)
+      errorService.handleError(error instanceof Error ? error : new Error('Error running completeness audit'), 'api_call');
       throw error
     }
   }
