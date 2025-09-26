@@ -110,14 +110,24 @@ export async function trackCanonicalEvent(
     });
 
     if (error) {
-      console.warn('[analytics] tracking failed', error);
+      // Silently handle connection errors to avoid spam
+      if (error.message?.includes('Failed to fetch') || error.code === 'ENOTFOUND' || error.code === 'ECONNREFUSED') {
+        console.debug('[analytics] Analytics service not accessible, event skipped silently');
+      } else {
+        console.warn('[analytics] Tracking failed', error);
+      }
       return { tracked: false, skipped: false };
     }
 
     const tracked = Boolean((data as { tracked?: boolean })?.tracked ?? true);
     return { tracked, skipped: false };
-  } catch (error) {
-    console.warn('[analytics] unexpected tracking failure', error);
+  } catch (error: any) {
+    // Silently handle network errors
+    if (error?.message?.includes('Failed to fetch') || error?.code === 'ENOTFOUND' || error?.code === 'ECONNREFUSED') {
+      console.debug('[analytics] Network error, event tracking skipped');
+    } else {
+      console.warn('[analytics] Unexpected tracking failure', error);
+    }
     return { tracked: false, skipped: false };
   }
 }

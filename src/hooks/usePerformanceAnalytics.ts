@@ -17,10 +17,16 @@ export const usePerformanceAnalytics = (
       setError(null);
       const data = await performanceAnalyticsService.getPerformanceAnalytics(period);
       setAnalytics(data);
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Erreur lors du chargement des analytics';
-      setError(errorMessage);
-      console.error('Failed to fetch performance analytics:', err);
+    } catch (err: any) {
+      // Silently handle connection errors to avoid spam
+      if (err?.message?.includes('Failed to fetch') || err?.code === 'ENOTFOUND' || err?.code === 'ECONNREFUSED') {
+        console.debug('Performance Analytics: Service not accessible, using null data');
+        setAnalytics(null);
+      } else {
+        const errorMessage = err instanceof Error ? err.message : 'Erreur lors du chargement des analytics';
+        setError(errorMessage);
+        console.error('Failed to fetch performance analytics:', err);
+      }
     } finally {
       setLoading(false);
     }

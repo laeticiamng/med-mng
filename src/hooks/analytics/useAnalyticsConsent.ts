@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import {
@@ -16,6 +16,11 @@ interface AnalyticsConsentState {
 
 const DEFAULT_RETENTION_DAYS = 180;
 
+// Circuit breaker to prevent spam when Supabase is not available
+let supabaseAccessible = true;
+let lastFailureTime = 0;
+const CIRCUIT_BREAKER_TIMEOUT = 5 * 60 * 1000; // 5 minutes
+
 export const useAnalyticsConsent = (): AnalyticsConsentState => {
   const { user } = useAuth();
   const [optIn, setOptIn] = useState(false);
@@ -23,6 +28,28 @@ export const useAnalyticsConsent = (): AnalyticsConsentState => {
   const [loading, setLoading] = useState(true);
 
   const bootstrap = useCallback(async () => {
+    // Check circuit breaker first
+    if (!supabaseAccessible) {
+      const now = Date.now();
+      if (now - lastFailureTime < CIRCUIT_BREAKER_TIMEOUT) {
+        // Still in circuit breaker timeout, use defaults silently
+        if (!user) {
+          setOptIn(false);
+          setRetentionDays(DEFAULT_RETENTION_DAYS);
+          setAnalyticsContext(undefined, false);
+        } else {
+          setOptIn(false);
+          setRetentionDays(DEFAULT_RETENTION_DAYS);
+          setAnalyticsContext(user.id, false);
+        }
+        setLoading(false);
+        return;
+      } else {
+        // Reset circuit breaker after timeout
+        supabaseAccessible = true;
+      }
+    }
+
     if (!user) {
       setOptIn(false);
       setRetentionDays(DEFAULT_RETENTION_DAYS);
@@ -40,9 +67,20 @@ export const useAnalyticsConsent = (): AnalyticsConsentState => {
         .maybeSingle();
 
       if (error && error.code !== 'PGRST116') {
-        // Silently handle network errors and table missing errors during development
-        if (error.message?.includes('Failed to fetch') || error.message?.includes('relation') || error.message?.includes('does not exist')) {
-          console.debug('[analytics] Privacy preferences table not ready, using defaults');
+        // Handle various types of connection errors
+        if (
+          error.message?.includes('Failed to fetch') || 
+          error.message?.includes('relation') || 
+          error.message?.includes('does not exist') ||
+          error.message?.includes('Network Error') ||
+          error.code === 'ENOTFOUND' ||
+          error.code === 'ECONNREFUSED'
+        ) {
+          // Trigger circuit breaker
+          supabaseAccessible = false;
+          lastFailureTime = Date.now();
+          
+          console.debug('[analytics] Supabase not accessible, using defaults (circuit breaker active)');
           const nextOptIn = false;
           const nextRetention = DEFAULT_RETENTION_DAYS;
           setOptIn(nextOptIn);
@@ -54,15 +92,21 @@ export const useAnalyticsConsent = (): AnalyticsConsentState => {
         console.warn('[analytics] Unable to load privacy preferences', error);
       }
 
+      // Success case - ensure circuit breaker is reset
+      supabaseAccessible = true;
+      
       const nextOptIn = data?.analytics_opt_in ?? false;
       const nextRetention = data?.retention_days ?? DEFAULT_RETENTION_DAYS;
 
       setOptIn(nextOptIn);
       setRetentionDays(nextRetention);
       setAnalyticsContext(user.id, nextOptIn);
-    } catch (networkError) {
-      // Handle any network or parsing errors gracefully
-      console.debug('[analytics] Network error loading preferences, using defaults:', networkError);
+    } catch (networkError: any) {
+      // Trigger circuit breaker on any network error
+      supabaseAccessible = false;
+      lastFailureTime = Date.now();
+      
+      console.debug('[analytics] Network error, activating circuit breaker:', networkError?.message);
       setOptIn(false);
       setRetentionDays(DEFAULT_RETENTION_DAYS);
       setAnalyticsContext(user.id, false);
