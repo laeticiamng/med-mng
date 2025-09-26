@@ -40,17 +40,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
-          logger.error('Erreur lors de la récupération de la session', {
-            component: 'AuthProvider'
-          });
+          logger.error('Erreur lors de la récupération de la session');
         } else {
           setSession(session);
           setUser(session?.user ?? null);
         }
       } catch (error) {
-        logger.error('Erreur critique lors de l\'initialisation de l\'auth', {
-          component: 'AuthProvider'
-        });
+        logger.error('Erreur critique lors de l\'initialisation de l\'auth');
       } finally {
         setLoading(false);
       }
@@ -62,9 +58,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      logger.info(`Événement d'authentification: ${event}`, {
-        component: 'AuthProvider'
-      });
+      logger.info(`Événement d'authentification: ${event}`);
 
       setSession(session);
       setUser(session?.user ?? null);
@@ -73,27 +67,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Actions spécifiques selon l'événement
       switch (event) {
         case 'SIGNED_IN':
-          logger.info('Utilisateur connecté avec succès', {
-            component: 'AuthProvider',
-            metadata: { userId: session?.user?.id, email: session?.user?.email }
-          });
+          logger.info('Utilisateur connecté avec succès');
           break;
         case 'SIGNED_OUT':
-          logger.info('Utilisateur déconnecté', {
-            component: 'AuthProvider'
-          });
+          logger.info('Utilisateur déconnecté');
           break;
         case 'TOKEN_REFRESHED':
-          logger.debug('Token d\'authentification rafraîchi', {
-            component: 'AuthProvider',
-            metadata: { userId: session?.user?.id }
-          });
+          logger.debug('Token d\'authentification rafraîchi');
           break;
         case 'USER_UPDATED':
-          logger.info('Profil utilisateur mis à jour', {
-            component: 'AuthProvider',
-            metadata: { userId: session?.user?.id }
-          });
+          logger.info('Profil utilisateur mis à jour');
           break;
       }
     });
@@ -112,27 +95,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       });
 
       if (result.error) {
-        logger.error('Erreur de connexion', {
-          component: 'AuthProvider',
-          action: 'signIn',
-          email,
-          error: result.error
-        });
+        logger.error('Erreur de connexion');
       } else {
-        logger.info('Connexion réussie', {
-          component: 'AuthProvider',
-          action: 'signIn',
-          userId: result.data.user?.id
-        });
+        logger.info('Connexion réussie');
       }
 
       return result;
     } catch (error) {
-      logger.error('Erreur critique lors de la connexion', {
-        component: 'AuthProvider',
-        action: 'signIn',
-        error
-      });
+      logger.error('Erreur critique lors de la connexion');
       return { data: null, error };
     } finally {
       setLoading(false);
@@ -151,27 +121,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       });
 
       if (result.error) {
-        logger.error('Erreur d\'inscription', {
-          component: 'AuthProvider',
-          action: 'signUp',
-          email,
-          error: result.error
-        });
+        logger.error('Erreur d\'inscription');
       } else {
-        logger.info('Inscription réussie', {
-          component: 'AuthProvider',
-          action: 'signUp',
-          userId: result.data.user?.id
-        });
+        logger.info('Inscription réussie');
       }
 
       return result;
     } catch (error) {
-      logger.error('Erreur critique lors de l\'inscription', {
-        component: 'AuthProvider',
-        action: 'signUp',
-        error
-      });
+      logger.error('Erreur critique lors de l\'inscription');
       return { data: null, error };
     } finally {
       setLoading(false);
@@ -184,25 +141,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const result = await supabase.auth.signOut();
       
       if (result.error) {
-        logger.error('Erreur de déconnexion', {
-          component: 'AuthProvider',
-          action: 'signOut',
-          error: result.error
-        });
+        logger.error('Erreur de déconnexion');
       } else {
-        logger.info('Déconnexion réussie', {
-          component: 'AuthProvider',
-          action: 'signOut'
-        });
+        logger.info('Déconnexion réussie');
       }
 
       return result;
     } catch (error) {
-      logger.error('Erreur critique lors de la déconnexion', {
-        component: 'AuthProvider',
-        action: 'signOut',
-        error
-      });
+      logger.error('Erreur critique lors de la déconnexion');
       return { error };
     } finally {
       setLoading(false);
@@ -216,27 +162,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       });
 
       if (result.error) {
-        logger.error('Erreur de réinitialisation de mot de passe', {
-          component: 'AuthProvider',
-          action: 'resetPassword',
-          email,
-          error: result.error
-        });
+        logger.error('Erreur de réinitialisation de mot de passe');
       } else {
-        logger.info('Email de réinitialisation envoyé', {
-          component: 'AuthProvider',
-          action: 'resetPassword',
-          email
-        });
+        logger.info('Email de réinitialisation envoyé');
       }
 
       return result;
     } catch (error) {
-      logger.error('Erreur critique lors de la réinitialisation', {
-        component: 'AuthProvider',
-        action: 'resetPassword',
-        error
-      });
+      logger.error('Erreur critique lors de la réinitialisation');
       return { data: null, error };
     }
   };
@@ -246,26 +179,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const result = await supabase.auth.updateUser(updates);
 
       if (result.error) {
-        logger.error('Erreur de mise à jour du profil', {
-          component: 'AuthProvider',
-          action: 'updateProfile',
-          error: result.error
-        });
+        logger.error('Erreur de mise à jour du profil');
       } else {
-        logger.info('Profil mis à jour avec succès', {
-          component: 'AuthProvider',
-          action: 'updateProfile',
-          userId: result.data.user?.id
-        });
+        logger.info('Profil mis à jour avec succès');
       }
 
       return result;
     } catch (error) {
-      logger.error('Erreur critique lors de la mise à jour du profil', {
-        component: 'AuthProvider',
-        action: 'updateProfile',
-        error
-      });
+      logger.error('Erreur critique lors de la mise à jour du profil');
       return { data: null, error };
     }
   };

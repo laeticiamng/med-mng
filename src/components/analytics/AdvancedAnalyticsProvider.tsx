@@ -188,9 +188,7 @@ export const AdvancedAnalyticsProvider: React.FC<AdvancedAnalyticsProviderProps>
 
       return data;
     } catch (error) {
-      logger.error('Erreur lors de la récupération des analytics', {
-        component: 'AdvancedAnalyticsProvider'
-      });
+      logger.error('Erreur lors de la récupération des analytics');
       return [];
     }
   };

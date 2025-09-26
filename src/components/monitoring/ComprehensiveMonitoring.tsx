@@ -102,9 +102,7 @@ export const ComprehensiveMonitoring: React.FC = () => {
       }, 2000);
 
       // Log initial
-      logger.info('Monitoring système démarré', {
-        component: 'ComprehensiveMonitoring'
-      });
+      logger.info('Monitoring système démarré');
     }
 
     return () => {
