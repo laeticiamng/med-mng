@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Shield, AlertTriangle, CheckCircle, Clock, Users, Activity } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { errorService } from '@/services/core/ErrorService';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -66,7 +67,7 @@ export const AdminSecurityAudit = () => {
       setAuditReport(data);
       setLastUpdate(new Date());
     } catch (error) {
-      console.error('Erreur audit sécurité:', error);
+      errorService.handleError(error as Error, 'system', false);
       toast.error('Erreur lors de l\'audit de sécurité');
     }
   };
@@ -91,7 +92,7 @@ export const AdminSecurityAudit = () => {
 
       setStreamingLogs(mockLogs);
     } catch (error) {
-      console.error('Erreur chargement logs:', error);
+      errorService.handleError(error as Error, 'system', false);
       toast.error('Erreur lors du chargement des logs');
     } finally {
       setLoading(false);
@@ -111,7 +112,7 @@ export const AdminSecurityAudit = () => {
       toast.success(`${data.message}`);
       fetchSecurityAudit(); // Refresh après nettoyage
     } catch (error) {
-      console.error('Erreur nettoyage:', error);
+      errorService.handleError(error as Error, 'user_action', true);
       toast.error('Erreur lors du nettoyage des sessions');
     }
   };

@@ -24,6 +24,7 @@ import {
   Music
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { errorService } from '@/services/core/ErrorService';
 import { useAIRecommendations } from '@/hooks/useAIRecommendations';
 import { logger } from '@/lib/logger';
 
@@ -118,7 +119,7 @@ export const AdvancedSettings = () => {
         description: "Vos préférences ont été mises à jour avec succès."
       });
     } catch (error) {
-      console.error('Erreur sauvegarde:', error);
+      errorService.handleError(error as Error, 'user_action', true);
       toast({
         title: "Erreur",
         description: "Impossible de sauvegarder les paramètres.",

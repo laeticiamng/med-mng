@@ -99,7 +99,7 @@ export const useEdnItemV2 = (slug: string | undefined): UseEdnItemV2Result => {
         setError(null);
         
       } catch (catchError) {
-        console.error('❌ Erreur générale:', catchError);
+        errorService.handleError(catchError as Error, 'system', false);
         setError('Erreur lors du chargement');
       } finally {
         setLoading(false);

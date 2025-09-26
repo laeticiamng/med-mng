@@ -4,6 +4,7 @@ import {
   CheckCircle, AlertTriangle, Music, Brain, Image, Eye
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { errorService } from '@/services/core/ErrorService';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -105,7 +106,7 @@ export const AdminContentManager = () => {
 
       setItems(mergedItems);
     } catch (error) {
-      console.error('Erreur chargement contenu:', error);
+      errorService.handleError(error as Error, 'system', false);
       toast.error('Erreur lors du chargement du contenu');
     } finally {
       setLoading(false);
@@ -148,7 +149,7 @@ export const AdminContentManager = () => {
 
       toast.success('Item validé avec succès');
     } catch (error) {
-      console.error('Erreur validation:', error);
+      errorService.handleError(error as Error, 'validation', true);
       toast.error('Erreur lors de la validation');
     }
   };

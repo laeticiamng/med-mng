@@ -112,7 +112,7 @@ export const CustomModeCreator = () => {
         color: 'blue'
       });
     } catch (error) {
-      console.error('Erreur sauvegarde mode:', error);
+      errorService.handleError(error as Error, 'user_action', true);
       toast({
         title: "Erreur",
         description: "Impossible de sauvegarder le mode.",

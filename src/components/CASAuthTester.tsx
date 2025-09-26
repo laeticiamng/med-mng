@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { errorService } from '@/services/core/ErrorService';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/integrations/supabase/client';
@@ -49,7 +50,7 @@ export default function CASAuthTester() {
       }
       
     } catch (error: unknown) {
-      console.error('❌ Erreur:', error);
+      errorService.handleError(error as Error, 'authentication', true);
       const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
       setResult({ 
         success: false, 
@@ -102,7 +103,7 @@ export default function CASAuthTester() {
       }
       
     } catch (error: unknown) {
-      console.error('❌ Erreur validation:', error);
+      errorService.handleError(error as Error, 'validation', true);
       const errorMessage = error instanceof Error ? error.message : 'Erreur validation cookies';
       setResult({ 
         success: false, 
@@ -162,7 +163,7 @@ export default function CASAuthTester() {
       }
       
     } catch (error: unknown) {
-      console.error('❌ Erreur test complet:', error);
+      errorService.handleError(error as Error, 'system', true);
       const errorMessage = error instanceof Error ? error.message : 'Erreur test complet';
       setResult({ 
         success: false, 

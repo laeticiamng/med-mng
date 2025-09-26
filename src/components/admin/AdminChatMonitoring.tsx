@@ -15,6 +15,7 @@ import {
   RefreshCw
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { errorService } from '@/services/core/ErrorService';
 import { useToast } from '@/hooks/use-toast';
 
 interface ChatLog {
@@ -99,7 +100,7 @@ export const AdminChatMonitoring: React.FC = () => {
       setStats(calculatedStats);
 
     } catch (error) {
-      console.error('Erreur loadChatData:', error);
+      errorService.handleError(error as Error, 'system', false);
       toast({
         title: "Erreur",
         description: "Erreur lors du chargement des données",
