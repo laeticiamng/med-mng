@@ -14,6 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { errorService } from '@/services/core/ErrorService';
 import { AdminSecurityAudit } from './AdminSecurityAudit';
 import { AdminChatMonitoring } from './AdminChatMonitoring';
 
@@ -83,8 +84,8 @@ export const AdminSystemSettings = () => {
       
       setSettings(mockSettings);
     } catch (error) {
-      console.error('Erreur chargement paramètres:', error);
-      toast.error('Erreur lors du chargement des paramètres');
+      errorService.handleError(error as Error, 'system', true);
+      toast.error('Erreur chargement paramètres');
     }
   };
 
@@ -112,7 +113,7 @@ export const AdminSystemSettings = () => {
 
       setSystemHealth(mockHealth);
     } catch (error) {
-      console.error('Erreur vérification santé système:', error);
+      errorService.handleError(error as Error, 'system', false);
     } finally {
       setLoading(false);
     }
@@ -128,7 +129,7 @@ export const AdminSystemSettings = () => {
       
       toast.success('Paramètres sauvegardés avec succès');
     } catch (error) {
-      console.error('Erreur sauvegarde:', error);
+      errorService.handleError(error as Error, 'system', true);
       toast.error('Erreur lors de la sauvegarde');
     } finally {
       setSaving(false);
@@ -145,8 +146,8 @@ export const AdminSystemSettings = () => {
       toast.success('Maintenance système exécutée avec succès');
       fetchSystemHealth();
     } catch (error) {
-      console.error('Erreur maintenance:', error);
-      toast.error('Erreur lors de la maintenance');
+      errorService.handleError(error as Error, 'system', true);
+      toast.error('Erreur maintenance');
     } finally {
       setLoading(false);
     }
@@ -166,8 +167,8 @@ export const AdminSystemSettings = () => {
       
       toast.success('Sauvegarde créée avec succès');
     } catch (error) {
-      console.error('Erreur backup:', error);
-      toast.error('Erreur lors de la création de la sauvegarde');
+      errorService.handleError(error as Error, 'system', true);
+      toast.error('Erreur backup');
     } finally {
       setLoading(false);
     }

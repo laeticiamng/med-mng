@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { errorService } from '@/services/core/ErrorService';
 
 // Import des composants d'administration existants
 import { AdminSystemSettings } from './AdminSystemSettings';
@@ -114,7 +115,7 @@ export const AdminDashboard: React.FC = () => {
         lastUpdate: new Date().toISOString()
       });
     } catch (error) {
-      console.error('Erreur lors de la récupération des stats:', error);
+      errorService.handleError(error as Error, 'system', true);
       toast.error('Erreur lors du chargement des statistiques système');
       setSystemStats(prev => ({ ...prev, systemHealth: 'critical' }));
     } finally {
@@ -142,7 +143,7 @@ export const AdminDashboard: React.FC = () => {
 
       setRecentActivity(activities);
     } catch (error) {
-      console.error('Erreur activité récente:', error);
+      errorService.handleError(error as Error, 'system', false);
     } finally {
       setLoading(false);
     }
@@ -191,7 +192,7 @@ export const AdminDashboard: React.FC = () => {
       await fetchRecentActivity();
       
     } catch (error) {
-      console.error(`Erreur action ${action}:`, error);
+      errorService.handleError(error as Error, 'user_action', true);
       toast.error(`Erreur lors de l'exécution de ${action}`, { id: action });
     } finally {
       setRefreshing(false);
