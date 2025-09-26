@@ -465,6 +465,191 @@
 }
 
 /* ==========================================
+   UX ENHANCEMENT ANIMATIONS
+   ========================================== */
+
+@keyframes slide-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-in-down {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scale-in-bounce {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes gentle-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-2px); }
+  75% { transform: translateX(2px); }
+}
+
+@keyframes ripple-effect {
+  0% {
+    transform: scale(0);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(2);
+    opacity: 0;
+  }
+}
+
+@keyframes progress-shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(200%); }
+}
+
+/* UX Animation Classes */
+.animate-slide-in-up {
+  animation: slide-in-up 0.4s ease-out forwards;
+}
+
+.animate-slide-in-down {
+  animation: slide-in-down 0.3s ease-out forwards;
+}
+
+.animate-scale-in-bounce {
+  animation: scale-in-bounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+}
+
+.animate-gentle-shake {
+  animation: gentle-shake 0.3s ease-in-out;
+}
+
+.animate-ripple {
+  animation: ripple-effect 0.6s ease-out forwards;
+}
+
+/* ==========================================
+   MICRO-INTERACTIONS
+   ========================================== */
+
+.micro-interaction-base {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform, box-shadow, opacity;
+}
+
+.hover-lift:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 25px -8px hsl(var(--primary) / 0.3);
+}
+
+.press-scale:active {
+  transform: scale(0.95);
+}
+
+.focus-glow:focus {
+  box-shadow: 0 0 0 3px hsl(var(--primary) / 0.3);
+}
+
+/* Smart Loading Indicators */
+.smart-loader {
+  position: relative;
+  overflow: hidden;
+}
+
+.smart-loader::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, hsl(var(--primary)), transparent);
+  animation: progress-shimmer 1.5s infinite;
+}
+
+/* Intelligent Feedback Cards */
+.feedback-card {
+  backdrop-filter: blur(12px);
+  border: 1px solid hsl(var(--border) / 0.5);
+  animation: slide-in-up 0.3s ease-out forwards;
+}
+
+.feedback-card.success {
+  border-color: hsl(var(--success) / 0.3);
+  background: hsl(var(--success) / 0.05);
+}
+
+.feedback-card.error {
+  border-color: hsl(var(--destructive) / 0.3);
+  background: hsl(var(--destructive) / 0.05);
+}
+
+.feedback-card.warning {
+  border-color: hsl(var(--warning) / 0.3);
+  background: hsl(var(--warning) / 0.05);
+}
+
+/* Navigation Enhancements */
+.smart-nav-item {
+  position: relative;
+  transition: all 0.2s ease;
+}
+
+.smart-nav-item::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: hsl(var(--primary));
+  transition: all 0.3s ease;
+  transform: translateX(-50%);
+}
+
+.smart-nav-item.active::before,
+.smart-nav-item:hover::before {
+  width: 100%;
+}
+
+/* Touch-friendly enhancements */
+@media (hover: none) and (pointer: coarse) {
+  .hover-lift:hover {
+    transform: none;
+  }
+  
+  .hover-lift:active {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px -4px hsl(var(--primary) / 0.2);
+  }
+  
+  /* Larger touch targets */
+  button, a, [role="button"] {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* ==========================================
    ENHANCED ACCESSIBILITY STYLES
    ========================================== */
 
@@ -487,12 +672,155 @@ html.high-contrast {
   --muted-foreground: 0 0% 85%;
 }
 
-/* Focus Visible Enhancement */
-html.focus-visible *:focus-visible {
+/* Low Contrast Mode */
+html.low-contrast {
+  --background: 210 20% 96%;
+  --foreground: 213 31% 20%;
+  --card: 0 0% 98%;
+  --border: 213 25% 85%;
+  --primary: 213 94% 50%;
+  --muted: 213 20% 94%;
+  --muted-foreground: 213 25% 50%;
+}
+
+/* Monochrome Mode */
+html.monochrome {
+  --background: 0 0% 100%;
+  --foreground: 0 0% 0%;
+  --card: 0 0% 95%;
+  --card-foreground: 0 0% 0%;
+  --primary: 0 0% 20%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 0 0% 80%;
+  --secondary-foreground: 0 0% 0%;
+  --accent: 0 0% 40%;
+  --accent-foreground: 0 0% 100%;
+  --border: 0 0% 70%;
+  --input: 0 0% 90%;
+  --ring: 0 0% 20%;
+  --muted: 0 0% 90%;
+  --muted-foreground: 0 0% 40%;
+}
+
+/* Reduced Motion */
+html.reduced-motion *,
+html.reduced-motion *::before,
+html.reduced-motion *::after {
+  animation-duration: 0.001ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.001ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* Enhanced Focus Indicators */
+html.enhanced-focus *:focus,
+html.enhanced-focus *:focus-visible {
   outline: 3px solid hsl(var(--primary)) !important;
   outline-offset: 2px;
   border-radius: 4px;
-  box-shadow: 0 0 0 1px hsl(var(--background)), 0 0 0 4px hsl(var(--primary) / 0.3);
+  box-shadow: 0 0 0 1px hsl(var(--background)), 0 0 0 6px hsl(var(--primary) / 0.3);
+  z-index: 100;
+  position: relative;
+}
+
+/* High Contrast Focus */
+html.high-contrast-focus *:focus,
+html.high-contrast-focus *:focus-visible {
+  outline: 4px solid hsl(60 100% 50%) !important;
+  outline-offset: 3px;
+  background: hsl(0 0% 0%) !important;
+  color: hsl(60 100% 50%) !important;
+  box-shadow: 0 0 0 2px hsl(0 0% 0%), 0 0 0 8px hsl(60 100% 50%);
+}
+
+/* Reading Guide */
+html.reading-guide {
+  cursor: crosshair;
+}
+
+html.reading-guide::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: hsl(var(--primary));
+  box-shadow: 0 0 20px hsl(var(--primary));
+  z-index: 9999;
+  pointer-events: none;
+  animation: reading-guide-move 0.1s ease-out;
+}
+
+@keyframes reading-guide-move {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Simplicity Mode */
+html.simplicity-mode {
+  --border-radius: 4px;
+}
+
+html.simplicity-mode * {
+  border-radius: 4px !important;
+  box-shadow: none !important;
+  background-image: none !important;
+}
+
+html.simplicity-mode .animate-pulse,
+html.simplicity-mode .animate-spin,
+html.simplicity-mode .animate-bounce {
+  animation: none !important;
+}
+
+/* Distraction Free Mode */
+html.distraction-free .animate-float,
+html.distraction-free .animate-shimmer,
+html.distraction-free .animate-gentle-float,
+html.distraction-free [data-decoration="true"] {
+  display: none !important;
+}
+
+html.distraction-free .bg-gradient-to-r,
+html.distraction-free .bg-gradient-to-l,
+html.distraction-free .bg-gradient-to-t,
+html.distraction-free .bg-gradient-to-b {
+  background-image: none !important;
+  background: hsl(var(--card)) !important;
+}
+
+/* Screen Reader Optimized */
+html.screen-reader-optimized {
+  font-family: 'Courier New', monospace !important;
+  line-height: 1.8 !important;
+}
+
+html.screen-reader-optimized *:focus {
+  outline: 3px solid hsl(var(--primary)) !important;
+  outline-offset: 3px;
+}
+
+/* Custom cursor size */
+html {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Cpath d='M2 2l8 20 6-6 20-8z' fill='%23000' stroke='%23fff' stroke-width='2'/%3E%3C/svg%3E") 2 2, auto;
+}
+
+html[style*="--accessibility-cursor-size: 1.5"] {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48' viewBox='0 0 32 32'%3E%3Cpath d='M2 2l8 20 6-6 20-8z' fill='%23000' stroke='%23fff' stroke-width='2'/%3E%3C/svg%3E") 3 3, auto;
+}
+
+html[style*="--accessibility-cursor-size: 2"] {
+  cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64' viewBox='0 0 32 32'%3E%3Cpath d='M2 2l8 20 6-6 20-8z' fill='%23000' stroke='%23fff' stroke-width='3'/%3E%3C/svg%3E") 4 4, auto;
+}
+
+/* Font size scaling */
+html[style*="--accessibility-font-size"] {
+  font-size: var(--accessibility-font-size) !important;
+}
+
+html[style*="--accessibility-font-size"] * {
+  font-size: inherit !important;
 }
 
 /* Keyboard Navigation Mode */

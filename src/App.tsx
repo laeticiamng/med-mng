@@ -102,6 +102,7 @@ import AccessibilityOverlay from "@/components/premium/AccessibilityOverlay";
 import { PanicOverlay } from '@/components/system/PanicOverlay';
 import { usePanicMonitor } from '@/hooks/usePanicMonitor';
 import { AnalyticsConsentManager } from '@/components/analytics/AnalyticsConsentManager';
+import { UXOrchestrator } from '@/components/ux/UXOrchestrator';
 
 // Component to handle keyboard shortcuts inside Router context
 const AppKeyboardShortcuts = memo(() => {
@@ -179,14 +180,15 @@ const AppWithUX = () => {
       <StrictMode>
         <HelmetProvider>
           <TooltipProvider>
-            <AccessibilityProvider>
-              <ViewportProvider>
-                <LanguageProvider>
-                  <GlobalAudioProvider>
-                    <AuthProvider>
-                      <AnalyticsConsentManager />
-                      <ToastProvider>
-                        <UndoRedoProvider>
+            <UXOrchestrator>
+              <AccessibilityProvider>
+                <ViewportProvider>
+                  <LanguageProvider>
+                    <GlobalAudioProvider>
+                      <AuthProvider>
+                        <AnalyticsConsentManager />
+                        <ToastProvider>
+                          <UndoRedoProvider>
                           <GlobalOverflowWrapper className="min-h-screen">
                             <PanicOverlay
                               state={panic.state}
