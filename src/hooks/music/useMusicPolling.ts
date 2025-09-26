@@ -1,5 +1,7 @@
 
 import { supabase } from '@/integrations/supabase/client';
+import { MusicTrack } from '@/types';
+import { errorService } from '@/services/core/ErrorService';
 
 interface PollingConfig {
   rang: 'A' | 'B';
@@ -71,7 +73,7 @@ export const useMusicPolling = () => {
 
         if (pollError) {
           consecutiveErrors++;
-          console.warn(`⚠️ Erreur polling ${pollCount} (${consecutiveErrors}/${maxConsecutiveErrors}):`, pollError);
+          errorService.handleWarning(`⚠️ Erreur polling ${pollCount} (${consecutiveErrors}/${maxConsecutiveErrors})`, 'user_action');
           
           // Si trop d'erreurs consécutives, on arrête plus rapidement
           if (consecutiveErrors >= maxConsecutiveErrors) {
@@ -132,7 +134,7 @@ export const useMusicPolling = () => {
         
       } catch (pollError) {
         consecutiveErrors++;
-        console.error(`❌ Erreur critique lors du polling ${pollCount}:`, pollError);
+        errorService.handleError(pollError, 'user_action', true);
         
         if (consecutiveErrors >= maxConsecutiveErrors || pollCount >= maxPolls) {
           clearInterval(intervalId);

@@ -9,6 +9,7 @@ import { useGlobalAudio } from '@/contexts/GlobalAudioContext';
 import { useToast } from '@/hooks/use-toast';
 import { generateOptimizedLyrics, generateRangAB } from '@/utils/lyrics/generateOptimizedLyrics';
 import type { GenerationRequest, MusicTrack, MusicGenerationProgress } from '@/types';
+import { errorService } from '@/services/core/ErrorService';
 
 interface UseOptimizedMusicGenerationProps {
   itemCode?: string;
@@ -50,12 +51,7 @@ export const useOptimizedMusicGeneration = (props: UseOptimizedMusicGenerationPr
   }
 
   function handleError(error: Error) {
-    console.error('❌ Erreur génération:', error);
-    toast({
-      title: "Erreur de génération",
-      description: error.message,
-      variant: "destructive"
-    });
+    errorService.handleError(error, 'user_action', true);
   }
 
   // Génération intelligente avec optimisations IA
@@ -117,7 +113,7 @@ export const useOptimizedMusicGeneration = (props: UseOptimizedMusicGenerationPr
       return taskId;
 
     } catch (error) {
-      console.error(`❌ Erreur génération optimisée:`, error);
+      errorService.handleError(error, 'user_action', true);
       throw error;
     }
   }, [itemCode, musicGeneration.generateMusic, toast]);
@@ -152,13 +148,13 @@ export const useOptimizedMusicGeneration = (props: UseOptimizedMusicGenerationPr
       }
 
       if (failed.length > 0) {
-        console.error('❌ Échecs génération batch:', failed);
+        errorService.handleWarning('❌ Échecs génération batch', 'user_action');
       }
 
       return taskIds;
 
     } catch (error) {
-      console.error('❌ Erreur génération batch:', error);
+      errorService.handleError(error, 'user_action', true);
       throw error;
     }
   }, [itemCode, generateOptimizedMusic, toast]);

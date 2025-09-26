@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { errorService } from '@/services/core/ErrorService';
 import { getTimestampedLyrics, TimestampedLyrics } from '@/music/lyrics';
 
 interface LyricsLine {
@@ -51,7 +53,7 @@ export const useSynchronizedLyrics = ({
         setLyrics(autoSyncedLyrics);
       }
     } catch (err) {
-      console.error('Erreur lors du chargement des paroles synchronisées:', err);
+      errorService.handleError(err, 'user_action', true);
       setError(err instanceof Error ? err.message : 'Erreur inconnue');
       
       // Fallback sur synchronisation automatique

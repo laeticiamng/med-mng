@@ -3,6 +3,7 @@ import { MusicGenerationProgress } from '@/types/hooks';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useMusicPolling } from './useMusicPolling';
+import { errorService } from '@/services/core/ErrorService';
 
 interface GenerationConfig {
   rang: 'A' | 'B';
@@ -50,7 +51,7 @@ export const useMusicGenerationOrchestrator = () => {
       });
 
       if (initialError) {
-        console.error('❌ Erreur lors du démarrage:', initialError);
+        errorService.handleError(initialError, 'user_action', true);
         throw new Error(initialError.message || 'Erreur lors du démarrage de la génération');
       }
 
@@ -114,7 +115,7 @@ export const useMusicGenerationOrchestrator = () => {
       });
       
     } catch (error) {
-      console.error(`❌ ERREUR GÉNÉRATION SUNO Rang ${rang}:`, error);
+      errorService.handleError(error, 'user_action', true);
       
       const errorMessage = error.message || "Impossible de générer la musique avec Suno. Veuillez réessayer.";
       toast({

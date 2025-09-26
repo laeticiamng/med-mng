@@ -5,6 +5,9 @@
 import { useState, useCallback, useRef, useEffect, useMemo } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { errorService } from '@/services/core/ErrorService';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import type { 
   MedicalMusicTrack, 
   UnifiedPlayerState, 
@@ -143,7 +146,7 @@ export const useMedicalMusicOrchestrator = (
   // ==========================================
   
   const handleError = useCallback((error: any, context: string) => {
-    console.error(`❌ [MedicalMusicOrchestrator] ${context}:`, error);
+    errorService.handleError(error, 'user_action', true);
     
     const errorMsg = error?.message || 'Erreur inconnue';
     setHasError(true);
@@ -813,7 +816,7 @@ export const useMedicalMusicOrchestrator = (
   // Initialisation des quotas
   useEffect(() => {
     checkQuota().catch(error => {
-      console.warn('Impossible de charger les quotas:', error);
+      errorService.handleWarning('Impossible de charger les quotas', 'user_action');
     });
   }, [checkQuota]);
   

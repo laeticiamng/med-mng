@@ -151,7 +151,7 @@ export const useAdvancedMusicGeneration = () => {
       
       return data.enhancedLyrics || lyrics;
     } catch (error) {
-      console.warn('⚠️ Amélioration IA échouée, utilisation paroles originales');
+      errorService.handleWarning('⚠️ Amélioration IA échouée, utilisation paroles originales', 'user_action', { error });
       return lyrics;
     }
   };
@@ -227,7 +227,7 @@ export const useAdvancedMusicGeneration = () => {
       await Promise.all(promises);
       
     } catch (error) {
-      console.warn('⚠️ Génération contenu additionnel échouée:', error);
+      errorService.handleWarning('⚠️ Génération contenu additionnel échouée', 'user_action', { error });
     }
   };
 
@@ -261,7 +261,7 @@ export const useAdvancedMusicGeneration = () => {
         .eq('id', track.id);
 
     } catch (error) {
-      console.error('❌ Erreur génération voix:', error);
+      errorService.handleError(error, 'user_action', true);
     }
   };
 
@@ -298,7 +298,7 @@ export const useAdvancedMusicGeneration = () => {
         .eq('id', track.id);
 
     } catch (error) {
-      console.error('❌ Erreur génération image:', error);
+      errorService.handleError(error, 'user_action', true);
     }
   };
 

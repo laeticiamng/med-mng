@@ -5,6 +5,7 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { errorService } from '@/services/core/ErrorService';
 import type { 
   GenerationRequest, 
   GenerationStatus, 
@@ -151,7 +152,7 @@ export const useMusicGeneration = (props: UseMusicGenerationProps = {}) => {
       return data.task_id;
 
     } catch (error) {
-      console.error('❌ [useMusicGeneration] Erreur génération:', error);
+      errorService.handleError(error, 'user_action', true);
       
       updateState({
         isGenerating: false,
@@ -254,7 +255,7 @@ export const useMusicGeneration = (props: UseMusicGenerationProps = {}) => {
         // Continue polling pour status pending/processing
         
       } catch (error) {
-        console.error(`❌ [Poll ${pollCount}] Erreur:`, error);
+        errorService.handleError(error, 'user_action', true);
         
         // Retry logic avec exponential backoff
         if (retryCountRef.current < MAX_RETRIES) {

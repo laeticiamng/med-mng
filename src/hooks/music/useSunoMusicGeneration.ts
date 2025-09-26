@@ -3,6 +3,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useCallback, useMemo } from 'react';
 import { useMusicGenerationState } from '../useMusicGenerationState';
 import { callSunoApi } from '../musicGenerationApi';
+import { errorService } from '@/services/core/ErrorService';
 import { 
   validateGenerationInput, 
   prepareStyleConfiguration, 
@@ -88,7 +89,7 @@ export const useSunoMusicGeneration = () => {
 
       
     } catch (error) {
-      console.error(`❌ ERREUR GÉNÉRATION SUNO Rang ${rang}:`, error);
+      errorService.handleError(error, 'user_action', true);
       
       const errorMessage = error.message || "Impossible de générer la musique avec Suno. Veuillez réessayer.";
       setLastError(errorMessage);
