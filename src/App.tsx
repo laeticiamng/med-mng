@@ -283,13 +283,27 @@ const AppWithUX = () => {
                                                 <Route path="/system-health" element={<SystemHealth />} />
                                                 <Route path="/audit" element={<AuditComplete />} />
 
-                                                 {/* ⚡ AI & CHAT */}
+                                                {/* ⚡ AI & CHAT */}
                                                 <Route path="/chat" element={<MedChat />} />
                                                 
                                                 {/* ⚡ DOCFLEMME STUDIO */}
                                                 <Route path="/docflemme/:itemCode" element={
                                                   <Suspense fallback={<PageSkeleton />}>
                                                     {React.createElement(lazy(() => import('./pages/DocFlemmePage')))}
+                                                  </Suspense>
+                                                } />
+                                                
+                                                {/* ⚡ PROGRESSION PERSONNALISÉE */}
+                                                <Route path="/progression" element={
+                                                  <Suspense fallback={<PageSkeleton />}>
+                                                    {React.createElement(lazy(() => import('./pages/ProgressionPage')))}
+                                                  </Suspense>
+                                                } />
+                                                
+                                                {/* ⚡ ECOS SIMULATIONS */}
+                                                <Route path="/ecos-simulation/:itemCode" element={
+                                                  <Suspense fallback={<PageSkeleton />}>
+                                                    {React.createElement(lazy(() => import('./pages/EcosSimulationPage')))}
                                                   </Suspense>
                                                 } />
                                                <Route path="/ai-hub" element={<UltimateAIHub />} />
