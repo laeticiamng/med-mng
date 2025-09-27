@@ -25,7 +25,7 @@ const PlatformOverview = lazy(() => import("./pages/PlatformOverview"));
 const PlatformComplete = lazy(() => import("./pages/PlatformComplete"));
 const QuickStart = lazy(() => import("./pages/QuickStart"));
 const Generator = lazy(() => import("./pages/Generator"));
-// const ItemsCompleteness = lazy(() => import("./pages/ItemsCompleteness"));
+const ItemsCompleteness = lazy(() => import("./pages/ItemsCompleteness"));
 const MeditationCenter = lazy(() => import("./pages/MeditationCenter"));
 const UserSettings = lazy(() => import("./pages/UserSettings"));
 // ⚡ OPTIMIZATION & CLEANUP MASTER
