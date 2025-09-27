@@ -118,7 +118,7 @@ export const AdvancedAnalyticsProvider: React.FC<AdvancedAnalyticsProviderProps>
 
     try {
       // Log analytics event locally for now
-      logger.debug('Analytics event sent', { eventName, properties });
+      logger.debug('Analytics event sent', { component: 'AdvancedAnalyticsProvider', action: eventName, metadata: properties });
 
       // Store analytics in console for development
       console.log('Analytics event:', {
@@ -174,7 +174,7 @@ export const AdvancedAnalyticsProvider: React.FC<AdvancedAnalyticsProviderProps>
   const getAnalytics = async (startDate: string, endDate: string) => {
     try {
       // Return empty data for now since analytics_events table doesn't exist
-      logger.debug('Getting analytics data for date range', { startDate, endDate });
+      logger.debug('Getting analytics data for date range', { component: 'AdvancedAnalyticsProvider', action: 'getAnalytics', metadata: { startDate, endDate } });
       return [];
     } catch (error) {
       logger.error('Error retrieving analytics');
