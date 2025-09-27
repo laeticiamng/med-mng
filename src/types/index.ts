@@ -1,66 +1,12 @@
 /**
  * Types globaux du projet MED-MNG
- * Centralise toutes les interfaces et types
+ * Architecture unifiée selon le plan de refactorisation
  */
 
-// Base types
-export interface BaseEntity {
-  id: string;
-  created_at?: string;
-  updated_at?: string;
-}
-
-// User types
-export interface User extends BaseEntity {
-  email: string;
-  name?: string;
-  role: 'admin' | 'user' | 'moderator';
-  subscription_status: 'active' | 'inactive' | 'trial';
-  preferences: UserPreferences;
-}
-
-export interface UserPreferences {
-  theme: 'light' | 'dark' | 'system';
-  language: 'fr' | 'en';
-  notifications: boolean;
-  auto_play: boolean;
-  volume: number;
-}
-
-// EDN types
-export interface EdnItem extends BaseEntity {
-  item_code: string;
-  title: string;
-  description?: string;
-  tableau_rang_a?: Record<string, unknown>;
-  tableau_rang_b?: Record<string, unknown>;
-  paroles_musicales?: string[];
-  quiz_questions?: Record<string, unknown>;
-  scene_immersive?: Record<string, unknown>;
-  is_premium: boolean;
-  content_status: 'draft' | 'published' | 'archived';
-  theme?: string;
-}
-
-// Music types
-export interface MusicTrack extends BaseEntity {
-  title: string;
-  artist?: string;
-  duration: number;
-  audio_url?: string;
-  lyrics?: string[];
-  genre: string;
-  is_generated: boolean;
-  generation_status: 'pending' | 'processing' | 'completed' | 'failed';
-  metadata?: Record<string, unknown>;
-  rang?: 'A' | 'B';
-}
-
-// Legacy types for compatibility
-export type EDNItem = EdnItem;
-
-// Import des types legacy
-export type { SupabaseMusicTrack, LegacyColonneConfig } from './legacy';
+// Export des types centralisés
+export * from './core';
+export * from './unified';
+export * from './music-unified';
 
 export interface ColonneConfig {
   key: string;
@@ -163,11 +109,14 @@ export interface MedicalItem {
   competencies?: string[];
 }
 
-export interface Playlist extends BaseEntity {
+export interface Playlist {
+  id: string;
+  created_at?: string;
+  updated_at?: string;
   name: string;
   description?: string;
   user_id: string;
-  tracks: MusicTrack[];
+  tracks: string[]; // track IDs
   is_public: boolean;
   cover_image?: string;
 }
@@ -254,7 +203,7 @@ export interface NavItem {
   icon?: React.ComponentType<{ className?: string }>;
   badge?: string | number;
   children?: NavItem[];
-  requiredRole?: User['role'];
+  requiredRole?: 'admin' | 'user' | 'moderator';
 }
 
 // Theme types

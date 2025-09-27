@@ -30,8 +30,6 @@ const MeditationCenter = lazy(() => import("./pages/MeditationCenter"));
 const UserSettings = lazy(() => import("./pages/UserSettings"));
 // ⚡ OPTIMIZATION & CLEANUP MASTER
 const PlatformCompleteOptimization = lazy(() => import("./pages/PlatformCompleteOptimization"));
-const PlatformOptimization = lazy(() => import("./pages/PlatformOptimization"));
-const DuplicateAnalysis = lazy(() => import("./pages/DuplicateAnalysis"));
 const Documentation = lazy(() => import("./pages/Documentation"));
 const Notifications = lazy(() => import("./pages/Notifications"));
 const FAQ = lazy(() => import("./pages/FAQ"));
@@ -177,7 +175,7 @@ const queryClient = new QueryClient({
 const AppWithUX = () => {
   const panic = usePanicMonitor();
 
-  console.log('🚀 AppWithUX rendering - optimized and cleaned');
+  // App rendering optimized and cleaned
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -235,7 +233,6 @@ const AppWithUX = () => {
                                                  <Route path="/settings" element={<UserSettings />} />
                                                  <Route path="/documentation" element={<Documentation />} />
                                                 <Route path="/platform-optimization" element={<PlatformCompleteOptimization />} />
-                                                <Route path="/duplicate-analysis" element={<PlatformCompleteOptimization />} />
                                                 <Route path="/admin/duplicate-analysis" element={<PlatformCompleteOptimization />} />
                                                  <Route path="/help" element={<HelpCenter />} />
                                                  <Route path="/features" element={<Navigate to="/platform-complete" replace />} />

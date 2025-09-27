@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { logger } from '@/utils/logger';
+import { logger } from '@/lib/logger';
 
 export type PanicState = 'normal' | 'warning' | 'critical' | 'recovering';
 
