@@ -11,13 +11,11 @@ import { AdvancedAccessibilityProvider } from './AdvancedAccessibilityEnhancer';
 export const UXOrchestrator: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
     <AdvancedAccessibilityProvider>
-      <SmartNavigationProvider>
-        <SmartLoadingProvider>
-          <IntelligentFeedbackProvider>
-            {children}
-          </IntelligentFeedbackProvider>
-        </SmartLoadingProvider>
-      </SmartNavigationProvider>
+      <SmartLoadingProvider>
+        <IntelligentFeedbackProvider>
+          {children}
+        </IntelligentFeedbackProvider>
+      </SmartLoadingProvider>
     </AdvancedAccessibilityProvider>
   );
 };

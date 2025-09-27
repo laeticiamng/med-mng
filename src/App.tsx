@@ -103,6 +103,7 @@ import { PanicOverlay } from '@/components/system/PanicOverlay';
 import { usePanicMonitor } from '@/hooks/usePanicMonitor';
 import { AnalyticsConsentManager } from '@/components/analytics/AnalyticsConsentManager';
 import { UXOrchestrator } from '@/components/ux/UXOrchestrator';
+import { SmartNavigationProvider } from '@/components/ux/SmartNavigationEnhancer';
 
 // Component to handle keyboard shortcuts inside Router context
 const AppKeyboardShortcuts = memo(() => {
@@ -196,8 +197,9 @@ const AppWithUX = () => {
                               onRetry={panic.retry}
                             />
                             <BrowserRouter>
-                              <NavigatorBridge />
-                              <AppKeyboardShortcuts />
+                              <SmartNavigationProvider>
+                                <NavigatorBridge />
+                                <AppKeyboardShortcuts />
                               <UXToastProvider>
                                   <SkipToMain />
                                   <SkipLinks />
@@ -327,6 +329,7 @@ const AppWithUX = () => {
                                   </div>
                                   <Sonner richColors closeButton />
                                 </UXToastProvider>
+                              </SmartNavigationProvider>
                             </BrowserRouter>
                           </GlobalOverflowWrapper>
                         </UndoRedoProvider>
