@@ -152,13 +152,13 @@ const PremiumHero = memo(() => {
 
   return (
     <motion.section 
-      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-background to-primary/3"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-background via-background to-primary/2"
       initial="initial"
       animate="animate"
       variants={staggerChildren}
     >
-      <div className="absolute inset-0 bg-grid-pattern opacity-5" />
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-gentle-float" />
+      <div className="absolute inset-0 bg-grid-pattern opacity-2" />
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-gentle-float" />
 
       <div className="medical-container relative z-10 text-center space-y-8">
         <motion.div variants={fadeInUp} className="space-y-4">
