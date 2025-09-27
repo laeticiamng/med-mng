@@ -95,39 +95,6 @@ export type Database = {
         }
         Relationships: []
       }
-      analytics_events: {
-        Row: {
-          content_ref: string | null
-          created_at: string
-          event_type: Database["public"]["Enums"]["analytics_event_type"]
-          id: string
-          metadata: Json
-          occurred_at: string
-          pseudonymized_user_id: string
-          session_id: string | null
-        }
-        Insert: {
-          content_ref?: string | null
-          created_at?: string
-          event_type: Database["public"]["Enums"]["analytics_event_type"]
-          id?: string
-          metadata?: Json
-          occurred_at?: string
-          pseudonymized_user_id: string
-          session_id?: string | null
-        }
-        Update: {
-          content_ref?: string | null
-          created_at?: string
-          event_type?: Database["public"]["Enums"]["analytics_event_type"]
-          id?: string
-          metadata?: Json
-          occurred_at?: string
-          pseudonymized_user_id?: string
-          session_id?: string | null
-        }
-        Relationships: []
-      }
       admin_changelog: {
         Row: {
           action_type: string
@@ -169,13 +136,6 @@ export type Database = {
           table_name?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "admin_changelog_admin_user_id_fkey"
-            columns: ["admin_user_id"]
-            isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
           {
             foreignKeyName: "admin_changelog_admin_user_id_fkey"
             columns: ["admin_user_id"]
@@ -229,13 +189,6 @@ export type Database = {
           user_satisfaction?: number | null
         }
         Relationships: [
-          {
-            foreignKeyName: "ai_coach_sessions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
           {
             foreignKeyName: "ai_coach_sessions_user_id_fkey"
             columns: ["user_id"]
@@ -444,13 +397,6 @@ export type Database = {
             foreignKeyName: "ambition_runs_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "ambition_runs_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
             referencedRelation: "user_activity_summary"
             referencedColumns: ["id"]
           },
@@ -491,6 +437,41 @@ export type Database = {
           version?: string
         }
         Relationships: []
+      }
+      assessments: {
+        Row: {
+          created_at: string
+          id: string
+          instrument: string
+          score_json: Json
+          ts: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          instrument: string
+          score_json: Json
+          ts?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          instrument?: string
+          score_json?: Json
+          ts?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assessments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_activity_summary"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       audio_tracks: {
         Row: {
@@ -686,13 +667,6 @@ export type Database = {
           status?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "audit_reports_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
           {
             foreignKeyName: "audit_reports_created_by_fkey"
             columns: ["created_by"]
@@ -930,13 +904,6 @@ export type Database = {
             foreignKeyName: "badges_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "badges_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
             referencedRelation: "user_activity_summary"
             referencedColumns: ["id"]
           },
@@ -1004,13 +971,6 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "bounce_battles_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
           {
             foreignKeyName: "bounce_battles_user_id_fkey"
             columns: ["user_id"]
@@ -1143,22 +1103,8 @@ export type Database = {
             foreignKeyName: "buddies_buddy_user_id_fkey"
             columns: ["buddy_user_id"]
             isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "buddies_buddy_user_id_fkey"
-            columns: ["buddy_user_id"]
-            isOneToOne: false
             referencedRelation: "user_activity_summary"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "buddies_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
           },
           {
             foreignKeyName: "buddies_user_id_fkey"
@@ -1309,89 +1255,164 @@ export type Database = {
             foreignKeyName: "cleanup_history_created_by_fkey"
             columns: ["created_by"]
             isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
+            referencedRelation: "user_activity_summary"
+            referencedColumns: ["id"]
           },
+        ]
+      }
+      clinical_consents: {
+        Row: {
+          granted_at: string | null
+          id: string
+          instrument_code: string
+          is_active: boolean | null
+          revoked_at: string | null
+          user_id: string
+        }
+        Insert: {
+          granted_at?: string | null
+          id?: string
+          instrument_code: string
+          is_active?: boolean | null
+          revoked_at?: string | null
+          user_id: string
+        }
+        Update: {
+          granted_at?: string | null
+          id?: string
+          instrument_code?: string
+          is_active?: boolean | null
+          revoked_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
           {
-            foreignKeyName: "cleanup_history_created_by_fkey"
-            columns: ["created_by"]
+            foreignKeyName: "clinical_consents_user_id_fkey"
+            columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "user_activity_summary"
             referencedColumns: ["id"]
           },
         ]
       }
-      content_library_collection_items: {
+      clinical_feature_flags: {
         Row: {
-          added_at: string
-          collection_id: string
-          library_item_id: string
-        }
-        Insert: {
-          added_at?: string
-          collection_id: string
-          library_item_id: string
-        }
-        Update: {
-          added_at?: string
-          collection_id?: string
-          library_item_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "content_library_collection_items_collection_id_fkey"
-            columns: ["collection_id"]
-            isOneToOne: false
-            referencedRelation: "content_library_collections"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "content_library_collection_items_library_item_id_fkey"
-            columns: ["library_item_id"]
-            isOneToOne: false
-            referencedRelation: "content_library_items"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      content_library_collections: {
-        Row: {
-          created_at: string
-          description: string | null
+          created_at: string | null
+          flag_name: string
           id: string
-          is_default: boolean | null
-          name: string
-          updated_at: string
-          user_id: string
+          instrument_domain: string | null
+          is_enabled: boolean | null
+          metadata: Json | null
+          rollout_percentage: number | null
+          updated_at: string | null
         }
         Insert: {
-          created_at?: string
-          description?: string | null
+          created_at?: string | null
+          flag_name: string
           id?: string
-          is_default?: boolean | null
-          name: string
-          updated_at?: string
-          user_id?: string
+          instrument_domain?: string | null
+          is_enabled?: boolean | null
+          metadata?: Json | null
+          rollout_percentage?: number | null
+          updated_at?: string | null
         }
         Update: {
-          created_at?: string
-          description?: string | null
+          created_at?: string | null
+          flag_name?: string
           id?: string
-          is_default?: boolean | null
+          instrument_domain?: string | null
+          is_enabled?: boolean | null
+          metadata?: Json | null
+          rollout_percentage?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      clinical_instruments: {
+        Row: {
+          cadence: string
+          code: string
+          created_at: string | null
+          domain: string
+          id: string
+          max_score: number
+          min_score: number
+          name: string
+          questions: Json
+          thresholds: Json
+          ttl_hours: number
+        }
+        Insert: {
+          cadence: string
+          code: string
+          created_at?: string | null
+          domain: string
+          id?: string
+          max_score: number
+          min_score: number
+          name: string
+          questions: Json
+          thresholds: Json
+          ttl_hours: number
+        }
+        Update: {
+          cadence?: string
+          code?: string
+          created_at?: string | null
+          domain?: string
+          id?: string
+          max_score?: number
+          min_score?: number
           name?: string
-          updated_at?: string
+          questions?: Json
+          thresholds?: Json
+          ttl_hours?: number
+        }
+        Relationships: []
+      }
+      clinical_responses: {
+        Row: {
+          cadence: string
+          context_data: Json | null
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          instrument_code: string
+          internal_level: number | null
+          internal_score: number | null
+          responses: Json
+          tags: string[] | null
+          user_id: string
+        }
+        Insert: {
+          cadence: string
+          context_data?: Json | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          instrument_code: string
+          internal_level?: number | null
+          internal_score?: number | null
+          responses: Json
+          tags?: string[] | null
+          user_id: string
+        }
+        Update: {
+          cadence?: string
+          context_data?: Json | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          instrument_code?: string
+          internal_level?: number | null
+          internal_score?: number | null
+          responses?: Json
+          tags?: string[] | null
           user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "content_library_collections_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "content_library_collections_user_id_fkey"
+            foreignKeyName: "clinical_responses_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "user_activity_summary"
@@ -1399,114 +1420,46 @@ export type Database = {
           },
         ]
       }
-      content_library_items: {
+      clinical_signals: {
         Row: {
-          created_at: string
-          description: string | null
+          created_at: string | null
+          domain: string
+          expires_at: string
           id: string
-          is_favorite: boolean | null
-          last_accessed_at: string | null
-          metadata: Json
-          resource_identifier: string
-          resource_type: string
-          search_vector: unknown
-          source_table: string
-          tags: string[] | null
-          title: string
-          updated_at: string
+          level: number
+          metadata: Json | null
+          module_context: string
+          source_instrument: string
           user_id: string
+          window_type: string
         }
         Insert: {
-          created_at?: string
-          description?: string | null
+          created_at?: string | null
+          domain: string
+          expires_at: string
           id?: string
-          is_favorite?: boolean | null
-          last_accessed_at?: string | null
-          metadata?: Json
-          resource_identifier: string
-          resource_type: string
-          source_table: string
-          tags?: string[] | null
-          title: string
-          updated_at?: string
-          user_id?: string
+          level: number
+          metadata?: Json | null
+          module_context: string
+          source_instrument: string
+          user_id: string
+          window_type: string
         }
         Update: {
-          created_at?: string
-          description?: string | null
+          created_at?: string | null
+          domain?: string
+          expires_at?: string
           id?: string
-          is_favorite?: boolean | null
-          last_accessed_at?: string | null
-          metadata?: Json
-          resource_identifier?: string
-          resource_type?: string
-          source_table?: string
-          tags?: string[] | null
-          title?: string
-          updated_at?: string
+          level?: number
+          metadata?: Json | null
+          module_context?: string
+          source_instrument?: string
           user_id?: string
+          window_type?: string
         }
         Relationships: [
           {
-            foreignKeyName: "content_library_items_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "content_library_items_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      study_notes: {
-        Row: {
-          content: string
-          created_at: string
-          id: string
-          item_code: string | null
-          last_reviewed_at: string | null
-          tags: string[] | null
-          title: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          content: string
-          created_at?: string
-          id?: string
-          item_code?: string | null
-          last_reviewed_at?: string | null
-          tags?: string[] | null
-          title: string
-          updated_at?: string
-          user_id?: string
-        }
-        Update: {
-          content?: string
-          created_at?: string
-          id?: string
-          item_code?: string | null
-          last_reviewed_at?: string | null
-          tags?: string[] | null
-          title?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "study_notes_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "study_notes_user_id_fkey"
+            foreignKeyName: "clinical_signals_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "user_activity_summary"
@@ -1652,13 +1605,6 @@ export type Database = {
             foreignKeyName: "comments_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "comments_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
             referencedRelation: "user_activity_summary"
             referencedColumns: ["id"]
           },
@@ -1739,13 +1685,6 @@ export type Database = {
             foreignKeyName: "data_exports_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "data_exports_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
             referencedRelation: "user_activity_summary"
             referencedColumns: ["id"]
           },
@@ -1798,13 +1737,6 @@ export type Database = {
           tables_checked?: string[]
         }
         Relationships: [
-          {
-            foreignKeyName: "data_integrity_checks_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
           {
             foreignKeyName: "data_integrity_checks_created_by_fkey"
             columns: ["created_by"]
@@ -2237,129 +2169,6 @@ export type Database = {
         }
         Relationships: []
       }
-      edn_session_plans: {
-        Row: {
-          created_at: string
-          duration_minutes: number
-          focus_item_code: string | null
-          focus_theme: string | null
-          id: string
-          plan: Json
-          title: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          duration_minutes?: number
-          focus_item_code?: string | null
-          focus_theme?: string | null
-          id?: string
-          plan: Json
-          title: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          duration_minutes?: number
-          focus_item_code?: string | null
-          focus_theme?: string | null
-          id?: string
-          plan?: Json
-          title?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      edn_sync_run_items: {
-        Row: {
-          after_counts: Json
-          before_counts: Json
-          created_at: string
-          diff_summary: Json
-          error_message: string | null
-          id: string
-          item_code: string | null
-          item_id: string | null
-          run_id: string
-          status: string
-        }
-        Insert: {
-          after_counts?: Json
-          before_counts?: Json
-          created_at?: string
-          diff_summary?: Json
-          error_message?: string | null
-          id?: string
-          item_code?: string | null
-          item_id?: string | null
-          run_id: string
-          status: string
-        }
-        Update: {
-          after_counts?: Json
-          before_counts?: Json
-          created_at?: string
-          diff_summary?: Json
-          error_message?: string | null
-          id?: string
-          item_code?: string | null
-          item_id?: string | null
-          run_id?: string
-          status?: string
-        }
-        Relationships: []
-      }
-      edn_sync_runs: {
-        Row: {
-          error_message: string | null
-          finished_at: string | null
-          id: string
-          items_failed: number
-          items_processed: number
-          items_unchanged: number
-          items_updated: number
-          metadata: Json
-          notes: string | null
-          source: string | null
-          started_at: string
-          status: string
-          triggered_by: string | null
-        }
-        Insert: {
-          error_message?: string | null
-          finished_at?: string | null
-          id?: string
-          items_failed?: number
-          items_processed?: number
-          items_unchanged?: number
-          items_updated?: number
-          metadata?: Json
-          notes?: string | null
-          source?: string | null
-          started_at?: string
-          status?: string
-          triggered_by?: string | null
-        }
-        Update: {
-          error_message?: string | null
-          finished_at?: string | null
-          id?: string
-          items_failed?: number
-          items_processed?: number
-          items_unchanged?: number
-          items_updated?: number
-          metadata?: Json
-          notes?: string | null
-          source?: string | null
-          started_at?: string
-          status?: string
-          triggered_by?: string | null
-        }
-        Relationships: []
-      }
       edn_items_immersive: {
         Row: {
           audio_ambiance: Json | null
@@ -2587,6 +2396,50 @@ export type Database = {
         }
         Relationships: []
       }
+      emotion_analysis_logs: {
+        Row: {
+          analysis_metadata: Json | null
+          arousal: number | null
+          confidence_score: number | null
+          created_at: string | null
+          detected_emotion: string
+          id: string
+          input_text: string | null
+          user_id: string | null
+          valence: number | null
+        }
+        Insert: {
+          analysis_metadata?: Json | null
+          arousal?: number | null
+          confidence_score?: number | null
+          created_at?: string | null
+          detected_emotion: string
+          id?: string
+          input_text?: string | null
+          user_id?: string | null
+          valence?: number | null
+        }
+        Update: {
+          analysis_metadata?: Json | null
+          arousal?: number | null
+          confidence_score?: number | null
+          created_at?: string | null
+          detected_emotion?: string
+          id?: string
+          input_text?: string | null
+          user_id?: string | null
+          valence?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "emotion_analysis_logs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_activity_summary"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       emotion_metrics: {
         Row: {
           confidence_score: number | null
@@ -2616,13 +2469,6 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "emotion_metrics_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
           {
             foreignKeyName: "emotion_metrics_user_id_fkey"
             columns: ["user_id"]
@@ -2700,13 +2546,6 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "emotions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
           {
             foreignKeyName: "emotions_user_id_fkey"
             columns: ["user_id"]
@@ -2828,22 +2667,8 @@ export type Database = {
             foreignKeyName: "emotionsroom_favorites_favorite_user_id_fkey"
             columns: ["favorite_user_id"]
             isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "emotionsroom_favorites_favorite_user_id_fkey"
-            columns: ["favorite_user_id"]
-            isOneToOne: false
             referencedRelation: "user_activity_summary"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "emotionsroom_favorites_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
           },
           {
             foreignKeyName: "emotionsroom_favorites_user_id_fkey"
@@ -2959,13 +2784,6 @@ export type Database = {
             foreignKeyName: "emotionsroom_profiles_id_fkey"
             columns: ["id"]
             isOneToOne: true
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "emotionsroom_profiles_id_fkey"
-            columns: ["id"]
-            isOneToOne: true
             referencedRelation: "user_activity_summary"
             referencedColumns: ["id"]
           },
@@ -3048,13 +2866,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "emotionsroom_rooms"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "emotionsroom_sessions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
           },
           {
             foreignKeyName: "emotionsroom_sessions_user_id_fkey"
@@ -3252,13 +3063,6 @@ export type Database = {
             foreignKeyName: "error_songs_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "error_songs_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
             referencedRelation: "user_activity_summary"
             referencedColumns: ["id"]
           },
@@ -3287,13 +3091,6 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "exports_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
           {
             foreignKeyName: "exports_user_id_fkey"
             columns: ["user_id"]
@@ -3446,13 +3243,6 @@ export type Database = {
             foreignKeyName: "gamification_activities_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "gamification_activities_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
             referencedRelation: "user_activity_summary"
             referencedColumns: ["id"]
           },
@@ -3499,15 +3289,9 @@ export type Database = {
           generation_status: string | null
           id: string
           image_url: string | null
-          item_id: string
-          metadata: Json
-          mode: "A" | "B" | "AB"
-          openai_prompt_hash: string | null
+          metadata: Json | null
           original_task_id: string | null
-          status: string | null
           stream_url: string | null
-          style: string
-          suno_job_id: string | null
           suno_track_id: string | null
           task_id: string | null
           title: string
@@ -3521,15 +3305,9 @@ export type Database = {
           generation_status?: string | null
           id?: string
           image_url?: string | null
-          item_id: string
-          metadata?: Json
-          mode?: "A" | "B" | "AB"
-          openai_prompt_hash?: string | null
+          metadata?: Json | null
           original_task_id?: string | null
-          status?: string | null
           stream_url?: string | null
-          style?: string
-          suno_job_id?: string | null
           suno_track_id?: string | null
           task_id?: string | null
           title: string
@@ -3543,30 +3321,16 @@ export type Database = {
           generation_status?: string | null
           id?: string
           image_url?: string | null
-          item_id?: string
-          metadata?: Json
-          mode?: "A" | "B" | "AB"
-          openai_prompt_hash?: string | null
+          metadata?: Json | null
           original_task_id?: string | null
-          status?: string | null
           stream_url?: string | null
-          style?: string
-          suno_job_id?: string | null
           suno_track_id?: string | null
           task_id?: string | null
           title?: string
           updated_at?: string
           user_id?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "generated_music_tracks_item_id_fkey",
-            columns: ["item_id"],
-            isOneToOne: false,
-            referencedRelation: "edn_items_immersive",
-            referencedColumns: ["id"],
-          },
-        ]
+        Relationships: []
       }
       generated_voice_tracks: {
         Row: {
@@ -3637,13 +3401,6 @@ export type Database = {
             foreignKeyName: "goals_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "goals_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
             referencedRelation: "user_activity_summary"
             referencedColumns: ["id"]
           },
@@ -3691,13 +3448,6 @@ export type Database = {
             foreignKeyName: "google_sheets_integrations_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "google_sheets_integrations_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
             referencedRelation: "user_activity_summary"
             referencedColumns: ["id"]
           },
@@ -3721,6 +3471,42 @@ export type Database = {
           members?: string[] | null
           name?: string
           topic?: string
+        }
+        Relationships: []
+      }
+      hr_aggregates: {
+        Row: {
+          created_at: string | null
+          domain: string
+          id: string
+          min_n_met: boolean | null
+          participant_count: number
+          period_end: string
+          period_start: string
+          team_id: string
+          verbalization: string
+        }
+        Insert: {
+          created_at?: string | null
+          domain: string
+          id?: string
+          min_n_met?: boolean | null
+          participant_count: number
+          period_end: string
+          period_start: string
+          team_id: string
+          verbalization: string
+        }
+        Update: {
+          created_at?: string | null
+          domain?: string
+          id?: string
+          min_n_met?: boolean | null
+          participant_count?: number
+          period_end?: string
+          period_start?: string
+          team_id?: string
+          verbalization?: string
         }
         Relationships: []
       }
@@ -3807,13 +3593,6 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "import_batches_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
           {
             foreignKeyName: "import_batches_user_id_fkey"
             columns: ["user_id"]
@@ -4007,17 +3786,6 @@ export type Database = {
           },
         ]
       }
-      items_completeness: {
-        Row: {
-          item_id: string
-          has_a: boolean
-          has_b: boolean
-          oic_count: number
-          oic_expected: number
-          status: string
-        }
-        Relationships: []
-      }
       items_completeness_history: {
         Row: {
           completeness_score: number
@@ -4150,13 +3918,6 @@ export type Database = {
             foreignKeyName: "jam_participants_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "jam_participants_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
             referencedRelation: "user_activity_summary"
             referencedColumns: ["id"]
           },
@@ -4206,13 +3967,6 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "jam_rooms_creator_id_fkey"
-            columns: ["creator_id"]
-            isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
           {
             foreignKeyName: "jam_rooms_creator_id_fkey"
             columns: ["creator_id"]
@@ -4300,13 +4054,6 @@ export type Database = {
             foreignKeyName: "journal_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "journal_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
             referencedRelation: "user_activity_summary"
             referencedColumns: ["id"]
           },
@@ -4339,78 +4086,8 @@ export type Database = {
             foreignKeyName: "journal_entries_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "journal_entries_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
             referencedRelation: "user_activity_summary"
             referencedColumns: ["id"]
-          },
-        ]
-      }
-      lyrics_alignment_logs: {
-        Row: {
-          confidence: number | null
-          created_at: string
-          created_by: string | null
-          duration_ms: number | null
-          id: string
-          item_id: string
-          metadata: Json
-          method: string
-          notes: string | null
-          run_at: string
-          segment_count: number | null
-          track_id: string
-          updated_at: string
-        }
-        Insert: {
-          confidence?: number | null
-          created_at?: string
-          created_by?: string | null
-          duration_ms?: number | null
-          id?: string
-          item_id: string
-          metadata?: Json
-          method?: string
-          notes?: string | null
-          run_at?: string
-          segment_count?: number | null
-          track_id: string
-          updated_at?: string
-        }
-        Update: {
-          confidence?: number | null
-          created_at?: string
-          created_by?: string | null
-          duration_ms?: number | null
-          id?: string
-          item_id?: string
-          metadata?: Json
-          method?: string
-          notes?: string | null
-          run_at?: string
-          segment_count?: number | null
-          track_id?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "lyrics_alignment_logs_item_id_fkey",
-            columns: ["item_id"],
-            isOneToOne: false,
-            referencedRelation: "edn_items_immersive",
-            referencedColumns: ["id"],
-          },
-          {
-            foreignKeyName: "lyrics_alignment_logs_track_id_fkey",
-            columns: ["track_id"],
-            isOneToOne: false,
-            referencedRelation: "generated_music_tracks",
-            referencedColumns: ["id"],
           },
         ]
       }
@@ -4464,57 +4141,6 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
-      }
-      lyrics_segments: {
-        Row: {
-          created_at: string
-          end_ms: number
-          item_id: string
-          idx: number
-          role: string | null
-          start_ms: number
-          text: string
-          track_id: string
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          end_ms: number
-          item_id: string
-          idx: number
-          role?: string | null
-          start_ms: number
-          text: string
-          track_id: string
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          end_ms?: number
-          item_id?: string
-          idx?: number
-          role?: string | null
-          start_ms?: number
-          text?: string
-          track_id?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "lyrics_segments_item_id_fkey",
-            columns: ["item_id"],
-            isOneToOne: false,
-            referencedRelation: "edn_items_immersive",
-            referencedColumns: ["id"],
-          },
-          {
-            foreignKeyName: "lyrics_segments_track_id_fkey",
-            columns: ["track_id"],
-            isOneToOne: false,
-            referencedRelation: "generated_music_tracks",
-            referencedColumns: ["id"],
-          },
-        ]
       }
       lyrics_texts: {
         Row: {
@@ -4632,13 +4258,6 @@ export type Database = {
             foreignKeyName: "med_mng_audio_access_logs_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "med_mng_audio_access_logs_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
             referencedRelation: "user_activity_summary"
             referencedColumns: ["id"]
           },
@@ -4709,13 +4328,6 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "med_mng_chat_interactions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
           {
             foreignKeyName: "med_mng_chat_interactions_user_id_fkey"
             columns: ["user_id"]
@@ -4827,13 +4439,6 @@ export type Database = {
             foreignKeyName: "med_mng_content_master_approved_by_fkey"
             columns: ["approved_by"]
             isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "med_mng_content_master_approved_by_fkey"
-            columns: ["approved_by"]
-            isOneToOne: false
             referencedRelation: "user_activity_summary"
             referencedColumns: ["id"]
           },
@@ -4880,13 +4485,6 @@ export type Database = {
           viewed_at?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "med_mng_content_views_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
           {
             foreignKeyName: "med_mng_content_views_user_id_fkey"
             columns: ["user_id"]
@@ -4950,13 +4548,6 @@ export type Database = {
             foreignKeyName: "med_mng_generation_alerts_acknowledged_by_fkey"
             columns: ["acknowledged_by"]
             isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "med_mng_generation_alerts_acknowledged_by_fkey"
-            columns: ["acknowledged_by"]
-            isOneToOne: false
             referencedRelation: "user_activity_summary"
             referencedColumns: ["id"]
           },
@@ -5010,13 +4601,6 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "med_mng_generation_logs_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
           {
             foreignKeyName: "med_mng_generation_logs_user_id_fkey"
             columns: ["user_id"]
@@ -5136,13 +4720,6 @@ export type Database = {
             foreignKeyName: "med_mng_listening_sessions_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "med_mng_listening_sessions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
             referencedRelation: "user_activity_summary"
             referencedColumns: ["id"]
           },
@@ -5187,13 +4764,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "med_mng_view_library"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "med_mng_lyrics_access_logs_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
           },
           {
             foreignKeyName: "med_mng_lyrics_access_logs_user_id_fkey"
@@ -5299,13 +4869,6 @@ export type Database = {
             foreignKeyName: "med_mng_music_generation_logs_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "med_mng_music_generation_logs_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
             referencedRelation: "user_activity_summary"
             referencedColumns: ["id"]
           },
@@ -5374,13 +4937,6 @@ export type Database = {
             foreignKeyName: "med_mng_playlist_songs_added_by_fkey"
             columns: ["added_by"]
             isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "med_mng_playlist_songs_added_by_fkey"
-            columns: ["added_by"]
-            isOneToOne: false
             referencedRelation: "user_activity_summary"
             referencedColumns: ["id"]
           },
@@ -5439,13 +4995,6 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "med_mng_playlists_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
           {
             foreignKeyName: "med_mng_playlists_user_id_fkey"
             columns: ["user_id"]
@@ -5535,13 +5084,6 @@ export type Database = {
             foreignKeyName: "med_mng_song_likes_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "med_mng_song_likes_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
             referencedRelation: "user_activity_summary"
             referencedColumns: ["id"]
           },
@@ -5582,13 +5124,6 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "med_mng_songs_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
           {
             foreignKeyName: "med_mng_songs_user_id_fkey"
             columns: ["user_id"]
@@ -5636,13 +5171,6 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "med_mng_subscriptions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: true
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
           {
             foreignKeyName: "med_mng_subscriptions_user_id_fkey"
             columns: ["user_id"]
@@ -5769,13 +5297,6 @@ export type Database = {
             foreignKeyName: "med_mng_user_settings_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: true
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "med_mng_user_settings_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: true
             referencedRelation: "user_activity_summary"
             referencedColumns: ["id"]
           },
@@ -5819,13 +5340,6 @@ export type Database = {
             foreignKeyName: "med_mng_user_songs_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "med_mng_user_songs_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
             referencedRelation: "user_activity_summary"
             referencedColumns: ["id"]
           },
@@ -5863,13 +5377,6 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "medical_learning_analytics_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
           {
             foreignKeyName: "medical_learning_analytics_user_id_fkey"
             columns: ["user_id"]
@@ -5936,13 +5443,6 @@ export type Database = {
             foreignKeyName: "metrics_bubble_beat_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "metrics_bubble_beat_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
             referencedRelation: "user_activity_summary"
             referencedColumns: ["id"]
           },
@@ -5971,13 +5471,6 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "metrics_emotion_scan_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
           {
             foreignKeyName: "metrics_emotion_scan_user_id_fkey"
             columns: ["user_id"]
@@ -6014,13 +5507,6 @@ export type Database = {
             foreignKeyName: "metrics_face_filter_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "metrics_face_filter_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
             referencedRelation: "user_activity_summary"
             referencedColumns: ["id"]
           },
@@ -6049,13 +5535,6 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "metrics_flash_glow_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
           {
             foreignKeyName: "metrics_flash_glow_user_id_fkey"
             columns: ["user_id"]
@@ -6092,13 +5571,6 @@ export type Database = {
             foreignKeyName: "metrics_vr_breath_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "metrics_vr_breath_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
             referencedRelation: "user_activity_summary"
             referencedColumns: ["id"]
           },
@@ -6127,13 +5599,6 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "metrics_vr_galaxy_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
           {
             foreignKeyName: "metrics_vr_galaxy_user_id_fkey"
             columns: ["user_id"]
@@ -6185,6 +5650,111 @@ export type Database = {
         }
         Relationships: []
       }
+      music_completion_logs: {
+        Row: {
+          completion_percentage: number | null
+          completion_timestamp: string | null
+          id: string
+          listen_duration: number | null
+          track_id: string
+          user_id: string | null
+        }
+        Insert: {
+          completion_percentage?: number | null
+          completion_timestamp?: string | null
+          id?: string
+          listen_duration?: number | null
+          track_id: string
+          user_id?: string | null
+        }
+        Update: {
+          completion_percentage?: number | null
+          completion_timestamp?: string | null
+          id?: string
+          listen_duration?: number | null
+          track_id?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "music_completion_logs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_activity_summary"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      music_favorites: {
+        Row: {
+          created_at: string
+          id: string
+          meta: Json
+          track_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          meta?: Json
+          track_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          meta?: Json
+          track_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "music_favorites_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_activity_summary"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      music_generation_logs: {
+        Row: {
+          created_at: string | null
+          emotion: string
+          generation_metadata: Json | null
+          id: string
+          intensity: number | null
+          tracks_generated: number | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          emotion: string
+          generation_metadata?: Json | null
+          id?: string
+          intensity?: number | null
+          tracks_generated?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          emotion?: string
+          generation_metadata?: Json | null
+          id?: string
+          intensity?: number | null
+          tracks_generated?: number | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "music_generation_logs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_activity_summary"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       music_generation_usage: {
         Row: {
           created_at: string
@@ -6228,11 +5798,39 @@ export type Database = {
             foreignKeyName: "music_generation_usage_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
+            referencedRelation: "user_activity_summary"
+            referencedColumns: ["id"]
           },
+        ]
+      }
+      music_play_logs: {
+        Row: {
+          emotion_context: string | null
+          id: string
+          play_timestamp: string | null
+          session_metadata: Json | null
+          track_id: string
+          user_id: string | null
+        }
+        Insert: {
+          emotion_context?: string | null
+          id?: string
+          play_timestamp?: string | null
+          session_metadata?: Json | null
+          track_id: string
+          user_id?: string | null
+        }
+        Update: {
+          emotion_context?: string | null
+          id?: string
+          play_timestamp?: string | null
+          session_metadata?: Json | null
+          track_id?: string
+          user_id?: string | null
+        }
+        Relationships: [
           {
-            foreignKeyName: "music_generation_usage_user_id_fkey"
+            foreignKeyName: "music_play_logs_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "user_activity_summary"
@@ -6288,11 +5886,39 @@ export type Database = {
             foreignKeyName: "music_playlists_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
+            referencedRelation: "user_activity_summary"
+            referencedColumns: ["id"]
           },
+        ]
+      }
+      music_recent: {
+        Row: {
+          id: string
+          meta: Json
+          position_sec: number
+          track_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          meta?: Json
+          position_sec?: number
+          track_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          meta?: Json
+          position_sec?: number
+          track_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
           {
-            foreignKeyName: "music_playlists_user_id_fkey"
+            foreignKeyName: "music_recent_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "user_activity_summary"
@@ -6327,11 +5953,39 @@ export type Database = {
             foreignKeyName: "music_sessions_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
+            referencedRelation: "user_activity_summary"
+            referencedColumns: ["id"]
           },
+        ]
+      }
+      music_skip_logs: {
+        Row: {
+          id: string
+          skip_position: number | null
+          skip_reason: string | null
+          skip_timestamp: string | null
+          track_id: string
+          user_id: string | null
+        }
+        Insert: {
+          id?: string
+          skip_position?: number | null
+          skip_reason?: string | null
+          skip_timestamp?: string | null
+          track_id: string
+          user_id?: string | null
+        }
+        Update: {
+          id?: string
+          skip_position?: number | null
+          skip_reason?: string | null
+          skip_timestamp?: string | null
+          track_id?: string
+          user_id?: string | null
+        }
+        Relationships: [
           {
-            foreignKeyName: "music_sessions_user_id_fkey"
+            foreignKeyName: "music_skip_logs_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "user_activity_summary"
@@ -6380,13 +6034,6 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "notification_preferences_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
           {
             foreignKeyName: "notification_preferences_user_id_fkey"
             columns: ["user_id"]
@@ -6509,13 +6156,6 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "notifications_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
           {
             foreignKeyName: "notifications_user_id_fkey"
             columns: ["user_id"]
@@ -6855,6 +6495,36 @@ export type Database = {
         }
         Relationships: []
       }
+      org_assess_rollups: {
+        Row: {
+          created_at: string
+          id: string
+          instrument: string
+          n: number
+          org_id: string
+          period: string
+          text_summary: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          instrument: string
+          n: number
+          org_id: string
+          period: string
+          text_summary?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          instrument?: string
+          n?: number
+          org_id?: string
+          period?: string
+          text_summary?: string | null
+        }
+        Relationships: []
+      }
       org_memberships: {
         Row: {
           created_at: string
@@ -6887,13 +6557,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "organizations"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "org_memberships_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
           },
           {
             foreignKeyName: "org_memberships_user_id_fkey"
@@ -6961,13 +6624,6 @@ export type Database = {
             foreignKeyName: "page_analytics_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "page_analytics_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
             referencedRelation: "user_activity_summary"
             referencedColumns: ["id"]
           },
@@ -7024,22 +6680,8 @@ export type Database = {
             foreignKeyName: "pending_corrections_requested_by_fkey"
             columns: ["requested_by"]
             isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "pending_corrections_requested_by_fkey"
-            columns: ["requested_by"]
-            isOneToOne: false
             referencedRelation: "user_activity_summary"
             referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "pending_corrections_reviewed_by_fkey"
-            columns: ["reviewed_by"]
-            isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
           },
           {
             foreignKeyName: "pending_corrections_reviewed_by_fkey"
@@ -7094,13 +6736,6 @@ export type Database = {
           title?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "performance_alerts_acknowledged_by_fkey"
-            columns: ["acknowledged_by"]
-            isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
           {
             foreignKeyName: "performance_alerts_acknowledged_by_fkey"
             columns: ["acknowledged_by"]
@@ -7199,13 +6834,6 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "performance_metrics_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
           {
             foreignKeyName: "performance_metrics_user_id_fkey"
             columns: ["user_id"]
@@ -7328,13 +6956,6 @@ export type Database = {
             foreignKeyName: "posts_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "posts_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
             referencedRelation: "user_activity_summary"
             referencedColumns: ["id"]
           },
@@ -7375,13 +6996,6 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "privacy_consents_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
           {
             foreignKeyName: "privacy_consents_user_id_fkey"
             columns: ["user_id"]
@@ -7457,13 +7071,6 @@ export type Database = {
             foreignKeyName: "profiles_id_fkey"
             columns: ["id"]
             isOneToOne: true
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "profiles_id_fkey"
-            columns: ["id"]
-            isOneToOne: true
             referencedRelation: "user_activity_summary"
             referencedColumns: ["id"]
           },
@@ -7495,13 +7102,6 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "push_subscriptions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
           {
             foreignKeyName: "push_subscriptions_user_id_fkey"
             columns: ["user_id"]
@@ -7609,13 +7209,6 @@ export type Database = {
             foreignKeyName: "qcm_sessions_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "qcm_sessions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
             referencedRelation: "user_activity_summary"
             referencedColumns: ["id"]
           },
@@ -7665,13 +7258,6 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "quiz_sessions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
           {
             foreignKeyName: "quiz_sessions_user_id_fkey"
             columns: ["user_id"]
@@ -7743,13 +7329,6 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "recording_projects_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
           {
             foreignKeyName: "recording_projects_user_id_fkey"
             columns: ["user_id"]
@@ -8047,13 +7626,6 @@ export type Database = {
             foreignKeyName: "streaming_access_logs_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "streaming_access_logs_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
             referencedRelation: "user_activity_summary"
             referencedColumns: ["id"]
           },
@@ -8140,13 +7712,6 @@ export type Database = {
             foreignKeyName: "subscribers_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "subscribers_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
             referencedRelation: "user_activity_summary"
             referencedColumns: ["id"]
           },
@@ -8200,6 +7765,47 @@ export type Database = {
         }
         Relationships: []
       }
+      ui_suggestion_cache: {
+        Row: {
+          created_at: string | null
+          cta_route: string | null
+          display_context: string
+          expires_at: string
+          id: string
+          label_text: string
+          priority: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          cta_route?: string | null
+          display_context: string
+          expires_at: string
+          id?: string
+          label_text: string
+          priority?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          cta_route?: string | null
+          display_context?: string
+          expires_at?: string
+          id?: string
+          label_text?: string
+          priority?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ui_suggestion_cache_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_activity_summary"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       unified_music_generation: {
         Row: {
           audio_url: string | null
@@ -8250,13 +7856,6 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "unified_music_generation_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
           {
             foreignKeyName: "unified_music_generation_user_id_fkey"
             columns: ["user_id"]
@@ -8490,39 +8089,6 @@ export type Database = {
         }
         Relationships: []
       }
-      user_privacy_preferences: {
-        Row: {
-          analytics_opt_in: boolean
-          consent_updated_at: string
-          consent_version: string
-          created_at: string
-          pseudonymized_user_id: string
-          retention_days: number
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          analytics_opt_in?: boolean
-          consent_updated_at?: string
-          consent_version?: string
-          created_at?: string
-          pseudonymized_user_id?: string
-          retention_days?: number
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          analytics_opt_in?: boolean
-          consent_updated_at?: string
-          consent_version?: string
-          created_at?: string
-          pseudonymized_user_id?: string
-          retention_days?: number
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       user_analytics: {
         Row: {
           analytics_data: Json | null
@@ -8590,11 +8156,33 @@ export type Database = {
             foreignKeyName: "user_favorite_flashcards_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
+            referencedRelation: "user_activity_summary"
+            referencedColumns: ["id"]
           },
+        ]
+      }
+      user_favorite_tracks: {
+        Row: {
+          favorited_at: string | null
+          id: string
+          track_id: string
+          user_id: string | null
+        }
+        Insert: {
+          favorited_at?: string | null
+          id?: string
+          track_id: string
+          user_id?: string | null
+        }
+        Update: {
+          favorited_at?: string | null
+          id?: string
+          track_id?: string
+          user_id?: string | null
+        }
+        Relationships: [
           {
-            foreignKeyName: "user_favorite_flashcards_user_id_fkey"
+            foreignKeyName: "user_favorite_tracks_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "user_activity_summary"
@@ -8640,13 +8228,6 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "user_generated_music_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
           {
             foreignKeyName: "user_generated_music_user_id_fkey"
             columns: ["user_id"]
@@ -8706,6 +8287,44 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      user_music_preferences: {
+        Row: {
+          created_at: string | null
+          id: string
+          last_played_emotion: string | null
+          preferred_emotions: string[] | null
+          total_plays: number | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          last_played_emotion?: string | null
+          preferred_emotions?: string[] | null
+          total_plays?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          last_played_emotion?: string | null
+          preferred_emotions?: string[] | null
+          total_plays?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_music_preferences_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "user_activity_summary"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_notifications: {
         Row: {
@@ -8797,13 +8416,6 @@ export type Database = {
             foreignKeyName: "user_playlists_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "user_playlists_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
             referencedRelation: "user_activity_summary"
             referencedColumns: ["id"]
           },
@@ -8881,11 +8493,42 @@ export type Database = {
             foreignKeyName: "user_preferences_advanced_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: true
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
+            referencedRelation: "user_activity_summary"
+            referencedColumns: ["id"]
           },
+        ]
+      }
+      user_privacy_preferences: {
+        Row: {
+          analytics_opt_in: boolean
+          consent_version: string
+          created_at: string
+          pseudonymized_user_id: string
+          retention_days: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          analytics_opt_in?: boolean
+          consent_version?: string
+          created_at?: string
+          pseudonymized_user_id?: string
+          retention_days?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          analytics_opt_in?: boolean
+          consent_version?: string
+          created_at?: string
+          pseudonymized_user_id?: string
+          retention_days?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
           {
-            foreignKeyName: "user_preferences_advanced_user_id_fkey"
+            foreignKeyName: "user_privacy_preferences_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: true
             referencedRelation: "user_activity_summary"
@@ -9043,13 +8686,6 @@ export type Database = {
             foreignKeyName: "user_quotas_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: true
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "user_quotas_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: true
             referencedRelation: "user_activity_summary"
             referencedColumns: ["id"]
           },
@@ -9126,13 +8762,6 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "user_sessions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
           {
             foreignKeyName: "user_sessions_user_id_fkey"
             columns: ["user_id"]
@@ -9227,13 +8856,6 @@ export type Database = {
             foreignKeyName: "user_subscriptions_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "user_subscriptions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
             referencedRelation: "user_activity_summary"
             referencedColumns: ["id"]
           },
@@ -9283,13 +8905,6 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: [
-          {
-            foreignKeyName: "voice_journal_entries_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
           {
             foreignKeyName: "voice_journal_entries_user_id_fkey"
             columns: ["user_id"]
@@ -9350,55 +8965,6 @@ export type Database = {
         }
         Relationships: []
       }
-      content_library_catalog: {
-        Row: {
-          created_at: string | null
-          description: string | null
-          is_public: boolean | null
-          metadata: Json | null
-          owner_id: string | null
-          resource_identifier: string | null
-          resource_type: string | null
-          source_table: string | null
-          tags: string[] | null
-          title: string | null
-          updated_at: string | null
-        }
-        Relationships: []
-      }
-      item_with_competences: {
-        Row: {
-          competences: Json | null
-          item_code: string
-          item_id: string
-          slug: string | null
-          title: string
-        }
-        Relationships: []
-      }
-      edn_unified_materialized: {
-        Row: {
-          competences_oic: Json | null
-          created_at: string | null
-          domaine_medical: string | null
-          ecos_contexts: Json | null
-          item_code: string | null
-          item_id: string | null
-          mots_cles: string[] | null
-          niveau_complexite: string | null
-          rang_a_competence_count: number | null
-          rang_b_competence_count: number | null
-          slug: string | null
-          specialite: string | null
-          tableaux: Json | null
-          title: string | null
-          total_competence_count: number | null
-          updated_at: string | null
-          valeurs_professionnelles: Json | null
-          tags_medicaux: string[] | null
-        }
-        Relationships: []
-      }
       lyrics_texts_latest: {
         Row: {
           content: string | null
@@ -9421,19 +8987,6 @@ export type Database = {
           id: string | null
           in_library: boolean | null
           title: string | null
-        }
-        Relationships: []
-      }
-      medical_dashboard_view: {
-        Row: {
-          avg_quiz_score: number | null
-          completed_items: number | null
-          email: string | null
-          last_activity: string | null
-          music_items: number | null
-          studied_items: number | null
-          total_study_time: number | null
-          user_id: string | null
         }
         Relationships: []
       }
@@ -9514,13 +9067,6 @@ export type Database = {
             foreignKeyName: "ai_coach_sessions_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "medical_dashboard_view"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "ai_coach_sessions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
             referencedRelation: "user_activity_summary"
             referencedColumns: ["id"]
           },
@@ -9564,25 +9110,9 @@ export type Database = {
       }
     }
     Functions: {
-      add_library_item_to_collection: {
-        Args: {
-          p_collection_id: string
-          p_resource_identifier: string
-          p_resource_type: string
-        }
-        Returns: Database["public"]["Tables"]["content_library_items"]["Row"]
-      }
       accept_invitation: {
         Args: { token_param: string }
         Returns: boolean
-      }
-      apply_edn_sync: {
-        Args: {
-          payload: Json
-          source?: string
-          triggered_by?: string
-        }
-        Returns: Json
       }
       audit_and_correct_edn_content: {
         Args: Record<PropertyKey, never>
@@ -9617,37 +9147,12 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
-      get_analytics_dashboard: {
-        Args: {
-          p_timeframe?: string
-        }
-        Returns: Json
-      }
-      log_analytics_event: {
-        Args: {
-          p_user_id: string
-          p_event_type: Database["public"]["Enums"]["analytics_event_type"]
-          p_metadata?: Json
-          p_content_ref?: string | null
-          p_session_id?: string | null
-        }
-        Returns: string | null
-      }
-      purge_expired_analytics_events: {
-        Args: Record<PropertyKey, never>
-        Returns: number
-      }
-      set_analytics_opt_in: {
-        Args: {
-          p_user_id: string
-          p_opt_in: boolean
-          p_consent_version?: string
-          p_retention_days?: number
-        }
-        Returns: Database["public"]["Tables"]["user_privacy_preferences"]["Row"]
-      }
       calculate_completeness_score: {
         Args: { item_data: Json } | { item_id: string }
+        Returns: number
+      }
+      calculate_internal_level: {
+        Args: { instrument_code: string; score: number }
         Returns: number
       }
       calculate_item_completeness_score: {
@@ -9664,13 +9169,6 @@ export type Database = {
       calculate_sla_metrics: {
         Args: Record<PropertyKey, never>
         Returns: undefined
-      }
-      create_library_collection: {
-        Args: {
-          p_description?: string | null
-          p_name: string
-        }
-        Returns: Database["public"]["Tables"]["content_library_collections"]["Row"]
       }
       check_music_generation_quota: {
         Args: { user_uuid: string }
@@ -9708,6 +9206,10 @@ export type Database = {
       cleanup_duplicates: {
         Args: Record<PropertyKey, never>
         Returns: Json
+      }
+      cleanup_expired_clinical_data: {
+        Args: Record<PropertyKey, never>
+        Returns: number
       }
       cleanup_expired_rate_limit_counters: {
         Args: Record<PropertyKey, never>
@@ -9756,62 +9258,6 @@ export type Database = {
       cleanup_security_scan_false_positives: {
         Args: Record<PropertyKey, never>
         Returns: number
-      }
-      get_content_library: {
-        Args: {
-          p_collection_id?: string | null
-          p_limit?: number
-          p_offset?: number
-          p_only_favorites?: boolean
-          p_item_code?: string | null
-          p_mode?: string | null
-          p_search?: string | null
-          p_sort?: string
-          p_types?: string[] | null
-          p_style?: string | null
-        }
-        Returns: {
-          collections: Json
-          created_at: string
-          description: string | null
-          in_library: boolean
-          is_favorite: boolean
-          is_public: boolean
-          metadata: Json
-          owner_id: string | null
-          resource_identifier: string
-          resource_type: string
-          saved_at: string | null
-          source_table: string
-          tags: string[] | null
-          title: string
-          total_count: number | null
-          updated_at: string
-        }[]
-      }
-      remove_content_library_item: {
-        Args: {
-          p_resource_identifier: string
-          p_resource_type: string
-        }
-        Returns: undefined
-      }
-      remove_library_item_from_collection: {
-        Args: {
-          p_collection_id: string
-          p_resource_identifier: string
-          p_resource_type: string
-        }
-        Returns: undefined
-      }
-      save_content_library_item: {
-        Args: {
-          p_collection_ids?: string[] | null
-          p_is_favorite?: boolean | null
-          p_resource_identifier: string
-          p_resource_type: string
-        }
-        Returns: Database["public"]["Tables"]["content_library_items"]["Row"]
       }
       complete_all_items_with_competences: {
         Args: Record<PropertyKey, never>
@@ -10116,6 +9562,10 @@ export type Database = {
           total_items: number
         }[]
       }
+      get_medical_dashboard_stats: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
       get_oic_competences_rapport: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -10168,6 +9618,10 @@ export type Database = {
         }[]
       }
       get_security_status: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
+      }
+      get_system_health_status: {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
@@ -10303,7 +9757,7 @@ export type Database = {
               p_response_status?: string
               p_service_type: string
             }
-        Returns: undefined
+        Returns: string
       }
       log_lyrics_access: {
         Args: {
@@ -10348,7 +9802,7 @@ export type Database = {
               p_user_agent?: string
               p_user_id?: string
             }
-        Returns: undefined
+        Returns: string
       }
       log_security_finding: {
         Args: {
@@ -10462,10 +9916,6 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
-      refresh_edn_unified_materialized: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
       med_mng_refund_credits: {
         Args: { p_credits: number; p_user_id: string }
         Returns: boolean
@@ -10489,32 +9939,6 @@ export type Database = {
       med_mng_track_listening: {
         Args: { p_listen_duration?: number; p_song_id: string }
         Returns: undefined
-      }
-      get_items_completeness: {
-        Args: {
-          p_status?: string | null
-          p_limit?: number | null
-          p_offset?: number | null
-        }
-        Returns: {
-          item_id: string
-          has_a: boolean
-          has_b: boolean
-          oic_count: number
-          oic_expected: number
-          status: string
-        }[]
-      }
-      get_items_completeness_summary: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          total_items: number
-          complete_items: number
-          partial_items: number
-          missing_items: number
-          completion_rate: number
-          average_oic_ratio: number
-        }[]
       }
       merge_all_tables_into_complete: {
         Args: Record<PropertyKey, never>
@@ -10552,6 +9976,10 @@ export type Database = {
           total_rang_a: number
           total_rang_b: number
         }[]
+      }
+      panic_overlay_get_state: {
+        Args: Record<PropertyKey, never>
+        Returns: Json
       }
       reset_monthly_quotas: {
         Args: Record<PropertyKey, never>
@@ -10603,6 +10031,23 @@ export type Database = {
       security_validation_final: {
         Args: Record<PropertyKey, never>
         Returns: Json
+      }
+      set_analytics_opt_in: {
+        Args: {
+          p_consent_version?: string
+          p_opt_in: boolean
+          p_retention_days?: number
+          p_user_id: string
+        }
+        Returns: {
+          analytics_opt_in: boolean
+          consent_version: string
+          created_at: string
+          pseudonymized_user_id: string
+          retention_days: number
+          updated_at: string
+          user_id: string
+        }
       }
       start_extraction_batch: {
         Args: {
@@ -10690,23 +10135,6 @@ export type Database = {
       }
     }
     Enums: {
-      analytics_event_type:
-        | "generate_start"
-        | "generate_success"
-        | "generate_fail"
-        | "lyrics_timecode_done"
-        | "play"
-        | "seek_segment"
-        | "qcm_start"
-        | "qcm_submit"
-        | "qcm_complete"
-        | "bd_generate_start"
-        | "bd_generate_success"
-        | "bd_generate_fail"
-        | "study_start"
-        | "study_end"
-        | "sync_success"
-        | "sync_fail"
       invitation_status: "pending" | "accepted" | "expired"
     }
     CompositeTypes: {

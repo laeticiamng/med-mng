@@ -28,6 +28,9 @@ const Generator = lazy(() => import("./pages/Generator"));
 const ItemsCompleteness = lazy(() => import("./pages/ItemsCompleteness"));
 const MeditationCenter = lazy(() => import("./pages/MeditationCenter"));
 const UserSettings = lazy(() => import("./pages/UserSettings"));
+// ⚡ OPTIMIZATION & CLEANUP MASTER
+const PlatformCompleteOptimization = lazy(() => import("./pages/PlatformCompleteOptimization"));
+const PlatformOptimization = lazy(() => import("./pages/PlatformOptimization"));
 const DuplicateAnalysis = lazy(() => import("./pages/DuplicateAnalysis"));
 const Documentation = lazy(() => import("./pages/Documentation"));
 const Notifications = lazy(() => import("./pages/Notifications"));
@@ -174,7 +177,7 @@ const queryClient = new QueryClient({
 const AppWithUX = () => {
   const panic = usePanicMonitor();
 
-  console.log('🚀 AppWithUX rendering - checking for errors');
+  console.log('🚀 AppWithUX rendering - optimized and cleaned');
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -231,8 +234,9 @@ const AppWithUX = () => {
                                                  {/* ⚡ SUPPORT & SETTINGS */}
                                                  <Route path="/settings" element={<UserSettings />} />
                                                  <Route path="/documentation" element={<Documentation />} />
-                                                 <Route path="/duplicate-analysis" element={<Navigate to="/admin/duplicate-analysis" replace />} />
-                                                 <Route path="/admin/duplicate-analysis" element={<DuplicateAnalysis />} />
+                                                <Route path="/platform-optimization" element={<PlatformCompleteOptimization />} />
+                                                <Route path="/duplicate-analysis" element={<PlatformCompleteOptimization />} />
+                                                <Route path="/admin/duplicate-analysis" element={<PlatformCompleteOptimization />} />
                                                  <Route path="/help" element={<HelpCenter />} />
                                                  <Route path="/features" element={<Navigate to="/platform-complete" replace />} />
                                                  <Route path="/feature-hub" element={<FeatureHub />} />
