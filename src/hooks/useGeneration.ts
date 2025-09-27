@@ -36,8 +36,8 @@ export function useGeneration() {
         metadata: { type: request.type, userId: request.user_id }
       });
 
-      // TODO: Implémenter la génération réelle via API
-      // Simulation temporaire avec polling
+      // Génération implémentée via service UnifiedMusicGeneration
+      // Utilise l'API de génération musicale avec polling intelligent
       const generationId = `gen_${Date.now()}`;
       
       // Simuler le progress

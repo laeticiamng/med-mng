@@ -28,8 +28,8 @@ const Generator = lazy(() => import("./pages/Generator"));
 const ItemsCompleteness = lazy(() => import("./pages/ItemsCompleteness"));
 const MeditationCenter = lazy(() => import("./pages/MeditationCenter"));
 const UserSettings = lazy(() => import("./pages/UserSettings"));
-// ⚡ OPTIMIZATION & CLEANUP MASTER
-const PlatformCompleteOptimization = lazy(() => import("./pages/PlatformCompleteOptimization"));
+// ⚡ CONSOLIDATED PLATFORM
+const ConsolidatedPlatform = lazy(() => import("./pages/ConsolidatedPlatform"));
 const Documentation = lazy(() => import("./pages/Documentation"));
 const Notifications = lazy(() => import("./pages/Notifications"));
 const FAQ = lazy(() => import("./pages/FAQ"));
@@ -232,8 +232,9 @@ const AppWithUX = () => {
                                                  {/* ⚡ SUPPORT & SETTINGS */}
                                                  <Route path="/settings" element={<UserSettings />} />
                                                  <Route path="/documentation" element={<Documentation />} />
-                                                <Route path="/platform-optimization" element={<PlatformCompleteOptimization />} />
-                                                <Route path="/admin/duplicate-analysis" element={<PlatformCompleteOptimization />} />
+                                                <Route path="/platform-optimization" element={<ConsolidatedPlatform />} />
+                                                <Route path="/admin/duplicate-analysis" element={<ConsolidatedPlatform />} />
+                                                <Route path="/consolidated" element={<ConsolidatedPlatform />} />
                                                  <Route path="/help" element={<HelpCenter />} />
                                                  <Route path="/features" element={<Navigate to="/platform-complete" replace />} />
                                                  <Route path="/feature-hub" element={<FeatureHub />} />
