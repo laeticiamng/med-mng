@@ -6,7 +6,6 @@ import { TableauRangAFooter } from './tableau/TableauRangAFooter';
 import { TableauRangAFooterIC1 } from './tableau/TableauRangAFooterIC1';
 import { TableauRangAFooterIC3 } from './tableau/TableauRangAFooterIC3';
 import { processTableauData } from './tableau/TableauRangAUtilsUnified';
-import { processTableauRangAIC1, isIC1Item } from './tableau/TableauRangAUtilsIC1Integration';
 import { processTableauRangAIC3, isIC3Item } from './tableau/TableauRangAUtilsIC3Integration';
 import { determinerColonnesUtiles, generateLignesRangAIntelligent } from './tableau/TableauRangAUtils';
 import { ColonneConfig, TableauData } from '@/types/edn';
@@ -284,7 +283,6 @@ export const TableauRangA = ({ data, itemCode }: TableauRangAProps) => {
 
   // Helper function to determine item type
   const determineItemType = (data: any): string => {
-    if (isIC1Item(data)) return 'IC-1';
     if (isIC3Item(data)) return 'IC-3';
     if (data?.item_code) return data.item_code.toUpperCase();
     if (data?.title?.includes('IC-')) {
@@ -296,22 +294,16 @@ export const TableauRangA = ({ data, itemCode }: TableauRangAProps) => {
 
   const itemType = determineItemType(data);
 
-  if (isIC1Item(data)) {
-    const processed = processTableauRangAIC1(data);
-    lignesEnrichies = processed.lignesEnrichies;
-    colonnesUtiles = processed.colonnesUtiles;
-    theme = processed.theme;
-    footerComponent = <TableauRangAFooterIC1 colonnesCount={colonnesUtiles.length} lignesCount={lignesEnrichies.length} />;
-  } else if (isIC3Item(data)) {
-    const processed = processTableauRangAIC3(data);
-    lignesEnrichies = processed.lignesEnrichies;
-    colonnesUtiles = processed.colonnesUtiles;
-    theme = processed.theme;
-    footerComponent = <TableauRangAFooterIC3 
-      colonnesCount={colonnesUtiles.length} 
-      lignesCount={lignesEnrichies.length}
-      isRangB={processed.isRangB}
-    />;
+  if (isIC3Item(data)) {
+  const processed = processTableauRangAIC3(data);
+  lignesEnrichies = processed.lignesEnrichies;
+  colonnesUtiles = processed.colonnesUtiles;
+  theme = processed.theme;
+  footerComponent = <TableauRangAFooterIC3 
+    colonnesCount={colonnesUtiles.length} 
+    lignesCount={lignesEnrichies.length}
+    isRangB={processed.isRangB}
+  />;
   } else if (itemType.startsWith('IC-')) {
     // Use unified processing for all other IC items
     // Convert data format for unified processing
