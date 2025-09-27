@@ -65,7 +65,7 @@ export const AdvancedAuthentication: React.FC = () => {
           enrolled: false // À vérifier avec backend
         });
       } catch (error) {
-        console.log('WebAuthn not available:', error);
+        // WebAuthn not supported on this device
       }
     }
 

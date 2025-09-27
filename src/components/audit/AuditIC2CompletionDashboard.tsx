@@ -19,12 +19,12 @@ export const AuditIC2CompletionDashboard = ({ onComplete }: AuditIC2CompletionDa
     setError(null);
     
     try {
-      console.log('🚀 Lancement de la complétion IC-2 depuis le dashboard...');
+      // Optimized IC-2 completion tracking
       const finalReport = await completeIC2Item();
       
       if (finalReport.completeness === 100) {
         setCompleted(true);
-        console.log('🎉 IC-2 complété avec succès depuis le dashboard !');
+        // IC-2 completion successful
         // Rafraîchir l'audit parent
         if (onComplete) {
           setTimeout(onComplete, 1000);

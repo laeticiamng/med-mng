@@ -111,7 +111,7 @@ export function NotificationCenter({
   useEffect(() => {
     if (soundEnabled && criticalCount > 0) {
       // In a real app, you'd play a sound here
-      console.log('🔔 Critical notification sound');
+      // Critical notification audio feedback
     }
   }, [criticalCount, soundEnabled]);
 

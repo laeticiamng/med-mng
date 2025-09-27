@@ -21,18 +21,18 @@ export const generateLignesRangAIntelligentIC2 = (data: TableauData): string[][]
     lignes.push(ligne);
   });
 
-  console.log(`✅ IC-2 Rang A: ${lignes.length}/7 connaissances E-LiSA générées`);
+  // IC-2 Rang A processing optimized
   return lignes;
 };
 
 export const generateLignesRangBIntelligentIC2 = (data: TableauData): string[][] => {
-  console.log('🎯 IC-2 Génération Rang B : 2 connaissances selon E-LiSA exactement');
+  // IC-2 Rang B processing optimized
   
   const lignes: string[][] = [];
   
   // Utiliser uniquement les 2 concepts Rang B définis selon E-LiSA
   conceptsRangBIC2.forEach((concept, index) => {
-    console.log(`📝 Ajout concept IC-2 Rang B ${index + 1}/2: ${concept.concept.substring(0, 50)}...`);
+    // Processing concept for IC-2 Rang B
     const ligne = [
       concept.concept,
       concept.definition,
@@ -46,12 +46,12 @@ export const generateLignesRangBIntelligentIC2 = (data: TableauData): string[][]
     lignes.push(ligne);
   });
 
-  console.log(`✅ IC-2 Rang B: ${lignes.length}/2 connaissances E-LiSA générées`);
+  // IC-2 Rang B generation completed
   return lignes;
 };
 
 export const determinerColonnesUtilesIC2 = (lignes: string[][]): ColumnConfig[] => {
-  console.log('🏗️ IC-2: Configuration colonnes optimisée pour les connaissances E-LiSA');
+  // IC-2 column configuration optimized
   
   // Toutes les colonnes sont pertinentes selon le format E-LiSA
   return adaptLegacyColumnConfig(colonnesConfigIC2);

@@ -78,13 +78,13 @@ export const AppleStyleItemModal: React.FC<AppleStyleItemModalProps> = ({
           .maybeSingle();
         
         if (completeData) {
-          logger.info('Données complètes Apple modal récupérées', {
-            component: 'AppleStyleItemModal',
-            metadata: { itemCode: finalItem.item_code }
-          });
+        logger.debug('Données complètes récupérées', {
+          component: 'AppleStyleItemModal',
+          metadata: { itemCode: finalItem.item_code }
+        });
           setCompleteItemData(completeData as EdnItem);
         } else {
-          logger.warn('Aucune donnée complète trouvée', {
+          logger.debug('Aucune donnée complète trouvée', {
             component: 'AppleStyleItemModal',
             metadata: { itemCode: finalItem.item_code }
           });
@@ -191,7 +191,7 @@ export const AppleStyleItemModal: React.FC<AppleStyleItemModalProps> = ({
               fontWeight: 'bold',
               color: '#166534'
             }}>
-              ✅ NOUVEAU: Chargement des compétences OIC RÉELLES depuis backup_oic_competences pour {finalItem.item_code} Rang A
+              Compétences OIC Rang A pour {finalItem.item_code}
             </div>
             <TableauCompetencesOICWithRealData 
               itemCode={finalItem.item_code} 
@@ -217,7 +217,7 @@ export const AppleStyleItemModal: React.FC<AppleStyleItemModalProps> = ({
               fontWeight: 'bold',
               color: '#581c87'
             }}>
-              ✅ NOUVEAU: Chargement des compétences OIC RÉELLES depuis backup_oic_competences pour {finalItem.item_code} Rang B
+              Compétences OIC Rang B pour {finalItem.item_code}
             </div>
             <TableauCompetencesOICWithRealData 
               itemCode={finalItem.item_code} 

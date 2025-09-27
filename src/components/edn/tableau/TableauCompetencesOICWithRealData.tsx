@@ -16,16 +16,7 @@ export const TableauCompetencesOICWithRealData: React.FC<TableauCompetencesOICWi
   // Récupération directe depuis backup_oic_competences
   const { competences, loading, error } = useOicCompetences(itemCode, rang);
 
-  logger.debug('TableauCompetencesOICWithRealData rendu', {
-    component: 'TableauCompetencesOICWithRealData',
-    metadata: {
-      itemCode,
-      rang,
-      competencesCount: competences?.length || 0,
-      loading,
-      hasError: !!error
-    }
-  });
+  // Remove debug logging for production
 
   if (loading) {
     return (
@@ -105,17 +96,10 @@ export const TableauCompetencesOICWithRealData: React.FC<TableauCompetencesOICWi
       url_source: comp.url_source
     })),
     count: sortedCompetences.length,
-    theme: `Compétences OIC ${rang === 'A' ? 'fondamentales' : 'avancées'} - Base backup_oic_competences`
+    theme: `Compétences OIC ${rang === 'A' ? 'fondamentales' : 'avancées'}`
   };
 
-  logger.info('Affichage compétences OIC avec données réelles', {
-    component: 'TableauCompetencesOICWithRealData',
-    metadata: {
-      itemCode,
-      rang,
-      count: sortedCompetences.length
-    }
-  });
+  // Remove debug logging for production
 
   return (
     <div>
@@ -123,11 +107,11 @@ export const TableauCompetencesOICWithRealData: React.FC<TableauCompetencesOICWi
         <div className="flex items-center gap-2">
           <span className="text-success">✅</span>
           <span className="text-success font-semibold">
-            DONNÉES BACKUP_OIC_COMPETENCES: {sortedCompetences.length} compétences pour {itemCode} Rang {rang}
+            Compétences OIC: {sortedCompetences.length} éléments pour {itemCode} Rang {rang}
           </span>
         </div>
         <p className="text-muted-foreground text-sm mt-2">
-          Données extraites directement de la table backup_oic_competences avec statut completed/updated/verified_unchanged
+          Données extraites de la base de compétences OIC validées
         </p>
       </div>
       <TableauCompetencesOICOptimized 
