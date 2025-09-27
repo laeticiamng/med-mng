@@ -1,6 +1,6 @@
 import React from 'react';
 import { DuplicateAnalyzer } from '@/utils/analysis/DuplicateAnalyzer';
-import { DuplicateCleanupAutomation } from '@/utils/cleanup/DuplicateCleanupAutomation';
+import { RealDuplicateCleanup } from '@/utils/cleanup/RealDuplicateCleanup';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function DuplicateAnalysis() {
@@ -24,7 +24,7 @@ export default function DuplicateAnalysis() {
         </TabsContent>
 
         <TabsContent value="cleanup">
-          <DuplicateCleanupAutomation />
+          <RealDuplicateCleanup />
         </TabsContent>
       </Tabs>
     </div>

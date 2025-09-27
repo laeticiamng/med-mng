@@ -4,8 +4,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { AccessibilityProvider } from "@/components/accessibility/AccessibilityProvider";
-import { ToastProvider } from "@/components/feedback/ToastProvider";
 import { UXToastProvider } from "@/components/feedback/UXToastProvider";
+import { GlobalMedMngLayout } from "@/components/med-mng/GlobalMedMngLayout";
 import NavigatorBridge from "@/lib/NavigatorBridge";
 import { ViewportProvider } from "@/components/responsive/ViewportProvider";
 import { SkipLinks } from "@/components/navigation/SkipLinks";
@@ -188,18 +188,17 @@ const AppWithUX = () => {
                     <GlobalAudioProvider>
                       <AuthProvider>
                         <AnalyticsConsentManager />
-                        <ToastProvider>
-                          <UndoRedoProvider>
-                          <GlobalOverflowWrapper className="min-h-screen">
-                            <PanicOverlay
-                              state={panic.state}
-                              retryCountdown={panic.retryCountdown}
-                              onRetry={panic.retry}
-                            />
-                            <BrowserRouter>
-                              <SmartNavigationProvider>
-                                <NavigatorBridge />
-                                <AppKeyboardShortcuts />
+                      <UndoRedoProvider>
+                        <GlobalOverflowWrapper className="min-h-screen">
+                          <PanicOverlay
+                            state={panic.state}
+                            retryCountdown={panic.retryCountdown}
+                            onRetry={panic.retry}
+                          />
+                          <BrowserRouter>
+                            <SmartNavigationProvider>
+                              <NavigatorBridge />
+                              <AppKeyboardShortcuts />
                               <UXToastProvider>
                                   <SkipToMain />
                                   <SkipLinks />
@@ -330,12 +329,11 @@ const AppWithUX = () => {
                                    
                                    </div>
                                   <Sonner richColors closeButton />
-                                </UXToastProvider>
-                              </SmartNavigationProvider>
-                            </BrowserRouter>
-                          </GlobalOverflowWrapper>
-                        </UndoRedoProvider>
-                      </ToastProvider>
+                              </UXToastProvider>
+                            </SmartNavigationProvider>
+                          </BrowserRouter>
+                        </GlobalOverflowWrapper>
+                      </UndoRedoProvider>
                     </AuthProvider>
                   </GlobalAudioProvider>
                 </LanguageProvider>
