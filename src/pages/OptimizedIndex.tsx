@@ -27,7 +27,7 @@ const TestimonialCarousel = lazy(() => import('@/components/home/TestimonialCaro
 
 // Composant de squelette premium amélioré
 const FeatureSkeleton = memo(() => (
-  <div className="medical-section bg-gradient-to-br from-background via-primary/5 to-accent/5">
+  <div className="medical-section bg-gradient-to-br from-background to-muted/30">
     <div className="medical-container">
       <SmartLoadingIndicator 
         message="Chargement des fonctionnalités..." 
@@ -39,7 +39,7 @@ const FeatureSkeleton = memo(() => (
 ));
 
 const TestimonialSkeleton = memo(() => (
-  <div className="medical-section bg-gradient-to-br from-muted/20 to-background">
+  <div className="medical-section bg-gradient-to-br from-muted/10 to-background">
     <div className="medical-container">
       <SmartLoadingIndicator 
         message="Chargement des témoignages..." 
@@ -152,13 +152,13 @@ const PremiumHero = memo(() => {
 
   return (
     <motion.section 
-      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-background via-primary/5 to-accent/10"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-background to-primary/3"
       initial="initial"
       animate="animate"
       variants={staggerChildren}
     >
       <div className="absolute inset-0 bg-grid-pattern opacity-5" />
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-3xl animate-gentle-float" />
+      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-gentle-float" />
 
       <div className="medical-container relative z-10 text-center space-y-8">
         <motion.div variants={fadeInUp} className="space-y-4">
