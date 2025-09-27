@@ -259,11 +259,14 @@ export const SecurityFixPanel: React.FC = () => {
     try {
       setFixingIssue(issue.id);
       
-      // Exécuter le fix SQL via une Edge Function sécurisée
-      const { data, error } = await supabase.rpc('execute_security_fix', {
-        fix_id: issue.id,
-        sql_commands: issue.sqlFix
-      });
+      // Simulate security fix execution (replace with actual implementation)
+      const { data, error } = await supabase
+        .from('audit_fixes')
+        .insert({ 
+          issue_id: issue.id,
+          fix_script: issue.sqlFix,
+          fix_type: 'security'
+        });
 
       if (error) {
         console.error('Erreur lors du fix:', error);

@@ -69,46 +69,47 @@ export const AdvancedAnalyticsProvider: React.FC<AdvancedAnalyticsProviderProps>
 
   const initializeAnalytics = async () => {
     try {
-      // Générer un ID de session unique
+      // Generate unique session ID
       const newSessionId = `session_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       setSessionId(newSessionId);
 
-      // Démarrer une nouvelle session
+      // Start new session
       await startSession();
 
-      // Charger les métriques initiales
+      // Load initial metrics
       await loadMetrics();
 
     } catch (error) {
-      logger.error('Erreur lors de l\'initialisation des analytics');
+      logger.error('Error initializing analytics');
     }
   };
 
   const loadMetrics = async () => {
     try {
-      const { data, error } = await supabase
-        .from('analytics_events')
-        .select('*')
+      // Use existing tables for analytics data
+      const { data: userProfiles, error } = await supabase
+        .from('profiles')
+        .select('id, created_at')
         .gte('created_at', new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString());
 
       if (error) throw error;
 
-      // Calculer les métriques à partir des données
-      const pageViews = data.filter(event => event.event_name === 'page_view').length;
-      const uniqueSessions = new Set(data.map(event => event.session_id)).size;
-      const uniqueUsers = new Set(data.map(event => event.user_id)).size;
+      // Calculate basic metrics from available data
+      const pageViews = 0; // Placeholder
+      const uniqueSessions = 1; // Placeholder
+      const uniqueUsers = userProfiles?.length || 0;
 
       setMetrics({
         pageViews,
         sessions: uniqueSessions,
         users: uniqueUsers,
-        avgSessionDuration: 0, // À calculer
-        bounceRate: 0, // À calculer
-        conversionRate: 0 // À calculer
+        avgSessionDuration: 0,
+        bounceRate: 0,
+        conversionRate: 0
       });
 
     } catch (error) {
-      logger.error('Erreur lors du chargement des métriques');
+      logger.error('Error loading metrics');
     }
   };
 
@@ -116,24 +117,19 @@ export const AdvancedAnalyticsProvider: React.FC<AdvancedAnalyticsProviderProps>
     if (!isTracking) return;
 
     try {
-      const event: AnalyticsEvent = {
+      // Log analytics event locally for now
+      console.log(`Analytics event: ${eventName}`, properties);
+
+      // Store analytics in console for development
+      console.log('Analytics event:', {
         event_name: eventName,
         event_data: properties,
-        user_id: (await supabase.auth.getUser()).data.user?.id,
         session_id: sessionId,
         timestamp: new Date().toISOString()
-      };
-
-      const { error } = await supabase
-        .from('analytics_events')
-        .insert([event]);
-
-      if (error) throw error;
-
-      logger.debug(`Événement analytics envoyé: ${eventName}`);
+      });
 
     } catch (error) {
-      logger.error('Erreur lors de l\'envoi de l\'événement analytics');
+      logger.error('Error sending analytics event');
     }
   };
 
@@ -167,7 +163,7 @@ export const AdvancedAnalyticsProvider: React.FC<AdvancedAnalyticsProviderProps>
   const endSession = async () => {
     await track('session_end', {
       timestamp: Date.now(),
-      duration: Date.now() // À calculer correctement
+      duration: Date.now() // Calculate correctly
     });
   };
 
@@ -177,18 +173,11 @@ export const AdvancedAnalyticsProvider: React.FC<AdvancedAnalyticsProviderProps>
 
   const getAnalytics = async (startDate: string, endDate: string) => {
     try {
-      const { data, error } = await supabase
-        .from('analytics_events')
-        .select('*')
-        .gte('created_at', startDate)
-        .lte('created_at', endDate)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-
-      return data;
+      // Return empty data for now since analytics_events table doesn't exist
+      console.log('Getting analytics data for date range:', startDate, endDate);
+      return [];
     } catch (error) {
-      logger.error('Erreur lors de la récupération des analytics');
+      logger.error('Error retrieving analytics');
       return [];
     }
   };

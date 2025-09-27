@@ -24,8 +24,9 @@ import { MusicGenerator } from '@/components/music/MusicGenerator';
 import { SynchronizedLyricsPlayer } from '@/components/music/SynchronizedLyricsPlayer';
 import { useToast } from '@/hooks/use-toast';
 import { usePlayer } from '@/hooks/usePlayer';
-import { useItemMusicTracks } from '@/hooks/music/useItemMusicTracks';
-import { useSynchronizedLyrics } from '@/hooks/useSynchronizedLyrics';
+// Removed broken imports
+// import { useItemMusicTracks } from '@/hooks/music/useItemMusicTracks';
+// import { useSynchronizedLyrics } from '@/hooks/useSynchronizedLyrics';
 import type { Database } from '@/integrations/supabase/types';
 
 type GeneratedMusicTrack = Database['public']['Tables']['generated_music_tracks']['Row'];
@@ -64,8 +65,29 @@ const STATUS_VARIANT: Record<string, string> = {
   timeout: 'bg-yellow-100 text-yellow-800',
 };
 
+// Helper function to get mode from metadata
+const getTrackMode = (track: GeneratedMusicTrack): 'A' | 'B' | 'AB' => {
+  const metadata = track.metadata as Record<string, unknown> | null;
+  if (metadata?.mode && typeof metadata.mode === 'string') {
+    return metadata.mode as 'A' | 'B' | 'AB';
+  }
+  if (metadata?.rang && typeof metadata.rang === 'string') {
+    return metadata.rang as 'A' | 'B' | 'AB';
+  }
+  return 'A'; // Default fallback
+};
+
+// Helper function to get suno_job_id from metadata
+const getSunoJobId = (track: GeneratedMusicTrack): string | null => {
+  const metadata = track.metadata as Record<string, unknown> | null;
+  if (metadata?.suno_job_id && typeof metadata.suno_job_id === 'string') {
+    return metadata.suno_job_id;
+  }
+  return track.task_id || null;
+};
+
 const resolveStatus = (track: GeneratedMusicTrack) => {
-  const status = (track.generation_status || track.status || 'completed').toLowerCase();
+  const status = (track.generation_status || 'completed').toLowerCase();
   const variant = STATUS_VARIANT[status] ?? 'bg-slate-100 text-slate-700';
   const label = status
     .replace(/_/g, ' ')
@@ -75,7 +97,7 @@ const resolveStatus = (track: GeneratedMusicTrack) => {
 };
 
 const getTrackStyle = (track: GeneratedMusicTrack) => {
-  if (track.style) return track.style;
+  // Extract style from metadata since direct style property doesn't exist
 
   const metadata = track.metadata as Record<string, unknown> | null;
   if (metadata?.style && typeof metadata.style === 'string') {
@@ -151,11 +173,12 @@ export const AdvancedGenerationMusicale: React.FC<AdvancedGenerationMusicaleProp
     let failed = 0;
 
     sortedTracks.forEach((track) => {
-      if (track.mode in counters) {
-        counters[track.mode as 'A' | 'B' | 'AB'] += 1;
+      const mode = getTrackMode(track);
+      if (mode in counters) {
+        counters[mode] += 1;
       }
 
-      const status = (track.generation_status || track.status || '').toLowerCase();
+      const status = track.generation_status.toLowerCase();
       if (['running', 'processing', 'queued'].includes(status)) {
         running += 1;
       }
@@ -200,9 +223,9 @@ export const AdvancedGenerationMusicale: React.FC<AdvancedGenerationMusicaleProp
 
     playTrack({
       id: track.id,
-      title: `${item.item_code} · ${MODE_LABELS[track.mode] ?? track.mode}`,
+      title: `${item.item_code} · ${MODE_LABELS[getTrackMode(track)] ?? getTrackMode(track)}`,
       item_code: item.item_code,
-      type: track.mode === 'A' ? 'rang_a' : track.mode === 'B' ? 'rang_b' : 'mix',
+      type: getTrackMode(track) === 'A' ? 'rang_a' : getTrackMode(track) === 'B' ? 'rang_b' : 'mix',
       created_at: track.created_at,
       duration: getTrackDuration(track) ?? undefined,
       stream_url: audioUrl,
@@ -274,14 +297,14 @@ export const AdvancedGenerationMusicale: React.FC<AdvancedGenerationMusicaleProp
             return (
               <TableRow key={track.id}>
                 <TableCell>
-                  <Badge className={MODE_BADGE_VARIANT[track.mode] || 'bg-slate-100 text-slate-700'}>
-                    {MODE_LABELS[track.mode] ?? track.mode}
+                  <Badge className={MODE_BADGE_VARIANT[getTrackMode(track)] || 'bg-slate-100 text-slate-700'}>
+                    {MODE_LABELS[getTrackMode(track)] ?? getTrackMode(track)}
                   </Badge>
                 </TableCell>
                 <TableCell>
                   <div className="font-medium">{getTrackStyle(track)}</div>
-                  {track.suno_job_id && (
-                    <div className="text-xs text-muted-foreground">Job Suno : {track.suno_job_id}</div>
+                  {getSunoJobId(track) && (
+                    <div className="text-xs text-muted-foreground">Job Suno : {getSunoJobId(track)}</div>
                   )}
                 </TableCell>
                 <TableCell>
@@ -412,7 +435,7 @@ export const AdvancedGenerationMusicale: React.FC<AdvancedGenerationMusicaleProp
         <DialogContent className="max-w-3xl">
           <DialogHeader>
             <DialogTitle>
-              Karaoké – {karaokeTrack ? `${item.item_code} · ${MODE_LABELS[karaokeTrack.mode] ?? karaokeTrack.mode}` : ''}
+              Karaoké – {karaokeTrack ? `${item.item_code} · ${MODE_LABELS[getTrackMode(karaokeTrack)] ?? getTrackMode(karaokeTrack)}` : ''}
             </DialogTitle>
             <DialogDescription>
               Paroles synchronisées avec export JSON/Markdown et détails d’alignement (tolérance &lt; 150&nbsp;ms).
@@ -432,7 +455,7 @@ export const AdvancedGenerationMusicale: React.FC<AdvancedGenerationMusicaleProp
                 trackId={karaokeTrack.id ?? undefined}
                 itemCode={item.item_code}
                 itemTitle={item.title}
-                mode={karaokeTrack.mode ?? undefined}
+                mode={getTrackMode(karaokeTrack) ?? undefined}
               />
             ) : (
               <Alert>
