@@ -1,125 +1,125 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Undo2, Redo2, Keyboard, Accessibility, Eye, Volume2 } from 'lucide-react';
+import { 
+  Undo2, 
+  Redo2, 
+  Keyboard, 
+  Eye, 
+  Settings, 
+  HelpCircle,
+  ChevronUp,
+  ChevronDown
+} from 'lucide-react';
 import { useUndoRedo } from './UndoRedoProvider';
-import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
-import { useScreenReader, useHighContrast, useReducedMotion } from './AccessibilityEnhancements';
+import { toast } from '@/hooks/use-toast';
+
 export const UXToolbar: React.FC = () => {
-  const {
-    canUndo,
-    canRedo,
-    undo,
-    redo
-  } = useUndoRedo();
-  const {
-    showShortcutsHelp
-  } = useKeyboardShortcuts();
-  const {
-    announce
-  } = useScreenReader();
-  const isHighContrast = useHighContrast();
-  const prefersReducedMotion = useReducedMotion();
-  const toggleAccessibilityMode = () => {
-    document.body.classList.toggle('accessibility-mode');
-    announce('Mode accessibilité activé');
+  const [isExpanded, setIsExpanded] = useState(false);
+  const { canUndo, canRedo, undo, redo } = useUndoRedo();
+
+  const showShortcuts = () => {
+    toast({
+      title: "Raccourcis clavier",
+      description: "Ctrl+Z: Annuler | Ctrl+Y: Refaire | Ctrl+H: Accueil | Ctrl+?: Aide"
+    });
   };
-  const toggleHighContrast = () => {
-    document.body.classList.toggle('high-contrast');
-    announce('Mode contraste élevé activé');
+
+  const showAccessibilityInfo = () => {
+    toast({
+      title: "Accessibilité",
+      description: "Alt+A: Menu accessibilité | Tab: Navigation | Échap: Fermer"
+    });
   };
-  const announcePageInfo = () => {
-    const pageTitle = document.title;
-    const mainContent = document.querySelector('#main-content');
-    const headingsCount = document.querySelectorAll('h1, h2, h3, h4, h5, h6').length;
-    announce(`Page ${pageTitle}. ${headingsCount} titres trouvés.`, 'assertive');
-  };
+
   return (
-    <TooltipProvider>
-      <div className="flex items-center gap-2 p-2 bg-background/80 backdrop-blur-sm border rounded-lg">
-        <Tooltip>
-          <TooltipTrigger asChild>
+    <div className="fixed bottom-4 right-4 z-40">
+      <Card className="shadow-lg border bg-background/95 backdrop-blur-sm">
+        <CardContent className="p-2">
+          <div className="flex items-center gap-1">
+            {/* Undo/Redo */}
             <Button
-              variant="ghost"
               size="sm"
+              variant="ghost"
               onClick={undo}
               disabled={!canUndo}
+              title="Annuler (Ctrl+Z)"
             >
               <Undo2 className="h-4 w-4" />
             </Button>
-          </TooltipTrigger>
-          <TooltipContent>Annuler</TooltipContent>
-        </Tooltip>
-
-        <Tooltip>
-          <TooltipTrigger asChild>
+            
             <Button
-              variant="ghost"
               size="sm"
+              variant="ghost"
               onClick={redo}
               disabled={!canRedo}
+              title="Refaire (Ctrl+Y)"
             >
               <Redo2 className="h-4 w-4" />
             </Button>
-          </TooltipTrigger>
-          <TooltipContent>Refaire</TooltipContent>
-        </Tooltip>
 
-        <Separator orientation="vertical" className="h-6" />
+            <Separator orientation="vertical" className="h-6" />
 
-        <Tooltip>
-          <TooltipTrigger asChild>
+            {/* Toggle expansion */}
             <Button
-              variant="ghost"
               size="sm"
-              onClick={showShortcutsHelp}
+              variant="ghost"
+              onClick={() => setIsExpanded(!isExpanded)}
+              title={isExpanded ? "Réduire" : "Étendre"}
             >
-              <Keyboard className="h-4 w-4" />
+              {isExpanded ? (
+                <ChevronDown className="h-4 w-4" />
+              ) : (
+                <ChevronUp className="h-4 w-4" />
+              )}
             </Button>
-          </TooltipTrigger>
-          <TooltipContent>Raccourcis clavier</TooltipContent>
-        </Tooltip>
 
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={toggleAccessibilityMode}
-            >
-              <Accessibility className="h-4 w-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Mode accessibilité</TooltipContent>
-        </Tooltip>
-
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={toggleHighContrast}
-            >
-              <Eye className="h-4 w-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Contraste élevé</TooltipContent>
-        </Tooltip>
-
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={announcePageInfo}
-            >
-              <Volume2 className="h-4 w-4" />
-            </Button>
-          </TooltipTrigger>
-          <TooltipContent>Annoncer la page</TooltipContent>
-        </Tooltip>
-      </div>
-    </TooltipProvider>
+            {/* Expanded tools */}
+            {isExpanded && (
+              <>
+                <Separator orientation="vertical" className="h-6" />
+                
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={showShortcuts}
+                  title="Raccourcis clavier"
+                >
+                  <Keyboard className="h-4 w-4" />
+                </Button>
+                
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={showAccessibilityInfo}
+                  title="Accessibilité"
+                >
+                  <Eye className="h-4 w-4" />
+                </Button>
+                
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => toast({ title: "Paramètres", description: "Fonctionnalité à venir" })}
+                  title="Paramètres"
+                >
+                  <Settings className="h-4 w-4" />
+                </Button>
+                
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => toast({ title: "Aide", description: "Consultez la documentation pour plus d'informations" })}
+                  title="Aide"
+                >
+                  <HelpCircle className="h-4 w-4" />
+                </Button>
+              </>
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 };

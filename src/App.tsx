@@ -207,11 +207,11 @@ const AppWithUX = () => {
                                       {/* Navigation Premium Unifiée */}
                                       <PremiumGlobalNavigation />
                                      
-                                     <main id="main-content" tabIndex={-1} className="flex-1 pb-20 overflow-safe">
-                                      <PageThemeProvider>
-                                        <GlobalErrorBoundary>
-                                          <Suspense fallback={<PageSkeleton />}>
-                                            <Routes>
+                                      <main id="main-content" tabIndex={-1} className="flex-1 pb-20 overflow-safe">
+                                       <PageThemeProvider>
+                                         <GlobalErrorBoundary>
+                                           <Suspense fallback={<PageSkeleton />}>
+                                             <Routes>
                                               {/* ⚡ CORE ROUTES - Architecture propre */}
                                               <Route path="/" element={<OptimizedIndex />} />
                                               <Route path="/platform" element={<PlatformOverview />} />
@@ -322,11 +322,13 @@ const AppWithUX = () => {
                                         </GlobalErrorBoundary>
                                       </PageThemeProvider>
                                     </main>
-                                  
-                                    {/* Lecteur musical global */}
-                                    <GlobalMusicPlayer />
-                                  
-                                  </div>
+                                   
+                                     {/* Lecteur musical global */}
+                                     <GlobalMusicPlayer />
+                                     <GlobalAccessibilityProvider />
+                                     <UXToolbar />
+                                   
+                                   </div>
                                   <Sonner richColors closeButton />
                                 </UXToastProvider>
                               </SmartNavigationProvider>

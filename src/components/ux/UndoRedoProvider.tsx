@@ -1,131 +1,136 @@
-import React, { createContext, useContext, useCallback, useState } from 'react';
-import { toast } from '@/hooks/use-toast';
-import { Undo2, Redo2 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import React, { createContext, useContext, useReducer, useCallback, ReactNode } from 'react';
 
-interface UndoRedoAction {
-  id: string;
-  description: string;
-  undo: () => void | Promise<void>;
-  redo: () => void | Promise<void>;
-  timestamp: number;
+interface UndoRedoState<T = any> {
+  past: T[];
+  present: T;
+  future: T[];
 }
 
-interface UndoRedoContextType {
+interface UndoRedoAction<T = any> {
+  type: 'UNDO' | 'REDO' | 'SET' | 'CLEAR';
+  payload?: T;
+}
+
+interface UndoRedoContextType<T = any> {
+  state: UndoRedoState<T>;
   canUndo: boolean;
   canRedo: boolean;
-  undo: () => Promise<void>;
-  redo: () => Promise<void>;
-  addAction: (action: Omit<UndoRedoAction, 'id' | 'timestamp'>) => void;
-  clear: () => void;
+  undo: () => void;
+  redo: () => void;
+  set: (newPresent: T) => void;
+  clear: (initialState: T) => void;
 }
 
 const UndoRedoContext = createContext<UndoRedoContextType | null>(null);
 
-export const UndoRedoProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [undoStack, setUndoStack] = useState<UndoRedoAction[]>([]);
-  const [redoStack, setRedoStack] = useState<UndoRedoAction[]>([]);
-  const [isProcessing, setIsProcessing] = useState(false);
+function undoRedoReducer<T>(state: UndoRedoState<T>, action: UndoRedoAction<T>): UndoRedoState<T> {
+  const { past, present, future } = state;
 
-  const addAction = useCallback((action: Omit<UndoRedoAction, 'id' | 'timestamp'>) => {
-    const newAction: UndoRedoAction = {
-      ...action,
-      id: Math.random().toString(36).substr(2, 9),
-      timestamp: Date.now()
-    };
+  switch (action.type) {
+    case 'UNDO': {
+      if (past.length === 0) return state;
+      
+      const previous = past[past.length - 1];
+      const newPast = past.slice(0, past.length - 1);
+      
+      return {
+        past: newPast,
+        present: previous,
+        future: [present, ...future]
+      };
+    }
 
-    setUndoStack(prev => [...prev, newAction].slice(-50)); // Limite à 50 actions
-    setRedoStack([]); // Clear redo stack when new action is added
+    case 'REDO': {
+      if (future.length === 0) return state;
+      
+      const next = future[0];
+      const newFuture = future.slice(1);
+      
+      return {
+        past: [...past, present],
+        present: next,
+        future: newFuture
+      };
+    }
+
+    case 'SET': {
+      if (action.payload === undefined) return state;
+      
+      return {
+        past: [...past, present].slice(-50), // Limit history to 50 items
+        present: action.payload,
+        future: []
+      };
+    }
+
+    case 'CLEAR': {
+      return {
+        past: [],
+        present: action.payload as T,
+        future: []
+      };
+    }
+
+    default:
+      return state;
+  }
+}
+
+interface UndoRedoProviderProps {
+  children: ReactNode;
+  initialState?: any;
+}
+
+export const UndoRedoProvider: React.FC<UndoRedoProviderProps> = ({ 
+  children, 
+  initialState = null 
+}) => {
+  const [state, dispatch] = useReducer(undoRedoReducer, {
+    past: [],
+    present: initialState,
+    future: []
+  });
+
+  const canUndo = state.past.length > 0;
+  const canRedo = state.future.length > 0;
+
+  const undo = useCallback(() => {
+    dispatch({ type: 'UNDO' });
   }, []);
 
-  const undo = useCallback(async () => {
-    if (undoStack.length === 0 || isProcessing) return;
-
-    setIsProcessing(true);
-    const action = undoStack[undoStack.length - 1];
-
-    try {
-      await action.undo();
-      setUndoStack(prev => prev.slice(0, -1));
-      setRedoStack(prev => [...prev, action]);
-      
-      toast({
-        title: "Action annulée",
-        description: action.description,
-        action: (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={redo}
-            className="gap-1"
-          >
-            <Redo2 className="h-3 w-3" />
-            Rétablir
-          </Button>
-        )
-      });
-    } catch (error) {
-      toast({
-        title: "Erreur lors de l'annulation",
-        description: "Impossible d'annuler cette action",
-        variant: "destructive"
-      });
-    } finally {
-      setIsProcessing(false);
-    }
-  }, [undoStack, isProcessing]);
-
-  const redo = useCallback(async () => {
-    if (redoStack.length === 0 || isProcessing) return;
-
-    setIsProcessing(true);
-    const action = redoStack[redoStack.length - 1];
-
-    try {
-      await action.redo();
-      setRedoStack(prev => prev.slice(0, -1));
-      setUndoStack(prev => [...prev, action]);
-      
-      toast({
-        title: "Action rétablie",
-        description: action.description
-      });
-    } catch (error) {
-      toast({
-        title: "Erreur lors du rétablissement",
-        description: "Impossible de rétablir cette action",
-        variant: "destructive"
-      });
-    } finally {
-      setIsProcessing(false);
-    }
-  }, [redoStack, isProcessing]);
-
-  const clear = useCallback(() => {
-    setUndoStack([]);
-    setRedoStack([]);
+  const redo = useCallback(() => {
+    dispatch({ type: 'REDO' });
   }, []);
 
-  const value: UndoRedoContextType = {
-    canUndo: undoStack.length > 0 && !isProcessing,
-    canRedo: redoStack.length > 0 && !isProcessing,
+  const set = useCallback((newPresent: any) => {
+    dispatch({ type: 'SET', payload: newPresent });
+  }, []);
+
+  const clear = useCallback((initialState: any) => {
+    dispatch({ type: 'CLEAR', payload: initialState });
+  }, []);
+
+  const contextValue: UndoRedoContextType = {
+    state,
+    canUndo,
+    canRedo,
     undo,
     redo,
-    addAction,
+    set,
     clear
   };
 
   return (
-    <UndoRedoContext.Provider value={value}>
+    <UndoRedoContext.Provider value={contextValue}>
       {children}
     </UndoRedoContext.Provider>
   );
 };
 
-export const useUndoRedo = () => {
+export const useUndoRedo = <T = any>(): UndoRedoContextType<T> => {
   const context = useContext(UndoRedoContext);
   if (!context) {
-    throw new Error('useUndoRedo must be used within UndoRedoProvider');
+    throw new Error('useUndoRedo must be used within an UndoRedoProvider');
   }
-  return context;
+  return context as UndoRedoContextType<T>;
 };
