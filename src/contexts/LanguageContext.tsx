@@ -1,17 +1,8 @@
 
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 
-export type Language = 'fr' | 'en' | 'es' | 'it' | 'zh' | 'ja';
-export type SupportedLanguage = Language; // Alias pour compatibilité
-
-export interface LanguageInfo {
-  code: Language;
-  name: string;
-  nativeName: string;
-  flag: string;
-}
-
-export const LANGUAGES: LanguageInfo[] = [
+// Pure JS types - simples et légers
+const LANGUAGES = [
   { code: 'fr', name: 'Français', nativeName: 'Français', flag: '🇫🇷' },
   { code: 'en', name: 'English', nativeName: 'English', flag: '🇺🇸' },
   { code: 'es', name: 'Español', nativeName: 'Español', flag: '🇪🇸' },
@@ -20,35 +11,24 @@ export const LANGUAGES: LanguageInfo[] = [
   { code: 'ja', name: '日本語', nativeName: '日本語', flag: '🇯🇵' },
 ];
 
-// Alias pour compatibilité
-export const SUPPORTED_LANGUAGES: Record<string, LanguageInfo> = LANGUAGES.reduce((acc, lang) => {
+// Compatibilité avec l'existant
+export { LANGUAGES };
+export const SUPPORTED_LANGUAGES = LANGUAGES.reduce((acc, lang) => {
   acc[lang.code] = lang;
   return acc;
-}, {} as Record<string, LanguageInfo>);
+}, {});
 
-interface LanguageContextType {
-  currentLanguage: Language;
-  setCurrentLanguage: (language: Language) => void;
-  t: (key: string, params?: Record<string, string | number>) => string;
-  translate: (text: string, targetLanguage?: Language) => Promise<string>;
-  isTranslating: boolean;
-  languages: LanguageInfo[];
-}
+const LanguageContext = createContext();
 
-const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
-
-interface LanguageProviderProps {
-  children: React.ReactNode;
-}
-
-export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) => {
-  const [currentLanguage, setCurrentLanguageState] = useState<Language>(() => {
+// Pure JS provider function
+export function LanguageProvider({ children }) {
+  const [currentLanguage, setCurrentLanguageState] = useState(() => {
     // Récupérer la langue depuis localStorage ou utiliser français par défaut
     const savedLanguage = localStorage.getItem('medmng-language');
-    return (savedLanguage as Language) || 'fr';
+    return savedLanguage || 'fr';
   });
 
-  const [translations, setTranslations] = useState<import('@/types/translation').TranslationValue>({});
+  const [translations, setTranslations] = useState({});
   const [isTranslating, setIsTranslating] = useState(false);
 
   // Charger les traductions pour la langue courante
@@ -74,7 +54,7 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
     loadTranslations();
   }, [currentLanguage]);
 
-  const setCurrentLanguage = (language: Language) => {
+  const setCurrentLanguage = (language) => {
     setCurrentLanguageState(language);
     localStorage.setItem('medmng-language', language);
     
@@ -82,10 +62,10 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
     window.dispatchEvent(new CustomEvent('languageChanged', { detail: language }));
   };
 
-  // Fonction de traduction avec support des paramètres
-  const t = (key: string, params?: import('@/types/translation').TranslationParams): string => {
+  // Fonction de traduction avec support des paramètres - JS pur
+  const t = (key, params) => {
     const keys = key.split('.');
-    let value: import('@/types/translation').TranslationValue | string = translations;
+    let value = translations;
     
     for (const k of keys) {
       if (value && typeof value === 'object' && k in value) {
@@ -112,8 +92,8 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
     return value;
   };
 
-  // Fonction de traduction de texte libre (pour compatibilité avec les hooks existants)
-  const translate = async (text: string, targetLanguage?: Language): Promise<string> => {
+  // Fonction de traduction de texte libre
+  const translate = async (text, targetLanguage) => {
     const target = targetLanguage || currentLanguage;
     
     // Si c'est déjà en français ou la langue cible, retourner tel quel
@@ -154,7 +134,7 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) 
 
 export const useLanguage = () => {
   const context = useContext(LanguageContext);
-  if (context === undefined) {
+  if (!context) {
     throw new Error('useLanguage must be used within a LanguageProvider');
   }
   return context;

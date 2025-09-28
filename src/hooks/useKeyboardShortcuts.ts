@@ -2,18 +2,10 @@ import { useEffect, useCallback } from 'react';
 import { appNavigate } from "@/lib/navigation";
 import { toast } from '@/hooks/use-toast';
 
-interface ShortcutConfig {
-  key: string;
-  ctrlKey?: boolean;
-  altKey?: boolean;
-  shiftKey?: boolean;
-  action: () => void;
-  description: string;
-}
+// Pure JS hook - pas d'interfaces TypeScript complexes
+export const useKeyboardShortcuts = (shortcuts = []) => {
 
-export const useKeyboardShortcuts = (shortcuts: ShortcutConfig[] = []) => {
-
-  const defaultShortcuts: ShortcutConfig[] = [
+  const defaultShortcuts = [
     {
       key: 'h',
       ctrlKey: true,
@@ -74,7 +66,7 @@ export const useKeyboardShortcuts = (shortcuts: ShortcutConfig[] = []) => {
     });
   }, []);
 
-  const handleKeyDown = useCallback((event: KeyboardEvent) => {
+  const handleKeyDown = useCallback((event) => {
     const allShortcuts = [...defaultShortcuts, ...shortcuts];
     
     for (const shortcut of allShortcuts) {
