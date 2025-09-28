@@ -271,8 +271,8 @@ const DesktopNavigation = memo(() => {
                 : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
             )}
           >
-            <item.icon className="w-4 h-4" />
-            <span>{item.label}</span>
+            <item.icon className="w-4 h-4 sm:w-5 sm:h-5 shrink-0" />
+            <span className="text-sm sm:text-base font-medium">{item.label}</span>
             {item.badge && (
               <Badge 
                 variant="secondary" 
@@ -310,10 +310,10 @@ const GlobalSearch = memo(() => {
         variant="outline"
         size="sm"
         onClick={() => setIsSearchOpen(!isSearchOpen)}
-        className="hidden md:flex items-center gap-2 w-64 justify-start text-muted-foreground"
+        className="hidden lg:flex items-center gap-2 w-48 xl:w-64 justify-start text-muted-foreground min-h-[40px]"
       >
-        <Search className="w-4 h-4" />
-        <span>Rechercher...</span>
+        <Search className="w-4 h-4 shrink-0" />
+        <span className="text-sm">Rechercher...</span>
         <kbd className="ml-auto pointer-events-none inline-flex h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium text-muted-foreground opacity-100">
           <span className="text-xs">⌘</span>K
         </kbd>
@@ -322,7 +322,7 @@ const GlobalSearch = memo(() => {
       <Button
         variant="outline"
         size="icon"
-        className="md:hidden"
+        className="lg:hidden min-h-[40px] min-w-[40px]"
         onClick={() => setIsSearchOpen(!isSearchOpen)}
       >
         <Search className="w-4 h-4" />
@@ -361,12 +361,12 @@ const UserMenu = memo(() => {
 
   if (!user) {
     return (
-      <div className="flex items-center gap-2">
-        <Button variant="ghost" size="sm" asChild>
-          <Link to="/med-mng/login">Connexion</Link>
+      <div className="flex items-center gap-1 sm:gap-2">
+        <Button variant="ghost" size="sm" asChild className="min-h-[40px] px-2 sm:px-3">
+          <Link to="/med-mng/login" className="text-sm">Connexion</Link>
         </Button>
-        <Button size="sm" asChild>
-          <Link to="/med-mng/signup">S'inscrire</Link>
+        <Button size="sm" asChild className="min-h-[40px] px-3 sm:px-4">
+          <Link to="/med-mng/signup" className="text-sm">S'inscrire</Link>
         </Button>
       </div>
     );
@@ -381,12 +381,12 @@ const UserMenu = memo(() => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="flex items-center gap-2 px-3 py-2">
-          <div className="w-8 h-8 bg-gradient-to-r from-primary to-accent rounded-full flex items-center justify-center text-white text-sm font-bold">
+        <Button variant="outline" className="flex items-center gap-2 px-2 sm:px-3 py-2 min-h-[40px]">
+          <div className="w-6 h-6 sm:w-8 sm:h-8 bg-gradient-to-r from-primary to-accent rounded-full flex items-center justify-center text-white text-xs sm:text-sm font-bold shrink-0">
             {userInitials}
           </div>
-          <span className="hidden sm:block font-medium">{userName}</span>
-          <ChevronDown className="w-4 h-4 opacity-50" />
+          <span className="hidden md:block font-medium text-sm truncate max-w-24 lg:max-w-32">{userName}</span>
+          <ChevronDown className="w-3 h-3 sm:w-4 sm:h-4 opacity-50 shrink-0" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
@@ -457,22 +457,22 @@ const PremiumGlobalNavigation: React.FC = () => {
         animate={{ y: 0 }}
         transition={{ duration: 0.3 }}
       >
-        <div className="medical-container">
-          <div className="flex h-16 items-center justify-between">
+        <div className="medical-container px-3 sm:px-4 md:px-6">
+          <div className="flex h-14 sm:h-16 md:h-18 items-center justify-between gap-2 sm:gap-4">
             {/* Logo */}
-            <Link to="/" className="flex items-center gap-3 group">
+            <Link to="/" className="flex items-center gap-2 sm:gap-3 group shrink-0">
               <motion.div 
-                className="w-10 h-10 bg-gradient-to-r from-primary to-accent rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300"
+                className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-gradient-to-r from-primary to-accent rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300"
                 whileHover={{ scale: 1.05, rotate: 5 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <Stethoscope className="w-6 h-6 text-white" />
+                <Stethoscope className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-white" />
               </motion.div>
               <div className="hidden sm:block">
-                <h1 className="font-bold text-xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+                <h1 className="font-bold text-lg sm:text-xl md:text-2xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent leading-tight">
                   MED-MNG
                 </h1>
-                <p className="text-xs text-muted-foreground -mt-1">Excellence Médicale</p>
+                <p className="text-xs sm:text-sm text-muted-foreground -mt-1 leading-tight">Excellence Médicale</p>
               </div>
             </Link>
 
@@ -480,14 +480,14 @@ const PremiumGlobalNavigation: React.FC = () => {
             <DesktopNavigation />
 
             {/* Right Section */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1 sm:gap-2 md:gap-3 shrink-0">
               {/* Search */}
               <GlobalSearch />
 
               {/* Notifications */}
-              <Button variant="outline" size="icon" className="relative">
+              <Button variant="outline" size="icon" className="relative min-h-[40px] min-w-[40px] hidden sm:flex">
                 <Bell className="w-4 h-4" />
-                <Badge className="absolute -top-2 -right-2 w-5 h-5 flex items-center justify-center p-0 bg-destructive text-destructive-foreground text-xs">
+                <Badge className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center p-0 bg-destructive text-destructive-foreground text-[10px] sm:text-xs">
                   3
                 </Badge>
               </Button>
@@ -499,7 +499,7 @@ const PremiumGlobalNavigation: React.FC = () => {
               <Button
                 variant="outline"
                 size="icon"
-                className="lg:hidden"
+                className="lg:hidden min-h-[40px] min-w-[40px]"
                 onClick={() => setIsMobileOpen(true)}
               >
                 <Menu className="w-5 h-5" />
