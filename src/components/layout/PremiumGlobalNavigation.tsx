@@ -429,17 +429,45 @@ const PremiumGlobalNavigation: React.FC = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const location = useLocation();
 
-  // Handle scroll effect
+  // Amélioration du scroll avec debounce pour performance
   useEffect(() => {
+    let ticking = false;
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
+      if (!ticking) {
+        requestAnimationFrame(() => {
+          setIsScrolled(window.scrollY > 10);
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
 
-    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close mobile menu on route change
+  // Fermeture mobile avec ESC key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isMobileOpen) {
+        setIsMobileOpen(false);
+      }
+    };
+
+    if (isMobileOpen) {
+      document.addEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = 'hidden'; // Empêche le scroll
+    } else {
+      document.body.style.overflow = '';
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = '';
+    };
+  }, [isMobileOpen]);
+
+  // Fermeture automatique sur changement de route
   useEffect(() => {
     setIsMobileOpen(false);
   }, [location.pathname]);
@@ -448,82 +476,181 @@ const PremiumGlobalNavigation: React.FC = () => {
     <>
       <motion.header
         className={cn(
-          "sticky top-0 z-40 w-full transition-all duration-200",
+          "sticky top-0 z-50 w-full transition-all duration-300",
           isScrolled 
-            ? "bg-background/80 backdrop-blur-md border-b border-border shadow-sm" 
-            : "bg-background/50"
+            ? "bg-background/90 dark:bg-background/95 backdrop-blur-xl border-b border-border/50 shadow-lg shadow-primary/5" 
+            : "bg-background/60 dark:bg-background/70 backdrop-blur-md"
         )}
         initial={{ y: -100 }}
         animate={{ y: 0 }}
-        transition={{ duration: 0.3 }}
+        transition={{ type: "spring", damping: 25, stiffness: 300 }}
       >
-        <div className="medical-container px-3 sm:px-4 md:px-6">
-          <div className="flex h-14 sm:h-16 md:h-18 items-center justify-between gap-2 sm:gap-4">
-            {/* Logo */}
-            <Link to="/" className="flex items-center gap-2 sm:gap-3 group shrink-0">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 xl:px-12">
+          <div className="flex h-16 sm:h-18 lg:h-20 items-center justify-between gap-4">
+            {/* Logo - Ergonomie améliorée */}
+            <Link 
+              to="/" 
+              className="flex items-center gap-3 group shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/20 focus-visible:ring-offset-2 rounded-xl p-1 -m-1"
+            >
               <motion.div 
-                className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 bg-gradient-to-r from-primary to-accent rounded-lg sm:rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300"
-                whileHover={{ scale: 1.05, rotate: 5 }}
-                whileTap={{ scale: 0.95 }}
+                className="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 bg-gradient-to-br from-primary via-primary/90 to-accent rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-2xl transition-all duration-300"
+                whileHover={{ scale: 1.1, rotate: 8 }}
+                whileTap={{ scale: 0.9 }}
+                transition={{ type: "spring", damping: 15 }}
               >
-                <Stethoscope className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-white" />
+                <Stethoscope className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 text-white drop-shadow-sm" />
               </motion.div>
               <div className="hidden sm:block">
-                <h1 className="font-bold text-lg sm:text-xl md:text-2xl bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent leading-tight">
+                <motion.h1 
+                  className="font-bold text-xl sm:text-2xl lg:text-3xl bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent leading-none"
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}  
+                  transition={{ delay: 0.2 }}
+                >
                   MED-MNG
-                </h1>
-                <p className="text-xs sm:text-sm text-muted-foreground -mt-1 leading-tight">Excellence Médicale</p>
+                </motion.h1>
+                <motion.p 
+                  className="text-xs sm:text-sm text-muted-foreground font-medium tracking-wide"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.4 }}
+                >
+                  Excellence Médicale
+                </motion.p>
               </div>
             </Link>
 
-            {/* Desktop Navigation */}
+            {/* Desktop Navigation - Ergonomie optimisée */}
             <DesktopNavigation />
 
-            {/* Right Section */}
-            <div className="flex items-center gap-1 sm:gap-2 md:gap-3 shrink-0">
-              {/* Search */}
+            {/* Right Section - Espacement et interactions améliorés */}
+            <div className="flex items-center gap-2 sm:gap-3 lg:gap-4 shrink-0">
+              {/* Search - UX améliorée */}
               <GlobalSearch />
 
-              {/* Notifications */}
-              <Button variant="outline" size="icon" className="relative min-h-[40px] min-w-[40px] hidden sm:flex">
-                <Bell className="w-4 h-4" />
-                <Badge className="absolute -top-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center p-0 bg-destructive text-destructive-foreground text-[10px] sm:text-xs">
-                  3
-                </Badge>
-              </Button>
+              {/* Notifications - Feedback visuel amélioré */}
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Button 
+                  variant="outline" 
+                  size="icon" 
+                  className="relative min-h-[44px] min-w-[44px] hidden sm:flex border-border/50 hover:border-primary/30 hover:bg-accent/50 transition-all duration-200 focus-visible:ring-2 focus-visible:ring-primary/20"
+                >
+                  <Bell className="w-5 h-5" />
+                  <motion.div
+                    className="absolute -top-1 -right-1 w-5 h-5 bg-destructive rounded-full flex items-center justify-center shadow-lg"
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ type: "spring", delay: 0.6 }}
+                  >
+                    <span className="text-destructive-foreground text-xs font-bold">3</span>
+                  </motion.div>
+                  <motion.div
+                    className="absolute -top-1 -right-1 w-5 h-5 bg-destructive/20 rounded-full"
+                    animate={{ scale: [1, 1.3, 1] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                  />
+                </Button>
+              </motion.div>
 
               {/* User Menu */}
               <UserMenu />
 
-              {/* Mobile Menu Button */}
-              <Button
-                variant="outline"
-                size="icon"
-                className="lg:hidden min-h-[40px] min-w-[40px]"
-                onClick={() => setIsMobileOpen(true)}
+              {/* Mobile Menu Button - UX grandement améliorée */}
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
               >
-                <Menu className="w-5 h-5" />
-              </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="lg:hidden min-h-[44px] min-w-[44px] border-border/50 hover:border-primary/30 hover:bg-accent/50 transition-all duration-200 focus-visible:ring-2 focus-visible:ring-primary/20 relative overflow-hidden"
+                  onClick={() => setIsMobileOpen(!isMobileOpen)}
+                  aria-expanded={isMobileOpen}
+                  aria-controls="mobile-navigation"
+                  aria-label={isMobileOpen ? 'Fermer le menu' : 'Ouvrir le menu'}
+                >
+                  <div className="relative w-6 h-6">
+                    <motion.div
+                      className="absolute inset-0"
+                      initial={false}
+                      animate={{ opacity: isMobileOpen ? 0 : 1, rotate: isMobileOpen ? 90 : 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <Menu className="w-6 h-6" />
+                    </motion.div>
+                    <motion.div
+                      className="absolute inset-0"
+                      initial={false}
+                      animate={{ opacity: isMobileOpen ? 1 : 0, rotate: isMobileOpen ? 0 : -90 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <X className="w-6 h-6" />
+                    </motion.div>
+                  </div>
+                  
+                  {/* Ripple effect sur clic */}
+                  <motion.div
+                    className="absolute inset-0 bg-primary/20 rounded-full"
+                    initial={{ scale: 0, opacity: 0 }}
+                    animate={isMobileOpen ? { scale: 1.5, opacity: [0, 1, 0] } : {}}
+                    transition={{ duration: 0.4 }}
+                  />
+                </Button>
+              </motion.div>
             </div>
           </div>
         </div>
 
-        {/* Progress Bar */}
-        {isScrolled && (
-          <motion.div
-            className="absolute bottom-0 left-0 h-1 bg-gradient-to-r from-primary via-accent to-primary"
-            initial={{ width: "0%" }}
-            animate={{ width: "100%" }}
-            transition={{ duration: 0.3 }}
-          />
-        )}
+        {/* Progress Bar ergonomique - Feedback visuel de scroll */}
+        <AnimatePresence>
+          {isScrolled && (
+            <motion.div
+              className="absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r from-primary via-accent to-primary shadow-lg"
+              initial={{ scaleX: 0 }}
+              animate={{ scaleX: 1 }}
+              exit={{ scaleX: 0 }}
+              transition={{ duration: 0.3 }}
+              style={{ transformOrigin: 'left' }}
+            />
+          )}
+        </AnimatePresence>
       </motion.header>
 
-      {/* Mobile Navigation */}
+      {/* Mobile Navigation - UX révolutionnaire */}
       <MobileNavigation 
         isOpen={isMobileOpen} 
         onClose={() => setIsMobileOpen(false)} 
       />
+      
+      {/* Quick Access Fab - Innovation ergonomique pour mobile */}
+      <AnimatePresence>
+        {isScrolled && (
+          <motion.div
+            className="fixed bottom-6 right-6 z-40 lg:hidden"
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0, opacity: 0 }}
+            transition={{ type: "spring", damping: 15 }}
+          >
+            <Button
+              size="icon"
+              className="w-14 h-14 rounded-full shadow-2xl bg-primary hover:bg-primary/90 text-primary-foreground border-2 border-background/50"
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+              aria-label="Retour en haut"
+            >
+              <motion.div
+                animate={{ y: [0, -4, 0] }}
+                transition={{ duration: 1.5, repeat: Infinity }}
+              >
+                <Zap className="w-6 h-6" />
+              </motion.div>
+            </Button>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 };
