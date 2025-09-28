@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { HelpCircle, Mail, MessageCircle, Phone, Search, Book, Clock, CheckCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,14 +9,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Helmet } from 'react-helmet-async';
 
-interface FAQItem {
-  id: string;
-  question: string;
-  answer: string;
-  category: string;
-}
-
-const faqItems: FAQItem[] = [
+// Simple JS data structure
+const faqItems = [
   {
     id: '1',
     question: 'Comment accéder aux items EDN ?',
@@ -43,7 +37,8 @@ const faqItems: FAQItem[] = [
   }
 ];
 
-export const Support = () => {
+// Pure JS functional component
+function Support() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [contactForm, setContactForm] = useState({
@@ -61,7 +56,7 @@ export const Support = () => {
     return matchesSearch && matchesCategory;
   });
 
-  const handleContactSubmit = (e: React.FormEvent) => {
+  const handleContactSubmit = (e) => {
     e.preventDefault();
     // Handle form submission
     console.log('Contact form submitted:', contactForm);

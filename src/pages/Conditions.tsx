@@ -1,288 +1,259 @@
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { ArrowLeft, FileText, Users, Shield, AlertTriangle, CheckCircle2, XCircle, Clock, Mail } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { ConsistentBackground } from '@/components/layout/ConsistentBackground';
-import { PageHeader } from '@/components/layout/PageHeader';
+import { Helmet } from "react-helmet-async";
+import { FileText, Users, Shield, AlertTriangle, Scale } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
-const Conditions = () => {
+// Pure JS functional component
+function Conditions() {
   return (
-    <ConsistentBackground variant="light">
-      <PageHeader
-        title="Conditions Générales d'Utilisation"
-        subtitle="Conditions d'accès et d'utilisation de la plateforme MED MNG"
-        icon={FileText}
-        showBackButton
-        backTo="/"
-      />
+    <>
+      <Helmet>
+        <title>Conditions Générales d'Utilisation - MED-MNG</title>
+        <meta name="description" content="Conditions générales d'utilisation de la plateforme éducative médicale MED-MNG" />
+      </Helmet>
       
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto space-y-6">
+      <div className="min-h-screen bg-background">
+        <div className="container mx-auto px-4 py-8 max-w-4xl">
+          <div className="flex items-center gap-3 mb-8">
+            <FileText className="h-8 w-8 text-primary" />
+            <div>
+              <h1 className="text-3xl font-bold text-foreground">Conditions Générales d'Utilisation</h1>
+              <p className="text-muted-foreground">Modalités d'utilisation de la plateforme MED-MNG</p>
+            </div>
+          </div>
+
+          <Alert className="mb-8">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>
+              <strong>Important :</strong> En utilisant MED-MNG, vous acceptez ces conditions dans leur intégralité. 
+              Veuillez les lire attentivement avant d'utiliser nos services.
+            </AlertDescription>
+          </Alert>
           
-          {/* En-tête avec logo */}
-          <Card className="p-6 bg-gradient-to-r from-blue-600 to-purple-600 text-white">
-            <div className="text-center space-y-4">
-              <div className="flex items-center justify-center space-x-2">
-                <FileText className="h-8 w-8" />
-                <h2 className="text-2xl font-bold">MED MNG - Conditions Générales d'Utilisation</h2>
-              </div>
-              <p className="text-blue-100">https://medmng.com</p>
-              <p className="text-sm text-blue-200">Version officielle – Dernière mise à jour : 2024</p>
-            </div>
-          </Card>
+          <div className="space-y-8">
+            <Card>
+              <CardHeader>
+                <CardTitle>Article 1 - Objet et portée</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-muted-foreground">
+                  Les présentes conditions générales d'utilisation (CGU) régissent l'accès et l'utilisation 
+                  de la plateforme éducative médicale MED-MNG, accessible à l'adresse med-mng.com.
+                </p>
+                <p className="text-muted-foreground">
+                  MED-MNG est une plateforme dédiée à l'apprentissage médical proposant des contenus éducatifs, 
+                  des outils de révision, et des fonctionnalités de génération musicale thérapeutique.
+                </p>
+              </CardContent>
+            </Card>
 
-          {/* 1. Objet */}
-          <Card className="p-6">
-            <div className="flex items-center space-x-2 mb-4">
-              <FileText className="h-5 w-5 text-blue-600" />
-              <h3 className="text-xl font-semibold text-gray-800">1. OBJET</h3>
-            </div>
-            <div className="text-gray-700">
-              <p>Les présentes Conditions Générales d'Utilisation (CGU) régissent l'accès et l'utilisation de la plateforme <strong>MED MNG</strong>, service d'apprentissage médical révolutionnaire basé sur la méthode MNG (Music Neuro Learning Generator).</p>
-              <div className="bg-blue-50 p-4 rounded-lg mt-4">
-                <p className="font-semibold text-blue-800">Service proposé :</p>
-                <ul className="mt-2 space-y-1 text-sm">
-                  <li>• Apprentissage des Items EDN par la musique</li>
-                  <li>• Simulations ECOS interactives</li>
-                  <li>• Audit et suivi pédagogique personnalisé</li>
-                  <li>• Génération de contenus musicaux éducatifs</li>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="h-5 w-5" />
+                  Article 2 - Accès au service
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <h4 className="font-semibold mb-2">Conditions d'accès</h4>
+                    <ul className="list-disc pl-6 text-sm text-muted-foreground space-y-1">
+                      <li>Être étudiant en médecine ou professionnel de santé</li>
+                      <li>Disposer d'une connexion Internet stable</li>
+                      <li>Utiliser un navigateur moderne et compatible</li>
+                      <li>Respecter les conditions d'âge légal</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold mb-2">Types d'accès</h4>
+                    <ul className="list-disc pl-6 text-sm text-muted-foreground space-y-1">
+                      <li>Accès gratuit avec fonctionnalités limitées</li>
+                      <li>Abonnements premium avec contenus avancés</li>
+                      <li>Accès institutionnel pour établissements</li>
+                      <li>API pour intégrations tierces (sur demande)</li>
+                    </ul>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Article 3 - Inscription et compte utilisateur</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-muted-foreground">
+                  L'inscription sur MED-MNG nécessite de fournir des informations exactes et complètes. 
+                  L'utilisateur s'engage à :
+                </p>
+                <ul className="list-disc pl-6 text-muted-foreground space-y-2">
+                  <li>Fournir des informations véridiques et à jour</li>
+                  <li>Maintenir la confidentialité de ses identifiants de connexion</li>
+                  <li>Signaler immédiatement toute utilisation non autorisée de son compte</li>
+                  <li>Ne pas créer de comptes multiples ou fictifs</li>
+                  <li>Respecter les règles de la communauté médicale</li>
                 </ul>
-              </div>
-            </div>
-          </Card>
+              </CardContent>
+            </Card>
 
-          {/* 2. Éditeur */}
-          <Card className="p-6">
-            <div className="flex items-center space-x-2 mb-4">
-              <Users className="h-5 w-5 text-green-600" />
-              <h3 className="text-xl font-semibold text-gray-800">2. ÉDITEUR DU SERVICE</h3>
-            </div>
-            <div className="text-gray-700">
-              <div className="bg-green-50 p-4 rounded-lg space-y-2">
-                <p><strong>EMOTIONSCARE</strong>, SASU au capital de 100 €</p>
-                <p>Siège social : <strong>5 rue Caudron, 80000 Amiens, France</strong></p>
-                <p>SIRET : [À compléter]</p>
-                <div className="flex items-center space-x-4 pt-2">
-                  <div className="flex items-center space-x-1">
-                    <Mail className="h-4 w-4 text-green-600" />
-                    <span>medmng@emotionscare.com</span>
-                  </div>
-                </div>
-                <p className="pt-2"><strong>Directrice de publication :</strong> Laëticia Motongane</p>
-                <p><strong>Hébergement :</strong> Supabase (infrastructure sécurisée)</p>
-              </div>
-            </div>
-          </Card>
-
-          {/* 3. Accès au service */}
-          <Card className="p-6">
-            <div className="flex items-center space-x-2 mb-4">
-              <CheckCircle2 className="h-5 w-5 text-emerald-600" />
-              <h3 className="text-xl font-semibold text-gray-800">3. ACCÈS AU SERVICE</h3>
-            </div>
-            <div className="space-y-4 text-gray-700">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="bg-emerald-50 p-4 rounded-lg">
-                  <h4 className="font-semibold text-emerald-800 mb-3">✅ Conditions d'accès</h4>
-                  <ul className="space-y-1 text-sm">
-                    <li>• Être étudiant en médecine, professionnel de santé ou formateur</li>
-                    <li>• Accepter les présentes CGU</li>
-                    <li>• Fournir des informations exactes lors de l'inscription</li>
-                    <li>• Respecter les règles d'usage pédagogique</li>
-                  </ul>
-                </div>
-                <div className="bg-yellow-50 p-4 rounded-lg">
-                  <h4 className="font-semibold text-yellow-800 mb-3">⚠️ Restrictions</h4>
-                  <ul className="space-y-1 text-sm">
-                    <li>• Service réservé à un usage pédagogique</li>
-                    <li>• Interdit : revente, partage de comptes</li>
-                    <li>• Respect des droits de propriété intellectuelle</li>
-                    <li>• Usage conforme à l'éthique médicale</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </Card>
-
-          {/* 4. Modalités d'utilisation */}
-          <Card className="p-6">
-            <div className="flex items-center space-x-2 mb-4">
-              <Shield className="h-5 w-5 text-purple-600" />
-              <h3 className="text-xl font-semibold text-gray-800">4. MODALITÉS D'UTILISATION</h3>
-            </div>
-            <div className="text-gray-700">
-              <div className="space-y-4">
-                <div className="bg-purple-50 p-4 rounded-lg">
-                  <h4 className="font-semibold text-purple-800 mb-2">Droits de l'utilisateur</h4>
-                  <ul className="space-y-1 text-sm">
-                    <li>• Accès aux contenus pédagogiques selon l'abonnement</li>
-                    <li>• Génération de musiques personnalisées pour l'apprentissage</li>
-                    <li>• Suivi de progression pédagogique</li>
-                    <li>• Support technique dans les délais annoncés</li>
-                  </ul>
-                </div>
-                <div className="bg-red-50 p-4 rounded-lg">
-                  <h4 className="font-semibold text-red-800 mb-2">Obligations de l'utilisateur</h4>
-                  <ul className="space-y-1 text-sm">
-                    <li>• Utiliser le service de manière responsable et éthique</li>
-                    <li>• Ne pas diffuser ou revendre les contenus protégés</li>
-                    <li>• Respecter la confidentialité des données d'autrui</li>
-                    <li>• Signaler tout dysfonctionnement ou abus</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-          </Card>
-
-          {/* 5. Propriété intellectuelle */}
-          <Card className="p-6">
-            <div className="flex items-center space-x-2 mb-4">
-              <Shield className="h-5 w-5 text-indigo-600" />
-              <h3 className="text-xl font-semibold text-gray-800">5. PROPRIÉTÉ INTELLECTUELLE</h3>
-            </div>
-            <div className="text-gray-700">
-              <div className="bg-indigo-50 p-4 rounded-lg">
-                <p className="font-semibold text-indigo-800 mb-3">Méthode MNG - Propriété exclusive</p>
-                <p className="text-sm mb-3">La méthode <strong>Music Neuro Learning Generator (MNG)</strong> développée par Laëticia Motongane est protégée par le droit d'auteur.</p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Shield className="h-5 w-5" />
+                  Article 4 - Utilisation du service
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="space-y-4">
                   <div>
-                    <p className="font-medium text-indigo-700 mb-1">Contenus protégés :</p>
-                    <ul className="space-y-1">
-                      <li>• Algorithmes de génération musicale</li>
-                      <li>• Contenus pédagogiques EDN/ECOS</li>
-                      <li>• Interface utilisateur</li>
-                      <li>• Marque MED MNG</li>
+                    <h4 className="font-semibold mb-2 text-green-700">Utilisations autorisées</h4>
+                    <ul className="list-disc pl-6 text-sm text-muted-foreground space-y-1">
+                      <li>Consultation des contenus éducatifs à des fins d'apprentissage</li>
+                      <li>Génération de musique thérapeutique pour usage personnel</li>
+                      <li>Participation aux discussions communautaires</li>
+                      <li>Sauvegarde de progressions et favoris</li>
                     </ul>
                   </div>
                   <div>
-                    <p className="font-medium text-indigo-700 mb-1">Droits de l'utilisateur :</p>
-                    <ul className="space-y-1">
-                      <li>• Usage personnel éducatif</li>
-                      <li>• Téléchargement pour étude hors ligne</li>
-                      <li>• Partage en contexte pédagogique autorisé</li>
-                      <li>• Aucun droit de reproduction commerciale</li>
+                    <h4 className="font-semibold mb-2 text-red-700">Utilisations interdites</h4>
+                    <ul className="list-disc pl-6 text-sm text-muted-foreground space-y-1">
+                      <li>Reproduction ou diffusion non autorisée des contenus</li>
+                      <li>Utilisation commerciale sans autorisation expresse</li>
+                      <li>Tentative d'accès non autorisé aux systèmes</li>
+                      <li>Diffusion de contenus inappropriés ou illégaux</li>
+                      <li>Automatisation excessive (scraping, bots)</li>
                     </ul>
                   </div>
                 </div>
-              </div>
-            </div>
-          </Card>
+              </CardContent>
+            </Card>
 
-          {/* 6. Responsabilités */}
-          <Card className="p-6">
-            <div className="flex items-center space-x-2 mb-4">
-              <AlertTriangle className="h-5 w-5 text-orange-600" />
-              <h3 className="text-xl font-semibold text-gray-800">6. RESPONSABILITÉS ET LIMITATIONS</h3>
-            </div>
-            <div className="text-gray-700">
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="bg-orange-50 p-4 rounded-lg">
-                  <h4 className="font-semibold text-orange-800 mb-3">Responsabilité de l'éditeur</h4>
-                  <ul className="space-y-1 text-sm">
-                    <li>• Qualité des contenus pédagogiques</li>
-                    <li>• Sécurité des données personnelles</li>
-                    <li>• Disponibilité du service (objectif 99%)</li>
-                    <li>• Support technique selon l'abonnement</li>
-                  </ul>
+            <Card>
+              <CardHeader>
+                <CardTitle>Article 5 - Propriété intellectuelle</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <h4 className="font-semibold mb-2">Contenus MED-MNG</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Tous les contenus originaux (interface, algorithmes, musiques générées) 
+                      sont protégés par les droits de propriété intellectuelle et appartiennent à MED-MNG.
+                    </p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold mb-2">Contenus EDN</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Les contenus éducatifs EDN sont utilisés conformément aux accords avec 
+                      les universités partenaires et le Collège National des Universitaires.
+                    </p>
+                  </div>
                 </div>
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <h4 className="font-semibold text-gray-800 mb-3">Limitations</h4>
-                  <ul className="space-y-1 text-sm">
-                    <li>• Service fourni "en l'état"</li>
-                    <li>• Pas de garantie de réussite aux examens</li>
-                    <li>• Interruptions pour maintenance</li>
-                    <li>• Évolution des contenus pédagogiques</li>
-                  </ul>
-                </div>
-              </div>
-              <div className="bg-red-100 p-3 rounded-lg border-l-4 border-red-500 mt-4">
-                <p className="font-medium text-red-800">Important : MED MNG est un outil pédagogique complémentaire et ne remplace pas les cours magistraux, travaux dirigés et formations pratiques officielles.</p>
-              </div>
-            </div>
-          </Card>
+              </CardContent>
+            </Card>
 
-          {/* 7. Durée et résiliation */}
-          <Card className="p-6">
-            <div className="flex items-center space-x-2 mb-4">
-              <Clock className="h-5 w-5 text-teal-600" />
-              <h3 className="text-xl font-semibold text-gray-800">7. DURÉE ET RÉSILIATION</h3>
-            </div>
-            <div className="text-gray-700">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-teal-50 p-4 rounded-lg text-center">
-                  <h4 className="font-semibold text-teal-800">Abonnements</h4>
-                  <p className="text-sm mt-2">Durée selon formule choisie</p>
-                  <p className="text-sm">Renouvellement automatique</p>
+            <Card>
+              <CardHeader>
+                <CardTitle>Article 6 - Responsabilité et garanties</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <Alert>
+                  <AlertTriangle className="h-4 w-4" />
+                  <AlertDescription>
+                    <strong>Usage médical :</strong> MED-MNG est un outil éducatif et ne remplace pas 
+                    l'avis d'un professionnel de santé. Les contenus ne constituent pas de conseils médicaux.
+                  </AlertDescription>
+                </Alert>
+                
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="font-semibold mb-2">Limitations de responsabilité</h4>
+                    <ul className="list-disc pl-6 text-sm text-muted-foreground space-y-1">
+                      <li>Interruptions de service pour maintenance ou incidents techniques</li>
+                      <li>Erreurs ou imprécisions dans les contenus éducatifs</li>
+                      <li>Dommages indirects liés à l'utilisation de la plateforme</li>
+                      <li>Pertes de données dues à des facteurs externes</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold mb-2">Engagements de MED-MNG</h4>
+                    <ul className="list-disc pl-6 text-sm text-muted-foreground space-y-1">
+                      <li>Maintenir la disponibilité du service dans la mesure du possible</li>
+                      <li>Assurer la sécurité et confidentialité des données</li>
+                      <li>Fournir des contenus de qualité et régulièrement mis à jour</li>
+                      <li>Offrir un support technique réactif</li>
+                    </ul>
+                  </div>
                 </div>
-                <div className="bg-teal-50 p-4 rounded-lg text-center">
-                  <h4 className="font-semibold text-teal-800">Résiliation</h4>
-                  <p className="text-sm mt-2">À tout moment depuis le profil</p>
-                  <p className="text-sm">Effet à la fin de la période</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Article 7 - Durée et résiliation</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <h4 className="font-semibold mb-2">Résiliation par l'utilisateur</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Vous pouvez résilier votre compte à tout moment depuis vos paramètres. 
+                      Les abonnements en cours restent actifs jusqu'à leur échéance.
+                    </p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold mb-2">Résiliation par MED-MNG</h4>
+                    <p className="text-sm text-muted-foreground">
+                      Nous nous réservons le droit de suspendre ou résilier l'accès en cas 
+                      de non-respect des présentes conditions, avec préavis sauf urgence.
+                    </p>
+                  </div>
                 </div>
-                <div className="bg-teal-50 p-4 rounded-lg text-center">
-                  <h4 className="font-semibold text-teal-800">Suspension</h4>
-                  <p className="text-sm mt-2">En cas de non-respect des CGU</p>
-                  <p className="text-sm">Après mise en demeure</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Scale className="h-5 w-5" />
+                  Article 8 - Droit applicable et juridiction
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-muted-foreground">
+                  Les présentes CGU sont soumises au droit français. En cas de litige, 
+                  les parties s'efforceront de trouver une solution amiable.
+                </p>
+                <p className="text-muted-foreground">
+                  À défaut d'accord amiable, les tribunaux de Paris seront seuls compétents 
+                  pour connaître de tout litige relatif à l'interprétation ou à l'exécution 
+                  des présentes conditions.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="border-primary/20 bg-primary/5">
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-semibold">Version actuelle : 2.1</p>
+                    <p className="text-sm text-muted-foreground">Dernière mise à jour : 28 septembre 2024</p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm text-muted-foreground">
+                      Ces conditions peuvent être modifiées.<br />
+                      Les utilisateurs seront prévenus par email.
+                    </p>
+                  </div>
                 </div>
-              </div>
-            </div>
-          </Card>
-
-          {/* 8. Modifications */}
-          <Card className="p-6">
-            <div className="flex items-center space-x-2 mb-4">
-              <AlertTriangle className="h-5 w-5 text-amber-600" />
-              <h3 className="text-xl font-semibold text-gray-800">8. MODIFICATION DES CONDITIONS</h3>
-            </div>
-            <div className="text-gray-700">
-              <div className="bg-amber-50 p-4 rounded-lg">
-                <p>Les présentes CGU peuvent être modifiées à tout moment pour s'adapter aux évolutions légales, techniques ou pédagogiques.</p>
-                <p className="mt-2 text-sm">Les utilisateurs seront informés des modifications majeures par email et devront les accepter pour continuer à utiliser le service.</p>
-              </div>
-            </div>
-          </Card>
-
-          {/* 9. Droit applicable */}
-          <Card className="p-6">
-            <div className="flex items-center space-x-2 mb-4">
-              <Shield className="h-5 w-5 text-gray-600" />
-              <h3 className="text-xl font-semibold text-gray-800">9. DROIT APPLICABLE ET JURIDICTION</h3>
-            </div>
-            <div className="text-gray-700">
-              <p>Les présentes CGU sont soumises au <strong>droit français</strong>.</p>
-              <p className="mt-2">En cas de litige, les tribunaux compétents sont ceux du ressort du siège social de la société EMOTIONSCARE (Amiens, France), sauf disposition légale contraire.</p>
-              <div className="bg-gray-50 p-3 rounded-lg mt-3">
-                <p className="text-sm text-gray-600">Pour tout litige, une médiation amiable sera privilégiée avant toute action judiciaire.</p>
-              </div>
-            </div>
-          </Card>
-
-          {/* Contact */}
-          <Card className="p-6 bg-gradient-to-r from-blue-50 to-purple-50">
-            <div className="text-center">
-              <h4 className="font-semibold text-gray-800 mb-3">Questions sur les Conditions d'Utilisation ?</h4>
-              <div className="flex items-center justify-center space-x-4">
-                <div className="flex items-center space-x-1">
-                  <Mail className="h-4 w-4 text-blue-600" />
-                  <span>medmng@emotionscare.com</span>
-                </div>
-              </div>
-            </div>
-          </Card>
-
-          {/* Retour */}
-          <div className="text-center pt-6">
-            <Link to="/">
-              <Button className="flex items-center space-x-2">
-                <ArrowLeft className="h-4 w-4" />
-                <span>Retour à l'accueil</span>
-              </Button>
-            </Link>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
-    </ConsistentBackground>
+    </>
   );
-};
+}
 
 export default Conditions;

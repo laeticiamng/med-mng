@@ -1,9 +1,9 @@
-import React from 'react';
 import { Scale, Building, Mail, Phone } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Helmet } from 'react-helmet-async';
 
-export const MentionsLegales = () => {
+// Simple JS functional component with minimal TypeScript
+function MentionsLegales() {
   return (
     <>
       <Helmet>
