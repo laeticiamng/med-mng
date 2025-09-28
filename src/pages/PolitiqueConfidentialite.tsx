@@ -1,188 +1,285 @@
-import { Helmet } from "react-helmet-async";
-import { Shield, Lock, Eye, FileText, Phone } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { ArrowLeft, Shield, Eye, Lock, UserCheck, Database, Globe, Clock, Mail } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
-// Pure JS functional component
-function PolitiqueConfidentialite() {
+const PolitiqueConfidentialite = () => {
   return (
-    <>
-      <Helmet>
-        <title>Politique de Confidentialité - MED-MNG</title>
-        <meta name="description" content="Politique de confidentialité et protection des données personnelles MED-MNG" />
-      </Helmet>
-      
-      <div className="min-h-screen bg-background">
-        <div className="container mx-auto px-4 py-8 max-w-4xl">
-          <div className="flex items-center gap-3 mb-8">
-            <Shield className="h-8 w-8 text-primary" />
-            <div>
-              <h1 className="text-3xl font-bold text-foreground">Politique de Confidentialité</h1>
-              <p className="text-muted-foreground">Protection de vos données personnelles</p>
-            </div>
+    <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-blue-50">
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center space-x-4">
+            <Link to="/" className="flex items-center space-x-2 text-blue-600 hover:text-blue-800">
+              <ArrowLeft className="h-4 w-4" />
+              <span>Retour à l'accueil</span>
+            </Link>
+            <div className="h-6 border-l border-gray-300" />
+            <h1 className="text-3xl font-bold text-gray-800">Politique de Confidentialité</h1>
           </div>
-          
-          <div className="space-y-8">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Eye className="h-5 w-5" />
-                  Collecte des données
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-muted-foreground">
-                  Nous collectons les données personnelles suivantes dans le cadre de votre utilisation de MED-MNG :
-                </p>
-                <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
-                  <li>Nom, prénom et adresse email lors de l'inscription</li>
-                  <li>Données d'utilisation et de navigation sur la plateforme</li>
-                  <li>Préférences et paramètres de personnalisation</li>
-                  <li>Données de performance et d'apprentissage médical</li>
-                  <li>Informations de connexion et logs techniques</li>
-                </ul>
-              </CardContent>
-            </Card>
+        </div>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <FileText className="h-5 w-5" />
-                  Utilisation des données
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-muted-foreground">
-                  Vos données personnelles sont utilisées exclusivement pour :
-                </p>
-                <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
-                  <li>Fournir et améliorer nos services éducatifs médicaux</li>
-                  <li>Personnaliser votre expérience d'apprentissage</li>
-                  <li>Communiquer avec vous concernant votre compte et les services</li>
-                  <li>Analyser l'utilisation de la plateforme pour l'optimiser</li>
-                  <li>Assurer la sécurité et la conformité de nos services</li>
-                </ul>
-              </CardContent>
-            </Card>
+        <div className="max-w-4xl mx-auto space-y-6">
+          {/* En-tête avec logo */}
+          <Card className="p-6 bg-gradient-to-r from-green-600 to-blue-600 text-white">
+            <div className="text-center space-y-4">
+              <div className="flex items-center justify-center space-x-2">
+                <Shield className="h-8 w-8" />
+                <h2 className="text-2xl font-bold">MED MNG - Politique de Confidentialité</h2>
+              </div>
+              <p className="text-green-100">https://medmng.com</p>
+              <p className="text-sm text-green-200">Version officielle – Conformité RGPD</p>
+            </div>
+          </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Lock className="h-5 w-5" />
-                  Partage des données
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-muted-foreground">
-                  Nous ne vendons, ne louons et ne partageons pas vos données personnelles 
-                  avec des tiers, sauf dans les cas strictement nécessaires suivants :
-                </p>
-                <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
-                  <li>Avec votre consentement explicite et préalable</li>
-                  <li>Pour respecter nos obligations légales et réglementaires</li>
-                  <li>Avec nos prestataires de services (hébergement, analytics) sous contrat de confidentialité</li>
-                  <li>En cas de fusion, acquisition ou restructuration de l'entreprise</li>
-                </ul>
-              </CardContent>
-            </Card>
+          {/* 1. Finalité */}
+          <Card className="p-6">
+            <div className="flex items-center space-x-2 mb-4">
+              <Eye className="h-5 w-5 text-blue-600" />
+              <h3 className="text-xl font-semibold text-gray-800">1. FINALITÉ DE LA PRÉSENTE POLITIQUE</h3>
+            </div>
+            <div className="text-gray-700">
+              <p>La présente politique de confidentialité a pour but d'informer les utilisateurs de la plateforme MED MNG sur la nature des données personnelles collectées, leur traitement, leur protection, et les droits des utilisateurs conformément au <strong>Règlement Général sur la Protection des Données (RGPD – UE 2016/679)</strong>.</p>
+            </div>
+          </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Vos droits RGPD</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <p className="text-muted-foreground">
-                  Conformément au Règlement Général sur la Protection des Données (RGPD), 
-                  vous disposez des droits suivants :
-                </p>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <h4 className="font-semibold">Droits d'accès et de contrôle</h4>
-                    <ul className="list-disc pl-6 text-sm text-muted-foreground space-y-1">
-                      <li>Droit d'accès à vos données personnelles</li>
-                      <li>Droit de rectification et de mise à jour</li>
-                      <li>Droit à l'effacement de vos données</li>
-                    </ul>
+          {/* 2. Responsable du traitement */}
+          <Card className="p-6">
+            <div className="flex items-center space-x-2 mb-4">
+              <UserCheck className="h-5 w-5 text-green-600" />
+              <h3 className="text-xl font-semibold text-gray-800">2. RESPONSABLE DU TRAITEMENT</h3>
+            </div>
+            <div className="text-gray-700">
+              <p>Le traitement des données personnelles est effectué par :</p>
+              <div className="bg-green-50 p-4 rounded-lg mt-3 space-y-2">
+                <p><strong>EMOTIONSCARE</strong>, SASU au capital de 100 €</p>
+                <p>Siège social : <strong>5 rue Caudron, 80000 Amiens, France</strong></p>
+                <div className="flex items-center space-x-4 pt-2">
+                  <div className="flex items-center space-x-1">
+                    <Mail className="h-4 w-4 text-green-600" />
+                    <span>medmng@emotionscare.com</span>
                   </div>
-                  <div className="space-y-2">
-                    <h4 className="font-semibold">Droits de portabilité</h4>
-                    <ul className="list-disc pl-6 text-sm text-muted-foreground space-y-1">
-                      <li>Droit à la portabilité de vos données</li>
-                      <li>Droit d'opposition au traitement</li>
-                      <li>Droit à la limitation du traitement</li>
-                    </ul>
+                  <span className="text-gray-500">ou</span>
+                  <div className="flex items-center space-x-1">
+                    <Mail className="h-4 w-4 text-green-600" />
+                    <span>contact@emotionscare.com</span>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+                <p className="pt-2"><strong>Représentée par :</strong> Laëticia Motongane, Présidente et responsable de la publication</p>
+              </div>
+            </div>
+          </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Sécurité et conservation</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <h4 className="font-semibold mb-2">Mesures de sécurité</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Nous mettons en œuvre des mesures techniques et organisationnelles 
-                      robustes : chiffrement des données, authentification multi-facteurs, 
-                      audits de sécurité réguliers.
-                    </p>
+          {/* 3. Données collectées */}
+          <Card className="p-6">
+            <div className="flex items-center space-x-2 mb-4">
+              <Database className="h-5 w-5 text-purple-600" />
+              <h3 className="text-xl font-semibold text-gray-800">3. DONNÉES COLLECTÉES</h3>
+            </div>
+            <div className="space-y-4 text-gray-700">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="bg-purple-50 p-4 rounded-lg">
+                  <h4 className="font-semibold text-purple-800 mb-3">📌 Données collectées automatiquement :</h4>
+                  <ul className="space-y-1 text-sm">
+                    <li>• Adresse IP (à des fins de sécurité)</li>
+                    <li>• Données de navigation anonymisées (cookies strictement nécessaires)</li>
+                    <li>• Temps de connexion, pages visitées</li>
+                  </ul>
+                </div>
+                <div className="bg-blue-50 p-4 rounded-lg">
+                  <h4 className="font-semibold text-blue-800 mb-3">📌 Données fournies volontairement :</h4>
+                  <ul className="space-y-1 text-sm">
+                    <li>• Adresse email (création de compte)</li>
+                    <li>• Nom ou pseudonyme (optionnel)</li>
+                    <li>• Préférences pédagogiques (Rang A/B, styles musicaux)</li>
+                    <li>• Progression pédagogique (historique des chansons, QCM)</li>
+                  </ul>
+                </div>
+              </div>
+              <div className="bg-green-100 p-3 rounded-lg border-l-4 border-green-500">
+                <p className="font-medium text-green-800">Aucune donnée de santé ou donnée sensible n'est collectée.</p>
+              </div>
+            </div>
+          </Card>
+
+          {/* 4. Finalité du traitement */}
+          <Card className="p-6">
+            <div className="flex items-center space-x-2 mb-4">
+              <Globe className="h-5 w-5 text-amber-600" />
+              <h3 className="text-xl font-semibold text-gray-800">4. FINALITÉ DU TRAITEMENT</h3>
+            </div>
+            <div className="text-gray-700">
+              <p className="mb-3">Les données sont collectées uniquement dans les buts suivants :</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div className="bg-amber-50 p-3 rounded text-sm">• Fournir une expérience utilisateur personnalisée</div>
+                <div className="bg-amber-50 p-3 rounded text-sm">• Suivre la progression pédagogique</div>
+                <div className="bg-amber-50 p-3 rounded text-sm">• Générer du contenu adapté (chansons MNG)</div>
+                <div className="bg-amber-50 p-3 rounded text-sm">• Améliorer les services (analyse anonyme)</div>
+                <div className="bg-amber-50 p-3 rounded text-sm">• Communiquer les mises à jour</div>
+                <div className="bg-amber-50 p-3 rounded text-sm">• Newsletter (si inscrite)</div>
+              </div>
+            </div>
+          </Card>
+
+          {/* 5. Base légale */}
+          <Card className="p-6">
+            <div className="flex items-center space-x-2 mb-4">
+              <Lock className="h-5 w-5 text-red-600" />
+              <h3 className="text-xl font-semibold text-gray-800">5. BASE LÉGALE</h3>
+            </div>
+            <div className="text-gray-700">
+              <p className="mb-3">Le traitement est fondé sur :</p>
+              <ul className="space-y-2">
+                <li className="flex items-start space-x-2">
+                  <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
+                  <span>L'exécution du contrat utilisateur (accès à la plateforme MED MNG)</span>
+                </li>
+                <li className="flex items-start space-x-2">
+                  <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
+                  <span>L'intérêt légitime de l'éditeur (amélioration continue du service)</span>
+                </li>
+                <li className="flex items-start space-x-2">
+                  <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
+                  <span>Le consentement libre, éclairé et spécifique (informations marketing - opt-in)</span>
+                </li>
+              </ul>
+            </div>
+          </Card>
+
+          {/* 6. Durée de conservation */}
+          <Card className="p-6">
+            <div className="flex items-center space-x-2 mb-4">
+              <Clock className="h-5 w-5 text-indigo-600" />
+              <h3 className="text-xl font-semibold text-gray-800">6. DURÉE DE CONSERVATION</h3>
+            </div>
+            <div className="space-y-3 text-gray-700">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                <div className="bg-indigo-50 p-4 rounded-lg text-center">
+                  <p className="font-semibold text-indigo-800">Données de compte</p>
+                  <p className="text-sm mt-1">Durée d'utilisation + 3 ans</p>
+                </div>
+                <div className="bg-indigo-50 p-4 rounded-lg text-center">
+                  <p className="font-semibold text-indigo-800">Données de navigation</p>
+                  <p className="text-sm mt-1">12 mois maximum</p>
+                </div>
+                <div className="bg-indigo-50 p-4 rounded-lg text-center">
+                  <p className="font-semibold text-indigo-800">Données pédagogiques</p>
+                  <p className="text-sm mt-1">5 ans (puis anonymisées)</p>
+                </div>
+              </div>
+              <p className="text-sm text-indigo-600 text-center">Sauf demande explicite de suppression immédiate</p>
+            </div>
+          </Card>
+
+          {/* 7. Sécurité des données */}
+          <Card className="p-6">
+            <div className="flex items-center space-x-2 mb-4">
+              <Shield className="h-5 w-5 text-emerald-600" />
+              <h3 className="text-xl font-semibold text-gray-800">7. SÉCURITÉ DES DONNÉES</h3>
+            </div>
+            <div className="text-gray-700">
+              <div className="bg-emerald-50 p-4 rounded-lg space-y-2">
+                <p>• <strong>Hébergement :</strong> Serveurs sécurisés via Supabase</p>
+                <p>• <strong>Chiffrement :</strong> En transit et au repos</p>
+                <p>• <strong>Sauvegardes :</strong> Automatisées et sécurisées</p>
+                <p>• <strong>Accès :</strong> Restreint aux seules personnes habilitées</p>
+                <p className="text-emerald-600 font-medium">• <strong>Aucun prestataire tiers</strong> n'a accès aux données</p>
+              </div>
+            </div>
+          </Card>
+
+          {/* 8. Partage et transmission */}
+          <Card className="p-6">
+            <div className="flex items-center space-x-2 mb-4">
+              <Globe className="h-5 w-5 text-orange-600" />
+              <h3 className="text-xl font-semibold text-gray-800">8. PARTAGE ET TRANSMISSION</h3>
+            </div>
+            <div className="text-gray-700">
+              <div className="bg-orange-50 p-4 rounded-lg border-l-4 border-orange-500">
+                <p className="font-semibold text-orange-800 mb-2">Aucune donnée personnelle n'est transmise à des tiers</p>
+                <p className="text-sm">Sauf en cas d'obligation légale (demandes judiciaires, sécurité nationale)</p>
+                <p className="text-sm mt-2">Aucun transfert hors UE sans protection adéquate conforme au RGPD</p>
+              </div>
+            </div>
+          </Card>
+
+          {/* 9. Droits des utilisateurs */}
+          <Card className="p-6">
+            <div className="flex items-center space-x-2 mb-4">
+              <UserCheck className="h-5 w-5 text-teal-600" />
+              <h3 className="text-xl font-semibold text-gray-800">9. DROITS DES UTILISATEURS</h3>
+            </div>
+            <div className="text-gray-700">
+              <p className="mb-4">Conformément au RGPD, vous disposez des droits suivants :</p>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-4">
+                <div className="bg-teal-50 p-3 rounded text-center text-sm">Droit d'accès</div>
+                <div className="bg-teal-50 p-3 rounded text-center text-sm">Droit de rectification</div>
+                <div className="bg-teal-50 p-3 rounded text-center text-sm">Droit à l'effacement</div>
+                <div className="bg-teal-50 p-3 rounded text-center text-sm">Droit à la limitation</div>
+                <div className="bg-teal-50 p-3 rounded text-center text-sm">Droit à la portabilité</div>
+                <div className="bg-teal-50 p-3 rounded text-center text-sm">Droit d'opposition</div>
+                <div className="bg-teal-50 p-3 rounded text-center text-sm">Retrait du consentement</div>
+                <div className="bg-teal-50 p-3 rounded text-center text-sm">Droit à l'oubli</div>
+              </div>
+              <div className="bg-teal-100 p-4 rounded-lg">
+                <p className="font-semibold text-teal-800">Pour exercer vos droits :</p>
+                <div className="flex items-center space-x-4 mt-2">
+                  <div className="flex items-center space-x-1">
+                    <Mail className="h-4 w-4 text-teal-600" />
+                    <span>medmng@emotionscare.com</span>
                   </div>
-                  <div>
-                    <h4 className="font-semibold mb-2">Durée de conservation</h4>
-                    <p className="text-sm text-muted-foreground">
-                      Les données sont conservées pendant la durée nécessaire aux finalités 
-                      pour lesquelles elles ont été collectées, conformément à nos obligations légales.
-                    </p>
+                  <span className="text-gray-500">ou</span>
+                  <div className="flex items-center space-x-1">
+                    <Mail className="h-4 w-4 text-teal-600" />
+                    <span>contact@emotionscare.com</span>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
+          </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Phone className="h-5 w-5" />
-                  Contact et réclamations
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <h4 className="font-semibold mb-2">Délégué à la Protection des Données</h4>
-                    <p className="text-sm text-muted-foreground">
-                      <strong>Email :</strong> dpo@med-mng.com<br />
-                      <strong>Courrier :</strong> DPO MED-MNG<br />
-                      123 Avenue de la Médecine, 75013 Paris
-                    </p>
-                  </div>
-                  <div>
-                    <h4 className="font-semibold mb-2">Autorité de contrôle</h4>
-                    <p className="text-sm text-muted-foreground">
-                      En cas de réclamation, vous pouvez vous adresser à la CNIL :<br />
-                      <strong>Web :</strong> www.cnil.fr<br />
-                      <strong>Téléphone :</strong> 01 53 73 22 22
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+          {/* 10. Cookies */}
+          <Card className="p-6">
+            <div className="flex items-center space-x-2 mb-4">
+              <Database className="h-5 w-5 text-pink-600" />
+              <h3 className="text-xl font-semibold text-gray-800">10. COOKIES</h3>
+            </div>
+            <div className="text-gray-700">
+              <div className="bg-pink-50 p-4 rounded-lg">
+                <p><strong>Seuls des cookies strictement nécessaires</strong> au bon fonctionnement de la plateforme sont utilisés :</p>
+                <ul className="mt-2 space-y-1 text-sm">
+                  <li>• Authentification</li>
+                  <li>• Session utilisateur</li>
+                  <li>• Préférences</li>
+                </ul>
+                <p className="mt-3 text-pink-600 font-medium">Aucun cookie de publicité ou de tracking externe.</p>
+              </div>
+            </div>
+          </Card>
 
-            <Card className="border-primary/20 bg-primary/5">
-              <CardContent className="pt-6">
-                <p className="text-sm text-muted-foreground">
-                  <strong>Dernière mise à jour :</strong> 28 septembre 2024<br />
-                  Cette politique peut être modifiée. Les utilisateurs seront informés 
-                  de tout changement significatif par email et notification sur la plateforme.
-                </p>
-              </CardContent>
-            </Card>
+          {/* 11. Mise à jour */}
+          <Card className="p-6">
+            <div className="flex items-center space-x-2 mb-4">
+              <Clock className="h-5 w-5 text-gray-600" />
+              <h3 className="text-xl font-semibold text-gray-800">11. MISE À JOUR DE LA POLITIQUE</h3>
+            </div>
+            <div className="text-gray-700">
+              <p>Cette politique peut être mise à jour à tout moment. La date de la dernière mise à jour sera indiquée en haut de page.</p>
+            </div>
+          </Card>
+
+          {/* Retour */}
+          <div className="text-center pt-6">
+            <Link to="/">
+              <Button className="flex items-center space-x-2">
+                <ArrowLeft className="h-4 w-4" />
+                <span>Retour à l'accueil</span>
+              </Button>
+            </Link>
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
-}
+};
 
 export default PolitiqueConfidentialite;

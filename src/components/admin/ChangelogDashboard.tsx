@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { errorService } from '@/services/core/ErrorService';
 import { 
   Clock, 
   User, 
@@ -24,8 +23,8 @@ interface ChangelogEntry {
   table_name: string;
   record_id: string;
   field_name?: string;
-  old_value?: Record<string, unknown>;
-  new_value?: Record<string, unknown>;
+  old_value?: any;
+  new_value?: any;
   reason?: string;
   created_at: string;
   profiles?: {
@@ -57,7 +56,7 @@ export const ChangelogDashboard: React.FC = () => {
         setChangelog(data.data);
       }
     } catch (error) {
-      errorService.handleError(error as Error, 'system', false);
+      console.error('Erreur fetch changelog:', error);
       toast.error('Erreur lors du chargement du changelog');
     } finally {
       setLoading(false);
@@ -94,7 +93,7 @@ export const ChangelogDashboard: React.FC = () => {
     );
   };
 
-  const formatValue = (value: Record<string, unknown> | string | number | null) => {
+  const formatValue = (value: any) => {
     if (value === null || value === undefined) return 'null';
     if (typeof value === 'object') return JSON.stringify(value, null, 2);
     return String(value);

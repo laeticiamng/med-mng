@@ -17,7 +17,7 @@ const TestItem: React.FC<TestItemProps> = ({ itemCode }) => {
   useEffect(() => {
     const fetchItem = async () => {
       const { data, error } = await supabase
-        .from('edn_items_complete')
+        .from('edn_items_immersive')
         .select('*')
         .eq('item_code', itemCode)
         .single();

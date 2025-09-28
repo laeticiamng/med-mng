@@ -1,4 +1,3 @@
-import { ContentGenerationPayload } from '@/types/hooks';
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -20,7 +19,7 @@ export interface GeneratedContent {
   id: string;
   type: 'music' | 'voice' | 'image';
   content: string; // URL or base64
-  metadata: Record<string, unknown>;
+  metadata: Record<string, any>;
   createdAt: string;
 }
 
@@ -40,7 +39,7 @@ export const useContentGeneration = () => {
       }
 
       let functionName: string;
-      let payload: ContentGenerationPayload = {
+      let payload: any = {
         ...request,
         userId: user.id
       };

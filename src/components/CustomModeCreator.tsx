@@ -18,7 +18,6 @@ import {
   Palette
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { errorService } from '@/services/core/ErrorService';
 import type { ListeningMode } from '@/hooks/useListeningModes';
 
 export const CustomModeCreator = () => {
@@ -86,6 +85,8 @@ export const CustomModeCreator = () => {
 
     try {
       // Ici on sauvegarderait le mode personnalisé
+      console.log('Mode personnalisé créé:', customMode);
+      
       toast({
         title: "Mode créé !",
         description: `Le mode "${customMode.name}" a été sauvegardé.`
@@ -111,7 +112,7 @@ export const CustomModeCreator = () => {
         color: 'blue'
       });
     } catch (error) {
-      errorService.handleError(error as Error, 'user_action', true);
+      console.error('Erreur sauvegarde mode:', error);
       toast({
         title: "Erreur",
         description: "Impossible de sauvegarder le mode.",

@@ -2,7 +2,6 @@ import React from 'react';
 import { AlertTriangle } from 'lucide-react';
 import { ParolesMusicalesRangSection } from './ParolesMusicalesRangSection';
 import { SunoGenerationStatus } from './SunoGenerationStatus';
-import { logger } from '@/utils/structuredLogger';
 
 interface ParolesMusicalesMainContentProps {
   paroles: string[] | string[][];
@@ -60,91 +59,23 @@ export const ParolesMusicalesMainContent: React.FC<ParolesMusicalesMainContentPr
   onStop,
   pollingTracks = 0
 }) => {
-  logger.debug('ParolesMusicalesMainContent reçu', {
-    component: 'ParolesMusicalesMainContent',
-    metadata: {
-      itemCode,
-      parolesType: typeof paroles,
-      isArray: Array.isArray(paroles)
-    }
-  });
+  console.log('🎵 ParolesMusicalesMainContent - Received paroles:', paroles);
   
-  // Normaliser les paroles en format attendu avec debugging renforcé
-  let normalizedParoles: string[] = [];
-  
-  if (Array.isArray(paroles) && paroles.length > 0) {
-    logger.debug('Première entrée paroles analysée', {
-      component: 'ParolesMusicalesMainContent',
-      metadata: {
-        firstEntryType: typeof paroles[0],
-        isFirstArray: Array.isArray(paroles[0])
-      }
-    });
-    
-    if (Array.isArray(paroles[0])) {
-      // Format string[][]
-      logger.debug('Format détecté: string[][]', {
-        component: 'ParolesMusicalesMainContent'
-      });
-      normalizedParoles = (paroles as string[][]).map((section, index) => {
-        const result = Array.isArray(section) ? section.join('\n') : String(section);
-        logger.trace(`Section ${index} normalisée`, {
-          component: 'ParolesMusicalesMainContent',
-          metadata: { sectionIndex: index, preview: result.substring(0, 100) }
-        });
-        return result;
-      });
-    } else {
-      // Format string[]
-      logger.debug('Format détecté: string[]', {
-        component: 'ParolesMusicalesMainContent'
-      });
-      normalizedParoles = (paroles as string[]).map((section, index) => {
-        const result = String(section);
-        logger.trace(`Section ${index} convertie`, {
-          component: 'ParolesMusicalesMainContent',
-          metadata: { sectionIndex: index, preview: result.substring(0, 100) }
-        });
-        return result;
-      });
-    }
-  } else {
-    logger.warn('Paroles non valides ou vides', {
-      component: 'ParolesMusicalesMainContent',
-      metadata: { paroles }
-    });
-  }
+  // Normaliser les paroles en format attendu
+  const normalizedParoles = Array.isArray(paroles[0]) 
+    ? (paroles as string[][]).map(section => section.join('\n'))
+    : paroles as string[];
 
-  logger.debug('Paroles normalisées', {
-    component: 'ParolesMusicalesMainContent',
-    metadata: { count: normalizedParoles.length }
-  });
+  console.log('🎵 ParolesMusicalesMainContent - Normalized paroles:', normalizedParoles);
 
-  // Vérifier si on a vraiment des paroles utilisables
-  const hasUsableParoles = normalizedParoles && 
-    normalizedParoles.length > 0 && 
-    normalizedParoles.some((p, index) => {
-      const isUsable = p && typeof p === 'string' && p.trim().length > 0;
-      logger.trace(`Parole ${index} analysée`, {
-        component: 'ParolesMusicalesMainContent',
-        metadata: { index, isUsable, length: p?.length || 0 }
-      });
-      return isUsable;
-    });
-
-  logger.debug('Paroles utilisables vérifiées', {
-    component: 'ParolesMusicalesMainContent',
-    metadata: { hasUsableParoles }
-  });
-
-  if (!hasUsableParoles) {
+  if (!normalizedParoles || normalizedParoles.length === 0) {
     return (
       <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
         <div className="flex items-center gap-2 text-yellow-800">
-          <AlertTriangle className="h-5 w-5 flex-shrink-0" />
-          <span className="font-semibold text-container">Aucune parole disponible</span>
+          <AlertTriangle className="h-5 w-5" />
+          <span className="font-semibold">Aucune parole disponible</span>
         </div>
-        <p className="text-yellow-700 mt-2 text-container">
+        <p className="text-yellow-700 mt-2">
           Cet item ne contient pas encore de paroles musicales pour Suno.
         </p>
       </div>
@@ -152,8 +83,8 @@ export const ParolesMusicalesMainContent: React.FC<ParolesMusicalesMainContentPr
   }
 
   return (
-    <div className="space-y-4 main-content-container">
-      <h3 className="font-semibold title-container-multiline">Paroles disponibles pour génération musicale Suno :</h3>
+    <div className="space-y-4">
+      <h3 className="font-semibold">Paroles disponibles pour génération musicale Suno :</h3>
       
       {normalizedParoles[0] && (
         <div className="space-y-2">
@@ -218,12 +149,12 @@ export const ParolesMusicalesMainContent: React.FC<ParolesMusicalesMainContentPr
       )}
 
       {normalizedParoles[0] && normalizedParoles[1] && (
-        <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg main-content-container">
-          <h4 className="font-semibold text-blue-800 mb-3 flex items-center gap-2 title-container-multiline">
+        <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-lg">
+          <h4 className="font-semibold text-blue-800 mb-3 flex items-center gap-2">
             🎵 Section Combinée Rang A+B - Fusion des compétences
           </h4>
           <ParolesMusicalesRangSection
-            rang="AB"
+            rang="A"
             paroles={`${normalizedParoles[0]}\n\n--- TRANSITION RANG B ---\n\n${normalizedParoles[1]}`}
             musicDuration={musicDuration * 1.5} // Durée augmentée pour la fusion
             selectedStyle={selectedStyle}
@@ -246,7 +177,7 @@ export const ParolesMusicalesMainContent: React.FC<ParolesMusicalesMainContentPr
             generationProgress={generationProgress?.rangA}
             title="Musique Complète A+B"
           />
-          <p className="text-blue-600 text-sm mt-2 description-text">
+          <p className="text-blue-600 text-sm mt-2">
             ✨ Cette section combine les compétences Rang A et Rang B pour une expérience musicale complète de {itemCode}
           </p>
         </div>

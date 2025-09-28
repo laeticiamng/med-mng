@@ -7,7 +7,7 @@ import { formatParoles, hasValidParoles } from './utils/parolesFormatter';
 import { getCardStyling } from './utils/cardStyling';
 
 interface MusicCardContentProps {
-  rang: 'A' | 'B' | 'AB';
+  rang: 'A' | 'B';
   title: string;
   paroles: string;
   isGenerating: boolean;
@@ -26,7 +26,7 @@ export const MusicCardContent = ({
   const hasValidParolesData = hasValidParoles(parolesArray);
 
   return (
-    <Card className={`p-8 bg-gradient-to-br music-card-content ${styling.gradientFrom} ${styling.gradientTo} ${styling.borderColor} shadow-xl ${isGenerating ? 'opacity-75' : ''}`}>
+    <Card className={`p-8 bg-gradient-to-br ${styling.gradientFrom} ${styling.gradientTo} ${styling.borderColor} shadow-xl ${isGenerating ? 'opacity-75' : ''}`}>
       <MusicCardHeader 
         title={title}
         iconColor={styling.iconColor}
@@ -41,7 +41,7 @@ export const MusicCardContent = ({
         textColor={styling.textColor}
       />
 
-      <div className="space-y-4 card-content-safe">
+      <div className="space-y-4">
         {children}
       </div>
     </Card>

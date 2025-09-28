@@ -4,12 +4,11 @@ import { Download, Check, Heart } from 'lucide-react';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { errorService } from '@/services/core/ErrorService';
 
 interface SaveMusicButtonProps {
   audioUrl: string;
   title: string;
-  rang: 'A' | 'B' | 'AB';
+  rang: 'A' | 'B';
   style: string;
   itemCode?: string;
   isVisible: boolean;
@@ -62,7 +61,7 @@ export const SaveMusicButton = ({
         });
 
       if (error) {
-        errorService.handleError(error as Error, 'user_action', true);
+        console.error('Erreur sauvegarde:', error);
         toast({
           title: "Erreur de sauvegarde",
           description: "Impossible de sauvegarder la musique. Réessayez plus tard.",
@@ -78,7 +77,7 @@ export const SaveMusicButton = ({
       });
 
     } catch (error) {
-      errorService.handleError(error as Error, 'user_action', true);
+      console.error('Erreur:', error);
       toast({
         title: "Erreur de sauvegarde",
         description: "Une erreur inattendue s'est produite.",

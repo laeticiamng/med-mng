@@ -3,141 +3,43 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { BookOpen, Brain, Target, Award, CheckCircle } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { logger } from '@/lib/logger';
-
-interface OICCompetence {
-  objectif_id: string;
-  intitule: string;
-  description?: string;
-  rubrique?: string;
-}
-
-interface Concept {
-  competence_id: string;
-  concept: string;
-  analyse?: string;
-  cas?: string;
-  ecueil?: string;
-  technique?: string;
-  maitrise?: string;
-  excellence?: string;
-  paroles_chantables?: string[];
-}
-
-interface Section {
-  title: string;
-  content?: string;
-  objectif_id?: string;
-  concepts?: Concept[];
-  competences?: Concept[];
-}
 
 interface TableauRangBProps {
   data: {
     title?: string;
-    sections?: Section[];
-    competences_oic?: OICCompetence[];
+    sections?: Array<{
+      title: string;
+      content?: string;
+      objectif_id?: string;
+      concepts?: Array<{
+        competence_id: string;
+        concept: string;
+        analyse?: string;
+        cas?: string;
+        ecueil?: string;
+        technique?: string;
+        maitrise?: string;
+        excellence?: string;
+        paroles_chantables?: string[];
+      }>;
+      competences?: Array<{
+        competence_id: string;
+        concept: string;
+        analyse?: string;
+        cas?: string;
+        ecueil?: string;
+        technique?: string;
+        maitrise?: string;
+        excellence?: string;
+        paroles_chantables?: string[];
+      }>;
+    }>;
   };
   itemCode: string;
 }
 
 export const TableauRangB: React.FC<TableauRangBProps> = ({ data, itemCode }) => {
   const isMobile = useIsMobile();
-  // PRIORITÉ 1: Afficher les compétences OIC réelles si disponibles
-  if (data?.competences_oic && Array.isArray(data.competences_oic) && data.competences_oic.length > 0) {
-    logger.info('Displaying real OIC competences Rang B', {
-      component: 'TableauRangB',
-      action: 'display_oic_competences',
-      itemCode,
-      metadata: { competencesCount: data.competences_oic.length }
-    });
-    
-    return (
-      <div className="space-y-6">
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold text-purple-700 mb-2 flex items-center gap-2">
-            <Badge className="bg-purple-600">Rang B</Badge>
-            Compétences Approfondies EDN - {itemCode}
-          </h2>
-          <p className="text-gray-600">
-            Compétences officielles du référentiel OIC - Niveau Expertise ({data.competences_oic.length} compétences)
-          </p>
-        </div>
-
-        <div className="space-y-4">
-          {data.competences_oic.map((competence: OICCompetence, idx: number) => {
-            const competenceId = `competence-oic-b-${idx}`;
-            return (
-              <Card 
-                key={competence.objectif_id || idx} 
-                className="border-l-4 border-l-purple-500 bg-purple-50/30"
-                role="article"
-                aria-labelledby={competenceId}
-              >
-                <CardContent className="p-4">
-                  <div className="space-y-3">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Badge 
-                            variant="outline" 
-                            className="text-xs bg-purple-100 border-purple-300"
-                            aria-label={`Code de compétence ${competence.objectif_id}`}
-                          >
-                            {competence.objectif_id}
-                          </Badge>
-                          {competence.rubrique && (
-                            <Badge 
-                              variant="secondary" 
-                              className="text-xs"
-                            >
-                              {competence.rubrique}
-                            </Badge>
-                          )}
-                        </div>
-                        
-                        <h5 
-                          id={competenceId}
-                          className="font-semibold text-purple-800 text-base leading-tight"
-                        >
-                          {competence.intitule}
-                        </h5>
-                      </div>
-                    </div>
-                    
-                    {competence.description && (
-                      <div 
-                        className="text-sm text-gray-700 leading-relaxed p-3 bg-white rounded border text-container overflow-safe"
-                        role="definition"
-                      >
-                        <div 
-                          className="break-words-force"
-                          dangerouslySetInnerHTML={{ 
-                            __html: competence.description 
-                              .replace(/&nbsp;/g, ' ')
-                              .replace(/<br\s*\/?>/gi, '<br>')
-                          }} 
-                        />
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-
-        <div className="mt-6 p-4 bg-purple-50 rounded-lg border border-purple-200">
-          <div className="flex items-center gap-2 text-sm text-purple-700">
-            <Badge className="bg-purple-600">
-              {data.competences_oic.length}
-            </Badge>
-            compétences officielles du référentiel EDN - Rang B (Expertise)
-          </div>
-        </div>
-      </div>
-    );
-  }
   
   if (!data || !data.sections) {
     return (
@@ -271,7 +173,7 @@ export const TableauRangB: React.FC<TableauRangBProps> = ({ data, itemCode }) =>
                           <Brain className="h-4 w-4" />
                           Analyse Experte
                         </h5>
-                        <p className="text-sm text-gray-700 bg-purple-50 p-3 rounded text-container break-words-force overflow-safe">
+                        <p className="text-sm text-gray-700 bg-purple-50 p-3 rounded">
                           {concept.analyse}
                         </p>
                       </div>

@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { useMusicLibrary } from './useMusicLibrary';
 
 export type RangType = 'A' | 'B' | 'Mix';
 
@@ -21,14 +22,11 @@ interface GenerationResponse {
   };
 }
 
-// ⚠️ DEPRECATED: This hook has been removed for production optimization.
-// Use useUnifiedMedicalMusicGeneration from the unified system instead.
 export const useMusicGeneration = () => {
-  // Removed console.warn for production optimization
-  
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationProgress, setGenerationProgress] = useState<string>('');
   const { toast } = useToast();
+  const { loadLibrary } = useMusicLibrary();
 
   const generateMusic = useCallback(async ({
     itemCode,
@@ -82,7 +80,8 @@ export const useMusicGeneration = () => {
         }),
       });
 
-      // Library refresh removed (deprecated)
+      // Rafraîchir la bibliothèque
+      await loadLibrary();
 
       toast({
         title: "🎵 Musique générée avec succès !",
@@ -102,7 +101,7 @@ export const useMusicGeneration = () => {
       setIsGenerating(false);
       setGenerationProgress('');
     }
-  }, [toast]);
+  }, [toast, loadLibrary]);
 
   return {
     generateMusic,
@@ -112,7 +111,7 @@ export const useMusicGeneration = () => {
 };
 
 // Helper function pour construire le prompt médical structuré
-export function buildMedicalPrompt(itemCode: string, rang: RangType, tableauData?: any): string {
+function buildMedicalPrompt(itemCode: string, rang: RangType, tableauData?: any): string {
   const baseStructure = `
 Structure imposée :
 [Couplet 1] - Introduction des concepts

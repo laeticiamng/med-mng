@@ -83,15 +83,9 @@ export const MonitoringDashboard = () => {
       if (error) throw error;
 
       setIncidents(data.incidents || []);
-    } catch (error: any) {
-      // Silently handle connection errors to avoid spam
-      if (error?.message?.includes('Failed to fetch') || error?.code === 'ENOTFOUND' || error?.code === 'ECONNREFUSED') {
-        console.debug('Monitoring: Service not accessible, using empty incidents list');
-        setIncidents([]);
-      } else {
-        console.error('Failed to fetch incidents:', error);
-        toast.error('Failed to fetch incidents');
-      }
+    } catch (error) {
+      console.error('Failed to fetch incidents:', error);
+      toast.error('Failed to fetch incidents');
     }
   };
 

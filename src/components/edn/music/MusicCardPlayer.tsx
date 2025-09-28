@@ -6,7 +6,7 @@ import { useGlobalAudio } from '@/contexts/GlobalAudioContext';
 interface MusicCardPlayerProps {
   generatedAudio: string;
   title: string;
-  rang: 'A' | 'B' | 'AB';
+  rang: 'A' | 'B';
   selectedStyle: string;
   itemCode?: string;
   isPlaying: boolean;

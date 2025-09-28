@@ -3,347 +3,114 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
     <title>MED MNG par EmotionsCare - Expérience Immersive d'Apprentissage Médical</title>
     <meta name="description" content="Plateforme immersive d'apprentissage des items EDN et situations ECOS - Médecine sensorielle et interactive" />
     <meta name="author" content="MED MNG par EmotionsCare" />
-    
-    <!-- PWA Manifest -->
-    <link rel="manifest" href="/manifest.webmanifest">
-    <meta name="theme-color" content="#4B5563" />
 
-    <!-- Preload critical font files for immediate LCP rendering -->
-    <link rel="preload" href="https://fonts.gstatic.com/s/inter/v19/UcCO3FwrK3iLTeHuS_flhiMyaEo.woff2" as="font" type="font/woff2" crossorigin>
-    <link rel="preload" href="https://fonts.gstatic.com/s/inter/v19/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7W0Q5nw.woff2" as="font" type="font/woff2" crossorigin>
-    
-    <!-- DNS prefetch for fonts to speed up connection -->
-    <link rel="dns-prefetch" href="//fonts.googleapis.com">
-    <link rel="dns-prefetch" href="//fonts.gstatic.com">
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    
-    <!-- Preload critical scripts for faster execution -->
-    <link rel="modulepreload" href="/src/main.tsx">
-    <link rel="modulepreload" href="/src/App.tsx">
-    <link rel="modulepreload" href="/src/pages/Index.tsx">
-    
-    <!-- DNS prefetch and preconnect for external resources -->
-    <link rel="dns-prefetch" href="//yaincoxihiqdksxgrsrk.supabase.co">
-    <link rel="preconnect" href="https://yaincoxihiqdksxgrsrk.supabase.co" crossorigin>
-    
-    <!-- Additional preconnects for potential third-party resources -->
-    <link rel="preconnect" href="https://lovable.dev" crossorigin>
-    
-    <!-- Optimized font loading with complete render-blocking elimination -->
-    <style>
-      @font-face {
-        font-family: 'Inter';
-        font-style: normal;
-        font-weight: 300;
-        font-display: swap;
-        src: url('https://fonts.gstatic.com/s/inter/v19/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa2JL7W0Q5nw.woff2') format('woff2');
-        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-      }
-      @font-face {
-        font-family: 'Inter';
-        font-style: normal;
-        font-weight: 400;
-        font-display: swap;
-        src: url('https://fonts.gstatic.com/s/inter/v19/UcCO3FwrK3iLTeHuS_flhiMyaEo.woff2') format('woff2');
-        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-      }
-      @font-face {
-        font-family: 'Inter';
-        font-style: normal;
-        font-weight: 500;
-        font-display: swap;
-        src: url('https://fonts.gstatic.com/s/inter/v19/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa0pL7W0Q5nw.woff2') format('woff2');
-        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-      }
-      @font-face {
-        font-family: 'Inter';
-        font-style: normal;
-        font-weight: 600;
-        font-display: swap;
-        src: url('https://fonts.gstatic.com/s/inter/v19/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa3pL7W0Q5nw.woff2') format('woff2');
-        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-      }
-      @font-face {
-        font-family: 'Inter';
-        font-style: normal;
-        font-weight: 700;
-        font-display: swap;
-        src: url('https://fonts.gstatic.com/s/inter/v19/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7W0Q5nw.woff2') format('woff2');
-        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-      }
-      @font-face {
-        font-family: 'Inter';
-        font-style: normal;
-        font-weight: 800;
-        font-display: swap;
-        src: url('https://fonts.gstatic.com/s/inter/v19/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa2ZL7W0Q5nw.woff2') format('woff2');
-        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-      }
-      @font-face {
-        font-family: 'JetBrains Mono';
-        font-style: normal;
-        font-weight: 400;
-        font-display: swap;
-        src: url('https://fonts.gstatic.com/s/jetbrainsmono/v18/tDbY2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKxjPVmUsaaDhw.woff2') format('woff2');
-        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-      }
-      @font-face {
-        font-family: 'JetBrains Mono';
-        font-style: normal;
-        font-weight: 500;
-        font-display: swap;
-        src: url('https://fonts.gstatic.com/s/jetbrainsmono/v18/tDbY2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKxjPVmUsaaDhw.woff2') format('woff2');
-        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-      }
-      @font-face {
-        font-family: 'JetBrains Mono';
-        font-style: normal;
-        font-weight: 600;
-        font-display: swap;
-        src: url('https://fonts.gstatic.com/s/jetbrainsmono/v18/tDbY2o-flEEny0FZhsfKu5WU4zr3E_BX0PnT8RD8yKxjPVmUsaaDhw.woff2') format('woff2');
-        unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
-      }
-    </style>
-    
-    <!-- Async CSS loading to eliminate main CSS render blocking -->
-    <script>
-      (function() {
-        // Load main CSS asynchronously to eliminate render blocking
-        var cssLink = document.createElement('link');
-        cssLink.rel = 'stylesheet';
-        cssLink.href = '/src/index.css';
-        cssLink.media = 'print'; // Load as non-blocking initially
-        cssLink.onload = function() { 
-          this.media = 'all'; // Apply once loaded
-        };
-        cssLink.onerror = function() { 
-          this.media = 'all'; // Apply even on error to ensure fallback
-        };
-        document.head.appendChild(cssLink);
-        
-        // Fallback timer to ensure CSS applies
-        setTimeout(function() {
-          if (cssLink.media !== 'all') {
-            cssLink.media = 'all';
-          }
-        }, 300);
-      })();
-    </script>
-    
-    <!-- Service Worker Registration -->
-    <script>
-      // Register Service Worker for efficient caching
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js')
-            .then((registration) => {
-              console.log('SW registered: ', registration);
-            })
-            .catch((registrationError) => {
-              console.log('SW registration failed: ', registrationError);
-            });
-        });
-      }
-    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 
     <meta property="og:title" content="MED MNG par EmotionsCare - Apprentissage Médical Immersif" />
     <meta property="og:description" content="Et si la médecine devenait une expérience sensorielle ? Découvrez les items EDN et situations ECOS dans un univers immersif unique." />
     <meta property="og:type" content="website" />
-    <meta property="og:image" content="/og/item/default.png" />
+    <meta property="og:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
 
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@medmng" />
-    <meta name="twitter:image" content="/og/item/default.png" />
+    <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
     
-    <!-- Critical CSS for immediate rendering -->
     <style>
-      /* Critical CSS Reset & Base */
-      *, *::before, *::after {
-        box-sizing: border-box;
-        border-width: 0;
-        border-style: solid;
-        border-color: #e5e7eb;
+      /* Navigation mobile premium optimisée */
+      @media (max-width: 768px) {
+        body {
+          -webkit-text-size-adjust: 100%;
+          -webkit-tap-highlight-color: transparent;
+          touch-action: manipulation;
+          overscroll-behavior: contain;
+        }
+        
+        button, [role="button"], [role="tab"] {
+          min-height: 48px;
+          min-width: 48px;
+          -webkit-user-select: none;
+          user-select: none;
+          -webkit-tap-highlight-color: transparent;
+          touch-action: manipulation;
+          transition: transform 0.15s ease;
+        }
+        
+        button:active, [role="button"]:active, [role="tab"]:active {
+          transform: scale(0.95);
+        }
+        
+        .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+          -webkit-overflow-scrolling: touch;
+          scroll-behavior: smooth;
+        }
+        
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
+        }
+        
+        input[type="text"], input[type="search"], textarea {
+          font-size: 16px;
+          -webkit-appearance: none;
+          border-radius: 12px;
+        }
+        
+        /* Amélioration des modales sur mobile */
+        [data-radix-portal] {
+          position: fixed !important;
+          inset: 0 !important;
+          z-index: 9999 !important;
+        }
+        
+        /* Navigation par gestes */
+        .swipe-indicator {
+          background: linear-gradient(90deg, transparent, rgba(147, 51, 234, 0.3), transparent);
+          height: 2px;
+          width: 100%;
+          position: absolute;
+          bottom: 0;
+          animation: swipe-hint 2s infinite;
+        }
+        
+        @keyframes swipe-hint {
+          0%, 100% { opacity: 0; }
+          50% { opacity: 1; }
+        }
       }
       
-      html {
-        line-height: 1.5;
-        -webkit-text-size-adjust: 100%;
-        -moz-tab-size: 4;
-        tab-size: 4;
-        font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-        font-feature-settings: normal;
-        font-variation-settings: normal;
+      @supports (-webkit-touch-callout: none) {
+        .modal-content {
+          -webkit-overflow-scrolling: touch;
+          overscroll-behavior: contain;
+        }
+        
+        /* Amélioration pour Safari iOS */
+        .safe-area-inset {
+          padding-top: env(safe-area-inset-top);
+          padding-bottom: env(safe-area-inset-bottom);
+          padding-left: env(safe-area-inset-left);
+          padding-right: env(safe-area-inset-right);
+        }
       }
       
-      body {
-        margin: 0;
-        line-height: inherit;
-        overflow-x: hidden;
+      /* Animations fluides pour les interactions */
+      .premium-transition {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       }
       
-      /* Critical Above-the-fold Layout */
-      .min-h-screen { min-height: 100vh; }
-      .bg-gradient-to-br { background-image: linear-gradient(to bottom right, var(--tw-gradient-stops)); }
-      
-      /* Light theme colors by default */
-      :root {
-        --background: 0 0% 100%;
-        --foreground: 213 15% 15%;
-        --primary: 213 94% 40%;
-        --primary-foreground: 0 0% 100%;
-        --muted: 0 0% 98%;
-        --muted-foreground: 213 15% 50%;
-        --card: 0 0% 100%;
-        --card-foreground: 213 15% 20%;
-        --border: 213 15% 92%;
-      }
-      
-      body {
-        background: hsl(var(--background));
-        color: hsl(var(--foreground));
-      }
-      
-      .relative { position: relative; }
-      .absolute { position: absolute; }
-      .inset-0 { inset: 0px; }
-      .overflow-hidden { overflow: hidden; }
-      
-      /* Critical Typography */
-      .text-6xl { font-size: 3.75rem; line-height: 1; }
-      .text-8xl { font-size: 6rem; line-height: 1; }
-      .text-2xl { font-size: 1.5rem; line-height: 2rem; }
-      .text-xl { font-size: 1.25rem; line-height: 1.75rem; }
-      .text-foreground { color: hsl(var(--foreground)); }
-      .text-muted-foreground { color: hsl(var(--muted-foreground)); }
-      .font-bold { font-weight: 700; }
-      .font-medium { font-weight: 500; }
-      .leading-tight { line-height: 1.25; }
-      .text-center { text-align: center; }
-      
-      /* Critical Flexbox */
-      .flex { display: flex; }
-      .flex-col { flex-direction: column; }
-      .items-center { align-items: center; }
-      .justify-center { justify-content: center; }
-      .justify-between { justify-content: space-between; }
-      .gap-3 { gap: 0.75rem; }
-      
-      /* Critical Components & Layout */
-      .container { width: 100%; margin-left: auto; margin-right: auto; padding-left: 1rem; padding-right: 1rem; }
-      .card { border-radius: 0.75rem; border: 1px solid hsl(var(--border)); background-color: hsl(var(--card)); color: hsl(var(--card-foreground)); }
-      .btn-primary { display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 500; transition-property: color, background-color, border-color, text-decoration-color, fill, stroke; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; height: 2.5rem; padding-left: 1rem; padding-right: 1rem; background-color: hsl(var(--primary)); color: hsl(var(--primary-foreground)); }
-      .btn-secondary { display: inline-flex; align-items: center; justify-content: center; white-space: nowrap; border-radius: 0.5rem; font-size: 0.875rem; font-weight: 500; transition-property: color, background-color, border-color, text-decoration-color, fill, stroke; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; height: 2.5rem; padding-left: 1rem; padding-right: 1rem; background-color: hsl(var(--muted)); color: hsl(var(--muted-foreground)); }
-      
-      /* Critical Navigation */
-      .nav-header { background-color: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255, 255, 255, 0.2); }
-      .nav-link { display: flex; align-items: center; space-x: 0.5rem; padding: 0.5rem 0.75rem; border-radius: 0.375rem; font-size: 0.875rem; font-weight: 500; color: rgba(255, 255, 255, 0.9); transition-property: color, background-color; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 200ms; }
-      .nav-link:hover { background-color: rgba(255, 255, 255, 0.1); color: rgb(255 255 255); }
-      
-      /* Critical Badge */
-      .badge { display: inline-flex; align-items: center; border-radius: 9999px; border: 1px solid transparent; padding-left: 0.625rem; padding-right: 0.625rem; padding-top: 0.125rem; padding-bottom: 0.125rem; font-size: 0.75rem; font-weight: 600; line-height: 1; transition-property: color, background-color, border-color, text-decoration-color, fill, stroke; transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1); transition-duration: 150ms; background-color: hsl(213 94% 35%); color: hsl(0 0% 100%); }
-      
-      /* Critical Loading States */
-      .loading-shimmer { animation: shimmer 2s infinite ease-in-out; background: linear-gradient(90deg, rgba(255,255,255,0.1) 25%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.1) 75%); background-size: 200% 100%; }
-      @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-      
-      /* Critical Grid & Layout Utilities */
-      .grid { display: grid; }
-      .grid-cols-1 { grid-template-columns: repeat(1, minmax(0, 1fr)); }
-      .grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-      .gap-4 { gap: 1rem; }
-      .gap-6 { gap: 1.5rem; }
-      .gap-8 { gap: 2rem; }
-      
-      /* Critical Responsive Utilities */
-      @media (min-width: 640px) {
-        .container { max-width: 640px; }
-        .sm\\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-        .sm\\:text-sm { font-size: 0.875rem; line-height: 1.25rem; }
-      }
-      @media (min-width: 768px) {
-        .container { max-width: 768px; }
-        .md\\:grid-cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-        .md\\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-        .md\\:text-8xl { font-size: 6rem; line-height: 1; }
-        .md\\:px-8 { padding-left: 2rem; padding-right: 2rem; }
-      }
-      @media (min-width: 1024px) {
-        .container { max-width: 1024px; }
-        .lg\\:grid-cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-        .lg\\:grid-cols-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-      }
-      
-      /* Critical Background Effects */
-      .bg-gradient-to-r { background-image: linear-gradient(to right, var(--tw-gradient-stops)); }
-      .bg-clip-text { -webkit-background-clip: text; background-clip: text; }
-      .text-transparent { color: transparent; }
-      .from-pink-400 { --tw-gradient-from: #f472b6 var(--tw-gradient-from-position); --tw-gradient-to: rgb(244 114 182 / 0) var(--tw-gradient-to-position); --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to); }
-      .to-purple-400 { --tw-gradient-to: #c084fc var(--tw-gradient-to-position); }
-      
-      /* Critical Z-index */
-      .z-10 { z-index: 10; }
-      
-      /* Critical Dimensions */
-      .w-12 { width: 3rem; }
-      .h-12 { height: 3rem; }
-      .w-full { width: 100%; }
-      
-      /* Critical Borders & Radius */
-      .rounded-2xl { border-radius: 1rem; }
-      .border { border-width: 1px; }
-      
-      /* Critical Backdrop Effects */
-      .backdrop-blur-sm { --tw-backdrop-blur: blur(4px); backdrop-filter: var(--tw-backdrop-blur) var(--tw-backdrop-brightness) var(--tw-backdrop-contrast) var(--tw-backdrop-grayscale) var(--tw-backdrop-hue-rotate) var(--tw-backdrop-invert) var(--tw-backdrop-opacity) var(--tw-backdrop-saturate) var(--tw-backdrop-sepia); }
-      
-      /* Performance Optimizations */
-      .gpu-accelerated {
-        transform: translateZ(0);
-        backface-visibility: hidden;
-        will-change: transform;
-      }
-      
-      .will-change-transform {
-        will-change: transform;
-      }
-      
-      /* LCP Optimizations */
-      .lcp-heading {
-        font-family: 'Inter', system-ui, -apple-system, sans-serif;
-        font-weight: 700;
-        font-display: swap;
-        contain: layout style paint;
-        text-rendering: optimizeSpeed;
-      }
-      
-      /* Responsive Container */
-      @media (min-width: 1280px) {
-        .container { max-width: 1280px; }
-      }
-      
-      /* Critical Mobile Responsiveness */
-      @media (min-width: 768px) {
-        .md\\:text-8xl { font-size: 6rem; line-height: 1; }
-      }
-      
-      /* Skeleton Loading for Async Content */
-      .skeleton {
-        background: linear-gradient(90deg, rgba(255,255,255,0.1) 25%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0.1) 75%);
-        background-size: 200% 100%;
-        animation: skeleton-loading 1.5s infinite;
-      }
-      
-      @keyframes skeleton-loading {
-        0% { background-position: 200% 0; }
-        100% { background-position: -200% 0; }
+      .premium-hover:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
       }
     </style>
-    
   </head>
 
   <body>

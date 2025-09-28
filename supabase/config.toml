@@ -10,12 +10,6 @@ max_rows = 1000
 [db]
 port = 54322
 
-[functions.auto-extract-oic]
-verify_jwt = false
-
-[functions.extract-edn-objectifs]
-verify_jwt = false
-
 [studio]
 enabled = true
 port = 54323
@@ -121,67 +115,4 @@ verify_jwt = true
 
 [functions.suno-callback]
 verify_jwt = false
-
-[functions.complete-oic-competences]
-verify_jwt = false
-
-[functions.extract-oic-api-first]
-verify_jwt = false
-
-[functions.test-oic-simple]
-verify_jwt = false
-
-[functions.test-connectivity]
-verify_jwt = false
-
-[functions.test-simple-api]
-verify_jwt = false
-
-[functions.extract-oic-comprehensive]
-verify_jwt = false
-
-[functions.generate-all-lyrics]
-verify_jwt = false
-
-[functions.generate-lyrics-refined]
-verify_jwt = false
-
-[functions.generate-lyrics-bulk]
-verify_jwt = false
-
-[functions.edn-lyrics-generate]
-verify_jwt = false
-
-[functions.fix-incomplete-oic]
-verify_jwt = false
-
-[functions.openai-content-generator]
-verify_jwt = false
-
-[functions.suno-music-optimized]
-verify_jwt = false
-
-[functions.complete-oic-urls]
-verify_jwt = false
-
-[functions.advanced-search]
-verify_jwt = false
-
-[functions.audit-system]
-verify_jwt = true
-
-[functions.platform-analytics]
-verify_jwt = true
-
-[functions.security-scanner]
-verify_jwt = true
-
-[functions.generate-image]
-verify_jwt = true
-
-[functions.generate-voice]
-verify_jwt = true
-
-[functions.monitoring-alerts]
-verify_jwt = true
 

@@ -1,8 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { createSafeHtml } from '@/utils/security/sanitize';
+import { createSafeHtml } from '@/utils/sanitize';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ChevronDown, ChevronRight, Eye, Book, Target, AlertTriangle, Settings, Users } from 'lucide-react';
@@ -23,7 +23,6 @@ interface CompetenceOIC {
   causes_echec?: string;
   contributeurs?: string;
   ordre_affichage?: number;
-  url_source?: string;
 }
 
 interface TableauCompetencesOICOptimizedProps {
@@ -79,15 +78,15 @@ const CompetenceCard: React.FC<{
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className={`w-8 h-8 rounded-lg ${themeColors.accent} ${themeColors.text} flex items-center justify-center text-sm font-bold`}>
-                  {competence.ordre_affichage ?? index + 1}
+                  {competence.ordre_affichage || index + 1}
                 </div>
                 <div className="flex-1">
                   {competence.objectif_id && (
-                    <Badge variant="outline" className={`${themeColors.text} text-xs mb-2 badge-text`}>
+                    <Badge variant="outline" className={`${themeColors.text} text-xs mb-2`}>
                       {competence.objectif_id}
                     </Badge>
                   )}
-                  <h3 className={`font-semibold ${themeColors.text} text-sm leading-tight title-container-three-lines`}>
+                  <h3 className={`font-semibold ${themeColors.text} text-sm leading-tight`}>
                     {competence.titre_complet || competence.intitule}
                   </h3>
                 </div>
@@ -109,48 +108,19 @@ const CompetenceCard: React.FC<{
         <CollapsibleContent>
           <CardContent className="pt-4">
             {competence.description && (
-              <div className="mb-4 p-4 bg-accent/10 border border-accent/20 rounded-lg">
-                <div className="flex items-start justify-between mb-3">
-                  <h4 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                    <Book className="w-4 h-4" />
-                    Description OIC (backup_oic_competences)
-                  </h4>
-                  {competence.url_source && (
-                    <a 
-                      href={competence.url_source} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                      className="text-primary hover:underline text-xs flex items-center gap-1"
-                    >
-                      📖 Source UNESS
-                    </a>
-                  )}
-                </div>
+              <div className="mb-4 p-3 bg-muted/30 rounded-lg">
                 <div 
-                  className="text-sm text-foreground leading-relaxed prose prose-sm max-w-none bg-background p-3 rounded border description-text-scrollable"
-                  style={{ 
-                    whiteSpace: 'pre-wrap', 
-                    wordWrap: 'break-word', 
-                    overflowWrap: 'break-word',
-                    lineHeight: '1.6'
-                  }}
+                  className="text-sm text-muted-foreground"
                   dangerouslySetInnerHTML={createSafeHtml(
                     competence.description
                       .replace(/&nbsp;/g, ' ')
                       .replace(/&lt;/g, '<')
                       .replace(/&gt;/g, '>')
                       .replace(/<br\s*\/?>/gi, '<br>')
-                      .replace(/\[\[([^\]|]+)(?:\|[^\]]+)?\]\]/g, '<strong>$1</strong>')
-                      .replace(/\n\n/g, '</p><p>')
-                      .replace(/\n/g, '<br>')
-                      .replace(/^(.+)$/, '<p>$1</p>')
-                      .replace(/<p><\/p>/g, '')
+                      .replace(/\[\[([^\]|]+)(?:\|[^\]]+)?\]\]/g, '$1')
                       .trim()
                   )}
                 />
-                <div className="mt-2 text-xs text-muted-foreground">
-                  ✅ Description extraite directement de la table backup_oic_competences
-                </div>
               </div>
             )}
             
@@ -183,7 +153,7 @@ const CompetenceCard: React.FC<{
                           <Book className="w-4 h-4" />
                           Sommaire
                         </h4>
-                        <p className="text-amber-700 text-sm description-text">{competence.sommaire}</p>
+                        <p className="text-amber-700 text-sm">{competence.sommaire}</p>
                       </div>
                     )}
                     {competence.mecanismes && (
@@ -192,7 +162,7 @@ const CompetenceCard: React.FC<{
                           <Settings className="w-4 h-4" />
                           Mécanismes
                         </h4>
-                        <p className="text-green-700 text-sm description-text">{competence.mecanismes}</p>
+                        <p className="text-green-700 text-sm">{competence.mecanismes}</p>
                       </div>
                     )}
                   </TabsContent>
@@ -206,7 +176,7 @@ const CompetenceCard: React.FC<{
                           <Target className="w-4 h-4" />
                           Indications
                         </h4>
-                        <p className="text-blue-700 text-sm description-text">{competence.indications}</p>
+                        <p className="text-blue-700 text-sm">{competence.indications}</p>
                       </div>
                     )}
                     {competence.modalites_surveillance && (
@@ -215,7 +185,7 @@ const CompetenceCard: React.FC<{
                           <Eye className="w-4 h-4" />
                           Surveillance
                         </h4>
-                        <p className="text-purple-700 text-sm description-text">{competence.modalites_surveillance}</p>
+                        <p className="text-purple-700 text-sm">{competence.modalites_surveillance}</p>
                       </div>
                     )}
                   </TabsContent>
@@ -229,7 +199,7 @@ const CompetenceCard: React.FC<{
                           <AlertTriangle className="w-4 h-4" />
                           Effets indésirables
                         </h4>
-                        <p className="text-red-700 text-sm description-text">{competence.effets_indesirables}</p>
+                        <p className="text-red-700 text-sm">{competence.effets_indesirables}</p>
                       </div>
                     )}
                     {competence.interactions && (
@@ -238,7 +208,7 @@ const CompetenceCard: React.FC<{
                           <Settings className="w-4 h-4" />
                           Interactions
                         </h4>
-                        <p className="text-orange-700 text-sm description-text">{competence.interactions}</p>
+                        <p className="text-orange-700 text-sm">{competence.interactions}</p>
                       </div>
                     )}
                     {competence.causes_echec && (
@@ -247,7 +217,7 @@ const CompetenceCard: React.FC<{
                           <AlertTriangle className="w-4 h-4" />
                           Causes d'échec
                         </h4>
-                        <p className="text-gray-700 text-sm description-text">{competence.causes_echec}</p>
+                        <p className="text-gray-700 text-sm">{competence.causes_echec}</p>
                       </div>
                     )}
                   </TabsContent>
@@ -261,13 +231,13 @@ const CompetenceCard: React.FC<{
                           <Users className="w-4 h-4" />
                           Contributeurs
                         </h4>
-                        <p className="text-blue-700 text-sm description-text">{competence.contributeurs}</p>
+                        <p className="text-blue-700 text-sm">{competence.contributeurs}</p>
                       </div>
                     )}
                     {competence.rubrique && competence.rubrique !== 'Non spécifiée' && (
                       <div className="p-3 bg-indigo-50 border border-indigo-200 rounded-lg">
                         <h4 className="font-semibold text-indigo-800 text-sm mb-2">Rubrique</h4>
-                        <Badge variant="secondary" className="text-indigo-700 badge-text">
+                        <Badge variant="secondary" className="text-indigo-700">
                           {competence.rubrique}
                         </Badge>
                       </div>
@@ -329,20 +299,6 @@ export const TableauCompetencesOICOptimized: React.FC<TableauCompetencesOICOptim
     ? { primary: 'blue', bg: 'bg-blue-50', text: 'text-blue-900' }
     : { primary: 'purple', bg: 'bg-purple-50', text: 'text-purple-900' };
 
-  // Tri stable: ordre_affichage croissant, valeurs non définies à la fin, sinon ordre initial
-  const sortedCompetences = useMemo(() => {
-    return [...competences]
-      .map((c, i) => ({ c, i }))
-      .sort((a, b) => {
-        const ao = a.c.ordre_affichage;
-        const bo = b.c.ordre_affichage;
-        if (ao == null && bo == null) return a.i - b.i; // garder l'ordre original
-        if (ao == null) return 1; // a après b
-        if (bo == null) return -1; // a avant b
-        return ao - bo;
-      })
-      .map(x => x.c);
-  }, [competences]);
   return (
     <Card className="w-full shadow-lg border-0">
       <CardHeader className={`${themeColors.bg} border-b-2 ${rang === 'A' ? 'border-blue-200' : 'border-purple-200'}`}>
@@ -383,7 +339,7 @@ export const TableauCompetencesOICOptimized: React.FC<TableauCompetencesOICOptim
       <CardContent className="p-6">
         {viewMode === 'cards' ? (
           <div className="space-y-4">
-            {sortedCompetences.map((competence, index) => (
+            {competences.map((competence, index) => (
               <CompetenceCard
                 key={`${competence.objectif_id}-${index}`}
                 competence={competence}
@@ -394,13 +350,33 @@ export const TableauCompetencesOICOptimized: React.FC<TableauCompetencesOICOptim
           </div>
         ) : (
           <div className="space-y-2">
-            {sortedCompetences.map((competence, index) => (
-              <CompetenceCard
-                key={`compact-${competence.objectif_id}-${index}`}
-                competence={competence}
-                index={index}
-                rang={rang}
-              />
+            {competences.map((competence, index) => (
+              <div key={index} className="flex items-center gap-4 p-3 border rounded-lg hover:bg-muted/30 transition-colors">
+                <div className={`w-8 h-8 rounded-lg ${rang === 'A' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'} flex items-center justify-center text-sm font-bold flex-shrink-0`}>
+                  {competence.ordre_affichage || index + 1}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    {competence.objectif_id && (
+                      <Badge variant="outline" className="text-xs">
+                        {competence.objectif_id}
+                      </Badge>
+                    )}
+                    <h4 className="font-semibold text-sm truncate">
+                      {competence.titre_complet || competence.intitule}
+                    </h4>
+                  </div>
+                  <p className="text-xs text-muted-foreground line-clamp-2">
+                    {competence.sommaire || competence.description}
+                  </p>
+                </div>
+                <div className="flex gap-1 flex-shrink-0">
+                  {competence.sommaire && <div className="w-2 h-2 rounded-full bg-green-500" title="Sommaire disponible" />}
+                  {competence.mecanismes && <div className="w-2 h-2 rounded-full bg-blue-500" title="Mécanismes disponibles" />}
+                  {competence.indications && <div className="w-2 h-2 rounded-full bg-orange-500" title="Indications disponibles" />}
+                  {competence.effets_indesirables && <div className="w-2 h-2 rounded-full bg-red-500" title="Effets indésirables disponibles" />}
+                </div>
+              </div>
             ))}
           </div>
         )}

@@ -21,25 +21,9 @@ import { CompetencesBadges } from "@/components/edn/CompetencesBadges";
 import { CompetenceValidation } from "@/components/edn/CompetenceValidation";
 import { useEdnItemV2Process } from "@/hooks/useEdnItemV2Process";
 import { supabase } from "@/integrations/supabase/client";
-import { logger } from '@/utils/structuredLogger';
-
-interface EdnItemForModal {
-  item_code: string;
-  title: string;
-  subtitle?: string;
-  pitch_intro?: string;
-  tableau_rang_a?: Record<string, unknown>;
-  tableau_rang_b?: Record<string, unknown>;
-  paroles_musicales?: string[];
-  paroles_rang_a?: string[];
-  paroles_rang_b?: string[];
-  paroles_rang_ab?: string[];
-  scene_immersive?: Record<string, unknown>;
-  quiz_questions?: Record<string, unknown>;
-}
 
 interface EdnItemModalProps {
-  item: EdnItemForModal;
+  item: any;
   isOpen: boolean;
   onClose: () => void;
 }
@@ -52,7 +36,7 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
   const [activeTab, setActiveTab] = useState('competences');
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [audioPlaying, setAudioPlaying] = useState(false);
-  const [completeItemData, setCompleteItemData] = useState<Record<string, unknown> | null>(null);
+  const [completeItemData, setCompleteItemData] = useState<any>(null);
   const isMobile = useIsMobile();
 
   // Traitement des données V2 si nécessaire
@@ -69,28 +53,14 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
           .from('edn_items_complete')
           .select('competences_oic_rang_a, competences_oic_rang_b, tableau_rang_a, tableau_rang_b')
           .eq('item_code', finalItem.item_code)
-          .maybeSingle();
+          .single();
 
         if (data && !error) {
           setCompleteItemData(data);
-          logger.info('Données OIC récupérées', {
-            component: 'EdnItemModal',
-            metadata: { 
-              itemCode: finalItem.item_code,
-              hasData: !!data
-            }
-          });
-        } else if (!data) {
-          logger.warn('Aucune donnée OIC trouvée', {
-            component: 'EdnItemModal',
-            metadata: { itemCode: finalItem.item_code }
-          });
+          console.log('🔥 Données OIC récupérées pour', finalItem.item_code, ':', data);
         }
       } catch (error) {
-        logger.error('Erreur récupération données OIC', {
-          component: 'EdnItemModal',
-          metadata: { itemCode: finalItem.item_code }
-        }, error as Error);
+        console.error('Erreur récupération données OIC:', error);
       }
     };
 
@@ -315,6 +285,12 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                 </div>
               </TabsContent>
 
+              <TabsContent value="music" className="mt-0 p-6">
+                <ParolesMusicales 
+                  paroles={finalItem.paroles_musicales || []} 
+                  itemCode={finalItem.item_code}
+                />
+              </TabsContent>
 
               <TabsContent value="scene" className="mt-0 p-6">
                 <SceneImmersive 

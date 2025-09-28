@@ -11,7 +11,6 @@ export interface ChatCompletionRequest {
     name?: string;
   }>;
   max_tokens?: number;
-  max_completion_tokens?: number;
   temperature?: number;
   top_p?: number;
   n?: number;
@@ -32,14 +31,6 @@ export interface ImageGenerationRequest {
   size?: string;
   quality?: string;
   n?: number;
-}
-
-export interface TextToSpeechRequest {
-  input: string;
-  model?: string;
-  voice?: string;
-  response_format?: string;
-  speed?: number;
 }
 
 export interface SunoGenerationRequest {
@@ -71,18 +62,6 @@ export class SecureOpenAIClient {
 
     if (error) {
       throw new Error(`OpenAI Image API Error: ${error.message}`);
-    }
-
-    return data;
-  }
-
-  async generateSpeech(request: TextToSpeechRequest) {
-    const { data, error } = await supabase.functions.invoke('openai-speech', {
-      body: request
-    });
-
-    if (error) {
-      throw new Error(`OpenAI Speech API Error: ${error.message}`);
     }
 
     return data;

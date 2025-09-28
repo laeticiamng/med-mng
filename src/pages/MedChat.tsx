@@ -1,108 +1,71 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { 
-  Brain,
-  Send,
-  Mic,
-  MicOff,
-  Paperclip,
-  Bookmark,
-  Share2,
-  Copy,
-  ThumbsUp,
-  ThumbsDown,
-  Stethoscope,
-  BookOpen,
-  AlertTriangle,
-  Lightbulb,
-  Search,
-  Crown,
-  MessageSquare,
-  User,
-  Bot,
-  Settings,
-  HelpCircle
+  MessageSquare, Send, User, Bot, ArrowLeft, Search, 
+  Sparkles, Clock, BookOpen, Brain, Heart, Activity,
+  History, HelpCircle, Settings, Mic, Copy, ThumbsUp,
+  ThumbsDown, MoreVertical, Trash, RefreshCw, Loader2
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Helmet } from 'react-helmet-async';
+import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import { useChatConversations } from '@/hooks/useChatConversations';
+import { TranslatedText } from '@/components/TranslatedText';
+import { motion, AnimatePresence } from 'framer-motion';
 
-const MedChat: React.FC = () => {
+interface Message {
+  id: string;
+  role: 'user' | 'assistant';
+  content: string;
+  timestamp: Date;
+  courseCitations?: string[];
+  isTyping?: boolean;
+}
+
+const quickSuggestions = [
+  { icon: Heart, text: "Expliquez-moi l'insuffisance cardiaque", category: "Cardiologie" },
+  { icon: Brain, text: "Différence entre AVC ischémique et hémorragique", category: "Neurologie" },
+  { icon: Activity, text: "Signes cliniques de l'infarctus du myocarde", category: "Urgences" },
+  { icon: BookOpen, text: "Protocole de prise en charge de l'hypertension", category: "Médecine générale" },
+];
+
+export const MedChat: React.FC = () => {
+  const navigate = useNavigate();
   const { toast } = useToast();
-  const [messages, setMessages] = useState<any[]>([
+  const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
-      content: 'Bonjour ! Je suis votre assistant médical IA. Je peux vous aider avec des diagnostics différentiels, des protocoles de traitement, des révisions de cours et bien plus. Comment puis-je vous assister aujourd\'hui ?',
-      sender: 'ai',
-      timestamp: new Date(),
-      type: 'text',
-      confidence: 100,
-      category: 'education'
-    }
-  ]);
-  
-  const [inputMessage, setInputMessage] = useState('');
-  const [isRecording, setIsRecording] = useState(false);
-  const [isTyping, setIsTyping] = useState(false);
-  const [sessions] = useState([
-    {
-      id: '1',
-      title: 'Diagnostic différentiel - dyspnée',
-      lastMessage: new Date(),
-      messageCount: 12,
-      category: 'diagnostic'
-    },
-    {
-      id: '2',
-      title: 'Révision cardiologie',
-      lastMessage: new Date(Date.now() - 2 * 60 * 60 * 1000),
-      messageCount: 8,
-      category: 'education'
-    }
-  ]);
-  
-  const messagesEndRef = useRef(null);
+      role: 'assistant',
+      content: `Bonjour ! 👋 Je suis votre assistant IA médical intelligent.
 
-  const quickActions = [
-    {
-      id: 'differential',
-      title: 'Diagnostic différentiel',
-      description: 'Analysez des symptômes',
-      icon: Stethoscope,
-      prompt: 'Aidez-moi à établir un diagnostic différentiel pour : ',
-      category: 'diagnostic'
-    },
-    {
-      id: 'treatment',
-      title: 'Protocole thérapeutique',
-      description: 'Recommandations de traitement',
-      icon: AlertTriangle,
-      prompt: 'Quelles sont les recommandations thérapeutiques pour : ',
-      category: 'treatment'
-    },
-    {
-      id: 'explain',
-      title: 'Expliquer concept',
-      description: 'Clarification médicale',
-      icon: BookOpen,
-      prompt: 'Pouvez-vous m\'expliquer le concept de : ',
-      category: 'education'
-    },
-    {
-      id: 'exam',
-      title: 'Préparation exam',
-      description: 'Questions et révisions',
-      icon: Brain,
-      prompt: 'Aidez-moi à réviser pour l\'examen de : ',
-      category: 'education'
+Je peux vous aider avec :
+• 📚 Questions sur vos cours médicaux
+• 🩺 Diagnostics et diagnostics différentiels  
+• 💊 Thérapeutiques et protocoles
+• 🏥 Cas cliniques et situations d'urgence
+• 📝 Préparation aux examens EDN et ECOS
+
+Posez-moi n'importe quelle question ou choisissez une suggestion ci-dessous !`,
+      timestamp: new Date(),
     }
-  ];
+  ]);
+  const [currentMessage, setCurrentMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+  const [showSuggestions, setShowSuggestions] = useState(true);
+  const [searchHistory, setSearchHistory] = useState<string[]>([]);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const {
+    conversations,
+    currentConversation,
+    createConversation,
+    sendMessage,
+    isGenerating,
+  } = useChatConversations();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -112,382 +75,374 @@ const MedChat: React.FC = () => {
     scrollToBottom();
   }, [messages]);
 
-  const sendMessage = async (content = inputMessage) => {
-    if (!content.trim()) return;
+  const handleSendMessage = async (messageText?: string) => {
+    const textToSend = messageText || currentMessage;
+    if (!textToSend.trim() || isLoading) return;
 
-    const newUserMessage = {
+    const userMessage: Message = {
       id: Date.now().toString(),
-      content: content.trim(),
-      sender: 'user',
+      role: 'user',
+      content: textToSend,
       timestamp: new Date(),
-      type: 'text'
     };
 
-    setMessages(prev => [...prev, newUserMessage]);
-    setInputMessage('');
-    setIsTyping(true);
+    setMessages(prev => [...prev, userMessage]);
+    setCurrentMessage('');
+    setIsLoading(true);
+    setShowSuggestions(false);
 
-    setTimeout(() => {
-      const aiResponse = {
+    // Ajouter à l'historique de recherche
+    setSearchHistory(prev => {
+      const newHistory = [textToSend, ...prev.filter(item => item !== textToSend)];
+      return newHistory.slice(0, 10); // Garder seulement les 10 dernières
+    });
+
+    // Message de frappe temporaire
+    const typingMessage: Message = {
+      id: 'typing',
+      role: 'assistant',
+      content: '...',
+      timestamp: new Date(),
+      isTyping: true,
+    };
+    setMessages(prev => [...prev, typingMessage]);
+
+    try {
+      const response = await sendMessage(textToSend);
+      
+      // Retirer le message de frappe
+      setMessages(prev => prev.filter(msg => msg.id !== 'typing'));
+      
+      const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: generateAIResponse(content),
-        sender: 'ai',
+        role: 'assistant',
+        content: response.content,
         timestamp: new Date(),
-        type: 'text',
-        sources: ['Harrison\'s Principles of Internal Medicine', 'UpToDate', 'Collège des enseignants'],
-        confidence: Math.floor(Math.random() * 20) + 80,
-        category: detectCategory(content)
+        courseCitations: response.courseCitations,
       };
 
-      setMessages(prev => [...prev, aiResponse]);
-      setIsTyping(false);
-    }, 2000);
-  };
-
-  const generateAIResponse = (userMessage) => {
-    if (userMessage.toLowerCase().includes('diagnostic')) {
-      return `Basé sur les symptômes mentionnés, voici les principaux diagnostics différentiels à considérer :
-
-**1. Causes cardiaques**
-- Insuffisance cardiaque
-- Infarctus du myocarde
-- Embolie pulmonaire
-
-**2. Causes respiratoires**
-- Asthme
-- BPCO
-- Pneumonie
-
-**3. Examens complémentaires recommandés**
-- ECG 12 dérivations
-- Radiographie thoracique
-- Gazométrie artérielle
-
-*Attention : Ces informations sont à des fins éducatives. Toujours consulter un professionnel de santé pour un diagnostic précis.*`;
+      setMessages(prev => [...prev, assistantMessage]);
+    } catch (error) {
+      console.error('Erreur lors de l\'envoi du message:', error);
+      setMessages(prev => prev.filter(msg => msg.id !== 'typing'));
+      
+      toast({
+        title: "❌ Erreur",
+        description: "Impossible d'envoyer le message. Veuillez réessayer.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
     }
+  };
 
-    if (userMessage.toLowerCase().includes('traitement')) {
-      return `Voici les recommandations thérapeutiques basées sur les dernières guidelines :
-
-**Traitement de première intention :**
-- Mesures non pharmacologiques
-- Thérapeutique médicamenteuse adaptée
-
-**Surveillance :**
-- Paramètres à monitorer
-- Effets indésirables potentiels
-
-*Sources : Recommandations HAS 2024*`;
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
     }
-
-    return `Je comprends votre question. Voici une réponse détaillée basée sur les connaissances médicales actuelles :
-
-Cette information provient des références médicales les plus récentes et est conforme aux recommandations des sociétés savantes.
-
-Y a-t-il un aspect particulier que vous souhaiteriez approfondir ?`;
   };
 
-  const detectCategory = (message) => {
-    const lowerMessage = message.toLowerCase();
-    if (lowerMessage.includes('diagnostic') || lowerMessage.includes('symptom')) return 'diagnostic';
-    if (lowerMessage.includes('traitement') || lowerMessage.includes('thérapie')) return 'treatment';
-    if (lowerMessage.includes('expli') || lowerMessage.includes('révision')) return 'education';
-    return 'reference';
+  const handleSuggestionClick = (suggestion: string) => {
+    setCurrentMessage(suggestion);
+    handleSendMessage(suggestion);
   };
 
-  const handleQuickAction = (action) => {
-    setInputMessage(action.prompt);
+  const clearChat = () => {
+    setMessages([messages[0]]); // Garder le message d'accueil
+    setShowSuggestions(true);
+    setCurrentMessage('');
   };
 
-  const getCategoryColor = (category) => {
-    switch (category) {
-      case 'diagnostic': return 'bg-blue-500';
-      case 'treatment': return 'bg-green-500';
-      case 'education': return 'bg-purple-500';
-      case 'reference': return 'bg-orange-500';
-      default: return 'bg-gray-500';
-    }
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast({
+      title: "✅ Copié",
+      description: "Le message a été copié dans le presse-papiers",
+    });
   };
 
   return (
-    <>
-      <Helmet>
-        <title>Assistant IA Médical - MED-MNG</title>
-        <meta name="description" content="Assistant médical intelligent pour diagnostics, traitements et formations - IA spécialisée en médecine" />
-      </Helmet>
-
-      <div className="h-screen flex overflow-hidden bg-background">
-        {/* Sidebar avec historique */}
-        <div className="w-80 border-r flex flex-col">
-          <div className="p-4 border-b">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 rounded-lg bg-gradient-to-r from-blue-500 to-purple-500">
-                <Brain className="h-6 w-6 text-white" />
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+      <div className="container mx-auto px-4 py-6 max-w-4xl">
+        {/* Header Enhanced */}
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-center justify-between mb-6"
+        >
+          <div className="flex items-center gap-4">
+            <Button 
+              variant="outline" 
+              size="icon"
+              onClick={() => navigate('/')}
+              className="shrink-0 hover:bg-orange-50"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </Button>
+            <div className="flex items-center gap-3">
+              <div className="relative">
+                <div className="w-12 h-12 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center shadow-lg">
+                  <MessageSquare className="h-6 w-6 text-white" />
+                </div>
+                <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white animate-pulse"></div>
               </div>
               <div>
-                <h2 className="font-semibold">MedChat AI</h2>
-                <Badge className="bg-gradient-to-r from-gold to-yellow-600 text-white text-xs">
-                  <Crown className="h-3 w-3 mr-1" />
-                  PREMIUM
-                </Badge>
+                <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-orange-600 to-red-600 bg-clip-text text-transparent">
+                  <TranslatedText text="Chat Intelligent" />
+                </h1>
+                <p className="text-sm md:text-base text-gray-600 flex items-center gap-2">
+                  <Sparkles className="h-4 w-4 text-yellow-500" />
+                  <TranslatedText text="Assistant IA médical avancé" />
+                </p>
               </div>
             </div>
-            <Button className="w-full" onClick={() => setMessages([messages[0]])}>
-              <MessageSquare className="h-4 w-4 mr-2" />
-              Nouvelle conversation
+          </div>
+
+          <div className="flex gap-2">
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button variant="outline" size="icon" className="hidden md:flex">
+                  <History className="h-4 w-4" />
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Historique des questions</DialogTitle>
+                  <DialogDescription>
+                    Vos dernières questions posées
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="space-y-2 max-h-60 overflow-y-auto">
+                  {searchHistory.map((question, index) => (
+                    <div 
+                      key={index}
+                      className="p-2 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
+                      onClick={() => handleSuggestionClick(question)}
+                    >
+                      <p className="text-sm">{question}</p>
+                      <p className="text-xs text-gray-500">Cliquez pour réutiliser</p>
+                    </div>
+                  ))}
+                  {searchHistory.length === 0 && (
+                    <p className="text-gray-500 text-center py-4">Aucun historique disponible</p>
+                  )}
+                </div>
+              </DialogContent>
+            </Dialog>
+
+            <Button 
+              variant="outline" 
+              size="icon"
+              onClick={clearChat}
+              className="hover:bg-red-50"
+            >
+              <RefreshCw className="h-4 w-4" />
             </Button>
           </div>
+        </motion.div>
 
-          <ScrollArea className="flex-1 p-4">
-            <div className="space-y-2">
-              <h3 className="text-sm font-medium text-muted-foreground mb-3">Conversations récentes</h3>
-              {sessions.map((session) => (
-                <Card key={session.id} className="cursor-pointer hover:bg-muted/50 transition-colors">
-                  <CardContent className="p-3">
-                    <h4 className="font-medium text-sm mb-1 line-clamp-2">{session.title}</h4>
-                    <div className="flex items-center justify-between text-xs text-muted-foreground">
-                      <span>{session.messageCount} messages</span>
-                      <span>{session.lastMessage.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</span>
-                    </div>
-                    <Badge className={`mt-2 text-xs ${getCategoryColor(session.category)} text-white`}>
-                      {session.category}
-                    </Badge>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </ScrollArea>
-        </div>
-
-        {/* Zone de chat principal */}
-        <div className="flex-1 flex flex-col">
-          {/* Header du chat */}
-          <div className="p-4 border-b bg-card">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <Avatar className="h-10 w-10">
-                  <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-500 text-white">
-                    <Bot className="h-5 w-5" />
-                  </AvatarFallback>
-                </Avatar>
-                <div>
-                  <h3 className="font-semibold">Assistant IA Médical</h3>
-                  <p className="text-sm text-muted-foreground">Spécialisé en diagnostic et formation</p>
+        {/* Chat Interface Enhanced */}
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 0.1 }}
+        >
+          <Card className="h-[calc(100vh-180px)] flex flex-col shadow-xl border-0 bg-white/80 backdrop-blur-sm">
+            <CardHeader className="flex-shrink-0 border-b bg-gradient-to-r from-orange-50 to-red-50">
+              <CardTitle className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Search className="h-5 w-5 text-orange-600" />
+                  <TranslatedText text="Conversation avec l'IA" />
                 </div>
-              </div>
-              <div className="flex items-center gap-2">
-                <Button variant="ghost" size="sm">
-                  <Settings className="h-4 w-4" />
-                </Button>
-                <Button variant="ghost" size="sm">
-                  <HelpCircle className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          </div>
-
-          {/* Messages */}
-          <ScrollArea className="flex-1 p-4">
-            <div className="space-y-6">
-              {messages.map((message) => (
-                <motion.div
-                  key={message.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className={`flex gap-3 ${message.sender === 'user' ? 'flex-row-reverse' : ''}`}
-                >
-                  <Avatar className="h-8 w-8 flex-shrink-0">
-                    {message.sender === 'user' ? (
-                      <AvatarFallback>
-                        <User className="h-4 w-4" />
-                      </AvatarFallback>
-                    ) : (
-                      <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-500 text-white">
-                        <Bot className="h-4 w-4" />
-                      </AvatarFallback>
-                    )}
-                  </Avatar>
-
-                  <div className={`flex-1 max-w-3xl ${message.sender === 'user' ? 'text-right' : ''}`}>
-                    <Card className={`${message.sender === 'user' ? 'bg-primary text-primary-foreground' : ''}`}>
-                      <CardContent className="p-4">
-                        <div className="prose prose-sm max-w-none dark:prose-invert">
-                          {message.content.split('\n').map((line, index) => {
-                            if (line.startsWith('**') && line.endsWith('**')) {
-                              return <h4 key={index} className="font-semibold mt-4 mb-2">{line.replace(/\*\*/g, '')}</h4>;
-                            }
-                            if (line.startsWith('*') && line.endsWith('*')) {
-                              return <em key={index} className="text-sm text-muted-foreground">{line.replace(/\*/g, '')}</em>;
-                            }
-                            if (line.startsWith('- ')) {
-                              return <li key={index} className="ml-4">{line.substring(2)}</li>;
-                            }
-                            return line && <p key={index} className="mb-2">{line}</p>;
-                          })}
-                        </div>
-
-                        {message.sender === 'ai' && (
-                          <div className="flex items-center justify-between mt-4 pt-3 border-t border-border/50">
-                            <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                              <span>{message.timestamp.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</span>
-                              {message.confidence && (
-                                <Badge variant="outline" className="text-xs">
-                                  Confiance: {message.confidence}%
-                                </Badge>
-                              )}
-                              {message.category && (
-                                <Badge className={`text-xs ${getCategoryColor(message.category)} text-white`}>
-                                  {message.category}
-                                </Badge>
-                              )}
-                            </div>
-                            
-                            <div className="flex items-center gap-1">
-                              <Button variant="ghost" size="sm">
-                                <ThumbsUp className="h-3 w-3" />
-                              </Button>
-                              <Button variant="ghost" size="sm">
-                                <ThumbsDown className="h-3 w-3" />
-                              </Button>
-                              <Button variant="ghost" size="sm">
-                                <Copy className="h-3 w-3" />
-                              </Button>
-                              <Button variant="ghost" size="sm">
-                                <Bookmark className="h-3 w-3" />
-                              </Button>
-                              <Button variant="ghost" size="sm">
-                                <Share2 className="h-3 w-3" />
-                              </Button>
-                            </div>
-                          </div>
-                        )}
-
-                        {message.sender === 'ai' && message.sources && (
-                          <div className="mt-3 pt-2 border-t border-border/50">
-                            <p className="text-xs text-muted-foreground mb-1">Sources :</p>
-                            <div className="flex flex-wrap gap-1">
-                              {message.sources.map((source: string, index: number) => (
-                                <Badge key={index} variant="outline" className="text-xs">
-                                  {source}
-                                </Badge>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </CardContent>
-                    </Card>
-                  </div>
-                </motion.div>
-              ))}
-
-              <AnimatePresence>
-                {isTyping && (
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    className="flex gap-3"
-                  >
-                    <Avatar className="h-8 w-8">
-                      <AvatarFallback className="bg-gradient-to-r from-blue-500 to-purple-500 text-white">
-                        <Bot className="h-4 w-4" />
-                      </AvatarFallback>
-                    </Avatar>
-                    <Card>
-                      <CardContent className="p-4">
-                        <div className="flex items-center gap-2">
-                          <div className="flex gap-1">
-                            <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                            <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                            <div className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-                          </div>
-                          <span className="text-sm text-muted-foreground">L'assistant réfléchit...</span>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-              
-              <div ref={messagesEndRef} />
-            </div>
-          </ScrollArea>
-
-          {/* Actions rapides */}
-          {messages.length === 1 && (
-            <div className="p-4 border-t">
-              <h4 className="font-medium mb-3">Actions rapides :</h4>
-              <div className="grid grid-cols-2 gap-2">
-                {quickActions.map((action) => (
-                  <Button
-                    key={action.id}
-                    variant="outline"
-                    className="h-auto p-3 flex flex-col items-start text-left"
-                    onClick={() => handleQuickAction(action)}
-                  >
-                    <action.icon className="h-4 w-4 mb-2" />
-                    <div>
-                      <p className="font-medium text-sm">{action.title}</p>
-                      <p className="text-xs text-muted-foreground">{action.description}</p>
-                    </div>
-                  </Button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Zone de saisie */}
-          <div className="p-4 border-t bg-card">
-            <div className="flex items-end gap-3">
-              <div className="flex-1 relative">
-                <Textarea
-                  placeholder="Posez votre question médicale..."
-                  value={inputMessage}
-                  onChange={(e) => setInputMessage(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && !e.shiftKey) {
-                      e.preventDefault();
-                      sendMessage();
-                    }
-                  }}
-                  className="min-h-[60px] max-h-32 pr-12 resize-none"
-                />
-                <div className="absolute right-2 bottom-2 flex gap-1">
-                  <Button variant="ghost" size="sm">
-                    <Paperclip className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-              
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setIsRecording(!isRecording)}
-                  className={isRecording ? 'bg-red-500 text-white' : ''}
-                >
-                  {isRecording ? <MicOff className="h-4 w-4" /> : <Mic className="h-4 w-4" />}
-                </Button>
-                
-                <Button 
-                  onClick={() => sendMessage()} 
-                  disabled={!inputMessage.trim() || isTyping}
-                  className="px-6"
-                >
-                  <Send className="h-4 w-4 mr-2" />
-                  Envoyer
-                </Button>
-              </div>
-            </div>
+                <Badge variant="outline" className="text-green-600 border-green-200">
+                  En ligne
+                </Badge>
+              </CardTitle>
+            </CardHeader>
             
-            <p className="text-xs text-muted-foreground mt-2 text-center">
-              ⚠️ Les réponses sont générées par IA à des fins éducatives. Consultez toujours un professionnel de santé.
-            </p>
-          </div>
-        </div>
+            <CardContent className="flex-1 flex flex-col p-0 overflow-hidden">
+              {/* Messages Enhanced */}
+              <ScrollArea className="flex-1 p-4 md:p-6">
+                <div className="space-y-4">
+                  <AnimatePresence>
+                    {messages.map((message) => (
+                      <motion.div
+                        key={message.id}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        className={`flex gap-3 ${
+                          message.role === 'user' ? 'justify-end' : 'justify-start'
+                        }`}
+                      >
+                        {message.role === 'assistant' && (
+                          <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-600 rounded-full flex items-center justify-center shrink-0 shadow-lg">
+                            <Bot className="h-5 w-5 text-white" />
+                          </div>
+                        )}
+                        
+                        <div
+                          className={`max-w-[85%] md:max-w-[75%] group relative ${
+                            message.role === 'user'
+                              ? 'bg-gradient-to-r from-orange-500 to-red-600 text-white rounded-2xl rounded-br-md p-4 shadow-lg'
+                              : 'bg-white border border-gray-200 shadow-sm rounded-2xl rounded-bl-md p-4'
+                          }`}
+                        >
+                          {message.isTyping ? (
+                            <div className="flex gap-1 py-2">
+                              <div className="w-2 h-2 bg-orange-400 rounded-full animate-bounce"></div>
+                              <div className="w-2 h-2 bg-orange-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
+                              <div className="w-2 h-2 bg-orange-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+                            </div>
+                          ) : (
+                            <>
+                              <p className="whitespace-pre-wrap leading-relaxed">{message.content}</p>
+                              
+                              {/* Citations Enhanced - TOUJOURS AFFICHÉES */}
+                              {message.courseCitations && message.courseCitations.length > 0 && (
+                                <div className="mt-4 pt-4 border-t border-gray-200">
+                                  <p className="text-xs font-medium text-gray-600 mb-2 flex items-center gap-1">
+                                    <BookOpen className="h-3 w-3" />
+                                    Sources :
+                                  </p>
+                                  <div className="space-y-2">
+                                    {message.courseCitations.map((citation, index) => (
+                                      <div key={index} className="text-xs bg-blue-50 text-blue-700 px-3 py-1 rounded-full border border-blue-200 flex items-center gap-2">
+                                        <div className="w-1.5 h-1.5 bg-blue-500 rounded-full"></div>
+                                        {citation}
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                              
+                              {/* Message Actions */}
+                              <div className={`flex items-center justify-between mt-3 pt-2 border-t ${
+                                message.role === 'user' ? 'border-white/20' : 'border-gray-200'
+                              }`}>
+                                <p className={`text-xs ${
+                                  message.role === 'user' ? 'text-white/70' : 'text-gray-400'
+                                } flex items-center gap-1`}>
+                                  <Clock className="h-3 w-3" />
+                                  {message.timestamp.toLocaleTimeString()}
+                                </p>
+                                
+                                {message.role === 'assistant' && !message.isTyping && (
+                                  <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <Button
+                                      size="sm"
+                                      variant="ghost"
+                                      className="h-6 w-6 p-0 hover:bg-gray-100"
+                                      onClick={() => copyToClipboard(message.content)}
+                                    >
+                                      <Copy className="h-3 w-3" />
+                                    </Button>
+                                    <Button size="sm" variant="ghost" className="h-6 w-6 p-0 hover:bg-green-100">
+                                      <ThumbsUp className="h-3 w-3" />
+                                    </Button>
+                                    <Button size="sm" variant="ghost" className="h-6 w-6 p-0 hover:bg-red-100">
+                                      <ThumbsDown className="h-3 w-3" />
+                                    </Button>
+                                  </div>
+                                )}
+                              </div>
+                            </>
+                          )}
+                        </div>
+                        
+                        {message.role === 'user' && (
+                          <div className="w-10 h-10 bg-gradient-to-br from-gray-200 to-gray-300 rounded-full flex items-center justify-center shrink-0 shadow-lg">
+                            <User className="h-5 w-5 text-gray-600" />
+                          </div>
+                        )}
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+
+                  {/* Quick Suggestions */}
+                  {showSuggestions && messages.length === 1 && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="space-y-3"
+                    >
+                      <p className="text-sm font-medium text-gray-600 flex items-center gap-2">
+                        <HelpCircle className="h-4 w-4" />
+                        Questions suggérées :
+                      </p>
+                      <div className="grid gap-2">
+                        {quickSuggestions.map((suggestion, index) => (
+                          <motion.button
+                            key={index}
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: index * 0.1 }}
+                            onClick={() => handleSuggestionClick(suggestion.text)}
+                            className="flex items-start gap-3 p-3 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl hover:from-orange-50 hover:to-red-50 transition-all duration-200 text-left border border-gray-200 hover:border-orange-200 group"
+                          >
+                            <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center shadow-sm group-hover:shadow-md transition-shadow">
+                              <suggestion.icon className="h-4 w-4 text-orange-600" />
+                            </div>
+                            <div className="flex-1">
+                              <p className="text-sm font-medium text-gray-900">{suggestion.text}</p>
+                              <p className="text-xs text-gray-500">{suggestion.category}</p>
+                            </div>
+                          </motion.button>
+                        ))}
+                      </div>
+                    </motion.div>
+                  )}
+                </div>
+                <div ref={messagesEndRef} />
+              </ScrollArea>
+
+              {/* Input Enhanced */}
+              <div className="border-t bg-gradient-to-r from-gray-50 to-gray-100 p-4">
+                <div className="flex gap-3 items-end">
+                  <div className="flex-1 relative">
+                    <Input
+                      value={currentMessage}
+                      onChange={(e) => setCurrentMessage(e.target.value)}
+                      onKeyPress={handleKeyPress}
+                      placeholder="Tapez votre question médicale ici..."
+                      className="min-h-[50px] pr-12 bg-white border-2 border-gray-200 focus:border-orange-400 rounded-xl shadow-sm"
+                      disabled={isLoading}
+                    />
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 p-0 text-gray-400 hover:text-orange-600"
+                    >
+                      <Mic className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <Button
+                    onClick={() => handleSendMessage()}
+                    disabled={!currentMessage.trim() || isLoading}
+                    className="bg-gradient-to-r from-orange-500 to-red-600 hover:from-orange-600 hover:to-red-700 h-[50px] px-6 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50"
+                  >
+                    {isLoading ? (
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                      >
+                        <Loader2 className="h-4 w-4" />
+                      </motion.div>
+                    ) : (
+                      <Send className="h-4 w-4" />
+                    )}
+                  </Button>
+                </div>
+                <p className="text-xs text-gray-500 mt-2 flex items-center gap-2">
+                  <Sparkles className="h-3 w-3" />
+                  <TranslatedText text="Appuyez sur Entrée pour envoyer, Maj+Entrée pour une nouvelle ligne" />
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
       </div>
-    </>
+    </div>
   );
 };
-
-export default MedChat;

@@ -4,7 +4,6 @@ import {
   CheckCircle, AlertTriangle, Music, Brain, Image, Eye
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { errorService } from '@/services/core/ErrorService';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -56,14 +55,14 @@ export const AdminContentManager = () => {
       setLoading(true);
       
       const { data: immersiveItems, error: immersiveError } = await supabase
-        .from('edn_items_complete')
+        .from('edn_items_immersive')
         .select(`
           id, item_code, title, subtitle, 
           tableau_rang_a, tableau_rang_b,
           paroles_musicales, quiz_questions, scene_immersive,
           created_at, updated_at
         `)
-        .order('item_code', { ascending: true });
+        .order('item_code');
 
       if (immersiveError) {
         throw immersiveError;
@@ -106,7 +105,7 @@ export const AdminContentManager = () => {
 
       setItems(mergedItems);
     } catch (error) {
-      errorService.handleError(error as Error, 'system', false);
+      console.error('Erreur chargement contenu:', error);
       toast.error('Erreur lors du chargement du contenu');
     } finally {
       setLoading(false);
@@ -149,7 +148,7 @@ export const AdminContentManager = () => {
 
       toast.success('Item validé avec succès');
     } catch (error) {
-      errorService.handleError(error as Error, 'validation', true);
+      console.error('Erreur validation:', error);
       toast.error('Erreur lors de la validation');
     }
   };

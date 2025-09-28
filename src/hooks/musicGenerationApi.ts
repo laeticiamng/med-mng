@@ -1,6 +1,6 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { errorService } from '@/services/core/ErrorService';
+import { secureSunoClient } from '@/lib/secureApiClient';
 
 interface GenerateMusicRequest {
   lyrics: string;
@@ -37,26 +37,17 @@ export const callSunoApi = async (requestBody: GenerateMusicRequest) => {
   };
 
   try {
-    // Utiliser suno-music-optimized pour une meilleure fiabilité
-    const { data, error } = await supabase.functions.invoke('suno-music-optimized', {
-      body: {
-        paroles: [optimizedRequest.lyrics],
-        style: optimizedRequest.style,
-        rang: optimizedRequest.rang,
-        duration: optimizedRequest.duration,
-        customMode: optimizedRequest.customMode !== false,
-        instrumental: optimizedRequest.instrumental || false,
-        model: optimizedRequest.model || "V4_5"
-      }
+    const { data, error } = await supabase.functions.invoke('generate-music', {
+      body: optimizedRequest
     });
 
     const callDuration = Math.floor((Date.now() - startTime) / 1000);
     console.log(`⚡ Durée appel ultra-optimisée: ${callDuration}s`);
 
     // Gestion d'erreurs optimisée
-      if (error) {
-        errorService.handleError(error, 'user_action', true);
-
+    if (error) {
+      console.error('❌ ERREUR SUPABASE FUNCTIONS:', error);
+      
       let errorMessage = 'Erreur lors de la génération musicale ultra-rapide';
       
       if (error.message?.includes('Failed to send') || error.message?.includes('fetch')) {
@@ -84,7 +75,7 @@ export const callSunoApi = async (requestBody: GenerateMusicRequest) => {
 
     // Gestion des timeouts côté serveur
     if (data.status === 'timeout') {
-      errorService.handleWarning('⏰ TIMEOUT SERVEUR - La génération prend plus de temps que prévu', 'user_action');
+      console.warn('⏰ TIMEOUT SERVEUR - La génération prend plus de temps que prévu');
       throw new Error('⏰ La génération Suno prend plus de temps que prévu. Cela peut arriver quand l\'API est très occupée. Réessayez dans 2-3 minutes.');
     }
 
@@ -103,7 +94,7 @@ export const callSunoApi = async (requestBody: GenerateMusicRequest) => {
         errorMessage = '🔑 Problème d\'authentication avec l\'API Suno. Contactez l\'administrateur.';
       }
       
-      errorService.handleError(new Error(`❌ ERREUR API SUNO ULTRA-RAPIDE: ${errorMessage}`), 'user_action', true);
+      console.error('❌ ERREUR API SUNO ULTRA-RAPIDE:', errorMessage);
       throw new Error(errorMessage);
     }
 
@@ -117,7 +108,7 @@ export const callSunoApi = async (requestBody: GenerateMusicRequest) => {
       // Retourner le trackId pour que le système de polling puisse récupérer l'audio plus tard
       return { trackId: data.trackId, callDuration };
     } else {
-      errorService.handleError(new Error('❌ AUCUNE URL AUDIO ni TRACK ID en mode ultra-rapide'), 'user_action', true);
+      console.error('❌ AUCUNE URL AUDIO ni TRACK ID en mode ultra-rapide:', data);
       throw new Error('Aucune URL audio ni trackId généré par l\'API Suno');
     }
     
@@ -126,10 +117,6 @@ export const callSunoApi = async (requestBody: GenerateMusicRequest) => {
     console.log(`⚡ Durée appel (avec erreur): ${callDuration}s`);
     
     // Re-throw l'erreur pour qu'elle soit gérée par le caller
-    if (supabaseError instanceof Error) {
-      throw supabaseError;
-    }
-
-    throw new Error('Erreur lors de la génération musicale');
+    throw supabaseError;
   }
 };

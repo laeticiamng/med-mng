@@ -48,28 +48,7 @@ serve(async (req) => {
         });
       }
 
-      // Récupérer les compétences OIC spécifiques pour un contenu plus riche
-      const itemNumber = item_code.replace('IC-', '').padStart(3, '0');
-      let oicQuery = supabase
-        .from('backup_oic_competences')
-        .select('objectif_id, intitule, description, rang, rubrique, ordre')
-        .eq('item_parent', itemNumber)
-        .order('ordre');
-      
-      if (session_type === 'rang_a') {
-        oicQuery = oicQuery.eq('rang', 'A');
-      } else if (session_type === 'rang_b') {
-        oicQuery = oicQuery.eq('rang', 'B');
-      }
-      
-      const { data: oicCompetences } = await oicQuery;
-      console.log(`📚 ${oicCompetences?.length || 0} compétences OIC trouvées pour ${item_code} ${session_type}`);
-
-      // Generate QCM using OpenAI avec compétences OIC spécifiques
-      const competencesContent = oicCompetences?.length > 0 
-        ? oicCompetences.map(c => `[${c.rang}] ${c.objectif_id}: ${c.intitule} - ${c.description?.substring(0, 200) || ''}`).join('\n')
-        : 'Aucune compétence OIC spécifique trouvée';
-
+      // Generate QCM using OpenAI
       const prompt = `Génère ${question_count} questions QCM pour l'item médical ${item_code} - ${itemData.title}.
 
 Type de session: ${session_type}
@@ -77,13 +56,9 @@ ${session_type === 'rang_a' ? 'Focus sur les connaissances de base (Rang A)' :
   session_type === 'rang_b' ? 'Focus sur les connaissances approfondies (Rang B)' : 
   'Mix des connaissances Rang A et B'}
 
-COMPÉTENCES OIC À COUVRIR:
-${competencesContent}
-
-${oicCompetences?.length === 0 ? `
-FALLBACK - Contenu tableaux disponibles:
+Contenu à couvrir:
 ${session_type === 'rang_a' || session_type === 'mixed' ? JSON.stringify(itemData.tableau_rang_a) : ''}
-${session_type === 'rang_b' || session_type === 'mixed' ? JSON.stringify(itemData.tableau_rang_b) : ''}` : ''}
+${session_type === 'rang_b' || session_type === 'mixed' ? JSON.stringify(itemData.tableau_rang_b) : ''}
 
 Format de réponse JSON:
 {

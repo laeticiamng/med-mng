@@ -9,8 +9,16 @@ export interface OicCompetence {
   rubrique: string;
   rang: string;
   item_parent: string;
-  ordre?: number;
-  url_source?: string;
+  titre_complet?: string;
+  sommaire?: string;
+  mecanismes?: string;
+  indications?: string;
+  effets_indesirables?: string;
+  interactions?: string;
+  modalites_surveillance?: string;
+  causes_echec?: string;
+  contributeurs?: string;
+  ordre_affichage?: number;
 }
 
 export const useOicCompetences = (itemCode: string, rang: 'A' | 'B') => {
@@ -23,19 +31,13 @@ export const useOicCompetences = (itemCode: string, rang: 'A' | 'B') => {
       try {
         setLoading(true);
         
-        // Extraire le numéro d'item et gérer les différents formats
-        let itemNumber: string;
-        if (itemCode.startsWith('IC-')) {
-          itemNumber = itemCode.replace('IC-', '').padStart(3, '0');
-        } else {
-          // Si c'est déjà au format numérique, on le garde tel quel
-          itemNumber = itemCode.padStart(3, '0');
-        }
+        // Extraire le numéro d'item (IC-1 -> 001, IC-10 -> 010)
+        const itemNumber = itemCode.replace('IC-', '').padStart(3, '0');
         
-        console.log(`🔍 [useOicCompetences] Récupération pour itemCode='${itemCode}' -> itemNumber='${itemNumber}' rang='${rang}'`);
+        console.log(`🔍 Récupération compétences OIC RÉELLES pour item ${itemNumber} rang ${rang}`);
         
         const { data, error } = await supabase
-          .from('backup_oic_competences')
+          .from('oic_competences')
           .select(`
             objectif_id,
             intitule,
@@ -43,19 +45,20 @@ export const useOicCompetences = (itemCode: string, rang: 'A' | 'B') => {
             rubrique,
             rang,
             item_parent,
-            ordre,
-            url_source,
-            completion_status
+            titre_complet,
+            sommaire,
+            mecanismes,
+            indications,
+            effets_indesirables,
+            interactions,
+            modalites_surveillance,
+            causes_echec,
+            contributeurs,
+            ordre_affichage
           `)
           .eq('item_parent', itemNumber)
           .eq('rang', rang)
-          .in('completion_status', ['completed', 'updated', 'verified_unchanged', 'skipped_error'])
-          .not('description', 'is', null)
-          .order('ordre', { ascending: true, nullsFirst: false });
-
-        console.log(`🔧 [useOicCompetences] Requête SQL: item_parent='${itemNumber}' AND rang='${rang}'`);
-        console.log(`📊 [useOicCompetences] Données brutes récupérées pour ${itemCode}:`, data?.length, 'éléments');
-        console.log(`📊 [useOicCompetences] Échantillon données:`, data?.slice(0, 2));
+          .order('objectif_id');
 
         if (error) {
           console.error('❌ Erreur récupération OIC:', error);
@@ -65,40 +68,20 @@ export const useOicCompetences = (itemCode: string, rang: 'A' | 'B') => {
 
         console.log(`✅ ${data?.length || 0} compétences OIC RÉELLES récupérées pour ${itemCode} rang ${rang}`);
         
-        // Filtrer les compétences avec descriptions complètes et à jour
+        // Filtrer pour ne garder que les compétences avec du vrai contenu (pas générique)
         const realCompetences = data?.filter(comp => {
-          const hasRequiredFields = comp.objectif_id && comp.intitule && comp.description;
-          const hasValidDescription = comp.description && comp.description.length > 20;
-          // Accepter toutes les données valides, même avec skipped_error
-          const hasValidStatus = ['completed', 'updated', 'verified_unchanged', 'skipped_error'].includes(comp.completion_status);
+          // Vérifier si c'est du contenu générique enrichi automatiquement
+          const hasGenericContent = 
+            comp.titre_complet?.includes('Expertise de base en') ||
+            comp.titre_complet?.includes('Expertise avancée en') ||
+            comp.sommaire?.includes('Communication - Éthique - Raisonnement') ||
+            comp.intitule === comp.description;
           
-          console.log(`🔍 [useOicCompetences] Filtrage ${comp.objectif_id}: required=${hasRequiredFields}, desc=${hasValidDescription}, status=${hasValidStatus} (${comp.completion_status})`);
-          
-          return hasRequiredFields && hasValidDescription && hasValidStatus;
+          return !hasGenericContent && comp.objectif_id && comp.intitule;
         }) || [];
 
-        // Tri supplémentaire pour s'assurer de l'ordre croissant
-        const sortedCompetences = realCompetences.sort((a, b) => {
-          // Priorité 1: tri par ordre si disponible
-          if (a.ordre !== null && b.ordre !== null && a.ordre !== undefined && b.ordre !== undefined) {
-            return a.ordre - b.ordre;
-          }
-          
-          // Priorité 2: extraire le numéro de séquence de l'objectif_id
-          const extractSequenceNumber = (objectifId: string) => {
-            // Pattern: OIC-XXX-YY-[A|B] où YY est le numéro de séquence
-            const match = objectifId.match(/OIC-\d+-(\d+)-[AB]/);
-            return match ? parseInt(match[1], 10) : 999999; // valeur élevée si pas de match
-          };
-          
-          const seqA = extractSequenceNumber(a.objectif_id || '');
-          const seqB = extractSequenceNumber(b.objectif_id || '');
-          
-          return seqA - seqB;
-        });
-
-        console.log(`🎯 ${sortedCompetences.length} compétences AUTHENTIQUES récupérées avec descriptions complètes et triées par ordre`);
-        setCompetences(sortedCompetences);
+        console.log(`🎯 ${realCompetences.length} compétences AUTHENTIQUES après filtrage`);
+        setCompetences(realCompetences);
         
       } catch (err) {
         console.error('❌ Erreur:', err);

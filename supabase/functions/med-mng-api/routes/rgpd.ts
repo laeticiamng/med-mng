@@ -1,34 +1,18 @@
 import { jsonResponse, errorResponse } from '../response.ts';
 import { log } from '../logger.ts';
-import { enforceDistributedRateLimit } from '../middleware/rateLimit.ts';
 
 export async function handleRGPD(req: Request, supabase: any, path: string, url: URL): Promise<Response | null> {
   // POST /rgpd/export - Export user data (GDPR)
   if (path === '/rgpd/export' && req.method === 'POST') {
     try {
       const { user_id, email } = await req.json();
-
+      
       if (!user_id && !email) {
         return errorResponse(400, 'MISSING_IDENTIFIER', 'User ID or email required');
       }
 
-      const rateLimit = await enforceDistributedRateLimit(req, {
-        action: 'med_mng_api.rgpd.export',
-        maxRequests: Number(Deno.env.get('RATE_LIMIT_RGPD_EXPORT_MAX_REQUESTS') ?? '3'),
-        windowSeconds: Number(Deno.env.get('RATE_LIMIT_RGPD_EXPORT_WINDOW_SECONDS') ?? '3600'),
-        defaultRetrySeconds: Number(Deno.env.get('RATE_LIMIT_RGPD_EXPORT_RETRY_SECONDS') ?? '900'),
-        context: {
-          hasUserId: Boolean(user_id),
-          hasEmail: Boolean(email),
-        },
-      });
-
-      if (rateLimit.blocked && rateLimit.response) {
-        return rateLimit.response;
-      }
-
       const userData = await exportUserData(supabase, user_id, email);
-
+      
       // Log GDPR export request
       await supabase.from('operation_logs').insert({
         type: 'GDPR_EXPORT',
@@ -45,7 +29,7 @@ export async function handleRGPD(req: Request, supabase: any, path: string, url:
           automatic_deletion: 'After account deletion + 30 days',
           contact_for_questions: 'dpo@medmng.com'
         }
-      }, 200, rateLimit.headers);
+      });
     } catch (error) {
       log('error', 'GDPR export error', error);
       return errorResponse(500, 'EXPORT_ERROR', 'Failed to export user data');

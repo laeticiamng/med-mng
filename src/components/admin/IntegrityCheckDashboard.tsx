@@ -16,7 +16,6 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { errorService } from '@/services/core/ErrorService';
 
 interface IntegrityCheck {
   id: string;
@@ -62,7 +61,7 @@ export const IntegrityCheckDashboard: React.FC = () => {
         setChecks(data.data);
       }
     } catch (error) {
-      errorService.handleError(error instanceof Error ? error : new Error('Erreur fetch checks'), 'api_call');
+      console.error('Erreur fetch checks:', error);
       toast.error('Erreur lors du chargement des checks');
     } finally {
       setLoading(false);
@@ -76,7 +75,7 @@ export const IntegrityCheckDashboard: React.FC = () => {
         body: { 
           action: 'run_check',
           check_type: 'manual',
-          tables: ['edn_items_complete', 'ecos_situations_complete', 'oic_competences']
+          tables: ['edn_items_immersive', 'ecos_situations_complete', 'oic_competences']
         }
       });
 
@@ -92,7 +91,7 @@ export const IntegrityCheckDashboard: React.FC = () => {
         await fetchChecks();
       }
     } catch (error) {
-      errorService.handleError(error instanceof Error ? error : new Error('Erreur run check'), 'api_call');
+      console.error('Erreur run check:', error);
       toast.error('Erreur lors du check d\'intégrité');
     } finally {
       setRunningCheck(false);

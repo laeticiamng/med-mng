@@ -1,5 +1,4 @@
 import { supabase } from "@/integrations/supabase/client";
-import { errorService } from '@/services/core/ErrorService';
 
 export interface EcosSituation {
   id: string;
@@ -73,7 +72,7 @@ class EcosService {
     });
 
     if (error) {
-      errorService.handleError(error instanceof Error ? error : new Error('Error fetching ECOS situations'), 'api_call');
+      console.error('Error fetching ECOS situations:', error);
       throw new Error('Erreur lors de la récupération des situations ECOS');
     }
 
@@ -87,7 +86,7 @@ class EcosService {
     });
 
     if (error) {
-      errorService.handleError(error instanceof Error ? error : new Error('Error fetching ECOS situation'), 'api_call');
+      console.error('Error fetching ECOS situation:', error);
       throw new Error('Erreur lors de la récupération de la situation ECOS');
     }
 
@@ -101,7 +100,7 @@ class EcosService {
     });
 
     if (error) {
-      errorService.handleError(error instanceof Error ? error : new Error('Error fetching ECOS competences'), 'api_call');
+      console.error('Error fetching ECOS competences:', error);
       throw new Error('Erreur lors de la récupération des compétences');
     }
 
@@ -115,7 +114,7 @@ class EcosService {
     });
 
     if (error) {
-      errorService.handleError(error instanceof Error ? error : new Error('Error fetching ECOS analytics'), 'api_call');
+      console.error('Error fetching ECOS analytics:', error);
       throw new Error('Erreur lors de la récupération des analytics ECOS');
     }
 
@@ -137,7 +136,7 @@ class EcosService {
     });
 
     if (error) {
-      errorService.handleError(error instanceof Error ? error : new Error('Error in advanced ECOS search'), 'api_call');
+      console.error('Error in advanced ECOS search:', error);
       throw new Error('Erreur lors de la recherche avancée ECOS');
     }
 

@@ -1,34 +1,49 @@
+
 import React from 'react';
-import { Card } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
-interface PremiumCardProps {
+interface PremiumCardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
-  variant?: 'default' | 'glass' | 'elevated' | 'glow' | 'gradient';
-  colorScheme?: 'primary' | 'secondary' | 'accent' | 'success' | 'warning' | 'info';
-  hover?: boolean;
   className?: string;
-  onClick?: () => void;
+  variant?: 'default' | 'gradient' | 'glass' | 'elevated';
+  hover?: boolean;
 }
 
 export const PremiumCard: React.FC<PremiumCardProps> = ({
   children,
-  variant = 'default',
-  colorScheme,
-  hover = false,
   className,
-  onClick
+  variant = 'default',
+  hover = true,
+  ...props
 }) => {
+  const getVariantClasses = () => {
+    switch (variant) {
+      case 'gradient':
+        return 'bg-gradient-to-br from-white via-white/95 to-white/90 border border-white/20 shadow-2xl shadow-black/5';
+      case 'glass':
+        return 'bg-white/60 backdrop-blur-xl border border-white/30 shadow-2xl shadow-black/10';
+      case 'elevated':
+        return 'bg-white border border-gray-100/50 shadow-2xl shadow-black/5';
+      default:
+        return 'bg-white/80 backdrop-blur-sm border border-white/50 shadow-xl shadow-black/5';
+    }
+  };
+
+  const hoverClasses = hover 
+    ? 'hover:scale-[1.02] hover:shadow-2xl hover:shadow-black/10 hover:-translate-y-1' 
+    : '';
+
   return (
-    <Card 
+    <div 
       className={cn(
-        'transition-all duration-200',
-        hover && 'hover:shadow-lg hover:scale-[1.02] cursor-pointer',
+        'rounded-2xl transition-all duration-500 ease-out',
+        getVariantClasses(),
+        hoverClasses,
         className
       )}
-      onClick={onClick}
+      {...props}
     >
       {children}
-    </Card>
+    </div>
   );
 };

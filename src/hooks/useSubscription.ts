@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/components/providers/AuthProvider';
+import { useAuth } from '@/components/med-mng/AuthProvider';
 import { toast } from 'sonner';
 
 interface SubscriptionPlan {
@@ -71,17 +71,12 @@ export const useSubscription = () => {
   const userIdRef = useRef<string | null>(null);
 
   const fetchSubscription = useCallback(async () => {
-    if (!user || fetchingRef.current) {
+    if (!user || fetchingRef.current || userIdRef.current === user.id) {
       if (!user) {
         setSubscription(null);
         setMusicQuota(null);
         setLoading(false);
       }
-      return;
-    }
-
-    // Eviter les appels multiples pour le même user
-    if (userIdRef.current === user.id) {
       return;
     }
 
@@ -174,7 +169,7 @@ export const useSubscription = () => {
       setLoading(false);
       fetchingRef.current = false;
     }
-  }, []);
+  }, [user]);
 
   const incrementMusicUsage = useCallback(async (): Promise<boolean> => {
     if (!user) {
@@ -267,7 +262,7 @@ export const useSubscription = () => {
 
   useEffect(() => {
     fetchSubscription();
-  }, [user]);
+  }, [fetchSubscription]);
 
   return {
     subscription,

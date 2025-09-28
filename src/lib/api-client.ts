@@ -358,8 +358,8 @@ export async function withAPIErrorHandling<T>(
           },
           context: {
             component: errorContext || 'api-client',
-            url: typeof window !== 'undefined' ? window.location.href : 'unknown',
-            userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'unknown',
+            url: window.location.href,
+            userAgent: navigator.userAgent,
             metadata: { originalError: error.apiError },
           },
           timestamp: new Date().toISOString(),

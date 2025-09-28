@@ -23,9 +23,13 @@ export function SecureCredentialsForm({
   title = "Authentification CAS",
   description = "Saisissez vos identifiants CAS pour l'extraction sécurisée"
 }: SecureCredentialsFormProps) {
-  // SECURITY: No environment variables in frontend - user must input credentials
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
+  const [username, setUsername] = useState(
+    // Tenter de récupérer depuis les variables d'environnement (dev uniquement)
+    import.meta.env.VITE_CAS_USERNAME || ''
+  );
+  const [password, setPassword] = useState(
+    import.meta.env.VITE_CAS_PASSWORD || ''
+  );
   const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -45,8 +49,7 @@ export function SecureCredentialsForm({
     onSubmit({ username: username.trim(), password });
   };
 
-  // SECURITY: No frontend environment credentials
-  const hasEnvCredentials = false;
+  const hasEnvCredentials = import.meta.env.VITE_CAS_USERNAME && import.meta.env.VITE_CAS_PASSWORD;
 
   return (
     <Card className="w-full max-w-md mx-auto">
@@ -153,12 +156,19 @@ export function useSecureCredentials() {
   const [credentials, setCredentials] = useState<{ username: string; password: string } | null>(null);
   const [showCredentialsForm, setShowCredentialsForm] = useState(false);
 
-  // SECURITY: No frontend environment credentials - user must always input manually
-  const hasEnvCredentials = false;
+  // Vérifier si les credentials sont disponibles via env variables
+  const hasEnvCredentials = import.meta.env.VITE_CAS_USERNAME && import.meta.env.VITE_CAS_PASSWORD;
   
   const getCredentials = (): Promise<{ username: string; password: string }> => {
     return new Promise((resolve, reject) => {
-      // SECURITY: Always require manual credential input for sensitive operations
+      // Si credentials env disponibles, les utiliser directement
+      if (hasEnvCredentials) {
+        resolve({
+          username: import.meta.env.VITE_CAS_USERNAME,
+          password: import.meta.env.VITE_CAS_PASSWORD
+        });
+        return;
+      }
 
       // Si déjà saisis dans cette session, les réutiliser
       if (credentials) {

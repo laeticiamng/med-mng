@@ -1,17 +1,12 @@
 import { corsHeaders, securityHeaders } from "./types.ts";
 
-export function jsonResponse(
-  data: unknown,
-  status = 200,
-  extraHeaders: Record<string, string> = {},
-) {
+export function jsonResponse(data: unknown, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
     headers: {
       'Content-Type': 'application/json',
       ...corsHeaders,
       ...securityHeaders,
-      ...extraHeaders,
     },
   });
 }

@@ -5,8 +5,6 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from '@/integrations/supabase/client';
 import { AlertTriangle, CheckCircle, Database, Loader2, Play, Search } from 'lucide-react';
-import { ConsistentBackground } from '@/components/layout/ConsistentBackground';
-import { PageHeader } from '@/components/layout/PageHeader';
 
 interface AnalysisResult {
   analysis: {
@@ -114,16 +112,17 @@ const OicDataQualityManager = () => {
   };
 
   return (
-    <ConsistentBackground variant="tertiary">
-      <PageHeader
-        title="Gestionnaire de Qualité OIC"
-        subtitle="Analysez et corrigez automatiquement les problèmes de qualité des compétences OIC"
-        icon={Database}
-        showBackButton
-        backTo="/admin"
-      />
-      
-      <div className="container mx-auto px-4 py-8 space-y-6">
+    <div className="container mx-auto px-4 py-8 space-y-6">
+      <div className="text-center space-y-4">
+        <h1 className="text-3xl font-bold text-foreground flex items-center justify-center gap-2">
+          <Database className="h-8 w-8 text-primary" />
+          Gestionnaire de Qualité des Données OIC
+        </h1>
+        <p className="text-muted-foreground max-w-2xl mx-auto">
+          Analysez et corrigez automatiquement les problèmes de qualité des compétences OIC extraites de la base de données.
+          Ce système détecte et répare les balises HTML corrompues, les fragments incomplets, et les descriptions manquantes.
+        </p>
+      </div>
 
       {error && (
         <Alert variant="destructive">
@@ -304,8 +303,7 @@ const OicDataQualityManager = () => {
           </div>
         </CardContent>
       </Card>
-      </div>
-    </ConsistentBackground>
+    </div>
   );
 };
 

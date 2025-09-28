@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { previewLyricsForItem } from '@/utils/lyrics/generateAllAdvancedLyrics';
+import { previewLyricsForItem } from '@/utils/generateAllAdvancedLyrics';
 import { useToast } from '@/hooks/use-toast';
 
 interface LyricsPreviewModalProps {
@@ -26,7 +26,7 @@ export const LyricsPreviewModal = ({ itemCode, itemTitle }: LyricsPreviewModalPr
       
       toast({
         title: "✅ Prévisualisation générée",
-        description: `Paroles musicales pour ${itemCode} Rang ${selectedRang}`,
+        description: `Paroles style Nekfeu pour ${itemCode} Rang ${selectedRang}`,
       });
     } catch (error) {
       toast({
@@ -84,23 +84,15 @@ export const LyricsPreviewModal = ({ itemCode, itemTitle }: LyricsPreviewModalPr
         </Button>
       </DialogTrigger>
       
-      <DialogContent 
-        className="max-w-4xl max-h-[80vh]"
-        aria-describedby="lyrics-preview-description"
-      >
+      <DialogContent className="max-w-4xl max-h-[80vh]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            🎵 Prévisualisation Paroles Musicales
+            🎵 Prévisualisation Paroles Style Nekfeu
             <span className="text-muted-foreground text-sm font-normal">
               {itemCode} - {itemTitle.length > 50 ? itemTitle.substring(0, 47) + '...' : itemTitle}
             </span>
           </DialogTitle>
         </DialogHeader>
-        
-        {/* Description for accessibility */}
-        <div id="lyrics-preview-description" className="sr-only">
-          Prévisualisation des paroles musicales générées par IA pour l'item EDN sélectionné. Permet de choisir le rang et de générer des paroles personnalisées.
-        </div>
         
         <div className="space-y-4">
           {/* Contrôles */}
@@ -147,7 +139,7 @@ export const LyricsPreviewModal = ({ itemCode, itemTitle }: LyricsPreviewModalPr
             <div className="text-center text-muted-foreground py-8">
               <div className="text-4xl mb-2">🎤</div>
               <p>Sélectionnez un rang et cliquez sur "Générer" pour prévisualiser les paroles</p>
-              <p className="text-sm mt-2">Contenu médical • Structure complète • Qualité professionnelle</p>
+              <p className="text-sm mt-2">Style Nekfeu • Contenu médical dense • Structure complète</p>
             </div>
           )}
         </div>

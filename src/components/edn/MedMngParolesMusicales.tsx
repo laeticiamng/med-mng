@@ -3,7 +3,6 @@ import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { useMedMngMusicGeneration } from '@/hooks/useMedMngMusicGeneration';
 import { useGlobalAudio } from '@/contexts/GlobalAudioContext';
-import { logger } from '@/utils/structuredLogger';
 import { ParolesMusicalesDebugInfo } from './music/ParolesMusicalesDebugInfo';
 import { MedMngParolesMusicalesHeader } from './music/MedMngParolesMusicalesHeader';
 import { MedMngParolesMusicalesControls } from './music/MedMngParolesMusicalesControls';
@@ -13,8 +12,8 @@ import { MedMngParolesMusicalesContent } from './music/MedMngParolesMusicalesCon
 interface MedMngParolesMusicalesProps {
   paroles?: string[];
   itemCode: string;
-  tableauRangA?: Record<string, unknown>;
-  tableauRangB?: Record<string, unknown>;
+  tableauRangA?: any;
+  tableauRangB?: any;
 }
 
 export const MedMngParolesMusicales: React.FC<MedMngParolesMusicalesProps> = ({
@@ -23,14 +22,11 @@ export const MedMngParolesMusicales: React.FC<MedMngParolesMusicalesProps> = ({
   tableauRangA,
   tableauRangB
 }) => {
-  logger.debug('MedMngParolesMusicales rendu', {
-    component: 'MedMngParolesMusicales',
-    metadata: {
-      parolesCount: paroles?.length,
-      itemCode,
-      hasTableauA: !!tableauRangA,
-      hasTableauB: !!tableauRangB
-    }
+  console.log('🎵 MedMngParolesMusicales - Rendu avec props:', { 
+    paroles: paroles?.length, 
+    itemCode, 
+    hasTableauA: !!tableauRangA, 
+    hasTableauB: !!tableauRangB 
   });
 
   const [selectedStyle, setSelectedStyle] = useState<string>('lofi-piano');
@@ -58,34 +54,21 @@ export const MedMngParolesMusicales: React.FC<MedMngParolesMusicalesProps> = ({
   } = useGlobalAudio();
 
   const handleGenerate = async (rang: 'A' | 'B') => {
-    logger.info('Génération musicale MED-MNG', {
-      component: 'MedMngParolesMusicales',
-      action: 'handleGenerate',
-      metadata: { rang, itemCode }
-    });
+    console.log(`🎵 BOUTON GÉNÉRER CLIQUÉ - Rang ${rang}`);
     
     if (!paroles || paroles.length === 0) {
-      logger.error('Aucune parole disponible', {
-        component: 'MedMngParolesMusicales',
-        itemCode
-      });
+      console.error('❌ AUCUNE PAROLE DISPONIBLE');
       return;
     }
 
     const parolesIndex = rang === 'A' ? 0 : 1;
     if (!paroles[parolesIndex]) {
-      logger.error(`Aucune parole pour rang ${rang}`, {
-        component: 'MedMngParolesMusicales',
-        metadata: { rang, itemCode }
-      });
+      console.error(`❌ AUCUNE PAROLE POUR LE RANG ${rang}`);
       return;
     }
 
     try {
-      logger.info('Appel generateMusicInLanguage via MED-MNG', {
-        component: 'MedMngParolesMusicales',
-        metadata: { rang, itemCode }
-      });
+      console.log('🚀 APPEL generateMusicInLanguage via MED-MNG...');
       const result = await generateMusicInLanguage(
         rang, 
         paroles, 
@@ -93,46 +76,30 @@ export const MedMngParolesMusicales: React.FC<MedMngParolesMusicalesProps> = ({
         musicDuration, 
         itemCode
       );
-      logger.info('Génération MED-MNG terminée', {
-        component: 'MedMngParolesMusicales',
-        metadata: { rang, itemCode, result: !!result }
-      });
+      console.log(`✅ GÉNÉRATION MED-MNG TERMINÉE POUR RANG ${rang}:`, result);
       
     } catch (error) {
-      logger.error(`Erreur génération MED-MNG rang ${rang}`, {
-        component: 'MedMngParolesMusicales',
-        metadata: { rang, itemCode }
-      });
+      console.error(`❌ ERREUR GÉNÉRATION MED-MNG RANG ${rang}:`, error);
     }
   };
 
   const handlePlayAudio = (audioUrl: string, title: string) => {
-    logger.debug('Bouton play cliqué MED-MNG', {
-      component: 'MedMngParolesMusicales',
-      metadata: {
-        audioUrl: audioUrl?.substring(0, 100) + '...',
-        title,
-        isStreaming: audioUrl?.includes('/songs/') && audioUrl?.includes('/stream')
-      }
+    console.log('🎵 BOUTON PLAY CLIQUÉ (MED-MNG):', {
+      audioUrl: audioUrl?.substring(0, 100) + '...',
+      title,
+      isStreaming: audioUrl?.includes('/songs/') && audioUrl?.includes('/stream')
     });
 
     if (!audioUrl) {
-      logger.error('URL audio manquante', {
-        component: 'MedMngParolesMusicales'
-      });
+      console.error('❌ URL AUDIO MANQUANTE');
       return;
     }
 
     if (currentTrack?.url === audioUrl && isPlaying) {
-      logger.debug('Pause de l\'audio en cours', {
-        component: 'MedMngParolesMusicales'
-      });
+      console.log('⏸️ PAUSE DE L\'AUDIO EN COURS');
       pause();
     } else {
-      logger.debug('Lecture du streaming sécurisé MED-MNG', {
-        component: 'MedMngParolesMusicales',
-        metadata: { audioUrl: audioUrl.substring(0, 50) }
-      });
+      console.log('▶️ LECTURE DU STREAMING SÉCURISÉ MED-MNG');
       play({
         url: audioUrl,
         title: title,

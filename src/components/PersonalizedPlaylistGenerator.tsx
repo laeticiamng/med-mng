@@ -5,8 +5,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Loader2, Sparkles, Music } from 'lucide-react';
-import { toast } from 'sonner';
-import { errorService } from '@/services/core/ErrorService';
 import { useAIRecommendations } from '@/hooks/useAIRecommendations';
 
 export const PersonalizedPlaylistGenerator = () => {
@@ -29,7 +27,7 @@ export const PersonalizedPlaylistGenerator = () => {
       
       setGeneratedPlaylist(result);
     } catch (error) {
-      errorService.handleError(error as Error, 'user_action', true);
+      console.error('Erreur génération playlist:', error);
     }
   };
 

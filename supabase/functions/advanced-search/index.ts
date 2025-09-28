@@ -1,47 +1,33 @@
-/**
- * 🔍 ADVANCED SEARCH PREMIUM
- * Service de recherche intelligent pour EDN et contenus médicaux
- * ✅ Recherche sémantique avec embeddings
- * ✅ Filtres avancés multi-critères
- * ✅ Performance optimisée
- */
-
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.7.1';
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+}
 
 interface SearchRequest {
   query: string;
   filters?: {
-    categories?: string[];
-    difficulty?: string[];
-    specialties?: string[];
-    hasMusic?: boolean;
-    hasQuiz?: boolean;
-    hasScene?: boolean;
+    category?: string;
     dateRange?: {
-      from: string;
-      to: string;
+      start: string;
+      end: string;
+    };
+    author?: string;
+    tags?: string[];
+    rating?: number;
+    duration?: {
+      min: number;
+      max: number;
     };
   };
   options?: {
     limit?: number;
     offset?: number;
-    includeEmbeddings?: boolean;
-    fuzzyMatch?: boolean;
+    sortBy?: 'relevance' | 'date' | 'rating' | 'popularity';
+    sortOrder?: 'asc' | 'desc';
   };
-}
-
-interface SearchResult {
-  items: any[];
-  total: number;
-  suggestions?: string[];
-  facets?: Record<string, any>;
-  executionTime: number;
 }
 
 serve(async (req) => {
@@ -50,168 +36,226 @@ serve(async (req) => {
   }
 
   try {
-    const startTime = Date.now();
-    const { query, filters = {}, options = {} } = await req.json() as SearchRequest;
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
 
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseKey);
+    const { query, filters = {}, options = {} }: SearchRequest = await req.json();
 
-    // Construire la requête de base
-    let searchQuery = supabase
-      .from('edn_items_complete')
-      .select(`
-        id, item_code, title, subtitle, slug,
-        paroles_musicales, tableau_rang_a, tableau_rang_b,
-        scene_immersive, quiz_questions, specialite,
-        completeness_score, is_validated,
-        created_at, updated_at
-      `);
+    console.log('🔍 Advanced search for:', query, 'with filters:', filters);
 
-    // Recherche textuelle
-    if (query && query.trim()) {
-      const searchTerms = query.trim().toLowerCase();
-      
-      if (options.fuzzyMatch) {
-        // Recherche fuzzy avec ILIKE
-        searchQuery = searchQuery.or(`
-          title.ilike.%${searchTerms}%,
-          subtitle.ilike.%${searchTerms}%,
-          item_code.ilike.%${searchTerms}%,
-          specialite.ilike.%${searchTerms}%
-        `);
-      } else {
-        // Recherche simple avec ILIKE
-        searchQuery = searchQuery.or(`
-          title.ilike.%${searchTerms}%,
-          item_code.ilike.%${searchTerms}%
-        `);
-      }
-    }
+    const {
+      limit = 20,
+      offset = 0,
+      sortBy = 'relevance',
+      sortOrder = 'desc'
+    } = options;
 
-    // Filtres avancés
-    if (filters.specialties?.length) {
-      searchQuery = searchQuery.in('specialite', filters.specialties);
-    }
-
-    if (filters.hasMusic !== undefined) {
-      if (filters.hasMusic) {
-        searchQuery = searchQuery.not('paroles_musicales', 'is', null);
-      } else {
-        searchQuery = searchQuery.is('paroles_musicales', null);
-      }
-    }
-
-    if (filters.hasQuiz !== undefined) {
-      if (filters.hasQuiz) {
-        searchQuery = searchQuery.not('quiz_questions', 'is', null);
-      } else {
-        searchQuery = searchQuery.is('quiz_questions', null);
-      }
-    }
-
-    if (filters.hasScene !== undefined) {
-      if (filters.hasScene) {
-        searchQuery = searchQuery.not('scene_immersive', 'is', null);
-      } else {
-        searchQuery = searchQuery.is('scene_immersive', null);
-      }
-    }
-
-    // Filtres de date
-    if (filters.dateRange?.from) {
-      searchQuery = searchQuery.gte('created_at', filters.dateRange.from);
-    }
-    if (filters.dateRange?.to) {
-      searchQuery = searchQuery.lte('created_at', filters.dateRange.to);
-    }
-
-    // Pagination
-    const limit = options.limit || 50;
-    const offset = options.offset || 0;
+    // Recherche dans multiple tables selon les catégories
+    const results = [];
     
-    searchQuery = searchQuery
-      .range(offset, offset + limit - 1)
-      .order('completeness_score', { ascending: false })
-      .order('item_code', { ascending: true });
+    // 1. Rechercher dans EDN items si pas de catégorie spécifiée ou si category = 'edn'
+    if (!filters.category || filters.category === 'edn') {
+      const { data: ednItems } = await supabase
+        .from('edn_items_immersive')
+        .select('id, title, item_code, slug, created_at')
+        .or(`title.ilike.%${query}%, item_code.ilike.%${query}%`)
+        .limit(limit);
 
-    // Exécuter la recherche
-    const { data: items, error: searchError, count } = await searchQuery;
-
-    if (searchError) {
-      throw searchError;
-    }
-
-    // Générer des suggestions si peu de résultats
-    let suggestions: string[] = [];
-    if (items && items.length < 5 && query) {
-      const { data: suggestionData } = await supabase
-        .from('edn_items_complete')
-        .select('title, item_code')
-        .limit(10);
-
-      if (suggestionData) {
-        suggestions = suggestionData
-          .map(item => `${item.item_code}: ${item.title}`)
-          .slice(0, 5);
+      if (ednItems) {
+        ednItems.forEach(item => {
+          results.push({
+            id: item.id,
+            title: item.title,
+            description: `Item EDN ${item.item_code}`,
+            category: 'edn',
+            tags: ['edn', 'medical'],
+            createdAt: new Date(item.created_at),
+            url: `/edn/${item.slug}`,
+            relevanceScore: calculateRelevanceScore(query, item.title)
+          });
+        });
       }
     }
 
-    // Calculer les facettes pour filtrage
-    const facets: Record<string, any> = {};
-    
-    // Facettes spécialités
-    const { data: specialtyFacets } = await supabase
-      .from('edn_items_complete')
-      .select('specialite')
-      .not('specialite', 'is', null);
+    // 2. Rechercher dans les musiques si pas de catégorie ou category = 'music'
+    if (!filters.category || filters.category === 'music') {
+      const { data: songs } = await supabase
+        .from('emotionscare_songs')
+        .select('id, title, meta, created_at')
+        .ilike('title', `%${query}%`)
+        .limit(limit);
 
-    if (specialtyFacets) {
-      const specialtyCounts = specialtyFacets.reduce((acc: Record<string, number>, item) => {
-        const specialty = item.specialite;
-        if (specialty) {
-          acc[specialty] = (acc[specialty] || 0) + 1;
+      if (songs) {
+        songs.forEach(song => {
+          results.push({
+            id: song.id,
+            title: song.title,
+            description: 'Musique générée EmotionsCare',
+            category: 'music',
+            tags: ['music', 'emotionscare'],
+            duration: song.meta?.duration || 240,
+            createdAt: new Date(song.created_at),
+            url: `/music/${song.id}`,
+            relevanceScore: calculateRelevanceScore(query, song.title)
+          });
+        });
+      }
+    }
+
+    // 3. Rechercher dans les articles/posts
+    if (!filters.category || filters.category === 'article') {
+      const { data: posts } = await supabase
+        .from('posts')
+        .select('id, title, content, user_id, date')
+        .or(`title.ilike.%${query}%, content.ilike.%${query}%`)
+        .limit(limit);
+
+      if (posts) {
+        posts.forEach(post => {
+          results.push({
+            id: post.id,
+            title: post.title,
+            description: post.content?.substring(0, 150) + '...',
+            category: 'article',
+            author: 'User',
+            tags: ['article', 'community'],
+            createdAt: new Date(post.date),
+            url: `/posts/${post.id}`,
+            relevanceScore: calculateRelevanceScore(query, post.title + ' ' + post.content)
+          });
+        });
+      }
+    }
+
+    // Appliquer les filtres
+    let filteredResults = results;
+
+    if (filters.dateRange) {
+      const start = new Date(filters.dateRange.start);
+      const end = new Date(filters.dateRange.end);
+      filteredResults = filteredResults.filter(item => 
+        item.createdAt >= start && item.createdAt <= end
+      );
+    }
+
+    if (filters.rating) {
+      filteredResults = filteredResults.filter(item => 
+        (item.rating || 0) >= filters.rating!
+      );
+    }
+
+    if (filters.duration) {
+      filteredResults = filteredResults.filter(item => 
+        item.duration && 
+        item.duration >= filters.duration!.min && 
+        item.duration <= filters.duration!.max
+      );
+    }
+
+    if (filters.tags && filters.tags.length > 0) {
+      filteredResults = filteredResults.filter(item =>
+        filters.tags!.some(tag => item.tags.includes(tag))
+      );
+    }
+
+    // Trier les résultats
+    filteredResults.sort((a, b) => {
+      switch (sortBy) {
+        case 'relevance':
+          return sortOrder === 'desc' ? b.relevanceScore - a.relevanceScore : a.relevanceScore - b.relevanceScore;
+        case 'date':
+          return sortOrder === 'desc' ? 
+            b.createdAt.getTime() - a.createdAt.getTime() :
+            a.createdAt.getTime() - b.createdAt.getTime();
+        case 'rating':
+          return sortOrder === 'desc' ? (b.rating || 0) - (a.rating || 0) : (a.rating || 0) - (b.rating || 0);
+        default:
+          return 0;
+      }
+    });
+
+    // Paginer
+    const paginatedResults = filteredResults.slice(offset, offset + limit);
+
+    // Logger la recherche pour analytics
+    const { error: logError } = await supabase
+      .from('user_activity_logs')
+      .insert({
+        user_id: null, // Anonyme
+        activity_type: 'search',
+        activity_details: {
+          query,
+          filters,
+          options,
+          results_count: paginatedResults.length,
+          total_results: filteredResults.length
         }
-        return acc;
-      }, {});
-      
-      facets.specialties = Object.entries(specialtyCounts)
-        .sort(([,a], [,b]) => b - a)
-        .slice(0, 10);
+      });
+
+    if (logError) {
+      console.warn('⚠️ Failed to log search:', logError);
     }
 
-    const executionTime = Date.now() - startTime;
-
-    const result: SearchResult = {
-      items: items || [],
-      total: count || 0,
-      suggestions: suggestions.length > 0 ? suggestions : undefined,
-      facets,
-      executionTime
-    };
-
-    console.log(`[ADVANCED-SEARCH] Recherche complétée en ${executionTime}ms:`, {
-      query,
-      resultCount: result.total,
-      filtersApplied: Object.keys(filters).length
-    });
-
-    return new Response(JSON.stringify({
-      success: true,
-      data: result
-    }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return new Response(
+      JSON.stringify({
+        results: paginatedResults,
+        totalCount: filteredResults.length,
+        query,
+        filters,
+        options
+      }),
+      { 
+        headers: { 
+          ...corsHeaders,
+          'Content-Type': 'application/json' 
+        } 
+      }
+    );
 
   } catch (error) {
-    console.error('[ADVANCED-SEARCH] Erreur:', error);
+    console.error('❌ Search error:', error);
     
-    return new Response(JSON.stringify({
-      success: false,
-      error: error.message || 'Erreur de recherche avancée'
-    }), {
-      status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-    });
+    return new Response(
+      JSON.stringify({ 
+        error: 'Search failed',
+        details: error.message 
+      }),
+      { 
+        status: 500,
+        headers: { 
+          ...corsHeaders,
+          'Content-Type': 'application/json' 
+        } 
+      }
+    );
   }
-});
+})
+
+// Calculer le score de pertinence simple
+function calculateRelevanceScore(query: string, text: string): number {
+  const queryLower = query.toLowerCase();
+  const textLower = text.toLowerCase();
+  
+  let score = 0;
+  
+  // Correspondance exacte
+  if (textLower.includes(queryLower)) {
+    score += 100;
+  }
+  
+  // Correspondance de mots individuels
+  const queryWords = queryLower.split(' ');
+  const textWords = textLower.split(' ');
+  
+  queryWords.forEach(queryWord => {
+    textWords.forEach(textWord => {
+      if (textWord.includes(queryWord)) {
+        score += 10;
+      }
+    });
+  });
+  
+  return score;
+}

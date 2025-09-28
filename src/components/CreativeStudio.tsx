@@ -23,7 +23,6 @@ import {
   AudioLines
 } from 'lucide-react';
 import { useContentGeneration, type ContentGenerationRequest } from '@/hooks/useContentGeneration';
-import { logger } from '@/lib/logger';
 
 const MUSIC_STYLES = [
   { id: 'ambient', label: 'Ambient', description: 'Sons apaisants et atmosphériques' },
@@ -81,40 +80,36 @@ export const CreativeStudio = () => {
 
     const result = await generateContent(request);
     if (result) {
-      logger.info('Contenu généré', { 
-        component: 'CreativeStudio',
-        action: 'handleGenerate',
-        metadata: { contentType: activeTab }
-      });
+      console.log('Contenu généré:', result);
       // Ici vous pourriez ajouter le contenu à une liste ou l'afficher
     }
   };
 
-  const updateFormData = (field: string, value: unknown) => {
+  const updateFormData = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
   return (
     <div className="space-y-6">
       <div className="text-center space-y-2">
-        <h1 id="main-content" className="text-3xl font-bold gradient-text">Studio de Création IA</h1>
+        <h1 className="text-3xl font-bold gradient-text">Studio de Création IA</h1>
         <p className="text-muted-foreground">
           Générez de la musique, des voix et des images d'ambiance avec l'intelligence artificielle
         </p>
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3" role="tablist" aria-label="Types de contenu à générer">
-          <TabsTrigger value="music" className="flex items-center gap-2" aria-label="Générer de la musique">
-            <Music className="h-4 w-4" aria-hidden="true" />
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="music" className="flex items-center gap-2">
+            <Music className="h-4 w-4" />
             Musique
           </TabsTrigger>
-          <TabsTrigger value="voice" className="flex items-center gap-2" aria-label="Synthèse vocale">
-            <Mic className="h-4 w-4" aria-hidden="true" />
+          <TabsTrigger value="voice" className="flex items-center gap-2">
+            <Mic className="h-4 w-4" />
             Voix
           </TabsTrigger>
-          <TabsTrigger value="image" className="flex items-center gap-2" aria-label="Générer des images">
-            <Image className="h-4 w-4" aria-hidden="true" />
+          <TabsTrigger value="image" className="flex items-center gap-2">
+            <Image className="h-4 w-4" />
             Images
           </TabsTrigger>
         </TabsList>
@@ -147,7 +142,7 @@ export const CreativeStudio = () => {
                 <div className="space-y-2">
                   <Label>Style musical</Label>
                   <Select value={formData.style} onValueChange={(value) => updateFormData('style', value)}>
-                    <SelectTrigger aria-label="Sélectionner un style musical">
+                    <SelectTrigger>
                       <SelectValue placeholder="Choisir un style" />
                     </SelectTrigger>
                     <SelectContent>
@@ -206,7 +201,7 @@ export const CreativeStudio = () => {
               <div className="space-y-2">
                 <Label>Voix</Label>
                 <Select value={formData.voiceId} onValueChange={(value) => updateFormData('voiceId', value)}>
-                  <SelectTrigger aria-label="Sélectionner une voix pour la synthèse">
+                  <SelectTrigger>
                     <SelectValue placeholder="Choisir une voix" />
                   </SelectTrigger>
                   <SelectContent>
@@ -224,7 +219,7 @@ export const CreativeStudio = () => {
 
               <div className="bg-muted/50 p-3 rounded-lg">
                 <p className="text-sm text-muted-foreground">
-                  ℹ️ La synthèse vocale utilise OpenAI TTS pour créer des voix naturelles et expressives.
+                  ℹ️ La synthèse vocale utilise ElevenLabs pour créer des voix naturelles et expressives.
                 </p>
               </div>
             </CardContent>
@@ -259,7 +254,7 @@ export const CreativeStudio = () => {
                 <div className="space-y-2">
                   <Label>Ambiance</Label>
                   <Select value={formData.mood} onValueChange={(value) => updateFormData('mood', value)}>
-                    <SelectTrigger aria-label="Sélectionner l'ambiance de l'image">
+                    <SelectTrigger>
                       <SelectValue placeholder="Choisir une ambiance" />
                     </SelectTrigger>
                     <SelectContent>
@@ -278,7 +273,7 @@ export const CreativeStudio = () => {
                 <div className="space-y-2">
                   <Label>Taille</Label>
                   <Select value={formData.size} onValueChange={(value) => updateFormData('size', value)}>
-                    <SelectTrigger aria-label="Sélectionner la taille de l'image">
+                    <SelectTrigger>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -306,7 +301,7 @@ export const CreativeStudio = () => {
                   {activeTab === 'music' ? 'Musique' : activeTab === 'voice' ? 'Voix' : 'Image'}
                 </Badge>
               </div>
-              <Progress value={progress} className="w-full" aria-label={`Progression de génération: ${Math.round(progress)}%`} />
+              <Progress value={progress} className="w-full" />
               <p className="text-sm text-muted-foreground">
                 {progress < 30 ? 'Initialisation...' : 
                  progress < 70 ? 'Génération IA en cours...' : 
@@ -324,9 +319,8 @@ export const CreativeStudio = () => {
           disabled={!formData.prompt.trim() || isGenerating}
           size="lg"
           className="gap-2"
-          aria-label={isGenerating ? `Génération en cours` : `Générer du contenu ${activeTab === 'music' ? 'musical' : activeTab === 'voice' ? 'vocal' : 'd\'image'} avec l'IA`}
         >
-          <Sparkles className="h-5 w-5" aria-hidden="true" />
+          <Sparkles className="h-5 w-5" />
           {isGenerating ? 'Génération...' : 'Générer avec l\'IA'}
         </Button>
       </div>

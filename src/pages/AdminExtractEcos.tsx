@@ -2,13 +2,11 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { AlertCircle, Download, Play, Pause, RefreshCw, Stethoscope } from 'lucide-react';
+import { AlertCircle, Download, Play, Pause, RefreshCw } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { SecureCredentialsForm, useSecureCredentials } from '@/components/common/SecureCredentialsForm';
-import { ConsistentBackground } from '@/components/layout/ConsistentBackground';
-import { PageHeader } from '@/components/layout/PageHeader';
 
 const AdminExtractEcos = () => {
   const [isExtracting, setIsExtracting] = useState(false);
@@ -79,17 +77,21 @@ const AdminExtractEcos = () => {
   };
 
   return (
-    <ConsistentBackground variant="secondary">
-      <PageHeader
-        title="Extraction ECOS UNESS"
-        subtitle="Extraction des situations de départ ECOS depuis la plateforme UNESS vers Supabase"
-        icon={Stethoscope}
-        showBackButton
-        backTo="/admin"
-      />
-      
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
-        <div className="space-y-6">
+    <div className="container mx-auto p-6 max-w-4xl">
+      <div className="space-y-6">
+        
+        {/* Header */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Download className="h-6 w-6" />
+              Extraction automatique ECOS UNESS
+            </CardTitle>
+            <CardDescription>
+              Extraction des situations de départ ECOS depuis la plateforme UNESS vers Supabase
+            </CardDescription>
+          </CardHeader>
+        </Card>
 
         {/* Actions */}
         <Card>
@@ -227,8 +229,7 @@ const AdminExtractEcos = () => {
           </div>
         </div>
       )}
-      </div>
-    </ConsistentBackground>
+    </div>
   );
 };
 

@@ -41,18 +41,18 @@ Action: Sécurisation complète des credentials et clés sensibles
   - Validation obligatoire SUPABASE_URL et SERVICE_ROLE_KEY
   - Logs masqués pour identifiants CAS
 
-### Fichiers Frontend (✅ CORRIGÉS)
-✅ **TERMINÉ**: Tous les fichiers frontend ont été sécurisés avec succès:
+### Fichiers Frontend (à corriger par l'équipe)
+⚠️ **ATTENTION**: Les fichiers suivants contiennent encore des credentials hardcodés et doivent être corrigés manuellement:
 
 ```
-✅ src/pages/AdminCompleteProcess.tsx - Utilise SecureCredentialsForm
-✅ src/pages/AdminExtractEcos.tsx - Utilise SecureCredentialsForm
-✅ src/pages/AdminExtractEdn.tsx - Migré vers SecureCredentialsForm
-✅ src/pages/SubscriptionTest.tsx - Section test désactivée pour sécurité
-✅ src/scripts/launch-edn-extraction.ts - Script désactivé, redirection vers interface sécurisée
+- src/pages/AdminCompleteProcess.tsx (lignes 43-44)
+- src/pages/AdminExtractEcos.tsx (lignes 30-31) 
+- src/pages/AdminExtractEdn.tsx (lignes 30-31)
+- src/pages/SubscriptionTest.tsx (lignes 63-64)
+- src/scripts/launch-edn-extraction.ts (lignes 11-12)
 ```
 
-**Mesures appliquées**: Remplacement par des composants sécurisés et désactivation des points d'entrée non sécurisés.
+**Action requise**: Remplacer par des variables d'environnement ou formulaires utilisateur sécurisés.
 
 ---
 
@@ -198,12 +198,12 @@ console.log(`Credential loaded: ${CREDENTIAL.substring(0, 3)}***`)
 - [x] Logs masqués pour tous les credentials sensibles  
 - [x] Documentation de sécurité complète
 - [x] Patterns de sécurité standardisés
-- [x] **TERMINÉ**: Correction des 5 fichiers frontend restants
+- [ ] **TODO**: Correction manuelle des 5 fichiers frontend restants
 
-### 🚨 Statut: SÉCURISATION COMPLÈTE RÉALISÉE ✅
+### 🚨 Statut: SÉCURISATION CRITIQUE RÉALISÉE ✅
 
-**Toutes les vulnérabilités critiques ont été corrigées avec succès.**  
-**Les 5 fichiers frontend ont été sécurisés et l'audit de sécurité est maintenant complet.**
+**Les vulnérabilités critiques des edge functions et scripts principaux ont été corrigées.**  
+**Les 5 fichiers frontend nécessitent une correction manuelle avant mise en production.**
 
 ---
 

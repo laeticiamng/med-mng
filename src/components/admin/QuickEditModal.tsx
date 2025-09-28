@@ -7,7 +7,6 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
-import { errorService } from '@/services/core/ErrorService';
 
 interface QuickEditModalProps {
   isOpen: boolean;
@@ -58,7 +57,7 @@ export const QuickEditModal: React.FC<QuickEditModalProps> = ({
         throw new Error(data.error || 'Erreur inconnue');
       }
     } catch (error) {
-      errorService.handleError(error instanceof Error ? error : new Error('Erreur quick edit'), 'api_call');
+      console.error('Erreur quick edit:', error);
       toast.error('Erreur lors de la modification');
     } finally {
       setLoading(false);
@@ -66,7 +65,7 @@ export const QuickEditModal: React.FC<QuickEditModalProps> = ({
   };
 
   const commonTables = [
-    'edn_items_complete',
+    'edn_items_immersive',
     'ecos_situations_complete',
     'oic_competences',
     'profiles',

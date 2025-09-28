@@ -1,224 +1,213 @@
+
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Music, Play, Pause, Download, Library, Loader2 } from 'lucide-react';
+import { Music, Play, Pause, Download, Library, Bug, Loader2 } from 'lucide-react';
 import { useGlobalAudio } from '@/contexts/GlobalAudioContext';
+import { DebugAudioButton } from './DebugAudioButton';
 import { useMusicGenerationStatus } from '@/hooks/useMusicGenerationStatus';
 import { Progress } from '@/components/ui/progress';
 
 interface GeneratorMusicPlayerProps {
   generatedSong: any;
   onAddToLibrary: () => void;
-  onSongUpdate?: (updatedSong: any) => void;
 }
 
-export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({ 
-  generatedSong, 
-  onAddToLibrary,
-  onSongUpdate
+export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
+  generatedSong,
+  onAddToLibrary
 }) => {
   const { currentTrack, isPlaying, play, pause, resume } = useGlobalAudio();
+  const [showDebug, setShowDebug] = useState(false);
 
-  // Détecter si c'est une génération en cours (trackId de 32 caractères hexadécimaux)
-  const isTrackId = generatedSong?.audioUrl && 
-    typeof generatedSong.audioUrl === 'string' && 
-    generatedSong.audioUrl.length === 32 &&
-    /^[a-f0-9]{32}$/i.test(generatedSong.audioUrl) &&
-    !generatedSong.audioUrl.startsWith('http') && // Exclure les URLs HTTP
-    !generatedSong.audioUrl.includes('.'); // Exclure les URLs avec des extensions
-  const trackIdForPolling = isTrackId ? generatedSong.audioUrl : null;
-  
-  // Optimized tracking - remove console.log for production
+  // Détecter si c'est une génération en cours (trackId sans audioUrl)
+  const isGenerating = generatedSong?.audioUrl && !generatedSong.audioUrl.startsWith('http');
+  const trackIdForPolling = isGenerating ? generatedSong.audioUrl : null;
   
   // Utiliser le hook de statut pour suivre la génération
-  const { 
-    status, 
-    isPolling, 
-    startPolling, 
-    cancelGeneration,
-    audioUrl, 
-    progress, 
-    isGenerating, 
-    isTimeout,
-    timeoutReached
-  } = useMusicGenerationStatus(trackIdForPolling);
+  const { status, isPolling, startPolling, audioUrl, progress } = useMusicGenerationStatus(trackIdForPolling);
 
-  // Si on reçoit une URL audio finale, mettre à jour le song
+  // Démarrer le polling automatiquement si nécessaire
   useEffect(() => {
-    if (audioUrl && isTrackId && onSongUpdate) {
-      // Optimized tracking - production ready
-      const updatedSong = {
-        ...generatedSong,
-        audioUrl: audioUrl
-      };
-      onSongUpdate(updatedSong);
+    if (trackIdForPolling && !isPolling) {
+      console.log('🚀 Démarrage du polling pour trackId:', trackIdForPolling);
+      startPolling();
     }
-  }, [audioUrl, isTrackId, generatedSong, onSongUpdate]);
+  }, [trackIdForPolling, isPolling, startPolling]);
 
-  // Production optimized logging removed for security
-  
-  // URL audio finale à utiliser
-  const finalAudioUrl = audioUrl || (isTrackId ? null : generatedSong?.audioUrl);
+  console.log('🎵 GeneratorMusicPlayer render:', {
+    hasGeneratedSong: !!generatedSong,
+    audioUrl: generatedSong?.audioUrl,
+    isCurrentTrack: currentTrack?.url === generatedSong?.audioUrl,
+    isPlaying,
+    currentTrack
+  });
 
-  const handlePlay = async () => {
-    if (!finalAudioUrl || !generatedSong) return;
-    
-    // Production optimized - secure audio handling
-    
-    const trackToPlay = {
-      id: generatedSong.id || 'generated-' + Date.now(),
-      title: generatedSong.title || 'Musique générée',
-      url: finalAudioUrl,
-      artist: 'MED-MNG IA',
-      duration: generatedSong.duration || 0,
-      type: 'generated' as const,
-      rang: generatedSong.rang || 'A'
-    };
+  if (!generatedSong) return null;
 
-    if (currentTrack?.url === finalAudioUrl) {
+  // Utiliser l'audioUrl du statut si disponible, sinon l'URL originale
+  const finalAudioUrl = audioUrl || generatedSong.audioUrl;
+  const isCurrentTrack = currentTrack?.url === finalAudioUrl;
+  const isCurrentlyPlaying = isCurrentTrack && isPlaying;
+
+  const handlePlay = () => {
+    // Si la génération est en cours, afficher un message
+    if (isGenerating && !audioUrl) {
+      alert('🎵 Votre musique est en cours de génération. Veuillez patienter quelques instants...');
+      return;
+    }
+    console.log('🎵 GeneratorMusicPlayer: Tentative de lecture', {
+      audioUrl: generatedSong.audioUrl,
+      title: generatedSong.title,
+      isCurrentTrack,
+      isPlaying,
+      hasGeneratedSong: !!generatedSong,
+      urlType: generatedSong.audioUrl?.startsWith('http') ? 'http' : 'relative',
+      generatedSongObject: generatedSong
+    });
+
+    // Vérifier que l'URL audio finale est valide
+    if (!finalAudioUrl || 
+        finalAudioUrl === '' || 
+        finalAudioUrl === 'undefined' ||
+        finalAudioUrl === null) {
+      console.error('❌ URL audio invalide dans GeneratorMusicPlayer:', finalAudioUrl);
+      alert('❌ Erreur: URL audio manquante ou invalide. Veuillez regénérer la musique.');
+      return;
+    }
+
+    if (isCurrentTrack) {
       if (isPlaying) {
+        console.log('⏸️ Pause audio en cours');
         pause();
       } else {
+        console.log('▶️ Reprise audio');
         resume();
       }
     } else {
-      // Production optimized audio loading
-      await play(trackToPlay);
+      console.log('🎵 Démarrage nouveau track avec URL:', finalAudioUrl);
+      play({
+        url: finalAudioUrl,
+        title: generatedSong.title || 'Musique générée',
+        rang: 'A'
+      });
     }
   };
 
-  // Lancer le polling si on a un trackId et qu'on n'est pas déjà en cours
-  useEffect(() => {
-    if (trackIdForPolling && !isPolling && !audioUrl) {
-      // Production optimized polling start
-      setTimeout(() => startPolling(), 100);
-    }
-  }, [trackIdForPolling, isPolling, audioUrl, startPolling]);
-
-  const isCurrentTrack = currentTrack?.url === finalAudioUrl;
-
   return (
-    <Card className="w-full bg-gradient-to-br from-blue-50 to-purple-50 border-2 border-blue-200/50">
+    <Card className="mt-6 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Music className="h-5 w-5 text-blue-600" />
-          Lecteur Musical IA
+        <CardTitle className="flex items-center gap-2 text-green-800">
+          {isGenerating && !audioUrl ? (
+            <>
+              <Loader2 className="h-6 w-6 animate-spin" />
+              Génération en cours...
+            </>
+          ) : (
+            <>
+              <Music className="h-6 w-6" />
+              Musique générée avec succès !
+            </>
+          )}
         </CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          {/* Titre de la musique */}
-          <div className="text-center">
-            <h3 className="text-lg font-semibold text-gray-800">
-              {generatedSong?.title || 'Musique générée'}
-            </h3>
-            <p className="text-sm text-gray-600">MED-MNG IA • Musique d'apprentissage</p>
-          </div>
-
-          {/* Progress bar pour génération en cours */}
-          {isTrackId && !audioUrl && !timeoutReached && (
+      <CardContent className="space-y-4">
+        <div className="aspect-square bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center mb-4 max-w-xs mx-auto">
+          {isGenerating && !audioUrl ? (
+            <Loader2 className="h-16 w-16 text-white/80 animate-spin" />
+          ) : (
+            <Music className="h-16 w-16 text-white/80" />
+          )}
+        </div>
+        
+        <div className="text-center">
+          <h3 className="text-xl font-semibold text-gray-900 mb-2">
+            {generatedSong.title}
+          </h3>
+          <p className="text-gray-600 mb-4">
+            Style: {generatedSong.style || 'Personnalisé'}
+          </p>
+          
+          {/* Barre de progression si génération en cours */}
+          {isGenerating && !audioUrl && (
             <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-blue-600">Génération en cours...</span>
-                <span className="text-blue-600">{progress}%</span>
-              </div>
-              <Progress value={progress} className="w-full bg-blue-100" />
-              <p className="text-xs text-center text-gray-500">
-                {status?.status === 'completed' ? 'Musique prête !' :
-                 status?.status === 'failed' ? 'Erreur de génération' :
-                 status?.status === 'timeout' ? 'Timeout - Réessayez' :
-                 'Génération en cours...'}
+              <Progress value={progress} className="w-full" />
+              <p className="text-sm text-blue-600">
+                Génération en cours... {progress}% complété
               </p>
             </div>
           )}
+        </div>
 
-          {/* Contrôles de lecture */}
-          <div className="flex items-center justify-center gap-4">
-            {/* Lecture/Pause */}
-            {finalAudioUrl ? (
-              <Button
-                onClick={handlePlay}
-                size="lg"
-                className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8"
-                disabled={isGenerating}
-              >
-                {isGenerating ? (
-                  <Loader2 className="h-5 w-5 animate-spin mr-2" />
-                ) : isCurrentTrack && isPlaying ? (
-                  <Pause className="h-5 w-5 mr-2" />
-                ) : (
-                  <Play className="h-5 w-5 mr-2" />
-                )}
-                {isGenerating ? 'Génération...' : 
-                 isCurrentTrack && isPlaying ? 'Pause' : 'Lire'}
-              </Button>
-            ) : isTrackId && !timeoutReached ? (
-              <Button 
-                disabled 
-                size="lg"
-                className="bg-blue-300 text-blue-800 px-8"
-              >
-                <Loader2 className="h-5 w-5 animate-spin mr-2" />
-                En cours de génération...
-              </Button>
+        <div className="flex gap-2">
+          <Button
+            onClick={handlePlay}
+            className="flex-1 bg-green-600 hover:bg-green-700"
+            size="lg"
+            disabled={isGenerating && !audioUrl}
+          >
+            {isGenerating && !audioUrl ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                En cours...
+              </>
+            ) : isCurrentlyPlaying ? (
+              <>
+                <Pause className="h-4 w-4 mr-2" />
+                Pause
+              </>
             ) : (
-              <div className="text-center py-4">
-                <p className="text-gray-500 mb-2">Musique non disponible</p>
-                {timeoutReached && (
-                  <Button
-                    onClick={() => {
-                      if (trackIdForPolling) {
-                        startPolling();
-                      }
-                    }}
-                    variant="outline"
-                    size="sm"
-                  >
-                    Réessayer
-                  </Button>
-                )}
-              </div>
+              <>
+                <Play className="h-4 w-4 mr-2" />
+                Écouter
+              </>
             )}
+          </Button>
+          <Button
+            onClick={onAddToLibrary}
+            variant="outline"
+            className="flex-1 border-green-300 text-green-700 hover:bg-green-50"
+            size="lg"
+            disabled={isGenerating && !audioUrl}
+          >
+            <Library className="h-4 w-4 mr-2" />
+            Bibliothèque
+          </Button>
+          <Button
+            onClick={() => setShowDebug(!showDebug)}
+            variant="ghost"
+            size="lg"
+            className="text-gray-500 hover:text-gray-700"
+            title="Debug audio"
+          >
+            <Bug className="h-4 w-4" />
+          </Button>
+        </div>
+
+        {/* Debug Panel */}
+        {showDebug && (
+          <div className="mt-4 space-y-2">
+            <h4 className="font-semibold text-sm text-gray-700">🐛 Debug Audio</h4>
+            <DebugAudioButton 
+              audioUrl={generatedSong.audioUrl} 
+              title={generatedSong.title}
+            />
+            <div className="text-xs text-gray-500 space-y-1">
+              <div>Object: {JSON.stringify(generatedSong, null, 2).substring(0, 200)}...</div>
+              <div>Current Track: {currentTrack?.url}</div>
+              <div>Is Playing: {isPlaying ? 'Yes' : 'No'}</div>
+            </div>
           </div>
+        )}
 
-          {/* Actions */}
-          {finalAudioUrl && (
-            <div className="flex items-center justify-center gap-2">
-              <Button
-                onClick={() => {
-                  const link = document.createElement('a');
-                  link.href = finalAudioUrl;
-                  link.download = `${generatedSong?.title || 'musique'}.mp3`;
-                  link.click();
-                }}
-                variant="outline"
-                size="sm"
-                className="border-blue-300 text-blue-600 hover:bg-blue-50"
-              >
-                <Download className="h-4 w-4 mr-2" />
-                Télécharger
-              </Button>
-              
-              <Button
-                onClick={onAddToLibrary}
-                variant="outline"
-                size="sm"
-                className="border-purple-300 text-purple-600 hover:bg-purple-50"
-              >
-                <Library className="h-4 w-4 mr-2" />
-                Ajouter à la bibliothèque
-              </Button>
-            </div>
+        <div className="text-xs text-gray-500 text-center mt-4 space-y-1">
+          {isGenerating && !audioUrl ? (
+            <p>⏳ Votre musique est en cours de génération. Le processus peut prendre 1-2 minutes...</p>
+          ) : (
+            <p>🎵 Votre musique est prête ! Utilisez les contrôles pour l'écouter.</p>
           )}
-
-          {/* Informations techniques pour dev (production optimized) */}
-          {process.env.NODE_ENV === 'development' && isTrackId && (
-            <div className="mt-4 p-3 bg-gray-100 rounded text-xs text-gray-600">
-              <div>Track ID: {trackIdForPolling}</div>
-              <div>Status: {status?.status || 'En attente'}</div>
-              <div>Audio URL: {audioUrl ? 'Disponible' : 'En attente'}</div>
-              <div>Polling: {isPolling ? 'Actif' : 'Inactif'}</div>
-            </div>
+          {(finalAudioUrl || generatedSong.audioUrl) && (
+            <p className="break-all">🔗 URL: {(finalAudioUrl || generatedSong.audioUrl).substring(0, 80)}...</p>
           )}
         </div>
       </CardContent>

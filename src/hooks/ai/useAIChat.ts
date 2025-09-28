@@ -1,6 +1,5 @@
 import { useState, useCallback } from 'react';
 import { createChatCompletion, ChatCompletionMessage } from '@/openai/chat/completions';
-import { errorService } from '@/services/core/ErrorService';
 
 interface ChatSession {
   id: string;
@@ -202,7 +201,7 @@ INSTRUCTIONS CONTEXTUELLES :
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Erreur inconnue';
       setError(errorMessage);
-      errorService.handleError(err as Error, 'user_action', true);
+      console.error('Erreur envoi message IA:', err);
       throw err;
     } finally {
       setIsLoading(false);

@@ -13,83 +13,59 @@ interface EdnItemNavigationProps {
 export const EdnItemNavigation = ({ activeSection, onSectionChange }: EdnItemNavigationProps) => {
   return (
     <div className="mb-8">
-      <div className="bg-black/20 backdrop-blur-xl rounded-2xl p-6 border border-white/10 shadow-2xl">
-        <div className="flex flex-wrap gap-3">
+      <div className="bg-white/80 backdrop-blur-sm rounded-lg p-4 border border-amber-200">
+        <div className="flex flex-wrap gap-2">
           <Button
             variant={activeSection === 'tableau-a' ? 'default' : 'outline'}
             onClick={() => onSectionChange('tableau-a')}
-            className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-300 ${
-              activeSection === 'tableau-a' 
-                ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-2xl shadow-purple-500/50 scale-105' 
-                : 'bg-white/10 border-white/20 text-gray-300 hover:text-white hover:bg-white/20 hover:border-purple-400/50'
-            }`}
+            className="flex items-center gap-2"
           >
-            <BookOpen className="h-5 w-5" />
+            <BookOpen className="h-4 w-4" />
             <TranslatedText text="Tableau Rang A" />
           </Button>
           
           <Button
             variant={activeSection === 'tableau-b' ? 'default' : 'outline'}
             onClick={() => onSectionChange('tableau-b')}
-            className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-300 ${
-              activeSection === 'tableau-b' 
-                ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-2xl shadow-purple-500/50 scale-105' 
-                : 'bg-white/10 border-white/20 text-gray-300 hover:text-white hover:bg-white/20 hover:border-purple-400/50'
-            }`}
+            className="flex items-center gap-2"
           >
-            <BookOpen className="h-5 w-5" />
+            <BookOpen className="h-4 w-4" />
             <TranslatedText text="Tableau Rang B" />
           </Button>
           
           <Button
             variant={activeSection === 'scene' ? 'default' : 'outline'}
             onClick={() => onSectionChange('scene')}
-            className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-300 ${
-              activeSection === 'scene' 
-                ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-2xl shadow-purple-500/50 scale-105' 
-                : 'bg-white/10 border-white/20 text-gray-300 hover:text-white hover:bg-white/20 hover:border-purple-400/50'
-            }`}
+            className="flex items-center gap-2"
           >
-            <Palette className="h-5 w-5" />
+            <Palette className="h-4 w-4" />
             <TranslatedText text="Scène Immersive" />
           </Button>
           
           <Button
             variant={activeSection === 'bd' ? 'default' : 'outline'}
             onClick={() => onSectionChange('bd')}
-            className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-300 ${
-              activeSection === 'bd' 
-                ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-2xl shadow-purple-500/50 scale-105' 
-                : 'bg-white/10 border-white/20 text-gray-300 hover:text-white hover:bg-white/20 hover:border-purple-400/50'
-            }`}
+            className="flex items-center gap-2"
           >
-            <BookOpen className="h-5 w-5" />
+            <BookOpen className="h-4 w-4" />
             <TranslatedText text="Bande Dessinée" />
           </Button>
           
           <Button
             variant={activeSection === 'music' ? 'default' : 'outline'}
             onClick={() => onSectionChange('music')}
-            className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-300 ${
-              activeSection === 'music' 
-                ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-2xl shadow-purple-500/50 scale-105' 
-                : 'bg-white/10 border-white/20 text-gray-300 hover:text-white hover:bg-white/20 hover:border-purple-400/50'
-            }`}
+            className="flex items-center gap-2"
           >
-            <Music className="h-5 w-5" />
+            <Music className="h-4 w-4" />
             <TranslatedText text="Génération Musicale" />
           </Button>
           
           <Button
             variant={activeSection === 'quiz' ? 'default' : 'outline'}
             onClick={() => onSectionChange('quiz')}
-            className={`flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-all duration-300 ${
-              activeSection === 'quiz' 
-                ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white shadow-2xl shadow-purple-500/50 scale-105' 
-                : 'bg-white/10 border-white/20 text-gray-300 hover:text-white hover:bg-white/20 hover:border-purple-400/50'
-            }`}
+            className="flex items-center gap-2"
           >
-            <BookOpen className="h-5 w-5" />
+            <BookOpen className="h-4 w-4" />
             <TranslatedText text="Quiz Final" />
           </Button>
         </div>

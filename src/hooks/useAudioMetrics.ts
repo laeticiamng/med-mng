@@ -1,5 +1,4 @@
 import { useCallback, useRef } from 'react';
-import { errorService } from '@/services/core/ErrorService';
 
 interface AudioMetrics {
   loadStartTime: number;
@@ -42,7 +41,7 @@ export const useAudioMetrics = () => {
       
       // Log critique si dépassement
       if (updated.totalLoadTime && updated.totalLoadTime > 3000) {
-        errorService.handleWarning(`⚠️ [METRICS] Temps de chargement critique: ${updated.totalLoadTime.toFixed(0)}ms pour ${trackUrl}`, 'system');
+        console.warn(`⚠️ [METRICS] Temps de chargement critique: ${updated.totalLoadTime.toFixed(0)}ms pour ${trackUrl}`);
       }
     }
   }, []);
@@ -76,8 +75,8 @@ export const useAudioMetrics = () => {
     console.log(`📶 Score buffer santé: ${metrics.bufferHealthScore.toFixed(1)}%`);
     
     if (metrics.errors.length > 0) {
-      errorService.handleWarning(`❌ Erreurs rencontrées: ${metrics.errors.length}`, 'system');
-      metrics.errors.forEach(error => errorService.handleWarning(`- ${error}`, 'system'));
+      console.warn(`❌ Erreurs rencontrées: ${metrics.errors.length}`);
+      metrics.errors.forEach(error => console.warn(`  - ${error}`));
     }
     
     // Analyse de performance
@@ -87,7 +86,7 @@ export const useAudioMetrics = () => {
       } else if (metrics.totalLoadTime < 3000) {
         console.log('⚠️ Performance acceptable (1-3s)');
       } else {
-        errorService.handleError(new Error('🚨 Performance dégradée (>3s)'), 'system', true);
+        console.error('🚨 Performance dégradée (>3s)');
       }
     }
     

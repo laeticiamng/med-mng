@@ -75,7 +75,7 @@ serve(async (req) => {
       });
     }
 
-    // Récupérer les données de l'item et les compétences OIC spécifiques
+    // Récupérer les données de l'item
     const { data: itemData, error: itemError } = await supabase
       .from('edn_items_immersive')
       .select('item_code, title, tableau_rang_a, tableau_rang_b')
@@ -90,19 +90,6 @@ serve(async (req) => {
       });
     }
 
-    // Récupérer les compétences OIC spécifiques pour un contenu plus riche
-    const itemNumber = item_id.replace('IC-', '').padStart(3, '0');
-    const { data: oicCompetences } = await supabase
-      .from('backup_oic_competences')
-      .select('objectif_id, intitule, description, rang, rubrique, ordre')
-      .eq('item_parent', itemNumber)
-      .order('ordre, rang');
-
-    const competencesRangA = oicCompetences?.filter(c => c.rang === 'A') || [];
-    const competencesRangB = oicCompetences?.filter(c => c.rang === 'B') || [];
-    
-    console.log(`📚 ${oicCompetences?.length || 0} compétences OIC trouvées pour ${item_id}`);
-
     // Marquer la génération comme en cours
     await supabase
       .from('med_mng_content_ai')
@@ -111,40 +98,19 @@ serve(async (req) => {
         generation_status: 'generating'
       });
 
-    // Créer le prompt avec les compétences OIC spécifiques
+    // Créer le prompt selon le type de contenu
     let prompt = '';
     const contentSource = {
-      competences_rang_a: competencesRangA.map(c => ({
-        objectif_id: c.objectif_id,
-        intitule: c.intitule,
-        description: c.description?.substring(0, 200),
-        rubrique: c.rubrique
-      })),
-      competences_rang_b: competencesRangB.map(c => ({
-        objectif_id: c.objectif_id,
-        intitule: c.intitule,
-        description: c.description?.substring(0, 200),
-        rubrique: c.rubrique
-      })),
-      // Fallback vers les tableaux si pas de compétences OIC
-      fallback_rang_a: competencesRangA.length === 0 ? itemData.tableau_rang_a : null,
-      fallback_rang_b: competencesRangB.length === 0 ? itemData.tableau_rang_b : null
+      rang_a: itemData.tableau_rang_a,
+      rang_b: itemData.tableau_rang_b
     };
 
     switch (content_type) {
       case 'comic':
-        prompt = `Crée une bande dessinée éducative sur "${itemData.title}" (${item_id}) basée sur les compétences OIC officielles.
+        prompt = `Crée une bande dessinée éducative sur "${itemData.title}" (${item_id}) en combinant les connaissances Rang A et Rang B.
 
-Compétences OIC à couvrir:
-RANG A (Fondamentaux): ${competencesRangA.length} compétences
-${competencesRangA.map(c => `- ${c.objectif_id}: ${c.intitule}`).join('\n')}
-
-RANG B (Avancées): ${competencesRangB.length} compétences  
-${competencesRangB.map(c => `- ${c.objectif_id}: ${c.intitule}`).join('\n')}
-
-${competencesRangA.length === 0 && competencesRangB.length === 0 ? 
-`FALLBACK - Contenu disponible:
-${JSON.stringify(contentSource.fallback_rang_a || contentSource.fallback_rang_b, null, 2)}` : ''}
+Contenu médical:
+${JSON.stringify(contentSource, null, 2)}
 
 Instructions:
 - 6-8 panneaux de BD

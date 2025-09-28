@@ -28,7 +28,6 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { errorService } from '@/services/core/ErrorService';
 
 interface ExtractionLog {
   id: string;
@@ -171,7 +170,7 @@ export function ExtractionMonitoringDashboard() {
       }
       
     } catch (error) {
-      errorService.handleError(error instanceof Error ? error : new Error('Error fetching monitoring data'), 'api_call');
+      console.error('Error fetching monitoring data:', error);
       toast.error('Erreur lors du chargement des données');
     } finally {
       setLoading(false);
@@ -188,7 +187,7 @@ export function ExtractionMonitoringDashboard() {
         setBatchEvents(response.data.data);
       }
     } catch (error) {
-      errorService.handleError(error instanceof Error ? error : new Error('Error fetching batch events'), 'api_call');
+      console.error('Error fetching batch events:', error);
       toast.error('Erreur lors du chargement des événements');
     }
   };

@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
+  // Allows to automatically instanciate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
@@ -56,45 +56,6 @@ export type Database = {
         }
         Relationships: []
       }
-      achievements: {
-        Row: {
-          category: string
-          conditions: Json
-          created_at: string | null
-          description: string
-          icon: string | null
-          id: string
-          is_hidden: boolean | null
-          name: string
-          rarity: string
-          rewards: Json
-        }
-        Insert: {
-          category: string
-          conditions?: Json
-          created_at?: string | null
-          description: string
-          icon?: string | null
-          id?: string
-          is_hidden?: boolean | null
-          name: string
-          rarity: string
-          rewards?: Json
-        }
-        Update: {
-          category?: string
-          conditions?: Json
-          created_at?: string | null
-          description?: string
-          icon?: string | null
-          id?: string
-          is_hidden?: boolean | null
-          name?: string
-          rarity?: string
-          rewards?: Json
-        }
-        Relationships: []
-      }
       admin_changelog: {
         Row: {
           action_type: string
@@ -135,68 +96,7 @@ export type Database = {
           record_id?: string
           table_name?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "admin_changelog_admin_user_id_fkey"
-            columns: ["admin_user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      ai_coach_sessions: {
-        Row: {
-          coach_personality: string | null
-          created_at: string | null
-          emotions_detected: Json | null
-          id: string
-          messages_count: number | null
-          resources_provided: Json | null
-          session_duration: number | null
-          session_notes: string | null
-          techniques_suggested: string[] | null
-          updated_at: string | null
-          user_id: string | null
-          user_satisfaction: number | null
-        }
-        Insert: {
-          coach_personality?: string | null
-          created_at?: string | null
-          emotions_detected?: Json | null
-          id?: string
-          messages_count?: number | null
-          resources_provided?: Json | null
-          session_duration?: number | null
-          session_notes?: string | null
-          techniques_suggested?: string[] | null
-          updated_at?: string | null
-          user_id?: string | null
-          user_satisfaction?: number | null
-        }
-        Update: {
-          coach_personality?: string | null
-          created_at?: string | null
-          emotions_detected?: Json | null
-          id?: string
-          messages_count?: number | null
-          resources_provided?: Json | null
-          session_duration?: number | null
-          session_notes?: string | null
-          techniques_suggested?: string[] | null
-          updated_at?: string | null
-          user_id?: string | null
-          user_satisfaction?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "ai_coach_sessions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       ai_generated_content: {
         Row: {
@@ -227,180 +127,6 @@ export type Database = {
           title?: string
         }
         Relationships: []
-      }
-      ai_recommendations: {
-        Row: {
-          confidence_score: number | null
-          content_id: string
-          content_type: string
-          created_at: string
-          estimated_time: number | null
-          expires_at: string | null
-          id: string
-          is_active: boolean | null
-          priority_level: string
-          reason: string
-          recommendation_type: string
-          user_id: string
-        }
-        Insert: {
-          confidence_score?: number | null
-          content_id: string
-          content_type: string
-          created_at?: string
-          estimated_time?: number | null
-          expires_at?: string | null
-          id?: string
-          is_active?: boolean | null
-          priority_level: string
-          reason: string
-          recommendation_type: string
-          user_id: string
-        }
-        Update: {
-          confidence_score?: number | null
-          content_id?: string
-          content_type?: string
-          created_at?: string
-          estimated_time?: number | null
-          expires_at?: string | null
-          id?: string
-          is_active?: boolean | null
-          priority_level?: string
-          reason?: string
-          recommendation_type?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      ambition_artifacts: {
-        Row: {
-          description: string | null
-          icon: string | null
-          id: string
-          name: string
-          obtained_at: string | null
-          rarity: string | null
-          run_id: string | null
-        }
-        Insert: {
-          description?: string | null
-          icon?: string | null
-          id?: string
-          name: string
-          obtained_at?: string | null
-          rarity?: string | null
-          run_id?: string | null
-        }
-        Update: {
-          description?: string | null
-          icon?: string | null
-          id?: string
-          name?: string
-          obtained_at?: string | null
-          rarity?: string | null
-          run_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "ambition_artifacts_run_id_fkey"
-            columns: ["run_id"]
-            isOneToOne: false
-            referencedRelation: "ambition_runs"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      ambition_quests: {
-        Row: {
-          completed_at: string | null
-          created_at: string | null
-          est_minutes: number | null
-          flavor: string | null
-          id: string
-          notes: string | null
-          result: string | null
-          run_id: string | null
-          status: string | null
-          title: string
-          xp_reward: number | null
-        }
-        Insert: {
-          completed_at?: string | null
-          created_at?: string | null
-          est_minutes?: number | null
-          flavor?: string | null
-          id?: string
-          notes?: string | null
-          result?: string | null
-          run_id?: string | null
-          status?: string | null
-          title: string
-          xp_reward?: number | null
-        }
-        Update: {
-          completed_at?: string | null
-          created_at?: string | null
-          est_minutes?: number | null
-          flavor?: string | null
-          id?: string
-          notes?: string | null
-          result?: string | null
-          run_id?: string | null
-          status?: string | null
-          title?: string
-          xp_reward?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "ambition_quests_run_id_fkey"
-            columns: ["run_id"]
-            isOneToOne: false
-            referencedRelation: "ambition_runs"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      ambition_runs: {
-        Row: {
-          completed_at: string | null
-          created_at: string | null
-          id: string
-          metadata: Json | null
-          objective: string | null
-          status: string | null
-          tags: string[] | null
-          user_id: string | null
-        }
-        Insert: {
-          completed_at?: string | null
-          created_at?: string | null
-          id?: string
-          metadata?: Json | null
-          objective?: string | null
-          status?: string | null
-          tags?: string[] | null
-          user_id?: string | null
-        }
-        Update: {
-          completed_at?: string | null
-          created_at?: string | null
-          id?: string
-          metadata?: Json | null
-          objective?: string | null
-          status?: string | null
-          tags?: string[] | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "ambition_runs_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       api_integrations: {
         Row: {
@@ -437,41 +163,6 @@ export type Database = {
           version?: string
         }
         Relationships: []
-      }
-      assessments: {
-        Row: {
-          created_at: string
-          id: string
-          instrument: string
-          score_json: Json
-          ts: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          instrument: string
-          score_json: Json
-          ts?: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          instrument?: string
-          score_json?: Json
-          ts?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "assessments_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       audio_tracks: {
         Row: {
@@ -666,15 +357,7 @@ export type Database = {
           report_type?: string
           status?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "audit_reports_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       backup_edn_items_immersive: {
         Row: {
@@ -739,87 +422,12 @@ export type Database = {
         }
         Relationships: []
       }
-      backup_edn_items_immersive_final: {
-        Row: {
-          audio_ambiance: Json | null
-          created_at: string | null
-          id: string | null
-          interaction_config: Json | null
-          item_code: string | null
-          paroles_musicales: string[] | null
-          paroles_rang_a: string[] | null
-          paroles_rang_ab: string[] | null
-          paroles_rang_b: string[] | null
-          payload_v2: Json | null
-          pitch_intro: string | null
-          quiz_questions: Json | null
-          reward_messages: Json | null
-          scene_immersive: Json | null
-          slug: string | null
-          subtitle: string | null
-          tableau_rang_a: Json | null
-          tableau_rang_b: Json | null
-          title: string | null
-          updated_at: string | null
-          visual_ambiance: Json | null
-        }
-        Insert: {
-          audio_ambiance?: Json | null
-          created_at?: string | null
-          id?: string | null
-          interaction_config?: Json | null
-          item_code?: string | null
-          paroles_musicales?: string[] | null
-          paroles_rang_a?: string[] | null
-          paroles_rang_ab?: string[] | null
-          paroles_rang_b?: string[] | null
-          payload_v2?: Json | null
-          pitch_intro?: string | null
-          quiz_questions?: Json | null
-          reward_messages?: Json | null
-          scene_immersive?: Json | null
-          slug?: string | null
-          subtitle?: string | null
-          tableau_rang_a?: Json | null
-          tableau_rang_b?: Json | null
-          title?: string | null
-          updated_at?: string | null
-          visual_ambiance?: Json | null
-        }
-        Update: {
-          audio_ambiance?: Json | null
-          created_at?: string | null
-          id?: string | null
-          interaction_config?: Json | null
-          item_code?: string | null
-          paroles_musicales?: string[] | null
-          paroles_rang_a?: string[] | null
-          paroles_rang_ab?: string[] | null
-          paroles_rang_b?: string[] | null
-          payload_v2?: Json | null
-          pitch_intro?: string | null
-          quiz_questions?: Json | null
-          reward_messages?: Json | null
-          scene_immersive?: Json | null
-          slug?: string | null
-          subtitle?: string | null
-          tableau_rang_a?: Json | null
-          tableau_rang_b?: Json | null
-          title?: string | null
-          updated_at?: string | null
-          visual_ambiance?: Json | null
-        }
-        Relationships: []
-      }
       backup_oic_competences: {
         Row: {
-          completion_last_error: string | null
-          completion_last_http: number | null
-          completion_status: string | null
-          completion_updated_at: string | null
           created_at: string | null
           date_import: string | null
           description: string | null
+          extraction_status: string | null
           hash_content: string | null
           intitule: string | null
           item_parent: string | null
@@ -828,18 +436,14 @@ export type Database = {
           rang: string | null
           raw_json: Json | null
           rubrique: string | null
-          source_etag: string | null
           updated_at: string | null
           url_source: string | null
         }
         Insert: {
-          completion_last_error?: string | null
-          completion_last_http?: number | null
-          completion_status?: string | null
-          completion_updated_at?: string | null
           created_at?: string | null
           date_import?: string | null
           description?: string | null
+          extraction_status?: string | null
           hash_content?: string | null
           intitule?: string | null
           item_parent?: string | null
@@ -848,18 +452,14 @@ export type Database = {
           rang?: string | null
           raw_json?: Json | null
           rubrique?: string | null
-          source_etag?: string | null
           updated_at?: string | null
           url_source?: string | null
         }
         Update: {
-          completion_last_error?: string | null
-          completion_last_http?: number | null
-          completion_status?: string | null
-          completion_updated_at?: string | null
           created_at?: string | null
           date_import?: string | null
           description?: string | null
+          extraction_status?: string | null
           hash_content?: string | null
           intitule?: string | null
           item_parent?: string | null
@@ -868,7 +468,6 @@ export type Database = {
           rang?: string | null
           raw_json?: Json | null
           rubrique?: string | null
-          source_etag?: string | null
           updated_at?: string | null
           url_source?: string | null
         }
@@ -899,15 +498,7 @@ export type Database = {
           name?: string
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "badges_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       biovida_analyses: {
         Row: {
@@ -939,146 +530,6 @@ export type Database = {
         }
         Relationships: []
       }
-      bounce_battles: {
-        Row: {
-          created_at: string | null
-          duration_seconds: number | null
-          ended_at: string | null
-          id: string
-          mode: string | null
-          started_at: string | null
-          status: string | null
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          duration_seconds?: number | null
-          ended_at?: string | null
-          id?: string
-          mode?: string | null
-          started_at?: string | null
-          status?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          duration_seconds?: number | null
-          ended_at?: string | null
-          id?: string
-          mode?: string | null
-          started_at?: string | null
-          status?: string | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "bounce_battles_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      bounce_coping_responses: {
-        Row: {
-          battle_id: string | null
-          created_at: string | null
-          id: string
-          question_id: string
-          response_value: number
-        }
-        Insert: {
-          battle_id?: string | null
-          created_at?: string | null
-          id?: string
-          question_id: string
-          response_value: number
-        }
-        Update: {
-          battle_id?: string | null
-          created_at?: string | null
-          id?: string
-          question_id?: string
-          response_value?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "bounce_coping_responses_battle_id_fkey"
-            columns: ["battle_id"]
-            isOneToOne: false
-            referencedRelation: "bounce_battles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      bounce_events: {
-        Row: {
-          battle_id: string | null
-          event_data: Json | null
-          event_type: string
-          id: string
-          timestamp: number
-        }
-        Insert: {
-          battle_id?: string | null
-          event_data?: Json | null
-          event_type: string
-          id?: string
-          timestamp: number
-        }
-        Update: {
-          battle_id?: string | null
-          event_data?: Json | null
-          event_type?: string
-          id?: string
-          timestamp?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "bounce_events_battle_id_fkey"
-            columns: ["battle_id"]
-            isOneToOne: false
-            referencedRelation: "bounce_battles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      bounce_pair_tips: {
-        Row: {
-          battle_id: string | null
-          id: string
-          pair_token: string
-          received_tip: string | null
-          sent_at: string | null
-          tip_content: string | null
-        }
-        Insert: {
-          battle_id?: string | null
-          id?: string
-          pair_token: string
-          received_tip?: string | null
-          sent_at?: string | null
-          tip_content?: string | null
-        }
-        Update: {
-          battle_id?: string | null
-          id?: string
-          pair_token?: string
-          received_tip?: string | null
-          sent_at?: string | null
-          tip_content?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "bounce_pair_tips_battle_id_fkey"
-            columns: ["battle_id"]
-            isOneToOne: false
-            referencedRelation: "bounce_battles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       buddies: {
         Row: {
           buddy_user_id: string
@@ -1096,72 +547,6 @@ export type Database = {
           buddy_user_id?: string
           date?: string
           id?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "buddies_buddy_user_id_fkey"
-            columns: ["buddy_user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "buddies_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      challenges: {
-        Row: {
-          category: string
-          completed: boolean | null
-          completed_at: string | null
-          created_at: string | null
-          description: string
-          difficulty: string
-          expires_at: string
-          id: string
-          points: number
-          progress: number | null
-          target_value: number
-          title: string
-          type: string
-          user_id: string
-        }
-        Insert: {
-          category: string
-          completed?: boolean | null
-          completed_at?: string | null
-          created_at?: string | null
-          description: string
-          difficulty: string
-          expires_at: string
-          id?: string
-          points?: number
-          progress?: number | null
-          target_value: number
-          title: string
-          type: string
-          user_id: string
-        }
-        Update: {
-          category?: string
-          completed?: boolean | null
-          completed_at?: string | null
-          created_at?: string | null
-          description?: string
-          difficulty?: string
-          expires_at?: string
-          id?: string
-          points?: number
-          progress?: number | null
-          target_value?: number
-          title?: string
-          type?: string
           user_id?: string
         }
         Relationships: []
@@ -1250,325 +635,6 @@ export type Database = {
           details?: Json | null
           id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "cleanup_history_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      clinical_consents: {
-        Row: {
-          granted_at: string | null
-          id: string
-          instrument_code: string
-          is_active: boolean | null
-          revoked_at: string | null
-          user_id: string
-        }
-        Insert: {
-          granted_at?: string | null
-          id?: string
-          instrument_code: string
-          is_active?: boolean | null
-          revoked_at?: string | null
-          user_id: string
-        }
-        Update: {
-          granted_at?: string | null
-          id?: string
-          instrument_code?: string
-          is_active?: boolean | null
-          revoked_at?: string | null
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "clinical_consents_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      clinical_feature_flags: {
-        Row: {
-          created_at: string | null
-          flag_name: string
-          id: string
-          instrument_domain: string | null
-          is_enabled: boolean | null
-          metadata: Json | null
-          rollout_percentage: number | null
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          flag_name: string
-          id?: string
-          instrument_domain?: string | null
-          is_enabled?: boolean | null
-          metadata?: Json | null
-          rollout_percentage?: number | null
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          flag_name?: string
-          id?: string
-          instrument_domain?: string | null
-          is_enabled?: boolean | null
-          metadata?: Json | null
-          rollout_percentage?: number | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      clinical_instruments: {
-        Row: {
-          cadence: string
-          code: string
-          created_at: string | null
-          domain: string
-          id: string
-          max_score: number
-          min_score: number
-          name: string
-          questions: Json
-          thresholds: Json
-          ttl_hours: number
-        }
-        Insert: {
-          cadence: string
-          code: string
-          created_at?: string | null
-          domain: string
-          id?: string
-          max_score: number
-          min_score: number
-          name: string
-          questions: Json
-          thresholds: Json
-          ttl_hours: number
-        }
-        Update: {
-          cadence?: string
-          code?: string
-          created_at?: string | null
-          domain?: string
-          id?: string
-          max_score?: number
-          min_score?: number
-          name?: string
-          questions?: Json
-          thresholds?: Json
-          ttl_hours?: number
-        }
-        Relationships: []
-      }
-      clinical_responses: {
-        Row: {
-          cadence: string
-          context_data: Json | null
-          created_at: string | null
-          expires_at: string | null
-          id: string
-          instrument_code: string
-          internal_level: number | null
-          internal_score: number | null
-          responses: Json
-          tags: string[] | null
-          user_id: string
-        }
-        Insert: {
-          cadence: string
-          context_data?: Json | null
-          created_at?: string | null
-          expires_at?: string | null
-          id?: string
-          instrument_code: string
-          internal_level?: number | null
-          internal_score?: number | null
-          responses: Json
-          tags?: string[] | null
-          user_id: string
-        }
-        Update: {
-          cadence?: string
-          context_data?: Json | null
-          created_at?: string | null
-          expires_at?: string | null
-          id?: string
-          instrument_code?: string
-          internal_level?: number | null
-          internal_score?: number | null
-          responses?: Json
-          tags?: string[] | null
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "clinical_responses_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      clinical_signals: {
-        Row: {
-          created_at: string | null
-          domain: string
-          expires_at: string
-          id: string
-          level: number
-          metadata: Json | null
-          module_context: string
-          source_instrument: string
-          user_id: string
-          window_type: string
-        }
-        Insert: {
-          created_at?: string | null
-          domain: string
-          expires_at: string
-          id?: string
-          level: number
-          metadata?: Json | null
-          module_context: string
-          source_instrument: string
-          user_id: string
-          window_type: string
-        }
-        Update: {
-          created_at?: string | null
-          domain?: string
-          expires_at?: string
-          id?: string
-          level?: number
-          metadata?: Json | null
-          module_context?: string
-          source_instrument?: string
-          user_id?: string
-          window_type?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "clinical_signals_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      coach_conversations: {
-        Row: {
-          coach_mode: string | null
-          created_at: string | null
-          id: string
-          last_message_at: string | null
-          message_count: number | null
-          title: string | null
-          user_id: string
-        }
-        Insert: {
-          coach_mode?: string | null
-          created_at?: string | null
-          id?: string
-          last_message_at?: string | null
-          message_count?: number | null
-          title?: string | null
-          user_id: string
-        }
-        Update: {
-          coach_mode?: string | null
-          created_at?: string | null
-          id?: string
-          last_message_at?: string | null
-          message_count?: number | null
-          title?: string | null
-          user_id?: string
-        }
-        Relationships: []
-      }
-      coach_messages: {
-        Row: {
-          content: string
-          conversation_id: string
-          created_at: string | null
-          id: string
-          message_type: string | null
-          sender: string
-        }
-        Insert: {
-          content: string
-          conversation_id: string
-          created_at?: string | null
-          id?: string
-          message_type?: string | null
-          sender: string
-        }
-        Update: {
-          content?: string
-          conversation_id?: string
-          created_at?: string | null
-          id?: string
-          message_type?: string | null
-          sender?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "coach_messages_conversation_id_fkey"
-            columns: ["conversation_id"]
-            isOneToOne: false
-            referencedRelation: "coach_conversations"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      cocon_content: {
-        Row: {
-          content: string
-          content_type: string
-          created_at: string | null
-          id: string
-          is_private: boolean | null
-          mood: string | null
-          tags: string[] | null
-          title: string
-          updated_at: string | null
-          user_id: string
-        }
-        Insert: {
-          content: string
-          content_type: string
-          created_at?: string | null
-          id?: string
-          is_private?: boolean | null
-          mood?: string | null
-          tags?: string[] | null
-          title: string
-          updated_at?: string | null
-          user_id: string
-        }
-        Update: {
-          content?: string
-          content_type?: string
-          created_at?: string | null
-          id?: string
-          is_private?: boolean | null
-          mood?: string | null
-          tags?: string[] | null
-          title?: string
-          updated_at?: string | null
-          user_id?: string
-        }
         Relationships: []
       }
       comments: {
@@ -1599,13 +665,6 @@ export type Database = {
             columns: ["post_id"]
             isOneToOne: false
             referencedRelation: "posts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "comments_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
             referencedColumns: ["id"]
           },
         ]
@@ -1648,47 +707,6 @@ export type Database = {
           severity?: string
         }
         Relationships: []
-      }
-      data_exports: {
-        Row: {
-          completed_at: string | null
-          expires_at: string | null
-          export_type: string
-          file_url: string | null
-          id: string
-          requested_at: string
-          status: string
-          user_id: string
-        }
-        Insert: {
-          completed_at?: string | null
-          expires_at?: string | null
-          export_type?: string
-          file_url?: string | null
-          id?: string
-          requested_at?: string
-          status?: string
-          user_id: string
-        }
-        Update: {
-          completed_at?: string | null
-          expires_at?: string | null
-          export_type?: string
-          file_url?: string | null
-          id?: string
-          requested_at?: string
-          status?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "data_exports_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       data_integrity_checks: {
         Row: {
@@ -1736,15 +754,7 @@ export type Database = {
           status?: string
           tables_checked?: string[]
         }
-        Relationships: [
-          {
-            foreignKeyName: "data_integrity_checks_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       data_integrity_reports: {
         Row: {
@@ -1812,54 +822,6 @@ export type Database = {
         }
         Relationships: []
       }
-      ecos_scenarios: {
-        Row: {
-          clinical_case: string
-          created_at: string
-          description: string | null
-          difficulty_level: string | null
-          estimated_time: number | null
-          evaluation_criteria: Json | null
-          id: string
-          is_active: boolean | null
-          multimedia_resources: Json | null
-          scenario_code: string
-          speciality: string | null
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          clinical_case: string
-          created_at?: string
-          description?: string | null
-          difficulty_level?: string | null
-          estimated_time?: number | null
-          evaluation_criteria?: Json | null
-          id?: string
-          is_active?: boolean | null
-          multimedia_resources?: Json | null
-          scenario_code: string
-          speciality?: string | null
-          title: string
-          updated_at?: string
-        }
-        Update: {
-          clinical_case?: string
-          created_at?: string
-          description?: string | null
-          difficulty_level?: string | null
-          estimated_time?: number | null
-          evaluation_criteria?: Json | null
-          id?: string
-          is_active?: boolean | null
-          multimedia_resources?: Json | null
-          scenario_code?: string
-          speciality?: string | null
-          title?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
       ecos_situations_complete: {
         Row: {
           content: Json
@@ -1923,99 +885,6 @@ export type Database = {
         }
         Relationships: []
       }
-      edn_content: {
-        Row: {
-          category: string | null
-          content_text: string | null
-          created_at: string
-          description: string | null
-          difficulty_level: string | null
-          estimated_time: number | null
-          id: string
-          is_active: boolean | null
-          item_code: string
-          multimedia_urls: Json | null
-          tags: string[] | null
-          title: string
-          updated_at: string
-        }
-        Insert: {
-          category?: string | null
-          content_text?: string | null
-          created_at?: string
-          description?: string | null
-          difficulty_level?: string | null
-          estimated_time?: number | null
-          id?: string
-          is_active?: boolean | null
-          item_code: string
-          multimedia_urls?: Json | null
-          tags?: string[] | null
-          title: string
-          updated_at?: string
-        }
-        Update: {
-          category?: string | null
-          content_text?: string | null
-          created_at?: string
-          description?: string | null
-          difficulty_level?: string | null
-          estimated_time?: number | null
-          id?: string
-          is_active?: boolean | null
-          item_code?: string
-          multimedia_urls?: Json | null
-          tags?: string[] | null
-          title?: string
-          updated_at?: string
-        }
-        Relationships: []
-      }
-      edn_generation_jobs: {
-        Row: {
-          all_items: boolean
-          created_at: string
-          created_by: string | null
-          error_log: string | null
-          id: string
-          item_ids: string[] | null
-          job_type: string
-          progress: number
-          result: Json
-          status: string
-          updated_at: string
-          versions: string[]
-        }
-        Insert: {
-          all_items?: boolean
-          created_at?: string
-          created_by?: string | null
-          error_log?: string | null
-          id?: string
-          item_ids?: string[] | null
-          job_type: string
-          progress?: number
-          result?: Json
-          status?: string
-          updated_at?: string
-          versions?: string[]
-        }
-        Update: {
-          all_items?: boolean
-          created_at?: string
-          created_by?: string | null
-          error_log?: string | null
-          id?: string
-          item_ids?: string[] | null
-          job_type?: string
-          progress?: number
-          result?: Json
-          status?: string
-          updated_at?: string
-          versions?: string[]
-        }
-        Relationships: []
-      }
       edn_items: {
         Row: {
           created_at: string | null
@@ -2069,9 +938,6 @@ export type Database = {
           mots_cles: string[] | null
           niveau_complexite: string | null
           paroles_musicales: string[] | null
-          paroles_rang_a: string[] | null
-          paroles_rang_ab: string[] | null
-          paroles_rang_b: string[] | null
           payload_v2: Json | null
           pitch_intro: string | null
           quiz_questions: Json | null
@@ -2108,9 +974,6 @@ export type Database = {
           mots_cles?: string[] | null
           niveau_complexite?: string | null
           paroles_musicales?: string[] | null
-          paroles_rang_a?: string[] | null
-          paroles_rang_ab?: string[] | null
-          paroles_rang_b?: string[] | null
           payload_v2?: Json | null
           pitch_intro?: string | null
           quiz_questions?: Json | null
@@ -2147,9 +1010,6 @@ export type Database = {
           mots_cles?: string[] | null
           niveau_complexite?: string | null
           paroles_musicales?: string[] | null
-          paroles_rang_a?: string[] | null
-          paroles_rang_ab?: string[] | null
-          paroles_rang_b?: string[] | null
           payload_v2?: Json | null
           pitch_intro?: string | null
           quiz_questions?: Json | null
@@ -2172,11 +1032,6 @@ export type Database = {
       edn_items_immersive: {
         Row: {
           audio_ambiance: Json | null
-          competences_count_rang_a: number | null
-          competences_count_rang_b: number | null
-          competences_count_total: number | null
-          competences_oic_rang_a: Json | null
-          competences_oic_rang_b: Json | null
           created_at: string
           id: string
           interaction_config: Json | null
@@ -2190,7 +1045,7 @@ export type Database = {
           quiz_questions: Json | null
           reward_messages: Json | null
           scene_immersive: Json | null
-          slug: string | null
+          slug: string
           subtitle: string | null
           tableau_rang_a: Json | null
           tableau_rang_b: Json | null
@@ -2200,11 +1055,6 @@ export type Database = {
         }
         Insert: {
           audio_ambiance?: Json | null
-          competences_count_rang_a?: number | null
-          competences_count_rang_b?: number | null
-          competences_count_total?: number | null
-          competences_oic_rang_a?: Json | null
-          competences_oic_rang_b?: Json | null
           created_at?: string
           id?: string
           interaction_config?: Json | null
@@ -2218,7 +1068,7 @@ export type Database = {
           quiz_questions?: Json | null
           reward_messages?: Json | null
           scene_immersive?: Json | null
-          slug?: string | null
+          slug: string
           subtitle?: string | null
           tableau_rang_a?: Json | null
           tableau_rang_b?: Json | null
@@ -2228,11 +1078,6 @@ export type Database = {
         }
         Update: {
           audio_ambiance?: Json | null
-          competences_count_rang_a?: number | null
-          competences_count_rang_b?: number | null
-          competences_count_total?: number | null
-          competences_oic_rang_a?: Json | null
-          competences_oic_rang_b?: Json | null
           created_at?: string
           id?: string
           interaction_config?: Json | null
@@ -2246,7 +1091,7 @@ export type Database = {
           quiz_questions?: Json | null
           reward_messages?: Json | null
           scene_immersive?: Json | null
-          slug?: string | null
+          slug?: string
           subtitle?: string | null
           tableau_rang_a?: Json | null
           tableau_rang_b?: Json | null
@@ -2255,116 +1100,6 @@ export type Database = {
           visual_ambiance?: Json | null
         }
         Relationships: []
-      }
-      edn_lyrics_versions: {
-        Row: {
-          couverture_json: Json
-          created_at: string
-          id: string
-          item_code: string | null
-          item_id: string
-          metadata: Json
-          prompt_hash: string | null
-          score_couverture: number
-          texte: string[]
-          texte_hash: string | null
-          updated_at: string
-          valide: boolean
-          version: string
-        }
-        Insert: {
-          couverture_json?: Json
-          created_at?: string
-          id?: string
-          item_code?: string | null
-          item_id: string
-          metadata?: Json
-          prompt_hash?: string | null
-          score_couverture?: number
-          texte: string[]
-          texte_hash?: string | null
-          updated_at?: string
-          valide?: boolean
-          version: string
-        }
-        Update: {
-          couverture_json?: Json
-          created_at?: string
-          id?: string
-          item_code?: string | null
-          item_id?: string
-          metadata?: Json
-          prompt_hash?: string | null
-          score_couverture?: number
-          texte?: string[]
-          texte_hash?: string | null
-          updated_at?: string
-          valide?: boolean
-          version?: string
-        }
-        Relationships: []
-      }
-      edn_suno_tracks: {
-        Row: {
-          audio_url: string | null
-          bpm: number | null
-          created_at: string
-          duration: number | null
-          error_log: string | null
-          genre: string | null
-          id: string
-          intensity: string | null
-          lyrics_version_id: string
-          metadata: Json
-          provider: string
-          provider_track_id: string | null
-          seed: string | null
-          status: string
-          updated_at: string
-        }
-        Insert: {
-          audio_url?: string | null
-          bpm?: number | null
-          created_at?: string
-          duration?: number | null
-          error_log?: string | null
-          genre?: string | null
-          id?: string
-          intensity?: string | null
-          lyrics_version_id: string
-          metadata?: Json
-          provider?: string
-          provider_track_id?: string | null
-          seed?: string | null
-          status?: string
-          updated_at?: string
-        }
-        Update: {
-          audio_url?: string | null
-          bpm?: number | null
-          created_at?: string
-          duration?: number | null
-          error_log?: string | null
-          genre?: string | null
-          id?: string
-          intensity?: string | null
-          lyrics_version_id?: string
-          metadata?: Json
-          provider?: string
-          provider_track_id?: string | null
-          seed?: string | null
-          status?: string
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "edn_suno_tracks_lyrics_version_id_fkey"
-            columns: ["lyrics_version_id"]
-            isOneToOne: false
-            referencedRelation: "edn_lyrics_versions"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       email_templates: {
         Row: {
@@ -2393,124 +1128,6 @@ export type Database = {
           subject?: string
           updated_at?: string | null
           variables?: Json | null
-        }
-        Relationships: []
-      }
-      emotion_analysis_logs: {
-        Row: {
-          analysis_metadata: Json | null
-          arousal: number | null
-          confidence_score: number | null
-          created_at: string | null
-          detected_emotion: string
-          id: string
-          input_text: string | null
-          user_id: string | null
-          valence: number | null
-        }
-        Insert: {
-          analysis_metadata?: Json | null
-          arousal?: number | null
-          confidence_score?: number | null
-          created_at?: string | null
-          detected_emotion: string
-          id?: string
-          input_text?: string | null
-          user_id?: string | null
-          valence?: number | null
-        }
-        Update: {
-          analysis_metadata?: Json | null
-          arousal?: number | null
-          confidence_score?: number | null
-          created_at?: string | null
-          detected_emotion?: string
-          id?: string
-          input_text?: string | null
-          user_id?: string | null
-          valence?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "emotion_analysis_logs_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      emotion_metrics: {
-        Row: {
-          confidence_score: number | null
-          context: Json | null
-          created_at: string
-          emotion_type: string
-          id: string
-          session_id: string
-          user_id: string
-        }
-        Insert: {
-          confidence_score?: number | null
-          context?: Json | null
-          created_at?: string
-          emotion_type: string
-          id?: string
-          session_id: string
-          user_id: string
-        }
-        Update: {
-          confidence_score?: number | null
-          context?: Json | null
-          created_at?: string
-          emotion_type?: string
-          id?: string
-          session_id?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "emotion_metrics_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      emotion_scans: {
-        Row: {
-          confidence: number | null
-          created_at: string | null
-          emotions: Json
-          id: string
-          mood: string | null
-          recommendations: Json | null
-          scan_type: string
-          updated_at: string | null
-          user_id: string
-        }
-        Insert: {
-          confidence?: number | null
-          created_at?: string | null
-          emotions?: Json
-          id?: string
-          mood?: string | null
-          recommendations?: Json | null
-          scan_type: string
-          updated_at?: string | null
-          user_id: string
-        }
-        Update: {
-          confidence?: number | null
-          created_at?: string | null
-          emotions?: Json
-          id?: string
-          mood?: string | null
-          recommendations?: Json | null
-          scan_type?: string
-          updated_at?: string | null
-          user_id?: string
         }
         Relationships: []
       }
@@ -2545,15 +1162,7 @@ export type Database = {
           text?: string | null
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "emotions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       emotionscare_song_likes: {
         Row: {
@@ -2662,22 +1271,7 @@ export type Database = {
           id?: string
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "emotionsroom_favorites_favorite_user_id_fkey"
-            columns: ["favorite_user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "emotionsroom_favorites_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       emotionsroom_ice_candidates: {
         Row: {
@@ -2779,15 +1373,7 @@ export type Database = {
           total_time_minutes?: number | null
           updated_at?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "emotionsroom_profiles_id_fkey"
-            columns: ["id"]
-            isOneToOne: true
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       emotionsroom_rooms: {
         Row: {
@@ -2865,13 +1451,6 @@ export type Database = {
             columns: ["room_id"]
             isOneToOne: false
             referencedRelation: "emotionsroom_rooms"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "emotionsroom_sessions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
             referencedColumns: ["id"]
           },
         ]
@@ -3059,45 +1638,6 @@ export type Database = {
             referencedRelation: "qcm_sessions"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "error_songs_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      exports: {
-        Row: {
-          created_at: string | null
-          file_path: string | null
-          id: string
-          status: string | null
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          file_path?: string | null
-          id?: string
-          status?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          file_path?: string | null
-          id?: string
-          status?: string | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "exports_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
         ]
       }
       extraction_events: {
@@ -3197,56 +1737,6 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
-      }
-      gamification_activities: {
-        Row: {
-          achievements_unlocked: string[] | null
-          activity_name: string
-          activity_type: string
-          completion_percentage: number | null
-          created_at: string | null
-          difficulty_level: string | null
-          duration: number | null
-          id: string
-          points_earned: number | null
-          session_data: Json | null
-          user_id: string | null
-        }
-        Insert: {
-          achievements_unlocked?: string[] | null
-          activity_name: string
-          activity_type: string
-          completion_percentage?: number | null
-          created_at?: string | null
-          difficulty_level?: string | null
-          duration?: number | null
-          id?: string
-          points_earned?: number | null
-          session_data?: Json | null
-          user_id?: string | null
-        }
-        Update: {
-          achievements_unlocked?: string[] | null
-          activity_name?: string
-          activity_type?: string
-          completion_percentage?: number | null
-          created_at?: string | null
-          difficulty_level?: string | null
-          duration?: number | null
-          id?: string
-          points_earned?: number | null
-          session_data?: Json | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "gamification_activities_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       generated_ambient_images: {
         Row: {
@@ -3371,41 +1861,6 @@ export type Database = {
         }
         Relationships: []
       }
-      goals: {
-        Row: {
-          created_at: string | null
-          id: string
-          status: string | null
-          title: string
-          updated_at: string | null
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          status?: string | null
-          title: string
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          status?: string | null
-          title?: string
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "goals_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       google_sheets_integrations: {
         Row: {
           created_at: string
@@ -3443,15 +1898,7 @@ export type Database = {
           user_id?: string | null
           webhook_token?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "google_sheets_integrations_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       groups: {
         Row: {
@@ -3471,42 +1918,6 @@ export type Database = {
           members?: string[] | null
           name?: string
           topic?: string
-        }
-        Relationships: []
-      }
-      hr_aggregates: {
-        Row: {
-          created_at: string | null
-          domain: string
-          id: string
-          min_n_met: boolean | null
-          participant_count: number
-          period_end: string
-          period_start: string
-          team_id: string
-          verbalization: string
-        }
-        Insert: {
-          created_at?: string | null
-          domain: string
-          id?: string
-          min_n_met?: boolean | null
-          participant_count: number
-          period_end: string
-          period_start: string
-          team_id: string
-          verbalization: string
-        }
-        Update: {
-          created_at?: string | null
-          domain?: string
-          id?: string
-          min_n_met?: boolean | null
-          participant_count?: number
-          period_end?: string
-          period_start?: string
-          team_id?: string
-          verbalization?: string
         }
         Relationships: []
       }
@@ -3592,15 +2003,7 @@ export type Database = {
           total_rows?: number | null
           user_id?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "import_batches_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       import_raw_data: {
         Row: {
@@ -3914,13 +2317,6 @@ export type Database = {
             referencedRelation: "jam_rooms"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "jam_participants_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
         ]
       }
       jam_rooms: {
@@ -3968,13 +2364,6 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "jam_rooms_creator_id_fkey"
-            columns: ["creator_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "jam_rooms_recording_project_id_fkey"
             columns: ["recording_project_id"]
             isOneToOne: false
@@ -4021,44 +2410,6 @@ export type Database = {
           },
         ]
       }
-      journal: {
-        Row: {
-          audio_path: string | null
-          created_at: string | null
-          id: string
-          sentiment_label: string | null
-          text: string | null
-          ts: string | null
-          user_id: string | null
-        }
-        Insert: {
-          audio_path?: string | null
-          created_at?: string | null
-          id?: string
-          sentiment_label?: string | null
-          text?: string | null
-          ts?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          audio_path?: string | null
-          created_at?: string | null
-          id?: string
-          sentiment_label?: string | null
-          text?: string | null
-          ts?: string | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "journal_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       journal_entries: {
         Row: {
           ai_feedback: string | null
@@ -4081,126 +2432,7 @@ export type Database = {
           id?: string
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "journal_entries_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      lyrics_generation_jobs: {
-        Row: {
-          attempt_count: number
-          completed_at: string | null
-          created_at: string
-          error: string | null
-          id: string
-          item_code: string
-          model: string
-          priority: number
-          prompt: string | null
-          rang: string
-          requested_by: string | null
-          started_at: string | null
-          status: string
-          updated_at: string
-        }
-        Insert: {
-          attempt_count?: number
-          completed_at?: string | null
-          created_at?: string
-          error?: string | null
-          id?: string
-          item_code: string
-          model?: string
-          priority?: number
-          prompt?: string | null
-          rang: string
-          requested_by?: string | null
-          started_at?: string | null
-          status?: string
-          updated_at?: string
-        }
-        Update: {
-          attempt_count?: number
-          completed_at?: string | null
-          created_at?: string
-          error?: string | null
-          id?: string
-          item_code?: string
-          model?: string
-          priority?: number
-          prompt?: string | null
-          rang?: string
-          requested_by?: string | null
-          started_at?: string | null
-          status?: string
-          updated_at?: string
-        }
         Relationships: []
-      }
-      lyrics_texts: {
-        Row: {
-          content: string
-          created_at: string
-          generated_by: string | null
-          id: string
-          is_published: boolean
-          item_code: string
-          previous_version_id: string | null
-          rang: string
-          status: string
-          style_meta: Json
-          updated_at: string
-          version: number
-        }
-        Insert: {
-          content: string
-          created_at?: string
-          generated_by?: string | null
-          id?: string
-          is_published?: boolean
-          item_code: string
-          previous_version_id?: string | null
-          rang: string
-          status?: string
-          style_meta?: Json
-          updated_at?: string
-          version?: number
-        }
-        Update: {
-          content?: string
-          created_at?: string
-          generated_by?: string | null
-          id?: string
-          is_published?: boolean
-          item_code?: string
-          previous_version_id?: string | null
-          rang?: string
-          status?: string
-          style_meta?: Json
-          updated_at?: string
-          version?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "lyrics_texts_previous_version_id_fkey"
-            columns: ["previous_version_id"]
-            isOneToOne: false
-            referencedRelation: "lyrics_texts"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "lyrics_texts_previous_version_id_fkey"
-            columns: ["previous_version_id"]
-            isOneToOne: false
-            referencedRelation: "lyrics_texts_latest"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       med_mng_audio_access_logs: {
         Row: {
@@ -4252,13 +2484,6 @@ export type Database = {
             columns: ["song_id"]
             isOneToOne: false
             referencedRelation: "med_mng_view_library"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "med_mng_audio_access_logs_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
             referencedColumns: ["id"]
           },
         ]
@@ -4327,15 +2552,7 @@ export type Database = {
           tokens_used?: number | null
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "med_mng_chat_interactions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       med_mng_content_ai: {
         Row: {
@@ -4434,15 +2651,7 @@ export type Database = {
           updated_at?: string | null
           views_count?: number | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "med_mng_content_master_approved_by_fkey"
-            columns: ["approved_by"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       med_mng_content_views: {
         Row: {
@@ -4484,15 +2693,7 @@ export type Database = {
           view_duration?: number | null
           viewed_at?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "med_mng_content_views_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       med_mng_generation_alerts: {
         Row: {
@@ -4545,67 +2746,10 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "med_mng_generation_alerts_acknowledged_by_fkey"
-            columns: ["acknowledged_by"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "med_mng_generation_alerts_generation_log_id_fkey"
             columns: ["generation_log_id"]
             isOneToOne: false
             referencedRelation: "med_mng_music_generation_logs"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      med_mng_generation_logs: {
-        Row: {
-          created_at: string | null
-          error_message: string | null
-          generation_time_ms: number | null
-          generation_type: string
-          id: string
-          metadata: Json | null
-          prompt: string | null
-          response_data: Json | null
-          status: string | null
-          updated_at: string | null
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          error_message?: string | null
-          generation_time_ms?: number | null
-          generation_type: string
-          id?: string
-          metadata?: Json | null
-          prompt?: string | null
-          response_data?: Json | null
-          status?: string | null
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          error_message?: string | null
-          generation_time_ms?: number | null
-          generation_type?: string
-          id?: string
-          metadata?: Json | null
-          prompt?: string | null
-          response_data?: Json | null
-          status?: string | null
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "med_mng_generation_logs_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
             referencedColumns: ["id"]
           },
         ]
@@ -4716,13 +2860,6 @@ export type Database = {
             referencedRelation: "med_mng_view_library"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "med_mng_listening_sessions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
         ]
       }
       med_mng_lyrics_access_logs: {
@@ -4763,13 +2900,6 @@ export type Database = {
             columns: ["song_id"]
             isOneToOne: false
             referencedRelation: "med_mng_view_library"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "med_mng_lyrics_access_logs_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
             referencedColumns: ["id"]
           },
         ]
@@ -4865,13 +2995,6 @@ export type Database = {
             referencedRelation: "med_mng_view_library"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "med_mng_music_generation_logs_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
         ]
       }
       med_mng_playlist_analytics: {
@@ -4934,13 +3057,6 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "med_mng_playlist_songs_added_by_fkey"
-            columns: ["added_by"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "med_mng_playlist_songs_playlist_id_fkey"
             columns: ["playlist_id"]
             isOneToOne: false
@@ -4994,15 +3110,7 @@ export type Database = {
           updated_at?: string | null
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "med_mng_playlists_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       med_mng_qcm_sessions: {
         Row: {
@@ -5080,19 +3188,11 @@ export type Database = {
             referencedRelation: "med_mng_view_library"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "med_mng_song_likes_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
         ]
       }
       med_mng_songs: {
         Row: {
           created_at: string
-          created_by: string | null
           id: string
           lyrics: Json | null
           meta: Json | null
@@ -5103,7 +3203,6 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          created_by?: string | null
           id?: string
           lyrics?: Json | null
           meta?: Json | null
@@ -5114,7 +3213,6 @@ export type Database = {
         }
         Update: {
           created_at?: string
-          created_by?: string | null
           id?: string
           lyrics?: Json | null
           meta?: Json | null
@@ -5123,15 +3221,7 @@ export type Database = {
           updated_at?: string
           user_id?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "med_mng_songs_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       med_mng_subscriptions: {
         Row: {
@@ -5170,15 +3260,7 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "med_mng_subscriptions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: true
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       med_mng_synchronized_lyrics: {
         Row: {
@@ -5292,15 +3374,7 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "med_mng_user_settings_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: true
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       med_mng_user_songs: {
         Row: {
@@ -5336,54 +3410,6 @@ export type Database = {
             referencedRelation: "med_mng_view_library"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "med_mng_user_songs_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      medical_learning_analytics: {
-        Row: {
-          action_type: string
-          created_at: string
-          duration_seconds: number | null
-          id: string
-          item_code: string
-          metadata: Json | null
-          score: number | null
-          user_id: string
-        }
-        Insert: {
-          action_type: string
-          created_at?: string
-          duration_seconds?: number | null
-          id?: string
-          item_code: string
-          metadata?: Json | null
-          score?: number | null
-          user_id: string
-        }
-        Update: {
-          action_type?: string
-          created_at?: string
-          duration_seconds?: number | null
-          id?: string
-          item_code?: string
-          metadata?: Json | null
-          score?: number | null
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "medical_learning_analytics_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
         ]
       }
       medilinko_consultations: {
@@ -5415,198 +3441,6 @@ export type Database = {
           payment_status?: string | null
         }
         Relationships: []
-      }
-      metrics_bubble_beat: {
-        Row: {
-          id: string
-          payload: Json | null
-          session_id: string | null
-          ts: string | null
-          user_id: string | null
-        }
-        Insert: {
-          id?: string
-          payload?: Json | null
-          session_id?: string | null
-          ts?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          id?: string
-          payload?: Json | null
-          session_id?: string | null
-          ts?: string | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "metrics_bubble_beat_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      metrics_emotion_scan: {
-        Row: {
-          id: string
-          payload: Json | null
-          session_id: string | null
-          ts: string | null
-          user_id: string | null
-        }
-        Insert: {
-          id?: string
-          payload?: Json | null
-          session_id?: string | null
-          ts?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          id?: string
-          payload?: Json | null
-          session_id?: string | null
-          ts?: string | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "metrics_emotion_scan_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      metrics_face_filter: {
-        Row: {
-          id: string
-          payload: Json | null
-          session_id: string | null
-          ts: string | null
-          user_id: string | null
-        }
-        Insert: {
-          id?: string
-          payload?: Json | null
-          session_id?: string | null
-          ts?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          id?: string
-          payload?: Json | null
-          session_id?: string | null
-          ts?: string | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "metrics_face_filter_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      metrics_flash_glow: {
-        Row: {
-          id: string
-          payload: Json | null
-          session_id: string | null
-          ts: string | null
-          user_id: string | null
-        }
-        Insert: {
-          id?: string
-          payload?: Json | null
-          session_id?: string | null
-          ts?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          id?: string
-          payload?: Json | null
-          session_id?: string | null
-          ts?: string | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "metrics_flash_glow_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      metrics_vr_breath: {
-        Row: {
-          id: string
-          payload: Json | null
-          session_id: string | null
-          ts: string | null
-          user_id: string | null
-        }
-        Insert: {
-          id?: string
-          payload?: Json | null
-          session_id?: string | null
-          ts?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          id?: string
-          payload?: Json | null
-          session_id?: string | null
-          ts?: string | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "metrics_vr_breath_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      metrics_vr_galaxy: {
-        Row: {
-          id: string
-          payload: Json | null
-          session_id: string | null
-          ts: string | null
-          user_id: string | null
-        }
-        Insert: {
-          id?: string
-          payload?: Json | null
-          session_id?: string | null
-          ts?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          id?: string
-          payload?: Json | null
-          session_id?: string | null
-          ts?: string | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "metrics_vr_galaxy_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       monitoring_incidents: {
         Row: {
@@ -5650,111 +3484,6 @@ export type Database = {
         }
         Relationships: []
       }
-      music_completion_logs: {
-        Row: {
-          completion_percentage: number | null
-          completion_timestamp: string | null
-          id: string
-          listen_duration: number | null
-          track_id: string
-          user_id: string | null
-        }
-        Insert: {
-          completion_percentage?: number | null
-          completion_timestamp?: string | null
-          id?: string
-          listen_duration?: number | null
-          track_id: string
-          user_id?: string | null
-        }
-        Update: {
-          completion_percentage?: number | null
-          completion_timestamp?: string | null
-          id?: string
-          listen_duration?: number | null
-          track_id?: string
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "music_completion_logs_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      music_favorites: {
-        Row: {
-          created_at: string
-          id: string
-          meta: Json
-          track_id: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          meta?: Json
-          track_id: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          meta?: Json
-          track_id?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "music_favorites_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      music_generation_logs: {
-        Row: {
-          created_at: string | null
-          emotion: string
-          generation_metadata: Json | null
-          id: string
-          intensity: number | null
-          tracks_generated: number | null
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          emotion: string
-          generation_metadata?: Json | null
-          id?: string
-          intensity?: number | null
-          tracks_generated?: number | null
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          emotion?: string
-          generation_metadata?: Json | null
-          id?: string
-          intensity?: number | null
-          tracks_generated?: number | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "music_generation_logs_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       music_generation_usage: {
         Row: {
           created_at: string
@@ -5792,203 +3521,6 @@ export type Database = {
             columns: ["subscription_id"]
             isOneToOne: false
             referencedRelation: "user_subscriptions"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "music_generation_usage_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      music_play_logs: {
-        Row: {
-          emotion_context: string | null
-          id: string
-          play_timestamp: string | null
-          session_metadata: Json | null
-          track_id: string
-          user_id: string | null
-        }
-        Insert: {
-          emotion_context?: string | null
-          id?: string
-          play_timestamp?: string | null
-          session_metadata?: Json | null
-          track_id: string
-          user_id?: string | null
-        }
-        Update: {
-          emotion_context?: string | null
-          id?: string
-          play_timestamp?: string | null
-          session_metadata?: Json | null
-          track_id?: string
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "music_play_logs_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      music_playlists: {
-        Row: {
-          created_at: string | null
-          description: string | null
-          id: string
-          is_public: boolean | null
-          mood: string | null
-          name: string
-          play_count: number | null
-          tags: string[] | null
-          total_duration: number | null
-          tracks: Json | null
-          updated_at: string | null
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          is_public?: boolean | null
-          mood?: string | null
-          name: string
-          play_count?: number | null
-          tags?: string[] | null
-          total_duration?: number | null
-          tracks?: Json | null
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          description?: string | null
-          id?: string
-          is_public?: boolean | null
-          mood?: string | null
-          name?: string
-          play_count?: number | null
-          tags?: string[] | null
-          total_duration?: number | null
-          tracks?: Json | null
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "music_playlists_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      music_recent: {
-        Row: {
-          id: string
-          meta: Json
-          position_sec: number
-          track_id: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          id?: string
-          meta?: Json
-          position_sec?: number
-          track_id: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          id?: string
-          meta?: Json
-          position_sec?: number
-          track_id?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "music_recent_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      music_sessions: {
-        Row: {
-          created_at: string | null
-          id: string
-          mood_tag: string | null
-          suno_track_ids: string[] | null
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          mood_tag?: string | null
-          suno_track_ids?: string[] | null
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          mood_tag?: string | null
-          suno_track_ids?: string[] | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "music_sessions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      music_skip_logs: {
-        Row: {
-          id: string
-          skip_position: number | null
-          skip_reason: string | null
-          skip_timestamp: string | null
-          track_id: string
-          user_id: string | null
-        }
-        Insert: {
-          id?: string
-          skip_position?: number | null
-          skip_reason?: string | null
-          skip_timestamp?: string | null
-          track_id: string
-          user_id?: string | null
-        }
-        Update: {
-          id?: string
-          skip_position?: number | null
-          skip_reason?: string | null
-          skip_timestamp?: string | null
-          track_id?: string
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "music_skip_logs_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
             referencedColumns: ["id"]
           },
         ]
@@ -6033,15 +3565,7 @@ export type Database = {
           updated_at?: string | null
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "notification_preferences_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       notification_templates: {
         Row: {
@@ -6155,15 +3679,7 @@ export type Database = {
           type?: string
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "notifications_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       official_content_cache: {
         Row: {
@@ -6462,138 +3978,6 @@ export type Database = {
         }
         Relationships: []
       }
-      org_aggregates: {
-        Row: {
-          created_at: string | null
-          id: string
-          label_bins: Json | null
-          min_n: number | null
-          org_id: string | null
-          period: string
-          team_id: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          label_bins?: Json | null
-          min_n?: number | null
-          org_id?: string | null
-          period: string
-          team_id?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          label_bins?: Json | null
-          min_n?: number | null
-          org_id?: string | null
-          period?: string
-          team_id?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      org_assess_rollups: {
-        Row: {
-          created_at: string
-          id: string
-          instrument: string
-          n: number
-          org_id: string
-          period: string
-          text_summary: string | null
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          instrument: string
-          n: number
-          org_id: string
-          period: string
-          text_summary?: string | null
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          instrument?: string
-          n?: number
-          org_id?: string
-          period?: string
-          text_summary?: string | null
-        }
-        Relationships: []
-      }
-      org_memberships: {
-        Row: {
-          created_at: string
-          id: string
-          org_id: string
-          role: string
-          team_name: string | null
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          org_id: string
-          role: string
-          team_name?: string | null
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          org_id?: string
-          role?: string
-          team_name?: string | null
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "org_memberships_org_id_fkey"
-            columns: ["org_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "org_memberships_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      organizations: {
-        Row: {
-          created_at: string
-          domain: string | null
-          id: string
-          name: string
-          settings: Json | null
-          updated_at: string
-        }
-        Insert: {
-          created_at?: string
-          domain?: string | null
-          id?: string
-          name: string
-          settings?: Json | null
-          updated_at?: string
-        }
-        Update: {
-          created_at?: string
-          domain?: string | null
-          id?: string
-          name?: string
-          settings?: Json | null
-          updated_at?: string
-        }
-        Relationships: []
-      }
       page_analytics: {
         Row: {
           id: string
@@ -6619,15 +4003,7 @@ export type Database = {
           timestamp?: string | null
           user_id?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "page_analytics_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       pending_corrections: {
         Row: {
@@ -6675,22 +4051,7 @@ export type Database = {
           status?: string | null
           table_name?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "pending_corrections_requested_by_fkey"
-            columns: ["requested_by"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "pending_corrections_reviewed_by_fkey"
-            columns: ["reviewed_by"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       performance_alerts: {
         Row: {
@@ -6735,15 +4096,7 @@ export type Database = {
           severity?: string
           title?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "performance_alerts_acknowledged_by_fkey"
-            columns: ["acknowledged_by"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       performance_budgets: {
         Row: {
@@ -6833,98 +4186,7 @@ export type Database = {
           user_agent?: string | null
           user_id?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "performance_metrics_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      personalized_recommendations: {
-        Row: {
-          acted_upon: boolean | null
-          ai_confidence: number | null
-          created_at: string | null
-          description: string | null
-          expires_at: string | null
-          id: string
-          priority_score: number | null
-          reasoning: string | null
-          recommendation_type: string
-          target_activity: string | null
-          title: string
-          user_id: string
-          viewed: boolean | null
-        }
-        Insert: {
-          acted_upon?: boolean | null
-          ai_confidence?: number | null
-          created_at?: string | null
-          description?: string | null
-          expires_at?: string | null
-          id?: string
-          priority_score?: number | null
-          reasoning?: string | null
-          recommendation_type: string
-          target_activity?: string | null
-          title: string
-          user_id: string
-          viewed?: boolean | null
-        }
-        Update: {
-          acted_upon?: boolean | null
-          ai_confidence?: number | null
-          created_at?: string | null
-          description?: string | null
-          expires_at?: string | null
-          id?: string
-          priority_score?: number | null
-          reasoning?: string | null
-          recommendation_type?: string
-          target_activity?: string | null
-          title?: string
-          user_id?: string
-          viewed?: boolean | null
-        }
         Relationships: []
-      }
-      points_history: {
-        Row: {
-          challenge_id: string | null
-          created_at: string | null
-          id: string
-          points: number
-          reason: string
-          user_id: string
-        }
-        Insert: {
-          challenge_id?: string | null
-          created_at?: string | null
-          id?: string
-          points: number
-          reason: string
-          user_id: string
-        }
-        Update: {
-          challenge_id?: string | null
-          created_at?: string | null
-          id?: string
-          points?: number
-          reason?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "points_history_challenge_id_fkey"
-            columns: ["challenge_id"]
-            isOneToOne: false
-            referencedRelation: "challenges"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       posts: {
         Row: {
@@ -6951,59 +4213,7 @@ export type Database = {
           reactions?: number | null
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "posts_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      privacy_consents: {
-        Row: {
-          consent_type: string
-          created_at: string
-          granted: boolean
-          granted_at: string
-          id: string
-          metadata: Json | null
-          revoked_at: string | null
-          source: string
-          user_id: string
-        }
-        Insert: {
-          consent_type: string
-          created_at?: string
-          granted?: boolean
-          granted_at?: string
-          id?: string
-          metadata?: Json | null
-          revoked_at?: string | null
-          source?: string
-          user_id: string
-        }
-        Update: {
-          consent_type?: string
-          created_at?: string
-          granted?: boolean
-          granted_at?: string
-          id?: string
-          metadata?: Json | null
-          revoked_at?: string | null
-          source?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "privacy_consents_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       profiles: {
         Row: {
@@ -7066,50 +4276,7 @@ export type Database = {
           updated_at?: string | null
           website?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "profiles_id_fkey"
-            columns: ["id"]
-            isOneToOne: true
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      push_subscriptions: {
-        Row: {
-          auth: string
-          created_at: string | null
-          endpoint: string
-          id: string
-          p256dh: string
-          user_id: string | null
-        }
-        Insert: {
-          auth: string
-          created_at?: string | null
-          endpoint: string
-          id?: string
-          p256dh: string
-          user_id?: string | null
-        }
-        Update: {
-          auth?: string
-          created_at?: string | null
-          endpoint?: string
-          id?: string
-          p256dh?: string
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "push_subscriptions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       qcm_responses: {
         Row: {
@@ -7204,100 +4371,6 @@ export type Database = {
           updated_at?: string | null
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "qcm_sessions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      quiz_sessions: {
-        Row: {
-          completed: boolean
-          correct_answers: number
-          created_at: string
-          id: string
-          item_code: string
-          questions_count: number
-          rang: string
-          score: number
-          session_data: Json
-          time_spent_seconds: number | null
-          updated_at: string
-          user_id: string | null
-        }
-        Insert: {
-          completed?: boolean
-          correct_answers?: number
-          created_at?: string
-          id?: string
-          item_code: string
-          questions_count?: number
-          rang: string
-          score?: number
-          session_data?: Json
-          time_spent_seconds?: number | null
-          updated_at?: string
-          user_id?: string | null
-        }
-        Update: {
-          completed?: boolean
-          correct_answers?: number
-          created_at?: string
-          id?: string
-          item_code?: string
-          questions_count?: number
-          rang?: string
-          score?: number
-          session_data?: Json
-          time_spent_seconds?: number | null
-          updated_at?: string
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "quiz_sessions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      rate_limit_counters: {
-        Row: {
-          created_at: string | null
-          id: string
-          identifier: string
-          max_requests: number
-          request_count: number
-          updated_at: string | null
-          window_end: string
-          window_start: string
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          identifier: string
-          max_requests: number
-          request_count?: number
-          updated_at?: string | null
-          window_end: string
-          window_start: string
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          identifier?: string
-          max_requests?: number
-          request_count?: number
-          updated_at?: string | null
-          window_end?: string
-          window_start?: string
-        }
         Relationships: []
       }
       recording_projects: {
@@ -7328,15 +4401,7 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "recording_projects_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       rituals: {
         Row: {
@@ -7621,101 +4686,7 @@ export type Database = {
           user_agent?: string | null
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "streaming_access_logs_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      study_sessions: {
-        Row: {
-          completed: boolean | null
-          completed_at: string | null
-          content_id: string | null
-          created_at: string
-          duration_minutes: number
-          id: string
-          score: number | null
-          session_data: Json | null
-          session_type: string
-          started_at: string
-          user_id: string
-        }
-        Insert: {
-          completed?: boolean | null
-          completed_at?: string | null
-          content_id?: string | null
-          created_at?: string
-          duration_minutes?: number
-          id?: string
-          score?: number | null
-          session_data?: Json | null
-          session_type: string
-          started_at?: string
-          user_id: string
-        }
-        Update: {
-          completed?: boolean | null
-          completed_at?: string | null
-          content_id?: string | null
-          created_at?: string
-          duration_minutes?: number
-          id?: string
-          score?: number | null
-          session_data?: Json | null
-          session_type?: string
-          started_at?: string
-          user_id?: string
-        }
         Relationships: []
-      }
-      subscribers: {
-        Row: {
-          created_at: string
-          email: string
-          id: string
-          stripe_customer_id: string | null
-          subscribed: boolean
-          subscription_end: string | null
-          subscription_tier: string | null
-          updated_at: string
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string
-          email: string
-          id?: string
-          stripe_customer_id?: string | null
-          subscribed?: boolean
-          subscription_end?: string | null
-          subscription_tier?: string | null
-          updated_at?: string
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string
-          email?: string
-          id?: string
-          stripe_customer_id?: string | null
-          subscribed?: boolean
-          subscription_end?: string | null
-          subscription_tier?: string | null
-          updated_at?: string
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "subscribers_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       subscription_plans: {
         Row: {
@@ -7764,106 +4735,6 @@ export type Database = {
           name?: string
         }
         Relationships: []
-      }
-      ui_suggestion_cache: {
-        Row: {
-          created_at: string | null
-          cta_route: string | null
-          display_context: string
-          expires_at: string
-          id: string
-          label_text: string
-          priority: number | null
-          user_id: string
-        }
-        Insert: {
-          created_at?: string | null
-          cta_route?: string | null
-          display_context: string
-          expires_at: string
-          id?: string
-          label_text: string
-          priority?: number | null
-          user_id: string
-        }
-        Update: {
-          created_at?: string | null
-          cta_route?: string | null
-          display_context?: string
-          expires_at?: string
-          id?: string
-          label_text?: string
-          priority?: number | null
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "ui_suggestion_cache_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      unified_music_generation: {
-        Row: {
-          audio_url: string | null
-          completed_at: string | null
-          created_at: string
-          duration: number | null
-          id: string
-          item_code: string
-          metadata: Json | null
-          paroles: string[]
-          status: string
-          style: string
-          suno_task_id: string | null
-          type: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          audio_url?: string | null
-          completed_at?: string | null
-          created_at?: string
-          duration?: number | null
-          id?: string
-          item_code: string
-          metadata?: Json | null
-          paroles: string[]
-          status?: string
-          style?: string
-          suno_task_id?: string | null
-          type: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          audio_url?: string | null
-          completed_at?: string | null
-          created_at?: string
-          duration?: number | null
-          id?: string
-          item_code?: string
-          metadata?: Json | null
-          paroles?: string[]
-          status?: string
-          style?: string
-          suno_task_id?: string | null
-          type?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "unified_music_generation_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       urge_gpt_queries: {
         Row: {
@@ -7952,38 +4823,6 @@ export type Database = {
         }
         Relationships: []
       }
-      user_achievements: {
-        Row: {
-          achievement_id: string
-          id: string
-          progress: number | null
-          unlocked_at: string | null
-          user_id: string
-        }
-        Insert: {
-          achievement_id: string
-          id?: string
-          progress?: number | null
-          unlocked_at?: string | null
-          user_id: string
-        }
-        Update: {
-          achievement_id?: string
-          id?: string
-          progress?: number | null
-          unlocked_at?: string | null
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "user_achievements_achievement_id_fkey"
-            columns: ["achievement_id"]
-            isOneToOne: false
-            referencedRelation: "achievements"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       user_activity_logs: {
         Row: {
           activity_details: Json | null
@@ -8023,108 +4862,6 @@ export type Database = {
         }
         Relationships: []
       }
-      user_activity_preferences: {
-        Row: {
-          activity_type: string
-          created_at: string | null
-          id: string
-          preferences: Json
-          updated_at: string | null
-          user_id: string
-        }
-        Insert: {
-          activity_type: string
-          created_at?: string | null
-          id?: string
-          preferences?: Json
-          updated_at?: string | null
-          user_id: string
-        }
-        Update: {
-          activity_type?: string
-          created_at?: string | null
-          id?: string
-          preferences?: Json
-          updated_at?: string | null
-          user_id?: string
-        }
-        Relationships: []
-      }
-      user_activity_sessions: {
-        Row: {
-          activity_type: string
-          completed_at: string | null
-          created_at: string | null
-          duration_seconds: number | null
-          id: string
-          mood_after: string | null
-          mood_before: string | null
-          satisfaction_score: number | null
-          session_data: Json
-          user_id: string
-        }
-        Insert: {
-          activity_type: string
-          completed_at?: string | null
-          created_at?: string | null
-          duration_seconds?: number | null
-          id?: string
-          mood_after?: string | null
-          mood_before?: string | null
-          satisfaction_score?: number | null
-          session_data?: Json
-          user_id: string
-        }
-        Update: {
-          activity_type?: string
-          completed_at?: string | null
-          created_at?: string | null
-          duration_seconds?: number | null
-          id?: string
-          mood_after?: string | null
-          mood_before?: string | null
-          satisfaction_score?: number | null
-          session_data?: Json
-          user_id?: string
-        }
-        Relationships: []
-      }
-      user_analytics: {
-        Row: {
-          analytics_data: Json | null
-          average_score: number | null
-          content_types_studied: string[] | null
-          date: string
-          id: string
-          peak_performance_hour: number | null
-          sessions_completed: number | null
-          study_time_minutes: number | null
-          user_id: string
-        }
-        Insert: {
-          analytics_data?: Json | null
-          average_score?: number | null
-          content_types_studied?: string[] | null
-          date?: string
-          id?: string
-          peak_performance_hour?: number | null
-          sessions_completed?: number | null
-          study_time_minutes?: number | null
-          user_id: string
-        }
-        Update: {
-          analytics_data?: Json | null
-          average_score?: number | null
-          content_types_studied?: string[] | null
-          date?: string
-          id?: string
-          peak_performance_hour?: number | null
-          sessions_completed?: number | null
-          study_time_minutes?: number | null
-          user_id?: string
-        }
-        Relationships: []
-      }
       user_favorite_flashcards: {
         Row: {
           created_at: string | null
@@ -8150,42 +4887,6 @@ export type Database = {
             columns: ["item_id"]
             isOneToOne: false
             referencedRelation: "edn_items"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "user_favorite_flashcards_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      user_favorite_tracks: {
-        Row: {
-          favorited_at: string | null
-          id: string
-          track_id: string
-          user_id: string | null
-        }
-        Insert: {
-          favorited_at?: string | null
-          id?: string
-          track_id: string
-          user_id?: string | null
-        }
-        Update: {
-          favorited_at?: string | null
-          id?: string
-          track_id?: string
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "user_favorite_tracks_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
             referencedColumns: ["id"]
           },
         ]
@@ -8227,104 +4928,7 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "user_generated_music_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      user_goals: {
-        Row: {
-          category: string
-          created_at: string | null
-          current_progress: number | null
-          description: string | null
-          end_date: string | null
-          id: string
-          reward_points: number | null
-          start_date: string
-          status: string | null
-          target_value: number | null
-          title: string
-          unit: string | null
-          updated_at: string | null
-          user_id: string
-        }
-        Insert: {
-          category: string
-          created_at?: string | null
-          current_progress?: number | null
-          description?: string | null
-          end_date?: string | null
-          id?: string
-          reward_points?: number | null
-          start_date: string
-          status?: string | null
-          target_value?: number | null
-          title: string
-          unit?: string | null
-          updated_at?: string | null
-          user_id: string
-        }
-        Update: {
-          category?: string
-          created_at?: string | null
-          current_progress?: number | null
-          description?: string | null
-          end_date?: string | null
-          id?: string
-          reward_points?: number | null
-          start_date?: string
-          status?: string | null
-          target_value?: number | null
-          title?: string
-          unit?: string | null
-          updated_at?: string | null
-          user_id?: string
-        }
         Relationships: []
-      }
-      user_music_preferences: {
-        Row: {
-          created_at: string | null
-          id: string
-          last_played_emotion: string | null
-          preferred_emotions: string[] | null
-          total_plays: number | null
-          updated_at: string | null
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          last_played_emotion?: string | null
-          preferred_emotions?: string[] | null
-          total_plays?: number | null
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          last_played_emotion?: string | null
-          preferred_emotions?: string[] | null
-          total_plays?: number | null
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "user_music_preferences_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: true
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
       }
       user_notifications: {
         Row: {
@@ -8411,15 +5015,7 @@ export type Database = {
           updated_at?: string | null
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "user_playlists_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       user_preferences: {
         Row: {
@@ -8440,199 +5036,6 @@ export type Database = {
           created_at?: string
           id?: string
           preferences?: Json
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      user_preferences_advanced: {
-        Row: {
-          accessibility_settings: Json | null
-          created_at: string | null
-          daily_reminders: boolean | null
-          data_sharing_consent: boolean | null
-          id: string
-          notification_preferences: Json | null
-          preferred_coach_personality: string | null
-          privacy_settings: Json | null
-          ui_customization: Json | null
-          updated_at: string | null
-          user_id: string | null
-          wellbeing_goals: Json | null
-        }
-        Insert: {
-          accessibility_settings?: Json | null
-          created_at?: string | null
-          daily_reminders?: boolean | null
-          data_sharing_consent?: boolean | null
-          id?: string
-          notification_preferences?: Json | null
-          preferred_coach_personality?: string | null
-          privacy_settings?: Json | null
-          ui_customization?: Json | null
-          updated_at?: string | null
-          user_id?: string | null
-          wellbeing_goals?: Json | null
-        }
-        Update: {
-          accessibility_settings?: Json | null
-          created_at?: string | null
-          daily_reminders?: boolean | null
-          data_sharing_consent?: boolean | null
-          id?: string
-          notification_preferences?: Json | null
-          preferred_coach_personality?: string | null
-          privacy_settings?: Json | null
-          ui_customization?: Json | null
-          updated_at?: string | null
-          user_id?: string | null
-          wellbeing_goals?: Json | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "user_preferences_advanced_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: true
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      user_privacy_preferences: {
-        Row: {
-          analytics_opt_in: boolean
-          consent_version: string
-          created_at: string
-          pseudonymized_user_id: string
-          retention_days: number
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          analytics_opt_in?: boolean
-          consent_version?: string
-          created_at?: string
-          pseudonymized_user_id?: string
-          retention_days?: number
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          analytics_opt_in?: boolean
-          consent_version?: string
-          created_at?: string
-          pseudonymized_user_id?: string
-          retention_days?: number
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "user_privacy_preferences_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: true
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      user_profiles: {
-        Row: {
-          achievements: Json | null
-          avatar_url: string | null
-          bio: string | null
-          created_at: string
-          current_score_average: number | null
-          display_name: string
-          id: string
-          preferences: Json | null
-          speciality: string | null
-          study_streak: number | null
-          total_study_time: number | null
-          university: string | null
-          updated_at: string
-          user_id: string
-          year_of_study: number | null
-        }
-        Insert: {
-          achievements?: Json | null
-          avatar_url?: string | null
-          bio?: string | null
-          created_at?: string
-          current_score_average?: number | null
-          display_name: string
-          id?: string
-          preferences?: Json | null
-          speciality?: string | null
-          study_streak?: number | null
-          total_study_time?: number | null
-          university?: string | null
-          updated_at?: string
-          user_id: string
-          year_of_study?: number | null
-        }
-        Update: {
-          achievements?: Json | null
-          avatar_url?: string | null
-          bio?: string | null
-          created_at?: string
-          current_score_average?: number | null
-          display_name?: string
-          id?: string
-          preferences?: Json | null
-          speciality?: string | null
-          study_streak?: number | null
-          total_study_time?: number | null
-          university?: string | null
-          updated_at?: string
-          user_id?: string
-          year_of_study?: number | null
-        }
-        Relationships: []
-      }
-      user_progress: {
-        Row: {
-          attempts_count: number | null
-          best_score: number | null
-          bookmarked: boolean | null
-          content_id: string
-          content_type: string
-          created_at: string
-          id: string
-          last_accessed: string | null
-          mastery_level: string | null
-          notes: string | null
-          progress_percentage: number | null
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          attempts_count?: number | null
-          best_score?: number | null
-          bookmarked?: boolean | null
-          content_id: string
-          content_type: string
-          created_at?: string
-          id?: string
-          last_accessed?: string | null
-          mastery_level?: string | null
-          notes?: string | null
-          progress_percentage?: number | null
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          attempts_count?: number | null
-          best_score?: number | null
-          bookmarked?: boolean | null
-          content_id?: string
-          content_type?: string
-          created_at?: string
-          id?: string
-          last_accessed?: string | null
-          mastery_level?: string | null
-          notes?: string | null
-          progress_percentage?: number | null
           updated_at?: string
           user_id?: string
         }
@@ -8681,133 +5084,6 @@ export type Database = {
           updated_at?: string | null
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "user_quotas_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: true
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      user_rewards: {
-        Row: {
-          activity_related: string | null
-          badge_icon: string | null
-          earned_at: string | null
-          id: string
-          points_earned: number | null
-          reward_description: string | null
-          reward_name: string
-          reward_type: string
-          user_id: string
-        }
-        Insert: {
-          activity_related?: string | null
-          badge_icon?: string | null
-          earned_at?: string | null
-          id?: string
-          points_earned?: number | null
-          reward_description?: string | null
-          reward_name: string
-          reward_type: string
-          user_id: string
-        }
-        Update: {
-          activity_related?: string | null
-          badge_icon?: string | null
-          earned_at?: string | null
-          id?: string
-          points_earned?: number | null
-          reward_description?: string | null
-          reward_name?: string
-          reward_type?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
-      user_sessions: {
-        Row: {
-          created_at: string | null
-          id: string
-          ip_address: unknown | null
-          is_active: boolean | null
-          security_flags: Json | null
-          session_end: string | null
-          session_start: string | null
-          user_agent: string | null
-          user_id: string | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          ip_address?: unknown | null
-          is_active?: boolean | null
-          security_flags?: Json | null
-          session_end?: string | null
-          session_start?: string | null
-          user_agent?: string | null
-          user_id?: string | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          ip_address?: unknown | null
-          is_active?: boolean | null
-          security_flags?: Json | null
-          session_end?: string | null
-          session_start?: string | null
-          user_agent?: string | null
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "user_sessions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      user_stats: {
-        Row: {
-          completed_challenges: number | null
-          created_at: string | null
-          id: string
-          level: number | null
-          rank: string | null
-          streak_days: number | null
-          total_badges: number | null
-          total_points: number | null
-          updated_at: string | null
-          user_id: string
-        }
-        Insert: {
-          completed_challenges?: number | null
-          created_at?: string | null
-          id?: string
-          level?: number | null
-          rank?: string | null
-          streak_days?: number | null
-          total_badges?: number | null
-          total_points?: number | null
-          updated_at?: string | null
-          user_id: string
-        }
-        Update: {
-          completed_challenges?: number | null
-          created_at?: string | null
-          id?: string
-          level?: number | null
-          rank?: string | null
-          streak_days?: number | null
-          total_badges?: number | null
-          total_points?: number | null
-          updated_at?: string | null
-          user_id?: string
-        }
         Relationships: []
       }
       user_subscriptions: {
@@ -8852,135 +5128,10 @@ export type Database = {
             referencedRelation: "subscription_plans"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "user_subscriptions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
         ]
-      }
-      voice_journal_entries: {
-        Row: {
-          ai_insights: string | null
-          audio_url: string | null
-          created_at: string
-          duration: number | null
-          emotion: string | null
-          id: string
-          keywords: string[] | null
-          sentiment: number | null
-          title: string
-          transcription: string
-          updated_at: string
-          user_id: string | null
-        }
-        Insert: {
-          ai_insights?: string | null
-          audio_url?: string | null
-          created_at?: string
-          duration?: number | null
-          emotion?: string | null
-          id?: string
-          keywords?: string[] | null
-          sentiment?: number | null
-          title: string
-          transcription: string
-          updated_at?: string
-          user_id?: string | null
-        }
-        Update: {
-          ai_insights?: string | null
-          audio_url?: string | null
-          created_at?: string
-          duration?: number | null
-          emotion?: string | null
-          id?: string
-          keywords?: string[] | null
-          sentiment?: number | null
-          title?: string
-          transcription?: string
-          updated_at?: string
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "voice_journal_entries_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      vr_sessions: {
-        Row: {
-          category: string | null
-          completed: boolean | null
-          completed_at: string | null
-          created_at: string | null
-          duration_minutes: number | null
-          experience_id: string
-          experience_title: string
-          id: string
-          rating: number | null
-          user_id: string
-        }
-        Insert: {
-          category?: string | null
-          completed?: boolean | null
-          completed_at?: string | null
-          created_at?: string | null
-          duration_minutes?: number | null
-          experience_id: string
-          experience_title: string
-          id?: string
-          rating?: number | null
-          user_id: string
-        }
-        Update: {
-          category?: string | null
-          completed?: boolean | null
-          completed_at?: string | null
-          created_at?: string | null
-          duration_minutes?: number | null
-          experience_id?: string
-          experience_title?: string
-          id?: string
-          rating?: number | null
-          user_id?: string
-        }
-        Relationships: []
       }
     }
     Views: {
-      audit_summary: {
-        Row: {
-          avg_completeness_score: number | null
-          table_name: string | null
-          total_rows: number | null
-          valid_descriptions: number | null
-          valid_titles: number | null
-        }
-        Relationships: []
-      }
-      lyrics_texts_latest: {
-        Row: {
-          content: string | null
-          created_at: string | null
-          generated_by: string | null
-          id: string | null
-          is_published: boolean | null
-          item_code: string | null
-          rang: string | null
-          status: string | null
-          style_meta: Json | null
-          updated_at: string | null
-          version: number | null
-        }
-        Relationships: []
-      }
       med_mng_view_library: {
         Row: {
           created_at: string | null
@@ -8990,27 +5141,10 @@ export type Database = {
         }
         Relationships: []
       }
-      oic_completion_dashboard: {
-        Row: {
-          nb_empty: number | null
-          nb_error: number | null
-          nb_updated: number | null
-          total: number | null
-        }
-        Relationships: []
-      }
       secure_platform_stats: {
         Row: {
           metric: string | null
           unit: string | null
-          value: string | null
-        }
-        Relationships: []
-      }
-      security_summary: {
-        Row: {
-          description: string | null
-          metric: string | null
           value: string | null
         }
         Relationships: []
@@ -9026,88 +5160,6 @@ export type Database = {
         }
         Relationships: []
       }
-      team_emotion_summary: {
-        Row: {
-          avg_confidence: number | null
-          count: number | null
-          date: string | null
-          emotion_type: string | null
-          org_id: string | null
-          team_name: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "org_memberships_org_id_fkey"
-            columns: ["org_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      user_activity_summary: {
-        Row: {
-          conversations_count: number | null
-          email: string | null
-          id: string | null
-          last_activity: string | null
-          music_generations: number | null
-        }
-        Relationships: []
-      }
-      user_progress_view: {
-        Row: {
-          avg_duration: number | null
-          last_session: string | null
-          total_sessions: number | null
-          user_id: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "ai_coach_sessions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_activity_summary"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      v_competences_parsed: {
-        Row: {
-          description: string | null
-          intitule: string | null
-          item_id: string | null
-          item_parent: string | null
-          objectif_id: string | null
-          ordre_num: number | null
-          rang: string | null
-          rang_code: string | null
-          url_source: string | null
-        }
-        Insert: {
-          description?: string | null
-          intitule?: string | null
-          item_id?: never
-          item_parent?: string | null
-          objectif_id?: string | null
-          ordre_num?: never
-          rang?: string | null
-          rang_code?: never
-          url_source?: string | null
-        }
-        Update: {
-          description?: string | null
-          intitule?: string | null
-          item_id?: never
-          item_parent?: string | null
-          objectif_id?: string | null
-          ordre_num?: never
-          rang?: string | null
-          rang_code?: never
-          url_source?: string | null
-        }
-        Relationships: []
-      }
     }
     Functions: {
       accept_invitation: {
@@ -9117,52 +5169,40 @@ export type Database = {
       audit_and_correct_edn_content: {
         Args: Record<PropertyKey, never>
         Returns: {
-          fixed_issues: Json
           updated_count: number
+          fixed_issues: Json
         }[]
       }
       audit_and_fix_edn_content: {
         Args: Record<PropertyKey, never>
         Returns: {
-          audit_report: Json
           updated_count: number
+          audit_report: Json
         }[]
       }
       audit_tableau_duplicates: {
         Args: Record<PropertyKey, never>
         Returns: {
           audit_type: string
-          duplicate_content: string
-          issue_description: string
           item_code_result: string
-          recommendation: string
+          issue_description: string
+          duplicate_content: string
           severity: string
+          recommendation: string
         }[]
       }
       auto_security_maintenance: {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
-      backup_critical_data: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      calculate_completeness_score: {
-        Args: { item_data: Json } | { item_id: string }
-        Returns: number
-      }
-      calculate_internal_level: {
-        Args: { instrument_code: string; score: number }
-        Returns: number
-      }
       calculate_item_completeness_score: {
         Args: {
           p_item_code: string
-          p_paroles_musicales: string[]
-          p_quiz_questions: Json
-          p_scene_immersive: Json
           p_tableau_a: Json
           p_tableau_b: Json
+          p_quiz_questions: Json
+          p_paroles_musicales: string[]
+          p_scene_immersive: Json
         }
         Returns: number
       }
@@ -9175,16 +5215,16 @@ export type Database = {
         Returns: {
           can_generate: boolean
           current_usage: number
-          plan_name: string
           quota_limit: number
+          plan_name: string
         }[]
       }
       check_rate_limit: {
         Args: {
+          user_identifier: string
           action_type: string
           max_attempts?: number
           time_window_minutes?: number
-          user_identifier: string
         }
         Returns: boolean
       }
@@ -9196,28 +5236,9 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: number
       }
-      clean_generic_lisa_content: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          affected_competences: Json
-          cleaned_count: number
-        }[]
-      }
       cleanup_duplicates: {
         Args: Record<PropertyKey, never>
         Returns: Json
-      }
-      cleanup_expired_clinical_data: {
-        Args: Record<PropertyKey, never>
-        Returns: number
-      }
-      cleanup_expired_rate_limit_counters: {
-        Args: Record<PropertyKey, never>
-        Returns: number
-      }
-      cleanup_failed_generations: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
       }
       cleanup_old_chat_logs: {
         Args: Record<PropertyKey, never>
@@ -9230,14 +5251,6 @@ export type Database = {
       cleanup_old_integrity_reports: {
         Args: Record<PropertyKey, never>
         Returns: number
-      }
-      cleanup_old_logs: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
-      cleanup_old_music_generations: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
       }
       cleanup_old_operation_logs: {
         Args: Record<PropertyKey, never>
@@ -9262,40 +5275,33 @@ export type Database = {
       complete_all_items_with_competences: {
         Args: Record<PropertyKey, never>
         Returns: {
-          items_details: Json
           processed_items: number
+          updated_items: number
           total_competences_rang_a: number
           total_competences_rang_b: number
-          updated_items: number
+          items_details: Json
         }[]
       }
       complete_extraction_batch: {
         Args: {
-          p_error_details?: Json
-          p_error_message?: string
           p_log_id: string
-          p_performance_metrics?: Json
           p_status?: string
+          p_error_message?: string
+          p_error_details?: Json
+          p_performance_metrics?: Json
         }
         Returns: undefined
       }
       complete_missing_edn_fields: {
         Args: Record<PropertyKey, never>
         Returns: {
-          details: Json
           updated_count: number
+          details: Json
         }[]
       }
       count_all_invitations: {
         Args: Record<PropertyKey, never>
         Returns: number
-      }
-      count_generic_lisa_content: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          sample_objectifs: Json
-          total_count: number
-        }[]
       }
       count_invitations_by_status: {
         Args: { status_param: Database["public"]["Enums"]["invitation_status"] }
@@ -9307,37 +5313,31 @@ export type Database = {
       }
       create_generation_alert: {
         Args: {
-          p_actual_value?: number
           p_alert_type: string
-          p_generation_log_id?: string
-          p_message: string
-          p_metadata?: Json
           p_severity: string
+          p_message: string
+          p_generation_log_id?: string
           p_threshold_value?: number
+          p_actual_value?: number
+          p_metadata?: Json
         }
         Returns: string
       }
       create_notification_from_template: {
         Args: {
-          target_user_id: string
           template_name: string
+          target_user_id: string
           template_variables?: Json
         }
-        Returns: string
-      }
-      create_user_session: {
-        Args:
-          | { p_ip_address?: unknown; p_user_agent?: string }
-          | { session_data: Json }
         Returns: string
       }
       detect_and_fix_redundancies: {
         Args: Record<PropertyKey, never>
         Returns: {
+          item_code: string
+          issue_type: string
           description: string
           fixed: boolean
-          issue_type: string
-          item_code: string
         }[]
       }
       detect_data_inconsistencies: {
@@ -9351,32 +5351,14 @@ export type Database = {
       emergency_security_cleanup: {
         Args: Record<PropertyKey, never>
         Returns: {
-          cleaned_column: string
           cleaned_table: string
-          cleanup_type: string
+          cleaned_column: string
           records_affected: number
-        }[]
-      }
-      enrich_edn_items_with_oic_competences: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          details: Json
-          error_count: number
-          processed_count: number
-          success_count: number
-        }[]
-      }
-      enrich_edn_items_with_oic_competences_fixed: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          details: Json
-          error_count: number
-          processed_count: number
-          success_count: number
+          cleanup_type: string
         }[]
       }
       enrich_oic_by_specialty_range: {
-        Args: { end_item: number; specialty_name: string; start_item: number }
+        Args: { start_item: number; end_item: number; specialty_name: string }
         Returns: number
       }
       final_security_check: {
@@ -9386,79 +5368,79 @@ export type Database = {
       fix_all_edn_items_complete_oic_correction: {
         Args: Record<PropertyKey, never>
         Returns: {
-          details: Json
-          errors_count: number
           fixed_count: number
+          errors_count: number
+          details: Json
         }[]
       }
       fix_all_edn_items_complete_uness_correction: {
         Args: Record<PropertyKey, never>
         Returns: {
-          details: Json
-          errors_count: number
           fixed_count: number
+          errors_count: number
+          details: Json
         }[]
       }
       fix_all_edn_items_complete_unique_content: {
         Args: Record<PropertyKey, never>
         Returns: {
-          details: Json
           updated_count: number
+          details: Json
         }[]
       }
       fix_all_edn_items_simple_correction: {
         Args: Record<PropertyKey, never>
         Returns: {
-          details: Json
-          errors_count: number
           fixed_count: number
+          errors_count: number
+          details: Json
         }[]
       }
       fix_all_edn_items_with_real_content: {
         Args: Record<PropertyKey, never>
         Returns: {
-          errors_count: number
           fixed_count: number
+          errors_count: number
         }[]
       }
       fix_all_edn_items_with_real_oic_competences: {
         Args: Record<PropertyKey, never>
         Returns: {
-          details: Json
-          errors_count: number
           fixed_count: number
+          errors_count: number
+          details: Json
         }[]
       }
       fix_all_edn_items_with_unique_content: {
         Args: Record<PropertyKey, never>
         Returns: {
-          details: Json
-          error_count: number
           updated_count: number
+          error_count: number
+          details: Json
         }[]
       }
       fix_competences_mapping_correct: {
         Args: Record<PropertyKey, never>
         Returns: {
-          details: Json
-          total_competences_added: number
           updated_items: number
+          total_competences_added: number
+          details: Json
         }[]
       }
       fix_generic_content_and_complete_platform: {
         Args: Record<PropertyKey, never>
         Returns: {
-          details: Json
           fixed_count: number
+          details: Json
         }[]
       }
       fusion_complete_finale: {
         Args: Record<PropertyKey, never>
         Returns: {
-          competences_oic_integrees: number
-          details: Json
-          items_backup_utilises: number
           items_traites: number
+          competences_oic_integrees: number
+          items_backup_utilises: number
+          details: Json
         }[]
       }
       generate_audit_report: {
@@ -9468,11 +5450,11 @@ export type Database = {
       generate_completeness_alerts: {
         Args: {
           p_item_code: string
-          p_paroles_musicales: string[]
-          p_quiz_questions: Json
-          p_scene_immersive: Json
           p_tableau_a: Json
           p_tableau_b: Json
+          p_quiz_questions: Json
+          p_paroles_musicales: string[]
+          p_scene_immersive: Json
         }
         Returns: string[]
       }
@@ -9484,10 +5466,6 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
-      generate_slug: {
-        Args: { item_code: string; title: string }
-        Returns: string
-      }
       generate_specific_content_all_items: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -9495,38 +5473,38 @@ export type Database = {
         }[]
       }
       get_activity_stats: {
-        Args: { p_end_date?: string; p_start_date?: string }
+        Args: { p_start_date?: string; p_end_date?: string }
         Returns: {
           activity_type: string
-          percentage: number
           total_count: number
+          percentage: number
         }[]
       }
       get_all_music_tracks: {
         Args: Record<PropertyKey, never>
         Returns: {
-          audio_url: string
-          created_at: string
-          generation_status: string
           id: string
           title: string
+          generation_status: string
+          audio_url: string
           user_id: string
+          created_at: string
         }[]
       }
       get_anonymous_activity_logs: {
         Args: {
-          p_activity_type?: string
+          p_start_date?: string
           p_end_date?: string
+          p_activity_type?: string
+          p_search_term?: string
           p_page?: number
           p_page_size?: number
-          p_search_term?: string
-          p_start_date?: string
         }
         Returns: {
+          id: string
           activity_type: string
           category: string
           count: number
-          id: string
           timestamp_day: string
         }[]
       }
@@ -9537,42 +5515,38 @@ export type Database = {
       get_edn_objectifs_rapport: {
         Args: Record<PropertyKey, never>
         Returns: {
-          completude_pct: number
           item_parent: number
-          manquants: string[]
           objectifs_attendus: number
           objectifs_extraits: number
+          completude_pct: number
+          manquants: string[]
         }[]
       }
       get_extraction_status: {
         Args: { p_batch_id?: string }
         Returns: {
+          id: string
           batch_id: string
           batch_type: string
+          status: string
+          progress_percentage: number
+          total_items: number
+          processed_items: number
+          failed_items: number
+          error_message: string
+          started_at: string
           completed_at: string
           duration_minutes: number
-          error_message: string
-          failed_items: number
-          id: string
-          processed_items: number
-          progress_percentage: number
           recent_events: Json
-          started_at: string
-          status: string
-          total_items: number
         }[]
-      }
-      get_medical_dashboard_stats: {
-        Args: Record<PropertyKey, never>
-        Returns: Json
       }
       get_oic_competences_rapport: {
         Args: Record<PropertyKey, never>
         Returns: {
+          item_parent: string
           competences_attendues: number
           competences_extraites: number
           completude_pct: number
-          item_parent: string
           manquants: string[]
         }[]
       }
@@ -9583,87 +5557,30 @@ export type Database = {
       get_platform_completion_stats: {
         Args: Record<PropertyKey, never>
         Returns: {
-          competences_rang_a_integrated: number
-          competences_rang_b_integrated: number
-          completion_percentage: number
+          total_items: number
           items_with_3_paroles: number
           items_with_50_qcm: number
           total_competences_available: number
-          total_items: number
+          competences_rang_a_integrated: number
+          competences_rang_b_integrated: number
+          completion_percentage: number
         }[]
-      }
-      get_rate_limit_status: {
-        Args: {
-          p_identifier: string
-          p_max_requests: number
-          p_window_duration_seconds: number
-        }
-        Returns: Json
-      }
-      get_secure_user_count: {
-        Args: Record<PropertyKey, never>
-        Returns: number
       }
       get_security_headers: {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
-      get_security_recommendations: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          category: string
-          issue: string
-          priority: string
-          recommendation: string
-        }[]
-      }
-      get_security_status: {
-        Args: Record<PropertyKey, never>
-        Returns: Json
-      }
-      get_system_health_status: {
-        Args: Record<PropertyKey, never>
-        Returns: Json
-      }
-      get_team_analytics: {
-        Args: {
-          p_end_date?: string
-          p_org_id: string
-          p_start_date?: string
-          p_team_name?: string
-        }
-        Returns: {
-          avg_confidence: number
-          date: string
-          emotion_type: string
-          user_count: number
-        }[]
-      }
-      get_user_active_room_ids: {
-        Args: { p_user_id?: string }
-        Returns: {
-          room_id: string
-        }[]
-      }
       get_user_ia_stats: {
         Args: { p_period_days?: number }
         Returns: Json
       }
-      get_user_medical_stats: {
-        Args: { p_user_id?: string }
-        Returns: Json
-      }
-      get_user_organization_role: {
-        Args: { org_id: string }
-        Returns: string
-      }
       get_user_subscription: {
         Args: { user_uuid: string }
         Returns: {
-          features: Json
-          monthly_quota: number
           plan_id: string
           plan_name: string
+          monthly_quota: number
+          features: Json
           status: string
         }[]
       }
@@ -9671,19 +5588,11 @@ export type Database = {
         Args: { user_uuid: string }
         Returns: boolean
       }
-      increment_rate_limit_counter: {
-        Args: {
-          p_identifier: string
-          p_max_requests: number
-          p_window_duration_seconds: number
-        }
-        Returns: Json
-      }
       integrate_all_oic_competences_into_edn_items: {
         Args: Record<PropertyKey, never>
         Returns: {
-          integrated_competences: number
           processed_items: number
+          integrated_competences: number
           rang_a_total: number
           rang_b_total: number
           success_details: Json
@@ -9692,133 +5601,113 @@ export type Database = {
       integrate_oic_into_edn_items: {
         Args: Record<PropertyKey, never>
         Returns: {
-          details: Json
-          error_count: number
-          success_count: number
           updated_items: number
+          success_count: number
+          error_count: number
+          details: Json
         }[]
-      }
-      is_admin: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
       }
       log_admin_change: {
         Args: {
-          p_action_type?: string
-          p_field_name?: string
-          p_new_value?: Json
-          p_old_value?: Json
-          p_reason?: string
-          p_record_id: string
           p_table_name: string
+          p_record_id: string
+          p_field_name?: string
+          p_old_value?: Json
+          p_new_value?: Json
+          p_action_type?: string
+          p_reason?: string
         }
         Returns: string
       }
       log_audio_access: {
         Args: {
+          p_user_id: string
+          p_song_id: string
           p_access_type: string
-          p_bytes_transferred?: number
           p_ip_address?: string
+          p_user_agent?: string
           p_referer?: string
           p_session_duration?: number
-          p_song_id: string
-          p_user_agent?: string
-          p_user_id: string
+          p_bytes_transferred?: number
         }
         Returns: undefined
       }
       log_chat_interaction: {
         Args: {
-          p_context_used?: Json
+          p_user_id: string
           p_question: string
           p_response: string
-          p_response_time_ms?: number
+          p_context_used?: Json
           p_tokens_used?: number
-          p_user_id: string
+          p_response_time_ms?: number
         }
         Returns: undefined
       }
       log_ia_usage: {
         Args:
           | {
-              p_credits_used?: number
-              p_error_details?: string
+              p_service_type: string
               p_operation_type: string
+              p_credits_used?: number
+              p_request_details?: Json
+              p_response_status?: string
+              p_error_details?: string
+            }
+          | {
+              p_service_type: string
+              p_operation_type: string
+              p_credits_used?: number
               p_request_details?: Json
               p_response_status?: string
               p_response_time_ms?: number
-              p_service_type: string
-            }
-          | {
-              p_credits_used?: number
               p_error_details?: string
-              p_operation_type: string
-              p_request_details?: Json
-              p_response_status?: string
-              p_service_type: string
             }
-        Returns: string
+        Returns: undefined
       }
       log_lyrics_access: {
         Args: {
+          p_user_id: string
+          p_song_id: string
           p_format: string
           p_ip_address?: string
-          p_song_id: string
-          p_user_id: string
         }
         Returns: undefined
       }
-      log_security_audit: {
-        Args: {
-          p_details?: Json
-          p_event_type: string
-          p_resource_id?: string
-          p_resource_type?: string
-          p_severity?: string
-        }
-        Returns: string
-      }
       log_security_event: {
         Args:
-          | { event_details?: Json; event_type: string }
+          | { event_type: string; event_details?: Json }
           | {
-              p_event_details?: Json
               p_event_type: string
+              p_event_details?: Json
+              p_user_id?: string
               p_ip_address?: unknown
+              p_user_agent?: string
+            }
+          | {
+              p_event_type: string
+              p_event_details?: Json
+              p_user_id?: string
+              p_ip_address?: unknown
+              p_user_agent?: string
               p_severity?: string
-              p_user_agent?: string
-              p_user_id?: string
             }
-          | {
-              p_event_details?: Json
-              p_event_type: string
-              p_ip_address?: unknown
-              p_user_agent?: string
-            }
-          | {
-              p_event_details?: Json
-              p_event_type: string
-              p_ip_address?: unknown
-              p_user_agent?: string
-              p_user_id?: string
-            }
-        Returns: string
+        Returns: undefined
       }
       log_security_finding: {
         Args: {
-          _action_taken?: string
           _audit_type: string
-          _description: string
-          _finding_type: string
-          _location: string
-          _metadata?: Json
-          _sensitive_data?: string
           _severity: string
+          _location: string
+          _finding_type: string
+          _description: string
+          _sensitive_data?: string
+          _action_taken?: string
+          _metadata?: Json
         }
         Returns: string
       }
       mark_notifications_as_read: {
-        Args: { notification_ids?: string[]; user_id_param: string }
+        Args: { user_id_param: string; notification_ids?: string[] }
         Returns: number
       }
       med_mng_add_song_to_playlist: {
@@ -9835,16 +5724,16 @@ export type Database = {
       }
       med_mng_create_playlist: {
         Args: {
-          is_public?: boolean
-          playlist_description?: string
           playlist_name: string
+          playlist_description?: string
+          is_public?: boolean
         }
         Returns: string
       }
       med_mng_create_user_sub: {
         Args: {
-          gateway_name: string
           plan_name: string
+          gateway_name: string
           subscription_id?: string
         }
         Returns: undefined
@@ -9854,31 +5743,31 @@ export type Database = {
         Returns: Json
       }
       med_mng_generate_qcm: {
-        Args: { p_difficulty?: number; p_item_id: string; p_type: string }
+        Args: { p_item_id: string; p_type: string; p_difficulty?: number }
         Returns: Json
       }
       med_mng_get_activity_stats: {
-        Args: { p_end_date?: string; p_start_date?: string }
+        Args: { p_start_date?: string; p_end_date?: string }
         Returns: {
           activity_type: string
-          percentage: number
           total_count: number
+          percentage: number
         }[]
       }
       med_mng_get_anonymous_activity_logs: {
         Args: {
-          p_activity_type?: string
+          p_start_date?: string
           p_end_date?: string
+          p_activity_type?: string
+          p_search_term?: string
           p_page?: number
           p_page_size?: number
-          p_search_term?: string
-          p_start_date?: string
         }
         Returns: {
+          id: string
           activity_type: string
           category: string
           count: number
-          id: string
           timestamp_day: string
         }[]
       }
@@ -9892,24 +5781,24 @@ export type Database = {
       }
       med_mng_log_listen: {
         Args: {
+          song_id: string
+          duration_seconds?: number
           completion_percentage?: number
           device_type?: string
-          duration_seconds?: number
-          song_id: string
         }
         Returns: undefined
       }
       med_mng_log_listening_event: {
         Args: {
+          p_song_id: string
           p_event_type: string
           p_listen_duration?: number
           p_metadata?: Json
-          p_song_id: string
         }
         Returns: undefined
       }
       med_mng_log_user_activity: {
-        Args: { activity_details_param?: Json; activity_type_param: string }
+        Args: { activity_type_param: string; activity_details_param?: Json }
         Returns: undefined
       }
       med_mng_refresh_monthly_quota: {
@@ -9917,7 +5806,7 @@ export type Database = {
         Returns: undefined
       }
       med_mng_refund_credits: {
-        Args: { p_credits: number; p_user_id: string }
+        Args: { p_user_id: string; p_credits: number }
         Returns: boolean
       }
       med_mng_remove_from_library: {
@@ -9937,34 +5826,34 @@ export type Database = {
         Returns: boolean
       }
       med_mng_track_listening: {
-        Args: { p_listen_duration?: number; p_song_id: string }
+        Args: { p_song_id: string; p_listen_duration?: number }
         Returns: undefined
       }
       merge_all_tables_into_complete: {
         Args: Record<PropertyKey, never>
         Returns: {
-          backup_items_restored: number
-          integrated_competences: number
           processed_items: number
+          integrated_competences: number
+          backup_items_restored: number
           total_unified_records: number
         }[]
       }
       migrate_edn_items_complete: {
         Args: Record<PropertyKey, never>
         Returns: {
-          details: Json
-          error_count: number
           processed_count: number
           success_count: number
+          error_count: number
+          details: Json
         }[]
       }
       migrate_edn_items_to_platform: {
         Args: Record<PropertyKey, never>
         Returns: {
-          details: Json
-          error_count: number
           processed_count: number
           success_count: number
+          error_count: number
+          details: Json
         }[]
       }
       organize_competences_by_item_and_rank: {
@@ -9976,10 +5865,6 @@ export type Database = {
           total_rang_a: number
           total_rang_b: number
         }[]
-      }
-      panic_overlay_get_state: {
-        Args: Record<PropertyKey, never>
-        Returns: Json
       }
       reset_monthly_quotas: {
         Args: Record<PropertyKey, never>
@@ -10000,66 +5885,23 @@ export type Database = {
       scan_for_security_violations: {
         Args: Record<PropertyKey, never>
         Returns: {
-          column_name: string
-          sample_finding: string
-          suspicious_data_count: number
           table_name: string
+          column_name: string
+          suspicious_data_count: number
+          sample_finding: string
         }[]
-      }
-      secure_generate_music: {
-        Args: {
-          p_item_code: string
-          p_paroles: string[]
-          p_style?: string
-          p_type: string
-        }
-        Returns: string
-      }
-      security_audit_check: {
-        Args: Record<PropertyKey, never>
-        Returns: {
-          check_name: string
-          details: string
-          severity: string
-          status: string
-        }[]
-      }
-      security_audit_summary: {
-        Args: Record<PropertyKey, never>
-        Returns: Json
       }
       security_validation_final: {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
-      set_analytics_opt_in: {
-        Args: {
-          p_consent_version?: string
-          p_opt_in: boolean
-          p_retention_days?: number
-          p_user_id: string
-        }
-        Returns: {
-          analytics_opt_in: boolean
-          consent_version: string
-          created_at: string
-          pseudonymized_user_id: string
-          retention_days: number
-          updated_at: string
-          user_id: string
-        }
-      }
       start_extraction_batch: {
         Args: {
           p_batch_type: string
-          p_session_data?: Json
           p_total_items?: number
+          p_session_data?: Json
         }
         Returns: string
-      }
-      sync_oic_competences: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
       }
       ultimate_security_validation: {
         Args: Record<PropertyKey, never>
@@ -10068,54 +5910,46 @@ export type Database = {
       update_all_edn_items_unique_content: {
         Args: Record<PropertyKey, never>
         Returns: {
-          details: Json
           updated_count: number
+          details: Json
         }[]
       }
       update_edn_items_with_real_specific_content: {
         Args: Record<PropertyKey, never>
         Returns: {
-          details: Json
           updated_count: number
+          details: Json
         }[]
       }
       update_edn_items_with_specific_content: {
         Args: Record<PropertyKey, never>
         Returns: {
-          error_count: number
           processed_count: number
           success_count: number
+          error_count: number
         }[]
       }
       update_extraction_progress: {
         Args: {
-          p_event_data?: Json
-          p_event_message?: string
-          p_failed_items?: number
           p_log_id: string
           p_processed_items: number
+          p_failed_items?: number
+          p_event_message?: string
+          p_event_data?: Json
         }
         Returns: undefined
-      }
-      validate_edn_item_data: {
-        Args: { item_data: Json }
-        Returns: boolean
-      }
-      validate_music_lyrics: {
-        Args: { lyrics_data: Json }
-        Returns: boolean
       }
       verify_integration_success: {
         Args: Record<PropertyKey, never>
         Returns: {
-          avg_competences_per_item: number
-          integration_health_score: number
+          total_items: number
           items_with_competences: number
           items_without_competences: number
-          paroles_generated: number
+          avg_competences_per_item: number
           rang_a_total: number
           rang_b_total: number
-          total_items: number
+          paroles_generated: number
+          integration_health_score: number
         }[]
       }
       verify_invitation_token: {
@@ -10125,12 +5959,12 @@ export type Database = {
       verify_oic_data_integrity: {
         Args: Record<PropertyKey, never>
         Returns: {
-          by_item: Json
-          by_rank: Json
-          integrity_score: number
           total_competences: number
           with_content: number
           without_content: number
+          by_item: Json
+          by_rank: Json
+          integrity_score: number
         }[]
       }
     }

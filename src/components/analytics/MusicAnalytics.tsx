@@ -19,8 +19,7 @@ import {
 } from 'lucide-react';
 import { TranslatedText } from '@/components/TranslatedText';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/components/providers/AuthProvider';
-import { errorService } from '@/services/core/ErrorService';
+import { useAuth } from '@/components/med-mng/AuthProvider';
 
 interface ListeningStats {
   totalListenTime: number;
@@ -101,7 +100,7 @@ export const MusicAnalytics: React.FC = () => {
       setStats(calculatedStats);
 
     } catch (error) {
-      errorService.handleError(error instanceof Error ? error : new Error('Erreur chargement analytics'), 'api_call');
+      console.error('Erreur chargement analytics:', error);
     } finally {
       setLoading(false);
     }

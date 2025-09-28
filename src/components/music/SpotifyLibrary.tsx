@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -22,7 +21,7 @@ import {
   Clock,
   Calendar
 } from "lucide-react"
-import { musicService } from "@/services/UnifiedMusicService"
+import { musicService } from "@/services/musicService"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 
@@ -65,7 +64,7 @@ export function SpotifyLibrary() {
       const [libraryData, favoritesData, playlistsData] = await Promise.all([
         musicService.getUserLibrary(),
         musicService.getFavorites(),
-        musicService.getPlaylists()
+        musicService.getUserPlaylists()
       ])
 
       setLibrary(libraryData.map(item => ({
@@ -73,7 +72,7 @@ export function SpotifyLibrary() {
         added_at: item.created_at
       })))
       setFavorites(favoritesData)
-      setPlaylists(playlistsData.success ? playlistsData.data : [])
+      setPlaylists(playlistsData)
 
       toast.success('Bibliothèque chargée', {
         description: `${libraryData.length} chansons dans votre bibliothèque`
@@ -265,10 +264,10 @@ export function SpotifyLibrary() {
             </p>
             {!searchQuery && (
               <Button asChild>
-                <Link to="/edn">
+                <a href="/edn">
                   <Plus className="h-4 w-4 mr-2" />
                   Générer ma première chanson
-                </Link>
+                </a>
               </Button>
             )}
           </CardContent>

@@ -61,15 +61,13 @@ serve(async (req) => {
                 updated_at: new Date().toISOString()
               };
 
-              // Ajouter les URLs seulement si disponibles ET marquer comme completed si stream ou audio disponible
+              // Ajouter les URLs seulement si disponibles (callbackType === 'complete')
               if (track.audio_url || track.source_audio_url) {
                 updateData.audio_url = track.audio_url || track.source_audio_url;
                 updateData.generation_status = 'completed';
               }
               if (track.stream_audio_url || track.source_stream_audio_url) {
                 updateData.stream_url = track.stream_audio_url || track.source_stream_audio_url;
-                // Si on a un stream_url, on considère la génération comme terminée
-                updateData.generation_status = 'completed';
               }
               if (track.image_url || track.source_image_url) {
                 updateData.image_url = track.image_url || track.source_image_url;
@@ -110,15 +108,13 @@ serve(async (req) => {
                 }
               };
 
-              // Ajouter les URLs seulement si disponibles ET marquer comme completed si stream ou audio disponible
+              // Ajouter les URLs seulement si disponibles
               if (track.audio_url || track.source_audio_url) {
                 insertData.audio_url = track.audio_url || track.source_audio_url;
                 insertData.generation_status = 'completed';
               }
               if (track.stream_audio_url || track.source_stream_audio_url) {
                 insertData.stream_url = track.stream_audio_url || track.source_stream_audio_url;
-                // Si on a un stream_url, on considère la génération comme terminée
-                insertData.generation_status = 'completed';
               }
               if (track.image_url || track.source_image_url) {
                 insertData.image_url = track.image_url || track.source_image_url;

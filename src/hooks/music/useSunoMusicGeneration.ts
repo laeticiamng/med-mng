@@ -1,9 +1,7 @@
 
 import { useToast } from '@/hooks/use-toast';
-import { useCallback, useMemo } from 'react';
 import { useMusicGenerationState } from '../useMusicGenerationState';
 import { callSunoApi } from '../musicGenerationApi';
-import { errorService } from '@/services/core/ErrorService';
 import { 
   validateGenerationInput, 
   prepareStyleConfiguration, 
@@ -14,6 +12,8 @@ import { useMusicTranslation } from './useMusicTranslation';
 import { useMusicValidation } from './useMusicValidation';
 
 export const useSunoMusicGeneration = () => {
+  console.log('🎵 HOOK - useSunoMusicGeneration initialisé');
+
   const { toast } = useToast();
   const {
     isGenerating,
@@ -31,14 +31,14 @@ export const useSunoMusicGeneration = () => {
   const { currentLanguage, translateLyricsIfNeeded } = useMusicTranslation();
   const { validateAndNormalizeAudioUrl } = useMusicValidation();
 
-  const generateMusicInLanguage = useCallback(async (
+  const generateMusicInLanguage = async (
     rang: 'A' | 'B' | 'AB', 
     paroles: string[], 
     selectedStyle: string, 
     duration: number = 240,
     model: "V3_5" | "V4" | "V4_5" = "V3_5"
   ) => {
-    console.log('🎵 GÉNÉRATION - Démarrage pour Rang', rang, 'Style:', selectedStyle);
+    console.log('🎵 HOOK - generateMusicInLanguage appelé:', { rang, paroles, selectedStyle, duration });
     
     if (isAlreadyGenerating(rang)) {
       console.log(`⚠️ Génération déjà en cours pour le Rang ${rang}, ignoré`);
@@ -89,7 +89,7 @@ export const useSunoMusicGeneration = () => {
 
       
     } catch (error) {
-      errorService.handleError(error, 'user_action', true);
+      console.error(`❌ ERREUR GÉNÉRATION SUNO Rang ${rang}:`, error);
       
       const errorMessage = error.message || "Impossible de générer la musique avec Suno. Veuillez réessayer.";
       setLastError(errorMessage);
@@ -103,14 +103,14 @@ export const useSunoMusicGeneration = () => {
       unmarkAsGenerating(rang);
       setGeneratingState(rang, false);
     }
-  }, [isAlreadyGenerating, markAsGenerating, setGeneratingState, setLastError, translateLyricsIfNeeded, currentLanguage, callSunoApi, toast, unmarkAsGenerating]);
+  };
 
-  return useMemo(() => ({
+  return {
     isGenerating,
     generatedAudio,
     generationProgress,
     lastError,
     generateMusicInLanguage,
     currentLanguage
-  }), [isGenerating, generatedAudio, generationProgress, lastError, generateMusicInLanguage, currentLanguage]);
+  };
 };

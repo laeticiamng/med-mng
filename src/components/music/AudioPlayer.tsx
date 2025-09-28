@@ -143,15 +143,12 @@ export function AudioPlayer({
     const progressBar = progressRef.current
     if (!audio || !progressBar) return
 
-    // Use requestAnimationFrame to prevent forced reflow
-    requestAnimationFrame(() => {
-      const rect = progressBar.getBoundingClientRect()
-      const percent = (e.clientX - rect.left) / rect.width
-      const newTime = percent * duration
-      
-      audio.currentTime = newTime
-      setCurrentTime(newTime)
-    })
+    const rect = progressBar.getBoundingClientRect()
+    const percent = (e.clientX - rect.left) / rect.width
+    const newTime = percent * duration
+    
+    audio.currentTime = newTime
+    setCurrentTime(newTime)
   }
 
   const handleVolumeChange = (values: number[]) => {

@@ -103,36 +103,10 @@ export const GlobalAudioProvider = ({ children }: GlobalAudioProviderProps) => {
       setCurrentTime(0);
     };
 
-    const handleError = (e: Event) => {
+    const handleError = (e: any) => {
       const errorTime = performance.now() - startTime;
       console.error(`❌ [PERF] Erreur audio après ${errorTime.toFixed(2)}ms:`, e);
-      
-      const audioError = audio.error;
-      if (audioError) {
-        console.error('❌ Code erreur:', audioError.code, 'Message:', audioError.message);
-        
-        // Mapper les codes d'erreur HTML5 Audio
-        let errorType: import('@/types/audio').AudioErrorType = 'UNKNOWN_ERROR';
-        switch (audioError.code) {
-          case MediaError.MEDIA_ERR_ABORTED:
-            errorType = 'MEDIA_ERR_ABORTED';
-            break;
-          case MediaError.MEDIA_ERR_NETWORK:
-            errorType = 'MEDIA_ERR_NETWORK';
-            break;
-          case MediaError.MEDIA_ERR_DECODE:
-            errorType = 'MEDIA_ERR_DECODE';
-            break;
-          case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED:
-            errorType = 'MEDIA_ERR_SRC_NOT_SUPPORTED';
-            break;
-        }
-        
-        updateMetric(track.url, { 
-          errors: [`${errorType}: ${audioError.message}`] 
-        });
-      }
-      
+      console.error('❌ Code erreur:', audio.error?.code, 'Message:', audio.error?.message);
       console.error('❌ URL problématique:', track.url);
       setIsPlaying(false);
       setCurrentTrack(null);

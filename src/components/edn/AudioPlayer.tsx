@@ -5,7 +5,6 @@ import { Slider } from '@/components/ui/slider';
 import { Play, Pause, Volume2, VolumeX, SkipBack, SkipForward, Square } from 'lucide-react';
 import { AudioLoadingIndicator } from '@/components/ui/AudioLoadingIndicator';
 import { useAudioBuffering } from '@/hooks/useAudioBuffering';
-import { logger } from '@/lib/logger';
 
 interface AudioPlayerProps {
   audioUrl: string;
@@ -107,11 +106,7 @@ export const AudioPlayer = ({
             readyToPlay={bufferingState.readyToPlay}
             estimatedLoadTime={bufferingState.estimatedLoadTime}
             onRetry={() => {
-              logger.info('Retry audio loading', { 
-                component: 'AudioPlayer',
-                action: 'retry_audio_loading',
-                metadata: { audioUrl }
-              });
+              console.log('🔄 Retry audio loading...');
               onStop();
               setTimeout(() => onPlayPause(), 500);
             }}

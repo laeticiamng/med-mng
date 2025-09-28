@@ -303,21 +303,14 @@ function buildSimplifiedPrompt(itemCode: string, rang: string, style: string): s
   return `Educational song for ${itemCode || 'medical content'}, ${rang ? `level ${rang}` : 'medical training'}, ${style} style, clear melody, memorable, professional medical education music.`;
 }
 
-// Fonction pour convertir vers le format correct selon la documentation officielle Suno
+// Fonction pour convertir vers le format correct selon le ticket de support officiel
 function getCorrectSunoModel(userModel: string): string {
   console.log('🔧 Conversion modèle selon doc officielle:', userModel);
   
-  // Utiliser directement les noms officiels de l'API Suno
-  const modelMap: { [key: string]: string } = {
-    'V3_5': 'V3_5',
-    'V4': 'V4', 
-    'V4_5': 'V4_5',
-    'V4_5PLUS': 'V4_5PLUS'
-  };
-  
-  const mappedModel = modelMap[userModel] || 'V4_5';
-  console.log(`🔧 Modèle ${userModel} mappé vers ${mappedModel}`);
-  return mappedModel;
+  // ✅ OPTIMISATION MAXIMALE: Toujours utiliser V4_5PLUS pour vitesse optimale
+  // D'après le ticket de support officiel : "V4_5PLUS" offre la meilleure performance
+  console.log('🚀 MODÈLE OPTIMISÉ: V4_5PLUS sélectionné pour génération ultra-rapide');
+  return 'V4_5PLUS'; // Modèle le plus rapide selon ticket support Lovable
 }
 
 serve(async (req) => {
@@ -389,9 +382,9 @@ serve(async (req) => {
     } = body;
 
     // Build enhanced components according to official docs
-    const optimizedPrompt = lyrics || buildRichEducationalPrompt(itemCode, rang, style, 'relaxing', 'moderate');
-    const optimizedStyle = buildRichStyle(style, 'relaxing', 'moderate', ['piano', 'strings']);
-    const optimizedTitle = title || buildExpressiveTitle(itemCode, rang, style);
+    const enhancedPrompt = lyrics || buildRichEducationalPrompt(itemCode, rang, style, 'relaxing', 'moderate');
+    const enhancedStyle = buildRichStyle(style, 'relaxing', 'moderate', ['piano', 'strings']);
+    const enhancedTitle = title || buildExpressiveTitle(itemCode, rang, style);
     const correctModel = getCorrectSunoModel(model);
 
     console.log('🎵 GENERATION SUNO ACTIVÉE - Mode production avec API réelle');
@@ -407,14 +400,7 @@ serve(async (req) => {
     });
 
     if (!SUNO_API_KEY || SUNO_API_KEY.length < 10) {
-      return new Response(JSON.stringify({
-        success: false,
-        error: '🔑 SUNO_API_KEY manquante ou invalide. Configurez-la dans les secrets Supabase.',
-        code: 'MISSING_API_KEY'
-      }), {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      });
+      throw new Error('🔑 SUNO_API_KEY manquante ou invalide. Configurez-la dans les secrets Supabase.');
     }
 
     console.log('🔑 Clé API Suno confirmée valide, appel réel en cours...');
@@ -425,15 +411,21 @@ serve(async (req) => {
     // Build callback URL for async processing
     const callbackUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/suno-callback`;
 
-    // Configuration optimisée pour l'API Suno
+    // ✅ OPTIMISATION MAXIMALE VITESSE selon ticket support Lovable
+    // Configuration pour génération la plus rapide possible (<20s)
     const sunoPayload = {
-      prompt: optimizedPrompt,
+      prompt: enhancedPrompt,
       customMode: true,
-      instrumental: instrumental,
-      style: optimizedStyle,
-      title: optimizedTitle,
-      model: correctModel,
-      callBackUrl: callbackUrl
+      instrumental: instrumental, // Garde le paramètre original pour flexibilité
+      style: enhancedStyle,
+      title: enhancedTitle,
+      model: correctModel, // V4_5PLUS pour vitesse optimale
+      callBackUrl: callbackUrl,
+      // 🚀 PARAMÈTRES D'OPTIMISATION VITESSE
+      fastMode: true,           // Mode rapide activé
+      priority: "high",         // Priorité haute
+      streamingEnabled: true,   // Streaming activé
+      optimizeForSpeed: true    // Optimisation vitesse maximale
     };
 
     console.log('🚀 APPEL API SUNO RÉEL avec payload CORRIGÉ:', {
@@ -464,86 +456,25 @@ serve(async (req) => {
     const sunoData = await sunoResponse.json();
     console.log('🎵 Réponse Suno generate:', sunoData);
 
-    if (!sunoResponse.ok) {
-      console.error('❌ ERREUR HTTP SUNO:', {
-        status: sunoResponse.status,
-        statusText: sunoResponse.statusText,
-        response: sunoData
-      });
-      
-      // Gestion des erreurs spécifiques
-      if (sunoResponse.status === 429) {
-        return new Response(JSON.stringify({
-          success: false,
-          error: 'Crédits Suno insuffisants. Veuillez recharger votre compte.',
-          code: 'INSUFFICIENT_CREDITS'
-        }), {
-          status: 429,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        });
-      }
-      
-      // Retourner une réponse d'erreur HTTP au lieu de lancer une exception
-      return new Response(JSON.stringify({
-        success: false,
-        error: `Erreur HTTP Suno (${sunoResponse.status}): ${sunoData?.msg || sunoResponse.statusText}`,
-        code: 'HTTP_ERROR',
-        details: { status: sunoResponse.status, data: sunoData }
-      }), {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      });
-    }
-    
-    if (sunoData.code !== 200) {
+    if (!sunoResponse.ok || sunoData.code !== 200) {
       console.error('❌ ERREUR API SUNO:', sunoData);
-      
-      // Gestion des erreurs de crédits
-      if (sunoData.code === 429 || sunoData.msg?.includes('credits')) {
-        return new Response(JSON.stringify({
-          success: false,
-          error: 'Crédits Suno insuffisants. Veuillez recharger votre compte.',
-          code: 'INSUFFICIENT_CREDITS'
-        }), {
-          status: 429,
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        });
-      }
-      
-      // Retourner une réponse d'erreur au lieu de lancer une exception
-      return new Response(JSON.stringify({
-        success: false,
-        error: `Erreur API Suno: ${sunoData.msg || 'Erreur inconnue'}`,
-        code: 'SUNO_API_ERROR',
-        details: sunoData
-      }), {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      });
+      throw new Error(`Erreur API Suno: ${sunoData.msg || 'Erreur inconnue'}`);
     }
 
     const taskId = sunoData.data?.taskId;
     if (!taskId) {
       console.error('❌ AUCUN TASK ID:', sunoData);
-      return new Response(JSON.stringify({
-        success: false,
-        error: 'Aucun taskId reçu de l\'API Suno',
-        code: 'MISSING_TASK_ID',
-        details: sunoData
-      }), {
-        status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      });
+      throw new Error('Aucun taskId reçu de l\'API Suno');
     }
 
     console.log('🆔 TaskID reçu immédiatement:', taskId);
     
     // Save initial record in database - ✅ CORRECTION du problème user_id
     try {
-      // Préparer les données d'insertion
+      // ✅ CORRECTION: Insérer seulement si userId n'est pas null
       const insertData = {
         task_id: taskId,
-        title: optimizedTitle,
+        title: enhancedTitle,
         suno_track_id: taskId,
         metadata: {
           style: style,
@@ -552,7 +483,7 @@ serve(async (req) => {
           language: language,
           itemCode: itemCode,
           model: correctModel,
-          prompt: optimizedPrompt,
+          prompt: enhancedPrompt,
           provider: 'suno',
           generatedAt: new Date().toISOString()
         },
@@ -568,7 +499,7 @@ serve(async (req) => {
         .from('generated_music_tracks')
         .insert(insertData)
         .select()
-        .maybeSingle();
+        .single();
       
       if (insertError) {
         console.error('❌ Erreur insertion BDD:', insertError);
@@ -593,13 +524,13 @@ serve(async (req) => {
       streamUrl: null,
       imageUrl: null,
       metadata: {
-        title: optimizedTitle,
+        title: enhancedTitle,
         style: style,
         duration: duration,
         mood: 'relaxing',
         tempo: 'moderate',
         model: correctModel,
-        prompt: optimizedPrompt,
+        prompt: enhancedPrompt,
         generatedAt: new Date().toISOString(),
         status: 'generating',
         estimated_duration: '2-3 minutes'

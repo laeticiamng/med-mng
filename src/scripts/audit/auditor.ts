@@ -11,7 +11,7 @@ export class EDNItemsAuditor {
     try {
       // Récupération de tous les items
       const { data: items, error } = await supabase
-        .from('edn_items_complete')
+        .from('edn_items_immersive')
         .select('*')
         .order('item_code');
 

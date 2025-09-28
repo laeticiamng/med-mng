@@ -8,23 +8,6 @@ export default {
 		"./components/**/*.{ts,tsx}",
 		"./app/**/*.{ts,tsx}",
 		"./src/**/*.{ts,tsx}",
-		"./index.html"
-	],
-	// Enable aggressive CSS purging for production builds
-	safelist: [
-		// Keep essential animation and utility classes that might be added dynamically
-		'animate-spin',
-		'animate-pulse', 
-		'animate-bounce',
-		'gpu-accelerated',
-		'will-change-transform',
-		'lcp-heading',
-		'skeleton',
-		'critical-layout',
-		'critical-container',
-		'critical-header',
-		'critical-hero',
-		'critical-title'
 	],
 	prefix: "",
 	theme: {
@@ -45,8 +28,8 @@ export default {
 		},
 		extend: {
 			fontFamily: {
-				sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'system-ui', 'sans-serif'],
-				mono: ['JetBrains Mono', 'SF Mono', 'Monaco', 'Cascadia Code', 'Roboto Mono', 'Courier New', 'monospace'],
+				sans: ['SF Pro Display', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'system-ui', 'sans-serif'],
+				mono: ['SF Mono', 'Monaco', 'Cascadia Code', 'Roboto Mono', 'Courier New', 'monospace'],
 			},
 			colors: {
 				// Core semantic colors

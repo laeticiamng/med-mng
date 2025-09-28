@@ -1,7 +1,4 @@
 
-import { EdnItemData, ColumnConfig } from '@/types/edn';
-import { logger } from '@/lib/logger';
-
 // Utilitaires pour traiter les données JSON standard stockées en base
 export interface StandardSection {
   title: string;
@@ -14,18 +11,14 @@ export interface StandardTableauData {
   sections: StandardSection[];
 }
 
-export const processStandardTableauData = (data: EdnItemData, isRangB: boolean = false) => {
-  logger.debug('Processing standard tableau data', {
-    component: 'TableauRangAUtilsStandard'
-  });
+export const processStandardTableauData = (data: any, isRangB: boolean = false) => {
+  console.log('🔍 Processing standard tableau data:', data);
   
   // Extraire les données selon le format JSON de la base
   const tableauData = isRangB ? data.tableau_rang_b : data.tableau_rang_a;
   
   if (!tableauData) {
-    logger.debug('No tableau data found', {
-      component: 'TableauRangAUtilsStandard'
-    });
+    console.log('❌ No tableau data found');
     return null;
   }
 
@@ -34,9 +27,7 @@ export const processStandardTableauData = (data: EdnItemData, isRangB: boolean =
     ? JSON.parse(tableauData) 
     : tableauData;
 
-  logger.debug('Parsed tableau data successfully', {
-    component: 'TableauRangAUtilsStandard'
-  });
+  console.log('📊 Parsed tableau data:', parsedData);
 
   // Générer les lignes pour le tableau
   const lignes: string[][] = [];

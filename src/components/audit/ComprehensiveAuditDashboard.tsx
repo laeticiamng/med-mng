@@ -127,7 +127,7 @@ export const ComprehensiveAuditDashboard = () => {
                       setFixing(true);
                       try {
                         const fixedCount = await ComprehensiveSystemAuditor.massFixEdnItems();
-                        // Mass correction completed
+                        console.log(`${fixedCount} items EDN corrigés massivement`);
                         // Relancer l'audit après les corrections
                         if (fixedCount > 0) {
                           await runComprehensiveAudit();

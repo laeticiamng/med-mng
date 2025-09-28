@@ -4,7 +4,6 @@ import {
   CheckCircle, Mail, Calendar, CreditCard, Eye
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { errorService } from '@/services/core/ErrorService';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -78,7 +77,7 @@ export const AdminUsersManager = () => {
 
       setUsers(transformedUsers);
     } catch (error) {
-      errorService.handleError(error as Error, 'system', false);
+      console.error('Erreur chargement utilisateurs:', error);
       toast.error('Erreur lors du chargement des utilisateurs');
     } finally {
       setLoading(false);
@@ -96,7 +95,7 @@ export const AdminUsersManager = () => {
 
   const handleUserAction = async (userId: string, action: 'ban' | 'unban' | 'promote' | 'demote') => {
     try {
-      let updateData: Record<string, boolean | string> = {};
+      let updateData: any = {};
       
       switch (action) {
         case 'ban':
@@ -123,7 +122,7 @@ export const AdminUsersManager = () => {
       toast.success(`Action exécutée avec succès`);
       fetchUsers(); // Refresh
     } catch (error) {
-      errorService.handleError(error as Error, 'user_action', true);
+      console.error('Erreur action utilisateur:', error);
       toast.error('Erreur lors de l\'exécution de l\'action');
     }
   };

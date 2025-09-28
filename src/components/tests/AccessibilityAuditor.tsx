@@ -70,13 +70,12 @@ export const AccessibilityAuditor: React.FC<{ enabled?: boolean }> = ({
         previousLevel = level;
       });
 
-      // Check for touch target sizes on mobile - batch layout reads
-      requestAnimationFrame(() => {
-        if (window.innerWidth < 768) {
-          const smallTargets = document.querySelectorAll('button, a, input[type="checkbox"], input[type="radio"]');
-          smallTargets.forEach((target, index) => {
-            const rect = target.getBoundingClientRect();
-            if (rect.width < 44 || rect.height < 44) {
+      // Check for touch target sizes on mobile
+      if (window.innerWidth < 768) {
+        const smallTargets = document.querySelectorAll('button, a, input[type="checkbox"], input[type="radio"]');
+        smallTargets.forEach((target, index) => {
+          const rect = target.getBoundingClientRect();
+          if (rect.width < 44 || rect.height < 44) {
             foundIssues.push({
               type: 'warning',
               category: 'keyboard',
@@ -86,8 +85,7 @@ export const AccessibilityAuditor: React.FC<{ enabled?: boolean }> = ({
             });
           }
         });
-        }
-      });
+      }
 
       // Check for form inputs without labels
       const inputsWithoutLabels = document.querySelectorAll('input:not([aria-label]):not([aria-labelledby])');

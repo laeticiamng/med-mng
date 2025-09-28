@@ -11,17 +11,14 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { logger } from '@/lib/logger';
-
-type EdnItemCompetences = unknown;
-type FilterStatus = 'all' | 'complete' | 'partial' | 'missing';
 
 interface EdnItemLyrics {
   id: string;
   item_code: string;
   title: string;
-  competences_oic_rang_a?: EdnItemCompetences;
-  competences_oic_rang_b?: EdnItemCompetences;
+  paroles_rang_a?: string[];
+  paroles_rang_b?: string[];
+  paroles_rang_ab?: string[];
   paroles_musicales?: string[];
   updated_at: string;
 }
@@ -30,6 +27,7 @@ interface LyricsStats {
   total: number;
   withRangA: number;
   withRangB: number;
+  withRangAB: number;
   complete: number; // Tous les rangs
   withMusic: number;
 }
@@ -38,7 +36,7 @@ export const LyricsCompletionStatus: React.FC = () => {
   const [items, setItems] = useState<EdnItemLyrics[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterStatus, setFilterStatus] = useState<FilterStatus>('all');
+  const [filterStatus, setFilterStatus] = useState<'all' | 'complete' | 'partial' | 'missing'>('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
   const { toast } = useToast();
 
@@ -51,13 +49,13 @@ export const LyricsCompletionStatus: React.FC = () => {
       setLoading(true);
       
       const { data, error } = await supabase
-        .from('edn_items_complete')
+        .from('edn_items_immersive')
         .select(`
           id, item_code, title,
-          competences_oic_rang_a, competences_oic_rang_b,
+          paroles_rang_a, paroles_rang_b, paroles_rang_ab,
           paroles_musicales, updated_at
         `)
-        .order('item_code', { ascending: true });
+        .order('item_code');
 
       if (error) throw error;
 
@@ -68,13 +66,7 @@ export const LyricsCompletionStatus: React.FC = () => {
         description: `${data?.length || 0} items analysés`
       });
     } catch (error) {
-      logger.error('Erreur lors du chargement du statut des paroles', { 
-        component: 'LyricsCompletionStatus',
-        action: 'fetchLyricsStatus',
-        metadata: {
-          errorMessage: error instanceof Error ? error.message : 'Erreur inconnue'
-        }
-      });
+      console.error('Erreur:', error);
       toast({
         title: "❌ Erreur",
         description: "Impossible de charger le statut",
@@ -86,13 +78,14 @@ export const LyricsCompletionStatus: React.FC = () => {
   };
 
   const getLyricsStatus = (item: EdnItemLyrics) => {
-    const hasRangA = item.competences_oic_rang_a && Array.isArray(item.competences_oic_rang_a) && item.competences_oic_rang_a.length > 0;
-    const hasRangB = item.competences_oic_rang_b && Array.isArray(item.competences_oic_rang_b) && item.competences_oic_rang_b.length > 0;
+    const hasRangA = item.paroles_rang_a && item.paroles_rang_a.length > 0;
+    const hasRangB = item.paroles_rang_b && item.paroles_rang_b.length > 0;
+    const hasRangAB = item.paroles_rang_ab && item.paroles_rang_ab.length > 0;
     const hasMusic = item.paroles_musicales && item.paroles_musicales.length > 0;
 
-    const completedRangs = [hasRangA, hasRangB].filter(Boolean).length;
+    const completedRangs = [hasRangA, hasRangB, hasRangAB].filter(Boolean).length;
     
-    if (completedRangs === 2 && hasMusic) return 'complete';
+    if (completedRangs === 3 && hasMusic) return 'complete';
     if (completedRangs > 0 || hasMusic) return 'partial';
     return 'missing';
   };
@@ -116,12 +109,13 @@ export const LyricsCompletionStatus: React.FC = () => {
   const calculateStats = (): LyricsStats => {
     return items.reduce((stats, item) => {
       stats.total++;
-      if (item.competences_oic_rang_a && Array.isArray(item.competences_oic_rang_a) && item.competences_oic_rang_a.length > 0) stats.withRangA++;
-      if (item.competences_oic_rang_b && Array.isArray(item.competences_oic_rang_b) && item.competences_oic_rang_b.length > 0) stats.withRangB++;
+      if (item.paroles_rang_a?.length) stats.withRangA++;
+      if (item.paroles_rang_b?.length) stats.withRangB++;
+      if (item.paroles_rang_ab?.length) stats.withRangAB++;
       if (item.paroles_musicales?.length) stats.withMusic++;
       if (getLyricsStatus(item) === 'complete') stats.complete++;
       return stats;
-    }, { total: 0, withRangA: 0, withRangB: 0, complete: 0, withMusic: 0 });
+    }, { total: 0, withRangA: 0, withRangB: 0, withRangAB: 0, complete: 0, withMusic: 0 });
   };
 
   const filteredItems = items.filter(item => {
@@ -196,7 +190,7 @@ export const LyricsCompletionStatus: React.FC = () => {
                 className="pl-7 h-8 text-xs"
               />
             </div>
-            <Select value={filterStatus} onValueChange={(value: FilterStatus) => setFilterStatus(value)}>
+            <Select value={filterStatus} onValueChange={(value: any) => setFilterStatus(value)}>
               <SelectTrigger className="w-20 h-8 text-xs">
                 <SelectValue />
               </SelectTrigger>
@@ -215,8 +209,8 @@ export const LyricsCompletionStatus: React.FC = () => {
       <div className="space-y-2">
         {filteredItems.map((item) => {
           const status = getLyricsStatus(item);
-          const hasRangA = item.competences_oic_rang_a && Array.isArray(item.competences_oic_rang_a) && item.competences_oic_rang_a.length > 0;
-          const hasRangB = item.competences_oic_rang_b && Array.isArray(item.competences_oic_rang_b) && item.competences_oic_rang_b.length > 0;
+          const hasRangA = item.paroles_rang_a && item.paroles_rang_a.length > 0;
+          const hasRangB = item.paroles_rang_b && item.paroles_rang_b.length > 0;
           const hasMusic = item.paroles_musicales && item.paroles_musicales.length > 0;
 
           return (

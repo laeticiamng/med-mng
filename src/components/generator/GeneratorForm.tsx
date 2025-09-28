@@ -9,8 +9,6 @@ import { EcosSelector } from './EcosSelector';
 import { RangSelector } from './RangSelector';
 import { StyleSelector } from './StyleSelector';
 import { LyricsStatusDisplay } from './LyricsStatusDisplay';
-import { GenerationProgress } from './GenerationProgress';
-import { SpeedOptimizationTips } from './SpeedOptimizationTips';
 
 interface GeneratorFormProps {
   contentType: string;
@@ -36,13 +34,6 @@ interface GeneratorFormProps {
   user: any;
   remainingFree: number;
   canGenerateMusic: () => boolean;
-  generationProgress?: {
-    rang: 'A' | 'B' | 'AB';
-    progress: number;
-    attempts: number;
-    maxAttempts: number;
-    estimatedTimeRemaining: number;
-  } | null;
 }
 
 export const GeneratorForm: React.FC<GeneratorFormProps> = ({
@@ -68,8 +59,7 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
   isGenerating,
   user,
   remainingFree,
-  canGenerateMusic,
-  generationProgress
+  canGenerateMusic
 }) => {
   const handleContentTypeChange = (type: string) => {
     setContentType(type);
@@ -141,25 +131,10 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
           />
         )}
 
-        {/* Indicateur de progression pendant la génération */}
-        {isGenerating && generationProgress && (
-          <>
-            <GenerationProgress
-              rang={generationProgress.rang}
-              progress={generationProgress.progress}
-              attempts={generationProgress.attempts}
-              maxAttempts={generationProgress.maxAttempts}
-              estimatedTimeRemaining={generationProgress.estimatedTimeRemaining}
-              style={selectedStyle}
-            />
-            <SpeedOptimizationTips />
-          </>
-        )}
-
         <div className="flex flex-col md:flex-row gap-4 md:gap-6 pt-6">
           <PremiumButton
             variant="primary"
-            size="lg"
+            size="xl"
             onClick={handleGenerate}
             disabled={!canGenerate() || isGenerating || (!user && remainingFree <= 0) || (user && !canGenerateMusic()) || lyricsLoading}
             className="flex-1"
@@ -179,7 +154,7 @@ export const GeneratorForm: React.FC<GeneratorFormProps> = ({
           
           <PremiumButton
             variant="secondary"
-            size="lg"
+            size="xl"
             onClick={resetForm}
           >
             <TranslatedText text="Réinitialiser" />

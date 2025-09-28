@@ -184,7 +184,7 @@ export const SentryErrorMonitor = () => {
             </div>
             {!isConnected && (
               <p className="text-sm text-red-600 mt-1">
-                Définissez la variable d'environnement <code>VITE_SENTRY_DSN</code> pour activer le monitoring
+                Configurez votre DSN Sentry dans src/utils/sentry.ts pour activer le monitoring
               </p>
             )}
           </Card>
@@ -254,7 +254,7 @@ export const SentryErrorMonitor = () => {
               </CardTitle>
               <div className="text-sm text-blue-700 space-y-1">
                 <p>• Erreurs simulées toutes les 30 secondes</p>
-                <p>• DSN Sentry à configurer via <code>VITE_SENTRY_DSN</code></p>
+                <p>• DSN Sentry à configurer dans src/utils/sentry.ts</p>
                 <p>• Les erreurs sont automatiquement envoyées vers Sentry si configuré</p>
               </div>
             </Card>

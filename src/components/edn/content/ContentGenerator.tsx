@@ -5,7 +5,6 @@ import { Badge } from '@/components/ui/badge';
 import { Loader2, Download, Eye, Heart, BookOpen } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { ContentFormatSelector } from './ContentFormatSelector';
-import { logger } from '@/services/logger';
 
 interface ContentFormat {
   id: string;
@@ -22,8 +21,8 @@ interface ContentGeneratorProps {
   itemData: {
     title: string;
     item_code: string;
-    tableau_rang_a?: Record<string, unknown>;
-    tableau_rang_b?: Record<string, unknown>;
+    tableau_rang_a?: any;
+    tableau_rang_b?: any;
   };
 }
 
@@ -60,7 +59,7 @@ export const ContentGenerator: React.FC<ContentGeneratorProps> = ({ itemData }) 
     }
   };
 
-  const generateBandeDessinee = (rangA: Record<string, unknown>, rangB: Record<string, unknown>): string => {
+  const generateBandeDessinee = (rangA: any, rangB: any): string => {
     return `BANDE DESSINÉE - ${itemData.title}
 
 🎨 VIGNETTE 1 - Introduction
@@ -98,7 +97,7 @@ NARRATION: "${itemData.title} : Maîtrisé de A à B !"
 DR. MARTIN: "N'hésitez pas à revenir si vous avez des questions !"`;
   };
 
-  const generateRoman = (rangA: Record<string, unknown>, rangB: Record<string, unknown>): string => {
+  const generateRoman = (rangA: any, rangB: any): string => {
     return `ROMAN MÉDICAL - ${itemData.title}
 
 CHAPITRE 1 : L'ÉVEIL DES COMPÉTENCES
@@ -126,7 +125,7 @@ Dr. Sophie Durand était devenue une experte de ${itemData.title}. Ses patients 
 "De novice à experte," pensa-t-elle avec fierté, "le voyage en valait la peine."`;
   };
 
-  const generatePoesie = (rangA: Record<string, unknown>, rangB: Record<string, unknown>): string => {
+  const generatePoesie = (rangA: any, rangB: any): string => {
     return `POÉSIE MÉDICALE - ${itemData.title}
 
 🎼 STROPHE I - L'APPEL DU SAVOIR
@@ -173,7 +172,7 @@ Compétents et bienveillants !
 Détient la clé de la réussite ! 🎵`;
   };
 
-  const generateNouvelle = (rangA: Record<string, unknown>, rangB: Record<string, unknown>): string => {
+  const generateNouvelle = (rangA: any, rangB: any): string => {
     return `NOUVELLE MÉDICALE - ${itemData.title}
 
 LA RÉVÉLATION DU DR. LAMBERT
@@ -193,7 +192,7 @@ En retournant vers sa chambre de garde, il sourit. Cette nuit, il n'a pas seulem
 Demain, il enseignera à son tour cette leçon si précieuse : l'excellence naît de l'union parfaite des fondamentaux et de l'expertise.`;
   };
 
-  const generateFable = (rangA: Record<string, unknown>, rangB: Record<string, unknown>): string => {
+  const generateFable = (rangA: any, rangB: any): string => {
     return `FABLE MÉDICALE - ${itemData.title}
 
 LE JEUNE MÉDECIN ET LE MAÎTRE
@@ -219,7 +218,7 @@ Le jeune médecin comprit alors sa leçon.
 MORALE : Il n'y a pas d'expertise sans maîtrise des fondamentaux. Dans ${itemData.title}, Rang A et Rang B sont indissociables pour atteindre l'excellence.`;
   };
 
-  const generateConte = (rangA: Record<string, unknown>, rangB: Record<string, unknown>): string => {
+  const generateConte = (rangA: any, rangB: any): string => {
     return `CONTE MÉDICAL - ${itemData.title}
 
 LE ROYAUME DE LA CONNAISSANCE
@@ -249,7 +248,7 @@ FIN
 Morale : La véritable maîtrise naît de l'alliance parfaite entre les fondamentaux et l'expertise.`;
   };
 
-  const generateRap = (rangA: Record<string, unknown>, rangB: Record<string, unknown>): string => {
+  const generateRap = (rangA: any, rangB: any): string => {
     return `RAP MÉDICAL - ${itemData.title}
 
 [Intro]
@@ -307,7 +306,7 @@ C'est ça l'expertise, c'est ça le rap !
 Peace ! ✋`;
   };
 
-  const generateTheatre = (rangA: Record<string, unknown>, rangB: Record<string, unknown>): string => {
+  const generateTheatre = (rangA: any, rangB: any): string => {
     return `PIÈCE DE THÉÂTRE - ${itemData.title}
 
 ACTE I - LA DÉCOUVERTE
@@ -403,11 +402,7 @@ Note de mise en scène : Cette pièce peut être adaptée avec des éléments vi
       });
       
     } catch (error) {
-      logger.error('Erreur génération contenu', {
-        component: 'ContentGenerator',
-        action: 'handleGenerate',
-        metadata: { selectedFormat: selectedFormat?.id, itemCode: itemData.item_code, error }
-      });
+      console.error('Erreur génération contenu:', error);
       toast({
         title: "Erreur de génération",
         description: "Impossible de générer le contenu",

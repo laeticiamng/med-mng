@@ -1,6 +1,6 @@
 import { useCallback, useEffect } from 'react';
 import { toast } from '@/hooks/use-toast';
-import { captureException, addBreadcrumb } from '@/utils/monitoring/sentry';
+import { captureException, addBreadcrumb } from '@/utils/sentry';
 import { 
   AppError, 
   ErrorSeverity, 
@@ -8,14 +8,14 @@ import {
   shouldNotifyUser,
   isRetryableError,
   createStandardErrorResponse
-} from '@/utils/monitoring/errorStandardization';
+} from '@/utils/errorStandardization';
 
 export interface ErrorHandlingOptions {
   showToast?: boolean;
   logToSentry?: boolean;
   retryable?: boolean;
   context?: string;
-  metadata?: Record<string, unknown>;
+  metadata?: Record<string, any>;
 }
 
 export interface RetryOptions {
@@ -124,15 +124,7 @@ export function useErrorHandling() {
       addBreadcrumb({
         message: `Error in ${context}`,
         category: appError.category,
-        level: (() => {
-          switch (appError.severity) {
-            case ErrorSeverity.CRITICAL: return 'fatal';
-            case ErrorSeverity.HIGH: return 'error'; 
-            case ErrorSeverity.MEDIUM: return 'warning';
-            case ErrorSeverity.LOW: return 'info';
-            default: return 'debug';
-          }
-        })(),
+        level: appError.severity as any,
         data: metadata
       });
       captureException(appError);
@@ -161,11 +153,11 @@ export function useErrorHandling() {
     return appError;
   }, []);
 
-  const withErrorBoundary = useCallback(<T extends (...args: unknown[]) => unknown>(
+  const withErrorBoundary = useCallback(<T extends (...args: any[]) => any>(
     fn: T,
     context: string = 'function-call'
   ): T => {
-    return ((...args: unknown[]) => {
+    return ((...args: any[]) => {
       try {
         const result = fn(...args);
         

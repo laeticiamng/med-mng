@@ -1,6 +1,4 @@
 import { supabase } from "@/integrations/supabase/client";
-import { toRateLimitError } from "@/utils/errors/rateLimit";
-import { errorService } from '@/services/core/ErrorService';
 
 export interface ContentMetadata {
   total_contents: number;
@@ -59,11 +57,7 @@ class PedagogicalContentService {
     });
 
     if (error) {
-      errorService.handleError(error instanceof Error ? error : new Error('Error fetching pedagogical content'), 'api_call');
-      const rateLimitError = toRateLimitError(error, 'Contenu temporairement indisponible.', 'comic');
-      if (rateLimitError) {
-        throw rateLimitError;
-      }
+      console.error('Error fetching pedagogical content:', error);
       throw new Error('Failed to fetch content');
     }
 
@@ -77,11 +71,7 @@ class PedagogicalContentService {
     });
 
     if (error) {
-      errorService.handleError(error instanceof Error ? error : new Error('Error generating missing content'), 'api_call');
-      const rateLimitError = toRateLimitError(error, 'Trop de générations de bande dessinée. Réessayez plus tard.', 'comic');
-      if (rateLimitError) {
-        throw rateLimitError;
-      }
+      console.error('Error generating missing content:', error);
       throw new Error('Failed to generate content');
     }
 
@@ -95,11 +85,7 @@ class PedagogicalContentService {
     });
 
     if (error) {
-      errorService.handleError(error instanceof Error ? error : new Error('Error fetching content analytics'), 'api_call');
-      const rateLimitError = toRateLimitError(error, 'Analytics temporairement indisponibles.', 'comic');
-      if (rateLimitError) {
-        throw rateLimitError;
-      }
+      console.error('Error fetching content analytics:', error);
       throw new Error('Failed to fetch analytics');
     }
 
@@ -114,22 +100,20 @@ class PedagogicalContentService {
         .eq('item_id', itemCode);
 
       if (error) {
-        errorService.handleError(error instanceof Error ? error : new Error('Error fetching item content'), 'api_call');
+        console.error('Error fetching item content:', error);
         return null;
       }
 
       return data;
     } catch (error) {
-      errorService.handleError(error instanceof Error ? error : new Error('Exception fetching item content'), 'api_call');
+      console.error('Exception fetching item content:', error);
       return null;
     }
   }
 
   async updateContentProgress(itemId: string, contentType: string, progress: number): Promise<void> {
     // Simplified implementation without direct Supabase calls to avoid type issues
-    if (import.meta.env.DEV) {
-      errorService.handleInfo('Progress updated', 'system', { itemId, contentType, progress });
-    }
+    console.log('Progress updated:', { itemId, contentType, progress });
   }
 
   getContentTypeColor(type: string) {

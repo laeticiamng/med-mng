@@ -1,189 +1,81 @@
-#!/usr/bin/env ts-node
-import { promises as fs } from 'node:fs';
-import path from 'node:path';
-import process from 'node:process';
+import { createClient } from '@supabase/supabase-js';
+import * as fs from 'fs';
 
-type AuditStatus = 'pass' | 'warn' | 'fail';
+const url = process.env.SUPABASE_URL as string;
+const key = process.env.SUPABASE_SERVICE_ROLE_KEY as string;
 
-interface AuditResult {
-  check: string;
-  status: AuditStatus;
-  details: string;
+if (!url || !key) {
+  console.error('Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY');
+  process.exit(1);
 }
 
-const results: AuditResult[] = [];
+const supabase = createClient(url, key, { auth: { persistSession: false } });
 
-function record(check: string, status: AuditStatus, details: string) {
-  results.push({ check, status, details });
+interface IntegrityReport {
+  timestamp: string;
+  missingCount: number;
+  duplicateIds: string[];
+  invalidRangs: number;
+  extractionSummary: any;
 }
 
-async function readAllSql(): Promise<string> {
-  const migrationsDir = path.join(process.cwd(), 'supabase', 'migrations');
-  const files = await fs.readdir(migrationsDir);
-  const sqlFiles = files
-    .filter((file) => file.endsWith('.sql'))
-    .sort();
+async function runIntegrityAudit() {
+  // Check for missing or invalid fields
+  const { data: missing, error: missingError, count: missingCount } = await supabase
+    .from('oic_competences')
+    .select('objectif_id, rang', { count: 'exact' })
+    .or('objectif_id.is.null,intitule.is.null,item_parent.is.null,rang.is.null,rang.not.in.(A,B)');
 
-  const contents = await Promise.all(
-    sqlFiles.map((file) => fs.readFile(path.join(migrationsDir, file), 'utf-8'))
-  );
+  if (missingError) throw missingError;
 
-  return contents.join('\n');
-}
+  // Check for duplicate objectif_id
+  const { data: duplicates, error: dupError } = await supabase
+    .from('oic_competences')
+    .select('objectif_id, count:objectif_id', { group: 'objectif_id' })
+    .gt('count', 1);
 
-async function ensureRls(sql: string) {
-  const tables = [
-    'med_mng_songs',
-    'lyrics_segments',
-    'lyrics_alignment_logs',
-    'lyrics_texts',
-    'lyrics_generation_jobs',
-    'content_library_items',
-    'content_library_collections',
-    'content_library_collection_items',
-    'study_notes',
-    'analytics_events',
-    'user_privacy_preferences',
-  ];
+  if (dupError) throw dupError;
 
-  for (const table of tables) {
-    const rlsRegex = new RegExp(
-      `alter\\s+table\\s+(if\\s+exists\\s+)?public\\.${table}\\s+enable\\s+row\\s+level\\s+security`,
-      'i'
-    );
+  // Get completeness report via SQL function
+  const { data: report, error: reportError } = await supabase.rpc('get_oic_extraction_report');
+  if (reportError) throw reportError;
 
-    if (rlsRegex.test(sql)) {
-      record(`rls:${table}`, 'pass', `RLS enabled for ${table}`);
-    } else {
-      record(`rls:${table}`, 'fail', `Missing "enable row level security" for ${table}`);
-    }
+  const invalidRangs = missing
+    ? missing.filter((m: any) => m.rang && m.rang !== 'A' && m.rang !== 'B').length
+    : 0;
+
+  const integrityReport: IntegrityReport = {
+    timestamp: new Date().toISOString(),
+    missingCount: missingCount || 0,
+    duplicateIds: duplicates ? duplicates.map((d: any) => d.objectif_id) : [],
+    invalidRangs,
+    extractionSummary: report?.summary || {},
+  };
+
+  // Ensure folder exists
+  const dir = 'audit_reports';
+  if (!fs.existsSync(dir)) fs.mkdirSync(dir);
+
+  const filePath = `${dir}/integrity-${Date.now()}.json`;
+  fs.writeFileSync(filePath, JSON.stringify(integrityReport, null, 2));
+
+  if (
+    integrityReport.missingCount > 0 ||
+    integrityReport.invalidRangs > 0 ||
+    integrityReport.duplicateIds.length > 0 ||
+    (integrityReport.extractionSummary.completeness_pct ?? 100) < 100
+  ) {
+    console.error(`\n❌ Integrity check failed. Report saved to ${filePath}`);
+    process.exit(1);
   }
+  console.log(`\n✅ Integrity check passed. Report saved to ${filePath}`);
 }
 
-async function ensurePolicies(sql: string) {
-  const tables = [
-    'med_mng_songs',
-    'lyrics_segments',
-    'lyrics_alignment_logs',
-    'lyrics_texts',
-    'lyrics_generation_jobs',
-    'content_library_items',
-    'content_library_collections',
-    'content_library_collection_items',
-    'study_notes',
-  ];
-
-  for (const table of tables) {
-    const policyRegex = new RegExp(
-      `create\\s+policy\\s+if\\s+not\\s+exists\\s+\"[^\"]+\"\\s+on\\s+public\\.${table}`,
-      'i'
-    );
-
-    if (policyRegex.test(sql)) {
-      record(`policy:${table}`, 'pass', `Idempotent policy guard detected for ${table}`);
-    } else {
-      record(
-        `policy:${table}`,
-        'warn',
-        `Could not confirm IF NOT EXISTS policy guard for ${table}`
-      );
-    }
-  }
+if (require.main === module) {
+  runIntegrityAudit().catch((err) => {
+    console.error('Error running integrity audit', err);
+    process.exit(1);
+  });
 }
 
-async function ensureIndexes(sql: string) {
-  const indexes: Array<{ name: string; description: string; optional?: boolean }> = [
-    {
-      name: 'content_library_collections_single_default',
-      description: 'one default collection per user',
-    },
-    {
-      name: 'idx_content_library_items_search',
-      description: 'GIN search index on library items',
-    },
-    {
-      name: 'idx_content_library_items_favorites',
-      description: 'partial favourite index',
-    },
-    {
-      name: 'idx_content_library_collection_items_library',
-      description: 'library lookup index',
-    },
-    {
-      name: 'idx_analytics_events_pseudo_time',
-      description: 'analytics retention index',
-    },
-    {
-      name: 'idx_lyrics_segments_track_start',
-      description: 'lyrics playback index',
-    },
-  ];
-
-  for (const { name, description, optional } of indexes) {
-    const indexRegex = new RegExp(
-      `create\\s+(unique\\s+)?index\\s+if\\s+not\\s+exists\\s+${name}\\b`,
-      'i'
-    );
-
-    if (indexRegex.test(sql)) {
-      record(`index:${name}`, 'pass', `Index present (${description})`);
-    } else if (optional) {
-      record(`index:${name}`, 'warn', `Optional index missing (${description})`);
-    } else {
-      record(`index:${name}`, 'fail', `Expected index missing (${description})`);
-    }
-  }
-}
-
-async function ensureSeeds() {
-  const seedsDir = path.join(process.cwd(), 'supabase', 'seeds');
-  const files = await fs.readdir(seedsDir);
-  const seedFiles = files.filter((file) => file.endsWith('.sql'));
-
-  const requiredChecks = [
-    'database_migrations_applied',
-    'rls_policies_enforced',
-    'db_constraints_valid',
-  ];
-
-  for (const file of seedFiles) {
-    const content = await fs.readFile(path.join(seedsDir, file), 'utf-8');
-
-    for (const check of requiredChecks) {
-      if (content.includes(`'${check}'`)) {
-        record(`seed:${file}:${check}`, 'pass', `${check} present in ${file}`);
-      } else {
-        record(
-          `seed:${file}:${check}`,
-          'fail',
-          `${check} missing from ${file}`
-        );
-      }
-    }
-  }
-}
-
-async function run() {
-  const sql = await readAllSql();
-  await ensureRls(sql);
-  await ensurePolicies(sql);
-  await ensureIndexes(sql);
-  await ensureSeeds();
-
-  console.table(
-    results.map((result) => ({
-      Check: result.check,
-      Status: result.status.toUpperCase(),
-      Details: result.details,
-    }))
-  );
-
-  if (results.some((result) => result.status === 'fail')) {
-    process.exitCode = 1;
-  }
-}
-
-run().catch((error) => {
-  console.error('Unexpected error while running data integrity audit:', error);
-  process.exitCode = 1;
-});
+export { runIntegrityAudit };

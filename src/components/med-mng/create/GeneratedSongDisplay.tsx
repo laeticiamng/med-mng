@@ -42,7 +42,7 @@ export const GeneratedSongDisplay: React.FC<GeneratedSongDisplayProps> = ({
           {generatedSong.title}
         </h3>
         <p className="text-gray-600 mb-4">
-          Style: {musicStyles.find(s => s.value === style)?.label || style}
+          Style: {musicStyles.find(s => s.value === style)?.label}
         </p>
       </div>
 

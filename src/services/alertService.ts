@@ -1,5 +1,4 @@
 import axios from 'axios';
-import { errorService } from '@/services/core/ErrorService';
 
 export type IncidentType =
   | 'EXTRACTION_FAILURE'
@@ -7,8 +6,7 @@ export type IncidentType =
   | 'BACKEND_ERROR'
   | 'QUOTA_EXCEEDED'
   | 'SUPABASE_DOWN'
-  | 'ERROR_PATTERN_DETECTED'
-  | 'UPTIME_CHECK_FAILED';
+  | 'ERROR_PATTERN_DETECTED';
 
 export interface Incident {
   type: IncidentType;
@@ -19,20 +17,16 @@ export interface Incident {
 
 const discordWebhook = process.env.DISCORD_WEBHOOK_URL;
 const slackWebhook = process.env.SLACK_WEBHOOK_URL;
-const resendApiKey = process.env.RESEND_API_KEY;
-const alertEmail = process.env.ALERT_EMAIL;
-const alertFromEmail = process.env.ALERT_FROM_EMAIL || 'MedMNG Alerts <alerts@medmng.app>';
 
 export async function notifyIncident(incident: Incident): Promise<void> {
   const tasks: Promise<unknown>[] = [];
-  const severity = incident.severity ?? 'warning';
   const text = `[${incident.type}] ${incident.message}`;
 
   if (discordWebhook) {
     tasks.push(
       axios
         .post(discordWebhook, { content: text })
-        .catch((err) => errorService.handleError(err instanceof Error ? err : new Error('Discord alert failed'), 'system'))
+        .catch((err) => console.error('Discord alert failed', err))
     );
   }
 
@@ -40,47 +34,8 @@ export async function notifyIncident(incident: Incident): Promise<void> {
     tasks.push(
       axios
         .post(slackWebhook, { text, incident })
-        .catch((err) => errorService.handleError(err instanceof Error ? err : new Error('Slack alert failed'), 'system'))
+        .catch((err) => console.error('Slack alert failed', err))
     );
-  }
-
-  if (resendApiKey && alertEmail) {
-    const recipients = alertEmail
-      .split(',')
-      .map((email) => email.trim())
-      .filter(Boolean);
-
-    if (recipients.length > 0) {
-      const htmlBody = `
-        <h2>Incident ${incident.type}</h2>
-        <p><strong>Message :</strong> ${incident.message}</p>
-        <p><strong>Gravité :</strong> ${severity}</p>
-        <p><strong>Horodatage :</strong> ${new Date().toISOString()}</p>
-        <pre style="background:#f4f4f5;padding:12px;border-radius:6px;white-space:pre-wrap;">${
-          incident.details ? JSON.stringify(incident.details, null, 2) : 'Aucun détail fourni'
-        }</pre>
-      `;
-
-      tasks.push(
-        axios
-          .post(
-            'https://api.resend.com/emails',
-            {
-              from: alertFromEmail,
-              to: recipients,
-              subject: `[${severity}] ${incident.type}`,
-              html: htmlBody,
-            },
-            {
-              headers: {
-                Authorization: `Bearer ${resendApiKey}`,
-                'Content-Type': 'application/json',
-              },
-            }
-          )
-          .catch((err) => errorService.handleError(err instanceof Error ? err : new Error('Email alert failed'), 'system'))
-      );
-    }
   }
 
   if (tasks.length) {

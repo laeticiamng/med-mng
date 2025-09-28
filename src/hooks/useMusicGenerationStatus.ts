@@ -3,61 +3,34 @@ import { supabase } from '@/integrations/supabase/client';
 
 interface MusicGenerationStatus {
   taskId: string;
-  status: 'generating' | 'text_complete' | 'completed' | 'failed' | 'timeout';
+  status: 'generating' | 'text_complete' | 'completed' | 'failed';
   audioUrl?: string;
   streamUrl?: string;
   imageUrl?: string;
   progress?: number;
   metadata?: any;
   error?: string;
-  startTime?: number;
-  elapsedTime?: number;
 }
 
 export const useMusicGenerationStatus = (taskId: string | null) => {
   const [status, setStatus] = useState<MusicGenerationStatus | null>(null);
   const [isPolling, setIsPolling] = useState(false);
-  const [startTime, setStartTime] = useState<number | null>(null);
-  const [timeoutReached, setTimeoutReached] = useState(false);
-
-  // Timeout de 5 minutes (300 secondes)
-  const GENERATION_TIMEOUT = 5 * 60 * 1000;
 
   const checkStatus = useCallback(async () => {
     if (!taskId) return;
 
-    // Vérifier le timeout
-    const currentTime = Date.now();
-    const elapsed = startTime ? currentTime - startTime : 0;
-    
-    if (startTime && elapsed > GENERATION_TIMEOUT) {
-      console.log('⏱️ Timeout atteint pour la génération:', elapsed / 1000, 'secondes');
-      setTimeoutReached(true);
-      setStatus(prev => prev ? {
-        ...prev,
-        status: 'timeout',
-        error: 'La génération prend plus de temps que prévu. Vous pouvez annuler et relancer.',
-        elapsedTime: elapsed
-      } : null);
-      setIsPolling(false);
-      return;
-    }
-
     try {
-      console.log('🔍 Vérification statut pour taskId:', taskId, `(${Math.round(elapsed / 1000)}s écoulées)`);
+      console.log('🔍 Vérification statut pour taskId:', taskId);
       
       // Vérifier d'abord en base de données
-      const { data: dbTracks, error: dbError } = await supabase
+      const { data: dbTrack, error: dbError } = await supabase
         .from('generated_music_tracks')
         .select('*')
-        .or(`task_id.eq.${taskId},suno_track_id.eq.${taskId}`);
-
-      // Prendre le premier track avec audio_url ou le plus récent
-      const dbTrack = dbTracks?.find(track => track.audio_url && track.audio_url.trim() !== '') || 
-                      dbTracks?.[0];
+        .or(`task_id.eq.${taskId},suno_track_id.eq.${taskId}`)
+        .single();
 
       if (dbTrack && !dbError) {
-        console.log('✅ Statut trouvé en BDD:', dbTrack.generation_status, 'avec audio:', !!dbTrack.audio_url);
+        console.log('✅ Statut trouvé en BDD:', dbTrack.generation_status);
         
         const metadata = dbTrack.metadata as any;
         
@@ -65,21 +38,16 @@ export const useMusicGenerationStatus = (taskId: string | null) => {
           taskId: taskId,
           status: dbTrack.generation_status as MusicGenerationStatus['status'],
           audioUrl: dbTrack.audio_url,
-          streamUrl: dbTrack.stream_url || metadata?.stream_url,
-          imageUrl: dbTrack.image_url || metadata?.image_url,
+          streamUrl: metadata?.stream_url,
+          imageUrl: metadata?.image_url,
           progress: getProgressFromStatus(dbTrack.generation_status, metadata?.progress),
-          metadata: metadata,
-          startTime: startTime || undefined,
-          elapsedTime: elapsed
+          metadata: metadata
         };
 
         setStatus(statusData);
 
-        // Arrêter le polling si terminé ou si on a une URL audio/stream
-        if (dbTrack.generation_status === 'completed' || 
-            dbTrack.generation_status === 'failed' ||
-            dbTrack.audio_url || 
-            dbTrack.stream_url) {
+        // Arrêter le polling si terminé
+        if (dbTrack.generation_status === 'completed' || dbTrack.generation_status === 'failed') {
           setIsPolling(false);
           console.log('🏁 Génération terminée, arrêt du polling');
         }
@@ -103,9 +71,7 @@ export const useMusicGenerationStatus = (taskId: string | null) => {
           streamUrl: data.streamUrl,
           imageUrl: data.imageUrl,
           progress: getProgressFromStatus(data.status, data.metadata?.progress),
-          metadata: data.metadata,
-          startTime: startTime || undefined,
-          elapsedTime: elapsed
+          metadata: data.metadata
         };
         
         setStatus(statusData);
@@ -139,8 +105,6 @@ export const useMusicGenerationStatus = (taskId: string | null) => {
     
     console.log('🔄 Démarrage polling pour taskId:', taskId);
     setIsPolling(true);
-    setStartTime(Date.now());
-    setTimeoutReached(false);
     
     // Vérification immédiate
     checkStatus();
@@ -150,17 +114,6 @@ export const useMusicGenerationStatus = (taskId: string | null) => {
   const stopPolling = useCallback(() => {
     console.log('⏹️ Arrêt du polling');
     setIsPolling(false);
-    setStartTime(null);
-    setTimeoutReached(false);
-  }, []);
-
-  // Annuler la génération
-  const cancelGeneration = useCallback(() => {
-    console.log('❌ Annulation de la génération');
-    setIsPolling(false);
-    setStartTime(null);
-    setTimeoutReached(false);
-    setStatus(null);
   }, []);
 
   // Effect pour le polling automatique
@@ -189,19 +142,15 @@ export const useMusicGenerationStatus = (taskId: string | null) => {
     isPolling,
     startPolling,
     stopPolling,
-    cancelGeneration,
     checkStatus,
-    timeoutReached,
     // Helpers
-    isGenerating: (status?.status === 'generating' || status?.status === 'text_complete') && !status?.audioUrl && !status?.streamUrl,
-    isCompleted: status?.status === 'completed' || !!(status?.audioUrl || status?.streamUrl),
+    isGenerating: status?.status === 'generating' || status?.status === 'text_complete',
+    isCompleted: status?.status === 'completed',
     isFailed: status?.status === 'failed',
-    isTimeout: status?.status === 'timeout',
     progress: status?.progress || 0,
     audioUrl: status?.audioUrl,
     streamUrl: status?.streamUrl,
-    imageUrl: status?.imageUrl,
-    elapsedTime: status?.elapsedTime || 0
+    imageUrl: status?.imageUrl
   };
 };
 
@@ -214,7 +163,6 @@ function getProgressFromStatus(status: string, metadataProgress?: number): numbe
     case 'text_complete': return 75;
     case 'completed': return 100;
     case 'failed': return 0;
-    case 'timeout': return 0;
     default: return 0;
   }
 }

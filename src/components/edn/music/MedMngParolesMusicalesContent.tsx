@@ -42,12 +42,12 @@ export const MedMngParolesMusicalesContent: React.FC<MedMngParolesMusicalesConte
 }) => {
   if (!paroles || paroles.length === 0) {
     return (
-      <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg alert-text card-content-safe">
+      <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
         <div className="flex items-center gap-2 text-yellow-800">
           <AlertTriangle className="h-5 w-5" />
-          <span className="font-semibold card-title-safe">Aucune parole disponible</span>
+          <span className="font-semibold">Aucune parole disponible</span>
         </div>
-        <p className="text-yellow-700 mt-2 description-text">
+        <p className="text-yellow-700 mt-2">
           Cet item ne contient pas encore de paroles musicales pour MED-MNG.
         </p>
       </div>
@@ -55,8 +55,8 @@ export const MedMngParolesMusicalesContent: React.FC<MedMngParolesMusicalesConte
   }
 
   return (
-    <div className="space-y-4 main-content-container">
-      <h3 className="font-semibold card-title-safe">Paroles disponibles pour MED-MNG :</h3>
+    <div className="space-y-4">
+      <h3 className="font-semibold">Paroles disponibles pour MED-MNG :</h3>
       
       {paroles[0] && (
         <ParolesMusicalesRangSection

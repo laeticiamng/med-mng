@@ -5,7 +5,6 @@ import { Button } from '@/components/ui/button';
 import { AlertTriangle, Shield, CheckCircle, X, Clock, Eye } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { errorService } from '@/services/core/ErrorService';
 
 interface SecurityIncident {
   id: string;
@@ -40,7 +39,7 @@ export const SecurityDashboard: React.FC = () => {
       if (error) throw error;
       setIncidents((data || []) as SecurityIncident[]);
     } catch (error) {
-      errorService.handleError(error instanceof Error ? error : new Error('Error fetching security incidents'), 'api_call');
+      console.error('Error fetching security incidents:', error);
       toast.error('Erreur lors du chargement des incidents de sécurité');
     } finally {
       setLoading(false);
@@ -64,7 +63,7 @@ export const SecurityDashboard: React.FC = () => {
       fetchIncidents();
       setSelectedIncident(null);
     } catch (error) {
-      errorService.handleError(error instanceof Error ? error : new Error('Error updating incident'), 'api_call');
+      console.error('Error updating incident:', error);
       toast.error('Erreur lors de la mise à jour');
     }
   };
@@ -103,7 +102,7 @@ export const SecurityDashboard: React.FC = () => {
       
       fetchIncidents();
     } catch (error) {
-      errorService.handleError(error instanceof Error ? error : new Error('Error scanning project'), 'api_call');
+      console.error('Error scanning project:', error);
       toast.error('Erreur lors de l\'analyse de sécurité');
     }
   };

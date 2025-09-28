@@ -3,19 +3,11 @@
 
 [![CI/CD Pipeline](https://github.com/med-mng/med-mng/actions/workflows/ci.yml/badge.svg)](https://github.com/med-mng/med-mng/actions/workflows/ci.yml)
 [![Performance](https://img.shields.io/badge/Performance-B+-green)](https://lighthouse.com)
-[![Security](https://img.shields.io/badge/Security-A+-brightgreen)](./docs/security/security-improvements-report.md)
-[![Audit Score](https://img.shields.io/badge/Audit%20Score-95%2F100-brightgreen)](./docs/security/security-improvements-report.md)
-[![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue)](./src/types/)
-[![Production Ready](https://img.shields.io/badge/Production-Ready-success)](./docs/security/)
+[![Security](https://img.shields.io/badge/Security-A-brightgreen)](https://securityheaders.com)
+[![Audit Score](https://img.shields.io/badge/Audit%20Score-98.3%2F100-brightgreen)](./docs/AUDIT-PLATEFORME-28-JUILLET-2025.md)
+[![Database](https://img.shields.io/badge/Database-17%20Issues-yellow)](https://supabase.com/dashboard/project/yaincoxihiqdksxgrsrk)
 
-## 🎯 **PLATEFORME SÉCURISÉE - GRADE A+ (95/100)**
-
-### 🛡️ **AMÉLIORATIONS SÉCURITÉ RÉCENTES**
-- ✅ **Secrets sécurisés** : Supprimé tous les identifiants hardcodés
-- ✅ **TypeScript strict** : Élimination complète des types `any`
-- ✅ **CSP renforcée** : Suppression de `'unsafe-inline'`
-- ✅ **Monitoring complet** : Intégration Sentry/DataDog/Webhooks
-- ✅ **Architecture propre** : Réorganisation et structure maintenir
+## 🎯 **PLATEFORME SÉCURISÉE - GRADE A (98.3%)**
 
 ### ✅ **ÉTAT ACTUEL (28 Juillet 2025)**
 - 🏗️ **Architecture** : React + TypeScript + Supabase (Solide)
@@ -128,17 +120,6 @@ supabase/functions/
 - **Playlists Médicales** : Organisation par spécialités
 - **Analytics d'Écoute** : Suivi détaillé des habitudes
 - **Système d'Abonnements** : Plans freemium et premium
-
-### 🎧 Parcours « Item → Musique »
-| Étape | Détails | Observabilité |
-| --- | --- | --- |
-| **1. Préparation** | L'étudiant sélectionne un **mode** (A, B ou AB) et choisit un **style** (liste de suggestions + saisie libre). Les compétences Rang A/B sont affichées dans le panneau latéral. | `generate_start` (payload : `item_id`, `mode`, `style`)
-| **2. Prompting OpenAI** | Le service `itemPromptService` compacte les compétences selon le mode, génère des paroles structurées (couplets/refrains/pont) et produit un brief de style cohérent pour Suno. | `generate_prompt_compiled`, logs `requestId` + `openai_prompt_hash`
-| **3. Orchestration Suno** | `musicOrchestrator.enqueue()` crée une exécution persistée (`generated_music_tracks`). Le service applique un backoff exponentiel, gère l'annulation/reprise et journalise `suno_job_id`. | `generate_polling`, `generate_retry`, `generate_fail` + métriques durée moyenne
-| **4. Stockage & RLS** | À la finalisation, les métadonnées (style, durée, statut, `openai_prompt_hash`) et les paroles brutes sont stockées pour l'utilisateur propriétaire uniquement (RLS stricte). | `generate_success`, traces corrélées `requestId` ↔ `runId`
-| **5. Timecode & Karaoké** | L'edge function `lyrics-aligner` tente un alignement ; si indisponible, fallback sur `metadata.lyrics`. Le player met en évidence le segment actif, permet le seek précis et offre des exports JSON/MD. | `lyrics_timecode_done`, `play`, `seek_segment`, logs alignement (durée, confiance)
-
-> 💡 **Erreurs gérées** : quotas Suno/OpenAI (circuit breaker + message UX « réessayer plus tard »), alignement impossible (fallback manuel), annulation utilisateur (toast dédié) et reprise après reconnexion (`activeRunRef`).
 
 ### 📚 Contenu Éducatif EDN/ECOS
 - **Interface Unifiée** : Navigation fluide entre les items
@@ -257,154 +238,25 @@ git push origin main        # Deploy automatique
 git tag v1.x.x && git push  # Deploy production
 ```
 
----
-
-## ⚙️ Configuration
-
-### 🔧 Variables d'Environnement
-
-Copiez `.env.example` vers `.env` et configurez les variables nécessaires selon votre environnement.
-
-#### 📋 Configuration Minimale (Développement)
+### 📦 Variables d'Environnement
 ```bash
-# Copier le template
-cp .env.example .env
-
-# Variables obligatoires pour démarrer
-NODE_ENV=development
-PORT=3000
+# Supabase (Obligatoire)
 VITE_SUPABASE_URL=https://yaincoxihiqdksxgrsrk.supabase.co
-VITE_SUPABASE_ANON_KEY=eyJhbGc...  # Clé anon Supabase
+VITE_SUPABASE_ANON_KEY=eyJhbGc...
+
+# APIs Externes
+SUNO_API_KEY=your_suno_key              # Génération musicale
+OPENAI_API_KEY=your_openai_key          # Chat IA
+RESEND_API_KEY=your_resend_key          # Emails
+
+# Authentification CAS (Extraction)
+CAS_USERNAME=your_cas_user
+CAS_PASSWORD=your_cas_pass
+
+# Monitoring (Optionnel)
+SENTRY_DSN=your_sentry_dsn
+DISCORD_WEBHOOK_URL=your_discord_webhook
 ```
-
-#### 🚀 Configuration Production
-```bash
-# Variables critiques en production
-NODE_ENV=production
-JWT_SECRET=your-32-char-secret              # OBLIGATOIRE - Génération JWT
-SUPABASE_SERVICE_ROLE_KEY=service_role_key  # OBLIGATOIRE - Admin Supabase
-SENTRY_DSN=https://sentry.io/...            # RECOMMANDÉ - Monitoring erreurs
-CORS_ALLOWED_ORIGINS=https://yourdomain.com # OBLIGATOIRE - Sécurité CORS
-```
-
-#### 🎵 APIs Externes Optionnelles
-```bash
-# Génération musicale (Suno AI)
-SUNO_API_KEY=your-suno-key
-
-# Intelligence artificielle (OpenAI)
-OPENAI_API_KEY=sk-your-openai-key
-
-# Système d'emails (Resend)
-RESEND_API_KEY=re-your-resend-key
-
-# Extraction EDN/OIC (CAS UNES)
-CAS_USERNAME=your-unes-username
-CAS_PASSWORD=your-unes-password
-```
-
-#### 🔐 Sécurité & Rate Limiting
-```bash
-# Configuration CORS
-CORS_ALLOWED_ORIGINS=https://yourdomain.com,https://app.yourdomain.com
-
-# Rate limiting (requêtes/minute)
-RATE_LIMIT_WINDOW_MS=900000     # Fenêtre 15 minutes
-RATE_LIMIT_MAX_REQUESTS=100     # 100 req/fenêtre
-
-# Sécurité payload
-MAX_PAYLOAD_MB=1                # Limite DoS 1MB
-
-# Proxy de confiance
-TRUST_PROXY=1                   # Load balancers
-```
-
-#### 📊 Monitoring & Analytics
-```bash
-# Monitoring erreurs
-SENTRY_DSN=https://your-sentry-dsn@sentry.io/project
-
-# Webhooks d'alertes
-DISCORD_WEBHOOK_URL=https://discord.com/api/webhooks/...
-SLACK_WEBHOOK_URL=https://hooks.slack.com/services/...
-
-# Logs
-LOG_LEVEL=info                  # debug|info|warn|error
-LOG_FORMAT=json                 # json|pretty
-```
-
-#### 🎚️ Feature Flags
-```bash
-# Fonctionnalités principales
-ENABLE_MUSIC_GENERATION=true
-ENABLE_REAL_TIME_FEATURES=true
-ENABLE_ANALYTICS=true
-ENABLE_CHAT_AI=true
-
-# Mode développement
-SKIP_ENV_VALIDATION=false       # Validation stricte
-MOCK_EXTERNAL_APIS=false        # APIs réelles
-```
-
-### 📝 Validation Automatique
-
-Le système valide automatiquement toutes les variables au démarrage :
-
-```bash
-# Validation manuelle
-npm run validate:env
-
-# En cas d'erreur de validation
-✅ Environment validation successful
-   - Environment: production
-   - Port: 3000
-   - Supabase URL: https://yaincoxihiqdksxgrsrk.supabase.co
-   - Features: Music=true, Analytics=true
-
-❌ Environment validation failed:
-   - JWT_SECRET: must be at least 32 characters
-   - SENTRY_DSN: Invalid URL format
-```
-
-### 🔑 Obtention des Clés API
-
-#### Supabase (Obligatoire)
-1. [Dashboard Supabase](https://supabase.com/dashboard/project/yaincoxihiqdksxgrsrk)
-2. Settings → API → Copy anon key
-3. Settings → API → Copy service_role key ⚠️
-
-#### APIs Externes Optionnelles
-- **Suno AI** : [https://suno.ai/api](https://suno.ai/api) - Génération musicale
-- **OpenAI** : [https://platform.openai.com/api-keys](https://platform.openai.com/api-keys) - Chat IA
-- **Resend** : [https://resend.com/api-keys](https://resend.com/api-keys) - Emails transactionnels
-- **Sentry** : [https://sentry.io/settings/projects/](https://sentry.io/settings/projects/) - Monitoring
-
-### 🚨 Sécurité des Secrets
-
-⚠️ **IMPORTANT** : Ne jamais commit les vraies valeurs dans `.env`
-
-```bash
-# ✅ FAIRE : Utiliser .env.example avec des placeholders
-OPENAI_API_KEY=sk-your-openai-key-here
-
-# ❌ NE PAS FAIRE : Commit des vraies clés
-OPENAI_API_KEY=sk-proj-abc123def456...
-```
-
-### 🔄 Synchronisation Multi-Environnements
-
-```bash
-# Développement
-cp .env.example .env.development
-
-# Staging  
-cp .env.example .env.staging
-
-# Production
-cp .env.example .env.production
-```
-
-**Voir le fichier complet** : [`.env.example`](./.env.example) - Documentation détaillée de toutes les variables
 
 ---
 

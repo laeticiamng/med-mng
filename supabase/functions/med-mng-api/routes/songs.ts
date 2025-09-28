@@ -5,7 +5,7 @@ import { log } from '../logger.ts';
 
 declare const Deno: { env: { get(key: string): string | undefined } };
 
-export async function handleSongs(req: Request, supabase: any, path: string, user?: { id: string }) {
+export async function handleSongs(req: Request, supabase: any, path: string) {
   // GET /songs - List songs with pagination
   if (path === '/songs' && req.method === 'GET') {
     try {
@@ -75,13 +75,14 @@ export async function handleSongs(req: Request, supabase: any, path: string, use
         return errorResponse(409, ApiErrorCode.QUOTA_EXCEEDED, 'Quota insuffisant pour créer une chanson');
       }
 
+      // ✅ AXE 1: User_id requis après ajout colonne
       const { data: song, error } = await supabase
         .from('med_mng_songs')
         .insert({ 
           title: sanitizedTitle, 
           suno_audio_id, 
           meta: meta || {},
-          created_by: user?.id || null
+          user_id: supabase.auth.getUser().data.user?.id // ✅ Respect RLS
         })
         .select()
         .single();
@@ -185,7 +186,7 @@ export async function handleSongs(req: Request, supabase: any, path: string, use
   if (path.match(/^\/songs\/[^/]+\/like$/) && req.method === 'POST') {
     const songId = path.split('/')[2];
 
-    const { data: isLiked, error } = await supabase.rpc('med_mng_toggle_favorite', {
+    const { data: isLiked, error } = await supabase.rpc('med_mng_toggle_like', {
       song_id: songId,
     });
 

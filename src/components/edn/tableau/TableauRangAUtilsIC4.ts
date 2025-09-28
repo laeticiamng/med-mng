@@ -1,13 +1,8 @@
 
-import { logger } from '@/lib/logger';
 import { conceptsRangAIC4, conceptsRangBIC4, colonnesConfigIC4 } from './TableauRangADataIC4';
-import { TableauData, ColumnConfig } from '@/types/edn';
-import { adaptLegacyColumnConfig } from '@/utils/tableauConfigAdapter';
 
-export const generateLignesRangAIntelligentIC4 = (data: TableauData): string[][] => {
-  logger.debug('IC-4 Génération Rang A : 13 connaissances selon LiSA exactement', {
-    component: 'TableauRangAUtilsIC4'
-  });
+export const generateLignesRangAIntelligentIC4 = (data: any): string[][] => {
+  console.log('IC-4 Génération Rang A : 13 connaissances selon LiSA exactement');
   
   const lignes: string[][] = [];
   
@@ -26,16 +21,12 @@ export const generateLignesRangAIntelligentIC4 = (data: TableauData): string[][]
     lignes.push(ligne);
   });
 
-  logger.debug(`IC-4 Rang A: ${lignes.length}/13 connaissances LiSA générées`, {
-    component: 'TableauRangAUtilsIC4'
-  });
+  console.log(`IC-4 Rang A: ${lignes.length}/13 connaissances LiSA générées`);
   return lignes;
 };
 
-export const generateLignesRangBIntelligentIC4 = (data: TableauData): string[][] => {
-  logger.debug('IC-4 Génération Rang B : 22 connaissances selon LiSA exactement', {
-    component: 'TableauRangAUtilsIC4'
-  });
+export const generateLignesRangBIntelligentIC4 = (data: any): string[][] => {
+  console.log('IC-4 Génération Rang B : 22 connaissances selon LiSA exactement');
   
   const lignes: string[][] = [];
   
@@ -54,17 +45,13 @@ export const generateLignesRangBIntelligentIC4 = (data: TableauData): string[][]
     lignes.push(ligne);
   });
 
-  logger.debug(`IC-4 Rang B: ${lignes.length}/22 connaissances LiSA générées (structure initiale)`, {
-    component: 'TableauRangAUtilsIC4'
-  });
+  console.log(`IC-4 Rang B: ${lignes.length}/22 connaissances LiSA générées (structure initiale)`);
   return lignes;
 };
 
-export const determinerColonnesUtilesIC4 = (lignes: string[][]): ColumnConfig[] => {
-  logger.debug('IC-4: Configuration colonnes optimisée pour structure LiSA officielle', {
-    component: 'TableauRangAUtilsIC4'
-  });
+export const determinerColonnesUtilesIC4 = (lignes: string[][]): any[] => {
+  console.log('IC-4: Configuration colonnes optimisée pour structure LiSA officielle');
   
   // Toutes les colonnes sont pertinentes selon le format LiSA
-  return adaptLegacyColumnConfig(colonnesConfigIC4);
+  return colonnesConfigIC4;
 };

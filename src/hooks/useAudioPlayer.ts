@@ -1,171 +1,107 @@
 
-import { useState, useRef, useEffect, useCallback } from 'react';
-import { errorService } from '@/services/core/ErrorService';
-
-interface AudioPlayerState {
-  isPlaying: boolean;
-  currentTime: number;
-  duration: number;
-  volume: number;
-  currentTrack: string | null;
-}
+import { useState, useRef, useEffect } from 'react';
 
 export const useAudioPlayer = () => {
-  const [state, setState] = useState<AudioPlayerState>({
-    isPlaying: false,
-    currentTime: 0,
-    duration: 0,
-    volume: 0.8,
-    currentTrack: null,
-  });
-  
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [volume, setVolume] = useState(0.8);
+  const [currentTrack, setCurrentTrack] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const eventListenersRef = useRef<{
-    loadedmetadata?: (e: Event) => void;
-    timeupdate?: (e: Event) => void;
-    ended?: (e: Event) => void;
-    error?: (e: Event) => void;
-  }>({});
 
-  // Gestionnaires d'événements stables
-  const handleLoadedMetadata = useCallback((e: Event) => {
-    const audio = e.target as HTMLAudioElement;
-    setState(prev => ({ ...prev, duration: audio.duration }));
-  }, []);
-
-  const handleTimeUpdate = useCallback((e: Event) => {
-    const audio = e.target as HTMLAudioElement;
-    setState(prev => ({ ...prev, currentTime: audio.currentTime }));
-  }, []);
-
-  const handleEnded = useCallback(() => {
-    setState(prev => ({ ...prev, isPlaying: false, currentTime: 0 }));
-  }, []);
-
-  const handleError = useCallback((e: Event) => {
-    errorService.handleError(new Error('Erreur audio'), 'system', true);
-    setState(prev => ({ 
-      ...prev, 
-      isPlaying: false, 
-      currentTrack: null 
-    }));
-  }, []);
-
-  // Fonction pour nettoyer les anciens écouteurs
-  const cleanupAudio = useCallback(() => {
-    if (audioRef.current && eventListenersRef.current) {
+  const play = (audioUrl: string) => {
+    if (audioRef.current) {
       audioRef.current.pause();
-      
-      // Supprimer les event listeners s'ils existent
-      if (eventListenersRef.current.loadedmetadata) {
-        audioRef.current.removeEventListener('loadedmetadata', eventListenersRef.current.loadedmetadata);
-      }
-      if (eventListenersRef.current.timeupdate) {
-        audioRef.current.removeEventListener('timeupdate', eventListenersRef.current.timeupdate);
-      }
-      if (eventListenersRef.current.ended) {
-        audioRef.current.removeEventListener('ended', eventListenersRef.current.ended);
-      }
-      if (eventListenersRef.current.error) {
-        audioRef.current.removeEventListener('error', eventListenersRef.current.error);
-      }
-      
-      audioRef.current = null;
-      eventListenersRef.current = {};
     }
-  }, []);
-
-  const play = useCallback((audioUrl: string) => {
-    // Nettoyer l'audio précédent
-    cleanupAudio();
 
     const audio = new Audio(audioUrl);
     audioRef.current = audio;
-    
-    setState(prev => ({ 
-      ...prev, 
-      currentTrack: audioUrl 
-    }));
-    
-    audio.volume = state.volume;
+    setCurrentTrack(audioUrl);
+    audio.volume = volume;
 
-    // Stocker les références des handlers et les ajouter
-    eventListenersRef.current = {
-      loadedmetadata: handleLoadedMetadata,
-      timeupdate: handleTimeUpdate,
-      ended: handleEnded,
-      error: handleError
-    };
+    audio.addEventListener('loadedmetadata', () => {
+      setDuration(audio.duration);
+    });
 
-    audio.addEventListener('loadedmetadata', handleLoadedMetadata);
-    audio.addEventListener('timeupdate', handleTimeUpdate);
-    audio.addEventListener('ended', handleEnded);
-    audio.addEventListener('error', handleError);
+    audio.addEventListener('timeupdate', () => {
+      setCurrentTime(audio.currentTime);
+    });
+
+    audio.addEventListener('ended', () => {
+      setIsPlaying(false);
+      setCurrentTime(0);
+    });
+
+    audio.addEventListener('error', (e) => {
+      console.error('Erreur audio:', e);
+      setIsPlaying(false);
+      setCurrentTrack(null);
+    });
 
     audio.play().then(() => {
-      setState(prev => ({ ...prev, isPlaying: true }));
+      setIsPlaying(true);
     }).catch((error) => {
-      errorService.handleError(error, 'user_action', true);
-      setState(prev => ({ ...prev, isPlaying: false }));
+      console.error('Erreur lecture audio:', error);
+      setIsPlaying(false);
     });
-  }, [state.volume, cleanupAudio, handleLoadedMetadata, handleTimeUpdate, handleEnded, handleError]);
+  };
 
-  const pause = useCallback(() => {
+  const pause = () => {
     if (audioRef.current) {
       audioRef.current.pause();
-      setState(prev => ({ ...prev, isPlaying: false }));
+      setIsPlaying(false);
     }
-  }, []);
+  };
 
-  const resume = useCallback(() => {
+  const resume = () => {
     if (audioRef.current) {
       audioRef.current.play().then(() => {
-        setState(prev => ({ ...prev, isPlaying: true }));
+        setIsPlaying(true);
       }).catch((error) => {
-        errorService.handleError(error, 'user_action', true);
-        setState(prev => ({ ...prev, isPlaying: false }));
+        console.error('Erreur reprise audio:', error);
+        setIsPlaying(false);
       });
     }
-  }, []);
+  };
 
-  const stop = useCallback(() => {
+  const stop = () => {
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.currentTime = 0;
-      setState(prev => ({ 
-        ...prev, 
-        isPlaying: false, 
-        currentTime: 0, 
-        currentTrack: null 
-      }));
+      setIsPlaying(false);
+      setCurrentTime(0);
+      setCurrentTrack(null);
     }
-  }, []);
+  };
 
-  const seek = useCallback((time: number) => {
+  const seek = (time: number) => {
     if (audioRef.current) {
       audioRef.current.currentTime = time;
-      setState(prev => ({ ...prev, currentTime: time }));
+      setCurrentTime(time);
     }
-  }, []);
+  };
 
-  const changeVolume = useCallback((newVolume: number) => {
-    setState(prev => ({ ...prev, volume: newVolume }));
+  const changeVolume = (newVolume: number) => {
+    setVolume(newVolume);
     if (audioRef.current) {
       audioRef.current.volume = newVolume;
     }
+  };
+
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause();
+      }
+    };
   }, []);
 
-  // Nettoyage complet lors du démontage du composant
-  useEffect(() => {
-    return cleanupAudio;
-  }, [cleanupAudio]);
-
   return {
-    isPlaying: state.isPlaying,
-    currentTime: state.currentTime,
-    duration: state.duration,
-    volume: state.volume,
-    currentTrack: state.currentTrack,
+    isPlaying,
+    currentTime,
+    duration,
+    volume,
+    currentTrack,
     play,
     pause,
     resume,

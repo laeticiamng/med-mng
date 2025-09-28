@@ -40,7 +40,6 @@ export const useMusicLibrary = () => {
   const [savedMusics, setSavedMusics] = useState<SavedMusic[]>([]);
   const [tracks, setTracks] = useState<Track[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [playingId, setPlayingId] = useState<string | null>(null);
   const [filter, setFilter] = useState<'all' | 'favorites'>('all');
   const [filters, setFilters] = useState<LibraryFilters>({
@@ -58,8 +57,6 @@ export const useMusicLibrary = () => {
 
   const fetchSavedMusics = async () => {
     try {
-      setLoading(true);
-      
       const { data, error } = await supabase
         .from('user_generated_music')
         .select('*')
@@ -72,35 +69,25 @@ export const useMusicLibrary = () => {
           description: "Impossible de charger votre bibliothèque musicale",
           variant: "destructive"
         });
-        setError(error.message);
         return;
       }
 
-      // Traitement unifié des données
-      const processedData = (data || []).map((music: any) => ({
-        ...music,
-        is_favorite: false // Sera mis à jour via la table des favoris
-      }));
+      setSavedMusics((data || []).map((music: any) => ({ ...music, is_favorite: false })));
       
-      setSavedMusics(processedData);
-      
-      // Format moderne pour les tracks
-      const modernTracks: Track[] = processedData.map((music: any) => ({
+      // Convertir au nouveau format Track
+      const convertedTracks: Track[] = (data || []).map((music: any) => ({
         id: music.id,
         title: music.title,
         item_code: music.item_code || 'N/A',
         type: music.rang === 'A' ? 'rang_a' : music.rang === 'B' ? 'rang_b' : 'mix',
         stream_url: music.audio_url,
         created_at: music.created_at,
-        is_favorite: false,
-        duration: music.duration || 240, // 4 minutes par défaut
-        lyrics: music.lyrics
+        is_favorite: false // Par défaut, sera géré par la table des favoris
       }));
       
-      setTracks(modernTracks);
+      setTracks(convertedTracks);
     } catch (error) {
-      console.error('Erreur fetchSavedMusics:', error);
-      setError(error instanceof Error ? error.message : 'Erreur de chargement');
+      console.error('Erreur:', error);
     } finally {
       setLoading(false);
     }
@@ -147,7 +134,6 @@ export const useMusicLibrary = () => {
         .eq('id', musicId);
 
       if (error) {
-        console.error('Erreur suppression:', error);
         toast({
           title: "Erreur",
           description: "Impossible de supprimer cette musique",
@@ -156,21 +142,14 @@ export const useMusicLibrary = () => {
         return;
       }
 
-      // Mise à jour optimisée des états
       setSavedMusics(prev => prev.filter(music => music.id !== musicId));
       setTracks(prev => prev.filter(track => track.id !== musicId));
-      
       toast({
         title: "Supprimé",
         description: "Musique supprimée de votre bibliothèque"
       });
     } catch (error) {
       console.error('Erreur lors de la suppression:', error);
-      toast({
-        title: "Erreur",
-        description: "Une erreur inattendue s'est produite",
-        variant: "destructive"
-      });
     }
   };
 
@@ -312,9 +291,8 @@ export const useMusicLibrary = () => {
     handleDelete,
     handleToggleFavorite,
     refetch: fetchSavedMusics,
-    error,
     
-    // Nouvelle API moderne
+    // Nouvelle API
     tracks: filteredTracks,
     allTracks: tracks,
     filters,
@@ -325,7 +303,7 @@ export const useMusicLibrary = () => {
     getStreamUrl,
     loadLibrary,
     
-    // Stats calculées
+    // Stats
     totalTracks: tracks.length,
     favoriteTracks: tracks.filter(t => t.is_favorite).length,
     tracksByType: {

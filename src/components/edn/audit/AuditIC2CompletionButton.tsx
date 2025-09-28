@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { CheckCircle, AlertTriangle, RefreshCw, Zap } from 'lucide-react';
 import { completeIC2Item } from '@/scripts/audit/completeIC2Item';
-import { logger } from '@/lib/logger';
 
 interface AuditIC2CompletionButtonProps {
   onComplete?: () => void;
@@ -20,19 +19,12 @@ export const AuditIC2CompletionButton = ({ onComplete }: AuditIC2CompletionButto
     setError(null);
     
     try {
-      logger.info('Starting IC-2 completion', {
-        component: 'AuditIC2CompletionButton',
-        action: 'complete_ic2'
-      });
+      console.log('🚀 Lancement de la complétion IC-2...');
       const finalReport = await completeIC2Item();
       
       if (finalReport.completeness === 100) {
         setCompleted(true);
-        logger.info('IC-2 completed successfully', {
-          component: 'AuditIC2CompletionButton',
-          action: 'completion_success',
-          metadata: { completeness: finalReport.completeness }
-        });
+        console.log('🎉 IC-2 complété avec succès !');
         // Rafraîchir l'audit parent
         if (onComplete) {
           setTimeout(onComplete, 1000);
@@ -42,11 +34,7 @@ export const AuditIC2CompletionButton = ({ onComplete }: AuditIC2CompletionButto
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erreur lors de la completion');
-      logger.error('IC-2 completion failed', {
-        component: 'AuditIC2CompletionButton',
-        action: 'completion_error',
-        metadata: { error: err instanceof Error ? err.message : 'Unknown error' }
-      });
+      console.error('❌ Erreur:', err);
     } finally {
       setCompleting(false);
     }

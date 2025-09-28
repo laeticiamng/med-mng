@@ -4,7 +4,6 @@ import {
   Calendar, Download, Music, Brain, Eye
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { errorService } from '@/services/core/ErrorService';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -152,7 +151,7 @@ export const AdminAnalytics = () => {
       });
 
     } catch (error) {
-      errorService.handleError(error as Error, 'system', false);
+      console.error('Erreur chargement analytics:', error);
       toast.error('Erreur lors du chargement des analytics');
     } finally {
       setLoading(false);
@@ -183,7 +182,7 @@ export const AdminAnalytics = () => {
       window.URL.revokeObjectURL(url);
       toast.success('Rapport exporté avec succès');
     } catch (error) {
-      errorService.handleError(error as Error, 'user_action', true);
+      console.error('Erreur export:', error);
       toast.error('Erreur lors de l\'export');
     }
   };

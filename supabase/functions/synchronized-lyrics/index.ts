@@ -234,54 +234,15 @@ async function syncTimestampsWithSuno(supabase: any, request: LyricsRequest) {
   }
 }
 
-// Fonction pour récupérer les paroles depuis Suno API
+// Fonction simulée pour récupérer les paroles depuis Suno
 async function fetchSunoLyrics(sunoAudioId: string): Promise<LyricsLine[]> {
-  const sunoApiKey = Deno.env.get('SUNO_API_KEY');
+  // TODO: Implémenter l'API Suno réelle quand elle sera disponible
+  // Pour l'instant, générer des paroles d'exemple
   
-  if (!sunoApiKey) {
-    console.warn('SUNO_API_KEY not configured, using mock data');
-    return getMockLyrics();
-  }
-
-  try {
-    console.log(`Fetching lyrics from Suno API for audio: ${sunoAudioId}`);
-    
-    const response = await fetch(`https://api.suno.ai/api/v1/lyrics/${sunoAudioId}`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${sunoApiKey}`,
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      if (response.status === 404) {
-        console.warn(`No lyrics found for Suno audio: ${sunoAudioId}`);
-        return [];
-      }
-      throw new Error(`Suno API error: ${response.status} ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    
-    // Transform Suno API response to our format
-    if (data.lyrics && Array.isArray(data.lyrics)) {
-      return data.lyrics.map((line: any) => ({
-        time: parseFloat(line.timestamp || line.time || 0),
-        text: line.text || line.content || ''
-      }));
-    }
-    
-    return [];
-  } catch (error) {
-    console.error('Error fetching Suno lyrics:', error);
-    // Fallback to mock data in case of API error
-    return getMockLyrics();
-  }
-}
-
-function getMockLyrics(): LyricsLine[] {
-  return [
+  console.log(`Fetching lyrics for Suno audio: ${sunoAudioId}`);
+  
+  // Simuler des paroles avec timestamps
+  const exampleLyrics: LyricsLine[] = [
     { time: 0, text: "[Intro]" },
     { time: 2.5, text: "Médecine et science, notre passion" },
     { time: 6.0, text: "Apprendre en musique, c'est notre mission" },
@@ -295,56 +256,18 @@ function getMockLyrics(): LyricsLine[] {
     { time: 34.0, text: "Ensemble nous progressons, ensemble nous grandissons" },
     { time: 38.0, text: "La musique ouvre le chemin vers la connaissance" }
   ];
-}
-
-// Fonction pour récupérer les timestamps depuis Suno API
-async function fetchSunoTimestamps(sunoAudioId: string): Promise<LyricsLine[]> {
-  const sunoApiKey = Deno.env.get('SUNO_API_KEY');
   
-  if (!sunoApiKey) {
-    console.warn('SUNO_API_KEY not configured, using mock data');
-    return getMockTimestamps();
-  }
-
-  try {
-    console.log(`Fetching timestamps from Suno API for audio: ${sunoAudioId}`);
-    
-    const response = await fetch(`https://api.suno.ai/api/v1/timestamps/${sunoAudioId}`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${sunoApiKey}`,
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!response.ok) {
-      if (response.status === 404) {
-        console.warn(`No timestamps found for Suno audio: ${sunoAudioId}`);
-        return [];
-      }
-      throw new Error(`Suno API error: ${response.status} ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    
-    // Transform Suno API response to our format
-    if (data.timestamps && Array.isArray(data.timestamps)) {
-      return data.timestamps.map((item: any) => ({
-        time: parseFloat(item.timestamp || item.time || 0),
-        text: item.text || item.content || ''
-      }));
-    }
-    
-    return [];
-  } catch (error) {
-    console.error('Error fetching Suno timestamps:', error);
-    // Fallback to mock data in case of API error
-    return getMockTimestamps();
-  }
+  return exampleLyrics;
 }
 
-function getMockTimestamps(): LyricsLine[] {
-  return [
+// Fonction simulée pour récupérer les timestamps depuis Suno
+async function fetchSunoTimestamps(sunoAudioId: string): Promise<LyricsLine[]> {
+  // TODO: Implémenter l'API Suno réelle quand elle sera disponible
+  
+  console.log(`Fetching timestamps for Suno audio: ${sunoAudioId}`);
+  
+  // Simuler des timestamps précis
+  const exampleTimestamps: LyricsLine[] = [
     { time: 0.0, text: "[Intro musical]" },
     { time: 2.3, text: "Médecine et science, notre passion" },
     { time: 5.8, text: "Apprendre en musique, c'est notre mission" },
@@ -359,4 +282,6 @@ function getMockTimestamps(): LyricsLine[] {
     { time: 37.8, text: "La musique ouvre le chemin vers la connaissance" },
     { time: 42.0, text: "[Outro]" }
   ];
+  
+  return exampleTimestamps;
 }

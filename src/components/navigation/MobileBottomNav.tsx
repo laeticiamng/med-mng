@@ -27,7 +27,7 @@ const navItems: BottomNavItem[] = [
     label: 'Créer'
   },
   {
-    to: '/med-mng/pricing',
+    to: '/med-mng/subscription',
     icon: <CreditCard className="h-5 w-5" />,
     label: 'Abonnement'
   },

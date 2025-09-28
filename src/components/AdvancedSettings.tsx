@@ -24,9 +24,7 @@ import {
   Music
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { errorService } from '@/services/core/ErrorService';
 import { useAIRecommendations } from '@/hooks/useAIRecommendations';
-import { logger } from '@/lib/logger';
 
 interface UserSettings {
   general: {
@@ -109,17 +107,14 @@ export const AdvancedSettings = () => {
       });
 
       // Ici, vous sauvegarderiez les autres paramètres dans Supabase
-      logger.info('Paramètres sauvegardés', { 
-        component: 'AdvancedSettings',
-        action: 'handleSaveSettings'
-      });
+      console.log('Paramètres sauvegardés:', settings);
       
       toast({
         title: "Paramètres sauvegardés !",
         description: "Vos préférences ont été mises à jour avec succès."
       });
     } catch (error) {
-      errorService.handleError(error as Error, 'user_action', true);
+      console.error('Erreur sauvegarde:', error);
       toast({
         title: "Erreur",
         description: "Impossible de sauvegarder les paramètres.",
@@ -178,7 +173,7 @@ export const AdvancedSettings = () => {
     reader.readAsText(file);
   };
 
-  const updateSetting = (category: keyof UserSettings, key: string, value: unknown) => {
+  const updateSetting = (category: keyof UserSettings, key: string, value: any) => {
     setSettings(prev => ({
       ...prev,
       [category]: {
@@ -192,22 +187,22 @@ export const AdvancedSettings = () => {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 id="main-content" className="text-2xl font-bold">Paramètres Avancés</h1>
+          <h1 className="text-2xl font-bold">Paramètres Avancés</h1>
           <p className="text-muted-foreground">Personnalisez votre expérience d'écoute</p>
         </div>
-        <Button onClick={handleSaveSettings} aria-label="Sauvegarder tous les paramètres">
-          <Save className="h-4 w-4 mr-2" aria-hidden="true" />
+        <Button onClick={handleSaveSettings}>
+          <Save className="h-4 w-4 mr-2" />
           Sauvegarder
         </Button>
       </div>
 
       <Tabs defaultValue="general" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-5" role="tablist" aria-label="Catégories de paramètres">
-          <TabsTrigger value="general" aria-label="Paramètres généraux">Général</TabsTrigger>
-          <TabsTrigger value="audio" aria-label="Paramètres audio">Audio</TabsTrigger>
-          <TabsTrigger value="notifications" aria-label="Paramètres de notifications">Notifications</TabsTrigger>
-          <TabsTrigger value="ai" aria-label="Paramètres d'intelligence artificielle">IA</TabsTrigger>
-          <TabsTrigger value="data" aria-label="Gestion des données">Données</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-5">
+          <TabsTrigger value="general">Général</TabsTrigger>
+          <TabsTrigger value="audio">Audio</TabsTrigger>
+          <TabsTrigger value="notifications">Notifications</TabsTrigger>
+          <TabsTrigger value="ai">IA</TabsTrigger>
+          <TabsTrigger value="data">Données</TabsTrigger>
         </TabsList>
 
         {/* Paramètres généraux */}
@@ -243,7 +238,6 @@ export const AdvancedSettings = () => {
                     max={100}
                     step={5}
                     className="flex-1"
-                    aria-label={`Volume par défaut: ${settings.general.defaultVolume}%`}
                   />
                   <span className="text-sm font-medium w-12">
                     {settings.general.defaultVolume}%
@@ -269,7 +263,7 @@ export const AdvancedSettings = () => {
                   value={settings.general.language}
                   onValueChange={(value) => updateSetting('general', 'language', value)}
                 >
-                  <SelectTrigger aria-label="Sélectionner la langue de l'interface">
+                  <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -305,7 +299,6 @@ export const AdvancedSettings = () => {
                     max={100}
                     step={5}
                     className="flex-1"
-                    aria-label={`Volume principal: ${settings.audio.masterVolume}%`}
                   />
                   <span className="text-sm font-medium w-12">
                     {settings.audio.masterVolume}%
@@ -331,7 +324,7 @@ export const AdvancedSettings = () => {
                   value={settings.audio.audioQuality}
                   onValueChange={(value) => updateSetting('audio', 'audioQuality', value)}
                 >
-                  <SelectTrigger aria-label="Sélectionner la qualité audio">
+                  <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
@@ -506,8 +499,8 @@ export const AdvancedSettings = () => {
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex gap-4">
-                <Button onClick={handleExportData} variant="outline" aria-label="Exporter toutes mes données personnelles">
-                  <Download className="h-4 w-4 mr-2" aria-hidden="true" />
+                <Button onClick={handleExportData} variant="outline">
+                  <Download className="h-4 w-4 mr-2" />
                   Exporter mes données
                 </Button>
                 
@@ -519,8 +512,8 @@ export const AdvancedSettings = () => {
                     className="hidden"
                     id="import-file"
                   />
-                  <Button variant="outline" onClick={() => document.getElementById('import-file')?.click()} aria-label="Importer des données depuis un fichier">
-                    <Upload className="h-4 w-4 mr-2" aria-hidden="true" />
+                  <Button variant="outline" onClick={() => document.getElementById('import-file')?.click()}>
+                    <Upload className="h-4 w-4 mr-2" />
                     Importer des données
                   </Button>
                 </div>
@@ -531,8 +524,8 @@ export const AdvancedSettings = () => {
                 <p className="text-sm text-muted-foreground">
                   Vos données sont automatiquement sauvegardées dans le cloud
                 </p>
-                <Button variant="outline" size="sm" aria-label="Synchroniser les données maintenant">
-                  <RefreshCw className="h-4 w-4 mr-2" aria-hidden="true" />
+                <Button variant="outline" size="sm">
+                  <RefreshCw className="h-4 w-4 mr-2" />
                   Synchroniser maintenant
                 </Button>
               </div>

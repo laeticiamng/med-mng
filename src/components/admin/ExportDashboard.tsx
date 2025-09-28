@@ -8,13 +8,9 @@ import { Label } from '@/components/ui/label';
 import { Download, Calendar, Database, FileText, AlertCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { logger } from '@/lib/logger';
-import { toRateLimitError } from '@/utils/errors/rateLimit';
-import { RateLimitNotice } from '@/components/system/RateLimitNotice';
-import { errorService } from '@/services/core/ErrorService';
 
 const AVAILABLE_TABLES = [
-  { id: 'edn_items_complete', name: 'Items EDN Complets', description: 'Contenu pédagogique principal' },
+  { id: 'edn_items_immersive', name: 'Items EDN Immersifs', description: 'Contenu pédagogique principal' },
   { id: 'operation_logs', name: 'Logs Opération', description: 'Historique des opérations système' },
   { id: 'user_activity_logs', name: 'Logs Activité', description: 'Activité des utilisateurs' },
   { id: 'data_integrity_reports', name: 'Rapports Intégrité', description: 'Résultats des vérifications d\'intégrité' },
@@ -22,12 +18,6 @@ const AVAILABLE_TABLES = [
   { id: 'extraction_logs', name: 'Logs Extraction', description: 'Historique des extractions de données' },
   { id: 'profiles', name: 'Profils Utilisateurs', description: 'Données des profils utilisateurs' },
 ];
-
-interface RateLimitState {
-  message: string;
-  retryAt?: number | null;
-  retryAfterSeconds?: number;
-}
 
 export const ExportDashboard = () => {
   const [selectedTables, setSelectedTables] = useState<string[]>([]);
@@ -38,7 +28,6 @@ export const ExportDashboard = () => {
   });
   const [includeMetadata, setIncludeMetadata] = useState(true);
   const [isExporting, setIsExporting] = useState(false);
-  const [rateLimit, setRateLimit] = useState<RateLimitState | null>(null);
 
   const handleTableSelection = (tableId: string, checked: boolean) => {
     if (checked) {
@@ -57,15 +46,11 @@ export const ExportDashboard = () => {
     setIsExporting(true);
     
     try {
-      logger.info('Démarrage export admin', {
-        component: 'ExportDashboard',
-        action: 'handleExport',
-        metadata: {
-          format,
-          tableCount: selectedTables.length,
-          hasDateRange: !!(dateRange.start && dateRange.end),
-          includeMetadata
-        }
+      console.log('Démarrage export admin avec:', {
+        format,
+        tables: selectedTables,
+        dateRange: dateRange.start && dateRange.end ? dateRange : undefined,
+        includeMetadata
       });
 
       const { data, error } = await supabase.functions.invoke('admin-export', {
@@ -78,19 +63,7 @@ export const ExportDashboard = () => {
       });
 
       if (error) {
-        errorService.handleError(error instanceof Error ? error : new Error('Erreur export'), 'api_call');
-        const rateLimitError = toRateLimitError(error, "Export impossible pour le moment. Réessayez plus tard.", 'export');
-        if (rateLimitError) {
-          setRateLimit({
-            message: rateLimitError.message,
-            retryAt: rateLimitError.retryAt ?? (rateLimitError.retryAfterSeconds
-              ? Date.now() + rateLimitError.retryAfterSeconds * 1000
-              : undefined),
-            retryAfterSeconds: rateLimitError.retryAfterSeconds,
-          });
-          toast.warning(rateLimitError.message);
-          return;
-        }
+        console.error('Erreur export:', error);
         toast.error(`Erreur lors de l'export: ${error.message}`);
         return;
       }
@@ -113,23 +86,10 @@ export const ExportDashboard = () => {
       window.URL.revokeObjectURL(url);
 
       toast.success(`Export ${format.toUpperCase()} généré avec succès!`);
-      setRateLimit(null);
-
+      
     } catch (exportError) {
-      errorService.handleError(exportError instanceof Error ? exportError : new Error('Erreur export'), 'api_call');
-      const rateLimitError = toRateLimitError(exportError, "L'exportation est temporairement indisponible.", 'export');
-      if (rateLimitError) {
-        setRateLimit({
-          message: rateLimitError.message,
-          retryAt: rateLimitError.retryAt ?? (rateLimitError.retryAfterSeconds
-            ? Date.now() + rateLimitError.retryAfterSeconds * 1000
-            : undefined),
-          retryAfterSeconds: rateLimitError.retryAfterSeconds,
-        });
-        toast.warning(rateLimitError.message);
-      } else {
-        toast.error('Erreur lors de la génération de l\'export');
-      }
+      console.error('Erreur export:', exportError);
+      toast.error('Erreur lors de la génération de l\'export');
     } finally {
       setIsExporting(false);
     }
@@ -146,7 +106,7 @@ export const ExportDashboard = () => {
         tables = ['operation_logs', 'user_activity_logs', 'extraction_logs'];
         break;
       case 'content':
-        tables = ['edn_items_complete', 'audit_reports', 'data_integrity_reports'];
+        tables = ['edn_items_immersive', 'audit_reports', 'data_integrity_reports'];
         break;
     }
     
@@ -156,15 +116,6 @@ export const ExportDashboard = () => {
 
   return (
     <div className="space-y-6">
-      {rateLimit && (
-        <RateLimitNotice
-          scope="export"
-          message={rateLimit.message}
-          retryAt={rateLimit.retryAt}
-          retryAfterSeconds={rateLimit.retryAfterSeconds}
-          onDismiss={() => setRateLimit(null)}
-        />
-      )}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">

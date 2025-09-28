@@ -19,10 +19,9 @@ export const useViewport = () => {
 };
 
 export const ViewportProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Initialize with defaults to prevent forced reflow during SSR/initial render
   const [dimensions, setDimensions] = useState({
-    width: 1024, // Default desktop width - will be updated in effect
-    height: 768  // Default desktop height - will be updated in effect
+    width: typeof window !== 'undefined' ? window.innerWidth : 1024,
+    height: typeof window !== 'undefined' ? window.innerHeight : 768
   });
 
   useEffect(() => {

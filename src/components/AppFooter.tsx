@@ -28,18 +28,15 @@ export const AppFooter = () => {
           <div>
             <h3 className="font-semibold mb-4">Outils</h3>
             <div className="space-y-2">
-              <Link to="/audit" className="block text-gray-600 hover:text-blue-600 text-sm">Audit Général</Link>
+              <Link to="/audit-general" className="block text-gray-600 hover:text-blue-600 text-sm">Audit Général</Link>
               <Link to="/med-mng/library" className="block text-gray-600 hover:text-blue-600 text-sm">Bibliothèque</Link>
               <Link to="/med-mng/create" className="block text-gray-600 hover:text-blue-600 text-sm">Créer</Link>
-              <Link to="/med-mng/pricing" className="block text-gray-600 hover:text-blue-600 text-sm">Tarifs</Link>
             </div>
           </div>
           
           <div>
-            <h3 className="font-semibold mb-4">Connexion</h3>
+            <h3 className="font-semibold mb-4">Légal</h3>
             <div className="space-y-2">
-              <Link to="/med-mng/login" className="block text-gray-600 hover:text-blue-600 text-sm">Se connecter</Link>
-              <Link to="/med-mng/signup" className="block text-gray-600 hover:text-blue-600 text-sm">S'inscrire</Link>
               <Link to="/mentions-legales" className="block text-gray-600 hover:text-blue-600 text-sm">Mentions Légales</Link>
               <Link to="/politique-confidentialite" className="block text-gray-600 hover:text-blue-600 text-sm">Politique de Confidentialité</Link>
               <a href="mailto:contact@emotionscare.com" className="block text-gray-600 hover:text-blue-600 text-sm">Contact</a>

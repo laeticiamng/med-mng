@@ -169,7 +169,6 @@ export const LyricsEditor: React.FC<LyricsEditorProps> = ({
         lyrics={lyrics}
         title={title}
         waveform={waveform}
-        trackId={audioId}
       />
 
       {/* Contrôles d'édition */}

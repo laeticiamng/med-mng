@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Progress } from '@/components/ui/progress';
 import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX } from 'lucide-react';
-import { trackCanonicalEvent } from '@/services/CanonicalAnalyticsTracker';
 
 interface LyricsLine {
   time: number;
@@ -18,10 +17,6 @@ interface SynchronizedLyricsPlayerProps {
   title: string;
   waveform?: number[];
   onTimeUpdate?: (currentTime: number) => void;
-  trackId?: string;
-  itemCode?: string;
-  itemTitle?: string;
-  mode?: string;
 }
 
 export const SynchronizedLyricsPlayer: React.FC<SynchronizedLyricsPlayerProps> = ({
@@ -29,15 +24,10 @@ export const SynchronizedLyricsPlayer: React.FC<SynchronizedLyricsPlayerProps> =
   lyrics,
   title,
   waveform = [],
-  onTimeUpdate,
-  trackId,
-  itemCode,
-  itemTitle,
-  mode,
+  onTimeUpdate
 }) => {
   const audioRef = useRef<HTMLAudioElement>(null);
   const lyricsContainerRef = useRef<HTMLDivElement>(null);
-  const lastSeekEventAtRef = useRef(0);
   
   const [isPlaying, setIsPlaying] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -45,40 +35,6 @@ export const SynchronizedLyricsPlayer: React.FC<SynchronizedLyricsPlayerProps> =
   const [volume, setVolume] = useState(1);
   const [isMuted, setIsMuted] = useState(false);
   const [currentLyricIndex, setCurrentLyricIndex] = useState(-1);
-
-  const emitSeekEvent = useCallback(
-    (targetSeconds: number, origin: 'lyrics' | 'slider' | 'skip', segmentIndex?: number) => {
-      if (!trackId && !itemCode) {
-        return;
-      }
-
-      const now = Date.now();
-      if (now - lastSeekEventAtRef.current < 250) {
-        return;
-      }
-
-      lastSeekEventAtRef.current = now;
-
-      const metadata: Record<string, unknown> = {
-        origin,
-        target_seconds: Number(targetSeconds.toFixed(2)),
-        item_code: itemCode,
-        item_title: itemTitle,
-        mode,
-      };
-
-      if (typeof segmentIndex === 'number') {
-        metadata.segment_index = segmentIndex;
-      }
-
-      void trackCanonicalEvent({
-        type: 'seek_segment',
-        contentId: trackId,
-        metadata,
-      });
-    },
-    [itemCode, itemTitle, mode, trackId],
-  );
 
   // Initialiser l'audio
   useEffect(() => {
@@ -143,18 +99,6 @@ export const SynchronizedLyricsPlayer: React.FC<SynchronizedLyricsPlayerProps> =
       audio.pause();
     } else {
       audio.play();
-      if (trackId || itemCode) {
-        void trackCanonicalEvent({
-          type: 'play',
-          contentId: trackId,
-          metadata: {
-            item_code: itemCode,
-            item_title: itemTitle,
-            mode,
-            duration_seconds: duration,
-          },
-        });
-      }
     }
     setIsPlaying(!isPlaying);
   };
@@ -191,20 +135,15 @@ export const SynchronizedLyricsPlayer: React.FC<SynchronizedLyricsPlayerProps> =
   };
 
   const skipBackward = () => {
-    const target = Math.max(0, currentTime - 10);
-    handleSeek(target);
-    emitSeekEvent(target, 'skip');
+    handleSeek(Math.max(0, currentTime - 10));
   };
 
   const skipForward = () => {
-    const target = Math.min(duration, currentTime + 10);
-    handleSeek(target);
-    emitSeekEvent(target, 'skip');
+    handleSeek(Math.min(duration, currentTime + 10));
   };
 
-  const seekToLyric = (time: number, index?: number) => {
+  const seekToLyric = (time: number) => {
     handleSeek(time);
-    emitSeekEvent(time, 'lyrics', index);
   };
 
   const formatTime = (time: number) => {
@@ -287,7 +226,6 @@ export const SynchronizedLyricsPlayer: React.FC<SynchronizedLyricsPlayerProps> =
             max={duration}
             step={0.1}
             onValueChange={([value]) => handleSeek(value)}
-            onValueCommit={([value]) => emitSeekEvent(value, 'slider')}
             className="w-full"
           />
         </div>
@@ -322,7 +260,7 @@ export const SynchronizedLyricsPlayer: React.FC<SynchronizedLyricsPlayerProps> =
                     ? 'text-gray-500 bg-gray-50'
                     : 'text-gray-700 bg-white hover:bg-purple-50'
                 }`}
-                onClick={() => seekToLyric(lyric.time, index)}
+                onClick={() => seekToLyric(lyric.time)}
               >
                 <div className="flex justify-between items-center">
                   <span className="text-sm">{lyric.text}</span>

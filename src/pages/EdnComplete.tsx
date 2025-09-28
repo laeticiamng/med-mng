@@ -1,553 +1,639 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
-  Search, BookOpen, Filter, Grid, List, Music, Brain, Zap, 
-  TrendingUp, CheckCircle, Award, Users, Sparkles, Star,
-  Play, Pause, Volume2, VolumeX, Heart, Share2, Bookmark
+  Search, BookOpen, Award, Users, TrendingUp, Filter, Grid, List, Eye,
+  Music, Brain, Play, Headphones, CheckCircle, Sparkles, ArrowRight,
+  Volume2, Gamepad2, Maximize2, Star, Target, Image, FileText, AlertTriangle
 } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { useEdnItemsPaginated, useEdnStats, EdnItemLight } from '@/hooks/useEdnItemsPaginated';
-import { EdnItemGrid } from '@/components/edn/EdnItemGrid';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 import { useIsMobile } from "@/hooks/use-mobile";
-import { useBreakpoints, useResponsiveGrid, useResponsiveSpacing } from "@/hooks/useBreakpoints";
-import { GlobalLyricsManager } from '@/components/edn/GlobalLyricsManager';
-import { EdnRecommendations } from '@/components/edn/EdnRecommendations';
-import { EdnProgressTracker } from '@/components/edn/EdnProgressTracker';
-import { EdnQuickActions } from '@/components/edn/EdnQuickActions';
-import { Breadcrumbs } from '@/components/ux/Breadcrumbs';
-import { LoadingFeedback } from '@/components/ux/LoadingFeedback';
-import { ErgonomicEnhancements } from '@/components/ux/ErgonomicEnhancements';
-import { SmartTooltip, ContextualHelp } from '@/components/ux/SmartTooltips';
-import { ProgressiveDisclosure, ProgressiveList } from '@/components/ux/ProgressiveDisclosure';
-import { PulseButton, AnimatedLike, MagneticHover } from '@/components/ux/MicroInteractions';
-import { AchievementsPanel } from '@/components/edn/gamification/AchievementsPanel';
-import { StatisticsCards } from '@/components/edn/gamification/StatisticsCards';
-import { ProgressOverview } from '@/components/edn/gamification/ProgressOverview';
+import { EdnItemModal } from "@/components/edn/premium/EdnItemModal";
+import { EdnItemCard } from "@/components/edn/premium/EdnItemCard";
+import { LyricsCompletionStatus } from "@/components/LyricsCompletionStatus";
+import { RevisionDashboard } from "@/components/revision/RevisionDashboard";
+import { QuotaIndicator } from "@/components/quota/QuotaIndicator";
+import { PricingPlans } from "@/components/med-mng/PricingPlans";
+import { useIAQuota } from "@/hooks/useIAQuota";
+import { useSubscription } from "@/hooks/useSubscription";
 
-// Composants lazy pour les onglets non-critiques
-const LyricsCompletionStatus = React.lazy(() => 
-  import("@/components/LyricsCompletionStatus").then(module => ({ default: module.LyricsCompletionStatus }))
-);
-const RevisionDashboard = React.lazy(() => 
-  import("@/components/revision/RevisionDashboard").then(module => ({ default: module.RevisionDashboard }))
-);
-const PricingPlans = React.lazy(() => 
-  import("@/components/med-mng/PricingPlans").then(module => ({ default: module.PricingPlans }))
-);
-const UpdateAllLyricsButton = React.lazy(() => 
-  import("@/components/edn/UpdateAllLyricsButton").then(module => ({ default: module.UpdateAllLyricsButton }))
-);
-// SyncAllItemsButton supprimé - navigation globale gère maintenant les actions
-const QuotaIndicator = React.lazy(() => 
-  import("@/components/quota/QuotaIndicator").then(module => ({ default: module.QuotaIndicator }))
-);
+interface EdnItem {
+  id: string;
+  item_code: string;
+  title: string;
+  subtitle?: string;
+  slug: string;
+  tableau_rang_a?: any;
+  tableau_rang_b?: any;
+  paroles_musicales?: string[];
+  paroles_rang_a?: string[];
+  paroles_rang_b?: string[];
+  paroles_rang_ab?: string[];
+  scene_immersive?: any;
+  quiz_questions?: any;
+  audio_ambiance?: any;
+  visual_ambiance?: any;
+  payload_v2?: any;
+  updated_at: string;
+  specialite?: string;
+  mots_cles?: string[];
+  competences_count_rang_a?: number;
+  competences_count_rang_b?: number;
+  competences_count_total?: number;
+  completeness_score?: number;
+  is_validated?: boolean;
+  competences_oic_rang_a?: any;
+  competences_oic_rang_b?: any;
+}
 
 export default function EdnComplete() {
-  const navigate = useNavigate();
-  
-  // États principaux
-  const [currentPage, setCurrentPage] = useState(1);
+  const [immersiveItems, setImmersiveItems] = useState<EdnItem[]>([]);
+  const [completeItems, setCompleteItems] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const [sortBy, setSortBy] = useState<'item_code' | 'completeness_score' | 'updated_at'>('item_code');
+  const [selectedItem, setSelectedItem] = useState<EdnItem | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('immersive');
-  const [selectedItem, setSelectedItem] = useState<EdnItemLight | null>(null);
-  const [showLyricsManager, setShowLyricsManager] = useState(false);
-
-  // Hooks responsifs et UX  
-  const isMobile = useIsMobile();
-  const { isTablet, isTabletPortrait, isMobileSmall } = useBreakpoints();
-  const gridConfig = useResponsiveGrid();
-  const spacing = useResponsiveSpacing();
-
-  // États de chargement pour UX optimisée
-  const [isFiltering, setIsFiltering] = useState(false);
+  const [showPricing, setShowPricing] = useState(false);
   
-  // Ajustement intelligent du nombre d'items par page selon l'écran
-  const getItemsPerPage = () => {
-    if (isMobileSmall) return 6;
-    if (isMobile) return 8;
-    if (isTabletPortrait) return 12;
-    if (isTablet) return 15;
-    return 20;
+  const { quota } = useIAQuota();
+  const { subscription, canGenerateMusic } = useSubscription();
+  
+  const { toast } = useToast();
+  const isMobile = useIsMobile();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchAllData();
+  }, []);
+
+  const fetchAllData = async () => {
+    try {
+      setLoading(true);
+
+      const { data: immersiveData, error: immersiveError } = await supabase
+        .from('edn_items_immersive')
+        .select(`
+          id, item_code, title, subtitle, slug, 
+          paroles_rang_a, paroles_rang_b, paroles_rang_ab,
+          tableau_rang_a, tableau_rang_b, scene_immersive,
+          quiz_questions, updated_at
+        `)
+        .order('item_code');
+
+      if (immersiveError) {
+        console.error('Erreur immersive:', immersiveError);
+        toast({
+          title: "Erreur",
+          description: "Impossible de charger les données.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      const { data: completeData } = await supabase
+        .from('edn_items_complete')
+        .select('id, item_code, title, specialite, completeness_score, is_validated')
+        .order('item_code');
+
+      setImmersiveItems(immersiveData || []);
+      setCompleteItems(completeData || []);
+      
+      toast({
+        title: "Interface EDN",
+        description: `${immersiveData?.length || 0} items chargés`,
+      });
+    } catch (error) {
+      console.error('Erreur:', error);
+      toast({
+        title: "Erreur",
+        description: "Erreur lors du chargement.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
   };
-  const itemsPerPage = getItemsPerPage();
 
-  // Hooks optimisés
-  const { items, totalCount, loading, totalPages, refetch } = useEdnItemsPaginated(currentPage, itemsPerPage);
-  const { stats, loading: statsLoading } = useEdnStats();
+  const allItems = useMemo(() => {
+    const mergedItems = immersiveItems.map(immersive => {
+      const complete = completeItems.find(c => c.item_code === immersive.item_code);
+      return {
+        ...immersive,
+        ...complete,
+        slug: immersive.slug,
+        tableau_rang_a: immersive.tableau_rang_a,
+        tableau_rang_b: immersive.tableau_rang_b,
+        scene_immersive: immersive.scene_immersive,
+        quiz_questions: immersive.quiz_questions,
+        paroles_musicales: immersive.paroles_musicales
+      };
+    });
+    return mergedItems;
+  }, [immersiveItems, completeItems]);
 
-  // Gestion du clic sur un item
-  const handleItemClick = (item: EdnItemLight) => {
+  const isItemComplete = (item: EdnItem) => {
+    const hasRangA = !!item.tableau_rang_a;
+    const hasRangB = !!item.tableau_rang_b;
+    const hasMusic = !!(item.paroles_musicales && item.paroles_musicales.length > 0);
+    const hasScene = !!item.scene_immersive;
+    const hasQuiz = !!item.quiz_questions;
+    return hasRangA && hasRangB && hasMusic && hasScene && hasQuiz;
+  };
+
+  const getCompletionPercentage = (item: EdnItem) => {
+    const features = [
+      !!item.tableau_rang_a,
+      !!item.tableau_rang_b,
+      !!(item.paroles_musicales && item.paroles_musicales.length > 0),
+      !!item.scene_immersive,
+      !!item.quiz_questions
+    ];
+    return Math.round((features.filter(Boolean).length / features.length) * 100);
+  };
+
+  const filteredItems = useMemo(() => {
+    return allItems.filter(item => {
+      const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           item.item_code.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      if (selectedCategory === 'all') return matchesSearch;
+      
+      const matchesCategory = (() => {
+        switch (selectedCategory) {
+          case 'complete':
+            return isItemComplete(item);
+          case 'withMusic':
+            return item.paroles_musicales && item.paroles_musicales.length > 0;
+          default:
+            return true;
+        }
+      })();
+
+      return matchesSearch && matchesCategory;
+    }).sort((a, b) => {
+      switch (sortBy) {
+        case 'completeness_score':
+          return (b.completeness_score || getCompletionPercentage(b)) - (a.completeness_score || getCompletionPercentage(a));
+        case 'updated_at':
+          return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+        default:
+          const numA = parseInt(a.item_code.replace('IC-', '') || '0');
+          const numB = parseInt(b.item_code.replace('IC-', '') || '0');
+          return numA - numB;
+      }
+    });
+  }, [allItems, searchTerm, selectedCategory, sortBy]);
+
+  const calculateStats = () => {
+    const total = allItems.length;
+    const complete = allItems.filter(isItemComplete).length;
+    const validated = allItems.filter(item => item.is_validated).length;
+    const withMusic = allItems.filter(item => item.paroles_musicales && item.paroles_musicales.length > 0).length;
+    const avgScore = total > 0 ? Math.round(allItems.reduce((sum, item) => 
+      sum + (item.completeness_score || getCompletionPercentage(item)), 0) / total) : 0;
+    
+    return { total, complete, validated, withMusic, avgScore };
+  };
+
+  const openItemModal = (item: EdnItem) => {
     setSelectedItem(item);
-    // Navigation SPA optimisée avec React Router
-    navigate(`/edn/${item.slug}`);
+    setIsModalOpen(true);
   };
 
-  // Reset de la page lors des changements de filtre
-  const handleSearchChange = (value: string) => {
-    setSearchTerm(value);
-    setCurrentPage(1);
-  };
+  const stats = calculateStats();
 
-  const handleCategoryChange = (value: string) => {
-    setSelectedCategory(value);
-    setCurrentPage(1);
-  };
-
-  // États pour l'expérience immersive
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [isHovering, setIsHovering] = useState(false);
-  const [particles, setParticles] = useState<Array<{id: number, x: number, y: number, size: number}>>([]);
-
-  // Gestion des particules interactives
-  useEffect(() => {
-    const generateParticles = () => {
-      const newParticles = Array.from({ length: 20 }, (_, i) => ({
-        id: i,
-        x: Math.random() * window.innerWidth,
-        y: Math.random() * window.innerHeight,
-        size: Math.random() * 4 + 2
-      }));
-      setParticles(newParticles);
-    };
-
-    generateParticles();
-    const interval = setInterval(generateParticles, 10000);
-    return () => clearInterval(interval);
-  }, []);
-
-  // Suivi de la souris pour les effets interactifs
-  useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({ x: e.clientX, y: e.clientY });
-    };
-
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
+          <p className="text-muted-foreground">Chargement...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900/95 via-purple-900/90 to-indigo-900/95 relative overflow-hidden">
-      {/* Particules interactives flottantes */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {particles.map((particle) => (
-          <div
-            key={particle.id}
-            className="absolute animate-float opacity-30"
-            style={{
-              left: `${particle.x}px`,
-              top: `${particle.y}px`,
-              width: `${particle.size}px`,
-              height: `${particle.size}px`,
-              background: 'radial-gradient(circle, rgba(168, 85, 247, 0.8), rgba(59, 130, 246, 0.4))',
-              borderRadius: '50%',
-              filter: 'blur(1px)',
-              animationDelay: `${Math.random() * 2}s`,
-              animationDuration: `${3 + Math.random() * 2}s`
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Effets d'aura interactifs basés sur la position de la souris */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div 
-          className="absolute w-96 h-96 bg-purple-500/20 rounded-full blur-3xl transition-all duration-700 ease-out"
-          style={{
-            left: `${mousePosition.x - 192}px`,
-            top: `${mousePosition.y - 192}px`,
-            transform: `scale(${isHovering ? 1.2 : 1})`,
-            opacity: isHovering ? 0.4 : 0.2
-          }}
-        />
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/15 rounded-full blur-3xl animate-pulse"></div>
-        <div className="absolute bottom-1/4 right-1/4 w-80 h-80 bg-blue-500/15 rounded-full blur-3xl animate-pulse delay-1000"></div>
-        <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-indigo-500/15 rounded-full blur-3xl animate-pulse delay-500"></div>
-        
-        {/* Ligne de lumière qui suit la souris */}
-        <div 
-          className="absolute w-1 h-full bg-gradient-to-b from-transparent via-purple-400/30 to-transparent transition-all duration-300"
-          style={{ left: `${mousePosition.x}px` }}
-        />
-      </div>
-
-      <div className="relative z-10">
-        <Breadcrumbs />
-        
-        {/* Navigation Header */}
-        <div className="container mx-auto px-4 py-4">
-          <Button 
-            variant="ghost"
-            size="sm"
-            onClick={() => navigate('/')}
-            className="flex items-center gap-2 text-white/80 hover:text-white hover:bg-white/10 mb-4"
-            aria-label="Retourner à la page d'accueil"
-          >
-            <BookOpen className="h-4 w-4" />
-            Retour à l'accueil
-          </Button>
-        </div>
-
-        {/* Header Suno-inspired avec interactions avancées */}
-        <div 
-          className="bg-black/20 backdrop-blur-xl border-b border-white/10 sticky top-0 z-40 shadow-2xl shadow-purple-500/10"
-          onMouseEnter={() => setIsHovering(true)}
-          onMouseLeave={() => setIsHovering(false)}
-        >
-          <div className="container mx-auto px-6 py-6 relative">
-            <Breadcrumbs />
-            <div className="text-center mb-8">
-            <div className="flex items-center justify-center gap-4 mb-6">
-              <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-blue-500 rounded-3xl flex items-center justify-center shadow-2xl shadow-purple-500/50 relative">
-                <BookOpen className="h-8 w-8 text-white" />
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-400/20 to-blue-400/20 rounded-3xl blur animate-pulse"></div>
+    <div className="min-h-screen bg-background">
+      {/* Header simplifié */}
+      <div className="bg-card/80 backdrop-blur-sm border-b sticky top-0 z-40">
+        <div className="container mx-auto px-6 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                <BookOpen className="h-5 w-5 text-white" />
               </div>
               <div>
-                <h1 className="text-4xl font-bold bg-gradient-to-r from-white via-purple-200 to-blue-200 bg-clip-text text-transparent mb-2" id="main-content">
-                  EDN Interface Musicale
-                </h1>
-                <p className="text-gray-300 text-lg">
-                  {!statsLoading && `${stats.total} items médicaux • Page ${currentPage}/${totalPages} • Génération IA`}
-                </p>
+                <h1 className="text-xl font-bold text-foreground">Interface EDN</h1>
+                <p className="text-sm text-muted-foreground">{stats.total} items • {stats.complete} complets</p>
               </div>
             </div>
             
-            <div className="flex items-center justify-center gap-3 mb-6">
-              <div className="flex items-center gap-2 bg-green-500/20 backdrop-blur-sm rounded-full px-4 py-2 border border-green-400/30">
-                <CheckCircle className="h-4 w-4 text-green-400" />
-                <span className="text-green-300 text-sm font-medium">Interface Complète Active</span>
-              </div>
-              <div className="flex items-center gap-2 bg-purple-500/20 backdrop-blur-sm rounded-full px-4 py-2 border border-purple-400/30">
-                <Music className="h-4 w-4 text-purple-400" />
-                <span className="text-purple-300 text-sm font-medium">Génération Musicale IA</span>
-              </div>
-            </div>
-          </div>
-          
-          <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <React.Suspense fallback={<div className="w-8 h-6 bg-white/10 rounded animate-pulse"></div>}>
-                <QuotaIndicator compact />
-              </React.Suspense>
-            </div>
-            
-            <div className="flex items-center gap-4">
+              <QuotaIndicator compact />
               <Tabs value={activeTab} onValueChange={setActiveTab}>
-                <TabsList className="bg-black/40 backdrop-blur-sm border border-white/20 shadow-2xl rounded-2xl p-1">
-                  <TabsTrigger value="immersive" className="text-sm font-medium rounded-xl text-gray-300 data-[state=active]:text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600">
-                    🎵 Immersif
-                  </TabsTrigger>
-                  <TabsTrigger value="music" className="text-sm font-medium rounded-xl text-gray-300 data-[state=active]:text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600">
-                    🎼 Paroles
-                  </TabsTrigger>
-                  <TabsTrigger value="revision" className="text-sm font-medium rounded-xl text-gray-300 data-[state=active]:text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600">
-                    📚 Révisions
-                  </TabsTrigger>
-                  <TabsTrigger value="progress" className="text-sm font-medium rounded-xl text-gray-300 data-[state=active]:text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600">
-                    🏆 Progrès
-                  </TabsTrigger>
-                  <TabsTrigger value="subscription" className="text-sm font-medium rounded-xl text-gray-300 data-[state=active]:text-white data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-600 data-[state=active]:to-blue-600">
-                    ⭐ Premium
-                  </TabsTrigger>
+                <TabsList className="bg-muted">
+                  <TabsTrigger value="immersive" className="text-xs">Immersif</TabsTrigger>
+                  <TabsTrigger value="complete" className="text-xs">Complet</TabsTrigger>
+                  <TabsTrigger value="music" className="text-xs">Paroles</TabsTrigger>
+                  <TabsTrigger value="revision" className="text-xs">Révisions</TabsTrigger>
+                  <TabsTrigger value="subscription" className="text-xs">Abonnement</TabsTrigger>
                 </TabsList>
               </Tabs>
-              
-            <ContextualHelp page="edn" element="lyrics">
-              <PulseButton 
-                onClick={() => setShowLyricsManager(true)}
-                className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 text-white shadow-2xl shadow-purple-500/50 border border-white/20 backdrop-blur-sm"
-                variant="primary"
-              >
-                <Music className="h-4 w-4 mr-2" />
-                Paroles Globales
-              </PulseButton>
-            </ContextualHelp>
             </div>
           </div>
         </div>
       </div>
 
-      <div className={`container mx-auto relative ${spacing.container}`}>
-        {/* Statistiques gamifiées */}
-        <div className="mb-8">
-          <StatisticsCards />
-        </div>
-
-        {/* Statistiques style Suno - Optimisées pour mobile et tablettes */}
-        {!statsLoading && (
-          <div className={`grid ${gridConfig.stats} ${gridConfig.gap} mb-6 md:mb-8`}>
-            <MagneticHover>
-              <Card className="bg-white/10 backdrop-blur-sm border border-blue-400/30 hover:border-blue-400/50 transition-all duration-300 hover:scale-105 shadow-xl shadow-blue-500/20 group cursor-pointer">
-                <CardContent className="p-4 text-center relative overflow-hidden">
-                  <div className="absolute inset-0 bg-gradient-to-br from-blue-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                  <div className="relative z-10">
-                    <div className="text-3xl font-bold text-blue-400 mb-1">{stats.total}</div>
-                    <div className="text-sm text-blue-300">Items Total</div>
-                  </div>
-                </CardContent>
-              </Card>
-            </MagneticHover>
-            
-            <Card className="bg-white/10 backdrop-blur-sm border border-green-400/30 hover:border-green-400/50 transition-all duration-300 hover:scale-105 shadow-xl shadow-green-500/20 group">
-              <CardContent className="p-4 text-center relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-green-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div className="relative z-10">
-                  <div className="text-3xl font-bold text-green-400 mb-1">{stats.complete}</div>
-                  <div className="text-sm text-green-300">Complets</div>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-white/10 backdrop-blur-sm border border-purple-400/30 hover:border-purple-400/50 transition-all duration-300 hover:scale-105 shadow-xl shadow-purple-500/20 group">
-              <CardContent className="p-4 text-center relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div className="relative z-10">
-                  <div className="text-3xl font-bold text-purple-400 mb-1">{stats.withMusic}</div>
-                  <div className="text-sm text-purple-300">Avec Paroles</div>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-white/10 backdrop-blur-sm border border-orange-400/30 hover:border-orange-400/50 transition-all duration-300 hover:scale-105 shadow-xl shadow-orange-500/20 group">
-              <CardContent className="p-4 text-center relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-orange-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div className="relative z-10">
-                  <div className="text-3xl font-bold text-orange-400 mb-1">{stats.validated}</div>
-                  <div className="text-sm text-orange-300">Validés</div>
-                </div>
-              </CardContent>
-            </Card>
-            
-            <Card className="bg-white/10 backdrop-blur-sm border border-indigo-400/30 hover:border-indigo-400/50 transition-all duration-300 hover:scale-105 shadow-xl shadow-indigo-500/20 group">
-              <CardContent className="p-4 text-center relative overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-br from-indigo-500/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-                <div className="relative z-10">
-                  <div className="text-3xl font-bold text-indigo-400 mb-1">{stats.avgScore}%</div>
-                  <div className="text-sm text-indigo-300">Score Moy.</div>
-                </div>
-              </CardContent>
-            </Card>
+      <div className="container mx-auto px-6 py-4">
+        {/* Contrôles */}
+        <div className="flex flex-col gap-3 mb-6">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+            <Input
+              placeholder="Rechercher..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
           </div>
-        )}
 
-        {/* Contrôles de filtrage style Suno - Layout mobile optimisé */}
-        <ProgressiveDisclosure 
-          title="Contrôles de recherche et filtrage"
-          initialOpen={true}
-          level={1}
-          persistState={true}
-          storageKey="edn-filters"
-          previewContent="Recherche avancée et filtres intelligents"
-        >
-          <div className={`flex ${gridConfig.navigation} ${gridConfig.gap} bg-black/20 backdrop-blur-xl rounded-xl ${spacing.element} border border-white/10 shadow-xl`}>
-            <ContextualHelp page="edn" element="search">
-            <div className="relative flex-1">
-              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-              <Input
-                placeholder="Rechercher par titre ou code medical... (Appuyez sur /)"
-                value={searchTerm}
-                onChange={(e) => handleSearchChange(e.target.value)}
-                className="pl-12 bg-white/10 border-white/20 text-white placeholder-gray-400 focus:border-purple-400/50 focus:ring-2 focus:ring-purple-400/20 h-12 text-lg rounded-xl transition-all duration-200"
-                aria-label="Rechercher des items EDN par titre ou code médical"
-              />
+          <div className="flex gap-2 items-center justify-between">
+            <div className="flex gap-2">
+              <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+                <SelectTrigger className="w-[120px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Tous</SelectItem>
+                  <SelectItem value="complete">Complets</SelectItem>
+                  <SelectItem value="withMusic">Avec musique</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
+                <SelectTrigger className="w-[120px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="item_code">Code</SelectItem>
+                  <SelectItem value="completeness_score">Score</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-          </ContextualHelp>
 
-          <div className="flex gap-3">
-            <Select 
-              value={selectedCategory} 
-              onValueChange={handleCategoryChange}
-            >
-              <SelectTrigger 
-                className={`${isMobile ? 'w-full' : 'w-[160px]'} bg-white/10 border-white/20 text-white h-12 rounded-xl`}
-                aria-label="Filtrer les items EDN par catégorie"
-              >
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="bg-black/90 border-white/20 backdrop-blur-xl">
-                <SelectItem value="all" className="text-white hover:bg-white/10">🎯 Tous</SelectItem>
-                <SelectItem value="complete" className="text-white hover:bg-white/10">✅ Complets</SelectItem>
-                <SelectItem value="withMusic" className="text-white hover:bg-white/10">🎵 Avec paroles</SelectItem>
-                <SelectItem value="validated" className="text-white hover:bg-white/10">⭐ Validés</SelectItem>
-              </SelectContent>
-            </Select>
-
-            <div className={`flex ${isMobile ? 'flex-col' : 'gap-1'} border border-white/20 rounded-xl bg-white/10`}>
+            <div className="flex gap-1 border rounded-md">
               <Button
                 variant={viewMode === 'grid' ? 'default' : 'ghost'}
                 size="sm"
                 onClick={() => setViewMode('grid')}
-                className={`${isMobile ? 'w-full rounded-t-xl rounded-b-none' : 'rounded-r-none'} h-12 px-4 ${viewMode === 'grid' ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white' : 'text-gray-300 hover:text-white hover:bg-white/10'}`}
-                aria-label={`Afficher en mode grille ${viewMode === 'grid' ? '(sélectionné)' : ''}`}
+                className="rounded-r-none"
               >
                 <Grid className="h-4 w-4" />
-                {isMobile && <span className="ml-2">Grille</span>}
               </Button>
               <Button
                 variant={viewMode === 'list' ? 'default' : 'ghost'}
                 size="sm"
                 onClick={() => setViewMode('list')}
-                className={`${isMobile ? 'w-full rounded-b-xl rounded-t-none' : 'rounded-l-none'} h-12 px-4 ${viewMode === 'list' ? 'bg-gradient-to-r from-purple-600 to-blue-600 text-white' : 'text-gray-300 hover:text-white hover:bg-white/10'}`}
-                aria-label={`Afficher en mode liste ${viewMode === 'list' ? '(sélectionné)' : ''}`}
+                className="rounded-l-none"
               >
                 <List className="h-4 w-4" />
-                {isMobile && <span className="ml-2">Liste</span>}
               </Button>
             </div>
-            </div>
           </div>
-        </ProgressiveDisclosure>
+        </div>
 
         {/* Contenu des onglets */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsContent value="immersive">
-            <div className="grid lg:grid-cols-4 gap-6">
-              <div className="lg:col-span-3">
-                <EdnItemGrid
-                  items={items}
-                  loading={loading}
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  onPageChange={setCurrentPage}
-                  onItemClick={handleItemClick}
-                  searchTerm={searchTerm}
-                  selectedCategory={selectedCategory}
-                />
-              </div>
-              <div className="space-y-6">
-                <EdnRecommendations />
-                <EdnQuickActions />
-                <EdnProgressTracker />
-              </div>
+            <div className="grid gap-4">
+              {viewMode === 'grid' ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {filteredItems.map(item => (
+                    <Card key={item.id} className="cursor-pointer hover:shadow-sm" onClick={() => openItemModal(item)}>
+                      <CardContent className="p-4">
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <h3 className="font-semibold">{item.item_code}</h3>
+                            <Badge variant="outline">{getCompletionPercentage(item)}%</Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground line-clamp-2">{item.title}</p>
+                          <div className="flex gap-1 flex-wrap">
+                            {item.scene_immersive && (
+                              <Badge variant="secondary" className="text-xs">3D</Badge>
+                            )}
+                            {item.quiz_questions && (
+                              <Badge variant="secondary" className="text-xs">Quiz</Badge>
+                            )}
+                            {item.paroles_musicales && item.paroles_musicales.length > 0 && (
+                              <Badge variant="secondary" className="text-xs">Musique</Badge>
+                            )}
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {filteredItems.map(item => (
+                    <Card key={item.id} className="cursor-pointer hover:shadow-sm" onClick={() => openItemModal(item)}>
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <h3 className="font-semibold">{item.item_code}</h3>
+                            <p className="text-sm text-muted-foreground">{item.title}</p>
+                          </div>
+                          <Badge variant="outline">{getCompletionPercentage(item)}%</Badge>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
             </div>
           </TabsContent>
-          
-           <TabsContent value="music">
-             <React.Suspense fallback={<div className="text-center py-8">Chargement...</div>}>
-               <div className="space-y-6">
-                 {showLyricsManager ? (
-                   <div>
-                      <Button 
-                        onClick={() => setShowLyricsManager(false)}
-                        variant="outline"
-                        className="mb-4"
-                        aria-label="Retourner à la vue des paroles générales"
-                      >
-                        ← Retour aux paroles
-                      </Button>
-                     <GlobalLyricsManager />
-                   </div>
-                 ) : (
-                   <>
-                     <div className="flex gap-4 mb-6">
-                        <Button 
-                          onClick={() => setShowLyricsManager(true)}
-                          className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700"
-                          aria-label="Ouvrir le gestionnaire global de toutes les paroles"
-                        >
-                          <Music className="h-4 w-4 mr-2" />
-                          Gestionnaire Paroles Global
-                        </Button>
-                     </div>
-                     <UpdateAllLyricsButton />
-                     <LyricsCompletionStatus />
-                   </>
-                 )}
-               </div>
-             </React.Suspense>
-           </TabsContent>
-          
-           <TabsContent value="revision">
-             <React.Suspense fallback={<div className="text-center py-8">Chargement...</div>}>
-               <div className="grid lg:grid-cols-3 gap-6">
-                 <div className="lg:col-span-2">
-                   <RevisionDashboard />
-                 </div>
-                 <div className="space-y-6">
-                   <EdnProgressTracker />
-                 </div>
-               </div>
-             </React.Suspense>
-           </TabsContent>
-           
-           <TabsContent value="progress">
-             <div className="grid lg:grid-cols-3 gap-6">
-               <div className="lg:col-span-2 space-y-6">
-                 <AchievementsPanel />
-               </div>
-               <div className="space-y-6">
-                 <ProgressOverview />
-                 <EdnProgressTracker />
-               </div>
-             </div>
-           </TabsContent>
-           
-           <TabsContent value="subscription">
-             <React.Suspense fallback={<div className="text-center py-8">Chargement...</div>}>
-               <div className="grid lg:grid-cols-2 gap-8">
-                 <div>
-                   <PricingPlans />
-                 </div>
-                 <div className="space-y-6">
-                   <EdnRecommendations />
-                   
-                   <Card className="bg-white/10 backdrop-blur-sm border border-white/20">
-                     <CardHeader>
-                       <CardTitle className="text-white flex items-center gap-2">
-                         <Sparkles className="h-5 w-5 text-yellow-400" />
-                         Avantages Premium
-                       </CardTitle>
-                     </CardHeader>
-                     <CardContent className="space-y-4">
-                       <div className="space-y-3">
-                         <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-lg border border-purple-400/30">
-                           <CheckCircle className="h-5 w-5 text-green-400" />
-                           <span className="text-white">Génération illimitée de paroles</span>
-                         </div>
-                         <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-lg border border-blue-400/30">
-                           <Music className="h-5 w-5 text-blue-400" />
-                           <span className="text-white">Accès à tous les styles musicaux</span>
-                         </div>
-                         <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-green-500/20 to-emerald-500/20 rounded-lg border border-green-400/30">
-                           <Brain className="h-5 w-5 text-green-400" />
-                           <span className="text-white">IA de recommandation avancée</span>
-                         </div>
-                         <div className="flex items-center gap-3 p-3 bg-gradient-to-r from-orange-500/20 to-red-500/20 rounded-lg border border-orange-400/30">
-                           <Users className="h-5 w-5 text-orange-400" />
-                           <span className="text-white">Collaboration en équipe</span>
-                         </div>
-                       </div>
-                       
-                       <Button 
-                         className="w-full bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-white font-semibold py-3"
-                         onClick={() => navigate('/med-mng/pricing')}
-                       >
-                         <Star className="h-4 w-4 mr-2" />
-                         Découvrir Premium
-                       </Button>
-                     </CardContent>
-                   </Card>
-                 </div>
-               </div>
-             </React.Suspense>
-           </TabsContent>
+
+          <TabsContent value="complete">
+            <div className="grid gap-4">
+              {viewMode === 'grid' ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {filteredItems.map(item => (
+                    <Card key={item.id} className="cursor-pointer hover:shadow-sm" onClick={() => openItemModal(item)}>
+                      <CardContent className="p-4">
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <h3 className="font-semibold">{item.item_code}</h3>
+                            <Badge variant={item.is_validated ? 'default' : 'outline'}>
+                              {item.is_validated ? 'Validé' : 'En attente'}
+                            </Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground line-clamp-2">{item.title}</p>
+                          <div className="flex gap-2">
+                            <Badge variant="secondary" className="text-xs">
+                              Score: {item.completeness_score || getCompletionPercentage(item)}%
+                            </Badge>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {filteredItems.map(item => (
+                    <Card key={item.id} className="cursor-pointer hover:shadow-sm" onClick={() => openItemModal(item)}>
+                      <CardContent className="p-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <span className="font-semibold text-sm">{item.item_code}</span>
+                              <span className="text-sm text-muted-foreground truncate">{item.title}</span>
+                            </div>
+                          </div>
+                          <div className="flex gap-2">
+                            <Badge variant="outline" className="text-xs">
+                              {item.completeness_score || getCompletionPercentage(item)}%
+                            </Badge>
+                            {item.is_validated && (
+                              <Badge variant="default" className="text-xs">Validé</Badge>
+                            )}
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="music">
+            <LyricsCompletionStatus />
+          </TabsContent>
+
+          <TabsContent value="revision">
+            <RevisionDashboard />
+          </TabsContent>
+
+          <TabsContent value="subscription">
+            <div className="space-y-6">
+              {/* Quota Overview */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <QuotaIndicator showDetails />
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Plan actuel</CardTitle>
+                    <CardDescription>Votre abonnement et fonctionnalités</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium">
+                          {subscription?.plan_name || 'Plan Gratuit'}
+                        </span>
+                        <Badge variant={subscription ? 'default' : 'secondary'}>
+                          {subscription ? 'Actif' : 'Gratuit'}
+                        </Badge>
+                      </div>
+                      {subscription && (
+                        <div className="text-sm text-muted-foreground">
+                          <p>Quota mensuel: {subscription.monthly_quota} crédits</p>
+                          <p>Statut: {subscription.status}</p>
+                        </div>
+                      )}
+                      {!subscription && (
+                        <div className="space-y-2">
+                          <p className="text-sm text-muted-foreground">
+                            Vous utilisez le plan gratuit avec des fonctionnalités limitées.
+                          </p>
+                          <Button 
+                            onClick={() => setShowPricing(true)}
+                            className="w-full"
+                          >
+                            Découvrir nos plans
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Pricing Plans */}
+              {showPricing && (
+                <div>
+                  <h3 className="text-lg font-semibold mb-4">Choisissez votre plan</h3>
+                  <PricingPlans 
+                    onSelectPlan={(planId) => {
+                      navigate(`/med-mng/subscribe/${planId}`);
+                    }}
+                  />
+                </div>
+              )}
+
+              {/* Usage Stats */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Utilisation des fonctionnalités</CardTitle>
+                  <CardDescription>
+                    Découvrez comment optimiser votre apprentissage avec nos outils IA
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="p-4 bg-blue-50 rounded-lg">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Music className="h-5 w-5 text-blue-600" />
+                        <span className="font-medium">Musique IA</span>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Générez des chansons mnémotechniques personnalisées
+                      </p>
+                      <p className="text-xs mt-2 text-blue-600">
+                        Coût: 5 crédits par génération
+                      </p>
+                    </div>
+                    
+                    <div className="p-4 bg-green-50 rounded-lg">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Brain className="h-5 w-5 text-green-600" />
+                        <span className="font-medium">QCM IA</span>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Créez des QCM adaptatifs intelligents
+                      </p>
+                      <p className="text-xs mt-2 text-green-600">
+                        Coût: 2 crédits par QCM
+                      </p>
+                    </div>
+                    
+                    <div className="p-4 bg-purple-50 rounded-lg">
+                      <div className="flex items-center gap-2 mb-2">
+                        <FileText className="h-5 w-5 text-purple-600" />
+                        <span className="font-medium">Bandes Dessinées</span>
+                      </div>
+                      <p className="text-sm text-muted-foreground">
+                        Transformez les concepts en BD éducatives
+                      </p>
+                      <p className="text-xs mt-2 text-purple-600">
+                        Coût: 10 crédits par BD
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {quota <= 5 && (
+                <Alert>
+                  <AlertTriangle className="h-4 w-4" />
+                  <AlertDescription>
+                    Attention: Il vous reste seulement {quota} crédits. 
+                    Considérez un abonnement pour continuer à utiliser nos fonctionnalités IA.
+                  </AlertDescription>
+                </Alert>
+              )}
+            </div>
+          </TabsContent>
+
+          <TabsContent value="unified">
+            <div className="grid gap-4">
+              {viewMode === 'grid' ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {filteredItems.map(item => (
+                    <Card key={item.id} className="cursor-pointer hover:shadow-sm" onClick={() => openItemModal(item)}>
+                      <CardContent className="p-4">
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <h3 className="font-semibold">{item.item_code}</h3>
+                            <Badge variant="outline">{getCompletionPercentage(item)}%</Badge>
+                          </div>
+                          <p className="text-sm text-muted-foreground line-clamp-2">{item.title}</p>
+                          <div className="flex gap-1 flex-wrap">
+                            {item.tableau_rang_a && (
+                              <Badge variant="secondary" className="text-xs">Rang A</Badge>
+                            )}
+                            {item.tableau_rang_b && (
+                              <Badge variant="secondary" className="text-xs">Rang B</Badge>
+                            )}
+                            {item.paroles_musicales && item.paroles_musicales.length > 0 && (
+                              <Badge variant="secondary" className="text-xs">Musique</Badge>
+                            )}
+                            {item.scene_immersive && (
+                              <Badge variant="secondary" className="text-xs">3D</Badge>
+                            )}
+                            {item.quiz_questions && (
+                              <Badge variant="secondary" className="text-xs">Quiz</Badge>
+                            )}
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {filteredItems.map(item => (
+                    <Card key={item.id} className="cursor-pointer hover:shadow-sm" onClick={() => openItemModal(item)}>
+                      <CardContent className="p-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <span className="font-semibold text-sm">{item.item_code}</span>
+                              <span className="text-sm text-muted-foreground truncate">{item.title}</span>
+                            </div>
+                            <div className="flex gap-1">
+                              {item.tableau_rang_a && <Badge variant="secondary" className="text-xs px-1">A</Badge>}
+                              {item.tableau_rang_b && <Badge variant="secondary" className="text-xs px-1">B</Badge>}
+                              {item.paroles_musicales && item.paroles_musicales.length > 0 && <Badge variant="secondary" className="text-xs px-1">M</Badge>}
+                              {item.scene_immersive && <Badge variant="secondary" className="text-xs px-1">3D</Badge>}
+                              {item.quiz_questions && <Badge variant="secondary" className="text-xs px-1">Q</Badge>}
+                            </div>
+                          </div>
+                          <Badge variant="outline" className="text-xs">
+                            {getCompletionPercentage(item)}%
+                          </Badge>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </div>
+          </TabsContent>
         </Tabs>
-        </div>
-        
-        {/* Améliorations ergonomiques */}
-        <ErgonomicEnhancements 
-          page="edn"
-          showQuickActions={true}
-          showScrollToTop={true}
-          showKeyboardHints={true}
-          showFocusMode={true}
-        />
+
+        {filteredItems.length === 0 && (
+          <Card className="text-center py-8">
+            <CardContent>
+              <Search className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="font-semibold mb-2">Aucun résultat</h3>
+              <p className="text-sm text-muted-foreground">
+                Aucun item ne correspond à vos critères.
+              </p>
+            </CardContent>
+          </Card>
+        )}
       </div>
+
+      {/* Modal */}
+      <EdnItemModal
+        item={selectedItem}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </div>
   );
 }

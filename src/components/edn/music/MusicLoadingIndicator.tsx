@@ -3,7 +3,7 @@ import { Loader2, Music } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 
 interface MusicLoadingIndicatorProps {
-  rang: 'A' | 'B' | 'AB';
+  rang: 'A' | 'B';
   duration: number;
   isVisible: boolean;
 }
@@ -17,12 +17,12 @@ export const MusicLoadingIndicator = ({ rang, duration, isVisible }: MusicLoadin
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
-  const cardColor = rang === 'AB' ? 'purple' : rang === 'A' ? 'amber' : 'blue';
-  const bgColor = rang === 'AB' ? 'bg-purple-100' : rang === 'A' ? 'bg-amber-100' : 'bg-blue-100';
-  const borderColor = rang === 'AB' ? 'border-purple-300' : rang === 'A' ? 'border-amber-300' : 'border-blue-300';
-  const textColor = rang === 'AB' ? 'text-purple-800' : rang === 'A' ? 'text-amber-800' : 'text-blue-800';
-  const iconColor = rang === 'AB' ? 'text-purple-600' : rang === 'A' ? 'text-amber-600' : 'text-blue-600';
-  const progressColor = rang === 'AB' ? 'bg-purple-500' : rang === 'A' ? 'bg-amber-500' : 'bg-blue-500';
+  const cardColor = rang === 'A' ? 'amber' : 'blue';
+  const bgColor = rang === 'A' ? 'bg-amber-100' : 'bg-blue-100';
+  const borderColor = rang === 'A' ? 'border-amber-300' : 'border-blue-300';
+  const textColor = rang === 'A' ? 'text-amber-800' : 'text-blue-800';
+  const iconColor = rang === 'A' ? 'text-amber-600' : 'text-blue-600';
+  const progressColor = rang === 'A' ? 'bg-amber-500' : 'bg-blue-500';
 
   return (
     <div className={`${bgColor} ${borderColor} border-2 rounded-lg p-6 mb-6 shadow-lg`}>
@@ -34,7 +34,7 @@ export const MusicLoadingIndicator = ({ rang, duration, isVisible }: MusicLoadin
         
         <div className="flex-1 text-center">
           <h3 className={`text-xl font-bold ${textColor} mb-2`}>
-            🎵 Génération en cours - {rang === 'AB' ? 'Fusion A+B' : `Rang ${rang}`}
+            🎵 Génération en cours - Rang {rang}
           </h3>
           <p className={`text-lg ${textColor} font-medium mb-3`}>
             Création de votre chanson ({formatDuration(duration)})
@@ -44,7 +44,6 @@ export const MusicLoadingIndicator = ({ rang, duration, isVisible }: MusicLoadin
             <Progress 
               value={75} 
               className={`h-3 mb-2`}
-              aria-label={`Génération musicale en cours - ${rang === 'AB' ? 'Fusion A+B' : `Rang ${rang}`}`}
             />
             <p className={`text-sm ${textColor} opacity-80`}>
               🎤 Génération avec Suno AI en cours...

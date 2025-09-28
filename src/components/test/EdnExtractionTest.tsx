@@ -115,7 +115,7 @@ export const EdnExtractionTest = () => {
       toast.info("🔄 Chargement des items extraits...");
       
       const { data, error } = await supabase
-        .from('edn_items_complete')
+        .from('edn_items_immersive')
         .select('*')
         .order('updated_at', { ascending: false })
         .limit(10);
@@ -147,7 +147,7 @@ export const EdnExtractionTest = () => {
   const loadCurrentItems = async () => {
     try {
       const { data, error } = await supabase
-        .from('edn_items_complete')
+        .from('edn_items_immersive')
         .select('item_code, title, tableau_rang_a, tableau_rang_b, paroles_musicales')
         .order('item_code')
         .limit(10);

@@ -2,39 +2,12 @@ import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { AlertCircle, RefreshCw, TestTube } from 'lucide-react';
-import { logger } from '@/lib/logger';
-
-interface ScrollTestResults {
-  documentScrollable: boolean;
-  documentOverflow: string;
-  bodyOverflow: string;
-  modalCount: number;
-  modalOverflows: Array<{
-    className: string;
-    overflow: string;
-    scrollHeight: number;
-    clientHeight: number;
-    scrollable: boolean;
-  }>;
-  fixedElements: Array<{
-    tag: string;
-    className: string;
-    zIndex: string;
-  }>;
-}
 
 export const ScrollTester: React.FC<{ enabled?: boolean }> = ({ enabled = false }) => {
   if (!enabled) return null;
 
   const testScrollability = () => {
-    const results: ScrollTestResults = {
-      documentScrollable: false,
-      documentOverflow: '',
-      bodyOverflow: '',
-      modalCount: 0,
-      modalOverflows: [],
-      fixedElements: []
-    };
+    const results: any = {};
     
     // Test 1: Document scroll
     results.documentScrollable = document.documentElement.scrollHeight > window.innerHeight;
@@ -62,23 +35,12 @@ export const ScrollTester: React.FC<{ enabled?: boolean }> = ({ enabled = false 
       zIndex: getComputedStyle(el).zIndex
     }));
 
-    logger.info('Résultats test de scroll', {
-      component: 'ScrollTester',
-      action: 'testScrollability',
-      metadata: {
-        documentScrollable: results.documentScrollable,
-        modalCount: results.modalCount,
-        fixedElementsCount: results.fixedElements.length
-      }
-    });
+    console.log('📏 Scroll Test Results:', results);
     
     // Force scroll test
     window.scrollTo({ top: 100, behavior: 'smooth' });
     setTimeout(() => {
-      logger.debug('Position après tentative de scroll', {
-        component: 'ScrollTester',
-        metadata: { scrollY: window.scrollY }
-      });
+      console.log('📏 After scroll attempt - scrollY:', window.scrollY);
     }, 500);
   };
 

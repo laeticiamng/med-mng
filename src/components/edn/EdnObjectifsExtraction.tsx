@@ -6,9 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { EdnObjectifsExtractor } from '@/scripts/launch-edn-objectifs-extraction';
-import { PlayCircle, Pause, RefreshCw, BarChart3, CheckCircle, AlertCircle, Clock, ArrowLeft } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { logger } from '@/lib/logger';
+import { PlayCircle, Pause, RefreshCw, BarChart3, CheckCircle, AlertCircle, Clock } from 'lucide-react';
 
 interface ExtractionStatus {
   session_id: string;
@@ -37,9 +35,7 @@ interface ExtractionStats {
 }
 
 export const EdnObjectifsExtraction: React.FC = () => {
-  logger.info('EdnObjectifsExtraction component chargé', {
-    component: 'EdnObjectifsExtraction'
-  });
+  console.log('🔍 DEBUG: EdnObjectifsExtraction component loaded');
   
   const [extractor] = useState(() => new EdnObjectifsExtractor());
   const [status, setStatus] = useState<ExtractionStatus | null>(null);
@@ -49,31 +45,22 @@ export const EdnObjectifsExtraction: React.FC = () => {
   const [resumeSessionId, setResumeSessionId] = useState<string>('');
 
   const handleStartExtraction = async () => {
-    logger.info('Démarrage extraction EDN', {
-      component: 'EdnObjectifsExtraction',
-      action: 'handleStartExtraction'
-    });
+    console.log('🔍 DEBUG: handleStartExtraction called');
     
     try {
+      console.log('🔍 DEBUG: Setting states...');
       setError(null);
       setIsExtracting(true);
       
+      console.log('🔍 DEBUG: Calling extractor.startExtraction()...');
       const result = await extractor.startExtraction();
       
-      logger.info('Extraction démarrée avec succès', {
-        component: 'EdnObjectifsExtraction',
-        metadata: { sessionId: result?.session_id }
-      });
+      console.log('🔍 DEBUG: Extraction started successfully:', result);
       
       // Démarre le polling du statut
+      console.log('🔍 DEBUG: Starting status polling...');
       extractor.startStatusPolling((newStatus) => {
-        logger.debug('Mise à jour statut extraction', {
-          component: 'EdnObjectifsExtraction',
-          metadata: {
-            status: newStatus.status,
-            progress: `${newStatus.items_extracted}/${newStatus.total_expected}`
-          }
-        });
+        console.log('🔍 DEBUG: Status update received:', newStatus);
         setStatus(newStatus);
         
         if (newStatus.status === 'termine' || newStatus.status === 'erreur') {
@@ -84,14 +71,9 @@ export const EdnObjectifsExtraction: React.FC = () => {
         }
       });
       
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
-      logger.error('Erreur lors du démarrage extraction', {
-        component: 'EdnObjectifsExtraction',
-        action: 'handleStartExtraction',
-        metadata: { errorMessage }
-      });
-      setError(errorMessage);
+    } catch (err: any) {
+      console.error('❌ DEBUG: Error in handleStartExtraction:', err);
+      setError(err.message);
       setIsExtracting(false);
     }
   };
@@ -119,14 +101,8 @@ export const EdnObjectifsExtraction: React.FC = () => {
         }
       });
       
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
-      logger.error('Erreur lors de la reprise extraction', {
-        component: 'EdnObjectifsExtraction',
-        action: 'handleResumeExtraction',
-        metadata: { sessionId: resumeSessionId, errorMessage }
-      });
-      setError(errorMessage);
+    } catch (err: any) {
+      setError(err.message);
       setIsExtracting(false);
     }
   };
@@ -141,14 +117,8 @@ export const EdnObjectifsExtraction: React.FC = () => {
       setError(null);
       const rapport = await extractor.generateRapport();
       setStats(rapport);
-    } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
-      logger.error('Erreur génération rapport', {
-        component: 'EdnObjectifsExtraction',
-        action: 'handleGenerateRapport',
-        metadata: { errorMessage }
-      });
-      setError(errorMessage);
+    } catch (err: any) {
+      setError(err.message);
     }
   };
 
@@ -190,18 +160,6 @@ export const EdnObjectifsExtraction: React.FC = () => {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      {/* Navigation Button */}
-      <div className="flex items-center justify-between mb-6">
-        <Link 
-          to="/"
-          className="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors"
-          aria-label="Retourner à la page d'accueil"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Retour à l'accueil
-        </Link>
-      </div>
-      
       <div className="text-center">
         <h1 className="text-3xl font-bold text-primary mb-2">
           🎫 Extraction des Objectifs EDN LISA UNESS

@@ -1,88 +1,15 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-};
-
-type CanonicalEventType =
-  | 'generate_start'
-  | 'generate_success'
-  | 'generate_fail'
-  | 'lyrics_timecode_done'
-  | 'play'
-  | 'seek_segment'
-  | 'qcm_start'
-  | 'qcm_submit'
-  | 'qcm_complete'
-  | 'bd_generate_start'
-  | 'bd_generate_success'
-  | 'bd_generate_fail'
-  | 'study_start'
-  | 'study_end'
-  | 'sync_success'
-  | 'sync_fail';
-
-interface TrackingPayload {
-  eventType: CanonicalEventType;
-  metadata?: Record<string, unknown>;
-  userId: string;
-  sessionId?: string;
-  contentRef?: string | null;
 }
 
-const ALLOWED_EVENTS = new Set<CanonicalEventType>([
-  'generate_start',
-  'generate_success',
-  'generate_fail',
-  'lyrics_timecode_done',
-  'play',
-  'seek_segment',
-  'qcm_start',
-  'qcm_submit',
-  'qcm_complete',
-  'bd_generate_start',
-  'bd_generate_success',
-  'bd_generate_fail',
-  'study_start',
-  'study_end',
-  'sync_success',
-  'sync_fail',
-]);
-
-type Json = Record<string, unknown> | null;
-
-function toJson(value: unknown): Json {
-  if (value === null || value === undefined) {
-    return null;
-  }
-
-  if (typeof value !== 'object') {
-    return { value };
-  }
-
-  try {
-    // Ensure serialisable metadata
-    JSON.stringify(value);
-    return value as Record<string, unknown>;
-  } catch (_error) {
-    return { value: String(value) };
-  }
-}
-
-function errorResponse(status: number, message: string) {
-  return new Response(
-    JSON.stringify({ success: false, error: message }),
-    {
-      status,
-      headers: {
-        ...corsHeaders,
-        'Content-Type': 'application/json',
-      },
-    },
-  );
+interface TrackingEvent {
+  event: string;
+  properties: Record<string, any>;
+  userId?: string;
 }
 
 serve(async (req) => {
@@ -90,63 +17,94 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
-  if (req.method !== 'POST') {
-    return errorResponse(405, 'Method not allowed');
-  }
-
-  const supabaseUrl = Deno.env.get('SUPABASE_URL');
-  const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
-
-  if (!supabaseUrl || !serviceRoleKey) {
-    console.error('Missing Supabase configuration');
-    return errorResponse(500, 'Configuration error');
-  }
-
   try {
-    const payload = await req.json() as TrackingPayload;
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+    );
 
-    if (!payload?.userId) {
-      return errorResponse(400, 'userId is required');
+    const { event, properties, userId }: TrackingEvent = await req.json();
+
+    console.log('📊 Tracking event:', event, 'for user:', userId);
+
+    // Enrichir les données avec des infos contextuelles
+    const enrichedProperties = {
+      ...properties,
+      timestamp: new Date().toISOString(),
+      server_timestamp: Date.now(),
+      event_id: crypto.randomUUID()
+    };
+
+    // Enregistrer dans user_activity_logs
+    const { error: logError } = await supabase
+      .from('user_activity_logs')
+      .insert({
+        user_id: userId,
+        session_id: properties.sessionId || crypto.randomUUID(),
+        activity_type: event,
+        activity_details: enrichedProperties,
+        ip_address: req.headers.get('x-forwarded-for') || 'unknown',
+        user_agent: req.headers.get('user-agent') || 'unknown',
+        url: properties.url || 'unknown',
+        performance_metrics: properties.performance || {}
+      });
+
+    if (logError) {
+      console.error('❌ Error logging activity:', logError);
+      throw logError;
     }
 
-    if (!payload?.eventType || !ALLOWED_EVENTS.has(payload.eventType)) {
-      return errorResponse(400, 'Unsupported eventType');
+    // Mise à jour des métriques en temps réel si événement critique
+    const criticalEvents = ['music_generation', 'error', 'payment', 'subscription'];
+    if (criticalEvents.includes(event)) {
+      console.log('🚨 Critical event detected, updating metrics');
+      
+      // Ici on pourrait déclencher des webhooks ou notifications
+      const { error: notifError } = await supabase
+        .from('user_notifications')
+        .insert({
+          user_id: userId,
+          type: event === 'error' ? 'error' : 'info',
+          title: `Événement ${event}`,
+          message: `Événement ${event} tracké avec succès`,
+          category: 'system',
+          priority: event === 'error' ? 'high' : 'medium'
+        });
+
+      if (notifError) {
+        console.warn('⚠️ Failed to create notification:', notifError);
+      }
     }
-
-    const supabase = createClient(supabaseUrl, serviceRoleKey);
-
-    const { data, error } = await supabase.rpc('log_analytics_event', {
-      p_user_id: payload.userId,
-      p_event_type: payload.eventType,
-      p_metadata: toJson(payload.metadata) ?? {},
-      p_content_ref: payload.contentRef ?? null,
-      p_session_id: payload.sessionId ?? null,
-    });
-
-    if (error) {
-      console.error('Failed to log analytics event', error);
-      return errorResponse(500, 'Failed to persist analytics event');
-    }
-
-    const tracked = Boolean(data);
 
     return new Response(
-      JSON.stringify({
-        success: true,
-        tracked,
-        eventId: data,
-        eventType: payload.eventType,
+      JSON.stringify({ 
+        success: true, 
+        eventId: enrichedProperties.event_id,
+        timestamp: enrichedProperties.timestamp
       }),
-      {
-        status: tracked ? 201 : 202,
-        headers: {
+      { 
+        headers: { 
           ...corsHeaders,
-          'Content-Type': 'application/json',
-        },
-      },
+          'Content-Type': 'application/json' 
+        } 
+      }
     );
+
   } catch (error) {
-    console.error('analytics-tracker error', error);
-    return errorResponse(400, 'Invalid analytics payload');
+    console.error('❌ Analytics tracking error:', error);
+    
+    return new Response(
+      JSON.stringify({ 
+        error: 'Failed to track event',
+        details: error.message 
+      }),
+      { 
+        status: 500,
+        headers: { 
+          ...corsHeaders,
+          'Content-Type': 'application/json' 
+        } 
+      }
+    );
   }
-});
+})

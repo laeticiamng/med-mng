@@ -63,14 +63,12 @@ export const SecurityHeaders: React.FC<SecurityHeadersProps> = ({
       <meta name="twitter:title" content={title} />
       <meta name="twitter:description" content={description} />
       
-      {/* Préconnexions sécurisées optimisées */}
-      <link rel="preconnect" href="https://fonts.googleapis.com" />
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-      <link rel="preconnect" href="https://yaincoxihiqdksxgrsrk.supabase.co" />
+      {/* Préconnexions sécurisées */}
+      <link rel="preconnect" href="https://yaincoxihiqdksxgrsrk.supabase.co" crossOrigin="anonymous" />
+      <link rel="preconnect" href="https://fonts.googleapis.com" crossOrigin="anonymous" />
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       
       {/* DNS Prefetch pour optimisation */}
-      <link rel="dns-prefetch" href="//fonts.googleapis.com" />
-      <link rel="dns-prefetch" href="//fonts.gstatic.com" />
       <link rel="dns-prefetch" href="//yaincoxihiqdksxgrsrk.supabase.co" />
       
       {/* Favicon sécurisé */}

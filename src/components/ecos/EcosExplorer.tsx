@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
 import { toast } from "sonner";
-import { Link } from 'react-router-dom';
 import { 
   Search, 
   Filter, 
@@ -16,8 +15,7 @@ import {
   Loader2,
   RefreshCw,
   Grid,
-  List,
-  ArrowLeft
+  List
 } from "lucide-react";
 import { ecosService, EcosSituation, EcosSearchResult } from '@/services/ecosService';
 
@@ -227,18 +225,6 @@ export const EcosExplorer: React.FC<EcosExplorerProps> = ({ className }) => {
 
   return (
     <div className={className}>
-      {/* Navigation Button */}
-      <div className="flex items-center justify-between mb-6">
-        <Link 
-          to="/"
-          className="flex items-center gap-2 text-blue-600 hover:text-blue-800 transition-colors"
-          aria-label="Retourner à la page d'accueil"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Retour à l'accueil
-        </Link>
-      </div>
-      
       {/* Header */}
       <Card className="mb-6">
         <CardHeader>

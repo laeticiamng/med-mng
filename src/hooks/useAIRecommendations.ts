@@ -1,7 +1,6 @@
 import { useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { errorService } from '@/services/core/ErrorService';
 
 interface AIRecommendation {
   reason: string;
@@ -40,7 +39,7 @@ export const useAIRecommendations = () => {
 
       return data;
     } catch (error) {
-      errorService.handleError(error, 'user_action', true);
+      console.error('Erreur génération recommandations:', error);
       toast({
         title: "Erreur",
         description: "Impossible de générer les recommandations.",
@@ -71,7 +70,7 @@ export const useAIRecommendations = () => {
 
       return data;
     } catch (error) {
-      errorService.handleError(error, 'user_action', true);
+      console.error('Erreur playlist personnalisée:', error);
       toast({
         title: "Erreur",
         description: "Impossible de créer la playlist personnalisée.",
@@ -106,7 +105,7 @@ export const useAIRecommendations = () => {
         description: "Vos préférences ont été mises à jour."
       });
     } catch (error) {
-      errorService.handleError(error, 'user_action', true);
+      console.error('Erreur sauvegarde préférences:', error);
       toast({
         title: "Erreur",
         description: "Impossible de sauvegarder les préférences.",

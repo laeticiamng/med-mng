@@ -38,10 +38,7 @@ export const OnboardingModal: React.FC = () => {
 
   return (
     <Dialog open={isActive} onOpenChange={(open) => !open && skipOnboarding()}>
-      <DialogContent 
-        className="bg-background border-border shadow-lg max-w-2xl"
-        aria-describedby="onboarding-description"
-      >
+      <DialogContent className="bg-background border-border shadow-lg max-w-2xl">
         <DialogHeader>
           <div className="flex items-center justify-between">
             <DialogTitle className="text-foreground text-lg font-semibold">
@@ -51,8 +48,7 @@ export const OnboardingModal: React.FC = () => {
               variant="ghost"
               size="sm"
               onClick={skipOnboarding}
-              className="text-muted-foreground hover:text-foreground min-h-[44px] min-w-[44px]"
-              aria-label="Fermer le guide d'introduction"
+              className="text-muted-foreground hover:text-foreground"
             >
               <X className="h-4 w-4" />
             </Button>
@@ -60,11 +56,6 @@ export const OnboardingModal: React.FC = () => {
         </DialogHeader>
 
         <div className="space-y-6">
-          {/* Description for accessibility */}
-          <div id="onboarding-description" className="sr-only">
-            Guide d'introduction à la plateforme MED-MNG pour vous aider à découvrir les fonctionnalités principales.
-          </div>
-          
           {/* Progress */}
           <div className="space-y-3">
             <div className="flex justify-between text-sm text-muted-foreground">
@@ -93,23 +84,23 @@ export const OnboardingModal: React.FC = () => {
               variant="outline"
               onClick={previousStep}
               disabled={currentStep === 0}
-              className="flex items-center gap-2 min-h-[44px] min-w-[44px] px-4 py-2"
+              className="flex items-center gap-2"
             >
               <ArrowLeft className="h-4 w-4" />
               Précédent
             </Button>
 
-            <div className="flex gap-4">
+            <div className="flex gap-3">
               <Button
                 variant="ghost"
                 onClick={skipOnboarding}
-                className="text-muted-foreground hover:text-foreground min-h-[44px] min-w-[44px] px-4 py-2"
+                className="text-muted-foreground hover:text-foreground"
               >
                 Passer
               </Button>
               <Button
                 onClick={handleNext}
-                className="bg-primary hover:bg-primary/90 text-primary-foreground flex items-center gap-2 min-h-[44px] min-w-[44px] px-4 py-2"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground flex items-center gap-2"
               >
                 {isLastStep ? (
                   <>

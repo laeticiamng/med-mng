@@ -196,7 +196,7 @@ export async function completeIC2Item() {
     
     // Mise à jour complète de l'item IC-2 avec TOUS les éléments
     const { data, error } = await supabase
-      .from('edn_items_complete')
+      .from('edn_items_immersive')
       .upsert({
         id: 'a1b2c3d4-e5f6-7890-abcd-ef1234567890', // ID fixe pour IC-2
         slug: 'valeurs-professionnelles-medecin',

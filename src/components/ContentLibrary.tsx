@@ -1,12 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { errorService } from '@/services/core/ErrorService';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { OptimizedImage } from '@/components/ui/OptimizedImage';
-import { UltraResponsiveImage } from '@/components/ui/UltraResponsiveImage';
 import { 
   Music, 
   Mic, 
@@ -55,7 +52,7 @@ export const ContentLibrary = () => {
       const data = await getUserGeneratedContent();
       setContent(data as GeneratedItem[]);
     } catch (error) {
-      errorService.handleError(error as Error, 'system', false);
+      console.error('Erreur chargement contenu:', error);
       toast({
         title: "Erreur",
         description: "Impossible de charger votre bibliothèque.",
@@ -117,7 +114,7 @@ export const ContentLibrary = () => {
       
       await audio.play();
     } catch (error) {
-      errorService.handleError(error as Error, 'system', false);
+      console.error('Erreur lecture audio:', error);
       setPlayingItem(null);
       toast({
         title: "Erreur",
@@ -172,7 +169,7 @@ export const ContentLibrary = () => {
         URL.revokeObjectURL(url);
       }
     } catch (error) {
-      errorService.handleError(error as Error, 'user_action', true);
+      console.error('Erreur téléchargement:', error);
       toast({
         title: "Erreur",
         description: "Impossible de télécharger ce contenu.",
@@ -279,7 +276,7 @@ export const ContentLibrary = () => {
                         {formatDate(item.created_at)}
                       </div>
                     </div>
-                    <CardTitle className="text-sm line-clamp-2 text-container break-words-force">
+                    <CardTitle className="text-sm line-clamp-2">
                       {getItemTitle(item)}
                     </CardTitle>
                   </CardHeader>
@@ -287,17 +284,11 @@ export const ContentLibrary = () => {
                     <div className="space-y-3">
                       {/* Aperçu du contenu */}
                       {item.type === 'image' && item.image_base64 && (
-                        <div className="relative overflow-hidden">
-                          <UltraResponsiveImage
+                        <div className="relative">
+                          <img
                             src={`data:image/png;base64,${item.image_base64}`}
                             alt="Image générée"
-                            width={300}
-                            height={128}
-                            className="w-full h-32 rounded-md"
-                            objectFit="cover"
-                            loading="lazy"
-                            priority={false}
-                            enableProgressiveLoading={true}
+                            className="w-full h-32 object-cover rounded-md"
                           />
                         </div>
                       )}
@@ -309,7 +300,7 @@ export const ContentLibrary = () => {
                             {item.metadata?.duration ? `${item.metadata.duration}s` : 'Audio généré'}
                           </div>
                           {item.type === 'voice' && item.text && (
-                            <p className="text-xs mt-1 line-clamp-2 text-container break-words-normal">{item.text}</p>
+                            <p className="text-xs mt-1 line-clamp-2">{item.text}</p>
                           )}
                         </div>
                       )}

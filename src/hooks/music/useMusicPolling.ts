@@ -1,7 +1,5 @@
 
 import { supabase } from '@/integrations/supabase/client';
-import { MusicTrack } from '@/types';
-import { errorService } from '@/services/core/ErrorService';
 
 interface PollingConfig {
   rang: 'A' | 'B';
@@ -22,8 +20,8 @@ export const useMusicPolling = () => {
   const startPolling = ({ 
     rang, 
     requestBody, 
-    maxPolls = 18, // Augmenté pour couvrir 2-3 minutes
-    pollInterval = 5000, // Réduit à 5s - plus agressif
+    maxPolls = 8, // Drastiquement réduit à 8 (45 secondes max)
+    pollInterval = 2000, // Réduit à 2s pour plus de réactivité
     onProgress,
     onSuccess,
     onError
@@ -36,28 +34,25 @@ export const useMusicPolling = () => {
       try {
         pollCount++;
         
-        // Progression ultra-rapide sur 18 polls (90 secondes max)
+        // Progression optimisée pour 8 polls max (45 secondes)
         let baseProgress;
         if (pollCount <= 1) {
-          // Démarrage immédiat : 0-15%
-          baseProgress = Math.round((pollCount / 1) * 15);
+          // Première phase : progression rapide (0-50%)
+          baseProgress = Math.min(Math.round((pollCount / 1) * 50), 50);
         } else if (pollCount <= 4) {
-          // Phase rapide : 15-50%
-          baseProgress = 15 + Math.round(((pollCount - 1) / 3) * 35);
-        } else if (pollCount <= 10) {
-          // Phase principale : 50-85%
-          baseProgress = 50 + Math.round(((pollCount - 4) / 6) * 35);
-        } else if (pollCount <= 16) {
-          // Phase finale : 85-95%
-          baseProgress = 85 + Math.round(((pollCount - 10) / 6) * 10);
+          // Deuxième phase : progression normale (50-85%)
+          baseProgress = 50 + Math.min(Math.round(((pollCount - 1) / 3) * 35), 35);
+        } else if (pollCount <= 7) {
+          // Troisième phase : progression finale (85-98%)
+          baseProgress = 85 + Math.min(Math.round(((pollCount - 4) / 3) * 13), 13);
         } else {
-          // Dernière ligne : 95-99%
-          baseProgress = 95 + Math.min(Math.round(((pollCount - 16) / 2) * 4), 4);
+          // Phase finale : 98%
+          baseProgress = 98;
         }
         
-        const estimatedTimeRemaining = Math.max(Math.round(((maxPolls - pollCount) * pollInterval) / 1000), 0);
+        const estimatedTimeRemaining = Math.max(Math.round(((maxPolls - pollCount) * pollInterval) / 60000), 0);
         
-        console.log(`🚀 Polling ultra-rapide ${pollCount}/${maxPolls} pour Rang ${rang} - Progress: ${baseProgress}% - ETA: ${estimatedTimeRemaining}s`);
+        console.log(`🔄 Polling rapide ${pollCount}/${maxPolls} pour Rang ${rang} - Progress: ${baseProgress}%`);
         
         onProgress(rang, {
           progress: baseProgress,
@@ -73,7 +68,7 @@ export const useMusicPolling = () => {
 
         if (pollError) {
           consecutiveErrors++;
-          errorService.handleWarning(`⚠️ Erreur polling ${pollCount} (${consecutiveErrors}/${maxConsecutiveErrors})`, 'user_action');
+          console.warn(`⚠️ Erreur polling ${pollCount} (${consecutiveErrors}/${maxConsecutiveErrors}):`, pollError);
           
           // Si trop d'erreurs consécutives, on arrête plus rapidement
           if (consecutiveErrors >= maxConsecutiveErrors) {
@@ -85,7 +80,7 @@ export const useMusicPolling = () => {
           // Sinon on continue mais on vérifie si on a atteint le maximum de tentatives
           if (pollCount >= maxPolls) {
             clearInterval(intervalId);
-            onError(new Error('Temps d\'attente dépassé après 90s. Suno est peut-être surchargé.'));
+            onError(new Error('Génération optimisée: timeout après 45s. Réessayez.'));
             return;
           }
           return;
@@ -125,16 +120,16 @@ export const useMusicPolling = () => {
           // On ne s'arrête pas, on continue à espérer
         }
 
-        // Timeout atteint selon doc officielle
+        // Timeout atteint plus rapidement
         if (pollCount >= maxPolls) {
           clearInterval(intervalId);
-          onError(new Error('Génération terminée après 90s. Essayez de rafraîchir si votre musique n\'apparaît pas.'));
+          onError(new Error('Génération optimisée: timeout après 45s. Suno pourrait être occupé. Réessayez.'));
           return;
         }
         
       } catch (pollError) {
         consecutiveErrors++;
-        errorService.handleError(pollError, 'user_action', true);
+        console.error(`❌ Erreur critique lors du polling ${pollCount}:`, pollError);
         
         if (consecutiveErrors >= maxConsecutiveErrors || pollCount >= maxPolls) {
           clearInterval(intervalId);

@@ -1,41 +1,14 @@
 
 import React from 'react';
 import { TableauSection } from './TableauSection';
-import { EnhancedQuizSection } from '../enhanced/EnhancedQuizSection';
+import { QuizSection } from './QuizSection';
 import { ParolesMusicales } from '../ParolesMusicales';
 import { BandeDessinee } from '../BandeDessinee';
 import { InteractionSection } from './InteractionSection';
 import { Badge } from '@/components/ui/badge';
-import { logger } from '@/utils/structuredLogger';
-
-interface Character {
-  role: string;
-  name: string;
-  description: string;
-}
-
-interface SceneImmersive {
-  setting?: string;
-  characters?: Character[];
-  scenario?: string;
-}
-
-interface ImmersiveItem {
-  pitch_intro?: string;
-  scene_immersive?: SceneImmersive;
-  tableau_rang_a?: Record<string, unknown>;
-  tableau_rang_b?: Record<string, unknown>;
-  paroles_musicales?: string[];
-  interaction_config?: Record<string, unknown> | unknown;
-  quiz_questions?: Record<string, unknown> | unknown;
-  title: string;
-  subtitle?: string;
-  slug?: string;
-  item_code: string;
-}
 
 interface ImmersiveContentProps {
-  item: ImmersiveItem;
+  item: any;
   currentSection: number;
   sections: string[];
 }
@@ -48,15 +21,7 @@ export const ImmersiveContent: React.FC<ImmersiveContentProps> = ({
   const renderSection = () => {
     const sectionName = sections[currentSection];
     
-    logger.debug('Rendu section immersive', {
-      component: 'ImmersiveContent',
-      metadata: {
-        currentSection,
-        sectionName,
-        hasParolesMusicales: !!item.paroles_musicales,
-        parolesCount: item.paroles_musicales?.length || 0
-      }
-    });
+    console.log('🎵 Rendu section:', currentSection, 'paroles_musicales:', item.paroles_musicales);
     
     switch (currentSection) {
       case 0: // Pitch d'introduction
@@ -85,14 +50,14 @@ export const ImmersiveContent: React.FC<ImmersiveContentProps> = ({
                 {item.scene_immersive.characters && (
                   <div className="mb-4">
                     <h4 className="font-semibold mb-2">Personnages :</h4>
-                  <div className="space-y-2">
-                    {item.scene_immersive.characters.map((char: Character, idx: number) => (
-                      <div key={idx} className="flex items-center gap-2">
-                        <Badge variant="outline">{char.role}</Badge>
-                        <span>{char.name} - {char.description}</span>
-                      </div>
-                    ))}
-                  </div>
+                    <div className="space-y-2">
+                      {item.scene_immersive.characters.map((char: any, idx: number) => (
+                        <div key={idx} className="flex items-center gap-2">
+                          <Badge variant="outline">{char.role}</Badge>
+                          <span>{char.name} - {char.description}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 )}
                 
@@ -132,13 +97,10 @@ export const ImmersiveContent: React.FC<ImmersiveContentProps> = ({
         );
 
       case 4: // Paroles musicales
-        logger.debug('Affichage section Paroles musicales', {
-          component: 'ImmersiveContent',
-          metadata: {
-            parolesCount: item.paroles_musicales?.length || 0,
-            itemCode: item.item_code,
-            hasParoles: !!item.paroles_musicales
-          }
+        console.log('🎵 Affichage section Paroles musicales, données:', {
+          paroles: item.paroles_musicales,
+          length: item.paroles_musicales?.length,
+          item_code: item.item_code
         });
         
         return (
@@ -188,15 +150,11 @@ export const ImmersiveContent: React.FC<ImmersiveContentProps> = ({
         );
 
       case 7: // Quiz final
-        return item.quiz_questions ? (
-            <EnhancedQuizSection 
-              quizData={item.quiz_questions as { questions: Array<{ id: string; question: string; options: string[]; correctAnswer: number; explanation?: string; rang: 'A' | 'B'; }> }}
-              itemCode={item.item_code}
-            />
-        ) : (
-          <div className="p-4 bg-yellow-50 border border-yellow-200 rounded">
-            <p className="text-yellow-700">Quiz en cours de développement...</p>
-          </div>
+        return (
+          <QuizSection
+            quizData={item.quiz_questions}
+            itemCode={item.item_code}
+          />
         );
 
       default:

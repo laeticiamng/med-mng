@@ -1,12 +1,17 @@
 
-import { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect } from 'react';
 
-// Types pour compatibilité TypeScript
 export type Language = 'fr' | 'en' | 'es' | 'it' | 'zh' | 'ja';
-export type SupportedLanguage = Language;
+export type SupportedLanguage = Language; // Alias pour compatibilité
 
-// Pure JS types - simples et légers
-const LANGUAGES = [
+export interface LanguageInfo {
+  code: Language;
+  name: string;
+  nativeName: string;
+  flag: string;
+}
+
+export const LANGUAGES: LanguageInfo[] = [
   { code: 'fr', name: 'Français', nativeName: 'Français', flag: '🇫🇷' },
   { code: 'en', name: 'English', nativeName: 'English', flag: '🇺🇸' },
   { code: 'es', name: 'Español', nativeName: 'Español', flag: '🇪🇸' },
@@ -15,34 +20,35 @@ const LANGUAGES = [
   { code: 'ja', name: '日本語', nativeName: '日本語', flag: '🇯🇵' },
 ];
 
-// Compatibilité avec l'existant
-export { LANGUAGES };
-export const SUPPORTED_LANGUAGES = LANGUAGES.reduce((acc, lang) => {
+// Alias pour compatibilité
+export const SUPPORTED_LANGUAGES: Record<string, LanguageInfo> = LANGUAGES.reduce((acc, lang) => {
   acc[lang.code] = lang;
   return acc;
-}, {} as Record<string, { code: string; name: string; nativeName: string; flag: string }>);
+}, {} as Record<string, LanguageInfo>);
 
-// Interface pour le contexte
 interface LanguageContextType {
-  currentLanguage: string;
-  setCurrentLanguage: (language: string) => void;
-  t: (key: string, params?: Record<string, any>) => string;
-  translate: (text: string, targetLanguage?: string) => Promise<string>;
+  currentLanguage: Language;
+  setCurrentLanguage: (language: Language) => void;
+  t: (key: string, params?: Record<string, string | number>) => string;
+  translate: (text: string, targetLanguage?: Language) => Promise<string>;
   isTranslating: boolean;
-  languages: typeof LANGUAGES;
+  languages: LanguageInfo[];
 }
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
-// Pure JS provider function
-export function LanguageProvider({ children }) {
-  const [currentLanguage, setCurrentLanguageState] = useState(() => {
+interface LanguageProviderProps {
+  children: React.ReactNode;
+}
+
+export const LanguageProvider: React.FC<LanguageProviderProps> = ({ children }) => {
+  const [currentLanguage, setCurrentLanguageState] = useState<Language>(() => {
     // Récupérer la langue depuis localStorage ou utiliser français par défaut
     const savedLanguage = localStorage.getItem('medmng-language');
-    return savedLanguage || 'fr';
+    return (savedLanguage as Language) || 'fr';
   });
 
-  const [translations, setTranslations] = useState({});
+  const [translations, setTranslations] = useState<Record<string, any>>({});
   const [isTranslating, setIsTranslating] = useState(false);
 
   // Charger les traductions pour la langue courante
@@ -68,7 +74,7 @@ export function LanguageProvider({ children }) {
     loadTranslations();
   }, [currentLanguage]);
 
-  const setCurrentLanguage = (language) => {
+  const setCurrentLanguage = (language: Language) => {
     setCurrentLanguageState(language);
     localStorage.setItem('medmng-language', language);
     
@@ -76,10 +82,10 @@ export function LanguageProvider({ children }) {
     window.dispatchEvent(new CustomEvent('languageChanged', { detail: language }));
   };
 
-  // Fonction de traduction avec support des paramètres - JS pur
-  const t = (key, params) => {
+  // Fonction de traduction avec support des paramètres
+  const t = (key: string, params?: Record<string, string | number>): string => {
     const keys = key.split('.');
-    let value = translations;
+    let value: any = translations;
     
     for (const k of keys) {
       if (value && typeof value === 'object' && k in value) {
@@ -106,8 +112,8 @@ export function LanguageProvider({ children }) {
     return value;
   };
 
-  // Fonction de traduction de texte libre
-  const translate = async (text, targetLanguage) => {
+  // Fonction de traduction de texte libre (pour compatibilité avec les hooks existants)
+  const translate = async (text: string, targetLanguage?: Language): Promise<string> => {
     const target = targetLanguage || currentLanguage;
     
     // Si c'est déjà en français ou la langue cible, retourner tel quel
@@ -148,7 +154,7 @@ export function LanguageProvider({ children }) {
 
 export const useLanguage = () => {
   const context = useContext(LanguageContext);
-  if (!context) {
+  if (context === undefined) {
     throw new Error('useLanguage must be used within a LanguageProvider');
   }
   return context;

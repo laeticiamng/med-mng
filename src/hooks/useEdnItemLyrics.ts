@@ -27,7 +27,7 @@ export const useEdnItemLyrics = (itemCode: string | null) => {
         console.log('🔍 Récupération des paroles pour l\'item:', itemCode);
         
         const { data, error: supabaseError } = await supabase
-          .from('edn_items_complete')
+          .from('edn_items_immersive')
           .select('item_code, title, paroles_musicales')
           .eq('item_code', itemCode)
           .single();

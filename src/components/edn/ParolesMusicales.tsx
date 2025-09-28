@@ -3,7 +3,6 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Music } from 'lucide-react';
 import { useParolesMusicales } from '@/hooks/useParolesMusicales';
-import { logger } from '@/utils/structuredLogger';
 import { ParolesMusicalesDebugInfo } from './music/ParolesMusicalesDebugInfo';
 import { ParolesMusicalesControls } from './music/ParolesMusicalesControls';
 import { ParolesMusicalesErrorSection } from './music/ParolesMusicalesErrorSection';
@@ -15,8 +14,8 @@ interface ParolesMusicalesProps {
   paroles_rang_b?: string[];
   paroles_rang_ab?: string[];
   itemCode: string;
-  tableauRangA?: Record<string, unknown>;
-  tableauRangB?: Record<string, unknown>;
+  tableauRangA?: any;
+  tableauRangB?: any;
 }
 
 export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
@@ -28,48 +27,14 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
   tableauRangA,
   tableauRangB
 }) => {
-  logger.debug('ParolesMusicales rendu', {
-    component: 'ParolesMusicales',
-    metadata: {
-      parolesCount: paroles?.length,
-      parolesRangACount: paroles_rang_a?.length,
-      parolesRangBCount: paroles_rang_b?.length,
-      parolesRangAbCount: paroles_rang_ab?.length,
-      itemCode,
-      hasTableauA: !!tableauRangA,
-      hasTableauB: !!tableauRangB
-    }
-  });
-  
-  // Créer le format final qui sera passé à ParolesMusicalesMainContent
-  // Si on a des champs spécifiques, les utiliser, sinon utiliser paroles_musicales
-  let finalParoles: string[][] = [];
-  
-  if (paroles_rang_a && paroles_rang_a.length > 0) {
-    finalParoles.push(paroles_rang_a);
-  }
-  if (paroles_rang_b && paroles_rang_b.length > 0) {
-    finalParoles.push(paroles_rang_b);
-  }
-  
-  // Si aucune parole spécifique, utiliser paroles_musicales
-  if (finalParoles.length === 0 && paroles && paroles.length > 0) {
-    // Diviser paroles_musicales en sections Rang A et Rang B si possible
-    const allLyrics = Array.isArray(paroles) ? paroles : [paroles];
-    finalParoles = [allLyrics]; // Utiliser comme Rang A pour l'instant
-    
-    logger.debug('Utilisation paroles_musicales fallback', {
-      component: 'ParolesMusicales',
-      metadata: {
-        originalCount: paroles?.length,
-        finalCount: finalParoles.length
-      }
-    });
-  }
-        
-  logger.debug('Paroles finales préparées', {
-    component: 'ParolesMusicales',
-    metadata: { finalParolesCount: finalParoles.length }
+  console.log('🎵 ParolesMusicales - Rendu avec props:', { 
+    paroles: paroles?.length,
+    paroles_rang_a: paroles_rang_a?.length,
+    paroles_rang_b: paroles_rang_b?.length,
+    paroles_rang_ab: paroles_rang_ab?.length,
+    itemCode, 
+    hasTableauA: !!tableauRangA, 
+    hasTableauB: !!tableauRangB 
   });
 
   const {
@@ -94,20 +59,15 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
     seek,
     changeVolume,
     stop
-  } = useParolesMusicales([], { 
+  } = useParolesMusicales(paroles, { 
     paroles_rang_a, 
     paroles_rang_b, 
     paroles_rang_ab, 
     item_code: itemCode 
   });
 
-  logger.debug('État actuel hook ParolesMusicales', {
-    component: 'ParolesMusicales',
-    metadata: {
-      hasGeneratedAudio: !!generatedAudio,
-      hasGenerationProgress: !!generationProgress
-    }
-  });
+  console.log('🎵 ÉTAT ACTUEL generatedAudio:', generatedAudio);
+  console.log('🎵 ÉTAT ACTUEL generationProgress:', generationProgress);
 
   return (
     <div className="space-y-6">
@@ -141,14 +101,19 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
               onDurationChange={setMusicDuration}
             />
 
-            <ParolesMusicalesErrorSection 
-              lastError={lastError} 
-              itemCode={itemCode}
-              hasNoLyrics={finalParoles.length === 0 || finalParoles.every(p => !p || p.length === 0)}
-            />
+            <ParolesMusicalesErrorSection lastError={lastError} />
 
             <ParolesMusicalesMainContent
-              paroles={finalParoles.length > 0 ? finalParoles : (paroles && paroles.length > 0 ? [paroles] : [])}
+              paroles={
+                // Utiliser les paroles dans leur format array original
+                paroles_rang_a && paroles_rang_b 
+                  ? [paroles_rang_a, paroles_rang_b] 
+                  : paroles_rang_a 
+                    ? [paroles_rang_a]
+                    : paroles_rang_b
+                      ? [paroles_rang_b]
+                      : []
+              }
               itemCode={itemCode}
               musicDuration={musicDuration}
               selectedStyle={selectedStyle}

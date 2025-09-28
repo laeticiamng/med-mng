@@ -8,7 +8,7 @@ import { MinimizedPlayerButton } from './MinimizedPlayerButton';
 import { useMusicCardState } from './hooks/useMusicCardState';
 
 interface MusicCardProps {
-  rang: 'A' | 'B' | 'AB';
+  rang: 'A' | 'B';
   title: string;
   paroles: string;
   selectedStyle: string;

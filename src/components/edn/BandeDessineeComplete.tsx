@@ -5,17 +5,6 @@ import { InteractiveComicPanel } from './comic/InteractiveComicPanel';
 import { ComicFooter } from './comic/ComicFooter';
 import { CheckCircle } from 'lucide-react';
 import { getBandeDessineePregenere, type VignettePregenere } from '@/data/bandesDessineesPregenerees';
-import { logger } from '@/utils/structuredLogger';
-
-interface TableauData {
-  sections?: Array<{
-    title?: string;
-    content?: string;
-    keywords?: string[];
-  }>;
-  lignes?: string[][];
-  data?: unknown[];
-}
 
 interface BandeDessineeCompleteProps {
   itemData: {
@@ -23,8 +12,8 @@ interface BandeDessineeCompleteProps {
     subtitle: string;
     slug?: string;
     item_code?: string;
-    tableau_rang_a?: TableauData;
-    tableau_rang_b?: TableauData;
+    tableau_rang_a?: any;
+    tableau_rang_b?: any;
   };
 }
 
@@ -33,41 +22,28 @@ export const BandeDessineeComplete = ({ itemData }: BandeDessineeCompleteProps) 
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    logger.info('Chargement bande dessinée', {
-      component: 'BandeDessineeComplete',
-      itemCode: itemData.item_code
-    });
+    console.log('🎨 Chargement bande dessinée pour:', itemData.item_code);
+    console.log('📊 Structure tableau_rang_a:', itemData.tableau_rang_a);
     
     // Charger immédiatement les données pré-générées
     const bandeDessinee = getBandeDessineePregenere(itemData.item_code || 'IC1');
     
     if (bandeDessinee) {
-      logger.info('Bande dessinée pré-générée trouvée', {
-        component: 'BandeDessineeComplete',
-        metadata: { vignetteCount: bandeDessinee.vignettes.length }
-      });
+      console.log('✅ Bande dessinée pré-générée trouvée:', bandeDessinee.vignettes.length, 'vignettes');
       setPanels(bandeDessinee.vignettes);
       setIsLoaded(true);
     } else {
-      logger.info('Création de vignettes par défaut', {
-        component: 'BandeDessineeComplete'
-      });
+      console.log('🔧 Création de vignettes par défaut...');
       // Créer des vignettes par défaut basées sur les compétences du tableau rang A
       const defaultPanels = createDefaultPanels(itemData);
-      logger.info('Vignettes créées', {
-        component: 'BandeDessineeComplete',
-        metadata: { count: defaultPanels.length }
-      });
+      console.log('📝 Vignettes créées:', defaultPanels.length);
       setPanels(defaultPanels);
       setIsLoaded(true);
     }
   }, [itemData.item_code]);
 
-  const createDefaultPanels = (data: BandeDessineeCompleteProps['itemData']): VignettePregenere[] => {
-    logger.debug('Analyse des données pour création de vignettes', {
-      component: 'BandeDessineeComplete',
-      itemCode: data.item_code
-    });
+  const createDefaultPanels = (data: any): VignettePregenere[] => {
+    console.log('🔍 Analyse des données pour création de vignettes:', data);
     
     // Créer des vignettes basées sur le tableau rang A
     const sections = data.tableau_rang_a?.sections || [];

@@ -3,7 +3,6 @@ import { MessageCircle, HandIcon, FileText } from 'lucide-react';
 
 export const scenarioData = {
   id: 'SD003',
-  itemSlug: 'douleur-thoracique-sd003',
   title: 'Douleur thoracique',
   specialty: 'Cardiologie',
   duration: 15,

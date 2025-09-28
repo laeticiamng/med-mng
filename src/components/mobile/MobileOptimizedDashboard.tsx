@@ -9,7 +9,6 @@ import {
   RefreshCw, Eye, Download
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { describeRateLimitError } from "@/utils/errors/rateLimit";
 import { toast } from "sonner";
 
 interface MobileStats {
@@ -111,7 +110,7 @@ export default function MobileOptimizedDashboard() {
           break;
         case 'quick_export':
           await supabase.functions.invoke('admin-export', {
-            body: { table: 'edn_items_complete', format: 'json' }
+            body: { table: 'edn_items_immersive', format: 'json' }
           });
           toast.success('Export en cours...');
           break;
@@ -123,12 +122,7 @@ export default function MobileOptimizedDashboard() {
           break;
       }
     } catch (error) {
-      const rateLimit = describeRateLimitError(error, "Erreur lors de l'action");
-      if (rateLimit.isRateLimited) {
-        toast.warning(rateLimit.message);
-      } else {
-        toast.error("Erreur lors de l'action");
-      }
+      toast.error('Erreur lors de l\'action');
     }
   };
 

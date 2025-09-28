@@ -4,7 +4,6 @@ import {
   MoreHorizontal, Ban, CheckCircle, AlertTriangle
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { errorService } from '@/services/core/ErrorService';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { 
@@ -125,7 +124,7 @@ export const AdminSubscriptionsManager = () => {
       });
 
     } catch (error) {
-      errorService.handleError(error as Error, 'system', false);
+      console.error('Erreur chargement abonnements:', error);
       toast.error('Erreur lors du chargement des abonnements');
     } finally {
       setLoading(false);
@@ -141,7 +140,7 @@ export const AdminSubscriptionsManager = () => {
       // Refresh des données
       fetchSubscriptions();
     } catch (error) {
-      errorService.handleError(error as Error, 'user_action', true);
+      console.error('Erreur action abonnement:', error);
       toast.error('Erreur lors de l\'exécution de l\'action');
     }
   };

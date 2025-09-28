@@ -198,11 +198,7 @@ async function searchEdnKnowledgeBase(
         .select('item_code, title, tableau_rang_a, tableau_rang_b')
         .limit(3);
 
-      if (fallbackError) {
-        console.error('Erreur recherche élargie:', fallbackError);
-        return [];
-      }
-
+      if (fallbackError) return [];
       return (fallbackItems || []).map((item: any) => ({
         ...item,
         relevance_score: 0.3 // Score faible pour contexte général

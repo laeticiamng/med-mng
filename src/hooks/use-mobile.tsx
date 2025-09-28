@@ -8,16 +8,10 @@ export function useIsMobile() {
   React.useEffect(() => {
     const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 1}px)`)
     const onChange = () => {
-      // Use requestAnimationFrame to prevent forced reflow
-      requestAnimationFrame(() => {
-        setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
-      })
+      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
     }
     mql.addEventListener("change", onChange)
-    // Defer initial measurement to prevent forced reflow
-    requestAnimationFrame(() => {
-      setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
-    })
+    setIsMobile(window.innerWidth < MOBILE_BREAKPOINT)
     return () => mql.removeEventListener("change", onChange)
   }, [])
 

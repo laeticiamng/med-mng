@@ -1,74 +1,69 @@
-# 🎯 Extraction des Compétences OIC UNESS
+# 🎫 TICKET 4-bis — Extraction API-first des 4,872 objectifs EDN
 
-Scripts d'extraction optimisés des compétences OIC depuis l'API MediaWiki de LiSA UNESS avec authentification CAS automatique.
+Script d'extraction optimisé des compétences OIC depuis l'API MediaWiki de LiSA UNESS.
 
 ## 🚀 Setup
 
 ### 1. Variables d'environnement
 
-Créer un fichier `.env` dans le dossier `oic-scripts/` :
+Créer un fichier `.env` :
 
 ```bash
-# Supabase
-SUPABASE_SERVICE_ROLE_KEY=<votre_clé_service_role>
+# Authentification CAS UNESS
+CAS_USER=laeticia.moto-ngane@etud.u-picardie.fr
+CAS_PASS=Aiciteal1!
 
-# Authentification CAS UNESS (pour GitHub Actions)
-CAS_USERNAME=<votre_username_cas>
-CAS_PASSWORD=<votre_password_cas>
+# Supabase
+SUPABASE_URL=https://yaincoxihiqdksxgrsrk.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=<votre_clé_service_role>
 ```
 
 ### 2. Installation des dépendances
 
 ```bash
-cd oic-scripts/
-npm install
+npm install @supabase/supabase-js puppeteer dotenv
+# ou
+deno cache --reload src/scripts/scrape_oic.ts
 ```
 
 ## 🎯 Utilisation
 
-### Extraction complète via GitHub Actions
-
-L'extraction s'effectue automatiquement via GitHub Actions :
-
-- **Manuel** : Workflow `extract-oic-completion.yml` 
-- **Automatique** : Tous les dimanches à 2h00
-
-### Extraction locale
+### Extraction complète
 
 ```bash
-cd oic-scripts/
-node extract-oic-competences.cjs
+# Node.js
+node src/scripts/scrape_oic.ts
+
+# Deno  
+deno run --allow-net --allow-env --allow-write src/scripts/scrape_oic.ts
 ```
 
-### Via diagnostic API
+### Via l'interface web
 
-```bash
-./diagnostic-api-uness.sh
-```
+1. Aller sur `/admin/extract-objectifs`
+2. Cliquer sur "Démarrer l'extraction"
+3. Suivre le progrès en temps réel
 
 ## 🔧 Architecture technique
 
-### Flux d'extraction optimisé
+### Flux d'extraction
 
-1. **Authentification CAS** : Login automatique via Puppeteer avec les credentials GitHub Secrets
-2. **Test d'accès API** : Vérification de l'accessibilité de l'API MediaWiki avec authentification
-3. **Listing des pages** : Récupération complète via `action=query&list=categorymembers`
-4. **Extraction par batches** : Téléchargement du contenu par paquets de 50 pages maximum
-5. **Parsing intelligent** : Extraction des métadonnées avec patterns robustes
-6. **Sauvegarde Supabase** : Insertion dans `backup_oic_competences` avec gestion des doublons
-7. **Rapport détaillé** : Génération automatique de statistiques et logs
+1. **Test API publique** : Vérification si `api.php` est accessible sans authentification
+2. **Authentification CAS** : Si nécessaire, login via Puppeteer minimal pour récupérer les cookies
+3. **Listing des pages** : Récupération des 4,872 IDs via `action=query&list=categorymembers`
+4. **Extraction par batches** : Téléchargement du contenu par paquets de 50 pages
+5. **Parsing** : Extraction des métadonnées (identifiant, intitulé, rubrique, etc.)
+6. **Insertion Supabase** : Sauvegarde avec gestion des doublons
+7. **Rapport de complétude** : Analyse des items manquants/incomplets
 
 ### Endpoints utilisés
 
 ```http
-# Authentification CAS
-POST https://cas.uness.fr/login
-
-# Listing des pages de catégorie OIC
+# Listing des pages de catégorie
 GET /lisa/2025/api.php?action=query&list=categorymembers&cmtitle=Catégorie:Objectif_de_connaissance&cmlimit=500&format=json
 
-# Contenu des pages (batches de 50)
-GET /lisa/2025/api.php?action=query&prop=revisions&rvprop=content&pageids=123|456|789&format=json
+# Contenu des pages (50 max par requête)
+GET /lisa/2025/api.php?action=query&prop=revisions&rvprop=content|timestamp&pageids=123|456|789&format=json&formatversion=2
 ```
 
 ### Parsing des données
@@ -87,40 +82,33 @@ GET /lisa/2025/api.php?action=query&prop=revisions&rvprop=content&pageids=123|45
 
 ## 📊 Schéma de données
 
-### Table `backup_oic_competences`
+### Table `oic_competences`
 
 ```sql
-CREATE TABLE backup_oic_competences (
-  objectif_id TEXT,                       -- OIC-099-01-A-01
-  intitule TEXT,                          -- Titre de la compétence
-  item_parent TEXT,                       -- IC-099 (item EDN parent)
-  rang TEXT,                              -- A ou B (niveau de compétence)
-  rubrique TEXT,                          -- Génétique, Immunopathologie, etc.
-  description TEXT,                       -- Description détaillée extraite
-  ordre INTEGER,                          -- Ordre dans le rang (01-99)
-  url_source TEXT,                        -- URL source de la page
-  raw_json JSONB,                         -- Contenu brut MediaWiki
-  hash_content TEXT,                      -- Hash du contenu pour déduplication
-  date_import TIMESTAMP,                  -- Date d'extraction
-  extraction_status TEXT,                 -- complete, partial, error
-  created_at TIMESTAMP DEFAULT NOW(),
-  updated_at TIMESTAMP DEFAULT NOW()
+CREATE TABLE oic_competences (
+  objectif_id TEXT PRIMARY KEY,           -- OIC-099-01-A-01
+  intitule TEXT NOT NULL,                 -- Titre de la compétence
+  item_parent TEXT NOT NULL,              -- 099 (item EDN)
+  rang TEXT CHECK (rang IN ('A', 'B')),  -- Niveau de compétence
+  rubrique TEXT,                          -- Génétique, Cancérologie, etc.
+  description TEXT,                       -- Description détaillée
+  ordre INTEGER,                          -- 01 (ordre dans le rang)
+  url_source TEXT UNIQUE,                 -- URL de la page source
+  raw_json JSONB,                         -- Contenu brut pour debug
+  date_import TIMESTAMP DEFAULT NOW(),    -- Date d'extraction
+  hash_content TEXT,                      -- Hash pour détecter doublons
+  extraction_status TEXT DEFAULT 'complete'
 );
 ```
 
-### Rubriques supportées
+### Index de performance
 
-- `01` : Génétique
-- `02` : Immunopathologie  
-- `03` : Inflammation
-- `04` : Cancérologie
-- `05` : Pharmacologie
-- `06` : Douleur
-- `07` : Santé publique
-- `08` : Thérapeutique
-- `09` : Urgences
-- `10` : Vieillissement
-- `11` : Interprétation
+```sql
+CREATE INDEX idx_oic_item_parent ON oic_competences(item_parent);
+CREATE INDEX idx_oic_rang ON oic_competences(rang);
+CREATE INDEX idx_oic_rubrique ON oic_competences(rubrique);
+CREATE INDEX idx_oic_date_import ON oic_competences(date_import);
+```
 
 ## 📈 Rapport de complétude
 
@@ -187,22 +175,19 @@ deno run --allow-net --allow-env --allow-write src/scripts/scrape_oic.ts
 
 ## ⚡ Performance
 
-### Métriques de performance
+### Métriques attendues
 
-- **Durée totale** : 5-10 minutes pour extraction complète
-- **Pages traitées** : ~4,000+ compétences OIC attendues
-- **Authentification** : Automatique via Puppeteer + CAS
-- **Taux de réussite** : > 95% avec gestion d'erreurs robuste
-- **Format de sortie** : JSON structuré + rapports détaillés
+- **Durée totale** : 3-5 minutes pour 4,872 pages
+- **Mémoire** : < 100MB (pas de navigateur headless sauf auth CAS)
+- **Requêtes réseau** : ~100 requêtes API (vs 4,872 avec Puppeteer)
+- **Taux de réussite** : > 99% avec gestion d'erreurs robuste
 
 ### Optimisations
 
-- Authentification CAS persistante avec cookies
-- Traitement par batches de 50 pages (limite MediaWiki API)
-- Gestion des timeouts et retry automatique
-- Parsing robuste avec multiple patterns fallback
-- Sauvegarde incrémentale avec détection des doublons
-- Rapports détaillés pour monitoring et debug
+- Traitement par batches de 50 pages (limite MediaWiki)
+- Pause de 1s entre batches pour éviter le rate limiting
+- Upsert Supabase avec gestion des doublons
+- Authentification CAS minimaliste (Puppeteer uniquement si nécessaire)
 
 ## 🛠 Maintenance
 

@@ -3,349 +3,41 @@
 <head>
     <title>Extraction OIC - 4,872 Compétences</title>
     <style>
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            padding: 20px; 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: #ffffff; 
-            margin: 0;
-            min-height: 100vh;
-        }
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-            background: rgba(0, 0, 0, 0.8);
-            border-radius: 15px;
-            padding: 30px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-        }
-        h1 {
-            text-align: center;
-            font-size: 2.5em;
-            margin-bottom: 30px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
-        }
-        .controls {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 30px;
-        }
-        .btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .btn-start {
-            background: linear-gradient(45deg, #4CAF50, #45a049);
-            color: white;
-        }
-        .btn-pause {
-            background: linear-gradient(45deg, #ff9800, #e68900);
-            color: white;
-        }
-        .btn-cancel {
-            background: linear-gradient(45deg, #f44336, #d32f2f);
-            color: white;
-        }
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-        }
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-            transform: none;
-        }
-        .progress-section {
-            margin: 30px 0;
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            backdrop-filter: blur(10px);
-        }
-        .progress-bar {
-            width: 100%;
-            height: 30px;
-            background: rgba(255, 255, 255, 0.2);
-            border-radius: 15px;
-            overflow: hidden;
-            margin: 15px 0;
-            position: relative;
-        }
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, #4CAF50, #8BC34A, #CDDC39);
-            border-radius: 15px;
-            width: 0%;
-            transition: width 0.5s ease;
-            position: relative;
-            overflow: hidden;
-        }
-        .progress-fill::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-            animation: shimmer 2s infinite;
-        }
-        @keyframes shimmer {
-            0% { left: -100%; }
-            100% { left: 100%; }
-        }
-        .progress-text {
-            text-align: center;
-            font-size: 18px;
-            font-weight: bold;
-            margin: 10px 0;
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
-        }
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
-        }
-        .stat-card {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-            backdrop-filter: blur(5px);
-        }
-        .stat-value {
-            font-size: 2em;
-            font-weight: bold;
-            color: #4CAF50;
-        }
-        .stat-label {
-            font-size: 0.9em;
-            opacity: 0.8;
-            margin-top: 5px;
-        }
-        .logs {
-            max-height: 400px;
-            overflow-y: auto;
-            background: rgba(0, 0, 0, 0.8);
-            border-radius: 10px;
-            padding: 20px;
-            font-family: 'Courier New', monospace;
-            font-size: 14px;
-            line-height: 1.4;
-        }
-        .log { 
-            margin: 5px 0; 
-            padding: 5px 10px;
-            border-radius: 5px;
-            border-left: 4px solid;
-        }
-        .success { 
-            color: #4CAF50; 
-            border-left-color: #4CAF50;
-            background: rgba(76, 175, 80, 0.1);
-        }
-        .error { 
-            color: #f44336; 
-            border-left-color: #f44336;
-            background: rgba(244, 67, 54, 0.1);
-        }
-        .info { 
-            color: #2196F3; 
-            border-left-color: #2196F3;
-            background: rgba(33, 150, 243, 0.1);
-        }
-        .progress { 
-            color: #FF9800; 
-            border-left-color: #FF9800;
-            background: rgba(255, 152, 0, 0.1);
-        }
-        .scrollbar-thin {
-            scrollbar-width: thin;
-            scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
-        }
-        .scrollbar-thin::-webkit-scrollbar {
-            width: 8px;
-        }
-        .scrollbar-thin::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        .scrollbar-thin::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.3);
-            border-radius: 4px;
-        }
-        .status-indicator {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            margin-right: 8px;
-            animation: pulse 2s infinite;
-        }
-        .status-active { background: #4CAF50; }
-        .status-paused { background: #FF9800; }
-        .status-error { background: #f44336; }
-        @keyframes pulse {
-            0% { opacity: 1; }
-            50% { opacity: 0.5; }
-            100% { opacity: 1; }
-        }
+        body { font-family: monospace; padding: 20px; background: #1a1a1a; color: #00ff00; }
+        .log { margin: 5px 0; }
+        .success { color: #00ff00; }
+        .error { color: #ff0000; }
+        .info { color: #00bfff; }
+        .progress { color: #ffff00; }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🚀 Extraction OIC - 4,872 Compétences</h1>
-        
-        <div class="controls">
-            <button id="startBtn" class="btn btn-start" onclick="startExtraction()">
-                🚀 Démarrer Extraction
-            </button>
-            <button id="pauseBtn" class="btn btn-pause" onclick="togglePause()" disabled>
-                ⏸️ Pause
-            </button>
-            <button id="cancelBtn" class="btn btn-cancel" onclick="cancelExtraction()" disabled>
-                ❌ Annuler
-            </button>
-        </div>
-
-        <div class="progress-section">
-            <div class="progress-text">
-                <span id="statusIndicator" class="status-indicator"></span>
-                <span id="statusText">Prêt à démarrer</span>
-            </div>
-            <div class="progress-bar">
-                <div id="progressFill" class="progress-fill"></div>
-            </div>
-            <div id="progressPercent" class="progress-text">0%</div>
-            
-            <div class="stats">
-                <div class="stat-card">
-                    <div id="extractedCount" class="stat-value">0</div>
-                    <div class="stat-label">Compétences Extraites</div>
-                </div>
-                <div class="stat-card">
-                    <div id="totalCount" class="stat-value">4,872</div>
-                    <div class="stat-label">Total Attendu</div>
-                </div>
-                <div class="stat-card">
-                    <div id="currentPage" class="stat-value">-</div>
-                    <div class="stat-label">Page Actuelle</div>
-                </div>
-                <div class="stat-card">
-                    <div id="elapsedTime" class="stat-value">00:00</div>
-                    <div class="stat-label">Temps Écoulé</div>
-                </div>
-            </div>
-        </div>
-
-        <div id="logs" class="logs scrollbar-thin"></div>
-    </div>
+    <h1>🚀 EXTRACTION OIC - 4,872 COMPÉTENCES</h1>
+    <div id="logs"></div>
     
     <script>
-        // Configuration sécurisée - Les clés sont injectées par le serveur ou variables d'environnement
-        const CONFIG = {
-            baseUrl: 'https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/extract-edn-objectifs',
-            // La clé sera injectée de manière sécurisée
-            anonKey: window.SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU'
-        };
+        const baseUrl = 'https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/extract-edn-objectifs';
+        const anonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU';
         
         const headers = {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${CONFIG.anonKey}`
+            'Authorization': `Bearer ${anonKey}`
         };
-
-        // État de l'extraction
-        let extractionState = {
-            isRunning: false,
-            isPaused: false,
-            sessionId: null,
-            startTime: null,
-            currentAttempts: 0,
-            maxAttempts: 120
-        };
-
-        // Éléments DOM
-        const elements = {
-            startBtn: document.getElementById('startBtn'),
-            pauseBtn: document.getElementById('pauseBtn'),
-            cancelBtn: document.getElementById('cancelBtn'),
-            statusIndicator: document.getElementById('statusIndicator'),
-            statusText: document.getElementById('statusText'),
-            progressFill: document.getElementById('progressFill'),
-            progressPercent: document.getElementById('progressPercent'),
-            extractedCount: document.getElementById('extractedCount'),
-            totalCount: document.getElementById('totalCount'),
-            currentPage: document.getElementById('currentPage'),
-            elapsedTime: document.getElementById('elapsedTime'),
-            logs: document.getElementById('logs')
-        };
-
-        function updateUI(state) {
-            elements.startBtn.disabled = state.isRunning;
-            elements.pauseBtn.disabled = !state.isRunning;
-            elements.cancelBtn.disabled = !state.isRunning;
-            
-            elements.pauseBtn.textContent = state.isPaused ? '▶️ Reprendre' : '⏸️ Pause';
-            
-            if (state.isRunning) {
-                elements.statusIndicator.className = `status-indicator ${state.isPaused ? 'status-paused' : 'status-active'}`;
-            } else {
-                elements.statusIndicator.className = 'status-indicator';
-            }
-        }
-
-        function updateProgress(extracted, total, pageNumber = '-') {
-            const percent = total > 0 ? ((extracted / total) * 100) : 0;
-            
-            elements.progressFill.style.width = `${percent}%`;
-            elements.progressPercent.textContent = `${percent.toFixed(1)}%`;
-            elements.extractedCount.textContent = extracted.toLocaleString();
-            elements.currentPage.textContent = pageNumber;
-        }
-
-        function updateElapsedTime() {
-            if (!extractionState.startTime) return;
-            
-            const elapsed = Date.now() - extractionState.startTime;
-            const minutes = Math.floor(elapsed / 60000);
-            const seconds = Math.floor((elapsed % 60000) / 1000);
-            
-            elements.elapsedTime.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-        }
 
         function log(message, type = 'info') {
             const div = document.createElement('div');
             div.className = `log ${type}`;
             div.innerHTML = `[${new Date().toLocaleTimeString()}] ${message}`;
-            elements.logs.appendChild(div);
-            elements.logs.scrollTop = elements.logs.scrollHeight;
+            document.getElementById('logs').appendChild(div);
             console.log(message);
         }
 
         async function startExtraction() {
-            if (extractionState.isRunning) return;
-            
-            extractionState.isRunning = true;
-            extractionState.isPaused = false;
-            extractionState.startTime = Date.now();
-            extractionState.currentAttempts = 0;
-            
-            updateUI(extractionState);
-            elements.statusText.textContent = 'Initialisation...';
-            
             log('🧪 ÉTAPE 1: Test d\'insertion des données...', 'info');
             
             // 1. Test d'insertion
             try {
-                const testResponse = await fetch(CONFIG.baseUrl, {
+                const testResponse = await fetch(baseUrl, {
                     method: 'POST',
                     headers,
                     body: JSON.stringify({ action: 'insert_test_data' })
@@ -356,7 +48,6 @@
                 
                 if (!testResult.success) {
                     log('❌ Test d\'insertion échoué', 'error');
-                    stopExtraction();
                     return;
                 }
                 
@@ -364,16 +55,14 @@
                 
             } catch (error) {
                 log(`❌ Erreur test insertion: ${error.message}`, 'error');
-                stopExtraction();
                 return;
             }
 
             log('🚀 ÉTAPE 2: Lancement de l\'extraction complète...', 'info');
-            elements.statusText.textContent = 'Lancement extraction...';
             
             // 2. Lancer l'extraction complète
             try {
-                const extractionResponse = await fetch(CONFIG.baseUrl, {
+                const extractionResponse = await fetch(baseUrl, {
                     method: 'POST',
                     headers,
                     body: JSON.stringify({ action: 'start' })
@@ -383,114 +72,63 @@
                 log(`🎯 Extraction lancée: ${JSON.stringify(extractionResult)}`, 'success');
                 
                 if (extractionResult.session_id) {
-                    extractionState.sessionId = extractionResult.session_id;
                     log(`📊 Session ID: ${extractionResult.session_id}`, 'info');
                     log('⏰ Monitoring du progrès...', 'info');
-                    elements.statusText.textContent = 'Extraction en cours...';
                     
                     // 3. Monitor le progrès
-                    monitorProgress();
+                    await monitorProgress(extractionResult.session_id);
                 }
             } catch (error) {
                 log(`❌ Erreur lancement extraction: ${error.message}`, 'error');
-                stopExtraction();
             }
         }
 
-        async function monitorProgress() {
-            const interval = setInterval(updateElapsedTime, 1000);
+        async function monitorProgress(sessionId) {
+            let attempts = 0;
+            const maxAttempts = 120; // 60 minutes max
             
-            while (extractionState.currentAttempts < extractionState.maxAttempts && extractionState.isRunning) {
-                if (extractionState.isPaused) {
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-                    continue;
-                }
-                
+            while (attempts < maxAttempts) {
                 try {
-                    const statusResponse = await fetch(CONFIG.baseUrl, {
+                    const statusResponse = await fetch(baseUrl, {
                         method: 'POST',
                         headers,
                         body: JSON.stringify({ 
                             action: 'status', 
-                            session_id: extractionState.sessionId 
+                            session_id: sessionId 
                         })
                     });
                     
                     const status = await statusResponse.json();
                     const progressPercent = ((status.items_extracted / status.total_expected) * 100).toFixed(1);
                     
-                    updateProgress(status.items_extracted, status.total_expected, status.page_number);
-                    
                     log(`📈 Progrès: ${status.items_extracted}/${status.total_expected} (${progressPercent}%) - Page ${status.page_number} - Status: ${status.status}`, 'progress');
                     
                     if (status.status === 'termine') {
                         log('🎉 EXTRACTION TERMINÉE !', 'success');
-                        elements.statusText.textContent = 'Extraction terminée';
-                        clearInterval(interval);
                         await generateFinalReport();
-                        stopExtraction();
                         break;
                     } else if (status.status === 'erreur') {
                         log(`❌ ERREUR LORS DE L'EXTRACTION: ${status.error_message}`, 'error');
-                        elements.statusText.textContent = 'Erreur détectée';
-                        clearInterval(interval);
-                        stopExtraction();
                         break;
                     }
                     
                     // Attendre 30 secondes avant le prochain check
                     await new Promise(resolve => setTimeout(resolve, 30000));
-                    extractionState.currentAttempts++;
+                    attempts++;
                     
                 } catch (error) {
                     log(`❌ Erreur monitoring: ${error.message}`, 'error');
-                    extractionState.currentAttempts++;
+                    attempts++;
                     await new Promise(resolve => setTimeout(resolve, 30000));
                 }
             }
-            
-            clearInterval(interval);
-            if (extractionState.currentAttempts >= extractionState.maxAttempts) {
-                log('⏰ Timeout atteint - Arrêt du monitoring', 'error');
-                stopExtraction();
-            }
-        }
-
-        function togglePause() {
-            if (!extractionState.isRunning) return;
-            
-            extractionState.isPaused = !extractionState.isPaused;
-            updateUI(extractionState);
-            
-            if (extractionState.isPaused) {
-                log('⏸️ Extraction mise en pause', 'info');
-                elements.statusText.textContent = 'Extraction en pause';
-            } else {
-                log('▶️ Extraction reprise', 'info');
-                elements.statusText.textContent = 'Extraction en cours...';
-            }
-        }
-
-        function cancelExtraction() {
-            if (!extractionState.isRunning) return;
-            
-            log('❌ Extraction annulée par l\'utilisateur', 'error');
-            elements.statusText.textContent = 'Extraction annulée';
-            stopExtraction();
-        }
-
-        function stopExtraction() {
-            extractionState.isRunning = false;
-            extractionState.isPaused = false;
-            extractionState.sessionId = null;
-            updateUI(extractionState);
         }
 
         async function generateFinalReport() {
             log('📊 GÉNÉRATION DU RAPPORT FINAL...', 'info');
             
             try {
-                const reportResponse = await fetch(CONFIG.baseUrl, {
+                const reportResponse = await fetch(baseUrl, {
                     method: 'POST',
                     headers,
                     body: JSON.stringify({ action: 'rapport' })
@@ -513,10 +151,14 @@
             }
         }
 
-        // Initialisation 
-        log('🚀 Interface d\'extraction OIC initialisée', 'info');
-        log('💡 Cliquez sur "Démarrer Extraction" pour commencer', 'info');
-        updateUI(extractionState);
+        // Auto-start extraction
+        log('🚀 INITIALISATION DE L\'EXTRACTION OIC', 'info');
+        log('Credentials configurés avec CAS_USERNAME et CAS_PASSWORD', 'info');
+        log('Démarrage automatique dans 3 secondes...', 'info');
+        
+        setTimeout(() => {
+            startExtraction();
+        }, 3000);
     </script>
 </body>
 </html>

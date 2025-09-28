@@ -30,7 +30,6 @@ import {
   BarChart3
 } from "lucide-react";
 import { ecosService, EcosAnalytics } from '@/services/ecosService';
-import { errorService } from '@/services/core/ErrorService';
 
 export const EcosDashboard: React.FC = () => {
   const [analytics, setAnalytics] = useState<EcosAnalytics | null>(null);
@@ -48,7 +47,7 @@ export const EcosDashboard: React.FC = () => {
       const data = await ecosService.getAnalytics();
       setAnalytics(data);
     } catch (error) {
-      errorService.handleError(error instanceof Error ? error : new Error('Error loading ECOS analytics'), 'api_call');
+      console.error('Error loading ECOS analytics:', error);
       if (!analytics) {
         toast.error('Erreur lors du chargement des analytics ECOS');
       }

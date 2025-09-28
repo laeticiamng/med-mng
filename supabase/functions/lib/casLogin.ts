@@ -28,8 +28,8 @@ export async function casLogin(email: string, password: string): Promise<CasLogi
     const service = "https://livret.uness.fr/login/cas"
     const loginURL = `https://auth.uness.fr/cas/login?service=${encodeURIComponent(service)}`
     
-    // ÉTAPE 1: GET initial CAS page
-    console.log('[AUTH] Étape 1: GET page CAS initiale')
+    // ÉTAPE 1: GET initial CAS page pour récupérer lt et execution
+    console.log('[AUTH] step1: GET CAS login page')
     let response = await fetch(loginURL, { 
       redirect: "manual",
       headers: {
@@ -40,201 +40,127 @@ export async function casLogin(email: string, password: string): Promise<CasLogi
     addCookie(response.headers.get("set-cookie"))
     const html = await response.text()
     
-    console.log(`[AUTH] Status page initiale: ${response.status}`)
+    // Parser les champs CAS
+    const ltMatch = html.match(/name="lt" value="([^"]+)"/)
+    const executionMatch = html.match(/name="execution" value="([^"]+)"/)
+    
+    const lt = ltMatch?.[1] ?? ""
+    const execution = executionMatch?.[1] ?? ""
+    
+    console.log(`[AUTH] step1 ${response.status} lt=${lt.substring(0, 10)}* exec=${execution}`)
     debugInfo.push({ 
       step: 1, 
       status: response.status, 
-      url: response.url,
+      lt: lt.substring(0, 20) + '...', 
+      execution: execution.substring(0, 20) + '...',
       cookies: Object.keys(jar)
     })
     
-    // ÉTAPE 2: POST email (première étape UNESS)
-    console.log('[AUTH] Étape 2: POST email')
-    const emailFormData = new FormData()
-    emailFormData.append('username', email)
+    if (!lt || !execution) {
+      throw new Error(`Champs CAS manquants - lt: ${!!lt}, execution: ${!!execution}`)
+    }
+    
+    // ÉTAPE 2: POST credentials
+    console.log('[AUTH] step2: POST credentials')
+    const body = new URLSearchParams({
+      username: email,
+      password: password,
+      lt,
+      execution,
+      _eventId: "submit",
+      submit: "Se connecter"
+    })
     
     response = await fetch(loginURL, {
       method: "POST", 
       redirect: "manual",
       headers: { 
+        "Content-Type": "application/x-www-form-urlencoded",
         "Cookie": cookieHeader(),
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
       },
-      body: emailFormData
+      body: body.toString()
     })
     
     addCookie(response.headers.get("set-cookie"))
-    const emailStepLocation = response.headers.get("location")
+    const ticketLocation = response.headers.get("location")
+    const hasTicket = ticketLocation?.includes("ticket=ST-")
     
-    console.log(`[AUTH] Étape 2 status: ${response.status}, redirect: ${emailStepLocation?.substring(0, 50)}...`)
+    console.log(`[AUTH] step2 ${response.status} ticket found: ${hasTicket}`)
     debugInfo.push({ 
       step: 2, 
       status: response.status, 
-      redirect: emailStepLocation?.substring(0, 100)
+      hasTicket,
+      location: ticketLocation?.substring(0, 100) + '...'
     })
     
-    // Si pas de redirection, essayer l'approche classique
-    if (!emailStepLocation && response.status === 200) {
-      console.log('[AUTH] Fallback: approche CAS classique')
-      
-      // Parser les champs CAS classiques
+    if (!ticketLocation || !hasTicket) {
       const responseText = await response.text()
-      const ltMatch = responseText.match(/name="lt"\s*value="([^"]+)"/i)
-      const executionMatch = responseText.match(/name="execution"\s*value="([^"]+)"/i)
-      
-      if (ltMatch && executionMatch) {
-        const lt = ltMatch[1]
-        const execution = executionMatch[1]
-        
-        console.log('[AUTH] Champs CAS trouvés, POST credentials classique')
-        const body = new URLSearchParams({
-          username: email,
-          password: password,
-          lt,
-          execution,
-          _eventId: "submit",
-          submit: "Se connecter"
-        })
-        
-        response = await fetch(loginURL, {
-          method: "POST", 
-          redirect: "manual",
-          headers: { 
-            "Content-Type": "application/x-www-form-urlencoded",
-            "Cookie": cookieHeader(),
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-          },
-          body: body.toString()
-        })
-        
-        addCookie(response.headers.get("set-cookie"))
-        const ticketLocation = response.headers.get("location")
-        
-        if (ticketLocation?.includes("ticket=ST-")) {
-          // Validation du ticket
-          response = await fetch(ticketLocation, { 
-            redirect: "manual", 
-            headers: { 
-              "Cookie": cookieHeader(),
-              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-            }
-          })
-          
-          addCookie(response.headers.get("set-cookie"))
-          const homeURL = response.headers.get("location")
-          
-          if (homeURL) {
-            // Vérification finale
-            response = await fetch(homeURL, { 
-              headers: { 
-                "Cookie": cookieHeader(),
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-              }
-            })
-            
-            addCookie(response.headers.get("set-cookie"))
-            const finalHtml = await response.text()
-            const isAuthenticated = finalHtml.includes("<title>LiSA") || finalHtml.includes("livret.uness.fr")
-            
-            if (isAuthenticated) {
-              console.log('[AUTH] ✅ Authentification CAS classique réussie')
-              return {
-                success: true,
-                cookies: cookieHeader(),
-                debugInfo
-              }
-            }
-          }
-        }
-      }
+      const hasError = responseText.includes('error') || responseText.includes('échec')
+      debugInfo.push({ 
+        loginError: hasError, 
+        responsePreview: responseText.substring(0, 500) 
+      })
+      throw new Error(`Pas de ticket à l'étape 2. Status: ${response.status}`)
     }
     
-    // ÉTAPE 3: Si redirection, suivre pour la page de mot de passe
-    if (emailStepLocation) {
-      console.log('[AUTH] Étape 3: GET page mot de passe')
-      response = await fetch(emailStepLocation, { 
-        redirect: "manual",
-        headers: { 
-          "Cookie": cookieHeader(),
-          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-        }
-      })
-      
-      addCookie(response.headers.get("set-cookie"))
-      const passwordPageHtml = await response.text()
-      
-      // Parser les champs pour la page de mot de passe
-      const ltMatch = passwordPageHtml.match(/name="lt"\s*value="([^"]+)"/i)
-      const executionMatch = passwordPageHtml.match(/name="execution"\s*value="([^"]+)"/i)
-      
-      if (ltMatch && executionMatch) {
-        const lt = ltMatch[1]
-        const execution = executionMatch[1]
-        
-        console.log('[AUTH] Étape 4: POST mot de passe')
-        const body = new URLSearchParams({
-          username: email,
-          password: password,
-          lt,
-          execution,
-          _eventId: "submit",
-          submit: "Se connecter"
-        })
-        
-        response = await fetch(emailStepLocation, {
-          method: "POST", 
-          redirect: "manual",
-          headers: { 
-            "Content-Type": "application/x-www-form-urlencoded",
-            "Cookie": cookieHeader(),
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-          },
-          body: body.toString()
-        })
-        
-        addCookie(response.headers.get("set-cookie"))
-        const ticketLocation = response.headers.get("location")
-        
-        if (ticketLocation?.includes("ticket=ST-")) {
-          console.log('[AUTH] Étape 5: Validation ticket')
-          response = await fetch(ticketLocation, { 
-            redirect: "manual", 
-            headers: { 
-              "Cookie": cookieHeader(),
-              'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-            }
-          })
-          
-          addCookie(response.headers.get("set-cookie"))
-          const homeURL = response.headers.get("location")
-          
-          if (homeURL) {
-            // Vérification finale
-            response = await fetch(homeURL, { 
-              headers: { 
-                "Cookie": cookieHeader(),
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
-              }
-            })
-            
-            addCookie(response.headers.get("set-cookie"))
-            const finalHtml = await response.text()
-            const isAuthenticated = finalHtml.includes("<title>LiSA") || finalHtml.includes("livret.uness.fr")
-            
-            if (isAuthenticated) {
-              console.log('[AUTH] ✅ Authentification CAS deux étapes réussie')
-              return {
-                success: true,
-                cookies: cookieHeader(),
-                debugInfo
-              }
-            }
-          }
-        }
+    // ÉTAPE 3: Validation du ticket
+    console.log('[AUTH] step3: Validate ticket')
+    response = await fetch(ticketLocation, { 
+      redirect: "manual", 
+      headers: { 
+        "Cookie": cookieHeader(),
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
       }
+    })
+    
+    addCookie(response.headers.get("set-cookie"))
+    const homeURL = response.headers.get("location")
+    
+    console.log(`[AUTH] step3 ${response.status} redirect to: ${homeURL?.substring(0, 50)}...`)
+    debugInfo.push({ 
+      step: 3, 
+      status: response.status, 
+      homeURL: homeURL?.substring(0, 100) + '...'
+    })
+    
+    if (!homeURL) {
+      throw new Error(`Pas de redirection après validation ticket. Status: ${response.status}`)
+    }
+    
+    // ÉTAPE 4: Vérification finale LiSA
+    console.log('[AUTH] step4: Check LiSA access')
+    response = await fetch(homeURL, { 
+      headers: { 
+        "Cookie": cookieHeader(),
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+      }
+    })
+    
+    addCookie(response.headers.get("set-cookie"))
+    const finalHtml = await response.text()
+    const isAuthenticated = finalHtml.includes("<title>LiSA")
+    
+    console.log(`[AUTH] step4 ${response.status} LiSA OK: ${isAuthenticated}`)
+    debugInfo.push({ 
+      step: 4, 
+      status: response.status, 
+      isAuthenticated,
+      hasLisaTitle: finalHtml.includes("<title>LiSA"),
+      finalUrl: response.url,
+      htmlPreview: finalHtml.substring(0, 300)
+    })
+    
+    if (!isAuthenticated) {
+      throw new Error('LiSA non accessible - authentification échouée')
     }
 
-    throw new Error('Authentification échouée - impossible de récupérer les cookies valides')
+    console.log('[AUTH] ✅ Authentification CAS réussie')
+    return {
+      success: true,
+      cookies: cookieHeader(),
+      debugInfo
+    }
 
   } catch (error) {
     console.error('[AUTH] ❌ Erreur:', error.message)

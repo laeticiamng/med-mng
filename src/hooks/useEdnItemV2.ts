@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { validateItemEDN, ItemEDNV2 } from '@/schemas/itemEDNSchema';
 import { EDNItemParser, ParsedEDNItem } from '@/parsers/ednItemParser';
-import { errorService } from '@/services/core/ErrorService';
 
 interface UseEdnItemV2Result {
   item: ParsedEDNItem | null;
@@ -39,7 +38,7 @@ export const useEdnItemV2 = (slug: string | undefined): UseEdnItemV2Result => {
         
         // 1. Récupération depuis Supabase
         const { data, error: supabaseError } = await supabase
-          .from('edn_items_complete')
+          .from('edn_items_immersive')
           .select('*')
           .eq('slug', slug)
           .single();
@@ -76,18 +75,18 @@ export const useEdnItemV2 = (slug: string | undefined): UseEdnItemV2Result => {
               console.log('✅ Item v2 valide');
               // On utilise directement les données validées
               const validatedData = validation.data;
-              parsedItem = EDNItemParser.parseItemV2(validatedData, (data as any).id);
+              parsedItem = EDNItemParser.parseItemV2(validatedData, data.id);
               valErrors = [];
             } else if ('success' in validation && validation.success === false && 'errors' in validation) {
               console.warn('⚠️ Item v2 invalide:', validation.errors);
               valErrors = validation.errors;
               // On continue quand même le parsing pour éviter la régression
-              parsedItem = EDNItemParser.parseAnyItem(data, (data as any).id);
+              parsedItem = EDNItemParser.parseAnyItem(data, data.id);
             }
           } catch (err) {
             console.error('❌ Erreur de validation:', err);
             // En cas d'erreur, on parse comme v1
-              parsedItem = EDNItemParser.parseAnyItem(data, (data as any).id);
+            parsedItem = EDNItemParser.parseAnyItem(data, data.id);
           }
         } else {
           // Item format v1
@@ -100,7 +99,7 @@ export const useEdnItemV2 = (slug: string | undefined): UseEdnItemV2Result => {
         setError(null);
         
       } catch (catchError) {
-        errorService.handleError(catchError as Error, 'system', false);
+        console.error('❌ Erreur générale:', catchError);
         setError('Erreur lors du chargement');
       } finally {
         setLoading(false);

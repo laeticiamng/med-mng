@@ -85,24 +85,18 @@ export const ContentViewer: React.FC<ContentViewerProps> = ({ content, itemCode,
           </div>
         </div>
 
-        <div className="relative overflow-hidden flex justify-center">
-          <div className="relative overflow-hidden rounded-lg">
-            <div 
-              className="transition-transform duration-200 origin-center"
-              style={{ 
-                transform: `scale(${zoom / 100})`,
-                maxWidth: 'fit-content',
-                maxHeight: 'fit-content'
-              }}
-            >
-              <img
-                src={panels[currentPanel]?.image_url}
-                alt={`Panel ${currentPanel + 1}`}
-                className="max-w-2xl rounded-lg shadow-lg block"
-                draggable={false}
-                onContextMenu={(e) => e.preventDefault()}
-              />
-            </div>
+        <div className="relative">
+          <div 
+            className="mx-auto max-w-2xl transition-transform duration-200"
+            style={{ transform: `scale(${zoom / 100})` }}
+          >
+            <img
+              src={panels[currentPanel]?.image_url}
+              alt={`Panel ${currentPanel + 1}`}
+              className="w-full rounded-lg shadow-lg"
+              draggable={false}
+              onContextMenu={(e) => e.preventDefault()}
+            />
           </div>
           
           {showText && panels[currentPanel]?.text && (

@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
 
 interface Track {
   id: string;
@@ -36,29 +35,6 @@ export const usePlayer = () => {
 
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const { toast } = useToast();
-
-  // Fonction pour obtenir l'URL de streaming sécurisé
-  const getSecureStreamUrl = async (trackId: string): Promise<string> => {
-    try {
-      const { data, error } = await supabase.functions.invoke('secure-audio-stream', {
-        body: { 
-          trackId,
-          action: 'get_stream_url'
-        }
-      });
-
-      if (error) throw error;
-      
-      if (!data?.streamUrl) {
-        throw new Error('URL de streaming non disponible');
-      }
-
-      return data.streamUrl;
-    } catch (error) {
-      console.error('Erreur récupération URL streaming:', error);
-      throw new Error('Impossible d\'obtenir l\'URL de streaming sécurisé');
-    }
-  };
 
   // Initialiser l'audio element
   useEffect(() => {
@@ -144,19 +120,12 @@ export const usePlayer = () => {
 
       // Nouvelle piste - obtenir l'URL de streaming sécurisé
       if (!track.stream_url) {
-        try {
-          const streamUrl = await getSecureStreamUrl(track.id);
-          track.stream_url = streamUrl;
-        } catch (error) {
-          console.error('Erreur URL streaming:', error);
-          setState(prev => ({ ...prev, isLoading: false }));
-          toast({
-            title: "Erreur de streaming",
-            description: "Impossible d'obtenir l'URL de streaming sécurisé",
-            variant: "destructive"
-          });
-          return;
-        }
+        // TODO: Appeler l'API pour obtenir l'URL de streaming
+        // const streamUrl = await getSecureStreamUrl(track.id);
+        // track.stream_url = streamUrl;
+        
+        // Pour l'instant, URL fictive
+        track.stream_url = `https://api.placeholder.com/stream/${track.id}`;
       }
 
       audioRef.current.src = track.stream_url;

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-import { getHealthStatus } from '../services/healthService';
+import { getHealthMessage } from '../services/healthService';
 
 export const healthCheck = (_req: Request, res: Response) => {
-  res.json(getHealthStatus());
+  res.json({ status: 'ok', message: getHealthMessage() });
 };

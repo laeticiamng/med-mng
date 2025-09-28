@@ -59,6 +59,23 @@ const MainSections = () => {
       badge: "IA Avancée"
     },
     {
+      id: "audit",
+      title: "Audit Complétude OIC",
+      description: "Analyse automatique de la qualité des compétences OIC",
+      icon: BarChart3,
+      color: "bg-indigo-500",
+      count: "Analyse en temps réel",
+      status: "Audit automatisé des données",
+      features: [
+        "Détection des contenus incomplets",
+        "Rapport de complétude détaillé",
+        "Recommandations d'amélioration",
+        "Métriques de qualité"
+      ],
+      href: "/audit-completeness",
+      badge: "Audit"
+    },
+    {
       id: "music",
       title: "Générateur Musical",
       description: "Génération musicale pour l'apprentissage médical",
@@ -89,10 +106,10 @@ const MainSections = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="text-center mb-12">
-        <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent text-container break-words-force">
+        <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
           MED MNG - Plateforme Médicale Intelligente
         </h1>
-        <p className="text-xl text-muted-foreground max-w-3xl mx-auto text-container break-words-normal">
+        <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
           Votre compagnon d'apprentissage médical avec IA, contenus officiels EDN et génération musicale
         </p>
         <div className="flex items-center justify-center gap-2 mt-4">
@@ -118,10 +135,10 @@ const MainSections = () => {
                   </Badge>
                 </div>
                 <div>
-                  <CardTitle className="text-xl group-hover:text-primary transition-colors text-container break-words-force">
+                  <CardTitle className="text-xl group-hover:text-primary transition-colors">
                     {section.title}
                   </CardTitle>
-                  <CardDescription className="text-sm text-muted-foreground mt-2 text-container break-words-normal">
+                  <CardDescription className="text-sm text-muted-foreground mt-2">
                     {section.description}
                   </CardDescription>
                 </div>
@@ -137,7 +154,7 @@ const MainSections = () => {
                   {section.features.map((feature, index) => (
                     <div key={index} className="flex items-center gap-2 text-sm text-muted-foreground">
                       <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
-                      <span className="text-container break-words-normal">{feature}</span>
+                      <span>{feature}</span>
                     </div>
                   ))}
                 </div>
@@ -155,18 +172,18 @@ const MainSections = () => {
       </div>
 
       {/* Liens externes */}
-      <div className="mb-16 max-w-6xl mx-auto">
+      <div className="mb-16">
         <h2 className="text-2xl font-bold text-center mb-8">Plateformes partenaires</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 justify-center">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {externalLinks.map((link, index) => (
             <Card key={index} className="group hover:shadow-lg transition-all duration-300 border-2 hover:border-primary/20">
-              <CardContent className="p-8 text-center max-w-sm mx-auto">
+              <CardContent className="p-6 text-center">
                 <div className={`w-12 h-12 ${link.color} rounded-lg mx-auto mb-4 flex items-center justify-center`}>
                   <ExternalLink className="h-6 w-6 text-white" />
                 </div>
-                <h3 className="text-lg font-bold mb-2 text-container break-words-force">{link.title}</h3>
-                <p className="text-sm text-muted-foreground mb-4 text-container break-words-normal">{link.description}</p>
-                <Button asChild variant="outline" size="lg" className="w-full">
+                <h3 className="text-lg font-bold mb-2">{link.title}</h3>
+                <p className="text-sm text-muted-foreground mb-4">{link.description}</p>
+                <Button asChild variant="outline" className="w-full">
                   <a href={link.url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-2">
                     Visiter
                     <ExternalLink className="h-4 w-4" />

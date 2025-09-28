@@ -23,7 +23,6 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { errorService } from '@/services/core/ErrorService';
 
 // Import des composants d'administration existants
 import { AdminSystemSettings } from './AdminSystemSettings';
@@ -89,7 +88,7 @@ export const AdminDashboard: React.FC = () => {
       const [usersResult, subscriptionsResult, ednResult, songsResult, alertsResult] = await Promise.all([
         supabase.from('profiles').select('id', { count: 'exact', head: true }),
         supabase.from('user_subscriptions').select('id', { count: 'exact', head: true }).eq('status', 'active'),
-        supabase.from('edn_items_complete').select('id', { count: 'exact', head: true }),
+        supabase.from('edn_items_immersive').select('id', { count: 'exact', head: true }),
         supabase.from('emotionscare_songs').select('id', { count: 'exact', head: true }),
         supabase.from('completeness_alerts').select('id', { count: 'exact', head: true }).eq('resolved', false)
       ]);
@@ -115,7 +114,7 @@ export const AdminDashboard: React.FC = () => {
         lastUpdate: new Date().toISOString()
       });
     } catch (error) {
-      errorService.handleError(error as Error, 'system', true);
+      console.error('Erreur lors de la récupération des stats:', error);
       toast.error('Erreur lors du chargement des statistiques système');
       setSystemStats(prev => ({ ...prev, systemHealth: 'critical' }));
     } finally {
@@ -143,7 +142,7 @@ export const AdminDashboard: React.FC = () => {
 
       setRecentActivity(activities);
     } catch (error) {
-      errorService.handleError(error as Error, 'system', false);
+      console.error('Erreur activité récente:', error);
     } finally {
       setLoading(false);
     }
@@ -192,7 +191,7 @@ export const AdminDashboard: React.FC = () => {
       await fetchRecentActivity();
       
     } catch (error) {
-      errorService.handleError(error as Error, 'user_action', true);
+      console.error(`Erreur action ${action}:`, error);
       toast.error(`Erreur lors de l'exécution de ${action}`, { id: action });
     } finally {
       setRefreshing(false);

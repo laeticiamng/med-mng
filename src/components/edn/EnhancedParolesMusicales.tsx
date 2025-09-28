@@ -7,15 +7,6 @@ import { MusicVersionSelector } from './music/MusicVersionSelector';
 import { ParolesMusicalesControls } from './music/ParolesMusicalesControls';
 import { ParolesMusicalesErrorSection } from './music/ParolesMusicalesErrorSection';
 import { MusicCardsSection } from './music/MusicCardsSection';
-import { logger } from '@/lib/logger';
-
-interface TableauData {
-  theme?: string;
-  title?: string;
-  subtitle?: string;
-  colonnes?: string[];
-  lignes?: string[][];
-}
 
 interface EnhancedParolesMusicalesProps {
   paroles?: string[];
@@ -23,8 +14,8 @@ interface EnhancedParolesMusicalesProps {
   paroles_rang_b?: string[];
   paroles_rang_ab?: string[];
   itemCode: string;
-  tableauRangA?: TableauData;
-  tableauRangB?: TableauData;
+  tableauRangA?: any;
+  tableauRangB?: any;
 }
 
 export const EnhancedParolesMusicales: React.FC<EnhancedParolesMusicalesProps> = ({
@@ -36,15 +27,11 @@ export const EnhancedParolesMusicales: React.FC<EnhancedParolesMusicalesProps> =
   tableauRangA,
   tableauRangB
 }) => {
-  logger.info('EnhancedParolesMusicales render', { 
-    component: 'EnhancedParolesMusicales',
-    action: 'render',
-    metadata: {
-      parolesCount: paroles?.length,
-      itemCode,
-      hasTableauA: !!tableauRangA,
-      hasTableauB: !!tableauRangB
-    }
+  console.log('🎵 EnhancedParolesMusicales - Rendu avec props:', { 
+    paroles: paroles?.length, 
+    itemCode, 
+    hasTableauA: !!tableauRangA, 
+    hasTableauB: !!tableauRangB 
   });
 
   const {
@@ -72,13 +59,8 @@ export const EnhancedParolesMusicales: React.FC<EnhancedParolesMusicalesProps> =
     stop
   } = useEnhancedParolesMusicales(paroles, { paroles_rang_a, paroles_rang_b, paroles_rang_ab });
 
-  logger.debug('Enhanced paroles musicales state', {
-    component: 'EnhancedParolesMusicales',
-    metadata: {
-      generatedAudioExists: !!generatedAudio,
-      enhancedParolesCount: enhancedParoles?.length || 0
-    }
-  });
+  console.log('🎵 ÉTAT ACTUEL generatedAudio:', generatedAudio);
+  console.log('🎵 ÉTAT ACTUEL enhancedParoles:', enhancedParoles?.length);
 
   return (
     <div className="space-y-6">
@@ -103,7 +85,7 @@ export const EnhancedParolesMusicales: React.FC<EnhancedParolesMusicalesProps> =
                 selectedVersion={selectedVersion}
                 onVersionChange={setSelectedVersion}
                 onGenerate={handleGenerate}
-                isGenerating={isGenerating.rangA || isGenerating.rangB || isGenerating.rangAB}
+                isGenerating={isGenerating.rangA || isGenerating.rangB}
                 generatedAudio={generatedAudio}
               />
             </div>

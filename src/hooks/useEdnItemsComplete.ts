@@ -42,7 +42,7 @@ export const useEdnItemsComplete = () => {
       const { data, error } = await supabase
         .from('edn_items_complete')
         .select('*')
-        .order('item_code', { ascending: true });
+        .order('item_code');
 
       if (error) throw error;
       setItems(data || []);
@@ -73,13 +73,9 @@ export const useEdnItemComplete = (slug: string) => {
           .from('edn_items_complete')
           .select('*')
           .eq('slug', slug)
-          .maybeSingle();
+          .single();
 
         if (error) throw error;
-        if (!data) {
-          setError('Item non trouvé');
-          return;
-        }
         setItem(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Item non trouvé');

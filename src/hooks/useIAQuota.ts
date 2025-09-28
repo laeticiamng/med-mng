@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
-import { appNavigate } from '@/lib/navigation';
+import { useToast } from '@/hooks/use-toast';
 
 interface QuotaStats {
   by_service: Array<{
@@ -23,22 +22,11 @@ interface QuotaStats {
 export const useIAQuota = () => {
   const [quota, setQuota] = useState<number>(0);
   const [loading, setLoading] = useState(false);
+  const { toast } = useToast();
 
   const fetchQuota = async () => {
     try {
       setLoading(true);
-      
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        toast.error("🔐 Connexion requise", {
-          description: "Connectez-vous pour accéder à vos crédits IA et générer de la musique.",
-          action: { label: "🚀 Se connecter", onClick: () => appNavigate("/med-mng/login") },
-          duration: 8000,
-        });
-        setQuota(0);
-        return 0;
-      }
-
       const { data, error } = await supabase.functions.invoke('med-mng-api/quota', {
         body: {},
         method: 'GET',
@@ -51,15 +39,13 @@ export const useIAQuota = () => {
 
       setQuota(data?.remaining_credits || 0);
       return data?.remaining_credits || 0;
-    } catch (e: any) {
-      console.error('Erreur lors de la récupération du quota:', e);
-      // Gestion session expirée / autres erreurs
-      toast.error("⚠️ Impossible de récupérer le quota", {
-        description: e?.message ?? "Réessayez ou reconnectez-vous.",
-        action: { label: "🔄 Se reconnecter", onClick: () => appNavigate("/med-mng/login") },
-        duration: 8000,
+    } catch (error) {
+      console.error('Erreur lors de la récupération du quota:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de récupérer le quota IA",
+        variant: "destructive",
       });
-      setQuota(0);
       return 0;
     } finally {
       setLoading(false);
@@ -89,19 +75,8 @@ export const useIAQuota = () => {
         required: credits_required,
         remaining: data?.remaining_credits || 0
       };
-    } catch (error: any) {
+    } catch (error) {
       console.error('Erreur lors de la vérification du quota:', error);
-      const status = error?.status ?? error?.context?.status ?? error?.response?.status;
-      if (status === 401) {
-        toast.error("Authentification requise", {
-          description: "Connectez-vous pour vérifier vos crédits IA et débloquer toutes les fonctionnalités.",
-          action: {
-            label: "Se connecter",
-            onClick: () => appNavigate('/med-mng/login')
-          },
-          duration: 8000
-        });
-      }
       return {
         canProceed: false,
         required: 0,
@@ -133,30 +108,20 @@ export const useIAQuota = () => {
         setQuota(data.remaining_credits || 0);
         return true;
       } else {
-        toast.error("Quota insuffisant", {
+        toast({
+          title: "Quota insuffisant",
           description: `Il vous faut ${data?.required_credits || 0} crédits mais vous n'en avez que ${data?.remaining_credits || 0}`,
-          duration: 8000
+          variant: "destructive",
         });
         return false;
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('Erreur lors de l\'utilisation du quota:', error);
-      const status = error?.status ?? error?.context?.status ?? error?.response?.status;
-      if (status === 401) {
-        toast.error("Session expirée", {
-          description: "Reconnectez-vous pour utiliser vos crédits IA et continuer à générer.",
-          action: {
-            label: "Se reconnecter",
-            onClick: () => appNavigate('/med-mng/login')
-          },
-          duration: 8000
-        });
-      } else {
-        toast.error("Erreur crédits IA", {
-          description: "Impossible d'utiliser les crédits IA. Réessayez.",
-          duration: 6000
-        });
-      }
+      toast({
+        title: "Erreur",
+        description: "Impossible d'utiliser les crédits IA",
+        variant: "destructive",
+      });
       return false;
     }
   };
@@ -210,19 +175,7 @@ export const useIAQuota = () => {
   };
 
   useEffect(() => {
-    let isMounted = true;
-    
-    const loadQuota = async () => {
-      if (isMounted) {
-        await fetchQuota();
-      }
-    };
-    
-    loadQuota();
-    
-    return () => {
-      isMounted = false;
-    };
+    fetchQuota();
   }, []);
 
   return {

@@ -23,8 +23,6 @@ import {
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
-import { ConsistentBackground } from '@/components/layout/ConsistentBackground';
-import { PageHeader } from '@/components/layout/PageHeader';
 
 interface AuditReport {
   [key: string]: any;
@@ -212,17 +210,12 @@ export default function AdminAudit() {
   };
 
   return (
-    <ConsistentBackground variant="secondary">
-      <PageHeader
-        title="Audit & Nettoyage"
-        subtitle="Analysez et optimisez votre projet automatiquement"
-        icon={BarChart3}
-        showBackButton
-        backTo="/admin"
-      />
-      
-      <div className="container mx-auto px-4 py-8 space-y-6">
+    <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">Audit & Nettoyage</h1>
+          <p className="text-gray-600 mt-2">Analysez et optimisez votre projet automatiquement</p>
+        </div>
         <div className="flex items-center gap-3">
           <label className="flex items-center gap-2 text-sm">
             <input
@@ -572,7 +565,6 @@ export default function AdminAudit() {
           </Card>
         </TabsContent>
       </Tabs>
-      </div>
-    </ConsistentBackground>
+    </div>
   );
 }

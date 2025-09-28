@@ -1,20 +1,18 @@
 import React, { createContext, useContext, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { AlertTriangle, Wifi, WifiOff, Database, Shield, Clock } from 'lucide-react';
-import type { 
-  AppError, 
-  APIError, 
-  NetworkError, 
-  AuthError, 
-  ErrorMessageConfig,
-  ErrorContext as ErrorContextType_Import,
-  ErrorHandler
-} from '@/types/error';
+
+interface APIError {
+  error: string;
+  code: number;
+  message: string;
+  details?: any;
+}
 
 interface ErrorContextType {
-  handleAPIError: ErrorHandler;
-  handleNetworkError: (error: NetworkError | Error, context?: ErrorContextType_Import) => void;
-  handleAuthError: (error: AuthError | Error, context?: ErrorContextType_Import) => void;
+  handleAPIError: (error: any, context?: string) => void;
+  handleNetworkError: (error: any) => void;
+  handleAuthError: (error: any) => void;
   showRetryableError: (message: string, retryFn: () => void) => void;
 }
 
@@ -23,7 +21,7 @@ const ErrorContext = createContext<ErrorContextType | null>(null);
 export function ErrorProvider({ children }: { children: React.ReactNode }) {
   const { toast } = useToast();
 
-  const handleAPIError = useCallback<ErrorHandler>((error, context = 'user_action') => {
+  const handleAPIError = useCallback((error: any, context = 'Action') => {
     console.error('API Error:', error);
 
     // Parse standardized error format
@@ -33,18 +31,15 @@ export function ErrorProvider({ children }: { children: React.ReactNode }) {
       message: 'Une erreur inattendue s\'est produite'
     };
 
-    // Type guard pour APIError
-    if (error && typeof error === 'object' && 'error' in error && 'code' in error) {
-      errorData = error as APIError;
-    } else if (error && typeof error === 'object' && 'message' in error) {
-      errorData.message = (error as Error).message;
-      errorData.code = ('status' in error && typeof error.status === 'number') ? error.status : 500;
-    } else if (error instanceof Error) {
+    if (error?.error) {
+      errorData = error;
+    } else if (error?.message) {
       errorData.message = error.message;
+      errorData.code = error.status || 500;
     }
 
     // Map specific error codes to user-friendly messages
-    const errorMessages: Record<string, ErrorMessageConfig> = {
+    const errorMessages: Record<string, { title: string; description: string; icon: any }> = {
       'RATE_LIMIT': {
         title: '⏱️ Limite de requêtes atteinte',
         description: 'Veuillez patienter quelques instants avant de réessayer',
@@ -128,82 +123,32 @@ export function ErrorProvider({ children }: { children: React.ReactNode }) {
     }
   }, [toast]);
 
-  const handleNetworkError = useCallback((error: NetworkError | Error, context: ErrorContextType_Import = 'network') => {
+  const handleNetworkError = useCallback((error: any) => {
     console.error('Network Error:', error);
 
     const isOnline = navigator.onLine;
-    let message = 'Erreur de réseau inconnue';
-    
-    if ('type' in error && error.type) {
-      switch (error.type) {
-        case 'offline':
-          message = 'Aucune connexion internet détectée';
-          break;
-        case 'timeout':
-          message = 'La requête a pris trop de temps';
-          break;
-        case 'cors':
-          message = 'Erreur de politique de sécurité (CORS)';
-          break;
-        default:
-          message = error.message || 'Erreur de réseau';
-      }
-    } else if (error instanceof Error) {
-      message = error.message;
-    }
     
     toast({
       title: isOnline ? 'Erreur de connexion' : 'Connexion perdue',
       description: isOnline ? 
         'Impossible de contacter le serveur. Vérifiez votre connexion.' :
-        message,
+        'Aucune connexion internet détectée',
       variant: 'destructive',
     });
   }, [toast]);
 
-  const handleAuthError = useCallback((error: AuthError | Error, context: ErrorContextType_Import = 'authentication') => {
+  const handleAuthError = useCallback((error: any) => {
     console.error('Auth Error:', error);
     
-    let title = '🔐 Erreur d\'authentification';
-    let description = 'Votre session a expiré. Redirection vers la connexion...';
-    let redirectDelay = 2000;
-    
-    if ('type' in error) {
-      switch (error.type) {
-        case 'expired':
-          title = '⏰ Session expirée';
-          description = 'Votre session a expiré. Veuillez vous reconnecter.';
-          break;
-        case 'invalid':
-          title = '❌ Authentification invalide';
-          description = 'Vos identifiants sont incorrects.';
-          break;
-        case 'forbidden':
-          title = '🚫 Accès refusé';
-          description = 'Vous n\'avez pas les permissions nécessaires.';
-          redirectDelay = 0; // Pas de redirection automatique
-          break;
-        case 'missing':
-          title = '🔑 Authentification requise';
-          description = 'Veuillez vous connecter pour continuer.';
-          break;
-      }
-    }
-    
     toast({
-      title,
-      description,
+      title: '🔐 Erreur d\'authentification',
+      description: 'Votre session a expiré. Redirection vers la connexion...',
       variant: 'destructive',
     });
 
-    if (redirectDelay > 0) {
-      setTimeout(() => {
-        const redirectUrl = ('redirectUrl' in error && error.redirectUrl) 
-          ? error.redirectUrl 
-          : '/login';
-        window.location.href = redirectUrl;
-      }, redirectDelay);
-    }
+    setTimeout(() => {
+      window.location.href = '/login';
+    }, 2000);
   }, [toast]);
 
   const showRetryableError = useCallback((message: string, retryFn: () => void) => {

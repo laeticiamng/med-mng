@@ -1,305 +1,228 @@
 #!/bin/bash
 
-# ================================================
-# 🏥 MED-MNG - Audit Global Automatisé
-# ================================================
+# 🔍 SCRIPT D'AUDIT GLOBAL MED-MNG
+# Lance tous les audits : sécurité, données, infra, tests, logs
 
 set -e
 
-# Colors pour output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
+echo "🎯 AUDIT GLOBAL MED-MNG - $(date)"
+echo "=================================="
 
-# Configuration
-REPORT_DIR="audit-reports"
-TIMESTAMP=$(date +%Y%m%d_%H%M%S)
-REPORT_FILE="$REPORT_DIR/audit_global_$TIMESTAMP.md"
+# Variables globales
+AUDIT_DIR="audit_reports"
+TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
+REPORT_FILE="$AUDIT_DIR/audit-global-$TIMESTAMP.md"
 
-echo -e "${BLUE}🔍 MED-MNG - Audit Global Démarré${NC}"
-echo "================================================"
-echo "Timestamp: $(date)"
-echo "Rapport: $REPORT_FILE"
-echo "================================================"
+# Créer le dossier de rapports
+mkdir -p "$AUDIT_DIR"
 
-# Créer le répertoire de rapports
-mkdir -p $REPORT_DIR
+# Fonction de logging
+log() {
+    echo "[$( date '+%H:%M:%S' )] $1" | tee -a "$REPORT_FILE"
+}
+
+# Fonction de vérification de succès
+check_success() {
+    if [ $? -eq 0 ]; then
+        log "✅ $1 - SUCCÈS"
+        return 0
+    else
+        log "❌ $1 - ÉCHEC"
+        return 1
+    fi
+}
 
 # Initialiser le rapport
-cat > $REPORT_FILE << EOF
-# 🏥 MED-MNG - Rapport d'Audit Global
+cat > "$REPORT_FILE" << EOF
+# 🔍 RAPPORT D'AUDIT GLOBAL MED-MNG
 
-**Date**: $(date)
-**Version**: $(git describe --tags --always 2>/dev/null || echo "dev")
-**Branche**: $(git branch --show-current 2>/dev/null || echo "unknown")
+**Date**: $(date)  
+**Durée**: [À compléter]  
+**Status**: [À compléter]
 
 ---
 
+## 📊 RÉSUMÉ EXÉCUTIF
+
+| Composant | Status | Score | Détails |
+|-----------|--------|-------|---------|
 EOF
 
-# ================================================
+log "🚀 Démarrage audit global..."
+
 # 1. AUDIT SÉCURITÉ
-# ================================================
-echo -e "${YELLOW}1. 🔐 Audit Sécurité...${NC}"
-
-echo "## 🔐 Audit Sécurité" >> $REPORT_FILE
-echo "" >> $REPORT_FILE
-
-# Vérifier les secrets
-echo -e "  ${BLUE}→ Scan des secrets...${NC}"
-if command -v trufflehog &> /dev/null; then
-    trufflehog filesystem . --json > "$REPORT_DIR/secrets_scan_$TIMESTAMP.json" 2>/dev/null || true
-    SECRET_COUNT=$(cat "$REPORT_DIR/secrets_scan_$TIMESTAMP.json" | wc -l)
-    if [ $SECRET_COUNT -gt 0 ]; then
-        echo -e "    ${RED}⚠️  $SECRET_COUNT secrets potentiels détectés${NC}"
-        echo "- ❌ **$SECRET_COUNT secrets potentiels détectés**" >> $REPORT_FILE
-    else
-        echo -e "    ${GREEN}✅ Aucun secret exposé${NC}"
-        echo "- ✅ **Aucun secret exposé**" >> $REPORT_FILE
-    fi
+log "🔒 1. Audit sécurité..."
+if command -v node &> /dev/null; then
+    node scripts/security-scanner.js >> "$REPORT_FILE" 2>&1
+    check_success "Scan sécurité"
 else
-    echo -e "    ${YELLOW}⚠️  TruffleHog non installé${NC}"
-    echo "- ⚠️ **TruffleHog non installé** - Installer: \`pip install truffleHog\`" >> $REPORT_FILE
+    log "❌ Node.js non trouvé - audit sécurité ignoré"
 fi
 
-# Vérifier les fichiers sensibles
-echo -e "  ${BLUE}→ Vérification fichiers sensibles...${NC}"
-SENSITIVE_FILES=()
-for file in .env .env.local .env.production config/database.yml; do
+# 2. AUDIT SECRETS
+log "🔐 2. Validation secrets..."
+if [ -f "scripts/security-validation.js" ]; then
+    node scripts/security-validation.js >> "$REPORT_FILE" 2>&1
+    check_success "Validation secrets"
+else
+    log "❌ Script validation secrets manquant"
+fi
+
+# 3. TESTS SUITE
+log "🧪 3. Suite de tests..."
+if command -v npm &> /dev/null; then
+    npm test >> "$REPORT_FILE" 2>&1
+    check_success "Tests unitaires"
+    
+    if [ -f "package.json" ] && grep -q "test:e2e" package.json; then
+        npm run test:e2e >> "$REPORT_FILE" 2>&1
+        check_success "Tests E2E"
+    fi
+else
+    log "❌ npm non trouvé - tests ignorés"
+fi
+
+# 4. BUILD VALIDATION
+log "🏗️ 4. Validation build..."
+if command -v npm &> /dev/null; then
+    npm run build >> "$REPORT_FILE" 2>&1
+    check_success "Build application"
+else
+    log "❌ Build ignoré - npm manquant"
+fi
+
+# 5. AUDIT BASE DE DONNÉES
+log "🗃️ 5. Audit base de données..."
+# Vérification de la connectivité Supabase
+if command -v curl &> /dev/null; then
+    SUPABASE_URL="https://yaincoxihiqdksxgrsrk.supabase.co"
+    HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" "$SUPABASE_URL/rest/v1/" -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlhaW5jb3hpaGlxZGtzeGdyc3JrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDI4MTE4MjcsImV4cCI6MjA1ODM4NzgyN30.HBfwymB2F9VBvb3uyeTtHBMZFZYXzL0wQmS5fqd65yU")
+    
+    if [ "$HTTP_STATUS" -eq 200 ] || [ "$HTTP_STATUS" -eq 401 ]; then
+        log "✅ Supabase accessible (HTTP $HTTP_STATUS)"
+    else
+        log "❌ Supabase inaccessible (HTTP $HTTP_STATUS)"
+    fi
+else
+    log "❌ curl manquant - audit DB ignoré"
+fi
+
+# 6. AUDIT LOGS & MONITORING
+log "📊 6. Audit logs & monitoring..."
+# Vérifier la présence des dashboards
+if [ -f "src/components/admin/AdminDashboard.tsx" ]; then
+    log "✅ Dashboard admin présent"
+else
+    log "❌ Dashboard admin manquant"
+fi
+
+if [ -f "src/components/security/SecurityDashboard.tsx" ]; then
+    log "✅ Dashboard sécurité présent"
+else
+    log "❌ Dashboard sécurité manquant"
+fi
+
+# 7. AUDIT DOCUMENTATION
+log "📚 7. Audit documentation..."
+DOCS_FILES=("README.md" "docs/FAQ.md" "docs/storybook-guide.md")
+for file in "${DOCS_FILES[@]}"; do
     if [ -f "$file" ]; then
-        SENSITIVE_FILES+=("$file")
+        log "✅ $file présent"
+    else
+        log "❌ $file manquant"
     fi
 done
 
-if [ ${#SENSITIVE_FILES[@]} -gt 0 ]; then
-    echo -e "    ${RED}⚠️  Fichiers sensibles trouvés: ${SENSITIVE_FILES[*]}${NC}"
-    echo "- ❌ **Fichiers sensibles**: ${SENSITIVE_FILES[*]}" >> $REPORT_FILE
+# 8. AUDIT PIPELINE CI/CD
+log "⚙️ 8. Audit pipeline CI/CD..."
+if [ -f ".github/workflows/ci-cd.yml" ]; then
+    log "✅ Pipeline CI/CD configuré"
 else
-    echo -e "    ${GREEN}✅ Aucun fichier sensible exposé${NC}"
-    echo "- ✅ **Aucun fichier sensible exposé**" >> $REPORT_FILE
+    log "❌ Pipeline CI/CD manquant"
 fi
 
-echo "" >> $REPORT_FILE
-
-# ================================================
-# 2. AUDIT CODE QUALITÉ
-# ================================================
-echo -e "${YELLOW}2. 🧹 Audit Qualité Code...${NC}"
-
-echo "## 🧹 Audit Qualité Code" >> $REPORT_FILE
-echo "" >> $REPORT_FILE
-
-# ESLint
-echo -e "  ${BLUE}→ ESLint...${NC}"
-if npm run lint 2>&1 | tee "$REPORT_DIR/eslint_$TIMESTAMP.log"; then
-    echo -e "    ${GREEN}✅ ESLint: Aucune erreur${NC}"
-    echo "- ✅ **ESLint**: Aucune erreur" >> $REPORT_FILE
-else
-    ERROR_COUNT=$(grep -c "error" "$REPORT_DIR/eslint_$TIMESTAMP.log" 2>/dev/null || echo "0")
-    WARNING_COUNT=$(grep -c "warning" "$REPORT_DIR/eslint_$TIMESTAMP.log" 2>/dev/null || echo "0")
-    echo -e "    ${RED}❌ ESLint: $ERROR_COUNT erreurs, $WARNING_COUNT avertissements${NC}"
-    echo "- ❌ **ESLint**: $ERROR_COUNT erreurs, $WARNING_COUNT avertissements" >> $REPORT_FILE
-fi
-
-# TypeScript
-echo -e "  ${BLUE}→ TypeScript...${NC}"
-if npx tsc --noEmit 2>&1 | tee "$REPORT_DIR/typescript_$TIMESTAMP.log"; then
-    echo -e "    ${GREEN}✅ TypeScript: Aucune erreur${NC}"
-    echo "- ✅ **TypeScript**: Aucune erreur de type" >> $REPORT_FILE
-else
-    TS_ERROR_COUNT=$(grep -c "error TS" "$REPORT_DIR/typescript_$TIMESTAMP.log" 2>/dev/null || echo "0")
-    echo -e "    ${RED}❌ TypeScript: $TS_ERROR_COUNT erreurs de type${NC}"
-    echo "- ❌ **TypeScript**: $TS_ERROR_COUNT erreurs de type" >> $REPORT_FILE
-fi
-
-echo "" >> $REPORT_FILE
-
-# ================================================
-# 3. AUDIT DÉPENDANCES
-# ================================================
-echo -e "${YELLOW}3. 📦 Audit Dépendances...${NC}"
-
-echo "## 📦 Audit Dépendances" >> $REPORT_FILE
-echo "" >> $REPORT_FILE
-
-# npm audit
-echo -e "  ${BLUE}→ npm audit...${NC}"
-if npm audit --json > "$REPORT_DIR/npm_audit_$TIMESTAMP.json" 2>/dev/null; then
-    CRITICAL=$(cat "$REPORT_DIR/npm_audit_$TIMESTAMP.json" | jq '.vulnerabilities | to_entries | map(select(.value.severity == "critical")) | length')
-    HIGH=$(cat "$REPORT_DIR/npm_audit_$TIMESTAMP.json" | jq '.vulnerabilities | to_entries | map(select(.value.severity == "high")) | length')
-    MODERATE=$(cat "$REPORT_DIR/npm_audit_$TIMESTAMP.json" | jq '.vulnerabilities | to_entries | map(select(.value.severity == "moderate")) | length')
+# 9. AUDIT PERFORMANCE
+log "🚀 9. Audit performance..."
+if command -v npm &> /dev/null && [ -f "package.json" ]; then
+    # Test build time
+    START_TIME=$(date +%s)
+    npm run build > /dev/null 2>&1
+    END_TIME=$(date +%s)
+    BUILD_TIME=$((END_TIME - START_TIME))
     
-    if [ "$CRITICAL" -gt 0 ] || [ "$HIGH" -gt 0 ]; then
-        echo -e "    ${RED}❌ Vulnérabilités: $CRITICAL critiques, $HIGH élevées, $MODERATE modérées${NC}"
-        echo "- ❌ **Vulnérabilités**: $CRITICAL critiques, $HIGH élevées, $MODERATE modérées" >> $REPORT_FILE
+    if [ $BUILD_TIME -lt 60 ]; then
+        log "✅ Build rapide (${BUILD_TIME}s)"
     else
-        echo -e "    ${GREEN}✅ Aucune vulnérabilité critique${NC}"
-        echo "- ✅ **Aucune vulnérabilité critique**" >> $REPORT_FILE
+        log "⚠️ Build lent (${BUILD_TIME}s)"
     fi
+fi
+
+# 10. GÉNÉRATION BADGES
+log "🏆 10. Génération badges..."
+
+# Calculer le score global
+TOTAL_CHECKS=10
+PASSED_CHECKS=$(grep -c "✅" "$REPORT_FILE" || echo 0)
+SCORE=$((PASSED_CHECKS * 100 / TOTAL_CHECKS))
+
+# Déterminer le grade
+if [ $SCORE -ge 90 ]; then
+    GRADE="A"
+    COLOR="brightgreen"
+elif [ $SCORE -ge 80 ]; then
+    GRADE="B" 
+    COLOR="green"
+elif [ $SCORE -ge 70 ]; then
+    GRADE="C"
+    COLOR="yellow"
 else
-    echo -e "    ${YELLOW}⚠️  Erreur npm audit${NC}"
-    echo "- ⚠️ **Erreur lors de npm audit**" >> $REPORT_FILE
+    GRADE="F"
+    COLOR="red"
 fi
 
-echo "" >> $REPORT_FILE
+log "📊 Score global: $SCORE% (Grade $GRADE)"
 
-# ================================================
-# 4. AUDIT PERFORMANCE
-# ================================================
-echo -e "${YELLOW}4. ⚡ Audit Performance...${NC}"
+# Finaliser le rapport
+END_TIME=$(date)
+DURATION=$(($(date +%s) - $(date -d "$START_TIME_STR" +%s 2>/dev/null || echo 0)))
 
-echo "## ⚡ Audit Performance" >> $REPORT_FILE
-echo "" >> $REPORT_FILE
+cat >> "$REPORT_FILE" << EOF
 
-# Build test
-echo -e "  ${BLUE}→ Test de build...${NC}"
-if npm run build 2>&1 | tee "$REPORT_DIR/build_$TIMESTAMP.log"; then
-    # Analyser la taille du bundle
-    if [ -d "dist" ]; then
-        BUNDLE_SIZE=$(du -sh dist | cut -f1)
-        echo -e "    ${GREEN}✅ Build réussi - Taille: $BUNDLE_SIZE${NC}"
-        echo "- ✅ **Build réussi** - Taille: $BUNDLE_SIZE" >> $REPORT_FILE
-    else
-        echo -e "    ${GREEN}✅ Build réussi${NC}"
-        echo "- ✅ **Build réussi**" >> $REPORT_FILE
-    fi
-else
-    echo -e "    ${RED}❌ Échec du build${NC}"
-    echo "- ❌ **Échec du build** - Voir logs pour détails" >> $REPORT_FILE
-fi
+---
 
-echo "" >> $REPORT_FILE
+## 🎯 RÉSULTATS FINAUX
 
-# ================================================
-# 5. AUDIT TESTS
-# ================================================
-echo -e "${YELLOW}5. 🧪 Audit Tests...${NC}"
+**Score global**: $SCORE% (Grade $GRADE)  
+**Checks réussis**: $PASSED_CHECKS/$TOTAL_CHECKS  
+**Durée totale**: ${DURATION}s  
+**Status**: $([ $SCORE -ge 80 ] && echo "SUCCÈS ✅" || echo "ATTENTION ⚠️")
 
-echo "## 🧪 Audit Tests" >> $REPORT_FILE
-echo "" >> $REPORT_FILE
+### 🏆 Badge Audit
+![Audit Score](https://img.shields.io/badge/Audit-$GRADE-$COLOR.svg)
 
-# Tests unitaires
-if [ -f "package.json" ] && grep -q "test" package.json; then
-    echo -e "  ${BLUE}→ Tests unitaires...${NC}"
-    if npm test 2>&1 | tee "$REPORT_DIR/tests_$TIMESTAMP.log"; then
-        echo -e "    ${GREEN}✅ Tous les tests passent${NC}"
-        echo "- ✅ **Tests unitaires**: Tous passent" >> $REPORT_FILE
-    else
-        FAILED_TESTS=$(grep -c "FAIL" "$REPORT_DIR/tests_$TIMESTAMP.log" 2>/dev/null || echo "0")
-        echo -e "    ${RED}❌ $FAILED_TESTS tests échouent${NC}"
-        echo "- ❌ **Tests unitaires**: $FAILED_TESTS échecs" >> $REPORT_FILE
-    fi
-else
-    echo -e "    ${YELLOW}⚠️  Aucun test configuré${NC}"
-    echo "- ⚠️ **Aucun test unitaire configuré**" >> $REPORT_FILE
-fi
+### 📋 Actions recommandées
+$([ $SCORE -lt 100 ] && echo "- Corriger les problèmes identifiés ci-dessus" || echo "- Aucune action requise - audit parfait!")
+- Relancer l'audit après corrections
+- Surveiller les métriques de performance
 
-echo "" >> $REPORT_FILE
+---
 
-# ================================================
-# 6. AUDIT STRUCTURE
-# ================================================
-echo -e "${YELLOW}6. 📁 Audit Structure...${NC}"
+*Rapport généré le $(date) par le script d'audit global MED-MNG*
+EOF
 
-echo "## 📁 Audit Structure" >> $REPORT_FILE
-echo "" >> $REPORT_FILE
-
-# Vérifier les fichiers essentiels
-ESSENTIAL_FILES=(
-    "README.md"
-    "package.json"
-    ".gitignore"
-    "src/App.tsx"
-    "src/main.tsx"
-    "index.html"
-)
-
-echo "### Fichiers Essentiels" >> $REPORT_FILE
-for file in "${ESSENTIAL_FILES[@]}"; do
-    if [ -f "$file" ]; then
-        echo -e "    ${GREEN}✅ $file${NC}"
-        echo "- ✅ $file" >> $REPORT_FILE
-    else
-        echo -e "    ${RED}❌ $file manquant${NC}"
-        echo "- ❌ $file manquant" >> $REPORT_FILE
-    fi
-done
-
-echo "" >> $REPORT_FILE
-
-# ================================================
-# 7. RÉSUMÉ FINAL
-# ================================================
-echo "## 📊 Résumé Exécutif" >> $REPORT_FILE
-echo "" >> $REPORT_FILE
-
-# Calcul du score global
-TOTAL_CHECKS=0
-PASSED_CHECKS=0
-
-# Compter les vérifications dans le rapport
-TOTAL_CHECKS=$(grep -c "^- " $REPORT_FILE)
-PASSED_CHECKS=$(grep -c "^- ✅" $REPORT_FILE)
-
-if [ $TOTAL_CHECKS -gt 0 ]; then
-    SCORE=$((PASSED_CHECKS * 100 / TOTAL_CHECKS))
-    
-    if [ $SCORE -ge 90 ]; then
-        STATUS="🟢 EXCELLENT"
-        COLOR=$GREEN
-    elif [ $SCORE -ge 70 ]; then
-        STATUS="🟡 BON"
-        COLOR=$YELLOW
-    else
-        STATUS="🔴 À AMÉLIORER"
-        COLOR=$RED
-    fi
-    
-    echo -e "**Score Global**: $SCORE% ($PASSED_CHECKS/$TOTAL_CHECKS)" >> $REPORT_FILE
-    echo -e "**Statut**: $STATUS" >> $REPORT_FILE
-else
-    SCORE=0
-    STATUS="🔴 ERREUR AUDIT"
-    COLOR=$RED
-fi
-
-echo "" >> $REPORT_FILE
-echo "### Recommandations Prioritaires" >> $REPORT_FILE
-echo "" >> $REPORT_FILE
-
-# Ajouter les recommandations basées sur les résultats
-if grep -q "❌.*secrets" $REPORT_FILE; then
-    echo "1. **🔐 CRITIQUE**: Éliminer tous les secrets exposés" >> $REPORT_FILE
-fi
-if grep -q "❌.*Vulnérabilités" $REPORT_FILE; then
-    echo "2. **📦 URGENT**: Corriger les vulnérabilités critiques" >> $REPORT_FILE
-fi
-if grep -q "❌.*ESLint" $REPORT_FILE; then
-    echo "3. **🧹 IMPORTANT**: Résoudre les erreurs ESLint" >> $REPORT_FILE
-fi
-
-echo "" >> $REPORT_FILE
-echo "---" >> $REPORT_FILE
-echo "**Généré par**: \`scripts/audit-global.sh\`" >> $REPORT_FILE
-echo "**Commande**: \`npm run audit:global\`" >> $REPORT_FILE
-
-# ================================================
-# AFFICHAGE FINAL
-# ================================================
 echo ""
-echo "================================================"
-echo -e "${COLOR}🎯 AUDIT TERMINÉ - Score: $SCORE% - $STATUS${NC}"
-echo "================================================"
-echo -e "📄 Rapport complet: ${BLUE}$REPORT_FILE${NC}"
-echo -e "📊 Logs détaillés: ${BLUE}$REPORT_DIR/${NC}"
+echo "✅ AUDIT GLOBAL TERMINÉ"
+echo "📊 Score: $SCORE% (Grade $GRADE)"
+echo "📄 Rapport: $REPORT_FILE"
 echo ""
 
-if [ $SCORE -lt 70 ]; then
-    echo -e "${RED}⚠️  Action requise: Score inférieur à 70%${NC}"
-    exit 1
-else
-    echo -e "${GREEN}✅ Audit réussi: Plateforme en bon état${NC}"
+# Copier le dernier rapport comme rapport principal
+cp "$REPORT_FILE" "$AUDIT_DIR/audit-report.md"
+log "📋 Rapport principal mis à jour: $AUDIT_DIR/audit-report.md"
+
+# Sortir avec le code approprié
+if [ $SCORE -ge 80 ]; then
     exit 0
+else
+    exit 1
 fi

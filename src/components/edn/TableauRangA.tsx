@@ -4,60 +4,32 @@ import { TableauRangAHeader } from './tableau/TableauRangAHeader';
 import { TableauRangAGrid } from './tableau/TableauRangAGrid';
 import { TableauRangAFooter } from './tableau/TableauRangAFooter';
 import { TableauRangAFooterIC1 } from './tableau/TableauRangAFooterIC1';
+import { TableauRangAFooterIC2 } from './tableau/TableauRangAFooterIC2';
 import { TableauRangAFooterIC3 } from './tableau/TableauRangAFooterIC3';
-import { processTableauData } from './tableau/TableauRangAUtilsUnified';
+import { TableauRangAFooterIC4 } from './tableau/TableauRangAFooterIC4';
+import { TableauRangAFooterIC5 } from './tableau/TableauRangAFooterIC5';
+import { TableauRangAFooterIC10 } from './tableau/TableauRangAFooterIC10';
+import { processTableauRangAIC1, isIC1Item } from './tableau/TableauRangAUtilsIC1Integration';
+import { processTableauRangAIC2, isIC2Item } from './tableau/TableauRangAUtilsIC2Integration';
 import { processTableauRangAIC3, isIC3Item } from './tableau/TableauRangAUtilsIC3Integration';
+import { processTableauRangAIC4, isIC4Item } from './tableau/TableauRangAUtilsIC4Integration';
+import { processTableauRangAIC5, isIC5Item } from './tableau/TableauRangAUtilsIC5Integration';
+import { processTableauRangAIC10, isIC10Item } from './tableau/TableauRangAUtilsIC10Integration';
 import { determinerColonnesUtiles, generateLignesRangAIntelligent } from './tableau/TableauRangAUtils';
-import { ColonneConfig, TableauData } from '@/types/edn';
-import { logger } from '@/lib/logger';
-
-interface Section {
-  title: string;
-  content?: string;
-  competences?: Competence[];
-  keywords?: string[];
-}
-
-interface Competence {
-  competence_id: string;
-  concept?: string;
-  title?: string;
-  definition?: string;
-  exemple?: string;
-  application?: string;
-}
-
-interface OICCompetence {
-  objectif_id: string;
-  intitule: string;
-  description?: string;
-  rubrique?: string;
-}
 
 interface TableauRangAProps {
   data: {
     theme?: string;
     title?: string;
     subtitle?: string;
-    colonnes?: string[] | ColonneConfig[];
+    colonnes?: string[];
     lignes?: string[][];
-    sections?: Section[];
-    competences_oic?: OICCompetence[];
+    sections?: any[];
   };
-  itemCode?: string;
 }
 
-export const TableauRangA = ({ data, itemCode }: TableauRangAProps) => {
-  logger.info('TableauRangA render', {
-    component: 'TableauRangA',
-    action: 'render',
-    itemCode,
-    metadata: {
-      hasData: !!data,
-      hasCompetencesOIC: !!(data?.competences_oic?.length),
-      hasSections: !!(data?.sections?.length)
-    }
-  });
+export const TableauRangA = ({ data }: TableauRangAProps) => {
+  console.log('TableauRangA - Received data:', data);
 
   if (!data) {
     return (
@@ -68,103 +40,7 @@ export const TableauRangA = ({ data, itemCode }: TableauRangAProps) => {
     );
   }
 
-  // PRIORITÉ 1: Afficher les compétences OIC réelles si disponibles
-  if (data.competences_oic && Array.isArray(data.competences_oic) && data.competences_oic.length > 0) {
-    logger.info('Displaying real OIC competences', {
-      component: 'TableauRangA',
-      action: 'display_oic_competences',
-      itemCode,
-      metadata: { competencesCount: data.competences_oic.length }
-    });
-    
-    return (
-      <div className="space-y-6">
-        <div className="mb-6">
-          <h2 className="text-2xl font-bold text-blue-700 mb-2 flex items-center gap-2">
-            <Badge className="bg-blue-600">Rang A</Badge>
-            Compétences EDN - {itemCode || 'Item'}
-          </h2>
-          <p className="text-gray-600">
-            Compétences officielles du référentiel OIC ({data.competences_oic.length} compétences)
-          </p>
-        </div>
-
-        <div className="space-y-4">
-          {data.competences_oic.map((competence: OICCompetence, idx: number) => {
-            const competenceId = `competence-oic-${idx}`;
-            return (
-              <Card 
-                key={competence.objectif_id || idx} 
-                className="border-l-4 border-l-blue-500 bg-blue-50/30"
-                role="article"
-                aria-labelledby={competenceId}
-              >
-                <CardContent className="p-4">
-                  <div className="space-y-3">
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <Badge 
-                            variant="outline" 
-                            className="text-xs bg-blue-100 border-blue-300"
-                            aria-label={`Code de compétence ${competence.objectif_id}`}
-                          >
-                            {competence.objectif_id}
-                          </Badge>
-                          {competence.rubrique && (
-                            <Badge 
-                              variant="secondary" 
-                              className="text-xs"
-                            >
-                              {competence.rubrique}
-                            </Badge>
-                          )}
-                        </div>
-                        
-                        <h5 
-                          id={competenceId}
-                          className="font-semibold text-blue-800 text-base leading-tight"
-                        >
-                          {competence.intitule}
-                        </h5>
-                      </div>
-                    </div>
-                    
-                    {competence.description && (
-                      <div 
-                        className="text-sm text-gray-700 leading-relaxed p-3 bg-white rounded border text-container overflow-safe"
-                        role="definition"
-                      >
-                        <div 
-                          className="break-words-force"
-                          dangerouslySetInnerHTML={{ 
-                            __html: competence.description 
-                              .replace(/&nbsp;/g, ' ')
-                              .replace(/<br\s*\/?>/gi, '<br>')
-                          }} 
-                        />
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-
-        <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-          <div className="flex items-center gap-2 text-sm text-blue-700">
-            <Badge className="bg-blue-600">
-              {data.competences_oic.length}
-            </Badge>
-            compétences officielles du référentiel EDN - Rang A
-          </div>
-        </div>
-      </div>
-    );
-  }
-
-  // PRIORITÉ 2: Nouvelle logique pour afficher les données structurées correctement
+  // Nouvelle logique pour afficher les données structurées correctement
   if (data.sections && Array.isArray(data.sections)) {
     return (
       <div className="space-y-6">
@@ -199,7 +75,7 @@ export const TableauRangA = ({ data, itemCode }: TableauRangAProps) => {
                   >
                     Compétences ({section.competences.length})
                   </h4>
-                  {section.competences.map((competence: Competence, compIdx: number) => {
+                  {section.competences.map((competence: any, compIdx: number) => {
                     const competenceId = `competence-${idx}-${compIdx}`;
                     return (
                       <Card 
@@ -227,7 +103,7 @@ export const TableauRangA = ({ data, itemCode }: TableauRangAProps) => {
                             </div>
                             
                             {competence.definition && (
-                              <p className="text-sm text-gray-700 text-container break-words-force overflow-safe" role="definition">
+                              <p className="text-sm text-gray-700" role="definition">
                                 {competence.definition}
                               </p>
                             )}
@@ -281,92 +157,66 @@ export const TableauRangA = ({ data, itemCode }: TableauRangAProps) => {
   let theme: string;
   let footerComponent: JSX.Element;
 
-  // Helper function to determine item type
-  const determineItemType = (data: any): string => {
-    if (isIC3Item(data)) return 'IC-3';
-    if (data?.item_code) return data.item_code.toUpperCase();
-    if (data?.title?.includes('IC-')) {
-      const match = data.title.match(/IC-(\d+)/);
-      return match ? `IC-${match[1]}` : 'standard';
-    }
-    return 'standard';
-  };
-
-  const itemType = determineItemType(data);
-
-  if (isIC3Item(data)) {
-  const processed = processTableauRangAIC3(data);
-  lignesEnrichies = processed.lignesEnrichies;
-  colonnesUtiles = processed.colonnesUtiles;
-  theme = processed.theme;
-  footerComponent = <TableauRangAFooterIC3 
-    colonnesCount={colonnesUtiles.length} 
-    lignesCount={lignesEnrichies.length}
-    isRangB={processed.isRangB}
-  />;
-  } else if (itemType.startsWith('IC-')) {
-    // Use unified processing for all other IC items
-    // Convert data format for unified processing
-    let colonnesConverties: ColonneConfig[] = [];
-    if (Array.isArray(data.colonnes) && data.colonnes.length > 0) {
-      if (typeof data.colonnes[0] === 'string') {
-        colonnesConverties = (data.colonnes as string[]).map((col: string) => ({ 
-          nom: col, 
-          description: col 
-        }));
-      } else {
-        colonnesConverties = data.colonnes as ColonneConfig[];
-      }
-    }
-    
-    const convertedData = {
-      ...data,
-      colonnes: colonnesConverties,
-      sections: data.sections || [],
-      competences: [],
-      items: []
-    };
-    const processed = processTableauData(convertedData, itemType);
-    lignesEnrichies = processed.lignes || [];
-    colonnesUtiles = processed.colonnes || [];
-    theme = processed.metadata?.theme || `${itemType} - Compétences`;
-    footerComponent = <TableauRangAFooter colonnesCount={colonnesUtiles.length} lignesCount={lignesEnrichies.length} />;
+  if (isIC1Item(data)) {
+    const processed = processTableauRangAIC1(data);
+    lignesEnrichies = processed.lignesEnrichies;
+    colonnesUtiles = processed.colonnesUtiles;
+    theme = processed.theme;
+    footerComponent = <TableauRangAFooterIC1 colonnesCount={colonnesUtiles.length} lignesCount={lignesEnrichies.length} />;
+  } else if (isIC2Item(data)) {
+    const processed = processTableauRangAIC2(data);
+    lignesEnrichies = processed.lignesEnrichies;
+    colonnesUtiles = processed.colonnesUtiles;
+    theme = processed.theme;
+    footerComponent = <TableauRangAFooterIC2 
+      colonnesCount={colonnesUtiles.length} 
+      lignesCount={lignesEnrichies.length}
+      isRangB={processed.isRangB}
+    />;
+  } else if (isIC3Item(data)) {
+    const processed = processTableauRangAIC3(data);
+    lignesEnrichies = processed.lignesEnrichies;
+    colonnesUtiles = processed.colonnesUtiles;
+    theme = processed.theme;
+    footerComponent = <TableauRangAFooterIC3 
+      colonnesCount={colonnesUtiles.length} 
+      lignesCount={lignesEnrichies.length}
+      isRangB={processed.isRangB}
+    />;
+  } else if (isIC4Item(data)) {
+    const processed = processTableauRangAIC4(data);
+    lignesEnrichies = processed.lignesEnrichies;
+    colonnesUtiles = processed.colonnesUtiles;
+    theme = processed.theme;
+    footerComponent = <TableauRangAFooterIC4 colonnesCount={colonnesUtiles.length} lignesCount={lignesEnrichies.length} />;
+  } else if (isIC5Item(data)) {
+    const processed = processTableauRangAIC5(data);
+    lignesEnrichies = processed.lignesEnrichies;
+    colonnesUtiles = processed.colonnesUtiles;
+    theme = processed.theme;
+    footerComponent = <TableauRangAFooterIC5 
+      colonnesCount={colonnesUtiles.length} 
+      lignesCount={lignesEnrichies.length}
+      isRangB={processed.isRangB}
+    />;
+  } else if (isIC10Item(data)) {
+    const processed = processTableauRangAIC10(data);
+    lignesEnrichies = processed.lignesEnrichies;
+    colonnesUtiles = processed.colonnesUtiles;
+    theme = processed.theme;
+    footerComponent = <TableauRangAFooterIC10 colonnesCount={colonnesUtiles.length} lignesCount={lignesEnrichies.length} />;
   } else {
     // Traitement générique pour les autres items
-    // Convert data to proper TableauData format
-    let colonnesConverties: ColonneConfig[] = [];
-    
-    if (Array.isArray(data.colonnes) && data.colonnes.length > 0) {
-      if (typeof data.colonnes[0] === 'string') {
-        // Convert string[] to ColonneConfig[]
-        colonnesConverties = (data.colonnes as string[]).map((col: string) => ({ 
-          nom: col, 
-          description: col 
-        }));
-      } else {
-        // Already ColonneConfig[]
-        colonnesConverties = data.colonnes as ColonneConfig[];
-      }
-    }
-    
-    const tableauData: TableauData = {
-      ...data,
-      colonnes: colonnesConverties
-    };
-    
-    lignesEnrichies = generateLignesRangAIntelligent(tableauData);
+    lignesEnrichies = generateLignesRangAIntelligent(data);
     colonnesUtiles = determinerColonnesUtiles(lignesEnrichies);
     theme = data.theme || data.title || 'Tableau Rang A';
     footerComponent = <TableauRangAFooter colonnesCount={colonnesUtiles.length} lignesCount={lignesEnrichies.length} />;
   }
 
-  logger.debug('TableauRangA processed data', {
-    component: 'TableauRangA',
-    metadata: {
-      theme,
-      colonnesUtilesCount: colonnesUtiles.length,
-      lignesEnrichiesCount: lignesEnrichies.length
-    }
+  console.log('TableauRangA - Processed data:', {
+    theme,
+    colonnesUtiles: colonnesUtiles.length,
+    lignesEnrichies: lignesEnrichies.length
   });
 
   return (

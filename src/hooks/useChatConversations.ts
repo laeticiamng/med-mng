@@ -85,7 +85,7 @@ export const useChatConversations = () => {
     try {
       // Rechercher dans les items immersifs (remplace edn_items_complete)
       const { data: immersiveItems, error: immersiveError } = await supabase
-        .from('edn_items_complete')
+        .from('edn_items_immersive')
         .select('item_code, title, payload_v2')
         .or(`title.ilike.%${query}%,payload_v2::text.ilike.%${query}%`)
         .limit(5);

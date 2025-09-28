@@ -3,7 +3,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { AlertTriangle, RefreshCw, Home } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { errorService } from '@/services/core/ErrorService';
 
 interface Props {
   children: ReactNode;
@@ -27,7 +26,7 @@ class ErrorBoundaryClass extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    errorService.handleError(error, 'system', false);
+    console.error('ErrorBoundary caught an error:', error, errorInfo);
     this.setState({ error, errorInfo });
   }
 
@@ -50,14 +49,7 @@ interface ErrorFallbackProps {
 }
 
 const ErrorFallback: React.FC<ErrorFallbackProps> = ({ error, reset }) => {
-  // Safe navigation - check if Router context is available
-  let navigate: any;
-  try {
-    navigate = useNavigate();
-  } catch (e) {
-    // Router not available, use window.location instead
-    navigate = (path: string) => window.location.href = path;
-  }
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-red-50 to-orange-50 flex items-center justify-center p-4">

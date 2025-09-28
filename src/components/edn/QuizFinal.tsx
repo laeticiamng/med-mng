@@ -7,7 +7,6 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { CheckCircle, XCircle, Trophy, RotateCcw } from 'lucide-react';
 import { useQuizWithErrorTracking } from '@/hooks/useQuizWithErrorTracking';
-import { logger } from '@/lib/logger';
 
 interface QuizQuestion {
   question: string;
@@ -43,16 +42,8 @@ interface QuizFinalProps {
 }
 
 export const QuizFinal = ({ questions, rewards, itemCode = 'Quiz', itemTitle = 'Quiz EDN' }: QuizFinalProps) => {
-  logger.info('QuizFinal component initialized', {
-    component: 'QuizFinal',
-    action: 'initialize',
-    itemCode,
-    metadata: {
-      hasQuestions: !!questions,
-      hasRewards: !!rewards,
-      questionsType: questions?.type
-    }
-  });
+  console.log('QuizFinal - questions received:', questions);
+  console.log('QuizFinal - rewards received:', rewards);
 
   const {
     answers,

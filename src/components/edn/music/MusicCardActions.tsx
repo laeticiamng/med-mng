@@ -4,7 +4,7 @@ import { formatParoles, hasValidParoles } from './utils/parolesFormatter';
 import { getCardStyling } from './utils/cardStyling';
 
 interface MusicCardActionsProps {
-  rang: 'A' | 'B' | 'AB';
+  rang: 'A' | 'B';
   paroles: string;
   selectedStyle: string;
   musicDuration: number;
@@ -39,7 +39,7 @@ export const MusicCardActions = ({
       />
       
       {!hasValidParolesData && (
-        <p className="text-center text-sm text-gray-600 description-text card-content-safe">
+        <p className="text-center text-sm text-gray-600">
           La génération nécessite des paroles valides depuis la base de données Supabase.
         </p>
       )}
