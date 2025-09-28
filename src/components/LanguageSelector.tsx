@@ -14,7 +14,7 @@ export const LanguageSelector: React.FC = () => {
   const { currentLanguage, setCurrentLanguage, languages } = useLanguage();
   const [isOpen, setIsOpen] = useState(false);
 
-  const handleLanguageChange = (lang: Language) => {
+  const handleLanguageChange = (lang: string) => {
     setCurrentLanguage(lang);
     setIsOpen(false);
   };

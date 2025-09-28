@@ -86,8 +86,8 @@ export const LanguageTranspositionPanel = ({
                   {availableLanguages.map(([code, info]) => (
                     <SelectItem key={code} value={code}>
                       <div className="flex items-center gap-2">
-                        <span>{info.flag}</span>
-                        <span>{info.name}</span>
+                        <span>{(info as any).flag}</span>
+                        <span>{(info as any).name}</span>
                       </div>
                     </SelectItem>
                   ))}

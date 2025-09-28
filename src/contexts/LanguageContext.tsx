@@ -1,6 +1,10 @@
 
 import { createContext, useContext, useState, useEffect } from 'react';
 
+// Types pour compatibilité TypeScript
+export type Language = 'fr' | 'en' | 'es' | 'it' | 'zh' | 'ja';
+export type SupportedLanguage = Language;
+
 // Pure JS types - simples et légers
 const LANGUAGES = [
   { code: 'fr', name: 'Français', nativeName: 'Français', flag: '🇫🇷' },
@@ -16,9 +20,19 @@ export { LANGUAGES };
 export const SUPPORTED_LANGUAGES = LANGUAGES.reduce((acc, lang) => {
   acc[lang.code] = lang;
   return acc;
-}, {});
+}, {} as Record<string, { code: string; name: string; nativeName: string; flag: string }>);
 
-const LanguageContext = createContext();
+// Interface pour le contexte
+interface LanguageContextType {
+  currentLanguage: string;
+  setCurrentLanguage: (language: string) => void;
+  t: (key: string, params?: Record<string, any>) => string;
+  translate: (text: string, targetLanguage?: string) => Promise<string>;
+  isTranslating: boolean;
+  languages: typeof LANGUAGES;
+}
+
+const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 // Pure JS provider function
 export function LanguageProvider({ children }) {
