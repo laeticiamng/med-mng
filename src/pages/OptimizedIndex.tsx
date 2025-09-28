@@ -113,17 +113,17 @@ const PremiumHero = memo(() => {
 
     if (user) {
       return (
-        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8">
-          <PremiumButton size="lg" className="px-8 py-4 text-lg font-semibold">
-            <Link to="/med-mng/dashboard" className="flex items-center gap-2">
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 pt-6 sm:pt-8 px-4">
+          <PremiumButton size="lg" className="px-6 py-3 sm:px-8 sm:py-4 text-base sm:text-lg font-semibold w-full sm:w-auto min-h-[48px]">
+            <Link to="/med-mng/dashboard" className="flex items-center justify-center gap-2">
               Accéder au Dashboard
-              <ArrowRight className="w-5 h-5" />
+              <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
             </Link>
           </PremiumButton>
           
-          <PremiumButton variant="outline" size="lg" className="px-8 py-4 text-lg font-semibold">
-            <Link to="/med-mng/create" className="flex items-center gap-2">
-              <Play className="w-5 h-5" />
+          <PremiumButton variant="outline" size="lg" className="px-6 py-3 sm:px-8 sm:py-4 text-base sm:text-lg font-semibold w-full sm:w-auto min-h-[48px]">
+            <Link to="/med-mng/create" className="flex items-center justify-center gap-2">
+              <Play className="w-4 h-4 sm:w-5 sm:h-5" />
               Créer du Contenu
             </Link>
           </PremiumButton>
@@ -132,17 +132,17 @@ const PremiumHero = memo(() => {
     }
 
     return (
-      <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8">
-        <PremiumButton size="lg" className="px-8 py-4 text-lg font-semibold">
-          <Link to="/med-mng/signup" className="flex items-center gap-2">
+      <div className="flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4 pt-6 sm:pt-8 px-4">
+        <PremiumButton size="lg" className="px-6 py-3 sm:px-8 sm:py-4 text-base sm:text-lg font-semibold w-full sm:w-auto min-h-[48px]">
+          <Link to="/med-mng/signup" className="flex items-center justify-center gap-2">
             Commencer Gratuitement
-            <ArrowRight className="w-5 h-5" />
+            <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
           </Link>
         </PremiumButton>
         
-        <PremiumButton variant="outline" size="lg" className="px-8 py-4 text-lg font-semibold">
-          <Link to="/platform" className="flex items-center gap-2">
-            <Play className="w-5 h-5" />
+        <PremiumButton variant="outline" size="lg" className="px-6 py-3 sm:px-8 sm:py-4 text-base sm:text-lg font-semibold w-full sm:w-auto min-h-[48px]">
+          <Link to="/platform" className="flex items-center justify-center gap-2">
+            <Play className="w-4 h-4 sm:w-5 sm:h-5" />
             Voir la Démo
           </Link>
         </PremiumButton>
@@ -152,32 +152,32 @@ const PremiumHero = memo(() => {
 
   return (
     <motion.section 
-      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-background via-background to-primary/2"
+      className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-background via-background to-primary/2 px-4 sm:px-6 md:px-8"
       initial="initial"
       animate="animate"
       variants={staggerChildren}
     >
       <div className="absolute inset-0 bg-grid-pattern opacity-2" />
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/5 rounded-full blur-3xl animate-gentle-float" />
+      <div className="absolute top-1/4 left-1/4 w-64 h-64 sm:w-96 sm:h-96 bg-primary/5 rounded-full blur-3xl animate-gentle-float" />
 
-      <div className="medical-container relative z-10 text-center space-y-8">
+      <div className="medical-container relative z-10 text-center space-y-6 sm:space-y-8 max-w-6xl mx-auto">
         <motion.div variants={fadeInUp} className="space-y-4">
           <Badge variant="secondary" className="px-4 py-2 text-sm font-medium bg-primary/10 text-primary border-primary/20">
             <Sparkles className="w-4 h-4 mr-2" />
             Révolution de l'Apprentissage Médical
           </Badge>
           
-          <h1 className="text-5xl md:text-7xl font-bold text-foreground mb-6 leading-tight">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-foreground mb-4 sm:mb-6 leading-tight">
             <span className="bg-gradient-to-r from-primary via-accent to-primary bg-clip-text text-transparent animate-shimmer-medical bg-[length:200%_100%]">
               MED-MNG
             </span>
             <br />
-            <span className="text-2xl md:text-4xl font-semibold text-muted-foreground">
+            <span className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-semibold text-muted-foreground block mt-2">
               L'IA au Service de l'Excellence Médicale
             </span>
           </h1>
 
-          <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+          <p className="text-base sm:text-lg md:text-xl lg:text-2xl text-muted-foreground max-w-4xl mx-auto leading-relaxed px-4 sm:px-6 md:px-8">
             Révolutionnez votre apprentissage médical avec notre IA avancée qui génère automatiquement 
             du contenu musical, des tableaux interactifs et des quiz personnalisés pour chaque item ECN.
           </p>
@@ -255,35 +255,35 @@ const OptimizedIndex: React.FC = () => {
               >
                 <div className="medical-container text-center">
                   <div className="space-y-8">
-                    <h2 className="text-4xl md:text-5xl font-bold text-white">
+                    <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-white px-4">
                       {user ? 'Continuez Votre Parcours d\'Excellence' : 'Prêt à Révolutionner Votre Apprentissage ?'}
                     </h2>
-                    <p className="text-xl opacity-90 max-w-2xl mx-auto text-white">
+                    <p className="text-lg sm:text-xl opacity-90 max-w-3xl mx-auto text-white px-4 sm:px-6">
                       {user 
                         ? 'Explorez de nouvelles fonctionnalités et poursuivez votre progression'
                         : 'Rejoignez des milliers d\'étudiants qui ont déjà transformé leur préparation ECN'
                       }
                     </p>
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                    <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center px-4">
                       {user ? (
                         <>
-                          <PremiumButton variant="secondary" size="lg" className="bg-card text-foreground hover:bg-card/90">
-                            <Link to="/med-mng/create" className="flex items-center gap-2">
+                          <PremiumButton variant="secondary" size="lg" className="bg-card text-foreground hover:bg-card/90 w-full sm:w-auto min-h-[48px]">
+                            <Link to="/med-mng/create" className="flex items-center justify-center gap-2">
                               Créer du Contenu
-                              <ArrowRight className="w-5 h-5" />
+                              <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
                             </Link>
                           </PremiumButton>
-                          <PremiumButton variant="outline" size="lg" className="border-white/20 text-white hover:bg-white/10">
-                            <Link to="/med-mng/library">
+                          <PremiumButton variant="outline" size="lg" className="border-white/20 text-white hover:bg-white/10 w-full sm:w-auto min-h-[48px]">
+                            <Link to="/med-mng/library" className="flex items-center justify-center gap-2">
                               Ma Bibliothèque
                             </Link>
                           </PremiumButton>
                         </>
                       ) : (
-                        <PremiumButton variant="secondary" size="lg" className="bg-card text-foreground hover:bg-card/90">
-                          <Link to="/med-mng/signup" className="flex items-center gap-2">
+                        <PremiumButton variant="secondary" size="lg" className="bg-card text-foreground hover:bg-card/90 w-full sm:w-auto min-h-[48px]">
+                          <Link to="/med-mng/signup" className="flex items-center justify-center gap-2">
                             Commencer Maintenant
-                            <ArrowRight className="w-5 h-5" />
+                            <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5" />
                           </Link>
                         </PremiumButton>
                       )}

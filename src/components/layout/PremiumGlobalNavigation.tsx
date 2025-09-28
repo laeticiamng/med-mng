@@ -263,9 +263,11 @@ const DesktopNavigation = memo(() => {
             key={item.id}
             to={item.href}
             className={cn(
-              "flex items-center gap-2 px-4 py-2 rounded-lg transition-all duration-200 group relative",
+              "flex items-center gap-2 px-3 py-2 xl:px-4 xl:py-2 rounded-lg transition-all duration-200 group relative",
+              "text-sm lg:text-base min-h-[44px] min-w-[44px]", // Perfect touch targets
+              "hover:scale-105 active:scale-95 transform-gpu", // Smooth scaling
               isActive 
-                ? "bg-primary/10 text-primary font-medium" 
+                ? "bg-primary/10 text-primary font-medium shadow-sm" 
                 : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
             )}
           >
