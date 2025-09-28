@@ -1,4 +1,4 @@
-import React, { Suspense, lazy } from "react";
+import React, { Suspense, lazy, useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -10,6 +10,11 @@ import { SkipLinks } from "@/components/navigation/SkipLinks";
 import { QuickNavigation } from "@/components/navigation/QuickNavigation";
 import { HelpCenter } from "@/components/help/HelpCenter";
 import { NotificationCenter } from "@/components/notifications/NotificationCenter";
+import { GlobalControls } from "@/components/layout/GlobalControls";
+import { KeyboardShortcuts } from "@/components/shortcuts/KeyboardShortcuts";
+import { WelcomeScreen } from "@/components/welcome/WelcomeScreen";
+import { PerformanceMonitor } from "@/components/performance/PerformanceMonitor";
+import { GlobalStateProvider } from "@/hooks/useGlobalState";
 
 // ⚡ LAZY LOADING - Composants non-critiques chargés à la demande
 const DynamicOnboarding = lazy(() => import("@/components/onboarding/DynamicOnboarding").then(module => ({ default: module.DynamicOnboarding })));
@@ -76,15 +81,29 @@ const queryClient = new QueryClient({
 });
 
 const App = () => {
+  const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false);
+  const [isHelpCenterOpen, setIsHelpCenterOpen] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(false);
+
+  // Détecter si c'est la première visite
+  React.useEffect(() => {
+    const hasVisited = localStorage.getItem('med-mng-visited');
+    if (!hasVisited) {
+      setShowWelcome(true);
+      localStorage.setItem('med-mng-visited', 'true');
+    }
+  }, []);
+
   return (
-    <QueryClientProvider client={queryClient}>
-      <AccessibilityProvider>
-        <ViewportProvider>
-          <LanguageProvider>
-            <GlobalAudioProvider>
-              <AuthProvider>
-                <ToastProvider>
-                  <TooltipProvider>
+    <GlobalStateProvider>
+      <QueryClientProvider client={queryClient}>
+        <AccessibilityProvider>
+          <ViewportProvider>
+            <LanguageProvider>
+              <GlobalAudioProvider>
+                <AuthProvider>
+                  <ToastProvider>
+                    <TooltipProvider>
                     <BrowserRouter>
                       <SkipLinks />
                       <div id="app-root" className="min-h-screen">
@@ -151,24 +170,52 @@ const App = () => {
                           <Route path="*" element={<NotFound />} />
                         </Routes>
                       </main>
-                      
-                      {/* Global UI Components - LAZY LOADED */}
-                      <Suspense fallback={null}>
-                        <DynamicOnboarding />
-                      </Suspense>
-                      <HelpButton />
-                    </div>
-                    <Toaster />
-                    <Sonner />
-                  </BrowserRouter>
-                </TooltipProvider>
-              </ToastProvider>
-            </AuthProvider>
-          </GlobalAudioProvider>
-        </LanguageProvider>
-      </ViewportProvider>
-    </AccessibilityProvider>
-  </QueryClientProvider>
+                       
+                       {/* Global UI Components - LAZY LOADED */}
+                       <Suspense fallback={null}>
+                         <DynamicOnboarding />
+                       </Suspense>
+                       <HelpButton />
+                       
+                       {/* Nouveaux Composants Globaux Intégrés */}
+                       <GlobalControls 
+                         onOpenNotifications={() => setIsNotificationCenterOpen(true)}
+                         onOpenHelp={() => setIsHelpCenterOpen(true)}
+                         notificationCount={3}
+                       />
+                       <QuickNavigation />
+                       <NotificationCenter 
+                         isOpen={isNotificationCenterOpen} 
+                         onClose={() => setIsNotificationCenterOpen(false)} 
+                       />
+                        <HelpCenter 
+                          isOpen={isHelpCenterOpen} 
+                          onClose={() => setIsHelpCenterOpen(false)} 
+                        />
+                        
+                        {/* Raccourcis Clavier Globaux */}
+                        <KeyboardShortcuts />
+                        
+                        {/* Écran de Bienvenue */}
+                        {showWelcome && (
+                          <WelcomeScreen onComplete={() => setShowWelcome(false)} />
+                        )}
+                        
+                        {/* Moniteur de Performance */}
+                        <PerformanceMonitor isMinimal={true} />
+                      </div>
+                      <Toaster />
+                      <Sonner />
+                    </BrowserRouter>
+                  </TooltipProvider>
+                </ToastProvider>
+              </AuthProvider>
+            </GlobalAudioProvider>
+          </LanguageProvider>
+        </ViewportProvider>
+      </AccessibilityProvider>
+    </QueryClientProvider>
+  </GlobalStateProvider>
   );
 };
 
