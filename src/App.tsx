@@ -7,6 +7,9 @@ import { AccessibilityProvider } from "@/components/accessibility/AccessibilityP
 import { ToastProvider } from "@/components/feedback/ToastProvider";
 import { ViewportProvider } from "@/components/responsive/ViewportProvider";
 import { SkipLinks } from "@/components/navigation/SkipLinks";
+import { QuickNavigation } from "@/components/navigation/QuickNavigation";
+import { HelpCenter } from "@/components/help/HelpCenter";
+import { NotificationCenter } from "@/components/notifications/NotificationCenter";
 
 // ⚡ LAZY LOADING - Composants non-critiques chargés à la demande
 const DynamicOnboarding = lazy(() => import("@/components/onboarding/DynamicOnboarding").then(module => ({ default: module.DynamicOnboarding })));
@@ -14,6 +17,10 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { GlobalAudioProvider } from "@/contexts/GlobalAudioContext";
+import PlatformSettings from "./pages/PlatformSettings";
+import Dashboard from "./pages/Dashboard";
+import SystemManagement from "./pages/SystemManagement";
+import OptimizedIndex from "./pages/OptimizedIndex";
 import Index from "./pages/Index";
 import Generator from "./pages/Generator";
 import LibraryPage from "./pages/LibraryPage";
@@ -83,6 +90,10 @@ const App = () => {
                       <div id="app-root" className="min-h-screen">
                         <main id="main-content" tabIndex={-1}>
                           <Routes>
+                          <Route path="/dashboard" element={<Dashboard />} />
+                          <Route path="/system-management" element={<SystemManagement />} />
+                          <Route path="/platform-settings" element={<PlatformSettings />} />
+                          <Route path="/optimized" element={<OptimizedIndex />} />
                           <Route path="/" element={<Index />} />
                           <Route path="/generator" element={<Generator />} />
                           {/* EDN Interface Unifiée - toutes les fonctionnalités fusionnées */}
