@@ -10115,6 +10115,23 @@ export type Database = {
         Args: { lyrics_data: Json }
         Returns: boolean
       }
+      verify_competences_completeness: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          actual_rang_a: number
+          actual_rang_b: number
+          actual_total: number
+          has_missing_rang_a: boolean
+          has_missing_rang_b: boolean
+          item_code: string
+          needs_update: boolean
+          status: string
+          stored_rang_a: number
+          stored_rang_b: number
+          stored_total: number
+          title: string
+        }[]
+      }
       verify_integration_success: {
         Args: Record<PropertyKey, never>
         Returns: {
