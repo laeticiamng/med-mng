@@ -82,18 +82,7 @@ export const TableauCompetencesOICWithRealData: React.FC<TableauCompetencesOICWi
       description: comp.description,
       objectif_id: comp.objectif_id,
       rubrique: comp.rubrique,
-      keywords: [], // Les keywords ne sont pas dans la table OIC actuelle
-      // Données enrichies niveau LiSA - seulement si elles existent et ne sont pas génériques
-      titre_complet: comp.titre_complet?.includes('Expertise') ? null : comp.titre_complet,
-      sommaire: comp.sommaire?.includes('Communication - Éthique') ? null : comp.sommaire,
-      mecanismes: comp.mecanismes?.includes('Acquisition des connaissances fondamentales') ? null : comp.mecanismes,
-      indications: comp.indications?.includes('Toute consultation médicale') ? null : comp.indications,
-      effets_indesirables: comp.effets_indesirables?.includes('Erreurs diagnostiques') ? null : comp.effets_indesirables,
-      interactions: comp.interactions?.includes('Niveau de formation') ? null : comp.interactions,
-      modalites_surveillance: comp.modalites_surveillance?.includes('Évaluation continue') ? null : comp.modalites_surveillance,
-      causes_echec: comp.causes_echec?.includes('Formation insuffisante') ? null : comp.causes_echec,
-      contributeurs: comp.contributeurs?.includes('HAS, CNOM') ? null : comp.contributeurs,
-      ordre_affichage: comp.ordre_affichage
+      keywords: [] // Données backup plus simples mais complètes
     })),
     count: competences.length,
     theme: `Compétences OIC ${rang === 'A' ? 'fondamentales' : 'avancées'} - Données authentiques UNESS`

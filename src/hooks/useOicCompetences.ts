@@ -37,24 +37,14 @@ export const useOicCompetences = (itemCode: string, rang: 'A' | 'B') => {
         console.log(`🔍 Récupération compétences OIC RÉELLES pour item ${itemNumber} rang ${rang}`);
         
         const { data, error } = await supabase
-          .from('oic_competences')
+          .from('backup_oic_competences')
           .select(`
             objectif_id,
             intitule,
             description,
             rubrique,
             rang,
-            item_parent,
-            titre_complet,
-            sommaire,
-            mecanismes,
-            indications,
-            effets_indesirables,
-            interactions,
-            modalites_surveillance,
-            causes_echec,
-            contributeurs,
-            ordre_affichage
+            item_parent
           `)
           .eq('item_parent', itemNumber)
           .eq('rang', rang)
@@ -70,12 +60,13 @@ export const useOicCompetences = (itemCode: string, rang: 'A' | 'B') => {
         
         // Filtrer pour ne garder que les compétences avec du vrai contenu (pas générique)
         const realCompetences = data?.filter(comp => {
-          // Vérifier si c'est du contenu générique enrichi automatiquement
+          // Vérifier si c'est du contenu générique ou vide
           const hasGenericContent = 
-            comp.titre_complet?.includes('Expertise de base en') ||
-            comp.titre_complet?.includes('Expertise avancée en') ||
-            comp.sommaire?.includes('Communication - Éthique - Raisonnement') ||
-            comp.intitule === comp.description;
+            !comp.description ||
+            comp.description.includes('Bienvenue sur LiSA EDN') ||
+            comp.description.includes('Items de connaissances') ||
+            comp.intitule === comp.description ||
+            comp.description.length < 10;
           
           return !hasGenericContent && comp.objectif_id && comp.intitule;
         }) || [];
