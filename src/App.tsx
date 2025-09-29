@@ -2,13 +2,15 @@ import React, { Suspense, lazy, useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { Button } from "@/components/ui/button";
 import { HelmetProvider } from "react-helmet-async";
 import { HelpButton } from "@/components/onboarding/HelpButton";
 import { ViewportProvider } from "@/components/responsive/ViewportProvider";
 import { SkipLinks } from "@/components/navigation/SkipLinks";
 import { HelpCenter } from "@/components/help/HelpCenter";
-import { NotificationCenter } from "@/components/notifications/NotificationCenter";
+import { NotificationSystem } from "@/components/advanced/NotificationSystem";
 import { KeyboardShortcuts } from "@/components/shortcuts/KeyboardShortcuts";
+import { Bell } from 'lucide-react';
 import { GlobalStateProvider } from "@/hooks/useGlobalState";
 import { NotificationProvider } from '@/contexts/NotificationContext';
 import { MainNavigation } from '@/components/layout/MainNavigation';
@@ -184,11 +186,21 @@ const App = () => {
                             </Suspense>
                             <HelpButton />
                             
-                             <NotificationCenter 
+                             <NotificationSystem 
                                isOpen={isNotificationCenterOpen} 
                                onClose={() => setIsNotificationCenterOpen(false)} 
                              />
                               {isHelpCenterOpen && <HelpCenter />}
+                              
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="fixed bottom-4 right-4 z-40"
+                                onClick={() => setIsNotificationCenterOpen(true)}
+                              >
+                                <Bell className="w-4 h-4 mr-2" />
+                                Notifications
+                              </Button>
                               
                               {/* Raccourcis Clavier Globaux */}
                               <KeyboardShortcuts />

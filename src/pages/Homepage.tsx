@@ -11,7 +11,9 @@ import {
 import { ProgressIndicator, useProgressData } from '@/components/modern/ProgressIndicator';
 import { ModernStats, useModernStatsData } from '@/components/modern/ModernStats';
 import { ActivityFeed } from '@/components/modern/ActivityFeed';
-import { SearchFilter } from '@/components/modern/SearchFilter';
+import { SearchSystem } from '@/components/advanced/SearchSystem';
+import { BookmarkSystem } from '@/components/advanced/BookmarkSystem';
+import { SocialShare } from '@/components/advanced/SocialShare';
 
 /**
  * Page d'accueil moderne avec sections interactives et analytics
@@ -114,6 +116,30 @@ const Homepage: React.FC = () => {
           </div>
         </section>
 
+        {/* Section de recherche intelligente moderne */}
+        <section className="py-16 bg-gradient-to-br from-primary/5 via-accent/5 to-secondary/10">
+          <div className="medical-container">
+            <div className="text-center mb-12">
+              <h2 className="text-3xl lg:text-4xl font-bold mb-4">
+                Recherche Intelligente
+              </h2>
+              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+                Trouvez exactement ce que vous cherchez avec notre moteur de recherche avancé
+              </p>
+            </div>
+            
+            <div className="max-w-4xl mx-auto">
+              <SearchSystem
+                placeholder="Rechercher des items EDN, ECOS, contenus musicaux..."
+                onResultSelect={(result) => {
+                  console.log('Résultat sélectionné:', result);
+                  // Navigation vers le contenu
+                }}
+              />
+            </div>
+          </div>
+        </section>
+
         {/* Dashboard personnel */}
         <section className="medical-section">
           <div className="medical-container">
@@ -147,6 +173,98 @@ const Homepage: React.FC = () => {
                   showTargets={true}
                   animated={true}
                 />
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Section des favoris et partage */}
+        <section className="py-16 bg-card/30">
+          <div className="medical-container">
+            <div className="grid lg:grid-cols-2 gap-12 items-start">
+              <div>
+                <h2 className="text-3xl font-bold mb-6">
+                  Organisez vos Contenus
+                </h2>
+                <p className="text-lg text-muted-foreground mb-8">
+                  Sauvegardez vos contenus préférés et partagez vos découvertes avec la communauté
+                </p>
+                
+                <div className="space-y-6">
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                      <Heart className="w-6 h-6 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold mb-2">Système de Favoris</h3>
+                      <p className="text-muted-foreground">
+                        Sauvegardez facilement vos contenus préférés pour y accéder rapidement
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-4">
+                    <div className="w-12 h-12 bg-accent/10 rounded-full flex items-center justify-center">
+                      <ArrowRight className="w-6 h-6 text-accent" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold mb-2">Partage Intelligent</h3>
+                      <p className="text-muted-foreground">
+                        Partagez vos trouvailles sur toutes les plateformes sociales
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-8 flex gap-4">
+                  <BookmarkSystem
+                    itemId="demo-content"
+                    itemType="edn"
+                    itemTitle="Contenu de démonstration"
+                    itemCategory="Général"
+                    itemDescription="Un exemple de contenu pour tester le système de favoris"
+                  />
+                  <SocialShare
+                    title="Découvrez MED-MNG"
+                    description="Plateforme éducative médicale innovante avec IA générative"
+                    hashtags={["medecine", "education", "IA", "formation"]}
+                  />
+                </div>
+              </div>
+              
+              <div className="space-y-6">
+                <Card className="medical-card">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Sparkles className="w-5 h-5 text-primary" />
+                      Fonctionnalités Avancées
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="space-y-3">
+                      <li className="flex items-center gap-3">
+                        <div className="w-2 h-2 bg-primary rounded-full"></div>
+                        <span className="text-sm">Recherche intelligente avec filtres avancés</span>
+                      </li>
+                      <li className="flex items-center gap-3">
+                        <div className="w-2 h-2 bg-primary rounded-full"></div>
+                        <span className="text-sm">Système de favoris avec synchronisation</span>
+                      </li>
+                      <li className="flex items-center gap-3">
+                        <div className="w-2 h-2 bg-primary rounded-full"></div>
+                        <span className="text-sm">Partage sur réseaux sociaux et QR codes</span>
+                      </li>
+                      <li className="flex items-center gap-3">
+                        <div className="w-2 h-2 bg-primary rounded-full"></div>
+                        <span className="text-sm">Notifications temps réel</span>
+                      </li>
+                      <li className="flex items-center gap-3">
+                        <div className="w-2 h-2 bg-primary rounded-full"></div>
+                        <span className="text-sm">Interface responsive et accessible</span>
+                      </li>
+                    </ul>
+                  </CardContent>
+                </Card>
               </div>
             </div>
           </div>
