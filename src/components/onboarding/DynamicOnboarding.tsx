@@ -160,8 +160,7 @@ export const DynamicOnboarding: React.FC = () => {
       
       {showTour && tourSteps.length > 0 && (
         <OnboardingTour
-          steps={tourSteps}
-          isActive={showTour}
+          isVisible={showTour}
           onComplete={handleTourComplete}
           onSkip={handleSkip}
         />

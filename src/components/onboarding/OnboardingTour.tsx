@@ -1,207 +1,224 @@
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { X, ArrowLeft, ArrowRight, Check } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Badge } from '@/components/ui/badge';
+import { 
+  X, ArrowRight, ArrowLeft, Play, BookOpen, 
+  Music, BarChart3, Users, Target, CheckCircle 
+} from 'lucide-react';
 
 interface TourStep {
-  target: string;
+  id: string;
   title: string;
-  content: string;
+  description: string;
+  icon: React.ComponentType<any>;
+  target: string;
   position: 'top' | 'bottom' | 'left' | 'right';
-  offset?: { x: number; y: number };
+  action?: string;
 }
 
 interface OnboardingTourProps {
-  steps: TourStep[];
-  isActive: boolean;
+  isVisible?: boolean;
   onComplete: () => void;
   onSkip: () => void;
 }
 
 export const OnboardingTour: React.FC<OnboardingTourProps> = ({
-  steps,
-  isActive,
+  isVisible = false,
   onComplete,
   onSkip
 }) => {
   const [currentStep, setCurrentStep] = useState(0);
-  const [targetElement, setTargetElement] = useState<HTMLElement | null>(null);
-  const [tooltipPosition, setTooltipPosition] = useState({ top: 0, left: 0 });
+  const [isAnimating, setIsAnimating] = useState(false);
 
-  useEffect(() => {
-    if (!isActive || currentStep >= steps.length) return;
-
-    const step = steps[currentStep];
-    const element = document.querySelector(step.target) as HTMLElement;
-    
-    if (element) {
-      setTargetElement(element);
-      
-      // Scroll element into view
-      element.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'center',
-        inline: 'center'
-      });
-
-      // Calculate tooltip position
-      setTimeout(() => {
-        const rect = element.getBoundingClientRect();
-        const offset = step.offset || { x: 0, y: 0 };
-        
-        let top = 0;
-        let left = 0;
-
-        switch (step.position) {
-          case 'top':
-            top = rect.top - 120 + offset.y;
-            left = rect.left + rect.width / 2 - 150 + offset.x;
-            break;
-          case 'bottom':
-            top = rect.bottom + 20 + offset.y;
-            left = rect.left + rect.width / 2 - 150 + offset.x;
-            break;
-          case 'left':
-            top = rect.top + rect.height / 2 - 60 + offset.y;
-            left = rect.left - 320 + offset.x;
-            break;
-          case 'right':
-            top = rect.top + rect.height / 2 - 60 + offset.y;
-            left = rect.right + 20 + offset.x;
-            break;
-        }
-
-        setTooltipPosition({ top, left });
-      }, 100);
-
-      // Highlight element
-      element.style.position = 'relative';
-      element.style.zIndex = '1001';
-      element.style.boxShadow = '0 0 0 4px rgba(59, 130, 246, 0.5), 0 0 0 2px white';
-      element.style.borderRadius = '8px';
+  const tourSteps: TourStep[] = [
+    {
+      id: 'welcome',
+      title: 'Bienvenue sur MED-MNG !',
+      description: 'Découvrez la plateforme médicale nouvelle génération qui révolutionne l\'apprentissage avec l\'IA.',
+      icon: Play,
+      target: 'body',
+      position: 'bottom'
+    },
+    {
+      id: 'navigation',
+      title: 'Navigation Intuitive',
+      description: 'Utilisez la barre de navigation pour accéder rapidement à toutes les fonctionnalités.',
+      icon: Target,
+      target: 'nav',
+      position: 'bottom'
+    },
+    {
+      id: 'generator',
+      title: 'Générateur Musical Médical',
+      description: 'Créez du contenu musical éducatif personnalisé grâce à notre IA avancée.',
+      icon: Music,
+      target: '[href="/generator"]',
+      position: 'bottom',
+      action: 'Essayer maintenant'
+    },
+    {
+      id: 'library',
+      title: 'Bibliothèque EDN Complète',
+      description: 'Accédez à des milliers de ressources médicales certifiées et interactives.',
+      icon: BookOpen,
+      target: '[href="/edn-complete"]',
+      position: 'bottom',
+      action: 'Explorer'
+    },
+    {
+      id: 'analytics',
+      title: 'Suivi de Performance',
+      description: 'Analysez vos progrès avec des tableaux de bord détaillés et des métriques personnalisées.',
+      icon: BarChart3,
+      target: '[href="/dashboard"]',
+      position: 'bottom',
+      action: 'Voir mes stats'
+    },
+    {
+      id: 'community',
+      title: 'Communauté Active',
+      description: 'Rejoignez une communauté de professionnels de santé et partagez vos expériences.',
+      icon: Users,
+      target: '[href="/community"]',
+      position: 'top',
+      action: 'Rejoindre'
     }
-
-    return () => {
-      if (element) {
-        element.style.position = '';
-        element.style.zIndex = '';
-        element.style.boxShadow = '';
-        element.style.borderRadius = '';
-      }
-    };
-  }, [currentStep, steps, isActive]);
-
-  if (!isActive || currentStep >= steps.length) return null;
-
-  const step = steps[currentStep];
-  const isLastStep = currentStep === steps.length - 1;
+  ];
 
   const handleNext = () => {
-    if (isLastStep) {
-      onComplete();
+    if (currentStep < tourSteps.length - 1) {
+      setIsAnimating(true);
+      setTimeout(() => {
+        setCurrentStep(currentStep + 1);
+        setIsAnimating(false);
+      }, 150);
     } else {
-      setCurrentStep(prev => prev + 1);
+      onComplete();
     }
   };
 
   const handlePrevious = () => {
     if (currentStep > 0) {
-      setCurrentStep(prev => prev - 1);
+      setIsAnimating(true);
+      setTimeout(() => {
+        setCurrentStep(currentStep - 1);
+        setIsAnimating(false);
+      }, 150);
     }
   };
 
+  const handleStepClick = (stepIndex: number) => {
+    if (stepIndex !== currentStep) {
+      setIsAnimating(true);
+      setTimeout(() => {
+        setCurrentStep(stepIndex);
+        setIsAnimating(false);
+      }, 150);
+    }
+  };
+
+  if (!isVisible) return null;
+
+  const currentTourStep = tourSteps[currentStep];
+  const Icon = currentTourStep.icon;
+
   return (
-    <>
-      {/* Overlay */}
-      <div className="fixed inset-0 bg-black/50 z-1000 pointer-events-none" />
-      
-      {/* Tooltip */}
-      <Card 
-        className="fixed z-1002 w-80 medical-card shadow-xl animate-scale-in"
-        style={{
-          top: tooltipPosition.top,
-          left: Math.max(20, Math.min(window.innerWidth - 340, tooltipPosition.left))
-        }}
-      >
-        <CardContent className="p-4">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">
-                {currentStep + 1} / {steps.length}
-              </span>
-              <div className="flex gap-1">
-                {steps.map((_, index) => (
-                  <div
-                    key={index}
-                    className={cn(
-                      'w-2 h-2 rounded-full',
-                      index <= currentStep ? 'bg-primary' : 'bg-muted'
-                    )}
-                  />
-                ))}
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      {/* Tour Card */}
+      <div className="relative animate-scale-in">
+        <Card className="medical-card-premium w-full max-w-md mx-auto">
+          <CardContent className="p-6">
+            {/* Header */}
+            <div className="flex items-start justify-between mb-4">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center">
+                  <Icon className="w-5 h-5 text-primary" />
+                </div>
+                <Badge variant="secondary" className="text-xs">
+                  {currentStep + 1} / {tourSteps.length}
+                </Badge>
               </div>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={onSkip}
-              className="h-6 w-6 p-0"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
-
-          <h3 className="font-semibold text-foreground mb-2">
-            {step.title}
-          </h3>
-          
-          <p className="text-sm text-muted-foreground mb-4">
-            {step.content}
-          </p>
-
-          <div className="flex items-center justify-between">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handlePrevious}
-              disabled={currentStep === 0}
-              className="flex items-center gap-1"
-            >
-              <ArrowLeft className="h-3 w-3" />
-              Précédent
-            </Button>
-
-            <div className="flex gap-2">
+              
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={onSkip}
-                className="text-muted-foreground"
+                className="p-1 h-auto"
               >
-                Passer
+                <X className="w-4 h-4" />
               </Button>
+            </div>
+
+            {/* Content */}
+            <div className={`mb-6 transition-opacity duration-200 ${isAnimating ? 'opacity-0' : 'opacity-100'}`}>
+              <h3 className="text-lg font-semibold mb-2">
+                {currentTourStep.title}
+              </h3>
+              <p className="text-muted-foreground text-sm leading-relaxed">
+                {currentTourStep.description}
+              </p>
+            </div>
+
+            {/* Progress Indicators */}
+            <div className="flex justify-center gap-2 mb-6">
+              {tourSteps.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => handleStepClick(index)}
+                  className={`w-2 h-2 rounded-full transition-all duration-200 ${
+                    index === currentStep 
+                      ? 'bg-primary w-6' 
+                      : index < currentStep
+                      ? 'bg-primary/50'
+                      : 'bg-muted'
+                  }`}
+                />
+              ))}
+            </div>
+
+            {/* Actions */}
+            <div className="flex gap-2">
               <Button
-                size="sm"
-                onClick={handleNext}
-                className="flex items-center gap-1"
+                variant="outline"
+                onClick={handlePrevious}
+                disabled={currentStep === 0}
+                className="flex-1"
               >
-                {isLastStep ? (
+                <ArrowLeft className="w-4 h-4 mr-2" />
+                Précédent
+              </Button>
+              
+              <Button
+                onClick={handleNext}
+                className="flex-1 medical-btn-primary"
+              >
+                {currentStep === tourSteps.length - 1 ? (
                   <>
-                    <Check className="h-3 w-3" />
+                    <CheckCircle className="w-4 h-4 mr-2" />
                     Terminer
                   </>
                 ) : (
                   <>
                     Suivant
-                    <ArrowRight className="h-3 w-3" />
+                    <ArrowRight className="w-4 h-4 ml-2" />
                   </>
                 )}
               </Button>
             </div>
-          </div>
-        </CardContent>
-      </Card>
-    </>
+
+            {/* Skip option */}
+            <div className="text-center mt-4">
+              <button
+                onClick={onSkip}
+                className="text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                Passer la visite guidée
+              </button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
   );
 };

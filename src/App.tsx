@@ -15,6 +15,8 @@ import { GlobalControls } from "@/components/layout/GlobalControls";
 import { KeyboardShortcuts } from "@/components/shortcuts/KeyboardShortcuts";
 import { WelcomeScreen } from "@/components/welcome/WelcomeScreen";
 import { PerformanceMonitor } from "@/components/performance/PerformanceMonitor";
+import { OnboardingTour } from "@/components/onboarding/OnboardingTour";
+import { AccessibilityWidget } from "@/components/accessibility/AccessibilityWidget";
 import { GlobalStateProvider } from "@/hooks/useGlobalState";
 import { NotificationProvider } from '@/contexts/NotificationContext';
 import { MainNavigation } from '@/components/layout/MainNavigation';
@@ -79,6 +81,7 @@ const CommunityHub = lazy(() => import("./pages/CommunityHub"));
 const ModernHomepage = lazy(() => import("./pages/ModernHomepage"));
 const Achievements = lazy(() => import("./pages/Achievements"));
 const Favorites = lazy(() => import("./pages/Favorites"));
+const UserSettings = lazy(() => import("./pages/UserSettings"));
 
 // ⚡ OPTIMISATION QueryClient - Configuration pour chargement rapide
 const queryClient = new QueryClient({
@@ -97,13 +100,21 @@ const App = () => {
   const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false);
   const [isHelpCenterOpen, setIsHelpCenterOpen] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
+  const [showOnboardingTour, setShowOnboardingTour] = useState(false);
 
   // Détecter si c'est la première visite
   React.useEffect(() => {
     const hasVisited = localStorage.getItem('med-mng-visited');
+    const hasSeenTour = localStorage.getItem('med-mng-tour-completed');
+    
     if (!hasVisited) {
       setShowWelcome(true);
       localStorage.setItem('med-mng-visited', 'true');
+    }
+    
+    if (!hasSeenTour && hasVisited) {
+      // Afficher le tour après l'écran de bienvenue
+      setTimeout(() => setShowOnboardingTour(true), 2000);
     }
   }, []);
 
@@ -190,9 +201,10 @@ const App = () => {
                                 <Route path="/statistics" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Statistics /></Suspense>} />
                                 <Route path="/study-planner" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><StudyPlanner /></Suspense>} />
                                 <Route path="/community" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CommunityHub /></Suspense>} />
-                                <Route path="/homepage" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><ModernHomepage /></Suspense>} />
-                                <Route path="/achievements" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Achievements /></Suspense>} />
-                                <Route path="/favorites" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Favorites /></Suspense>} />
+                                 <Route path="/homepage" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><ModernHomepage /></Suspense>} />
+                                 <Route path="/achievements" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Achievements /></Suspense>} />
+                                 <Route path="/favorites" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Favorites /></Suspense>} />
+                                 <Route path="/settings" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><UserSettings /></Suspense>} />
                                 
                                 <Route path="*" element={<NotFound />} />
                              </Routes>
@@ -222,8 +234,27 @@ const App = () => {
                              
                              {/* Écran de Bienvenue */}
                              {showWelcome && (
-                               <WelcomeScreen onComplete={() => setShowWelcome(false)} />
+                               <WelcomeScreen onComplete={() => {
+                                 setShowWelcome(false);
+                                 setTimeout(() => setShowOnboardingTour(true), 1000);
+                               }} />
                              )}
+                             
+                             {/* Tour d'Onboarding */}
+                             <OnboardingTour
+                               isVisible={showOnboardingTour}
+                               onComplete={() => {
+                                 setShowOnboardingTour(false);
+                                 localStorage.setItem('med-mng-tour-completed', 'true');
+                               }}
+                               onSkip={() => {
+                                 setShowOnboardingTour(false);
+                                 localStorage.setItem('med-mng-tour-completed', 'true');
+                               }}
+                             />
+                             
+                             {/* Widget d'Accessibilité */}
+                             <AccessibilityWidget />
                              
                              {/* Moniteur de Performance */}
                              <PerformanceMonitor />
