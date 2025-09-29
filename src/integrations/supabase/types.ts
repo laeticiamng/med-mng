@@ -8435,17 +8435,21 @@ export type Database = {
       }
       user_activity_summary: {
         Row: {
-          metric: string | null
-          period: string | null
-          value: string | null
+          last_conversation_date: string | null
+          last_emotion_date: string | null
+          total_conversations: number | null
+          total_emotions: number | null
+          total_favorite_songs: number | null
+          user_id: string | null
         }
         Relationships: []
       }
       user_progress_view: {
         Row: {
-          conversations_count: number | null
-          emotions_count: number | null
-          last_activity: string | null
+          avg_points: number | null
+          completed_challenges: number | null
+          total_badges: number | null
+          total_challenges: number | null
           user_id: string | null
         }
         Relationships: []
