@@ -23,6 +23,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { GlobalAudioProvider } from "@/contexts/GlobalAudioContext";
+import { NotificationProvider } from "@/contexts/NotificationContext";
 import PlatformSettings from "./pages/PlatformSettings";
 import Dashboard from "./pages/Dashboard";
 import SystemManagement from "./pages/SystemManagement";
@@ -75,6 +76,7 @@ const Statistics = lazy(() => import("./pages/Statistics"));
 const StudyPlanner = lazy(() => import("./pages/StudyPlanner"));
 const CommunityHub = lazy(() => import("./pages/CommunityHub"));
 const ModernHomepage = lazy(() => import("./pages/ModernHomepage"));
+const Achievements = lazy(() => import("./pages/Achievements"));
 
 // ⚡ OPTIMISATION QueryClient - Configuration pour chargement rapide
 const queryClient = new QueryClient({
@@ -112,6 +114,7 @@ const App = () => {
               <LanguageProvider>
                 <GlobalAudioProvider>
                   <AuthProvider>
+                    <NotificationProvider>
                     <ToastProvider>
                       <TooltipProvider>
                      <BrowserRouter>
@@ -124,8 +127,10 @@ const App = () => {
                            <Route path="/platform-status" element={<PlatformStatusPage />} />
                            <Route path="/system-management" element={<SystemManagement />} />
                           <Route path="/platform-settings" element={<PlatformSettings />} />
-                          <Route path="/optimized" element={<OptimizedIndex />} />
-                          <Route path="/" element={<Index />} />
+                           <Route path="/optimized" element={<OptimizedIndex />} />
+                           <Route path="/" element={<Navigate to="/homepage" replace />} />
+                           <Route path="/homepage" element={<Suspense fallback={<div>Chargement...</div>}><ModernHomepage /></Suspense>} />
+                           <Route path="/index" element={<Index />} />
                           <Route path="/generator" element={<Generator />} />
                           {/* EDN Interface Unifiée - toutes les fonctionnalités fusionnées */}
                           <Route path="/edn" element={<EdnComplete />} />
@@ -184,6 +189,7 @@ const App = () => {
                            <Route path="/statistics" element={<Suspense fallback={<div>Chargement...</div>}><Statistics /></Suspense>} />
                            <Route path="/study-planner" element={<Suspense fallback={<div>Chargement...</div>}><StudyPlanner /></Suspense>} />
                            <Route path="/community" element={<Suspense fallback={<div>Chargement...</div>}><CommunityHub /></Suspense>} />
+                           <Route path="/achievements" element={<Suspense fallback={<div>Chargement...</div>}><Achievements /></Suspense>} />
                            <Route path="/homepage" element={<Suspense fallback={<div>Chargement...</div>}><ModernHomepage /></Suspense>} />
                            
                            <Route path="*" element={<NotFound />} />
@@ -203,10 +209,10 @@ const App = () => {
                          notificationCount={3}
                        />
                        <QuickNavigation />
-                       <NotificationCenter 
-                         isOpen={isNotificationCenterOpen} 
-                         onClose={() => setIsNotificationCenterOpen(false)} 
-                       />
+                        <NotificationCenter 
+                          isOpen={isNotificationCenterOpen} 
+                          onClose={() => setIsNotificationCenterOpen(false)} 
+                        />
                         <HelpCenter 
                           isOpen={isHelpCenterOpen} 
                           onClose={() => setIsHelpCenterOpen(false)} 
@@ -228,8 +234,9 @@ const App = () => {
                      </BrowserRouter>
                   </TooltipProvider>
                 </ToastProvider>
-              </AuthProvider>
-            </GlobalAudioProvider>
+                    </NotificationProvider>
+                  </AuthProvider>
+                </GlobalAudioProvider>
           </LanguageProvider>
         </ViewportProvider>
       </AccessibilityProvider>
