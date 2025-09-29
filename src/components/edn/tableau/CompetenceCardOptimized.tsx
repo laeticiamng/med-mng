@@ -15,7 +15,8 @@ import {
   Settings,
   Lightbulb,
   FileText,
-  Heart
+  Heart,
+  List
 } from 'lucide-react';
 
 interface CompetenceOIC {
@@ -43,40 +44,61 @@ interface CompetenceCardOptimizedProps {
   isPlaceholder?: boolean;
 }
 
+// Fonction utilitaire pour formater le texte
+const formatTextContent = (content: string) => {
+  return content
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/\[\[([^\]|]+)(?:\|[^\]]+)?\]\]/g, '$1')
+    .replace(/([.!?])\s+/g, '$1\n\n') // Double retour après les points
+    .replace(/;\s+/g, ';\n') // Retour après les points-virgules
+    .replace(/:\s+/g, ':\n') // Retour après les deux-points
+    .replace(/,\s+([A-Z])/g, ',\n$1') // Retour après virgule si majuscule suit
+    .split('\n')
+    .map(line => line.trim())
+    .filter(line => line.length > 0)
+    .join('\n')
+    .trim();
+};
+
 const CompetenceSection: React.FC<{
   title: string;
   content: string;
   icon: React.ReactNode;
   colorClass: string;
-}> = ({ title, content, icon, colorClass }) => (
-  <div className={`p-6 rounded-2xl border-l-4 ${colorClass} bg-background/50 hover:bg-background/80 transition-all duration-200 shadow-sm hover:shadow-md`}>
-    <div className="flex items-center gap-4 mb-4">
-      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shadow-sm">
-        {icon}
+}> = ({ title, content, icon, colorClass }) => {
+  const formattedContent = formatTextContent(content);
+  const paragraphs = formattedContent.split('\n').filter(p => p.trim().length > 0);
+  
+  return (
+    <div className={`p-6 rounded-2xl border-l-4 ${colorClass} bg-background/50 hover:bg-background/80 transition-all duration-200 shadow-sm hover:shadow-md`}>
+      <div className="flex items-center gap-4 mb-5">
+        <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shadow-sm">
+          {icon}
+        </div>
+        <h4 className="font-bold text-lg text-foreground tracking-tight">{title}</h4>
       </div>
-      <h4 className="font-bold text-lg text-foreground tracking-tight">{title}</h4>
+      <div className="pl-14">
+        <div className="space-y-4 text-base text-muted-foreground leading-[1.8] font-medium max-w-none">
+          {paragraphs.map((paragraph, idx) => (
+            <p 
+              key={idx}
+              className="mb-3 last:mb-0"
+              style={{ 
+                lineHeight: '1.75',
+                letterSpacing: '0.01em',
+                wordSpacing: '0.05em'
+              }}
+            >
+              {paragraph}
+            </p>
+          ))}
+        </div>
+      </div>
     </div>
-    <div className="pl-14">
-      <div 
-        className="text-base text-muted-foreground leading-[1.8] font-medium max-w-none prose prose-sm"
-        style={{ 
-          lineHeight: '1.75',
-          letterSpacing: '0.01em',
-          wordSpacing: '0.05em'
-        }}
-        dangerouslySetInnerHTML={createSafeHtml(
-          content
-            .replace(/&nbsp;/g, ' ')
-            .replace(/&lt;/g, '<')
-            .replace(/&gt;/g, '>')
-            .replace(/<br\s*\/?>/gi, '<br>')
-            .replace(/\[\[([^\]|]+)(?:\|[^\]]+)?\]\]/g, '$1')
-            .trim()
-        )}
-      />
-    </div>
-  </div>
-);
+  );
+};
 
 const KeywordBadge: React.FC<{ keyword: string }> = ({ keyword }) => (
   <Badge variant="secondary" className="text-xs font-medium bg-primary/10 text-primary border-primary/20">
@@ -205,28 +227,30 @@ export const CompetenceCardOptimized: React.FC<CompetenceCardOptimizedProps> = (
               {/* Description courte */}
               {competence.description && (
                 <div className="bg-background/60 rounded-xl p-4 border border-border/50 shadow-sm">
-                  <div 
-                    className="text-base text-muted-foreground leading-[1.7] font-medium line-clamp-3 max-w-none prose prose-sm"
-                    style={{ 
-                      lineHeight: '1.7',
-                      letterSpacing: '0.01em',
-                      wordSpacing: '0.05em'
-                    }}
-                    dangerouslySetInnerHTML={createSafeHtml(
-                      competence.description
-                        .replace(/&nbsp;/g, ' ')
-                        .replace(/&lt;/g, '<')
-                        .replace(/&gt;/g, '>')
-                        .replace(/<br\s*\/?>/gi, '<br>')
-                        .replace(/\[\[([^\]|]+)(?:\|[^\]]+)?\]\]/g, '$1')
-                        .trim()
+                  <div className="space-y-3 text-base text-muted-foreground leading-[1.7] font-medium max-w-none">
+                    {formatTextContent(competence.description).split('\n').filter(p => p.trim().length > 0).slice(0, 3).map((paragraph, idx) => (
+                      <p 
+                        key={idx}
+                        style={{ 
+                          lineHeight: '1.7',
+                          letterSpacing: '0.01em',
+                          wordSpacing: '0.05em'
+                        }}
+                      >
+                        {paragraph}
+                      </p>
+                    ))}
+                    {formatTextContent(competence.description).split('\n').filter(p => p.trim().length > 0).length > 3 && (
+                      <p className="text-sm text-muted-foreground/70 italic">
+                        ... voir plus en détail ci-dessous
+                      </p>
                     )}
-                  />
+                  </div>
                 </div>
               )}
               
               {/* Indicateurs de contenu */}
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-4">
                 <div className="flex items-center gap-1">
                   {sections.slice(0, 4).map((section, idx) => (
                     <div key={idx} className="w-2 h-2 rounded-full bg-primary/60"></div>
@@ -235,8 +259,9 @@ export const CompetenceCardOptimized: React.FC<CompetenceCardOptimizedProps> = (
                     <span className="text-xs text-muted-foreground">+{availableSectionsCount - 4}</span>
                   )}
                 </div>
-                <Badge variant="secondary" className="text-xs">
-                  {availableSectionsCount} section{availableSectionsCount > 1 ? 's' : ''}
+                <Badge variant="secondary" className="text-xs font-medium px-3 py-1">
+                  <List className="w-3 h-3 mr-1" />
+                  {availableSectionsCount} section{availableSectionsCount > 1 ? 's' : ''} détaillée{availableSectionsCount > 1 ? 's' : ''}
                 </Badge>
               </div>
             </div>
