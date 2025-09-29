@@ -16,6 +16,8 @@ import { KeyboardShortcuts } from "@/components/shortcuts/KeyboardShortcuts";
 import { WelcomeScreen } from "@/components/welcome/WelcomeScreen";
 import { PerformanceMonitor } from "@/components/performance/PerformanceMonitor";
 import { GlobalStateProvider } from "@/hooks/useGlobalState";
+import { NotificationProvider } from '@/contexts/NotificationContext';
+import { MainNavigation } from '@/components/layout/MainNavigation';
 
 // ⚡ LAZY LOADING - Composants non-critiques chargés à la demande
 const DynamicOnboarding = lazy(() => import("@/components/onboarding/DynamicOnboarding").then(module => ({ default: module.DynamicOnboarding })));
@@ -112,12 +114,14 @@ const App = () => {
               <LanguageProvider>
                 <GlobalAudioProvider>
                   <AuthProvider>
-                    <ToastProvider>
-                      <TooltipProvider>
-                     <BrowserRouter>
-                       <SkipLinks />
-                       <div id="app-root" className="min-h-screen">
-                         <main id="main-content" tabIndex={-1}>
+                    <NotificationProvider>
+                      <ToastProvider>
+                        <TooltipProvider>
+                         <BrowserRouter>
+                           <SkipLinks />
+                           <div id="app-root" className="min-h-screen">
+                             <MainNavigation />
+                             <main id="main-content" tabIndex={-1}>
                           <Routes>
                            <Route path="/dashboard" element={<Dashboard />} />
                            <Route path="/learning-dashboard" element={<LearningDashboard />} />
@@ -227,15 +231,16 @@ const App = () => {
                       <Sonner />
                      </BrowserRouter>
                   </TooltipProvider>
-                </ToastProvider>
-              </AuthProvider>
-            </GlobalAudioProvider>
-          </LanguageProvider>
-        </ViewportProvider>
-      </AccessibilityProvider>
-    </HelmetProvider>
-    </QueryClientProvider>
-  </GlobalStateProvider>
+                   </ToastProvider>
+                 </NotificationProvider>
+               </AuthProvider>
+             </GlobalAudioProvider>
+           </LanguageProvider>
+         </ViewportProvider>
+       </AccessibilityProvider>
+     </HelmetProvider>
+     </QueryClientProvider>
+   </GlobalStateProvider>
   );
 };
 
