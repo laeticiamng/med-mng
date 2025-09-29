@@ -71,76 +71,88 @@ const CompetenceCard: React.FC<{
   const totalSections = Object.values(availableSections).filter(Boolean).length;
 
   return (
-    <Card className={`${isPlaceholder ? 'opacity-60' : ''} hover:shadow-md transition-all duration-200 border-l-4 ${themeColors.border}`}>
+    <Card className={`${isPlaceholder ? 'opacity-60' : ''} hover:shadow-xl transition-all duration-300 border-l-4 ${themeColors.border} group relative overflow-hidden`}>
+      {/* Indicateur de progression visuel */}
+      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+      
       <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
         <CollapsibleTrigger asChild>
-          <CardHeader className={`${themeColors.bg} cursor-pointer hover:${themeColors.accent} transition-colors`}>
+          <CardHeader className={`${themeColors.bg} cursor-pointer hover:${themeColors.accent} transition-all duration-200 group-hover:shadow-sm`}>
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className={`w-8 h-8 rounded-lg ${themeColors.accent} ${themeColors.text} flex items-center justify-center text-sm font-bold`}>
+              <div className="flex items-center gap-4">
+                <div className={`w-10 h-10 rounded-xl ${themeColors.accent} ${themeColors.text} flex items-center justify-center text-sm font-bold shadow-sm group-hover:scale-105 transition-transform`}>
                   {competence.ordre_affichage || index + 1}
                 </div>
-                <div className="flex-1">
+                <div className="flex-1 space-y-2">
                   {competence.objectif_id && (
-                    <Badge variant="outline" className={`${themeColors.text} text-xs mb-2`}>
-                      {competence.objectif_id}
+                    <Badge variant="outline" className={`${themeColors.text} text-xs font-medium px-2 py-1`}>
+                      📋 {competence.objectif_id}
                     </Badge>
                   )}
-                  <h3 className={`font-semibold ${themeColors.text} text-sm leading-tight`}>
+                  <h3 className={`font-bold ${themeColors.text} text-base leading-tight group-hover:text-opacity-90`}>
                     {competence.titre_complet || competence.intitule}
                   </h3>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                {availableSections.details && <Book className="w-4 h-4 text-green-600" />}
-                {availableSections.clinical && <Target className="w-4 h-4 text-orange-600" />}
-                {availableSections.safety && <AlertTriangle className="w-4 h-4 text-red-600" />}
-                {availableSections.meta && <Users className="w-4 h-4 text-blue-600" />}
-                <Badge variant="secondary" className="text-xs">
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-1">
+                  {availableSections.details && <Book className="w-4 h-4 text-green-600" />}
+                  {availableSections.clinical && <Target className="w-4 h-4 text-orange-600" />}
+                  {availableSections.safety && <AlertTriangle className="w-4 h-4 text-red-600" />}
+                  {availableSections.meta && <Users className="w-4 h-4 text-blue-600" />}
+                </div>
+                <Badge variant="secondary" className="text-xs font-medium px-2 py-1">
                   {totalSections} section{totalSections > 1 ? 's' : ''}
                 </Badge>
-                {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                <div className="transition-transform group-hover:scale-110">
+                  {isExpanded ? <ChevronDown className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
+                </div>
               </div>
             </div>
           </CardHeader>
         </CollapsibleTrigger>
         
         <CollapsibleContent>
-          <CardContent className="pt-4">
+          <CardContent className="pt-6 px-6 pb-6">
             {competence.description && (
-              <div className="mb-4 p-3 bg-muted/30 rounded-lg">
-                <div 
-                  className="text-sm text-muted-foreground"
-                  dangerouslySetInnerHTML={createSafeHtml(
-                    competence.description
-                      .replace(/&nbsp;/g, ' ')
-                      .replace(/&lt;/g, '<')
-                      .replace(/&gt;/g, '>')
-                      .replace(/<br\s*\/?>/gi, '<br>')
-                      .replace(/\[\[([^\]|]+)(?:\|[^\]]+)?\]\]/g, '$1')
-                      .trim()
-                  )}
-                />
+              <div className="mb-6 p-4 bg-gradient-to-r from-background/80 to-muted/40 rounded-xl border border-border/50 shadow-sm">
+                <div className="flex items-start gap-3">
+                  <div className="w-5 h-5 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <span className="text-xs">ℹ️</span>
+                  </div>
+                  <div 
+                    className="text-sm text-foreground/80 leading-relaxed font-medium"
+                    dangerouslySetInnerHTML={createSafeHtml(
+                      competence.description
+                        .replace(/&nbsp;/g, ' ')
+                        .replace(/&lt;/g, '<')
+                        .replace(/&gt;/g, '>')
+                        .replace(/<br\s*\/?>/gi, '<br>')
+                        .replace(/\[\[([^\]|]+)(?:\|[^\]]+)?\]\]/g, '$1')
+                        .trim()
+                    )}
+                  />
+                </div>
               </div>
             )}
             
             {totalSections > 0 ? (
               <Tabs defaultValue="details" className="w-full">
-                <TabsList className="grid w-full grid-cols-4">
-                  <TabsTrigger value="details" className="text-xs" disabled={!availableSections.details}>
-                    <Book className="w-3 h-3 mr-1" />
+                <TabsList className="grid w-full grid-cols-4 h-12 p-1 bg-muted/50 rounded-xl">
+                  <TabsTrigger value="details" className="text-sm font-medium rounded-lg transition-all data-[state=active]:shadow-sm" disabled={!availableSections.details}>
+                    <Book className="w-4 h-4 mr-2" />
                     Détails
                   </TabsTrigger>
-                  <TabsTrigger value="clinical" className="text-xs" disabled={!availableSections.clinical}>
-                    <Target className="w-3 h-3 mr-1" />
+                  <TabsTrigger value="clinical" className="text-sm font-medium rounded-lg transition-all data-[state=active]:shadow-sm" disabled={!availableSections.clinical}>
+                    <Target className="w-4 h-4 mr-2" />
                     Clinique
                   </TabsTrigger>
-                  <TabsTrigger value="safety" className="text-xs" disabled={!availableSections.safety}>
-                    <AlertTriangle className="w-3 h-3 mr-1" />
+                  <TabsTrigger value="safety" className="text-sm font-medium rounded-lg transition-all data-[state=active]:shadow-sm" disabled={!availableSections.safety}>
+                    <AlertTriangle className="w-4 h-4 mr-2" />
                     Sécurité
                   </TabsTrigger>
-                  <TabsTrigger value="meta" className="text-xs" disabled={!availableSections.meta}>
-                    <Users className="w-3 h-3 mr-1" />
+                  <TabsTrigger value="meta" className="text-sm font-medium rounded-lg transition-all data-[state=active]:shadow-sm" disabled={!availableSections.meta}>
+                    <Users className="w-4 h-4 mr-2" />
                     Méta
                   </TabsTrigger>
                 </TabsList>
@@ -349,32 +361,32 @@ export const TableauCompetencesOICOptimized: React.FC<TableauCompetencesOICOptim
             ))}
           </div>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-3">
             {competences.map((competence, index) => (
-              <div key={index} className="flex items-center gap-4 p-3 border rounded-lg hover:bg-muted/30 transition-colors">
-                <div className={`w-8 h-8 rounded-lg ${rang === 'A' ? 'bg-blue-100 text-blue-800' : 'bg-purple-100 text-purple-800'} flex items-center justify-center text-sm font-bold flex-shrink-0`}>
+              <div key={index} className="flex items-center gap-4 p-4 border-2 rounded-xl hover:bg-muted/40 hover:border-primary/20 transition-all duration-200 group">
+                <div className={`w-10 h-10 rounded-xl ${rang === 'A' ? 'bg-gradient-to-br from-blue-100 to-blue-200 text-blue-800' : 'bg-gradient-to-br from-purple-100 to-purple-200 text-purple-800'} flex items-center justify-center text-sm font-bold flex-shrink-0 shadow-sm group-hover:scale-105 transition-transform`}>
                   {competence.ordre_affichage || index + 1}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-1">
+                  <div className="flex items-center gap-3 mb-2">
                     {competence.objectif_id && (
-                      <Badge variant="outline" className="text-xs">
-                        {competence.objectif_id}
+                      <Badge variant="outline" className="text-xs font-medium px-2 py-1">
+                        📋 {competence.objectif_id}
                       </Badge>
                     )}
-                    <h4 className="font-semibold text-sm truncate">
+                    <h4 className="font-bold text-sm group-hover:text-primary transition-colors truncate">
                       {competence.titre_complet || competence.intitule}
                     </h4>
                   </div>
-                  <p className="text-xs text-muted-foreground line-clamp-2">
+                  <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">
                     {competence.sommaire || competence.description}
                   </p>
                 </div>
-                <div className="flex gap-1 flex-shrink-0">
-                  {competence.sommaire && <div className="w-2 h-2 rounded-full bg-green-500" title="Sommaire disponible" />}
-                  {competence.mecanismes && <div className="w-2 h-2 rounded-full bg-blue-500" title="Mécanismes disponibles" />}
-                  {competence.indications && <div className="w-2 h-2 rounded-full bg-orange-500" title="Indications disponibles" />}
-                  {competence.effets_indesirables && <div className="w-2 h-2 rounded-full bg-red-500" title="Effets indésirables disponibles" />}
+                <div className="flex gap-2 flex-shrink-0">
+                  {competence.sommaire && <div className="w-3 h-3 rounded-full bg-green-500 shadow-sm" title="Sommaire disponible" />}
+                  {competence.mecanismes && <div className="w-3 h-3 rounded-full bg-blue-500 shadow-sm" title="Mécanismes disponibles" />}
+                  {competence.indications && <div className="w-3 h-3 rounded-full bg-orange-500 shadow-sm" title="Indications disponibles" />}
+                  {competence.effets_indesirables && <div className="w-3 h-3 rounded-full bg-red-500 shadow-sm" title="Effets indésirables disponibles" />}
                 </div>
               </div>
             ))}
