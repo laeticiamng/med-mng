@@ -34,7 +34,7 @@ export const useOicCompetences = (itemCode: string, rang: 'A' | 'B') => {
         // Extraire le numéro d'item (IC-1 -> 001, IC-10 -> 010)
         const itemNumber = itemCode.replace('IC-', '').padStart(3, '0');
         
-        console.log(`🔍 Récupération compétences OIC RÉELLES pour item ${itemNumber} rang ${rang}`);
+        console.log(`🔍 Récupération compétences OIC depuis BACKUP pour item ${itemNumber} rang ${rang}`);
         
         const { data, error } = await supabase
           .from('backup_oic_competences')
@@ -56,22 +56,18 @@ export const useOicCompetences = (itemCode: string, rang: 'A' | 'B') => {
           return;
         }
 
-        console.log(`✅ ${data?.length || 0} compétences OIC RÉELLES récupérées pour ${itemCode} rang ${rang}`);
+        console.log(`✅ ${data?.length || 0} compétences OIC BACKUP récupérées pour ${itemCode} rang ${rang}`);
         
-        // Filtrer pour ne garder que les compétences avec du vrai contenu (pas générique)
+        // Toutes les compétences de backup_oic_competences sont authentiques
         const realCompetences = data?.filter(comp => {
-          // Vérifier si c'est du contenu générique ou vide
-          const hasGenericContent = 
-            !comp.description ||
-            comp.description.includes('Bienvenue sur LiSA EDN') ||
-            comp.description.includes('Items de connaissances') ||
-            comp.intitule === comp.description ||
-            comp.description.length < 10;
-          
-          return !hasGenericContent && comp.objectif_id && comp.intitule;
+          // Garder toutes les compétences qui ont un contenu valide
+          return comp.objectif_id && 
+                 comp.intitule && 
+                 comp.description && 
+                 comp.description.trim().length > 5;
         }) || [];
 
-        console.log(`🎯 ${realCompetences.length} compétences AUTHENTIQUES après filtrage`);
+        console.log(`🎯 ${realCompetences.length} compétences VALIDES après filtrage`);
         setCompetences(realCompetences);
         
       } catch (err) {
