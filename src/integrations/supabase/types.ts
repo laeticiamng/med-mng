@@ -8932,6 +8932,14 @@ export type Database = {
           total_items: number
         }[]
       }
+      get_platform_statistics: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          active_users: number
+          total_content: number
+          total_users: number
+        }[]
+      }
       get_platform_stats: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -9049,6 +9057,15 @@ export type Database = {
           reset_date: string
           subscription_type: string
           total_credits: number
+        }[]
+      }
+      get_user_analytics: {
+        Args: { p_user_id?: string }
+        Returns: {
+          last_activity: string
+          total_duration: number
+          total_sessions: number
+          user_id: string
         }[]
       }
       get_user_ia_stats: {
