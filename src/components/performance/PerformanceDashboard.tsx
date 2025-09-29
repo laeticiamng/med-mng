@@ -370,7 +370,7 @@ export const PerformanceDashboard: React.FC = () => {
 
         <TabsContent value="recommendations" className="space-y-4">
           <div className="space-y-4">
-            {(performance.optimizeBundle() || []).map((suggestion, index) => (
+            {((performance.optimizeBundle() as unknown) as string[] || []).map((suggestion, index) => (
               <Card key={index}>
                 <CardContent className="pt-6">
                   <div className="flex items-start space-x-4">
