@@ -70,6 +70,12 @@ import EdnComplete from "./pages/EdnComplete";
 import LearningDashboard from "./pages/LearningDashboard";
 import PlatformStatusPage from "./pages/PlatformStatusPage";
 
+// Nouvelles pages complètes
+const Statistics = lazy(() => import("./pages/Statistics"));
+const StudyPlanner = lazy(() => import("./pages/StudyPlanner"));
+const CommunityHub = lazy(() => import("./pages/CommunityHub"));
+const ModernHomepage = lazy(() => import("./pages/ModernHomepage"));
+
 // ⚡ OPTIMISATION QueryClient - Configuration pour chargement rapide
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -170,10 +176,17 @@ const App = () => {
                            <Route path="/admin/oic-quality" element={<OicDataQualityManager />} />
                            <Route path="/admin/complete" element={<AdminCompleteProcess />} />
                            <Route path="/admin-panel" element={<AdminPanel />} /> {/* Panel admin unifié Point X */}
-                          <Route path="/test-subscriptions" element={<SubscriptionTest />} />
-                          <Route path="/library" element={<LibraryPage />} />
-                          <Route path="/test-extraction" element={<TestExtraction />} />
-                          <Route path="*" element={<NotFound />} />
+                           <Route path="/test-subscriptions" element={<SubscriptionTest />} />
+                           <Route path="/library" element={<LibraryPage />} />
+                           <Route path="/test-extraction" element={<TestExtraction />} />
+                           
+                           {/* Nouvelles pages complètes */}
+                           <Route path="/statistics" element={<Suspense fallback={<div>Chargement...</div>}><Statistics /></Suspense>} />
+                           <Route path="/study-planner" element={<Suspense fallback={<div>Chargement...</div>}><StudyPlanner /></Suspense>} />
+                           <Route path="/community" element={<Suspense fallback={<div>Chargement...</div>}><CommunityHub /></Suspense>} />
+                           <Route path="/homepage" element={<Suspense fallback={<div>Chargement...</div>}><ModernHomepage /></Suspense>} />
+                           
+                           <Route path="*" element={<NotFound />} />
                         </Routes>
                       </main>
                        
