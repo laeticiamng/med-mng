@@ -1,0 +1,541 @@
+import React, { useState, useEffect } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Progress } from '@/components/ui/progress';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
+import { 
+  Users, 
+  Music, 
+  Brain, 
+  Target, 
+  TrendingUp, 
+  Calendar, 
+  Award,
+  Clock,
+  Headphones,
+  BookOpen,
+  Zap,
+  Activity,
+  BarChart3
+} from 'lucide-react';
+
+interface AdvancedAnalytics {
+  totalStudyTime: number;
+  songsGenerated: number;
+  averageScore: number;
+  streakDays: number;
+  completedItems: number;
+  favoriteGenres: Array<{ name: string; count: number; color: string }>;
+  weeklyActivity: Array<{ day: string; study: number; music: number; quiz: number }>;
+  monthlyProgress: Array<{ month: string; items: number; hours: number; score: number }>;
+  performanceByCategory: Array<{ category: string; score: number; trend: string }>;
+  learningPatterns: Array<{ hour: number; efficiency: number; focus: number }>;
+}
+
+interface UserMetrics {
+  userId: string;
+  userName: string;
+  level: number;
+  xp: number;
+  nextLevelXp: number;
+  badges: string[];
+  achievements: string[];
+  socialStats: {
+    followers: number;
+    following: number;
+    studyGroups: number;
+  };
+}
+
+export const AdvancedAnalyticsDashboard: React.FC = () => {
+  const [analytics, setAnalytics] = useState<AdvancedAnalytics | null>(null);
+  const [userMetrics, setUserMetrics] = useState<UserMetrics | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [selectedPeriod, setSelectedPeriod] = useState<'7d' | '30d' | '90d' | '1y'>('30d');
+
+  useEffect(() => {
+    loadAdvancedAnalytics();
+  }, [selectedPeriod]);
+
+  const loadAdvancedAnalytics = async () => {
+    setLoading(true);
+    
+    // Simulation de données avancées (en production, cela viendrait de Supabase)
+    setTimeout(() => {
+      const mockAnalytics: AdvancedAnalytics = {
+        totalStudyTime: 127.5,
+        songsGenerated: 43,
+        averageScore: 86.4,
+        streakDays: 12,
+        completedItems: 89,
+        favoriteGenres: [
+          { name: 'LoFi', count: 18, color: '#3B82F6' },
+          { name: 'Classical', count: 12, color: '#10B981' },
+          { name: 'Ambient', count: 8, color: '#F59E0B' },
+          { name: 'Jazz', count: 5, color: '#8B5CF6' }
+        ],
+        weeklyActivity: [
+          { day: 'Lun', study: 3.2, music: 2, quiz: 4 },
+          { day: 'Mar', study: 2.8, music: 3, quiz: 3 },
+          { day: 'Mer', study: 4.1, music: 1, quiz: 5 },
+          { day: 'Jeu', study: 3.5, music: 4, quiz: 2 },
+          { day: 'Ven', study: 2.9, music: 2, quiz: 3 },
+          { day: 'Sam', study: 1.8, music: 5, quiz: 1 },
+          { day: 'Dim', study: 2.2, music: 3, quiz: 2 }
+        ],
+        monthlyProgress: [
+          { month: 'Sep', items: 15, hours: 28, score: 78 },
+          { month: 'Oct', items: 23, hours: 45, score: 82 },
+          { month: 'Nov', items: 31, hours: 67, score: 85 },
+          { month: 'Déc', items: 42, hours: 89, score: 87 },
+          { month: 'Jan', items: 89, hours: 127, score: 86 }
+        ],
+        performanceByCategory: [
+          { category: 'Cardiologie', score: 92, trend: 'up' },
+          { category: 'Neurologie', score: 78, trend: 'down' },
+          { category: 'Psychiatrie', score: 89, trend: 'up' },
+          { category: 'Urgences', score: 85, trend: 'stable' },
+          { category: 'Pédiatrie', score: 91, trend: 'up' }
+        ],
+        learningPatterns: [
+          { hour: 8, efficiency: 85, focus: 78 },
+          { hour: 9, efficiency: 92, focus: 88 },
+          { hour: 10, efficiency: 89, focus: 85 },
+          { hour: 11, efficiency: 86, focus: 82 },
+          { hour: 14, efficiency: 78, focus: 75 },
+          { hour: 15, efficiency: 82, focus: 79 },
+          { hour: 16, efficiency: 88, focus: 86 },
+          { hour: 17, efficiency: 85, focus: 83 },
+          { hour: 20, efficiency: 79, focus: 76 },
+          { hour: 21, efficiency: 75, focus: 72 }
+        ]
+      };
+
+      const mockUserMetrics: UserMetrics = {
+        userId: 'user-123',
+        userName: 'Dr. Martin Dupont',
+        level: 8,
+        xp: 2847,
+        nextLevelXp: 3200,
+        badges: ['early-bird', 'streak-master', 'quiz-champion', 'music-lover'],
+        achievements: ['100-items', 'perfect-week', 'social-learner'],
+        socialStats: {
+          followers: 156,
+          following: 89,
+          studyGroups: 3
+        }
+      };
+
+      setAnalytics(mockAnalytics);
+      setUserMetrics(mockUserMetrics);
+      setLoading(false);
+    }, 1500);
+  };
+
+  const getProgressPercentage = () => {
+    if (!userMetrics) return 0;
+    return Math.round((userMetrics.xp / userMetrics.nextLevelXp) * 100);
+  };
+
+  const getTrendIcon = (trend: string) => {
+    switch (trend) {
+      case 'up': return <TrendingUp className="w-4 h-4 text-green-500" />;
+      case 'down': return <TrendingUp className="w-4 h-4 text-red-500 rotate-180" />;
+      default: return <Activity className="w-4 h-4 text-gray-500" />;
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="p-6 space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {[1, 2, 3, 4].map(i => (
+            <Card key={i} className="animate-pulse">
+              <CardContent className="p-6">
+                <div className="h-4 bg-muted rounded w-3/4 mb-2"></div>
+                <div className="h-8 bg-muted rounded w-1/2 mb-2"></div>
+                <div className="h-3 bg-muted rounded w-2/3"></div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  if (!analytics || !userMetrics) return null;
+
+  return (
+    <div className="p-6 space-y-6">
+      {/* En-tête avec profil utilisateur */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="w-16 h-16 bg-gradient-to-br from-primary to-primary/70 rounded-full flex items-center justify-center text-white font-bold text-xl">
+            {userMetrics.userName.charAt(0)}
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-foreground">{userMetrics.userName}</h1>
+            <div className="flex items-center gap-3">
+              <Badge variant="outline" className="text-sm">
+                Niveau {userMetrics.level}
+              </Badge>
+              <div className="flex items-center gap-2">
+                <div className="w-24 h-2 bg-muted rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-primary transition-all duration-500"
+                    style={{ width: `${getProgressPercentage()}%` }}
+                  />
+                </div>
+                <span className="text-sm text-muted-foreground">
+                  {userMetrics.xp}/{userMetrics.nextLevelXp} XP
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div className="flex items-center gap-2">
+          {['7d', '30d', '90d', '1y'].map(period => (
+            <Button
+              key={period}
+              variant={selectedPeriod === period ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setSelectedPeriod(period as any)}
+            >
+              {period}
+            </Button>
+          ))}
+        </div>
+      </div>
+
+      {/* Métriques principales */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-blue-700">Temps d'étude total</p>
+                <p className="text-3xl font-bold text-blue-900">{analytics.totalStudyTime}h</p>
+                <p className="text-xs text-blue-600">+15% ce mois</p>
+              </div>
+              <Clock className="w-8 h-8 text-blue-600" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-green-700">Musiques générées</p>
+                <p className="text-3xl font-bold text-green-900">{analytics.songsGenerated}</p>
+                <p className="text-xs text-green-600">+8 cette semaine</p>
+              </div>
+              <Music className="w-8 h-8 text-green-600" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-purple-700">Score moyen</p>
+                <p className="text-3xl font-bold text-purple-900">{analytics.averageScore}%</p>
+                <p className="text-xs text-purple-600">Excellent niveau</p>
+              </div>
+              <Target className="w-8 h-8 text-purple-600" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
+          <CardContent className="p-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm font-medium text-orange-700">Série actuelle</p>
+                <p className="text-3xl font-bold text-orange-900">{analytics.streakDays} jours</p>
+                <p className="text-xs text-orange-600">Record personnel</p>
+              </div>
+              <Award className="w-8 h-8 text-orange-600" />
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Tabs defaultValue="activity" className="w-full">
+        <TabsList className="grid w-full grid-cols-5">
+          <TabsTrigger value="activity">Activité</TabsTrigger>
+          <TabsTrigger value="progress">Progression</TabsTrigger>
+          <TabsTrigger value="performance">Performance</TabsTrigger>
+          <TabsTrigger value="patterns">Habitudes</TabsTrigger>
+          <TabsTrigger value="social">Social</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="activity" className="space-y-4">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Activité hebdomadaire</CardTitle>
+                <CardDescription>Répartition de votre temps d'étude par jour</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <AreaChart data={analytics.weeklyActivity}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="day" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    <Area 
+                      type="monotone" 
+                      dataKey="study" 
+                      stackId="1"
+                      stroke="#3B82F6" 
+                      fill="#3B82F6" 
+                      fillOpacity={0.6}
+                      name="Étude (h)"
+                    />
+                    <Area 
+                      type="monotone" 
+                      dataKey="music" 
+                      stackId="1"
+                      stroke="#10B981" 
+                      fill="#10B981" 
+                      fillOpacity={0.6}
+                      name="Musique"
+                    />
+                    <Area 
+                      type="monotone" 
+                      dataKey="quiz" 
+                      stackId="1"
+                      stroke="#F59E0B" 
+                      fill="#F59E0B" 
+                      fillOpacity={0.6}
+                      name="Quiz"
+                    />
+                  </AreaChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Genres musicaux favoris</CardTitle>
+                <CardDescription>Vos préférences musicales pour l'étude</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <PieChart>
+                    <Pie
+                      data={analytics.favoriteGenres}
+                      cx="50%"
+                      cy="50%"
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="count"
+                      label={({ name, count }) => `${name}: ${count}`}
+                    >
+                      {analytics.favoriteGenres.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.color} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="progress" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Progression mensuelle</CardTitle>
+              <CardDescription>Évolution de vos performances sur les derniers mois</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={400}>
+                <LineChart data={analytics.monthlyProgress}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="month" />
+                  <YAxis yAxisId="left" />
+                  <YAxis yAxisId="right" orientation="right" />
+                  <Tooltip />
+                  <Legend />
+                  <Bar yAxisId="left" dataKey="items" fill="#3B82F6" name="Items complétés" />
+                  <Line 
+                    yAxisId="right" 
+                    type="monotone" 
+                    dataKey="score" 
+                    stroke="#10B981" 
+                    strokeWidth={3}
+                    name="Score moyen (%)"
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="performance" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Performance par spécialité</CardTitle>
+              <CardDescription>Vos scores dans chaque domaine médical</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {analytics.performanceByCategory.map((category, index) => (
+                  <div key={index} className="flex items-center justify-between p-4 border rounded-lg">
+                    <div className="flex items-center gap-3">
+                      <span className="font-medium">{category.category}</span>
+                      {getTrendIcon(category.trend)}
+                    </div>
+                    <div className="flex items-center gap-3">
+                      <Progress value={category.score} className="w-24 h-2" />
+                      <Badge 
+                        variant={category.score >= 85 ? 'default' : category.score >= 70 ? 'secondary' : 'destructive'}
+                      >
+                        {category.score}%
+                      </Badge>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="patterns" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Patterns d'apprentissage</CardTitle>
+              <CardDescription>Votre efficacité selon l'heure de la journée</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={300}>
+                <AreaChart data={analytics.learningPatterns}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="hour" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Area 
+                    type="monotone" 
+                    dataKey="efficiency" 
+                    stroke="#8B5CF6" 
+                    fill="#8B5CF6" 
+                    fillOpacity={0.6}
+                    name="Efficacité (%)"
+                  />
+                  <Area 
+                    type="monotone" 
+                    dataKey="focus" 
+                    stroke="#F59E0B" 
+                    fill="#F59E0B" 
+                    fillOpacity={0.4}
+                    name="Concentration (%)"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card>
+              <CardContent className="p-6 text-center">
+                <Clock className="w-8 h-8 text-blue-500 mx-auto mb-2" />
+                <p className="text-2xl font-bold">09:00</p>
+                <p className="text-sm text-muted-foreground">Heure optimale</p>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardContent className="p-6 text-center">
+                <Zap className="w-8 h-8 text-yellow-500 mx-auto mb-2" />
+                <p className="text-2xl font-bold">2.3h</p>
+                <p className="text-sm text-muted-foreground">Session idéale</p>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardContent className="p-6 text-center">
+                <Brain className="w-8 h-8 text-purple-500 mx-auto mb-2" />
+                <p className="text-2xl font-bold">87%</p>
+                <p className="text-sm text-muted-foreground">Focus moyen</p>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        <TabsContent value="social" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="w-5 h-5" />
+                  Réseau
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex justify-between">
+                  <span className="text-sm">Abonnés</span>
+                  <Badge variant="outline">{userMetrics.socialStats.followers}</Badge>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm">Abonnements</span>
+                  <Badge variant="outline">{userMetrics.socialStats.following}</Badge>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-sm">Groupes d'étude</span>
+                  <Badge variant="outline">{userMetrics.socialStats.studyGroups}</Badge>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Award className="w-5 h-5" />
+                  Badges
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-2">
+                  {userMetrics.badges.map((badge, index) => (
+                    <div key={index} className="text-center p-2 border rounded-lg">
+                      <Award className="w-6 h-6 mx-auto mb-1 text-yellow-500" />
+                      <p className="text-xs font-medium">{badge}</p>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Target className="w-5 h-5" />
+                  Accomplissements
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {userMetrics.achievements.map((achievement, index) => (
+                    <div key={index} className="flex items-center gap-2 p-2 border rounded-lg">
+                      <Target className="w-4 h-4 text-green-500" />
+                      <span className="text-sm font-medium">{achievement}</span>
+                    </div>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+};

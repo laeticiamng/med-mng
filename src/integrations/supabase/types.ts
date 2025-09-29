@@ -9733,6 +9733,16 @@ export type Database = {
           room_id: string
         }[]
       }
+      get_user_ai_quota: {
+        Args: { p_user_id?: string }
+        Returns: {
+          credits_used: number
+          remaining_credits: number
+          reset_date: string
+          subscription_type: string
+          total_credits: number
+        }[]
+      }
       get_user_ia_stats: {
         Args: { p_period_days?: number }
         Returns: Json

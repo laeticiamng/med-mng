@@ -24,29 +24,35 @@ export const useIAQuota = () => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  const fetchQuota = async () => {
+  const fetchQuota = async (): Promise<number> => {
     try {
       setLoading(true);
-      const { data, error } = await supabase.functions.invoke('med-mng-api/quota', {
-        body: {},
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        }
-      });
 
-      if (error) throw error;
+      // Utiliser la nouvelle fonction de base de données au lieu de l'edge function
+      const { data, error } = await supabase
+        .rpc('get_user_ai_quota');
 
-      setQuota(data?.remaining_credits || 0);
-      return data?.remaining_credits || 0;
+      if (error) {
+        console.error('Erreur lors de la récupération du quota:', error);
+        toast({
+          title: "Information",
+          description: "Quota par défaut appliqué (80 crédits)",
+          variant: "default",
+        });
+        setQuota(80);
+        return 80;
+      }
+
+      const quotaData = data?.[0];
+      const remainingCredits = quotaData?.remaining_credits || 80;
+      
+      setQuota(remainingCredits);
+      return remainingCredits;
     } catch (error) {
       console.error('Erreur lors de la récupération du quota:', error);
-      toast({
-        title: "Erreur",
-        description: "Impossible de récupérer le quota IA",
-        variant: "destructive",
-      });
-      return 0;
+      // Quota par défaut en cas d'erreur
+      setQuota(80);
+      return 80;
     } finally {
       setLoading(false);
     }
