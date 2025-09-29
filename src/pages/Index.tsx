@@ -7,13 +7,13 @@ import { useNavigate } from "react-router-dom";
 import { LogIn, CreditCard, BarChart3, Music, BookOpen, MessageSquare, Users, Zap, Target, Award, TrendingUp, Sparkles, Star, Wand2, Brain, Settings } from "lucide-react";
 import { TranslatedText } from "@/components/TranslatedText";
 import { WelcomeDashboard } from "@/components/welcome/WelcomeDashboard";
+import MusicGenerationSection from "@/components/MusicGenerationSection";
 
 // ⚡ LAZY LOADING - Charger les composants lourds seulement quand nécessaire
 const MngPresentationBrief = lazy(() => import("@/components/MngPresentationBrief").then(module => ({
   default: module.MngPresentationBrief
 })));
 const MainSections = lazy(() => import("@/components/MainSections"));
-const MusicGenerationSection = lazy(() => import("@/components/MusicGenerationSection"));
 const AppFooter = lazy(() => import("@/components/AppFooter").then(module => ({
   default: module.AppFooter
 })));
@@ -249,12 +249,10 @@ const Index = () => {
           </div>
         </Suspense>
         
-        {/* Section Génération Musicale premium - LAZY LOADED */}
-        <Suspense fallback={<LazyLoadSpinner />}>
-          <div className="pb-20">
-            <MusicGenerationSection />
-          </div>
-        </Suspense>
+        {/* Section Génération Musicale premium - Static Import */}
+        <div className="pb-20">
+          <MusicGenerationSection />
+        </div>
         
         {/* Sections principales premium - LAZY LOADED */}
         <Suspense fallback={<LazyLoadSpinner />}>
