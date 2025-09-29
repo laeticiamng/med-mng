@@ -215,10 +215,7 @@ const App = () => {
                               isOpen={isNotificationCenterOpen} 
                               onClose={() => setIsNotificationCenterOpen(false)} 
                             />
-                             <HelpCenter 
-                               isOpen={isHelpCenterOpen} 
-                               onClose={() => setIsHelpCenterOpen(false)} 
-                             />
+                             {isHelpCenterOpen && <HelpCenter />}
                              
                              {/* Raccourcis Clavier Globaux */}
                              <KeyboardShortcuts />
@@ -229,7 +226,7 @@ const App = () => {
                              )}
                              
                              {/* Moniteur de Performance */}
-                             <PerformanceMonitor isMinimal={true} />
+                             <PerformanceMonitor />
                            </div>
                            <Toaster />
                            <Sonner />
