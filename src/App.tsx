@@ -66,6 +66,7 @@ import AuditCompleteness from "./pages/AuditCompleteness";
 import TestExtraction from "./pages/TestExtraction";
 import EdnImmersive from "./pages/EdnImmersive";
 import EdnComplete from "./pages/EdnComplete";
+import LearningDashboard from "./pages/LearningDashboard";
 
 // ⚡ OPTIMISATION QueryClient - Configuration pour chargement rapide
 const queryClient = new QueryClient({
@@ -109,8 +110,9 @@ const App = () => {
                       <div id="app-root" className="min-h-screen">
                         <main id="main-content" tabIndex={-1}>
                           <Routes>
-                          <Route path="/dashboard" element={<Dashboard />} />
-                          <Route path="/system-management" element={<SystemManagement />} />
+                           <Route path="/dashboard" element={<Dashboard />} />
+                           <Route path="/learning-dashboard" element={<LearningDashboard />} />
+                           <Route path="/system-management" element={<SystemManagement />} />
                           <Route path="/platform-settings" element={<PlatformSettings />} />
                           <Route path="/optimized" element={<OptimizedIndex />} />
                           <Route path="/" element={<Index />} />

@@ -1923,6 +1923,51 @@ export type Database = {
         }
         Relationships: []
       }
+      edn_analytics_advanced: {
+        Row: {
+          completion_rate: number | null
+          created_at: string | null
+          engagement_score: number | null
+          id: string
+          item_code: string
+          learning_progress: Json | null
+          performance_metrics: Json | null
+          session_metadata: Json | null
+          session_type: string
+          time_spent_minutes: number | null
+          user_feedback: Json | null
+          user_id: string | null
+        }
+        Insert: {
+          completion_rate?: number | null
+          created_at?: string | null
+          engagement_score?: number | null
+          id?: string
+          item_code: string
+          learning_progress?: Json | null
+          performance_metrics?: Json | null
+          session_metadata?: Json | null
+          session_type: string
+          time_spent_minutes?: number | null
+          user_feedback?: Json | null
+          user_id?: string | null
+        }
+        Update: {
+          completion_rate?: number | null
+          created_at?: string | null
+          engagement_score?: number | null
+          id?: string
+          item_code?: string
+          learning_progress?: Json | null
+          performance_metrics?: Json | null
+          session_metadata?: Json | null
+          session_type?: string
+          time_spent_minutes?: number | null
+          user_feedback?: Json | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       edn_content: {
         Row: {
           category: string | null
@@ -2301,6 +2346,45 @@ export type Database = {
           updated_at?: string
           valide?: boolean
           version?: string
+        }
+        Relationships: []
+      }
+      edn_smart_recommendations: {
+        Row: {
+          confidence_score: number | null
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          is_active: boolean | null
+          metadata: Json | null
+          reasoning: string | null
+          recommendation_type: string
+          recommended_item_code: string
+          user_id: string | null
+        }
+        Insert: {
+          confidence_score?: number | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          metadata?: Json | null
+          reasoning?: string | null
+          recommendation_type: string
+          recommended_item_code: string
+          user_id?: string | null
+        }
+        Update: {
+          confidence_score?: number | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          metadata?: Json | null
+          reasoning?: string | null
+          recommendation_type?: string
+          recommended_item_code?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -9169,6 +9253,10 @@ export type Database = {
       calculate_sla_metrics: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      calculate_user_learning_path: {
+        Args: { p_user_id: string }
+        Returns: Json
       }
       check_music_generation_quota: {
         Args: { user_uuid: string }

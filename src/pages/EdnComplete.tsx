@@ -3,7 +3,8 @@ import { Link, useNavigate } from 'react-router-dom';
 import { 
   Search, BookOpen, Award, Users, TrendingUp, Filter, Grid, List, Eye,
   Music, Brain, Play, Headphones, CheckCircle, Sparkles, ArrowRight,
-  Volume2, Gamepad2, Maximize2, Star, Target, Image, FileText, AlertTriangle
+  Volume2, Gamepad2, Maximize2, Star, Target, Image, FileText, AlertTriangle,
+  BarChart3
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -368,23 +369,35 @@ export default function EdnComplete() {
               </Select>
             </div>
 
-            <div className="flex gap-1 border rounded-md">
+            <div className="flex gap-2">
               <Button
-                variant={viewMode === 'grid' ? 'default' : 'ghost'}
+                variant="outline"
                 size="sm"
-                onClick={() => setViewMode('grid')}
-                className="rounded-r-none"
+                onClick={() => navigate('/learning-dashboard')}
+                className="flex items-center gap-2"
               >
-                <Grid className="h-4 w-4" />
+                <BarChart3 className="h-4 w-4" />
+                Analytics
               </Button>
-              <Button
-                variant={viewMode === 'list' ? 'default' : 'ghost'}
-                size="sm"
-                onClick={() => setViewMode('list')}
-                className="rounded-l-none"
-              >
-                <List className="h-4 w-4" />
-              </Button>
+              
+              <div className="flex gap-1 border rounded-md">
+                <Button
+                  variant={viewMode === 'grid' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setViewMode('grid')}
+                  className="rounded-r-none"
+                >
+                  <Grid className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant={viewMode === 'list' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setViewMode('list')}
+                  className="rounded-l-none"
+                >
+                  <List className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </div>
         </div>
