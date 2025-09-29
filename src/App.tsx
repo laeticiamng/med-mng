@@ -2,6 +2,7 @@ import React, { Suspense, lazy, useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { HelmetProvider } from "react-helmet-async";
 import { HelpButton } from "@/components/onboarding/HelpButton";
 import { AccessibilityProvider } from "@/components/accessibility/AccessibilityProvider";
 import { ToastProvider } from "@/components/feedback/ToastProvider";
@@ -99,13 +100,14 @@ const App = () => {
   return (
     <GlobalStateProvider>
       <QueryClientProvider client={queryClient}>
-        <AccessibilityProvider>
-          <ViewportProvider>
-            <LanguageProvider>
-              <GlobalAudioProvider>
-                <AuthProvider>
-                  <ToastProvider>
-                    <TooltipProvider>
+        <HelmetProvider>
+          <AccessibilityProvider>
+            <ViewportProvider>
+              <LanguageProvider>
+                <GlobalAudioProvider>
+                  <AuthProvider>
+                    <ToastProvider>
+                      <TooltipProvider>
                      <BrowserRouter>
                        <SkipLinks />
                        <div id="app-root" className="min-h-screen">
@@ -210,7 +212,7 @@ const App = () => {
                       </div>
                       <Toaster />
                       <Sonner />
-                    </BrowserRouter>
+                     </BrowserRouter>
                   </TooltipProvider>
                 </ToastProvider>
               </AuthProvider>
@@ -218,6 +220,7 @@ const App = () => {
           </LanguageProvider>
         </ViewportProvider>
       </AccessibilityProvider>
+    </HelmetProvider>
     </QueryClientProvider>
   </GlobalStateProvider>
   );
