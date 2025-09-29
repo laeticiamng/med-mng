@@ -1,4 +1,3 @@
-
 import React, { Suspense, lazy } from "react";
 import { Button } from "@/components/ui/button";
 import { PremiumBackground } from "@/components/ui/premium-background";
@@ -10,130 +9,29 @@ import { TranslatedText } from "@/components/TranslatedText";
 import { WelcomeDashboard } from "@/components/welcome/WelcomeDashboard";
 
 // ⚡ LAZY LOADING - Charger les composants lourds seulement quand nécessaire
-const MngPresentationBrief = lazy(() => import("@/components/MngPresentationBrief").then(module => ({ default: module.MngPresentationBrief })));
+const MngPresentationBrief = lazy(() => import("@/components/MngPresentationBrief").then(module => ({
+  default: module.MngPresentationBrief
+})));
 const MainSections = lazy(() => import("@/components/MainSections"));
-const MusicGenerationSection = lazy(() => import("@/components/MusicGenerationSection").then(module => ({ default: module.MusicGenerationSection })));
-const AppFooter = lazy(() => import("@/components/AppFooter").then(module => ({ default: module.AppFooter })));
+const MusicGenerationSection = lazy(() => import("@/components/MusicGenerationSection").then(module => ({
+  default: module.MusicGenerationSection
+})));
+const AppFooter = lazy(() => import("@/components/AppFooter").then(module => ({
+  default: module.AppFooter
+})));
 
 // Composant de loading léger
-const LazyLoadSpinner = () => (
-  <div className="flex justify-center items-center py-8">
+const LazyLoadSpinner = () => <div className="flex justify-center items-center py-8">
     <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-  </div>
-);
-
+  </div>;
 const Index = () => {
   const navigate = useNavigate();
   const isAdmin = localStorage.getItem('isAdmin') === 'true';
-
-  return (
-    <PremiumBackground>
+  return <PremiumBackground>
       
       {/* Header premium avec effet glassmorphism */}
       <div className="sticky top-0 z-50 bg-white/70 backdrop-blur-xl border-b border-white/20 shadow-lg shadow-black/5">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex justify-between items-center">
-            {/* Logo premium */}
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 via-purple-600 to-indigo-700 rounded-xl shadow-lg flex items-center justify-center">
-                <Sparkles className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <span className="font-bold text-2xl bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900 bg-clip-text text-transparent">
-                  MED MNG
-                </span>
-                <div className="text-xs text-gray-500 font-medium">Premium Platform</div>
-              </div>
-            </div>
-            
-            {/* Navigation premium */}
-            <div className="flex items-center gap-3">
-              <PremiumButton
-                variant="glass"
-                size="sm"
-                onClick={() => navigate('/generator')}
-                className="hidden md:inline-flex"
-              >
-                <Music className="h-4 w-4 mr-2" />
-                <TranslatedText text="Générateur" />
-              </PremiumButton>
-              
-              <PremiumButton
-                variant="glass"
-                size="sm"
-                onClick={() => navigate('/edn-complete')}
-                className="hidden md:inline-flex"
-              >
-                <Brain className="h-4 w-4 mr-2" />
-                <TranslatedText text="Base EDN" />
-              </PremiumButton>
-              
-              <PremiumButton
-                variant="glass"
-                size="sm"
-                onClick={() => navigate('/chat')}
-                className="hidden sm:inline-flex"
-              >
-                <MessageSquare className="h-4 w-4 mr-2" />
-                <TranslatedText text="Chat IA" />
-              </PremiumButton>
-              
-              {isAdmin && (
-                <PremiumButton
-                  variant="glass"
-                  size="sm"
-                  onClick={() => navigate('/admin/import')}
-                  className="hidden lg:inline-flex"
-                >
-                  <BarChart3 className="h-4 w-4 mr-2" />
-                  <TranslatedText text="Admin Import" />
-                </PremiumButton>
-               )}
-               
-               {isAdmin && (
-                 <PremiumButton
-                   variant="glass"
-                   size="sm"
-                   onClick={() => navigate('/admin-panel')}
-                   className="hidden lg:inline-flex"
-                 >
-                   <Settings className="h-4 w-4 mr-2" />
-                   <TranslatedText text="Admin Panel" />
-                 </PremiumButton>
-               )}
-               
-               {isAdmin && (
-                 <PremiumButton
-                   variant="glass"
-                   size="sm"
-                   onClick={() => navigate('/admin/audit')}
-                   className="hidden xl:inline-flex"
-                 >
-                   <BarChart3 className="h-4 w-4 mr-2" />
-                   <TranslatedText text="Audit" />
-                </PremiumButton>
-              )}
-              
-              <PremiumButton
-                variant="secondary"
-                size="sm"
-                onClick={() => navigate('/med-mng/pricing')}
-              >
-                <CreditCard className="h-4 w-4 mr-2" />
-                <TranslatedText text="Tarifs" />
-              </PremiumButton>
-              
-              <PremiumButton
-                variant="primary"
-                size="sm"
-                onClick={() => navigate('/med-mng/login')}
-              >
-                <LogIn className="h-4 w-4 mr-2" />
-                <TranslatedText text="Connexion" />
-              </PremiumButton>
-            </div>
-          </div>
-        </div>
+        
       </div>
 
       {/* Contenu principal avec design premium */}
@@ -154,19 +52,11 @@ const Index = () => {
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <PremiumButton
-                variant="primary"
-                size="xl"
-                onClick={() => navigate('/med-mng/pricing')}
-              >
+              <PremiumButton variant="primary" size="xl" onClick={() => navigate('/med-mng/pricing')}>
                 <BookOpen className="h-6 w-6 mr-3" />
                 <TranslatedText text="Découvrir MED-MNG" />
               </PremiumButton>
-              <PremiumButton
-                variant="glass"
-                size="lg"
-                onClick={() => navigate('/generator')}
-              >
+              <PremiumButton variant="glass" size="lg" onClick={() => navigate('/generator')}>
                 <Music className="h-5 w-5 mr-2" />
                 <TranslatedText text="Générateur Musical" />
               </PremiumButton>
@@ -355,7 +245,9 @@ const Index = () => {
         {/* Section Bibliothèque Musicale - Nouveau composant */}
         <Suspense fallback={<LazyLoadSpinner />}>
           <div className="pb-20">
-            {React.createElement(React.lazy(() => import('@/components/music/MusicLibrary').then(module => ({ default: module.MusicLibrary }))))}
+            {React.createElement(React.lazy(() => import('@/components/music/MusicLibrary').then(module => ({
+            default: module.MusicLibrary
+          }))))}
           </div>
         </Suspense>
         
@@ -380,21 +272,12 @@ const Index = () => {
       </div>
 
       {/* Admin Audit Button premium */}
-      {isAdmin && (
-        <div className="fixed bottom-6 right-6 z-50">
-          <PremiumButton
-            variant="glass"
-            size="md"
-            onClick={() => navigate('/audit-general')}
-            className="shadow-2xl shadow-black/20"
-          >
+      {isAdmin && <div className="fixed bottom-6 right-6 z-50">
+          <PremiumButton variant="glass" size="md" onClick={() => navigate('/audit-general')} className="shadow-2xl shadow-black/20">
             <BarChart3 className="h-5 w-5 mr-2" />
             <span className="font-semibold">Audit EDN</span>
           </PremiumButton>
-        </div>
-      )}
-    </PremiumBackground>
-  );
+        </div>}
+    </PremiumBackground>;
 };
-
 export default Index;
