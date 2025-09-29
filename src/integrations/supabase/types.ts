@@ -9174,6 +9174,14 @@ export type Database = {
         Args:
           | { event_details?: Json; event_type: string }
           | {
+              p_action: string
+              p_finding_type?: string
+              p_metadata?: Json
+              p_record_id?: string
+              p_severity?: string
+              p_table_name?: string
+            }
+          | {
               p_event_details?: Json
               p_event_type: string
               p_ip_address?: unknown
