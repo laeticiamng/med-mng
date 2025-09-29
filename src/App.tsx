@@ -9,7 +9,7 @@ import { ViewportProvider } from "@/components/responsive/ViewportProvider";
 import { SkipLinks } from "@/components/navigation/SkipLinks";
 import { HelpCenter } from "@/components/help/HelpCenter";
 import { NotificationSystem } from "@/components/advanced/NotificationSystem";
-import { KeyboardShortcuts } from "@/components/shortcuts/KeyboardShortcuts";
+import { KeyboardShortcuts } from "@/components/advanced/KeyboardShortcuts";
 import { Bell } from 'lucide-react';
 import { GlobalStateProvider } from "@/hooks/useGlobalState";
 import { NotificationProvider } from '@/contexts/NotificationContext';
