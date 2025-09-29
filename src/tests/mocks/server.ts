@@ -95,7 +95,7 @@ const handlers = [
     const body = await request.json() as { email: string; password: string };
     
     if (body.email === 'test@example.com' && body.password === 'password') {
-      return HttpResponse.json<APIResponse<{ user: UserProfile; session: any }>>({
+      return HttpResponse.json({
         success: true,
         data: {
           user: mockUser,
@@ -104,7 +104,7 @@ const handlers = [
       });
     }
     
-    return HttpResponse.json<APIResponse>({
+    return HttpResponse.json({
       success: false,
       error: {
         code: 'INVALID_CREDENTIALS',
@@ -117,7 +117,7 @@ const handlers = [
   http.post('*/auth/signup', async ({ request }) => {
     const body = await request.json() as { email: string; password: string; name?: string };
     
-    return HttpResponse.json<APIResponse<{ user: UserProfile }>>({
+    return HttpResponse.json({
       success: true,
       data: {
         user: { ...mockUser, email: body.email, name: body.name || 'New User' }
@@ -126,7 +126,7 @@ const handlers = [
   }),
 
   http.post('*/auth/signout', () => {
-    return HttpResponse.json<APIResponse>({ success: true });
+    return HttpResponse.json({ success: true });
   }),
 
   // 👤 USER ENDPOINTS
@@ -252,7 +252,7 @@ const handlers = [
     const url = new URL(request.url);
     const query = url.searchParams.get('q') || '';
     
-    return HttpResponse.json<APIResponse>({
+    return HttpResponse.json({
       success: true,
       data: {
         items: query ? [mockEDNItem] : [],
@@ -274,7 +274,7 @@ const handlers = [
 
   // ❌ ERROR SIMULATION
   http.get('*/test/error', () => {
-    return HttpResponse.json<APIResponse>({
+    return HttpResponse.json({
       success: false,
       error: {
         code: 'TEST_ERROR',
@@ -288,7 +288,7 @@ const handlers = [
   http.all('*', ({ request }) => {
     console.warn(`🚨 Unhandled request: ${request.method} ${request.url}`);
     
-    return HttpResponse.json<APIResponse>({
+    return HttpResponse.json({
       success: false,
       error: {
         code: 'NOT_IMPLEMENTED',
