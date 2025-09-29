@@ -4,7 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { HelmetProvider } from "react-helmet-async";
 import { HelpButton } from "@/components/onboarding/HelpButton";
-import { AccessibilityProvider } from "@/components/accessibility/AccessibilityProvider";
+import { AccessibilityProvider } from "@/components/ui/AccessibilityProvider";
 import { ToastProvider } from "@/components/feedback/ToastProvider";
 import { ViewportProvider } from "@/components/responsive/ViewportProvider";
 import { SkipLinks } from "@/components/navigation/SkipLinks";
@@ -72,11 +72,13 @@ import EdnComplete from "./pages/EdnComplete";
 import LearningDashboard from "./pages/LearningDashboard";
 import PlatformStatusPage from "./pages/PlatformStatusPage";
 
-// Nouvelles pages complètes
+// Nouvelles pages complètes avec lazy loading
 const Statistics = lazy(() => import("./pages/Statistics"));
 const StudyPlanner = lazy(() => import("./pages/StudyPlanner"));
 const CommunityHub = lazy(() => import("./pages/CommunityHub"));
 const ModernHomepage = lazy(() => import("./pages/ModernHomepage"));
+const Achievements = lazy(() => import("./pages/Achievements"));
+const Favorites = lazy(() => import("./pages/Favorites"));
 
 // ⚡ OPTIMISATION QueryClient - Configuration pour chargement rapide
 const queryClient = new QueryClient({
@@ -119,128 +121,130 @@ const App = () => {
                         <TooltipProvider>
                          <BrowserRouter>
                            <SkipLinks />
-                           <div id="app-root" className="min-h-screen">
+                           <div id="app-root" className="min-h-screen bg-background">
                              <MainNavigation />
-                             <main id="main-content" tabIndex={-1}>
-                          <Routes>
-                           <Route path="/dashboard" element={<Dashboard />} />
-                           <Route path="/learning-dashboard" element={<LearningDashboard />} />
-                           <Route path="/platform-status" element={<PlatformStatusPage />} />
-                           <Route path="/system-management" element={<SystemManagement />} />
-                          <Route path="/platform-settings" element={<PlatformSettings />} />
-                          <Route path="/optimized" element={<OptimizedIndex />} />
-                          <Route path="/" element={<Index />} />
-                          <Route path="/generator" element={<Generator />} />
-                          {/* EDN Interface Unifiée - toutes les fonctionnalités fusionnées */}
-                          <Route path="/edn" element={<EdnComplete />} />
-                          <Route path="/edn-complete" element={<EdnComplete />} />
-                          <Route path="/edn-complete/:slug" element={<EdnComplete />} />
-                          <Route path="/edn/:slug" element={<EdnComplete />} />
-                          
-                          {/* Redirections vers l'interface unifiée */}
-                          <Route path="/edn/:slug/immersive" element={<EdnImmersive />} />
-                          <Route path="/edn/music-library" element={<Navigate to="/edn-complete" replace />} />
-                          <Route path="/ecos" element={<EcosIndex />} />
-                          <Route path="/ecos/:scenarioId" element={<EcosScenario />} />
-                          
-                          {/* Unified audit page */}
-                          <Route path="/audit" element={<AuditComplete />} />
-                          <Route path="/audit-completeness" element={<AuditCompleteness />} />
-                         
-                          {/* Redirect all old audit routes to new unified page */}
-                          <Route path="/audit-general" element={<Navigate to="/audit" replace />} />
-                          <Route path="/audit-edn" element={<Navigate to="/audit" replace />} />
-                          <Route path="/audit-unified" element={<Navigate to="/audit" replace />} />
-                          <Route path="/audit-ic1" element={<Navigate to="/audit" replace />} />
-                          <Route path="/audit-ic2" element={<Navigate to="/audit" replace />} />
-                          <Route path="/audit-ic4" element={<Navigate to="/audit" replace />} />
-                          <Route path="/audit-complete" element={<Navigate to="/audit" replace />} />
-                          
-                          <Route path="/mng-method" element={<MngMethod />} />
-                          <Route path="/mentions-legales" element={<MentionsLegales />} />
-                          <Route path="/politique-confidentialite" element={<PolitiqueConfidentialite />} />
-                          <Route path="/med-mng/login" element={<MedMngLogin />} />
-                          <Route path="/med-mng/signup" element={<MedMngSignup />} />
-                          <Route path="/med-mng/pricing" element={<MedMngPricing />} />
-                          <Route path="/med-mng/subscribe/:planId" element={<ProtectedRoute><MedMngSubscribe /></ProtectedRoute>} />
-                          <Route path="/med-mng/success" element={<ProtectedRoute><MedMngSuccess /></ProtectedRoute>} />
-                          <Route path="/med-mng/create" element={<ProtectedRoute><MedMngCreate /></ProtectedRoute>} />
-                          <Route path="/med-mng/library" element={<ProtectedRoute><MedMngLibrary /></ProtectedRoute>} />
-                          <Route path="/med-mng/profile" element={<ProtectedRoute><MedMngProfile /></ProtectedRoute>} />
-                          <Route path="/med-mng/player/:songId" element={<ProtectedRoute><MedMngPlayer /></ProtectedRoute>} />
-                          <Route path="/med-mng/playlists" element={<ProtectedRoute><PlaylistManager /></ProtectedRoute>} />
-                          <Route path="/med-mng/playlists/:playlistId" element={<ProtectedRoute><PlaylistDetail /></ProtectedRoute>} />
-                          <Route path="/med-mng/analytics" element={<ProtectedRoute><MusicAnalytics /></ProtectedRoute>} />
-                          <Route path="/chat" element={<MedChat />} />
-                           <Route path="/admin/import" element={<AdminImport />} />
-                           <Route path="/admin/audit" element={<AdminAudit />} />
-                           <Route path="/admin/extract-edn" element={<AdminExtractEdn />} />
-                           <Route path="/admin/extract-ecos" element={<AdminExtractEcos />} />
-                           <Route path="/admin/extract-objectifs" element={<EdnObjectifsExtractionPage />} />
-                           <Route path="/admin/oic-quality" element={<OicDataQualityManager />} />
-                           <Route path="/admin/complete" element={<AdminCompleteProcess />} />
-                           <Route path="/admin-panel" element={<AdminPanel />} /> {/* Panel admin unifié Point X */}
-                           <Route path="/test-subscriptions" element={<SubscriptionTest />} />
-                           <Route path="/library" element={<LibraryPage />} />
-                           <Route path="/test-extraction" element={<TestExtraction />} />
-                           
-                           {/* Nouvelles pages complètes */}
-                           <Route path="/statistics" element={<Suspense fallback={<div>Chargement...</div>}><Statistics /></Suspense>} />
-                           <Route path="/study-planner" element={<Suspense fallback={<div>Chargement...</div>}><StudyPlanner /></Suspense>} />
-                           <Route path="/community" element={<Suspense fallback={<div>Chargement...</div>}><CommunityHub /></Suspense>} />
-                           <Route path="/homepage" element={<Suspense fallback={<div>Chargement...</div>}><ModernHomepage /></Suspense>} />
-                           
-                           <Route path="*" element={<NotFound />} />
-                        </Routes>
-                      </main>
-                       
-                       {/* Global UI Components - LAZY LOADED */}
-                       <Suspense fallback={null}>
-                         <DynamicOnboarding />
-                       </Suspense>
-                       <HelpButton />
-                       
-                       {/* Nouveaux Composants Globaux Intégrés */}
-                       <GlobalControls 
-                         onOpenNotifications={() => setIsNotificationCenterOpen(true)}
-                         onOpenHelp={() => setIsHelpCenterOpen(true)}
-                         notificationCount={3}
-                       />
-                       <QuickNavigation />
-                       <NotificationCenter 
-                         isOpen={isNotificationCenterOpen} 
-                         onClose={() => setIsNotificationCenterOpen(false)} 
-                       />
-                        <HelpCenter 
-                          isOpen={isHelpCenterOpen} 
-                          onClose={() => setIsHelpCenterOpen(false)} 
-                        />
-                        
-                        {/* Raccourcis Clavier Globaux */}
-                        <KeyboardShortcuts />
-                        
-                        {/* Écran de Bienvenue */}
-                        {showWelcome && (
-                          <WelcomeScreen onComplete={() => setShowWelcome(false)} />
-                        )}
-                        
-                        {/* Moniteur de Performance */}
-                        <PerformanceMonitor isMinimal={true} />
-                      </div>
-                      <Toaster />
-                      <Sonner />
-                     </BrowserRouter>
-                  </TooltipProvider>
-                   </ToastProvider>
-                 </NotificationProvider>
-               </AuthProvider>
-             </GlobalAudioProvider>
-           </LanguageProvider>
-         </ViewportProvider>
-       </AccessibilityProvider>
-     </HelmetProvider>
-     </QueryClientProvider>
-   </GlobalStateProvider>
+                             <main id="main-content" tabIndex={-1} className="pt-16">
+                               <Routes>
+                                <Route path="/dashboard" element={<Dashboard />} />
+                                <Route path="/learning-dashboard" element={<LearningDashboard />} />
+                                <Route path="/platform-status" element={<PlatformStatusPage />} />
+                                <Route path="/system-management" element={<SystemManagement />} />
+                               <Route path="/platform-settings" element={<PlatformSettings />} />
+                               <Route path="/optimized" element={<OptimizedIndex />} />
+                               <Route path="/" element={<Index />} />
+                               <Route path="/generator" element={<Generator />} />
+                               {/* EDN Interface Unifiée - toutes les fonctionnalités fusionnées */}
+                               <Route path="/edn" element={<EdnComplete />} />
+                               <Route path="/edn-complete" element={<EdnComplete />} />
+                               <Route path="/edn-complete/:slug" element={<EdnComplete />} />
+                               <Route path="/edn/:slug" element={<EdnComplete />} />
+                               
+                               {/* Redirections vers l'interface unifiée */}
+                               <Route path="/edn/:slug/immersive" element={<EdnImmersive />} />
+                               <Route path="/edn/music-library" element={<Navigate to="/edn-complete" replace />} />
+                               <Route path="/ecos" element={<EcosIndex />} />
+                               <Route path="/ecos/:scenarioId" element={<EcosScenario />} />
+                               
+                               {/* Unified audit page */}
+                               <Route path="/audit" element={<AuditComplete />} />
+                               <Route path="/audit-completeness" element={<AuditCompleteness />} />
+                              
+                               {/* Redirect all old audit routes to new unified page */}
+                               <Route path="/audit-general" element={<Navigate to="/audit" replace />} />
+                               <Route path="/audit-edn" element={<Navigate to="/audit" replace />} />
+                               <Route path="/audit-unified" element={<Navigate to="/audit" replace />} />
+                               <Route path="/audit-ic1" element={<Navigate to="/audit" replace />} />
+                               <Route path="/audit-ic2" element={<Navigate to="/audit" replace />} />
+                               <Route path="/audit-ic4" element={<Navigate to="/audit" replace />} />
+                               <Route path="/audit-complete" element={<Navigate to="/audit" replace />} />
+                               
+                               <Route path="/mng-method" element={<MngMethod />} />
+                               <Route path="/mentions-legales" element={<MentionsLegales />} />
+                               <Route path="/politique-confidentialite" element={<PolitiqueConfidentialite />} />
+                               <Route path="/med-mng/login" element={<MedMngLogin />} />
+                               <Route path="/med-mng/signup" element={<MedMngSignup />} />
+                               <Route path="/med-mng/pricing" element={<MedMngPricing />} />
+                               <Route path="/med-mng/subscribe/:planId" element={<ProtectedRoute><MedMngSubscribe /></ProtectedRoute>} />
+                               <Route path="/med-mng/success" element={<ProtectedRoute><MedMngSuccess /></ProtectedRoute>} />
+                               <Route path="/med-mng/create" element={<ProtectedRoute><MedMngCreate /></ProtectedRoute>} />
+                               <Route path="/med-mng/library" element={<ProtectedRoute><MedMngLibrary /></ProtectedRoute>} />
+                               <Route path="/med-mng/profile" element={<ProtectedRoute><MedMngProfile /></ProtectedRoute>} />
+                               <Route path="/med-mng/player/:songId" element={<ProtectedRoute><MedMngPlayer /></ProtectedRoute>} />
+                               <Route path="/med-mng/playlists" element={<ProtectedRoute><PlaylistManager /></ProtectedRoute>} />
+                               <Route path="/med-mng/playlists/:playlistId" element={<ProtectedRoute><PlaylistDetail /></ProtectedRoute>} />
+                               <Route path="/med-mng/analytics" element={<ProtectedRoute><MusicAnalytics /></ProtectedRoute>} />
+                               <Route path="/chat" element={<MedChat />} />
+                                <Route path="/admin/import" element={<AdminImport />} />
+                                <Route path="/admin/audit" element={<AdminAudit />} />
+                                <Route path="/admin/extract-edn" element={<AdminExtractEdn />} />
+                                <Route path="/admin/extract-ecos" element={<AdminExtractEcos />} />
+                                <Route path="/admin/extract-objectifs" element={<EdnObjectifsExtractionPage />} />
+                                <Route path="/admin/oic-quality" element={<OicDataQualityManager />} />
+                                <Route path="/admin/complete" element={<AdminCompleteProcess />} />
+                                <Route path="/admin-panel" element={<AdminPanel />} /> {/* Panel admin unifié Point X */}
+                                <Route path="/test-subscriptions" element={<SubscriptionTest />} />
+                                <Route path="/library" element={<LibraryPage />} />
+                                <Route path="/test-extraction" element={<TestExtraction />} />
+                                
+                                {/* Nouvelles pages complètes avec lazy loading */}
+                                <Route path="/statistics" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Statistics /></Suspense>} />
+                                <Route path="/study-planner" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><StudyPlanner /></Suspense>} />
+                                <Route path="/community" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CommunityHub /></Suspense>} />
+                                <Route path="/homepage" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><ModernHomepage /></Suspense>} />
+                                <Route path="/achievements" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Achievements /></Suspense>} />
+                                <Route path="/favorites" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Favorites /></Suspense>} />
+                                
+                                <Route path="*" element={<NotFound />} />
+                             </Routes>
+                           </main>
+                            
+                            {/* Global UI Components - LAZY LOADED */}
+                            <Suspense fallback={null}>
+                              <DynamicOnboarding />
+                            </Suspense>
+                            <HelpButton />
+                            
+                            {/* Nouveaux Composants Globaux Intégrés */}
+                            <GlobalControls 
+                              onOpenNotifications={() => setIsNotificationCenterOpen(true)}
+                              onOpenHelp={() => setIsHelpCenterOpen(true)}
+                              notificationCount={3}
+                            />
+                            <QuickNavigation />
+                            <NotificationCenter 
+                              isOpen={isNotificationCenterOpen} 
+                              onClose={() => setIsNotificationCenterOpen(false)} 
+                            />
+                             <HelpCenter 
+                               isOpen={isHelpCenterOpen} 
+                               onClose={() => setIsHelpCenterOpen(false)} 
+                             />
+                             
+                             {/* Raccourcis Clavier Globaux */}
+                             <KeyboardShortcuts />
+                             
+                             {/* Écran de Bienvenue */}
+                             {showWelcome && (
+                               <WelcomeScreen onComplete={() => setShowWelcome(false)} />
+                             )}
+                             
+                             {/* Moniteur de Performance */}
+                             <PerformanceMonitor isMinimal={true} />
+                           </div>
+                           <Toaster />
+                           <Sonner />
+                          </BrowserRouter>
+                       </TooltipProvider>
+                     </ToastProvider>
+                   </NotificationProvider>
+                 </AuthProvider>
+               </GlobalAudioProvider>
+             </LanguageProvider>
+           </ViewportProvider>
+         </AccessibilityProvider>
+       </HelmetProvider>
+       </QueryClientProvider>
+     </GlobalStateProvider>
   );
 };
 

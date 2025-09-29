@@ -14,6 +14,7 @@ import {
   DropdownMenuSeparator
 } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/components/med-mng/AuthProvider';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { useState } from 'react';
 
 interface NavItem {
@@ -91,6 +92,9 @@ export const MainNavigation: React.FC = () => {
 
           {/* Actions utilisateur */}
           <div className="flex items-center space-x-3">
+            {/* Toggle thème */}
+            <ThemeToggle />
+            
             {/* Notifications */}
             <Button variant="ghost" size="sm" className="relative">
               <Bell className="w-4 h-4" />
