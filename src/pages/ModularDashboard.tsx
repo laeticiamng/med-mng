@@ -49,6 +49,38 @@ export default function ModularDashboard() {
       icon: MessageSquare,
       color: 'from-green-500 to-green-600',
       component: AIAssistantHub
+    },
+    {
+      id: 'analytics-realtime',
+      name: 'Analytics Temps Réel',
+      description: 'Données en direct et métriques avancées',
+      icon: TrendingUp,
+      color: 'from-orange-500 to-orange-600',
+      component: () => import('@/components/analytics/RealTimeAnalytics').then(m => m.RealTimeAnalytics)
+    },
+    {
+      id: 'profile',
+      name: 'Profil Utilisateur',
+      description: 'Gestion complète du profil et préférences',
+      icon: Settings,
+      color: 'from-gray-500 to-gray-600',
+      component: () => import('@/components/profile/UserProfileManager').then(m => m.UserProfileManager)
+    },
+    {
+      id: 'achievements',
+      name: 'Système de Récompenses',
+      description: 'Achievements et progression gamifiée',
+      icon: Brain,
+      color: 'from-yellow-500 to-yellow-600',
+      component: () => import('@/components/gamification/AchievementSystem').then(m => m.AchievementSystem)
+    },
+    {
+      id: 'community',
+      name: 'Hub Communautaire',
+      description: 'Interactions sociales et groupes d\'étude',
+      icon: Users,
+      color: 'from-pink-500 to-pink-600',
+      component: () => import('@/components/social/CommunityHub').then(m => m.CommunityHub)
     }
   ];
 
