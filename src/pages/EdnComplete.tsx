@@ -88,7 +88,8 @@ export default function EdnComplete() {
           id, item_code, title, subtitle, slug, 
           paroles_rang_a, paroles_rang_b, paroles_rang_ab,
           tableau_rang_a, tableau_rang_b, scene_immersive,
-          quiz_questions, updated_at
+          quiz_questions, updated_at,
+          competences_count_rang_a, competences_count_rang_b, competences_count_total
         `)
         .order('item_code');
 
@@ -107,7 +108,80 @@ export default function EdnComplete() {
         .select('id, item_code, title, specialite, completeness_score, is_validated')
         .order('item_code');
 
-      setImmersiveItems(immersiveData || []);
+      // Enrichir les données avec les compétences OIC
+      const itemsWithOIC = await Promise.all((immersiveData || []).map(async (item) => {
+        try {
+          // Récupérer les compétences OIC pour les rangs A et B
+          const itemNumber = item.item_code.replace('IC-', '').padStart(3, '0');
+          
+          const { data: oicRangA } = await supabase
+            .from('backup_oic_competences')
+            .select('objectif_id, intitule, description, rubrique')
+            .eq('item_parent', itemNumber)
+            .eq('rang', 'A');
+            
+          const { data: oicRangB } = await supabase
+            .from('backup_oic_competences')
+            .select('objectif_id, intitule, description, rubrique')
+            .eq('item_parent', itemNumber)
+            .eq('rang', 'B');
+
+          // Enrichir tableau_rang_a avec les compétences OIC si les sections sont vides
+          let enrichedTableauA = item.tableau_rang_a;
+          const tableauA = typeof item.tableau_rang_a === 'object' && item.tableau_rang_a !== null 
+            ? item.tableau_rang_a as any : {};
+            
+          if (oicRangA && oicRangA.length > 0 && (!tableauA.sections || tableauA.sections.length === 0)) {
+            enrichedTableauA = {
+              ...tableauA,
+              title: `${item.item_code} Rang A - ${item.title}`,
+              sections: [{
+                title: `Compétences OIC Rang A`,
+                competences: oicRangA.map(comp => ({
+                  competence_id: comp.objectif_id,
+                  concept: comp.intitule,
+                  definition: comp.description,
+                  rubrique: comp.rubrique
+                }))
+              }]
+            };
+          }
+
+          // Enrichir tableau_rang_b avec les compétences OIC si les sections sont vides
+          let enrichedTableauB = item.tableau_rang_b;
+          const tableauB = typeof item.tableau_rang_b === 'object' && item.tableau_rang_b !== null 
+            ? item.tableau_rang_b as any : {};
+            
+          if (oicRangB && oicRangB.length > 0 && (!tableauB.sections || tableauB.sections.length === 0)) {
+            enrichedTableauB = {
+              ...tableauB,
+              title: `${item.item_code} Rang B - ${item.title}`,
+              sections: [{
+                title: `Compétences OIC Rang B`,
+                competences: oicRangB.map(comp => ({
+                  competence_id: comp.objectif_id,
+                  concept: comp.intitule,
+                  definition: comp.description,
+                  rubrique: comp.rubrique
+                }))
+              }]
+            };
+          }
+
+          return {
+            ...item,
+            tableau_rang_a: enrichedTableauA,
+            tableau_rang_b: enrichedTableauB,
+            competences_oic_rang_a: oicRangA,
+            competences_oic_rang_b: oicRangB
+          };
+        } catch (error) {
+          console.error(`Erreur enrichissement OIC pour ${item.item_code}:`, error);
+          return item;
+        }
+      }));
+
+      setImmersiveItems(itemsWithOIC);
       setCompleteItems(completeData || []);
       
       toast({
