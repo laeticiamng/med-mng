@@ -165,22 +165,49 @@ export function TableauxNavigator({
         </TabsContent>
       </Tabs>
 
-      {/* Statistiques en bas */}
-      <div className="grid grid-cols-2 gap-4 mt-6">
-        <div className="bg-card border rounded-lg p-4 text-center">
-          <div className="text-2xl font-bold text-blue-600">
-            {(tableauRangA?.sections?.length || 0) + (tableauRangB?.sections?.length || 0)}
+      {/* Statistiques améliorées */}
+      <div className="grid grid-cols-2 gap-4 mt-8">
+        <div className="bg-gradient-to-br from-background to-muted/30 border-0 shadow-sm rounded-xl p-6 text-center hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-center gap-3 mb-3">
+            <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+              <Book className="w-5 h-5 text-blue-600" />
+            </div>
+            <div className="text-2xl font-bold text-blue-600">
+              {(tableauRangA?.sections?.length || 0) + (tableauRangB?.sections?.length || 0)}
+            </div>
           </div>
-          <div className="text-sm text-foreground/60">Sections totales</div>
+          <div className="text-sm font-medium text-muted-foreground">Sections de connaissances</div>
+          <div className="text-xs text-muted-foreground mt-1">Rang A + Rang B</div>
         </div>
-        <div className="bg-card border rounded-lg p-4 text-center">
+        
+        <div className="bg-gradient-to-br from-background to-muted/30 border-0 shadow-sm rounded-xl p-6 text-center hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-center gap-3 mb-3">
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+              completeness.overall_complete ? 'bg-green-100' : 'bg-orange-100'
+            }`}>
+              {completeness.overall_complete ? (
+                <CheckCircle className="w-5 h-5 text-green-600" />
+              ) : (
+                <AlertTriangle className="w-5 h-5 text-orange-600" />
+              )}
+            </div>
+            <div className={`text-2xl font-bold ${
+              completeness.overall_complete ? 'text-green-600' : 'text-orange-600'
+            }`}>
+              {completeness.completeness_score}%
+            </div>
+          </div>
+          <div className="text-sm font-medium text-muted-foreground">Taux de complétude</div>
           <Badge 
-            variant={completeness.overall_complete ? "secondary" : "destructive"}
-            className="text-sm"
+            variant="outline"
+            className={`text-xs mt-2 ${
+              completeness.overall_complete 
+                ? 'border-green-200 text-green-700 bg-green-50' 
+                : 'border-orange-200 text-orange-700 bg-orange-50'
+            }`}
           >
-            {completeness.overall_complete ? "Complet" : "En cours"}
+            {completeness.overall_complete ? "Complet" : "En développement"}
           </Badge>
-          <div className="text-sm text-foreground/60 mt-1">État global</div>
         </div>
       </div>
     </div>

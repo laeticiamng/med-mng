@@ -79,54 +79,90 @@ export const WelcomeDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Statistiques principales */}
+      {/* Statistiques principales améliorées */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card className="text-center">
+        <Card className="text-center border-0 shadow-sm hover:shadow-md transition-shadow bg-gradient-to-br from-blue-50/50 to-blue-100/30">
           <CardContent className="pt-6">
-            <div className="text-2xl font-bold text-blue-600">{platformStats.contentItems}</div>
-            <div className="text-sm text-gray-600">Items EDN</div>
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <BookOpen className="w-5 h-5 text-blue-600" />
+              <div className="text-2xl font-bold text-blue-600">{platformStats.contentItems}</div>
+            </div>
+            <div className="text-sm font-medium text-muted-foreground">Items EDN</div>
+            <div className="text-xs text-blue-600 mt-1">Contenu complet</div>
           </CardContent>
         </Card>
-        <Card className="text-center">
+        
+        <Card className="text-center border-0 shadow-sm hover:shadow-md transition-shadow bg-gradient-to-br from-purple-50/50 to-purple-100/30">
           <CardContent className="pt-6">
-            <div className="text-2xl font-bold text-purple-600">{platformStats.totalUsers}</div>
-            <div className="text-sm text-gray-600">Utilisateurs</div>
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <Users className="w-5 h-5 text-purple-600" />
+              <div className="text-2xl font-bold text-purple-600">{platformStats.totalUsers}</div>
+            </div>
+            <div className="text-sm font-medium text-muted-foreground">Utilisateurs</div>
+            <div className="text-xs text-purple-600 mt-1">Communauté active</div>
           </CardContent>
         </Card>
-        <Card className="text-center">
+        
+        <Card className="text-center border-0 shadow-sm hover:shadow-md transition-shadow bg-gradient-to-br from-green-50/50 to-green-100/30">
           <CardContent className="pt-6">
-            <div className="text-2xl font-bold text-green-600">{platformStats.securityScore}</div>
-            <div className="text-sm text-gray-600">Sécurité</div>
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <Target className="w-5 h-5 text-green-600" />
+              <div className="text-2xl font-bold text-green-600">{platformStats.securityScore}</div>
+            </div>
+            <div className="text-sm font-medium text-muted-foreground">Sécurité</div>
+            <div className="text-xs text-green-600 mt-1">Niveau excellence</div>
           </CardContent>
         </Card>
-        <Card className="text-center">
+        
+        <Card className="text-center border-0 shadow-sm hover:shadow-md transition-shadow bg-gradient-to-br from-orange-50/50 to-orange-100/30">
           <CardContent className="pt-6">
-            <div className="text-2xl font-bold text-orange-600">{platformStats.uptime}</div>
-            <div className="text-sm text-gray-600">Disponibilité</div>
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <Award className="w-5 h-5 text-orange-600" />
+              <div className="text-2xl font-bold text-orange-600">{platformStats.uptime}</div>
+            </div>
+            <div className="text-sm font-medium text-muted-foreground">Disponibilité</div>
+            <div className="text-xs text-orange-600 mt-1">Service premium</div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Fonctionnalités principales */}
-      <div>
-        <h2 className="text-2xl font-bold text-center mb-6">Fonctionnalités Principales</h2>
+      {/* Fonctionnalités principales avec design amélioré */}
+      <div className="space-y-6">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-foreground mb-2">Fonctionnalités Principales</h2>
+          <p className="text-muted-foreground">Découvrez nos modules d'apprentissage interactifs</p>
+        </div>
+        
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {keyFeatures.map((feature, index) => (
-            <Card key={index} className="cursor-pointer hover:shadow-lg transition-shadow" onClick={feature.action}>
-              <CardHeader>
+            <Card 
+              key={index} 
+              className="cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all duration-300 border-0 bg-gradient-to-br from-background to-muted/30 group relative overflow-hidden"
+              onClick={feature.action}
+            >
+              {/* Indicateur visuel */}
+              <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-primary/60 to-primary/40 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              
+              <CardHeader className="pb-4">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-purple-500 rounded-lg flex items-center justify-center">
-                      <feature.icon className="w-5 h-5 text-white" />
+                  <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-lg">
+                      <feature.icon className="w-6 h-6 text-white" />
                     </div>
                     <div>
-                      <CardTitle className="text-lg">{feature.title}</CardTitle>
-                      <CardDescription>{feature.description}</CardDescription>
+                      <CardTitle className="text-lg font-bold group-hover:text-primary transition-colors">
+                        {feature.title}
+                      </CardTitle>
+                      <CardDescription className="text-sm leading-relaxed">
+                        {feature.description}
+                      </CardDescription>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
                     {feature.status === 'new' && (
-                      <Badge className="bg-green-100 text-green-800">Nouveau</Badge>
+                      <Badge className="bg-green-100/50 text-green-700 border-green-200 font-medium">
+                        Nouveau
+                      </Badge>
                     )}
                     {feature.status === 'complete' && (
                       <CheckCircle className="w-5 h-5 text-green-500" />
@@ -134,10 +170,13 @@ export const WelcomeDashboard: React.FC = () => {
                   </div>
                 </div>
               </CardHeader>
-              <CardContent>
+              
+              <CardContent className="pt-0">
                 <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">{feature.highlight}</span>
-                  <ArrowRight className="w-4 h-4 text-gray-400" />
+                  <div className="bg-primary/5 rounded-lg px-3 py-1 border border-primary/10">
+                    <span className="text-xs font-medium text-primary">{feature.highlight}</span>
+                  </div>
+                  <ArrowRight className="w-4 h-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
                 </div>
               </CardContent>
             </Card>

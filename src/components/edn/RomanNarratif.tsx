@@ -206,11 +206,18 @@ export const RomanNarratif: React.FC<RomanNarratifProps> = ({
           </div>
         </CardHeader>
         <CardContent className="p-6">
-          <div className="prose prose-lg max-w-none">
+          <div className="prose prose-lg max-w-none space-y-4">
             {currentChap.content.split('\n\n').map((paragraph, index) => (
-              <p key={index} className="mb-4 text-gray-700 leading-relaxed">
-                {paragraph}
-              </p>
+              <div key={index} className="p-4 bg-background/60 rounded-xl border-l-4 border-l-primary/30 hover:border-l-primary/60 transition-colors">
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+                    <span className="text-xs font-bold text-primary">{index + 1}</span>
+                  </div>
+                  <p className="text-foreground leading-relaxed font-medium">
+                    {paragraph}
+                  </p>
+                </div>
+              </div>
             ))}
           </div>
           
