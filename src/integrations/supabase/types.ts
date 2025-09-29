@@ -8582,6 +8582,51 @@ export type Database = {
           },
         ]
       }
+      user_preferences_extended: {
+        Row: {
+          auto_play: boolean
+          binaural_enabled: boolean
+          created_at: string
+          dark_mode: boolean
+          id: string
+          language: string
+          music_volume: number
+          notification_email: boolean
+          notification_push: boolean
+          study_reminders: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          auto_play?: boolean
+          binaural_enabled?: boolean
+          created_at?: string
+          dark_mode?: boolean
+          id?: string
+          language?: string
+          music_volume?: number
+          notification_email?: boolean
+          notification_push?: boolean
+          study_reminders?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          auto_play?: boolean
+          binaural_enabled?: boolean
+          created_at?: string
+          dark_mode?: boolean
+          id?: string
+          language?: string
+          music_volume?: number
+          notification_email?: boolean
+          notification_push?: boolean
+          study_reminders?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_privacy_preferences: {
         Row: {
           analytics_opt_in: boolean

@@ -5,6 +5,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AdvancedAnalyticsDashboard } from '@/components/analytics/AdvancedAnalyticsDashboard';
 import { AdvancedMusicGenerator } from '@/components/music/AdvancedMusicGenerator';
 import { AIAssistantHub } from '@/components/ai/AIAssistantHub';
+import { NotificationCenter } from '@/components/notifications/NotificationCenter';
+import { CollaborativeStudy } from '@/components/study/CollaborativeStudy';
+import { AdvancedMusicPlayer } from '@/components/music/AdvancedMusicPlayer';
 import { 
   BarChart3, 
   Music, 
@@ -172,6 +175,18 @@ export default function ModularDashboard() {
           
           <TabsContent value="assistant" className="mt-0">
             <AIAssistantHub />
+          </TabsContent>
+          
+          <TabsContent value="notifications" className="mt-0">
+            <NotificationCenter />
+          </TabsContent>
+          
+          <TabsContent value="study" className="mt-0">
+            <CollaborativeStudy />
+          </TabsContent>
+          
+          <TabsContent value="player" className="mt-0">
+            <AdvancedMusicPlayer />
           </TabsContent>
         </Tabs>
       </div>
