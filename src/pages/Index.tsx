@@ -13,9 +13,7 @@ const MngPresentationBrief = lazy(() => import("@/components/MngPresentationBrie
   default: module.MngPresentationBrief
 })));
 const MainSections = lazy(() => import("@/components/MainSections"));
-const MusicGenerationSection = lazy(() => import("@/components/MusicGenerationSection").then(module => ({
-  default: module.MusicGenerationSection
-})));
+const MusicGenerationSection = lazy(() => import("@/components/MusicGenerationSection"));
 const AppFooter = lazy(() => import("@/components/AppFooter").then(module => ({
   default: module.AppFooter
 })));

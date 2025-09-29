@@ -7,7 +7,7 @@ import { MusicGenerationFeatures } from '@/components/home/MusicGenerationFeatur
 import { MusicGenerationHowItWorks } from '@/components/home/MusicGenerationHowItWorks';
 import { MusicGenerationCTA } from '@/components/home/MusicGenerationCTA';
 
-export const MusicGenerationSection = () => {
+const MusicGenerationSection = () => {
   const { getRemainingGenerations, maxFreeGenerations } = useFreeTrialLimit();
   const remainingFree = getRemainingGenerations();
 
@@ -35,3 +35,5 @@ export const MusicGenerationSection = () => {
     </section>
   );
 };
+
+export default MusicGenerationSection;
