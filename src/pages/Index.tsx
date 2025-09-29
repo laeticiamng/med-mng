@@ -7,6 +7,7 @@ import { PremiumButton } from "@/components/ui/premium-button";
 import { useNavigate } from "react-router-dom";
 import { LogIn, CreditCard, BarChart3, Music, BookOpen, MessageSquare, Users, Zap, Target, Award, TrendingUp, Sparkles, Star, Wand2, Brain, Settings } from "lucide-react";
 import { TranslatedText } from "@/components/TranslatedText";
+import { WelcomeDashboard } from "@/components/welcome/WelcomeDashboard";
 
 // ⚡ LAZY LOADING - Charger les composants lourds seulement quand nécessaire
 const MngPresentationBrief = lazy(() => import("@/components/MngPresentationBrief").then(module => ({ default: module.MngPresentationBrief })));

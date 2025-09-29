@@ -67,6 +67,7 @@ import TestExtraction from "./pages/TestExtraction";
 import EdnImmersive from "./pages/EdnImmersive";
 import EdnComplete from "./pages/EdnComplete";
 import LearningDashboard from "./pages/LearningDashboard";
+import PlatformStatusPage from "./pages/PlatformStatusPage";
 
 // ⚡ OPTIMISATION QueryClient - Configuration pour chargement rapide
 const queryClient = new QueryClient({
@@ -105,13 +106,14 @@ const App = () => {
                 <AuthProvider>
                   <ToastProvider>
                     <TooltipProvider>
-                    <BrowserRouter>
-                      <SkipLinks />
-                      <div id="app-root" className="min-h-screen">
-                        <main id="main-content" tabIndex={-1}>
+                     <BrowserRouter>
+                       <SkipLinks />
+                       <div id="app-root" className="min-h-screen">
+                         <main id="main-content" tabIndex={-1}>
                           <Routes>
                            <Route path="/dashboard" element={<Dashboard />} />
                            <Route path="/learning-dashboard" element={<LearningDashboard />} />
+                           <Route path="/platform-status" element={<PlatformStatusPage />} />
                            <Route path="/system-management" element={<SystemManagement />} />
                           <Route path="/platform-settings" element={<PlatformSettings />} />
                           <Route path="/optimized" element={<OptimizedIndex />} />
