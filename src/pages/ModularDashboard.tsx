@@ -8,6 +8,9 @@ import { AIAssistantHub } from '@/components/ai/AIAssistantHub';
 import { NotificationCenter } from '@/components/notifications/NotificationCenter';
 import { CollaborativeStudy } from '@/components/study/CollaborativeStudy';
 import { AdvancedMusicPlayer } from '@/components/music/AdvancedMusicPlayer';
+import { StudyPlanManager } from '@/components/study/StudyPlanManager';
+import { StudyCalendar } from '@/components/calendar/StudyCalendar';
+import { SystemSettings } from '@/components/settings/SystemSettings';
 import { 
   BarChart3, 
   Music, 
@@ -18,7 +21,9 @@ import {
   Sparkles,
   TrendingUp,
   Headphones,
-  Brain
+  Brain,
+  Calendar,
+  Target
 } from 'lucide-react';
 
 export default function ModularDashboard() {
@@ -81,6 +86,30 @@ export default function ModularDashboard() {
       icon: Users,
       color: 'from-pink-500 to-pink-600',
       component: () => import('@/components/social/CommunityHub').then(m => m.CommunityHub)
+    },
+    {
+      id: 'study-plans',
+      name: 'Plans d\'Étude',
+      description: 'Gestion et suivi des plans d\'apprentissage',
+      icon: Target,
+      color: 'from-indigo-500 to-indigo-600',
+      component: StudyPlanManager
+    },
+    {
+      id: 'calendar',
+      name: 'Calendrier d\'Étude',
+      description: 'Planning et organisation des sessions',
+      icon: Calendar,
+      color: 'from-cyan-500 to-cyan-600',
+      component: StudyCalendar
+    },
+    {
+      id: 'system',
+      name: 'Paramètres Système',
+      description: 'Configuration et monitoring avancés',
+      icon: Settings,
+      color: 'from-red-500 to-red-600',
+      component: SystemSettings
     }
   ];
 
@@ -219,6 +248,18 @@ export default function ModularDashboard() {
           
           <TabsContent value="player" className="mt-0">
             <AdvancedMusicPlayer />
+          </TabsContent>
+          
+          <TabsContent value="study-plans" className="mt-0">
+            <StudyPlanManager />
+          </TabsContent>
+          
+          <TabsContent value="calendar" className="mt-0">
+            <StudyCalendar />
+          </TabsContent>
+          
+          <TabsContent value="system" className="mt-0">
+            <SystemSettings />
           </TabsContent>
         </Tabs>
       </div>
