@@ -19,7 +19,9 @@ import { AccessibilityCenter } from '@/components/accessibility/AccessibilityCen
 import { AccessibilityProvider } from '@/components/ui/AccessibilityProvider';
 
 // ⚡ LAZY LOADING - Composants non-critiques chargés à la demande
-const DynamicOnboarding = lazy(() => import("@/components/onboarding/DynamicOnboarding").then(module => ({ default: module.DynamicOnboarding })));
+const DynamicOnboarding = lazy(() => import("@/components/onboarding/DynamicOnboarding").then(module => ({
+  default: module.DynamicOnboarding
+})));
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
@@ -85,21 +87,22 @@ const UserSettings = lazy(() => import("./pages/UserSettings"));
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      retry: false, // Pas de retry au chargement initial pour plus de rapidité
-      staleTime: 10 * 60 * 1000, // 10 minutes - Garde les données plus longtemps
-      gcTime: 15 * 60 * 1000, // 15 minutes - Garde en cache plus longtemps
-      refetchOnWindowFocus: false, // Évite les requêtes inutiles
-      refetchOnMount: false, // Ne pas refetch si les données sont récentes
-    },
-  },
+      retry: false,
+      // Pas de retry au chargement initial pour plus de rapidité
+      staleTime: 10 * 60 * 1000,
+      // 10 minutes - Garde les données plus longtemps
+      gcTime: 15 * 60 * 1000,
+      // 15 minutes - Garde en cache plus longtemps
+      refetchOnWindowFocus: false,
+      // Évite les requêtes inutiles
+      refetchOnMount: false // Ne pas refetch si les données sont récentes
+    }
+  }
 });
-
 const App = () => {
   const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false);
   const [isHelpCenterOpen, setIsHelpCenterOpen] = useState(false);
-
-  return (
-    <AccessibilityProvider>
+  return <AccessibilityProvider>
       <InternationalizationProvider>
         <PerformanceProvider>
           <CombinedProviders>
@@ -189,18 +192,10 @@ const App = () => {
        </Suspense>
        <HelpButton />
        
-        <NotificationSystem 
-          isOpen={isNotificationCenterOpen} 
-          onClose={() => setIsNotificationCenterOpen(false)} 
-        />
+        <NotificationSystem isOpen={isNotificationCenterOpen} onClose={() => setIsNotificationCenterOpen(false)} />
          {isHelpCenterOpen && <HelpCenter />}
          
-         <Button
-           variant="outline"
-           size="sm"
-           className="fixed bottom-4 right-4 z-40"
-           onClick={() => setIsNotificationCenterOpen(true)}
-         >
+         <Button variant="outline" size="sm" onClick={() => setIsNotificationCenterOpen(true)} className="fixed bottom-4 right-4 z-40 my-[36px]">
            <Bell className="w-4 h-4 mr-2" />
            Notifications
          </Button>
@@ -216,8 +211,6 @@ const App = () => {
          </CombinedProviders>
        </PerformanceProvider>
      </InternationalizationProvider>
-   </AccessibilityProvider>
-  );
+   </AccessibilityProvider>;
 };
-
 export default App;
