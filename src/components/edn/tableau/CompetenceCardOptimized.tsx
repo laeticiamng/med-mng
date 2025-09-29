@@ -49,17 +49,31 @@ const CompetenceSection: React.FC<{
   icon: React.ReactNode;
   colorClass: string;
 }> = ({ title, content, icon, colorClass }) => (
-  <div className={`p-4 rounded-xl border-l-4 ${colorClass} bg-background/50 hover:bg-background/80 transition-colors`}>
-    <div className="flex items-center gap-3 mb-3">
-      <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+  <div className={`p-6 rounded-2xl border-l-4 ${colorClass} bg-background/50 hover:bg-background/80 transition-all duration-200 shadow-sm hover:shadow-md`}>
+    <div className="flex items-center gap-4 mb-4">
+      <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shadow-sm">
         {icon}
       </div>
-      <h4 className="font-semibold text-foreground">{title}</h4>
+      <h4 className="font-bold text-lg text-foreground tracking-tight">{title}</h4>
     </div>
-    <div className="pl-11">
-      <p className="text-sm text-muted-foreground leading-relaxed">
-        {content}
-      </p>
+    <div className="pl-14">
+      <div 
+        className="text-base text-muted-foreground leading-[1.8] font-medium max-w-none prose prose-sm"
+        style={{ 
+          lineHeight: '1.75',
+          letterSpacing: '0.01em',
+          wordSpacing: '0.05em'
+        }}
+        dangerouslySetInnerHTML={createSafeHtml(
+          content
+            .replace(/&nbsp;/g, ' ')
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/<br\s*\/?>/gi, '<br>')
+            .replace(/\[\[([^\]|]+)(?:\|[^\]]+)?\]\]/g, '$1')
+            .trim()
+        )}
+      />
     </div>
   </div>
 );
@@ -183,16 +197,21 @@ export const CompetenceCardOptimized: React.FC<CompetenceCardOptimizedProps> = (
             </div>
             
             {/* Contenu principal */}
-            <div className="flex-1 space-y-3">
-              <h3 className="font-bold text-lg text-foreground leading-tight group-hover:text-primary transition-colors">
+            <div className="flex-1 space-y-4">
+              <h3 className="font-bold text-xl text-foreground leading-tight group-hover:text-primary transition-colors tracking-tight">
                 {competence.titre_complet || competence.intitule}
               </h3>
               
               {/* Description courte */}
               {competence.description && (
-                <div className="bg-background/60 rounded-lg p-3 border border-border/50">
+                <div className="bg-background/60 rounded-xl p-4 border border-border/50 shadow-sm">
                   <div 
-                    className="text-sm text-muted-foreground leading-relaxed line-clamp-3"
+                    className="text-base text-muted-foreground leading-[1.7] font-medium line-clamp-3 max-w-none prose prose-sm"
+                    style={{ 
+                      lineHeight: '1.7',
+                      letterSpacing: '0.01em',
+                      wordSpacing: '0.05em'
+                    }}
                     dangerouslySetInnerHTML={createSafeHtml(
                       competence.description
                         .replace(/&nbsp;/g, ' ')
@@ -232,11 +251,11 @@ export const CompetenceCardOptimized: React.FC<CompetenceCardOptimizedProps> = (
 
       {/* Contenu étendu */}
       {isExpanded && (
-        <CardContent className="pt-0 pb-6 px-6">
-          <Separator className="mb-6" />
+        <CardContent className="pt-0 pb-8 px-8">
+          <Separator className="mb-8" />
           
           {availableSectionsCount > 0 ? (
-            <div className="space-y-4">
+            <div className="space-y-6 max-w-4xl">
               {sections.map((section, idx) => (
                 <CompetenceSection
                   key={section.key}
