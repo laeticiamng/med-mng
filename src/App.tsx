@@ -4,19 +4,11 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { HelmetProvider } from "react-helmet-async";
 import { HelpButton } from "@/components/onboarding/HelpButton";
-import { AccessibilityProvider } from "@/components/ui/AccessibilityProvider";
-import { ToastProvider } from "@/components/feedback/ToastProvider";
 import { ViewportProvider } from "@/components/responsive/ViewportProvider";
 import { SkipLinks } from "@/components/navigation/SkipLinks";
-import { QuickNavigation } from "@/components/navigation/QuickNavigation";
 import { HelpCenter } from "@/components/help/HelpCenter";
 import { NotificationCenter } from "@/components/notifications/NotificationCenter";
-import { GlobalControls } from "@/components/layout/GlobalControls";
 import { KeyboardShortcuts } from "@/components/shortcuts/KeyboardShortcuts";
-import { WelcomeScreen } from "@/components/welcome/WelcomeScreen";
-import { PerformanceMonitor } from "@/components/performance/PerformanceMonitor";
-import { OnboardingTour } from "@/components/onboarding/OnboardingTour";
-import { AccessibilityWidget } from "@/components/accessibility/AccessibilityWidget";
 import { GlobalStateProvider } from "@/hooks/useGlobalState";
 import { NotificationProvider } from '@/contexts/NotificationContext';
 import { MainNavigation } from '@/components/layout/MainNavigation';
@@ -58,17 +50,15 @@ import { PlaylistManager } from "./components/playlists/PlaylistManager";
 import { PlaylistDetail } from "./components/playlists/PlaylistDetail";
 import { MusicAnalytics } from "./components/analytics/MusicAnalytics";
 import { MedChat } from "./pages/MedChat";
-import { SubscriptionTest } from "./pages/SubscriptionTest";
 import AdminImport from "./pages/AdminImport";
 import AdminAudit from "./pages/AdminAudit";
 import AdminExtractEdn from "./pages/AdminExtractEdn";
 import AdminCompleteProcess from "./pages/AdminCompleteProcess";
 import AdminExtractEcos from "./pages/AdminExtractEcos";
-import { AdminPanel } from "./pages/AdminPanel"; // Nouveau panel admin unifié Point X
+import { AdminPanel } from "./pages/AdminPanel";
 import EdnObjectifsExtractionPage from "./pages/EdnObjectifsExtraction";
 import OicDataQualityManager from "./pages/OicDataQualityManager";
 import AuditCompleteness from "./pages/AuditCompleteness";
-import TestExtraction from "./pages/TestExtraction";
 import EdnImmersive from "./pages/EdnImmersive";
 import EdnComplete from "./pages/EdnComplete";
 import LearningDashboard from "./pages/LearningDashboard";
@@ -99,37 +89,17 @@ const queryClient = new QueryClient({
 const App = () => {
   const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false);
   const [isHelpCenterOpen, setIsHelpCenterOpen] = useState(false);
-  const [showWelcome, setShowWelcome] = useState(false);
-  const [showOnboardingTour, setShowOnboardingTour] = useState(false);
-
-  // Détecter si c'est la première visite
-  React.useEffect(() => {
-    const hasVisited = localStorage.getItem('med-mng-visited');
-    const hasSeenTour = localStorage.getItem('med-mng-tour-completed');
-    
-    if (!hasVisited) {
-      setShowWelcome(true);
-      localStorage.setItem('med-mng-visited', 'true');
-    }
-    
-    if (!hasSeenTour && hasVisited) {
-      // Afficher le tour après l'écran de bienvenue
-      setTimeout(() => setShowOnboardingTour(true), 2000);
-    }
-  }, []);
 
   return (
     <GlobalStateProvider>
       <QueryClientProvider client={queryClient}>
         <HelmetProvider>
-          <AccessibilityProvider>
-            <ViewportProvider>
-              <LanguageProvider>
-                <GlobalAudioProvider>
-                  <AuthProvider>
-                    <NotificationProvider>
-                      <ToastProvider>
-                        <TooltipProvider>
+          <ViewportProvider>
+            <LanguageProvider>
+              <GlobalAudioProvider>
+                <AuthProvider>
+                  <NotificationProvider>
+                    <TooltipProvider>
                          <BrowserRouter>
                            <SkipLinks />
                            <div id="app-root" className="min-h-screen bg-background">
@@ -193,9 +163,7 @@ const App = () => {
                                 <Route path="/admin/oic-quality" element={<OicDataQualityManager />} />
                                 <Route path="/admin/complete" element={<AdminCompleteProcess />} />
                                 <Route path="/admin-panel" element={<AdminPanel />} /> {/* Panel admin unifié Point X */}
-                                <Route path="/test-subscriptions" element={<SubscriptionTest />} />
-                                <Route path="/library" element={<LibraryPage />} />
-                                <Route path="/test-extraction" element={<TestExtraction />} />
+                                 <Route path="/library" element={<LibraryPage />} />
                                 
                                 {/* Nouvelles pages complètes avec lazy loading */}
                                 <Route path="/statistics" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Statistics /></Suspense>} />
@@ -216,60 +184,24 @@ const App = () => {
                             </Suspense>
                             <HelpButton />
                             
-                            {/* Nouveaux Composants Globaux Intégrés */}
-                            <GlobalControls 
-                              onOpenNotifications={() => setIsNotificationCenterOpen(true)}
-                              onOpenHelp={() => setIsHelpCenterOpen(true)}
-                              notificationCount={3}
-                            />
-                            <QuickNavigation />
-                            <NotificationCenter 
-                              isOpen={isNotificationCenterOpen} 
-                              onClose={() => setIsNotificationCenterOpen(false)} 
-                            />
-                             {isHelpCenterOpen && <HelpCenter />}
-                             
-                             {/* Raccourcis Clavier Globaux */}
-                             <KeyboardShortcuts />
-                             
-                             {/* Écran de Bienvenue */}
-                             {showWelcome && (
-                               <WelcomeScreen onComplete={() => {
-                                 setShowWelcome(false);
-                                 setTimeout(() => setShowOnboardingTour(true), 1000);
-                               }} />
-                             )}
-                             
-                             {/* Tour d'Onboarding */}
-                             <OnboardingTour
-                               isVisible={showOnboardingTour}
-                               onComplete={() => {
-                                 setShowOnboardingTour(false);
-                                 localStorage.setItem('med-mng-tour-completed', 'true');
-                               }}
-                               onSkip={() => {
-                                 setShowOnboardingTour(false);
-                                 localStorage.setItem('med-mng-tour-completed', 'true');
-                               }}
+                             <NotificationCenter 
+                               isOpen={isNotificationCenterOpen} 
+                               onClose={() => setIsNotificationCenterOpen(false)} 
                              />
-                             
-                             {/* Widget d'Accessibilité */}
-                             <AccessibilityWidget />
-                             
-                             {/* Moniteur de Performance */}
-                             <PerformanceMonitor />
+                              {isHelpCenterOpen && <HelpCenter />}
+                              
+                              {/* Raccourcis Clavier Globaux */}
+                              <KeyboardShortcuts />
                            </div>
                            <Toaster />
                            <Sonner />
                           </BrowserRouter>
-                       </TooltipProvider>
-                     </ToastProvider>
-                   </NotificationProvider>
-                 </AuthProvider>
-               </GlobalAudioProvider>
-             </LanguageProvider>
-           </ViewportProvider>
-         </AccessibilityProvider>
+                        </TooltipProvider>
+                    </NotificationProvider>
+                  </AuthProvider>
+                </GlobalAudioProvider>
+              </LanguageProvider>
+            </ViewportProvider>
        </HelmetProvider>
        </QueryClientProvider>
      </GlobalStateProvider>

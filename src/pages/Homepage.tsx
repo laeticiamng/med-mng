@@ -20,92 +20,12 @@ const Homepage: React.FC = () => {
   const progressData = useProgressData();
   const statsData = useModernStatsData();
 
-  // Données d'activité simulées
-  const recentActivities = [
-    {
-      id: '1',
-      type: 'achievement' as const,
-      title: 'Nouveau record personnel !',
-      description: 'Vous avez complété 15 items EDN en une journée',
-      timestamp: new Date(Date.now() - 2 * 60 * 1000),
-      priority: 'high' as const,
-      metadata: { points: 150, badge: 'Marathonien' },
-      actionable: true
-    },
-    {
-      id: '2', 
-      type: 'learning' as const,
-      title: 'Item IC-234 maîtrisé',
-      description: 'Cardiologie - Insuffisance cardiaque terminé avec 95% de réussite',
-      timestamp: new Date(Date.now() - 15 * 60 * 1000),
-      priority: 'medium' as const,
-      metadata: { category: 'Cardiologie', points: 75 }
-    },
-    {
-      id: '3',
-      type: 'creation' as const,
-      title: 'Contenu musical généré',
-      description: 'Nouvelle création musicale pour l\'item IC-145 - Neurologie',
-      timestamp: new Date(Date.now() - 30 * 60 * 1000),
-      priority: 'medium' as const,
-      metadata: { category: 'Musique IA', points: 50 }
-    },
-    {
-      id: '4',
-      type: 'milestone' as const,
-      title: 'Étape franchie !',
-      description: '100 heures d\'étude complétées ce mois-ci',
-      timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000),
-      priority: 'high' as const,
-      metadata: { points: 200, badge: 'Studieux' }
-    }
-  ];
-
-  const searchCategories = [
-    {
-      id: 'type',
-      label: 'Type de contenu',
-      type: 'multiple' as const,
-      options: [
-        { id: 'edn', label: 'Items EDN', value: 'edn', count: 370 },
-        { id: 'ecos', label: 'ECOS', value: 'ecos', count: 125 },
-        { id: 'music', label: 'Musique', value: 'music', count: 850 },
-        { id: 'quiz', label: 'Quiz', value: 'quiz', count: 245 }
-      ]
-    },
-    {
-      id: 'difficulty',
-      label: 'Difficulté',
-      type: 'single' as const,
-      options: [
-        { id: 'beginner', label: 'Débutant', value: 'beginner' },
-        { id: 'intermediate', label: 'Intermédiaire', value: 'intermediate' },
-        { id: 'advanced', label: 'Avancé', value: 'advanced' },
-        { id: 'expert', label: 'Expert', value: 'expert' }
-      ]
-    },
-    {
-      id: 'duration',
-      label: 'Durée (minutes)',
-      type: 'range' as const,
-      min: 5,
-      max: 120
-    },
-    {
-      id: 'date',
-      label: 'Date de création',
-      type: 'date' as const
-    }
-  ];
-
   const handleSearch = (query: string) => {
     console.log('Recherche:', query);
-    // Logique de recherche ici
   };
 
   const handleFilter = (filters: Record<string, any>) => {
     console.log('Filtres:', filters);
-    // Logique de filtrage ici
   };
   const features = [
     {
@@ -194,40 +114,6 @@ const Homepage: React.FC = () => {
           </div>
         </section>
 
-        {/* Section de recherche intelligente */}
-        <section className="py-16 bg-card/30">
-          <div className="medical-container">
-            <div className="text-center mb-12">
-              <h2 className="text-3xl lg:text-4xl font-bold mb-4">
-                Recherche Intelligente
-              </h2>
-              <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-                Trouvez exactement ce que vous cherchez avec notre moteur de recherche avancé
-              </p>
-            </div>
-            
-            <div className="max-w-4xl mx-auto">
-              <SearchFilter
-                placeholder="Rechercher des items EDN, ECOS, contenus musicaux..."
-                categories={searchCategories}
-                onSearch={handleSearch}
-                onFilter={handleFilter}
-                suggestions={[
-                  'Cardiologie items EDN',
-                  'ECOS urgences',
-                  'Musique pédiatrie',
-                  'Quiz neurologie'
-                ]}
-                recentSearches={[
-                  'Items rang A',
-                  'Simulations ECOS',
-                  'Contenu musical'
-                ]}
-              />
-            </div>
-          </div>
-        </section>
-
         {/* Dashboard personnel */}
         <section className="medical-section">
           <div className="medical-container">
@@ -241,7 +127,6 @@ const Homepage: React.FC = () => {
             </div>
             
             <div className="space-y-12">
-              {/* Indicateurs de progression */}
               <div>
                 <h3 className="text-xl font-semibold mb-6 flex items-center gap-2">
                   <TrendingUp className="w-5 h-5 text-primary" />
@@ -250,7 +135,6 @@ const Homepage: React.FC = () => {
                 <ProgressIndicator data={progressData} />
               </div>
 
-              {/* Statistiques modernes */}
               <div>
                 <h3 className="text-xl font-semibold mb-6 flex items-center gap-2">
                   <BarChart3 className="w-5 h-5 text-primary" />
@@ -262,57 +146,6 @@ const Homepage: React.FC = () => {
                   showTrends={true}
                   showTargets={true}
                   animated={true}
-                />
-              </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Section communauté et activité */}
-        <section className="py-16 bg-gradient-to-r from-primary/5 to-accent/5">
-          <div className="medical-container">
-            <div className="grid lg:grid-cols-2 gap-12 items-start">
-              <div>
-                <h2 className="text-3xl font-bold mb-6">
-                  Activité en Temps Réel
-                </h2>
-                <p className="text-lg text-muted-foreground mb-8">
-                  Restez connecté avec votre progression et celle de la communauté MED-MNG
-                </p>
-                
-                <div className="space-y-6">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-success/10 rounded-full flex items-center justify-center">
-                      <Clock className="w-6 h-6 text-success" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold">Mises à jour instantanées</h3>
-                      <p className="text-sm text-muted-foreground">
-                        Suivez vos succès en temps réel
-                      </p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
-                      <Users className="w-6 h-6 text-primary" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold">Communauté active</h3>
-                      <p className="text-sm text-muted-foreground">
-                        Interagissez avec d'autres étudiants
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              
-              <div>
-                <ActivityFeed 
-                  activities={recentActivities}
-                  showFilter={true}
-                  maxItems={10}
-                  realTime={true}
                 />
               </div>
             </div>

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { OnboardingModal } from './OnboardingModal';
-import { OnboardingTour } from './OnboardingTour';
 import { useOnboarding } from '@/hooks/useOnboarding';
 
 interface OnboardingStep {
@@ -158,13 +157,7 @@ export const DynamicOnboarding: React.FC = () => {
         <OnboardingModal />
       )}
       
-      {showTour && tourSteps.length > 0 && (
-        <OnboardingTour
-          isVisible={showTour}
-          onComplete={handleTourComplete}
-          onSkip={handleSkip}
-        />
-      )}
+      {/* Tour simplifié - composant supprimé */}
     </>
   );
 };
