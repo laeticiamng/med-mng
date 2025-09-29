@@ -16,6 +16,7 @@ import { MainNavigation } from '@/components/layout/MainNavigation';
 import { InternationalizationProvider } from '@/contexts/InternationalizationContext';
 import { PerformanceProvider } from '@/contexts/PerformanceContext';
 import { AccessibilityCenter } from '@/components/accessibility/AccessibilityCenter';
+import { AccessibilityProvider } from '@/components/ui/AccessibilityProvider';
 
 // ⚡ LAZY LOADING - Composants non-critiques chargés à la demande
 const DynamicOnboarding = lazy(() => import("@/components/onboarding/DynamicOnboarding").then(module => ({ default: module.DynamicOnboarding })));
@@ -95,9 +96,10 @@ const App = () => {
   const [isHelpCenterOpen, setIsHelpCenterOpen] = useState(false);
 
   return (
-    <InternationalizationProvider>
-      <PerformanceProvider>
-        <CombinedProviders>
+    <AccessibilityProvider>
+      <InternationalizationProvider>
+        <PerformanceProvider>
+          <CombinedProviders>
           <SkipLinks />
           <div id="app-root" className="min-h-screen bg-background">
             <MainNavigation />
@@ -204,10 +206,11 @@ const App = () => {
           <AccessibilityCenter />
        </div>
        <Toaster />
-       <Sonner />
-        </CombinedProviders>
-      </PerformanceProvider>
-    </InternationalizationProvider>
+        <Sonner />
+         </CombinedProviders>
+       </PerformanceProvider>
+     </InternationalizationProvider>
+   </AccessibilityProvider>
   );
 };
 
