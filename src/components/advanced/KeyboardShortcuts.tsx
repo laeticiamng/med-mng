@@ -95,12 +95,12 @@ export const KeyboardShortcuts: React.FC = () => {
 
   const formatKeys = (keys: string[]) => {
     return keys.map((key, index) => (
-      <React.Fragment key={key}>
+      <span key={key} className="inline-flex items-center">
         <Badge variant="outline" className="px-2 py-1 font-mono text-xs">
           {key}
         </Badge>
         {index < keys.length - 1 && <span className="mx-1 text-muted-foreground">+</span>}
-      </React.Fragment>
+      </span>
     ));
   };
 
