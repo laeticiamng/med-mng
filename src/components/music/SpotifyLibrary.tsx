@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { Link } from 'react-router-dom'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -264,10 +265,10 @@ export function SpotifyLibrary() {
             </p>
             {!searchQuery && (
               <Button asChild>
-                <a href="/edn">
+                <Link to="/edn">
                   <Plus className="h-4 w-4 mr-2" />
                   Générer ma première chanson
-                </a>
+                </Link>
               </Button>
             )}
           </CardContent>
