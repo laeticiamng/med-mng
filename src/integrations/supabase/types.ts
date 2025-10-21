@@ -137,6 +137,38 @@ export type Database = {
         }
         Relationships: []
       }
+      ai_chat_messages: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string | null
+          id: string
+          role: string
+        }
+        Insert: {
+          content: string
+          conversation_id: string
+          created_at?: string | null
+          id?: string
+          role: string
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string | null
+          id?: string
+          role?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_chat_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "chat_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_coach_sessions: {
         Row: {
           coach_personality: string | null
@@ -414,12 +446,91 @@ export type Database = {
         }
         Relationships: []
       }
+      ar_filter_sessions: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          duration_seconds: number | null
+          filter_type: string
+          id: string
+          mood_impact: string | null
+          photos_taken: number | null
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          filter_type: string
+          id?: string
+          mood_impact?: string | null
+          photos_taken?: number | null
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          filter_type?: string
+          id?: string
+          mood_impact?: string | null
+          photos_taken?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      assessment_sessions: {
+        Row: {
+          answers: Json | null
+          completed_at: string | null
+          context: Json | null
+          created_at: string
+          duration_seconds: number | null
+          id: string
+          instrument: string
+          locale: string
+          metadata: Json | null
+          started_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          answers?: Json | null
+          completed_at?: string | null
+          context?: Json | null
+          created_at?: string
+          duration_seconds?: number | null
+          id?: string
+          instrument: string
+          locale?: string
+          metadata?: Json | null
+          started_at?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          answers?: Json | null
+          completed_at?: string | null
+          context?: Json | null
+          created_at?: string
+          duration_seconds?: number | null
+          id?: string
+          instrument?: string
+          locale?: string
+          metadata?: Json | null
+          started_at?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       assessments: {
         Row: {
           created_at: string
           id: string
           instrument: string
           score_json: Json
+          submitted_at: string | null
           ts: string
           user_id: string
         }
@@ -428,6 +539,7 @@ export type Database = {
           id?: string
           instrument: string
           score_json: Json
+          submitted_at?: string | null
           ts?: string
           user_id: string
         }
@@ -436,6 +548,7 @@ export type Database = {
           id?: string
           instrument?: string
           score_json?: Json
+          submitted_at?: string | null
           ts?: string
           user_id?: string
         }
@@ -633,6 +746,105 @@ export type Database = {
           recommendations?: Json | null
           report_type?: string
           status?: string
+        }
+        Relationships: []
+      }
+      aura_connections: {
+        Row: {
+          connection_strength: number
+          created_at: string | null
+          id: string
+          interaction_types: Json | null
+          last_interaction_at: string | null
+          user_id_a: string
+          user_id_b: string
+        }
+        Insert: {
+          connection_strength?: number
+          created_at?: string | null
+          id?: string
+          interaction_types?: Json | null
+          last_interaction_at?: string | null
+          user_id_a: string
+          user_id_b: string
+        }
+        Update: {
+          connection_strength?: number
+          created_at?: string | null
+          id?: string
+          interaction_types?: Json | null
+          last_interaction_at?: string | null
+          user_id_a?: string
+          user_id_b?: string
+        }
+        Relationships: []
+      }
+      aura_history: {
+        Row: {
+          color_hue: number
+          created_at: string | null
+          id: string
+          luminosity: number
+          size_scale: number
+          snapshot_data: Json | null
+          user_id: string
+          week_end: string
+          week_start: string
+          who5_badge: string | null
+        }
+        Insert: {
+          color_hue: number
+          created_at?: string | null
+          id?: string
+          luminosity: number
+          size_scale: number
+          snapshot_data?: Json | null
+          user_id: string
+          week_end: string
+          week_start: string
+          who5_badge?: string | null
+        }
+        Update: {
+          color_hue?: number
+          created_at?: string | null
+          id?: string
+          luminosity?: number
+          size_scale?: number
+          snapshot_data?: Json | null
+          user_id?: string
+          week_end?: string
+          week_start?: string
+          who5_badge?: string | null
+        }
+        Relationships: []
+      }
+      b2b_music_aggregates: {
+        Row: {
+          cohort_size: number
+          created_at: string
+          id: string
+          metrics: Json | null
+          org_id: string
+          text_summary: string
+          week_start: string
+        }
+        Insert: {
+          cohort_size: number
+          created_at?: string
+          id?: string
+          metrics?: Json | null
+          org_id: string
+          text_summary: string
+          week_start: string
+        }
+        Update: {
+          cohort_size?: number
+          created_at?: string
+          id?: string
+          metrics?: Json | null
+          org_id?: string
+          text_summary?: string
+          week_start?: string
         }
         Relationships: []
       }
@@ -1022,6 +1234,180 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      breath_weekly_metrics: {
+        Row: {
+          coherence_avg: number | null
+          created_at: string
+          hrv_stress_idx: number | null
+          id: string
+          mindfulness_avg: number | null
+          mood_score: number | null
+          mvpa_week: number | null
+          relax_idx: number | null
+          updated_at: string
+          user_id: string
+          week_start: string
+        }
+        Insert: {
+          coherence_avg?: number | null
+          created_at?: string
+          hrv_stress_idx?: number | null
+          id?: string
+          mindfulness_avg?: number | null
+          mood_score?: number | null
+          mvpa_week?: number | null
+          relax_idx?: number | null
+          updated_at?: string
+          user_id: string
+          week_start: string
+        }
+        Update: {
+          coherence_avg?: number | null
+          created_at?: string
+          hrv_stress_idx?: number | null
+          id?: string
+          mindfulness_avg?: number | null
+          mood_score?: number | null
+          mvpa_week?: number | null
+          relax_idx?: number | null
+          updated_at?: string
+          user_id?: string
+          week_start?: string
+        }
+        Relationships: []
+      }
+      breath_weekly_org_metrics: {
+        Row: {
+          created_at: string
+          id: string
+          members: number | null
+          org_coherence: number | null
+          org_hrv_idx: number | null
+          org_id: string
+          org_mindfulness: number | null
+          org_mood: number | null
+          org_mvpa: number | null
+          org_relax: number | null
+          updated_at: string
+          week_start: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          members?: number | null
+          org_coherence?: number | null
+          org_hrv_idx?: number | null
+          org_id: string
+          org_mindfulness?: number | null
+          org_mood?: number | null
+          org_mvpa?: number | null
+          org_relax?: number | null
+          updated_at?: string
+          week_start: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          members?: number | null
+          org_coherence?: number | null
+          org_hrv_idx?: number | null
+          org_id?: string
+          org_mindfulness?: number | null
+          org_mood?: number | null
+          org_mvpa?: number | null
+          org_relax?: number | null
+          updated_at?: string
+          week_start?: string
+        }
+        Relationships: []
+      }
+      breathing_vr_sessions: {
+        Row: {
+          average_pace: number | null
+          completed_at: string | null
+          created_at: string
+          cycles_completed: number | null
+          duration_seconds: number
+          id: string
+          mood_after: number | null
+          mood_before: number | null
+          notes: string | null
+          pattern: string
+          started_at: string
+          updated_at: string
+          user_id: string
+          vr_mode: boolean | null
+        }
+        Insert: {
+          average_pace?: number | null
+          completed_at?: string | null
+          created_at?: string
+          cycles_completed?: number | null
+          duration_seconds: number
+          id?: string
+          mood_after?: number | null
+          mood_before?: number | null
+          notes?: string | null
+          pattern: string
+          started_at?: string
+          updated_at?: string
+          user_id: string
+          vr_mode?: boolean | null
+        }
+        Update: {
+          average_pace?: number | null
+          completed_at?: string | null
+          created_at?: string
+          cycles_completed?: number | null
+          duration_seconds?: number
+          id?: string
+          mood_after?: number | null
+          mood_before?: number | null
+          notes?: string | null
+          pattern?: string
+          started_at?: string
+          updated_at?: string
+          user_id?: string
+          vr_mode?: boolean | null
+        }
+        Relationships: []
+      }
+      bubble_beat_sessions: {
+        Row: {
+          bubbles_popped: number | null
+          completed_at: string | null
+          created_at: string
+          difficulty: string | null
+          duration_seconds: number | null
+          id: string
+          rhythm_accuracy: number | null
+          score: number | null
+          user_id: string
+        }
+        Insert: {
+          bubbles_popped?: number | null
+          completed_at?: string | null
+          created_at?: string
+          difficulty?: string | null
+          duration_seconds?: number | null
+          id?: string
+          rhythm_accuracy?: number | null
+          score?: number | null
+          user_id: string
+        }
+        Update: {
+          bubbles_popped?: number | null
+          completed_at?: string | null
+          created_at?: string
+          difficulty?: string | null
+          duration_seconds?: number | null
+          id?: string
+          rhythm_accuracy?: number | null
+          score?: number | null
+          user_id?: string
+        }
+        Relationships: []
       }
       buddies: {
         Row: {
@@ -1429,6 +1815,42 @@ export type Database = {
           },
         ]
       }
+      coach_sessions: {
+        Row: {
+          aaq_score: number | null
+          completed_at: string | null
+          created_at: string
+          flexibility_level: string | null
+          id: string
+          session_duration: number | null
+          thoughts_collected: number | null
+          thoughts_shown: Json | null
+          user_id: string
+        }
+        Insert: {
+          aaq_score?: number | null
+          completed_at?: string | null
+          created_at?: string
+          flexibility_level?: string | null
+          id?: string
+          session_duration?: number | null
+          thoughts_collected?: number | null
+          thoughts_shown?: Json | null
+          user_id: string
+        }
+        Update: {
+          aaq_score?: number | null
+          completed_at?: string | null
+          created_at?: string
+          flexibility_level?: string | null
+          id?: string
+          session_duration?: number | null
+          thoughts_collected?: number | null
+          thoughts_shown?: Json | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       cocon_content: {
         Row: {
           content: string
@@ -1499,6 +1921,258 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      community_badges: {
+        Row: {
+          badge_type: string
+          earned_at: string | null
+          id: string
+          metadata: Json | null
+          user_id: string
+        }
+        Insert: {
+          badge_type: string
+          earned_at?: string | null
+          id?: string
+          metadata?: Json | null
+          user_id: string
+        }
+        Update: {
+          badge_type?: string
+          earned_at?: string | null
+          id?: string
+          metadata?: Json | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      community_comments: {
+        Row: {
+          author_id: string
+          content: string
+          created_at: string | null
+          id: string
+          is_empathy_template: boolean | null
+          likes_count: number | null
+          post_id: string
+        }
+        Insert: {
+          author_id: string
+          content: string
+          created_at?: string | null
+          id?: string
+          is_empathy_template?: boolean | null
+          likes_count?: number | null
+          post_id: string
+        }
+        Update: {
+          author_id?: string
+          content?: string
+          created_at?: string | null
+          id?: string
+          is_empathy_template?: boolean | null
+          likes_count?: number | null
+          post_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "community_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_groups: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          icon: string | null
+          id: string
+          is_private: boolean | null
+          member_count: number | null
+          name: string
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_private?: boolean | null
+          member_count?: number | null
+          name: string
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_private?: boolean | null
+          member_count?: number | null
+          name?: string
+        }
+        Relationships: []
+      }
+      community_house_state: {
+        Row: {
+          acts_of_care: number
+          created_at: string | null
+          id: string
+          last_activity_at: string | null
+          light_intensity: number
+          user_id: string
+        }
+        Insert: {
+          acts_of_care?: number
+          created_at?: string | null
+          id?: string
+          last_activity_at?: string | null
+          light_intensity?: number
+          user_id: string
+        }
+        Update: {
+          acts_of_care?: number
+          created_at?: string | null
+          id?: string
+          last_activity_at?: string | null
+          light_intensity?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      community_posts: {
+        Row: {
+          author_id: string
+          comments_count: number | null
+          content: string
+          created_at: string | null
+          group_id: string | null
+          has_empathy_response: boolean | null
+          id: string
+          likes_count: number | null
+          mood_halo: string | null
+          reply_count: number | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          author_id: string
+          comments_count?: number | null
+          content: string
+          created_at?: string | null
+          group_id?: string | null
+          has_empathy_response?: boolean | null
+          id?: string
+          likes_count?: number | null
+          mood_halo?: string | null
+          reply_count?: number | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          author_id?: string
+          comments_count?: number | null
+          content?: string
+          created_at?: string | null
+          group_id?: string | null
+          has_empathy_response?: boolean | null
+          id?: string
+          likes_count?: number | null
+          mood_halo?: string | null
+          reply_count?: number | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_posts_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "community_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_room_members: {
+        Row: {
+          badges_earned: string[] | null
+          id: string
+          joined_at: string | null
+          left_at: string | null
+          room_id: string
+          user_id: string
+        }
+        Insert: {
+          badges_earned?: string[] | null
+          id?: string
+          joined_at?: string | null
+          left_at?: string | null
+          room_id: string
+          user_id: string
+        }
+        Update: {
+          badges_earned?: string[] | null
+          id?: string
+          joined_at?: string | null
+          left_at?: string | null
+          room_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "community_room_members_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "community_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      community_rooms: {
+        Row: {
+          capacity: number | null
+          created_at: string | null
+          created_by: string | null
+          current_participants: number | null
+          ended_at: string | null
+          id: string
+          name: string
+          ritual_stage: string | null
+          scheduled_at: string | null
+          started_at: string | null
+          status: string | null
+        }
+        Insert: {
+          capacity?: number | null
+          created_at?: string | null
+          created_by?: string | null
+          current_participants?: number | null
+          ended_at?: string | null
+          id?: string
+          name: string
+          ritual_stage?: string | null
+          scheduled_at?: string | null
+          started_at?: string | null
+          status?: string | null
+        }
+        Update: {
+          capacity?: number | null
+          created_at?: string | null
+          created_by?: string | null
+          current_participants?: number | null
+          ended_at?: string | null
+          id?: string
+          name?: string
+          ritual_stage?: string | null
+          scheduled_at?: string | null
+          started_at?: string | null
+          status?: string | null
+        }
+        Relationships: []
       }
       completeness_alerts: {
         Row: {
@@ -2390,6 +3064,90 @@ export type Database = {
         }
         Relationships: []
       }
+      emotion_cards: {
+        Row: {
+          animation_config: Json | null
+          code: string
+          color_primary: string
+          color_secondary: string
+          created_at: string | null
+          description: string | null
+          icon_name: string
+          id: string
+          mantra: string
+          mantra_emoji: string
+          rarity: string
+          sound_url: string | null
+          unlock_rewards: Json | null
+          who5_range_max: number
+          who5_range_min: number
+        }
+        Insert: {
+          animation_config?: Json | null
+          code: string
+          color_primary: string
+          color_secondary: string
+          created_at?: string | null
+          description?: string | null
+          icon_name: string
+          id?: string
+          mantra: string
+          mantra_emoji: string
+          rarity?: string
+          sound_url?: string | null
+          unlock_rewards?: Json | null
+          who5_range_max: number
+          who5_range_min: number
+        }
+        Update: {
+          animation_config?: Json | null
+          code?: string
+          color_primary?: string
+          color_secondary?: string
+          created_at?: string | null
+          description?: string | null
+          icon_name?: string
+          id?: string
+          mantra?: string
+          mantra_emoji?: string
+          rarity?: string
+          sound_url?: string | null
+          unlock_rewards?: Json | null
+          who5_range_max?: number
+          who5_range_min?: number
+        }
+        Relationships: []
+      }
+      emotion_generations: {
+        Row: {
+          created_at: string | null
+          metadata: Json | null
+          prompt: string | null
+          status: string
+          task_id: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          metadata?: Json | null
+          prompt?: string | null
+          status?: string
+          task_id: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          metadata?: Json | null
+          prompt?: string | null
+          status?: string
+          task_id?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       emotion_metrics: {
         Row: {
           confidence_score: number | null
@@ -2417,6 +3175,39 @@ export type Database = {
           id?: string
           session_id?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      emotion_patterns: {
+        Row: {
+          created_at: string | null
+          dominant_emotions: Json
+          emotion_trends: Json | null
+          id: string
+          trigger_patterns: Json | null
+          user_id: string
+          week_end: string
+          week_start: string
+        }
+        Insert: {
+          created_at?: string | null
+          dominant_emotions: Json
+          emotion_trends?: Json | null
+          id?: string
+          trigger_patterns?: Json | null
+          user_id: string
+          week_end: string
+          week_start: string
+        }
+        Update: {
+          created_at?: string | null
+          dominant_emotions?: Json
+          emotion_trends?: Json | null
+          id?: string
+          trigger_patterns?: Json | null
+          user_id?: string
+          week_end?: string
+          week_start?: string
         }
         Relationships: []
       }
@@ -2453,6 +3244,120 @@ export type Database = {
           scan_type?: string
           updated_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      emotion_tracks: {
+        Row: {
+          created_at: string | null
+          duration_seconds: number | null
+          emotion_label: string | null
+          id: string
+          metadata: Json | null
+          source: string | null
+          storage_path: string | null
+          task_id: string | null
+          title: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          duration_seconds?: number | null
+          emotion_label?: string | null
+          id?: string
+          metadata?: Json | null
+          source?: string | null
+          storage_path?: string | null
+          task_id?: string | null
+          title?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          duration_seconds?: number | null
+          emotion_label?: string | null
+          id?: string
+          metadata?: Json | null
+          source?: string | null
+          storage_path?: string | null
+          task_id?: string | null
+          title?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      emotional_scan_results: {
+        Row: {
+          confidence_score: number | null
+          created_at: string | null
+          emotions_detected: Json
+          id: string
+          scan_data: Json
+          user_id: string
+        }
+        Insert: {
+          confidence_score?: number | null
+          created_at?: string | null
+          emotions_detected?: Json
+          id?: string
+          scan_data?: Json
+          user_id: string
+        }
+        Update: {
+          confidence_score?: number | null
+          created_at?: string | null
+          emotions_detected?: Json
+          id?: string
+          scan_data?: Json
+          user_id?: string
+        }
+        Relationships: []
+      }
+      emotional_scans: {
+        Row: {
+          audio_url: string | null
+          confidence: number | null
+          created_at: string | null
+          duration_seconds: number | null
+          emotions: Json
+          hume_job_id: string | null
+          id: string
+          scan_type: string
+          text_content: string | null
+          top_emotion: string | null
+          updated_at: string | null
+          user_id: string
+          video_url: string | null
+        }
+        Insert: {
+          audio_url?: string | null
+          confidence?: number | null
+          created_at?: string | null
+          duration_seconds?: number | null
+          emotions?: Json
+          hume_job_id?: string | null
+          id?: string
+          scan_type: string
+          text_content?: string | null
+          top_emotion?: string | null
+          updated_at?: string | null
+          user_id: string
+          video_url?: string | null
+        }
+        Update: {
+          audio_url?: string | null
+          confidence?: number | null
+          created_at?: string | null
+          duration_seconds?: number | null
+          emotions?: Json
+          hume_job_id?: string | null
+          id?: string
+          scan_type?: string
+          text_content?: string | null
+          top_emotion?: string | null
+          updated_at?: string | null
+          user_id?: string
+          video_url?: string | null
         }
         Relationships: []
       }
@@ -2834,6 +3739,63 @@ export type Database = {
         }
         Relationships: []
       }
+      empathy_templates: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          emoji: string | null
+          id: string
+          text_en: string
+          text_fr: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          emoji?: string | null
+          id?: string
+          text_en: string
+          text_fr: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          emoji?: string | null
+          id?: string
+          text_en?: string
+          text_fr?: string
+        }
+        Relationships: []
+      }
+      encryption_keys: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean
+          key_name: string
+          key_type: string
+          key_value: string
+          rotated_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          key_name: string
+          key_type?: string
+          key_value: string
+          rotated_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          key_name?: string
+          key_type?: string
+          key_value?: string
+          rotated_at?: string | null
+        }
+        Relationships: []
+      }
       enhanced_chat_logs: {
         Row: {
           conversation_id: string
@@ -3087,6 +4049,104 @@ export type Database = {
         }
         Relationships: []
       }
+      flash_lite_cards: {
+        Row: {
+          answer: string
+          created_at: string
+          difficulty: string | null
+          id: string
+          is_correct: boolean | null
+          question: string
+          response_time_ms: number | null
+          session_id: string
+          user_answer: string | null
+        }
+        Insert: {
+          answer: string
+          created_at?: string
+          difficulty?: string | null
+          id?: string
+          is_correct?: boolean | null
+          question: string
+          response_time_ms?: number | null
+          session_id: string
+          user_answer?: string | null
+        }
+        Update: {
+          answer?: string
+          created_at?: string
+          difficulty?: string | null
+          id?: string
+          is_correct?: boolean | null
+          question?: string
+          response_time_ms?: number | null
+          session_id?: string
+          user_answer?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "flash_lite_cards_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "flash_lite_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      flash_lite_sessions: {
+        Row: {
+          accuracy_percentage: number | null
+          average_response_time: number | null
+          cards_completed: number
+          cards_correct: number
+          cards_total: number
+          category: string | null
+          completed_at: string | null
+          created_at: string
+          duration_seconds: number | null
+          id: string
+          mode: string
+          notes: string | null
+          started_at: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          accuracy_percentage?: number | null
+          average_response_time?: number | null
+          cards_completed?: number
+          cards_correct?: number
+          cards_total?: number
+          category?: string | null
+          completed_at?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          id?: string
+          mode: string
+          notes?: string | null
+          started_at?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          accuracy_percentage?: number | null
+          average_response_time?: number | null
+          cards_completed?: number
+          cards_correct?: number
+          cards_total?: number
+          category?: string | null
+          completed_at?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          id?: string
+          mode?: string
+          notes?: string | null
+          started_at?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       gamification_activities: {
         Row: {
           achievements_unlocked: string[] | null
@@ -3213,6 +4273,42 @@ export type Database = {
         }
         Relationships: []
       }
+      generated_songs: {
+        Row: {
+          audio_url: string
+          created_at: string | null
+          duration: number
+          emotion_input: string
+          id: string
+          metadata: Json | null
+          style: string
+          suno_job_id: string | null
+          user_id: string
+        }
+        Insert: {
+          audio_url: string
+          created_at?: string | null
+          duration: number
+          emotion_input: string
+          id?: string
+          metadata?: Json | null
+          style: string
+          suno_job_id?: string | null
+          user_id: string
+        }
+        Update: {
+          audio_url?: string
+          created_at?: string | null
+          duration?: number
+          emotion_input?: string
+          id?: string
+          metadata?: Json | null
+          style?: string
+          suno_job_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       generated_voice_tracks: {
         Row: {
           audio_base64: string | null
@@ -3318,6 +4414,38 @@ export type Database = {
         }
         Relationships: []
       }
+      group_memberships: {
+        Row: {
+          group_id: string
+          id: string
+          joined_at: string | null
+          role: string | null
+          user_id: string
+        }
+        Insert: {
+          group_id: string
+          id?: string
+          joined_at?: string | null
+          role?: string | null
+          user_id: string
+        }
+        Update: {
+          group_id?: string
+          id?: string
+          joined_at?: string | null
+          role?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "group_memberships_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "community_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       groups: {
         Row: {
           id: string
@@ -3407,6 +4535,30 @@ export type Database = {
           request_details?: Json | null
           response_status?: string
           service_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      implicit_tracking: {
+        Row: {
+          created_at: string | null
+          event_data: Json
+          event_type: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          event_data?: Json
+          event_type: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          event_data?: Json
+          event_type?: string
+          id?: string
           user_id?: string
         }
         Relationships: []
@@ -3896,25 +5048,280 @@ export type Database = {
       }
       journal_entries: {
         Row: {
-          ai_feedback: string | null
+          affect_negative: number | null
+          affect_positive: number | null
+          audio_url: string | null
+          badge_text: string | null
+          color_palette: Json | null
           content: string
-          date: string
+          created_at: string | null
           id: string
+          is_favorite: boolean | null
+          is_precious: boolean | null
+          mode: string | null
+          summary: string | null
+          tags: string[] | null
+          text_content: string | null
+          transcript: string | null
+          updated_at: string | null
           user_id: string
         }
         Insert: {
-          ai_feedback?: string | null
+          affect_negative?: number | null
+          affect_positive?: number | null
+          audio_url?: string | null
+          badge_text?: string | null
+          color_palette?: Json | null
           content: string
-          date?: string
+          created_at?: string | null
           id?: string
+          is_favorite?: boolean | null
+          is_precious?: boolean | null
+          mode?: string | null
+          summary?: string | null
+          tags?: string[] | null
+          text_content?: string | null
+          transcript?: string | null
+          updated_at?: string | null
           user_id: string
         }
         Update: {
-          ai_feedback?: string | null
+          affect_negative?: number | null
+          affect_positive?: number | null
+          audio_url?: string | null
+          badge_text?: string | null
+          color_palette?: Json | null
           content?: string
-          date?: string
+          created_at?: string | null
           id?: string
+          is_favorite?: boolean | null
+          is_precious?: boolean | null
+          mode?: string | null
+          summary?: string | null
+          tags?: string[] | null
+          text_content?: string | null
+          transcript?: string | null
+          updated_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      journal_notes: {
+        Row: {
+          created_at: string
+          id: string
+          is_archived: boolean | null
+          is_favorite: boolean | null
+          mode: string | null
+          summary: string | null
+          tags: string[] | null
+          text: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_archived?: boolean | null
+          is_favorite?: boolean | null
+          mode?: string | null
+          summary?: string | null
+          tags?: string[] | null
+          text: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_archived?: boolean | null
+          is_favorite?: boolean | null
+          mode?: string | null
+          summary?: string | null
+          tags?: string[] | null
+          text?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      journal_prompts: {
+        Row: {
+          category: string
+          created_at: string
+          difficulty: string
+          id: string
+          is_active: boolean | null
+          prompt_text: string
+          tags: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          difficulty: string
+          id?: string
+          is_active?: boolean | null
+          prompt_text: string
+          tags?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          difficulty?: string
+          id?: string
+          is_active?: boolean | null
+          prompt_text?: string
+          tags?: string[] | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      journal_reminders: {
+        Row: {
+          created_at: string
+          days_of_week: number[]
+          id: string
+          is_active: boolean | null
+          message: string | null
+          reminder_time: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          days_of_week: number[]
+          id?: string
+          is_active?: boolean | null
+          message?: string | null
+          reminder_time: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          days_of_week?: number[]
+          id?: string
+          is_active?: boolean | null
+          message?: string | null
+          reminder_time?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      journal_text: {
+        Row: {
+          created_at: string
+          emo_vec: number[] | null
+          emo_vec_encrypted: string | null
+          id: string
+          preview: string | null
+          preview_encrypted: string | null
+          styled_html: string | null
+          styled_html_encrypted: string | null
+          text_raw: string
+          text_raw_encrypted: string | null
+          ts: string
+          updated_at: string
+          user_hash: string | null
+          user_id: string
+          valence: number | null
+        }
+        Insert: {
+          created_at?: string
+          emo_vec?: number[] | null
+          emo_vec_encrypted?: string | null
+          id?: string
+          preview?: string | null
+          preview_encrypted?: string | null
+          styled_html?: string | null
+          styled_html_encrypted?: string | null
+          text_raw: string
+          text_raw_encrypted?: string | null
+          ts?: string
+          updated_at?: string
+          user_hash?: string | null
+          user_id: string
+          valence?: number | null
+        }
+        Update: {
+          created_at?: string
+          emo_vec?: number[] | null
+          emo_vec_encrypted?: string | null
+          id?: string
+          preview?: string | null
+          preview_encrypted?: string | null
+          styled_html?: string | null
+          styled_html_encrypted?: string | null
+          text_raw?: string
+          text_raw_encrypted?: string | null
+          ts?: string
+          updated_at?: string
+          user_hash?: string | null
+          user_id?: string
+          valence?: number | null
+        }
+        Relationships: []
+      }
+      journal_voice: {
+        Row: {
+          audio_url: string | null
+          created_at: string
+          crystal_meta: Json | null
+          crystal_meta_encrypted: string | null
+          emo_vec: number[] | null
+          emo_vec_encrypted: string | null
+          id: string
+          pitch_avg: number | null
+          summary_120: string | null
+          summary_120_encrypted: string | null
+          text_raw: string
+          text_raw_encrypted: string | null
+          ts: string
+          updated_at: string
+          user_hash: string | null
+          user_id: string
+          valence: number | null
+        }
+        Insert: {
+          audio_url?: string | null
+          created_at?: string
+          crystal_meta?: Json | null
+          crystal_meta_encrypted?: string | null
+          emo_vec?: number[] | null
+          emo_vec_encrypted?: string | null
+          id?: string
+          pitch_avg?: number | null
+          summary_120?: string | null
+          summary_120_encrypted?: string | null
+          text_raw: string
+          text_raw_encrypted?: string | null
+          ts?: string
+          updated_at?: string
+          user_hash?: string | null
+          user_id: string
+          valence?: number | null
+        }
+        Update: {
+          audio_url?: string | null
+          created_at?: string
+          crystal_meta?: Json | null
+          crystal_meta_encrypted?: string | null
+          emo_vec?: number[] | null
+          emo_vec_encrypted?: string | null
+          id?: string
+          pitch_avg?: number | null
+          summary_120?: string | null
+          summary_120_encrypted?: string | null
+          text_raw?: string
+          text_raw_encrypted?: string | null
+          ts?: string
+          updated_at?: string
+          user_hash?: string | null
+          user_id?: string
+          valence?: number | null
         }
         Relationships: []
       }
@@ -4018,6 +5425,53 @@ export type Database = {
             columns: ["previous_version_id"]
             isOneToOne: false
             referencedRelation: "lyrics_texts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      manager_actions: {
+        Row: {
+          action_description: string
+          action_type: string
+          completed: boolean | null
+          completed_at: string | null
+          created_at: string | null
+          id: string
+          manager_id: string
+          org_id: string
+          scheduled_at: string | null
+          team_name: string
+        }
+        Insert: {
+          action_description: string
+          action_type: string
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          manager_id: string
+          org_id: string
+          scheduled_at?: string | null
+          team_name: string
+        }
+        Update: {
+          action_description?: string
+          action_type?: string
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          manager_id?: string
+          org_id?: string
+          scheduled_at?: string | null
+          team_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "manager_actions_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
         ]
@@ -5052,6 +6506,90 @@ export type Database = {
         }
         Relationships: []
       }
+      meditation_content: {
+        Row: {
+          audio_url: string | null
+          category: string
+          created_at: string | null
+          description: string | null
+          difficulty_level: string | null
+          duration: number
+          id: string
+          instructor: string | null
+          thumbnail_url: string | null
+          title: string
+        }
+        Insert: {
+          audio_url?: string | null
+          category: string
+          created_at?: string | null
+          description?: string | null
+          difficulty_level?: string | null
+          duration: number
+          id?: string
+          instructor?: string | null
+          thumbnail_url?: string | null
+          title: string
+        }
+        Update: {
+          audio_url?: string | null
+          category?: string
+          created_at?: string | null
+          description?: string | null
+          difficulty_level?: string | null
+          duration?: number
+          id?: string
+          instructor?: string | null
+          thumbnail_url?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
+      meditation_sessions: {
+        Row: {
+          completed_at: string | null
+          config: Json | null
+          created_at: string
+          duration: number
+          id: string
+          mood_after: number | null
+          mood_before: number | null
+          notes: string | null
+          started_at: string
+          technique: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          config?: Json | null
+          created_at?: string
+          duration: number
+          id?: string
+          mood_after?: number | null
+          mood_before?: number | null
+          notes?: string | null
+          started_at?: string
+          technique: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          config?: Json | null
+          created_at?: string
+          duration?: number
+          id?: string
+          mood_after?: number | null
+          mood_before?: number | null
+          notes?: string | null
+          started_at?: string
+          technique?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       metrics_bubble_beat: {
         Row: {
           id: string
@@ -5196,6 +6734,42 @@ export type Database = {
         }
         Relationships: []
       }
+      module_progress: {
+        Row: {
+          created_at: string
+          id: string
+          metadata: Json
+          module_name: string
+          total_xp: number
+          unlocked_items: Json
+          updated_at: string
+          user_id: string
+          user_level: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          metadata?: Json
+          module_name: string
+          total_xp?: number
+          unlocked_items?: Json
+          updated_at?: string
+          user_id: string
+          user_level?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          metadata?: Json
+          module_name?: string
+          total_xp?: number
+          unlocked_items?: Json
+          updated_at?: string
+          user_id?: string
+          user_level?: number
+        }
+        Relationships: []
+      }
       monitoring_incidents: {
         Row: {
           created_at: string
@@ -5235,6 +6809,116 @@ export type Database = {
           severity?: string
           status?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      mood_entries: {
+        Row: {
+          created_at: string | null
+          emotions: string[] | null
+          id: string
+          mood_level: number
+          notes: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          emotions?: string[] | null
+          id?: string
+          mood_level: number
+          notes?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          emotions?: string[] | null
+          id?: string
+          mood_level?: number
+          notes?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "mood_entries_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      mood_mixer_sessions: {
+        Row: {
+          activities_selected: string[] | null
+          completed_at: string | null
+          created_at: string
+          duration_seconds: number | null
+          id: string
+          mood_after: string | null
+          mood_before: string | null
+          satisfaction_score: number | null
+          user_id: string
+        }
+        Insert: {
+          activities_selected?: string[] | null
+          completed_at?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          id?: string
+          mood_after?: string | null
+          mood_before?: string | null
+          satisfaction_score?: number | null
+          user_id: string
+        }
+        Update: {
+          activities_selected?: string[] | null
+          completed_at?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          id?: string
+          mood_after?: string | null
+          mood_before?: string | null
+          satisfaction_score?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      mood_tracking: {
+        Row: {
+          context: string | null
+          coping_strategies: Json | null
+          created_at: string
+          emotions: Json | null
+          id: string
+          mood_score: number
+          notes: string | null
+          triggers: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          context?: string | null
+          coping_strategies?: Json | null
+          created_at?: string
+          emotions?: Json | null
+          id?: string
+          mood_score: number
+          notes?: string | null
+          triggers?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          context?: string | null
+          coping_strategies?: Json | null
+          created_at?: string
+          emotions?: Json | null
+          id?: string
+          mood_score?: number
+          notes?: string | null
+          triggers?: Json | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -5288,6 +6972,41 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      music_fragments: {
+        Row: {
+          created_at: string | null
+          id: string
+          rarity: string
+          session_id: string | null
+          unlocked_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          rarity: string
+          session_id?: string | null
+          unlocked_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          rarity?: string
+          session_id?: string | null
+          unlocked_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "music_fragments_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "music_therapy_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       music_generation_logs: {
         Row: {
@@ -5510,6 +7229,57 @@ export type Database = {
         }
         Relationships: []
       }
+      music_therapy_sessions: {
+        Row: {
+          badge_verbal: string | null
+          completed_at: string | null
+          created_at: string | null
+          duration_seconds: number | null
+          fragment_rarity: string | null
+          fragment_unlocked: boolean | null
+          id: string
+          interactions_count: number | null
+          mood_state_post: Json | null
+          mood_state_pre: Json | null
+          music_metadata: Json | null
+          music_url: string | null
+          started_at: string | null
+          user_id: string
+        }
+        Insert: {
+          badge_verbal?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          duration_seconds?: number | null
+          fragment_rarity?: string | null
+          fragment_unlocked?: boolean | null
+          id?: string
+          interactions_count?: number | null
+          mood_state_post?: Json | null
+          mood_state_pre?: Json | null
+          music_metadata?: Json | null
+          music_url?: string | null
+          started_at?: string | null
+          user_id: string
+        }
+        Update: {
+          badge_verbal?: string | null
+          completed_at?: string | null
+          created_at?: string | null
+          duration_seconds?: number | null
+          fragment_rarity?: string | null
+          fragment_unlocked?: boolean | null
+          id?: string
+          interactions_count?: number | null
+          mood_state_post?: Json | null
+          mood_state_pre?: Json | null
+          music_metadata?: Json | null
+          music_url?: string | null
+          started_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       notification_preferences: {
         Row: {
           category: string
@@ -5662,6 +7432,33 @@ export type Database = {
           target_audience?: string | null
           title?: string
           type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      nyvee_sessions: {
+        Row: {
+          assessment_results: Json | null
+          completed_at: string | null
+          created_at: string | null
+          id: string
+          session_data: Json
+          user_id: string
+        }
+        Insert: {
+          assessment_results?: Json | null
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          session_data?: Json
+          user_id: string
+        }
+        Update: {
+          assessment_results?: Json | null
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          session_data?: Json
           user_id?: string
         }
         Relationships: []
@@ -6061,6 +7858,45 @@ export type Database = {
           },
         ]
       }
+      organization_members: {
+        Row: {
+          id: string
+          joined_at: string | null
+          organization_id: string
+          role: string | null
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          joined_at?: string | null
+          organization_id: string
+          role?: string | null
+          user_id: string
+        }
+        Update: {
+          id?: string
+          joined_at?: string | null
+          organization_id?: string
+          role?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "organization_members_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "organization_members_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       organizations: {
         Row: {
           created_at: string
@@ -6085,6 +7921,36 @@ export type Database = {
           name?: string
           settings?: Json | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      orgs: {
+        Row: {
+          created_at: string | null
+          id: string
+          logo_url: string | null
+          name: string
+          settings: Json | null
+          subscription_plan: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          logo_url?: string | null
+          name: string
+          settings?: Json | null
+          subscription_plan?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          logo_url?: string | null
+          name?: string
+          settings?: Json | null
+          subscription_plan?: string | null
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -6114,6 +7980,149 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      parcours_presets: {
+        Row: {
+          created_at: string
+          duration_max: number
+          duration_min: number
+          emotion_category: string
+          id: string
+          preset_config: Json
+          preset_key: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          duration_max?: number
+          duration_min?: number
+          emotion_category: string
+          id?: string
+          preset_config: Json
+          preset_key: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          duration_max?: number
+          duration_min?: number
+          emotion_category?: string
+          id?: string
+          preset_config?: Json
+          preset_key?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      parcours_runs: {
+        Row: {
+          created_at: string
+          ended_at: string | null
+          id: string
+          metadata: Json | null
+          notes_encrypted: string | null
+          preset_key: string
+          started_at: string
+          status: string
+          suds_end: number | null
+          suds_mid: number | null
+          suds_start: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          metadata?: Json | null
+          notes_encrypted?: string | null
+          preset_key: string
+          started_at?: string
+          status?: string
+          suds_end?: number | null
+          suds_mid?: number | null
+          suds_start?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          metadata?: Json | null
+          notes_encrypted?: string | null
+          preset_key?: string
+          started_at?: string
+          status?: string
+          suds_end?: number | null
+          suds_mid?: number | null
+          suds_start?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      parcours_segments: {
+        Row: {
+          audio_url: string | null
+          created_at: string
+          end_seconds: number
+          id: string
+          lyrics: Json | null
+          run_id: string
+          segment_index: number
+          start_seconds: number
+          status: string
+          storage_path: string | null
+          stream_url: string | null
+          suno_task_id: string | null
+          title: string
+          voiceover_script: string | null
+          voiceover_url: string | null
+        }
+        Insert: {
+          audio_url?: string | null
+          created_at?: string
+          end_seconds: number
+          id?: string
+          lyrics?: Json | null
+          run_id: string
+          segment_index: number
+          start_seconds: number
+          status?: string
+          storage_path?: string | null
+          stream_url?: string | null
+          suno_task_id?: string | null
+          title: string
+          voiceover_script?: string | null
+          voiceover_url?: string | null
+        }
+        Update: {
+          audio_url?: string | null
+          created_at?: string
+          end_seconds?: number
+          id?: string
+          lyrics?: Json | null
+          run_id?: string
+          segment_index?: number
+          start_seconds?: number
+          status?: string
+          storage_path?: string | null
+          stream_url?: string | null
+          suno_task_id?: string | null
+          title?: string
+          voiceover_script?: string | null
+          voiceover_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "parcours_segments_run_id_fkey"
+            columns: ["run_id"]
+            isOneToOne: false
+            referencedRelation: "parcours_runs"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       pending_corrections: {
         Row: {
@@ -6458,11 +8467,14 @@ export type Database = {
           job_title: string | null
           location: string | null
           name: string | null
+          org_id: string | null
           phone: string | null
           preferences: Json | null
           role: string | null
           subscription_plan: string | null
+          team_id: string | null
           updated_at: string | null
+          user_role: Database["public"]["Enums"]["app_user_role"] | null
           website: string | null
         }
         Insert: {
@@ -6478,11 +8490,14 @@ export type Database = {
           job_title?: string | null
           location?: string | null
           name?: string | null
+          org_id?: string | null
           phone?: string | null
           preferences?: Json | null
           role?: string | null
           subscription_plan?: string | null
+          team_id?: string | null
           updated_at?: string | null
+          user_role?: Database["public"]["Enums"]["app_user_role"] | null
           website?: string | null
         }
         Update: {
@@ -6498,14 +8513,32 @@ export type Database = {
           job_title?: string | null
           location?: string | null
           name?: string | null
+          org_id?: string | null
           phone?: string | null
           preferences?: Json | null
           role?: string | null
           subscription_plan?: string | null
+          team_id?: string | null
           updated_at?: string | null
+          user_role?: Database["public"]["Enums"]["app_user_role"] | null
           website?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "orgs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "profiles_team_id_fkey"
+            columns: ["team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       push_subscriptions: {
         Row: {
@@ -6674,6 +8707,45 @@ export type Database = {
         }
         Relationships: []
       }
+      rare_auras_catalog: {
+        Row: {
+          animation_preset: string | null
+          aura_type: string
+          color_palette: Json
+          created_at: string | null
+          description: string | null
+          icon: string | null
+          id: string
+          name: string
+          rarity_level: string
+          unlock_conditions: Json
+        }
+        Insert: {
+          animation_preset?: string | null
+          aura_type: string
+          color_palette: Json
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name: string
+          rarity_level: string
+          unlock_conditions: Json
+        }
+        Update: {
+          animation_preset?: string | null
+          aura_type?: string
+          color_palette?: Json
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
+          rarity_level?: string
+          unlock_conditions?: Json
+        }
+        Relationships: []
+      }
       rate_limit_counters: {
         Row: {
           created_at: string | null
@@ -6794,6 +8866,96 @@ export type Database = {
           last_updated?: string | null
           page_name?: string
           route_path?: string
+        }
+        Relationships: []
+      }
+      saved_mood_mixes: {
+        Row: {
+          badge_color: string | null
+          badge_name: string | null
+          created_at: string | null
+          emotions: Json
+          id: string
+          name: string
+          user_id: string
+        }
+        Insert: {
+          badge_color?: string | null
+          badge_name?: string | null
+          created_at?: string | null
+          emotions: Json
+          id?: string
+          name: string
+          user_id: string
+        }
+        Update: {
+          badge_color?: string | null
+          badge_name?: string | null
+          created_at?: string | null
+          emotions?: Json
+          id?: string
+          name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      screen_silk_sessions: {
+        Row: {
+          badge: string | null
+          created_at: string | null
+          duration_seconds: number | null
+          hints: Json | null
+          id: string
+          session_id: string
+          user_id: string
+        }
+        Insert: {
+          badge?: string | null
+          created_at?: string | null
+          duration_seconds?: number | null
+          hints?: Json | null
+          id?: string
+          session_id: string
+          user_id: string
+        }
+        Update: {
+          badge?: string | null
+          created_at?: string | null
+          duration_seconds?: number | null
+          hints?: Json | null
+          id?: string
+          session_id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      screen_silk_textures: {
+        Row: {
+          asset_url: string | null
+          id: string
+          name: string
+          rarity: string | null
+          texture_id: string
+          unlocked_at: string | null
+          user_id: string
+        }
+        Insert: {
+          asset_url?: string | null
+          id?: string
+          name: string
+          rarity?: string | null
+          texture_id: string
+          unlocked_at?: string | null
+          user_id: string
+        }
+        Update: {
+          asset_url?: string | null
+          id?: string
+          name?: string
+          rarity?: string | null
+          texture_id?: string
+          unlocked_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -6989,6 +9151,264 @@ export type Database = {
         }
         Relationships: []
       }
+      story_acts_catalog: {
+        Row: {
+          act_code: string
+          created_at: string | null
+          description: string | null
+          difficulty_level: string | null
+          duration_minutes: number | null
+          id: string
+          music_palette: Json | null
+          scenes: Json
+          theme: string
+          title: string
+          unlock_conditions: Json | null
+          visual_palette: Json | null
+        }
+        Insert: {
+          act_code: string
+          created_at?: string | null
+          description?: string | null
+          difficulty_level?: string | null
+          duration_minutes?: number | null
+          id?: string
+          music_palette?: Json | null
+          scenes: Json
+          theme: string
+          title: string
+          unlock_conditions?: Json | null
+          visual_palette?: Json | null
+        }
+        Update: {
+          act_code?: string
+          created_at?: string | null
+          description?: string | null
+          difficulty_level?: string | null
+          duration_minutes?: number | null
+          id?: string
+          music_palette?: Json | null
+          scenes?: Json
+          theme?: string
+          title?: string
+          unlock_conditions?: Json | null
+          visual_palette?: Json | null
+        }
+        Relationships: []
+      }
+      story_ambients: {
+        Row: {
+          ambient_code: string
+          created_at: string | null
+          description: string | null
+          id: string
+          music_texture: Json
+          name: string
+          unlocked_at: string | null
+          user_id: string
+          visual_effect: Json | null
+        }
+        Insert: {
+          ambient_code: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          music_texture: Json
+          name: string
+          unlocked_at?: string | null
+          user_id: string
+          visual_effect?: Json | null
+        }
+        Update: {
+          ambient_code?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          music_texture?: Json
+          name?: string
+          unlocked_at?: string | null
+          user_id?: string
+          visual_effect?: Json | null
+        }
+        Relationships: []
+      }
+      story_fragments: {
+        Row: {
+          act_code: string
+          ambient_unlock: string | null
+          created_at: string | null
+          description: string | null
+          fragment_code: string
+          id: string
+          is_favorite: boolean | null
+          rarity: string
+          times_viewed: number | null
+          title: string
+          unlocked_at: string | null
+          user_id: string
+          visual_asset: string | null
+        }
+        Insert: {
+          act_code: string
+          ambient_unlock?: string | null
+          created_at?: string | null
+          description?: string | null
+          fragment_code: string
+          id?: string
+          is_favorite?: boolean | null
+          rarity: string
+          times_viewed?: number | null
+          title: string
+          unlocked_at?: string | null
+          user_id: string
+          visual_asset?: string | null
+        }
+        Update: {
+          act_code?: string
+          ambient_unlock?: string | null
+          created_at?: string | null
+          description?: string | null
+          fragment_code?: string
+          id?: string
+          is_favorite?: boolean | null
+          rarity?: string
+          times_viewed?: number | null
+          title?: string
+          unlocked_at?: string | null
+          user_id?: string
+          visual_asset?: string | null
+        }
+        Relationships: []
+      }
+      story_fragments_catalog: {
+        Row: {
+          act_code: string
+          ambient_data: Json | null
+          created_at: string | null
+          description: string | null
+          fragment_code: string
+          id: string
+          rarity: string
+          title: string
+          unlock_hints: Json | null
+          visual_data: Json
+        }
+        Insert: {
+          act_code: string
+          ambient_data?: Json | null
+          created_at?: string | null
+          description?: string | null
+          fragment_code: string
+          id?: string
+          rarity: string
+          title: string
+          unlock_hints?: Json | null
+          visual_data: Json
+        }
+        Update: {
+          act_code?: string
+          ambient_data?: Json | null
+          created_at?: string | null
+          description?: string | null
+          fragment_code?: string
+          id?: string
+          rarity?: string
+          title?: string
+          unlock_hints?: Json | null
+          visual_data?: Json
+        }
+        Relationships: []
+      }
+      story_sessions: {
+        Row: {
+          act_code: string
+          badge_received: string | null
+          choices: Json | null
+          completed_at: string | null
+          created_at: string | null
+          duration_seconds: number | null
+          ending_reached: string | null
+          fragments_unlocked: Json | null
+          id: string
+          poms_post: Json | null
+          poms_pre: Json | null
+          scenes_completed: number | null
+          session_id: string | null
+          started_at: string | null
+          user_id: string
+        }
+        Insert: {
+          act_code: string
+          badge_received?: string | null
+          choices?: Json | null
+          completed_at?: string | null
+          created_at?: string | null
+          duration_seconds?: number | null
+          ending_reached?: string | null
+          fragments_unlocked?: Json | null
+          id?: string
+          poms_post?: Json | null
+          poms_pre?: Json | null
+          scenes_completed?: number | null
+          session_id?: string | null
+          started_at?: string | null
+          user_id: string
+        }
+        Update: {
+          act_code?: string
+          badge_received?: string | null
+          choices?: Json | null
+          completed_at?: string | null
+          created_at?: string | null
+          duration_seconds?: number | null
+          ending_reached?: string | null
+          fragments_unlocked?: Json | null
+          id?: string
+          poms_post?: Json | null
+          poms_pre?: Json | null
+          scenes_completed?: number | null
+          session_id?: string | null
+          started_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      story_synth_sessions: {
+        Row: {
+          choices_made: Json | null
+          completed_at: string | null
+          created_at: string
+          duration_seconds: number | null
+          emotion_tags: string[] | null
+          id: string
+          story_content: string | null
+          story_theme: string | null
+          user_id: string
+        }
+        Insert: {
+          choices_made?: Json | null
+          completed_at?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          emotion_tags?: string[] | null
+          id?: string
+          story_content?: string | null
+          story_theme?: string | null
+          user_id: string
+        }
+        Update: {
+          choices_made?: Json | null
+          completed_at?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          emotion_tags?: string[] | null
+          id?: string
+          story_content?: string | null
+          story_theme?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       streaming_access_logs: {
         Row: {
           action: string
@@ -7130,6 +9550,163 @@ export type Database = {
         }
         Relationships: []
       }
+      subscriptions: {
+        Row: {
+          expires_at: string | null
+          features: Json | null
+          id: string
+          organization_id: string | null
+          plan_type: string
+          started_at: string | null
+          status: string | null
+          user_id: string | null
+        }
+        Insert: {
+          expires_at?: string | null
+          features?: Json | null
+          id?: string
+          organization_id?: string | null
+          plan_type: string
+          started_at?: string | null
+          status?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          expires_at?: string | null
+          features?: Json | null
+          id?: string
+          organization_id?: string | null
+          plan_type?: string
+          started_at?: string | null
+          status?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscriptions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      suno_callbacks: {
+        Row: {
+          callback_type: string
+          created_at: string | null
+          id: string
+          metadata: Json | null
+          status: string | null
+          task_id: string
+        }
+        Insert: {
+          callback_type: string
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          status?: string | null
+          task_id: string
+        }
+        Update: {
+          callback_type?: string
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          status?: string | null
+          task_id?: string
+        }
+        Relationships: []
+      }
+      team_assessments: {
+        Row: {
+          can_show: boolean
+          color_mood: string | null
+          created_at: string | null
+          hints: Json
+          id: string
+          org_id: string
+          period_end: string
+          period_start: string
+          phrases: Json
+          response_count: number
+          team_name: string
+          updated_at: string | null
+        }
+        Insert: {
+          can_show?: boolean
+          color_mood?: string | null
+          created_at?: string | null
+          hints?: Json
+          id?: string
+          org_id: string
+          period_end: string
+          period_start: string
+          phrases?: Json
+          response_count?: number
+          team_name: string
+          updated_at?: string | null
+        }
+        Update: {
+          can_show?: boolean
+          color_mood?: string | null
+          created_at?: string | null
+          hints?: Json
+          id?: string
+          org_id?: string
+          period_end?: string
+          period_start?: string
+          phrases?: Json
+          response_count?: number
+          team_name?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_assessments_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      teams: {
+        Row: {
+          created_at: string | null
+          id: string
+          name: string
+          org_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          name: string
+          org_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          name?: string
+          org_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "teams_org_id_fkey"
+            columns: ["org_id"]
+            isOneToOne: false
+            referencedRelation: "orgs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       therapeutic_classes: {
         Row: {
           created_at: string | null
@@ -7145,6 +9722,125 @@ export type Database = {
           created_at?: string | null
           id?: number
           name?: string
+        }
+        Relationships: []
+      }
+      therapists: {
+        Row: {
+          available: boolean | null
+          avatar_url: string | null
+          bio: string | null
+          created_at: string | null
+          full_name: string
+          id: string
+          languages: string[] | null
+          price_per_session: number
+          rating: number | null
+          specialization: string
+        }
+        Insert: {
+          available?: boolean | null
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          full_name: string
+          id?: string
+          languages?: string[] | null
+          price_per_session: number
+          rating?: number | null
+          specialization: string
+        }
+        Update: {
+          available?: boolean | null
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          full_name?: string
+          id?: string
+          languages?: string[] | null
+          price_per_session?: number
+          rating?: number | null
+          specialization?: string
+        }
+        Relationships: []
+      }
+      therapy_sessions: {
+        Row: {
+          created_at: string | null
+          duration_minutes: number | null
+          id: string
+          meeting_url: string | null
+          notes: string | null
+          scheduled_at: string
+          status: string | null
+          therapist_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          duration_minutes?: number | null
+          id?: string
+          meeting_url?: string | null
+          notes?: string | null
+          scheduled_at: string
+          status?: string | null
+          therapist_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          duration_minutes?: number | null
+          id?: string
+          meeting_url?: string | null
+          notes?: string | null
+          scheduled_at?: string
+          status?: string | null
+          therapist_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "therapy_sessions_therapist_id_fkey"
+            columns: ["therapist_id"]
+            isOneToOne: false
+            referencedRelation: "therapists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      thought_grimoire: {
+        Row: {
+          category: string
+          collected_at: string
+          id: string
+          is_favorite: boolean | null
+          rarity: string
+          thought_emoji: string | null
+          thought_text: string
+          times_viewed: number | null
+          user_id: string
+        }
+        Insert: {
+          category?: string
+          collected_at?: string
+          id?: string
+          is_favorite?: boolean | null
+          rarity?: string
+          thought_emoji?: string | null
+          thought_text: string
+          times_viewed?: number | null
+          user_id: string
+        }
+        Update: {
+          category?: string
+          collected_at?: string
+          id?: string
+          is_favorite?: boolean | null
+          rarity?: string
+          thought_emoji?: string | null
+          thought_text?: string
+          times_viewed?: number | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -7351,6 +10047,33 @@ export type Database = {
           },
         ]
       }
+      user_activities: {
+        Row: {
+          activity_data: Json | null
+          activity_type: string
+          created_at: string | null
+          duration_seconds: number | null
+          id: string
+          user_id: string
+        }
+        Insert: {
+          activity_data?: Json | null
+          activity_type: string
+          created_at?: string | null
+          duration_seconds?: number | null
+          id?: string
+          user_id: string
+        }
+        Update: {
+          activity_data?: Json | null
+          activity_type?: string
+          created_at?: string | null
+          duration_seconds?: number | null
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_activity_logs: {
         Row: {
           activity_details: Json | null
@@ -7488,6 +10211,90 @@ export type Database = {
           peak_performance_hour?: number | null
           sessions_completed?: number | null
           study_time_minutes?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_auras: {
+        Row: {
+          animation_speed: number
+          color_hue: number
+          created_at: string | null
+          id: string
+          interactions_count: number
+          is_rare: boolean | null
+          last_who5_at: string | null
+          luminosity: number
+          rare_type: string | null
+          size_scale: number
+          streak_weeks: number
+          unlocked_at: string | null
+          updated_at: string | null
+          user_id: string
+          who5_internal_level: number | null
+        }
+        Insert: {
+          animation_speed?: number
+          color_hue?: number
+          created_at?: string | null
+          id?: string
+          interactions_count?: number
+          is_rare?: boolean | null
+          last_who5_at?: string | null
+          luminosity?: number
+          rare_type?: string | null
+          size_scale?: number
+          streak_weeks?: number
+          unlocked_at?: string | null
+          updated_at?: string | null
+          user_id: string
+          who5_internal_level?: number | null
+        }
+        Update: {
+          animation_speed?: number
+          color_hue?: number
+          created_at?: string | null
+          id?: string
+          interactions_count?: number
+          is_rare?: boolean | null
+          last_who5_at?: string | null
+          luminosity?: number
+          rare_type?: string | null
+          size_scale?: number
+          streak_weeks?: number
+          unlocked_at?: string | null
+          updated_at?: string | null
+          user_id?: string
+          who5_internal_level?: number | null
+        }
+        Relationships: []
+      }
+      user_collections: {
+        Row: {
+          collection_id: string
+          created_at: string | null
+          id: string
+          item_id: string
+          metadata: Json | null
+          unlocked_at: string | null
+          user_id: string
+        }
+        Insert: {
+          collection_id: string
+          created_at?: string | null
+          id?: string
+          item_id: string
+          metadata?: Json | null
+          unlocked_at?: string | null
+          user_id: string
+        }
+        Update: {
+          collection_id?: string
+          created_at?: string | null
+          id?: string
+          item_id?: string
+          metadata?: Json | null
+          unlocked_at?: string | null
           user_id?: string
         }
         Relationships: []
@@ -7632,6 +10439,151 @@ export type Database = {
         }
         Relationships: []
       }
+      user_insights: {
+        Row: {
+          action_items: Json | null
+          created_at: string | null
+          description: string
+          expires_at: string | null
+          id: string
+          insight_type: string
+          is_read: boolean | null
+          priority: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          action_items?: Json | null
+          created_at?: string | null
+          description: string
+          expires_at?: string | null
+          id?: string
+          insight_type: string
+          is_read?: boolean | null
+          priority?: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          action_items?: Json | null
+          created_at?: string | null
+          description?: string
+          expires_at?: string | null
+          id?: string
+          insight_type?: string
+          is_read?: boolean | null
+          priority?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_meditation_progress: {
+        Row: {
+          completed: boolean | null
+          completed_at: string | null
+          created_at: string | null
+          id: string
+          meditation_id: string
+          progress_seconds: number | null
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          meditation_id: string
+          progress_seconds?: number | null
+          user_id: string
+        }
+        Update: {
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          meditation_id?: string
+          progress_seconds?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_meditation_progress_meditation_id_fkey"
+            columns: ["meditation_id"]
+            isOneToOne: false
+            referencedRelation: "meditation_content"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_music_consents: {
+        Row: {
+          camera_optin: boolean
+          consent_date: string
+          consent_version: string
+          emotion_analysis_optin: boolean
+          mic_optin: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          camera_optin?: boolean
+          consent_date?: string
+          consent_version?: string
+          emotion_analysis_optin?: boolean
+          mic_optin?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          camera_optin?: boolean
+          consent_date?: string
+          consent_version?: string
+          emotion_analysis_optin?: boolean
+          mic_optin?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_music_generations: {
+        Row: {
+          created_at: string | null
+          emotion_badge: string | null
+          emotion_state: Json
+          id: string
+          suno_config: Json | null
+          task_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          emotion_badge?: string | null
+          emotion_state: Json
+          id?: string
+          suno_config?: Json | null
+          task_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          emotion_badge?: string | null
+          emotion_state?: Json
+          id?: string
+          suno_config?: Json | null
+          task_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_music_generations_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "suno_callbacks"
+            referencedColumns: ["task_id"]
+          },
+        ]
+      }
       user_music_preferences: {
         Row: {
           created_at: string | null
@@ -7753,6 +10705,7 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          nyvee_tutorial_seen: boolean | null
           preferences: Json
           updated_at: string
           user_id: string
@@ -7760,6 +10713,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          nyvee_tutorial_seen?: boolean | null
           preferences?: Json
           updated_at?: string
           user_id: string
@@ -7767,6 +10721,7 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          nyvee_tutorial_seen?: boolean | null
           preferences?: Json
           updated_at?: string
           user_id?: string
@@ -8040,6 +10995,45 @@ export type Database = {
         }
         Relationships: []
       }
+      user_reports: {
+        Row: {
+          created_at: string | null
+          highlights: Json | null
+          id: string
+          metrics: Json
+          pdf_url: string | null
+          period_end: string
+          period_start: string
+          recommendations: Json | null
+          report_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          highlights?: Json | null
+          id?: string
+          metrics: Json
+          pdf_url?: string | null
+          period_end: string
+          period_start: string
+          recommendations?: Json | null
+          report_type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          highlights?: Json | null
+          id?: string
+          metrics?: Json
+          pdf_url?: string | null
+          period_end?: string
+          period_start?: string
+          recommendations?: Json | null
+          report_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_rewards: {
         Row: {
           activity_related: string | null
@@ -8072,6 +11066,33 @@ export type Database = {
           reward_description?: string | null
           reward_name?: string
           reward_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          notes: string | null
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          notes?: string | null
+          role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
         }
         Relationships: []
@@ -8109,6 +11130,81 @@ export type Database = {
           session_start?: string | null
           user_agent?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      user_settings: {
+        Row: {
+          consent_anonymous_aggregation: boolean | null
+          consent_cbi: boolean | null
+          consent_cvsq: boolean | null
+          consent_panas: boolean | null
+          consent_swemwbs: boolean | null
+          consent_uwes: boolean | null
+          consent_who5: boolean | null
+          created_at: string | null
+          haptics_enabled: boolean | null
+          high_contrast: boolean | null
+          id: string
+          journal_reminders: boolean | null
+          low_stim_mode: boolean | null
+          nyvee_reminders: boolean | null
+          onboarding_completed: boolean | null
+          onboarding_step: number | null
+          reminder_frequency: string | null
+          screen_silk_reminders: boolean | null
+          theme_palette: string | null
+          tts_enabled: boolean | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          consent_anonymous_aggregation?: boolean | null
+          consent_cbi?: boolean | null
+          consent_cvsq?: boolean | null
+          consent_panas?: boolean | null
+          consent_swemwbs?: boolean | null
+          consent_uwes?: boolean | null
+          consent_who5?: boolean | null
+          created_at?: string | null
+          haptics_enabled?: boolean | null
+          high_contrast?: boolean | null
+          id?: string
+          journal_reminders?: boolean | null
+          low_stim_mode?: boolean | null
+          nyvee_reminders?: boolean | null
+          onboarding_completed?: boolean | null
+          onboarding_step?: number | null
+          reminder_frequency?: string | null
+          screen_silk_reminders?: boolean | null
+          theme_palette?: string | null
+          tts_enabled?: boolean | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          consent_anonymous_aggregation?: boolean | null
+          consent_cbi?: boolean | null
+          consent_cvsq?: boolean | null
+          consent_panas?: boolean | null
+          consent_swemwbs?: boolean | null
+          consent_uwes?: boolean | null
+          consent_who5?: boolean | null
+          created_at?: string | null
+          haptics_enabled?: boolean | null
+          high_contrast?: boolean | null
+          id?: string
+          journal_reminders?: boolean | null
+          low_stim_mode?: boolean | null
+          nyvee_reminders?: boolean | null
+          onboarding_completed?: boolean | null
+          onboarding_step?: number | null
+          reminder_frequency?: string | null
+          screen_silk_reminders?: boolean | null
+          theme_palette?: string | null
+          tts_enabled?: boolean | null
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
@@ -8240,6 +11336,161 @@ export type Database = {
         }
         Relationships: []
       }
+      voice_processing_jobs: {
+        Row: {
+          audio_url: string
+          completed_at: string | null
+          created_at: string
+          emotion_analysis: Json | null
+          entry_id: string | null
+          id: string
+          processing_error: string | null
+          started_at: string
+          status: string
+          transcription: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          audio_url: string
+          completed_at?: string | null
+          created_at?: string
+          emotion_analysis?: Json | null
+          entry_id?: string | null
+          id?: string
+          processing_error?: string | null
+          started_at?: string
+          status?: string
+          transcription?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          audio_url?: string
+          completed_at?: string | null
+          created_at?: string
+          emotion_analysis?: Json | null
+          entry_id?: string | null
+          id?: string
+          processing_error?: string | null
+          started_at?: string
+          status?: string
+          transcription?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "voice_processing_jobs_entry_id_fkey"
+            columns: ["entry_id"]
+            isOneToOne: false
+            referencedRelation: "journal_entries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vr_dome_sessions: {
+        Row: {
+          created_at: string
+          group_sync_idx: number | null
+          hr_mean: number | null
+          hr_std: number | null
+          id: string
+          session_id: string
+          synchrony_idx: number | null
+          team_pa: number | null
+          ts: string
+          ts_join: string
+          ts_leave: string | null
+          user_id: string
+          user_id_hash: string | null
+          valence: number | null
+          valence_avg: number | null
+        }
+        Insert: {
+          created_at?: string
+          group_sync_idx?: number | null
+          hr_mean?: number | null
+          hr_std?: number | null
+          id?: string
+          session_id: string
+          synchrony_idx?: number | null
+          team_pa?: number | null
+          ts?: string
+          ts_join?: string
+          ts_leave?: string | null
+          user_id: string
+          user_id_hash?: string | null
+          valence?: number | null
+          valence_avg?: number | null
+        }
+        Update: {
+          created_at?: string
+          group_sync_idx?: number | null
+          hr_mean?: number | null
+          hr_std?: number | null
+          id?: string
+          session_id?: string
+          synchrony_idx?: number | null
+          team_pa?: number | null
+          ts?: string
+          ts_join?: string
+          ts_leave?: string | null
+          user_id?: string
+          user_id_hash?: string | null
+          valence?: number | null
+          valence_avg?: number | null
+        }
+        Relationships: []
+      }
+      vr_nebula_sessions: {
+        Row: {
+          client: string | null
+          coherence_score: number | null
+          created_at: string
+          duration_s: number
+          hrv_post: number | null
+          hrv_pre: number | null
+          id: string
+          resp_rate_avg: number | null
+          rmssd_delta: number | null
+          ts_finish: string | null
+          ts_start: string
+          user_id: string
+          user_id_hash: string | null
+        }
+        Insert: {
+          client?: string | null
+          coherence_score?: number | null
+          created_at?: string
+          duration_s: number
+          hrv_post?: number | null
+          hrv_pre?: number | null
+          id?: string
+          resp_rate_avg?: number | null
+          rmssd_delta?: number | null
+          ts_finish?: string | null
+          ts_start?: string
+          user_id: string
+          user_id_hash?: string | null
+        }
+        Update: {
+          client?: string | null
+          coherence_score?: number | null
+          created_at?: string
+          duration_s?: number
+          hrv_post?: number | null
+          hrv_pre?: number | null
+          id?: string
+          resp_rate_avg?: number | null
+          rmssd_delta?: number | null
+          ts_finish?: string | null
+          ts_start?: string
+          user_id?: string
+          user_id_hash?: string | null
+        }
+        Relationships: []
+      }
       vr_sessions: {
         Row: {
           category: string | null
@@ -8279,14 +11530,263 @@ export type Database = {
         }
         Relationships: []
       }
+      weekly_card_draws: {
+        Row: {
+          assessment_session_id: string | null
+          card_id: string
+          created_at: string | null
+          drawn_at: string | null
+          id: string
+          user_id: string
+          viewed: boolean | null
+          week_end: string
+          week_start: string
+          who5_score: number | null
+        }
+        Insert: {
+          assessment_session_id?: string | null
+          card_id: string
+          created_at?: string | null
+          drawn_at?: string | null
+          id?: string
+          user_id: string
+          viewed?: boolean | null
+          week_end: string
+          week_start: string
+          who5_score?: number | null
+        }
+        Update: {
+          assessment_session_id?: string | null
+          card_id?: string
+          created_at?: string | null
+          drawn_at?: string | null
+          id?: string
+          user_id?: string
+          viewed?: boolean | null
+          week_end?: string
+          week_start?: string
+          who5_score?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "weekly_card_draws_card_id_fkey"
+            columns: ["card_id"]
+            isOneToOne: false
+            referencedRelation: "emotion_cards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      weekly_garden: {
+        Row: {
+          created_at: string | null
+          id: string
+          plant_state: Json | null
+          rarity: number | null
+          sky_state: Json | null
+          user_id: string
+          week_iso: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          plant_state?: Json | null
+          rarity?: number | null
+          sky_state?: Json | null
+          user_id: string
+          week_iso: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          plant_state?: Json | null
+          rarity?: number | null
+          sky_state?: Json | null
+          user_id?: string
+          week_iso?: string
+        }
+        Relationships: []
+      }
+      weekly_summary: {
+        Row: {
+          created_at: string | null
+          helps: string[] | null
+          hints: Json | null
+          id: string
+          season: string | null
+          user_id: string
+          verbal_week: string[] | null
+          week_iso: string
+        }
+        Insert: {
+          created_at?: string | null
+          helps?: string[] | null
+          hints?: Json | null
+          id?: string
+          season?: string | null
+          user_id: string
+          verbal_week?: string[] | null
+          week_iso: string
+        }
+        Update: {
+          created_at?: string | null
+          helps?: string[] | null
+          hints?: Json | null
+          id?: string
+          season?: string | null
+          user_id?: string
+          verbal_week?: string[] | null
+          week_iso?: string
+        }
+        Relationships: []
+      }
+      who5_assessments: {
+        Row: {
+          completed: boolean | null
+          completed_at: string | null
+          created_at: string | null
+          id: string
+          responses: Json | null
+          session_id: string
+          total_score: number | null
+          user_id: string
+        }
+        Insert: {
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          responses?: Json | null
+          session_id?: string
+          total_score?: number | null
+          user_id: string
+        }
+        Update: {
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          responses?: Json | null
+          session_id?: string
+          total_score?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
-      [_ in never]: never
+      dashboard_stats_cache: {
+        Row: {
+          activity_date: string | null
+          chat_count: number | null
+          journal_count: number | null
+          last_activity_at: string | null
+          meditation_count: number | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
+      journal_text_decrypted: {
+        Row: {
+          emo_vec: number[] | null
+          id: string | null
+          preview: string | null
+          styled_html: string | null
+          text_raw: string | null
+          ts: string | null
+          user_hash: string | null
+          user_id: string | null
+          valence: number | null
+        }
+        Insert: {
+          emo_vec?: never
+          id?: string | null
+          preview?: never
+          styled_html?: never
+          text_raw?: never
+          ts?: string | null
+          user_hash?: string | null
+          user_id?: string | null
+          valence?: number | null
+        }
+        Update: {
+          emo_vec?: never
+          id?: string | null
+          preview?: never
+          styled_html?: never
+          text_raw?: never
+          ts?: string | null
+          user_hash?: string | null
+          user_id?: string | null
+          valence?: number | null
+        }
+        Relationships: []
+      }
+      journal_voice_decrypted: {
+        Row: {
+          audio_url: string | null
+          crystal_meta: Json | null
+          emo_vec: number[] | null
+          id: string | null
+          pitch_avg: number | null
+          summary_120: string | null
+          text_raw: string | null
+          ts: string | null
+          user_hash: string | null
+          user_id: string | null
+          valence: number | null
+        }
+        Insert: {
+          audio_url?: string | null
+          crystal_meta?: never
+          emo_vec?: never
+          id?: string | null
+          pitch_avg?: number | null
+          summary_120?: never
+          text_raw?: never
+          ts?: string | null
+          user_hash?: string | null
+          user_id?: string | null
+          valence?: number | null
+        }
+        Update: {
+          audio_url?: string | null
+          crystal_meta?: never
+          emo_vec?: never
+          id?: string | null
+          pitch_avg?: number | null
+          summary_120?: never
+          text_raw?: never
+          ts?: string | null
+          user_hash?: string | null
+          user_id?: string | null
+          valence?: number | null
+        }
+        Relationships: []
+      }
+      user_weekly_dashboard: {
+        Row: {
+          assessments_count: number | null
+          avg_coherence: number | null
+          avg_hrv_delta: number | null
+          breath_coherence: number | null
+          breath_hrv: number | null
+          breath_mood: number | null
+          journal_text_count: number | null
+          journal_voice_count: number | null
+          last_activity_at: string | null
+          refreshed_at: string | null
+          user_id: string | null
+          vr_sessions_count: number | null
+          week_start: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       accept_invitation: {
-        Args: { token_param: string }
-        Returns: boolean
+        Args: { invitation_token: string }
+        Returns: Json
       }
       audit_and_correct_edn_content: {
         Args: Record<PropertyKey, never>
@@ -8348,6 +11848,10 @@ export type Database = {
         Args: { p_user_id: string }
         Returns: Json
       }
+      calculate_who5_score: {
+        Args: { responses: Json }
+        Returns: number
+      }
       check_music_generation_quota: {
         Args: { user_uuid: string }
         Returns: {
@@ -8356,6 +11860,10 @@ export type Database = {
           plan_name: string
           quota_limit: number
         }[]
+      }
+      check_rare_aura_unlocks: {
+        Args: { p_user_id: string }
+        Returns: undefined
       }
       check_rate_limit: {
         Args: {
@@ -8386,6 +11894,10 @@ export type Database = {
         Returns: Json
       }
       cleanup_expired_clinical_data: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
+      cleanup_expired_invitations: {
         Args: Record<PropertyKey, never>
         Returns: number
       }
@@ -8464,6 +11976,14 @@ export type Database = {
           updated_count: number
         }[]
       }
+      complete_story_session: {
+        Args: {
+          p_badge: string
+          p_fragments_to_unlock: string[]
+          p_session_id: string
+        }
+        Returns: Json
+      }
       count_all_invitations: {
         Args: Record<PropertyKey, never>
         Returns: number
@@ -8509,6 +12029,10 @@ export type Database = {
           | { session_data: Json }
         Returns: string
       }
+      decrypt_sensitive_data: {
+        Args: { p_ciphertext: string; p_key_name?: string }
+        Returns: string
+      }
       detect_and_fix_redundancies: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -8534,6 +12058,10 @@ export type Database = {
           cleanup_type: string
           records_affected: number
         }[]
+      }
+      encrypt_sensitive_data: {
+        Args: { p_key_name?: string; p_plaintext: string }
+        Returns: string
       }
       enrich_edn_items_with_oic_competences: {
         Args: Record<PropertyKey, never>
@@ -8736,6 +12264,13 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      get_current_week_bounds: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          week_end: string
+          week_start: string
+        }[]
+      }
       get_edn_objectifs_rapport: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -8806,6 +12341,21 @@ export type Database = {
       get_oic_extraction_report: {
         Args: Record<PropertyKey, never>
         Returns: Json
+      }
+      get_or_create_weekly_draw: {
+        Args: { p_user_id: string }
+        Returns: {
+          card_code: string
+          color_primary: string
+          color_secondary: string
+          draw_id: string
+          icon_name: string
+          is_new_draw: boolean
+          mantra: string
+          mantra_emoji: string
+          rarity: string
+          unlock_rewards: Json
+        }[]
       }
       get_platform_completion_stats: {
         Args: Record<PropertyKey, never>
@@ -8955,6 +12505,10 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_user_app_role: {
+        Args: Record<PropertyKey, never>
+        Returns: Database["public"]["Enums"]["app_user_role"]
+      }
       get_user_ia_stats: {
         Args: { p_period_days?: number }
         Returns: Json
@@ -8996,6 +12550,24 @@ export type Database = {
           status: string
         }[]
       }
+      has_org_role: {
+        Args: { _org_id: string; _role: string; _user_id: string }
+        Returns: boolean
+      }
+      has_role: {
+        Args:
+          | { _role: Database["public"]["Enums"]["app_role"]; _user_id: string }
+          | { _role: string; _user_id: string }
+        Returns: boolean
+      }
+      increment_aura_interaction: {
+        Args: { p_user_id: string }
+        Returns: undefined
+      }
+      increment_house_light: {
+        Args: { p_acts?: number; p_user_id: string }
+        Returns: undefined
+      }
       increment_music_usage: {
         Args: { user_uuid: string }
         Returns: boolean
@@ -9029,6 +12601,10 @@ export type Database = {
       }
       is_admin: {
         Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      is_manager_of_org: {
+        Args: { p_org_id: string }
         Returns: boolean
       }
       log_admin_change: {
@@ -9318,6 +12894,14 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: Json
       }
+      refresh_analytics_dashboards: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
+      refresh_dashboard_stats: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       reset_monthly_quotas: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -9386,6 +12970,10 @@ export type Database = {
           user_id: string
         }
       }
+      snapshot_aura_weekly: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
       start_extraction_batch: {
         Args: {
           p_batch_type: string
@@ -9398,8 +12986,21 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      track_user_activity: {
+        Args: {
+          p_activity_data?: Json
+          p_activity_type: string
+          p_duration_seconds?: number
+          p_user_id: string
+        }
+        Returns: string
+      }
       ultimate_security_validation: {
         Args: Record<PropertyKey, never>
+        Returns: Json
+      }
+      unlock_story_fragment: {
+        Args: { p_fragment_code: string; p_user_id: string }
         Returns: Json
       }
       update_all_edn_items_unique_content: {
@@ -9408,6 +13009,10 @@ export type Database = {
           details: Json
           updated_count: number
         }[]
+      }
+      update_aura_from_who5: {
+        Args: { p_user_id: string; p_who5_score: number }
+        Returns: undefined
       }
       update_competences_counters: {
         Args: Record<PropertyKey, never>
@@ -9499,6 +13104,8 @@ export type Database = {
       }
     }
     Enums: {
+      app_role: "admin" | "moderator" | "user" | "b2c"
+      app_user_role: "user_b2c" | "user_b2b" | "manager_b2b" | "admin"
       invitation_status: "pending" | "accepted" | "expired"
     }
     CompositeTypes: {
@@ -9627,6 +13234,8 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_role: ["admin", "moderator", "user", "b2c"],
+      app_user_role: ["user_b2c", "user_b2b", "manager_b2b", "admin"],
       invitation_status: ["pending", "accepted", "expired"],
     },
   },
