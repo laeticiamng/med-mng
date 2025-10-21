@@ -71,7 +71,7 @@ export class SecureOpenAIClient {
 // Secure Suno API client using edge functions
 export class SecureSunoClient {
   async generateMusic(request: SunoGenerationRequest) {
-    const { data, error } = await supabase.functions.invoke('suno-music-optimized', {
+    const { data, error } = await supabase.functions.invoke('generate-music', {
       body: request
     });
 
@@ -83,8 +83,8 @@ export class SecureSunoClient {
   }
 
   async getGenerationStatus(audioId: string) {
-    const { data, error } = await supabase.functions.invoke('suno-music-optimized', {
-      body: { action: 'status', audioId }
+    const { data, error } = await supabase.functions.invoke('music-status', {
+      body: { taskId: audioId }
     });
 
     if (error) {
