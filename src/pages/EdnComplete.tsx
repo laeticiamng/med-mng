@@ -21,6 +21,7 @@ import { EdnItemModal } from "@/components/edn/premium/EdnItemModal";
 import { EdnItemCard } from "@/components/edn/premium/EdnItemCard";
 import { LyricsCompletionStatus } from "@/components/LyricsCompletionStatus";
 import { RevisionDashboard } from "@/components/revision/RevisionDashboard";
+import { RevisionGuide } from "@/components/edn/RevisionGuide";
 import { QuotaIndicator } from "@/components/quota/QuotaIndicator";
 import { PricingPlans } from "@/components/med-mng/PricingPlans";
 import { useIAQuota } from "@/hooks/useIAQuota";
@@ -320,11 +321,11 @@ export default function EdnComplete() {
               <QuotaIndicator compact />
               <Tabs value={activeTab} onValueChange={setActiveTab}>
                 <TabsList className="bg-muted">
-                  <TabsTrigger value="immersive" className="text-xs">Immersif</TabsTrigger>
-                  <TabsTrigger value="complete" className="text-xs">Complet</TabsTrigger>
-                  <TabsTrigger value="music" className="text-xs">Paroles</TabsTrigger>
-                  <TabsTrigger value="revision" className="text-xs">Révisions</TabsTrigger>
-                  <TabsTrigger value="subscription" className="text-xs">Abonnement</TabsTrigger>
+                  <TabsTrigger value="revision" className="text-xs">📊 Mon Suivi</TabsTrigger>
+                  <TabsTrigger value="complete" className="text-xs">📚 Tous les items</TabsTrigger>
+                  <TabsTrigger value="immersive" className="text-xs">🎯 Mode Visuel</TabsTrigger>
+                  <TabsTrigger value="music" className="text-xs">🎵 Musiques</TabsTrigger>
+                  <TabsTrigger value="subscription" className="text-xs">⭐ Premium</TabsTrigger>
                 </TabsList>
               </Tabs>
             </div>
@@ -333,6 +334,22 @@ export default function EdnComplete() {
       </div>
 
       <div className="container mx-auto px-6 py-4">
+        {/* Bannière informative sur l'accès gratuit */}
+        <Alert className="mb-4 bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800">
+          <Sparkles className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+          <AlertDescription className="text-sm text-blue-900 dark:text-blue-100">
+            <strong className="font-semibold">Accès gratuit illimité aux révisions EDN</strong>
+            <div className="mt-1 space-y-1">
+              <div>✅ Réviser les 367 items EDN : <strong>GRATUIT ♾️</strong></div>
+              <div>✅ Lire tout le contenu (Rang A + B) : <strong>GRATUIT</strong></div>
+              <div>✅ Faire les quiz : <strong>GRATUIT</strong></div>
+              <div className="mt-2 pt-2 border-t border-blue-200 dark:border-blue-800">
+                🎵 Les crédits ({quota || 80}/160) servent uniquement à <strong>générer des musiques IA personnalisées</strong>
+              </div>
+            </div>
+          </AlertDescription>
+        </Alert>
+
         {/* Contrôles */}
         <div className="flex flex-col gap-3 mb-6">
           <div className="relative">
@@ -512,7 +529,10 @@ export default function EdnComplete() {
           </TabsContent>
 
           <TabsContent value="revision">
-            <RevisionDashboard />
+            <div className="space-y-6">
+              <RevisionGuide />
+              <RevisionDashboard />
+            </div>
           </TabsContent>
 
           <TabsContent value="subscription">
