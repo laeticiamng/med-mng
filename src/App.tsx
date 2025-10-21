@@ -188,9 +188,10 @@ const App = () => {
       </main>
        
        {/* Global UI Components - LAZY LOADED */}
-       <Suspense fallback={null}>
+       {/* 🔒 ONBOARDING DÉSACTIVÉ - Modal invasif supprimé */}
+       {/* <Suspense fallback={null}>
          <DynamicOnboarding />
-       </Suspense>
+       </Suspense> */}
        <HelpButton />
        
         <NotificationSystem isOpen={isNotificationCenterOpen} onClose={() => setIsNotificationCenterOpen(false)} />
