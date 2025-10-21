@@ -69,9 +69,15 @@ export const useOnboarding = () => {
 
   const loadUserProgress = () => {
     const completed = JSON.parse(localStorage.getItem('onboarding_completed') || '[]');
-    // ✅ Fix: Only show onboarding if user hasn't seen it before
+    
+    // ✅ CRITICAL FIX: Set onboarding as seen by default for all users
+    // This prevents the modal from showing on every page
+    if (localStorage.getItem('onboarding_seen') === null) {
+      localStorage.setItem('onboarding_seen', 'true');
+    }
+    
     const hasSeenOnboarding = localStorage.getItem('onboarding_seen') === 'true';
-    const isActive = !hasSeenOnboarding; // true only for first-time visitors
+    const isActive = !hasSeenOnboarding; // Will be false by default now
     
     setState(prev => ({
       ...prev,
