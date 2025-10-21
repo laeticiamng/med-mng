@@ -28,12 +28,21 @@ export const useIAQuota = () => {
     try {
       setLoading(true);
 
-      // Utiliser la nouvelle fonction de base de données au lieu de l'edge function
+      // Vérifier d'abord si l'utilisateur est authentifié
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        // Utilisateur non connecté : appliquer quota par défaut silencieusement
+        setQuota(80);
+        return 80;
+      }
+
+      // Utiliser la nouvelle fonction de base de données pour les utilisateurs connectés
       const { data, error } = await supabase
         .rpc('get_user_ai_quota');
 
       if (error) {
-        console.error('Erreur lors de la récupération du quota:', error);
+        // Erreur pour utilisateur connecté : afficher notification
         toast({
           title: "Information",
           description: "Quota par défaut appliqué (80 crédits)",
