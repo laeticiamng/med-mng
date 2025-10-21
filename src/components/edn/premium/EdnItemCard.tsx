@@ -163,8 +163,8 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
             className={`${isMobile ? 'w-full py-3' : 'flex-1'} bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white transition-all duration-300 active:scale-95 shadow-lg hover:shadow-xl`}
             type="button"
           >
-            <Maximize2 className="h-4 w-4 mr-2" />
-            {isMobile ? 'Explorer le contenu' : 'Mode Immersif'}
+            <BookOpen className="h-4 w-4 mr-2" />
+            {isMobile ? '📖 Réviser cet item' : '📖 Réviser le contenu'}
           </Button>
           
           {isMobile ? (
@@ -176,17 +176,17 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
                 className="flex-1 hover:bg-purple-50 hover:border-purple-300 transition-all duration-200 active:scale-95"
                 type="button"
               >
-                <Play className="h-4 w-4 mr-1" />
-                Lire
+                <Music className="h-4 w-4 mr-1" />
+                🎵 Musique
               </Button>
               <Button 
                 variant="outline" 
                 size="sm"
-                className="flex-1 hover:bg-green-50 hover:border-green-300 transition-all duration-200 active:scale-95"
+                className="flex-1 hover:bg-blue-50 hover:border-blue-300 transition-all duration-200 active:scale-95"
                 type="button"
               >
-                <Star className="h-4 w-4 mr-1" />
-                Favoris
+                <Brain className="h-4 w-4 mr-1" />
+                ✅ Quiz
               </Button>
             </div>
           ) : (
@@ -195,8 +195,9 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
               size="sm"
               className="px-3 hover:bg-purple-50 hover:border-purple-300 transition-all duration-200 active:scale-95"
               type="button"
+              title="Écouter la musique mnémotechnique"
             >
-              <Play className="h-4 w-4" />
+              <Music className="h-4 w-4" />
             </Button>
           )}
         </div>

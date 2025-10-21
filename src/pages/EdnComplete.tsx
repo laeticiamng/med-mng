@@ -419,13 +419,13 @@ export default function EdnComplete() {
                           <p className="text-sm text-muted-foreground line-clamp-2">{item.title}</p>
                           <div className="flex gap-1 flex-wrap">
                             {item.scene_immersive && (
-                              <Badge variant="secondary" className="text-xs">3D</Badge>
+                              <Badge variant="secondary" className="text-xs">🎬 Scène 3D</Badge>
                             )}
                             {item.quiz_questions && (
-                              <Badge variant="secondary" className="text-xs">Quiz</Badge>
+                              <Badge variant="secondary" className="text-xs">✅ Quiz</Badge>
                             )}
                             {item.paroles_musicales && item.paroles_musicales.length > 0 && (
-                              <Badge variant="secondary" className="text-xs">Musique</Badge>
+                              <Badge variant="secondary" className="text-xs">🎵 Musique</Badge>
                             )}
                           </div>
                         </div>
