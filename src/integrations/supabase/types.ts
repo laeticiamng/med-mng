@@ -9034,6 +9034,36 @@ export type Database = {
         }
         Relationships: []
       }
+      security_documentation: {
+        Row: {
+          category: string
+          documented_at: string | null
+          id: number
+          issue: string
+          justification: string
+          risk_level: string
+          status: string
+        }
+        Insert: {
+          category: string
+          documented_at?: string | null
+          id?: number
+          issue: string
+          justification: string
+          risk_level: string
+          status: string
+        }
+        Update: {
+          category?: string
+          documented_at?: string | null
+          id?: number
+          issue?: string
+          justification?: string
+          risk_level?: string
+          status?: string
+        }
+        Relationships: []
+      }
       security_incidents: {
         Row: {
           content_preview: string
@@ -11761,6 +11791,16 @@ export type Database = {
           user_hash?: string | null
           user_id?: string | null
           valence?: number | null
+        }
+        Relationships: []
+      }
+      security_compliance_report: {
+        Row: {
+          compliance_pct: number | null
+          compliant_count: number | null
+          metric_name: string | null
+          status: string | null
+          total_count: number | null
         }
         Relationships: []
       }
