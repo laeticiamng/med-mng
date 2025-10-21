@@ -38,7 +38,6 @@ export const useEdnItem = (slug: string | undefined) => {
           .single();
 
         if (error) {
-          console.error('Erreur lors du chargement de l\'item:', error);
           return;
         }
 
@@ -61,7 +60,7 @@ export const useEdnItem = (slug: string | undefined) => {
           setRawItem(mappedData);
         }
       } catch (error) {
-        console.error('Erreur:', error);
+        // Error handled silently
       } finally {
         setLoading(false);
       }

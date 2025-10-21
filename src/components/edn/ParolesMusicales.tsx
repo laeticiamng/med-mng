@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Music } from 'lucide-react';
 import { useParolesMusicales } from '@/hooks/useParolesMusicales';
 import { ParolesMusicalesDebugInfo } from './music/ParolesMusicalesDebugInfo';
+import { ENABLE_DEBUG } from '@/config/env';
 import { ParolesMusicalesControls } from './music/ParolesMusicalesControls';
 import { ParolesMusicalesErrorSection } from './music/ParolesMusicalesErrorSection';
 import { ParolesMusicalesMainContent } from './music/ParolesMusicalesMainContent';
@@ -83,16 +84,18 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
         </CardHeader>
         <CardContent>
           <div className="space-y-6">
-            <ParolesMusicalesDebugInfo
-              itemCode={itemCode}
-              paroles={paroles}
-              currentLanguage={currentLanguage}
-              selectedStyle={selectedStyle}
-              musicDuration={musicDuration}
-              isGenerating={isGenerating}
-              generatedAudio={generatedAudio}
-              lastError={lastError}
-            />
+            {ENABLE_DEBUG && (
+              <ParolesMusicalesDebugInfo
+                itemCode={itemCode}
+                paroles={paroles}
+                currentLanguage={currentLanguage}
+                selectedStyle={selectedStyle}
+                musicDuration={musicDuration}
+                isGenerating={isGenerating}
+                generatedAudio={generatedAudio}
+                lastError={lastError}
+              />
+            )}
 
             <ParolesMusicalesControls
               selectedStyle={selectedStyle}

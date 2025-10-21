@@ -90,7 +90,6 @@ export const useMusicGeneration = () => {
 
       return { ...result, id: result.id || result.suno_audio_id };
     } catch (error) {
-      console.error('Erreur génération musicale:', error);
       toast({
         title: "Erreur de génération",
         description: "Impossible de générer la musique. Réessayez plus tard.",

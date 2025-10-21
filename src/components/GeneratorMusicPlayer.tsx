@@ -7,6 +7,7 @@ import { useGlobalAudio } from '@/contexts/GlobalAudioContext';
 import { DebugAudioButton } from './DebugAudioButton';
 import { useMusicGenerationStatus } from '@/hooks/useMusicGenerationStatus';
 import { Progress } from '@/components/ui/progress';
+import { ENABLE_DEBUG } from '@/config/env';
 
 interface GeneratorMusicPlayerProps {
   generatedSong: any;
@@ -184,8 +185,8 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
           </Button>
         </div>
 
-        {/* Debug Panel */}
-        {showDebug && (
+        {/* Debug Panel - Only in development */}
+        {ENABLE_DEBUG && showDebug && (
           <div className="mt-4 space-y-2">
             <h4 className="font-semibold text-sm text-gray-700">🐛 Debug Audio</h4>
             <DebugAudioButton 
