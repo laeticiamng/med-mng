@@ -70,19 +70,13 @@ export const useOnboarding = () => {
   const loadUserProgress = () => {
     const completed = JSON.parse(localStorage.getItem('onboarding_completed') || '[]');
     
-    // ✅ CRITICAL FIX: Set onboarding as seen by default for all users
-    // This prevents the modal from showing on every page
-    if (localStorage.getItem('onboarding_seen') === null) {
-      localStorage.setItem('onboarding_seen', 'true');
-    }
-    
-    const hasSeenOnboarding = localStorage.getItem('onboarding_seen') === 'true';
-    const isActive = !hasSeenOnboarding; // Will be false by default now
-    
+    // 🔒 ONBOARDING DÉSACTIVÉ PAR DÉFAUT
+    // L'utilisateur doit manuellement activer l'onboarding via startOnboarding()
+    // Cela évite le modal invasif sur toutes les pages
     setState(prev => ({
       ...prev,
       completedSteps: completed,
-      isActive
+      isActive: false // ✅ TOUJOURS désactivé par défaut
     }));
   };
 
