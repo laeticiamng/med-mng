@@ -12231,7 +12231,7 @@ export type Database = {
         Returns: Json
       }
       generate_slug: {
-        Args: { item_code: string; title: string }
+        Args: { input_text: string } | { item_code: string; title: string }
         Returns: string
       }
       generate_specific_content_all_items: {

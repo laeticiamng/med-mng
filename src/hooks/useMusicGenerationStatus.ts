@@ -1,16 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-
-interface MusicGenerationStatus {
-  taskId: string;
-  status: 'generating' | 'text_complete' | 'completed' | 'failed';
-  audioUrl?: string;
-  streamUrl?: string;
-  imageUrl?: string;
-  progress?: number;
-  metadata?: any;
-  error?: string;
-}
+import { MusicGenerationStatus, MusicGenerationMetadata } from '@/types/music';
 
 export const useMusicGenerationStatus = (taskId: string | null) => {
   const [status, setStatus] = useState<MusicGenerationStatus | null>(null);
@@ -32,7 +22,7 @@ export const useMusicGenerationStatus = (taskId: string | null) => {
       if (dbTrack && !dbError) {
         console.log('✅ Statut trouvé en BDD:', dbTrack.generation_status);
         
-        const metadata = dbTrack.metadata as any;
+        const metadata = dbTrack.metadata as MusicGenerationMetadata | null;
         
         const statusData: MusicGenerationStatus = {
           taskId: taskId,

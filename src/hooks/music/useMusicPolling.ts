@@ -1,17 +1,12 @@
-
 import { supabase } from '@/integrations/supabase/client';
+import { MusicGenerationRequest, PollingProgress } from '@/types/music';
 
 interface PollingConfig {
   rang: 'A' | 'B';
-  requestBody: any;
+  requestBody: MusicGenerationRequest;
   maxPolls?: number;
   pollInterval?: number;
-  onProgress: (rang: 'A' | 'B', progress: {
-    progress: number;
-    attempts: number;
-    maxAttempts: number;
-    estimatedTimeRemaining: number;
-  }) => void;
+  onProgress: (rang: 'A' | 'B', progress: PollingProgress) => void;
   onSuccess: (rang: 'A' | 'B', audioUrl: string) => void;
   onError: (error: Error) => void;
 }

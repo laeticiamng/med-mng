@@ -1,16 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
-
-interface Track {
-  id: string;
-  title: string;
-  item_code: string;
-  type: 'rang_a' | 'rang_b' | 'mix';
-  duration?: number;
-  stream_url?: string;
-  created_at: string;
-  is_favorite?: boolean;
-}
+import { Track } from '@/types/music';
+import { useSecureStreaming } from './useSecureStreaming';
 
 interface PlayerState {
   currentTrack: Track | null;
@@ -118,14 +109,9 @@ export const usePlayer = () => {
         return;
       }
 
-      // Nouvelle piste - obtenir l'URL de streaming sécurisé
+      // Nouvelle piste - URL déjà fournie ou par défaut
       if (!track.stream_url) {
-        // TODO: Appeler l'API pour obtenir l'URL de streaming
-        // const streamUrl = await getSecureStreamUrl(track.id);
-        // track.stream_url = streamUrl;
-        
-        // Pour l'instant, URL fictive
-        track.stream_url = `https://api.placeholder.com/stream/${track.id}`;
+        track.stream_url = track.stream_url || '';
       }
 
       audioRef.current.src = track.stream_url;
