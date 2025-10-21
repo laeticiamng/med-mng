@@ -46,17 +46,17 @@ const Index = () => {
               MED MNG
             </h1>
             <p className="text-2xl md:text-3xl text-gray-600 mb-12 max-w-4xl mx-auto leading-relaxed">
-              <TranslatedText text="L'apprentissage médical réinventé avec l'intelligence artificielle" />
+              <TranslatedText text="Révisez l'EDN avec l'intelligence artificielle" />
             </p>
             
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <PremiumButton variant="primary" size="xl" onClick={() => navigate('/med-mng/pricing')}>
+              <PremiumButton variant="primary" size="xl" onClick={() => navigate('/edn-complete')}>
                 <BookOpen className="h-6 w-6 mr-3" />
-                <TranslatedText text="Découvrir MED-MNG" />
+                <TranslatedText text="Commencer mes Révisions" />
               </PremiumButton>
               <PremiumButton variant="glass" size="lg" onClick={() => navigate('/generator')}>
                 <Music className="h-5 w-5 mr-2" />
-                <TranslatedText text="Générateur Musical" />
+                <TranslatedText text="Générer une Musique" />
               </PremiumButton>
             </div>
           </div>
@@ -66,10 +66,10 @@ const Index = () => {
         <div className="pb-20">
           <div className="text-center mb-16">
             <h2 className="text-4xl font-bold text-gray-900 mb-6">
-              <TranslatedText text="Accès Rapide aux Outils" />
+              <TranslatedText text="Accès Rapide" />
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              <TranslatedText text="Choisissez votre méthode d'apprentissage et commencez immédiatement" />
+              <TranslatedText text="Choisissez votre outil et commencez à réviser immédiatement" />
             </p>
           </div>
           
@@ -83,7 +83,7 @@ const Index = () => {
                 <TranslatedText text="Items EDN" />
               </h3>
               <p className="text-gray-600 mb-6 leading-relaxed">
-                <TranslatedText text="Base complète IC-1 à IC-367 avec contenu immersif et 4,872 compétences OIC" />
+                <TranslatedText text="367 items EDN complets avec contenu immersif et 4,872 compétences OIC pour réviser efficacement" />
               </p>
               <div className="space-y-3 text-sm text-gray-600 mb-8">
                 <div className="flex items-center gap-3">
@@ -100,7 +100,7 @@ const Index = () => {
                 </div>
               </div>
               <PremiumButton variant="primary" size="lg" className="w-full">
-                <TranslatedText text="Explorer EDN" />
+                <TranslatedText text="Réviser l'EDN" />
               </PremiumButton>
             </PremiumCard>
 

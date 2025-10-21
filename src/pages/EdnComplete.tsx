@@ -313,7 +313,9 @@ export default function EdnComplete() {
               </div>
               <div>
                 <h1 className="text-xl font-bold text-foreground">Interface EDN</h1>
-                <p className="text-sm text-muted-foreground">{stats.total} items • {stats.complete} complets</p>
+                <p className="text-sm text-muted-foreground">
+                  {stats.total} items {stats.complete > 0 ? `• ${stats.complete} complets` : 'disponibles'}
+                </p>
               </div>
             </div>
             
@@ -352,10 +354,10 @@ export default function EdnComplete() {
 
         {/* Contrôles */}
         <div className="flex flex-col gap-3 mb-6">
-          <div className="relative">
+           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
             <Input
-              placeholder="Rechercher..."
+              placeholder="Rechercher un item (ex: IC-1, Cardiologie...)"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
