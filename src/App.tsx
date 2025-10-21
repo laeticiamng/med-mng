@@ -71,6 +71,7 @@ import OicDataQualityManager from "./pages/OicDataQualityManager";
 import AuditCompleteness from "./pages/AuditCompleteness";
 import EdnImmersive from "./pages/EdnImmersive";
 import EdnComplete from "./pages/EdnComplete";
+import EdnMusicLibrary from "./pages/EdnMusicLibrary";
 import LearningDashboard from "./pages/LearningDashboard";
 import PlatformStatusPage from "./pages/PlatformStatusPage";
 
@@ -131,7 +132,7 @@ const App = () => {
           {/* Redirections vers l'interface unifiée */}
           <Route path="/items-edn" element={<Navigate to="/edn-complete" replace />} />
           <Route path="/edn/:slug/immersive" element={<EdnImmersive />} />
-          <Route path="/edn/music-library" element={<Navigate to="/edn-complete" replace />} />
+          <Route path="/edn/music-library" element={<EdnMusicLibrary />} />
           <Route path="/ecos" element={<EcosIndex />} />
           <Route path="/ecos/:scenarioId" element={<EcosScenario />} />
           
