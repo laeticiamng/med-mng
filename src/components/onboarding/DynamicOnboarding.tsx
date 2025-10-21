@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { OnboardingModal } from './OnboardingModal';
 import { useOnboarding } from '@/hooks/useOnboarding';
+import { useLocation } from 'react-router-dom';
 
 interface OnboardingStep {
   key: string;
@@ -12,9 +13,13 @@ interface OnboardingStep {
 }
 
 export const DynamicOnboarding: React.FC = () => {
+  const location = useLocation();
   const [onboardingData, setOnboardingData] = useState<OnboardingStep[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showTour, setShowTour] = useState(false);
+  
+  // ✅ Only show onboarding on homepage
+  const shouldShowOnboarding = location.pathname === '/';
   
   const {
     isActive,
@@ -153,7 +158,7 @@ export const DynamicOnboarding: React.FC = () => {
 
   return (
     <>
-      {isActive && !showTour && modalSteps.length > 0 && (
+      {isActive && shouldShowOnboarding && !showTour && modalSteps.length > 0 && (
         <OnboardingModal />
       )}
       

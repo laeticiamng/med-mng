@@ -69,7 +69,9 @@ export const useOnboarding = () => {
 
   const loadUserProgress = () => {
     const completed = JSON.parse(localStorage.getItem('onboarding_completed') || '[]');
-    const isActive = localStorage.getItem('onboarding_active') !== 'false';
+    // ✅ Fix: Only show onboarding if user hasn't seen it before
+    const hasSeenOnboarding = localStorage.getItem('onboarding_seen') === 'true';
+    const isActive = !hasSeenOnboarding; // true only for first-time visitors
     
     setState(prev => ({
       ...prev,
@@ -116,9 +118,11 @@ export const useOnboarding = () => {
       isActive: false
     }));
     localStorage.setItem('onboarding_active', 'false');
+    localStorage.setItem('onboarding_seen', 'true'); // ✅ Mark as seen permanently
   };
 
   const skipOnboarding = () => {
+    localStorage.setItem('onboarding_seen', 'true'); // ✅ Mark as seen even if skipped
     completeOnboarding();
   };
 
