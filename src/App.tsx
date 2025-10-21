@@ -129,6 +129,7 @@ const App = () => {
           <Route path="/edn/:slug" element={<EdnComplete />} />
           
           {/* Redirections vers l'interface unifiée */}
+          <Route path="/items-edn" element={<Navigate to="/edn-complete" replace />} />
           <Route path="/edn/:slug/immersive" element={<EdnImmersive />} />
           <Route path="/edn/music-library" element={<Navigate to="/edn-complete" replace />} />
           <Route path="/ecos" element={<EcosIndex />} />
