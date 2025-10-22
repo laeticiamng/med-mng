@@ -6,9 +6,6 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-/**
- * Génère le contenu pédagogique manquant à partir des compétences OIC
- */
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response('ok', { headers: corsHeaders });
@@ -19,28 +16,27 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    console.log('🚀 Démarrage génération contenu manquant...');
+    console.log('🚀 Régénération complète avec compétences OIC réelles');
 
-    // 1. Récupérer TOUS les items pour regénération complète
+    // Récupérer tous les items
     const { data: items, error: itemsError } = await supabase
       .from('edn_items_immersive')
-      .select('id, item_code, title, subtitle, tableau_rang_a, tableau_rang_b');
+      .select('id, item_code, title, subtitle');
 
     if (itemsError) throw itemsError;
 
-    console.log(`📊 ${items?.length || 0} items à traiter`);
-
-    // 2. Récupérer TOUTES les compétences OIC en une seule requête
+    // Récupérer toutes les compétences OIC de qualité
     const { data: allOicCompetences } = await supabase
       .from('backup_oic_competences')
-      .select('item_parent, rang, objectif_id, intitule, description, rubrique');
+      .select('item_parent, rang, objectif_id, intitule, description, rubrique')
+      .not('intitule', 'is', null)
+      .not('description', 'is', null);
 
     console.log(`📚 ${allOicCompetences?.length || 0} compétences OIC chargées`);
 
-    // 3. Filtrer et indexer les compétences de qualité par item_parent et rang
+    // Filtrer et indexer les compétences de qualité
     const oicByItem = new Map();
     (allOicCompetences || []).forEach(comp => {
-      // Filtrer les compétences de mauvaise qualité
       if (!comp.intitule || comp.intitule.length < 25) return;
       if (!comp.description || comp.description.length < 30) return;
       
@@ -51,32 +47,21 @@ serve(async (req) => {
       oicByItem.get(key).push(comp);
     });
 
-    let processedCount = 0;
     let updatedCount = 0;
     const errors = [];
 
-    // 4. Traiter chaque item
+    // Traiter chaque item
     for (const item of items || []) {
       try {
-        processedCount++;
         const itemNumber = item.item_code.replace('IC-', '').padStart(3, '0');
-        
         const oicRangA = oicByItem.get(`${itemNumber}_A`) || [];
         const oicRangB = oicByItem.get(`${itemNumber}_B`) || [];
 
-        console.log(`🔄 ${item.item_code}: ${oicRangA.length} compétences A, ${oicRangB.length} compétences B`);
-
-        // Générer le contenu Rang A
+        // Générer Rang A avec vraies compétences OIC
         const tableauRangA = {
           title: `${item.item_code} Rang A - ${item.title}`,
           subtitle: item.subtitle || "Compétences fondamentales",
-          objectifs: oicRangA.length > 0 
-            ? oicRangA.slice(0, 5).map(c => c.intitule || c.description?.substring(0, 100))
-            : [
-                `Comprendre les concepts fondamentaux de ${item.title}`,
-                `Identifier les situations cliniques de base`,
-                `Appliquer les principes essentiels en pratique`
-              ],
+          objectifs: oicRangA.slice(0, 5).map(c => c.intitule),
           competences_cles: oicRangA.map(comp => ({
             niveau: "Fondamental",
             competence: comp.intitule,
@@ -91,17 +76,11 @@ serve(async (req) => {
           ]
         };
 
-        // Générer le contenu Rang B
+        // Générer Rang B avec vraies compétences OIC
         const tableauRangB = {
           title: `${item.item_code} Rang B - ${item.title}`,
           subtitle: item.subtitle || "Compétences avancées",
-          objectifs: oicRangB.length > 0
-            ? oicRangB.slice(0, 5).map(c => c.intitule || c.description?.substring(0, 100))
-            : [
-                `Maîtriser les aspects complexes de ${item.title}`,
-                `Gérer les situations cliniques difficiles`,
-                `Prendre des décisions expertes en situation critique`
-              ],
+          objectifs: oicRangB.slice(0, 5).map(c => c.intitule),
           competences_cles: oicRangB.map(comp => ({
             niveau: "Avancé",
             competence: comp.intitule,
@@ -115,9 +94,9 @@ serve(async (req) => {
             "Prise en charge pluridisciplinaire"
           ],
           cas_complexes: [
-            "Cas clinique avec comorbidités multiples",
+            "Cas avec comorbidités multiples",
             "Situation d'urgence critique",
-            "Patient polymédiqué avec interactions"
+            "Patient polymédiqué"
           ],
           competences_expertes: oicRangB.slice(0, 3).map(comp => ({
             niveau: "Expert",
@@ -126,7 +105,7 @@ serve(async (req) => {
           }))
         };
 
-        // Mettre à jour l'item
+        // Mettre à jour
         const { error: updateError } = await supabase
           .from('edn_items_immersive')
           .update({
@@ -137,48 +116,36 @@ serve(async (req) => {
 
         if (updateError) {
           errors.push({ item_code: item.item_code, error: updateError.message });
-          console.error(`❌ ${item.item_code}: ${updateError.message}`);
         } else {
           updatedCount++;
           if (updatedCount % 50 === 0) {
             console.log(`✅ ${updatedCount}/${items.length} items traités`);
           }
         }
-
       } catch (itemError) {
         errors.push({ item_code: item.item_code, error: itemError.message });
-        console.error(`❌ ${item.item_code}: ${itemError.message}`);
       }
     }
 
-    console.log(`🎉 Génération terminée: ${updatedCount}/${processedCount} items mis à jour`);
+    console.log(`🎉 Régénération terminée: ${updatedCount} items mis à jour`);
 
     return new Response(
       JSON.stringify({
         success: true,
-        message: `${updatedCount} items complétés avec succès`,
-        total_processed: processedCount,
+        message: `${updatedCount} items régénérés avec compétences OIC réelles`,
+        total_processed: items?.length || 0,
         updated: updatedCount,
-        errors: errors,
-        details: {
-          items_without_content: items?.length || 0,
-          oic_competences_available: allOicCompetences?.length || 0
-        }
+        errors: errors
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
       }
     );
-
   } catch (error) {
-    console.error('💥 Erreur génération:', error);
+    console.error('💥 Erreur:', error);
     return new Response(
-      JSON.stringify({ 
-        success: false,
-        error: error.message,
-        stack: error.stack
-      }),
+      JSON.stringify({ success: false, error: error.message }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 500,
