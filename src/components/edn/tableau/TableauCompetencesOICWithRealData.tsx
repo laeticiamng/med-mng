@@ -14,12 +14,6 @@ export const TableauCompetencesOICWithRealData: React.FC<TableauCompetencesOICWi
 }) => {
   const { competences, loading, error } = useOicCompetences(itemCode, rang);
 
-  console.log(`🔍 TableauCompetencesOICWithRealData - ${itemCode} rang ${rang}:`, {
-    competences: competences.length,
-    loading,
-    error
-  });
-
   if (loading) {
     return (
       <div className="w-full p-8 text-center">
@@ -82,13 +76,11 @@ export const TableauCompetencesOICWithRealData: React.FC<TableauCompetencesOICWi
       description: comp.description,
       objectif_id: comp.objectif_id,
       rubrique: comp.rubrique,
-      keywords: [] // Données backup plus simples mais complètes
+      keywords: []
     })),
     count: competences.length,
     theme: `Compétences OIC ${rang === 'A' ? 'fondamentales' : 'avancées'} - Données authentiques UNESS`
   };
-
-  console.log(`✅ Affichage de ${competences.length} compétences OIC AUTHENTIQUES pour ${itemCode} rang ${rang}`);
 
   return (
     <TableauCompetencesOICOptimized 

@@ -17,12 +17,8 @@ interface TableauRangBProps {
 }
 
 export const TableauRangB: React.FC<TableauRangBProps> = ({ data, itemCode }) => {
-  console.log('🔍 TableauRangB - données reçues:', { data, itemCode });
-  console.log('🔍 TableauRangB - structure complète:', JSON.stringify(data, null, 2));
-
   // Utiliser les vraies données OIC si itemCode est fourni
   if (itemCode && (itemCode.startsWith('IC-') || itemCode.startsWith('OIC-'))) {
-    console.log('✅ Utilisation des vraies données OIC pour', itemCode, 'rang B');
     
     return (
       <TableauCompetencesOICWithRealData 
@@ -34,7 +30,6 @@ export const TableauRangB: React.FC<TableauRangBProps> = ({ data, itemCode }) =>
 
   // Nouveau format avec sections OIC (après migration)
   if (data && data.sections && Array.isArray(data.sections) && data.sections.length > 0) {
-    console.log('✅ Format OIC avec sections détecté pour Rang B, conversion pour nouveau composant');
     
     // Convertir le format sections vers le format competences attendu avec toutes les informations
     const competencesData = {
@@ -63,8 +58,6 @@ export const TableauRangB: React.FC<TableauRangBProps> = ({ data, itemCode }) =>
       theme: data.subtitle || 'Compétences OIC avancées'
     };
     
-    console.log('🔄 Données Rang B converties:', competencesData);
-    
     return (
       <TableauCompetencesOICOptimized 
         data={competencesData} 
@@ -76,7 +69,6 @@ export const TableauRangB: React.FC<TableauRangBProps> = ({ data, itemCode }) =>
 
   // Format direct avec compétences (ancien format)
   if (data.competences && Array.isArray(data.competences)) {
-    console.log('✅ Format OIC direct détecté pour Rang B, utilisation du nouveau composant');
     return (
       <TableauCompetencesOICOptimized 
         data={data} 
@@ -87,7 +79,6 @@ export const TableauRangB: React.FC<TableauRangBProps> = ({ data, itemCode }) =>
   }
 
   // Ancien format avec processeurs spécialisés (fallback)
-  console.log('⚠️ Format ancien détecté pour Rang B, utilisation des processeurs spécialisés');
   
   let processedData;
   
