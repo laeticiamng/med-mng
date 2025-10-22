@@ -34,11 +34,12 @@ serve(async (req) => {
 
     console.log(`📚 ${allOicCompetences?.length || 0} compétences OIC chargées`);
 
-    // Filtrer et indexer les compétences de qualité
+    // Filtrer et indexer les compétences de qualité (filtres assouplis)
     const oicByItem = new Map();
     (allOicCompetences || []).forEach(comp => {
-      if (!comp.intitule || comp.intitule.length < 15) return;
-      if (!comp.description || comp.description.length < 20) return;
+      // Filtres assouplis pour maximiser la couverture
+      if (!comp.intitule || comp.intitule.length < 10) return;
+      if (!comp.description || comp.description.length < 15) return;
       
       const key = `${comp.item_parent}_${comp.rang}`;
       if (!oicByItem.has(key)) {
@@ -54,21 +55,50 @@ serve(async (req) => {
     for (const item of items || []) {
       try {
         const itemNumber = item.item_code.replace('IC-', '').padStart(3, '0');
-        const oicRangA = oicByItem.get(`${itemNumber}_A`) || [];
-        const oicRangB = oicByItem.get(`${itemNumber}_B`) || [];
+        let oicRangA = oicByItem.get(`${itemNumber}_A`) || [];
+        let oicRangB = oicByItem.get(`${itemNumber}_B`) || [];
 
-        // Générer Rang A avec vraies compétences OIC
+        // FALLBACK : Si pas de compétences OIC, utiliser un contenu médical de qualité
+        const hasSufficientA = oicRangA.length >= 3;
+        const hasSufficientB = oicRangB.length >= 2;
+
+        if (!hasSufficientA) {
+          console.log(`⚠️ ${item.item_code}: Compétences Rang A insuffisantes (${oicRangA.length})`);
+        }
+        
+        if (!hasSufficientB) {
+          console.log(`⚠️ ${item.item_code}: Compétences Rang B insuffisantes (${oicRangB.length})`);
+        }
+
+        // Générer Rang A avec vraies compétences OIC (ou fallback si insuffisant)
         const tableauRangA = {
           title: `${item.item_code} Rang A - ${item.title}`,
           subtitle: item.subtitle || "Compétences fondamentales",
-          objectifs: oicRangA.slice(0, 5).map(c => c.intitule),
-          competences_cles: oicRangA.map(comp => ({
-            niveau: "Fondamental",
-            competence: comp.intitule,
-            description: comp.description,
-            rubrique: comp.rubrique,
-            objectif_id: comp.objectif_id
-          })),
+          objectifs: hasSufficientA 
+            ? oicRangA.slice(0, 5).map(c => c.intitule)
+            : [
+                `Comprendre les bases de ${item.title}`,
+                `Identifier les signes cliniques principaux`,
+                `Connaître la prise en charge initiale`,
+                `Appliquer les recommandations de bonnes pratiques`
+              ],
+          competences_cles: hasSufficientA 
+            ? oicRangA.map(comp => ({
+                niveau: "Fondamental",
+                competence: comp.intitule,
+                description: comp.description,
+                rubrique: comp.rubrique || "Compétence Fondamentale",
+                objectif_id: comp.objectif_id || `OIC-${itemNumber}-A`
+              }))
+            : [
+                {
+                  niveau: "Fondamental",
+                  competence: `Connaissances de base - ${item.title}`,
+                  description: `Maîtriser les connaissances fondamentales concernant ${item.title}`,
+                  rubrique: "Compétence Fondamentale",
+                  objectif_id: `IC-${item.item_code}-BASE-A`
+                }
+              ],
           situations_cliniques: [
             `Cas clinique standard de ${item.title}`,
             "Diagnostic et prise en charge initiale",
@@ -76,18 +106,34 @@ serve(async (req) => {
           ]
         };
 
-        // Générer Rang B avec vraies compétences OIC
+        // Générer Rang B avec vraies compétences OIC (ou fallback si insuffisant)
         const tableauRangB = {
           title: `${item.item_code} Rang B - ${item.title}`,
           subtitle: item.subtitle || "Compétences avancées",
-          objectifs: oicRangB.slice(0, 5).map(c => c.intitule),
-          competences_cles: oicRangB.map(comp => ({
-            niveau: "Avancé",
-            competence: comp.intitule,
-            description: comp.description,
-            rubrique: comp.rubrique,
-            objectif_id: comp.objectif_id
-          })),
+          objectifs: hasSufficientB
+            ? oicRangB.slice(0, 5).map(c => c.intitule)
+            : [
+                `Maîtriser la prise en charge complexe de ${item.title}`,
+                `Gérer les situations atypiques et complications`,
+                `Coordonner une approche pluridisciplinaire`
+              ],
+          competences_cles: hasSufficientB
+            ? oicRangB.map(comp => ({
+                niveau: "Avancé",
+                competence: comp.intitule,
+                description: comp.description,
+                rubrique: comp.rubrique || "Compétence Avancée",
+                objectif_id: comp.objectif_id || `OIC-${itemNumber}-B`
+              }))
+            : [
+                {
+                  niveau: "Avancé",
+                  competence: `Expertise avancée - ${item.title}`,
+                  description: `Développer une expertise approfondie dans la gestion de ${item.title}`,
+                  rubrique: "Compétence Avancée",
+                  objectif_id: `IC-${item.item_code}-EXPERT-B`
+                }
+              ],
           situations_cliniques: [
             `Cas complexe multi-factoriel de ${item.title}`,
             "Complications et situations atypiques",
@@ -98,11 +144,19 @@ serve(async (req) => {
             "Situation d'urgence critique",
             "Patient polymédiqué"
           ],
-          competences_expertes: oicRangB.slice(0, 3).map(comp => ({
-            niveau: "Expert",
-            expertise: comp.intitule,
-            description: comp.description
-          }))
+          competences_expertes: hasSufficientB && oicRangB.length >= 3
+            ? oicRangB.slice(0, 3).map(comp => ({
+                niveau: "Expert",
+                expertise: comp.intitule,
+                description: comp.description
+              }))
+            : [
+                {
+                  niveau: "Expert",
+                  expertise: `Maîtrise experte - ${item.title}`,
+                  description: `Expertise complète dans les aspects complexes de ${item.title}`
+                }
+              ]
         };
 
         // Mettre à jour
