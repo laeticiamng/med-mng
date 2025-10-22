@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { 
   Search, BookOpen, Award, Users, TrendingUp, Filter, Grid, List, Eye,
   Music, Brain, Play, Headphones, CheckCircle, Sparkles, ArrowRight,
   Volume2, Gamepad2, Maximize2, Star, Target, Image, FileText, AlertTriangle,
-  BarChart3
+  BarChart3, HelpCircle
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -27,6 +27,8 @@ import { PricingPlans } from "@/components/med-mng/PricingPlans";
 import { useIAQuota } from "@/hooks/useIAQuota";
 import { useSubscription } from "@/hooks/useSubscription";
 import { transformTableauToSections } from "@/utils/tableauTransformations";
+import { TooltipInfo } from "@/components/ui/tooltip-info";
+import { FaqSection } from "@/components/help/FaqSection";
 
 interface EdnItem {
   id: string;
@@ -294,10 +296,13 @@ export default function EdnComplete() {
     return { total, complete, validated, withMusic, avgScore };
   };
 
-  const openItemModal = (item: EdnItem) => {
+  const openItemModal = useCallback((item: EdnItem) => {
     setSelectedItem(item);
     setIsModalOpen(true);
-  };
+    
+    // Analytics: Track item opening
+    console.log(`📊 Analytics: Item ${item.item_code} opened`);
+  }, []);
 
   const stats = calculateStats();
 
@@ -434,6 +439,16 @@ export default function EdnComplete() {
 
         {/* Contenu des onglets */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsContent value="revision">
+            <RevisionDashboard />
+          </TabsContent>
+
+          <TabsContent value="complete">
+            <div className="space-y-6">
+              <FaqSection />
+            </div>
+          </TabsContent>
+
           <TabsContent value="immersive">
             <div className="grid gap-4">
               {viewMode === 'grid' ? (
