@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { TableauCompetencesOICOptimized } from './TableauCompetencesOICOptimized';
+import { TableauSectionEnhanced } from '../TableauSectionEnhanced';
 import { TableauRangAHeader } from './TableauRangAHeader';
 import { TableauRangAGrid } from './TableauRangAGrid';
 import { TableauRangAFooter } from './TableauRangAFooter';
@@ -32,13 +33,40 @@ export const TableauRangA: React.FC<TableauRangAProps> = ({ data, itemCode }) =>
 
   // Nouveau format avec sections OIC (après migration)
   if (data && data.sections && Array.isArray(data.sections) && data.sections.length > 0) {
-    console.log('✅ Format OIC avec sections détecté, conversion pour nouveau composant');
+    console.log('✅ Format avec sections détecté:', data.sections.length, 'sections');
     
-    // Convertir le format sections vers le format competences attendu avec toutes les informations
+    // Si les sections contiennent des compétences détaillées, utiliser le nouveau composant
+    const hasDetailedCompetences = data.sections.some((s: any) => s.competences && s.competences.length > 0);
+    
+    if (hasDetailedCompetences) {
+      console.log('✅ Sections avec compétences détaillées, affichage enrichi');
+      return (
+        <div className="space-y-6">
+          <div className="mb-4">
+            <h2 className="text-2xl font-bold text-foreground mb-2">
+              {data.title || `${itemCode} Rang A`}
+            </h2>
+            {data.subtitle && (
+              <p className="text-muted-foreground">{data.subtitle}</p>
+            )}
+          </div>
+          {data.sections.map((section: any, index: number) => (
+            <TableauSectionEnhanced 
+              key={index}
+              section={section}
+              rang="A"
+              index={index}
+            />
+          ))}
+        </div>
+      );
+    }
+    
+    // Sinon, convertir au format OIC standard
+    console.log('✅ Conversion vers format OIC standard');
     const competencesData = {
       title: data.title || `${itemCode} Rang A - Compétences OIC`,
       competences: data.sections.map((section: any, index: number) => {
-        // Extraire l'objectif_id depuis les keywords si disponible
         const objectifId = section.keywords?.find((keyword: string) => keyword.startsWith('OIC-')) || 
                           section.competence_id || 
                           `OIC-${itemCode?.replace('IC-', '')}-${String(index + 1).padStart(2, '0')}-A`;
@@ -49,24 +77,14 @@ export const TableauRangA: React.FC<TableauRangAProps> = ({ data, itemCode }) =>
           objectif_id: objectifId,
           rubrique: section.rubrique_oic || section.rubrique || (section.keywords?.[0] || 'Non spécifiée'),
           keywords: section.keywords || [],
-          // Données enrichies niveau LiSA (directement depuis les sections si disponibles)
           titre_complet: section.title || null,
           sommaire: section.content || null,
-          mecanismes: section.mecanismes || null,
-          indications: section.indications || null,
-          effets_indesirables: section.effets_indesirables || null,
-          interactions: section.interactions || null,
-          modalites_surveillance: section.modalites_surveillance || null,
-          causes_echec: section.causes_echec || null,
-          contributeurs: section.contributeurs || null,
           ordre_affichage: index + 1
         };
       }),
       count: data.sections.length,
       theme: data.subtitle || 'Compétences OIC fusionnées E-LiSA'
     };
-    
-    console.log('🔄 Données converties:', competencesData);
     
     return (
       <TableauCompetencesOICOptimized 

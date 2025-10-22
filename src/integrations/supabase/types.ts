@@ -11822,6 +11822,16 @@ export type Database = {
         }
         Relationships: []
       }
+      v_oic_rubriques_summary: {
+        Row: {
+          item_parent: string | null
+          nb_competences: number | null
+          objectifs: string[] | null
+          rang: string | null
+          rubrique: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       accept_invitation: {

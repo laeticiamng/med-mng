@@ -30,6 +30,7 @@ export const transformTableauToSections = (tableauData: any, itemCode: string, t
 
   // Section 2 : Compétences clés
   if (tableauData.competences_cles && Array.isArray(tableauData.competences_cles) && tableauData.competences_cles.length > 0) {
+    console.log(`  → Section Compétences clés: ${tableauData.competences_cles.length} items`);
     sections.push({
       title: "Compétences clés",
       content: "",
@@ -39,7 +40,14 @@ export const transformTableauToSections = (tableauData: any, itemCode: string, t
         definition: comp.description || '',
         exemple: comp.exemple || '',
         application: comp.application || '',
-        niveau: comp.niveau || ''
+        niveau: comp.niveau || '',
+        // Format compatible avec TableauCompetencesOICOptimized
+        intitule: comp.competence || comp.titre || comp.intitule || '',
+        description: comp.description || '',
+        objectif_id: comp.niveau || comp.id || 'N/A',
+        rubrique: comp.rubrique || 'Compétence Clé',
+        titre_complet: comp.competence || comp.titre || comp.intitule || '',
+        sommaire: comp.description?.substring(0, 150) || ''
       })),
       keywords: []
     });
@@ -65,6 +73,7 @@ export const transformTableauToSections = (tableauData: any, itemCode: string, t
 
   // Section 5 : Compétences expertes (pour Rang B)
   if (rang === 'B' && tableauData.competences_expertes && Array.isArray(tableauData.competences_expertes) && tableauData.competences_expertes.length > 0) {
+    console.log(`  → Section Compétences expertes: ${tableauData.competences_expertes.length} items`);
     sections.push({
       title: "Compétences expertes",
       content: "",
@@ -72,7 +81,14 @@ export const transformTableauToSections = (tableauData: any, itemCode: string, t
         competence_id: comp.niveau || 'Expert',
         concept: comp.expertise || comp.competence || '',
         definition: comp.description || '',
-        niveau: comp.niveau || 'Expert'
+        niveau: comp.niveau || 'Expert',
+        // Format compatible avec TableauCompetencesOICOptimized
+        intitule: comp.expertise || comp.competence || '',
+        description: comp.description || '',
+        objectif_id: comp.niveau || 'Expert',
+        rubrique: 'Expertise Avancée',
+        titre_complet: comp.expertise || comp.competence || '',
+        sommaire: comp.description?.substring(0, 150) || ''
       })),
       keywords: []
     });
