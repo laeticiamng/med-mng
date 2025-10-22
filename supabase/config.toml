@@ -45,6 +45,9 @@ verify_jwt = false
 [functions.generate-music]
 verify_jwt = false
 
+[functions.music-status]
+verify_jwt = false
+
 [functions.compare-official-content]
 verify_jwt = false
 
