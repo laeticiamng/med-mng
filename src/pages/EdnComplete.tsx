@@ -99,7 +99,6 @@ export default function EdnComplete() {
         .order('item_code');
 
       if (immersiveError) {
-        console.error('Erreur immersive:', immersiveError);
         toast({
           title: "Erreur",
           description: "Impossible de charger les données.",
@@ -158,7 +157,6 @@ export default function EdnComplete() {
           // 2. ENRICHISSEMENT avec OIC si toujours pas de sections après transformation
           const tableauA = transformedTableauA || item.tableau_rang_a || {};
           if (oicRangA && oicRangA.length > 0 && (!tableauA.sections || tableauA.sections.length === 0)) {
-            console.log(`🔥 Enrichissement OIC pour ${item.item_code} Rang A: ${oicRangA.length} compétences`);
             transformedTableauA = {
               ...tableauA,
               title: `${item.item_code} Rang A - ${item.title}`,
@@ -176,7 +174,6 @@ export default function EdnComplete() {
 
           const tableauB = transformedTableauB || item.tableau_rang_b || {};
           if (oicRangB && oicRangB.length > 0 && (!tableauB.sections || tableauB.sections.length === 0)) {
-            console.log(`🔥 Enrichissement OIC pour ${item.item_code} Rang B: ${oicRangB.length} compétences`);
             transformedTableauB = {
               ...tableauB,
               title: `${item.item_code} Rang B - ${item.title}`,
@@ -200,7 +197,6 @@ export default function EdnComplete() {
             competences_oic_rang_b: oicRangB
           };
         } catch (error) {
-          console.error(`Erreur enrichissement OIC pour ${item.item_code}:`, error);
           return item;
         }
       });
@@ -213,7 +209,6 @@ export default function EdnComplete() {
         description: `${immersiveData?.length || 0} items chargés`,
       });
     } catch (error) {
-      console.error('Erreur:', error);
       toast({
         title: "Erreur",
         description: "Erreur lors du chargement.",

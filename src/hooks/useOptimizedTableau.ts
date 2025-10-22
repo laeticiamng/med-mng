@@ -8,8 +8,6 @@ export const useOptimizedTableau = (data: any, itemCode: string) => {
   const processedData = useMemo(() => {
     if (!data) return null;
 
-    console.log(`🚀 useOptimizedTableau: Mémoisation pour ${itemCode}`);
-
     // Si sections existe, retourner tel quel (déjà optimisé)
     if (data.sections && Array.isArray(data.sections)) {
       return data;
