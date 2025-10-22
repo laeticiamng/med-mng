@@ -26,6 +26,7 @@ import { QuotaIndicator } from "@/components/quota/QuotaIndicator";
 import { PricingPlans } from "@/components/med-mng/PricingPlans";
 import { useIAQuota } from "@/hooks/useIAQuota";
 import { useSubscription } from "@/hooks/useSubscription";
+import { transformTableauToSections } from "@/utils/tableauTransformations";
 
 interface EdnItem {
   id: string;
@@ -128,11 +129,16 @@ export default function EdnComplete() {
             .eq('item_parent', itemNumber)
             .eq('rang', 'B');
 
-          // Enrichir tableau_rang_a avec les compétences OIC si les sections sont vides
-          let enrichedTableauA = item.tableau_rang_a;
-          const tableauA = typeof item.tableau_rang_a === 'object' && item.tableau_rang_a !== null 
-            ? item.tableau_rang_a as any : {};
-            
+          // 1. Transformer la structure objectifs/competences_cles en sections si nécessaire
+          let enrichedTableauA = transformTableauToSections(
+            item.tableau_rang_a, 
+            item.item_code, 
+            item.title, 
+            'A'
+          );
+          
+          // 2. Si toujours pas de sections après transformation, enrichir avec OIC
+          const tableauA = enrichedTableauA || {};
           if (oicRangA && oicRangA.length > 0 && (!tableauA.sections || tableauA.sections.length === 0)) {
             enrichedTableauA = {
               ...tableauA,
@@ -149,11 +155,16 @@ export default function EdnComplete() {
             };
           }
 
-          // Enrichir tableau_rang_b avec les compétences OIC si les sections sont vides
-          let enrichedTableauB = item.tableau_rang_b;
-          const tableauB = typeof item.tableau_rang_b === 'object' && item.tableau_rang_b !== null 
-            ? item.tableau_rang_b as any : {};
-            
+          // 1. Transformer la structure objectifs/competences_cles en sections si nécessaire
+          let enrichedTableauB = transformTableauToSections(
+            item.tableau_rang_b, 
+            item.item_code, 
+            item.title, 
+            'B'
+          );
+          
+          // 2. Si toujours pas de sections après transformation, enrichir avec OIC
+          const tableauB = enrichedTableauB || {};
           if (oicRangB && oicRangB.length > 0 && (!tableauB.sections || tableauB.sections.length === 0)) {
             enrichedTableauB = {
               ...tableauB,
