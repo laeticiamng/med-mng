@@ -8,31 +8,31 @@ interface CallbackAudio {
 }
 
 export const useSunoCallbackListener = () => {
-  console.log('🚀 [useSunoCallbackListener] Hook initialisé !');
   const [completedAudio, setCompletedAudio] = useState<CallbackAudio>({});
+  const [isGenerating, setIsGenerating] = useState(false);
   const { toast } = useToast();
   
-  // Utiliser useRef pour persister entre les re-renders
   const processedTracksRef = useRef(new Set<string>());
+  const lastCheckRef = useRef(Date.now());
 
   useEffect(() => {
-    console.log('🔥 [useSunoCallbackListener] useEffect démarré - le hook est actif !');
-    
-    // Écouter les callbacks Suno via un endpoint spécial
     const pollForCallbacks = async () => {
+      // Ne faire le polling que si une génération est en cours
+      if (!isGenerating) return;
+      
       try {
-        // Chercher tous les tracks récents avec un audio_url valide (sans filtre de temps)
-        console.log('🎯 [CallbackListener] Recherche de ALL tracks avec audio_url...');
+        const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+        
         const { data: recentTracks } = await supabase
           .from('generated_music_tracks')
           .select('*')
           .not('audio_url', 'is', null)
           .neq('audio_url', '')
+          .gte('updated_at', fiveMinutesAgo)
           .order('updated_at', { ascending: false })
-          .limit(50);
+          .limit(20);
 
         if (recentTracks && recentTracks.length > 0) {
-          console.log(`🔍 ${recentTracks.length} tracks récents trouvés`);
           
           // Regrouper les musiques par task_id (chaque génération = 2 versions)
           const tracksByTaskId = new Map();
@@ -69,7 +69,6 @@ export const useSunoCallbackListener = () => {
               
               // Vérifier si c'est un nouveau track (pas encore traité)
               if (!processedTracksRef.current.has(trackId)) {
-                console.log(`🎵 NOUVELLE MUSIQUE ${rang} Version ${index + 1}:`, track.audio_url);
                 processedTracksRef.current.add(trackId);
                 
                 setCompletedAudio(prev => {
@@ -100,7 +99,6 @@ export const useSunoCallbackListener = () => {
                     if (!newState.rangAB) newState.rangAB = track.audio_url;
                   }
                   
-                  console.log('🔄 État completedAudio mis à jour:', newState);
                   return newState;
                 });
 
@@ -113,25 +111,25 @@ export const useSunoCallbackListener = () => {
               }
             });
           });
-        } else {
-          console.log('🔍 Aucun track récent trouvé');
         }
       } catch (error) {
-        console.error('❌ Erreur lors de la vérification des callbacks:', error);
+        // Erreur silencieuse en production
       }
     };
 
-    // Vérifier TRÈS fréquemment (toutes les secondes) pour un affichage quasi-immédiat
-    const interval = setInterval(pollForCallbacks, 1000);
+    // Polling toutes les 5 secondes uniquement si génération active
+    const interval = setInterval(pollForCallbacks, 5000);
     
     // Vérification initiale
     pollForCallbacks();
 
     return () => clearInterval(interval);
-  }, [toast]);
+  }, [isGenerating, toast]);
 
   return {
     completedAudio,
+    isGenerating,
+    setIsGenerating,
     resetCompletedAudio: () => setCompletedAudio({})
   };
 };
