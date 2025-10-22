@@ -119,3 +119,7 @@ verify_jwt = true
 [functions.suno-callback]
 verify_jwt = false
 
+[functions.transform-edn-sections]
+verify_jwt = false
+
+
