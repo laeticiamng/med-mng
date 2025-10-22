@@ -125,4 +125,7 @@ verify_jwt = false
 [functions.generate-missing-content]
 verify_jwt = false
 
+[functions.regenerate-all-oic-content]
+verify_jwt = false
+
 

@@ -8,6 +8,7 @@ import { AuditProgress } from './AuditProgress';
 import { AuditItemsList } from './AuditItemsList';
 import { AuditInstructions } from './AuditInstructions';
 import { AuditIC2CompletionDashboard } from './AuditIC2CompletionDashboard';
+import { OICRegenerationPanel } from './OICRegenerationPanel';
 
 export const AuditDashboard = () => {
   const { report, loading, error, runAudit, exportReport } = useAuditItems();
@@ -25,6 +26,11 @@ export const AuditDashboard = () => {
 
       {/* Bouton de complétion IC-2 - toujours visible */}
       <AuditIC2CompletionDashboard onComplete={runAudit} />
+      
+      {/* Panel de régénération OIC */}
+      <div className="mt-6">
+        <OICRegenerationPanel onComplete={runAudit} />
+      </div>
 
       {report && (
         <div className="space-y-8">

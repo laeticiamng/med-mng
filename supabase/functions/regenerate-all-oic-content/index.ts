@@ -37,8 +37,8 @@ serve(async (req) => {
     // Filtrer et indexer les compétences de qualité
     const oicByItem = new Map();
     (allOicCompetences || []).forEach(comp => {
-      if (!comp.intitule || comp.intitule.length < 25) return;
-      if (!comp.description || comp.description.length < 30) return;
+      if (!comp.intitule || comp.intitule.length < 15) return;
+      if (!comp.description || comp.description.length < 20) return;
       
       const key = `${comp.item_parent}_${comp.rang}`;
       if (!oicByItem.has(key)) {
