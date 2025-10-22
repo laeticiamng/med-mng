@@ -848,141 +848,6 @@ export type Database = {
         }
         Relationships: []
       }
-      backup_edn_items_immersive: {
-        Row: {
-          audio_ambiance: Json | null
-          created_at: string | null
-          id: string | null
-          interaction_config: Json | null
-          item_code: string | null
-          paroles_musicales: string[] | null
-          payload_v2: Json | null
-          pitch_intro: string | null
-          quiz_questions: Json | null
-          reward_messages: Json | null
-          scene_immersive: Json | null
-          slug: string | null
-          subtitle: string | null
-          tableau_rang_a: Json | null
-          tableau_rang_b: Json | null
-          title: string | null
-          updated_at: string | null
-          visual_ambiance: Json | null
-        }
-        Insert: {
-          audio_ambiance?: Json | null
-          created_at?: string | null
-          id?: string | null
-          interaction_config?: Json | null
-          item_code?: string | null
-          paroles_musicales?: string[] | null
-          payload_v2?: Json | null
-          pitch_intro?: string | null
-          quiz_questions?: Json | null
-          reward_messages?: Json | null
-          scene_immersive?: Json | null
-          slug?: string | null
-          subtitle?: string | null
-          tableau_rang_a?: Json | null
-          tableau_rang_b?: Json | null
-          title?: string | null
-          updated_at?: string | null
-          visual_ambiance?: Json | null
-        }
-        Update: {
-          audio_ambiance?: Json | null
-          created_at?: string | null
-          id?: string | null
-          interaction_config?: Json | null
-          item_code?: string | null
-          paroles_musicales?: string[] | null
-          payload_v2?: Json | null
-          pitch_intro?: string | null
-          quiz_questions?: Json | null
-          reward_messages?: Json | null
-          scene_immersive?: Json | null
-          slug?: string | null
-          subtitle?: string | null
-          tableau_rang_a?: Json | null
-          tableau_rang_b?: Json | null
-          title?: string | null
-          updated_at?: string | null
-          visual_ambiance?: Json | null
-        }
-        Relationships: []
-      }
-      backup_edn_items_immersive_final: {
-        Row: {
-          audio_ambiance: Json | null
-          created_at: string | null
-          id: string | null
-          interaction_config: Json | null
-          item_code: string | null
-          paroles_musicales: string[] | null
-          paroles_rang_a: string[] | null
-          paroles_rang_ab: string[] | null
-          paroles_rang_b: string[] | null
-          payload_v2: Json | null
-          pitch_intro: string | null
-          quiz_questions: Json | null
-          reward_messages: Json | null
-          scene_immersive: Json | null
-          slug: string | null
-          subtitle: string | null
-          tableau_rang_a: Json | null
-          tableau_rang_b: Json | null
-          title: string | null
-          updated_at: string | null
-          visual_ambiance: Json | null
-        }
-        Insert: {
-          audio_ambiance?: Json | null
-          created_at?: string | null
-          id?: string | null
-          interaction_config?: Json | null
-          item_code?: string | null
-          paroles_musicales?: string[] | null
-          paroles_rang_a?: string[] | null
-          paroles_rang_ab?: string[] | null
-          paroles_rang_b?: string[] | null
-          payload_v2?: Json | null
-          pitch_intro?: string | null
-          quiz_questions?: Json | null
-          reward_messages?: Json | null
-          scene_immersive?: Json | null
-          slug?: string | null
-          subtitle?: string | null
-          tableau_rang_a?: Json | null
-          tableau_rang_b?: Json | null
-          title?: string | null
-          updated_at?: string | null
-          visual_ambiance?: Json | null
-        }
-        Update: {
-          audio_ambiance?: Json | null
-          created_at?: string | null
-          id?: string | null
-          interaction_config?: Json | null
-          item_code?: string | null
-          paroles_musicales?: string[] | null
-          paroles_rang_a?: string[] | null
-          paroles_rang_ab?: string[] | null
-          paroles_rang_b?: string[] | null
-          payload_v2?: Json | null
-          pitch_intro?: string | null
-          quiz_questions?: Json | null
-          reward_messages?: Json | null
-          scene_immersive?: Json | null
-          slug?: string | null
-          subtitle?: string | null
-          tableau_rang_a?: Json | null
-          tableau_rang_b?: Json | null
-          title?: string | null
-          updated_at?: string | null
-          visual_ambiance?: Json | null
-        }
-        Relationships: []
-      }
       backup_oic_competences: {
         Row: {
           completion_last_error: string | null
@@ -2606,39 +2471,6 @@ export type Database = {
           status?: string
           updated_at?: string
           versions?: string[]
-        }
-        Relationships: []
-      }
-      edn_items: {
-        Row: {
-          created_at: string | null
-          has_link: string | null
-          has_recommendation: boolean | null
-          id: number
-          item_number: string
-          rank: string | null
-          specialty: string
-          title: string
-        }
-        Insert: {
-          created_at?: string | null
-          has_link?: string | null
-          has_recommendation?: boolean | null
-          id?: number
-          item_number: string
-          rank?: string | null
-          specialty: string
-          title: string
-        }
-        Update: {
-          created_at?: string | null
-          has_link?: string | null
-          has_recommendation?: boolean | null
-          id?: number
-          item_number?: string
-          rank?: string | null
-          specialty?: string
-          title?: string
         }
         Relationships: []
       }
@@ -4744,13 +4576,6 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "item_situation_relations_item_id_fkey"
-            columns: ["item_id"]
-            isOneToOne: false
-            referencedRelation: "edn_items"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "item_situation_relations_situation_id_fkey"
             columns: ["situation_id"]
             isOneToOne: false
@@ -4779,13 +4604,6 @@ export type Database = {
           therapeutic_id?: number | null
         }
         Relationships: [
-          {
-            foreignKeyName: "item_therapeutic_relations_item_id_fkey"
-            columns: ["item_id"]
-            isOneToOne: false
-            referencedRelation: "edn_items"
-            referencedColumns: ["id"]
-          },
           {
             foreignKeyName: "item_therapeutic_relations_therapeutic_id_fkey"
             columns: ["therapeutic_id"]
@@ -10348,15 +10166,7 @@ export type Database = {
           item_id?: number | null
           user_id?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "user_favorite_flashcards_item_id_fkey"
-            columns: ["item_id"]
-            isOneToOne: false
-            referencedRelation: "edn_items"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       user_favorite_tracks: {
         Row: {

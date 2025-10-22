@@ -237,15 +237,63 @@ export default function EdnComplete() {
   }, [immersiveItems, completeItems]);
 
   const isItemComplete = (item: EdnItem) => {
-    const hasRangA = !!item.tableau_rang_a;
-    const hasRangB = !!item.tableau_rang_b;
-    const hasMusic = !!(item.paroles_musicales && item.paroles_musicales.length > 0);
-    const hasScene = !!item.scene_immersive;
-    const hasQuiz = !!item.quiz_questions;
-    return hasRangA && hasRangB && hasMusic && hasScene && hasQuiz;
+    return getCompletionPercentage(item) === 100;
   };
 
   const getCompletionPercentage = (item: EdnItem) => {
+    let score = 0;
+    let maxScore = 0;
+
+    // Rang A avec sections ou compétences (25 points)
+    maxScore += 25;
+    if (item.tableau_rang_a) {
+      const rangA = item.tableau_rang_a;
+      if (rangA.sections && rangA.sections.length > 0) {
+        score += 25;
+      } else if (rangA.objectifs || rangA.competences_cles || rangA.competences_cliniques) {
+        score += 20;
+      } else {
+        score += 10;
+      }
+    }
+
+    // Rang B avec sections ou compétences (25 points)
+    maxScore += 25;
+    if (item.tableau_rang_b) {
+      const rangB = item.tableau_rang_b;
+      if (rangB.sections && rangB.sections.length > 0) {
+        score += 25;
+      } else if (rangB.objectifs || rangB.competences_cles || rangB.competences_cliniques) {
+        score += 20;
+      } else {
+        score += 10;
+      }
+    }
+
+    // Paroles musicales (20 points)
+    maxScore += 20;
+    if (item.paroles_musicales && item.paroles_musicales.length > 0) {
+      score += 20;
+    } else if (item.paroles_rang_a || item.paroles_rang_b) {
+      score += 15;
+    }
+
+    // Scène immersive (15 points)
+    maxScore += 15;
+    if (item.scene_immersive) {
+      score += 15;
+    }
+
+    // Quiz (15 points)
+    maxScore += 15;
+    if (item.quiz_questions) {
+      score += 15;
+    }
+
+    return Math.round((score / maxScore) * 100);
+  };
+
+  const getOldCompletionPercentage = (item: EdnItem) => {
     const features = [
       !!item.tableau_rang_a,
       !!item.tableau_rang_b,

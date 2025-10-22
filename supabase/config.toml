@@ -122,4 +122,7 @@ verify_jwt = false
 [functions.transform-edn-sections]
 verify_jwt = false
 
+[functions.generate-missing-content]
+verify_jwt = false
+
 
