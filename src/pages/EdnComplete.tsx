@@ -113,23 +113,32 @@ export default function EdnComplete() {
         .select('id, item_code, title, specialite, completeness_score, is_validated')
         .order('item_code');
 
+      // OPTIMISATION: Batch loading des compétences OIC
+      const itemNumbers = (immersiveData || []).map(item => 
+        item.item_code.replace('IC-', '').padStart(3, '0')
+      );
+      
+      const { data: allOicCompetences } = await supabase
+        .from('backup_oic_competences')
+        .select('item_parent, rang, objectif_id, intitule, description, rubrique')
+        .in('item_parent', itemNumbers);
+      
+      // Indexer par item_parent et rang pour accès rapide
+      const oicByItem = new Map<string, { A: any[], B: any[] }>();
+      (allOicCompetences || []).forEach(comp => {
+        if (!oicByItem.has(comp.item_parent)) {
+          oicByItem.set(comp.item_parent, { A: [], B: [] });
+        }
+        oicByItem.get(comp.item_parent)![comp.rang as 'A' | 'B'].push(comp);
+      });
+
       // Enrichir les données avec les compétences OIC
-      const itemsWithOIC = await Promise.all((immersiveData || []).map(async (item) => {
+      const itemsWithOIC = (immersiveData || []).map((item) => {
         try {
-          // Récupérer les compétences OIC pour les rangs A et B
           const itemNumber = item.item_code.replace('IC-', '').padStart(3, '0');
-          
-          const { data: oicRangA } = await supabase
-            .from('backup_oic_competences')
-            .select('objectif_id, intitule, description, rubrique')
-            .eq('item_parent', itemNumber)
-            .eq('rang', 'A');
-            
-          const { data: oicRangB } = await supabase
-            .from('backup_oic_competences')
-            .select('objectif_id, intitule, description, rubrique')
-            .eq('item_parent', itemNumber)
-            .eq('rang', 'B');
+          const oicData = oicByItem.get(itemNumber) || { A: [], B: [] };
+          const oicRangA = oicData.A;
+          const oicRangB = oicData.B;
 
           // 1. TRANSFORMATION des données existantes (objectifs/competences_cles → sections)
           let transformedTableauA = transformTableauToSections(
@@ -194,7 +203,7 @@ export default function EdnComplete() {
           console.error(`Erreur enrichissement OIC pour ${item.item_code}:`, error);
           return item;
         }
-      }));
+      });
 
       setImmersiveItems(itemsWithOIC);
       setCompleteItems(completeData || []);
