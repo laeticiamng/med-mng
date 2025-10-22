@@ -25,21 +25,21 @@ serve(async (req) => {
 
     if (itemsError) throw itemsError;
 
-    // Récupérer toutes les compétences OIC de qualité
+    // Récupérer toutes les compétences OIC de qualité depuis la table principale
     const { data: allOicCompetences } = await supabase
-      .from('backup_oic_competences')
-      .select('item_parent, rang, objectif_id, intitule, description, rubrique')
+      .from('oic_competences')
+      .select('item_parent, rang, objectif_id, intitule, description, rubrique, sommaire, mecanismes, indications, modalites_surveillance')
       .not('intitule', 'is', null)
       .not('description', 'is', null);
 
     console.log(`📚 ${allOicCompetences?.length || 0} compétences OIC chargées`);
 
-    // Filtrer et indexer les compétences de qualité (filtres assouplis)
+    // Filtrer et indexer les compétences de qualité (filtres optimisés)
     const oicByItem = new Map();
     (allOicCompetences || []).forEach(comp => {
-      // Filtres assouplis pour maximiser la couverture
-      if (!comp.intitule || comp.intitule.length < 10) return;
-      if (!comp.description || comp.description.length < 15) return;
+      // Filtres de qualité optimisés pour de meilleures données
+      if (!comp.intitule || comp.intitule.length < 15) return;
+      if (!comp.description || comp.description.length < 30) return;
       
       const key = `${comp.item_parent}_${comp.rang}`;
       if (!oicByItem.has(key)) {
@@ -54,13 +54,18 @@ serve(async (req) => {
     // Traiter chaque item
     for (const item of items || []) {
       try {
+        // Extraire le numéro : IC-1 -> 001, IC-66 -> 066, IC-334 -> 334
         const itemNumber = item.item_code.replace('IC-', '').padStart(3, '0');
+        console.log(`🔍 ${item.item_code} -> Recherche OIC avec clé: ${itemNumber}`);
+        
         let oicRangA = oicByItem.get(`${itemNumber}_A`) || [];
         let oicRangB = oicByItem.get(`${itemNumber}_B`) || [];
+        
+        console.log(`📊 ${item.item_code}: ${oicRangA.length} compétences A, ${oicRangB.length} compétences B`);
 
-        // FALLBACK : Si pas de compétences OIC, utiliser un contenu médical de qualité
-        const hasSufficientA = oicRangA.length >= 3;
-        const hasSufficientB = oicRangB.length >= 2;
+        // FALLBACK : Seuils ajustés avec données OIC enrichies
+        const hasSufficientA = oicRangA.length >= 5;
+        const hasSufficientB = oicRangB.length >= 3;
 
         if (!hasSufficientA) {
           console.log(`⚠️ ${item.item_code}: Compétences Rang A insuffisantes (${oicRangA.length})`);
@@ -88,7 +93,11 @@ serve(async (req) => {
                 competence: comp.intitule,
                 description: comp.description,
                 rubrique: comp.rubrique || "Compétence Fondamentale",
-                objectif_id: comp.objectif_id || `OIC-${itemNumber}-A`
+                objectif_id: comp.objectif_id || `OIC-${itemNumber}-A`,
+                sommaire: comp.sommaire || '',
+                mecanismes: comp.mecanismes || '',
+                indications: comp.indications || '',
+                modalites_surveillance: comp.modalites_surveillance || ''
               }))
             : [
                 {
@@ -123,7 +132,11 @@ serve(async (req) => {
                 competence: comp.intitule,
                 description: comp.description,
                 rubrique: comp.rubrique || "Compétence Avancée",
-                objectif_id: comp.objectif_id || `OIC-${itemNumber}-B`
+                objectif_id: comp.objectif_id || `OIC-${itemNumber}-B`,
+                sommaire: comp.sommaire || '',
+                mecanismes: comp.mecanismes || '',
+                indications: comp.indications || '',
+                modalites_surveillance: comp.modalites_surveillance || ''
               }))
             : [
                 {
