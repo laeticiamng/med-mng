@@ -129,22 +129,30 @@ export default function EdnComplete() {
             .eq('item_parent', itemNumber)
             .eq('rang', 'B');
 
-          // 1. Transformer la structure objectifs/competences_cles en sections si nécessaire
-          let enrichedTableauA = transformTableauToSections(
+          // 1. TRANSFORMATION des données existantes (objectifs/competences_cles → sections)
+          let transformedTableauA = transformTableauToSections(
             item.tableau_rang_a, 
             item.item_code, 
             item.title, 
             'A'
           );
           
-          // 2. Si toujours pas de sections après transformation, enrichir avec OIC
-          const tableauA = enrichedTableauA || {};
+          let transformedTableauB = transformTableauToSections(
+            item.tableau_rang_b, 
+            item.item_code, 
+            item.title, 
+            'B'
+          );
+
+          // 2. ENRICHISSEMENT avec OIC si toujours pas de sections après transformation
+          const tableauA = transformedTableauA || item.tableau_rang_a || {};
           if (oicRangA && oicRangA.length > 0 && (!tableauA.sections || tableauA.sections.length === 0)) {
-            enrichedTableauA = {
+            console.log(`🔥 Enrichissement OIC pour ${item.item_code} Rang A: ${oicRangA.length} compétences`);
+            transformedTableauA = {
               ...tableauA,
               title: `${item.item_code} Rang A - ${item.title}`,
               sections: [{
-                title: `Compétences OIC Rang A`,
+                title: `Compétences OIC Rang A (${oicRangA.length})`,
                 competences: oicRangA.map(comp => ({
                   competence_id: comp.objectif_id,
                   concept: comp.intitule,
@@ -155,22 +163,14 @@ export default function EdnComplete() {
             };
           }
 
-          // 1. Transformer la structure objectifs/competences_cles en sections si nécessaire
-          let enrichedTableauB = transformTableauToSections(
-            item.tableau_rang_b, 
-            item.item_code, 
-            item.title, 
-            'B'
-          );
-          
-          // 2. Si toujours pas de sections après transformation, enrichir avec OIC
-          const tableauB = enrichedTableauB || {};
+          const tableauB = transformedTableauB || item.tableau_rang_b || {};
           if (oicRangB && oicRangB.length > 0 && (!tableauB.sections || tableauB.sections.length === 0)) {
-            enrichedTableauB = {
+            console.log(`🔥 Enrichissement OIC pour ${item.item_code} Rang B: ${oicRangB.length} compétences`);
+            transformedTableauB = {
               ...tableauB,
               title: `${item.item_code} Rang B - ${item.title}`,
               sections: [{
-                title: `Compétences OIC Rang B`,
+                title: `Compétences OIC Rang B (${oicRangB.length})`,
                 competences: oicRangB.map(comp => ({
                   competence_id: comp.objectif_id,
                   concept: comp.intitule,
@@ -183,8 +183,8 @@ export default function EdnComplete() {
 
           return {
             ...item,
-            tableau_rang_a: enrichedTableauA,
-            tableau_rang_b: enrichedTableauB,
+            tableau_rang_a: transformedTableauA,
+            tableau_rang_b: transformedTableauB,
             competences_oic_rang_a: oicRangA,
             competences_oic_rang_b: oicRangB
           };

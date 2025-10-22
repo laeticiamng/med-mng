@@ -3,15 +3,20 @@
  * en format sections compatible avec les composants TableauRangA/B
  */
 export const transformTableauToSections = (tableauData: any, itemCode: string, title: string, rang: 'A' | 'B') => {
+  console.log(`🔧 Transformation pour ${itemCode} Rang ${rang}:`, tableauData);
+  
   if (!tableauData || typeof tableauData !== 'object') {
+    console.log(`⚠️ ${itemCode}: Pas de données tableau`);
     return null;
   }
 
   // Si sections existe déjà et n'est pas vide, retourner tel quel
   if (tableauData.sections && Array.isArray(tableauData.sections) && tableauData.sections.length > 0) {
+    console.log(`✅ ${itemCode}: Sections déjà présentes (${tableauData.sections.length})`);
     return tableauData;
   }
 
+  console.log(`🔄 ${itemCode}: Création de sections à partir des champs existants`);
   const sections = [];
 
   // Section 1 : Objectifs pédagogiques
@@ -58,15 +63,33 @@ export const transformTableauToSections = (tableauData: any, itemCode: string, t
     });
   }
 
+  // Section 5 : Compétences expertes (pour Rang B)
+  if (rang === 'B' && tableauData.competences_expertes && Array.isArray(tableauData.competences_expertes) && tableauData.competences_expertes.length > 0) {
+    sections.push({
+      title: "Compétences expertes",
+      content: "",
+      competences: tableauData.competences_expertes.map((comp: any) => ({
+        competence_id: comp.niveau || 'Expert',
+        concept: comp.expertise || comp.competence || '',
+        definition: comp.description || '',
+        niveau: comp.niveau || 'Expert'
+      })),
+      keywords: []
+    });
+  }
+
   // Si aucune section n'a été créée, retourner le tableau original
   if (sections.length === 0) {
+    console.log(`⚠️ ${itemCode}: Aucune section créée, retour données originales`);
     return tableauData;
   }
 
-  // Retourner la structure transformée avec sections
-  return {
+  const transformed = {
     title: tableauData.title || `${itemCode} Rang ${rang} - ${title}`,
     subtitle: tableauData.subtitle,
     sections: sections
   };
+  
+  console.log(`✅ ${itemCode}: ${sections.length} sections créées avec succès`);
+  return transformed;
 };
