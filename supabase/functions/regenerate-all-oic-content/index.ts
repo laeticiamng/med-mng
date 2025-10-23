@@ -36,17 +36,27 @@ serve(async (req) => {
 
     // Filtrer et indexer les compétences de qualité (filtres assouplis pour maximiser la couverture)
     const oicByItem = new Map();
+    let filteredCount = 0;
+    let totalCount = allOicCompetences?.length || 0;
+    
     (allOicCompetences || []).forEach(comp => {
       // Filtres assouplis : intitulé >= 10 chars, description >= 20 chars (permet de garder 5,356 compétences sur 5,606)
       if (!comp.intitule || comp.intitule.length < 10) return;
       if (!comp.description || comp.description.length < 20) return;
       
+      filteredCount++;
       const key = `${comp.item_parent}_${comp.rang}`;
       if (!oicByItem.has(key)) {
         oicByItem.set(key, []);
       }
       oicByItem.get(key).push(comp);
     });
+
+    console.log(`✅ Filtrage: ${filteredCount}/${totalCount} compétences valides`);
+    console.log(`📋 Clés disponibles (sample):`, Array.from(oicByItem.keys()).slice(0, 20));
+    console.log(`🔍 Test IC-1: 001_A => ${oicByItem.get('001_A')?.length || 0} compétences`);
+    console.log(`🔍 Test IC-2: 002_A => ${oicByItem.get('002_A')?.length || 0} compétences`);
+    console.log(`🔍 Test IC-3: 003_A => ${oicByItem.get('003_A')?.length || 0} compétences`);
 
     let updatedCount = 0;
     const errors = [];

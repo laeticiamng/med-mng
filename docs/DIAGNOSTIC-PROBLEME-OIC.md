@@ -1,36 +1,22 @@
-# 🔴 DIAGNOSTIC - PROBLÈME PERSISTANT OIC
+# 🔴 DIAGNOSTIC - BUG CRITIQUE MAPPING OIC
 
-## Problème identifié
+## ⚠️ Problème confirmé
 
-**Résultat actuel:** 49 items Rang A / 62 items Rang B avec OIC réelles (13-17%)
+**Résultat:** 49 items Rang A / 62 items Rang B avec OIC réelles (13-17%)  
+**Attendu:** 255+ items avec OIC réelles (70%)  
+**Données disponibles:** 5,356 compétences OIC de qualité ✅
 
-**Attendu:** 255+ items avec OIC réelles (70%)
+## 🔍 Cause identifiée
 
-## Cause probable
+**Les logs de debug ne s'affichent pas**, ce qui indique un problème de déploiement ou d'exécution de la fonction.
 
-Les filtres sont appliqués MAIS les compétences ne sont pas utilisées correctement dans la génération.
+**Logs attendus mais absents:**
+- `✅ Filtrage: X/5606 compétences valides`
+- `🔍 Test IC-1: 001_A => X compétences`
+- `🔍 Test IC-2: 002_A => X compétences`
 
-### Vérifications effectuées
+## 📋 Prochaine étape
 
-1. ✅ Table `oic_competences` : 5,606 compétences disponibles
-2. ✅ Filtres 10/20 : 5,356 compétences qualité
-3. ✅ IC-1 a 16 compétences Rang A disponibles
-4. ❌ MAIS l'edge function génère du fallback
+Voir le document détaillé: `docs/ANALYSE-BUG-MAPPING-OIC.md`
 
-## Actions nécessaires
-
-1. **Vérifier les logs détaillés** de l'edge function
-2. **Déboguer la logique** de sélection des compétences
-3. **Corriger le mapping** item_code → item_parent
-
-## Commandes de vérification
-
-```sql
--- Vérifier IC-1
-SELECT item_code, 
-  tableau_rang_a->'competences_cles'->0->>'objectif_id' as obj_a,
-  jsonb_array_length(tableau_rang_a->'competences_cles') as nb_a
-FROM edn_items_immersive WHERE item_code = 'IC-1';
-```
-
-**Conclusion:** Le problème nécessite un débogage approfondi des logs d'exécution.
+**Action immédiate:** Ajouter des logs ultra-détaillés et redéployer avec vérification complète.
