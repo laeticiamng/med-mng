@@ -1,5 +1,5 @@
-import { serve } from "https://deno.land/std@0.224.0/http/server.ts"
-import { join } from "https://deno.land/std@0.224.0/path/mod.ts"
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { join } from "https://deno.land/std@0.168.0/path/mod.ts"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
