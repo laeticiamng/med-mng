@@ -16,7 +16,9 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    console.log('🚀 Régénération complète avec compétences OIC réelles');
+    console.log('🚀 VERSION 2.0 - Régénération complète SANS FILTRES DE LONGUEUR (100% OIC)');
+    console.log('🚀 VERSION 2.0 - Régénération complète SANS FILTRES DE LONGUEUR (100% OIC)');
+    console.log('🚀 VERSION 2.0 - Régénération complète SANS FILTRES DE LONGUEUR (100% OIC)');
 
     // Récupérer tous les items
     const { data: items, error: itemsError } = await supabase
@@ -25,37 +27,36 @@ serve(async (req) => {
 
     if (itemsError) throw itemsError;
 
-    // Récupérer toutes les compétences OIC de qualité depuis la table principale (EXCLURE les fallbacks)
+    // Récupérer TOUTES les compétences OIC depuis la table (on filtrera après)
     // IMPORTANT: Supabase limite par défaut à 1000 résultats, on doit augmenter la limite
     const { data: allOicCompetences } = await supabase
       .from('oic_competences')
       .select('item_parent, rang, objectif_id, intitule, description, rubrique, sommaire, mecanismes, indications, modalites_surveillance')
-      .not('intitule', 'is', null)
-      .not('description', 'is', null)
-      .not('objectif_id', 'like', 'IC-%') // EXCLURE les fallbacks qui polluent la table
-      .limit(10000); // Charger toutes les compétences (4,872 compétences disponibles)
+      .limit(10000); // Charger toutes les compétences
 
-    console.log(`📚 ${allOicCompetences?.length || 0} compétences OIC chargées (AVANT filtres)`);
+    console.log(`📚 ${allOicCompetences?.length || 0} compétences OIC chargées depuis Supabase`);
 
-    // Filtrer et indexer les compétences de qualité (filtres ultra-assouplis pour maximiser la couverture)
+    // Indexer TOUTES les compétences OIC valides (filtrer les fallbacks + null)
     const oicByItem = new Map();
-    let filteredCount = 0;
+    let acceptedCount = 0;
     let totalCount = allOicCompetences?.length || 0;
-    let rejectedByIntitule = 0;
-    let rejectedByDescription = 0;
+    let rejectedFallback = 0;
+    let rejectedNull = 0;
     
     (allOicCompetences || []).forEach(comp => {
-      // Filtres ultra-assouplis : intitulé >= 5 chars, description >= 10 chars
-      if (!comp.intitule || comp.intitule.length < 5) {
-        rejectedByIntitule++;
-        return;
-      }
-      if (!comp.description || comp.description.length < 10) {
-        rejectedByDescription++;
+      // Exclure les fallbacks (objectif_id commençant par IC-)
+      if (comp.objectif_id && comp.objectif_id.startsWith('IC-')) {
+        rejectedFallback++;
         return;
       }
       
-      filteredCount++;
+      // Exclure les compétences sans intitulé ou description
+      if (!comp.intitule || !comp.description) {
+        rejectedNull++;
+        return;
+      }
+      
+      acceptedCount++;
       const key = `${comp.item_parent}_${comp.rang}`;
       if (!oicByItem.has(key)) {
         oicByItem.set(key, []);
@@ -63,13 +64,14 @@ serve(async (req) => {
       oicByItem.get(key).push(comp);
     });
 
-    console.log(`✅ Filtrage: ${filteredCount}/${totalCount} compétences valides`);
-    console.log(`❌ Rejetées par intitulé: ${rejectedByIntitule}`);
-    console.log(`❌ Rejetées par description: ${rejectedByDescription}`);
-    console.log(`📋 Clés disponibles (sample):`, Array.from(oicByItem.keys()).slice(0, 20));
+    console.log(`✅ ACCEPTÉES: ${acceptedCount}/${totalCount} compétences OIC valides`);
+    console.log(`❌ Rejetées (fallback IC-*): ${rejectedFallback}`);
+    console.log(`❌ Rejetées (null): ${rejectedNull}`);
+    console.log(`📋 Items uniques avec OIC: ${oicByItem.size} clés distinctes`);
     console.log(`🔍 Test IC-1: 001_A => ${oicByItem.get('001_A')?.length || 0} compétences`);
     console.log(`🔍 Test IC-2: 002_A => ${oicByItem.get('002_A')?.length || 0} compétences`);
     console.log(`🔍 Test IC-25: 025_A => ${oicByItem.get('025_A')?.length || 0} compétences`);
+    console.log(`🔍 Test IC-283: 283_A => ${oicByItem.get('283_A')?.length || 0} compétences`);
 
     let updatedCount = 0;
     const errors = [];
