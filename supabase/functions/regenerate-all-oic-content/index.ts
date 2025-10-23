@@ -29,12 +29,20 @@ serve(async (req) => {
 
     // Récupérer TOUTES les compétences OIC depuis la table (on filtrera après)
     // IMPORTANT: Supabase limite par défaut à 1000 résultats, on doit augmenter la limite
-    const { data: allOicCompetences } = await supabase
+    console.log('🔄 DÉBUT chargement compétences OIC depuis Supabase...');
+    const { data: allOicCompetences, error: oicError } = await supabase
       .from('oic_competences')
       .select('item_parent, rang, objectif_id, intitule, description, rubrique, sommaire, mecanismes, indications, modalites_surveillance')
       .limit(10000); // Charger toutes les compétences
 
-    console.log(`📚 ${allOicCompetences?.length || 0} compétences OIC chargées depuis Supabase`);
+    if (oicError) {
+      console.error('❌ ERREUR chargement OIC:', oicError);
+      throw oicError;
+    }
+
+    console.log(`📚 CHARGÉ: ${allOicCompetences?.length || 0} compétences OIC depuis Supabase`);
+    console.log(`📚 CHARGÉ: ${allOicCompetences?.length || 0} compétences OIC depuis Supabase`);
+    console.log(`📚 CHARGÉ: ${allOicCompetences?.length || 0} compétences OIC depuis Supabase`);
 
     // Indexer TOUTES les compétences OIC valides (filtrer les fallbacks + null)
     const oicByItem = new Map();
@@ -62,8 +70,14 @@ serve(async (req) => {
         oicByItem.set(key, []);
       }
       oicByItem.get(key).push(comp);
+      
+      // Log quelques exemples de mapping pour debug
+      if (comp.item_parent === '025' || comp.item_parent === '288' || comp.item_parent === '283') {
+        console.log(`🔑 Indexé: ${comp.item_parent}_${comp.rang} => ${comp.objectif_id}`);
+      }
     });
-
+    console.log(`✅ ACCEPTÉES: ${acceptedCount}/${totalCount} compétences OIC valides`);
+    console.log(`✅ ACCEPTÉES: ${acceptedCount}/${totalCount} compétences OIC valides`);
     console.log(`✅ ACCEPTÉES: ${acceptedCount}/${totalCount} compétences OIC valides`);
     console.log(`❌ Rejetées (fallback IC-*): ${rejectedFallback}`);
     console.log(`❌ Rejetées (null): ${rejectedNull}`);
@@ -71,7 +85,8 @@ serve(async (req) => {
     console.log(`🔍 Test IC-1: 001_A => ${oicByItem.get('001_A')?.length || 0} compétences`);
     console.log(`🔍 Test IC-2: 002_A => ${oicByItem.get('002_A')?.length || 0} compétences`);
     console.log(`🔍 Test IC-25: 025_A => ${oicByItem.get('025_A')?.length || 0} compétences`);
-    console.log(`🔍 Test IC-283: 283_A => ${oicByItem.get('283_A')?.length || 0} compétences`);
+    console.log(`🔍 Test IC-288: 288_A => ${oicByItem.get('288_A')?.length || 0} compétences`);
+    console.log(`🔍 Test IC-288: 288_B => ${oicByItem.get('288_B')?.length || 0} compétences`);
 
     let updatedCount = 0;
     const errors = [];
