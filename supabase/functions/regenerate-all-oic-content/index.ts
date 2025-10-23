@@ -73,9 +73,9 @@ serve(async (req) => {
         
         console.log(`📊 ${item.item_code}: ${oicRangA.length} compétences A, ${oicRangB.length} compétences B`);
 
-        // FALLBACK : Seuils optimaux pour maximiser l'utilisation des OIC réelles (70% des items couverts)
-        const hasSufficientA = oicRangA.length >= 3;
-        const hasSufficientB = oicRangB.length >= 2;
+        // SEUILS ABAISSÉS : Utiliser toutes les compétences OIC réelles disponibles, même s'il n'y en a qu'une seule
+        const hasSufficientA = oicRangA.length >= 1;
+        const hasSufficientB = oicRangB.length >= 1;
 
         if (!hasSufficientA) {
           console.log(`⚠️ ${item.item_code}: Compétences Rang A insuffisantes (${oicRangA.length})`);
