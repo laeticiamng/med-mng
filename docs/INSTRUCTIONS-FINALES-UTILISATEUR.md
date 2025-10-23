@@ -26,7 +26,8 @@ URL: /audit
 2. ✅ Système de fallback intelligent
 3. ✅ Audit automatisé créé
 4. ✅ Edge functions déployées
-5. ✅ Documentation complète
+5. ✅ **Bug critique corrigé: Fallbacks exclus de la table OIC**
+6. ✅ Documentation complète
 
 ---
 

@@ -25,12 +25,13 @@ serve(async (req) => {
 
     if (itemsError) throw itemsError;
 
-    // Récupérer toutes les compétences OIC de qualité depuis la table principale
+    // Récupérer toutes les compétences OIC de qualité depuis la table principale (EXCLURE les fallbacks)
     const { data: allOicCompetences } = await supabase
       .from('oic_competences')
       .select('item_parent, rang, objectif_id, intitule, description, rubrique, sommaire, mecanismes, indications, modalites_surveillance')
       .not('intitule', 'is', null)
-      .not('description', 'is', null);
+      .not('description', 'is', null)
+      .not('objectif_id', 'like', 'IC-%'); // EXCLURE les fallbacks qui polluent la table
 
     console.log(`📚 ${allOicCompetences?.length || 0} compétences OIC chargées`);
 
