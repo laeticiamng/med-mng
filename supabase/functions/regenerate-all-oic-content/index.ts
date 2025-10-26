@@ -16,9 +16,9 @@ serve(async (req) => {
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    console.log('🚀 VERSION 2.0 - Régénération complète SANS FILTRES DE LONGUEUR (100% OIC)');
-    console.log('🚀 VERSION 2.0 - Régénération complète SANS FILTRES DE LONGUEUR (100% OIC)');
-    console.log('🚀 VERSION 2.0 - Régénération complète SANS FILTRES DE LONGUEUR (100% OIC)');
+    console.log('🚀 VERSION 3.0 FINALE - CORRECTION backup_oic_competences ✅');
+    console.log('🚀 VERSION 3.0 FINALE - CORRECTION backup_oic_competences ✅');
+    console.log('🚀 VERSION 3.0 FINALE - CORRECTION backup_oic_competences ✅');
 
     // Récupérer tous les items
     const { data: items, error: itemsError } = await supabase
@@ -27,12 +27,12 @@ serve(async (req) => {
 
     if (itemsError) throw itemsError;
 
-    // Récupérer TOUTES les compétences OIC depuis la table (on filtrera après)
+    // Récupérer TOUTES les compétences OIC depuis la table backup (source complète)
     // IMPORTANT: Supabase limite par défaut à 1000 résultats, on doit augmenter la limite
-    console.log('🔄 DÉBUT chargement compétences OIC depuis Supabase...');
+    console.log('🔄 DÉBUT chargement compétences OIC depuis backup_oic_competences...');
     const { data: allOicCompetences, error: oicError } = await supabase
-      .from('oic_competences')
-      .select('item_parent, rang, objectif_id, intitule, description, rubrique, sommaire, mecanismes, indications, modalites_surveillance')
+      .from('backup_oic_competences')
+      .select('item_parent, rang, objectif_id, intitule, description, rubrique')
       .limit(10000); // Charger toutes les compétences
 
     if (oicError) {
@@ -133,11 +133,7 @@ serve(async (req) => {
                 competence: comp.intitule,
                 description: comp.description,
                 rubrique: comp.rubrique || "Compétence Fondamentale",
-                objectif_id: comp.objectif_id || `OIC-${itemNumber}-A`,
-                sommaire: comp.sommaire || '',
-                mecanismes: comp.mecanismes || '',
-                indications: comp.indications || '',
-                modalites_surveillance: comp.modalites_surveillance || ''
+                objectif_id: comp.objectif_id || `OIC-${itemNumber}-A`
               }))
             : [
                 {
@@ -172,11 +168,7 @@ serve(async (req) => {
                 competence: comp.intitule,
                 description: comp.description,
                 rubrique: comp.rubrique || "Compétence Avancée",
-                objectif_id: comp.objectif_id || `OIC-${itemNumber}-B`,
-                sommaire: comp.sommaire || '',
-                mecanismes: comp.mecanismes || '',
-                indications: comp.indications || '',
-                modalites_surveillance: comp.modalites_surveillance || ''
+                objectif_id: comp.objectif_id || `OIC-${itemNumber}-B`
               }))
             : [
                 {
