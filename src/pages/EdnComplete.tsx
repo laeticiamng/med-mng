@@ -560,50 +560,16 @@ export default function EdnComplete() {
 
           <TabsContent value="immersive">
             <div className="grid gap-4">
-              {viewMode === 'grid' ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {filteredItems.map(item => (
-                    <Card key={item.id} className="cursor-pointer hover:shadow-sm" onClick={() => openItemModal(item)}>
-                      <CardContent className="p-4">
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between">
-                            <h3 className="font-semibold">{item.item_code}</h3>
-                            <Badge variant="outline">{getCompletionPercentage(item)}%</Badge>
-                          </div>
-                          <p className="text-sm text-muted-foreground line-clamp-2">{item.title}</p>
-                          <div className="flex gap-1 flex-wrap">
-                            {item.scene_immersive && (
-                              <Badge variant="secondary" className="text-xs">🎬 Scène 3D</Badge>
-                            )}
-                            {item.quiz_questions && (
-                              <Badge variant="secondary" className="text-xs">✅ Quiz</Badge>
-                            )}
-                            {item.paroles_musicales && item.paroles_musicales.length > 0 && (
-                              <Badge variant="secondary" className="text-xs">🎵 Musique</Badge>
-                            )}
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  {filteredItems.map(item => (
-                    <Card key={item.id} className="cursor-pointer hover:shadow-sm" onClick={() => openItemModal(item)}>
-                      <CardContent className="p-4">
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <h3 className="font-semibold">{item.item_code}</h3>
-                            <p className="text-sm text-muted-foreground">{item.title}</p>
-                          </div>
-                          <Badge variant="outline">{getCompletionPercentage(item)}%</Badge>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              )}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredItems.map(item => (
+                  <EdnItemCard
+                    key={item.id}
+                    item={item}
+                    completionPercentage={getCompletionPercentage(item)}
+                    onOpen={(tab) => openItemModal(item, tab)}
+                  />
+                ))}
+              </div>
             </div>
           </TabsContent>
 
@@ -612,57 +578,18 @@ export default function EdnComplete() {
               {/* FAQ Section */}
               <FaqSection />
 
-              {/* Liste des items avec validation */}
+              {/* Liste des items avec EdnItemCard premium */}
               <div className="grid gap-4">
-                {viewMode === 'grid' ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {filteredItems.map(item => (
-                      <Card key={item.id} className="cursor-pointer hover:shadow-sm" onClick={() => openItemModal(item)}>
-                        <CardContent className="p-4">
-                          <div className="space-y-2">
-                            <div className="flex items-center justify-between">
-                              <h3 className="font-semibold">{item.item_code}</h3>
-                              <Badge variant={item.is_validated ? 'default' : 'outline'}>
-                                {item.is_validated ? 'Validé' : 'En attente'}
-                              </Badge>
-                            </div>
-                            <p className="text-sm text-muted-foreground line-clamp-2">{item.title}</p>
-                            <div className="flex gap-2">
-                              <Badge variant="secondary" className="text-xs">
-                                Score: {item.completeness_score || getCompletionPercentage(item)}%
-                              </Badge>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    {filteredItems.map(item => (
-                      <Card key={item.id} className="cursor-pointer hover:shadow-sm" onClick={() => openItemModal(item)}>
-                        <CardContent className="p-3">
-                          <div className="flex items-center justify-between">
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2">
-                                <span className="font-semibold text-sm">{item.item_code}</span>
-                                <span className="text-sm text-muted-foreground truncate">{item.title}</span>
-                              </div>
-                            </div>
-                            <div className="flex gap-2">
-                              <Badge variant="outline" className="text-xs">
-                                {item.completeness_score || getCompletionPercentage(item)}%
-                              </Badge>
-                              {item.is_validated && (
-                                <Badge variant="default" className="text-xs">Validé</Badge>
-                              )}
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                )}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {filteredItems.map(item => (
+                    <EdnItemCard
+                      key={item.id}
+                      item={item}
+                      completionPercentage={item.completeness_score || getCompletionPercentage(item)}
+                      onOpen={(tab) => openItemModal(item, tab)}
+                    />
+                  ))}
+                </div>
               </div>
             </div>
           </TabsContent>
