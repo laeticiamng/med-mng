@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import { 
   Search, BookOpen, Award, Users, TrendingUp, Filter, Grid, List, Eye,
   Music, Brain, Play, Headphones, CheckCircle, Sparkles, ArrowRight,
@@ -78,10 +78,25 @@ export default function EdnComplete() {
   const { toast } = useToast();
   const isMobile = useIsMobile();
   const navigate = useNavigate();
+  const { slug } = useParams<{ slug: string }>();
 
   useEffect(() => {
     fetchAllData();
   }, []);
+
+  // Ouvrir automatiquement la modal si un slug est présent dans l'URL
+  useEffect(() => {
+    if (slug && immersiveItems.length > 0) {
+      const normalizedSlug = slug.toLowerCase();
+      const item = immersiveItems.find(
+        i => i.slug?.toLowerCase() === normalizedSlug || 
+             i.item_code.toLowerCase() === normalizedSlug
+      );
+      if (item) {
+        openItemModal(item);
+      }
+    }
+  }, [slug, immersiveItems]);
 
   const fetchAllData = async () => {
     try {
