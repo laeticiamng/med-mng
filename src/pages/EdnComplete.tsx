@@ -134,17 +134,29 @@ export default function EdnComplete() {
 
       console.log('✅ Données complètes chargées:', completeData?.length);
 
-      // OPTIMISATION: Batch loading des compétences OIC
+      // OPTIMISATION: Batch loading des compétences OIC par lots de 50
       const itemNumbers = (immersiveData || []).map(item => 
         item.item_code.replace('IC-', '').padStart(3, '0')
       );
       
       console.log('🔄 Chargement des compétences OIC pour', itemNumbers.length, 'items...');
 
-      const { data: allOicCompetences } = await supabase
-        .from('backup_oic_competences')
-        .select('item_parent, rang, objectif_id, intitule, description, rubrique')
-        .in('item_parent', itemNumbers);
+      // Diviser en lots de 50 pour éviter les limites Supabase .in()
+      const batchSize = 50;
+      const allOicCompetences: any[] = [];
+      
+      for (let i = 0; i < itemNumbers.length; i += batchSize) {
+        const batch = itemNumbers.slice(i, i + batchSize);
+        const { data: batchData } = await supabase
+          .from('backup_oic_competences')
+          .select('item_parent, rang, objectif_id, intitule, description, rubrique')
+          .in('item_parent', batch);
+        
+        if (batchData) {
+          allOicCompetences.push(...batchData);
+        }
+        console.log(`  ↳ Lot ${Math.floor(i/batchSize) + 1}/${Math.ceil(itemNumbers.length/batchSize)}: ${batchData?.length || 0} compétences`);
+      }
       
       console.log('✅ Compétences OIC chargées:', allOicCompetences?.length);
 
