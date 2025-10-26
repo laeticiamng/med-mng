@@ -31,8 +31,6 @@ import Dashboard from "./pages/Dashboard";
 import SystemManagement from "./pages/SystemManagement";
 import OptimizedIndex from "./pages/OptimizedIndex";
 import ModularDashboard from "./pages/ModularDashboard";
-import Settings from "./pages/Settings";
-import Community from "./pages/Community";
 import Index from "./pages/Index";
 import Generator from "./pages/Generator";
 import LibraryPage from "./pages/LibraryPage";
@@ -113,8 +111,6 @@ const App = () => {
             <main id="main-content" tabIndex={-1} className="pt-16">
           <Routes>
         <Route path="/modular-dashboard" element={<ModularDashboard />} />
-        <Route path="/settings" element={<Settings />} />
-        <Route path="/community" element={<Community />} />
            <Route path="/dashboard" element={<Dashboard />} />
            <Route path="/learning-dashboard" element={<LearningDashboard />} />
            <Route path="/platform-status" element={<PlatformStatusPage />} />
