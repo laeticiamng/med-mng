@@ -405,13 +405,16 @@ export default function EdnComplete() {
     return { total, complete, validated, withMusic, avgScore };
   };
 
-  const openItemModal = useCallback((item: EdnItem) => {
+  const openItemModal = useCallback((item: EdnItem, tab?: string) => {
     setSelectedItem(item);
     setIsModalOpen(true);
+    setSelectedItemTab(tab || 'overview');
     
     // Analytics: Track item opening
-    console.log(`📊 Analytics: Item ${item.item_code} opened`);
+    console.log(`📊 Analytics: Item ${item.item_code} opened on tab ${tab || 'overview'}`);
   }, []);
+  
+  const [selectedItemTab, setSelectedItemTab] = useState<string>('overview');
 
   const stats = calculateStats();
 
@@ -807,6 +810,7 @@ export default function EdnComplete() {
         item={selectedItem}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
+        initialTab={selectedItemTab}
       />
     </div>
   );

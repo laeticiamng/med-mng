@@ -27,7 +27,7 @@ interface EdnItemCardProps {
     visual_ambiance?: any;
   };
   completionPercentage: number;
-  onOpen: () => void;
+  onOpen: (tab?: string) => void;
 }
 
 export const EdnItemCard: React.FC<EdnItemCardProps> = ({
@@ -176,8 +176,7 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  // TODO: Ouvrir le modal sur l'onglet 'music'
-                  onOpen();
+                  onOpen('music');
                 }}
                 className="flex-1 hover:bg-purple-50 hover:border-purple-300 transition-all duration-200 active:scale-95"
                 type="button"
@@ -191,8 +190,7 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
                 onClick={(e) => {
                   e.preventDefault();
                   e.stopPropagation();
-                  // TODO: Ouvrir le modal sur l'onglet 'quiz'
-                  onOpen();
+                  onOpen('quiz');
                 }}
                 className="flex-1 hover:bg-blue-50 hover:border-blue-300 transition-all duration-200 active:scale-95"
                 type="button"
@@ -208,7 +206,7 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
               onClick={(e) => {
                 e.preventDefault();
                 e.stopPropagation();
-                onOpen();
+                onOpen('music');
               }}
               className="px-3 hover:bg-purple-50 hover:border-purple-300 transition-all duration-200 active:scale-95"
               type="button"

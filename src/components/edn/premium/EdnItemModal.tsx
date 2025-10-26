@@ -26,14 +26,16 @@ interface EdnItemModalProps {
   item: any;
   isOpen: boolean;
   onClose: () => void;
+  initialTab?: string;
 }
 
 export const EdnItemModal: React.FC<EdnItemModalProps> = ({
   item,
   isOpen,
-  onClose
+  onClose,
+  initialTab
 }) => {
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState(initialTab || 'overview');
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [audioPlaying, setAudioPlaying] = useState(false);
   const [completeItemData, setCompleteItemData] = useState<any>(null);
@@ -43,29 +45,25 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
   const processedItem = useEdnItemV2Process(item);
   const finalItem = processedItem || item;
 
-  // Récupérer les données complètes OIC quand le modal s'ouvre
+  // Mise à jour du tab actif quand initialTab change
   useEffect(() => {
-    const fetchCompleteData = async () => {
-      if (!finalItem?.item_code || !isOpen) return;
-      
-      try {
-        const { data, error } = await supabase
-          .from('edn_items_complete')
-          .select('competences_oic_rang_a, competences_oic_rang_b, tableau_rang_a, tableau_rang_b')
-          .eq('item_code', finalItem.item_code)
-          .single();
+    if (initialTab && isOpen) {
+      setActiveTab(initialTab);
+    }
+  }, [initialTab, isOpen]);
 
-        if (data && !error) {
-          setCompleteItemData(data);
-          console.log('🔥 Données OIC récupérées pour', finalItem.item_code, ':', data);
-        }
-      } catch (error) {
-        console.error('Erreur récupération données OIC:', error);
-      }
-    };
-
-    fetchCompleteData();
-  }, [finalItem?.item_code, isOpen]);
+  // Les données OIC sont déjà dans finalItem grâce au fetch optimisé
+  useEffect(() => {
+    if (finalItem && isOpen) {
+      // Utiliser les données déjà présentes dans l'item
+      setCompleteItemData({
+        competences_oic_rang_a: finalItem.competences_oic_rang_a,
+        competences_oic_rang_b: finalItem.competences_oic_rang_b,
+        tableau_rang_a: finalItem.tableau_rang_a,
+        tableau_rang_b: finalItem.tableau_rang_b
+      });
+    }
+  }, [finalItem, isOpen]);
 
   if (!finalItem) return null;
 
@@ -86,6 +84,11 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
       tabs.push({ id: 'rang-b', label: 'Rang B', icon: Brain, available: true });
     }
     
+    // ORDRE PÉDAGOGIQUE: Quiz juste après les tableaux pour tester les connaissances
+    if (finalItem.quiz_questions) {
+      tabs.push({ id: 'quiz', label: 'Quiz', icon: Brain, available: true });
+    }
+    
     if ((finalItem.paroles_musicales && finalItem.paroles_musicales.length > 0) || 
         finalItem.paroles_rang_a || finalItem.paroles_rang_b || finalItem.paroles_rang_ab) {
       tabs.push({ id: 'music', label: 'Musique', icon: Music, available: true });
@@ -93,10 +96,6 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
     
     if (finalItem.scene_immersive) {
       tabs.push({ id: 'scene', label: 'Scène', icon: Users, available: true });
-    }
-    
-    if (finalItem.quiz_questions) {
-      tabs.push({ id: 'quiz', label: 'Quiz', icon: Brain, available: true });
     }
     
     // Nouveaux onglets pour BD et Roman
