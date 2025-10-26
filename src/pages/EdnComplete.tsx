@@ -196,49 +196,52 @@ export default function EdnComplete() {
             'B'
           );
 
-          // 2. ENRICHISSEMENT avec OIC - FORCER si sections vides
-          // CORRECTION: Vérifier aussi si sections est un array vide []
+          // 2. ENRICHISSEMENT avec OIC - TOUJOURS MERGER les compétences OIC
           const tableauA = transformedTableauA || item.tableau_rang_a || {};
-          const needsOicRangA = oicRangA && oicRangA.length > 0 && 
-            (!tableauA.sections || 
-             tableauA.sections.length === 0 || 
-             (Array.isArray(tableauA.sections) && tableauA.sections.every((s: any) => !s.competences || s.competences.length === 0)));
-
-          if (needsOicRangA) {
+          
+          if (oicRangA && oicRangA.length > 0) {
+            // Si sections existent déjà, ajouter les OIC en plus
+            const existingSections = tableauA.sections || [];
+            const oicSection = {
+              title: `Compétences OIC Rang A (${oicRangA.length})`,
+              competences: oicRangA.map(comp => ({
+                competence_id: comp.objectif_id,
+                concept: comp.intitule,
+                definition: comp.description,
+                rubrique: comp.rubrique
+              }))
+            };
+            
             transformedTableauA = {
               ...tableauA,
               title: `${item.item_code} Rang A - ${item.title}`,
-              sections: [{
-                title: `Compétences OIC Rang A (${oicRangA.length})`,
-                competences: oicRangA.map(comp => ({
-                  competence_id: comp.objectif_id,
-                  concept: comp.intitule,
-                  definition: comp.description,
-                  rubrique: comp.rubrique
-                }))
-              }]
+              sections: existingSections.length > 0 
+                ? [...existingSections, oicSection] 
+                : [oicSection]
             };
           }
 
           const tableauB = transformedTableauB || item.tableau_rang_b || {};
-          const needsOicRangB = oicRangB && oicRangB.length > 0 && 
-            (!tableauB.sections || 
-             tableauB.sections.length === 0 || 
-             (Array.isArray(tableauB.sections) && tableauB.sections.every((s: any) => !s.competences || s.competences.length === 0)));
-
-          if (needsOicRangB) {
+          
+          if (oicRangB && oicRangB.length > 0) {
+            // Si sections existent déjà, ajouter les OIC en plus
+            const existingSections = tableauB.sections || [];
+            const oicSection = {
+              title: `Compétences OIC Rang B (${oicRangB.length})`,
+              competences: oicRangB.map(comp => ({
+                competence_id: comp.objectif_id,
+                concept: comp.intitule,
+                definition: comp.description,
+                rubrique: comp.rubrique
+              }))
+            };
+            
             transformedTableauB = {
               ...tableauB,
               title: `${item.item_code} Rang B - ${item.title}`,
-              sections: [{
-                title: `Compétences OIC Rang B (${oicRangB.length})`,
-                competences: oicRangB.map(comp => ({
-                  competence_id: comp.objectif_id,
-                  concept: comp.intitule,
-                  definition: comp.description,
-                  rubrique: comp.rubrique
-                }))
-              }]
+              sections: existingSections.length > 0 
+                ? [...existingSections, oicSection] 
+                : [oicSection]
             };
           }
 

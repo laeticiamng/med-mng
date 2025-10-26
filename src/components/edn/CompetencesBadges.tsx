@@ -23,11 +23,16 @@ export const CompetencesBadges: React.FC<CompetencesBadgesProps> = ({ item }) =>
     const tableau = rang === 'A' ? item.tableau_rang_a : item.tableau_rang_b;
     if (!tableau) return 0;
     
-    // Nouvelle logique pour compter correctement les compétences
+    // Logique complète pour compter les compétences (sections, concepts, competences)
     let count = 0;
     
     if (tableau.sections && Array.isArray(tableau.sections)) {
       count = tableau.sections.reduce((total: number, section: any) => {
+        // Chercher dans section.competences (format OIC)
+        if (section.competences && Array.isArray(section.competences)) {
+          return total + section.competences.length;
+        }
+        // Chercher dans section.concepts (format alternatif)
         if (section.concepts && Array.isArray(section.concepts)) {
           return total + section.concepts.length;
         }
