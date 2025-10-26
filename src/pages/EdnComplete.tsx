@@ -134,31 +134,35 @@ export default function EdnComplete() {
 
       console.log('✅ Données complètes chargées:', completeData?.length);
 
-      // OPTIMISATION: Batch loading des compétences OIC par lots de 50
+      // OPTIMISATION: Batch loading des compétences OIC en parallèle
       const itemNumbers = (immersiveData || []).map(item => 
         item.item_code.replace('IC-', '').padStart(3, '0')
       );
       
       console.log('🔄 Chargement des compétences OIC pour', itemNumbers.length, 'items...');
 
-      // Diviser en lots de 50 pour éviter les limites Supabase .in()
+      // Diviser en lots de 50 et requêtes parallèles pour performance
       const batchSize = 50;
-      const allOicCompetences: any[] = [];
+      const batchPromises = [];
       
       for (let i = 0; i < itemNumbers.length; i += batchSize) {
         const batch = itemNumbers.slice(i, i + batchSize);
-        const { data: batchData } = await supabase
+        const promise = supabase
           .from('backup_oic_competences')
           .select('item_parent, rang, objectif_id, intitule, description, rubrique')
-          .in('item_parent', batch);
-        
-        if (batchData) {
-          allOicCompetences.push(...batchData);
-        }
-        console.log(`  ↳ Lot ${Math.floor(i/batchSize) + 1}/${Math.ceil(itemNumbers.length/batchSize)}: ${batchData?.length || 0} compétences`);
+          .in('item_parent', batch)
+          .then(({ data }) => {
+            console.log(`  ↳ Lot ${Math.floor(i/batchSize) + 1}: ${data?.length || 0} compétences`);
+            return data || [];
+          });
+        batchPromises.push(promise);
       }
       
-      console.log('✅ Compétences OIC chargées:', allOicCompetences?.length);
+      // Attendre toutes les requêtes en parallèle
+      const batchResults = await Promise.all(batchPromises);
+      const allOicCompetences = batchResults.flat();
+      
+      console.log('✅ Compétences OIC chargées:', allOicCompetences.length);
 
       // Indexer par item_parent et rang pour accès rapide
       const oicByItem = new Map<string, { A: any[], B: any[] }>();
