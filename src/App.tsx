@@ -120,12 +120,12 @@ const App = () => {
           <Route path="/" element={<Index />} />
           <Route path="/generator" element={<Generator />} />
           {/* EDN Interface Unifiée - toutes les fonctionnalités fusionnées */}
-          <Route path="/edn" element={<EdnComplete />} />
           <Route path="/edn-complete" element={<EdnComplete />} />
           <Route path="/edn-complete/:slug" element={<EdnComplete />} />
-          <Route path="/edn/:slug" element={<EdnComplete />} />
           
           {/* Redirections vers l'interface unifiée */}
+          <Route path="/edn" element={<Navigate to="/edn-complete" replace />} />
+          <Route path="/edn/:slug" element={<Navigate to="/edn-complete/:slug" replace />} />
           <Route path="/items-edn" element={<Navigate to="/edn-complete" replace />} />
           <Route path="/edn/:slug/immersive" element={<EdnImmersive />} />
           <Route path="/edn/music-library" element={<EdnMusicLibrary />} />
