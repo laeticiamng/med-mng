@@ -154,9 +154,15 @@ export default function EdnComplete() {
             'B'
           );
 
-          // 2. ENRICHISSEMENT avec OIC si toujours pas de sections après transformation
+          // 2. ENRICHISSEMENT avec OIC - FORCER si sections vides
+          // CORRECTION: Vérifier aussi si sections est un array vide []
           const tableauA = transformedTableauA || item.tableau_rang_a || {};
-          if (oicRangA && oicRangA.length > 0 && (!tableauA.sections || tableauA.sections.length === 0)) {
+          const needsOicRangA = oicRangA && oicRangA.length > 0 && 
+            (!tableauA.sections || 
+             tableauA.sections.length === 0 || 
+             (Array.isArray(tableauA.sections) && tableauA.sections.every((s: any) => !s.competences || s.competences.length === 0)));
+
+          if (needsOicRangA) {
             transformedTableauA = {
               ...tableauA,
               title: `${item.item_code} Rang A - ${item.title}`,
@@ -173,7 +179,12 @@ export default function EdnComplete() {
           }
 
           const tableauB = transformedTableauB || item.tableau_rang_b || {};
-          if (oicRangB && oicRangB.length > 0 && (!tableauB.sections || tableauB.sections.length === 0)) {
+          const needsOicRangB = oicRangB && oicRangB.length > 0 && 
+            (!tableauB.sections || 
+             tableauB.sections.length === 0 || 
+             (Array.isArray(tableauB.sections) && tableauB.sections.every((s: any) => !s.competences || s.competences.length === 0)));
+
+          if (needsOicRangB) {
             transformedTableauB = {
               ...tableauB,
               title: `${item.item_code} Rang B - ${item.title}`,

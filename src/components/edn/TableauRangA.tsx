@@ -29,7 +29,8 @@ interface TableauRangAProps {
 }
 
 export const TableauRangA = ({ data }: TableauRangAProps) => {
-  console.log('TableauRangA - Received data:', data);
+  // Logs réduits pour éviter la pollution console
+  // console.log('TableauRangA - Received data:', data);
 
   if (!data) {
     return (
@@ -213,11 +214,8 @@ export const TableauRangA = ({ data }: TableauRangAProps) => {
     footerComponent = <TableauRangAFooter colonnesCount={colonnesUtiles.length} lignesCount={lignesEnrichies.length} />;
   }
 
-  console.log('TableauRangA - Processed data:', {
-    theme,
-    colonnesUtiles: colonnesUtiles.length,
-    lignesEnrichies: lignesEnrichies.length
-  });
+  // Logs réduits pour éviter la pollution console
+  // console.log('TableauRangA - Processed data:', { theme, colonnesUtiles: colonnesUtiles.length, lignesEnrichies: lignesEnrichies.length });
 
   return (
     <div className="space-y-8 bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 p-6 rounded-xl">
