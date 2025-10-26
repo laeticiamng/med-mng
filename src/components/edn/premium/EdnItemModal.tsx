@@ -225,51 +225,7 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
             {/* Content avec scroll optimisé - FIX SCROLL */}
             <div className="flex-1 overflow-y-auto relative min-h-0 max-h-full">
               
-              {/* Tab Content */}
-              <TabsContent value="rang-a" className="mt-0 p-6">
-                <TableauRangA data={finalItem.tableau_rang_a} itemCode={finalItem.item_code} />
-              </TabsContent>
-
-              <TabsContent value="rang-b" className="mt-0 p-6">
-                <TableauRangB data={finalItem.tableau_rang_b} itemCode={finalItem.item_code} />
-              </TabsContent>
-
-              <TabsContent value="music" className="mt-0 p-6">
-                <ParolesMusicales 
-                  paroles={finalItem.paroles_musicales || []} 
-                  itemCode={finalItem.item_code}
-                />
-              </TabsContent>
-
-              <TabsContent value="scene" className="mt-0 p-6">
-                <SceneImmersive 
-                  data={finalItem.scene_immersive || {}} 
-                  itemCode={finalItem.item_code}
-                />
-              </TabsContent>
-
-              <TabsContent value="quiz" className="mt-0 p-6">
-                <EnhancedQuizFinal 
-                  questions={finalItem.quiz_questions || []} 
-                  itemCode={finalItem.item_code}
-                  itemTitle={finalItem.title || ''}
-                />
-              </TabsContent>
-
-              <TabsContent value="bd" className="mt-0 p-6">
-                <BdGallery 
-                  itemCode={finalItem.item_code} 
-                  title={finalItem.title || ''} 
-                />
-              </TabsContent>
-
-              <TabsContent value="roman" className="mt-0 p-6">
-                <RomanNarratif 
-                  itemCode={finalItem.item_code}
-                  title={finalItem.title || ''} 
-                />
-              </TabsContent>
-
+              {/* Tab Content - Overview */}
               <TabsContent value="overview" className="mt-0 p-6">
                 <div className="space-y-6">
                   {/* Aperçu général */}
@@ -389,91 +345,16 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                 </div>
               )}
 
-              {/* Overview */}
-              <TabsContent value="overview" className={`${isMobile ? 'p-3' : 'p-6'} space-y-4 flex-1 overflow-y-auto`}>
-                {/* Validation complète des compétences */}
-                <CompetenceValidation item={finalItem} />
-                
-                {/* Badges de compétences */}
-                <CompetencesBadges item={finalItem} />
-                
-                <div className={`grid ${isMobile ? 'grid-cols-1' : 'grid-cols-1 lg:grid-cols-2'} gap-4`}>
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <CheckCircle className="h-5 w-5 text-green-600" />
-                        Contenu Disponible
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      {finalItem.tableau_rang_a && (
-                        <div className="flex items-center gap-2 text-green-600">
-                          <CheckCircle className="h-4 w-4" />
-                          <span>Tableau Rang A - Compétences fondamentales</span>
-                        </div>
-                      )}
-                      {finalItem.tableau_rang_b && (
-                        <div className="flex items-center gap-2 text-green-600">
-                          <CheckCircle className="h-4 w-4" />
-                          <span>Tableau Rang B - Compétences avancées</span>
-                        </div>
-                      )}
-                      {finalItem.paroles_musicales && finalItem.paroles_musicales.length > 0 && (
-                        <div className="flex items-center gap-2 text-green-600">
-                          <CheckCircle className="h-4 w-4" />
-                          <span>Musique - {finalItem.paroles_musicales.length} chansons d'apprentissage</span>
-                        </div>
-                      )}
-                      {finalItem.scene_immersive && (
-                        <div className="flex items-center gap-2 text-green-600">
-                          <CheckCircle className="h-4 w-4" />
-                          <span>Scène immersive - Expérience interactive</span>
-                        </div>
-                      )}
-                      {finalItem.quiz_questions && (
-                        <div className="flex items-center gap-2 text-green-600">
-                          <CheckCircle className="h-4 w-4" />
-                          <span>Quiz interactif - Évaluation des connaissances</span>
-                        </div>
-                      )}
-                    </CardContent>
-                  </Card>
-
-                  <Card>
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <Star className="h-5 w-5 text-yellow-500" />
-                        Actions Rapides
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3">
-                      <Button className="w-full" variant="outline">
-                        <Play className="h-4 w-4 mr-2" />
-                        Commencer l'apprentissage
-                      </Button>
-                      <Button className="w-full" variant="outline">
-                        <Download className="h-4 w-4 mr-2" />
-                        Télécharger le contenu
-                      </Button>
-                      <Button className="w-full" variant="outline">
-                        <Share2 className="h-4 w-4 mr-2" />
-                        Partager
-                      </Button>
-                    </CardContent>
-                  </Card>
-                </div>
-              </TabsContent>
-
               {/* Rang A */}
               {(finalItem.tableau_rang_a || completeItemData?.tableau_rang_a) && (
-                <TabsContent value="rang-a" className={`${isMobile ? 'p-3' : 'p-6'} flex-1 overflow-y-auto`}>
-                  <TableauRangA data={completeItemData?.tableau_rang_a || finalItem.tableau_rang_a} />
+                <TabsContent value="rang-a" className="mt-0 p-6">
+                  <TableauRangA data={completeItemData?.tableau_rang_a || finalItem.tableau_rang_a} itemCode={finalItem.item_code} />
                 </TabsContent>
               )}
 
               {/* Rang B */}
               {(finalItem.tableau_rang_b || completeItemData?.tableau_rang_b) && (
-                <TabsContent value="rang-b" className={`${isMobile ? 'p-3' : 'p-6'} flex-1 overflow-y-auto`}>
+                <TabsContent value="rang-b" className="mt-0 p-6">
                   <TableauRangB data={completeItemData?.tableau_rang_b || finalItem.tableau_rang_b} itemCode={finalItem.item_code} />
                 </TabsContent>
               )}
@@ -481,27 +362,29 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
               {/* Music */}
               {((finalItem.paroles_musicales && finalItem.paroles_musicales.length > 0) || 
                 finalItem.paroles_rang_a || finalItem.paroles_rang_b || finalItem.paroles_rang_ab) && (
-                <TabsContent value="music" className={`${isMobile ? 'p-3' : 'p-6'} flex-1 overflow-y-auto`}>
+                <TabsContent value="music" className="mt-0 p-6">
                   <ParolesMusicales 
                     paroles={finalItem.paroles_musicales}
                     paroles_rang_a={finalItem.paroles_rang_a}
                     paroles_rang_b={finalItem.paroles_rang_b}
                     paroles_rang_ab={finalItem.paroles_rang_ab}
                     itemCode={finalItem.item_code}
+                    tableauRangA={finalItem.tableau_rang_a}
+                    tableauRangB={finalItem.tableau_rang_b}
                   />
                 </TabsContent>
               )}
 
               {/* Scene */}
               {finalItem.scene_immersive && (
-                <TabsContent value="scene" className={`${isMobile ? 'p-3' : 'p-6'} flex-1 overflow-y-auto`}>
+                <TabsContent value="scene" className="mt-0 p-6">
                   <SceneImmersive data={finalItem.scene_immersive} itemCode={finalItem.item_code} />
                 </TabsContent>
               )}
 
               {/* Quiz */}
               {finalItem.quiz_questions && (
-                <TabsContent value="quiz" className={`${isMobile ? 'p-3' : 'p-6'} flex-1 overflow-y-auto`}>
+                <TabsContent value="quiz" className="mt-0 p-6">
                   <EnhancedQuizFinal 
                     questions={finalItem.quiz_questions}
                     itemCode={finalItem.item_code}
@@ -511,7 +394,7 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
               )}
 
               {/* BD Gallery */}
-              <TabsContent value="bd" className={`${isMobile ? 'p-3' : 'p-6'} flex-1 overflow-y-auto`}>
+              <TabsContent value="bd" className="mt-0 p-6">
                 <BdGallery 
                   itemCode={finalItem.item_code}
                   title={finalItem.title}
@@ -521,7 +404,7 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
               </TabsContent>
 
               {/* Roman Narratif */}
-              <TabsContent value="roman" className={`${isMobile ? 'p-3' : 'p-6'} flex-1 overflow-y-auto`}>
+              <TabsContent value="roman" className="mt-0 p-6">
                 <RomanNarratif 
                   itemCode={finalItem.item_code}
                   title={finalItem.title}

@@ -101,6 +101,7 @@ export default function EdnComplete() {
   const fetchAllData = async () => {
     try {
       setLoading(true);
+      console.log('🔄 Début du chargement des données EDN...');
 
       const { data: immersiveData, error: immersiveError } = await supabase
         .from('edn_items_immersive')
@@ -114,29 +115,39 @@ export default function EdnComplete() {
         .order('item_code');
 
       if (immersiveError) {
+        console.error('❌ Erreur chargement immersive:', immersiveError);
         toast({
           title: "Erreur",
           description: "Impossible de charger les données.",
           variant: "destructive"
         });
+        setLoading(false);
         return;
       }
+
+      console.log('✅ Données immersives chargées:', immersiveData?.length);
 
       const { data: completeData } = await supabase
         .from('edn_items_complete')
         .select('id, item_code, title, specialite, completeness_score, is_validated')
         .order('item_code');
 
+      console.log('✅ Données complètes chargées:', completeData?.length);
+
       // OPTIMISATION: Batch loading des compétences OIC
       const itemNumbers = (immersiveData || []).map(item => 
         item.item_code.replace('IC-', '').padStart(3, '0')
       );
       
+      console.log('🔄 Chargement des compétences OIC pour', itemNumbers.length, 'items...');
+
       const { data: allOicCompetences } = await supabase
         .from('backup_oic_competences')
         .select('item_parent, rang, objectif_id, intitule, description, rubrique')
         .in('item_parent', itemNumbers);
       
+      console.log('✅ Compétences OIC chargées:', allOicCompetences?.length);
+
       // Indexer par item_parent et rang pour accès rapide
       const oicByItem = new Map<string, { A: any[], B: any[] }>();
       (allOicCompetences || []).forEach(comp => {
@@ -230,17 +241,21 @@ export default function EdnComplete() {
       setImmersiveItems(itemsWithOIC);
       setCompleteItems(completeData || []);
       
+      console.log('✅ Chargement terminé ! Total items:', itemsWithOIC.length);
+      
       toast({
         title: "Interface EDN",
         description: `${immersiveData?.length || 0} items chargés`,
       });
     } catch (error) {
+      console.error('❌ Erreur critique lors du chargement:', error);
       toast({
         title: "Erreur",
         description: "Erreur lors du chargement.",
         variant: "destructive"
       });
     } finally {
+      console.log('🏁 Fin du chargement, setLoading(false)');
       setLoading(false);
     }
   };
