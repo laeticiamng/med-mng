@@ -227,7 +227,7 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
               
               {/* Tab Content */}
               <TabsContent value="rang-a" className="mt-0 p-6">
-                <TableauRangA data={finalItem.tableau_rang_a} />
+                <TableauRangA data={finalItem.tableau_rang_a} itemCode={finalItem.item_code} />
               </TabsContent>
 
               <TabsContent value="rang-b" className="mt-0 p-6">

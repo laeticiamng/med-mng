@@ -26,9 +26,10 @@ interface TableauRangAProps {
     lignes?: string[][];
     sections?: any[];
   };
+  itemCode?: string;
 }
 
-export const TableauRangA = ({ data }: TableauRangAProps) => {
+export const TableauRangA = ({ data, itemCode = "IC-X" }: TableauRangAProps) => {
   // Logs réduits pour éviter la pollution console
   // console.log('TableauRangA - Received data:', data);
 
@@ -219,7 +220,7 @@ export const TableauRangA = ({ data }: TableauRangAProps) => {
 
   return (
     <div className="space-y-8 bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 p-6 rounded-xl">
-      <TableauRangAHeader theme={theme} itemCode="IC-X" totalCompetences={lignesEnrichies.length} />
+      <TableauRangAHeader theme={theme} itemCode={itemCode} totalCompetences={lignesEnrichies.length} />
       
       {lignesEnrichies.length > 0 ? (
         <>

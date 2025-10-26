@@ -28,15 +28,17 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
   tableauRangA,
   tableauRangB
 }) => {
-  console.log('🎵 ParolesMusicales - Rendu avec props:', { 
-    paroles: paroles?.length,
-    paroles_rang_a: paroles_rang_a?.length,
-    paroles_rang_b: paroles_rang_b?.length,
-    paroles_rang_ab: paroles_rang_ab?.length,
-    itemCode, 
-    hasTableauA: !!tableauRangA, 
-    hasTableauB: !!tableauRangB 
-  });
+  if (ENABLE_DEBUG) {
+    console.log('🎵 ParolesMusicales - Rendu avec props:', { 
+      paroles: paroles?.length,
+      paroles_rang_a: paroles_rang_a?.length,
+      paroles_rang_b: paroles_rang_b?.length,
+      paroles_rang_ab: paroles_rang_ab?.length,
+      itemCode, 
+      hasTableauA: !!tableauRangA, 
+      hasTableauB: !!tableauRangB 
+    });
+  }
 
   const {
     selectedStyle,
@@ -67,8 +69,10 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
     item_code: itemCode 
   });
 
-  console.log('🎵 ÉTAT ACTUEL generatedAudio:', generatedAudio);
-  console.log('🎵 ÉTAT ACTUEL generationProgress:', generationProgress);
+  if (ENABLE_DEBUG) {
+    console.log('🎵 ÉTAT ACTUEL generatedAudio:', generatedAudio);
+    console.log('🎵 ÉTAT ACTUEL generationProgress:', generationProgress);
+  }
 
   return (
     <div className="space-y-6">
