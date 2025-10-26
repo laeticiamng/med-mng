@@ -518,12 +518,9 @@ export default function EdnComplete() {
         {/* Contenu des onglets */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsContent value="revision">
-            <RevisionDashboard />
-          </TabsContent>
-
-          <TabsContent value="complete">
             <div className="space-y-6">
-              <FaqSection />
+              <RevisionGuide />
+              <RevisionDashboard />
             </div>
           </TabsContent>
 
@@ -577,68 +574,67 @@ export default function EdnComplete() {
           </TabsContent>
 
           <TabsContent value="complete">
-            <div className="grid gap-4">
-              {viewMode === 'grid' ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {filteredItems.map(item => (
-                    <Card key={item.id} className="cursor-pointer hover:shadow-sm" onClick={() => openItemModal(item)}>
-                      <CardContent className="p-4">
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between">
-                            <h3 className="font-semibold">{item.item_code}</h3>
-                            <Badge variant={item.is_validated ? 'default' : 'outline'}>
-                              {item.is_validated ? 'Validé' : 'En attente'}
-                            </Badge>
-                          </div>
-                          <p className="text-sm text-muted-foreground line-clamp-2">{item.title}</p>
-                          <div className="flex gap-2">
-                            <Badge variant="secondary" className="text-xs">
-                              Score: {item.completeness_score || getCompletionPercentage(item)}%
-                            </Badge>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  {filteredItems.map(item => (
-                    <Card key={item.id} className="cursor-pointer hover:shadow-sm" onClick={() => openItemModal(item)}>
-                      <CardContent className="p-3">
-                        <div className="flex items-center justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2">
-                              <span className="font-semibold text-sm">{item.item_code}</span>
-                              <span className="text-sm text-muted-foreground truncate">{item.title}</span>
+            <div className="space-y-6">
+              {/* FAQ Section */}
+              <FaqSection />
+
+              {/* Liste des items avec validation */}
+              <div className="grid gap-4">
+                {viewMode === 'grid' ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {filteredItems.map(item => (
+                      <Card key={item.id} className="cursor-pointer hover:shadow-sm" onClick={() => openItemModal(item)}>
+                        <CardContent className="p-4">
+                          <div className="space-y-2">
+                            <div className="flex items-center justify-between">
+                              <h3 className="font-semibold">{item.item_code}</h3>
+                              <Badge variant={item.is_validated ? 'default' : 'outline'}>
+                                {item.is_validated ? 'Validé' : 'En attente'}
+                              </Badge>
+                            </div>
+                            <p className="text-sm text-muted-foreground line-clamp-2">{item.title}</p>
+                            <div className="flex gap-2">
+                              <Badge variant="secondary" className="text-xs">
+                                Score: {item.completeness_score || getCompletionPercentage(item)}%
+                              </Badge>
                             </div>
                           </div>
-                          <div className="flex gap-2">
-                            <Badge variant="outline" className="text-xs">
-                              {item.completeness_score || getCompletionPercentage(item)}%
-                            </Badge>
-                            {item.is_validated && (
-                              <Badge variant="default" className="text-xs">Validé</Badge>
-                            )}
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    {filteredItems.map(item => (
+                      <Card key={item.id} className="cursor-pointer hover:shadow-sm" onClick={() => openItemModal(item)}>
+                        <CardContent className="p-3">
+                          <div className="flex items-center justify-between">
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2">
+                                <span className="font-semibold text-sm">{item.item_code}</span>
+                                <span className="text-sm text-muted-foreground truncate">{item.title}</span>
+                              </div>
+                            </div>
+                            <div className="flex gap-2">
+                              <Badge variant="outline" className="text-xs">
+                                {item.completeness_score || getCompletionPercentage(item)}%
+                              </Badge>
+                              {item.is_validated && (
+                                <Badge variant="default" className="text-xs">Validé</Badge>
+                              )}
+                            </div>
                           </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              )}
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
           </TabsContent>
 
           <TabsContent value="music">
             <LyricsCompletionStatus />
-          </TabsContent>
-
-          <TabsContent value="revision">
-            <div className="space-y-6">
-              <RevisionGuide />
-              <RevisionDashboard />
-            </div>
           </TabsContent>
 
           <TabsContent value="subscription">
@@ -757,72 +753,6 @@ export default function EdnComplete() {
                     Considérez un abonnement pour continuer à utiliser nos fonctionnalités IA.
                   </AlertDescription>
                 </Alert>
-              )}
-            </div>
-          </TabsContent>
-
-          <TabsContent value="unified">
-            <div className="grid gap-4">
-              {viewMode === 'grid' ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                  {filteredItems.map(item => (
-                    <Card key={item.id} className="cursor-pointer hover:shadow-sm" onClick={() => openItemModal(item)}>
-                      <CardContent className="p-4">
-                        <div className="space-y-3">
-                          <div className="flex items-center justify-between">
-                            <h3 className="font-semibold">{item.item_code}</h3>
-                            <Badge variant="outline">{getCompletionPercentage(item)}%</Badge>
-                          </div>
-                          <p className="text-sm text-muted-foreground line-clamp-2">{item.title}</p>
-                          <div className="flex gap-1 flex-wrap">
-                            {item.tableau_rang_a && (
-                              <Badge variant="secondary" className="text-xs">Rang A</Badge>
-                            )}
-                            {item.tableau_rang_b && (
-                              <Badge variant="secondary" className="text-xs">Rang B</Badge>
-                            )}
-                            {item.paroles_musicales && item.paroles_musicales.length > 0 && (
-                              <Badge variant="secondary" className="text-xs">Musique</Badge>
-                            )}
-                            {item.scene_immersive && (
-                              <Badge variant="secondary" className="text-xs">3D</Badge>
-                            )}
-                            {item.quiz_questions && (
-                              <Badge variant="secondary" className="text-xs">Quiz</Badge>
-                            )}
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  {filteredItems.map(item => (
-                    <Card key={item.id} className="cursor-pointer hover:shadow-sm" onClick={() => openItemModal(item)}>
-                      <CardContent className="p-3">
-                        <div className="flex items-center justify-between">
-                          <div className="flex-1">
-                            <div className="flex items-center gap-2 mb-1">
-                              <span className="font-semibold text-sm">{item.item_code}</span>
-                              <span className="text-sm text-muted-foreground truncate">{item.title}</span>
-                            </div>
-                            <div className="flex gap-1">
-                              {item.tableau_rang_a && <Badge variant="secondary" className="text-xs px-1">A</Badge>}
-                              {item.tableau_rang_b && <Badge variant="secondary" className="text-xs px-1">B</Badge>}
-                              {item.paroles_musicales && item.paroles_musicales.length > 0 && <Badge variant="secondary" className="text-xs px-1">M</Badge>}
-                              {item.scene_immersive && <Badge variant="secondary" className="text-xs px-1">3D</Badge>}
-                              {item.quiz_questions && <Badge variant="secondary" className="text-xs px-1">Q</Badge>}
-                            </div>
-                          </div>
-                          <Badge variant="outline" className="text-xs">
-                            {getCompletionPercentage(item)}%
-                          </Badge>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
               )}
             </div>
           </TabsContent>

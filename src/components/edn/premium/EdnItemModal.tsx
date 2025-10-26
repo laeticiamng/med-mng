@@ -33,7 +33,7 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
   isOpen,
   onClose
 }) => {
-  const [activeTab, setActiveTab] = useState('competences');
+  const [activeTab, setActiveTab] = useState('overview');
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [audioPlaying, setAudioPlaying] = useState(false);
   const [completeItemData, setCompleteItemData] = useState<any>(null);
@@ -226,63 +226,12 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
             <div className="flex-1 overflow-y-auto relative min-h-0 max-h-full">
               
               {/* Tab Content */}
-              <TabsContent value="competences" className="mt-0 p-6">
-                <div className="space-y-6">
-                  <TableauRangA data={finalItem.tableau_rang_a} />
-                  <TableauRangB data={finalItem.tableau_rang_b} itemCode={finalItem.item_code} />
-                </div>
+              <TabsContent value="rang-a" className="mt-0 p-6">
+                <TableauRangA data={finalItem.tableau_rang_a} />
               </TabsContent>
 
-              <TabsContent value="contenu" className="mt-0 p-6">
-                <div className="space-y-6">
-                  {finalItem.pitch_intro && (
-                    <Card>
-                      <CardHeader>
-                        <CardTitle>Introduction</CardTitle>
-                      </CardHeader>
-                      <CardContent>
-                        <p className="text-gray-700">{finalItem.pitch_intro}</p>
-                      </CardContent>
-                    </Card>
-                  )}
-                  
-                  {/* Afficher les données des tables complètes si disponibles */}
-                  {completeItemData && (
-                    <div className="space-y-4">
-                      <Card>
-                        <CardHeader>
-                          <CardTitle>Données EDN Complètes</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                              <h4 className="font-semibold mb-2">Compétences OIC Rang A</h4>
-                              <p className="text-sm text-gray-600">
-                                {completeItemData.competences_oic_rang_a ? 
-                                  Array.isArray(completeItemData.competences_oic_rang_a) ?
-                                    `${completeItemData.competences_oic_rang_a.length} compétences` :
-                                    'Données disponibles' :
-                                  'Non disponible'
-                                }
-                              </p>
-                            </div>
-                            <div>
-                              <h4 className="font-semibold mb-2">Compétences OIC Rang B</h4>
-                              <p className="text-sm text-gray-600">
-                                {completeItemData.competences_oic_rang_b ? 
-                                  Array.isArray(completeItemData.competences_oic_rang_b) ?
-                                    `${completeItemData.competences_oic_rang_b.length} compétences` :
-                                    'Données disponibles' :
-                                  'Non disponible'
-                                }
-                              </p>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </div>
-                  )}
-                </div>
+              <TabsContent value="rang-b" className="mt-0 p-6">
+                <TableauRangB data={finalItem.tableau_rang_b} itemCode={finalItem.item_code} />
               </TabsContent>
 
               <TabsContent value="music" className="mt-0 p-6">
@@ -323,6 +272,7 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
 
               <TabsContent value="overview" className="mt-0 p-6">
                 <div className="space-y-6">
+                  {/* Aperçu général */}
                   <Card>
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2">
@@ -334,7 +284,7 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-3">
                           <h4 className="font-semibold">Contenu disponible</h4>
-                          <div className="space-y-2">
+                          <div className="space-y-2 flex flex-wrap gap-2">
                             {finalItem.tableau_rang_a && (
                               <Badge className="bg-blue-100 text-blue-800">Rang A</Badge>
                             )}
@@ -361,6 +311,47 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                       </div>
                     </CardContent>
                   </Card>
+
+                  {/* Données OIC complètes */}
+                  {completeItemData && (
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Compétences UNESS (OIC)</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <h4 className="font-semibold mb-2">Compétences OIC Rang A</h4>
+                            <p className="text-sm text-gray-600">
+                              {completeItemData.competences_oic_rang_a ? 
+                                Array.isArray(completeItemData.competences_oic_rang_a) ?
+                                  `${completeItemData.competences_oic_rang_a.length} compétences` :
+                                  'Données disponibles' :
+                                'Non disponible'
+                              }
+                            </p>
+                          </div>
+                          <div>
+                            <h4 className="font-semibold mb-2">Compétences OIC Rang B</h4>
+                            <p className="text-sm text-gray-600">
+                              {completeItemData.competences_oic_rang_b ? 
+                                Array.isArray(completeItemData.competences_oic_rang_b) ?
+                                  `${completeItemData.competences_oic_rang_b.length} compétences` :
+                                  'Données disponibles' :
+                                'Non disponible'
+                              }
+                            </p>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  )}
+
+                  {/* Validation complète des compétences */}
+                  <CompetenceValidation item={finalItem} />
+                  
+                  {/* Badges de compétences */}
+                  <CompetencesBadges item={finalItem} />
                 </div>
               </TabsContent>
 

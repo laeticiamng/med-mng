@@ -173,6 +173,12 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
               <Button 
                 variant="outline" 
                 size="sm"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  // TODO: Ouvrir le modal sur l'onglet 'music'
+                  onOpen();
+                }}
                 className="flex-1 hover:bg-purple-50 hover:border-purple-300 transition-all duration-200 active:scale-95"
                 type="button"
               >
@@ -182,6 +188,12 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
               <Button 
                 variant="outline" 
                 size="sm"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  // TODO: Ouvrir le modal sur l'onglet 'quiz'
+                  onOpen();
+                }}
                 className="flex-1 hover:bg-blue-50 hover:border-blue-300 transition-all duration-200 active:scale-95"
                 type="button"
               >
@@ -193,6 +205,11 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
             <Button 
               variant="outline" 
               size="sm"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onOpen();
+              }}
               className="px-3 hover:bg-purple-50 hover:border-purple-300 transition-all duration-200 active:scale-95"
               type="button"
               title="Écouter la musique mnémotechnique"
