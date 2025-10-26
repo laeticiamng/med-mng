@@ -41,9 +41,8 @@ export const NotificationSystem: React.FC<NotificationSystemProps> = ({
 
   useEffect(() => {
     loadNotifications();
-    // Simuler des notifications en temps réel
-    const interval = setInterval(generateRandomNotification, 30000); // Toutes les 30 secondes
-    return () => clearInterval(interval);
+    // ✅ CORRECTION: Génération automatique supprimée pour éviter pollution UX
+    // Les notifications doivent être déclenchées par des événements réels uniquement
   }, []);
 
   const loadNotifications = () => {
