@@ -134,7 +134,7 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
             const IconComponent = feature.icon;
             return (
               <div 
-                key={index} 
+                key={`${item.id}-feature-${feature.text}-${index}`}
                 className={`flex flex-col items-center ${isMobile ? 'p-1.5' : 'p-2'} bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors`}
               >
                 <IconComponent className={`h-4 w-4 ${feature.color} mb-1`} />

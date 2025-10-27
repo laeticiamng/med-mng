@@ -173,7 +173,7 @@ const ConceptCard: React.FC<ConceptCardProps> = ({ concept, index }) => {
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-1">
                   {sections.slice(0, 4).map((section, idx) => (
-                    <div key={idx} className="w-2 h-2 rounded-full bg-purple-500/60"></div>
+                    <div key={`${concept.competence_id}-indicator-${idx}`} className="w-2 h-2 rounded-full bg-purple-500/60"></div>
                   ))}
                   {availableSectionsCount > 4 && (
                     <span className="text-xs text-muted-foreground">+{availableSectionsCount - 4}</span>
@@ -193,7 +193,7 @@ const ConceptCard: React.FC<ConceptCardProps> = ({ concept, index }) => {
                   </div>
                   <div className="text-xs text-purple-700 space-y-1">
                     {concept.paroles_chantables.slice(0, 2).map((parole, idx) => (
-                      <div key={idx} className="italic">"{parole}"</div>
+                      <div key={`${concept.competence_id}-parole-${idx}`} className="italic">"{parole}"</div>
                     ))}
                     {concept.paroles_chantables.length > 2 && (
                       <div className="text-purple-600">+{concept.paroles_chantables.length - 2} autres...</div>

@@ -81,7 +81,7 @@ export const TableauRangA = ({ data, itemCode = "IC-X" }: TableauRangAProps) => 
                     const competenceId = `competence-${idx}-${compIdx}`;
                     return (
                       <Card 
-                        key={competence.competence_id || compIdx} 
+                        key={`${idx}-${competence.competence_id || compIdx}`}
                         className="border-l-4 border-l-blue-500 bg-blue-50/50"
                         role="article"
                         aria-labelledby={competenceId}
@@ -140,7 +140,7 @@ export const TableauRangA = ({ data, itemCode = "IC-X" }: TableauRangAProps) => 
               {section.keywords && Array.isArray(section.keywords) && (
                 <div className="flex flex-wrap gap-1">
                   {section.keywords.map((keyword: string, keyIdx: number) => (
-                    <Badge key={keyIdx} variant="secondary" className="text-xs">
+                    <Badge key={`${idx}-keyword-${keyIdx}`} variant="secondary" className="text-xs">
                       {keyword}
                     </Badge>
                   ))}
