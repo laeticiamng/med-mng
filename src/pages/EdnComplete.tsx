@@ -434,25 +434,26 @@ export default function EdnComplete() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header simplifié */}
-      <div className="bg-card/80 backdrop-blur-sm border-b sticky top-0 z-40">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                <BookOpen className="h-5 w-5 text-white" />
+      {/* Wrapper Tabs Principal */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="min-h-screen">
+        {/* Header simplifié */}
+        <div className="bg-card/80 backdrop-blur-sm border-b sticky top-0 z-40">
+          <div className="container mx-auto px-6 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+                  <BookOpen className="h-5 w-5 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-xl font-bold text-foreground">Interface EDN</h1>
+                  <p className="text-sm text-muted-foreground">
+                    {stats.total} items {stats.complete > 0 ? `• ${stats.complete} complets` : 'disponibles'}
+                  </p>
+                </div>
               </div>
-              <div>
-                <h1 className="text-xl font-bold text-foreground">Interface EDN</h1>
-                <p className="text-sm text-muted-foreground">
-                  {stats.total} items {stats.complete > 0 ? `• ${stats.complete} complets` : 'disponibles'}
-                </p>
-              </div>
-            </div>
-            
-            <div className="flex items-center gap-4">
-              <QuotaIndicator compact />
-              <Tabs value={activeTab} onValueChange={setActiveTab}>
+              
+              <div className="flex items-center gap-4">
+                <QuotaIndicator compact />
                 <TabsList className="bg-muted">
                   <TabsTrigger value="revision" className="text-xs">📊 Mon Suivi</TabsTrigger>
                   <TabsTrigger value="complete" className="text-xs">📚 Tous les items</TabsTrigger>
@@ -460,13 +461,12 @@ export default function EdnComplete() {
                   <TabsTrigger value="music" className="text-xs">🎵 Musiques</TabsTrigger>
                   <TabsTrigger value="subscription" className="text-xs">⭐ Premium</TabsTrigger>
                 </TabsList>
-              </Tabs>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
-      <div className="container mx-auto px-6 py-4">
+        <div className="container mx-auto px-6 py-4">
         {/* Bannière informative sur l'accès gratuit */}
         <Alert className="mb-4 bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800">
           <Sparkles className="h-4 w-4 text-blue-600 dark:text-blue-400" />
@@ -553,8 +553,7 @@ export default function EdnComplete() {
         </div>
 
         {/* Contenu des onglets */}
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsContent value="revision">
+        <TabsContent value="revision">
             <div className="space-y-6">
               <RevisionGuide />
               <RevisionDashboard />
@@ -720,7 +719,6 @@ export default function EdnComplete() {
               )}
             </div>
           </TabsContent>
-        </Tabs>
 
         {filteredItems.length === 0 && (
           <Card className="text-center py-8">
@@ -735,13 +733,14 @@ export default function EdnComplete() {
         )}
       </div>
 
-      {/* Modal */}
-      <EdnItemModal
-        item={selectedItem}
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        initialTab={selectedItemTab}
-      />
+        {/* Modal */}
+        <EdnItemModal
+          item={selectedItem}
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          initialTab={selectedItemTab}
+        />
+      </Tabs>
     </div>
   );
 }
