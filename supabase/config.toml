@@ -128,4 +128,7 @@ verify_jwt = false
 [functions.regenerate-all-oic-content]
 verify_jwt = false
 
+[functions.sync-edn-tables]
+verify_jwt = false
+
 
