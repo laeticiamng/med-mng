@@ -60,11 +60,14 @@ interface EdnItem {
 }
 
 export default function EdnComplete() {
-  console.log('🎯 EdnComplete component mounting...');
+  // Logs de démarrage avec timestamp pour tracking
+  const startTime = Date.now();
+  console.log(`🎯 [${startTime}] EdnComplete component mounting...`);
   
   const [immersiveItems, setImmersiveItems] = useState<EdnItem[]>([]);
   const [completeItems, setCompleteItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadingError, setLoadingError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -83,11 +86,29 @@ export default function EdnComplete() {
   const { slug } = useParams<{ slug: string }>();
 
   useEffect(() => {
-    console.log('🎯 useEffect firing, calling fetchAllData...');
-    fetchAllData().catch(err => {
-      console.error('🔥 CRITICAL ERROR in fetchAllData:', err);
+    const loadTime = Date.now();
+    console.log(`🎯 [${loadTime}] useEffect firing, calling fetchAllData...`);
+    
+    // Timeout de sécurité: 10 secondes max
+    const timeoutId = setTimeout(() => {
+      console.error('⏱️ TIMEOUT: Chargement trop long (>10s), déblocage forcé');
+      setLoadingError('Le chargement prend trop de temps. Réessayez.');
       setLoading(false);
-    });
+    }, 10000);
+    
+    fetchAllData()
+      .then(() => {
+        clearTimeout(timeoutId);
+        console.log(`✅ [${Date.now()}] fetchAllData terminé avec succès`);
+      })
+      .catch(err => {
+        clearTimeout(timeoutId);
+        console.error(`🔥 [${Date.now()}] CRITICAL ERROR in fetchAllData:`, err);
+        setLoadingError('Erreur lors du chargement des données.');
+        setLoading(false);
+      });
+    
+    return () => clearTimeout(timeoutId);
   }, []);
 
   // Ouvrir automatiquement la modal si un slug est présent dans l'URL
@@ -105,15 +126,18 @@ export default function EdnComplete() {
   }, [slug, immersiveItems]);
 
   const fetchAllData = async () => {
-    console.log('📊 fetchAllData called');
+    const funcStart = Date.now();
+    console.log(`📊 [${funcStart}] fetchAllData called`);
     setLoading(true);
+    setLoadingError(null);
     
     try {
-      console.log('🔄 Début du chargement des données EDN...');
+      console.log(`🔄 [${Date.now()}] Début du chargement des données EDN...`);
       
-      // Requête simple sans timeout complexe
-      console.log('📡 Fetching edn_items_immersive...');
-      const { data: immersiveData, error: immersiveError } = await supabase
+      // Requête simplifiée avec timeout explicite
+      console.log(`📡 [${Date.now()}] Fetching edn_items_immersive...`);
+      
+      const fetchPromise = supabase
         .from('edn_items_immersive')
         .select(`
           id, item_code, title, subtitle, slug, 
@@ -124,8 +148,13 @@ export default function EdnComplete() {
         `)
         .order('item_code');
 
+      const { data: immersiveData, error: immersiveError } = await fetchPromise;
+
+      console.log(`📊 [${Date.now()}] Réponse reçue de edn_items_immersive`);
+
       if (immersiveError) {
-        console.error('❌ Erreur chargement immersive:', immersiveError);
+        console.error(`❌ [${Date.now()}] Erreur chargement immersive:`, immersiveError);
+        setLoadingError(`Erreur: ${immersiveError.message}`);
         toast({
           title: "Erreur",
           description: "Impossible de charger les données.",
@@ -134,7 +163,7 @@ export default function EdnComplete() {
         return;
       }
 
-      console.log('✅ Données immersives chargées:', immersiveData?.length);
+      console.log(`✅ [${Date.now()}] Données immersives chargées:`, immersiveData?.length);
 
       const { data: completeData } = await supabase
         .from('edn_items_complete')
@@ -269,21 +298,24 @@ export default function EdnComplete() {
       setImmersiveItems(itemsWithOIC);
       setCompleteItems(completeData || []);
       
-      console.log('✅ Chargement terminé ! Total items:', itemsWithOIC.length);
+      const loadDuration = Date.now() - funcStart;
+      console.log(`✅ [${Date.now()}] Chargement terminé en ${loadDuration}ms ! Total items:`, itemsWithOIC.length);
       
       toast({
         title: "Interface EDN",
         description: `${immersiveData?.length || 0} items chargés`,
       });
     } catch (error) {
-      console.error('❌ Erreur critique lors du chargement:', error);
+      const errorTime = Date.now();
+      console.error(`❌ [${errorTime}] Erreur critique lors du chargement:`, error);
+      setLoadingError(error instanceof Error ? error.message : 'Erreur inconnue');
       toast({
         title: "Erreur",
         description: "Erreur lors du chargement.",
         variant: "destructive"
       });
     } finally {
-      console.log('🏁 Fin du chargement, setLoading(false)');
+      console.log(`🏁 [${Date.now()}] Fin du chargement, setLoading(false)`);
       setLoading(false);
     }
   };
@@ -435,7 +467,20 @@ export default function EdnComplete() {
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center space-y-4">
           <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <p className="text-muted-foreground">Chargement...</p>
+          <p className="text-muted-foreground">Chargement des items EDN...</p>
+          {loadingError && (
+            <Alert variant="destructive" className="max-w-md mx-auto">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertDescription>{loadingError}</AlertDescription>
+            </Alert>
+          )}
+          <Button 
+            variant="outline" 
+            onClick={() => window.location.reload()}
+            className="mt-4"
+          >
+            Réessayer
+          </Button>
         </div>
       </div>
     );
