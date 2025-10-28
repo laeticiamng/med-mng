@@ -75,6 +75,12 @@ export default function EdnComplete() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState<'item_code' | 'completeness_score' | 'updated_at'>('item_code');
+  
+  // Réinitialiser la page quand on change de filtre/recherche
+  useEffect(() => {
+    setPage(0);
+    setImmersiveItems([]);
+  }, [searchTerm, selectedCategory, sortBy]);
   const [selectedItem, setSelectedItem] = useState<EdnItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('immersive');
@@ -90,7 +96,7 @@ export default function EdnComplete() {
 
   useEffect(() => {
     const loadTime = Date.now();
-    console.log(`🎯 [${loadTime}] useEffect firing, calling fetchAllData...`);
+    console.log(`🎯 [${loadTime}] useEffect firing for page ${page}, calling fetchAllData...`);
     
     // Timeout de sécurité: 10 secondes max
     const timeoutId = setTimeout(() => {
@@ -112,7 +118,7 @@ export default function EdnComplete() {
       });
     
     return () => clearTimeout(timeoutId);
-  }, []);
+  }, [page]);
 
   // Ouvrir automatiquement la modal si un slug est présent dans l'URL
   useEffect(() => {
@@ -289,15 +295,16 @@ export default function EdnComplete() {
   }, [allItems, searchTerm, selectedCategory, sortBy]);
 
   const calculateStats = () => {
-    const total = allItems.length;
-    const complete = allItems.filter(item => 
+    // Utiliser les items chargés pour les stats partielles
+    const total = immersiveItems.length;
+    const complete = immersiveItems.filter(item => 
       (item.competences_count_rang_a || 0) > 0 && (item.competences_count_rang_b || 0) > 0
     ).length;
-    const validated = allItems.filter(item => item.is_validated).length;
-    const withMusic = allItems.filter(item => 
+    const validated = immersiveItems.filter(item => item.is_validated).length;
+    const withMusic = immersiveItems.filter(item => 
       item.completeness_score ? item.completeness_score > 60 : false
     ).length;
-    const avgScore = total > 0 ? Math.round(allItems.reduce((sum, item) => 
+    const avgScore = total > 0 ? Math.round(immersiveItems.reduce((sum, item) => 
       sum + (item.completeness_score || getCompletionPercentage(item)), 0) / total) : 0;
     
     return { total, complete, validated, withMusic, avgScore };
@@ -469,7 +476,7 @@ export default function EdnComplete() {
           </TabsContent>
 
           <TabsContent value="immersive">
-            <div className="grid gap-4">
+            <div className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {filteredItems.map(item => (
                   <EdnItemCard
@@ -480,6 +487,27 @@ export default function EdnComplete() {
                   />
                 ))}
               </div>
+              
+              {/* Bouton Charger Plus */}
+              {hasMore && !loading && (
+                <div className="flex justify-center pt-4">
+                  <Button 
+                    onClick={() => setPage(prev => prev + 1)}
+                    variant="outline"
+                    size="lg"
+                    className="min-w-[200px]"
+                  >
+                    <ArrowRight className="h-4 w-4 mr-2" />
+                    Charger plus d'items
+                  </Button>
+                </div>
+              )}
+              
+              {loading && page > 0 && (
+                <div className="flex justify-center py-4">
+                  <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                </div>
+              )}
             </div>
           </TabsContent>
 
@@ -489,7 +517,7 @@ export default function EdnComplete() {
               <FaqSection />
 
               {/* Liste des items avec EdnItemCard premium */}
-              <div className="grid gap-4">
+              <div className="space-y-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {filteredItems.map(item => (
                     <EdnItemCard
@@ -500,6 +528,27 @@ export default function EdnComplete() {
                     />
                   ))}
                 </div>
+                
+                {/* Bouton Charger Plus */}
+                {hasMore && !loading && (
+                  <div className="flex justify-center pt-4">
+                    <Button 
+                      onClick={() => setPage(prev => prev + 1)}
+                      variant="outline"
+                      size="lg"
+                      className="min-w-[200px]"
+                    >
+                      <ArrowRight className="h-4 w-4 mr-2" />
+                      Charger plus d'items
+                    </Button>
+                  </div>
+                )}
+                
+                {loading && page > 0 && (
+                  <div className="flex justify-center py-4">
+                    <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin"></div>
+                  </div>
+                )}
               </div>
             </div>
           </TabsContent>
