@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -125,9 +125,9 @@ export const EdnItemModal: React.FC<EdnItemModalProps> = ({
                 <DialogTitle className={`${isMobile ? 'text-base' : 'text-2xl'} font-bold text-white mb-1 truncate`}>
                   {isMobile ? finalItem.item_code : `${finalItem.item_code}: ${finalItem.title}`}
                 </DialogTitle>
-                {!isMobile && finalItem.subtitle && (
-                  <p className="text-purple-100 text-sm truncate">{finalItem.subtitle}</p>
-                )}
+                <DialogDescription className="text-purple-100 text-sm truncate">
+                  {finalItem.subtitle || `Item de connaissance EDN ${finalItem.item_code}`}
+                </DialogDescription>
               </div>
             </div>
             

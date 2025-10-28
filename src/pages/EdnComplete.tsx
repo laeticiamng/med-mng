@@ -95,6 +95,12 @@ export default function EdnComplete() {
   const { slug } = useParams<{ slug: string }>();
 
   useEffect(() => {
+    // Éviter le re-mount inutile si les données sont déjà chargées
+    if (page === 0 && immersiveItems.length > 0) {
+      console.log(`⏭️ Skip: Données déjà chargées pour page ${page}`);
+      return;
+    }
+    
     const loadTime = Date.now();
     console.log(`🎯 [${loadTime}] useEffect firing for page ${page}, calling fetchAllData...`);
     
