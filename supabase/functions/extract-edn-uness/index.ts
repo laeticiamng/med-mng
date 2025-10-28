@@ -1,5 +1,5 @@
-import { serve } from 'https://deno.land/std@0.131.0/http/server.ts'
-import { createClient } from 'https://cdn.skypack.dev/@supabase/supabase-js@1.35.3'
+import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.3'
 import * as cheerio from 'https://esm.sh/cheerio@1.0.0-rc.12'
 import { corsHeaders } from '../_shared/cors.ts'
 
