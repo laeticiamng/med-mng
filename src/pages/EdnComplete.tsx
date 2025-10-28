@@ -60,6 +60,8 @@ interface EdnItem {
 }
 
 export default function EdnComplete() {
+  console.log('🎯 EdnComplete component mounting...');
+  
   const [immersiveItems, setImmersiveItems] = useState<EdnItem[]>([]);
   const [completeItems, setCompleteItems] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -81,7 +83,11 @@ export default function EdnComplete() {
   const { slug } = useParams<{ slug: string }>();
 
   useEffect(() => {
-    fetchAllData();
+    console.log('🎯 useEffect firing, calling fetchAllData...');
+    fetchAllData().catch(err => {
+      console.error('🔥 CRITICAL ERROR in fetchAllData:', err);
+      setLoading(false);
+    });
   }, []);
 
   // Ouvrir automatiquement la modal si un slug est présent dans l'URL
@@ -99,11 +105,18 @@ export default function EdnComplete() {
   }, [slug, immersiveItems]);
 
   const fetchAllData = async () => {
+    console.log('📊 fetchAllData called');
     try {
       setLoading(true);
       console.log('🔄 Début du chargement des données EDN...');
+      
+      // Add timeout to prevent infinite loading
+      const timeoutPromise = new Promise((_, reject) => 
+        setTimeout(() => reject(new Error('Timeout after 30s')), 30000)
+      );
 
-      const { data: immersiveData, error: immersiveError } = await supabase
+      console.log('📡 Fetching edn_items_immersive...');
+      const queryPromise = supabase
         .from('edn_items_immersive')
         .select(`
           id, item_code, title, subtitle, slug, 
@@ -113,6 +126,11 @@ export default function EdnComplete() {
           competences_count_rang_a, competences_count_rang_b, competences_count_total
         `)
         .order('item_code');
+      
+      const { data: immersiveData, error: immersiveError } = await Promise.race([
+        queryPromise,
+        timeoutPromise
+      ]) as any;
 
       if (immersiveError) {
         console.error('❌ Erreur chargement immersive:', immersiveError);
