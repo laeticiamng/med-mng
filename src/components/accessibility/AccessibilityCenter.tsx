@@ -254,7 +254,13 @@ export const AccessibilityCenter: React.FC = () => {
       </div>;
   };
   if (!isOpen) {
-    return <Button onClick={() => setIsOpen(true)} variant="outline" size="sm" aria-label="Ouvrir le centre d'accessibilité" className="fixed top-4 right-4 z-50 text-base text-justify my-[64px] py-[16px]">
+    return <Button 
+        onClick={() => setIsOpen(true)} 
+        variant="outline" 
+        size="sm" 
+        aria-label="Ouvrir le centre d'accessibilité" 
+        className="fixed top-20 right-4 z-50 shadow-md hover:shadow-lg transition-shadow backdrop-blur-sm bg-background/95 border-border"
+      >
         <Eye className="w-4 h-4 mr-2" />
         Accessibilité
       </Button>;
