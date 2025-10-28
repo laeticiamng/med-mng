@@ -75,7 +75,7 @@ export const useMusicPolling = () => {
           // Sinon on continue mais on vérifie si on a atteint le maximum de tentatives
           if (pollCount >= maxPolls) {
             clearInterval(intervalId);
-            onError(new Error('Génération optimisée: timeout après 45s. Réessayez.'));
+            onError(new Error('Timeout de génération (16s). Suno est peut-être occupé, réessayez.'));
             return;
           }
           return;
@@ -118,7 +118,7 @@ export const useMusicPolling = () => {
         // Timeout atteint plus rapidement
         if (pollCount >= maxPolls) {
           clearInterval(intervalId);
-          onError(new Error('Génération optimisée: timeout après 45s. Suno pourrait être occupé. Réessayez.'));
+          onError(new Error('Timeout de génération (16s). Suno est peut-être occupé, réessayez.'));
           return;
         }
         

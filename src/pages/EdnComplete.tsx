@@ -60,9 +60,6 @@ interface EdnItem {
 }
 
 export default function EdnComplete() {
-  // Logs de démarrage avec timestamp pour tracking
-  const startTime = Date.now();
-  console.log(`🎯 [${startTime}] EdnComplete component mounting...`);
   
   const [immersiveItems, setImmersiveItems] = useState<EdnItem[]>([]);
   const [completeItems, setCompleteItems] = useState<any[]>([]);
@@ -97,28 +94,20 @@ export default function EdnComplete() {
   useEffect(() => {
     // Éviter le re-mount inutile si les données sont déjà chargées
     if (page === 0 && immersiveItems.length > 0) {
-      console.log(`⏭️ Skip: Données déjà chargées pour page ${page}`);
       return;
     }
     
-    const loadTime = Date.now();
-    console.log(`🎯 [${loadTime}] useEffect firing for page ${page}, calling fetchAllData...`);
-    
     // Timeout de sécurité: 10 secondes max
     const timeoutId = setTimeout(() => {
-      console.error('⏱️ TIMEOUT: Chargement trop long (>10s), déblocage forcé');
       setLoadingError('Le chargement prend trop de temps. Réessayez.');
       setLoading(false);
     }, 10000);
     
     fetchAllData()
-      .then(() => {
-        clearTimeout(timeoutId);
-        console.log(`✅ [${Date.now()}] fetchAllData terminé avec succès`);
-      })
+      .then(() => clearTimeout(timeoutId))
       .catch(err => {
         clearTimeout(timeoutId);
-        console.error(`🔥 [${Date.now()}] CRITICAL ERROR in fetchAllData:`, err);
+        console.error('Error loading data:', err);
         setLoadingError('Erreur lors du chargement des données.');
         setLoading(false);
       });
@@ -141,17 +130,10 @@ export default function EdnComplete() {
   }, [slug, immersiveItems]);
 
   const fetchAllData = async () => {
-    const funcStart = Date.now();
-    console.log(`📊 [${funcStart}] fetchAllData called`);
     setLoading(true);
     setLoadingError(null);
     
     try {
-      console.log(`🔄 [${Date.now()}] Début du chargement des données EDN...`);
-      
-      // OPTIMISATION CRITIQUE: Ne charger que les métadonnées légères + flags booléens
-      // Les détails lourds (tableaux, scènes, quiz) seront chargés à la demande
-      console.log(`📡 [${Date.now()}] Fetching edn_items_immersive (lightweight)...`);
       
       // PAGINATION: Charger seulement 50 items à la fois
       const from = page * ITEMS_PER_PAGE;
@@ -170,10 +152,7 @@ export default function EdnComplete() {
       
       setHasMore((immersiveData?.length || 0) === ITEMS_PER_PAGE && (count || 0) > to + 1);
 
-      console.log(`📊 [${Date.now()}] Réponse reçue de edn_items_immersive`);
-
       if (immersiveError) {
-        console.error(`❌ [${Date.now()}] Erreur chargement immersive:`, immersiveError);
         setLoadingError(`Erreur: ${immersiveError.message}`);
         toast({
           title: "Erreur",
@@ -182,8 +161,6 @@ export default function EdnComplete() {
         });
         return;
       }
-
-      console.log(`✅ [${Date.now()}] Données immersives chargées:`, immersiveData?.length);
 
       // OPTIMISATION CRITIQUE: Ne charger que les données complètes correspondant aux items paginés
       let completeData: any[] = [];
@@ -197,22 +174,16 @@ export default function EdnComplete() {
         completeData = data || [];
       }
 
-      console.log('✅ Données complètes chargées:', completeData?.length);
-
       // Ajouter les nouveaux items (append pour pagination)
       setImmersiveItems(prev => page === 0 ? (immersiveData || []) : [...prev, ...(immersiveData || [])]);
       setCompleteItems(prev => page === 0 ? (completeData || []) : [...prev, ...(completeData || [])]);
-      
-      const loadDuration = Date.now() - funcStart;
-      console.log(`✅ [${Date.now()}] Chargement terminé en ${loadDuration}ms ! Total items:`, immersiveData?.length || 0);
       
       toast({
         title: "Interface EDN",
         description: `${immersiveData?.length || 0} items chargés`,
       });
     } catch (error) {
-      const errorTime = Date.now();
-      console.error(`❌ [${errorTime}] Erreur critique lors du chargement:`, error);
+      console.error('Error loading data:', error);
       setLoadingError(error instanceof Error ? error.message : 'Erreur inconnue');
       toast({
         title: "Erreur",
@@ -220,7 +191,6 @@ export default function EdnComplete() {
         variant: "destructive"
       });
     } finally {
-      console.log(`🏁 [${Date.now()}] Fin du chargement, setLoading(false)`);
       setLoading(false);
     }
   };
@@ -327,9 +297,6 @@ export default function EdnComplete() {
     setSelectedItem(item);
     setIsModalOpen(true);
     setSelectedItemTab(tab || 'overview');
-    
-    // Analytics: Track item opening
-    console.log(`📊 Analytics: Item ${item.item_code} opened on tab ${tab || 'overview'}`);
   }, []);
   
   const [selectedItemTab, setSelectedItemTab] = useState<string>('overview');
