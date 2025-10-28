@@ -10,6 +10,7 @@ import { AuditInstructions } from './AuditInstructions';
 import { AuditIC2CompletionDashboard } from './AuditIC2CompletionDashboard';
 import { OICRegenerationPanel } from './OICRegenerationPanel';
 import { ComprehensiveAuditPanel } from './ComprehensiveAuditPanel';
+import { SyncTablesPanel } from './SyncTablesPanel';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export const AuditDashboard = () => {
@@ -45,6 +46,12 @@ export const AuditDashboard = () => {
         </TabsContent>
 
         <TabsContent value="actions" className="space-y-6">
+          {/* Panel de synchronisation des tables */}
+          <SyncTablesPanel onComplete={() => {
+            runAudit();
+            comprehensiveAudit.runAudit();
+          }} />
+          
           {/* Bouton de complétion IC-2 */}
           <AuditIC2CompletionDashboard onComplete={runAudit} />
           
