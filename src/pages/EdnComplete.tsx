@@ -106,17 +106,14 @@ export default function EdnComplete() {
 
   const fetchAllData = async () => {
     console.log('📊 fetchAllData called');
+    setLoading(true);
+    
     try {
-      setLoading(true);
       console.log('🔄 Début du chargement des données EDN...');
       
-      // Add timeout to prevent infinite loading
-      const timeoutPromise = new Promise((_, reject) => 
-        setTimeout(() => reject(new Error('Timeout after 30s')), 30000)
-      );
-
+      // Requête simple sans timeout complexe
       console.log('📡 Fetching edn_items_immersive...');
-      const queryPromise = supabase
+      const { data: immersiveData, error: immersiveError } = await supabase
         .from('edn_items_immersive')
         .select(`
           id, item_code, title, subtitle, slug, 
@@ -126,11 +123,6 @@ export default function EdnComplete() {
           competences_count_rang_a, competences_count_rang_b, competences_count_total
         `)
         .order('item_code');
-      
-      const { data: immersiveData, error: immersiveError } = await Promise.race([
-        queryPromise,
-        timeoutPromise
-      ]) as any;
 
       if (immersiveError) {
         console.error('❌ Erreur chargement immersive:', immersiveError);
@@ -139,7 +131,6 @@ export default function EdnComplete() {
           description: "Impossible de charger les données.",
           variant: "destructive"
         });
-        setLoading(false);
         return;
       }
 
