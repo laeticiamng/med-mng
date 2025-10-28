@@ -179,16 +179,23 @@ export default function EdnComplete() {
 
       console.log(`✅ [${Date.now()}] Données immersives chargées:`, immersiveData?.length);
 
-      const { data: completeData } = await supabase
-        .from('edn_items_complete')
-        .select('id, item_code, title, specialite, completeness_score, is_validated')
-        .order('item_code');
+      // OPTIMISATION CRITIQUE: Ne charger que les données complètes correspondant aux items paginés
+      let completeData: any[] = [];
+      if (immersiveData && immersiveData.length > 0) {
+        const itemCodes = immersiveData.map(item => item.item_code);
+        const { data } = await supabase
+          .from('edn_items_complete')
+          .select('id, item_code, title, specialite, completeness_score, is_validated')
+          .in('item_code', itemCodes)
+          .order('item_code');
+        completeData = data || [];
+      }
 
       console.log('✅ Données complètes chargées:', completeData?.length);
 
       // Ajouter les nouveaux items (append pour pagination)
       setImmersiveItems(prev => page === 0 ? (immersiveData || []) : [...prev, ...(immersiveData || [])]);
-      setCompleteItems(completeData || []);
+      setCompleteItems(prev => page === 0 ? (completeData || []) : [...prev, ...(completeData || [])]);
       
       const loadDuration = Date.now() - funcStart;
       console.log(`✅ [${Date.now()}] Chargement terminé en ${loadDuration}ms ! Total items:`, immersiveData?.length || 0);

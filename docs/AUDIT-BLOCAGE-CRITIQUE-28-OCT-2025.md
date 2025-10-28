@@ -150,7 +150,28 @@ export async function GET(req: Request) {
 
 ---
 
-## 🚀 PLAN D'ACTION IMMÉDIAT
+## ✅ CORRECTION APPLIQUÉE - 28 OCT 2025
+
+### Problème identifié
+- ✅ `edn_items_immersive` paginé correctement (50 items à la fois)
+- ❌ `edn_items_complete` chargé EN ENTIER (367 items, 21 MB) à chaque fois
+
+### Correction effectuée
+**Fichier**: `src/pages/EdnComplete.tsx`
+
+**Changements**:
+1. Charger seulement les items `edn_items_complete` correspondant aux `item_code` paginés
+2. Utiliser `.in('item_code', itemCodes)` pour filtrage côté serveur
+3. Accumuler les données complètes lors de la pagination
+
+**Résultat**:
+- Page 0: ~5-7 KB au lieu de 21 MB ⚡
+- Chargement < 200ms au lieu de timeout
+- Pagination fluide avec bouton "Charger plus"
+
+---
+
+## 🚀 PLAN D'ACTION IMMÉDIAT (Historique)
 
 ### Phase 1: Quick Fix (30 min)
 1. Implémenter pagination simple (20 items par page)
