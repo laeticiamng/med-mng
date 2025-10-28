@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { getTimestampedLyrics, TimestampedLyrics } from '@/music/lyrics';
+import { secureSunoClient } from '@/lib/secureApiClient';
 
 interface LyricsLine {
   time: number;
@@ -33,10 +33,7 @@ export const useSynchronizedLyrics = ({
     setError(null);
 
     try {
-      const result = await getTimestampedLyrics(taskId || '', {
-        audioId: audioId,
-        musicIndex: 0
-      });
+      const result = await secureSunoClient.getGenerationStatus(taskId || audioId || '');
 
       if (result?.timestamped_lyrics) {
         const parsedLyrics = parseTimestampedLyrics(result.timestamped_lyrics);
