@@ -1,10 +1,6 @@
 // ✅ DATA INTEGRITY CHECK - Automatisation check intégrité post-import
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.3';
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { corsHeaders } from '../_shared/cors.ts';
 
 interface IntegrityCheckRequest {
   action: 'run_check' | 'get_status' | 'get_latest_reports';

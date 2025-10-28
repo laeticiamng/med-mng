@@ -19,10 +19,7 @@ if (!CAS_PASSWORD) {
   throw new Error('CAS_PASSWORD manquant - variable d\'environnement requise')
 }
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+import { corsHeaders } from '../_shared/cors.ts'
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {

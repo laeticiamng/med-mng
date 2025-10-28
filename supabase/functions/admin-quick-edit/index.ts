@@ -1,10 +1,6 @@
 // ✅ ADMIN QUICK EDIT - API pour corrections manuelles ultra-rapides
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.3';
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { corsHeaders } from '../_shared/cors.ts';
 
 interface QuickEditRequest {
   action: 'update' | 'get_changelog' | 'get_pending_corrections' | 'apply_correction';
