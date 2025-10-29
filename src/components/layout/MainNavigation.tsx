@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { 
   Home, BookOpen, Music, Users, MessageSquare, BarChart3, 
-  Settings, Bell, User, LogOut, Menu, X, Sparkles
+  Settings, Bell, User, LogOut, Menu, X, Sparkles, Library
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { 
@@ -35,6 +35,7 @@ export const MainNavigation: React.FC = () => {
     { path: '/dashboard', label: 'Dashboard', icon: BarChart3 },
     { path: '/edn-complete', label: 'Items EDN', icon: BookOpen },
     { path: '/generator', label: 'Générateur', icon: Music },
+    { path: '/med-mng/library', label: 'Bibliothèque', icon: Library },
     { path: '/ecos', label: 'ECOS', icon: Users },
     { path: '/chat', label: 'Assistant IA', icon: MessageSquare },
   ];
