@@ -125,36 +125,46 @@ export const useSubscription = () => {
         }
       }
 
-      // Get music quota avec validation
+      // Get music quota avec validation - Ne pas bloquer si erreur
       const { data: quotaData, error: quotaError } = await supabase
         .rpc('check_music_generation_quota', { user_uuid: user.id });
 
       if (quotaError) {
-        const errorObj: UseSubscriptionError = {
-          code: 'QUOTA_FETCH_ERROR',
-          message: 'Erreur lors de la récupération du quota',
-          details: quotaError
+        // Log mais ne pas bloquer - utiliser quota par défaut basé sur le plan
+        console.warn('Quota check failed, using plan defaults:', quotaError);
+        
+        // Créer un quota par défaut basé sur l'abonnement
+        const defaultQuota: MusicQuota = {
+          can_generate: true, // Permettre la génération par défaut
+          current_usage: 0,
+          quota_limit: subscription?.monthly_quota || 3, // Utiliser le quota du plan
+          plan_name: subscription?.plan_name || 'Gratuit'
         };
-        setError(errorObj);
-        console.error('Error fetching quota:', quotaError);
-        toast.error('Erreur lors de la récupération du quota');
-        return;
-      }
-
-      if (quotaData && quotaData.length > 0) {
+        setMusicQuota(defaultQuota);
+      } else if (quotaData && quotaData.length > 0) {
         const quotaInfo = quotaData[0];
         if (isValidMusicQuota(quotaInfo)) {
           setMusicQuota(quotaInfo);
         } else {
-          const errorObj: UseSubscriptionError = {
-            code: 'INVALID_QUOTA_DATA',
-            message: 'Données de quota invalides',
-            details: quotaInfo
+          console.warn('Invalid quota data, using defaults:', quotaInfo);
+          // Utiliser quota par défaut si données invalides
+          const defaultQuota: MusicQuota = {
+            can_generate: true,
+            current_usage: 0,
+            quota_limit: subscription?.monthly_quota || 3,
+            plan_name: subscription?.plan_name || 'Gratuit'
           };
-          setError(errorObj);
-          console.error('Invalid quota data received:', quotaInfo);
-          toast.error('Erreur de validation des données de quota');
+          setMusicQuota(defaultQuota);
         }
+      } else {
+        // Aucune donnée retournée - utiliser quota par défaut
+        const defaultQuota: MusicQuota = {
+          can_generate: true,
+          current_usage: 0,
+          quota_limit: subscription?.monthly_quota || 3,
+          plan_name: subscription?.plan_name || 'Gratuit'
+        };
+        setMusicQuota(defaultQuota);
       }
     } catch (error) {
       const errorObj: UseSubscriptionError = {
