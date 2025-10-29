@@ -88,25 +88,47 @@ serve(async (req) => {
       const competencesA = payload.competences_rang_a || [];
       const competencesB = payload.competences_rang_b || [];
 
-      const analysisPrompt = `Analyse la complétude de cet item EDN (${item.item_code} - ${item.title}).
+      const analysisPrompt = `Tu es un expert en évaluation de complétude de contenu médical EDN (Épreuves Dématérialisées Nationales).
 
-CONTENU DE L'ITEM:
+ITEM À ANALYSER: ${item.item_code} - ${item.title}
+
+CONTENU COMPLET DE L'ITEM:
 ${JSON.stringify(payload, null, 2)}
 
-COMPÉTENCES RANG A (${competencesA.length}):
-${competencesA.map((c: any, i: number) => `${i + 1}. ${c.title || c}`).join('\n')}
+COMPÉTENCES DÉCLARÉES DANS L'ITEM:
+- Rang A (${competencesA.length}): ${competencesA.map((c: any) => c.title || c.intitule || JSON.stringify(c)).join(', ')}
+- Rang B (${competencesB.length}): ${competencesB.map((c: any) => c.title || c.intitule || JSON.stringify(c)).join(', ')}
 
-COMPÉTENCES RANG B (${competencesB.length}):
-${competencesB.map((c: any, i: number) => `${i + 1}. ${c.title || c}`).join('\n')}
+MISSION:
+1. Identifie TOUTES les compétences qui DEVRAIENT être présentes pour cet item selon le référentiel médical EDN
+2. Pour CHAQUE compétence attendue (rang A et rang B):
+   - Vérifie si elle est présente dans le contenu
+   - Évalue si son contenu est complet et de qualité
+   - Note les éléments manquants ou incomplets
+3. Compare avec les compétences déclarées
 
-Analyse et retourne un JSON avec cette structure EXACTE:
+Retourne un JSON avec cette structure EXACTE:
 {
-  "completeness_score": <nombre entre 0 et 100>,
-  "rang_a_complete": <true/false>,
-  "rang_b_complete": <true/false>,
-  "missing_rang_a": [<liste des compétences rang A manquantes>],
-  "missing_rang_b": [<liste des compétences rang B manquantes>],
-  "suggestions": "<suggestions d'amélioration>"
+  "completeness_score": <score global 0-100>,
+  "rang_a_complete": <true si toutes les compétences rang A sont complètes>,
+  "rang_b_complete": <true si toutes les compétences rang B sont complètes>,
+  "expected_competences_rang_a": [<liste des compétences rang A attendues pour cet item>],
+  "expected_competences_rang_b": [<liste des compétences rang B attendues pour cet item>],
+  "missing_rang_a": [<compétences rang A totalement absentes>],
+  "missing_rang_b": [<compétences rang B totalement absentes>],
+  "incomplete_rang_a": [<compétences rang A présentes mais incomplètes>],
+  "incomplete_rang_b": [<compétences rang B présentes mais incomplètes>],
+  "competence_details": [
+    {
+      "competence": "<nom de la compétence>",
+      "rang": "A" ou "B",
+      "present": true/false,
+      "complete": true/false,
+      "quality_score": <0-100>,
+      "missing_elements": [<éléments manquants>]
+    }
+  ],
+  "suggestions": "<suggestions d'amélioration détaillées>"
 }`;
 
       // Appeler Lovable AI
@@ -167,8 +189,13 @@ Analyse et retourne un JSON avec cette structure EXACTE:
           completeness_score: analysis.completeness_score || 0,
           rang_a_complete: analysis.rang_a_complete || false,
           rang_b_complete: analysis.rang_b_complete || false,
+          expected_competences_rang_a: analysis.expected_competences_rang_a || [],
+          expected_competences_rang_b: analysis.expected_competences_rang_b || [],
           missing_rang_a: analysis.missing_rang_a || [],
           missing_rang_b: analysis.missing_rang_b || [],
+          incomplete_rang_a: analysis.incomplete_rang_a || [],
+          incomplete_rang_b: analysis.incomplete_rang_b || [],
+          competence_details: analysis.competence_details || [],
           suggestions: analysis.suggestions || '',
           ai_analysis: analysis,
           audit_date: new Date().toISOString()

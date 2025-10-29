@@ -2502,10 +2502,15 @@ export type Database = {
         Row: {
           ai_analysis: Json | null
           audit_date: string
+          competence_details: Json | null
           completeness_score: number | null
           created_at: string
           error_message: string | null
+          expected_competences_rang_a: string[] | null
+          expected_competences_rang_b: string[] | null
           id: string
+          incomplete_rang_a: string[] | null
+          incomplete_rang_b: string[] | null
           item_code: string
           missing_rang_a: string[] | null
           missing_rang_b: string[] | null
@@ -2518,10 +2523,15 @@ export type Database = {
         Insert: {
           ai_analysis?: Json | null
           audit_date?: string
+          competence_details?: Json | null
           completeness_score?: number | null
           created_at?: string
           error_message?: string | null
+          expected_competences_rang_a?: string[] | null
+          expected_competences_rang_b?: string[] | null
           id?: string
+          incomplete_rang_a?: string[] | null
+          incomplete_rang_b?: string[] | null
           item_code: string
           missing_rang_a?: string[] | null
           missing_rang_b?: string[] | null
@@ -2534,10 +2544,15 @@ export type Database = {
         Update: {
           ai_analysis?: Json | null
           audit_date?: string
+          competence_details?: Json | null
           completeness_score?: number | null
           created_at?: string
           error_message?: string | null
+          expected_competences_rang_a?: string[] | null
+          expected_competences_rang_b?: string[] | null
           id?: string
+          incomplete_rang_a?: string[] | null
+          incomplete_rang_b?: string[] | null
           item_code?: string
           missing_rang_a?: string[] | null
           missing_rang_b?: string[] | null
