@@ -157,6 +157,20 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
           )}
         </div>
 
+        {/* Lecteur audio natif avec contrôles */}
+        {finalAudioUrl && finalAudioUrl.startsWith('http') && (
+          <div className="bg-white rounded-lg p-4 border border-green-200">
+            <audio 
+              controls 
+              className="w-full"
+              src={finalAudioUrl}
+              preload="metadata"
+            >
+              Votre navigateur ne supporte pas l'élément audio.
+            </audio>
+          </div>
+        )}
+
         <div className="flex gap-2">
           <Button
             onClick={handlePlay}
@@ -181,25 +195,49 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
               </>
             )}
           </Button>
+          
+          {/* Bouton de téléchargement */}
+          {finalAudioUrl && finalAudioUrl.startsWith('http') && (
+            <Button
+              onClick={() => {
+                const a = document.createElement('a');
+                a.href = finalAudioUrl;
+                a.download = `${generatedSong.title || 'musique'}.mp3`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+              }}
+              variant="outline"
+              className="border-green-300 text-green-700 hover:bg-green-50"
+              size="lg"
+            >
+              <Download className="h-4 w-4 mr-2" />
+              Télécharger
+            </Button>
+          )}
+          
           <Button
             onClick={onAddToLibrary}
             variant="outline"
-            className="flex-1 border-green-300 text-green-700 hover:bg-green-50"
+            className="border-green-300 text-green-700 hover:bg-green-50"
             size="lg"
             disabled={isGenerating && !audioUrl}
           >
             <Library className="h-4 w-4 mr-2" />
             Bibliothèque
           </Button>
-          <Button
-            onClick={() => setShowDebug(!showDebug)}
-            variant="ghost"
-            size="lg"
-            className="text-gray-500 hover:text-gray-700"
-            title="Debug audio"
-          >
-            <Bug className="h-4 w-4" />
-          </Button>
+          
+          {ENABLE_DEBUG && (
+            <Button
+              onClick={() => setShowDebug(!showDebug)}
+              variant="ghost"
+              size="lg"
+              className="text-gray-500 hover:text-gray-700"
+              title="Debug audio"
+            >
+              <Bug className="h-4 w-4" />
+            </Button>
+          )}
         </div>
 
         {/* Debug Panel - Only in development */}
