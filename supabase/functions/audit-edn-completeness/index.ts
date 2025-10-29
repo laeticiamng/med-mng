@@ -146,7 +146,7 @@ Retourne un JSON avec cette structure EXACTE:
           messages: [
             {
               role: 'system',
-              content: 'Tu es un expert en analyse de complétude de contenu médical EDN. Réponds toujours en JSON valide.'
+              content: 'Tu es un expert en analyse de complétude de contenu médical EDN. Réponds UNIQUEMENT avec un JSON valide, sans texte avant ou après.'
             },
             {
               role: 'user',
@@ -154,7 +154,7 @@ Retourne un JSON avec cette structure EXACTE:
             }
           ],
           temperature: 0.3,
-          max_tokens: 2000,
+          max_tokens: 4000,
         }),
       });
 
@@ -165,20 +165,53 @@ Retourne un JSON avec cette structure EXACTE:
 
       const aiData = await aiResponse.json();
       const aiContent = aiData.choices[0]?.message?.content || '';
+      
+      console.log('AI Response length:', aiContent.length);
+      console.log('AI Response preview:', aiContent.substring(0, 200));
 
       // Parser la réponse JSON
       let analysis;
       try {
-        // Extraire le JSON du contenu (au cas où il y aurait du texte autour)
-        const jsonMatch = aiContent.match(/\{[\s\S]*\}/);
-        if (jsonMatch) {
-          analysis = JSON.parse(jsonMatch[0]);
-        } else {
-          throw new Error('No JSON found in AI response');
+        // Nettoyer le contenu : enlever les backticks markdown et le texte avant/après
+        let cleanContent = aiContent.trim();
+        
+        // Enlever les markdown code blocks si présents
+        cleanContent = cleanContent.replace(/```json\s*/g, '');
+        cleanContent = cleanContent.replace(/```\s*$/g, '');
+        
+        // Trouver le premier { et le dernier } pour extraire le JSON
+        const firstBrace = cleanContent.indexOf('{');
+        const lastBrace = cleanContent.lastIndexOf('}');
+        
+        if (firstBrace === -1 || lastBrace === -1) {
+          throw new Error('No JSON object found in AI response');
         }
+        
+        const jsonStr = cleanContent.substring(firstBrace, lastBrace + 1);
+        console.log('Extracted JSON length:', jsonStr.length);
+        
+        analysis = JSON.parse(jsonStr);
+        console.log('✅ JSON parsed successfully');
+        
       } catch (parseError) {
-        console.error('Failed to parse AI response:', aiContent);
-        throw new Error(`Failed to parse AI response: ${parseError.message}`);
+        console.error('❌ Failed to parse AI response');
+        console.error('Parse error:', parseError.message);
+        console.error('Full AI response:', aiContent);
+        
+        // Retourner une analyse par défaut en cas d'erreur
+        analysis = {
+          completeness_score: 0,
+          rang_a_complete: false,
+          rang_b_complete: false,
+          expected_competences_rang_a: [],
+          expected_competences_rang_b: [],
+          missing_rang_a: [],
+          missing_rang_b: [],
+          incomplete_rang_a: [],
+          incomplete_rang_b: [],
+          competence_details: [],
+          suggestions: `Erreur de parsing: ${parseError.message}. Contenu tronqué ou invalide.`
+        };
       }
 
       // Sauvegarder les résultats
