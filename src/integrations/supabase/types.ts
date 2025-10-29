@@ -12144,6 +12144,7 @@ export type Database = {
           fixed_count: number
         }[]
       }
+      fix_stuck_track_audio: { Args: never; Returns: undefined }
       fusion_complete_finale: {
         Args: never
         Returns: {

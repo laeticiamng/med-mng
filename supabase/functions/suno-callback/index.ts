@@ -55,36 +55,49 @@ serve(async (req) => {
       if ((callbackType === 'text' || callbackType === 'complete' || callbackType === 'first') && tracks && tracks.length > 0) {
         // 🎵 GÉNÉRATION EN COURS - Mettre à jour le track principal d'abord
         
-        // 1️⃣ Trouver et mettre à jour le track principal (celui avec task_id)
-        const { data: mainTrack } = await supabase
+        // 1️⃣ Trouver le track principal (celui avec task_id === suno_track_id OU juste task_id)
+        const { data: mainTracks } = await supabase
           .from('generated_music_tracks')
           .select('*')
           .eq('task_id', task_id)
-          .is('suno_track_id', task_id) // Le track principal a task_id === suno_track_id
-          .maybeSingle();
+          .order('created_at', { ascending: true }); // Le premier créé est le principal
+
+        const mainTrack = mainTracks?.[0]; // Le premier créé est le track principal
 
         // Trouver le premier track avec audio disponible
-        const trackWithAudio = tracks.find(t => t.audio_url || t.source_audio_url);
+        const trackWithAudio = tracks.find(t => 
+          (t.audio_url && t.audio_url !== '') || 
+          (t.source_audio_url && t.source_audio_url !== '')
+        );
         
-        if (mainTrack && trackWithAudio) {
-          console.log(`🎯 Mise à jour track principal avec audio de ${trackWithAudio.id}`);
+        if (mainTrack) {
+          console.log(`🎯 Track principal trouvé: ${mainTrack.id}`);
           
+          // Construire l'update du track principal
           const updateData: any = {
-            audio_url: trackWithAudio.audio_url || trackWithAudio.source_audio_url,
-            stream_url: trackWithAudio.stream_audio_url || trackWithAudio.source_stream_audio_url,
-            image_url: trackWithAudio.image_url || trackWithAudio.source_image_url,
-            duration: trackWithAudio.duration,
-            generation_status: (trackWithAudio.audio_url || trackWithAudio.source_audio_url) ? 'completed' : 'generating',
-            metadata: {
+            generation_status: callbackType === 'complete' ? 'completed' : 'generating',
+            updated_at: new Date().toISOString()
+          };
+
+          // Si on a un track avec audio, mettre à jour le track principal
+          if (trackWithAudio) {
+            console.log(`🎵 Mise à jour avec audio de ${trackWithAudio.id}`);
+            
+            updateData.audio_url = trackWithAudio.audio_url || trackWithAudio.source_audio_url;
+            updateData.stream_url = trackWithAudio.stream_audio_url || trackWithAudio.source_stream_audio_url;
+            updateData.image_url = trackWithAudio.image_url || trackWithAudio.source_image_url;
+            updateData.duration = trackWithAudio.duration;
+            updateData.generation_status = 'completed'; // Marquer comme complété
+            updateData.metadata = {
               ...(typeof mainTrack.metadata === 'object' && mainTrack.metadata !== null ? mainTrack.metadata : {}),
               duration: trackWithAudio.duration,
               model_name: trackWithAudio.model_name,
               tags: trackWithAudio.tags,
               first_audio_received_at: new Date().toISOString(),
-              callback_type: callbackType
-            },
-            updated_at: new Date().toISOString()
-          };
+              callback_type: callbackType,
+              suno_track_id: trackWithAudio.id
+            };
+          }
 
           const { error: updateError } = await supabase
             .from('generated_music_tracks')
@@ -96,11 +109,14 @@ serve(async (req) => {
             await markFailed(supabase, operationKey, updateError);
           } else {
             console.log('✅ Track principal mis à jour avec succès');
-            await markCompleted(supabase, operationKey, { track_id: mainTrack.id, status: 'updated' });
+            await markCompleted(supabase, operationKey, { track_id: mainTrack.id, status: 'updated', audio_url: updateData.audio_url });
           }
+        } else {
+          console.warn('⚠️ Aucun track principal trouvé pour task_id:', task_id);
         }
         
         // 2️⃣ Créer ou mettre à jour les tracks individuels Suno (non-bloquant)
+        // Seulement si on veut garder la trace de chaque track individuel
         for (const track of tracks) {
           try {
             const { data: existingTrack } = await supabase
@@ -109,23 +125,10 @@ serve(async (req) => {
               .eq('suno_track_id', track.id)
               .maybeSingle();
 
-            if (existingTrack) {
-              // Mettre à jour le track existant
+            if (existingTrack && existingTrack.suno_track_id !== existingTrack.task_id) {
+              // Ne mettre à jour que les tracks individuels (pas le principal)
               const updateData: any = {
                 generation_status: callbackType === 'complete' ? 'completed' : 'generating',
-                metadata: {
-                  ...(typeof existingTrack.metadata === 'object' && existingTrack.metadata !== null ? existingTrack.metadata : {}),
-                  duration: track.duration,
-                  model_name: track.model_name,
-                  tags: track.tags,
-                  prompt: track.prompt,
-                  created_at: new Date(track.createTime).toISOString(),
-                  suno_complete_data: track,
-                  real_track_id: track.id,
-                  original_task_id: task_id,
-                  rang: track.title?.includes('Rang B') ? 'B' : 'A',
-                  callback_type: callbackType
-                },
                 updated_at: new Date().toISOString()
               };
 
@@ -140,35 +143,30 @@ serve(async (req) => {
               if (track.image_url || track.source_image_url) {
                 updateData.image_url = track.image_url || track.source_image_url;
               }
+              if (track.duration) {
+                updateData.duration = track.duration;
+              }
 
               await supabase
                 .from('generated_music_tracks')
                 .update(updateData)
                 .eq('id', existingTrack.id);
                 
-              console.log(`📝 Statut ${callbackType} mis à jour pour track ${track.id}`);
-            } else {
-              // Créer un nouveau record
-              console.log('💾 Création nouveau track en BDD');
-              
+              console.log(`📝 Track individuel ${track.id} mis à jour`);
+            } else if (!existingTrack) {
+              // Créer un nouveau record pour ce track individuel
               const insertData: any = {
                 task_id: task_id,
                 suno_track_id: track.id,
                 title: track.title || 'Musique générée',
                 generation_status: callbackType === 'complete' ? 'completed' : 'generating',
-                duration: 240,
+                duration: track.duration || 240,
                 user_id: null,
                 metadata: {
-                  duration: track.duration,
                   model_name: track.model_name,
                   tags: track.tags,
                   prompt: track.prompt,
-                  created_at: new Date(track.createTime).toISOString(),
-                  suno_complete_data: track,
-                  real_track_id: track.id,
-                  original_task_id: task_id,
-                  created_via_callback: true,
-                  rang: track.title?.includes('Rang B') ? 'B' : 'A',
+                  created_at: track.createTime,
                   callback_type: callbackType
                 }
               };
@@ -189,15 +187,15 @@ serve(async (req) => {
                 .from('generated_music_tracks')
                 .insert(insertData);
                 
-              console.log(`💾 Track ${track.id} créé avec succès en BDD`);
+              console.log(`💾 Track individuel ${track.id} créé`);
             }
           } catch (error) {
-            console.error(`❌ Erreur traitement track ${track.id}:`, error);
+            console.error(`❌ Erreur traitement track individuel ${track.id}:`, error);
           }
         }
       }
       
-    } else if (callbackData.status === 'FAILED') {
+    } else if (callbackData.status === 'FAILED' || callbackData.code !== 200) {
       console.error('❌ Génération Suno échouée:', callbackData.error || 'Erreur inconnue');
       
       // Marquer comme échoué en BDD
