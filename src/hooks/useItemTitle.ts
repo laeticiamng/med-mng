@@ -17,7 +17,7 @@ export const useItemTitle = (itemCode: string | undefined) => {
           .from('edn_items_immersive')
           .select('title')
           .eq('item_code', itemCode)
-          .single();
+          .maybeSingle();
 
         if (error) {
           console.error('Error fetching item title:', error);

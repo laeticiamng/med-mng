@@ -109,13 +109,16 @@ serve(async (req) => {
                   .maybeSingle();
 
                 if (!existingSong) {
-                  // Créer la chanson dans med_mng_songs
+                  // Créer la chanson dans med_mng_songs avec préservation des métadonnées originales
                   const { data: newSong, error: songError } = await supabase
                     .from('med_mng_songs')
                     .insert({
                       title: trackWithAudio.title || mainTrack.title || 'Musique générée',
                       suno_audio_id: trackWithAudio.id,
                       meta: {
+                        // ✅ Préserver les métadonnées originales du mainTrack (itemCode, rang, etc.)
+                        ...(typeof mainTrack.metadata === 'object' && mainTrack.metadata !== null ? mainTrack.metadata : {}),
+                        // Puis ajouter/écraser avec les nouvelles infos audio
                         audio_url: trackWithAudio.audio_url || trackWithAudio.source_audio_url,
                         stream_url: trackWithAudio.stream_audio_url || trackWithAudio.source_stream_audio_url,
                         image_url: trackWithAudio.image_url || trackWithAudio.source_image_url,

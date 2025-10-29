@@ -46,9 +46,14 @@ export const SongCard: React.FC<SongCardProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [isLikeLoading, setIsLikeLoading] = useState(false);
   
-  // Get the item code from metadata
-  const itemCode = song.meta?.itemCode || song.meta?.item_code;
+  // Get the item code from metadata, or fallback to parsing the title
+  const itemCode = song.meta?.itemCode || song.meta?.selectedItem || song.meta?.item_code;
   const { title: itemTitle } = useItemTitle(itemCode);
+  
+  // Si pas de itemCode dans les métas, essayer d'extraire du titre (ex: "Rang A - EDN - style")
+  const titleParts = !itemCode && song.title ? song.title.split(' - ') : [];
+  const fallbackItemCode = titleParts.length >= 2 ? titleParts[1].trim() : null;
+  const { title: fallbackTitle } = useItemTitle(fallbackItemCode || undefined);
 
   const handleRemove = async () => {
     setIsLoading(true);
@@ -212,7 +217,7 @@ export const SongCard: React.FC<SongCardProps> = ({
           {/* Item name (highlighted) */}
           <div className="mb-2">
             <h3 className="font-bold text-gray-900 text-base sm:text-lg leading-tight">
-              {itemTitle || titleInfo.item || song.title}
+              {itemTitle || fallbackTitle || titleInfo.item || song.title}
             </h3>
             {titleInfo.rang && (
               <p className="text-xs sm:text-sm text-gray-600 mt-1">
