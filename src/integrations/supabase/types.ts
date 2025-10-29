@@ -12559,6 +12559,16 @@ export type Database = {
           user_id: string
         }[]
       }
+      get_user_quota: {
+        Args: { p_user_id?: string }
+        Returns: {
+          can_generate: boolean
+          credits_used_this_period: number
+          last_reset_at: string
+          remaining_credits: number
+          total_credits: number
+        }[]
+      }
       get_user_subscription: {
         Args: { user_uuid: string }
         Returns: {
