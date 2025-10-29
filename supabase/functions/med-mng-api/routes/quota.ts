@@ -15,12 +15,19 @@ export async function handleQuota(req: Request, supabase: any, user: any, path: 
         return errorResponse(500, 'QUOTA_ERROR', 'Erreur lors de la récupération du quota');
       }
 
+      console.log('📊 Quota data fetched:', quotaData);
+
+      // La fonction RPC retourne un tableau avec un seul élément
+      const quota = Array.isArray(quotaData) ? quotaData[0] : quotaData;
+
+      console.log('📊 Quota processed:', quota);
+
       return jsonResponse({
-        remaining_credits: quotaData.remaining_credits,
-        total_credits: quotaData.total_credits,
-        credits_used: quotaData.credits_used_this_period,
-        can_generate: quotaData.can_generate,
-        last_reset_at: quotaData.last_reset_at
+        remaining_credits: quota?.remaining_credits || 0,
+        total_credits: quota?.total_credits || 0,
+        credits_used: quota?.credits_used_this_period || 0,
+        can_generate: quota?.can_generate || false,
+        last_reset_at: quota?.last_reset_at
       });
     } catch (error) {
       console.error('Quota fetch error:', error);
