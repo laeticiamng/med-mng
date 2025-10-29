@@ -1,7 +1,27 @@
+/**
+ * 🎵 Generate Music - Edge Function principale
+ * 
+ * Endpoint pour générer de la musique via l'API Suno
+ * Version refactorisée et modulaire
+ */
+
 import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { corsHeaders } from '../_shared/cors.ts';
+import { SunoAPIClient, getCorrectSunoModel, SunoGenerationOptions } from '../_shared/suno-api-client.ts';
+import { 
+  buildRichEducationalPrompt, 
+  buildRichStyle, 
+  buildExpressiveTitle 
+} from '../_shared/prompt-builders.ts';
+import { 
+  insertMusicTrack, 
+  insertGenerationMetric, 
+  getAuthenticatedUser,
+  MusicTrackInsertData
+} from '../_shared/music-database.ts';
 
+// Interfaces de requête/réponse
 interface MusicGenerationRequest {
   lyrics?: string;
   prompt?: string;
@@ -38,282 +58,22 @@ interface MusicGenerationResponse {
     model?: string;
     prompt?: string;
     credits_used?: number;
+    status?: string;
+    estimated_duration?: string;
   };
   error?: string;
 }
 
-// Interface pour les réponses de l'API Suno selon la documentation officielle
-interface SunoGenerationResponse {
-  code: number;
-  msg: string;
-  data: {
-    taskId: string;
-  };
-}
-
-interface SunoStatusResponse {
-  code: number;
-  msg: string;
-  data: {
-    status: string;
-    response?: {
-      data: Array<{
-        id: string;
-        title: string;
-        audio_url: string;
-        video_url: string;
-        image_url: string;
-        duration: number;
-        created_at: string;
-        model: string;
-        style: string;
-        prompt: string;
-      }>;
-    };
-    errorMessage?: string;
-  };
-}
-
-// Fonction pour déterminer le modèle Suno - TOUJOURS V4_5 comme demandé
-async function getSunoModelForUser(userId: string | null, supabase: any): Promise<string> {
-  // Toujours retourner V4_5 pour tous les utilisateurs
-  console.log('🎯 Modèle fixé: V4_5 pour tous les utilisateurs');
-  return 'V4_5';
-}
-
-// Classe pour interagir avec l'API Suno officielle selon la documentation
-class SunoAPI {
-  private apiKey: string;
-  private baseUrl: string = 'https://api.sunoapi.org/api/v1';
-
-  constructor(apiKey: string) {
-    this.apiKey = apiKey;
-  }
-
-  async generateMusic(options: {
-    prompt: string;
-    customMode?: boolean;
-    instrumental?: boolean;
-    style?: string;
-    title?: string;
-    model?: string;
-    callBackUrl?: string;
-  }): Promise<string> {
-    console.log('🎵 Appel API Suno generate avec options:', options);
-    
-    // Valider les limites selon le ticket de support officiel
-    // V4_5/V4_5PLUS: prompt max 5000 chars, style max 1000 chars
-    // V3_5/V4: prompt max 3000 chars, style max 200 chars
-    const isV4Plus = options.model === 'V4_5' || options.model === 'V4_5PLUS';
-    const maxPromptLength = isV4Plus ? 5000 : 3000;
-    const maxStyleLength = isV4Plus ? 1000 : 200;
-    
-    if (options.prompt && options.prompt.length > maxPromptLength) {
-      throw new Error(`Prompt trop long (max ${maxPromptLength} caractères pour ${options.model})`);
-    }
-    if (options.style && options.style.length > maxStyleLength) {
-      throw new Error(`Style trop long (max ${maxStyleLength} caractères pour ${options.model})`);
-    }
-    if (options.title && options.title.length > 80) {
-      throw new Error('Titre trop long (max 80 caractères)');
-    }
-    
-    const response = await fetch(`${this.baseUrl}/generate`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${this.apiKey}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        prompt: options.prompt,
-        customMode: options.customMode || true,
-        instrumental: options.instrumental || false,
-        style: options.style || '',
-        title: options.title || '',
-        model: options.model || 'chirp-v3-5', // Modèle par défaut recommandé
-        callBackUrl: options.callBackUrl // OBLIGATOIRE selon la doc Suno
-      })
-    });
-    
-    if (!response.ok) {
-      throw new Error(`HTTP Error: ${response.status} - ${response.statusText}`);
-    }
-    
-    const result: SunoGenerationResponse = await response.json();
-    console.log('🎵 Réponse Suno generate:', result);
-    
-    if (result.code !== 200) {
-      throw new Error(`API Suno Error: ${result.msg || 'Erreur inconnue'}`);
-    }
-    
-    if (!result.data?.taskId) {
-      throw new Error('TaskId manquant dans la réponse API');
-    }
-    
-    return result.data.taskId;
-  }
-
-  async getTaskStatus(taskId: string): Promise<SunoStatusResponse['data']> {
-    console.log('🔍 Vérification statut pour taskId:', taskId);
-    
-    const response = await fetch(`${this.baseUrl}/generate/record-info?taskId=${taskId}`, {
-      headers: {
-        'Authorization': `Bearer ${this.apiKey}`
-      }
-    });
-    
-    if (!response.ok) {
-      throw new Error(`HTTP Error: ${response.status} - ${response.statusText}`);
-    }
-    
-    const result: SunoStatusResponse = await response.json();
-    console.log('📊 Statut reçu:', result);
-    
-    if (result.code !== 200) {
-      throw new Error(`API Suno Error: ${result.msg || 'Erreur inconnue'}`);
-    }
-    
-    return result.data;
-  }
-
-  async waitForCompletion(taskId: string, maxWaitTime: number = 600000): Promise<any> {
-    const startTime = Date.now();
-    let attempts = 0;
-    const maxAttempts = 120; // 10 minutes max avec checks toutes les 5 secondes
-    
-    console.log(`⏳ Attente de completion pour taskId: ${taskId} (max ${maxWaitTime/1000}s)`);
-    
-    while (Date.now() - startTime < maxWaitTime && attempts < maxAttempts) {
-      attempts++;
-      
-      try {
-        const statusData = await this.getTaskStatus(taskId);
-        
-        console.log(`🔄 Tentative ${attempts}/${maxAttempts} - Status: ${statusData.status}`);
-        
-        if (statusData.status === 'SUCCESS' || statusData.status === 'COMPLETE') {
-          if (statusData.response?.data && statusData.response.data.length > 0) {
-            console.log('✅ Génération terminée avec succès!');
-            return statusData.response;
-          } else {
-            throw new Error('Aucune donnée dans la réponse de succès');
-          }
-        } else if (statusData.status === 'FAILED' || statusData.status === 'ERROR') {
-          throw new Error(`Génération échouée: ${statusData.errorMessage || 'Erreur inconnue'}`);
-        }
-        
-        // Statuts en cours: PENDING, PROCESSING, RUNNING, etc.
-        console.log(`⏳ Status en cours: ${statusData.status}, attente 5 secondes...`);
-        await new Promise(resolve => setTimeout(resolve, 5000));
-        
-      } catch (error) {
-        if (error.message.includes('Génération échouée')) {
-          throw error; // Erreur définitive
-        }
-        console.error(`❌ Erreur temporaire lors de la vérification (tentative ${attempts}):`, error);
-        
-        if (attempts >= maxAttempts) {
-          throw new Error(`Échec après ${maxAttempts} tentatives: ${error.message}`);
-        }
-        
-        // Attendre avant de réessayer
-        await new Promise(resolve => setTimeout(resolve, 5000));
-      }
-    }
-    
-    throw new Error(`Timeout: Génération trop longue (>${maxWaitTime/1000}s)`);
-  }
-
-  // Méthode de vérification des crédits désactivée pour éviter les blocages
-  async getRemainingCredits(): Promise<number> {
-    console.log('⚠️ Vérification des crédits ignorée');
-    return 999; // Retourner une valeur élevée pour ne pas bloquer
-  }
-}
-
-// Fonctions helper pour créer des prompts riches et expressifs
-function buildRichEducationalPrompt(itemCode: string, rang: string, style: string, mood: string, tempo: string): string {
-  // ✅ OPTIMISATION: Prompt condensé et précis pour génération rapide
-  const basePrompt = `Educational ${style} song about ${itemCode || 'medical content'} for level ${rang || 'A'}.
-${mood} melody, ${tempo} tempo, clear vocals, memorable medical concepts, professional quality.`;
-
-  return basePrompt.trim();
-}
-
-function buildRichStyle(style: string, mood: string, tempo: string, instruments: string[]): string {
-  const instrumentList = instruments?.join(', ') || 'piano, strings';
-  
-  // ✅ OPTIMISATION: Style condensé pour génération plus rapide
-  return `${style}, ${mood}, ${tempo}, ${instrumentList}, educational, clear vocals`;
-}
-
-function buildExpressiveTitle(itemCode: string, rang: string, style: string): string {
-  const styleCapitalized = style.charAt(0).toUpperCase() + style.slice(1);
-  const rangeSuffix = rang ? ` (${rang} Level)` : '';
-  
-  return `${itemCode || 'Medical'} Mastery${rangeSuffix} - ${styleCapitalized} Education`;
-}
-
-// Fonction pour créer un prompt synthétique avec toutes les compétences et assonances
-function buildSyntheticPromptWithAssonances(itemCode: string, rang: string, style: string, competences: any[]): string {
-  const rangText = rang === 'A' ? 'fondamental' : 'expert';
-  
-  // Créer des vers avec assonances basés sur les compétences
-  let verses = [];
-  
-  // Vers d'introduction avec assonance
-  verses.push(`${itemCode} ${rangText}, compétences à maîtriser`);
-  
-  // Intégrer les compétences avec assonances et rimes
-  if (competences && competences.length > 0) {
-    // Prendre un échantillon représentatif des compétences
-    const sampledCompetences = competences.slice(0, Math.min(5, competences.length));
-    
-    sampledCompetences.forEach((comp, index) => {
-      const intitule = comp.intitule || comp.concept || 'Compétence médicale';
-      const shortIntitule = intitule.substring(0, 80); // Limiter la longueur
-      
-      if (index % 2 === 0) {
-        verses.push(`${shortIntitule}, essentiel médical`);
-        verses.push(`Diagnostic précis à bien définir`);
-        verses.push(`Traitement adapté pour guérir`);
-      } else {
-        verses.push(`${shortIntitule}, fondamental`);
-        verses.push(`Signes cliniques à observer, pronostic certain`);
-        verses.push(`Prise en charge optimale, résultat sain`);
-      }
-      verses.push('---'); // Séparateur pour structure musicale
-    });
-  }
-  
-  // Conclusion avec assonance
-  verses.push(`${itemCode} maîtrisé, excellence atteinte`);
-  verses.push(`Compétences solides, réussite certaine`);
-  verses.push(`Formation complète, expertise validée`);
-  
-  return verses.join('\n').substring(0, 4800); // Laisser marge pour 5000 caractères max
-}
-
-// Fonction pour créer un prompt simplifié (réduction de taille)
-function buildSimplifiedPrompt(itemCode: string, rang: string, style: string): string {
-  return `Educational song for ${itemCode || 'medical content'}, ${rang ? `level ${rang}` : 'medical training'}, ${style} style, clear melody, memorable, professional medical education music.`;
-}
-
-// Fonction pour convertir vers le format correct selon le ticket de support officiel
-function getCorrectSunoModel(userModel: string): string {
-  console.log('🔧 Conversion modèle selon doc officielle:', userModel);
-  
-  // ✅ OPTIMISATION MAXIMALE: Toujours utiliser V4_5PLUS pour vitesse optimale
-  // D'après le ticket de support officiel : "V4_5PLUS" offre la meilleure performance
-  console.log('🚀 MODÈLE OPTIMISÉ: V4_5PLUS sélectionné pour génération ultra-rapide');
-  return 'V4_5PLUS'; // Modèle le plus rapide selon ticket support Lovable
-}
-
+/**
+ * Handler principal
+ */
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
+
+  const startTime = Date.now();
 
   try {
     // Initialize Supabase
@@ -323,8 +83,8 @@ serve(async (req) => {
     );
 
     // Extract request data
-    const body = await req.json();
-    console.log('📥 REQUÊTE GÉNÉRTION MUSICALE:', {
+    const body: MusicGenerationRequest = await req.json();
+    console.log('📥 REQUÊTE GÉNÉRATION MUSICALE:', {
       hasLyrics: !!body.lyrics,
       lyricsLength: body.lyrics?.length || 0,
       style: body.style,
@@ -336,32 +96,11 @@ serve(async (req) => {
       willCallRealAPI: true
     });
 
-    // Get auth user - CORRECTION du problème user_id null
+    // Get authenticated user
     const authHeader = req.headers.get('authorization');
-    let userId = null;
-    console.log('🔐 AuthHeader présent:', !!authHeader);
-    
-    if (authHeader) {
-      try {
-        const { data: { user }, error } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''));
-        if (user?.id) {
-          userId = user.id;
-          console.log('👤 User authentifié:', { userId, hasUser: !!user });
-        } else {
-          console.log('⚠️ Token invalide - génération anonyme');
-          // ✅ CORRECTION: Ne pas utiliser de string pour user_id UUID
-          userId = null; // Laisser null pour éviter l'erreur de contrainte
-        }
-      } catch (authError) {
-        console.error('❌ Erreur authentification - génération anonyme:', authError);
-        userId = null; // ✅ CORRECTION: Laisser null au lieu de string
-      }
-    } else {
-      console.log('⚠️ Aucun header d\'authentification - génération anonyme');
-      userId = null; // ✅ CORRECTION: Laisser null au lieu de string
-    }
+    const { userId, isAuthenticated } = await getAuthenticatedUser(supabase, authHeader);
 
-    // Extract and validate parameters
+    // Extract and validate parameters with defaults
     const {
       lyrics = '',
       style = 'lofi-piano',
@@ -377,9 +116,20 @@ serve(async (req) => {
       fastMode = true
     } = body;
 
-    // Build enhanced components according to official docs
-    const enhancedPrompt = lyrics || buildRichEducationalPrompt(itemCode, rang, style, 'relaxing', 'moderate');
-    const enhancedStyle = buildRichStyle(style, 'relaxing', 'moderate', ['piano', 'strings']);
+    // Build enhanced components
+    const enhancedPrompt = lyrics || buildRichEducationalPrompt(
+      itemCode, 
+      rang, 
+      style, 
+      'relaxing', 
+      'moderate'
+    );
+    const enhancedStyle = buildRichStyle(
+      style, 
+      'relaxing', 
+      'moderate', 
+      ['piano', 'strings']
+    );
     const enhancedTitle = title || buildExpressiveTitle(itemCode, rang, style);
     const correctModel = getCorrectSunoModel(model);
 
@@ -400,118 +150,87 @@ serve(async (req) => {
     }
 
     console.log('🔑 Clé API Suno confirmée valide, appel réel en cours...');
-    console.log('⚠️ Ignoré: Vérification des crédits Suno désactivée pour éviter les blocages');
-    console.log('🔧 Modèle Suno sélectionné selon l\'abonnement:', correctModel);
     console.log('🎯 Modèle fixé:', correctModel, 'pour tous les utilisateurs');
+
+    // Initialize Suno API client
+    const sunoClient = new SunoAPIClient(SUNO_API_KEY);
 
     // Build callback URL for async processing
     const callbackUrl = `${Deno.env.get('SUPABASE_URL')}/functions/v1/suno-callback`;
 
-    // ✅ OPTIMISATION MAXIMALE VITESSE selon ticket support Lovable
-    // Configuration pour génération la plus rapide possible (<20s)
-    const sunoPayload = {
+    // Prepare Suno payload with optimizations
+    const sunoPayload: SunoGenerationOptions = {
       prompt: enhancedPrompt,
       customMode: true,
-      instrumental: instrumental, // Garde le paramètre original pour flexibilité
+      instrumental: instrumental,
       style: enhancedStyle,
       title: enhancedTitle,
-      model: correctModel, // V4_5PLUS pour vitesse optimale
+      model: correctModel,
       callBackUrl: callbackUrl,
-      // 🚀 PARAMÈTRES D'OPTIMISATION VITESSE
-      fastMode: true,           // Mode rapide activé
-      priority: "high",         // Priorité haute
-      streamingEnabled: true,   // Streaming activé
-      optimizeForSpeed: true    // Optimisation vitesse maximale
+      fastMode: true,
+      priority: "high",
+      streamingEnabled: true,
+      optimizeForSpeed: true
     };
 
-    console.log('🚀 APPEL API SUNO RÉEL avec payload CORRIGÉ:', {
+    console.log('🚀 APPEL API SUNO RÉEL avec payload:', {
       hasPrompt: !!sunoPayload.prompt,
       promptLength: sunoPayload.prompt.length,
       style: sunoPayload.style,
       title: sunoPayload.title,
       instrumental: sunoPayload.instrumental,
       model: sunoPayload.model,
-      customMode: sunoPayload.customMode,
-      userSubscriptionModel: correctModel
+      customMode: sunoPayload.customMode
     });
 
-    console.log('📝 Payload complet envoyé:', JSON.stringify(sunoPayload, null, 2));
-
-    // Call Suno API - Generate Music endpoint
-    console.log('🎵 Appel API Suno generate avec options:', sunoPayload);
-    
-    const sunoResponse = await fetch('https://api.sunoapi.org/api/v1/generate', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${SUNO_API_KEY}`
-      },
-      body: JSON.stringify(sunoPayload)
-    });
-
-    const sunoData = await sunoResponse.json();
-    console.log('🎵 Réponse Suno generate:', sunoData);
-
-    if (!sunoResponse.ok || sunoData.code !== 200) {
-      console.error('❌ ERREUR API SUNO:', sunoData);
-      throw new Error(`Erreur API Suno: ${sunoData.msg || 'Erreur inconnue'}`);
-    }
-
-    const taskId = sunoData.data?.taskId;
-    if (!taskId) {
-      console.error('❌ AUCUN TASK ID:', sunoData);
-      throw new Error('Aucun taskId reçu de l\'API Suno');
-    }
-
+    // Call Suno API to generate music (returns taskId immediately)
+    const taskId = await sunoClient.generateMusic(sunoPayload);
     console.log('🆔 TaskID reçu immédiatement:', taskId);
-    
-    // Save initial record in database - ✅ CORRECTION du problème user_id
-    try {
-      // ✅ CORRECTION: Insérer seulement si userId n'est pas null
-      const insertData = {
-        task_id: taskId,
-        title: enhancedTitle,
-        suno_track_id: taskId,
-        metadata: {
-          style: style,
-          rang: rang,
-          duration: duration,
-          language: language,
-          itemCode: itemCode,
-          model: correctModel,
-          prompt: enhancedPrompt,
-          provider: 'suno',
-          generatedAt: new Date().toISOString()
-        },
-        generation_status: 'generating'
-      };
 
-      // ✅ CORRECTION: Ajouter user_id seulement si non null
-      if (userId) {
-        insertData.user_id = userId;
-      }
+    const apiResponseTime = Date.now() - startTime;
 
-      const { data: insertedTrack, error: insertError } = await supabase
-        .from('generated_music_tracks')
-        .insert(insertData)
-        .select()
-        .single();
-      
-      if (insertError) {
-        console.error('❌ Erreur insertion BDD:', insertError);
-        // ✅ CORRECTION: Ne pas faire échouer la génération pour une erreur de BDD
-        console.log('⚠️ Génération continue malgré l\'erreur BDD');
-      } else {
-        console.log('✅ Track enregistrée en BDD:', insertedTrack?.id);
-      }
-    } catch (dbError) {
-      console.error('❌ Erreur critique BDD:', dbError);
+    // Save initial record in database (non-blocking)
+    const trackData: MusicTrackInsertData = {
+      task_id: taskId,
+      title: enhancedTitle,
+      suno_track_id: taskId,
+      metadata: {
+        style: style,
+        rang: rang,
+        duration: duration,
+        language: language,
+        itemCode: itemCode,
+        model: correctModel,
+        prompt: enhancedPrompt,
+        provider: 'suno',
+        generatedAt: new Date().toISOString()
+      },
+      generation_status: 'generating'
+    };
+
+    // Add user_id only if authenticated
+    if (userId) {
+      trackData.user_id = userId;
+    }
+
+    // Insert track (non-blocking, won't fail generation)
+    const dbResult = await insertMusicTrack(supabase, trackData);
+    if (!dbResult.success) {
       console.log('⚠️ Génération continue malgré l\'erreur BDD');
     }
 
-    // Start background polling task (non-blocking)
-    console.log('🔄 Démarrage polling en arrière-plan pour taskId:', taskId);
-    
+    // Insert generation metric (non-blocking)
+    await insertGenerationMetric(supabase, {
+      track_id: taskId,
+      user_id: userId || undefined,
+      content_type: itemCode.toLowerCase(),
+      item_code: itemCode,
+      rang: rang,
+      style: style,
+      status: 'initiated',
+      api_response_time_ms: apiResponseTime
+    });
+
     // Return immediate response with trackId
     const response: MusicGenerationResponse = {
       success: true,
@@ -534,20 +253,19 @@ serve(async (req) => {
     };
 
     console.log('🎵 Réponse immédiate retournée avec trackId:', taskId);
+    console.log('⏱️ Temps de réponse API:', apiResponseTime, 'ms');
 
     return new Response(JSON.stringify(response), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
   } catch (error) {
-    console.error('❌ ERREUR DÉTAILLÉE API SUNO:', {
+    console.error('❌ ERREUR DÉTAILLÉE:', {
       message: error.message,
       stack: error.stack,
       name: error.name,
       cause: error.cause
     });
-    
-    console.error('Erreur génération musique:', error);
     
     const errorResponse: MusicGenerationResponse = {
       success: false,
