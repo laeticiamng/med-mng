@@ -196,30 +196,10 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
             )}
           </Button>
           
-          {/* Bouton de téléchargement */}
-          {finalAudioUrl && finalAudioUrl.startsWith('http') && (
-            <Button
-              onClick={() => {
-                const a = document.createElement('a');
-                a.href = finalAudioUrl;
-                a.download = `${generatedSong.title || 'musique'}.mp3`;
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-              }}
-              variant="outline"
-              className="border-green-300 text-green-700 hover:bg-green-50"
-              size="lg"
-            >
-              <Download className="h-4 w-4 mr-2" />
-              Télécharger
-            </Button>
-          )}
-          
           <Button
             onClick={onAddToLibrary}
             variant="outline"
-            className="border-green-300 text-green-700 hover:bg-green-50"
+            className="flex-1 border-green-300 text-green-700 hover:bg-green-50"
             size="lg"
             disabled={isGenerating && !audioUrl}
           >
