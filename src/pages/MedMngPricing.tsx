@@ -88,6 +88,38 @@ export const MedMngPricing = () => {
     }
   };
 
+  const handleSimulation = async (planId: string) => {
+    if (!user) {
+      toast.error('Veuillez vous connecter');
+      navigate('/med-mng/login');
+      return;
+    }
+
+    setProcessingPlan(planId);
+
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const { data, error } = await supabase.functions.invoke('activate-simulation', {
+        body: { planId },
+        headers: { Authorization: `Bearer ${session?.access_token}` }
+      });
+
+      if (error) throw error;
+
+      toast.success(`🎉 Simulation ${planId} activée !`, {
+        description: data?.message || `${data?.quota} générations/mois disponibles`
+      });
+      
+      // Recharger la page pour voir les changements
+      setTimeout(() => window.location.reload(), 1500);
+    } catch (error) {
+      console.error('Error activating simulation:', error);
+      toast.error('Erreur lors de l\'activation de la simulation');
+    } finally {
+      setProcessingPlan(null);
+    }
+  };
+
   const getPlanIcon = (planName: string) => {
     switch (planName.toLowerCase()) {
       case 'free': return <Star className="h-6 w-6" />;
@@ -360,7 +392,7 @@ export const MedMngPricing = () => {
                       )}
                     </div>
 
-                    <div className="pt-4">
+                    <div className="pt-4 space-y-2">
                       {isCurrentPlan(plan.name) ? (
                         <Button disabled className="w-full">
                           <TranslatedText text="Plan actuel" />
@@ -374,24 +406,34 @@ export const MedMngPricing = () => {
                           <TranslatedText text="Commencer gratuitement" />
                         </Button>
                       ) : (
-                        <Button
-                          className={`w-full ${
-                            plan.name.toLowerCase() === 'premium' 
-                              ? 'bg-purple-600 hover:bg-purple-700' 
-                              : 'bg-blue-600 hover:bg-blue-700'
-                          }`}
-                          onClick={() => handleSubscribe(plan.id)}
-                          disabled={processingPlan === plan.id}
-                        >
-                          {processingPlan === plan.id ? (
-                            <div className="flex items-center gap-2">
-                              <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
-                              <TranslatedText text="Chargement..." />
-                            </div>
-                          ) : (
-                            <TranslatedText text="S'abonner" />
-                          )}
-                        </Button>
+                        <>
+                          <Button
+                            className={`w-full ${
+                              plan.name.toLowerCase() === 'premium' 
+                                ? 'bg-purple-600 hover:bg-purple-700' 
+                                : 'bg-blue-600 hover:bg-blue-700'
+                            }`}
+                            onClick={() => handleSubscribe(plan.id)}
+                            disabled={processingPlan === plan.id}
+                          >
+                            {processingPlan === plan.id ? (
+                              <div className="flex items-center gap-2">
+                                <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full" />
+                                <TranslatedText text="Chargement..." />
+                              </div>
+                            ) : (
+                              <TranslatedText text="S'abonner" />
+                            )}
+                          </Button>
+                          <Button
+                            variant="outline"
+                            className="w-full text-xs"
+                            onClick={() => handleSimulation(plan.id.toLowerCase())}
+                            disabled={processingPlan === plan.id}
+                          >
+                            🎭 Simuler ce plan
+                          </Button>
+                        </>
                       )}
                     </div>
                   </CardContent>
