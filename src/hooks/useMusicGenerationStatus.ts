@@ -12,32 +12,47 @@ export const useMusicGenerationStatus = (taskId: string | null) => {
     try {
       console.log('🔍 Vérification statut pour taskId:', taskId);
       
-      // Vérifier d'abord en base de données
-      const { data: dbTrack, error: dbError } = await supabase
+      // Vérifier d'abord en base de données - Récupérer TOUS les tracks
+      const { data: dbTracks, error: dbError } = await supabase
         .from('generated_music_tracks')
         .select('*')
-        .or(`task_id.eq.${taskId},suno_track_id.eq.${taskId}`)
-        .single();
+        .or(`task_id.eq.${taskId},suno_track_id.eq.${taskId}`);
 
-      if (dbTrack && !dbError) {
-        console.log('✅ Statut trouvé en BDD:', dbTrack.generation_status);
+      if (dbTracks && dbTracks.length > 0 && !dbError) {
+        console.log(`✅ ${dbTracks.length} track(s) trouvé(s) en BDD`);
+        
+        // Prioriser les tracks avec audio_url non null
+        const completedTrack = dbTracks.find(t => t.audio_url && t.audio_url !== '');
+        const dbTrack = completedTrack || dbTracks[0]; // Sinon prendre le premier
+        
+        console.log('📀 Track sélectionné:', {
+          id: dbTrack.id,
+          has_audio: !!dbTrack.audio_url,
+          status: dbTrack.generation_status,
+          audio_url_preview: dbTrack.audio_url?.substring(0, 50)
+        });
         
         const metadata = dbTrack.metadata as MusicGenerationMetadata | null;
         
+        // Si on a trouvé un track avec audio, marquer comme complété
+        const finalStatus = (dbTrack.audio_url && dbTrack.audio_url !== '') 
+          ? 'completed' 
+          : (dbTrack.generation_status as MusicGenerationStatus['status']);
+        
         const statusData: MusicGenerationStatus = {
           taskId: taskId,
-          status: dbTrack.generation_status as MusicGenerationStatus['status'],
+          status: finalStatus,
           audioUrl: dbTrack.audio_url,
-          streamUrl: metadata?.stream_url,
-          imageUrl: metadata?.image_url,
-          progress: getProgressFromStatus(dbTrack.generation_status, metadata?.progress),
+          streamUrl: dbTrack.stream_url || metadata?.stream_url,
+          imageUrl: dbTrack.image_url || metadata?.image_url,
+          progress: getProgressFromStatus(finalStatus, metadata?.progress),
           metadata: metadata
         };
 
         setStatus(statusData);
 
         // Arrêter le polling si terminé
-        if (dbTrack.generation_status === 'completed' || dbTrack.generation_status === 'failed') {
+        if (finalStatus === 'completed' || finalStatus === 'failed') {
           setIsPolling(false);
           console.log('🏁 Génération terminée, arrêt du polling');
         }
