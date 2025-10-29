@@ -6,13 +6,14 @@ import { withAuth } from '@/components/med-mng/withAuth';
 import { MedMngLayout } from '@/components/med-mng/MedMngLayout';
 import { SongCard } from '@/components/med-mng/SongCard';
 import { Button } from '@/components/ui/button';
-import { Music, Plus, AlertCircle } from 'lucide-react';
+import { Music, Plus, AlertCircle, Heart, ListMusic } from 'lucide-react';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { TranslatedText } from '@/components/TranslatedText';
 import { useTranslation } from '@/hooks/useTranslation';
 import { SkeletonLibraryGrid } from '@/components/common/SkeletonLibraryGrid';
 import { AdvancedSearch } from '@/components/med-mng/AdvancedSearch';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const MedMngLibraryComponent = () => {
   const medMngApi = useMedMngApi();
@@ -20,6 +21,7 @@ const MedMngLibraryComponent = () => {
   const [filteredSongs, setFilteredSongs] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [showSlowLoading, setShowSlowLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState('all');
 
   const { text: searchPlaceholder } = useTranslation('Rechercher une chanson...');
   const { text: errorMessage } = useTranslation('Impossible de charger votre bibliothèque');
@@ -68,9 +70,14 @@ const MedMngLibraryComponent = () => {
   // Effet pour initialiser les chansons filtrées
   React.useEffect(() => {
     if (library) {
-      setFilteredSongs(library);
+      // Filtrer selon l'onglet actif
+      let filtered = library;
+      if (activeTab === 'favorites') {
+        filtered = library.filter(song => song.is_liked);
+      }
+      setFilteredSongs(filtered);
     }
-  }, [library]);
+  }, [library, activeTab]);
 
   if (isLoading) {
     return (
@@ -165,7 +172,7 @@ const MedMngLibraryComponent = () => {
         </div>
 
         {/* Actions */}
-        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-8">
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6">
           <Button 
             onClick={() => navigate('/med-mng/create')}
             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 min-h-[48px] w-full sm:w-auto"
@@ -175,51 +182,51 @@ const MedMngLibraryComponent = () => {
           </Button>
           <Button 
             variant="outline"
-            onClick={() => navigate('/med-mng/pricing')}
-            className="min-h-[48px] w-full sm:w-auto hidden sm:flex"
+            onClick={() => navigate('/med-mng/playlists')}
+            className="flex items-center gap-2 min-h-[48px] w-full sm:w-auto"
           >
-            <TranslatedText text="Voir les abonnements" />
+            <ListMusic className="h-4 w-4" />
+            <TranslatedText text="Mes Playlists" />
           </Button>
         </div>
 
-        {/* Library Grid */}
-        {filteredSongs.length === 0 ? (
-          <div className="text-center py-16">
-            <Music className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <TranslatedText 
-              text={library && library.length > 0 ? 'Aucun résultat' : 'Bibliothèque vide'}
-              as="h3"
-              className="text-xl font-semibold text-gray-900 mb-2"
-            />
-            <TranslatedText 
-              text={library && library.length > 0
-                ? 'Aucune chanson ne correspond à votre recherche' 
-                : 'Commencez par créer votre première chanson'}
-              as="p"
-              className="text-gray-600 mb-6"
-            />
-            {(!library || library.length === 0) && (
-              <Button onClick={() => navigate('/med-mng/create')} className="bg-blue-600 hover:bg-blue-700 min-h-[48px] px-6">
-                <TranslatedText text="Créer ma première chanson" />
-              </Button>
-            )}
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6 animate-fade-in">
-            {filteredSongs.map((song) => (
-              <SongCard 
-                key={song.id} 
-                song={song}
-                onPlay={() => navigate(`/med-mng/player/${song.id}`)}
-                onRemove={() => refetch()}
-                onToggleLike={() => refetch()}
-              />
-            ))}
-          </div>
-        )}
+        {/* Tabs pour filtrer */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-6">
+          <TabsList className="grid w-full grid-cols-3 mb-4">
+            <TabsTrigger value="all" className="flex items-center gap-2">
+              <Music className="h-4 w-4" />
+              <span className="hidden sm:inline">Toutes</span>
+              <span className="sm:hidden">Tout</span>
+              <span className="text-xs ml-1">({library?.length || 0})</span>
+            </TabsTrigger>
+            <TabsTrigger value="favorites" className="flex items-center gap-2">
+              <Heart className="h-4 w-4" />
+              <span className="hidden sm:inline">Favoris</span>
+              <span className="sm:hidden">♥</span>
+              <span className="text-xs ml-1">({library?.filter(s => s.is_liked).length || 0})</span>
+            </TabsTrigger>
+            <TabsTrigger value="playlists" className="flex items-center gap-2">
+              <ListMusic className="h-4 w-4" />
+              <span className="hidden sm:inline">Playlists</span>
+              <span className="sm:hidden">Lists</span>
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="all" className="mt-0">
+            {renderSongGrid()}
+          </TabsContent>
+
+          <TabsContent value="favorites" className="mt-0">
+            {renderSongGrid()}
+          </TabsContent>
+
+          <TabsContent value="playlists" className="mt-0">
+            {renderPlaylistsSection()}
+          </TabsContent>
+        </Tabs>
 
         {/* Pagination */}
-        {library && library.length === 12 && (
+        {library && library.length === 12 && activeTab !== 'playlists' && (
           <div className="flex justify-center mt-8">
             <div className="flex gap-3 sm:gap-2">
               <Button
@@ -243,6 +250,72 @@ const MedMngLibraryComponent = () => {
       </div>
     </MedMngLayout>
   );
+
+  function renderSongGrid() {
+    return filteredSongs.length === 0 ? (
+      <div className="text-center py-16">
+        <Music className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+        <TranslatedText 
+          text={activeTab === 'favorites' ? 'Aucun favori' : (library && library.length > 0 ? 'Aucun résultat' : 'Bibliothèque vide')}
+          as="h3"
+          className="text-xl font-semibold text-gray-900 mb-2"
+        />
+        <TranslatedText 
+          text={activeTab === 'favorites' 
+            ? 'Ajoutez des chansons à vos favoris en cliquant sur ❤️' 
+            : (library && library.length > 0
+              ? 'Aucune chanson ne correspond à votre recherche' 
+              : 'Commencez par créer votre première chanson')}
+          as="p"
+          className="text-gray-600 mb-6"
+        />
+        {(!library || library.length === 0) && activeTab === 'all' && (
+          <Button onClick={() => navigate('/med-mng/create')} className="bg-blue-600 hover:bg-blue-700 min-h-[48px] px-6">
+            <TranslatedText text="Créer ma première chanson" />
+          </Button>
+        )}
+      </div>
+    ) : (
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 sm:gap-6 animate-fade-in">
+        {filteredSongs.map((song) => (
+          <SongCard 
+            key={song.id} 
+            song={song}
+            onPlay={() => navigate(`/med-mng/player/${song.id}`)}
+            onRemove={() => refetch()}
+            onToggleLike={() => refetch()}
+          />
+        ))}
+      </div>
+    );
+  }
+
+  function renderPlaylistsSection() {
+    return (
+      <div className="text-center py-16">
+        <ListMusic className="h-16 w-16 text-gray-400 mx-auto mb-4" />
+        <TranslatedText 
+          text="Gérez vos playlists"
+          as="h3"
+          className="text-xl font-semibold text-gray-900 mb-2"
+        />
+        <TranslatedText 
+          text="Créez et organisez vos playlists de chansons"
+          as="p"
+          className="text-gray-600 mb-6"
+        />
+        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <Button 
+            onClick={() => navigate('/med-mng/playlists')} 
+            className="bg-blue-600 hover:bg-blue-700 min-h-[48px] px-6"
+          >
+            <ListMusic className="h-4 w-4 mr-2" />
+            <TranslatedText text="Voir mes playlists" />
+          </Button>
+        </div>
+      </div>
+    );
+  }
 };
 
 export const MedMngLibrary = withAuth(MedMngLibraryComponent);

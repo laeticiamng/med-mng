@@ -2,14 +2,19 @@
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Play, Heart, Trash2, Music, MoreVertical } from 'lucide-react';
+import { Play, Heart, Trash2, Music, MoreVertical, ListPlus } from 'lucide-react';
 import { useMedMngApi } from '@/hooks/useMedMngApi';
 import { toast } from 'sonner';
+import { usePlaylists } from '@/hooks/usePlaylists';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubTrigger,
+  DropdownMenuSubContent,
 } from '@/components/ui/dropdown-menu';
 
 interface Song {
@@ -36,6 +41,7 @@ export const SongCard: React.FC<SongCardProps> = ({
   onToggleLike 
 }) => {
   const medMngApi = useMedMngApi();
+  const { playlists, addSongToPlaylist } = usePlaylists();
   const [isLoading, setIsLoading] = useState(false);
   const [isLikeLoading, setIsLikeLoading] = useState(false);
 
@@ -64,6 +70,18 @@ export const SongCard: React.FC<SongCardProps> = ({
       console.error('Error toggling like:', error);
     } finally {
       setIsLikeLoading(false);
+    }
+  };
+
+  const handleAddToPlaylist = async (playlistId: string) => {
+    try {
+      const success = await addSongToPlaylist(playlistId, song.id);
+      if (success) {
+        toast.success('Chanson ajoutée à la playlist');
+      }
+    } catch (error) {
+      toast.error('Erreur lors de l\'ajout à la playlist');
+      console.error('Error adding to playlist:', error);
     }
   };
 
@@ -122,6 +140,30 @@ export const SongCard: React.FC<SongCardProps> = ({
                   )}
                   {song.is_liked ? 'Retirer des favoris' : 'Ajouter aux favoris'}
                 </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>
+                    <ListPlus className="h-4 w-4 mr-2" />
+                    Ajouter à une playlist
+                  </DropdownMenuSubTrigger>
+                  <DropdownMenuSubContent>
+                    {playlists && playlists.length > 0 ? (
+                      playlists.map((playlist) => (
+                        <DropdownMenuItem 
+                          key={playlist.id}
+                          onClick={() => handleAddToPlaylist(playlist.id)}
+                        >
+                          {playlist.name}
+                        </DropdownMenuItem>
+                      ))
+                    ) : (
+                      <DropdownMenuItem disabled>
+                        Aucune playlist
+                      </DropdownMenuItem>
+                    )}
+                  </DropdownMenuSubContent>
+                </DropdownMenuSub>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem 
                   onClick={handleRemove} 
                   disabled={isLoading}

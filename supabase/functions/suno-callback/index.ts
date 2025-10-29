@@ -97,6 +97,63 @@ serve(async (req) => {
               callback_type: callbackType,
               suno_track_id: trackWithAudio.id
             };
+
+            // 🎵 NOUVEAU: Sauvegarder aussi dans med_mng_songs pour la bibliothèque
+            if (callbackType === 'complete' || callbackType === 'first') {
+              try {
+                // Vérifier si la chanson existe déjà
+                const { data: existingSong } = await supabase
+                  .from('med_mng_songs')
+                  .select('id')
+                  .eq('suno_audio_id', trackWithAudio.id)
+                  .maybeSingle();
+
+                if (!existingSong) {
+                  // Créer la chanson dans med_mng_songs
+                  const { data: newSong, error: songError } = await supabase
+                    .from('med_mng_songs')
+                    .insert({
+                      title: trackWithAudio.title || mainTrack.title || 'Musique générée',
+                      suno_audio_id: trackWithAudio.id,
+                      meta: {
+                        audio_url: trackWithAudio.audio_url || trackWithAudio.source_audio_url,
+                        stream_url: trackWithAudio.stream_audio_url || trackWithAudio.source_stream_audio_url,
+                        image_url: trackWithAudio.image_url || trackWithAudio.source_image_url,
+                        duration: trackWithAudio.duration,
+                        model_name: trackWithAudio.model_name,
+                        tags: trackWithAudio.tags,
+                        task_id: task_id,
+                        generated_at: new Date().toISOString()
+                      }
+                    })
+                    .select()
+                    .single();
+
+                  if (songError) {
+                    console.error('❌ Erreur création med_mng_songs:', songError);
+                  } else if (newSong && mainTrack.user_id) {
+                    console.log('✅ Chanson créée dans med_mng_songs:', newSong.id);
+                    
+                    // Ajouter automatiquement à la bibliothèque de l'utilisateur
+                    const { error: libraryError } = await supabase
+                      .from('med_mng_user_songs')
+                      .insert({
+                        user_id: mainTrack.user_id,
+                        song_id: newSong.id
+                      })
+                      .select();
+
+                    if (libraryError && libraryError.code !== '23505') { // Ignorer duplicate key
+                      console.error('❌ Erreur ajout bibliothèque:', libraryError);
+                    } else {
+                      console.log('✅ Chanson ajoutée à la bibliothèque utilisateur');
+                    }
+                  }
+                }
+              } catch (songCreationError) {
+                console.error('❌ Erreur création chanson MED MNG:', songCreationError);
+              }
+            }
           }
 
           const { error: updateError } = await supabase
