@@ -84,26 +84,58 @@ serve(async (req) => {
     }
 
     // 3. Mettre à jour le quota utilisateur
-    const { error: quotaError } = await supabase
+    console.log('📊 Mise à jour quota pour user:', user.id, 'plan:', planId, 'quota:', monthlyQuota);
+    
+    // D'abord vérifier si un quota existe déjà
+    const { data: existingQuota } = await supabase
       .from('user_quotas')
-      .upsert({
-        user_id: user.id,
-        subscription_type: planId,
-        monthly_music_quota: monthlyQuota,
-        monthly_music_used: 0,
-        quota_reset_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-        updated_at: new Date().toISOString()
-      }, {
-        onConflict: 'user_id'
-      });
+      .select('*')
+      .eq('user_id', user.id)
+      .maybeSingle();
+
+    let quotaError;
+    
+    if (existingQuota) {
+      // Mettre à jour le quota existant
+      const { error } = await supabase
+        .from('user_quotas')
+        .update({
+          subscription_type: planId,
+          monthly_music_quota: monthlyQuota,
+          monthly_music_used: 0,
+          quota_reset_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .eq('user_id', user.id);
+      quotaError = error;
+    } else {
+      // Créer un nouveau quota
+      const { error } = await supabase
+        .from('user_quotas')
+        .insert({
+          user_id: user.id,
+          subscription_type: planId,
+          monthly_music_quota: monthlyQuota,
+          monthly_music_used: 0,
+          quota_reset_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        });
+      quotaError = error;
+    }
 
     if (quotaError) {
-      console.error('❌ Erreur quota:', quotaError);
+      console.error('❌ Erreur quota détaillée:', JSON.stringify(quotaError, null, 2));
       return new Response(
-        JSON.stringify({ error: 'Failed to update quota' }),
+        JSON.stringify({ 
+          error: 'Failed to update quota',
+          details: quotaError.message
+        }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    console.log('✅ Quota mis à jour avec succès');
 
     console.log(`✅ Simulation ${planId} activée avec succès`);
 
