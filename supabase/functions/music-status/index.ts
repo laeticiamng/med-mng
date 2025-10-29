@@ -78,8 +78,8 @@ serve(async (req) => {
 
     console.log('📡 Vérification via API Suno pour taskId:', taskId);
     
-    // Utiliser l'endpoint de statut correct avec la méthode GET
-    const sunoResponse = await fetch(`https://api.sunoapi.org/api/v1/music/${taskId}`, {
+    // ✅ CORRECTION: Utiliser le même endpoint que dans generate-music
+    const sunoResponse = await fetch(`https://api.sunoapi.org/api/v1/generate/record-info?taskId=${taskId}`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${SUNO_API_KEY}`,
@@ -119,22 +119,25 @@ serve(async (req) => {
     let streamUrl: string | undefined;
     let imageUrl: string | undefined;
 
-    // Parser la réponse selon le format réel de l'API
+    // ✅ CORRECTION: Parser selon le format /generate/record-info (comme dans generate-music)
     if (sunoData.code === 200 && sunoData.data) {
       const taskData = sunoData.data;
       
-      if (taskData.status === 'completed' || taskData.status === 'SUCCESS') {
+      if (taskData.status === 'SUCCESS' || taskData.status === 'COMPLETE') {
         mappedStatus = 'completed';
         
-        // Extraire les URLs des clips générés
-        if (taskData.clips && taskData.clips.length > 0) {
-          const firstClip = taskData.clips[0];
-          audioUrl = firstClip.audio_url;
-          streamUrl = firstClip.stream_url;
-          imageUrl = firstClip.image_url;
+        // Extraire les URLs depuis response.data
+        if (taskData.response?.data && taskData.response.data.length > 0) {
+          const firstTrack = taskData.response.data[0];
+          audioUrl = firstTrack.audio_url;
+          streamUrl = firstTrack.video_url; // API Suno utilise video_url pour le stream
+          imageUrl = firstTrack.image_url;
         }
-      } else if (taskData.status === 'failed' || taskData.status === 'FAILED') {
+      } else if (taskData.status === 'FAILED' || taskData.status === 'ERROR') {
         mappedStatus = 'failed';
+      } else {
+        // Statuts en cours: PENDING, PROCESSING, RUNNING
+        mappedStatus = 'generating';
       }
     }
 
