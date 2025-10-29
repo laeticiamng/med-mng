@@ -123,7 +123,7 @@ const Generator = () => {
       const actualRang: 'A' | 'B' = rang === 'AB' ? 'A' : rang as 'A' | 'B';
       const lyricsIndex = rang === 'A' ? 0 : rang === 'B' ? 1 : 2;
       
-      const loadingToast = toast.loading('Génération en cours... Cela peut prendre quelques instants');
+      const loadingToast = toast.loading('🎵 Génération en cours... Patience, magie en cours !');
       
       const audioUrl = await musicGeneration.generateMusicInLanguage(actualRang, lyricsToUse, selectedStyle, 240);
       
@@ -139,7 +139,7 @@ const Generator = () => {
       const song = {
         id: Date.now(),
         title: `${titlePrefix} - ${selectedStyle}`,
-        audioUrl: audioUrl,
+        audioUrl: audioUrl, // Peut être un trackId ou une URL HTTP
         style: selectedStyle,
         rang: rang,
         duration: 240,
@@ -148,9 +148,17 @@ const Generator = () => {
       };
 
       setGeneratedSong(song);
-      toast.success('🎵 Génération musicale réussie avec les paroles de l\'item !', {
-        description: 'Votre musique est prête à être écoutée'
-      });
+      
+      // Message selon le type de réponse
+      if (audioUrl && audioUrl.startsWith('http')) {
+        toast.success('🎵 Musique générée instantanément !', {
+          description: 'Cliquez sur Écouter pour profiter de votre chanson'
+        });
+      } else {
+        toast.success('🎵 Génération lancée avec succès !', {
+          description: 'Votre musique sera prête dans 1-2 minutes. La barre de progression se met à jour automatiquement.'
+        });
+      }
       
     } catch (error) {
       console.error('Erreur génération:', error);

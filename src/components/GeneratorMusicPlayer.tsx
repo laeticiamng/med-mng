@@ -36,6 +36,23 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
     }
   }, [trackIdForPolling, isPolling, startPolling]);
 
+  // Notification quand l'audio est prêt et auto-update du song
+  useEffect(() => {
+    if (audioUrl && audioUrl.startsWith('http') && isGenerating) {
+      console.log('🎉 Audio disponible ! Mise à jour automatique:', audioUrl);
+      
+      // Mettre à jour le generatedSong avec le nouveau audioUrl
+      if (generatedSong && typeof generatedSong === 'object') {
+        generatedSong.audioUrl = audioUrl;
+      }
+      
+      // Notification toast (si disponible)
+      if (typeof window !== 'undefined' && 'toast' in window) {
+        (window as any).toast?.success?.('🎵 Votre musique est prête !');
+      }
+    }
+  }, [audioUrl, isGenerating, generatedSong]);
+
   console.log('🎵 GeneratorMusicPlayer render:', {
     hasGeneratedSong: !!generatedSong,
     audioUrl: generatedSong?.audioUrl,

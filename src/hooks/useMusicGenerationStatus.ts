@@ -121,17 +121,42 @@ export const useMusicGenerationStatus = (taskId: string | null) => {
     setIsPolling(false);
   }, []);
 
-  // Effect pour le polling automatique
+  // Effect pour le polling automatique avec fréquence adaptative
   useEffect(() => {
     if (!isPolling || !taskId) return;
 
-    const interval = setInterval(() => {
+    // Polling plus agressif au début (5s), puis ralentit (10s après 30s)
+    const startTime = Date.now();
+    let pollInterval = 5000; // 5 secondes initial
+    
+    const updateInterval = () => {
+      const elapsed = Date.now() - startTime;
+      if (elapsed > 30000) { // Après 30s
+        pollInterval = 10000; // 10 secondes
+      }
+    };
+
+    const doPoll = () => {
       console.log('⏰ Polling check automatique...');
       checkStatus();
-    }, 10000); // Vérification toutes les 10 secondes (réduit la fréquence)
+      updateInterval();
+    };
+
+    // Premier check immédiat
+    doPoll();
+
+    const interval = setInterval(doPoll, pollInterval);
+
+    // Timeout de sécurité : arrêter après 5 minutes
+    const timeout = setTimeout(() => {
+      console.warn('⏱️ Timeout polling après 5 minutes');
+      setIsPolling(false);
+      setStatus(prev => prev ? { ...prev, status: 'failed', error: 'Timeout de génération' } : null);
+    }, 300000); // 5 minutes
 
     return () => {
       clearInterval(interval);
+      clearTimeout(timeout);
     };
   }, [isPolling, taskId, checkStatus]);
 

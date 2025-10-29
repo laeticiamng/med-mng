@@ -25,8 +25,48 @@ serve(async (req) => {
       console.log(`📋 Type callback: ${callbackType}, TaskID: ${task_id}, Tracks: ${tracks?.length || 0}`);
       
       // Traitement selon le type de callback
-      if ((callbackType === 'text' || callbackType === 'complete') && tracks && tracks.length > 0) {
-        // 🎵 GÉNÉRATION EN COURS - Créer ou mettre à jour la BDD
+      if ((callbackType === 'text' || callbackType === 'complete' || callbackType === 'first') && tracks && tracks.length > 0) {
+        // 🎵 GÉNÉRATION EN COURS - Mettre à jour le track principal d'abord
+        
+        // 1️⃣ Trouver et mettre à jour le track principal (celui avec task_id)
+        const { data: mainTrack } = await supabase
+          .from('generated_music_tracks')
+          .select('*')
+          .eq('task_id', task_id)
+          .is('suno_track_id', task_id) // Le track principal a task_id === suno_track_id
+          .maybeSingle();
+
+        // Trouver le premier track avec audio disponible
+        const trackWithAudio = tracks.find(t => t.audio_url || t.source_audio_url);
+        
+        if (mainTrack && trackWithAudio) {
+          console.log(`🎯 Mise à jour track principal avec audio de ${trackWithAudio.id}`);
+          
+          const updateData: any = {
+            audio_url: trackWithAudio.audio_url || trackWithAudio.source_audio_url,
+            stream_url: trackWithAudio.stream_audio_url || trackWithAudio.source_stream_audio_url,
+            image_url: trackWithAudio.image_url || trackWithAudio.source_image_url,
+            duration: trackWithAudio.duration,
+            generation_status: (trackWithAudio.audio_url || trackWithAudio.source_audio_url) ? 'completed' : 'generating',
+            metadata: {
+              ...(typeof mainTrack.metadata === 'object' && mainTrack.metadata !== null ? mainTrack.metadata : {}),
+              duration: trackWithAudio.duration,
+              model_name: trackWithAudio.model_name,
+              tags: trackWithAudio.tags,
+              first_audio_received_at: new Date().toISOString()
+            },
+            updated_at: new Date().toISOString()
+          };
+
+          await supabase
+            .from('generated_music_tracks')
+            .update(updateData)
+            .eq('id', mainTrack.id);
+            
+          console.log('✅ Track principal mis à jour avec audio disponible');
+        }
+        
+        // 2️⃣ Créer ou mettre à jour les tracks individuels Suno
         for (const track of tracks) {
           console.log(`🎵 Processing track: ${track.id} - Type: ${callbackType}`);
           
