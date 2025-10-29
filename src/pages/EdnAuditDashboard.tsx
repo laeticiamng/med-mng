@@ -114,16 +114,50 @@ export const EdnAuditDashboard: React.FC = () => {
   const completeItem = async (itemCode: string) => {
     setCompletingItems(prev => new Set(prev).add(itemCode));
     
-    try {
-      const { data, error } = await supabase.functions.invoke('complete-missing-competences', {
-        body: { itemCode }
+    // Afficher un message pour les items avec beaucoup de compétences
+    const auditResult = auditResults.find(r => r.item_code === itemCode);
+    const totalMissing = (auditResult?.missing_rang_a?.length || 0) + (auditResult?.missing_rang_b?.length || 0);
+    
+    if (totalMissing > 4) {
+      toast({
+        title: "⏳ Traitement par batch",
+        description: `${totalMissing} compétences à générer, traitement par groupes de 4...`,
       });
+    }
+    
+    try {
+      let hasMore = true;
+      let totalCompleted = 0;
+      let iterations = 0;
+      const maxIterations = Math.ceil(totalMissing / 4);
+      
+      // Traiter par batch de 4 compétences
+      while (hasMore && iterations < 20) { // Limite de sécurité à 20 itérations
+        iterations++;
+        
+        const { data, error } = await supabase.functions.invoke('complete-missing-competences', {
+          body: { itemCode }
+        });
 
-      if (error) throw error;
+        if (error) throw error;
+        
+        totalCompleted += data.completedCompetences;
+        hasMore = data.hasMore || false;
+        
+        if (hasMore) {
+          toast({
+            title: `⏳ Progression ${iterations}/${maxIterations}`,
+            description: `${totalCompleted} compétences complétées, ${data.remaining} restantes...`,
+          });
+          
+          // Petite pause entre les batchs
+          await new Promise(resolve => setTimeout(resolve, 500));
+        }
+      }
 
       toast({
         title: "✨ Compétences complétées",
-        description: `${data.completedCompetences} compétences ajoutées pour ${itemCode}`,
+        description: `${totalCompleted} compétences ajoutées pour ${itemCode}`,
       });
 
       // Rafraîchir les résultats
@@ -131,10 +165,18 @@ export const EdnAuditDashboard: React.FC = () => {
 
     } catch (error: any) {
       console.error('Error completing item:', error);
+      
+      // Message d'erreur plus détaillé
+      let errorMessage = error.message || "Impossible de compléter les compétences";
+      if (error.message?.includes('fetch') || error.message?.includes('timeout')) {
+        errorMessage = `L'opération a pris trop de temps. Certaines compétences ont peut-être été ajoutées, vérifiez l'item.`;
+      }
+      
       toast({
         title: "❌ Erreur",
-        description: error.message || "Impossible de compléter les compétences",
+        description: errorMessage,
         variant: "destructive",
+        duration: 10000,
       });
     } finally {
       setCompletingItems(prev => {

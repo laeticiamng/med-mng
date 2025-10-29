@@ -59,7 +59,13 @@ serve(async (req) => {
       );
     }
 
+    // Limiter à 4 compétences max par appel pour éviter les timeouts
+    const MAX_COMPETENCES_PER_CALL = 4;
+    const competencesToProcess = allMissingCompetences.slice(0, MAX_COMPETENCES_PER_CALL);
+    const hasMore = allMissingCompetences.length > MAX_COMPETENCES_PER_CALL;
+
     console.log(`📋 Found ${allMissingCompetences.length} competences to complete`);
+    console.log(`⚡ Processing ${competencesToProcess.length} competences in this call${hasMore ? ` (${allMissingCompetences.length - competencesToProcess.length} remaining)` : ''}`);
 
     // Récupérer l'item
     const { data: item, error: itemError } = await supabase
@@ -78,7 +84,7 @@ serve(async (req) => {
 
     const generatedContents: any[] = [];
 
-    for (const comp of allMissingCompetences) {
+    for (const comp of competencesToProcess) {
       console.log(`🔍 Generating content for: ${comp.competence} (Rang ${comp.rang})`);
 
       const searchPrompt = `Génère un contenu médical complet et structuré pour la compétence EDN suivante:
@@ -238,7 +244,9 @@ IMPORTANT:
         success: true, 
         itemCode,
         completedCompetences: generatedContents.length,
-        totalMissing: allMissingCompetences.length
+        totalMissing: allMissingCompetences.length,
+        hasMore: hasMore,
+        remaining: hasMore ? allMissingCompetences.length - competencesToProcess.length : 0
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
