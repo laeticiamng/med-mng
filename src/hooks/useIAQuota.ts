@@ -71,6 +71,8 @@ export const useIAQuota = () => {
     try {
       const credits_required = getCreditsRequired(serviceType, operationType);
       
+      const { data: { session } } = await supabase.auth.getSession();
+      
       const { data, error } = await supabase.functions.invoke('med-mng-api/quota/check', {
         body: { 
           credits_required,
@@ -80,6 +82,7 @@ export const useIAQuota = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`
         }
       });
 
@@ -104,6 +107,8 @@ export const useIAQuota = () => {
     try {
       const credits_to_use = getCreditsRequired(serviceType, operationType);
       
+      const { data: { session } } = await supabase.auth.getSession();
+      
       const { data, error } = await supabase.functions.invoke('med-mng-api/quota/use', {
         body: { 
           credits_to_use,
@@ -114,6 +119,7 @@ export const useIAQuota = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`
         }
       });
 
@@ -143,11 +149,14 @@ export const useIAQuota = () => {
 
   const getStats = async (periodDays = 30): Promise<QuotaStats | null> => {
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      
       const { data, error } = await supabase.functions.invoke(`med-mng-api/quota/stats?period=${periodDays}`, {
         body: {},
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session?.access_token}`
         }
       });
 
@@ -225,6 +234,8 @@ export const checkAndUseCredits = async (
 
     const credits_to_use = getCreditsRequired(serviceType, operationType);
     
+    const { data: { session } } = await supabase.auth.getSession();
+    
     const { data, error } = await supabase.functions.invoke('med-mng-api/quota/use', {
       body: { 
         credits_to_use,
@@ -235,6 +246,7 @@ export const checkAndUseCredits = async (
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${session?.access_token}`
       }
     });
 
