@@ -97,6 +97,27 @@ export const SongCard: React.FC<SongCardProps> = ({
     return song.meta?.duration || '3:30';
   };
 
+  // Parse le titre pour extraire les informations (ex: "Rang A - EDN - electropop")
+  const parseTitle = () => {
+    const parts = song.title.split(' - ');
+    if (parts.length >= 2) {
+      return {
+        rang: parts[0], // "Rang A"
+        item: parts[1], // "EDN"
+        style: parts[2] || '', // "electropop"
+        fullTitle: song.title
+      };
+    }
+    return {
+      rang: '',
+      item: '',
+      style: '',
+      fullTitle: song.title
+    };
+  };
+
+  const titleInfo = parseTitle();
+
   return (
     <Card className="group hover:shadow-lg transition-all duration-200 bg-white touch-manipulation">
       <CardContent className="p-0">
@@ -183,9 +204,17 @@ export const SongCard: React.FC<SongCardProps> = ({
 
         {/* Song Info */}
         <div className="p-3 sm:p-4">
-          <h3 className="font-semibold text-gray-900 mb-1 line-clamp-2 leading-tight text-sm sm:text-base">
-            {song.title}
-          </h3>
+          {/* Item name (highlighted) */}
+          <div className="mb-2">
+            <h3 className="font-bold text-gray-900 text-base sm:text-lg leading-tight">
+              {titleInfo.item || song.title}
+            </h3>
+            {titleInfo.rang && (
+              <p className="text-xs sm:text-sm text-gray-600 mt-1">
+                {titleInfo.rang} • {titleInfo.style}
+              </p>
+            )}
+          </div>
           
           <div className="flex items-center justify-between text-xs sm:text-sm text-gray-500 mb-3">
             <span>{getDuration()}</span>
