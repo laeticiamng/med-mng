@@ -83,15 +83,15 @@ serve(async (req) => {
       );
     }
 
-    // 3. Mettre à jour le quota IA
+    // 3. Mettre à jour le quota utilisateur
     const { error: quotaError } = await supabase
-      .from('user_ia_quotas')
+      .from('user_quotas')
       .upsert({
         user_id: user.id,
-        credits_remaining: monthlyQuota,
-        credits_total: monthlyQuota,
-        period_start: new Date().toISOString(),
-        period_end: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
+        subscription_type: planId,
+        monthly_music_quota: monthlyQuota,
+        monthly_music_used: 0,
+        quota_reset_date: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
         updated_at: new Date().toISOString()
       }, {
         onConflict: 'user_id'
