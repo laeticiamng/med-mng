@@ -6687,6 +6687,13 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "mood_entries_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       mood_mixer_sessions: {
@@ -6876,6 +6883,75 @@ export type Database = {
           id?: string
           intensity?: number | null
           tracks_generated?: number | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      music_generation_metrics: {
+        Row: {
+          api_response_time_ms: number | null
+          audio_generated: boolean | null
+          audio_url: string | null
+          completed_at: string | null
+          content_type: string
+          created_at: string
+          duration_seconds: number | null
+          error_code: string | null
+          error_message: string | null
+          failed_at: string | null
+          id: string
+          initiated_at: string
+          item_code: string
+          polling_attempts: number | null
+          rang: string
+          status: string
+          style: string
+          track_id: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          api_response_time_ms?: number | null
+          audio_generated?: boolean | null
+          audio_url?: string | null
+          completed_at?: string | null
+          content_type: string
+          created_at?: string
+          duration_seconds?: number | null
+          error_code?: string | null
+          error_message?: string | null
+          failed_at?: string | null
+          id?: string
+          initiated_at?: string
+          item_code: string
+          polling_attempts?: number | null
+          rang: string
+          status?: string
+          style: string
+          track_id: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          api_response_time_ms?: number | null
+          audio_generated?: boolean | null
+          audio_url?: string | null
+          completed_at?: string | null
+          content_type?: string
+          created_at?: string
+          duration_seconds?: number | null
+          error_code?: string | null
+          error_message?: string | null
+          failed_at?: string | null
+          id?: string
+          initiated_at?: string
+          item_code?: string
+          polling_attempts?: number | null
+          rang?: string
+          status?: string
+          style?: string
+          track_id?: string
+          updated_at?: string
           user_id?: string | null
         }
         Relationships: []
@@ -7735,6 +7811,13 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "organization_members_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
             referencedColumns: ["id"]
           },
         ]
@@ -8954,6 +9037,36 @@ export type Database = {
         }
         Relationships: []
       }
+      security_manual_actions: {
+        Row: {
+          action_type: string
+          completed: boolean | null
+          created_at: string | null
+          dashboard_url: string | null
+          description: string
+          id: string
+          priority: string
+        }
+        Insert: {
+          action_type: string
+          completed?: boolean | null
+          created_at?: string | null
+          dashboard_url?: string | null
+          description: string
+          id?: string
+          priority: string
+        }
+        Update: {
+          action_type?: string
+          completed?: boolean | null
+          created_at?: string | null
+          dashboard_url?: string | null
+          description?: string
+          id?: string
+          priority?: string
+        }
+        Relationships: []
+      }
       sla_metrics: {
         Row: {
           breach_count: number
@@ -9466,6 +9579,13 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscriptions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles_public"
             referencedColumns: ["id"]
           },
         ]
@@ -11625,6 +11745,42 @@ export type Database = {
           user_hash?: string | null
           user_id?: string | null
           valence?: number | null
+        }
+        Relationships: []
+      }
+      profiles_public: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string | null
+          email: string | null
+          id: string | null
+          location: string | null
+          name: string | null
+          phone: string | null
+          website: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          email?: never
+          id?: string | null
+          location?: string | null
+          name?: string | null
+          phone?: never
+          website?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string | null
+          email?: never
+          id?: string | null
+          location?: string | null
+          name?: string | null
+          phone?: never
+          website?: string | null
         }
         Relationships: []
       }
