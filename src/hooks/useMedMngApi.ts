@@ -4,20 +4,59 @@ import { supabase } from '@/integrations/supabase/client';
 const API_BASE_URL = 'https://yaincoxihiqdksxgrsrk.supabase.co/functions/v1/med-mng-api';
 
 class MedMngApi {
-  private async getAuthHeaders() {
+  private csrfToken: string | null = null;
+
+  private async getCsrfToken(): Promise<string> {
+    // Si on a déjà un token en cache, on le retourne
+    if (this.csrfToken) {
+      return this.csrfToken;
+    }
+
+    // Sinon, on récupère un nouveau token
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.user?.id) {
+      throw new Error('Authentification requise pour obtenir un token CSRF');
+    }
+
+    const response = await fetch(`${API_BASE_URL}/csrf-token`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ user_id: session.user.id }),
+    });
+
+    if (!response.ok) {
+      throw new Error('Impossible d\'obtenir le token CSRF');
+    }
+
+    const data = await response.json();
+    this.csrfToken = data.csrf_token;
+    return this.csrfToken;
+  }
+
+  private async getAuthHeaders(includeCSRF = false) {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session?.access_token) {
       throw new Error('Authentification requise pour MED-MNG');
     }
     
-    return {
+    const headers: Record<string, string> = {
       'Authorization': `Bearer ${session.access_token}`,
       'Content-Type': 'application/json',
     };
+
+    // Ajouter le token CSRF pour les opérations de modification
+    if (includeCSRF) {
+      const csrfToken = await this.getCsrfToken();
+      headers['X-CSRF-Token'] = csrfToken;
+    }
+
+    return headers;
   }
 
   async createSong(title: string, sunoAudioId: string, meta: any = {}) {
-    const headers = await this.getAuthHeaders();
+    const headers = await this.getAuthHeaders(true); // CSRF requis
     
     const response = await fetch(`${API_BASE_URL}/songs`, {
       method: 'POST',
@@ -48,7 +87,7 @@ class MedMngApi {
   }
 
   async addToLibrary(songId: string) {
-    const headers = await this.getAuthHeaders();
+    const headers = await this.getAuthHeaders(true); // CSRF requis
     
     const response = await fetch(`${API_BASE_URL}/library`, {
       method: 'POST',
@@ -65,7 +104,7 @@ class MedMngApi {
   }
 
   async removeFromLibrary(songId: string) {
-    const headers = await this.getAuthHeaders();
+    const headers = await this.getAuthHeaders(true); // CSRF requis
     
     const response = await fetch(`${API_BASE_URL}/library/${songId}`, {
       method: 'DELETE',
@@ -81,7 +120,7 @@ class MedMngApi {
   }
 
   async toggleLike(songId: string) {
-    const headers = await this.getAuthHeaders();
+    const headers = await this.getAuthHeaders(true); // CSRF requis
     
     const response = await fetch(`${API_BASE_URL}/songs/${songId}/like`, {
       method: 'POST',
@@ -165,7 +204,7 @@ class MedMngApi {
   }
 
   async createUserSubscription(planId: string, gateway: string, subscriptionId: string) {
-    const headers = await this.getAuthHeaders();
+    const headers = await this.getAuthHeaders(true); // CSRF requis
     
     const response = await fetch(`${API_BASE_URL}/subscriptions`, {
       method: 'POST',
