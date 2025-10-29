@@ -119,6 +119,24 @@ FORMAT JSON ATTENDU (sois concis dans les titres mais exhaustif dans les listes)
 
 IMPORTANT: Utilise des titres courts et concis pour les compétences, évite les descriptions longues.`;
 
+      // Vérifier le quota IA avant l'appel
+      const authHeader = req.headers.get('Authorization');
+      if (authHeader) {
+        const { data: quotaCheck } = await supabase.functions.invoke('ia-quota', {
+          body: {
+            action: 'check_quota',
+            service_type: 'lovable_ai',
+            operation_type: 'audit',
+            credits_required: 2
+          },
+          headers: { Authorization: authHeader }
+        });
+
+        if (quotaCheck && !quotaCheck.can_proceed) {
+          throw new Error('Crédits IA insuffisants. Veuillez recharger votre quota.');
+        }
+      }
+
       // Appeler Lovable AI
       const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
       if (!lovableApiKey) throw new Error('LOVABLE_API_KEY not configured');
@@ -224,6 +242,20 @@ IMPORTANT: Utilise des titres courts et concis pour les compétences, évite les
         .eq('status', 'analyzing');
 
       if (updateError) throw updateError;
+
+      // Utiliser les crédits après succès
+      if (authHeader) {
+        await supabase.functions.invoke('ia-quota', {
+          body: {
+            action: 'use_quota',
+            service_type: 'lovable_ai',
+            operation_type: 'audit',
+            credits_to_use: 2,
+            request_details: { itemCode, action: 'analyze-item' }
+          },
+          headers: { Authorization: authHeader }
+        });
+      }
 
       console.log(`✅ Item ${itemCode} analyzed successfully`);
 

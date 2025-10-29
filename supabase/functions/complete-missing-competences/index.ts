@@ -78,6 +78,26 @@ serve(async (req) => {
       throw new Error(`Item ${itemCode} not found`);
     }
 
+    // Vérifier le quota IA avant le traitement
+    const authHeader = req.headers.get('Authorization');
+    const creditsNeeded = competencesToProcess.length * 3; // 3 crédits par compétence
+    
+    if (authHeader) {
+      const { data: quotaCheck, error: quotaError } = await supabase.functions.invoke('ia-quota', {
+        body: {
+          action: 'check_quota',
+          service_type: 'lovable_ai',
+          operation_type: 'completion',
+          credits_required: creditsNeeded
+        },
+        headers: { Authorization: authHeader }
+      });
+
+      if (quotaError || (quotaCheck && !quotaCheck.can_proceed)) {
+        throw new Error(`Crédits IA insuffisants (${creditsNeeded} requis). Veuillez recharger votre quota.`);
+      }
+    }
+
     // Générer le contenu pour chaque compétence manquante
     const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
     if (!lovableApiKey) throw new Error('LOVABLE_API_KEY not configured');
@@ -235,6 +255,20 @@ IMPORTANT:
 
     if (updateError) {
       throw updateError;
+    }
+
+    // Utiliser les crédits après succès
+    if (authHeader && generatedContents.length > 0) {
+      await supabase.functions.invoke('ia-quota', {
+        body: {
+          action: 'use_quota',
+          service_type: 'lovable_ai',
+          operation_type: 'completion',
+          credits_to_use: generatedContents.length * 3,
+          request_details: { itemCode, completedCount: generatedContents.length }
+        },
+        headers: { Authorization: authHeader }
+      });
     }
 
     console.log(`✅ Item ${itemCode} completed with ${generatedContents.length} new competences`);

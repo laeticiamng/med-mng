@@ -15,6 +15,11 @@ const CREDITS_COST = {
     'vocal_removal': 2,
     'audio_processing': 3
   },
+  lovable_ai: {
+    'audit': 2,
+    'completion': 3,
+    'chat': 1
+  },
   other: {
     'default': 1
   }

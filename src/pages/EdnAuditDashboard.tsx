@@ -168,12 +168,17 @@ export const EdnAuditDashboard: React.FC = () => {
       
       // Message d'erreur plus détaillé
       let errorMessage = error.message || "Impossible de compléter les compétences";
-      if (error.message?.includes('fetch') || error.message?.includes('timeout')) {
+      let title = "❌ Erreur";
+      
+      if (error.message?.includes('Crédits IA insuffisants') || error.message?.includes('Not enough credits')) {
+        title = "💳 Crédits insuffisants";
+        errorMessage = "Vous n'avez plus de crédits IA. Rechargez votre quota dans Settings → Usage.";
+      } else if (error.message?.includes('fetch') || error.message?.includes('timeout')) {
         errorMessage = `L'opération a pris trop de temps. Certaines compétences ont peut-être été ajoutées, vérifiez l'item.`;
       }
       
       toast({
-        title: "❌ Erreur",
+        title,
         description: errorMessage,
         variant: "destructive",
         duration: 10000,
