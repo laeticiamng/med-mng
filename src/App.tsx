@@ -72,6 +72,7 @@ import EdnComplete from "./pages/EdnComplete";
 import EdnMusicLibrary from "./pages/EdnMusicLibrary";
 import LearningDashboard from "./pages/LearningDashboard";
 import PlatformStatusPage from "./pages/PlatformStatusPage";
+import Monitoring from "./pages/Monitoring";
 
 // Nouvelles pages complètes avec lazy loading
 const Statistics = lazy(() => import("./pages/Statistics"));
@@ -114,6 +115,7 @@ const App = () => {
            <Route path="/dashboard" element={<Dashboard />} />
            <Route path="/learning-dashboard" element={<LearningDashboard />} />
            <Route path="/platform-status" element={<PlatformStatusPage />} />
+           <Route path="/monitoring" element={<Monitoring />} />
            <Route path="/system-management" element={<SystemManagement />} />
           <Route path="/platform-settings" element={<PlatformSettings />} />
           <Route path="/optimized" element={<OptimizedIndex />} />
