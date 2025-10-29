@@ -21,28 +21,40 @@ export const useMusicGenerationStatus = (taskId: string | null) => {
       if (dbTracks && dbTracks.length > 0 && !dbError) {
         console.log(`✅ ${dbTracks.length} track(s) trouvé(s) en BDD`);
         
-        // Prioriser les tracks avec audio_url non null
-        const completedTrack = dbTracks.find(t => t.audio_url && t.audio_url !== '');
+        // Prioriser les tracks avec audio_url valide (URL HTTP, pas un taskId)
+        const completedTrack = dbTracks.find(t => 
+          t.audio_url && 
+          t.audio_url !== '' && 
+          t.audio_url !== taskId && 
+          t.audio_url.startsWith('http')
+        );
         const dbTrack = completedTrack || dbTracks[0]; // Sinon prendre le premier
         
         console.log('📀 Track sélectionné:', {
           id: dbTrack.id,
           has_audio: !!dbTrack.audio_url,
+          is_valid_url: dbTrack.audio_url?.startsWith('http'),
+          is_task_id: dbTrack.audio_url === taskId,
           status: dbTrack.generation_status,
-          audio_url_preview: dbTrack.audio_url?.substring(0, 50)
+          audio_url_preview: dbTrack.audio_url?.substring(0, 60)
         });
         
         const metadata = dbTrack.metadata as MusicGenerationMetadata | null;
         
-        // Si on a trouvé un track avec audio, marquer comme complété
-        const finalStatus = (dbTrack.audio_url && dbTrack.audio_url !== '') 
+        // Si on a trouvé un track avec audio valide, marquer comme complété
+        const hasValidAudio = dbTrack.audio_url && 
+                             dbTrack.audio_url !== '' && 
+                             dbTrack.audio_url !== taskId && 
+                             dbTrack.audio_url.startsWith('http');
+        
+        const finalStatus = hasValidAudio
           ? 'completed' 
           : (dbTrack.generation_status as MusicGenerationStatus['status']);
         
         const statusData: MusicGenerationStatus = {
           taskId: taskId,
           status: finalStatus,
-          audioUrl: dbTrack.audio_url,
+          audioUrl: hasValidAudio ? dbTrack.audio_url : undefined,
           streamUrl: dbTrack.stream_url || metadata?.stream_url,
           imageUrl: dbTrack.image_url || metadata?.image_url,
           progress: getProgressFromStatus(finalStatus, metadata?.progress),
