@@ -142,7 +142,7 @@ const MedMngCreateComponent = () => {
   }
 
   // Affichage spécial si pas d'abonnement ou crédits épuisés
-  if (!quotaLoading && (!quota || quota.remaining_credits === 0)) {
+  if (!quotaLoading && quota && quota.remaining_credits !== undefined && quota.remaining_credits <= 0) {
     return (
       <MedMngLayout className="bg-gradient-to-br from-blue-50 to-indigo-100">
         <div className="container mx-auto px-4 py-8">
