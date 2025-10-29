@@ -6,7 +6,7 @@ export async function handleQuota(req: Request, supabase: any, user: any, path: 
   // GET /quota - Get remaining quota (RAPIDE, lecture seule)
   if (path === '/quota' && req.method === 'GET') {
     try {
-      const { data: quotaData, error } = await supabase.rpc('get_user_quota', {
+      const { data: quotaData, error } = await supabase.rpc('get_music_quota', {
         p_user_id: user.id
       });
       

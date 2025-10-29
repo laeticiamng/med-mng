@@ -125,9 +125,9 @@ export const useSubscription = () => {
         }
       }
 
-      // Get music quota avec validation - Ne pas bloquer si erreur
+      // Get music quota depuis la nouvelle table user_quotas (musique uniquement)
       const { data: quotaData, error: quotaError } = await supabase
-        .rpc('check_music_generation_quota', { user_uuid: user.id });
+        .rpc('get_music_quota', { p_user_id: user.id });
 
       if (quotaError) {
         // Log mais ne pas bloquer - utiliser quota par défaut basé sur le plan
@@ -143,10 +143,21 @@ export const useSubscription = () => {
         setMusicQuota(defaultQuota);
       } else if (quotaData && quotaData.length > 0) {
         const quotaInfo = quotaData[0];
-        if (isValidMusicQuota(quotaInfo)) {
-          setMusicQuota(quotaInfo);
+        
+        // Adapter le format de get_user_quota au format MusicQuota
+        const adaptedQuota: MusicQuota = {
+          can_generate: quotaInfo.can_generate || false,
+          current_usage: quotaInfo.credits_used_this_period || 0,
+          quota_limit: quotaInfo.total_credits || 0,
+          plan_name: subscription?.plan_name || 'Standard'
+        };
+        
+        console.log('📊 Quota synchronized:', adaptedQuota);
+        
+        if (isValidMusicQuota(adaptedQuota)) {
+          setMusicQuota(adaptedQuota);
         } else {
-          console.warn('Invalid quota data, using defaults:', quotaInfo);
+          console.warn('Invalid adapted quota data, using defaults:', adaptedQuota);
           // Utiliser quota par défaut si données invalides
           const defaultQuota: MusicQuota = {
             can_generate: true,
@@ -197,14 +208,22 @@ export const useSubscription = () => {
         return false;
       }
 
-      // Refresh quota after increment de manière optimisée
+      // Refresh quota après incrémentation (musique uniquement)
       const { data: quotaData, error: quotaError } = await supabase
-        .rpc('check_music_generation_quota', { user_uuid: user.id });
+        .rpc('get_music_quota', { p_user_id: user.id });
 
       if (!quotaError && quotaData && quotaData.length > 0) {
         const quotaInfo = quotaData[0];
-        if (isValidMusicQuota(quotaInfo)) {
-          setMusicQuota(quotaInfo);
+        
+        const adaptedQuota: MusicQuota = {
+          can_generate: quotaInfo.can_generate || false,
+          current_usage: quotaInfo.credits_used_this_period || 0,
+          quota_limit: quotaInfo.total_credits || 0,
+          plan_name: subscription?.plan_name || 'Standard'
+        };
+        
+        if (isValidMusicQuota(adaptedQuota)) {
+          setMusicQuota(adaptedQuota);
         }
       }
 

@@ -12362,6 +12362,16 @@ export type Database = {
         }[]
       }
       get_medical_dashboard_stats: { Args: never; Returns: Json }
+      get_music_quota: {
+        Args: { p_user_id?: string }
+        Returns: {
+          can_generate: boolean
+          credits_used_this_period: number
+          last_reset_at: string
+          remaining_credits: number
+          total_credits: number
+        }[]
+      }
       get_oic_competences_rapport: {
         Args: never
         Returns: {
