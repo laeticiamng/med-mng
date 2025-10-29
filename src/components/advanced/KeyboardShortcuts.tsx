@@ -51,6 +51,9 @@ export const KeyboardShortcuts: React.FC = () => {
 
   useEffect(() => {
     const handleKeydown = (e: KeyboardEvent) => {
+      // Vérification de sécurité - s'assurer que e.key existe
+      if (!e || !e.key) return;
+      
       // Ctrl+K pour recherche
       if (e.ctrlKey && e.key === 'k') {
         e.preventDefault();
@@ -65,10 +68,13 @@ export const KeyboardShortcuts: React.FC = () => {
       }
 
       // Navigation avec G+lettre
-      if (e.key.toLowerCase() === 'g' && !e.ctrlKey) {
+      if (e.key && e.key.toLowerCase() === 'g' && !e.ctrlKey) {
         const handleSecondKey = (secondE: KeyboardEvent) => {
+          if (!secondE || !secondE.key) return;
+          
+          const secondKey = secondE.key.toLowerCase();
           const action = shortcutGroups[0].shortcuts.find(s => 
-            s.keys[1]?.toLowerCase() === secondE.key.toLowerCase()
+            s.keys[1] && s.keys[1].toLowerCase() === secondKey
           )?.action;
           
           if (action) {
@@ -94,12 +100,14 @@ export const KeyboardShortcuts: React.FC = () => {
   }, [navigate]);
 
   const formatKeys = (keys: string[]) => {
-    return keys.map((key, index) => (
-      <span key={key} className="inline-flex items-center">
+    if (!Array.isArray(keys)) return null;
+    
+    return keys.filter(key => key != null).map((key, index) => (
+      <span key={`${key}-${index}`} className="inline-flex items-center">
         <Badge variant="outline" className="px-2 py-1 font-mono text-xs">
           {key}
         </Badge>
-        {index < keys.length - 1 && <span className="mx-1 text-muted-foreground">+</span>}
+        {index < keys.filter(k => k != null).length - 1 && <span className="mx-1 text-muted-foreground">+</span>}
       </span>
     ));
   };

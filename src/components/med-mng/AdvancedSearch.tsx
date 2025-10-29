@@ -90,23 +90,29 @@ export const AdvancedSearch: React.FC<AdvancedSearchProps> = ({
 
   // Extraire tous les genres et tags disponibles
   const availableGenres = useMemo(() => {
+    if (!Array.isArray(songs)) return [];
+    
     const genres = new Set<string>();
     songs.forEach(song => {
-      if (song.genre) genres.add(song.genre);
+      if (song?.genre) genres.add(song.genre);
     });
     return Array.from(genres).sort();
   }, [songs]);
 
   const availableTags = useMemo(() => {
+    if (!Array.isArray(songs)) return [];
+    
     const tags = new Set<string>();
     songs.forEach(song => {
-      song.tags?.forEach(tag => tags.add(tag));
+      song?.tags?.forEach(tag => tags.add(tag));
     });
     return Array.from(tags).sort();
   }, [songs]);
 
   // Fonction de filtrage avancée
   const filteredSongs = useMemo(() => {
+    if (!Array.isArray(songs)) return [];
+    
     let filtered = [...songs];
 
     // Filtrage par terme de recherche

@@ -107,19 +107,19 @@ class MedMngApi {
 
       if (!response.ok) {
         const error = await response.json();
+        console.error('Erreur API library:', error);
         throw new Error(error.error || 'Échec récupération bibliothèque MED-MNG');
       }
 
-      return response.json();
+      const result = await response.json();
+      
+      // L'API retourne un objet paginé { items, pagination }
+      // Extraire seulement le tableau items
+      return result?.items || [];
     } catch (error) {
-      // Retourner des données mock en cas d'erreur de configuration
-      console.warn('Utilisation de données mock pour la bibliothèque');
-      return {
-        data: [],
-        total: 0,
-        page,
-        limit
-      };
+      // Retourner un tableau vide en cas d'erreur
+      console.error('Erreur getLibrary:', error);
+      return [];
     }
   }
 
@@ -150,17 +150,16 @@ class MedMngApi {
 
       if (!response.ok) {
         const error = await response.json();
+        console.error('Erreur API quota:', error);
         throw new Error(error.error || 'Échec récupération quota MED-MNG');
       }
 
       return response.json();
     } catch (error) {
-      // Retourner des données mock en cas d'erreur de configuration
-      console.warn('Utilisation de données mock pour le quota');
+      // Retourner un quota par défaut en cas d'erreur
+      console.error('Erreur getRemainingQuota:', error);
       return {
-        remaining: 100,
-        total: 500,
-        percentage: 20
+        remaining_credits: 0
       };
     }
   }
