@@ -1,13 +1,6 @@
 import { jsonResponse, errorResponse } from "../response.ts";
 
-export async function handleQuota(req: Request, supabase: any, path: string) {
-  // Obtenir l'ID utilisateur
-  const { data: { user }, error: authError } = await supabase.auth.getUser();
-  
-  if (authError || !user) {
-    return errorResponse(401, 'UNAUTHORIZED', 'Authentification requise');
-  }
-  
+export async function handleQuota(req: Request, supabase: any, user: any, path: string) {
   // GET /quota - Get remaining quota (RAPIDE, lecture seule)
   if (path === '/quota' && req.method === 'GET') {
     try {

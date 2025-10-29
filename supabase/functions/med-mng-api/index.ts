@@ -176,7 +176,7 @@ serve(async (req) => {
           res = await handleOic(req, supabase, path, url);
           if (res) return res;
 
-          res = await handleQuota(req, supabase, path);
+          res = await handleQuota(req, supabase, user, path);
           if (res) return res;
 
           res = await handleVerify(req, supabase, path);
