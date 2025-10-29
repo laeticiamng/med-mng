@@ -77,6 +77,9 @@ verify_jwt = true
 
 [functions.openai-image]
 verify_jwt = true
+
+[functions.medical-chat-ai]
+verify_jwt = false
 [functions.cancel-ia-task]
 verify_jwt = true
 
