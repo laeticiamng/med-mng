@@ -58,6 +58,7 @@ import { PlaylistManager } from "./components/playlists/PlaylistManager";
 import { PlaylistDetail } from "./components/playlists/PlaylistDetail";
 import { MusicAnalytics } from "./components/analytics/MusicAnalytics";
 import { MedChat } from "./pages/MedChat";
+import { EdnAuditDashboard } from "./pages/EdnAuditDashboard";
 import AdminImport from "./pages/AdminImport";
 import AdminAudit from "./pages/AdminAudit";
 import AdminExtractEdn from "./pages/AdminExtractEdn";
@@ -163,6 +164,7 @@ const App = () => {
           <Route path="/med-mng/playlists/:playlistId" element={<ProtectedRoute><PlaylistDetail /></ProtectedRoute>} />
           <Route path="/med-mng/analytics" element={<ProtectedRoute><MusicAnalytics /></ProtectedRoute>} />
           <Route path="/chat" element={<MedChat />} />
+          <Route path="/edn-audit" element={<EdnAuditDashboard />} />
            <Route path="/admin/import" element={<AdminImport />} />
            <Route path="/admin/audit" element={<AdminAudit />} />
            <Route path="/admin/extract-edn" element={<AdminExtractEdn />} />

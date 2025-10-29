@@ -2498,6 +2498,57 @@ export type Database = {
         }
         Relationships: []
       }
+      edn_items_audit: {
+        Row: {
+          ai_analysis: Json | null
+          audit_date: string
+          completeness_score: number | null
+          created_at: string
+          error_message: string | null
+          id: string
+          item_code: string
+          missing_rang_a: string[] | null
+          missing_rang_b: string[] | null
+          rang_a_complete: boolean | null
+          rang_b_complete: boolean | null
+          status: string | null
+          suggestions: string | null
+          updated_at: string
+        }
+        Insert: {
+          ai_analysis?: Json | null
+          audit_date?: string
+          completeness_score?: number | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          item_code: string
+          missing_rang_a?: string[] | null
+          missing_rang_b?: string[] | null
+          rang_a_complete?: boolean | null
+          rang_b_complete?: boolean | null
+          status?: string | null
+          suggestions?: string | null
+          updated_at?: string
+        }
+        Update: {
+          ai_analysis?: Json | null
+          audit_date?: string
+          completeness_score?: number | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          item_code?: string
+          missing_rang_a?: string[] | null
+          missing_rang_b?: string[] | null
+          rang_a_complete?: boolean | null
+          rang_b_complete?: boolean | null
+          status?: string | null
+          suggestions?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       edn_items_complete: {
         Row: {
           audio_ambiance: Json | null

@@ -1,0 +1,223 @@
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.50.3';
+import { corsHeaders } from '../_shared/cors.ts';
+
+const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+
+serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+  try {
+    const { action, itemCode } = await req.json();
+
+    if (action === 'start-audit') {
+      // Lancer l'audit sur tous les items
+      console.log('🚀 Starting full EDN audit...');
+
+      // Récupérer tous les items EDN
+      const { data: items, error: itemsError } = await supabase
+        .from('edn_items_immersive')
+        .select('item_code, title, payload_v2')
+        .order('item_code');
+
+      if (itemsError) throw itemsError;
+
+      console.log(`📊 Found ${items.length} items to audit`);
+
+      // Créer les entrées d'audit en statut "pending"
+      const auditEntries = items.map(item => ({
+        item_code: item.item_code,
+        status: 'pending'
+      }));
+
+      const { error: insertError } = await supabase
+        .from('edn_items_audit')
+        .insert(auditEntries);
+
+      if (insertError) throw insertError;
+
+      // Lancer l'analyse de chaque item (en arrière-plan)
+      console.log('🔄 Triggering individual item analyses...');
+      
+      return new Response(
+        JSON.stringify({ 
+          success: true, 
+          message: `Audit lancé sur ${items.length} items`,
+          itemCount: items.length
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (action === 'analyze-item' && itemCode) {
+      // Analyser un item spécifique
+      console.log(`🔍 Analyzing item: ${itemCode}`);
+
+      // Mettre à jour le statut
+      await supabase
+        .from('edn_items_audit')
+        .update({ status: 'analyzing' })
+        .eq('item_code', itemCode)
+        .eq('status', 'pending');
+
+      // Récupérer l'item
+      const { data: item, error: itemError } = await supabase
+        .from('edn_items_immersive')
+        .select('item_code, title, payload_v2')
+        .eq('item_code', itemCode)
+        .single();
+
+      if (itemError) {
+        await supabase
+          .from('edn_items_audit')
+          .update({ 
+            status: 'failed',
+            error_message: `Item not found: ${itemError.message}`
+          })
+          .eq('item_code', itemCode);
+        throw itemError;
+      }
+
+      // Préparer le prompt pour Lovable AI
+      const payload = item.payload_v2 || {};
+      const competencesA = payload.competences_rang_a || [];
+      const competencesB = payload.competences_rang_b || [];
+
+      const analysisPrompt = `Analyse la complétude de cet item EDN (${item.item_code} - ${item.title}).
+
+CONTENU DE L'ITEM:
+${JSON.stringify(payload, null, 2)}
+
+COMPÉTENCES RANG A (${competencesA.length}):
+${competencesA.map((c: any, i: number) => `${i + 1}. ${c.title || c}`).join('\n')}
+
+COMPÉTENCES RANG B (${competencesB.length}):
+${competencesB.map((c: any, i: number) => `${i + 1}. ${c.title || c}`).join('\n')}
+
+Analyse et retourne un JSON avec cette structure EXACTE:
+{
+  "completeness_score": <nombre entre 0 et 100>,
+  "rang_a_complete": <true/false>,
+  "rang_b_complete": <true/false>,
+  "missing_rang_a": [<liste des compétences rang A manquantes>],
+  "missing_rang_b": [<liste des compétences rang B manquantes>],
+  "suggestions": "<suggestions d'amélioration>"
+}`;
+
+      // Appeler Lovable AI
+      const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
+      if (!lovableApiKey) throw new Error('LOVABLE_API_KEY not configured');
+
+      const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${lovableApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'google/gemini-2.5-flash',
+          messages: [
+            {
+              role: 'system',
+              content: 'Tu es un expert en analyse de complétude de contenu médical EDN. Réponds toujours en JSON valide.'
+            },
+            {
+              role: 'user',
+              content: analysisPrompt
+            }
+          ],
+          temperature: 0.3,
+          max_tokens: 2000,
+        }),
+      });
+
+      if (!aiResponse.ok) {
+        const errorText = await aiResponse.text();
+        throw new Error(`Lovable AI error: ${errorText}`);
+      }
+
+      const aiData = await aiResponse.json();
+      const aiContent = aiData.choices[0]?.message?.content || '';
+
+      // Parser la réponse JSON
+      let analysis;
+      try {
+        // Extraire le JSON du contenu (au cas où il y aurait du texte autour)
+        const jsonMatch = aiContent.match(/\{[\s\S]*\}/);
+        if (jsonMatch) {
+          analysis = JSON.parse(jsonMatch[0]);
+        } else {
+          throw new Error('No JSON found in AI response');
+        }
+      } catch (parseError) {
+        console.error('Failed to parse AI response:', aiContent);
+        throw new Error(`Failed to parse AI response: ${parseError.message}`);
+      }
+
+      // Sauvegarder les résultats
+      const { error: updateError } = await supabase
+        .from('edn_items_audit')
+        .update({
+          status: 'completed',
+          completeness_score: analysis.completeness_score || 0,
+          rang_a_complete: analysis.rang_a_complete || false,
+          rang_b_complete: analysis.rang_b_complete || false,
+          missing_rang_a: analysis.missing_rang_a || [],
+          missing_rang_b: analysis.missing_rang_b || [],
+          suggestions: analysis.suggestions || '',
+          ai_analysis: analysis,
+          audit_date: new Date().toISOString()
+        })
+        .eq('item_code', itemCode)
+        .eq('status', 'analyzing');
+
+      if (updateError) throw updateError;
+
+      console.log(`✅ Item ${itemCode} analyzed successfully`);
+
+      return new Response(
+        JSON.stringify({ success: true, itemCode, analysis }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (action === 'get-status') {
+      // Obtenir le statut de l'audit
+      const { data: stats, error: statsError } = await supabase
+        .from('edn_items_audit')
+        .select('status');
+
+      if (statsError) throw statsError;
+
+      const statusCounts = {
+        pending: stats.filter(s => s.status === 'pending').length,
+        analyzing: stats.filter(s => s.status === 'analyzing').length,
+        completed: stats.filter(s => s.status === 'completed').length,
+        failed: stats.filter(s => s.status === 'failed').length,
+        total: stats.length
+      };
+
+      return new Response(
+        JSON.stringify({ success: true, stats: statusCounts }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    throw new Error('Invalid action');
+
+  } catch (error) {
+    console.error('Error in audit-edn-completeness:', error);
+    return new Response(
+      JSON.stringify({ error: error.message }),
+      { 
+        status: 500, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      }
+    );
+  }
+});
