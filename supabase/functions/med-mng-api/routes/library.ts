@@ -8,6 +8,8 @@ export async function handleLibrary(
   path: string,
   url: URL
 ) {
+  console.log('📚 handleLibrary called with path:', path, 'method:', req.method);
+  
   // POST /library - Add to library
   if (path === '/library' && req.method === 'POST') {
     const { song_id }: AddToLibraryRequest = await req.json();

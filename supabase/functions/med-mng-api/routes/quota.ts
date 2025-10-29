@@ -1,6 +1,8 @@
 import { jsonResponse, errorResponse } from "../response.ts";
 
 export async function handleQuota(req: Request, supabase: any, user: any, path: string) {
+  console.log('🔍 handleQuota called with path:', path, 'method:', req.method);
+  
   // GET /quota - Get remaining quota (RAPIDE, lecture seule)
   if (path === '/quota' && req.method === 'GET') {
     try {
