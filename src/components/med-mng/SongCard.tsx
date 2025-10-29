@@ -6,6 +6,7 @@ import { Play, Heart, Trash2, Music, MoreVertical, ListPlus } from 'lucide-react
 import { useMedMngApi } from '@/hooks/useMedMngApi';
 import { toast } from 'sonner';
 import { usePlaylists } from '@/hooks/usePlaylists';
+import { useItemTitle } from '@/hooks/useItemTitle';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -44,6 +45,10 @@ export const SongCard: React.FC<SongCardProps> = ({
   const { playlists, addSongToPlaylist } = usePlaylists();
   const [isLoading, setIsLoading] = useState(false);
   const [isLikeLoading, setIsLikeLoading] = useState(false);
+  
+  // Get the item code from metadata
+  const itemCode = song.meta?.itemCode || song.meta?.item_code;
+  const { title: itemTitle } = useItemTitle(itemCode);
 
   const handleRemove = async () => {
     setIsLoading(true);
@@ -207,7 +212,7 @@ export const SongCard: React.FC<SongCardProps> = ({
           {/* Item name (highlighted) */}
           <div className="mb-2">
             <h3 className="font-bold text-gray-900 text-base sm:text-lg leading-tight">
-              {titleInfo.item || song.title}
+              {itemTitle || titleInfo.item || song.title}
             </h3>
             {titleInfo.rang && (
               <p className="text-xs sm:text-sm text-gray-600 mt-1">
