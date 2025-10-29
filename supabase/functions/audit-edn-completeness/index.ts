@@ -92,29 +92,32 @@ serve(async (req) => {
 
 ITEM: ${item.item_code} - ${item.title}
 
-CONTENU: ${JSON.stringify(payload, null, 2).substring(0, 3000)}
+CONTENU COMPLET: ${JSON.stringify(payload, null, 2)}
 
 COMPÉTENCES DÉCLARÉES:
-- Rang A (${competencesA.length}): ${competencesA.slice(0, 3).map((c: any) => c.title || c.intitule || 'N/A').join(', ')}...
-- Rang B (${competencesB.length}): ${competencesB.slice(0, 2).map((c: any) => c.title || c.intitule || 'N/A').join(', ')}...
+- Rang A (${competencesA.length}): ${competencesA.map((c: any) => c.title || c.intitule || JSON.stringify(c)).join(', ')}
+- Rang B (${competencesB.length}): ${competencesB.map((c: any) => c.title || c.intitule || JSON.stringify(c)).join(', ')}
 
-ANALYSE RAPIDE:
-1. Score de complétude global (0-100)
-2. Rang A complet ? (true/false)
-3. Rang B complet ? (true/false)
-4. Top 3 compétences manquantes pour Rang A
-5. Top 2 compétences manquantes pour Rang B
-6. Suggestion principale d'amélioration
+ANALYSE COMPLÈTE REQUISE:
+1. Identifie TOUTES les compétences attendues selon le référentiel EDN pour cet item
+2. Vérifie la présence et complétude de CHAQUE compétence
+3. Liste TOUTES les compétences manquantes ou incomplètes
 
-RÉPONSE JSON STRICTE (maximum 2000 caractères):
+FORMAT JSON ATTENDU (sois concis dans les titres mais exhaustif dans les listes):
 {
   "completeness_score": <0-100>,
   "rang_a_complete": <true/false>,
   "rang_b_complete": <true/false>,
-  "missing_rang_a": [<max 3 items>],
-  "missing_rang_b": [<max 2 items>],
-  "suggestions": "<max 200 caractères>"
-}`;
+  "expected_competences_rang_a": ["titre1", "titre2", ...],
+  "expected_competences_rang_b": ["titre1", "titre2", ...],
+  "missing_rang_a": ["titre1", "titre2", ...],
+  "missing_rang_b": ["titre1", "titre2", ...],
+  "incomplete_rang_a": ["titre1", "titre2", ...],
+  "incomplete_rang_b": ["titre1", "titre2", ...],
+  "suggestions": "Liste concise des améliorations prioritaires"
+}
+
+IMPORTANT: Utilise des titres courts et concis pour les compétences, évite les descriptions longues.`;
 
       // Appeler Lovable AI
       const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
@@ -131,7 +134,7 @@ RÉPONSE JSON STRICTE (maximum 2000 caractères):
           messages: [
             {
               role: 'system',
-              content: 'Tu es un expert en analyse de complétude de contenu médical EDN. Réponds UNIQUEMENT avec un JSON valide, sans texte avant ou après.'
+              content: 'Tu es un expert en analyse de complétude de contenu médical EDN. Réponds UNIQUEMENT avec un JSON valide, sans texte avant ou après. Utilise des titres courts et concis.'
             },
             {
               role: 'user',
@@ -139,7 +142,7 @@ RÉPONSE JSON STRICTE (maximum 2000 caractères):
             }
           ],
           temperature: 0.3,
-          max_tokens: 4000,
+          max_tokens: 8000,
         }),
       });
 
@@ -207,8 +210,12 @@ RÉPONSE JSON STRICTE (maximum 2000 caractères):
           completeness_score: analysis.completeness_score || 0,
           rang_a_complete: analysis.rang_a_complete || false,
           rang_b_complete: analysis.rang_b_complete || false,
+          expected_competences_rang_a: analysis.expected_competences_rang_a || [],
+          expected_competences_rang_b: analysis.expected_competences_rang_b || [],
           missing_rang_a: analysis.missing_rang_a || [],
           missing_rang_b: analysis.missing_rang_b || [],
+          incomplete_rang_a: analysis.incomplete_rang_a || [],
+          incomplete_rang_b: analysis.incomplete_rang_b || [],
           suggestions: analysis.suggestions || '',
           ai_analysis: analysis,
           audit_date: new Date().toISOString()
