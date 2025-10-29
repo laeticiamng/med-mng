@@ -78,9 +78,9 @@ serve(async (req) => {
       throw new Error(`Item ${itemCode} not found`);
     }
 
-    // Vérifier le quota IA avant le traitement
+    // Vérifier le quota IA et ajuster le nombre de compétences à traiter
     const authHeader = req.headers.get('Authorization');
-    const creditsNeeded = competencesToProcess.length * 3; // 3 crédits par compétence
+    let maxCompetencesToProcess = competencesToProcess.length;
     
     if (authHeader) {
       const { data: quotaCheck, error: quotaError } = await supabase.functions.invoke('ia-quota', {
@@ -88,15 +88,28 @@ serve(async (req) => {
           action: 'check_quota',
           service_type: 'lovable_ai',
           operation_type: 'completion',
-          credits_required: creditsNeeded
+          credits_required: 1 // Juste pour obtenir le solde
         },
         headers: { Authorization: authHeader }
       });
 
-      if (quotaError || (quotaCheck && !quotaCheck.can_proceed)) {
-        throw new Error(`Crédits IA insuffisants (${creditsNeeded} requis). Veuillez recharger votre quota.`);
+      if (!quotaError && quotaCheck) {
+        const availableCredits = quotaCheck.remaining_credits || 0;
+        const maxAffordable = Math.floor(availableCredits / 3); // 3 crédits par compétence
+        
+        if (maxAffordable === 0) {
+          throw new Error(`Crédits IA insuffisants. Vous avez ${availableCredits} crédits, il en faut au moins 3 par compétence.`);
+        }
+        
+        if (maxAffordable < competencesToProcess.length) {
+          console.log(`⚠️ Ajustement: traitement de ${maxAffordable}/${competencesToProcess.length} compétences (crédits disponibles: ${availableCredits})`);
+          maxCompetencesToProcess = maxAffordable;
+        }
       }
     }
+    
+    // Limiter le nombre de compétences à traiter selon les crédits disponibles
+    competencesToProcess = competencesToProcess.slice(0, maxCompetencesToProcess);
 
     // Générer le contenu pour chaque compétence manquante
     const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
