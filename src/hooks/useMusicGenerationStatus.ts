@@ -133,42 +133,46 @@ export const useMusicGenerationStatus = (taskId: string | null) => {
     setIsPolling(false);
   }, []);
 
-  // Effect pour le polling automatique avec fréquence adaptative
+  // Effect pour le polling automatique avec fréquence adaptative (setTimeout récursif)
   useEffect(() => {
     if (!isPolling || !taskId) return;
 
-    // Polling plus agressif au début (5s), puis ralentit (10s après 30s)
     const startTime = Date.now();
-    let pollInterval = 5000; // 5 secondes initial
-    
-    const updateInterval = () => {
-      const elapsed = Date.now() - startTime;
-      if (elapsed > 30000) { // Après 30s
-        pollInterval = 10000; // 10 secondes
-      }
-    };
+    let timeoutId: NodeJS.Timeout;
+    let safetyTimeoutId: NodeJS.Timeout;
+    let isCancelled = false;
 
-    const doPoll = () => {
+    const doPoll = async () => {
+      if (isCancelled) return;
+
       console.log('⏰ Polling check automatique...');
-      checkStatus();
-      updateInterval();
+      await checkStatus();
+
+      if (isCancelled) return;
+
+      // Intervalle adaptatif : 3s au début, 8s après 30s
+      const elapsed = Date.now() - startTime;
+      const pollInterval = elapsed > 30000 ? 8000 : 3000;
+      
+      console.log(`⏱️ Prochain polling dans ${pollInterval/1000}s`);
+      timeoutId = setTimeout(doPoll, pollInterval);
     };
 
     // Premier check immédiat
     doPoll();
 
-    const interval = setInterval(doPoll, pollInterval);
-
     // Timeout de sécurité : arrêter après 5 minutes
-    const timeout = setTimeout(() => {
+    safetyTimeoutId = setTimeout(() => {
       console.warn('⏱️ Timeout polling après 5 minutes');
+      isCancelled = true;
       setIsPolling(false);
       setStatus(prev => prev ? { ...prev, status: 'failed', error: 'Timeout de génération' } : null);
     }, 300000); // 5 minutes
 
     return () => {
-      clearInterval(interval);
-      clearTimeout(timeout);
+      isCancelled = true;
+      clearTimeout(timeoutId);
+      clearTimeout(safetyTimeoutId);
     };
   }, [isPolling, taskId, checkStatus]);
 
