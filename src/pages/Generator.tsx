@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { ArrowLeft, Sparkles, Music } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
@@ -44,7 +44,7 @@ const Generator = () => {
   // Hook pour charger tous les 367 items EDN depuis la base de données
   const { items: allEdnItems, loading: itemsLoading, error: itemsError } = useAllEdnItems();
 
-  const canGenerate = () => {
+  const canGenerate = useCallback(() => {
     if (contentType === 'edn') {
       return !!(selectedItem && selectedRang && selectedStyle && ednLyrics?.paroles_musicales);
     }
@@ -52,9 +52,9 @@ const Generator = () => {
       return !!(selectedSituation && selectedStyle);
     }
     return false;
-  };
+  }, [contentType, selectedItem, selectedRang, selectedStyle, ednLyrics, selectedSituation]);
 
-  const handleGenerate = async () => {
+  const handleGenerate = useCallback(async () => {
     if (!canGenerate()) {
       toast.error('Veuillez sélectionner tous les paramètres requis');
       return;
@@ -62,17 +62,23 @@ const Generator = () => {
 
     // Vérification des quotas selon le type d'utilisateur
     if (!user) {
-      // Utilisateur non connecté - utilise le système gratuit limité
       if (remainingFree <= 0) {
-        toast.error('Plus de générations gratuites disponibles. Connectez-vous pour continuer.');
-        navigate('/med-mng/login');
+        toast.error('Plus de générations gratuites disponibles. Connectez-vous pour continuer.', {
+          action: {
+            label: 'Se connecter',
+            onClick: () => navigate('/med-mng/login')
+          }
+        });
         return;
       }
     } else {
-      // Utilisateur connecté - vérifie les quotas d'abonnement
       if (!canGenerateMusic()) {
-        toast.error('Quota de génération atteint pour ce mois. Améliorez votre abonnement.');
-        navigate('/med-mng/pricing');
+        toast.error('Quota de génération atteint pour ce mois. Améliorez votre abonnement.', {
+          action: {
+            label: 'Voir les offres',
+            onClick: () => navigate('/med-mng/pricing')
+          }
+        });
         return;
       }
     }
@@ -82,7 +88,6 @@ const Generator = () => {
       let titlePrefix = '';
 
       if (contentType === 'edn' && ednLyrics?.paroles_musicales) {
-        // Utiliser les vraies paroles de l'item EDN
         lyricsToUse = ednLyrics.paroles_musicales;
         titlePrefix = `${ednLyrics.title} - ${selectedItem}`;
         
@@ -93,7 +98,6 @@ const Generator = () => {
           rang: selectedRang
         });
       } else if (contentType === 'ecos') {
-        // Utiliser des paroles simulées pour ECOS (à remplacer par de vraies paroles plus tard)
         lyricsToUse = [
           `Paroles pour ${selectedSituation} - Situation clinique`,
           `Paroles avancées pour ${selectedSituation} - Expertise médicale`
@@ -116,32 +120,22 @@ const Generator = () => {
         lyricsPreview: lyricsToUse[rang === 'A' ? 0 : rang === 'B' ? 1 : 2]?.substring(0, 100) + '...'
       });
       
-      // Gérer le cas du rang AB (mixte)
-      let actualRang: 'A' | 'B' = 'A';
-      let lyricsIndex = 0;
+      const actualRang: 'A' | 'B' = rang === 'AB' ? 'A' : rang as 'A' | 'B';
+      const lyricsIndex = rang === 'A' ? 0 : rang === 'B' ? 1 : 2;
       
-      if (rang === 'A') {
-        actualRang = 'A';
-        lyricsIndex = 0;
-      } else if (rang === 'B') {
-        actualRang = 'B'; 
-        lyricsIndex = 1;
-      } else if (rang === 'AB') {
-        actualRang = 'A'; // On utilise le rang A pour l'API mais les paroles mixtes
-        lyricsIndex = 2; // Index 2 = paroles mixtes (A+B)
-      }
+      const loadingToast = toast.loading('Génération en cours... Cela peut prendre quelques instants');
       
       const audioUrl = await musicGeneration.generateMusicInLanguage(actualRang, lyricsToUse, selectedStyle, 240);
       
-      // Incrémenter l'usage après génération réussie
+      toast.dismiss(loadingToast);
+      
       if (user) {
         const success = await incrementMusicUsage();
         if (!success) {
-          toast.error('Erreur lors de la mise à jour du quota');
+          toast.warning('Musique générée mais quota non mis à jour');
         }
       }
       
-      // Créer un objet chanson avec les vraies données
       const song = {
         id: Date.now(),
         title: `${titlePrefix} - ${selectedStyle}`,
@@ -154,65 +148,85 @@ const Generator = () => {
       };
 
       setGeneratedSong(song);
-      toast.success('Génération musicale réussie avec les paroles de l\'item !');
+      toast.success('🎵 Génération musicale réussie avec les paroles de l\'item !', {
+        description: 'Votre musique est prête à être écoutée'
+      });
       
     } catch (error) {
       console.error('Erreur génération:', error);
-      toast.error('Erreur lors de la génération musicale');
+      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+      toast.error('Échec de la génération musicale', {
+        description: errorMessage,
+        action: {
+          label: 'Réessayer',
+          onClick: () => handleGenerate()
+        }
+      });
     }
-  };
+  }, [canGenerate, user, remainingFree, canGenerateMusic, contentType, ednLyrics, selectedItem, selectedRang, selectedSituation, selectedStyle, musicGeneration, incrementMusicUsage, navigate]);
 
-  const handleAddToLibrary = () => {
+  const handleAddToLibrary = useCallback(() => {
     if (!generatedSong) return;
     
     if (!user) {
-      toast.error('Connectez-vous pour sauvegarder vos musiques');
-      navigate('/med-mng/login');
+      toast.error('Connectez-vous pour sauvegarder vos musiques', {
+        action: {
+          label: 'Se connecter',
+          onClick: () => navigate('/med-mng/login')
+        }
+      });
       return;
     }
     
     if (!canSaveMusic()) {
-      toast.error('Votre abonnement ne permet pas de sauvegarder. Améliorez votre plan.');
-      navigate('/med-mng/pricing');
+      toast.error('Votre abonnement ne permet pas de sauvegarder. Améliorez votre plan.', {
+        action: {
+          label: 'Voir les offres',
+          onClick: () => navigate('/med-mng/pricing')
+        }
+      });
       return;
     }
     
-    toast.success('Chanson ajoutée à votre bibliothèque !');
-    // Ici on pourrait ajouter la logique pour sauvegarder en base
-  };
+    toast.success('✨ Chanson ajoutée à votre bibliothèque !');
+  }, [generatedSong, user, canSaveMusic, navigate]);
 
-  const resetForm = () => {
+  const resetForm = useCallback(() => {
+    if (generatedSong || selectedItem || selectedStyle) {
+      toast.info('Formulaire réinitialisé');
+    }
     setContentType('');
     setSelectedItem('');
     setSelectedRang('');
     setSelectedSituation('');
     setSelectedStyle('');
     setGeneratedSong(null);
-  };
+  }, [generatedSong, selectedItem, selectedStyle]);
 
   return (
     <PremiumBackground variant="amber">
       {/* Header premium */}
-      <div className="bg-white/70 backdrop-blur-xl border-b border-white/20 shadow-lg shadow-black/5">
+      <div className="bg-white/70 backdrop-blur-xl border-b border-white/20 shadow-lg shadow-black/5" role="banner">
         <div className="container mx-auto px-4 py-6">
           <div className="flex items-center gap-6">
             <PremiumButton
               variant="glass"
               size="md"
               onClick={() => navigate('/')}
+              aria-label="Retourner à l'accueil"
             >
-              <ArrowLeft className="h-5 w-5 mr-2" />
+              <ArrowLeft className="h-5 w-5 mr-2" aria-hidden="true" />
               <TranslatedText text="Retour" />
             </PremiumButton>
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl shadow-lg flex items-center justify-center">
+              <div className="w-12 h-12 bg-gradient-to-br from-amber-500 to-orange-600 rounded-xl shadow-lg flex items-center justify-center" aria-hidden="true">
                 <Music className="h-7 w-7 text-white" />
               </div>
               <div>
                 <h1 className="text-2xl md:text-3xl font-bold bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
                   <TranslatedText text="Générateur Musical" />
                 </h1>
-                <p className="text-sm md:text-base text-gray-600 font-medium">
+                <p className="text-sm md:text-base text-gray-600 font-medium" role="doc-subtitle">
                   <TranslatedText text="Transformez vos cours en musique" />
                 </p>
               </div>
@@ -221,7 +235,7 @@ const Generator = () => {
         </div>
       </div>
 
-      <div className="container mx-auto px-2 md:px-4 py-6 md:py-12">
+      <main className="container mx-auto px-2 md:px-4 py-6 md:py-12" role="main">
         <div className="max-w-6xl mx-auto">
           
           <QuotaDisplay
@@ -265,9 +279,9 @@ const Generator = () => {
           />
 
           {/* Informations d'aide premium */}
-          <PremiumCard variant="glass" className="p-8">
-            <h3 className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center">
+          <PremiumCard variant="glass" className="p-8" role="region" aria-labelledby="help-heading">
+            <h3 id="help-heading" className="text-2xl font-bold text-gray-900 mb-6 flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center" aria-hidden="true">
                 <Sparkles className="h-5 w-5 text-white" />
               </div>
               <TranslatedText text="Comment utiliser le générateur ?" />
@@ -304,7 +318,7 @@ const Generator = () => {
             </div>
           </PremiumCard>
         </div>
-      </div>
+      </main>
     </PremiumBackground>
   );
 };
