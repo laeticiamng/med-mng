@@ -4395,6 +4395,33 @@ export type Database = {
         }
         Relationships: []
       }
+      idempotency_records: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          operation_key: string
+          result: Json | null
+          status: string
+          user_id: string | null
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          operation_key: string
+          result?: Json | null
+          status: string
+          user_id?: string | null
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          operation_key?: string
+          result?: Json | null
+          status?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       implicit_tracking: {
         Row: {
           created_at: string | null
@@ -11982,6 +12009,7 @@ export type Database = {
         }
         Returns: string
       }
+      create_idempotency_table: { Args: never; Returns: undefined }
       create_notification_from_template: {
         Args: {
           target_user_id: string

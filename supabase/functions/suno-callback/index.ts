@@ -2,6 +2,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { corsHeaders } from '../_shared/cors.ts';
+import { checkIdempotency, markCompleted, markFailed } from '../_shared/idempotency.ts';
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -9,14 +10,40 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  let callbackData: any;
+  let operationKey: string;
+
   try {
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const callbackData = await req.json();
+    callbackData = await req.json();
     console.log('🔔 Callback Suno reçu:', JSON.stringify(callbackData, null, 2));
+
+    // Vérification d'idempotence (évite les doublons)
+    const taskId = callbackData.data?.task_id || callbackData.task_id;
+    const callbackType = callbackData.data?.callbackType || 'unknown';
+    operationKey = `suno_callback_${taskId}_${callbackType}_${Date.now()}`;
+    
+    const { canProceed, existingResult } = await checkIdempotency(
+      supabase,
+      operationKey,
+      undefined,
+      300 // TTL 5 minutes
+    );
+
+    if (!canProceed) {
+      console.log('⏭️ Callback déjà traité, skip pour éviter doublons');
+      return new Response(JSON.stringify({ 
+        received: true, 
+        skipped: true, 
+        reason: 'already_processed' 
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
     // Traiter les vrais callbacks Suno selon la structure des logs
     if (callbackData.code === 200 && callbackData.data) {
@@ -53,26 +80,30 @@ serve(async (req) => {
               duration: trackWithAudio.duration,
               model_name: trackWithAudio.model_name,
               tags: trackWithAudio.tags,
-              first_audio_received_at: new Date().toISOString()
+              first_audio_received_at: new Date().toISOString(),
+              callback_type: callbackType
             },
             updated_at: new Date().toISOString()
           };
 
-          await supabase
+          const { error: updateError } = await supabase
             .from('generated_music_tracks')
             .update(updateData)
             .eq('id', mainTrack.id);
             
-          console.log('✅ Track principal mis à jour avec audio disponible');
+          if (updateError) {
+            console.error('❌ Erreur mise à jour track principal:', updateError);
+            await markFailed(supabase, operationKey, updateError);
+          } else {
+            console.log('✅ Track principal mis à jour avec succès');
+            await markCompleted(supabase, operationKey, { track_id: mainTrack.id, status: 'updated' });
+          }
         }
         
-        // 2️⃣ Créer ou mettre à jour les tracks individuels Suno
+        // 2️⃣ Créer ou mettre à jour les tracks individuels Suno (non-bloquant)
         for (const track of tracks) {
-          console.log(`🎵 Processing track: ${track.id} - Type: ${callbackType}`);
-          
           try {
-            // D'abord essayer de trouver un track existant par suno_track_id
-            const { data: existingTrack, error: findError } = await supabase
+            const { data: existingTrack } = await supabase
               .from('generated_music_tracks')
               .select('*')
               .eq('suno_track_id', track.id)
@@ -92,12 +123,13 @@ serve(async (req) => {
                   suno_complete_data: track,
                   real_track_id: track.id,
                   original_task_id: task_id,
-                  rang: track.title?.includes('Rang B') ? 'B' : 'A'
+                  rang: track.title?.includes('Rang B') ? 'B' : 'A',
+                  callback_type: callbackType
                 },
                 updated_at: new Date().toISOString()
               };
 
-              // Ajouter les URLs seulement si disponibles (callbackType === 'complete')
+              // Ajouter les URLs seulement si disponibles
               if (track.audio_url || track.source_audio_url) {
                 updateData.audio_url = track.audio_url || track.source_audio_url;
                 updateData.generation_status = 'completed';
@@ -109,18 +141,14 @@ serve(async (req) => {
                 updateData.image_url = track.image_url || track.source_image_url;
               }
 
-              const { error: updateError } = await supabase
+              await supabase
                 .from('generated_music_tracks')
                 .update(updateData)
                 .eq('id', existingTrack.id);
                 
-              if (updateError) {
-                console.error('❌ Erreur mise à jour BDD:', updateError);
-              } else {
-                console.log(`📝 Statut ${callbackType} mis à jour pour track ${track.id}`);
-              }
+              console.log(`📝 Statut ${callbackType} mis à jour pour track ${track.id}`);
             } else {
-              // Créer un nouveau record avec user_id par défaut
+              // Créer un nouveau record
               console.log('💾 Création nouveau track en BDD');
               
               const insertData: any = {
@@ -129,7 +157,7 @@ serve(async (req) => {
                 title: track.title || 'Musique générée',
                 generation_status: callbackType === 'complete' ? 'completed' : 'generating',
                 duration: 240,
-                user_id: null, // Permettre les utilisateurs anonymes
+                user_id: null,
                 metadata: {
                   duration: track.duration,
                   model_name: track.model_name,
@@ -140,7 +168,8 @@ serve(async (req) => {
                   real_track_id: track.id,
                   original_task_id: task_id,
                   created_via_callback: true,
-                  rang: track.title?.includes('Rang B') ? 'B' : 'A'
+                  rang: track.title?.includes('Rang B') ? 'B' : 'A',
+                  callback_type: callbackType
                 }
               };
 
@@ -156,15 +185,11 @@ serve(async (req) => {
                 insertData.image_url = track.image_url || track.source_image_url;
               }
 
-              const { error: insertError } = await supabase
+              await supabase
                 .from('generated_music_tracks')
                 .insert(insertData);
                 
-              if (insertError) {
-                console.error('❌ Erreur insertion BDD:', insertError);
-              } else {
-                console.log(`💾 Track ${track.id} créé avec succès en BDD`);
-              }
+              console.log(`💾 Track ${track.id} créé avec succès en BDD`);
             }
           } catch (error) {
             console.error(`❌ Erreur traitement track ${track.id}:`, error);
@@ -187,17 +212,32 @@ serve(async (req) => {
             }
           })
           .eq('task_id', callbackData.task_id);
+          
+        await markFailed(supabase, operationKey, callbackData.error);
       }
     }
 
-    return new Response(JSON.stringify({ received: true }), {
+    return new Response(JSON.stringify({ received: true, processed: true }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
   } catch (error) {
     console.error('Erreur callback Suno:', error);
     
-    return new Response(JSON.stringify({ error: error.message }), {
+    // Marquer comme échoué si on a l'operation key
+    if (operationKey) {
+      try {
+        const supabase = createClient(
+          Deno.env.get('SUPABASE_URL') ?? '',
+          Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
+        );
+        await markFailed(supabase, operationKey, error);
+      } catch (markError) {
+        console.error('Failed to mark as failed:', markError);
+      }
+    }
+    
+    return new Response(JSON.stringify({ error: error.message, received: true }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
