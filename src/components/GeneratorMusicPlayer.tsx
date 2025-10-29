@@ -2,12 +2,13 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Music, Play, Pause, Download, Library, Bug, Loader2 } from 'lucide-react';
+import { Music, Play, Pause, Library, Bug, Loader2, Share2, Clock } from 'lucide-react';
 import { useGlobalAudio } from '@/contexts/GlobalAudioContext';
 import { DebugAudioButton } from './DebugAudioButton';
 import { useMusicGenerationStatus } from '@/hooks/useMusicGenerationStatus';
 import { Progress } from '@/components/ui/progress';
 import { ENABLE_DEBUG } from '@/config/env';
+import { useToast } from '@/hooks/use-toast';
 
 interface GeneratorMusicPlayerProps {
   generatedSong: any;
@@ -20,13 +21,15 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
 }) => {
   const { currentTrack, isPlaying, play, pause, resume } = useGlobalAudio();
   const [showDebug, setShowDebug] = useState(false);
+  const [showSuccessAnimation, setShowSuccessAnimation] = useState(false);
+  const { toast } = useToast();
 
   // Détecter si c'est une génération en cours (trackId sans audioUrl)
   const isGenerating = generatedSong?.audioUrl && !generatedSong.audioUrl.startsWith('http');
   const trackIdForPolling = isGenerating ? generatedSong.audioUrl : null;
   
   // Utiliser le hook de statut pour suivre la génération
-  const { status, isPolling, startPolling, audioUrl, progress } = useMusicGenerationStatus(trackIdForPolling);
+  const { status, isPolling, startPolling, audioUrl, imageUrl, progress } = useMusicGenerationStatus(trackIdForPolling);
 
   // Démarrer le polling automatiquement si nécessaire
   useEffect(() => {
@@ -36,7 +39,7 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
     }
   }, [trackIdForPolling, isPolling, startPolling]);
 
-  // Notification quand l'audio est prêt et auto-update du song
+  // Notification quand l'audio est prêt et auto-update du song avec animation
   useEffect(() => {
     if (audioUrl && audioUrl.startsWith('http') && isGenerating) {
       console.log('🎉 Audio disponible ! Mise à jour automatique:', audioUrl);
@@ -46,12 +49,17 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
         generatedSong.audioUrl = audioUrl;
       }
       
-      // Notification toast (si disponible)
-      if (typeof window !== 'undefined' && 'toast' in window) {
-        (window as any).toast?.success?.('🎵 Votre musique est prête !');
-      }
+      // Animation de succès
+      setShowSuccessAnimation(true);
+      setTimeout(() => setShowSuccessAnimation(false), 2000);
+      
+      // Notification toast
+      toast({
+        title: "🎵 Musique prête !",
+        description: "Votre musique a été générée avec succès",
+      });
     }
-  }, [audioUrl, isGenerating, generatedSong]);
+  }, [audioUrl, isGenerating, generatedSong, toast]);
 
   console.log('🎵 GeneratorMusicPlayer render:', {
     hasGeneratedSong: !!generatedSong,
@@ -71,7 +79,11 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
   const handlePlay = () => {
     // Si la génération est en cours, afficher un message
     if (isGenerating && !audioUrl) {
-      alert('🎵 Votre musique est en cours de génération. Veuillez patienter quelques instants...');
+      toast({
+        title: "Génération en cours",
+        description: "Votre musique est en cours de génération. Veuillez patienter...",
+        variant: "default"
+      });
       return;
     }
     console.log('🎵 GeneratorMusicPlayer: Tentative de lecture', {
@@ -90,7 +102,11 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
         finalAudioUrl === 'undefined' ||
         finalAudioUrl === null) {
       console.error('❌ URL audio invalide dans GeneratorMusicPlayer:', finalAudioUrl);
-      alert('❌ Erreur: URL audio manquante ou invalide. Veuillez regénérer la musique.');
+      toast({
+        title: "Erreur",
+        description: "URL audio manquante ou invalide. Veuillez regénérer la musique.",
+        variant: "destructive"
+      });
       return;
     }
 
@@ -112,8 +128,44 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
     }
   };
 
+  const handleShare = async () => {
+    const shareData = {
+      title: generatedSong.title || 'Musique générée',
+      text: `Écoutez cette musique générée avec EDN Melody ! Style: ${generatedSong.style || 'Personnalisé'}`,
+      url: finalAudioUrl
+    };
+
+    try {
+      if (navigator.share) {
+        await navigator.share(shareData);
+        toast({
+          title: "Partagé !",
+          description: "Le lien a été partagé avec succès",
+        });
+      } else {
+        // Fallback: copier dans le presse-papier
+        await navigator.clipboard.writeText(finalAudioUrl);
+        toast({
+          title: "Lien copié !",
+          description: "Le lien audio a été copié dans votre presse-papier",
+        });
+      }
+    } catch (error) {
+      console.error('Erreur de partage:', error);
+    }
+  };
+
+  const formatDuration = (seconds?: number) => {
+    if (!seconds) return null;
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
+
   return (
-    <Card className="mt-6 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
+    <Card className={`mt-6 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200 transition-all duration-500 ${
+      showSuccessAnimation ? 'animate-scale-in ring-4 ring-green-400/50' : ''
+    }`}>
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-green-800">
           {isGenerating && !audioUrl ? (
@@ -130,18 +182,38 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="aspect-square bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center mb-4 max-w-xs mx-auto">
-          {isGenerating && !audioUrl ? (
+        {/* Image de couverture dynamique */}
+        <div className={`relative aspect-square bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center mb-4 max-w-xs mx-auto overflow-hidden transition-all duration-500 ${
+          showSuccessAnimation ? 'scale-105' : ''
+        }`}>
+          {imageUrl ? (
+            <img 
+              src={imageUrl} 
+              alt={generatedSong.title}
+              className="w-full h-full object-cover"
+            />
+          ) : isGenerating && !audioUrl ? (
             <Loader2 className="h-16 w-16 text-white/80 animate-spin" />
           ) : (
             <Music className="h-16 w-16 text-white/80" />
           )}
+          {showSuccessAnimation && (
+            <div className="absolute inset-0 bg-green-500/30 animate-pulse" />
+          )}
         </div>
         
         <div className="text-center">
-          <h3 className="text-xl font-semibold text-gray-900 mb-2">
-            {generatedSong.title}
-          </h3>
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <h3 className="text-xl font-semibold text-gray-900">
+              {generatedSong.title}
+            </h3>
+            {status?.metadata?.duration && (
+              <span className="flex items-center gap-1 text-sm text-gray-500">
+                <Clock className="h-3 w-3" />
+                {formatDuration(status.metadata.duration)}
+              </span>
+            )}
+          </div>
           <p className="text-gray-600 mb-4">
             Style: {generatedSong.style || 'Personnalisé'}
           </p>
@@ -206,6 +278,19 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
             <Library className="h-4 w-4 mr-2" />
             Ajouter à la bibliothèque
           </Button>
+          
+          {/* Bouton de partage */}
+          {finalAudioUrl && finalAudioUrl.startsWith('http') && (
+            <Button
+              onClick={handleShare}
+              variant="outline"
+              className="border-green-300 text-green-700 hover:bg-green-50"
+              size="lg"
+              title="Partager"
+            >
+              <Share2 className="h-4 w-4" />
+            </Button>
+          )}
           
           {ENABLE_DEBUG && (
             <Button
