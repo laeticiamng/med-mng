@@ -8,7 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Play, RefreshCw, CheckCircle, AlertCircle, XCircle, 
-  TrendingUp, TrendingDown, Loader2, ArrowLeft, Search
+  TrendingUp, TrendingDown, Loader2, ArrowLeft, Search, Sparkles
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -29,6 +29,8 @@ export const EdnAuditDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [isAuditing, setIsAuditing] = useState(false);
+  const [isCompleting, setIsCompleting] = useState(false);
+  const [completingItems, setCompletingItems] = useState<Set<string>>(new Set());
   const [auditResults, setAuditResults] = useState<AuditResult[]>([]);
   const [stats, setStats] = useState({
     pending: 0,
@@ -109,6 +111,80 @@ export const EdnAuditDashboard: React.FC = () => {
     }
   };
 
+  const completeItem = async (itemCode: string) => {
+    setCompletingItems(prev => new Set(prev).add(itemCode));
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('complete-missing-competences', {
+        body: { itemCode }
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "✨ Compétences complétées",
+        description: `${data.completedCompetences} compétences ajoutées pour ${itemCode}`,
+      });
+
+      // Rafraîchir les résultats
+      await loadAuditResults();
+
+    } catch (error: any) {
+      console.error('Error completing item:', error);
+      toast({
+        title: "❌ Erreur",
+        description: error.message || "Impossible de compléter les compétences",
+        variant: "destructive",
+      });
+    } finally {
+      setCompletingItems(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(itemCode);
+        return newSet;
+      });
+    }
+  };
+
+  const completeAllIncomplete = async () => {
+    setIsCompleting(true);
+    
+    try {
+      const incompleteItemsList = auditResults.filter(r => r.completeness_score < 80);
+      
+      toast({
+        title: "🚀 Complétion en cours",
+        description: `Traitement de ${incompleteItemsList.length} items incomplets...`,
+      });
+
+      // Traiter par batch de 3 pour éviter la surcharge
+      const batchSize = 3;
+      for (let i = 0; i < incompleteItemsList.length; i += batchSize) {
+        const batch = incompleteItemsList.slice(i, i + batchSize);
+        
+        await Promise.all(
+          batch.map(item => completeItem(item.item_code))
+        );
+
+        await new Promise(resolve => setTimeout(resolve, 2000)); // Pause 2s entre batches
+      }
+
+      toast({
+        title: "🎉 Complétion terminée",
+        description: "Tous les items ont été complétés",
+      });
+
+    } catch (error) {
+      console.error('Error completing all items:', error);
+      toast({
+        title: "❌ Erreur",
+        description: "Impossible de compléter tous les items",
+        variant: "destructive",
+      });
+    } finally {
+      setIsCompleting(false);
+    }
+  };
+
   useEffect(() => {
     loadAuditResults();
     const interval = setInterval(loadAuditResults, 5000); // Refresh every 5s
@@ -147,14 +223,33 @@ export const EdnAuditDashboard: React.FC = () => {
             <Button 
               onClick={loadAuditResults}
               variant="outline"
-              disabled={isAuditing}
+              disabled={isAuditing || isCompleting}
             >
               <RefreshCw className={`h-4 w-4 mr-2 ${isAuditing ? 'animate-spin' : ''}`} />
               Rafraîchir
             </Button>
+            {incompleteItems > 0 && (
+              <Button 
+                onClick={completeAllIncomplete}
+                disabled={isAuditing || isCompleting}
+                className="bg-gradient-to-r from-purple-600 to-pink-600"
+              >
+                {isCompleting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Complétion en cours...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    Compléter tout ({incompleteItems} items)
+                  </>
+                )}
+              </Button>
+            )}
             <Button 
               onClick={startAudit}
-              disabled={isAuditing}
+              disabled={isAuditing || isCompleting}
               className="bg-gradient-to-r from-blue-600 to-indigo-600"
             >
               {isAuditing ? (
@@ -270,6 +365,26 @@ export const EdnAuditDashboard: React.FC = () => {
                         </div>
                         <Progress value={result.completeness_score} className="mb-2" />
                       </div>
+                      {result.completeness_score < 80 && (
+                        <Button
+                          size="sm"
+                          onClick={() => completeItem(result.item_code)}
+                          disabled={completingItems.has(result.item_code)}
+                          className="ml-4 bg-gradient-to-r from-purple-600 to-pink-600"
+                        >
+                          {completingItems.has(result.item_code) ? (
+                            <>
+                              <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                              Complétion...
+                            </>
+                          ) : (
+                            <>
+                              <Sparkles className="h-3 w-3 mr-1" />
+                              Compléter
+                            </>
+                          )}
+                        </Button>
+                      )}
                     </div>
 
                     {(result.missing_rang_a?.length > 0 || result.missing_rang_b?.length > 0) && (
