@@ -48,7 +48,7 @@ serve(async (req) => {
 
     const url = new URL(req.url);
     const originalPath = url.pathname;
-    const path = url.pathname.replace('/functions/v1/med-mng-api', '');
+    const path = url.pathname.replace('/med-mng-api', '');
     console.log('🔍 Path extraction - Original:', originalPath, 'Extracted:', path);
     const ip = req.headers.get('x-forwarded-for') ?? req.headers.get('x-real-ip') ?? 'anon';
 
