@@ -5390,6 +5390,13 @@ export type Database = {
             referencedRelation: "med_mng_songs"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "med_mng_audio_access_logs_song_id_fkey"
+            columns: ["song_id"]
+            isOneToOne: false
+            referencedRelation: "med_mng_view_library"
+            referencedColumns: ["id"]
+          },
         ]
       }
       med_mng_cancellations: {
@@ -5799,6 +5806,13 @@ export type Database = {
             referencedRelation: "med_mng_songs"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "med_mng_listening_sessions_song_id_fkey"
+            columns: ["song_id"]
+            isOneToOne: false
+            referencedRelation: "med_mng_view_library"
+            referencedColumns: ["id"]
+          },
         ]
       }
       med_mng_lyrics_access_logs: {
@@ -5832,6 +5846,13 @@ export type Database = {
             columns: ["song_id"]
             isOneToOne: false
             referencedRelation: "med_mng_songs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "med_mng_lyrics_access_logs_song_id_fkey"
+            columns: ["song_id"]
+            isOneToOne: false
+            referencedRelation: "med_mng_view_library"
             referencedColumns: ["id"]
           },
         ]
@@ -5920,6 +5941,13 @@ export type Database = {
             referencedRelation: "med_mng_songs"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "med_mng_music_generation_logs_song_id_fkey"
+            columns: ["song_id"]
+            isOneToOne: false
+            referencedRelation: "med_mng_view_library"
+            referencedColumns: ["id"]
+          },
         ]
       }
       med_mng_playlist_analytics: {
@@ -5993,6 +6021,13 @@ export type Database = {
             columns: ["song_id"]
             isOneToOne: false
             referencedRelation: "med_mng_songs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "med_mng_playlist_songs_song_id_fkey"
+            columns: ["song_id"]
+            isOneToOne: false
+            referencedRelation: "med_mng_view_library"
             referencedColumns: ["id"]
           },
         ]
@@ -6097,6 +6132,13 @@ export type Database = {
             columns: ["song_id"]
             isOneToOne: false
             referencedRelation: "med_mng_songs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "med_mng_song_likes_song_id_fkey"
+            columns: ["song_id"]
+            isOneToOne: false
+            referencedRelation: "med_mng_view_library"
             referencedColumns: ["id"]
           },
         ]
@@ -6209,6 +6251,13 @@ export type Database = {
             referencedRelation: "med_mng_songs"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "med_mng_synchronized_lyrics_song_id_fkey"
+            columns: ["song_id"]
+            isOneToOne: true
+            referencedRelation: "med_mng_view_library"
+            referencedColumns: ["id"]
+          },
         ]
       }
       med_mng_user_analytics: {
@@ -6308,6 +6357,13 @@ export type Database = {
             columns: ["song_id"]
             isOneToOne: false
             referencedRelation: "med_mng_songs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "med_mng_user_songs_song_id_fkey"
+            columns: ["song_id"]
+            isOneToOne: false
+            referencedRelation: "med_mng_view_library"
             referencedColumns: ["id"]
           },
         ]
@@ -11772,6 +11828,19 @@ export type Database = {
           user_hash?: string | null
           user_id?: string | null
           valence?: number | null
+        }
+        Relationships: []
+      }
+      med_mng_view_library: {
+        Row: {
+          added_to_library_at: string | null
+          created_at: string | null
+          id: string | null
+          is_liked: boolean | null
+          meta: Json | null
+          suno_audio_id: string | null
+          title: string | null
+          user_id: string | null
         }
         Relationships: []
       }
