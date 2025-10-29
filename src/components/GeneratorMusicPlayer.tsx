@@ -204,7 +204,7 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
             disabled={isGenerating && !audioUrl}
           >
             <Library className="h-4 w-4 mr-2" />
-            Bibliothèque
+            Ajouter à la bibliothèque
           </Button>
           
           {ENABLE_DEBUG && (
