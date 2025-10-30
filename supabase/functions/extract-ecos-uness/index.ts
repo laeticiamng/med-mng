@@ -87,6 +87,15 @@ async function extractEcosSituations(supabase: any, username: string, password: 
   }
 
   const ecosPageHTML = await ecosPageResponse.text();
+  console.log(`📄 Page HTML récupérée: ${ecosPageHTML.length} caractères`);
+  console.log(`📄 Extrait HTML (premiers 500 chars): ${ecosPageHTML.substring(0, 500)}`);
+  
+  // Vérifier qu'on n'est pas redirigé vers la page de login
+  if (ecosPageHTML.includes('Veuillez saisir votre adresse e-mail') || 
+      ecosPageHTML.includes('authentification')) {
+    throw new Error('Session expirée - redirection vers page de login');
+  }
+  
   console.log("📋 Début de l'extraction des situations ECOS...");
 
   // Étape 3: Extraction des liens des situations
