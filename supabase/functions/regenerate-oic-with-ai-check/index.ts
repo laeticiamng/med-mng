@@ -20,16 +20,16 @@ serve(async (req) => {
 
     console.log('🚀 Démarrage régénération OIC avec vérification IA');
 
-    // 1. Charger toutes les compétences OIC réelles (pas les fallbacks)
+    // 1. Charger toutes les compétences OIC réelles depuis backup_oic_competences
     const { data: allOicCompetences, error: oicError } = await supabaseClient
-      .from('oic_competences')
-      .select('*')
+      .from('backup_oic_competences')
+      .select('objectif_id, intitule, description, item_parent, rang')
       .not('objectif_id', 'like', 'IC-%')
       .limit(10000);
 
     if (oicError) throw oicError;
     
-    console.log(`✅ Chargé ${allOicCompetences.length} compétences OIC`);
+    console.log(`✅ Chargé ${allOicCompetences.length} compétences OIC depuis backup_oic_competences`);
 
     // 2. Créer un index par item_parent et rang
     const oicByItemAndRang = new Map();
@@ -58,13 +58,27 @@ serve(async (req) => {
     let skipped = 0;
     const results = [];
 
-    // 4. Pour chaque item, assigner les compétences OIC
+    // 4. Pour chaque item, assigner les compétences OIC avec filtres qualité
     for (const item of items) {
       const itemNumber = item.item_code.replace('IC-', '').padStart(3, '0');
       
-      // Chercher compétences Rang A
-      const competencesA = oicByItemAndRang.get(`${itemNumber}_A`) || [];
-      const competencesB = oicByItemAndRang.get(`${itemNumber}_B`) || [];
+      // Chercher compétences Rang A avec filtres qualité
+      const allCompetencesA = oicByItemAndRang.get(`${itemNumber}_A`) || [];
+      const competencesA = allCompetencesA
+        .filter(c => 
+          c.intitule && c.intitule.length >= 10 && 
+          c.description && c.description.length >= 15
+        )
+        .slice(0, 15); // Prendre jusqu'à 15 compétences de qualité
+
+      // Chercher compétences Rang B avec filtres qualité
+      const allCompetencesB = oicByItemAndRang.get(`${itemNumber}_B`) || [];
+      const competencesB = allCompetencesB
+        .filter(c => 
+          c.intitule && c.intitule.length >= 10 && 
+          c.description && c.description.length >= 15
+        )
+        .slice(0, 10); // Prendre jusqu'à 10 compétences de qualité
 
       if (competencesA.length === 0 && competencesB.length === 0) {
         skipped++;
@@ -88,7 +102,7 @@ serve(async (req) => {
           rang_a_count: competencesA.length,
           rang_b_count: competencesB.length
         });
-        console.log(`✅ ${item.item_code}: ${competencesA.length} Rang A, ${competencesB.length} Rang B`);
+        console.log(`✅ ${item.item_code}: ${competencesA.length}/${allCompetencesA.length} Rang A, ${competencesB.length}/${allCompetencesB.length} Rang B`);
       } else {
         console.error(`❌ Erreur ${item.item_code}:`, updateError);
       }
@@ -112,9 +126,9 @@ Compétences trouvées:
 - Rang A: ${result.rang_a_count} compétences
 - Rang B: ${result.rang_b_count} compétences
 
-Attendu pour un item EDN complet:
-- Rang A: 5-15 compétences minimum
-- Rang B: 3-10 compétences minimum
+Attendu pour un item EDN complet selon le programme officiel:
+- Rang A: 8-15 compétences minimum (essentielles)
+- Rang B: 5-10 compétences minimum (approfondissement)
 
 Question: Cette couverture est-elle suffisante? Y a-t-il des manques critiques?
 
