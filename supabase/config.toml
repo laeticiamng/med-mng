@@ -150,4 +150,7 @@ verify_jwt = false
 [functions.sync-edn-tables]
 verify_jwt = false
 
+[functions.check-item-competences]
+verify_jwt = false
+
 

@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AlertCircle, Download, Play, Pause, RefreshCw } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { SecureCredentialsForm, useSecureCredentials } from '@/components/common/SecureCredentialsForm';
+import { ItemCompetencesChecker } from '@/components/audit/ItemCompetencesChecker';
 
 const AdminExtractEcos = () => {
   const [isExtracting, setIsExtracting] = useState(false);
@@ -89,7 +91,7 @@ const AdminExtractEcos = () => {
   };
 
   return (
-    <div className="container mx-auto p-6 max-w-4xl">
+    <div className="container mx-auto p-6 max-w-6xl">
       <div className="space-y-6">
         
         {/* Header */}
@@ -97,135 +99,151 @@ const AdminExtractEcos = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Download className="h-6 w-6" />
-              Extraction automatique ECOS UNESS
+              Extraction & Analyse ECOS / EDN
             </CardTitle>
             <CardDescription>
-              Extraction des situations de départ ECOS depuis la plateforme UNESS vers Supabase
+              Extraction automatique des situations ECOS depuis UNESS et vérification IA des compétences
             </CardDescription>
           </CardHeader>
         </Card>
 
-        {/* Actions */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Actions disponibles</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            
-            <div className="flex flex-wrap gap-3">
-              <Button 
-                onClick={() => startExtraction('start')}
-                disabled={isExtracting}
-                className="flex items-center gap-2"
-              >
-                <Play className="h-4 w-4" />
-                {isExtracting ? 'Extraction en cours...' : 'Démarrer extraction complète ECOS'}
-              </Button>
+        {/* Tabs principale */}
+        <Tabs defaultValue="extract" className="w-full">
+          <TabsList className="grid w-full grid-cols-2">
+            <TabsTrigger value="extract">Extraction ECOS</TabsTrigger>
+            <TabsTrigger value="checker">🤖 Vérification IA Item</TabsTrigger>
+          </TabsList>
 
-              <Button 
-                variant="outline"
-                onClick={() => startExtraction('resume')}
-                disabled={isExtracting}
-                className="flex items-center gap-2"
-              >
-                <RefreshCw className="h-4 w-4" />
-                Reprendre depuis la situation {resumeFromSD}
-              </Button>
+          {/* Tab Extraction ECOS */}
+          <TabsContent value="extract" className="space-y-4">
+            {/* Actions */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Actions disponibles</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                
+                <div className="flex flex-wrap gap-3">
+                  <Button 
+                    onClick={() => startExtraction('start')}
+                    disabled={isExtracting}
+                    className="flex items-center gap-2"
+                  >
+                    <Play className="h-4 w-4" />
+                    {isExtracting ? 'Extraction en cours...' : 'Démarrer extraction complète ECOS'}
+                  </Button>
 
-              <Button 
-                variant="secondary"
-                onClick={checkExistingData}
-                disabled={isExtracting}
-              >
-                Vérifier données ECOS existantes
-              </Button>
-            </div>
+                  <Button 
+                    variant="outline"
+                    onClick={() => startExtraction('resume')}
+                    disabled={isExtracting}
+                    className="flex items-center gap-2"
+                  >
+                    <RefreshCw className="h-4 w-4" />
+                    Reprendre depuis la situation {resumeFromSD}
+                  </Button>
 
-            <div className="flex items-center gap-2">
-              <label htmlFor="resumeSD" className="text-sm font-medium">
-                Reprendre depuis la situation:
-              </label>
-              <input
-                id="resumeSD"
-                type="number"
-                min="1"
-                max="400"
-                value={resumeFromSD}
-                onChange={(e) => setResumeFromSD(parseInt(e.target.value) || 1)}
-                className="w-20 px-2 py-1 border rounded text-sm"
-                disabled={isExtracting}
-              />
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Progress */}
-        {isExtracting && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Progression de l'extraction ECOS</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <Progress value={progress} className="w-full" />
-                <p className="text-sm text-gray-600">
-                  Extraction des situations ECOS en cours... Cela peut prendre plusieurs minutes.
-                </p>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
-        {/* Error */}
-        {error && (
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertDescription>
-              <strong>Erreur:</strong> {error}
-            </AlertDescription>
-          </Alert>
-        )}
-
-        {/* Stats */}
-        {stats && (
-          <Card>
-            <CardHeader>
-              <CardTitle>Résultats de l'extraction ECOS</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                <div className="text-center p-4 bg-green-50 rounded-lg">
-                  <div className="text-2xl font-bold text-green-600">
-                    {stats.totalProcessed}
-                  </div>
-                  <div className="text-sm text-green-700">Situations traitées</div>
+                  <Button 
+                    variant="secondary"
+                    onClick={checkExistingData}
+                    disabled={isExtracting}
+                  >
+                    Vérifier données ECOS existantes
+                  </Button>
                 </div>
-                <div className="text-center p-4 bg-red-50 rounded-lg">
-                  <div className="text-2xl font-bold text-red-600">
-                    {stats.totalErrors}
-                  </div>
-                  <div className="text-sm text-red-700">Erreurs</div>
-                </div>
-                <div className="text-center p-4 bg-blue-50 rounded-lg">
-                  <div className="text-2xl font-bold text-blue-600">
-                    {stats.lastProcessedSituation}
-                  </div>
-                  <div className="text-sm text-blue-700">Dernière situation</div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
 
-        {/* Info */}
-        <Alert>
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            <strong>Information:</strong> L'extraction complète des situations ECOS peut prendre 
-            entre 15-20 minutes. Le processus inclut l'authentification CAS, 
-            la navigation automatique et l'extraction du contenu de chaque situation.
-          </AlertDescription>
-        </Alert>
+                <div className="flex items-center gap-2">
+                  <label htmlFor="resumeSD" className="text-sm font-medium">
+                    Reprendre depuis la situation:
+                  </label>
+                  <input
+                    id="resumeSD"
+                    type="number"
+                    min="1"
+                    max="400"
+                    value={resumeFromSD}
+                    onChange={(e) => setResumeFromSD(parseInt(e.target.value) || 1)}
+                    className="w-20 px-2 py-1 border rounded text-sm"
+                    disabled={isExtracting}
+                  />
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Progress */}
+            {isExtracting && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Progression de l'extraction ECOS</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    <Progress value={progress} className="w-full" />
+                    <p className="text-sm text-gray-600">
+                      Extraction des situations ECOS en cours... Cela peut prendre plusieurs minutes.
+                    </p>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Error */}
+            {error && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  <strong>Erreur:</strong> {error}
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {/* Stats */}
+            {stats && (
+              <Card>
+                <CardHeader>
+                  <CardTitle>Résultats de l'extraction ECOS</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    <div className="text-center p-4 bg-green-50 rounded-lg">
+                      <div className="text-2xl font-bold text-green-600">
+                        {stats.totalProcessed}
+                      </div>
+                      <div className="text-sm text-green-700">Situations traitées</div>
+                    </div>
+                    <div className="text-center p-4 bg-red-50 rounded-lg">
+                      <div className="text-2xl font-bold text-red-600">
+                        {stats.totalErrors}
+                      </div>
+                      <div className="text-sm text-red-700">Erreurs</div>
+                    </div>
+                    <div className="text-center p-4 bg-blue-50 rounded-lg">
+                      <div className="text-2xl font-bold text-blue-600">
+                        {stats.lastProcessedSituation}
+                      </div>
+                      <div className="text-sm text-blue-700">Dernière situation</div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Info */}
+            <Alert>
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                <strong>Information:</strong> L'extraction complète des situations ECOS peut prendre 
+                entre 15-20 minutes. Le processus inclut l'authentification CAS, 
+                la navigation automatique et l'extraction du contenu de chaque situation.
+              </AlertDescription>
+            </Alert>
+          </TabsContent>
+
+          {/* Tab Vérification IA */}
+          <TabsContent value="checker" className="space-y-4">
+            <ItemCompetencesChecker />
+          </TabsContent>
+        </Tabs>
 
       </div>
 
