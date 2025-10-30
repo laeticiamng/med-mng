@@ -99,6 +99,9 @@ verify_jwt = false
 [functions.ia-quota]
 verify_jwt = false
 
+[functions.ecos-enrich-ai]
+verify_jwt = false
+
 [functions.med-mng-api]
 verify_jwt = false
 
