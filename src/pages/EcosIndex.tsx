@@ -1,69 +1,84 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Stethoscope, Search, Users, Clock, Sparkles } from 'lucide-react';
+import { Stethoscope, Search, Users, Clock, Sparkles, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+
+interface EcosScenario {
+  sd_id: number;
+  intitule_sd: string;
+  competences_associees?: string[];
+  contenu_complet_html: string;
+}
 
 const EcosIndex = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [ecosScenarios, setEcosScenarios] = useState<EcosScenario[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Sample ECOS scenarios - in real app, this would come from API
-  const ecosScenarios = [
-    { 
-      id: '003', 
-      title: 'Douleur thoracique', 
-      specialty: 'Cardiologie', 
-      duration: '15 min',
-      type: 'Urgence',
-      description: 'Patient de 45 ans consultant pour douleur thoracique brutale'
-    },
-    { 
-      id: '042', 
-      title: 'Dyspnée aiguë', 
-      specialty: 'Pneumologie', 
-      duration: '12 min',
-      type: 'Urgence',
-      description: 'Femme de 65 ans avec essoufflement soudain'
-    },
-    { 
-      id: '087', 
-      title: 'Fièvre chez l\'enfant', 
-      specialty: 'Pédiatrie', 
-      duration: '10 min',
-      type: 'Consultation',
-      description: 'Enfant de 3 ans avec fièvre depuis 2 jours'
-    },
-    { 
-      id: '156', 
-      title: 'Céphalées récurrentes', 
-      specialty: 'Neurologie', 
-      duration: '15 min',
-      type: 'Consultation',
-      description: 'Adulte jeune avec maux de tête fréquents'
-    },
-    { 
-      id: '203', 
-      title: 'Troubles du comportement', 
-      specialty: 'Psychiatrie', 
-      duration: '18 min',
-      type: 'Consultation',
-      description: 'Entretien avec patient présentant des troubles anxieux'
-    },
-    { 
-      id: '287', 
-      title: 'Grossesse pathologique', 
-      specialty: 'Gynécologie', 
-      duration: '12 min',
-      type: 'Suivi',
-      description: 'Suivi de grossesse avec complications'
-    },
-  ];
+  useEffect(() => {
+    loadEcosScenarios();
+  }, []);
+
+  const loadEcosScenarios = async () => {
+    try {
+      setLoading(true);
+      
+      const { data, error } = await supabase
+        .from('ecos_situations_uness')
+        .select('sd_id, intitule_sd, competences_associees, contenu_complet_html')
+        .order('sd_id')
+        .limit(100); // Charger les 100 premières situations
+
+      if (error) throw error;
+
+      setEcosScenarios(data || []);
+    } catch (error) {
+      console.error('Erreur chargement situations ECOS:', error);
+      toast.error('Erreur lors du chargement des situations ECOS');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Fonction pour extraire un aperçu du contenu HTML
+  const getDescription = (html: string): string => {
+    const text = html.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
+    return text.substring(0, 120) + (text.length > 120 ? '...' : '');
+  };
+
+  // Fonction pour déterminer le type basé sur les compétences
+  const getScenarioType = (competences?: string[]): string => {
+    if (!competences || competences.length === 0) return 'Consultation';
+    
+    const competencesText = competences.join(' ').toLowerCase();
+    if (competencesText.includes('urgence') || competencesText.includes('aigu')) return 'Urgence';
+    if (competencesText.includes('suivi') || competencesText.includes('grossesse')) return 'Suivi';
+    if (competencesText.includes('prévention')) return 'Prévention';
+    
+    return 'Consultation';
+  };
+
+  // Fonction pour obtenir la spécialité principale
+  const getSpecialty = (competences?: string[]): string => {
+    if (!competences || competences.length === 0) return 'Médecine générale';
+    return competences[0] || 'Médecine générale';
+  };
+
+  // Estimer la durée basée sur la longueur du contenu
+  const estimateDuration = (html: string): string => {
+    const textLength = html.replace(/<[^>]*>/g, '').length;
+    const minutes = Math.max(10, Math.min(20, Math.round(textLength / 200)));
+    return `${minutes} min`;
+  };
 
   const filteredScenarios = ecosScenarios.filter(scenario =>
-    scenario.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    scenario.specialty.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    scenario.description.toLowerCase().includes(searchTerm.toLowerCase())
+    scenario.intitule_sd.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    getSpecialty(scenario.competences_associees).toLowerCase().includes(searchTerm.toLowerCase()) ||
+    getDescription(scenario.contenu_complet_html).toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const getTypeColor = (type: string) => {
@@ -127,58 +142,83 @@ const EcosIndex = () => {
               </h1>
               <Sparkles className="h-6 w-6 text-teal-400 animate-pulse" />
             </div>
-            <p className="text-xl text-white/70 max-w-2xl mx-auto">
+            <p className="text-xl text-white/70 max-w-2xl mx-auto mb-4">
               Pratiquez les situations de départ ECOS avec des patients virtuels immersifs
             </p>
+            {!loading && (
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/20 border border-emerald-400/30 rounded-full">
+                <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+                <span className="text-emerald-300 font-medium text-sm">
+                  {ecosScenarios.length} situations officielles UNESS disponibles
+                </span>
+              </div>
+            )}
           </div>
+
+          {/* Loading state */}
+          {loading && (
+            <div className="flex items-center justify-center py-16">
+              <Loader2 className="h-12 w-12 animate-spin text-emerald-400" />
+              <span className="ml-4 text-xl text-white/60">Chargement des situations ECOS...</span>
+            </div>
+          )}
 
           {/* Scenarios grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredScenarios.map((scenario, index) => (
-              <Link
-                key={scenario.id}
-                to={`/ecos/sd-${scenario.id.toLowerCase()}-${scenario.title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}`}
-                className="group"
-              >
-                <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 hover:bg-white/10 hover:border-emerald-400/30 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-emerald-500/10 animate-fade-in"
-                     style={{ animationDelay: `${index * 0.1}s` }}>
-                  <div className="flex items-start justify-between mb-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white font-bold">
-                        SD{scenario.id}
+          {!loading && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {filteredScenarios.map((scenario, index) => {
+                const scenarioType = getScenarioType(scenario.competences_associees);
+                const specialty = getSpecialty(scenario.competences_associees);
+                const duration = estimateDuration(scenario.contenu_complet_html);
+                const description = getDescription(scenario.contenu_complet_html);
+                
+                return (
+                  <Link
+                    key={scenario.sd_id}
+                    to={`/ecos/sd-${scenario.sd_id.toString().padStart(3, '0')}-${scenario.intitule_sd.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}`}
+                    className="group"
+                  >
+                    <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 hover:bg-white/10 hover:border-emerald-400/30 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-emerald-500/10 animate-fade-in"
+                         style={{ animationDelay: `${index * 0.05}s` }}>
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white font-bold text-sm">
+                            SD{scenario.sd_id}
+                          </div>
+                          <div className="flex-1">
+                            <h3 className="text-white font-semibold text-lg group-hover:text-emerald-300 transition-colors line-clamp-1">
+                              {scenario.intitule_sd}
+                            </h3>
+                            <p className="text-white/60 text-sm line-clamp-1">{specialty}</p>
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex-1">
-                        <h3 className="text-white font-semibold text-lg group-hover:text-emerald-300 transition-colors">
-                          {scenario.title}
-                        </h3>
-                        <p className="text-white/60 text-sm">{scenario.specialty}</p>
+                      
+                      <p className="text-white/70 text-sm mb-4 line-clamp-2">
+                        {description}
+                      </p>
+                      
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <span className={`px-3 py-1 rounded-full text-xs font-medium ${getTypeColor(scenarioType)}`}>
+                            {scenarioType}
+                          </span>
+                          <div className="flex items-center gap-1 text-white/40 text-xs">
+                            <Clock className="h-3 w-3" />
+                            {duration}
+                          </div>
+                        </div>
+                        <Users className="h-4 w-4 text-white/40 group-hover:text-emerald-400 transition-colors" />
                       </div>
                     </div>
-                  </div>
-                  
-                  <p className="text-white/70 text-sm mb-4 line-clamp-2">
-                    {scenario.description}
-                  </p>
-                  
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className={`px-3 py-1 rounded-full text-xs font-medium ${getTypeColor(scenario.type)}`}>
-                        {scenario.type}
-                      </span>
-                      <div className="flex items-center gap-1 text-white/40 text-xs">
-                        <Clock className="h-3 w-3" />
-                        {scenario.duration}
-                      </div>
-                    </div>
-                    <Users className="h-4 w-4 text-white/40 group-hover:text-emerald-400 transition-colors" />
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
+                  </Link>
+                );
+              })}
+            </div>
+          )}
 
           {/* Empty state */}
-          {filteredScenarios.length === 0 && (
+          {!loading && filteredScenarios.length === 0 && (
             <div className="text-center py-16">
               <Search className="h-16 w-16 text-white/20 mx-auto mb-4" />
               <h3 className="text-xl text-white/60 mb-2">Aucune situation trouvée</h3>
