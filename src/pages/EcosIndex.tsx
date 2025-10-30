@@ -33,12 +33,22 @@ const EcosIndex = () => {
         .order('sd_id')
         .limit(100); // Charger les 100 premières situations
 
-      if (error) throw error;
+      if (error) {
+        console.error('Erreur Supabase:', error);
+        throw error;
+      }
 
+      console.log('✅ Situations ECOS chargées:', data?.length || 0);
       setEcosScenarios(data || []);
-    } catch (error) {
+      
+      if (!data || data.length === 0) {
+        toast.info('Aucune situation ECOS trouvée. Veuillez d\'abord extraire les données depuis UNESS.', {
+          duration: 5000
+        });
+      }
+    } catch (error: any) {
       console.error('Erreur chargement situations ECOS:', error);
-      toast.error('Erreur lors du chargement des situations ECOS');
+      toast.error(`Erreur: ${error.message || 'Impossible de charger les situations'}`);
     } finally {
       setLoading(false);
     }
@@ -217,12 +227,40 @@ const EcosIndex = () => {
             </div>
           )}
 
-          {/* Empty state */}
-          {!loading && filteredScenarios.length === 0 && (
+          {/* Empty state - no data */}
+          {!loading && ecosScenarios.length === 0 && searchTerm === '' && (
+            <div className="text-center py-16">
+              <div className="max-w-md mx-auto">
+                <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Stethoscope className="h-10 w-10 text-emerald-400" />
+                </div>
+                <h3 className="text-2xl font-semibold text-white mb-3">Aucune situation ECOS disponible</h3>
+                <p className="text-white/60 mb-6">
+                  Les situations ECOS doivent d'abord être extraites depuis la plateforme UNESS.
+                </p>
+                <Link to="/admin/extract-ecos">
+                  <Button className="bg-emerald-500 hover:bg-emerald-600 text-white">
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    Extraire les situations ECOS
+                  </Button>
+                </Link>
+              </div>
+            </div>
+          )}
+
+          {/* Empty state - search results */}
+          {!loading && filteredScenarios.length === 0 && searchTerm !== '' && (
             <div className="text-center py-16">
               <Search className="h-16 w-16 text-white/20 mx-auto mb-4" />
               <h3 className="text-xl text-white/60 mb-2">Aucune situation trouvée</h3>
               <p className="text-white/40">Essayez de modifier votre recherche</p>
+              <Button 
+                variant="outline" 
+                className="mt-4 border-white/20 text-white hover:bg-white/10"
+                onClick={() => setSearchTerm('')}
+              >
+                Réinitialiser la recherche
+              </Button>
             </div>
           )}
         </div>
