@@ -47,8 +47,18 @@ export const ItemCompetencesChecker = () => {
     setIsRegenerating(true);
     setRegenResult(null);
 
+    toast({
+      title: '🚀 Régénération lancée',
+      description: 'Cette opération peut prendre 5-10 minutes pour traiter tous les items avec IA...',
+    });
+
     try {
-      const { data, error } = await supabase.functions.invoke('regenerate-oic-with-ai-check');
+      const { data, error } = await supabase.functions.invoke('regenerate-oic-with-ai-check', {
+        body: {},
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
 
       if (error) throw error;
 
@@ -95,7 +105,8 @@ export const ItemCompetencesChecker = () => {
             Régénération Complète avec Vérification IA
           </CardTitle>
           <CardDescription>
-            Régénère toutes les compétences OIC depuis la table oic_competences et vérifie la qualité avec l'IA
+            Régénère toutes les compétences OIC depuis la table backup_oic_competences et vérifie la qualité avec l'IA.
+            <span className="block mt-2 text-amber-600 font-medium">⚠️ Cette opération prend 5-10 minutes</span>
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -133,6 +144,10 @@ export const ItemCompetencesChecker = () => {
                 <div className="text-sm text-muted-foreground">Items mis à jour</div>
               </div>
               <div className="bg-primary/10 p-4 rounded-lg">
+                <div className="text-3xl font-bold">{regenResult.stats?.items_enriched_by_ai}</div>
+                <div className="text-sm text-muted-foreground">Items enrichis par IA</div>
+              </div>
+              <div className="bg-primary/10 p-4 rounded-lg col-span-2">
                 <div className="text-3xl font-bold">{regenResult.stats?.final_coverage}</div>
                 <div className="text-sm text-muted-foreground">Couverture finale</div>
               </div>
@@ -140,7 +155,7 @@ export const ItemCompetencesChecker = () => {
 
             {regenResult.ai_checks && regenResult.ai_checks.length > 0 && (
               <div className="space-y-3">
-                <h4 className="font-semibold">Vérifications IA (échantillon de 5 items)</h4>
+                <h4 className="font-semibold">Vérifications IA (échantillon de {regenResult.ai_checks.length} items)</h4>
                 {regenResult.ai_checks.map((check: any, idx: number) => (
                   <div key={idx} className="border rounded-lg p-4">
                     <div className="flex items-center justify-between mb-2">
