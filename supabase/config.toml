@@ -102,6 +102,9 @@ verify_jwt = false
 [functions.ecos-enrich-ai]
 verify_jwt = false
 
+[functions.extract-ecos-uness]
+verify_jwt = false
+
 [functions.med-mng-api]
 verify_jwt = false
 
