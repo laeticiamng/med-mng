@@ -11,7 +11,6 @@ import { HelpCenter } from "@/components/help/HelpCenter";
 import { NotificationSystem } from "@/components/advanced/NotificationSystem";
 import { KeyboardShortcuts } from "@/components/advanced/KeyboardShortcuts";
 import { Bell } from 'lucide-react';
-import { CombinedProviders } from "@/components/providers/CombinedProviders";
 import { MainNavigation } from '@/components/layout/MainNavigation';
 import { InternationalizationProvider } from '@/contexts/InternationalizationContext';
 import { PerformanceProvider } from '@/contexts/PerformanceContext';
@@ -103,15 +102,24 @@ const queryClient = new QueryClient({
 const App = () => {
   const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false);
   const [isHelpCenterOpen, setIsHelpCenterOpen] = useState(false);
-  return <AccessibilityProvider>
-      <InternationalizationProvider>
-        <PerformanceProvider>
-          <CombinedProviders>
-          <SkipLinks />
-          <div id="app-root" className="min-h-screen bg-background">
-            <MainNavigation />
-            <main id="main-content" tabIndex={-1} className="pt-16">
-          <Routes>
+  
+  return (
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <HelmetProvider>
+          <AuthProvider>
+            <LanguageProvider>
+              <GlobalAudioProvider>
+                <TooltipProvider>
+                  <ViewportProvider>
+                    <AccessibilityProvider>
+                      <InternationalizationProvider>
+                        <PerformanceProvider>
+                          <SkipLinks />
+                          <div id="app-root" className="min-h-screen bg-background">
+                            <MainNavigation />
+                            <main id="main-content" tabIndex={-1} className="pt-16">
+                              <Routes>
         <Route path="/modular-dashboard" element={<ModularDashboard />} />
            <Route path="/dashboard" element={<Dashboard />} />
            <Route path="/learning-dashboard" element={<LearningDashboard />} />
@@ -184,36 +192,47 @@ const App = () => {
             <Route path="/favorites" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Favorites /></Suspense>} />
             <Route path="/settings" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><UserSettings /></Suspense>} />
            
-           <Route path="*" element={<NotFound />} />
-        </Routes>
-      </main>
-       
-       {/* Global UI Components - LAZY LOADED */}
-       {/* 🔒 ONBOARDING DÉSACTIVÉ - Modal invasif supprimé */}
-       {/* <Suspense fallback={null}>
-         <DynamicOnboarding />
-       </Suspense> */}
-       <HelpButton />
-       
-        <NotificationSystem isOpen={isNotificationCenterOpen} onClose={() => setIsNotificationCenterOpen(false)} />
-         {isHelpCenterOpen && <HelpCenter />}
-         
-         <Button variant="outline" size="sm" onClick={() => setIsNotificationCenterOpen(true)} className="fixed bottom-4 right-4 z-40 my-[36px]">
-           <Bell className="w-4 h-4 mr-2" />
-           Notifications
-         </Button>
-         
-          {/* Raccourcis Clavier Globaux */}
-          <KeyboardShortcuts />
-          
-          {/* Centre d'Accessibilité */}
-          <AccessibilityCenter />
-       </div>
-       <Toaster />
-        <Sonner />
-         </CombinedProviders>
-       </PerformanceProvider>
-     </InternationalizationProvider>
-   </AccessibilityProvider>;
+                                <Route path="*" element={<NotFound />} />
+                              </Routes>
+                            </main>
+                            
+                            {/* Global UI Components */}
+                            <HelpButton />
+                            <NotificationSystem 
+                              isOpen={isNotificationCenterOpen} 
+                              onClose={() => setIsNotificationCenterOpen(false)} 
+                            />
+                            {isHelpCenterOpen && <HelpCenter />}
+                            
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              onClick={() => setIsNotificationCenterOpen(true)} 
+                              className="fixed bottom-4 right-4 z-40 my-[36px]"
+                            >
+                              <Bell className="w-4 h-4 mr-2" />
+                              Notifications
+                            </Button>
+                            
+                            {/* Raccourcis Clavier Globaux */}
+                            <KeyboardShortcuts />
+                            
+                            {/* Centre d'Accessibilité */}
+                            <AccessibilityCenter />
+                          </div>
+                          <Toaster />
+                          <Sonner />
+                        </PerformanceProvider>
+                      </InternationalizationProvider>
+                    </AccessibilityProvider>
+                  </ViewportProvider>
+                </TooltipProvider>
+              </GlobalAudioProvider>
+            </LanguageProvider>
+          </AuthProvider>
+        </HelmetProvider>
+      </BrowserRouter>
+    </QueryClientProvider>
+  );
 };
 export default App;
