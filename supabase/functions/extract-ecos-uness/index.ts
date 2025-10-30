@@ -74,8 +74,8 @@ async function extractEcosSituations(supabase: any, username: string, password: 
   const sessionCookies = await authenticateCAS(username, password);
   console.log("✅ Authentification CAS réussie");
 
-  // Étape 2: Navigation vers la page des situations de départ ECOS
-  const ecosPageResponse = await fetch("https://livret.uness.fr/lisa/2025/Situation_de_depart", {
+  // Étape 2: Navigation vers la page des situations de départ ECOS (catégorie MediaWiki)
+  const ecosPageResponse = await fetch("https://livret.uness.fr/lisa/2025/Catégorie:Situation_de_départ", {
     headers: {
       'Cookie': sessionCookies,
       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
@@ -204,20 +204,34 @@ async function authenticateCAS(username: string, password: string): Promise<stri
 function extractSituationLinks(html: string): Array<{url: string, title: string}> {
   const links: Array<{url: string, title: string}> = [];
   
-  // Patterns pour identifier les liens vers les situations
+  // Pattern MediaWiki pour les pages de catégorie
+  // Les situations ECOS sont listées dans la section "Pages dans la catégorie"
   const linkPatterns = [
-    /<a[^>]+href="([^"]*Situation_de_depart[^"]*)"[^>]*>([^<]+)<\/a>/gi,
-    /<a[^>]+href="([^"]*SD_[^"]*)"[^>]*>([^<]+)<\/a>/gi
+    // Pattern pour les liens MediaWiki standard
+    /<a[^>]+href="\/lisa\/2025\/([^"]*SD[^"]*)"[^>]*title="([^"]+)"[^>]*>/gi,
+    // Pattern alternatif pour capturer tous les liens vers des pages SD
+    /<a[^>]+href="([^"]*\/lisa\/2025\/SD[^"]*)"[^>]*>([^<]+)<\/a>/gi,
+    // Pattern pour la liste des pages dans la catégorie
+    /<li><a[^>]+href="([^"]+)"[^>]*title="([^"]+SD[^"]+)"[^>]*>/gi
   ];
 
   for (const pattern of linkPatterns) {
     let match;
     while ((match = pattern.exec(html)) !== null) {
-      const url = match[1].startsWith('http') ? match[1] : `https://livret.uness.fr${match[1]}`;
-      const title = match[2].trim();
+      let url = match[1];
+      const title = match[2] ? match[2].trim() : '';
       
-      if (title && !links.some(l => l.url === url)) {
+      // Construire l'URL complète si nécessaire
+      if (!url.startsWith('http')) {
+        url = url.startsWith('/') 
+          ? `https://livret.uness.fr${url}` 
+          : `https://livret.uness.fr/lisa/2025/${url}`;
+      }
+      
+      // Filtrer les doublons et les liens invalides
+      if (title && url.includes('SD') && !links.some(l => l.url === url)) {
         links.push({ url, title });
+        console.log(`🔗 Situation trouvée: ${title} → ${url}`);
       }
     }
   }
