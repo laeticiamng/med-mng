@@ -110,34 +110,42 @@ serve(async (req) => {
 
     console.log(`\n📊 Résumé: ${updated} items mis à jour, ${skipped} items sans compétences`);
 
-    // 5. Vérification IA sur les 5 premiers items mis à jour
+    // 5. Vérification et complétion IA sur TOUS les items mis à jour
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     const aiChecks = [];
+    let itemsEnriched = 0;
 
     if (LOVABLE_API_KEY && results.length > 0) {
-      console.log('\n🤖 Lancement vérification IA sur échantillon...');
+      console.log('\n🤖 Lancement analyse IA complète sur tous les items...');
       
-      const itemsToCheck = results.slice(0, 5);
-      
-      for (const result of itemsToCheck) {
-        const prompt = `Analyse de l'item ${result.item_code} - ${result.title}:
-        
-Compétences trouvées:
-- Rang A: ${result.rang_a_count} compétences
-- Rang B: ${result.rang_b_count} compétences
+      for (const result of results) {
+        const prompt = `Analyse de l'item EDN ${result.item_code} - ${result.title}:
 
-Attendu pour un item EDN complet selon le programme officiel:
-- Rang A: 8-15 compétences minimum (essentielles)
-- Rang B: 5-10 compétences minimum (approfondissement)
+Compétences OIC actuelles:
+- Rang A (essentielles): ${result.rang_a_count} compétences
+- Rang B (approfondissement): ${result.rang_b_count} compétences
 
-Question: Cette couverture est-elle suffisante? Y a-t-il des manques critiques?
+Attendu selon programme officiel EDN:
+- Rang A: 8-15 compétences minimum
+- Rang B: 5-10 compétences minimum
 
-Réponds en JSON avec:
+TÂCHE:
+1. Évalue si la couverture est suffisante
+2. Si insuffisant, génère les compétences manquantes au format OIC
+
+Réponds en JSON:
 {
   "score": (0-100),
   "qualite": "excellent/bon/moyen/insuffisant",
-  "analyse": "analyse concise",
-  "recommandations": ["rec1", "rec2"]
+  "analyse": "évaluation concise",
+  "manques": ["domaine manquant 1", "domaine manquant 2"],
+  "competences_a_generer": [
+    {
+      "rang": "A" ou "B",
+      "intitule": "titre court de la compétence",
+      "description": "description détaillée de la compétence"
+    }
+  ]
 }`;
 
         try {
@@ -168,7 +176,57 @@ Réponds en JSON avec:
               item_code: result.item_code,
               ...analysis
             });
-            console.log(`✅ IA check ${result.item_code}: ${analysis.qualite} (${analysis.score}/100)`);
+            
+            // Si des compétences doivent être générées, les ajouter
+            if (analysis.competences_a_generer && analysis.competences_a_generer.length > 0) {
+              const newCompetences = analysis.competences_a_generer;
+              
+              // Récupérer les compétences actuelles
+              const { data: currentItem } = await supabaseClient
+                .from('edn_items_complete')
+                .select('competences_oic_rang_a, competences_oic_rang_b')
+                .eq('item_code', result.item_code)
+                .single();
+              
+              const currentRangA = currentItem?.competences_oic_rang_a || [];
+              const currentRangB = currentItem?.competences_oic_rang_b || [];
+              
+              // Ajouter les nouvelles compétences générées par l'IA
+              const newRangA = [...currentRangA];
+              const newRangB = [...currentRangB];
+              
+              for (const comp of newCompetences) {
+                const newComp = {
+                  objectif_id: `OIC-AI-${result.item_code}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                  intitule: comp.intitule,
+                  description: comp.description,
+                  item_parent: result.item_code.replace('IC-', '').padStart(3, '0'),
+                  rang: comp.rang
+                };
+                
+                if (comp.rang === 'A') {
+                  newRangA.push(newComp);
+                } else {
+                  newRangB.push(newComp);
+                }
+              }
+              
+              // Mettre à jour l'item avec les nouvelles compétences
+              const { error: updateError } = await supabaseClient
+                .from('edn_items_complete')
+                .update({
+                  competences_oic_rang_a: newRangA.length > 0 ? newRangA : null,
+                  competences_oic_rang_b: newRangB.length > 0 ? newRangB : null,
+                })
+                .eq('item_code', result.item_code);
+              
+              if (!updateError) {
+                itemsEnriched++;
+                console.log(`✨ ${result.item_code}: Enrichi avec ${newCompetences.length} compétences IA - ${analysis.qualite} (${analysis.score}/100)`);
+              }
+            } else {
+              console.log(`✅ ${result.item_code}: Complet - ${analysis.qualite} (${analysis.score}/100)`);
+            }
           }
         } catch (aiError) {
           console.error(`❌ Erreur IA pour ${result.item_code}:`, aiError.message);
@@ -191,11 +249,12 @@ Réponds en JSON avec:
         total_items: items.length,
         updated: updated,
         skipped: skipped,
+        items_enriched_by_ai: itemsEnriched,
         final_coverage: `${finalCount}/${items.length} (${coverage}%)`,
       },
       sample_results: results.slice(0, 10),
-      ai_checks: aiChecks,
-      message: `✅ Régénération terminée: ${updated} items mis à jour avec vérification IA`
+      ai_checks: aiChecks.slice(0, 20),
+      message: `✅ Régénération terminée: ${updated} items mis à jour, ${itemsEnriched} items enrichis par IA`
     }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
