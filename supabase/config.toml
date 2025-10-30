@@ -153,4 +153,7 @@ verify_jwt = false
 [functions.check-item-competences]
 verify_jwt = false
 
+[functions.regenerate-oic-with-ai-check]
+verify_jwt = false
+
 

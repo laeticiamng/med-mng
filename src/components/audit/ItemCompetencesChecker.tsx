@@ -5,12 +5,14 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { Loader2, CheckCircle, XCircle, AlertCircle, Sparkles } from 'lucide-react';
 
 export const ItemCompetencesChecker = () => {
   const [itemCode, setItemCode] = useState('001');
   const [isChecking, setIsChecking] = useState(false);
+  const [isRegenerating, setIsRegenerating] = useState(false);
   const [report, setReport] = useState<any>(null);
+  const [regenResult, setRegenResult] = useState<any>(null);
   const { toast } = useToast();
 
   const checkCompetences = async () => {
@@ -41,6 +43,32 @@ export const ItemCompetencesChecker = () => {
     }
   };
 
+  const regenerateAllWithAI = async () => {
+    setIsRegenerating(true);
+    setRegenResult(null);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('regenerate-oic-with-ai-check');
+
+      if (error) throw error;
+
+      setRegenResult(data);
+      toast({
+        title: '✅ Régénération terminée',
+        description: `${data.stats?.updated} items mis à jour avec vérification IA`,
+      });
+    } catch (error: any) {
+      console.error('Erreur régénération:', error);
+      toast({
+        title: '❌ Erreur',
+        description: error.message || 'Impossible de régénérer',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsRegenerating(false);
+    }
+  };
+
   const getQualityColor = (qualite: string) => {
     switch (qualite) {
       case 'excellent': return 'bg-green-500';
@@ -62,7 +90,89 @@ export const ItemCompetencesChecker = () => {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>🤖 Vérification IA des Compétences</CardTitle>
+          <CardTitle className="flex items-center">
+            <Sparkles className="mr-2 h-5 w-5" />
+            Régénération Complète avec Vérification IA
+          </CardTitle>
+          <CardDescription>
+            Régénère toutes les compétences OIC depuis la table oic_competences et vérifie la qualité avec l'IA
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Button 
+            onClick={regenerateAllWithAI}
+            disabled={isRegenerating}
+            size="lg"
+            className="w-full"
+            variant="default"
+          >
+            {isRegenerating ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Régénération en cours...
+              </>
+            ) : (
+              <>
+                <Sparkles className="mr-2 h-4 w-4" />
+                Régénérer TOUT avec Vérification IA
+              </>
+            )}
+          </Button>
+        </CardContent>
+      </Card>
+
+      {regenResult && (
+        <Card>
+          <CardHeader>
+            <CardTitle>✅ Résultats de la Régénération</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-primary/10 p-4 rounded-lg">
+                <div className="text-3xl font-bold">{regenResult.stats?.updated}</div>
+                <div className="text-sm text-muted-foreground">Items mis à jour</div>
+              </div>
+              <div className="bg-primary/10 p-4 rounded-lg">
+                <div className="text-3xl font-bold">{regenResult.stats?.final_coverage}</div>
+                <div className="text-sm text-muted-foreground">Couverture finale</div>
+              </div>
+            </div>
+
+            {regenResult.ai_checks && regenResult.ai_checks.length > 0 && (
+              <div className="space-y-3">
+                <h4 className="font-semibold">Vérifications IA (échantillon de 5 items)</h4>
+                {regenResult.ai_checks.map((check: any, idx: number) => (
+                  <div key={idx} className="border rounded-lg p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-medium">{check.item_code}</span>
+                      <Badge className={
+                        check.qualite === 'excellent' ? 'bg-green-500' :
+                        check.qualite === 'bon' ? 'bg-blue-500' :
+                        check.qualite === 'moyen' ? 'bg-yellow-500' :
+                        'bg-red-500'
+                      }>
+                        {check.qualite} - {check.score}/100
+                      </Badge>
+                    </div>
+                    <p className="text-sm text-muted-foreground mb-2">{check.analyse}</p>
+                    {check.recommandations && check.recommandations.length > 0 && (
+                      <ul className="text-xs space-y-1">
+                        {check.recommandations.map((rec: string, i: number) => (
+                          <li key={i} className="text-muted-foreground">• {rec}</li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      <Card>
+        <CardHeader>
+          <CardTitle>🤖 Vérification IA d'un Item Spécifique</CardTitle>
           <CardDescription>
             Utilise Lovable AI pour analyser la complétude des compétences OIC d'un item
           </CardDescription>
