@@ -18,15 +18,18 @@ const AdminExtractEcos = () => {
   const { getCredentials, showCredentialsForm, handleCredentialsSubmit } = useSecureCredentials();
 
   const startExtraction = async (action: 'start' | 'resume' = 'start') => {
-    setIsExtracting(true);
-    setError(null);
-    setProgress(0);
-    
     try {
       console.log(`🚀 Lancement de l'extraction ECOS - Action: ${action}`);
       
-      // Obtenir les credentials de manière sécurisée
+      // Obtenir les credentials de manière sécurisée (affiche le formulaire si nécessaire)
       const credentials = await getCredentials();
+      
+      console.log('✅ Credentials obtenus, démarrage de l\'extraction...');
+      
+      // Maintenant on peut démarrer l'extraction
+      setIsExtracting(true);
+      setError(null);
+      setProgress(10);
       
       const { data, error } = await supabase.functions.invoke('extract-ecos-uness', {
         body: {
@@ -40,6 +43,7 @@ const AdminExtractEcos = () => {
         console.error('❌ Erreur extraction ECOS:', error);
         setError(error.message);
         toast.error('Erreur lors de l\'extraction ECOS');
+        setIsExtracting(false);
         return;
       }
 
@@ -50,10 +54,18 @@ const AdminExtractEcos = () => {
 
     } catch (error: any) {
       console.error('💥 Erreur critique ECOS:', error);
-      setError(error.message);
-      toast.error('Erreur critique lors de l\'extraction ECOS');
+      
+      // Gestion spécifique de l'erreur de timeout credentials
+      if (error.message.includes('Timeout') || error.message.includes('credential')) {
+        setError('Authentification annulée ou expirée');
+        toast.error('Veuillez saisir vos identifiants CAS');
+      } else {
+        setError(error.message);
+        toast.error('Erreur lors de l\'extraction ECOS');
+      }
     } finally {
       setIsExtracting(false);
+      setProgress(0);
     }
   };
 
@@ -219,12 +231,20 @@ const AdminExtractEcos = () => {
 
       {/* Formulaire de credentials sécurisé */}
       {showCredentialsForm && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+        <div 
+          className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[100]"
+          onClick={(e) => {
+            e.stopPropagation();
+            // Permettre de fermer en cliquant sur le backdrop
+            setError('Extraction annulée - Authentification requise');
+            toast.error('Veuillez vous authentifier pour continuer');
+          }}
+        >
           <div onClick={(e) => e.stopPropagation()}>
             <SecureCredentialsForm
               onSubmit={handleCredentialsSubmit}
-              title="Authentification CAS pour extraction ECOS"
-              description="Saisissez vos identifiants CAS pour l'extraction sécurisée des données ECOS"
+              title="🔐 Authentification CAS UNESS"
+              description="Saisissez vos identifiants CAS UNESS pour extraire les situations ECOS depuis la plateforme officielle"
             />
           </div>
         </div>
