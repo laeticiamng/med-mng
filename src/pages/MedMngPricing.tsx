@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Music, Library, Heart, Shield, Headphones, Download, Crown, Star, Zap, Check } from 'lucide-react';
@@ -408,6 +408,14 @@ export const MedMngPricing = () => {
                         </PremiumButton>
                       ) : (
                         <>
+                          <div className="mb-3 p-3 bg-primary/10 rounded-lg border border-primary/20">
+                            <p className="text-xs text-foreground">
+                              <strong>✓ J'accepte les</strong>{' '}
+                              <Link to="/cgu" target="_blank" className="text-primary hover:underline font-semibold">CGU</Link>
+                              {' '}et le{' '}
+                              <strong>droit de rétractation (14 jours)</strong> sauf utilisation crédits.
+                            </p>
+                          </div>
                           <PremiumButton
                             className="w-full"
                             variant={plan.name.toLowerCase() === 'premium' ? 'accent' : 'primary'}

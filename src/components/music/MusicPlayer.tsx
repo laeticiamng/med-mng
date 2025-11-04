@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Play, Pause, SkipBack, SkipForward, Volume2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
+import { AIGeneratedBadge } from '@/components/common/AIGeneratedBadge';
 
 interface SupabaseMusicTrack {
   id: string;
@@ -123,12 +124,17 @@ export const MusicPlayer: React.FC<MusicPlayerProps> = ({
         
         {/* Info du track */}
         <div className="mb-4">
-          <h3 className="text-lg font-semibold text-foreground">
-            {track.title || 'Musique sans titre'}
-          </h3>
-          <p className="text-sm text-muted-foreground">
-            {track.metadata?.tags || 'Aucun tag'}
-          </p>
+          <div className="flex items-start justify-between gap-2 mb-2">
+            <div className="flex-1">
+              <h3 className="text-lg font-semibold text-foreground">
+                {track.title || 'Musique sans titre'}
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                {track.metadata?.tags || 'Aucun tag'}
+              </p>
+            </div>
+            <AIGeneratedBadge type="music" provider="Suno AI" model="v4.5 Plus" variant="compact" />
+          </div>
         </div>
 
         {/* Barre de progression */}

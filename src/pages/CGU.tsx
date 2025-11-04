@@ -248,11 +248,57 @@ const CGU = () => {
             </div>
           </Card>
 
-          {/* 7. Responsabilité et garanties */}
+          {/* 7. Garanties légales */}
+          <Card className="p-6">
+            <div className="flex items-center space-x-2 mb-4">
+              <Shield className="h-5 w-5 text-primary" />
+              <h3 className="text-xl font-semibold text-foreground">7. GARANTIES LÉGALES</h3>
+            </div>
+            <div className="space-y-3 text-muted-foreground">
+              <p className="font-semibold text-foreground">
+                Conformément aux articles L217-4 et suivants du Code de la consommation, vous bénéficiez de garanties légales :
+              </p>
+              
+              <div className="bg-primary/10 p-4 rounded-lg space-y-3">
+                <div>
+                  <h4 className="font-semibold text-foreground mb-2">📜 Garantie légale de conformité (2 ans)</h4>
+                  <ul className="text-sm space-y-1">
+                    <li>• Couvre les défauts existants au moment de la souscription</li>
+                    <li>• S'applique aux services numériques et contenus générés</li>
+                    <li>• Vous avez droit à la mise en conformité ou au remboursement proportionnel</li>
+                  </ul>
+                </div>
+                
+                <div>
+                  <h4 className="font-semibold text-foreground mb-2">🔧 Garantie des vices cachés</h4>
+                  <p className="text-sm">
+                    Vous pouvez également invoquer la garantie des vices cachés (Articles 1641 et suivants du Code civil) 
+                    pour les défauts graves rendant le service impropre à l'usage.
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-card p-4 rounded-lg border border-border">
+                <h4 className="font-semibold text-foreground mb-2">Comment exercer vos garanties ?</h4>
+                <ol className="text-sm space-y-1">
+                  <li>1. Contactez-nous à <strong>medmng@emotionscare.com</strong> avec description du défaut</li>
+                  <li>2. Nous analysons sous 5 jours ouvrés</li>
+                  <li>3. Mise en conformité (correction bug, amélioration service) sous 30 jours</li>
+                  <li>4. Si impossibilité technique : remboursement proportionnel de l'abonnement</li>
+                </ol>
+              </div>
+
+              <p className="text-xs italic">
+                Ces garanties s'appliquent indépendamment de toute garantie commerciale que nous pourrions proposer.
+              </p>
+            </div>
+          </Card>
+
+          {/* 8. Limitation de responsabilité */}
           <Card className="p-6">
             <div className="flex items-center space-x-2 mb-4">
               <AlertTriangle className="h-5 w-5 text-destructive" />
-              <h3 className="text-xl font-semibold text-foreground">7. LIMITATION DE RESPONSABILITÉ</h3>
+              <h3 className="text-xl font-semibold text-foreground">8. LIMITATION DE RESPONSABILITÉ</h3>
             </div>
             <div className="space-y-3 text-muted-foreground">
               <div className="bg-destructive/10 p-4 rounded-lg border-l-4 border-destructive">
@@ -284,11 +330,11 @@ const CGU = () => {
             </div>
           </Card>
 
-          {/* 8. Données personnelles */}
+          {/* 9. Données personnelles */}
           <Card className="p-6">
             <div className="flex items-center space-x-2 mb-4">
               <Shield className="h-5 w-5 text-primary" />
-              <h3 className="text-xl font-semibold text-foreground">8. PROTECTION DES DONNÉES PERSONNELLES</h3>
+              <h3 className="text-xl font-semibold text-foreground">9. PROTECTION DES DONNÉES PERSONNELLES</h3>
             </div>
             <div className="text-muted-foreground">
               <p className="mb-3">
@@ -314,19 +360,19 @@ const CGU = () => {
             </div>
           </Card>
 
-          {/* 9. Résiliation */}
+          {/* 10. Résiliation et devenir des contenus */}
           <Card className="p-6">
             <div className="flex items-center space-x-2 mb-4">
               <Ban className="h-5 w-5 text-destructive" />
-              <h3 className="text-xl font-semibold text-foreground">9. RÉSILIATION DU COMPTE</h3>
+              <h3 className="text-xl font-semibold text-foreground">10. RÉSILIATION ET DEVENIR DES CONTENUS</h3>
             </div>
-            <div className="space-y-3 text-muted-foreground">
+            <div className="space-y-4 text-muted-foreground">
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="bg-card p-4 rounded-lg">
                   <h4 className="font-semibold text-foreground mb-2">Par l'utilisateur :</h4>
                   <p className="text-sm">
                     Vous pouvez supprimer votre compte à tout moment depuis Profil &gt; Paramètres &gt; Supprimer le compte. 
-                    Vos données seront supprimées sous 30 jours (délai légal de rétractation).
+                    La résiliation prend effet immédiatement mais vous conservez l'accès jusqu'à la fin de votre période payée.
                   </p>
                 </div>
                 <div className="bg-destructive/10 p-4 rounded-lg">
@@ -337,10 +383,41 @@ const CGU = () => {
                   </p>
                 </div>
               </div>
+
+              <div className="bg-primary/10 p-4 rounded-lg border-l-4 border-primary">
+                <h4 className="font-semibold text-foreground mb-2">📦 Devenir de vos contenus après résiliation :</h4>
+                <ul className="text-sm space-y-2">
+                  <li>
+                    <strong>Conservation temporaire (90 jours) :</strong> Vos chansons générées, playlists et progressions 
+                    sont conservées 90 jours après la résiliation pour vous permettre de vous rétracter ou de récupérer vos données.
+                  </li>
+                  <li>
+                    <strong>Droit à l'export :</strong> Durant ces 90 jours, vous pouvez demander un export complet de vos 
+                    données au format JSON via medmng@emotionscare.com.
+                  </li>
+                  <li>
+                    <strong>Suppression définitive :</strong> Après 90 jours, tous vos contenus personnels sont 
+                    définitivement supprimés de nos serveurs (sauf obligations légales de conservation).
+                  </li>
+                  <li>
+                    <strong>Données anonymisées :</strong> Seules les statistiques anonymisées (non traçables à votre identité) 
+                    sont conservées pour améliorer nos services.
+                  </li>
+                </ul>
+              </div>
+
+              <div className="bg-amber-50 p-4 rounded-lg border border-amber-200">
+                <h4 className="font-semibold text-amber-900 mb-2">⚠️ Important - Contenus non récupérables :</h4>
+                <p className="text-sm text-amber-900">
+                  Les chansons générées par Suno AI ne peuvent pas être téléchargées (streaming uniquement). 
+                  Après résiliation, vous perdez l'accès à ces contenus. Nous vous recommandons de créer 
+                  des playlists et d'exporter vos notes pédagogiques avant de résilier.
+                </p>
+              </div>
             </div>
           </Card>
 
-          {/* 10. Modification des CGU */}
+          {/* 11. Modification des CGU */}
           <Card className="p-6">
             <div className="flex items-center space-x-2 mb-4">
               <FileText className="h-5 w-5 text-primary" />
@@ -357,7 +434,7 @@ const CGU = () => {
             </div>
           </Card>
 
-          {/* 11. Loi applicable et juridiction */}
+          {/* 12. Loi applicable et juridiction */}
           <Card className="p-6">
             <div className="flex items-center space-x-2 mb-4">
               <Scale className="h-5 w-5 text-primary" />
@@ -384,7 +461,7 @@ const CGU = () => {
             </div>
           </Card>
 
-          {/* 12. Contact */}
+          {/* 13. Contact */}
           <Card className="p-6 bg-card">
             <h3 className="text-lg font-semibold text-foreground mb-3">📧 NOUS CONTACTER</h3>
             <div className="space-y-2 text-sm text-muted-foreground">

@@ -7,6 +7,7 @@ import { useMedMngApi } from '@/hooks/useMedMngApi';
 import { toast } from 'sonner';
 import { usePlaylists } from '@/hooks/usePlaylists';
 import { useItemTitle } from '@/hooks/useItemTitle';
+import { AIGeneratedBadge } from '@/components/common/AIGeneratedBadge';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -134,6 +135,11 @@ export const SongCard: React.FC<SongCardProps> = ({
         {/* Cover Image */}
         <div className="relative aspect-square bg-gradient-to-br from-blue-500 to-purple-600 rounded-t-lg flex items-center justify-center">
           <Music className="h-8 w-8 sm:h-12 sm:w-12 text-white/80" />
+          
+          {/* AI Badge (Conformité AI Act) */}
+          <div className="absolute top-2 left-2">
+            <AIGeneratedBadge type="music" provider="Suno AI" model="v4.5 Plus" variant="compact" />
+          </div>
           
           {/* Play Button Overlay */}
           <div className="absolute inset-0 bg-black/20 rounded-t-lg opacity-0 group-hover:opacity-100 md:transition-opacity md:duration-200 flex items-center justify-center">
