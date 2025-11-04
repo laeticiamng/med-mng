@@ -35,13 +35,13 @@ const EcosScenario = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-emerald-900 to-teal-900 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-accent/5 relative overflow-hidden">
       {/* Background effects */}
       <div className="absolute inset-0">
         {[...Array(15)].map((_, i) => (
           <div
             key={i}
-            className="absolute w-1 h-1 bg-emerald-400/20 rounded-full animate-pulse"
+            className="absolute w-1 h-1 bg-primary/20 rounded-full animate-pulse"
             style={{
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
@@ -62,8 +62,8 @@ const EcosScenario = () => {
         <div className="container mx-auto px-4 py-8">
           {/* Scenario header */}
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-white mb-4">{scenarioData.title}</h1>
-            <p className="text-xl text-emerald-200 max-w-3xl mx-auto bg-black/20 rounded-lg p-4">
+            <h1 className="text-4xl font-bold text-foreground mb-4">{scenarioData.title}</h1>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto bg-card/80 backdrop-blur-sm rounded-lg p-4 border border-border">
               {scenarioData.pitch}
             </p>
           </div>

@@ -93,21 +93,21 @@ const EcosIndex = () => {
 
   const getTypeColor = (type: string) => {
     switch (type) {
-      case 'Urgence': return 'text-red-400 bg-red-400/10';
-      case 'Consultation': return 'text-blue-400 bg-blue-400/10';
-      case 'Suivi': return 'text-green-400 bg-green-400/10';
-      default: return 'text-gray-400 bg-gray-400/10';
+      case 'Urgence': return 'text-destructive bg-destructive/10';
+      case 'Consultation': return 'text-primary bg-primary/10';
+      case 'Suivi': return 'text-accent bg-accent/10';
+      default: return 'text-muted-foreground bg-muted';
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-emerald-900 to-teal-900 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-accent/5 relative overflow-hidden">
       {/* Background effects */}
       <div className="absolute inset-0">
         {[...Array(15)].map((_, i) => (
           <div
             key={i}
-            className="absolute w-1 h-1 bg-emerald-400/30 rounded-full animate-pulse"
+            className="absolute w-1 h-1 bg-primary/20 rounded-full animate-pulse"
             style={{
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
@@ -119,21 +119,21 @@ const EcosIndex = () => {
 
       <div className="relative z-10">
         {/* Header */}
-        <div className="bg-black/20 backdrop-blur-sm border-b border-white/10">
+        <div className="bg-card/80 backdrop-blur-sm border-b border-border">
           <div className="container mx-auto px-4 py-6">
             <div className="flex items-center justify-between">
-              <Link to="/" className="flex items-center gap-3 text-white hover:text-emerald-300 transition-colors">
+              <Link to="/" className="flex items-center gap-3 text-foreground hover:text-primary transition-colors">
                 <Stethoscope className="h-8 w-8" />
-                <span className="text-2xl font-bold">DocFlemme ECOS</span>
+                <span className="text-2xl font-bold">Situations ECOS</span>
               </Link>
               <div className="flex items-center gap-4">
                 <div className="relative">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-white/40 h-4 w-4" />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                   <Input
                     placeholder="Rechercher une situation..."
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10 bg-white/10 border-white/20 text-white placeholder:text-white/40 focus:bg-white/20"
+                    className="pl-10"
                   />
                 </div>
               </div>
@@ -146,19 +146,19 @@ const EcosIndex = () => {
           {/* Hero section */}
           <div className="text-center mb-16">
             <div className="inline-flex items-center gap-2 mb-6">
-              <Sparkles className="h-6 w-6 text-emerald-400 animate-pulse" />
-              <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-emerald-400 to-teal-400 bg-clip-text text-transparent">
+              <Sparkles className="h-6 w-6 text-accent animate-pulse" />
+              <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
                 Situations ECOS
               </h1>
-              <Sparkles className="h-6 w-6 text-teal-400 animate-pulse" />
+              <Sparkles className="h-6 w-6 text-primary animate-pulse" />
             </div>
-            <p className="text-xl text-white/70 max-w-2xl mx-auto mb-4">
+            <p className="text-xl text-muted-foreground max-w-2xl mx-auto mb-4">
               Pratiquez les situations de départ ECOS avec des patients virtuels immersifs
             </p>
             {!loading && (
-              <div className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500/20 border border-emerald-400/30 rounded-full">
-                <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
-                <span className="text-emerald-300 font-medium text-sm">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-accent/10 border border-accent/30 rounded-full">
+                <div className="w-2 h-2 bg-accent rounded-full animate-pulse"></div>
+                <span className="text-accent-foreground font-medium text-sm">
                   {ecosScenarios.length} situations officielles UNESS disponibles
                 </span>
               </div>
@@ -168,8 +168,8 @@ const EcosIndex = () => {
           {/* Loading state */}
           {loading && (
             <div className="flex items-center justify-center py-16">
-              <Loader2 className="h-12 w-12 animate-spin text-emerald-400" />
-              <span className="ml-4 text-xl text-white/60">Chargement des situations ECOS...</span>
+              <Loader2 className="h-12 w-12 animate-spin text-primary" />
+              <span className="ml-4 text-xl text-muted-foreground">Chargement des situations ECOS...</span>
             </div>
           )}
 
@@ -188,23 +188,23 @@ const EcosIndex = () => {
                     to={`/ecos/sd-${scenario.sd_id.toString().padStart(3, '0')}-${scenario.intitule_sd.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '')}`}
                     className="group"
                   >
-                    <div className="bg-white/5 backdrop-blur-sm rounded-2xl p-6 border border-white/10 hover:bg-white/10 hover:border-emerald-400/30 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-emerald-500/10 animate-fade-in"
+                    <div className="bg-card backdrop-blur-sm rounded-2xl p-6 border border-border hover:border-primary/50 transition-all duration-300 hover:scale-105 hover:shadow-lg animate-fade-in"
                          style={{ animationDelay: `${index * 0.05}s` }}>
                       <div className="flex items-start justify-between mb-4">
                         <div className="flex items-center gap-3">
-                          <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center text-white font-bold text-sm">
+                          <div className="w-12 h-12 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white font-bold text-sm">
                             SD{scenario.sd_id}
                           </div>
                           <div className="flex-1">
-                            <h3 className="text-white font-semibold text-lg group-hover:text-emerald-300 transition-colors line-clamp-1">
+                            <h3 className="text-foreground font-semibold text-lg group-hover:text-primary transition-colors line-clamp-1">
                               {scenario.intitule_sd}
                             </h3>
-                            <p className="text-white/60 text-sm line-clamp-1">{specialty}</p>
+                            <p className="text-muted-foreground text-sm line-clamp-1">{specialty}</p>
                           </div>
                         </div>
                       </div>
                       
-                      <p className="text-white/70 text-sm mb-4 line-clamp-2">
+                      <p className="text-muted-foreground text-sm mb-4 line-clamp-2">
                         {description}
                       </p>
                       
@@ -213,12 +213,12 @@ const EcosIndex = () => {
                           <span className={`px-3 py-1 rounded-full text-xs font-medium ${getTypeColor(scenarioType)}`}>
                             {scenarioType}
                           </span>
-                          <div className="flex items-center gap-1 text-white/40 text-xs">
+                          <div className="flex items-center gap-1 text-muted-foreground text-xs">
                             <Clock className="h-3 w-3" />
                             {duration}
                           </div>
                         </div>
-                        <Users className="h-4 w-4 text-white/40 group-hover:text-emerald-400 transition-colors" />
+                        <Users className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
                       </div>
                     </div>
                   </Link>
@@ -231,15 +231,15 @@ const EcosIndex = () => {
           {!loading && ecosScenarios.length === 0 && searchTerm === '' && (
             <div className="text-center py-16">
               <div className="max-w-md mx-auto">
-                <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-6">
-                  <Stethoscope className="h-10 w-10 text-emerald-400" />
+                <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Stethoscope className="h-10 w-10 text-primary" />
                 </div>
-                <h3 className="text-2xl font-semibold text-white mb-3">Aucune situation ECOS disponible</h3>
-                <p className="text-white/60 mb-6">
+                <h3 className="text-2xl font-semibold text-foreground mb-3">Aucune situation ECOS disponible</h3>
+                <p className="text-muted-foreground mb-6">
                   Les situations ECOS doivent d'abord être extraites depuis la plateforme UNESS.
                 </p>
                 <Link to="/admin/extract-ecos">
-                  <Button className="bg-emerald-500 hover:bg-emerald-600 text-white">
+                  <Button>
                     <Sparkles className="h-4 w-4 mr-2" />
                     Extraire les situations ECOS
                   </Button>
@@ -251,12 +251,12 @@ const EcosIndex = () => {
           {/* Empty state - search results */}
           {!loading && filteredScenarios.length === 0 && searchTerm !== '' && (
             <div className="text-center py-16">
-              <Search className="h-16 w-16 text-white/20 mx-auto mb-4" />
-              <h3 className="text-xl text-white/60 mb-2">Aucune situation trouvée</h3>
-              <p className="text-white/40">Essayez de modifier votre recherche</p>
+              <Search className="h-16 w-16 text-muted-foreground/20 mx-auto mb-4" />
+              <h3 className="text-xl text-muted-foreground mb-2">Aucune situation trouvée</h3>
+              <p className="text-muted-foreground">Essayez de modifier votre recherche</p>
               <Button 
                 variant="outline" 
-                className="mt-4 border-white/20 text-white hover:bg-white/10"
+                className="mt-4"
                 onClick={() => setSearchTerm('')}
               >
                 Réinitialiser la recherche
