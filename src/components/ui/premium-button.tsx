@@ -18,13 +18,13 @@ export const PremiumButton: React.FC<PremiumButtonProps> = ({
   const getVariantClasses = () => {
     switch (variant) {
       case 'primary':
-        return 'bg-gradient-to-r from-blue-600 via-blue-700 to-indigo-700 text-white hover:from-blue-700 hover:via-blue-800 hover:to-indigo-800 shadow-lg shadow-blue-500/25';
+        return 'bg-gradient-to-r from-primary via-primary-hover to-primary text-primary-foreground hover:opacity-90 shadow-lg shadow-primary/25';
       case 'secondary':
-        return 'bg-gradient-to-r from-gray-100 via-white to-gray-100 text-gray-900 hover:from-gray-200 hover:via-gray-100 hover:to-gray-200 border border-gray-200/50 shadow-lg shadow-gray-500/10';
+        return 'bg-secondary text-secondary-foreground hover:bg-secondary-hover border border-border shadow-lg';
       case 'accent':
-        return 'bg-gradient-to-r from-purple-600 via-violet-600 to-fuchsia-600 text-white hover:from-purple-700 hover:via-violet-700 hover:to-fuchsia-700 shadow-lg shadow-purple-500/25';
+        return 'bg-gradient-to-r from-accent via-accent-hover to-accent text-accent-foreground hover:opacity-90 shadow-lg shadow-accent/25';
       case 'glass':
-        return 'bg-white/20 backdrop-blur-md text-gray-900 hover:bg-white/30 border border-white/30 shadow-lg shadow-black/5';
+        return 'bg-card/60 backdrop-blur-md text-foreground hover:bg-card/80 border border-border shadow-lg';
     }
   };
 

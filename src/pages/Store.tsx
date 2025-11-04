@@ -7,9 +7,8 @@ import { CartDrawer } from '@/components/store/CartDrawer';
 import { getProducts, type ShopifyProduct } from '@/lib/shopify';
 import { useCartStore } from '@/stores/cartStore';
 import { toast } from 'sonner';
-import { PremiumBackground } from '@/components/ui/premium-background';
+import { MedMngLayout } from '@/components/med-mng/MedMngLayout';
 import { PremiumCard } from '@/components/ui/premium-card';
-import { PremiumButton } from '@/components/ui/premium-button';
 
 export default function Store() {
   const [products, setProducts] = useState<ShopifyProduct[]>([]);
@@ -53,22 +52,22 @@ export default function Store() {
   };
 
   return (
-    <PremiumBackground>
-      {/* Hero Section */}
-      <div className="container mx-auto px-6 py-12">
-        <PremiumCard variant="glass" className="p-12 mb-12">
+    <MedMngLayout>
+      <div className="container mx-auto px-6 py-8">
+        {/* Hero Section */}
+        <PremiumCard variant="glass" className="p-8 md:p-12 mb-8">
           <div className="text-center">
             <div className="inline-flex items-center gap-2 mb-6">
               <Sparkles className="h-6 w-6 text-accent animate-pulse" />
-              <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent">
+              <h1 className="text-3xl md:text-5xl font-bold bg-gradient-to-r from-foreground via-primary to-accent bg-clip-text text-transparent">
                 🧠 MedMNG Store
               </h1>
               <Sparkles className="h-6 w-6 text-primary animate-pulse" />
             </div>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-4">
+            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-4">
               La première boutique dédiée aux étudiants en médecine qui veulent apprendre mieux, plus vite, et avec plaisir.
             </p>
-            <p className="text-gray-600">
+            <p className="text-muted-foreground">
               Chaque produit optimise la concentration, la mémoire et le bien-être pendant vos études médicales.
             </p>
             <div className="mt-8">
@@ -91,16 +90,16 @@ export default function Store() {
             ))}
           </div>
         ) : products.length === 0 ? (
-          <PremiumCard variant="elevated" className="p-16 text-center">
+          <PremiumCard variant="elevated" className="p-12 md:p-16 text-center">
             <div className="max-w-md mx-auto">
-              <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                <Package className="h-10 w-10 text-white" />
+              <div className="w-20 h-20 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center mx-auto mb-6">
+                <Package className="h-10 w-10 text-primary-foreground" />
               </div>
-              <h3 className="text-2xl font-semibold text-gray-900 mb-3">Aucun produit disponible</h3>
-              <p className="text-gray-600 mb-6">
+              <h3 className="text-2xl font-semibold text-foreground mb-3">Aucun produit disponible</h3>
+              <p className="text-muted-foreground mb-6">
                 Les produits MedMNG Store arrivent bientôt ! Dites-moi quel produit vous souhaitez créer et je l'ajouterai pour vous.
               </p>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-muted-foreground">
                 Exemple : "Ajoute une lampe de lecture Baseus à 45€"
               </p>
             </div>
@@ -130,17 +129,17 @@ export default function Store() {
                   </Link>
                   
                   <div className="p-6">
-                    <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">{product.node.title}</h3>
-                    <p className="text-gray-600 mb-4 line-clamp-2 text-sm">
+                    <h3 className="text-xl font-bold text-foreground mb-2 line-clamp-2">{product.node.title}</h3>
+                    <p className="text-muted-foreground mb-4 line-clamp-2 text-sm">
                       {product.node.description}
                     </p>
                     
                     <div className="flex items-center justify-between mb-4">
                       <div className="text-2xl font-bold text-primary">
-                        {product.node.priceRange.minVariantPrice.currencyCode} {parseFloat(product.node.priceRange.minVariantPrice.amount).toFixed(2)}
+                        € {parseFloat(product.node.priceRange.minVariantPrice.amount).toFixed(2)}
                       </div>
                       {variant?.availableForSale && (
-                        <Badge variant="outline" className="text-accent border-accent">
+                        <Badge variant="outline" className="text-success border-success">
                           En stock
                         </Badge>
                       )}
@@ -148,20 +147,20 @@ export default function Store() {
                     
                     <div className="flex gap-2">
                       <Link to={`/product/${product.node.handle}`} className="flex-1">
-                        <PremiumButton variant="glass" size="md" className="w-full">
+                        <Button variant="outline" size="default" className="w-full">
                           Détails
-                        </PremiumButton>
+                        </Button>
                       </Link>
-                      <PremiumButton 
-                        variant="primary"
-                        size="md"
+                      <Button 
+                        variant="default"
+                        size="default"
                         onClick={() => handleAddToCart(product)}
                         disabled={!variant?.availableForSale}
                         className="flex-1"
                       >
                         <ShoppingBag className="h-4 w-4 mr-2" />
                         Panier
-                      </PremiumButton>
+                      </Button>
                     </div>
                   </div>
                 </PremiumCard>
@@ -170,6 +169,6 @@ export default function Store() {
           </div>
         )}
       </div>
-    </PremiumBackground>
+    </MedMngLayout>
   );
 }

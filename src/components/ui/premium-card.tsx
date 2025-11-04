@@ -19,13 +19,13 @@ export const PremiumCard: React.FC<PremiumCardProps> = ({
   const getVariantClasses = () => {
     switch (variant) {
       case 'gradient':
-        return 'bg-gradient-to-br from-white via-white/95 to-white/90 border border-white/20 shadow-2xl shadow-black/5';
+        return 'bg-gradient-to-br from-card via-card/95 to-card/90 border border-border shadow-2xl';
       case 'glass':
-        return 'bg-white/60 backdrop-blur-xl border border-white/30 shadow-2xl shadow-black/10';
+        return 'bg-card/60 backdrop-blur-xl border border-border/50 shadow-2xl';
       case 'elevated':
-        return 'bg-white border border-gray-100/50 shadow-2xl shadow-black/5';
+        return 'bg-card border border-border shadow-2xl';
       default:
-        return 'bg-white/80 backdrop-blur-sm border border-white/50 shadow-xl shadow-black/5';
+        return 'bg-card/80 backdrop-blur-sm border border-border shadow-xl';
     }
   };
 
