@@ -60,8 +60,8 @@ export const MedMngLogin = () => {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex items-center justify-center gap-2 mb-4">
-            <Music className="h-8 w-8 text-blue-600" />
-            <span className="text-2xl font-bold text-gray-900">MED-MNG</span>
+            <Music className="h-8 w-8 text-primary" />
+            <span className="text-2xl font-bold text-foreground">MED-MNG</span>
           </div>
           <CardDescription>Connectez-vous à votre compte</CardDescription>
         </CardHeader>
@@ -105,7 +105,7 @@ export const MedMngLogin = () => {
               <span className="w-full border-t" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-white px-2 text-muted-foreground">Ou continuez avec</span>
+              <span className="bg-card px-2 text-muted-foreground">Ou continuez avec</span>
             </div>
           </div>
           
@@ -135,19 +135,19 @@ export const MedMngLogin = () => {
           
           <div className="text-center text-sm">
             Pas encore de compte ?{' '}
-            <Link to="/med-mng/signup" className="text-blue-600 hover:underline">
+            <Link to="/med-mng/signup" className="text-primary hover:underline">
               Créer un compte
             </Link>
           </div>
           
           <div className="text-center text-sm">
-            <Link to="/med-mng/pricing" className="text-blue-600 hover:underline">
+            <Link to="/med-mng/pricing" className="text-primary hover:underline">
               Voir les offres d'abonnement
             </Link>
           </div>
 
           <div className="text-center text-sm">
-            <Link to="/med-mng/library" className="text-blue-600 hover:underline">
+            <Link to="/med-mng/library" className="text-primary hover:underline">
               Accéder à l'application
             </Link>
           </div>
