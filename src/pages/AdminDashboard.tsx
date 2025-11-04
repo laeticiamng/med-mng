@@ -12,6 +12,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { toast } from 'sonner';
+import { MedMngLayout } from '@/components/med-mng/MedMngLayout';
 
 // Components
 import { AdminUsersManager } from '@/components/admin/AdminUsersManager';
@@ -149,15 +150,16 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="bg-card/80 backdrop-blur-sm border-b">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center">
-                <Shield className="h-5 w-5 text-white" />
-              </div>
+    <MedMngLayout>
+      <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-accent/5">
+        {/* Header */}
+        <div className="bg-card/80 backdrop-blur-sm border-b">
+          <div className="container mx-auto px-6 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 bg-destructive rounded-lg flex items-center justify-center">
+                  <Shield className="h-5 w-5 text-destructive-foreground" />
+                </div>
               <div>
                 <h1 className="text-xl font-bold text-foreground">Administration</h1>
                 <p className="text-sm text-muted-foreground">
@@ -377,6 +379,7 @@ export default function AdminDashboard() {
           </TabsContent>
         </Tabs>
       </div>
-    </div>
+      </div>
+    </MedMngLayout>
   );
 }

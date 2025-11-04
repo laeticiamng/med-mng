@@ -19,12 +19,12 @@ export const MedMngNavigation: React.FC = () => {
   };
 
   return (
-    <nav className="bg-white shadow-sm border-b sticky top-0 z-40">
+    <nav className="bg-card shadow-sm border-b sticky top-0 z-40">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-2">
-            <Music className="h-6 w-6 sm:h-8 sm:w-8 text-blue-600" />
-            <span className="text-lg sm:text-xl font-bold text-gray-900">
+            <Music className="h-6 w-6 sm:h-8 sm:w-8 text-primary" />
+            <span className="text-lg sm:text-xl font-bold text-foreground">
               <TranslatedText text="MED-MNG" />
             </span>
           </div>
@@ -34,7 +34,7 @@ export const MedMngNavigation: React.FC = () => {
             <Button
               variant="ghost"
               onClick={() => navigate('/')}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg transition-all hover:bg-gray-100"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg transition-all"
             >
               <Home className="h-4 w-4" />
               <TranslatedText text="Accueil" />
@@ -43,7 +43,7 @@ export const MedMngNavigation: React.FC = () => {
             <Button
               variant={isActive('/med-mng/library') ? 'default' : 'ghost'}
               onClick={() => navigate('/med-mng/library')}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg transition-all hover:bg-gray-100"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg transition-all"
             >
               <Library className="h-4 w-4" />
               <TranslatedText text="Bibliothèque" />
@@ -52,7 +52,7 @@ export const MedMngNavigation: React.FC = () => {
             <Button
               variant={isActive('/med-mng/create') ? 'default' : 'ghost'}
               onClick={() => navigate('/med-mng/create')}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg transition-all hover:bg-gray-100"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg transition-all"
             >
               <Plus className="h-4 w-4" />
               <TranslatedText text="Créer" />
@@ -61,7 +61,7 @@ export const MedMngNavigation: React.FC = () => {
             <Button
               variant={isActive('/med-mng/pricing') ? 'default' : 'ghost'}
               onClick={() => navigate('/med-mng/pricing')}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg transition-all hover:bg-gray-100"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg transition-all"
             >
               <CreditCard className="h-4 w-4" />
               <TranslatedText text="Abonnements" />
@@ -70,7 +70,7 @@ export const MedMngNavigation: React.FC = () => {
             <Button
               variant={isActive('/med-mng/profile') ? 'default' : 'ghost'}
               onClick={() => navigate('/med-mng/profile')}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg transition-all hover:bg-gray-100"
+              className="flex items-center gap-2 px-3 py-2 rounded-lg transition-all"
             >
               <User className="h-4 w-4" />
               <TranslatedText text="Profil" />
@@ -79,7 +79,7 @@ export const MedMngNavigation: React.FC = () => {
             <Button
               variant="ghost"
               onClick={handleSignOut}
-              className="flex items-center gap-2 text-red-600 hover:text-red-700 hover:bg-red-50 px-3 py-2 rounded-lg transition-all"
+              className="flex items-center gap-2 text-destructive hover:text-destructive/90 hover:bg-destructive/10 px-3 py-2 rounded-lg transition-all"
             >
               <LogOut className="h-4 w-4" />
               <TranslatedText text="Déconnexion" />
@@ -101,7 +101,7 @@ export const MedMngNavigation: React.FC = () => {
               variant="ghost"
               size="sm"
               onClick={handleSignOut}
-              className="text-red-600 hover:text-red-700 hover:bg-red-50 p-2"
+              className="text-destructive hover:text-destructive/90 hover:bg-destructive/10 p-2"
             >
               <LogOut className="h-4 w-4" />
             </Button>

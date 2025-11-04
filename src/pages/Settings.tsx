@@ -25,6 +25,7 @@ import {
   Trash2
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { MedMngLayout } from '@/components/med-mng/MedMngLayout';
 
 export default function Settings() {
   const navigate = useNavigate();
@@ -73,9 +74,10 @@ export default function Settings() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="border-b bg-card">
+    <MedMngLayout>
+      <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-accent/5">
+        {/* Header */}
+        <div className="border-b bg-card/80 backdrop-blur-sm">
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center gap-4">
             <Button 
@@ -414,6 +416,7 @@ export default function Settings() {
           </Button>
         </div>
       </div>
-    </div>
+      </div>
+    </MedMngLayout>
   );
 }

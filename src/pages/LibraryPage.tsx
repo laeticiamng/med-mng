@@ -5,13 +5,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MusicLibrary } from '@/components/library/MusicLibrary';
 import { MiniPlayer } from '@/components/player/MiniPlayer';
 import { PlayerProvider } from '@/contexts/PlayerContext';
+import { MedMngLayout } from '@/components/med-mng/MedMngLayout';
 
 export default function LibraryPage() {
   const [activeTab, setActiveTab] = useState('library');
 
   return (
-    <PlayerProvider>
-      <div className="min-h-screen bg-background pb-20">
+    <MedMngLayout>
+      <PlayerProvider>
+        <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-accent/5 pb-20">
         <div className="container mx-auto p-6">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
             <TabsList className="grid w-full grid-cols-4">
@@ -87,9 +89,10 @@ export default function LibraryPage() {
           </Tabs>
         </div>
 
-        {/* Mini Player fixe en bas */}
-        <MiniPlayer />
-      </div>
-    </PlayerProvider>
+          {/* Mini Player fixe en bas */}
+          <MiniPlayer />
+        </div>
+      </PlayerProvider>
+    </MedMngLayout>
   );
 }

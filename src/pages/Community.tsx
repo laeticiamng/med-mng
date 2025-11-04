@@ -22,6 +22,7 @@ import {
   Award,
   Target
 } from 'lucide-react';
+import { MedMngLayout } from '@/components/med-mng/MedMngLayout';
 
 interface CommunityMember {
   id: string;
@@ -153,9 +154,10 @@ export default function Community() {
   ];
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <div className="border-b bg-card">
+    <MedMngLayout>
+      <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-accent/5">
+        {/* Header */}
+        <div className="border-b bg-card/80 backdrop-blur-sm">
         <div className="container mx-auto px-6 py-4">
           <div className="flex items-center gap-4">
             <Button 
@@ -464,6 +466,7 @@ export default function Community() {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </MedMngLayout>
   );
 }
