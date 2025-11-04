@@ -10,6 +10,7 @@ import { SkipLinks } from "@/components/navigation/SkipLinks";
 import { HelpCenter } from "@/components/help/HelpCenter";
 import { NotificationSystem } from "@/components/advanced/NotificationSystem";
 import { KeyboardShortcuts } from "@/components/advanced/KeyboardShortcuts";
+import { CookieBanner } from "@/components/common/CookieBanner";
 import { Bell } from 'lucide-react';
 import { MainNavigation } from '@/components/layout/MainNavigation';
 import { InternationalizationProvider } from '@/contexts/InternationalizationContext';
@@ -42,6 +43,8 @@ import MngMethod from "./pages/MngMethod";
 import NotFound from "./pages/NotFound";
 import MentionsLegales from "./pages/MentionsLegales";
 import PolitiqueConfidentialite from "./pages/PolitiqueConfidentialite";
+const CGU = lazy(() => import("./pages/CGU"));
+const DeclarationAccessibilite = lazy(() => import("./pages/DeclarationAccessibilite"));
 import { MedMngLogin } from "./pages/MedMngLogin";
 import { MedMngSignup } from "./pages/MedMngSignup";
 import { MedMngPricing } from "./pages/MedMngPricing";
@@ -163,6 +166,8 @@ const App = () => {
           <Route path="/mng-method" element={<MngMethod />} />
           <Route path="/mentions-legales" element={<MentionsLegales />} />
           <Route path="/politique-confidentialite" element={<PolitiqueConfidentialite />} />
+          <Route path="/cgu" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CGU /></Suspense>} />
+          <Route path="/declaration-accessibilite" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><DeclarationAccessibilite /></Suspense>} />
           <Route path="/med-mng/login" element={<MedMngLogin />} />
           <Route path="/med-mng/signup" element={<MedMngSignup />} />
           <Route path="/med-mng/pricing" element={<MedMngPricing />} />
@@ -223,6 +228,9 @@ const App = () => {
                             
                             {/* Centre d'Accessibilité */}
                             <AccessibilityCenter />
+                            
+                            {/* Bannière Cookies RGPD */}
+                            <CookieBanner />
                           </div>
                           <Toaster />
                           <Sonner />
