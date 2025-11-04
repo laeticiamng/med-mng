@@ -92,22 +92,23 @@ export default function EdnComplete() {
   const { slug } = useParams<{ slug: string }>();
 
   useEffect(() => {
-    // Éviter le re-mount inutile si les données sont déjà chargées
-    if (page === 0 && immersiveItems.length > 0) {
-      return;
-    }
+    console.log('🔄 EdnComplete useEffect triggered', { page, hasItems: immersiveItems.length });
     
     // Timeout de sécurité: 10 secondes max
     const timeoutId = setTimeout(() => {
+      console.error('⏱️ Timeout après 10 secondes');
       setLoadingError('Le chargement prend trop de temps. Réessayez.');
       setLoading(false);
     }, 10000);
     
     fetchAllData()
-      .then(() => clearTimeout(timeoutId))
+      .then(() => {
+        console.log('✅ Données chargées avec succès');
+        clearTimeout(timeoutId);
+      })
       .catch(err => {
         clearTimeout(timeoutId);
-        console.error('Error loading data:', err);
+        console.error('❌ Error loading data:', err);
         setLoadingError('Erreur lors du chargement des données.');
         setLoading(false);
       });
@@ -130,15 +131,16 @@ export default function EdnComplete() {
   }, [slug, immersiveItems]);
 
   const fetchAllData = async () => {
+    console.log('🔍 Début fetchAllData', { page, from: page * ITEMS_PER_PAGE, to: (page * ITEMS_PER_PAGE) + ITEMS_PER_PAGE - 1 });
     setLoading(true);
     setLoadingError(null);
     
     try {
-      
       // PAGINATION: Charger seulement 50 items à la fois
       const from = page * ITEMS_PER_PAGE;
       const to = from + ITEMS_PER_PAGE - 1;
       
+      console.log('📊 Requête Supabase edn_items_immersive...');
       const { data: immersiveData, error: immersiveError, count } = await supabase
         .from('edn_items_immersive')
         .select(`
@@ -149,6 +151,8 @@ export default function EdnComplete() {
         `, { count: 'exact' })
         .range(from, to)
         .order('item_code');
+      
+      console.log('📦 Résultat immersiveData:', { count: immersiveData?.length, total: count, error: immersiveError });
       
       setHasMore((immersiveData?.length || 0) === ITEMS_PER_PAGE && (count || 0) > to + 1);
 
@@ -166,18 +170,22 @@ export default function EdnComplete() {
       let completeData: any[] = [];
       if (immersiveData && immersiveData.length > 0) {
         const itemCodes = immersiveData.map(item => item.item_code);
+        console.log('📊 Requête Supabase edn_items_complete...');
         const { data } = await supabase
           .from('edn_items_complete')
           .select('id, item_code, title, specialite, completeness_score, is_validated')
           .in('item_code', itemCodes)
           .order('item_code');
         completeData = data || [];
+        console.log('📦 Résultat completeData:', completeData.length);
       }
 
       // Ajouter les nouveaux items (append pour pagination)
+      console.log('💾 Mise à jour du state...');
       setImmersiveItems(prev => page === 0 ? (immersiveData || []) : [...prev, ...(immersiveData || [])]);
       setCompleteItems(prev => page === 0 ? (completeData || []) : [...prev, ...(completeData || [])]);
       
+      console.log('✅ State mis à jour avec succès');
       toast({
         title: "Interface EDN",
         description: `${immersiveData?.length || 0} items chargés`,
