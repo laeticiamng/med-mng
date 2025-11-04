@@ -73,6 +73,8 @@ import EdnMusicLibrary from "./pages/EdnMusicLibrary";
 import LearningDashboard from "./pages/LearningDashboard";
 import PlatformStatusPage from "./pages/PlatformStatusPage";
 import Monitoring from "./pages/Monitoring";
+import Store from "./pages/Store";
+import ProductDetail from "./pages/ProductDetail";
 
 // Nouvelles pages complètes avec lazy loading
 const Statistics = lazy(() => import("./pages/Statistics"));
@@ -142,6 +144,8 @@ const App = () => {
           <Route path="/edn/music-library" element={<EdnMusicLibrary />} />
           <Route path="/ecos" element={<EcosIndex />} />
           <Route path="/ecos/:scenarioId" element={<EcosScenario />} />
+          <Route path="/store" element={<Store />} />
+          <Route path="/product/:handle" element={<ProductDetail />} />
           
           {/* Unified audit page */}
           <Route path="/audit" element={<AuditComplete />} />
