@@ -1,6 +1,7 @@
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Shield, Eye, Lock, UserCheck, Database, Globe, Clock, Mail } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { ArrowLeft, Shield, Eye, Lock, UserCheck, Database, Globe, Clock, Mail, Info, AlertTriangle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const PolitiqueConfidentialite = () => {
@@ -95,9 +96,17 @@ const PolitiqueConfidentialite = () => {
                   </ul>
                 </div>
               </div>
-              <div className="bg-green-100 p-3 rounded-lg border-l-4 border-green-500">
-                <p className="font-medium text-green-800">Aucune donnée de santé ou donnée sensible n'est collectée.</p>
-              </div>
+              <Alert className="bg-orange-100 border-l-4 border-orange-500">
+                <AlertTriangle className="h-4 w-4 text-orange-600" />
+                <AlertDescription>
+                  <p className="font-medium text-orange-800">⚠️ DONNÉES RELATIVES À LA SANTÉ (Article 9 RGPD)</p>
+                  <p className="text-sm text-orange-900 mt-2">
+                    Vos progressions pédagogiques médicales (EDN, Rang A/B) sont considérées comme des 
+                    <strong> données relatives à la santé</strong> car elles concernent votre formation médicale.
+                    Votre consentement explicite est requis lors de l'inscription (Article 9.2.a RGPD).
+                  </p>
+                </AlertDescription>
+              </Alert>
             </div>
           </Card>
 
@@ -187,17 +196,58 @@ const PolitiqueConfidentialite = () => {
             </div>
           </Card>
 
-          {/* 8. Partage et transmission */}
+          {/* 8. Sous-traitants et transferts internationaux */}
           <Card className="p-6">
             <div className="flex items-center space-x-2 mb-4">
               <Globe className="h-5 w-5 text-orange-600" />
-              <h3 className="text-xl font-semibold text-gray-800">8. PARTAGE ET TRANSMISSION</h3>
+              <h3 className="text-xl font-semibold text-gray-800">8. SOUS-TRAITANTS ET TRANSFERTS INTERNATIONAUX</h3>
             </div>
-            <div className="text-gray-700">
-              <div className="bg-orange-50 p-4 rounded-lg border-l-4 border-orange-500">
-                <p className="font-semibold text-orange-800 mb-2">Aucune donnée personnelle n'est transmise à des tiers</p>
-                <p className="text-sm">Sauf en cas d'obligation légale (demandes judiciaires, sécurité nationale)</p>
-                <p className="text-sm mt-2">Aucun transfert hors UE sans protection adéquate conforme au RGPD</p>
+            <div className="text-gray-700 space-y-4">
+              <Alert className="bg-blue-50 border-blue-200">
+                <Info className="h-4 w-4 text-blue-600" />
+                <AlertDescription>
+                  <p className="font-semibold text-blue-800 mb-2">Sous-traitants techniques (RGPD Article 28)</p>
+                  <ul className="text-sm space-y-1">
+                    <li>• <strong>Supabase (États-Unis)</strong> - Hébergement données</li>
+                    <li>• <strong>OpenAI (États-Unis)</strong> - Génération contenus pédagogiques IA</li>
+                    <li>• <strong>Suno AI (États-Unis)</strong> - Génération musiques mnémotechniques</li>
+                    <li>• <strong>ElevenLabs (États-Unis)</strong> - Synthèse vocale</li>
+                    <li>• <strong>Stripe (États-Unis)</strong> - Traitement paiements</li>
+                  </ul>
+                  <p className="text-sm mt-2 text-blue-700">
+                    Tous nos sous-traitants ont signé des <strong>Data Processing Agreements (DPA)</strong> conformes au RGPD.
+                  </p>
+                </AlertDescription>
+              </Alert>
+
+              <Alert className="bg-orange-100 border-orange-300">
+                <AlertTriangle className="h-4 w-4 text-orange-600" />
+                <AlertDescription>
+                  <p className="font-semibold text-orange-800 mb-2">⚠️ Transferts internationaux vers les États-Unis</p>
+                  <p className="text-sm text-orange-900">
+                    Vos données peuvent être transférées aux États-Unis dans le cadre de la génération de contenus IA 
+                    (OpenAI, Suno AI, ElevenLabs). Ces transferts sont protégés par:
+                  </p>
+                  <ul className="text-sm space-y-1 mt-2 ml-4">
+                    <li>✅ <strong>Clauses Contractuelles Types UE</strong> (Standard Contractual Clauses)</li>
+                    <li>✅ <strong>Data Privacy Framework UE-USA</strong> (certification des fournisseurs)</li>
+                    <li>✅ <strong>Chiffrement de bout en bout</strong> en transit</li>
+                    <li>✅ <strong>Minimisation des données</strong> transmises (uniquement nécessaires)</li>
+                  </ul>
+                  <p className="text-sm mt-2 text-orange-800 font-medium">
+                    Votre consentement explicite pour ces transferts est collecté lors de l'inscription 
+                    (conformément aux Articles 44-49 du RGPD).
+                  </p>
+                </AlertDescription>
+              </Alert>
+
+              <div className="bg-green-50 p-4 rounded-lg border-l-4 border-green-500">
+                <p className="font-semibold text-green-800 mb-2">✅ Aucune vente de données</p>
+                <p className="text-sm text-green-900">
+                  Vos données personnelles ne sont <strong>jamais vendues, louées ou partagées</strong> avec des tiers 
+                  à des fins marketing. Seuls les sous-traitants techniques listés ci-dessus y ont accès, 
+                  uniquement pour fournir le service MED MNG.
+                </p>
               </div>
             </div>
           </Card>

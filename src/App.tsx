@@ -45,6 +45,7 @@ import MentionsLegales from "./pages/MentionsLegales";
 import PolitiqueConfidentialite from "./pages/PolitiqueConfidentialite";
 const CGU = lazy(() => import("./pages/CGU"));
 const DeclarationAccessibilite = lazy(() => import("./pages/DeclarationAccessibilite"));
+const MesDonneesRGPD = lazy(() => import("./pages/MesDonneesRGPD"));
 import { MedMngLogin } from "./pages/MedMngLogin";
 import { MedMngSignup } from "./pages/MedMngSignup";
 import { MedMngPricing } from "./pages/MedMngPricing";
@@ -200,6 +201,7 @@ const App = () => {
             <Route path="/achievements" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Achievements /></Suspense>} />
             <Route path="/favorites" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Favorites /></Suspense>} />
             <Route path="/settings" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><UserSettings /></Suspense>} />
+            <Route path="/mes-donnees-rgpd" element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MesDonneesRGPD /></Suspense></ProtectedRoute>} />
            
                                 <Route path="*" element={<NotFound />} />
                               </Routes>
