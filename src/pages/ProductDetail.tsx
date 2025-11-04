@@ -1,16 +1,18 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, ShoppingBag, Package, Check } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Card } from '@/components/ui/card';
 import { CartDrawer } from '@/components/store/CartDrawer';
 import { getProductByHandle, type ShopifyProduct } from '@/lib/shopify';
 import { useCartStore } from '@/stores/cartStore';
 import { toast } from 'sonner';
+import { PremiumBackground } from '@/components/ui/premium-background';
+import { PremiumCard } from '@/components/ui/premium-card';
+import { PremiumButton } from '@/components/ui/premium-button';
 
 export default function ProductDetail() {
   const { handle } = useParams<{ handle: string }>();
+  const navigate = useNavigate();
   const [product, setProduct] = useState<ShopifyProduct | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedVariantId, setSelectedVariantId] = useState<string>('');
@@ -62,52 +64,54 @@ export default function ProductDetail() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <p className="text-muted-foreground mt-4">Chargement du produit...</p>
+      <PremiumBackground>
+        <div className="min-h-screen flex items-center justify-center">
+          <PremiumCard variant="glass" className="p-8 text-center">
+            <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-600 font-medium">Chargement du produit...</p>
+          </PremiumCard>
         </div>
-      </div>
+      </PremiumBackground>
     );
   }
 
   if (!product) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
-          <Package className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-          <h2 className="text-2xl font-semibold mb-2">Produit non trouvé</h2>
-          <Link to="/store">
-            <Button>Retour au store</Button>
-          </Link>
+      <PremiumBackground>
+        <div className="min-h-screen flex items-center justify-center">
+          <PremiumCard variant="elevated" className="p-12 text-center">
+            <div className="w-20 h-20 bg-gradient-to-br from-gray-400 to-gray-500 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Package className="h-10 w-10 text-white" />
+            </div>
+            <h2 className="text-3xl font-bold text-gray-900 mb-4">Produit non trouvé</h2>
+            <PremiumButton variant="primary" size="lg" onClick={() => navigate('/store')}>
+              Retour au store
+            </PremiumButton>
+          </PremiumCard>
         </div>
-      </div>
+      </PremiumBackground>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-accent/5">
-      {/* Header */}
-      <div className="bg-card/80 backdrop-blur-sm border-b border-border">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <Link to="/store">
-              <Button variant="ghost" size="sm">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Retour au store
-              </Button>
-            </Link>
-            <CartDrawer />
-          </div>
+    <PremiumBackground>
+      {/* Back button and cart in header area */}
+      <div className="container mx-auto px-6 py-6">
+        <div className="flex items-center justify-between mb-6">
+          <PremiumButton variant="glass" size="md" onClick={() => navigate('/store')}>
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Retour au store
+          </PremiumButton>
+          <CartDrawer />
         </div>
       </div>
 
       {/* Product Details */}
-      <div className="container mx-auto px-6 py-12">
+      <div className="container mx-auto px-6 pb-12">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
           {/* Images */}
           <div className="space-y-4">
-            <Card className="overflow-hidden">
+            <PremiumCard variant="elevated" className="overflow-hidden">
               <div className="aspect-square bg-muted">
                 {product.node.images.edges[0]?.node && (
                   <img
@@ -117,12 +121,12 @@ export default function ProductDetail() {
                   />
                 )}
               </div>
-            </Card>
+            </PremiumCard>
             
             {product.node.images.edges.length > 1 && (
               <div className="grid grid-cols-4 gap-4">
                 {product.node.images.edges.slice(1, 5).map((image, idx) => (
-                  <Card key={idx} className="overflow-hidden">
+                  <PremiumCard key={idx} variant="elevated" className="overflow-hidden">
                     <div className="aspect-square bg-muted">
                       <img
                         src={image.node.url}
@@ -130,7 +134,7 @@ export default function ProductDetail() {
                         className="w-full h-full object-cover"
                       />
                     </div>
-                  </Card>
+                  </PremiumCard>
                 ))}
               </div>
             )}
@@ -138,9 +142,9 @@ export default function ProductDetail() {
 
           {/* Product Info */}
           <div className="space-y-6">
-            <div>
-              <h1 className="text-4xl font-bold text-foreground mb-4">{product.node.title}</h1>
-              <div className="text-3xl font-bold text-primary mb-4">
+            <PremiumCard variant="gradient" className="p-8">
+              <h1 className="text-4xl font-bold text-gray-900 mb-4">{product.node.title}</h1>
+              <div className="text-4xl font-bold text-primary mb-4">
                 {product.node.priceRange.minVariantPrice.currencyCode} {parseFloat(product.node.priceRange.minVariantPrice.amount).toFixed(2)}
               </div>
               {selectedVariant?.availableForSale && (
@@ -149,65 +153,71 @@ export default function ProductDetail() {
                   En stock
                 </Badge>
               )}
-            </div>
-
-            <div className="prose max-w-none">
-              <p className="text-muted-foreground text-lg">{product.node.description}</p>
-            </div>
+              
+              <div className="mt-6">
+                <p className="text-gray-600 text-lg leading-relaxed">{product.node.description}</p>
+              </div>
+            </PremiumCard>
 
             {/* Variants */}
             {product.node.options.length > 0 && product.node.options[0].values.length > 1 && (
-              <div className="space-y-4">
-                <label className="text-sm font-medium">Options</label>
-                <div className="flex flex-wrap gap-2">
+              <PremiumCard variant="elevated" className="p-6">
+                <label className="text-sm font-semibold text-gray-900 block mb-4">Options</label>
+                <div className="flex flex-wrap gap-3">
                   {product.node.variants.edges.map((variant) => (
-                    <Button
+                    <PremiumButton
                       key={variant.node.id}
-                      variant={selectedVariantId === variant.node.id ? 'default' : 'outline'}
+                      variant={selectedVariantId === variant.node.id ? 'primary' : 'glass'}
+                      size="md"
                       onClick={() => setSelectedVariantId(variant.node.id)}
                       disabled={!variant.node.availableForSale}
                     >
                       {variant.node.title}
-                    </Button>
+                    </PremiumButton>
                   ))}
                 </div>
-              </div>
+              </PremiumCard>
             )}
 
             {/* Add to Cart */}
-            <div className="flex gap-4">
-              <Button 
-                onClick={handleAddToCart}
-                className="flex-1"
-                size="lg"
-                disabled={!selectedVariant?.availableForSale}
-              >
-                <ShoppingBag className="h-5 w-5 mr-2" />
-                Ajouter au panier
-              </Button>
-            </div>
+            <PremiumButton 
+              variant="primary"
+              size="xl"
+              onClick={handleAddToCart}
+              disabled={!selectedVariant?.availableForSale}
+              className="w-full"
+            >
+              <ShoppingBag className="h-5 w-5 mr-2" />
+              Ajouter au panier
+            </PremiumButton>
 
             {/* Benefits */}
-            <Card className="p-6 bg-accent/10 border-accent/30">
-              <h3 className="font-semibold mb-3 text-accent">Avantages MedMNG</h3>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li className="flex items-start gap-2">
-                  <Check className="h-4 w-4 text-accent mt-0.5 flex-shrink-0" />
+            <PremiumCard variant="glass" className="p-6 bg-accent/5 border-accent/20">
+              <h3 className="font-bold text-lg mb-4 text-accent">✨ Avantages MedMNG</h3>
+              <ul className="space-y-3 text-sm text-gray-700">
+                <li className="flex items-start gap-3">
+                  <div className="w-6 h-6 bg-accent rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Check className="h-4 w-4 text-white" />
+                  </div>
                   <span>Débloquez un module numérique exclusif sur la plateforme MedMNG</span>
                 </li>
-                <li className="flex items-start gap-2">
-                  <Check className="h-4 w-4 text-accent mt-0.5 flex-shrink-0" />
+                <li className="flex items-start gap-3">
+                  <div className="w-6 h-6 bg-accent rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Check className="h-4 w-4 text-white" />
+                  </div>
                   <span>Optimisé pour l'apprentissage médical</span>
                 </li>
-                <li className="flex items-start gap-2">
-                  <Check className="h-4 w-4 text-accent mt-0.5 flex-shrink-0" />
+                <li className="flex items-start gap-3">
+                  <div className="w-6 h-6 bg-accent rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <Check className="h-4 w-4 text-white" />
+                  </div>
                   <span>Livraison rapide et sécurisée</span>
                 </li>
               </ul>
-            </Card>
+            </PremiumCard>
           </div>
         </div>
       </div>
-    </div>
+    </PremiumBackground>
   );
 }

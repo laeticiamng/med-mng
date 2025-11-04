@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ShoppingBag, Sparkles, Package } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CartDrawer } from '@/components/store/CartDrawer';
 import { getProducts, type ShopifyProduct } from '@/lib/shopify';
 import { useCartStore } from '@/stores/cartStore';
 import { toast } from 'sonner';
+import { PremiumBackground } from '@/components/ui/premium-background';
+import { PremiumCard } from '@/components/ui/premium-card';
+import { PremiumButton } from '@/components/ui/premium-button';
 
 export default function Store() {
   const [products, setProducts] = useState<ShopifyProduct[]>([]);
@@ -51,77 +53,58 @@ export default function Store() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-accent/5">
-      {/* Header */}
-      <div className="bg-card/80 backdrop-blur-sm border-b border-border">
-        <div className="container mx-auto px-6 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-                <ShoppingBag className="h-6 w-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold text-foreground">MedMNG Store</h1>
-                <p className="text-sm text-muted-foreground">Boostez votre apprentissage médical</p>
-              </div>
+    <PremiumBackground>
+      {/* Hero Section */}
+      <div className="container mx-auto px-6 py-12">
+        <PremiumCard variant="glass" className="p-12 mb-12">
+          <div className="text-center">
+            <div className="inline-flex items-center gap-2 mb-6">
+              <Sparkles className="h-6 w-6 text-accent animate-pulse" />
+              <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent">
+                🧠 MedMNG Store
+              </h1>
+              <Sparkles className="h-6 w-6 text-primary animate-pulse" />
             </div>
-            
-            <div className="flex items-center gap-4">
-              <Link to="/">
-                <Button variant="ghost">Retour</Button>
-              </Link>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto mb-4">
+              La première boutique dédiée aux étudiants en médecine qui veulent apprendre mieux, plus vite, et avec plaisir.
+            </p>
+            <p className="text-gray-600">
+              Chaque produit optimise la concentration, la mémoire et le bien-être pendant vos études médicales.
+            </p>
+            <div className="mt-8">
               <CartDrawer />
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* Hero Section */}
-      <div className="container mx-auto px-6 py-16">
-        <div className="text-center mb-16">
-          <div className="inline-flex items-center gap-2 mb-6">
-            <Sparkles className="h-6 w-6 text-accent animate-pulse" />
-            <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              🧠 MedMNG Store
-            </h2>
-            <Sparkles className="h-6 w-6 text-primary animate-pulse" />
-          </div>
-          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            La première boutique dédiée aux étudiants en médecine qui veulent apprendre mieux, plus vite, et avec plaisir.
-          </p>
-          <p className="mt-4 text-muted-foreground">
-            Chaque produit optimise la concentration, la mémoire et le bien-être pendant vos études médicales.
-          </p>
-        </div>
+        </PremiumCard>
 
         {/* Products Grid */}
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => (
-              <Card key={i} className="animate-pulse">
-                <div className="h-64 bg-muted"></div>
-                <CardHeader>
-                  <div className="h-4 bg-muted rounded w-3/4"></div>
-                  <div className="h-3 bg-muted rounded w-1/2 mt-2"></div>
-                </CardHeader>
-              </Card>
+              <PremiumCard key={i} className="animate-pulse">
+                <div className="h-64 bg-muted rounded-t-xl"></div>
+                <div className="p-6">
+                  <div className="h-4 bg-muted rounded w-3/4 mb-2"></div>
+                  <div className="h-3 bg-muted rounded w-1/2"></div>
+                </div>
+              </PremiumCard>
             ))}
           </div>
         ) : products.length === 0 ? (
-          <div className="text-center py-16">
+          <PremiumCard variant="elevated" className="p-16 text-center">
             <div className="max-w-md mx-auto">
-              <div className="w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-6">
-                <Package className="h-10 w-10 text-primary" />
+              <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6">
+                <Package className="h-10 w-10 text-white" />
               </div>
-              <h3 className="text-2xl font-semibold text-foreground mb-3">Aucun produit disponible</h3>
-              <p className="text-muted-foreground mb-6">
+              <h3 className="text-2xl font-semibold text-gray-900 mb-3">Aucun produit disponible</h3>
+              <p className="text-gray-600 mb-6">
                 Les produits MedMNG Store arrivent bientôt ! Dites-moi quel produit vous souhaitez créer et je l'ajouterai pour vous.
               </p>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-gray-500">
                 Exemple : "Ajoute une lampe de lecture Baseus à 45€"
               </p>
             </div>
-          </div>
+          </PremiumCard>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {products.map((product) => {
@@ -129,7 +112,11 @@ export default function Store() {
               const image = product.node.images.edges[0]?.node;
               
               return (
-                <Card key={product.node.id} className="group hover:shadow-lg transition-all duration-300 hover:scale-105 overflow-hidden">
+                <PremiumCard 
+                  key={product.node.id} 
+                  variant="gradient"
+                  className="group hover:scale-105 overflow-hidden transition-all duration-300"
+                >
                   <Link to={`/product/${product.node.handle}`}>
                     <div className="h-64 bg-muted overflow-hidden">
                       {image && (
@@ -142,15 +129,13 @@ export default function Store() {
                     </div>
                   </Link>
                   
-                  <CardHeader>
-                    <CardTitle className="line-clamp-2">{product.node.title}</CardTitle>
-                    <CardDescription className="line-clamp-2">
+                  <div className="p-6">
+                    <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2">{product.node.title}</h3>
+                    <p className="text-gray-600 mb-4 line-clamp-2 text-sm">
                       {product.node.description}
-                    </CardDescription>
-                  </CardHeader>
-                  
-                  <CardContent>
-                    <div className="flex items-center justify-between">
+                    </p>
+                    
+                    <div className="flex items-center justify-between mb-4">
                       <div className="text-2xl font-bold text-primary">
                         {product.node.priceRange.minVariantPrice.currencyCode} {parseFloat(product.node.priceRange.minVariantPrice.amount).toFixed(2)}
                       </div>
@@ -160,29 +145,31 @@ export default function Store() {
                         </Badge>
                       )}
                     </div>
-                  </CardContent>
-                  
-                  <CardFooter className="flex gap-2">
-                    <Link to={`/product/${product.node.handle}`} className="flex-1">
-                      <Button variant="outline" className="w-full">
-                        Voir les détails
-                      </Button>
-                    </Link>
-                    <Button 
-                      onClick={() => handleAddToCart(product)}
-                      className="flex-1"
-                      disabled={!variant?.availableForSale}
-                    >
-                      <ShoppingBag className="h-4 w-4 mr-2" />
-                      Ajouter au panier
-                    </Button>
-                  </CardFooter>
-                </Card>
+                    
+                    <div className="flex gap-2">
+                      <Link to={`/product/${product.node.handle}`} className="flex-1">
+                        <PremiumButton variant="glass" size="md" className="w-full">
+                          Détails
+                        </PremiumButton>
+                      </Link>
+                      <PremiumButton 
+                        variant="primary"
+                        size="md"
+                        onClick={() => handleAddToCart(product)}
+                        disabled={!variant?.availableForSale}
+                        className="flex-1"
+                      >
+                        <ShoppingBag className="h-4 w-4 mr-2" />
+                        Panier
+                      </PremiumButton>
+                    </div>
+                  </div>
+                </PremiumCard>
               );
             })}
           </div>
         )}
       </div>
-    </div>
+    </PremiumBackground>
   );
 }
