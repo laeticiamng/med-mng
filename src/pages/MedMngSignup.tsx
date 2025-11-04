@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { ConsentCheckboxes } from '@/components/med-mng/ConsentCheckboxes';
 
 export const MedMngSignup = () => {
   const { user, signUp, signInWithGoogle, signInWithFacebook, signInWithApple } = useAuth();
@@ -17,6 +18,13 @@ export const MedMngSignup = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
+  
+  // Consentements RGPD
+  const [cguAccepted, setCguAccepted] = useState(false);
+  const [healthDataAccepted, setHealthDataAccepted] = useState(false);
+  const [internationalTransferAccepted, setInternationalTransferAccepted] = useState(false);
+  const [ageVerified, setAgeVerified] = useState(false);
+  const [showConsentErrors, setShowConsentErrors] = useState(false);
 
   if (user) {
     return <Navigate to="/med-mng/library" replace />;
@@ -26,9 +34,18 @@ export const MedMngSignup = () => {
     e.preventDefault();
     setLoading(true);
     setError('');
+    setShowConsentErrors(false);
 
     if (password !== confirmPassword) {
       setError('Les mots de passe ne correspondent pas');
+      setLoading(false);
+      return;
+    }
+
+    // Vérification des consentements obligatoires
+    if (!cguAccepted || !healthDataAccepted || !internationalTransferAccepted || !ageVerified) {
+      setError('Veuillez accepter tous les consentements obligatoires');
+      setShowConsentErrors(true);
       setLoading(false);
       return;
     }
@@ -143,6 +160,19 @@ export const MedMngSignup = () => {
                 required
               />
             </div>
+
+            {/* Consentements RGPD obligatoires */}
+            <ConsentCheckboxes
+              cguAccepted={cguAccepted}
+              onCguChange={setCguAccepted}
+              healthDataAccepted={healthDataAccepted}
+              onHealthDataChange={setHealthDataAccepted}
+              internationalTransferAccepted={internationalTransferAccepted}
+              onInternationalTransferChange={setInternationalTransferAccepted}
+              ageVerified={ageVerified}
+              onAgeChange={setAgeVerified}
+              showErrors={showConsentErrors}
+            />
             
             <Button type="submit" className="w-full" disabled={loading}>
               {loading ? 'Création...' : 'Créer le compte'}
