@@ -39,6 +39,8 @@ export const AppFooter = () => {
             <div className="space-y-2">
               <Link to="/mentions-legales" className="block text-gray-600 hover:text-blue-600 text-sm">Mentions Légales</Link>
               <Link to="/politique-confidentialite" className="block text-gray-600 hover:text-blue-600 text-sm">Politique de Confidentialité</Link>
+              <Link to="/cgu" className="block text-gray-600 hover:text-blue-600 text-sm">CGU</Link>
+              <Link to="/declaration-accessibilite" className="block text-gray-600 hover:text-blue-600 text-sm">Accessibilité</Link>
               <a href="mailto:contact@emotionscare.com" className="block text-gray-600 hover:text-blue-600 text-sm">Contact</a>
             </div>
           </div>

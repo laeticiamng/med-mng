@@ -173,11 +173,27 @@ const MentionsLegales = () => {
             </div>
           </Card>
 
-          {/* 7. Juridiction compétente */}
+          {/* 7. Médiateur de la consommation */}
+          <Card className="p-6">
+            <div className="flex items-center space-x-2 mb-4">
+              <Scale className="h-5 w-5 text-blue-600" />
+              <h3 className="text-xl font-semibold text-gray-800">7. MÉDIATEUR DE LA CONSOMMATION</h3>
+            </div>
+            <div className="space-y-3 text-gray-700">
+              <p>Conformément à l'article L.612-1 du Code de la consommation, en cas de litige vous pouvez recourir à un médiateur :</p>
+              <div className="bg-blue-50 p-4 rounded-lg">
+                <p><strong>Médiateur :</strong> Plateforme européenne de règlement des litiges en ligne</p>
+                <p className="text-sm mt-2">🔗 <a href="https://ec.europa.eu/consumers/odr" target="_blank" rel="noopener" className="text-blue-600 hover:underline">https://ec.europa.eu/consumers/odr</a></p>
+                <p className="text-sm mt-2">📧 Email : mediation@emotionscare.com</p>
+              </div>
+            </div>
+          </Card>
+
+          {/* 8. Juridiction compétente */}
           <Card className="p-6">
             <div className="flex items-center space-x-2 mb-4">
               <Scale className="h-5 w-5 text-red-600" />
-              <h3 className="text-xl font-semibold text-gray-800">7. JURIDICTION COMPÉTENTE</h3>
+              <h3 className="text-xl font-semibold text-gray-800">8. JURIDICTION COMPÉTENTE</h3>
             </div>
             <div className="space-y-3 text-gray-700">
               <p>Les présentes mentions sont régies par le droit français.</p>
