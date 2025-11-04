@@ -3208,6 +3208,45 @@ export type Database = {
         }
         Relationships: []
       }
+      emotional_boosts: {
+        Row: {
+          active: boolean
+          boost_type: string
+          content: Json | null
+          created_at: string
+          description: string
+          duration_minutes: number
+          energy_restore: number
+          icon: string | null
+          id: string
+          name: string
+        }
+        Insert: {
+          active?: boolean
+          boost_type: string
+          content?: Json | null
+          created_at?: string
+          description: string
+          duration_minutes?: number
+          energy_restore?: number
+          icon?: string | null
+          id?: string
+          name: string
+        }
+        Update: {
+          active?: boolean
+          boost_type?: string
+          content?: Json | null
+          created_at?: string
+          description?: string
+          duration_minutes?: number
+          energy_restore?: number
+          icon?: string | null
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
       emotional_scan_results: {
         Row: {
           confidence_score: number | null
@@ -3715,6 +3754,36 @@ export type Database = {
           key_type?: string
           key_value?: string
           rotated_at?: string | null
+        }
+        Relationships: []
+      }
+      energy_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          metadata: Json | null
+          reason: string
+          transaction_type: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          reason: string
+          transaction_type: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          reason?: string
+          transaction_type?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -8198,6 +8267,33 @@ export type Database = {
           },
         ]
       }
+      pending_activations: {
+        Row: {
+          created_at: string | null
+          email: string
+          id: string
+          order_data: Json | null
+          order_id: string
+          status: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          id?: string
+          order_data?: Json | null
+          order_id: string
+          status?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          id?: string
+          order_data?: Json | null
+          order_id?: string
+          status?: string | null
+        }
+        Relationships: []
+      }
       pending_corrections: {
         Row: {
           applied_at: string | null
@@ -8527,6 +8623,36 @@ export type Database = {
         }
         Relationships: []
       }
+      product_module_mapping: {
+        Row: {
+          activation_type: string
+          created_at: string
+          description: string | null
+          id: string
+          module_name: string
+          module_path: string
+          product_handle: string
+        }
+        Insert: {
+          activation_type?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          module_name: string
+          module_path: string
+          product_handle: string
+        }
+        Update: {
+          activation_type?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          module_name?: string
+          module_path?: string
+          product_handle?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -8613,6 +8739,45 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      purchase_history: {
+        Row: {
+          created_at: string | null
+          currency: string | null
+          id: string
+          modules_activated: string[] | null
+          order_data: Json | null
+          order_id: string
+          status: string | null
+          total_amount: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          currency?: string | null
+          id?: string
+          modules_activated?: string[] | null
+          order_data?: Json | null
+          order_id: string
+          status?: string | null
+          total_amount?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          currency?: string | null
+          id?: string
+          modules_activated?: string[] | null
+          order_data?: Json | null
+          order_id?: string
+          status?: string | null
+          total_amount?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       push_subscriptions: {
         Row: {
@@ -9213,6 +9378,57 @@ export type Database = {
           description?: string
           id?: string
           priority?: string
+        }
+        Relationships: []
+      }
+      shopify_purchases: {
+        Row: {
+          activated_at: string | null
+          created_at: string
+          currency_code: string
+          id: string
+          order_id: string
+          price_amount: number
+          product_handle: string
+          product_title: string
+          quantity: number
+          shopify_product_id: string
+          updated_at: string
+          user_id: string | null
+          variant_id: string
+          variant_title: string | null
+        }
+        Insert: {
+          activated_at?: string | null
+          created_at?: string
+          currency_code?: string
+          id?: string
+          order_id: string
+          price_amount: number
+          product_handle: string
+          product_title: string
+          quantity?: number
+          shopify_product_id: string
+          updated_at?: string
+          user_id?: string | null
+          variant_id: string
+          variant_title?: string | null
+        }
+        Update: {
+          activated_at?: string | null
+          created_at?: string
+          currency_code?: string
+          id?: string
+          order_id?: string
+          price_amount?: number
+          product_handle?: string
+          product_title?: string
+          quantity?: number
+          shopify_product_id?: string
+          updated_at?: string
+          user_id?: string | null
+          variant_id?: string
+          variant_title?: string | null
         }
         Relationships: []
       }
@@ -10188,6 +10404,47 @@ export type Database = {
           },
         ]
       }
+      user_activated_modules: {
+        Row: {
+          activated_via: string
+          created_at: string
+          expires_at: string | null
+          id: string
+          module_name: string
+          module_path: string
+          purchase_id: string | null
+          user_id: string
+        }
+        Insert: {
+          activated_via: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          module_name: string
+          module_path: string
+          purchase_id?: string | null
+          user_id: string
+        }
+        Update: {
+          activated_via?: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          module_name?: string
+          module_path?: string
+          purchase_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_activated_modules_purchase_id_fkey"
+            columns: ["purchase_id"]
+            isOneToOne: false
+            referencedRelation: "shopify_purchases"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_activities: {
         Row: {
           activity_data: Json | null
@@ -10440,6 +10697,42 @@ export type Database = {
         }
         Relationships: []
       }
+      user_emotional_energy: {
+        Row: {
+          created_at: string
+          current_energy: number
+          id: string
+          last_refill_time: string
+          max_energy: number
+          total_energy_gained: number
+          total_energy_spent: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_energy?: number
+          id?: string
+          last_refill_time?: string
+          max_energy?: number
+          total_energy_gained?: number
+          total_energy_spent?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_energy?: number
+          id?: string
+          last_refill_time?: string
+          max_energy?: number
+          total_energy_gained?: number
+          total_energy_spent?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_favorite_flashcards: {
         Row: {
           created_at: string | null
@@ -10572,6 +10865,63 @@ export type Database = {
         }
         Relationships: []
       }
+      user_harmony_points: {
+        Row: {
+          created_at: string
+          id: string
+          lifetime_earned: number
+          lifetime_spent: number
+          total_points: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          lifetime_earned?: number
+          lifetime_spent?: number
+          total_points?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          lifetime_earned?: number
+          lifetime_spent?: number
+          total_points?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_hearts: {
+        Row: {
+          created_at: string
+          hearts: number
+          id: string
+          last_refill_time: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          hearts?: number
+          id?: string
+          last_refill_time?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          hearts?: number
+          id?: string
+          last_refill_time?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_insights: {
         Row: {
           action_items: Json | null
@@ -10648,6 +10998,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_modules: {
+        Row: {
+          activated_at: string | null
+          activation_source: string | null
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          module_name: string
+          order_id: string | null
+          user_id: string
+        }
+        Insert: {
+          activated_at?: string | null
+          activation_source?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          module_name: string
+          order_id?: string | null
+          user_id: string
+        }
+        Update: {
+          activated_at?: string | null
+          activation_source?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          module_name?: string
+          order_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       user_music_consents: {
         Row: {
@@ -11083,6 +11466,53 @@ export type Database = {
         }
         Relationships: []
       }
+      user_quest_progress: {
+        Row: {
+          claimed: boolean
+          claimed_at: string | null
+          completed: boolean
+          completed_at: string | null
+          created_at: string
+          current_progress: number
+          id: string
+          quest_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          claimed?: boolean
+          claimed_at?: string | null
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          current_progress?: number
+          id?: string
+          quest_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          claimed?: boolean
+          claimed_at?: string | null
+          completed?: boolean
+          completed_at?: string | null
+          created_at?: string
+          current_progress?: number
+          id?: string
+          quest_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_quest_progress_quest_id_fkey"
+            columns: ["quest_id"]
+            isOneToOne: false
+            referencedRelation: "wellness_quests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_quotas: {
         Row: {
           created_at: string | null
@@ -11423,6 +11853,75 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_wellness_chests: {
+        Row: {
+          chest_type: string
+          created_at: string
+          id: string
+          opened: boolean
+          opened_at: string | null
+          rewards: Json
+          unlocked_at: string
+          user_id: string
+        }
+        Insert: {
+          chest_type: string
+          created_at?: string
+          id?: string
+          opened?: boolean
+          opened_at?: string | null
+          rewards: Json
+          unlocked_at?: string
+          user_id: string
+        }
+        Update: {
+          chest_type?: string
+          created_at?: string
+          id?: string
+          opened?: boolean
+          opened_at?: string | null
+          rewards?: Json
+          unlocked_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_wellness_streak: {
+        Row: {
+          created_at: string
+          current_streak: number
+          id: string
+          last_checkin_date: string
+          longest_streak: number
+          streak_frozen_until: string | null
+          total_checkins: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_streak?: number
+          id?: string
+          last_checkin_date?: string
+          longest_streak?: number
+          streak_frozen_until?: string | null
+          total_checkins?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_streak?: number
+          id?: string
+          last_checkin_date?: string
+          longest_streak?: number
+          streak_frozen_until?: string | null
+          total_checkins?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       voice_journal_entries: {
         Row: {
@@ -11773,6 +12272,54 @@ export type Database = {
         }
         Relationships: []
       }
+      wellness_quests: {
+        Row: {
+          active: boolean
+          category: string
+          created_at: string
+          description: string
+          end_date: string | null
+          energy_reward: number
+          harmony_points_reward: number
+          id: string
+          quest_type: string
+          special_reward: Json | null
+          start_date: string
+          target_value: number
+          title: string
+        }
+        Insert: {
+          active?: boolean
+          category: string
+          created_at?: string
+          description: string
+          end_date?: string | null
+          energy_reward?: number
+          harmony_points_reward?: number
+          id?: string
+          quest_type: string
+          special_reward?: Json | null
+          start_date?: string
+          target_value?: number
+          title: string
+        }
+        Update: {
+          active?: boolean
+          category?: string
+          created_at?: string
+          description?: string
+          end_date?: string | null
+          energy_reward?: number
+          harmony_points_reward?: number
+          id?: string
+          quest_type?: string
+          special_reward?: Json | null
+          start_date?: string
+          target_value?: number
+          title?: string
+        }
+        Relationships: []
+      }
       who5_assessments: {
         Row: {
           completed: boolean | null
@@ -12061,6 +12608,13 @@ export type Database = {
         Returns: boolean
       }
       check_slow_generations: { Args: never; Returns: undefined }
+      check_wellness_streak: {
+        Args: { p_user_id: string }
+        Returns: {
+          current_streak: number
+          streak_broken: boolean
+        }[]
+      }
       clean_corrupted_edn_items: { Args: never; Returns: number }
       clean_generic_lisa_content: {
         Args: never
@@ -12987,8 +13541,10 @@ export type Database = {
         }[]
       }
       panic_overlay_get_state: { Args: never; Returns: Json }
+      refill_emotional_energy: { Args: never; Returns: undefined }
       refresh_analytics_dashboards: { Args: never; Returns: undefined }
       refresh_dashboard_stats: { Args: never; Returns: undefined }
+      regenerate_hearts: { Args: never; Returns: undefined }
       reset_monthly_quotas: { Args: never; Returns: undefined }
       run_automated_completeness_audit: { Args: never; Returns: Json }
       run_security_health_check: { Args: never; Returns: Json }
