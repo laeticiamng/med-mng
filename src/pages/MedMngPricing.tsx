@@ -1,9 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MedMngNavigation } from '@/components/med-mng/MedMngNavigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Music, Library, Heart, Shield, Headphones, Download, Crown, Star, Zap, Check } from 'lucide-react';
 import { TranslatedText } from '@/components/TranslatedText';
@@ -11,6 +9,9 @@ import { useAuth } from '@/components/med-mng/AuthProvider';
 import { useSubscription } from '@/hooks/useSubscription';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { PremiumBackground } from '@/components/ui/premium-background';
+import { PremiumCard } from '@/components/ui/premium-card';
+import { PremiumButton } from '@/components/ui/premium-button';
 
 interface SubscriptionPlan {
   id: string;
@@ -181,19 +182,17 @@ export const MedMngPricing = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100">
-      <MedMngNavigation />
-      
-      {/* Back to Home Button */}
-      <div className="container mx-auto px-4 pt-4">
-        <Button
-          variant="outline"
+    <PremiumBackground variant="blue" className="min-h-screen">
+      <div className="container mx-auto px-4 pt-20">
+        <PremiumButton
+          variant="glass"
+          size="sm"
           onClick={() => navigate('/')}
-          className="flex items-center gap-2 mb-4 bg-white/80 hover:bg-white shadow-sm"
+          className="flex items-center gap-2 mb-8"
         >
           <ArrowLeft className="h-4 w-4" />
           <TranslatedText text="Retour à l'accueil" />
-        </Button>
+        </PremiumButton>
       </div>
 
       <div className="container mx-auto px-4 py-4 sm:py-8">
@@ -224,7 +223,7 @@ export const MedMngPricing = () => {
         <div className="grid md:grid-cols-2 gap-8 mb-12">
           
           {/* Version Gratuite */}
-          <Card className="bg-white/90 backdrop-blur-sm shadow-lg">
+          <PremiumCard variant="glass">
             <CardHeader className="text-center pb-4">
               <CardTitle className="text-2xl text-green-600">
                 <TranslatedText text="Version Gratuite" />
@@ -254,23 +253,24 @@ export const MedMngPricing = () => {
               </div>
               
               <div className="mt-6 text-center">
-                <Button
+                <PremiumButton
                   onClick={() => navigate('/edn')}
-                  className="w-full bg-green-600 hover:bg-green-700"
+                  className="w-full"
+                  variant="primary"
                 >
                   <TranslatedText text="Commencer gratuitement" />
-                </Button>
+                </PremiumButton>
               </div>
             </CardContent>
-          </Card>
+          </PremiumCard>
 
           {/* Version Premium */}
-          <Card className="bg-white/90 backdrop-blur-sm shadow-lg border-2 border-blue-500">
+          <PremiumCard variant="elevated" className="ring-2 ring-primary">
             <CardHeader className="text-center pb-4">
-              <Badge className="mb-2 bg-blue-500">
+              <Badge className="mb-2 bg-primary">
                 <TranslatedText text="Recommandé" />
               </Badge>
-              <CardTitle className="text-2xl text-blue-600">
+              <CardTitle className="text-2xl text-primary">
                 <TranslatedText text="Versions Premium" />
               </CardTitle>
               <CardDescription className="text-lg">
@@ -297,12 +297,12 @@ export const MedMngPricing = () => {
                 })}
               </div>
             </CardContent>
-          </Card>
+          </PremiumCard>
         </div>
 
         {/* Current subscription banner */}
         {subscription && (
-          <Card className="mb-8 p-6 bg-white/90 backdrop-blur-sm shadow-lg">
+          <PremiumCard variant="glass" className="mb-8 p-6">
             <div className="flex items-center justify-between">
               <div>
                 <h3 className="text-xl font-bold text-gray-900">
@@ -316,7 +316,7 @@ export const MedMngPricing = () => {
                 <TranslatedText text="Actif" />
               </Badge>
             </div>
-          </Card>
+          </PremiumCard>
         )}
 
         {/* Plans Grid */}
@@ -332,14 +332,15 @@ export const MedMngPricing = () => {
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
               {plans.map((plan) => (
-                <Card 
+                <PremiumCard 
                   key={plan.id}
-                  className={`relative bg-white/90 backdrop-blur-sm shadow-lg ${
-                    isCurrentPlan(plan.name) ? 'ring-2 ring-blue-500' : ''
-                  } ${plan.name.toLowerCase() === 'premium' ? 'border-2 border-purple-500' : ''}`}
+                  variant="elevated"
+                  className={`relative ${
+                    isCurrentPlan(plan.name) ? 'ring-2 ring-primary' : ''
+                  } ${plan.name.toLowerCase() === 'premium' ? 'ring-2 ring-accent' : ''}`}
                 >
                   {plan.name.toLowerCase() === 'premium' && (
-                    <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-purple-500 text-white">
+                    <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-accent text-white">
                       <TranslatedText text="Recommandé" />
                     </Badge>
                   )}
@@ -394,25 +395,22 @@ export const MedMngPricing = () => {
 
                     <div className="pt-4 space-y-2">
                       {isCurrentPlan(plan.name) ? (
-                        <Button disabled className="w-full">
+                        <PremiumButton disabled className="w-full" variant="secondary">
                           <TranslatedText text="Plan actuel" />
-                        </Button>
+                        </PremiumButton>
                       ) : plan.name === 'Free' ? (
-                        <Button 
-                          variant="outline" 
+                        <PremiumButton 
+                          variant="glass" 
                           className="w-full"
                           onClick={() => navigate('/med-mng/signup')}
                         >
                           <TranslatedText text="Commencer gratuitement" />
-                        </Button>
+                        </PremiumButton>
                       ) : (
                         <>
-                          <Button
-                            className={`w-full ${
-                              plan.name.toLowerCase() === 'premium' 
-                                ? 'bg-purple-600 hover:bg-purple-700' 
-                                : 'bg-blue-600 hover:bg-blue-700'
-                            }`}
+                          <PremiumButton
+                            className="w-full"
+                            variant={plan.name.toLowerCase() === 'premium' ? 'accent' : 'primary'}
                             onClick={() => handleSubscribe(plan.id)}
                             disabled={processingPlan === plan.id}
                           >
@@ -424,27 +422,28 @@ export const MedMngPricing = () => {
                             ) : (
                               <TranslatedText text="S'abonner" />
                             )}
-                          </Button>
-                          <Button
-                            variant="outline"
-                            className="w-full text-xs"
+                          </PremiumButton>
+                          <PremiumButton
+                            variant="glass"
+                            size="sm"
+                            className="w-full"
                             onClick={() => handleSimulation(plan.id.toLowerCase())}
                             disabled={processingPlan === plan.id}
                           >
                             🎭 Simuler ce plan
-                          </Button>
+                          </PremiumButton>
                         </>
                       )}
                     </div>
                   </CardContent>
-                </Card>
+                </PremiumCard>
               ))}
             </div>
           )}
         </div>
 
         {/* FAQ Section */}
-        <Card className="mt-8 sm:mt-12 max-w-4xl mx-auto shadow-lg">
+        <PremiumCard variant="glass" className="mt-8 sm:mt-12 max-w-4xl mx-auto">
           <CardHeader className="text-center">
             <CardTitle className="text-lg sm:text-xl">
               <TranslatedText text="Questions Fréquentes" />
@@ -491,11 +490,11 @@ export const MedMngPricing = () => {
 
             </div>
           </CardContent>
-        </Card>
+        </PremiumCard>
 
         {/* Call to Action */}
         <div className="mt-12 text-center">
-          <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 text-white">
+          <PremiumCard variant="gradient" className="p-8">
             <h3 className="text-2xl font-bold mb-4">
               <TranslatedText text="Prêt à révolutionner votre apprentissage médical ?" />
             </h3>
@@ -503,26 +502,24 @@ export const MedMngPricing = () => {
               <TranslatedText text="Rejoignez des centaines d'étudiants qui utilisent déjà MED-MNG pour réussir leurs études" />
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button
+              <PremiumButton
                 onClick={() => navigate('/edn')}
-                variant="secondary"
+                variant="primary"
                 size="lg"
-                className="bg-white text-blue-600 hover:bg-gray-100"
               >
                 <TranslatedText text="Essayer gratuitement" />
-              </Button>
-              <Button
+              </PremiumButton>
+              <PremiumButton
                 onClick={() => navigate('/med-mng/login')}
-                variant="outline"
+                variant="glass"
                 size="lg"
-                className="border-white text-white hover:bg-white/10"
               >
                 <TranslatedText text="Se connecter" />
-              </Button>
+              </PremiumButton>
             </div>
-          </div>
+          </PremiumCard>
         </div>
       </div>
-    </div>
+    </PremiumBackground>
   );
 };
