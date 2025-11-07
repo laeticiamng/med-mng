@@ -1,0 +1,137 @@
+# Code Owners pour MED-MNG
+# Définit les personnes/équipes responsables de la revue de code pour certains fichiers
+
+# ============================================
+# ACCESSIBILITÉ - Revue critique
+# ============================================
+
+# Tests d'accessibilité - Revue obligatoire par l'équipe accessibilité
+/tests/accessibility*.spec.ts @votre-org/accessibility-team
+/tests/accessibility.spec.ts @votre-org/accessibility-team
+
+# Composants accessibles
+/src/components/ui/accessible.tsx @votre-org/accessibility-team
+/src/components/ui/AccessibilityProvider.tsx @votre-org/accessibility-team
+/src/components/accessibility/** @votre-org/accessibility-team
+
+# Hooks d'accessibilité
+/src/hooks/useAccessibility*.ts @votre-org/accessibility-team
+/src/hooks/useAdvancedAccessibility.js @votre-org/accessibility-team
+
+# Documentation accessibilité
+/docs/*ACCESSIBILITE*.md @votre-org/accessibility-team
+/docs/GITHUB-BRANCH-PROTECTION.md @votre-org/accessibility-team
+/docs/TESTS-ACCESSIBILITE-CI-CD.md @votre-org/accessibility-team
+
+# Déclaration d'accessibilité publique
+/src/pages/DeclarationAccessibilite.tsx @votre-org/accessibility-team
+
+# ============================================
+# CI/CD - Pipeline critique
+# ============================================
+
+# Workflows GitHub Actions
+/.github/workflows/** @votre-org/devops-team
+
+# Configuration Lighthouse
+/.github/lighthouse/** @votre-org/devops-team @votre-org/accessibility-team
+
+# Configuration Playwright
+/playwright.config.ts @votre-org/devops-team
+/test/e2e/** @votre-org/devops-team
+
+# Scripts de déploiement
+/scripts/** @votre-org/devops-team
+
+# ============================================
+# DESIGN SYSTEM - Cohérence visuelle
+# ============================================
+
+# Système de design
+/src/index.css @votre-org/design-team
+/tailwind.config.ts @votre-org/design-team
+
+# Composants UI critiques
+/src/components/ui/** @votre-org/frontend-team @votre-org/design-team
+
+# ============================================
+# LÉGAL & CONFORMITÉ
+# ============================================
+
+# Documents juridiques
+/src/pages/CGU.tsx @votre-org/legal-team
+/src/pages/PolitiqueConfidentialite.tsx @votre-org/legal-team
+/src/pages/MentionsLegales.tsx @votre-org/legal-team
+/src/pages/MesDonneesRGPD.tsx @votre-org/legal-team
+
+# Documentation juridique
+/docs/*JURIDIQUE*.md @votre-org/legal-team
+/docs/*CONFORMITE*.md @votre-org/legal-team
+/docs/FAILLES-JURIDIQUES*.md @votre-org/legal-team
+
+# ============================================
+# BACKEND & SÉCURITÉ
+# ============================================
+
+# Configuration Supabase
+/supabase/** @votre-org/backend-team
+
+# Variables d'environnement (CRITIQUE)
+/.env.example @votre-org/backend-team @votre-org/devops-team
+
+# ============================================
+# FRONTEND GÉNÉRAL
+# ============================================
+
+# Tous les composants React
+/src/components/** @votre-org/frontend-team
+
+# Pages de l'application
+/src/pages/** @votre-org/frontend-team
+
+# Hooks custom
+/src/hooks/** @votre-org/frontend-team
+
+# Utilitaires
+/src/lib/** @votre-org/frontend-team
+
+# ============================================
+# DOCUMENTATION
+# ============================================
+
+# Documentation générale
+/docs/** @votre-org/frontend-team
+/README.md @votre-org/frontend-team
+
+# ============================================
+# CONFIGURATION
+# ============================================
+
+# Configuration package.json (CRITIQUE - peut casser le build)
+/package.json @votre-org/devops-team @votre-org/frontend-team
+
+# Configuration TypeScript
+/tsconfig*.json @votre-org/frontend-team
+
+# Configuration Vite
+/vite.config.ts @votre-org/frontend-team @votre-org/devops-team
+
+# ============================================
+# NOTES D'UTILISATION
+# ============================================
+
+# Comment ça marche:
+# 1. Quand une PR touche un de ces fichiers, GitHub notifie automatiquement les owners
+# 2. Si "Require review from Code Owners" est activé dans les Branch Protection Rules,
+#    au moins un owner doit approuver avant merge
+# 3. Les équipes/utilisateurs doivent être définis dans GitHub (Settings > Teams)
+
+# Syntaxe:
+# /chemin/vers/fichier @username
+# /chemin/vers/dossier/** @org/team-name
+# *.extension @username @org/team-name
+
+# Remplacez @votre-org/... par vos vrais usernames/équipes GitHub
+# Exemples:
+# @johndoe (utilisateur individuel)
+# @acme-corp/frontend-team (équipe dans une organisation)

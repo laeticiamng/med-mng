@@ -1,0 +1,229 @@
+name: 🛡️ Monitoring Branch Protection
+
+on:
+  schedule:
+    # Vérification tous les dimanches à minuit (UTC)
+    - cron: '0 0 * * 0'
+  workflow_dispatch:
+    # Permet de lancer manuellement
+
+jobs:
+  verify-protection:
+    name: 🔍 Vérifier les protections de branches
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔍 Vérifier protection de main
+        id: check-main
+        run: |
+          echo "Vérification de la protection de la branche main..."
+          
+          # Récupérer la configuration de protection
+          PROTECTION=$(gh api /repos/${{ github.repository }}/branches/main/protection 2>&1 || echo "ERROR")
+          
+          if [ "$PROTECTION" = "ERROR" ]; then
+            echo "status=missing" >> $GITHUB_OUTPUT
+            echo "❌ Aucune protection configurée sur main"
+            exit 0
+          fi
+          
+          # Vérifier les status checks requis
+          REQUIRED_CHECKS=$(echo "$PROTECTION" | jq -r '.required_status_checks.contexts[]' 2>/dev/null || echo "")
+          
+          # Checks attendus
+          EXPECTED_CHECKS=(
+            "Tests Accessibilité (axe-core) / chromium"
+            "Tests Accessibilité (axe-core) / firefox"
+            "Tests Accessibilité (axe-core) / webkit"
+            "Audit Lighthouse Accessibilité"
+            "Résumé Accessibilité"
+          )
+          
+          MISSING_CHECKS=()
+          
+          for check in "${EXPECTED_CHECKS[@]}"; do
+            if ! echo "$REQUIRED_CHECKS" | grep -q "$check"; then
+              MISSING_CHECKS+=("$check")
+            fi
+          done
+          
+          if [ ${#MISSING_CHECKS[@]} -eq 0 ]; then
+            echo "status=ok" >> $GITHUB_OUTPUT
+            echo "✅ Tous les status checks requis sont configurés"
+          else
+            echo "status=incomplete" >> $GITHUB_OUTPUT
+            echo "⚠️ Checks manquants:"
+            for check in "${MISSING_CHECKS[@]}"; do
+              echo "  - $check"
+            done
+          fi
+          
+          # Vérifier enforce_admins
+          ENFORCE_ADMINS=$(echo "$PROTECTION" | jq -r '.enforce_admins.enabled' 2>/dev/null)
+          if [ "$ENFORCE_ADMINS" = "true" ]; then
+            echo "✅ Enforce admins activé"
+          else
+            echo "⚠️ Enforce admins désactivé"
+            echo "status=incomplete" >> $GITHUB_OUTPUT
+          fi
+          
+          # Vérifier required reviews
+          REQUIRED_REVIEWS=$(echo "$PROTECTION" | jq -r '.required_pull_request_reviews.required_approving_review_count' 2>/dev/null)
+          if [ "$REQUIRED_REVIEWS" -ge 1 ]; then
+            echo "✅ Revues de code requises: $REQUIRED_REVIEWS"
+          else
+            echo "⚠️ Aucune revue de code requise"
+            echo "status=incomplete" >> $GITHUB_OUTPUT
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: 📊 Générer le rapport
+        run: |
+          cat << EOF >> $GITHUB_STEP_SUMMARY
+          # 🛡️ Rapport de Protection des Branches
+          
+          **Date**: $(date -u +'%Y-%m-%d %H:%M:%S UTC')
+          
+          ## Branch: main
+          
+          ### Status Checks Requis
+          
+          | Check | Status |
+          |-------|--------|
+          | Tests Accessibilité (axe-core) / chromium | ${{ steps.check-main.outputs.status == 'ok' && '✅' || '⚠️' }} |
+          | Tests Accessibilité (axe-core) / firefox | ${{ steps.check-main.outputs.status == 'ok' && '✅' || '⚠️' }} |
+          | Tests Accessibilité (axe-core) / webkit | ${{ steps.check-main.outputs.status == 'ok' && '✅' || '⚠️' }} |
+          | Audit Lighthouse Accessibilité | ${{ steps.check-main.outputs.status == 'ok' && '✅' || '⚠️' }} |
+          | Résumé Accessibilité | ${{ steps.check-main.outputs.status == 'ok' && '✅' || '⚠️' }} |
+          
+          ### Protection Rules
+          
+          - Enforce admins: ${{ steps.check-main.outputs.status == 'ok' && '✅' || '⚠️' }}
+          - Required reviews: ${{ steps.check-main.outputs.status == 'ok' && '✅' || '⚠️' }}
+          - Conversation resolution: ${{ steps.check-main.outputs.status == 'ok' && '✅' || '⚠️' }}
+          
+          ---
+          
+          ${{ steps.check-main.outputs.status == 'ok' && '✅ **Toutes les protections sont actives**' || '⚠️ **Certaines protections sont manquantes ou incomplètes**' }}
+          
+          EOF
+
+      - name: ⚠️ Créer une issue si protection manquante
+        if: steps.check-main.outputs.status != 'ok'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const title = '⚠️ Branch Protection incomplète ou manquante';
+            const body = `## 🛡️ Alerte: Protection de branche incomplète
+            
+            La vérification automatique a détecté que les Branch Protection Rules ne sont pas complètement configurées sur la branche \`main\`.
+            
+            ### Actions requises
+            
+            1. Vérifier la configuration: Settings → Branches → Branch protection rules
+            2. S'assurer que tous les status checks d'accessibilité sont requis:
+               - Tests Accessibilité (axe-core) / chromium
+               - Tests Accessibilité (axe-core) / firefox
+               - Tests Accessibilité (axe-core) / webkit
+               - Audit Lighthouse Accessibilité
+               - Résumé Accessibilité
+            3. Activer "Enforce admins"
+            4. Configurer "Required approvals: 1"
+            
+            ### Documentation
+            
+            Consultez \`docs/GITHUB-BRANCH-PROTECTION.md\` pour les instructions détaillées.
+            
+            ### Script automatique
+            
+            Vous pouvez aussi exécuter:
+            \`\`\`bash
+            ./scripts/setup-branch-protection.sh
+            \`\`\`
+            
+            ---
+            
+            **Date de détection**: ${new Date().toISOString()}
+            **Workflow**: ${context.workflow}
+            **Run**: ${context.runId}
+            `;
+            
+            // Chercher si une issue similaire existe déjà
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'branch-protection,automated'
+            });
+            
+            const existingIssue = issues.data.find(issue => issue.title === title);
+            
+            if (existingIssue) {
+              // Mettre à jour l'issue existante
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: existingIssue.number,
+                body: `🔄 Nouvelle vérification: Le problème persiste.\n\n${body}`
+              });
+              console.log(`Issue existante mise à jour: #${existingIssue.number}`);
+            } else {
+              // Créer une nouvelle issue
+              const issue = await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: title,
+                body: body,
+                labels: ['branch-protection', 'automated', 'priority-high']
+              });
+              console.log(`Nouvelle issue créée: #${issue.data.number}`);
+            }
+
+      - name: ✅ Fermer les issues si protection OK
+        if: steps.check-main.outputs.status == 'ok'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            // Chercher les issues ouvertes sur ce sujet
+            const issues = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'branch-protection,automated'
+            });
+            
+            for (const issue of issues.data) {
+              await github.rest.issues.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                state: 'closed'
+              });
+              
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                body: '✅ Les Branch Protection Rules sont maintenant correctement configurées. Cette issue est automatiquement fermée.'
+              });
+              
+              console.log(`Issue #${issue.number} fermée`);
+            }
+
+      - name: 🎯 Résultat final
+        run: |
+          if [ "${{ steps.check-main.outputs.status }}" = "ok" ]; then
+            echo "✅ Toutes les protections sont actives"
+            exit 0
+          elif [ "${{ steps.check-main.outputs.status }}" = "missing" ]; then
+            echo "❌ Aucune protection configurée"
+            exit 1
+          else
+            echo "⚠️ Protection incomplète"
+            exit 1
+          fi
