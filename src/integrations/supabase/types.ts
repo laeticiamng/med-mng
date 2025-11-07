@@ -9377,6 +9377,66 @@ export type Database = {
         }
         Relationships: []
       }
+      recommendation_alerts: {
+        Row: {
+          alert_triggered: boolean | null
+          alert_triggered_at: string | null
+          applied: boolean | null
+          applied_at: string | null
+          category: string
+          created_at: string
+          description: string
+          dismissed: boolean | null
+          dismissed_at: string | null
+          first_seen_at: string
+          historical_score: number
+          id: string
+          impact: string
+          last_checked_at: string
+          recommendation_id: string
+          title: string
+          user_id: string
+        }
+        Insert: {
+          alert_triggered?: boolean | null
+          alert_triggered_at?: string | null
+          applied?: boolean | null
+          applied_at?: string | null
+          category: string
+          created_at?: string
+          description: string
+          dismissed?: boolean | null
+          dismissed_at?: string | null
+          first_seen_at?: string
+          historical_score: number
+          id?: string
+          impact: string
+          last_checked_at?: string
+          recommendation_id: string
+          title: string
+          user_id: string
+        }
+        Update: {
+          alert_triggered?: boolean | null
+          alert_triggered_at?: string | null
+          applied?: boolean | null
+          applied_at?: string | null
+          category?: string
+          created_at?: string
+          description?: string
+          dismissed?: boolean | null
+          dismissed_at?: string | null
+          first_seen_at?: string
+          historical_score?: number
+          id?: string
+          impact?: string
+          last_checked_at?: string
+          recommendation_id?: string
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       recording_projects: {
         Row: {
           bpm: number | null
@@ -13078,6 +13138,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      check_recommendation_alerts: { Args: never; Returns: undefined }
       check_slow_generations: { Args: never; Returns: undefined }
       check_wellness_streak: {
         Args: { p_user_id: string }

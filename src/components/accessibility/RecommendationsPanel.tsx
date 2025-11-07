@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAppliedRecommendations } from '@/hooks/useAppliedRecommendations';
 import { useEffectivenessScores } from '@/hooks/useEffectivenessScores';
+import { useRecommendationAlerts } from '@/hooks/useRecommendationAlerts';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -84,6 +85,7 @@ export function RecommendationsPanel() {
   
   const { applyRecommendation, loading: applyLoading } = useAppliedRecommendations();
   const { scores, getScoreForCategory } = useEffectivenessScores();
+  const { trackRecommendation } = useRecommendationAlerts();
 
   useEffect(() => {
     loadRecommendations();
@@ -160,6 +162,20 @@ export function RecommendationsPanel() {
 
       setRecommendations(enrichedRecs);
       setAnalysis(data.analysis || null);
+      
+      // Tracker automatiquement les recommandations prioritaires (score > 70)
+      enrichedRecs.forEach((rec: Recommendation) => {
+        if (rec.historicalScore && rec.historicalScore > 70) {
+          trackRecommendation({
+            id: `${rec.category}-${Date.now()}-${Math.random()}`,
+            title: rec.title,
+            description: rec.description,
+            category: rec.category,
+            impact: rec.impact,
+            historicalScore: rec.historicalScore,
+          });
+        }
+      });
       
       if (data.recommendations?.length > 0) {
         toast.success('Recommandations générées avec succès');

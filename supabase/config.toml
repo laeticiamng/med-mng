@@ -156,4 +156,10 @@ verify_jwt = false
 [functions.regenerate-oic-with-ai-check]
 verify_jwt = false
 
+[functions.check-recommendation-alerts]
+verify_jwt = false
+
+[functions.generate-recommendations]
+verify_jwt = true
+
 
