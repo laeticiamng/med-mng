@@ -22,7 +22,8 @@ import { NotificationPredictions } from '@/components/accessibility/Notification
 import { RecommendationsPanel } from '@/components/accessibility/RecommendationsPanel';
 import { AppliedRecommendationsTracker } from '@/components/accessibility/AppliedRecommendationsTracker';
 import { RecommendationAlertsPanel } from '@/components/accessibility/RecommendationAlertsPanel';
-import { RefreshCw, Key, BarChart3, AlertCircle, CheckCircle2, Download, FileJson, FileSpreadsheet, FileText } from 'lucide-react';
+import { RefreshCw, Key, BarChart3, AlertCircle, CheckCircle2, Download, FileJson, FileSpreadsheet, FileText, TrendingUp } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { exportMetricsToCSV, exportMetricsToJSON, exportSummaryToCSV, exportMonthlyReport } from '@/utils/exportAccessibilityMetrics';
 import {
@@ -35,6 +36,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 
 const AccessibilityDashboard = () => {
+  const navigate = useNavigate();
   const [githubToken, setGithubToken] = useState('');
   const [isConfigured, setIsConfigured] = useState(false);
   const { toast } = useToast();
@@ -213,6 +215,15 @@ const AccessibilityDashboard = () => {
           </p>
         </div>
         <div className="flex items-center gap-2">
+          <Button 
+            variant="default" 
+            size="sm"
+            onClick={() => navigate('/effectiveness-dashboard')}
+          >
+            <TrendingUp className="h-4 w-4 mr-2" />
+            Statistiques d'efficacité
+          </Button>
+          
           <Button 
             variant="outline" 
             size="sm"

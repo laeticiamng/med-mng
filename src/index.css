@@ -68,6 +68,12 @@
     --radius-sm: 0.5rem;
     --radius-lg: 1rem;
 
+    /* Chart Colors */
+    --chart-1: 213 94% 68%;
+    --chart-2: 142 76% 45%;
+    --chart-3: 48 96% 53%;
+    --chart-4: 290 70% 60%;
+
     /* Sidebar - Medical Professional */
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 51 65% 20%;
@@ -131,6 +137,12 @@
     --shadow-soft: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
     --shadow-medium: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
     --shadow-large: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+
+    /* Chart Colors for dark mode */
+    --chart-1: 213 94% 75%;
+    --chart-2: 142 76% 55%;
+    --chart-3: 48 96% 63%;
+    --chart-4: 290 70% 65%;
 
     /* Dark Sidebar */
     --sidebar-background: 215 28% 17%;
