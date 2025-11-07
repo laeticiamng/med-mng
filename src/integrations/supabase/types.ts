@@ -2804,6 +2804,108 @@ export type Database = {
         }
         Relationships: []
       }
+      cvss_assessments: {
+        Row: {
+          assessed_at: string | null
+          assessed_by: string | null
+          attack_complexity: string
+          attack_vector: string
+          availability_impact: string
+          availability_requirement: string | null
+          base_score: number | null
+          base_severity: string | null
+          confidentiality_impact: string
+          confidentiality_requirement: string | null
+          created_at: string | null
+          cve_id: string | null
+          description: string | null
+          environmental_score: number | null
+          exploit_code_maturity: string | null
+          id: string
+          integrity_impact: string
+          integrity_requirement: string | null
+          notes: string | null
+          patch_deadline: string | null
+          patch_priority: number | null
+          patched: boolean | null
+          privileges_required: string
+          remediation_level: string | null
+          report_confidence: string | null
+          scope: string
+          temporal_score: number | null
+          updated_at: string | null
+          user_interaction: string
+          vector_string: string | null
+          vulnerability_name: string
+        }
+        Insert: {
+          assessed_at?: string | null
+          assessed_by?: string | null
+          attack_complexity: string
+          attack_vector: string
+          availability_impact: string
+          availability_requirement?: string | null
+          base_score?: number | null
+          base_severity?: string | null
+          confidentiality_impact: string
+          confidentiality_requirement?: string | null
+          created_at?: string | null
+          cve_id?: string | null
+          description?: string | null
+          environmental_score?: number | null
+          exploit_code_maturity?: string | null
+          id?: string
+          integrity_impact: string
+          integrity_requirement?: string | null
+          notes?: string | null
+          patch_deadline?: string | null
+          patch_priority?: number | null
+          patched?: boolean | null
+          privileges_required: string
+          remediation_level?: string | null
+          report_confidence?: string | null
+          scope: string
+          temporal_score?: number | null
+          updated_at?: string | null
+          user_interaction: string
+          vector_string?: string | null
+          vulnerability_name: string
+        }
+        Update: {
+          assessed_at?: string | null
+          assessed_by?: string | null
+          attack_complexity?: string
+          attack_vector?: string
+          availability_impact?: string
+          availability_requirement?: string | null
+          base_score?: number | null
+          base_severity?: string | null
+          confidentiality_impact?: string
+          confidentiality_requirement?: string | null
+          created_at?: string | null
+          cve_id?: string | null
+          description?: string | null
+          environmental_score?: number | null
+          exploit_code_maturity?: string | null
+          id?: string
+          integrity_impact?: string
+          integrity_requirement?: string | null
+          notes?: string | null
+          patch_deadline?: string | null
+          patch_priority?: number | null
+          patched?: boolean | null
+          privileges_required?: string
+          remediation_level?: string | null
+          report_confidence?: string | null
+          scope?: string
+          temporal_score?: number | null
+          updated_at?: string | null
+          user_interaction?: string
+          vector_string?: string | null
+          vulnerability_name?: string
+        }
+        Relationships: []
+      }
       data_archives: {
         Row: {
           archived_at: string
@@ -4787,6 +4889,36 @@ export type Database = {
           },
         ]
       }
+      export_logs: {
+        Row: {
+          created_at: string
+          duration_ms: number | null
+          file_size: number | null
+          format: string
+          id: string
+          template: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          duration_ms?: number | null
+          file_size?: number | null
+          format: string
+          id?: string
+          template?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          duration_ms?: number | null
+          file_size?: number | null
+          format?: string
+          id?: string
+          template?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       exports: {
         Row: {
           created_at: string | null
@@ -5202,6 +5334,42 @@ export type Database = {
           title?: string
           updated_at?: string | null
           violation_type?: string
+        }
+        Relationships: []
+      }
+      gdpr_webhooks: {
+        Row: {
+          created_at: string
+          event_type: string
+          id: string
+          is_active: boolean | null
+          last_triggered_at: string | null
+          secret: string
+          trigger_count: number | null
+          url: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          event_type: string
+          id?: string
+          is_active?: boolean | null
+          last_triggered_at?: string | null
+          secret: string
+          trigger_count?: number | null
+          url: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          event_type?: string
+          id?: string
+          is_active?: boolean | null
+          last_triggered_at?: string | null
+          secret?: string
+          trigger_count?: number | null
+          url?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -9433,6 +9601,120 @@ export type Database = {
           },
         ]
       }
+      pdf_report_schedules: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean | null
+          last_run_at: string | null
+          next_run_at: string | null
+          options: Json | null
+          recipient_emails: string[]
+          report_type: string
+          schedule_cron: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          last_run_at?: string | null
+          next_run_at?: string | null
+          options?: Json | null
+          recipient_emails: string[]
+          report_type: string
+          schedule_cron: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          last_run_at?: string | null
+          next_run_at?: string | null
+          options?: Json | null
+          recipient_emails?: string[]
+          report_type?: string
+          schedule_cron?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      pdf_reports: {
+        Row: {
+          created_at: string
+          file_size: number | null
+          file_url: string | null
+          id: string
+          metadata: Json | null
+          report_type: string
+          report_version: number
+          score_global: number | null
+          title: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          file_size?: number | null
+          file_url?: string | null
+          id?: string
+          metadata?: Json | null
+          report_type: string
+          report_version?: number
+          score_global?: number | null
+          title: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          file_size?: number | null
+          file_url?: string | null
+          id?: string
+          metadata?: Json | null
+          report_type?: string
+          report_version?: number
+          score_global?: number | null
+          title?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      pdf_templates: {
+        Row: {
+          created_at: string
+          id: string
+          logo_url: string | null
+          name: string
+          primary_color: string | null
+          sections: Json
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          logo_url?: string | null
+          name: string
+          primary_color?: string | null
+          sections?: Json
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          logo_url?: string | null
+          name?: string
+          primary_color?: string | null
+          sections?: Json
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       pending_activations: {
         Row: {
           created_at: string | null
@@ -10549,6 +10831,69 @@ export type Database = {
         }
         Relationships: []
       }
+      report_signatures: {
+        Row: {
+          certificate_id: string
+          created_at: string
+          id: string
+          report_id: string
+          signature_hash: string
+          timestamp: string
+          user_id: string | null
+        }
+        Insert: {
+          certificate_id: string
+          created_at?: string
+          id?: string
+          report_id: string
+          signature_hash: string
+          timestamp?: string
+          user_id?: string | null
+        }
+        Update: {
+          certificate_id?: string
+          created_at?: string
+          id?: string
+          report_id?: string
+          signature_hash?: string
+          timestamp?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      report_validations: {
+        Row: {
+          compliance_checks: Json
+          created_at: string
+          id: string
+          immediate_actions: Json | null
+          overall_assessment: string
+          recommendations: Json
+          report_id: string
+          user_id: string | null
+        }
+        Insert: {
+          compliance_checks: Json
+          created_at?: string
+          id?: string
+          immediate_actions?: Json | null
+          overall_assessment: string
+          recommendations: Json
+          report_id: string
+          user_id?: string | null
+        }
+        Update: {
+          compliance_checks?: Json
+          created_at?: string
+          id?: string
+          immediate_actions?: Json | null
+          overall_assessment?: string
+          recommendations?: Json
+          report_id?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       retention_notifications: {
         Row: {
           acknowledged: boolean | null
@@ -10672,6 +11017,39 @@ export type Database = {
           id?: string
           name?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      scheduled_reports: {
+        Row: {
+          created_at: string | null
+          enabled: boolean | null
+          id: string
+          last_sent_at: string | null
+          next_scheduled_at: string | null
+          recipients: string[]
+          report_type: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          enabled?: boolean | null
+          id?: string
+          last_sent_at?: string | null
+          next_scheduled_at?: string | null
+          recipients: string[]
+          report_type: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          enabled?: boolean | null
+          id?: string
+          last_sent_at?: string | null
+          next_scheduled_at?: string | null
+          recipients?: string[]
+          report_type?: string
+          updated_at?: string | null
         }
         Relationships: []
       }
@@ -11738,6 +12116,44 @@ export type Database = {
             columns: ["org_id"]
             isOneToOne: false
             referencedRelation: "orgs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      template_versions: {
+        Row: {
+          change_description: string | null
+          config: Json
+          created_at: string
+          created_by: string | null
+          id: string
+          template_id: string | null
+          version_number: number
+        }
+        Insert: {
+          change_description?: string | null
+          config: Json
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          template_id?: string | null
+          version_number: number
+        }
+        Update: {
+          change_description?: string | null
+          config?: Json
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          template_id?: string | null
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "template_versions_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "pdf_templates"
             referencedColumns: ["id"]
           },
         ]
@@ -14111,6 +14527,50 @@ export type Database = {
           user_id?: string | null
         }
         Relationships: []
+      }
+      webhook_logs: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          event_type: string
+          id: string
+          payload: Json | null
+          response_body: string | null
+          status_code: number | null
+          success: boolean | null
+          webhook_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          event_type: string
+          id?: string
+          payload?: Json | null
+          response_body?: string | null
+          status_code?: number | null
+          success?: boolean | null
+          webhook_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          event_type?: string
+          id?: string
+          payload?: Json | null
+          response_body?: string | null
+          status_code?: number | null
+          success?: boolean | null
+          webhook_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "webhook_logs_webhook_id_fkey"
+            columns: ["webhook_id"]
+            isOneToOne: false
+            referencedRelation: "gdpr_webhooks"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       webhook_settings: {
         Row: {

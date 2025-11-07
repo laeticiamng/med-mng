@@ -1,4 +1,4 @@
-import { Shield, AlertTriangle, CheckCircle, Download, RefreshCw, FileText, Users } from 'lucide-react';
+import { Shield, AlertTriangle, CheckCircle, Download, RefreshCw, FileText, Users, Calculator, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -9,6 +9,9 @@ import { useSecurityValidation } from '@/hooks/useSecurityValidation';
 import { useUserRoles } from '@/hooks/useUserRoles';
 import { IncidentManagement } from './IncidentManagement';
 import { RoleManagement } from './RoleManagement';
+import { CVSSCalculator } from './CVSSCalculator';
+import { CVSSList } from './CVSSList';
+import { ScheduledReports } from './ScheduledReports';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import jsPDF from 'jspdf';
@@ -146,13 +149,22 @@ export const SecurityDashboard = () => {
 
   return (
     <Tabs defaultValue="overview" className="space-y-6">
-      <TabsList>
+      <TabsList className="grid grid-cols-3 lg:grid-cols-6 w-full">
         <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
-        <TabsTrigger value="incidents">Gestion des Incidents</TabsTrigger>
+        <TabsTrigger value="incidents">Incidents</TabsTrigger>
+        <TabsTrigger value="cvss-calc">
+          <Calculator className="h-4 w-4 mr-2" />
+          CVSS
+        </TabsTrigger>
+        <TabsTrigger value="cvss-list">Vulnérabilités</TabsTrigger>
+        <TabsTrigger value="reports">
+          <Calendar className="h-4 w-4 mr-2" />
+          Rapports
+        </TabsTrigger>
         {isAdmin && (
           <TabsTrigger value="roles">
             <Users className="h-4 w-4 mr-2" />
-            Gestion des Rôles
+            Rôles
           </TabsTrigger>
         )}
       </TabsList>
@@ -275,6 +287,18 @@ export const SecurityDashboard = () => {
 
       <TabsContent value="incidents">
         <IncidentManagement />
+      </TabsContent>
+
+      <TabsContent value="cvss-calc">
+        <CVSSCalculator />
+      </TabsContent>
+
+      <TabsContent value="cvss-list">
+        <CVSSList />
+      </TabsContent>
+
+      <TabsContent value="reports">
+        <ScheduledReports />
       </TabsContent>
 
       {isAdmin && (
