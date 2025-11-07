@@ -12,6 +12,7 @@ import { RoleManagement } from './RoleManagement';
 import { CVSSCalculator } from './CVSSCalculator';
 import { CVSSList } from './CVSSList';
 import { ScheduledReports } from './ScheduledReports';
+import { UnifiedAlertsPanel } from './UnifiedAlertsPanel';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import jsPDF from 'jspdf';
@@ -149,8 +150,9 @@ export const SecurityDashboard = () => {
 
   return (
     <Tabs defaultValue="overview" className="space-y-6">
-      <TabsList className="grid grid-cols-3 lg:grid-cols-6 w-full">
+      <TabsList className="grid grid-cols-3 lg:grid-cols-7 w-full">
         <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
+        <TabsTrigger value="unified">Alertes Unifiées</TabsTrigger>
         <TabsTrigger value="incidents">Incidents</TabsTrigger>
         <TabsTrigger value="cvss-calc">
           <Calculator className="h-4 w-4 mr-2" />
@@ -283,6 +285,10 @@ export const SecurityDashboard = () => {
           </CardContent>
         </Card>
       )}
+      </TabsContent>
+
+      <TabsContent value="unified">
+        <UnifiedAlertsPanel />
       </TabsContent>
 
       <TabsContent value="incidents">
