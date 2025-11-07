@@ -18,6 +18,7 @@ import { WebhookManager } from '@/components/accessibility/WebhookManager';
 import { NotificationTemplateManager } from '@/components/accessibility/NotificationTemplateManager';
 import { NotificationHistory } from '@/components/accessibility/NotificationHistory';
 import { NotificationAnalytics } from '@/components/accessibility/NotificationAnalytics';
+import { NotificationPredictions } from '@/components/accessibility/NotificationPredictions';
 import { RefreshCw, Key, BarChart3, AlertCircle, CheckCircle2, Download, FileJson, FileSpreadsheet, FileText } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { exportMetricsToCSV, exportMetricsToJSON, exportSummaryToCSV, exportMonthlyReport } from '@/utils/exportAccessibilityMetrics';
@@ -324,6 +325,9 @@ const AccessibilityDashboard = () => {
 
           {/* Analyse des notifications */}
           <NotificationAnalytics />
+
+          {/* Prédictions de volume */}
+          <NotificationPredictions />
 
           {/* Carte d'export */}
           <ExportMetricsCard
