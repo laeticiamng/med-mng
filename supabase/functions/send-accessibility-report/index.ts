@@ -286,6 +286,57 @@ const handler = async (req: Request): Promise<Response> => {
       .eq("enabled", true)
       .single();
 
+    // Vérifier s'il y a un test A/B actif
+    const { data: activeABTest } = await supabaseClient
+      .from("email_ab_tests" as any)
+      .select("*, template_a:email_templates!template_a_id(*), template_b:email_templates!template_b_id(*)")
+      .eq("status", "active")
+      .gte("end_date", new Date().toISOString())
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .single();
+
+    let templateToUse: any = null;
+    let variantUsed: 'A' | 'B' | null = null;
+
+    if (activeABTest) {
+      // Alterner entre A et B (basé sur le nombre total d'envois)
+      const totalSent = activeABTest.total_sent_a + activeABTest.total_sent_b;
+      const useVariantA = totalSent % 2 === 0;
+      
+      if (useVariantA) {
+        templateToUse = activeABTest.template_a;
+        variantUsed = 'A';
+        
+        // Incrémenter le compteur A
+        await supabaseClient
+          .from("email_ab_tests" as any)
+          .update({ total_sent_a: activeABTest.total_sent_a + 1 })
+          .eq("id", activeABTest.id);
+      } else {
+        templateToUse = activeABTest.template_b;
+        variantUsed = 'B';
+        
+        // Incrémenter le compteur B
+        await supabaseClient
+          .from("email_ab_tests" as any)
+          .update({ total_sent_b: activeABTest.total_sent_b + 1 })
+          .eq("id", activeABTest.id);
+      }
+
+      console.log(`🧪 Using A/B test variant ${variantUsed} for test: ${activeABTest.name}`);
+    } else {
+      // Utiliser le template par défaut
+      const { data: defaultTemplate } = await supabaseClient
+        .from("email_templates")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .single();
+
+      templateToUse = defaultTemplate;
+    }
+
     if (configError || !config) {
       console.error("Config error:", configError);
       throw new Error("No enabled configuration found");
@@ -306,23 +357,79 @@ const handler = async (req: Request): Promise<Response> => {
 
     console.log(`✅ Metrics fetched - Conformity: ${metrics.conformityRate.toFixed(1)}%`);
 
-    // Générer le HTML
-    const emailHTML = generateEmailHTML(metrics);
+    // Préparer le contenu de l'email
+    let emailSubject = `📊 Rapport Accessibilité - ${metrics.conformityRate.toFixed(1)}% de conformité`;
+    let emailHTML = "";
 
-    // Envoyer l'email
-    const { data: emailResult, error: emailError } = await resend.emails.send({
-      from: "MED-MNG <onboarding@resend.dev>",
-      to: config.recipients,
-      subject: `📊 Rapport Accessibilité - ${metrics.conformityRate.toFixed(1)}% de conformité`,
-      html: emailHTML,
-    });
+    if (templateToUse) {
+      emailSubject = templateToUse.subject || emailSubject;
+      emailHTML = templateToUse.html_content || "";
+      
+      // Remplacer les variables dans le template
+      const variables = {
+        conformityRate: metrics.conformityRate.toFixed(1),
+        totalPRs: metrics.totalPRs.toString(),
+        passedPRs: metrics.passedPRs.toString(),
+        failedPRs: metrics.failedPRs.toString(),
+        blockedPRsCount: metrics.blockedPRsCount.toString(),
+        date: new Date().toLocaleDateString("fr-FR"),
+      };
 
-    if (emailError) {
-      console.error("Email send error:", emailError);
-      throw emailError;
+      Object.entries(variables).forEach(([key, value]) => {
+        const regex = new RegExp(`{{${key}}}`, 'g');
+        emailHTML = emailHTML.replace(regex, value);
+        emailSubject = emailSubject.replace(regex, value);
+      });
+    } else {
+      // HTML par défaut si pas de template
+      emailHTML = generateEmailHTML(metrics);
     }
 
-    console.log("✅ Email sent successfully:", emailResult);
+    // Envoyer l'email à chaque destinataire
+    const emailPromises = config.recipients.map(async (recipient: string) => {
+      const { data: emailResult, error: emailError } = await resend.emails.send({
+        from: "MED-MNG <onboarding@resend.dev>",
+        to: [recipient],
+        subject: emailSubject,
+        html: emailHTML,
+      });
+
+      if (emailError) {
+        throw emailError;
+      }
+
+      // Si c'est un test A/B, enregistrer le résultat
+      if (activeABTest && variantUsed && emailResult?.id) {
+        // Créer d'abord une entrée dans email_statistics
+        const { data: emailStat } = await supabaseClient
+          .from("email_statistics")
+          .insert({
+            email_id: emailResult.id,
+            recipient,
+            subject: emailSubject,
+            sent_at: new Date().toISOString(),
+          })
+          .select()
+          .single();
+
+        if (emailStat) {
+          // Ensuite créer l'entrée dans email_ab_results
+          await supabaseClient
+            .from("email_ab_results" as any)
+            .insert({
+              ab_test_id: activeABTest.id,
+              email_stat_id: emailStat.id,
+              template_variant: variantUsed,
+            });
+        }
+      }
+
+      return emailResult;
+    });
+
+    const emailResults = await Promise.all(emailPromises);
+
+    console.log("✅ Emails sent successfully to all recipients");
 
     // Enregistrer dans l'historique
     await supabaseClient

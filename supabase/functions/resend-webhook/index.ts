@@ -97,6 +97,34 @@ const handler = async (req: Request): Promise<Response> => {
             .update(updateData)
             .eq("email_id", emailId);
 
+          // Mettre à jour les compteurs A/B si applicable
+          const { data: abResult } = await supabaseClient
+            .from("email_ab_results")
+            .select("ab_test_id, template_variant")
+            .eq("email_stat_id", existingStat.id)
+            .single();
+
+          if (abResult) {
+            const field = abResult.template_variant === 'A' ? 'total_opened_a' : 'total_opened_b';
+            const { data: currentTest } = await supabaseClient
+              .from("email_ab_tests")
+              .select(field)
+              .eq("id", abResult.ab_test_id)
+              .single();
+
+            if (currentTest) {
+              await supabaseClient
+                .from("email_ab_tests")
+                .update({ [field]: (currentTest[field] || 0) + 1 })
+                .eq("id", abResult.ab_test_id);
+
+              // Recalculer le gagnant
+              await supabaseClient.rpc("calculate_ab_test_winner", {
+                test_id: abResult.ab_test_id,
+              });
+            }
+          }
+
           console.log(`✅ Email opened (${openCount}x):`, emailId);
         } else {
           // Créer l'entrée si elle n'existe pas

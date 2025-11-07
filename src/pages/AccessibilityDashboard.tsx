@@ -13,6 +13,7 @@ import { ExportMetricsCard } from '@/components/accessibility/ExportMetricsCard'
 import { EmailReportConfig } from '@/components/accessibility/EmailReportConfig';
 import { TemplateEditor } from '@/components/accessibility/TemplateEditor';
 import { EmailStatistics } from '@/components/accessibility/EmailStatistics';
+import { ABTestManager } from '@/components/accessibility/ABTestManager';
 import { RefreshCw, Key, BarChart3, AlertCircle, CheckCircle2, Download, FileJson, FileSpreadsheet, FileText } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { exportMetricsToCSV, exportMetricsToJSON, exportSummaryToCSV, exportMonthlyReport } from '@/utils/exportAccessibilityMetrics';
@@ -304,6 +305,9 @@ const AccessibilityDashboard = () => {
 
           {/* Statistiques d'emails */}
           <EmailStatistics />
+
+          {/* Tests A/B */}
+          <ABTestManager />
 
           {/* Carte d'export */}
           <ExportMetricsCard
