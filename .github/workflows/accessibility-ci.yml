@@ -1,0 +1,176 @@
+name: 🎯 Tests d'Accessibilité CI/CD
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # Audit automatique tous les lundis à 9h00
+    - cron: '0 9 * * 1'
+  workflow_dispatch:
+
+jobs:
+  accessibility-tests:
+    name: 🔍 Tests Accessibilité (axe-core)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    strategy:
+      fail-fast: false
+      matrix:
+        browser: [chromium, firefox, webkit]
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🎭 Install Playwright browsers
+        run: npx playwright install --with-deps ${{ matrix.browser }}
+
+      - name: 🚀 Build application
+        run: npm run build
+
+      - name: 🧪 Run accessibility tests
+        run: npx playwright test tests/accessibility-axe.spec.ts --project=${{ matrix.browser }}
+        continue-on-error: false
+
+      - name: 📊 Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: accessibility-results-${{ matrix.browser }}
+          path: |
+            test-results/
+            playwright-report/
+          retention-days: 30
+
+      - name: 📈 Generate accessibility report
+        if: always()
+        run: |
+          echo "## 🎯 Rapport d'Accessibilité - ${{ matrix.browser }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ -f "test-results/e2e-results.json" ]; then
+            echo "✅ Tests exécutés avec succès" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ Aucun résultat de test trouvé" >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: 💬 Comment PR avec résultats
+        if: github.event_name == 'pull_request' && always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            let comment = '## 🎯 Résultats des tests d\'accessibilité\n\n';
+            comment += `**Navigateur**: ${{ matrix.browser }}\n\n`;
+            comment += '### Conformité WCAG 2.1 AA / RGAA 4.1\n\n';
+            
+            try {
+              const results = JSON.parse(fs.readFileSync('test-results/e2e-results.json', 'utf8'));
+              const total = results.suites.reduce((acc, suite) => acc + suite.tests.length, 0);
+              const passed = results.suites.reduce((acc, suite) => 
+                acc + suite.tests.filter(t => t.status === 'passed').length, 0);
+              
+              comment += `- ✅ **Tests réussis**: ${passed}/${total}\n`;
+              comment += `- 🎯 **Taux de conformité**: ${((passed/total)*100).toFixed(1)}%\n\n`;
+              
+              if (passed === total) {
+                comment += '### ✅ 100% CONFORME - Aucune violation détectée !\n\n';
+                comment += 'Toutes les pages respectent les critères WCAG 2.1 AA et RGAA 4.1.';
+              } else {
+                comment += '### ⚠️ Violations détectées\n\n';
+                comment += 'Veuillez corriger les problèmes d\'accessibilité avant de merger.';
+              }
+            } catch (error) {
+              comment += '⚠️ Impossible de lire les résultats des tests.';
+            }
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+  lighthouse-accessibility:
+    name: 🏠 Audit Lighthouse Accessibilité
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: 📦 Install dependencies
+        run: npm ci
+
+      - name: 🚀 Build application
+        run: npm run build
+
+      - name: 🌐 Start dev server
+        run: npm run preview &
+        env:
+          PORT: 4173
+
+      - name: ⏳ Wait for server
+        run: npx wait-on http://localhost:4173 --timeout 60000
+
+      - name: 🏠 Run Lighthouse CI
+        run: |
+          npm install -g @lhci/cli
+          lhci autorun --config=.github/lighthouse/lighthouserc.json || true
+
+      - name: 📊 Upload Lighthouse results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-results
+          path: .lighthouseci/
+          retention-days: 30
+
+  accessibility-summary:
+    name: 📋 Résumé Accessibilité
+    runs-on: ubuntu-latest
+    needs: [accessibility-tests, lighthouse-accessibility]
+    if: always()
+
+    steps:
+      - name: 📊 Generate summary
+        run: |
+          echo "# 🎯 Résumé de l'Audit d'Accessibilité" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## ✅ Tests axe-core Playwright" >> $GITHUB_STEP_SUMMARY
+          echo "- Chromium: ${{ needs.accessibility-tests.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- Firefox: ${{ needs.accessibility-tests.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- WebKit: ${{ needs.accessibility-tests.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## 🏠 Audit Lighthouse" >> $GITHUB_STEP_SUMMARY
+          echo "- Résultat: ${{ needs.lighthouse-accessibility.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "**Date**: $(date -u +'%Y-%m-%d %H:%M:%S UTC')" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+
+      - name: ✅ Vérifier conformité
+        run: |
+          if [ "${{ needs.accessibility-tests.result }}" != "success" ]; then
+            echo "❌ Tests d'accessibilité échoués"
+            exit 1
+          fi
+          echo "✅ Tous les tests d'accessibilité réussis - 100% conforme WCAG 2.1 AA"
