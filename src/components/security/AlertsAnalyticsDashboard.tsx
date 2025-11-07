@@ -3,38 +3,81 @@ import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { Download, FileSpreadsheet, FileText, TrendingUp } from 'lucide-react';
+import { Download, FileSpreadsheet, FileText, TrendingUp, Calendar, ArrowUp, ArrowDown } from 'lucide-react';
 import { toast } from 'sonner';
 import * as XLSX from 'xlsx';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
+import { useState, useRef } from 'react';
 
 const COLORS = ['#ef4444', '#f97316', '#eab308', '#3b82f6'];
 
+type PeriodFilter = '7d' | '30d' | '90d';
+
 export const AlertsAnalyticsDashboard = () => {
+  const [period, setPeriod] = useState<PeriodFilter>('30d');
+  const dashboardRef = useRef<HTMLDivElement>(null);
+
+  const periodDays = period === '7d' ? 7 : period === '30d' ? 30 : 90;
+  const cutoffDate = new Date();
+  cutoffDate.setDate(cutoffDate.getDate() - periodDays);
+
+  // Période de comparaison (période précédente)
+  const comparisonCutoffDate = new Date(cutoffDate);
+  comparisonCutoffDate.setDate(comparisonCutoffDate.getDate() - periodDays);
+
   const { data: alerts } = useQuery({
-    queryKey: ['unified-alerts-analytics'],
+    queryKey: ['unified-alerts-analytics', period],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('unified_alerts')
         .select('*')
-        .order('created_at', { ascending: false })
-        .limit(500);
+        .gte('created_at', cutoffDate.toISOString())
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
+  const { data: comparisonAlerts } = useQuery({
+    queryKey: ['unified-alerts-comparison', period],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('unified_alerts')
+        .select('*')
+        .gte('created_at', comparisonCutoffDate.toISOString())
+        .lt('created_at', cutoffDate.toISOString())
+        .order('created_at', { ascending: false });
       if (error) throw error;
       return data || [];
     },
   });
 
   const { data: scoreHistory } = useQuery({
-    queryKey: ['alert-score-history'],
+    queryKey: ['alert-score-history', period],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('alert_score_history')
         .select('*')
-        .order('calculated_at', { ascending: true })
-        .limit(100);
+        .gte('calculated_at', cutoffDate.toISOString())
+        .order('calculated_at', { ascending: true });
       if (error) throw error;
       return data || [];
     },
   });
+
+  // Statistiques de comparaison
+  const currentCount = alerts?.length || 0;
+  const previousCount = comparisonAlerts?.length || 0;
+  const countChange = previousCount > 0 ? ((currentCount - previousCount) / previousCount) * 100 : 0;
+
+  const currentAvgScore = alerts?.reduce((sum, a) => sum + (a.unified_score || 0), 0) / (currentCount || 1);
+  const previousAvgScore = comparisonAlerts?.reduce((sum, a) => sum + (a.unified_score || 0), 0) / (previousCount || 1);
+  const scoreChange = previousAvgScore > 0 ? ((currentAvgScore - previousAvgScore) / previousAvgScore) * 100 : 0;
+
+  const currentCritical = alerts?.filter(a => a.severity === 'critical').length || 0;
+  const previousCritical = comparisonAlerts?.filter(a => a.severity === 'critical').length || 0;
+  const criticalChange = previousCritical > 0 ? ((currentCritical - previousCritical) / previousCritical) * 100 : 0;
 
   // Données pour graphique temporel
   const timelineData = alerts?.reduce((acc: any[], alert) => {
@@ -125,19 +168,108 @@ export const AlertsAnalyticsDashboard = () => {
     toast.success('Export CSV réussi');
   };
 
+  // Export PDF avec graphiques
+  const exportToPDF = async () => {
+    if (!dashboardRef.current) {
+      toast.error('Dashboard non disponible');
+      return;
+    }
+
+    toast.info('Génération du PDF en cours...');
+
+    try {
+      const canvas = await html2canvas(dashboardRef.current, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+      });
+
+      const imgData = canvas.toDataURL('image/png');
+      const pdf = new jsPDF('p', 'mm', 'a4');
+      const imgWidth = 210;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+      let position = 0;
+
+      // Ajouter le titre
+      pdf.setFontSize(16);
+      pdf.text('Rapport Analytics - Alertes Unifiées', 105, 15, { align: 'center' });
+      pdf.setFontSize(10);
+      pdf.text(`Période: ${periodDays} derniers jours`, 105, 22, { align: 'center' });
+      pdf.text(`Généré le: ${new Date().toLocaleString('fr-FR')}`, 105, 27, { align: 'center' });
+
+      position = 35;
+
+      // Ajouter le graphique
+      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pdf.internal.pageSize.height - position;
+
+      // Ajouter des pages si nécessaire
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pdf.internal.pageSize.height;
+      }
+
+      pdf.save(`rapport-alertes-${new Date().toISOString().split('T')[0]}.pdf`);
+      toast.success('Export PDF réussi');
+    } catch (error) {
+      console.error('Erreur export PDF:', error);
+      toast.error('Erreur lors de l\'export PDF');
+    }
+  };
+
+  const renderComparisonBadge = (change: number) => {
+    const isPositive = change > 0;
+    const Icon = isPositive ? ArrowUp : ArrowDown;
+    const colorClass = isPositive ? 'text-destructive' : 'text-green-600';
+    
+    return (
+      <span className={`flex items-center gap-1 text-sm font-medium ${colorClass}`}>
+        <Icon className="h-4 w-4" />
+        {Math.abs(change).toFixed(1)}%
+      </span>
+    );
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6" ref={dashboardRef}>
       <Card>
         <CardHeader>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between flex-wrap gap-4">
             <div>
               <CardTitle className="flex items-center gap-2">
                 <TrendingUp className="h-5 w-5" />
                 Analytics & Tendances
               </CardTitle>
-              <CardDescription>Analyse historique des alertes unifiées</CardDescription>
+              <CardDescription>Analyse historique des alertes unifiées avec comparaison période</CardDescription>
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
+              <div className="flex gap-1 border rounded-md p-1">
+                <Button
+                  onClick={() => setPeriod('7d')}
+                  variant={period === '7d' ? 'default' : 'ghost'}
+                  size="sm"
+                >
+                  <Calendar className="h-4 w-4 mr-1" />
+                  7j
+                </Button>
+                <Button
+                  onClick={() => setPeriod('30d')}
+                  variant={period === '30d' ? 'default' : 'ghost'}
+                  size="sm"
+                >
+                  30j
+                </Button>
+                <Button
+                  onClick={() => setPeriod('90d')}
+                  variant={period === '90d' ? 'default' : 'ghost'}
+                  size="sm"
+                >
+                  90j
+                </Button>
+              </div>
               <Button onClick={exportToExcel} variant="outline" size="sm">
                 <FileSpreadsheet className="h-4 w-4 mr-2" />
                 Excel
@@ -146,10 +278,56 @@ export const AlertsAnalyticsDashboard = () => {
                 <FileText className="h-4 w-4 mr-2" />
                 CSV
               </Button>
+              <Button onClick={exportToPDF} variant="outline" size="sm">
+                <Download className="h-4 w-4 mr-2" />
+                PDF
+              </Button>
             </div>
           </div>
         </CardHeader>
       </Card>
+
+      {/* Cartes de comparaison */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <Card>
+          <CardHeader className="pb-3">
+            <CardDescription>Total Alertes</CardDescription>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-3xl">{currentCount}</CardTitle>
+              {renderComparisonBadge(countChange)}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              vs {previousCount} période précédente
+            </p>
+          </CardHeader>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardDescription>Score Moyen</CardDescription>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-3xl">{currentAvgScore.toFixed(1)}</CardTitle>
+              {renderComparisonBadge(scoreChange)}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              vs {previousAvgScore.toFixed(1)} période précédente
+            </p>
+          </CardHeader>
+        </Card>
+
+        <Card>
+          <CardHeader className="pb-3">
+            <CardDescription>Alertes Critiques</CardDescription>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-3xl text-destructive">{currentCritical}</CardTitle>
+              {renderComparisonBadge(criticalChange)}
+            </div>
+            <p className="text-xs text-muted-foreground">
+              vs {previousCritical} période précédente
+            </p>
+          </CardHeader>
+        </Card>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card>

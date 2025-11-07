@@ -4073,6 +4073,36 @@ export type Database = {
           },
         ]
       }
+      email_logs: {
+        Row: {
+          created_at: string
+          id: string
+          recipients: string[]
+          report_data: Json | null
+          resend_id: string | null
+          sent_at: string
+          type: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          recipients: string[]
+          report_data?: Json | null
+          resend_id?: string | null
+          sent_at?: string
+          type: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          recipients?: string[]
+          report_data?: Json | null
+          resend_id?: string | null
+          sent_at?: string
+          type?: string
+        }
+        Relationships: []
+      }
       email_templates: {
         Row: {
           created_at: string | null
