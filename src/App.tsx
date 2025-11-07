@@ -69,6 +69,7 @@ import AdminCompleteProcess from "./pages/AdminCompleteProcess";
 import AdminExtractEcos from "./pages/AdminExtractEcos";
 import { AdminPanel } from "./pages/AdminPanel";
 import EdnObjectifsExtractionPage from "./pages/EdnObjectifsExtraction";
+import AccessibilityDashboard from "./pages/AccessibilityDashboard";
 import OicDataQualityManager from "./pages/OicDataQualityManager";
 import AuditCompleteness from "./pages/AuditCompleteness";
 import EdnImmersive from "./pages/EdnImmersive";
@@ -192,6 +193,7 @@ const App = () => {
            <Route path="/admin/complete" element={<AdminCompleteProcess />} />
            <Route path="/admin-panel" element={<AdminPanel />} /> {/* Panel admin unifié Point X */}
             <Route path="/library" element={<LibraryPage />} />
+            <Route path="/accessibility-dashboard" element={<AccessibilityDashboard />} />
            
            {/* Nouvelles pages complètes avec lazy loading */}
            <Route path="/statistics" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Statistics /></Suspense>} />
