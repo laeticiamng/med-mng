@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useEffectivenessScores } from '@/hooks/useEffectivenessScores';
 import { useAppliedRecommendations } from '@/hooks/useAppliedRecommendations';
 import { EffectivenessStats } from '@/components/effectiveness/EffectivenessStats';
@@ -7,6 +7,7 @@ import { EffectivenessOverTimeChart } from '@/components/effectiveness/Effective
 import { PeriodSelector, DateRange } from '@/components/effectiveness/PeriodSelector';
 import { ComparisonChart } from '@/components/effectiveness/ComparisonChart';
 import { ComparisonStats } from '@/components/effectiveness/ComparisonStats';
+import { ComparisonExport } from '@/components/effectiveness/ComparisonExport';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ArrowLeft, RefreshCw, BarChart3, GitCompare } from 'lucide-react';
@@ -23,6 +24,7 @@ interface RecommendationWithMeasurement {
 
 export default function EffectivenessDashboard() {
   const navigate = useNavigate();
+  const chartRef = useRef<HTMLDivElement>(null);
   const { scores, loading: loadingScores, refresh: refreshScores } = useEffectivenessScores();
   const { appliedRecommendations, loading: loadingRecs, refresh: refreshRecs } = useAppliedRecommendations();
 
@@ -137,15 +139,17 @@ export default function EffectivenessDashboard() {
               </p>
             </div>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleRefresh}
-            disabled={loading}
-          >
-            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-            Actualiser
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleRefresh}
+              disabled={loading}
+            >
+              <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+              Actualiser
+            </Button>
+          </div>
         </div>
 
         {/* Tabs for different views */}
@@ -178,6 +182,23 @@ export default function EffectivenessDashboard() {
 
           {/* Vue comparaison */}
           <TabsContent value="comparison" className="space-y-6">
+            {/* En-tête avec export */}
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-2xl font-bold text-foreground">Comparaison de périodes</h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Analysez l'évolution des performances entre deux périodes
+                </p>
+              </div>
+              <ComparisonExport
+                data={comparisonData}
+                period1Label={period1.label}
+                period2Label={period2.label}
+                chartRef={chartRef}
+                disabled={loading}
+              />
+            </div>
+
             {/* Sélecteur de périodes */}
             <PeriodSelector
               period1={period1}
@@ -194,11 +215,13 @@ export default function EffectivenessDashboard() {
             />
 
             {/* Graphique de comparaison */}
-            <ComparisonChart
-              data={comparisonData}
-              period1Label={period1.label}
-              period2Label={period2.label}
-            />
+            <div ref={chartRef}>
+              <ComparisonChart
+                data={comparisonData}
+                period1Label={period1.label}
+                period2Label={period2.label}
+              />
+            </div>
           </TabsContent>
         </Tabs>
 
