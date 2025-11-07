@@ -10,6 +10,7 @@ import { ViolationsChart } from '@/components/accessibility/ViolationsChart';
 import { DeveloperMetricsTable } from '@/components/accessibility/DeveloperMetricsTable';
 import { BlockedPRsList } from '@/components/accessibility/BlockedPRsList';
 import { ExportMetricsCard } from '@/components/accessibility/ExportMetricsCard';
+import { EmailReportConfig } from '@/components/accessibility/EmailReportConfig';
 import { RefreshCw, Key, BarChart3, AlertCircle, CheckCircle2, Download, FileJson, FileSpreadsheet, FileText } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { exportMetricsToCSV, exportMetricsToJSON, exportSummaryToCSV, exportMonthlyReport } from '@/utils/exportAccessibilityMetrics';
@@ -292,6 +293,9 @@ const AccessibilityDashboard = () => {
             avgFixTime={metrics.avgFixTime}
             blockedPRsCount={metrics.blockedPRs.length}
           />
+
+          {/* Configuration des emails automatiques */}
+          <EmailReportConfig />
 
           {/* Carte d'export */}
           <ExportMetricsCard

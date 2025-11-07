@@ -56,6 +56,86 @@ export type Database = {
         }
         Relationships: []
       }
+      accessibility_report_config: {
+        Row: {
+          created_at: string
+          enabled: boolean
+          frequency: string
+          github_token: string | null
+          id: string
+          last_sent_at: string | null
+          recipients: string[]
+          send_day: number | null
+          send_hour: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          frequency?: string
+          github_token?: string | null
+          id?: string
+          last_sent_at?: string | null
+          recipients?: string[]
+          send_day?: number | null
+          send_hour?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          frequency?: string
+          github_token?: string | null
+          id?: string
+          last_sent_at?: string | null
+          recipients?: string[]
+          send_day?: number | null
+          send_hour?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      accessibility_report_history: {
+        Row: {
+          config_id: string | null
+          created_at: string
+          error_message: string | null
+          id: string
+          recipients: string[]
+          report_data: Json | null
+          sent_at: string
+          status: string
+        }
+        Insert: {
+          config_id?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          recipients: string[]
+          report_data?: Json | null
+          sent_at?: string
+          status: string
+        }
+        Update: {
+          config_id?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          recipients?: string[]
+          report_data?: Json | null
+          sent_at?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "accessibility_report_history_config_id_fkey"
+            columns: ["config_id"]
+            isOneToOne: false
+            referencedRelation: "accessibility_report_config"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       achievements: {
         Row: {
           category: string
@@ -4176,6 +4256,51 @@ export type Database = {
           id?: string
           points_earned?: number | null
           session_data?: Json | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      gdpr_alerts: {
+        Row: {
+          alert_type: string
+          created_at: string
+          description: string | null
+          id: string
+          metadata: Json | null
+          resolved: boolean | null
+          resolved_at: string | null
+          resolved_by: string | null
+          severity: string
+          title: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          alert_type: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          resolved?: boolean | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity: string
+          title: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          alert_type?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          metadata?: Json | null
+          resolved?: boolean | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          title?: string
+          updated_at?: string
           user_id?: string | null
         }
         Relationships: []
@@ -8625,31 +8750,25 @@ export type Database = {
       }
       product_module_mapping: {
         Row: {
-          activation_type: string
-          created_at: string
-          description: string | null
+          created_at: string | null
           id: string
+          module_description: string | null
           module_name: string
-          module_path: string
-          product_handle: string
+          shopify_product_id: string
         }
         Insert: {
-          activation_type?: string
-          created_at?: string
-          description?: string | null
+          created_at?: string | null
           id?: string
+          module_description?: string | null
           module_name: string
-          module_path: string
-          product_handle: string
+          shopify_product_id: string
         }
         Update: {
-          activation_type?: string
-          created_at?: string
-          description?: string | null
+          created_at?: string | null
           id?: string
+          module_description?: string | null
           module_name?: string
-          module_path?: string
-          product_handle?: string
+          shopify_product_id?: string
         }
         Relationships: []
       }
@@ -11853,6 +11972,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_unlocked_modules: {
+        Row: {
+          id: string
+          module_name: string
+          shopify_order_id: string
+          unlocked_at: string | null
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          module_name: string
+          shopify_order_id: string
+          unlocked_at?: string | null
+          user_id: string
+        }
+        Update: {
+          id?: string
+          module_name?: string
+          shopify_order_id?: string
+          unlocked_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       user_wellness_chests: {
         Row: {
