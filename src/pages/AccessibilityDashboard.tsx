@@ -17,6 +17,7 @@ import { ABTestManager } from '@/components/accessibility/ABTestManager';
 import { WebhookManager } from '@/components/accessibility/WebhookManager';
 import { NotificationTemplateManager } from '@/components/accessibility/NotificationTemplateManager';
 import { NotificationHistory } from '@/components/accessibility/NotificationHistory';
+import { NotificationAnalytics } from '@/components/accessibility/NotificationAnalytics';
 import { RefreshCw, Key, BarChart3, AlertCircle, CheckCircle2, Download, FileJson, FileSpreadsheet, FileText } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { exportMetricsToCSV, exportMetricsToJSON, exportSummaryToCSV, exportMonthlyReport } from '@/utils/exportAccessibilityMetrics';
@@ -320,6 +321,9 @@ const AccessibilityDashboard = () => {
 
           {/* Historique des notifications */}
           <NotificationHistory />
+
+          {/* Analyse des notifications */}
+          <NotificationAnalytics />
 
           {/* Carte d'export */}
           <ExportMetricsCard
