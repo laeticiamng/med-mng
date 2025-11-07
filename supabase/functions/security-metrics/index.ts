@@ -143,7 +143,7 @@ serve(async (req) => {
       });
     }
 
-    // Insert new alerts if they don't exist
+    // Insert new alerts if they don't exist and send notifications
     for (const alert of alerts) {
       const { data: existing } = await supabase
         .from("security_alerts")
@@ -155,6 +155,18 @@ serve(async (req) => {
       if (!existing) {
         await supabase.from("security_alerts").insert(alert);
         console.log(`🚨 New alert created: ${alert.title}`);
+
+        // Send notification for critical alerts
+        if (alert.severity === "critical" || alert.severity === "high") {
+          try {
+            await supabase.functions.invoke("send-security-alert", {
+              body: alert,
+            });
+            console.log(`📧 Notification sent for: ${alert.title}`);
+          } catch (notifError) {
+            console.error("Failed to send notification:", notifError);
+          }
+        }
       }
     }
 
