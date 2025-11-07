@@ -120,16 +120,17 @@ export const MusicPlayer: React.FC<MusicPlayerProps> = ({
           ref={audioRef}
           src={track.audio_url}
           preload="metadata"
+          aria-label={`Lecteur audio pour ${track.title || 'musique sans titre'}`}
         />
         
         {/* Info du track */}
-        <div className="mb-4">
+        <div className="mb-4" role="region" aria-label="Informations de la piste">
           <div className="flex items-start justify-between gap-2 mb-2">
             <div className="flex-1">
-              <h3 className="text-lg font-semibold text-foreground">
+              <h3 className="text-lg font-semibold text-foreground" id="track-title">
                 {track.title || 'Musique sans titre'}
               </h3>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-muted-foreground" id="track-tags">
                 {track.metadata?.tags || 'Aucun tag'}
               </p>
             </div>
@@ -138,57 +139,79 @@ export const MusicPlayer: React.FC<MusicPlayerProps> = ({
         </div>
 
         {/* Barre de progression */}
-        <div className="mb-4">
+        <div className="mb-4" role="region" aria-label="Contrôle de lecture">
+          <label htmlFor="seek-slider" className="sr-only">
+            Barre de progression de lecture
+          </label>
           <input
+            id="seek-slider"
             type="range"
             min="0"
             max="100"
             value={duration ? (currentTime / duration) * 100 : 0}
             onChange={handleSeek}
-            className="w-full h-2 bg-secondary rounded-lg appearance-none cursor-pointer slider"
+            aria-label={`Position de lecture: ${formatTime(currentTime)} sur ${formatTime(duration)}`}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={duration ? (currentTime / duration) * 100 : 0}
+            aria-valuetext={`${formatTime(currentTime)} sur ${formatTime(duration)}`}
+            className="w-full h-2 bg-secondary rounded-lg appearance-none cursor-pointer slider touch-target"
           />
           <div className="flex justify-between text-xs text-muted-foreground mt-1">
-            <span>{formatTime(currentTime)}</span>
+            <span aria-live="polite">{formatTime(currentTime)}</span>
             <span>{formatTime(duration)}</span>
           </div>
         </div>
 
         {/* Contrôles */}
-        <div className="flex items-center justify-center space-x-4 mb-4">
+        <div className="flex items-center justify-center space-x-4 mb-4" role="group" aria-label="Contrôles de lecture">
           <button
             onClick={onPrevious}
             disabled={!onPrevious}
-            className="p-2 rounded-full bg-secondary hover:bg-secondary/80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            aria-label="Piste précédente"
+            className="p-2 rounded-full bg-secondary hover:bg-secondary/80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors touch-target min-w-[44px] min-h-[44px] flex items-center justify-center"
           >
-            <SkipBack size={20} />
+            <SkipBack size={20} aria-hidden="true" />
           </button>
           
           <button
             onClick={togglePlay}
-            className="p-3 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground transition-colors"
+            aria-label={isPlaying ? 'Mettre en pause' : 'Lire la musique'}
+            aria-pressed={isPlaying}
+            className="p-3 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground transition-colors touch-target min-w-[52px] min-h-[52px] flex items-center justify-center"
           >
-            {isPlaying ? <Pause size={24} /> : <Play size={24} />}
+            {isPlaying ? <Pause size={24} aria-hidden="true" /> : <Play size={24} aria-hidden="true" />}
           </button>
           
           <button
             onClick={onNext}
             disabled={!onNext}
-            className="p-2 rounded-full bg-secondary hover:bg-secondary/80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            aria-label="Piste suivante"
+            className="p-2 rounded-full bg-secondary hover:bg-secondary/80 disabled:opacity-50 disabled:cursor-not-allowed transition-colors touch-target min-w-[44px] min-h-[44px] flex items-center justify-center"
           >
-            <SkipForward size={20} />
+            <SkipForward size={20} aria-hidden="true" />
           </button>
         </div>
 
         {/* Contrôle du volume */}
-        <div className="flex items-center space-x-2">
-          <Volume2 size={16} className="text-muted-foreground" />
+        <div className="flex items-center space-x-2" role="group" aria-label="Contrôle du volume">
+          <Volume2 size={16} className="text-muted-foreground" aria-hidden="true" />
+          <label htmlFor="volume-slider" className="sr-only">
+            Contrôle du volume
+          </label>
           <input
+            id="volume-slider"
             type="range"
             min="0"
             max="100"
             value={volume * 100}
             onChange={handleVolumeChange}
-            className="flex-1 h-1 bg-secondary rounded-lg appearance-none cursor-pointer slider"
+            aria-label={`Volume: ${Math.round(volume * 100)}%`}
+            aria-valuemin={0}
+            aria-valuemax={100}
+            aria-valuenow={Math.round(volume * 100)}
+            aria-valuetext={`${Math.round(volume * 100)}%`}
+            className="flex-1 h-1 bg-secondary rounded-lg appearance-none cursor-pointer slider touch-target"
           />
         </div>
       </CardContent>

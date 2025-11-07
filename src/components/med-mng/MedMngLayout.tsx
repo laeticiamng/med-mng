@@ -17,7 +17,7 @@ export const MedMngLayout: React.FC<MedMngLayoutProps> = ({
       <MedMngNavigation />
       
       {/* Main Content */}
-      <main className={`flex-1 pb-20 md:pb-0 ${className}`}>
+      <main id="main-content" className={`flex-1 pb-20 md:pb-0 ${className}`} role="main" tabIndex={-1}>
         {children}
       </main>
       

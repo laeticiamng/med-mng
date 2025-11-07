@@ -19,7 +19,7 @@ export const MedMngNavigation: React.FC = () => {
   };
 
   return (
-    <nav className="bg-card shadow-sm border-b sticky top-0 z-40">
+    <nav id="main-navigation" className="bg-card shadow-sm border-b sticky top-0 z-40" role="navigation" aria-label="Navigation principale">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <div className="flex items-center gap-2">
