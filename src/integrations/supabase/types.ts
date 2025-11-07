@@ -7592,6 +7592,51 @@ export type Database = {
         }
         Relationships: []
       }
+      notification_history: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          id: string
+          message_content: string
+          platform: string
+          sent_at: string
+          status: string
+          template_id: string | null
+          test_id: string | null
+          test_name: string | null
+          user_id: string
+          webhook_url: string | null
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          message_content: string
+          platform: string
+          sent_at?: string
+          status: string
+          template_id?: string | null
+          test_id?: string | null
+          test_name?: string | null
+          user_id: string
+          webhook_url?: string | null
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          message_content?: string
+          platform?: string
+          sent_at?: string
+          status?: string
+          template_id?: string | null
+          test_id?: string | null
+          test_name?: string | null
+          user_id?: string
+          webhook_url?: string | null
+        }
+        Relationships: []
+      }
       notification_preferences: {
         Row: {
           category: string

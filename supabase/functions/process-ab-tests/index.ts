@@ -77,79 +77,145 @@ async function sendTestCompletionNotification(test: any, supabaseClient: any) {
   const promises = [];
 
   if (sendToSlack) {
-    promises.push(
-      fetch(slackWebhook, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          text: message,
-          blocks: [
-            {
-              type: "header",
-              text: {
-                type: "plain_text",
-                text: `🏆 Test A/B "${test.name}" terminé!`,
-                emoji: true
-              }
-            },
-            {
-              type: "section",
-              fields: [
-                {
-                  type: "mrkdwn",
-                  text: `*Template gagnant:*\n${winnerName}`
-                },
-                {
-                  type: "mrkdwn",
-                  text: `*Période:*\n${new Date(test.start_date).toLocaleDateString('fr-FR')} - ${new Date(test.end_date).toLocaleDateString('fr-FR')}`
-                }
-              ]
-            },
-            {
-              type: "section",
-              text: {
-                type: "mrkdwn",
-                text: `*📊 Résultats détaillés:*\n• Template A: *${test.open_rate_a}%* (${test.total_opened_a}/${test.total_sent_a})\n• Template B: *${test.open_rate_b}%* (${test.total_opened_b}/${test.total_sent_b})`
-              }
+    const slackPromise = fetch(slackWebhook, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        text: message,
+        blocks: [
+          {
+            type: "header",
+            text: {
+              type: "plain_text",
+              text: `🏆 Test A/B "${test.name}" terminé!`,
+              emoji: true
             }
-          ]
-        })
-      }).catch(err => console.error('Slack notification failed:', err))
-    );
+          },
+          {
+            type: "section",
+            fields: [
+              {
+                type: "mrkdwn",
+                text: `*Template gagnant:*\n${winnerName}`
+              },
+              {
+                type: "mrkdwn",
+                text: `*Période:*\n${new Date(test.start_date).toLocaleDateString('fr-FR')} - ${new Date(test.end_date).toLocaleDateString('fr-FR')}`
+              }
+            ]
+          },
+          {
+            type: "section",
+            text: {
+              type: "mrkdwn",
+              text: `*📊 Résultats détaillés:*\n• Template A: *${test.open_rate_a}%* (${test.total_opened_a}/${test.total_sent_a})\n• Template B: *${test.open_rate_b}%* (${test.total_opened_b}/${test.total_sent_b})`
+            }
+          }
+        ]
+      })
+    }).then(async (response) => {
+      const status = response.ok ? 'success' : 'failed';
+      const errorMessage = response.ok ? null : await response.text();
+      
+      // Enregistrer dans l'historique
+      await supabaseClient.from('notification_history').insert({
+        user_id: test.user_id,
+        test_id: test.id,
+        test_name: test.name,
+        template_id: template?.id || null,
+        platform: 'slack',
+        message_content: message,
+        status,
+        error_message: errorMessage,
+        webhook_url: slackWebhook,
+      });
+      
+      return response;
+    }).catch(async (err) => {
+      console.error('Slack notification failed:', err);
+      
+      // Enregistrer l'échec
+      await supabaseClient.from('notification_history').insert({
+        user_id: test.user_id,
+        test_id: test.id,
+        test_name: test.name,
+        template_id: template?.id || null,
+        platform: 'slack',
+        message_content: message,
+        status: 'failed',
+        error_message: err.message,
+        webhook_url: slackWebhook,
+      });
+    });
+    
+    promises.push(slackPromise);
   }
 
   if (sendToDiscord) {
-    promises.push(
-      fetch(discordWebhook, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          embeds: [{
-            title: `🏆 Test A/B "${test.name}" terminé!`,
-            description: message,
-            color: 0x00ff00,
-            fields: [
-              {
-                name: 'Template gagnant',
-                value: winnerName,
-                inline: true
-              },
-              {
-                name: 'Template A',
-                value: `${test.open_rate_a}% (${test.total_opened_a}/${test.total_sent_a})`,
-                inline: true
-              },
-              {
-                name: 'Template B',
-                value: `${test.open_rate_b}% (${test.total_opened_b}/${test.total_sent_b})`,
-                inline: true
-              }
-            ],
-            timestamp: new Date().toISOString()
-          }]
-        })
-      }).catch(err => console.error('Discord notification failed:', err))
-    );
+    const discordPromise = fetch(discordWebhook, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        embeds: [{
+          title: `🏆 Test A/B "${test.name}" terminé!`,
+          description: message,
+          color: 0x00ff00,
+          fields: [
+            {
+              name: 'Template gagnant',
+              value: winnerName,
+              inline: true
+            },
+            {
+              name: 'Template A',
+              value: `${test.open_rate_a}% (${test.total_opened_a}/${test.total_sent_a})`,
+              inline: true
+            },
+            {
+              name: 'Template B',
+              value: `${test.open_rate_b}% (${test.total_opened_b}/${test.total_sent_b})`,
+              inline: true
+            }
+          ],
+          timestamp: new Date().toISOString()
+        }]
+      })
+    }).then(async (response) => {
+      const status = response.ok ? 'success' : 'failed';
+      const errorMessage = response.ok ? null : await response.text();
+      
+      // Enregistrer dans l'historique
+      await supabaseClient.from('notification_history').insert({
+        user_id: test.user_id,
+        test_id: test.id,
+        test_name: test.name,
+        template_id: template?.id || null,
+        platform: 'discord',
+        message_content: message,
+        status,
+        error_message: errorMessage,
+        webhook_url: discordWebhook,
+      });
+      
+      return response;
+    }).catch(async (err) => {
+      console.error('Discord notification failed:', err);
+      
+      // Enregistrer l'échec
+      await supabaseClient.from('notification_history').insert({
+        user_id: test.user_id,
+        test_id: test.id,
+        test_name: test.name,
+        template_id: template?.id || null,
+        platform: 'discord',
+        message_content: message,
+        status: 'failed',
+        error_message: err.message,
+        webhook_url: discordWebhook,
+      });
+    });
+    
+    promises.push(discordPromise);
   }
 
   if (promises.length > 0) {
