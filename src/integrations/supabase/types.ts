@@ -14991,6 +14991,25 @@ export type Database = {
         }
         Returns: Json
       }
+      get_rls_policies: {
+        Args: never
+        Returns: {
+          cmd: string
+          policyname: string
+          qual: string
+          roles: string[]
+          tablename: string
+          with_check: string
+        }[]
+      }
+      get_rls_table_summaries: {
+        Args: never
+        Returns: {
+          commands: string[]
+          policy_count: number
+          tablename: string
+        }[]
+      }
       get_secure_platform_stats: {
         Args: never
         Returns: {

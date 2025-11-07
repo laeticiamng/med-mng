@@ -3,7 +3,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { 
   Home, BookOpen, Music, Users, MessageSquare, BarChart3, 
-  Settings, Bell, User, LogOut, Menu, X, Sparkles, Library, ShoppingBag
+  Settings, Bell, User, LogOut, Menu, X, Sparkles, Library, ShoppingBag, Shield
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { 
@@ -126,6 +126,10 @@ export const MainNavigation: React.FC = () => {
                   <DropdownMenuItem onClick={() => navigate('/platform-settings')}>
                     <Settings className="w-4 h-4 mr-2" />
                     Paramètres
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/rls-documentation')}>
+                    <Shield className="w-4 h-4 mr-2" />
+                    Documentation RLS
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleSignOut}>

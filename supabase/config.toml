@@ -165,4 +165,7 @@ verify_jwt = true
 [functions.check-performance-degradation]
 verify_jwt = false
 
+[functions.get-rls-policies]
+verify_jwt = false
+
 
