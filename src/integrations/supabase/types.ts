@@ -526,6 +526,78 @@ export type Database = {
         }
         Relationships: []
       }
+      applied_recommendations: {
+        Row: {
+          applied_at: string | null
+          category: string
+          created_at: string | null
+          description: string | null
+          id: string
+          impact_calculated: boolean | null
+          impact_details: Json | null
+          impact_level: string
+          impact_score: number | null
+          metrics_after: Json | null
+          metrics_after_period_end: string | null
+          metrics_after_period_start: string | null
+          metrics_before: Json
+          metrics_before_period_end: string | null
+          metrics_before_period_start: string | null
+          notes: string | null
+          recommendation_id: string
+          status: string | null
+          title: string
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          applied_at?: string | null
+          category: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          impact_calculated?: boolean | null
+          impact_details?: Json | null
+          impact_level: string
+          impact_score?: number | null
+          metrics_after?: Json | null
+          metrics_after_period_end?: string | null
+          metrics_after_period_start?: string | null
+          metrics_before?: Json
+          metrics_before_period_end?: string | null
+          metrics_before_period_start?: string | null
+          notes?: string | null
+          recommendation_id: string
+          status?: string | null
+          title: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          applied_at?: string | null
+          category?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          impact_calculated?: boolean | null
+          impact_details?: Json | null
+          impact_level?: string
+          impact_score?: number | null
+          metrics_after?: Json | null
+          metrics_after_period_end?: string | null
+          metrics_after_period_start?: string | null
+          metrics_before?: Json
+          metrics_before_period_end?: string | null
+          metrics_before_period_start?: string | null
+          notes?: string | null
+          recommendation_id?: string
+          status?: string | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       ar_filter_sessions: {
         Row: {
           completed_at: string | null
@@ -2182,6 +2254,42 @@ export type Database = {
         }
         Relationships: []
       }
+      data_archives: {
+        Row: {
+          archived_at: string
+          deleted_at: string | null
+          entity_id: string
+          entity_type: string
+          expires_at: string
+          id: string
+          original_data: Json
+          reason: string | null
+          user_id: string
+        }
+        Insert: {
+          archived_at?: string
+          deleted_at?: string | null
+          entity_id: string
+          entity_type: string
+          expires_at: string
+          id?: string
+          original_data: Json
+          reason?: string | null
+          user_id: string
+        }
+        Update: {
+          archived_at?: string
+          deleted_at?: string | null
+          entity_id?: string
+          entity_type?: string
+          expires_at?: string
+          id?: string
+          original_data?: Json
+          reason?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       data_exports: {
         Row: {
           completed_at: string | null
@@ -2301,6 +2409,42 @@ export type Database = {
           summary?: Json
           tables_scanned?: string[]
           total_records?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      data_retention_rules: {
+        Row: {
+          archive_enabled: boolean
+          auto_delete_enabled: boolean
+          created_at: string
+          created_by: string | null
+          entity_type: string
+          id: string
+          notification_days_before: number
+          retention_days: number
+          updated_at: string
+        }
+        Insert: {
+          archive_enabled?: boolean
+          auto_delete_enabled?: boolean
+          created_at?: string
+          created_by?: string | null
+          entity_type: string
+          id?: string
+          notification_days_before?: number
+          retention_days?: number
+          updated_at?: string
+        }
+        Update: {
+          archive_enabled?: boolean
+          auto_delete_enabled?: boolean
+          created_at?: string
+          created_by?: string | null
+          entity_type?: string
+          id?: string
+          notification_days_before?: number
+          retention_days?: number
           updated_at?: string
         }
         Relationships: []
@@ -9263,6 +9407,42 @@ export type Database = {
         }
         Relationships: []
       }
+      retention_notifications: {
+        Row: {
+          acknowledged: boolean | null
+          acknowledged_at: string | null
+          entities_count: number
+          entity_type: string
+          expiration_date: string
+          id: string
+          notification_type: string
+          sent_at: string
+          user_id: string
+        }
+        Insert: {
+          acknowledged?: boolean | null
+          acknowledged_at?: string | null
+          entities_count?: number
+          entity_type: string
+          expiration_date: string
+          id?: string
+          notification_type: string
+          sent_at?: string
+          user_id: string
+        }
+        Update: {
+          acknowledged?: boolean | null
+          acknowledged_at?: string | null
+          entities_count?: number
+          entity_type?: string
+          expiration_date?: string
+          id?: string
+          notification_type?: string
+          sent_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       rituals: {
         Row: {
           description: string
@@ -12806,6 +12986,12 @@ export type Database = {
     }
     Functions: {
       accept_invitation: { Args: { invitation_token: string }; Returns: Json }
+      archive_expired_data: {
+        Args: { p_entity_type: string; p_retention_days: number }
+        Returns: {
+          archived_count: number
+        }[]
+      }
       audit_and_correct_edn_content: {
         Args: never
         Returns: {
@@ -12859,6 +13045,10 @@ export type Database = {
           p_time: string
         }
         Returns: string
+      }
+      calculate_recommendation_impact: {
+        Args: { rec_id: string }
+        Returns: Json
       }
       calculate_sla_metrics: { Args: never; Returns: undefined }
       calculate_user_learning_path: {

@@ -1,9 +1,19 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useAppliedRecommendations } from '@/hooks/useAppliedRecommendations';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { 
   Loader2, 
@@ -14,7 +24,8 @@ import {
   Zap, 
   BarChart3,
   AlertTriangle,
-  CheckCircle2
+  CheckCircle2,
+  CheckSquare
 } from 'lucide-react';
 
 interface Recommendation {
@@ -63,10 +74,35 @@ export function RecommendationsPanel() {
   const [analysis, setAnalysis] = useState<AnalysisSummary | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedRec, setSelectedRec] = useState<Recommendation | null>(null);
+  const [notes, setNotes] = useState('');
+  
+  const { applyRecommendation, loading: applyLoading } = useAppliedRecommendations();
 
   useEffect(() => {
     loadRecommendations();
   }, []);
+
+  const handleApplyRecommendation = async () => {
+    if (!selectedRec) return;
+    
+    try {
+      await applyRecommendation(
+        {
+          id: `${selectedRec.category}-${Date.now()}`,
+          title: selectedRec.title,
+          description: selectedRec.description,
+          category: selectedRec.category,
+          impact: selectedRec.impact,
+        },
+        notes
+      );
+      setSelectedRec(null);
+      setNotes('');
+    } catch (error) {
+      console.error('Error applying recommendation:', error);
+    }
+  };
 
   const loadRecommendations = async () => {
     try {
@@ -229,13 +265,69 @@ export function RecommendationsPanel() {
                           <p className="text-sm font-medium mb-1">Action recommandée:</p>
                           <p className="text-sm">{rec.actionable}</p>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center justify-between">
                           <Badge variant="secondary" className="text-xs">
                             {rec.category === 'timing' && '⏰ Timing'}
                             {rec.category === 'platform' && '📊 Plateforme'}
                             {rec.category === 'volume' && '📈 Volume'}
                             {rec.category === 'quality' && '⚡ Qualité'}
                           </Badge>
+                          
+                          <Dialog>
+                            <DialogTrigger asChild>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setSelectedRec(rec)}
+                              >
+                                <CheckSquare className="h-4 w-4 mr-2" />
+                                Marquer comme appliquée
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle>Appliquer la recommandation</DialogTitle>
+                                <DialogDescription>
+                                  Les métriques actuelles seront enregistrées pour mesurer l'impact futur de cette recommandation.
+                                </DialogDescription>
+                              </DialogHeader>
+                              <div className="space-y-4">
+                                <div>
+                                  <h4 className="font-semibold mb-2">{rec.title}</h4>
+                                  <p className="text-sm text-muted-foreground mb-2">{rec.description}</p>
+                                  <div className="bg-primary/5 p-3 rounded-lg">
+                                    <p className="text-sm font-medium mb-1">Action recommandée:</p>
+                                    <p className="text-sm">{rec.actionable}</p>
+                                  </div>
+                                </div>
+                                
+                                <div>
+                                  <label className="text-sm font-medium mb-2 block">
+                                    Notes (optionnel)
+                                  </label>
+                                  <Textarea
+                                    value={notes}
+                                    onChange={(e) => setNotes(e.target.value)}
+                                    placeholder="Ajoutez des notes sur l'implémentation de cette recommandation..."
+                                    rows={3}
+                                  />
+                                </div>
+
+                                <Button
+                                  onClick={handleApplyRecommendation}
+                                  disabled={applyLoading}
+                                  className="w-full"
+                                >
+                                  {applyLoading ? (
+                                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                  ) : (
+                                    <CheckSquare className="h-4 w-4 mr-2" />
+                                  )}
+                                  Confirmer l'application
+                                </Button>
+                              </div>
+                            </DialogContent>
+                          </Dialog>
                         </div>
                       </div>
                     </div>
