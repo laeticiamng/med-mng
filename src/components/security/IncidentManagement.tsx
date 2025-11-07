@@ -7,17 +7,24 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useSecurityIncidents, SecurityIncident, IncidentStatus } from '@/hooks/useSecurityIncidents';
+import { useUserRoles } from '@/hooks/useUserRoles';
 import { formatDistanceToNow } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
 export const IncidentManagement = () => {
   const { incidents, activeIncidents, criticalIncidents, updateIncidentStatus, escalateIncident, isUpdating } = useSecurityIncidents();
+  const { isAdmin, isSecurityAnalyst } = useUserRoles();
   const [selectedIncident, setSelectedIncident] = useState<SecurityIncident | null>(null);
   const [resolutionNotes, setResolutionNotes] = useState('');
   const [escalateDialog, setEscalateDialog] = useState(false);
   const [assignedTo, setAssignedTo] = useState('');
+
+  // Check permissions
+  const canModify = isAdmin || isSecurityAnalyst;
+  const canDelete = isAdmin;
 
   const getSeverityBadge = (severity: string) => {
     switch (severity) {
@@ -177,7 +184,7 @@ export const IncidentManagement = () => {
                     </span>
                   </div>
 
-                  {incident.status !== 'resolved' && (
+                  {incident.status !== 'resolved' && canModify && (
                     <div className="flex gap-2">
                       <Select
                         onValueChange={(value) => {
@@ -209,6 +216,15 @@ export const IncidentManagement = () => {
                         Escalader
                       </Button>
                     </div>
+                  )}
+
+                  {!canModify && incident.status !== 'resolved' && (
+                    <Alert>
+                      <AlertTriangle className="h-4 w-4" />
+                      <AlertDescription className="text-xs">
+                        Permissions insuffisantes pour modifier cet incident
+                      </AlertDescription>
+                    </Alert>
                   )}
 
                   {incident.resolution_notes && (

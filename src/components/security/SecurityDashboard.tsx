@@ -1,4 +1,4 @@
-import { Shield, AlertTriangle, CheckCircle, Download, RefreshCw, FileText } from 'lucide-react';
+import { Shield, AlertTriangle, CheckCircle, Download, RefreshCw, FileText, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -6,13 +6,16 @@ import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useSecurityValidation } from '@/hooks/useSecurityValidation';
+import { useUserRoles } from '@/hooks/useUserRoles';
 import { IncidentManagement } from './IncidentManagement';
+import { RoleManagement } from './RoleManagement';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import jsPDF from 'jspdf';
 
 export const SecurityDashboard = () => {
   const { validation, loading, revalidate, exportReport } = useSecurityValidation();
+  const { hasRole, isAdmin, loadingMyRoles } = useUserRoles();
 
   const exportPDFReport = async () => {
     try {
@@ -80,6 +83,48 @@ export const SecurityDashboard = () => {
     }
   };
 
+  // Check if user has access to security features
+  if (loadingMyRoles) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Shield className="h-5 w-5" />
+            Security Dashboard
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center gap-2">
+            <RefreshCw className="h-4 w-4 animate-spin" />
+            Vérification des permissions...
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (!hasRole('admin') && !hasRole('security_analyst') && !hasRole('viewer')) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Shield className="h-5 w-5" />
+            Accès Refusé
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <Alert variant="destructive">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>
+              Vous n'avez pas les permissions nécessaires pour accéder au dashboard de sécurité.
+              Contactez un administrateur pour obtenir un rôle.
+            </AlertDescription>
+          </Alert>
+        </CardContent>
+      </Card>
+    );
+  }
+
   if (loading) {
     return (
       <Card>
@@ -104,6 +149,12 @@ export const SecurityDashboard = () => {
       <TabsList>
         <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
         <TabsTrigger value="incidents">Gestion des Incidents</TabsTrigger>
+        {isAdmin && (
+          <TabsTrigger value="roles">
+            <Users className="h-4 w-4 mr-2" />
+            Gestion des Rôles
+          </TabsTrigger>
+        )}
       </TabsList>
 
       <TabsContent value="overview" className="space-y-6">
@@ -225,6 +276,12 @@ export const SecurityDashboard = () => {
       <TabsContent value="incidents">
         <IncidentManagement />
       </TabsContent>
+
+      {isAdmin && (
+        <TabsContent value="roles">
+          <RoleManagement />
+        </TabsContent>
+      )}
     </Tabs>
   );
 };
