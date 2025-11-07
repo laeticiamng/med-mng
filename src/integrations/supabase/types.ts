@@ -10735,6 +10735,51 @@ export type Database = {
         }
         Relationships: []
       }
+      security_alerts: {
+        Row: {
+          affected_resource: string | null
+          alert_type: string
+          created_at: string
+          description: string
+          id: string
+          metadata: Json | null
+          recommendation: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          severity: string
+          status: string
+          title: string
+        }
+        Insert: {
+          affected_resource?: string | null
+          alert_type: string
+          created_at?: string
+          description: string
+          id?: string
+          metadata?: Json | null
+          recommendation?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity: string
+          status?: string
+          title: string
+        }
+        Update: {
+          affected_resource?: string | null
+          alert_type?: string
+          created_at?: string
+          description?: string
+          id?: string
+          metadata?: Json | null
+          recommendation?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          status?: string
+          title?: string
+        }
+        Relationships: []
+      }
       security_audit_log: {
         Row: {
           action_taken: string
@@ -10807,6 +10852,51 @@ export type Database = {
           ip_address?: unknown
           user_agent?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      security_corrections_history: {
+        Row: {
+          after_state: Json | null
+          applied_at: string
+          applied_by: string | null
+          before_state: Json | null
+          correction_applied: string
+          correction_type: string
+          id: string
+          issue_description: string
+          migration_file: string | null
+          notes: string | null
+          severity: string
+          table_or_function_name: string
+        }
+        Insert: {
+          after_state?: Json | null
+          applied_at?: string
+          applied_by?: string | null
+          before_state?: Json | null
+          correction_applied: string
+          correction_type: string
+          id?: string
+          issue_description: string
+          migration_file?: string | null
+          notes?: string | null
+          severity: string
+          table_or_function_name: string
+        }
+        Update: {
+          after_state?: Json | null
+          applied_at?: string
+          applied_by?: string | null
+          before_state?: Json | null
+          correction_applied?: string
+          correction_type?: string
+          id?: string
+          issue_description?: string
+          migration_file?: string | null
+          notes?: string | null
+          severity?: string
+          table_or_function_name?: string
         }
         Relationships: []
       }
@@ -10915,6 +11005,57 @@ export type Database = {
           description?: string
           id?: string
           priority?: string
+        }
+        Relationships: []
+      }
+      security_metrics_snapshots: {
+        Row: {
+          critical_issues: number
+          functions_with_search_path: number
+          high_issues: number
+          id: string
+          info_issues: number
+          linter_issues: Json | null
+          low_issues: number
+          medium_issues: number
+          recorded_at: string
+          security_score: number
+          tables_with_rls: number
+          total_functions: number
+          total_policies: number
+          total_tables: number
+        }
+        Insert: {
+          critical_issues?: number
+          functions_with_search_path: number
+          high_issues?: number
+          id?: string
+          info_issues?: number
+          linter_issues?: Json | null
+          low_issues?: number
+          medium_issues?: number
+          recorded_at?: string
+          security_score: number
+          tables_with_rls: number
+          total_functions: number
+          total_policies: number
+          total_tables: number
+        }
+        Update: {
+          critical_issues?: number
+          functions_with_search_path?: number
+          high_issues?: number
+          id?: string
+          info_issues?: number
+          linter_issues?: Json | null
+          low_issues?: number
+          medium_issues?: number
+          recorded_at?: string
+          security_score?: number
+          tables_with_rls?: number
+          total_functions?: number
+          total_policies?: number
+          total_tables?: number
         }
         Relationships: []
       }

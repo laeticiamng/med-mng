@@ -131,6 +131,10 @@ export const MainNavigation: React.FC = () => {
                     <Shield className="w-4 h-4 mr-2" />
                     Documentation RLS
                   </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/security-monitoring')}>
+                    <Shield className="w-4 h-4 mr-2" />
+                    Monitoring Sécurité
+                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleSignOut}>
                     <LogOut className="w-4 h-4 mr-2" />

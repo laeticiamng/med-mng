@@ -49,6 +49,7 @@ const MesDonneesRGPD = lazy(() => import("./pages/MesDonneesRGPD"));
 import { MedMngLogin } from "./pages/MedMngLogin";
 import { MedMngSignup } from "./pages/MedMngSignup";
 import RLSDocumentation from "./pages/RLSDocumentation";
+import SecurityMonitoring from "./pages/SecurityMonitoring";
 import { MedMngPricing } from "./pages/MedMngPricing";
 import { MedMngSubscribe } from "./pages/MedMngSubscribe";
 import { MedMngCreate } from "./pages/MedMngCreate";
@@ -198,6 +199,7 @@ const App = () => {
              <Route path="/accessibility-dashboard" element={<AccessibilityDashboard />} />
              <Route path="/effectiveness-dashboard" element={<EffectivenessDashboard />} />
              <Route path="/rls-documentation" element={<RLSDocumentation />} />
+             <Route path="/security-monitoring" element={<SecurityMonitoring />} />
            
            {/* Nouvelles pages complètes avec lazy loading */}
            <Route path="/statistics" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Statistics /></Suspense>} />
