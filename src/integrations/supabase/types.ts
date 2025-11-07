@@ -13386,6 +13386,17 @@ export type Database = {
           valid_titles: number
         }[]
       }
+      get_category_effectiveness_scores: {
+        Args: { p_user_id: string }
+        Returns: {
+          avg_impact_score: number
+          avg_success_improvement: number
+          category: string
+          effectiveness_score: number
+          total_applied: number
+          total_measured: number
+        }[]
+      }
       get_competences_parsed: {
         Args: never
         Returns: {

@@ -25,6 +25,10 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error("No authorization header");
     }
 
+    // Récupérer les scores historiques envoyés par le client
+    const requestBody = await req.json().catch(() => ({}));
+    const historicalScores = requestBody.historicalScores || {};
+
     const supabaseClient = createClient(
       Deno.env.get("SUPABASE_URL") ?? "",
       Deno.env.get("SUPABASE_ANON_KEY") ?? "",
@@ -73,6 +77,17 @@ const handler = async (req: Request): Promise<Response> => {
       throw new Error("LOVABLE_API_KEY not configured");
     }
 
+    // Préparer les informations sur les scores historiques
+    let historicalContext = "";
+    if (Object.keys(historicalScores).length > 0) {
+      historicalContext = "\n\nScores d'efficacité historiques par catégorie (0-100):";
+      for (const [category, score] of Object.entries(historicalScores)) {
+        const scoreData = score as any;
+        historicalContext += `\n- ${category}: ${scoreData.effectiveness_score}/100 (${scoreData.total_applied} recommandations appliquées, amélioration moyenne: ${scoreData.avg_success_improvement}%)`;
+      }
+      historicalContext += "\n\nPRIORISE les catégories avec les meilleurs scores historiques (>60) car elles ont prouvé leur efficacité.";
+    }
+
     const prompt = `Analyse les données de notifications suivantes et génère 5 recommandations d'optimisation concrètes et actionnables.
 
 Données analysées:
@@ -84,14 +99,15 @@ Données analysées:
 - Tendance du volume: ${analysis.trend}
 - Meilleurs horaires (heures): ${analysis.bestHours.join(", ")}
 - Pires horaires (heures): ${analysis.worstHours.join(", ")}
-- Jours les plus performants: ${analysis.bestDays.join(", ")}
+- Jours les plus performants: ${analysis.bestDays.join(", ")}${historicalContext}
 
 Génère exactement 5 recommandations qui:
 1. Sont spécifiques aux données fournies
 2. Sont directement actionnables
 3. Ont un impact mesurable sur les performances
 4. Couvrent différentes catégories (timing, platform, volume, quality)
-5. Sont présentées par ordre d'impact (high > medium > low)
+5. PRIORISE les catégories avec les meilleurs scores historiques d'efficacité
+6. Sont présentées par ordre d'impact (high > medium > low) ET d'efficacité historique
 
 Les recommandations doivent être pratiques et adaptées au contexte des notifications A/B tests.`;
 

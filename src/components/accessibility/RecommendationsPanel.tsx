@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAppliedRecommendations } from '@/hooks/useAppliedRecommendations';
+import { useEffectivenessScores } from '@/hooks/useEffectivenessScores';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -25,7 +26,9 @@ import {
   BarChart3,
   AlertTriangle,
   CheckCircle2,
-  CheckSquare
+  CheckSquare,
+  Trophy,
+  TrendingDown
 } from 'lucide-react';
 
 interface Recommendation {
@@ -34,6 +37,8 @@ interface Recommendation {
   impact: 'high' | 'medium' | 'low';
   category: 'timing' | 'platform' | 'volume' | 'quality';
   actionable: string;
+  historicalScore?: number;
+  priority?: number;
 }
 
 interface AnalysisSummary {
@@ -78,6 +83,7 @@ export function RecommendationsPanel() {
   const [notes, setNotes] = useState('');
   
   const { applyRecommendation, loading: applyLoading } = useAppliedRecommendations();
+  const { scores, getScoreForCategory } = useEffectivenessScores();
 
   useEffect(() => {
     loadRecommendations();
@@ -109,7 +115,10 @@ export function RecommendationsPanel() {
       setLoading(true);
       setError(null);
 
-      const { data, error: functionError } = await supabase.functions.invoke('generate-recommendations');
+      // Envoyer les scores historiques à l'edge function
+      const { data, error: functionError } = await supabase.functions.invoke('generate-recommendations', {
+        body: { historicalScores: scores }
+      });
 
       if (functionError) {
         if (functionError.message.includes('429')) {
@@ -131,7 +140,25 @@ export function RecommendationsPanel() {
         return;
       }
 
-      setRecommendations(data.recommendations || []);
+      // Enrichir les recommandations avec les scores historiques et calculer la priorité
+      const enrichedRecs = (data.recommendations || []).map((rec: Recommendation) => {
+        const historicalScore = getScoreForCategory(rec.category);
+        const impactWeight = rec.impact === 'high' ? 3 : rec.impact === 'medium' ? 2 : 1;
+        // Priorité = (impact * 100) + score historique
+        const priority = (impactWeight * 100) + historicalScore;
+        return {
+          ...rec,
+          historicalScore,
+          priority,
+        };
+      });
+
+      // Trier par priorité décroissante
+      enrichedRecs.sort((a: Recommendation, b: Recommendation) => 
+        (b.priority || 0) - (a.priority || 0)
+      );
+
+      setRecommendations(enrichedRecs);
       setAnalysis(data.analysis || null);
       
       if (data.recommendations?.length > 0) {
@@ -260,18 +287,48 @@ export function RecommendationsPanel() {
                           <Badge variant="outline" className={impactColors[rec.impact]}>
                             {impactLabels[rec.impact]}
                           </Badge>
-                        </div>
-                        <div className="bg-primary/5 p-3 rounded-lg">
-                          <p className="text-sm font-medium mb-1">Action recommandée:</p>
-                          <p className="text-sm">{rec.actionable}</p>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <Badge variant="secondary" className="text-xs">
-                            {rec.category === 'timing' && '⏰ Timing'}
-                            {rec.category === 'platform' && '📊 Plateforme'}
-                            {rec.category === 'volume' && '📈 Volume'}
-                            {rec.category === 'quality' && '⚡ Qualité'}
-                          </Badge>
+                         </div>
+                         <div className="bg-primary/5 p-3 rounded-lg">
+                           <p className="text-sm font-medium mb-1">Action recommandée:</p>
+                           <p className="text-sm">{rec.actionable}</p>
+                         </div>
+                         
+                         {rec.historicalScore && rec.historicalScore !== 50 && (
+                           <div className="flex items-center gap-2 p-2 bg-muted/50 rounded-lg">
+                             {rec.historicalScore > 60 ? (
+                               <Trophy className="h-4 w-4 text-yellow-600" />
+                             ) : (
+                               <TrendingDown className="h-4 w-4 text-muted-foreground" />
+                             )}
+                             <div className="flex-1">
+                               <p className="text-xs font-medium">
+                                 Efficacité historique: {rec.historicalScore.toFixed(0)}/100
+                               </p>
+                               <p className="text-xs text-muted-foreground">
+                                 {rec.historicalScore > 70 ? 'Excellent historique de résultats' :
+                                  rec.historicalScore > 60 ? 'Bons résultats historiques' :
+                                  rec.historicalScore > 50 ? 'Résultats moyens' :
+                                  'Efficacité à prouver'}
+                               </p>
+                             </div>
+                           </div>
+                         )}
+                         
+                         <div className="flex items-center justify-between">
+                           <div className="flex items-center gap-2">
+                             <Badge variant="secondary" className="text-xs">
+                               {rec.category === 'timing' && '⏰ Timing'}
+                               {rec.category === 'platform' && '📊 Plateforme'}
+                               {rec.category === 'volume' && '📈 Volume'}
+                               {rec.category === 'quality' && '⚡ Qualité'}
+                             </Badge>
+                             {rec.priority && rec.priority > 250 && (
+                               <Badge variant="default" className="text-xs bg-yellow-500 hover:bg-yellow-600">
+                                 <Trophy className="h-3 w-3 mr-1" />
+                                 Prioritaire
+                               </Badge>
+                             )}
+                           </div>
                           
                           <Dialog>
                             <DialogTrigger asChild>
