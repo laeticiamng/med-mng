@@ -6,6 +6,15 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Helper to replace variables in template
+function replaceVariables(content: string, data: Record<string, any>): string {
+  let result = content;
+  Object.entries(data).forEach(([key, value]) => {
+    result = result.replace(new RegExp(`\\{\\{${key}\\}\\}`, 'g'), String(value));
+  });
+  return result;
+}
+
 // Notification helper function
 async function sendTestCompletionNotification(test: any, supabaseClient: any) {
   // Récupérer les paramètres webhook de l'utilisateur
@@ -23,20 +32,51 @@ async function sendTestCompletionNotification(test: any, supabaseClient: any) {
   const slackWebhook = webhookSettings.slack_enabled ? webhookSettings.slack_webhook_url : null;
   const discordWebhook = webhookSettings.discord_enabled ? webhookSettings.discord_webhook_url : null;
 
+  // Récupérer les templates personnalisés de l'utilisateur
+  const { data: templates } = await supabaseClient
+    .from('notification_templates')
+    .select('*')
+    .eq('user_id', test.user_id)
+    .order('is_default', { ascending: false })
+    .limit(1);
+
+  const template = templates && templates.length > 0 ? templates[0] : null;
+
   const winnerName = test.winner_template_id === test.template_a_id 
     ? test.template_a?.name || 'Template A'
     : test.template_b?.name || 'Template B';
   
-  const message = `🏆 A/B Test "${test.name}" terminé!\n\n` +
-    `✉️ Template gagnant: ${winnerName}\n` +
-    `📊 Résultats:\n` +
-    `  • Template A: ${test.open_rate_a}% d'ouverture (${test.total_opened_a}/${test.total_sent_a} envois)\n` +
-    `  • Template B: ${test.open_rate_b}% d'ouverture (${test.total_opened_b}/${test.total_sent_b} envois)\n` +
-    `📅 Durée: ${test.start_date} → ${test.end_date}`;
+  // Préparer les données pour les variables
+  const templateData = {
+    test_name: test.name,
+    winner_name: winnerName,
+    open_rate_a: test.open_rate_a?.toFixed(1) || '0',
+    open_rate_b: test.open_rate_b?.toFixed(1) || '0',
+    total_opened_a: test.total_opened_a || 0,
+    total_opened_b: test.total_opened_b || 0,
+    total_sent_a: test.total_sent_a || 0,
+    total_sent_b: test.total_sent_b || 0,
+    start_date: new Date(test.start_date).toLocaleDateString('fr-FR'),
+    end_date: new Date(test.end_date).toLocaleDateString('fr-FR'),
+  };
+
+  // Utiliser le template personnalisé ou le message par défaut
+  const message = template 
+    ? replaceVariables(template.template_content, templateData)
+    : `🏆 A/B Test "${test.name}" terminé!\n\n` +
+      `✉️ Template gagnant: ${winnerName}\n` +
+      `📊 Résultats:\n` +
+      `  • Template A: ${test.open_rate_a}% d'ouverture (${test.total_opened_a}/${test.total_sent_a} envois)\n` +
+      `  • Template B: ${test.open_rate_b}% d'ouverture (${test.total_opened_b}/${test.total_sent_b} envois)\n` +
+      `📅 Durée: ${test.start_date} → ${test.end_date}`;
+
+  // Déterminer les plateformes à utiliser
+  const sendToSlack = slackWebhook && (!template || template.platform === 'slack' || template.platform === 'both');
+  const sendToDiscord = discordWebhook && (!template || template.platform === 'discord' || template.platform === 'both');
 
   const promises = [];
 
-  if (slackWebhook) {
+  if (sendToSlack) {
     promises.push(
       fetch(slackWebhook, {
         method: 'POST',
@@ -78,7 +118,7 @@ async function sendTestCompletionNotification(test: any, supabaseClient: any) {
     );
   }
 
-  if (discordWebhook) {
+  if (sendToDiscord) {
     promises.push(
       fetch(discordWebhook, {
         method: 'POST',

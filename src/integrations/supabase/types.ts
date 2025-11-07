@@ -7636,37 +7636,37 @@ export type Database = {
       }
       notification_templates: {
         Row: {
-          category: string
-          created_at: string | null
-          default_delivery_methods: string[] | null
-          default_priority: string | null
+          created_at: string
           id: string
-          message_template: string
+          is_default: boolean | null
           name: string
-          title_template: string
-          updated_at: string | null
+          platform: string
+          template_content: string
+          updated_at: string
+          user_id: string
+          variables: Json | null
         }
         Insert: {
-          category: string
-          created_at?: string | null
-          default_delivery_methods?: string[] | null
-          default_priority?: string | null
+          created_at?: string
           id?: string
-          message_template: string
+          is_default?: boolean | null
           name: string
-          title_template: string
-          updated_at?: string | null
+          platform: string
+          template_content: string
+          updated_at?: string
+          user_id: string
+          variables?: Json | null
         }
         Update: {
-          category?: string
-          created_at?: string | null
-          default_delivery_methods?: string[] | null
-          default_priority?: string | null
+          created_at?: string
           id?: string
-          message_template?: string
+          is_default?: boolean | null
           name?: string
-          title_template?: string
-          updated_at?: string | null
+          platform?: string
+          template_content?: string
+          updated_at?: string
+          user_id?: string
+          variables?: Json | null
         }
         Relationships: []
       }
