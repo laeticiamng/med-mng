@@ -369,6 +369,50 @@ export type Database = {
         }
         Relationships: []
       }
+      alert_score_history: {
+        Row: {
+          age_score: number | null
+          alert_id: string | null
+          calculated_at: string | null
+          cvss_normalized_score: number | null
+          factors: Json | null
+          frequency_score: number | null
+          id: string
+          pagerduty_score: number | null
+          unified_score: number
+        }
+        Insert: {
+          age_score?: number | null
+          alert_id?: string | null
+          calculated_at?: string | null
+          cvss_normalized_score?: number | null
+          factors?: Json | null
+          frequency_score?: number | null
+          id?: string
+          pagerduty_score?: number | null
+          unified_score: number
+        }
+        Update: {
+          age_score?: number | null
+          alert_id?: string | null
+          calculated_at?: string | null
+          cvss_normalized_score?: number | null
+          factors?: Json | null
+          frequency_score?: number | null
+          id?: string
+          pagerduty_score?: number | null
+          unified_score?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "alert_score_history_alert_id_fkey"
+            columns: ["alert_id"]
+            isOneToOne: false
+            referencedRelation: "unified_alerts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ambition_artifacts: {
         Row: {
           description: string | null
@@ -1275,6 +1319,48 @@ export type Database = {
         }
         Relationships: []
       }
+      blockchain_backups: {
+        Row: {
+          backup_date: string
+          block_count: number
+          checksum: string
+          created_at: string
+          encryption_key_hash: string | null
+          file_path: string
+          file_size_bytes: number | null
+          id: string
+          metadata: Json | null
+          restored_at: string | null
+          status: string
+        }
+        Insert: {
+          backup_date?: string
+          block_count: number
+          checksum: string
+          created_at?: string
+          encryption_key_hash?: string | null
+          file_path: string
+          file_size_bytes?: number | null
+          id?: string
+          metadata?: Json | null
+          restored_at?: string | null
+          status?: string
+        }
+        Update: {
+          backup_date?: string
+          block_count?: number
+          checksum?: string
+          created_at?: string
+          encryption_key_hash?: string | null
+          file_path?: string
+          file_size_bytes?: number | null
+          id?: string
+          metadata?: Json | null
+          restored_at?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
       bounce_battles: {
         Row: {
           created_at: string | null
@@ -1599,6 +1685,66 @@ export type Database = {
           date?: string
           id?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      cache_config: {
+        Row: {
+          cache_key: string
+          created_at: string | null
+          description: string | null
+          hit_count: number | null
+          id: string
+          last_invalidated_at: string | null
+          miss_count: number | null
+          ttl_seconds: number
+          updated_at: string | null
+        }
+        Insert: {
+          cache_key: string
+          created_at?: string | null
+          description?: string | null
+          hit_count?: number | null
+          id?: string
+          last_invalidated_at?: string | null
+          miss_count?: number | null
+          ttl_seconds: number
+          updated_at?: string | null
+        }
+        Update: {
+          cache_key?: string
+          created_at?: string | null
+          description?: string | null
+          hit_count?: number | null
+          id?: string
+          last_invalidated_at?: string | null
+          miss_count?: number | null
+          ttl_seconds?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      cache_metrics: {
+        Row: {
+          cache_key: string
+          created_at: string | null
+          id: string
+          operation: string
+          response_time_ms: number | null
+        }
+        Insert: {
+          cache_key: string
+          created_at?: string | null
+          id?: string
+          operation: string
+          response_time_ms?: number | null
+        }
+        Update: {
+          cache_key?: string
+          created_at?: string | null
+          id?: string
+          operation?: string
+          response_time_ms?: number | null
         }
         Relationships: []
       }
@@ -2633,56 +2779,92 @@ export type Database = {
           },
         ]
       }
-      compliance_scores: {
+      compliance_reports: {
         Row: {
-          audit_id: string
-          category_id: string
-          checks_passed: number
-          checks_total: number
           created_at: string
-          findings: Json | null
+          email_sent: boolean | null
+          email_sent_at: string | null
+          generated_at: string
+          html_content: string | null
           id: string
-          max_score: number
-          score: number
+          metadata: Json | null
+          pdf_url: string | null
+          period_end: string
+          period_start: string
+          report_type: string
+          status: string
+          updated_at: string
+          user_id: string | null
         }
         Insert: {
-          audit_id: string
-          category_id: string
-          checks_passed?: number
-          checks_total?: number
           created_at?: string
-          findings?: Json | null
+          email_sent?: boolean | null
+          email_sent_at?: string | null
+          generated_at?: string
+          html_content?: string | null
           id?: string
-          max_score?: number
-          score?: number
+          metadata?: Json | null
+          pdf_url?: string | null
+          period_end: string
+          period_start: string
+          report_type: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
         }
         Update: {
-          audit_id?: string
-          category_id?: string
-          checks_passed?: number
-          checks_total?: number
           created_at?: string
-          findings?: Json | null
+          email_sent?: boolean | null
+          email_sent_at?: string | null
+          generated_at?: string
+          html_content?: string | null
           id?: string
-          max_score?: number
-          score?: number
+          metadata?: Json | null
+          pdf_url?: string | null
+          period_end?: string
+          period_start?: string
+          report_type?: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "compliance_scores_audit_id_fkey"
-            columns: ["audit_id"]
-            isOneToOne: false
-            referencedRelation: "compliance_audits"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "compliance_scores_category_id_fkey"
-            columns: ["category_id"]
-            isOneToOne: false
-            referencedRelation: "compliance_categories"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
+      }
+      compliance_scores: {
+        Row: {
+          affected_areas: string[] | null
+          created_at: string
+          event_data: Json | null
+          event_type: string
+          id: string
+          impact: number | null
+          previous_score: number | null
+          score: number
+          user_id: string | null
+        }
+        Insert: {
+          affected_areas?: string[] | null
+          created_at?: string
+          event_data?: Json | null
+          event_type: string
+          id?: string
+          impact?: number | null
+          previous_score?: number | null
+          score: number
+          user_id?: string | null
+        }
+        Update: {
+          affected_areas?: string[] | null
+          created_at?: string
+          event_data?: Json | null
+          event_type?: string
+          id?: string
+          impact?: number | null
+          previous_score?: number | null
+          score?: number
+          user_id?: string | null
+        }
+        Relationships: []
       }
       consent_channels: {
         Row: {
@@ -10741,6 +10923,51 @@ export type Database = {
         }
         Relationships: []
       }
+      realtime_notifications: {
+        Row: {
+          action_url: string | null
+          created_at: string
+          expires_at: string | null
+          id: string
+          message: string
+          metadata: Json | null
+          read: boolean
+          read_at: string | null
+          severity: string
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          action_url?: string | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          message: string
+          metadata?: Json | null
+          read?: boolean
+          read_at?: string | null
+          severity: string
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          action_url?: string | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          message?: string
+          metadata?: Json | null
+          read?: boolean
+          read_at?: string | null
+          severity?: string
+          title?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       recommendation_alerts: {
         Row: {
           alert_triggered: boolean | null
@@ -12325,6 +12552,60 @@ export type Database = {
           label_text?: string
           priority?: number | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      unified_alerts: {
+        Row: {
+          created_at: string | null
+          cvss_score: number | null
+          description: string | null
+          external_id: string
+          id: string
+          metadata: Json | null
+          occurrence_count: number | null
+          resolved_at: string | null
+          severity: string
+          source: string
+          status: string | null
+          title: string
+          unified_score: number | null
+          updated_at: string | null
+          url: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          cvss_score?: number | null
+          description?: string | null
+          external_id: string
+          id?: string
+          metadata?: Json | null
+          occurrence_count?: number | null
+          resolved_at?: string | null
+          severity: string
+          source: string
+          status?: string | null
+          title: string
+          unified_score?: number | null
+          updated_at?: string | null
+          url?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          cvss_score?: number | null
+          description?: string | null
+          external_id?: string
+          id?: string
+          metadata?: Json | null
+          occurrence_count?: number | null
+          resolved_at?: string | null
+          severity?: string
+          source?: string
+          status?: string | null
+          title?: string
+          unified_score?: number | null
+          updated_at?: string | null
+          url?: string | null
         }
         Relationships: []
       }
@@ -15427,6 +15708,26 @@ export type Database = {
           rang: string
           rang_code: string
           url_source: string
+        }[]
+      }
+      get_cron_job_history: {
+        Args: never
+        Returns: {
+          execution_count: number
+          job_name: string
+          last_run: string
+          next_run: string
+          status: string
+        }[]
+      }
+      get_cron_jobs_list: {
+        Args: never
+        Returns: {
+          active: boolean
+          jobid: number
+          jobname: string
+          last_run: string
+          schedule: string
         }[]
       }
       get_current_user_role: { Args: never; Returns: string }

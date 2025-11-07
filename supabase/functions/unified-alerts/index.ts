@@ -1,22 +1,12 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.50.3";
+import { RedisCache } from "../_shared/redisCache.ts";
+import { AlertPersistence, UnifiedAlert } from "../_shared/alertPersistence.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
-
-interface UnifiedAlert {
-  id: string;
-  source: 'pagerduty' | 'nvd';
-  severity: 'critical' | 'high' | 'medium' | 'low';
-  title: string;
-  description: string;
-  created_at: string;
-  url?: string;
-  cvss_score?: number;
-  status?: string;
-}
 
 serve(async (req) => {
   // Handle CORS preflight requests
@@ -27,8 +17,9 @@ serve(async (req) => {
   try {
     const { searchParams } = new URL(req.url);
     const mode = searchParams.get("mode") || "combined";
+    const forceRefresh = searchParams.get("force") === "true";
 
-    console.log(`[unified-alerts] Mode: ${mode}`);
+    console.log(`[unified-alerts] Mode: ${mode}, Force refresh: ${forceRefresh}`);
 
     // Récupération des secrets depuis l'environnement Supabase
     const PAGERDUTY_API_KEY = Deno.env.get("PAGERDUTY_API_KEY");
@@ -42,11 +33,28 @@ serve(async (req) => {
     }
 
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+    const cache = new RedisCache(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+    const persistence = new AlertPersistence(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-    const alerts: UnifiedAlert[] = [];
+    let alerts: UnifiedAlert[] = [];
+    let fromCache = false;
 
-    // Récupération des incidents PagerDuty
-    if ((mode === "pagerduty" || mode === "combined") && PAGERDUTY_API_KEY) {
+    // Vérifier le cache si pas de force refresh
+    if (!forceRefresh) {
+      const cacheKey = `alerts:${mode}`;
+      const cached = await cache.get<UnifiedAlert[]>(cacheKey);
+      if (cached && Array.isArray(cached)) {
+        alerts = cached;
+        fromCache = true;
+        console.log(`[unified-alerts] Loaded ${alerts.length} alerts from cache`);
+      }
+    }
+
+    // Si pas en cache, récupérer depuis les APIs
+    if (alerts.length === 0) {
+
+      // Récupération des incidents PagerDuty
+      if ((mode === "pagerduty" || mode === "combined") && PAGERDUTY_API_KEY) {
       console.log("[unified-alerts] Fetching PagerDuty incidents...");
       try {
         const pagerdutyResp = await fetch("https://api.pagerduty.com/incidents?limit=10&statuses[]=triggered&statuses[]=acknowledged", {
@@ -64,7 +72,7 @@ serve(async (req) => {
 
           incidents.forEach((incident: any) => {
             alerts.push({
-              id: `pd-${incident.id}`,
+              external_id: `pd-${incident.id}`,
               source: 'pagerduty',
               severity: incident.urgency === 'high' ? 'critical' : 'high',
               title: incident.title || incident.summary,
@@ -82,8 +90,8 @@ serve(async (req) => {
       }
     }
 
-    // Récupération des CVE depuis NVD
-    if ((mode === "nvd" || mode === "combined") && NVD_API_KEY) {
+      // Récupération des CVE depuis NVD
+      if ((mode === "nvd" || mode === "combined") && NVD_API_KEY) {
       console.log("[unified-alerts] Fetching NVD CVEs...");
       try {
         const endDate = new Date();
@@ -116,7 +124,7 @@ serve(async (req) => {
             else if (cvssScore >= 4.0) severity = 'medium';
 
             alerts.push({
-              id: `nvd-${cve.id}`,
+              external_id: `nvd-${cve.id}`,
               source: 'nvd',
               severity,
               title: cve.id,
@@ -134,11 +142,24 @@ serve(async (req) => {
       }
     }
 
-    // Trier par sévérité et date
+      }
+
+      // Persister et calculer le scoring
+      console.log(`[unified-alerts] Persisting ${alerts.length} alerts...`);
+      const persistedAlerts = await persistence.upsertAlerts(alerts);
+      
+      // Mettre en cache
+      const cacheKey = `alerts:${mode}`;
+      await cache.set(cacheKey, persistedAlerts);
+      
+      alerts = persistedAlerts;
+    }
+
+    // Trier par score unifié (déjà calculé par le système de scoring)
     alerts.sort((a, b) => {
-      const severityOrder = { critical: 0, high: 1, medium: 2, low: 3 };
-      const severityDiff = severityOrder[a.severity] - severityOrder[b.severity];
-      if (severityDiff !== 0) return severityDiff;
+      const scoreA = a.unified_score || 0;
+      const scoreB = b.unified_score || 0;
+      if (scoreB !== scoreA) return scoreB - scoreA;
       return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     });
 
@@ -158,15 +179,24 @@ serve(async (req) => {
 
     console.log(`[unified-alerts] Broadcast sent with ${alerts.length} alerts`);
 
+    // Statistiques de cache
+    const cacheKey = `alerts:${mode}`;
+    const cacheStats = await cache.getStats(cacheKey);
+
     const response = {
       success: true,
       timestamp: new Date().toISOString(),
       mode,
+      from_cache: fromCache,
+      cache_stats: cacheStats,
       total: alerts.length,
       critical: alerts.filter(a => a.severity === 'critical').length,
       high: alerts.filter(a => a.severity === 'high').length,
       medium: alerts.filter(a => a.severity === 'medium').length,
       low: alerts.filter(a => a.severity === 'low').length,
+      avg_unified_score: alerts.length > 0 
+        ? Math.round((alerts.reduce((sum, a) => sum + (a.unified_score || 0), 0) / alerts.length) * 100) / 100
+        : 0,
       alerts,
     };
 

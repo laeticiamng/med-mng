@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 export interface UnifiedAlert {
-  id: string;
+  id?: string;
+  external_id?: string;
   source: 'pagerduty' | 'nvd';
   severity: 'critical' | 'high' | 'medium' | 'low';
   title: string;
@@ -13,17 +14,30 @@ export interface UnifiedAlert {
   url?: string;
   cvss_score?: number;
   status?: string;
+  unified_score?: number;
+  occurrence_count?: number;
+  metadata?: {
+    scoring_factors?: any;
+    priority_level?: string;
+  };
 }
 
 export interface UnifiedAlertsResponse {
   success: boolean;
   timestamp: string;
   mode: string;
+  from_cache: boolean;
+  cache_stats: {
+    hit_count: number;
+    miss_count: number;
+    hit_rate: number;
+  };
   total: number;
   critical: number;
   high: number;
   medium: number;
   low: number;
+  avg_unified_score: number;
   alerts: UnifiedAlert[];
 }
 
