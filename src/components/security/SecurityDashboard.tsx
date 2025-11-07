@@ -1,13 +1,54 @@
-import { Shield, AlertTriangle, CheckCircle, Download, RefreshCw } from 'lucide-react';
+import { Shield, AlertTriangle, CheckCircle, Download, RefreshCw, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useSecurityValidation } from '@/hooks/useSecurityValidation';
+import { IncidentManagement } from './IncidentManagement';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import jsPDF from 'jspdf';
 
 export const SecurityDashboard = () => {
   const { validation, loading, revalidate, exportReport } = useSecurityValidation();
+
+  const exportPDFReport = async () => {
+    try {
+      toast.info('Génération du rapport PDF...');
+      
+      const { data, error } = await supabase.functions.invoke('generate-security-report');
+      
+      if (error) throw error;
+      
+      // Generate PDF from HTML using jsPDF
+      const doc = new jsPDF();
+      
+      // Add content to PDF
+      doc.setFontSize(20);
+      doc.text('Rapport de Sécurité', 20, 20);
+      
+      doc.setFontSize(12);
+      doc.text(`Date: ${new Date().toLocaleDateString('fr-FR')}`, 20, 35);
+      
+      doc.setFontSize(14);
+      doc.text(`Score de Sécurité: ${data.metrics?.security_score || 0}/100`, 20, 50);
+      
+      doc.setFontSize(12);
+      doc.text(`Tables avec RLS: ${data.metrics?.tables_with_rls || 0}/${data.metrics?.total_tables || 0}`, 20, 65);
+      doc.text(`Politiques RLS: ${data.metrics?.total_policies || 0}`, 20, 75);
+      doc.text(`Alertes actives: ${data.alerts?.filter((a: any) => a.status === 'open').length || 0}`, 20, 85);
+      
+      // Save PDF
+      doc.save(`rapport-securite-${new Date().toISOString().split('T')[0]}.pdf`);
+      
+      toast.success('Rapport PDF généré avec succès');
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      toast.error('Erreur lors de la génération du PDF');
+    }
+  };
 
   const getScoreColor = (score: number) => {
     if (score >= 90) return 'text-green-600';
@@ -59,9 +100,15 @@ export const SecurityDashboard = () => {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Security Score */}
-      <Card>
+    <Tabs defaultValue="overview" className="space-y-6">
+      <TabsList>
+        <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
+        <TabsTrigger value="incidents">Gestion des Incidents</TabsTrigger>
+      </TabsList>
+
+      <TabsContent value="overview" className="space-y-6">
+        {/* Security Score */}
+        <Card>
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -75,7 +122,11 @@ export const SecurityDashboard = () => {
               </Button>
               <Button variant="outline" size="sm" onClick={exportReport}>
                 <Download className="h-4 w-4 mr-1" />
-                Export
+                JSON
+              </Button>
+              <Button variant="outline" size="sm" onClick={exportPDFReport}>
+                <FileText className="h-4 w-4 mr-1" />
+                PDF
               </Button>
             </div>
           </CardTitle>
@@ -169,6 +220,11 @@ export const SecurityDashboard = () => {
           </CardContent>
         </Card>
       )}
-    </div>
+      </TabsContent>
+
+      <TabsContent value="incidents">
+        <IncidentManagement />
+      </TabsContent>
+    </Tabs>
   );
 };
