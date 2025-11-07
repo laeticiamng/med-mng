@@ -759,6 +759,69 @@ export type Database = {
           },
         ]
       }
+      audit_alerts: {
+        Row: {
+          alert_type: string
+          audit_id: string
+          created_at: string
+          current_score: number | null
+          id: string
+          is_sent: boolean
+          message: string
+          previous_score: number | null
+          schedule_id: string | null
+          score_drop: number | null
+          sent_at: string | null
+          severity: string
+          title: string
+        }
+        Insert: {
+          alert_type: string
+          audit_id: string
+          created_at?: string
+          current_score?: number | null
+          id?: string
+          is_sent?: boolean
+          message: string
+          previous_score?: number | null
+          schedule_id?: string | null
+          score_drop?: number | null
+          sent_at?: string | null
+          severity?: string
+          title: string
+        }
+        Update: {
+          alert_type?: string
+          audit_id?: string
+          created_at?: string
+          current_score?: number | null
+          id?: string
+          is_sent?: boolean
+          message?: string
+          previous_score?: number | null
+          schedule_id?: string | null
+          score_drop?: number | null
+          sent_at?: string | null
+          severity?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_alerts_audit_id_fkey"
+            columns: ["audit_id"]
+            isOneToOne: false
+            referencedRelation: "compliance_audits"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "audit_alerts_schedule_id_fkey"
+            columns: ["schedule_id"]
+            isOneToOne: false
+            referencedRelation: "audit_schedules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audit_fixes: {
         Row: {
           applied: boolean | null
@@ -865,6 +928,47 @@ export type Database = {
           },
         ]
       }
+      audit_notifications: {
+        Row: {
+          alert_id: string
+          created_at: string
+          error_message: string | null
+          id: string
+          notification_type: string
+          recipient_email: string
+          sent_at: string | null
+          status: string
+        }
+        Insert: {
+          alert_id: string
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          notification_type: string
+          recipient_email: string
+          sent_at?: string | null
+          status?: string
+        }
+        Update: {
+          alert_id?: string
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          notification_type?: string
+          recipient_email?: string
+          sent_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_notifications_alert_id_fkey"
+            columns: ["alert_id"]
+            isOneToOne: false
+            referencedRelation: "audit_alerts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       audit_reports: {
         Row: {
           completed_at: string | null
@@ -898,6 +1002,57 @@ export type Database = {
           recommendations?: Json | null
           report_type?: string
           status?: string
+        }
+        Relationships: []
+      }
+      audit_schedules: {
+        Row: {
+          alert_recipients: Json | null
+          alert_threshold: number | null
+          created_at: string
+          created_by: string | null
+          day_of_month: number | null
+          day_of_week: number | null
+          frequency: string
+          id: string
+          is_active: boolean
+          last_run_at: string | null
+          name: string
+          next_run_at: string | null
+          time_of_day: string
+          updated_at: string
+        }
+        Insert: {
+          alert_recipients?: Json | null
+          alert_threshold?: number | null
+          created_at?: string
+          created_by?: string | null
+          day_of_month?: number | null
+          day_of_week?: number | null
+          frequency: string
+          id?: string
+          is_active?: boolean
+          last_run_at?: string | null
+          name: string
+          next_run_at?: string | null
+          time_of_day?: string
+          updated_at?: string
+        }
+        Update: {
+          alert_recipients?: Json | null
+          alert_threshold?: number | null
+          created_at?: string
+          created_by?: string | null
+          day_of_month?: number | null
+          day_of_week?: number | null
+          frequency?: string
+          id?: string
+          is_active?: boolean
+          last_run_at?: string | null
+          name?: string
+          next_run_at?: string | null
+          time_of_day?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -2298,6 +2453,236 @@ export type Database = {
           severity?: string
         }
         Relationships: []
+      }
+      compliance_audits: {
+        Row: {
+          audit_date: string
+          audit_type: string
+          completed_at: string | null
+          created_at: string
+          id: string
+          metadata: Json | null
+          overall_score: number
+          report_url: string | null
+          status: string
+          triggered_by: string | null
+        }
+        Insert: {
+          audit_date?: string
+          audit_type?: string
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          overall_score?: number
+          report_url?: string | null
+          status?: string
+          triggered_by?: string | null
+        }
+        Update: {
+          audit_date?: string
+          audit_type?: string
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          overall_score?: number
+          report_url?: string | null
+          status?: string
+          triggered_by?: string | null
+        }
+        Relationships: []
+      }
+      compliance_categories: {
+        Row: {
+          code: string
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          max_score: number
+          name: string
+          weight: number
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          max_score?: number
+          name: string
+          weight?: number
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          max_score?: number
+          name?: string
+          weight?: number
+        }
+        Relationships: []
+      }
+      compliance_checks: {
+        Row: {
+          category_id: string
+          check_code: string
+          check_name: string
+          created_at: string
+          description: string | null
+          expected_result: string | null
+          id: string
+          is_active: boolean
+          query_function: string | null
+        }
+        Insert: {
+          category_id: string
+          check_code: string
+          check_name: string
+          created_at?: string
+          description?: string | null
+          expected_result?: string | null
+          id?: string
+          is_active?: boolean
+          query_function?: string | null
+        }
+        Update: {
+          category_id?: string
+          check_code?: string
+          check_name?: string
+          created_at?: string
+          description?: string | null
+          expected_result?: string | null
+          id?: string
+          is_active?: boolean
+          query_function?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "compliance_checks_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "compliance_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      compliance_recommendations: {
+        Row: {
+          audit_id: string
+          category_id: string | null
+          created_at: string
+          description: string
+          id: string
+          impact: string | null
+          priority: number
+          remediation: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          severity: string
+          status: string
+          title: string
+        }
+        Insert: {
+          audit_id: string
+          category_id?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          impact?: string | null
+          priority?: number
+          remediation?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity: string
+          status?: string
+          title: string
+        }
+        Update: {
+          audit_id?: string
+          category_id?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          impact?: string | null
+          priority?: number
+          remediation?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string
+          status?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "compliance_recommendations_audit_id_fkey"
+            columns: ["audit_id"]
+            isOneToOne: false
+            referencedRelation: "compliance_audits"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "compliance_recommendations_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "compliance_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      compliance_scores: {
+        Row: {
+          audit_id: string
+          category_id: string
+          checks_passed: number
+          checks_total: number
+          created_at: string
+          findings: Json | null
+          id: string
+          max_score: number
+          score: number
+        }
+        Insert: {
+          audit_id: string
+          category_id: string
+          checks_passed?: number
+          checks_total?: number
+          created_at?: string
+          findings?: Json | null
+          id?: string
+          max_score?: number
+          score?: number
+        }
+        Update: {
+          audit_id?: string
+          category_id?: string
+          checks_passed?: number
+          checks_total?: number
+          created_at?: string
+          findings?: Json | null
+          id?: string
+          max_score?: number
+          score?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "compliance_scores_audit_id_fkey"
+            columns: ["audit_id"]
+            isOneToOne: false
+            referencedRelation: "compliance_audits"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "compliance_scores_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "compliance_categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       consent_channels: {
         Row: {
@@ -13772,6 +14157,9 @@ export type Database = {
           updated_count: number
         }[]
       }
+      audit_consent_compliance: { Args: never; Returns: Json }
+      audit_retention_compliance: { Args: never; Returns: Json }
+      audit_security_compliance: { Args: never; Returns: Json }
       audit_tableau_duplicates: {
         Args: never
         Returns: {
@@ -13783,6 +14171,7 @@ export type Database = {
           severity: string
         }[]
       }
+      audit_user_rights_compliance: { Args: never; Returns: Json }
       auto_security_maintenance: { Args: never; Returns: Json }
       backup_critical_data: { Args: never; Returns: undefined }
       calculate_completeness_score:
@@ -13802,6 +14191,15 @@ export type Database = {
           p_tableau_b: Json
         }
         Returns: number
+      }
+      calculate_next_audit_run: {
+        Args: {
+          p_day_of_month: number
+          p_day_of_week: number
+          p_frequency: string
+          p_time_of_day: string
+        }
+        Returns: string
       }
       calculate_next_run: {
         Args: {
@@ -13966,6 +14364,7 @@ export type Database = {
       }
       detect_data_inconsistencies: { Args: never; Returns: Json }
       detect_edn_duplicates: { Args: never; Returns: Json }
+      detect_score_drops: { Args: { p_audit_id: string }; Returns: undefined }
       emergency_security_cleanup: {
         Args: never
         Returns: {
@@ -14197,6 +14596,15 @@ export type Database = {
           week_start: string
         }[]
       }
+      get_due_audit_schedules: {
+        Args: never
+        Returns: {
+          frequency: string
+          last_run: string
+          schedule_id: string
+          schedule_name: string
+        }[]
+      }
       get_edn_objectifs_rapport: {
         Args: never
         Returns: {
@@ -14223,6 +14631,14 @@ export type Database = {
           started_at: string
           status: string
           total_items: number
+        }[]
+      }
+      get_latest_compliance_audit: {
+        Args: never
+        Returns: {
+          audit: Json
+          categories: Json
+          recommendations: Json
         }[]
       }
       get_latest_lyrics_texts: {
