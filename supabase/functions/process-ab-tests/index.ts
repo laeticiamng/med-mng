@@ -6,6 +6,106 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
+// Notification helper function
+async function sendTestCompletionNotification(test: any) {
+  const slackWebhook = Deno.env.get("SLACK_WEBHOOK_URL");
+  const discordWebhook = Deno.env.get("DISCORD_WEBHOOK_URL");
+
+  const winnerName = test.winner_template_id === test.template_a_id 
+    ? test.template_a?.name || 'Template A'
+    : test.template_b?.name || 'Template B';
+  
+  const message = `🏆 A/B Test "${test.name}" terminé!\n\n` +
+    `✉️ Template gagnant: ${winnerName}\n` +
+    `📊 Résultats:\n` +
+    `  • Template A: ${test.open_rate_a}% d'ouverture (${test.total_opened_a}/${test.total_sent_a} envois)\n` +
+    `  • Template B: ${test.open_rate_b}% d'ouverture (${test.total_opened_b}/${test.total_sent_b} envois)\n` +
+    `📅 Durée: ${test.start_date} → ${test.end_date}`;
+
+  const promises = [];
+
+  if (slackWebhook) {
+    promises.push(
+      fetch(slackWebhook, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text: message,
+          blocks: [
+            {
+              type: "header",
+              text: {
+                type: "plain_text",
+                text: `🏆 Test A/B "${test.name}" terminé!`,
+                emoji: true
+              }
+            },
+            {
+              type: "section",
+              fields: [
+                {
+                  type: "mrkdwn",
+                  text: `*Template gagnant:*\n${winnerName}`
+                },
+                {
+                  type: "mrkdwn",
+                  text: `*Période:*\n${new Date(test.start_date).toLocaleDateString('fr-FR')} - ${new Date(test.end_date).toLocaleDateString('fr-FR')}`
+                }
+              ]
+            },
+            {
+              type: "section",
+              text: {
+                type: "mrkdwn",
+                text: `*📊 Résultats détaillés:*\n• Template A: *${test.open_rate_a}%* (${test.total_opened_a}/${test.total_sent_a})\n• Template B: *${test.open_rate_b}%* (${test.total_opened_b}/${test.total_sent_b})`
+              }
+            }
+          ]
+        })
+      }).catch(err => console.error('Slack notification failed:', err))
+    );
+  }
+
+  if (discordWebhook) {
+    promises.push(
+      fetch(discordWebhook, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          embeds: [{
+            title: `🏆 Test A/B "${test.name}" terminé!`,
+            description: message,
+            color: 0x00ff00,
+            fields: [
+              {
+                name: 'Template gagnant',
+                value: winnerName,
+                inline: true
+              },
+              {
+                name: 'Template A',
+                value: `${test.open_rate_a}% (${test.total_opened_a}/${test.total_sent_a})`,
+                inline: true
+              },
+              {
+                name: 'Template B',
+                value: `${test.open_rate_b}% (${test.total_opened_b}/${test.total_sent_b})`,
+                inline: true
+              }
+            ],
+            timestamp: new Date().toISOString()
+          }]
+        })
+      }).catch(err => console.error('Discord notification failed:', err))
+    );
+  }
+
+  if (promises.length > 0) {
+    await Promise.all(promises);
+    console.log(`📢 Notifications envoyées pour le test ${test.name}`);
+  }
+}
+
 const handler = async (req: Request): Promise<Response> => {
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
@@ -59,6 +159,9 @@ const handler = async (req: Request): Promise<Response> => {
           console.log(`✅ Test ${test.name} completed`);
           console.log(`Winner: Template ${updatedTest.winner_template_id === updatedTest.template_a_id ? 'A' : 'B'}`);
           console.log(`Open rates - A: ${updatedTest.open_rate_a}%, B: ${updatedTest.open_rate_b}%`);
+          
+          // Envoyer les notifications
+          await sendTestCompletionNotification(updatedTest);
         } else {
           console.log(`Test ${test.name} ended in a tie`);
         }
