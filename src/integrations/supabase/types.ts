@@ -4305,6 +4305,57 @@ export type Database = {
         }
         Relationships: []
       }
+      gdpr_scheduled_exports: {
+        Row: {
+          admin_emails: string[]
+          created_at: string
+          created_by: string | null
+          day_of_month: number | null
+          day_of_week: number | null
+          format: string
+          frequency: string
+          id: string
+          is_active: boolean
+          last_run_at: string | null
+          next_run_at: string | null
+          org_id: string | null
+          time: string
+          updated_at: string
+        }
+        Insert: {
+          admin_emails: string[]
+          created_at?: string
+          created_by?: string | null
+          day_of_month?: number | null
+          day_of_week?: number | null
+          format: string
+          frequency: string
+          id?: string
+          is_active?: boolean
+          last_run_at?: string | null
+          next_run_at?: string | null
+          org_id?: string | null
+          time?: string
+          updated_at?: string
+        }
+        Update: {
+          admin_emails?: string[]
+          created_at?: string
+          created_by?: string | null
+          day_of_month?: number | null
+          day_of_week?: number | null
+          format?: string
+          frequency?: string
+          id?: string
+          is_active?: boolean
+          last_run_at?: string | null
+          next_run_at?: string | null
+          org_id?: string | null
+          time?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       generated_ambient_images: {
         Row: {
           created_at: string
@@ -12305,6 +12356,39 @@ export type Database = {
         }
         Relationships: []
       }
+      webhook_settings: {
+        Row: {
+          created_at: string
+          discord_enabled: boolean | null
+          discord_webhook_url: string | null
+          id: string
+          slack_enabled: boolean | null
+          slack_webhook_url: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          discord_enabled?: boolean | null
+          discord_webhook_url?: string | null
+          id?: string
+          slack_enabled?: boolean | null
+          slack_webhook_url?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          discord_enabled?: boolean | null
+          discord_webhook_url?: string | null
+          id?: string
+          slack_enabled?: boolean | null
+          slack_webhook_url?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       weekly_card_draws: {
         Row: {
           assessment_session_id: string | null
@@ -12721,6 +12805,15 @@ export type Database = {
           p_tableau_b: Json
         }
         Returns: number
+      }
+      calculate_next_run: {
+        Args: {
+          p_day_of_month: number
+          p_day_of_week: number
+          p_frequency: string
+          p_time: string
+        }
+        Returns: string
       }
       calculate_sla_metrics: { Args: never; Returns: undefined }
       calculate_user_learning_path: {

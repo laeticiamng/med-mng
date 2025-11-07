@@ -7,9 +7,21 @@ const corsHeaders = {
 };
 
 // Notification helper function
-async function sendTestCompletionNotification(test: any) {
-  const slackWebhook = Deno.env.get("SLACK_WEBHOOK_URL");
-  const discordWebhook = Deno.env.get("DISCORD_WEBHOOK_URL");
+async function sendTestCompletionNotification(test: any, supabaseClient: any) {
+  // Récupérer les paramètres webhook de l'utilisateur
+  const { data: webhookSettings } = await supabaseClient
+    .from('webhook_settings')
+    .select('*')
+    .eq('user_id', test.user_id)
+    .single();
+
+  if (!webhookSettings) {
+    console.log('No webhook settings found for user');
+    return;
+  }
+
+  const slackWebhook = webhookSettings.slack_enabled ? webhookSettings.slack_webhook_url : null;
+  const discordWebhook = webhookSettings.discord_enabled ? webhookSettings.discord_webhook_url : null;
 
   const winnerName = test.winner_template_id === test.template_a_id 
     ? test.template_a?.name || 'Template A'
@@ -161,7 +173,7 @@ const handler = async (req: Request): Promise<Response> => {
           console.log(`Open rates - A: ${updatedTest.open_rate_a}%, B: ${updatedTest.open_rate_b}%`);
           
           // Envoyer les notifications
-          await sendTestCompletionNotification(updatedTest);
+          await sendTestCompletionNotification(updatedTest, supabaseClient);
         } else {
           console.log(`Test ${test.name} ended in a tie`);
         }

@@ -14,6 +14,7 @@ import { EmailReportConfig } from '@/components/accessibility/EmailReportConfig'
 import { TemplateEditor } from '@/components/accessibility/TemplateEditor';
 import { EmailStatistics } from '@/components/accessibility/EmailStatistics';
 import { ABTestManager } from '@/components/accessibility/ABTestManager';
+import { WebhookManager } from '@/components/accessibility/WebhookManager';
 import { RefreshCw, Key, BarChart3, AlertCircle, CheckCircle2, Download, FileJson, FileSpreadsheet, FileText } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { exportMetricsToCSV, exportMetricsToJSON, exportSummaryToCSV, exportMonthlyReport } from '@/utils/exportAccessibilityMetrics';
@@ -308,6 +309,9 @@ const AccessibilityDashboard = () => {
 
           {/* Tests A/B */}
           <ABTestManager />
+
+          {/* Gestion des Webhooks */}
+          <WebhookManager />
 
           {/* Carte d'export */}
           <ExportMetricsCard
