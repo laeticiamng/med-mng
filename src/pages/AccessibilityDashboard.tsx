@@ -9,8 +9,18 @@ import { AccessibilityDashboardMetrics } from '@/components/accessibility/Access
 import { ViolationsChart } from '@/components/accessibility/ViolationsChart';
 import { DeveloperMetricsTable } from '@/components/accessibility/DeveloperMetricsTable';
 import { BlockedPRsList } from '@/components/accessibility/BlockedPRsList';
-import { RefreshCw, Key, BarChart3, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { ExportMetricsCard } from '@/components/accessibility/ExportMetricsCard';
+import { RefreshCw, Key, BarChart3, AlertCircle, CheckCircle2, Download, FileJson, FileSpreadsheet, FileText } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { exportMetricsToCSV, exportMetricsToJSON, exportSummaryToCSV, exportMonthlyReport } from '@/utils/exportAccessibilityMetrics';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 const AccessibilityDashboard = () => {
   const [githubToken, setGithubToken] = useState('');
@@ -49,6 +59,74 @@ const AccessibilityDashboard = () => {
     toast({
       title: 'Actualisation en cours',
       description: 'Récupération des dernières métriques GitHub...',
+    });
+  };
+
+  const handleExportCSV = () => {
+    if (!metrics) {
+      toast({
+        title: 'Erreur',
+        description: 'Aucune métrique à exporter. Actualisez d\'abord les données.',
+        variant: 'destructive'
+      });
+      return;
+    }
+    
+    exportMetricsToCSV(metrics);
+    toast({
+      title: 'Export réussi',
+      description: 'Rapport CSV téléchargé avec succès',
+    });
+  };
+
+  const handleExportJSON = () => {
+    if (!metrics) {
+      toast({
+        title: 'Erreur',
+        description: 'Aucune métrique à exporter. Actualisez d\'abord les données.',
+        variant: 'destructive'
+      });
+      return;
+    }
+    
+    exportMetricsToJSON(metrics);
+    toast({
+      title: 'Export réussi',
+      description: 'Rapport JSON téléchargé avec succès',
+    });
+  };
+
+  const handleExportSummary = () => {
+    if (!metrics) {
+      toast({
+        title: 'Erreur',
+        description: 'Aucune métrique à exporter. Actualisez d\'abord les données.',
+        variant: 'destructive'
+      });
+      return;
+    }
+    
+    exportSummaryToCSV(metrics);
+    toast({
+      title: 'Export réussi',
+      description: 'Résumé CSV téléchargé avec succès',
+    });
+  };
+
+  const handleExportMonthlyReport = () => {
+    if (!metrics) {
+      toast({
+        title: 'Erreur',
+        description: 'Aucune métrique à exporter. Actualisez d\'abord les données.',
+        variant: 'destructive'
+      });
+      return;
+    }
+    
+    exportMonthlyReport(metrics);
+    toast({
+      title: 'Export réussi',
+      description: 'Rapport mensuel téléchargé avec succès',
     });
   };
 
@@ -135,6 +213,43 @@ const AccessibilityDashboard = () => {
             <Key className="h-4 w-4 mr-2" />
             Reconfigurer
           </Button>
+          
+          {/* Dropdown menu pour les exports */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" disabled={!metrics}>
+                <Download className="h-4 w-4 mr-2" />
+                Exporter
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel>Format d'export</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              
+              <DropdownMenuItem onClick={handleExportCSV}>
+                <FileSpreadsheet className="h-4 w-4 mr-2" />
+                Export CSV Complet
+              </DropdownMenuItem>
+              
+              <DropdownMenuItem onClick={handleExportJSON}>
+                <FileJson className="h-4 w-4 mr-2" />
+                Export JSON Complet
+              </DropdownMenuItem>
+              
+              <DropdownMenuSeparator />
+              
+              <DropdownMenuItem onClick={handleExportSummary}>
+                <FileText className="h-4 w-4 mr-2" />
+                Résumé Rapide (CSV)
+              </DropdownMenuItem>
+              
+              <DropdownMenuItem onClick={handleExportMonthlyReport}>
+                <BarChart3 className="h-4 w-4 mr-2" />
+                Rapport Mensuel (CSV)
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          
           <Button 
             onClick={handleRefresh}
             disabled={isLoading}
@@ -176,6 +291,15 @@ const AccessibilityDashboard = () => {
             conformityRate={metrics.conformityRate}
             avgFixTime={metrics.avgFixTime}
             blockedPRsCount={metrics.blockedPRs.length}
+          />
+
+          {/* Carte d'export */}
+          <ExportMetricsCard
+            onExportCSV={handleExportCSV}
+            onExportJSON={handleExportJSON}
+            onExportSummary={handleExportSummary}
+            onExportMonthlyReport={handleExportMonthlyReport}
+            hasData={!!metrics}
           />
 
           {/* PRs bloquées */}

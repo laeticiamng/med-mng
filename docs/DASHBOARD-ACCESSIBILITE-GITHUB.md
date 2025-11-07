@@ -132,6 +132,89 @@ Cliquez sur le bouton **"Actualiser"** en haut à droite pour :
 
 ---
 
+## 📥 Export des Métriques
+
+### Formats disponibles
+
+Le dashboard propose **4 formats d'export** différents :
+
+#### 1. **CSV Complet** 📊
+Format idéal pour l'analyse dans Excel ou Google Sheets.
+
+**Contenu** :
+- Métriques globales (taux de conformité, temps moyen, etc.)
+- Liste détaillée des violations par type
+- PRs bloquées avec statut et auteur
+- Métriques individuelles par développeur
+
+**Usage recommandé** : Analyse approfondie, création de graphiques personnalisés
+
+#### 2. **JSON Complet** 💻
+Structure hiérarchique pour intégrations techniques et API.
+
+**Contenu** :
+```json
+{
+  "metadata": { "generatedAt": "...", "version": "1.0.0" },
+  "summary": { "totalPRs": 50, "conformityRate": 85.3, ... },
+  "violations": [...],
+  "blockedPRs": [...],
+  "developerMetrics": [...]
+}
+```
+
+**Usage recommandé** : Intégrations automatisées, dashboards externes, pipelines CI/CD
+
+#### 3. **Résumé Rapide (CSV)** ⚡
+Version allégée avec les indicateurs essentiels.
+
+**Contenu** :
+- Taux de conformité
+- Nombre de PRs conformes / total
+- PRs bloquées
+- Types de violations détectés
+- Développeurs actifs
+
+**Usage recommandé** : Partage rapide par email, stand-ups quotidiens
+
+#### 4. **Rapport Mensuel (CSV)** 🎯
+Rapport exécutif formaté avec recommandations automatiques.
+
+**Structure** :
+1. **Synthèse Exécutive** - Indicateurs vs objectifs
+2. **Violations Détectées** - Classement par impact
+3. **Performance par Développeur** - Top contributeurs
+4. **Recommandations** - Actions prioritaires automatiques
+
+**Usage recommandé** : Réunions mensuelles, reporting management, audits
+
+### Comment exporter
+
+1. Cliquez sur le bouton **"Exporter"** en haut à droite
+2. Choisissez le format souhaité dans le menu déroulant
+3. Le fichier se télécharge automatiquement
+
+**Nomenclature des fichiers** :
+- CSV/JSON : `accessibility-metrics-YYYY-MM-DD-HH-mm-ss.[csv|json]`
+- Résumé : `accessibility-summary-YYYY-MM-DD-HH-mm-ss.csv`
+- Mensuel : `rapport-accessibilite-YYYY-MM.csv`
+
+### Intégration automatique
+
+Pour automatiser l'export via scripts :
+
+```typescript
+import { exportMetricsToJSON } from '@/utils/exportAccessibilityMetrics';
+
+// Récupérer les métriques
+const metrics = await fetchGitHubMetrics();
+
+// Exporter automatiquement
+exportMetricsToJSON(metrics);
+```
+
+---
+
 ## 🛠️ Architecture Technique
 
 ### Composants React
