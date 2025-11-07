@@ -11,6 +11,8 @@ import { DeveloperMetricsTable } from '@/components/accessibility/DeveloperMetri
 import { BlockedPRsList } from '@/components/accessibility/BlockedPRsList';
 import { ExportMetricsCard } from '@/components/accessibility/ExportMetricsCard';
 import { EmailReportConfig } from '@/components/accessibility/EmailReportConfig';
+import { TemplateEditor } from '@/components/accessibility/TemplateEditor';
+import { EmailStatistics } from '@/components/accessibility/EmailStatistics';
 import { RefreshCw, Key, BarChart3, AlertCircle, CheckCircle2, Download, FileJson, FileSpreadsheet, FileText } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { exportMetricsToCSV, exportMetricsToJSON, exportSummaryToCSV, exportMonthlyReport } from '@/utils/exportAccessibilityMetrics';
@@ -296,6 +298,12 @@ const AccessibilityDashboard = () => {
 
           {/* Configuration des emails automatiques */}
           <EmailReportConfig />
+
+          {/* Éditeur de templates */}
+          <TemplateEditor />
+
+          {/* Statistiques d'emails */}
+          <EmailStatistics />
 
           {/* Carte d'export */}
           <ExportMetricsCard
