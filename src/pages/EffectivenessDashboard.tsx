@@ -4,6 +4,7 @@ import { useAppliedRecommendations } from '@/hooks/useAppliedRecommendations';
 import { EffectivenessStats } from '@/components/effectiveness/EffectivenessStats';
 import { EffectivenessByCategory } from '@/components/effectiveness/EffectivenessByCategory';
 import { EffectivenessOverTimeChart } from '@/components/effectiveness/EffectivenessOverTimeChart';
+import { PerformanceDegradationAlerts } from '@/components/effectiveness/PerformanceDegradationAlerts';
 import { PeriodSelector, DateRange } from '@/components/effectiveness/PeriodSelector';
 import { ComparisonChart } from '@/components/effectiveness/ComparisonChart';
 import { ComparisonStats } from '@/components/effectiveness/ComparisonStats';
@@ -167,6 +168,9 @@ export default function EffectivenessDashboard() {
 
           {/* Vue d'ensemble */}
           <TabsContent value="overview" className="space-y-6">
+            {/* Alertes de dégradation */}
+            <PerformanceDegradationAlerts />
+
             {/* Stats Overview */}
             <EffectivenessStats
               recommendations={appliedRecommendations}

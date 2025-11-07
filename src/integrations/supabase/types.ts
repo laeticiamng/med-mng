@@ -1447,6 +1447,51 @@ export type Database = {
         }
         Relationships: []
       }
+      campaign_consents: {
+        Row: {
+          campaign_id: string
+          can_contact: boolean
+          consent_preference_id: string | null
+          consent_validated_at: string
+          id: string
+          user_id: string
+          validation_notes: string | null
+        }
+        Insert: {
+          campaign_id: string
+          can_contact?: boolean
+          consent_preference_id?: string | null
+          consent_validated_at?: string
+          id?: string
+          user_id: string
+          validation_notes?: string | null
+        }
+        Update: {
+          campaign_id?: string
+          can_contact?: boolean
+          consent_preference_id?: string | null
+          consent_validated_at?: string
+          id?: string
+          user_id?: string
+          validation_notes?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_consents_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "marketing_campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_consents_consent_preference_id_fkey"
+            columns: ["consent_preference_id"]
+            isOneToOne: false
+            referencedRelation: "user_consent_preferences"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       challenges: {
         Row: {
           category: string
@@ -2251,6 +2296,126 @@ export type Database = {
           resolved_at?: string | null
           resolved_by?: string | null
           severity?: string
+        }
+        Relationships: []
+      }
+      consent_channels: {
+        Row: {
+          channel_code: string
+          channel_name: string
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+        }
+        Insert: {
+          channel_code: string
+          channel_name: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+        }
+        Update: {
+          channel_code?: string
+          channel_name?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+        }
+        Relationships: []
+      }
+      consent_history: {
+        Row: {
+          change_type: string
+          channel_id: string
+          created_at: string
+          id: string
+          ip_address: unknown
+          new_consent: boolean
+          notes: string | null
+          previous_consent: boolean | null
+          purpose_id: string
+          source: string | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          change_type: string
+          channel_id: string
+          created_at?: string
+          id?: string
+          ip_address?: unknown
+          new_consent: boolean
+          notes?: string | null
+          previous_consent?: boolean | null
+          purpose_id: string
+          source?: string | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          change_type?: string
+          channel_id?: string
+          created_at?: string
+          id?: string
+          ip_address?: unknown
+          new_consent?: boolean
+          notes?: string | null
+          previous_consent?: boolean | null
+          purpose_id?: string
+          source?: string | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "consent_history_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "consent_channels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "consent_history_purpose_id_fkey"
+            columns: ["purpose_id"]
+            isOneToOne: false
+            referencedRelation: "consent_purposes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      consent_purposes: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          is_required: boolean
+          legal_basis: string | null
+          purpose_code: string
+          purpose_name: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          is_required?: boolean
+          legal_basis?: string | null
+          purpose_code: string
+          purpose_name: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          is_required?: boolean
+          legal_basis?: string | null
+          purpose_code?: string
+          purpose_name?: string
         }
         Relationships: []
       }
@@ -5800,6 +5965,69 @@ export type Database = {
           },
         ]
       }
+      marketing_campaigns: {
+        Row: {
+          campaign_code: string
+          campaign_name: string
+          channel_id: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          end_date: string | null
+          id: string
+          purpose_id: string
+          start_date: string
+          status: string
+          target_audience: Json | null
+          updated_at: string
+        }
+        Insert: {
+          campaign_code: string
+          campaign_name: string
+          channel_id: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          purpose_id: string
+          start_date: string
+          status?: string
+          target_audience?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          campaign_code?: string
+          campaign_name?: string
+          channel_id?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          end_date?: string | null
+          id?: string
+          purpose_id?: string
+          start_date?: string
+          status?: string
+          target_audience?: Json | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "marketing_campaigns_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "consent_channels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "marketing_campaigns_purpose_id_fkey"
+            columns: ["purpose_id"]
+            isOneToOne: false
+            referencedRelation: "consent_purposes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       med_mng_audio_access_logs: {
         Row: {
           access_type: string
@@ -8791,6 +9019,66 @@ export type Database = {
         }
         Relationships: []
       }
+      performance_degradation_alerts: {
+        Row: {
+          acknowledged: boolean | null
+          acknowledged_at: string | null
+          category: string
+          created_at: string | null
+          current_period_end: string
+          current_period_start: string
+          current_score: number
+          degradation_percentage: number
+          dismissed: boolean | null
+          dismissed_at: string | null
+          id: string
+          previous_period_end: string
+          previous_period_start: string
+          previous_score: number
+          severity: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          acknowledged?: boolean | null
+          acknowledged_at?: string | null
+          category: string
+          created_at?: string | null
+          current_period_end: string
+          current_period_start: string
+          current_score: number
+          degradation_percentage: number
+          dismissed?: boolean | null
+          dismissed_at?: string | null
+          id?: string
+          previous_period_end: string
+          previous_period_start: string
+          previous_score: number
+          severity: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          acknowledged?: boolean | null
+          acknowledged_at?: string | null
+          category?: string
+          created_at?: string | null
+          current_period_end?: string
+          current_period_start?: string
+          current_score?: number
+          degradation_percentage?: number
+          dismissed?: boolean | null
+          dismissed_at?: string | null
+          id?: string
+          previous_period_end?: string
+          previous_period_start?: string
+          previous_score?: number
+          severity?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       performance_metrics: {
         Row: {
           connection_type: string | null
@@ -9095,6 +9383,227 @@ export type Database = {
             columns: ["team_id"]
             isOneToOne: false
             referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pseudonymization_keys: {
+        Row: {
+          algorithm: string
+          created_at: string
+          expires_at: string | null
+          id: string
+          is_active: boolean
+          key_encrypted: string
+          key_hash: string
+          rotation_count: number
+          rule_id: string
+        }
+        Insert: {
+          algorithm: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          key_encrypted: string
+          key_hash: string
+          rotation_count?: number
+          rule_id: string
+        }
+        Update: {
+          algorithm?: string
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          key_encrypted?: string
+          key_hash?: string
+          rotation_count?: number
+          rule_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pseudonymization_keys_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "pseudonymization_rules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pseudonymization_log: {
+        Row: {
+          data_type: string
+          error_message: string | null
+          field_name: string | null
+          id: string
+          ip_address: unknown
+          operation: string
+          performed_at: string
+          performed_by: string | null
+          records_affected: number | null
+          rule_id: string | null
+          success: boolean
+          user_agent: string | null
+        }
+        Insert: {
+          data_type: string
+          error_message?: string | null
+          field_name?: string | null
+          id?: string
+          ip_address?: unknown
+          operation: string
+          performed_at?: string
+          performed_by?: string | null
+          records_affected?: number | null
+          rule_id?: string | null
+          success: boolean
+          user_agent?: string | null
+        }
+        Update: {
+          data_type?: string
+          error_message?: string | null
+          field_name?: string | null
+          id?: string
+          ip_address?: unknown
+          operation?: string
+          performed_at?: string
+          performed_by?: string | null
+          records_affected?: number | null
+          rule_id?: string | null
+          success?: boolean
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pseudonymization_log_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "pseudonymization_rules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pseudonymization_mapping: {
+        Row: {
+          accessed_count: number
+          created_at: string
+          encrypted_original: string
+          id: string
+          last_accessed_at: string | null
+          original_hash: string
+          pseudonymized_value: string
+          rule_id: string
+        }
+        Insert: {
+          accessed_count?: number
+          created_at?: string
+          encrypted_original: string
+          id?: string
+          last_accessed_at?: string | null
+          original_hash: string
+          pseudonymized_value: string
+          rule_id: string
+        }
+        Update: {
+          accessed_count?: number
+          created_at?: string
+          encrypted_original?: string
+          id?: string
+          last_accessed_at?: string | null
+          original_hash?: string
+          pseudonymized_value?: string
+          rule_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pseudonymization_mapping_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "pseudonymization_rules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pseudonymization_rules: {
+        Row: {
+          algorithm: string
+          auto_apply: boolean
+          created_at: string
+          created_by: string | null
+          data_type: string
+          description: string | null
+          field_name: string
+          id: string
+          is_active: boolean
+          is_reversible: boolean
+          retention_days: number | null
+          updated_at: string
+        }
+        Insert: {
+          algorithm: string
+          auto_apply?: boolean
+          created_at?: string
+          created_by?: string | null
+          data_type: string
+          description?: string | null
+          field_name: string
+          id?: string
+          is_active?: boolean
+          is_reversible?: boolean
+          retention_days?: number | null
+          updated_at?: string
+        }
+        Update: {
+          algorithm?: string
+          auto_apply?: boolean
+          created_at?: string
+          created_by?: string | null
+          data_type?: string
+          description?: string | null
+          field_name?: string
+          id?: string
+          is_active?: boolean
+          is_reversible?: boolean
+          retention_days?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      pseudonymization_stats: {
+        Row: {
+          avg_processing_time_ms: number | null
+          date: string
+          depseudonymized_count: number
+          failed_count: number
+          id: string
+          pseudonymized_count: number
+          rule_id: string
+        }
+        Insert: {
+          avg_processing_time_ms?: number | null
+          date?: string
+          depseudonymized_count?: number
+          failed_count?: number
+          id?: string
+          pseudonymized_count?: number
+          rule_id: string
+        }
+        Update: {
+          avg_processing_time_ms?: number | null
+          date?: string
+          depseudonymized_count?: number
+          failed_count?: number
+          id?: string
+          pseudonymized_count?: number
+          rule_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pseudonymization_stats_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "pseudonymization_rules"
             referencedColumns: ["id"]
           },
         ]
@@ -11152,6 +11661,66 @@ export type Database = {
         }
         Relationships: []
       }
+      user_consent_preferences: {
+        Row: {
+          channel_id: string
+          consent_date: string | null
+          consent_given: boolean
+          created_at: string
+          id: string
+          ip_address: unknown
+          purpose_id: string
+          source: string | null
+          updated_at: string
+          user_agent: string | null
+          user_id: string
+          withdrawal_date: string | null
+        }
+        Insert: {
+          channel_id: string
+          consent_date?: string | null
+          consent_given?: boolean
+          created_at?: string
+          id?: string
+          ip_address?: unknown
+          purpose_id: string
+          source?: string | null
+          updated_at?: string
+          user_agent?: string | null
+          user_id: string
+          withdrawal_date?: string | null
+        }
+        Update: {
+          channel_id?: string
+          consent_date?: string | null
+          consent_given?: boolean
+          created_at?: string
+          id?: string
+          ip_address?: unknown
+          purpose_id?: string
+          source?: string | null
+          updated_at?: string
+          user_agent?: string | null
+          user_id?: string
+          withdrawal_date?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_consent_preferences_channel_id_fkey"
+            columns: ["channel_id"]
+            isOneToOne: false
+            referencedRelation: "consent_channels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_consent_preferences_purpose_id_fkey"
+            columns: ["purpose_id"]
+            isOneToOne: false
+            referencedRelation: "consent_purposes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_emotional_energy: {
         Row: {
           created_at: string
@@ -12641,6 +13210,143 @@ export type Database = {
         }
         Relationships: []
       }
+      webhook_deliveries: {
+        Row: {
+          attempts: number
+          created_at: string
+          delivered_at: string | null
+          error_message: string | null
+          event_type: string
+          http_status: number | null
+          id: string
+          max_attempts: number
+          next_retry_at: string | null
+          payload: Json
+          response_body: string | null
+          status: string
+          updated_at: string
+          webhook_id: string
+        }
+        Insert: {
+          attempts?: number
+          created_at?: string
+          delivered_at?: string | null
+          error_message?: string | null
+          event_type: string
+          http_status?: number | null
+          id?: string
+          max_attempts?: number
+          next_retry_at?: string | null
+          payload: Json
+          response_body?: string | null
+          status?: string
+          updated_at?: string
+          webhook_id: string
+        }
+        Update: {
+          attempts?: number
+          created_at?: string
+          delivered_at?: string | null
+          error_message?: string | null
+          event_type?: string
+          http_status?: number | null
+          id?: string
+          max_attempts?: number
+          next_retry_at?: string | null
+          payload?: Json
+          response_body?: string | null
+          status?: string
+          updated_at?: string
+          webhook_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "webhook_deliveries_webhook_id_fkey"
+            columns: ["webhook_id"]
+            isOneToOne: false
+            referencedRelation: "webhook_endpoints"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      webhook_endpoints: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          events: string[]
+          headers: Json | null
+          id: string
+          is_active: boolean
+          name: string
+          retry_config: Json | null
+          secret_key: string
+          updated_at: string
+          url: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          events?: string[]
+          headers?: Json | null
+          id?: string
+          is_active?: boolean
+          name: string
+          retry_config?: Json | null
+          secret_key: string
+          updated_at?: string
+          url: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          events?: string[]
+          headers?: Json | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          retry_config?: Json | null
+          secret_key?: string
+          updated_at?: string
+          url?: string
+        }
+        Relationships: []
+      }
+      webhook_events: {
+        Row: {
+          created_at: string
+          entity_id: string | null
+          entity_type: string
+          event_data: Json
+          event_type: string
+          id: string
+          processed: boolean
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          entity_id?: string | null
+          entity_type: string
+          event_data: Json
+          event_type: string
+          id?: string
+          processed?: boolean
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string
+          event_data?: Json
+          event_type?: string
+          id?: string
+          processed?: boolean
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       webhook_settings: {
         Row: {
           created_at: string
@@ -13401,6 +14107,17 @@ export type Database = {
           updated_count: number
         }[]
       }
+      get_active_pseudonymization_rules: {
+        Args: { p_data_type?: string }
+        Returns: {
+          algorithm: string
+          auto_apply: boolean
+          data_type: string
+          field_name: string
+          id: string
+          is_reversible: boolean
+        }[]
+      }
       get_activity_stats: {
         Args: { p_end_date?: string; p_start_date?: string }
         Returns: {
@@ -13598,6 +14315,18 @@ export type Database = {
           value: string
         }[]
       }
+      get_pseudonymization_statistics: {
+        Args: { p_end_date?: string; p_rule_id?: string; p_start_date?: string }
+        Returns: {
+          avg_processing_time: number
+          data_type: string
+          field_name: string
+          rule_id: string
+          total_depseudonymized: number
+          total_failed: number
+          total_pseudonymized: number
+        }[]
+      }
       get_rate_limit_status: {
         Args: {
           p_identifier: string
@@ -13710,6 +14439,18 @@ export type Database = {
         Args: never
         Returns: Database["public"]["Enums"]["app_user_role"]
       }
+      get_user_consent_status: {
+        Args: { p_user_id: string }
+        Returns: {
+          channel_code: string
+          channel_name: string
+          consent_date: string
+          consent_given: boolean
+          last_updated: string
+          purpose_code: string
+          purpose_name: string
+        }[]
+      }
       get_user_ia_stats: { Args: { p_period_days?: number }; Returns: Json }
       get_user_medical_stats: { Args: { p_user_id?: string }; Returns: Json }
       get_user_music_library: {
@@ -13750,6 +14491,29 @@ export type Database = {
           plan_id: string
           plan_name: string
           status: string
+        }[]
+      }
+      get_webhook_statistics: {
+        Args: { p_webhook_id?: string }
+        Returns: {
+          avg_delivery_time_seconds: number
+          failed_deliveries: number
+          pending_deliveries: number
+          success_rate: number
+          successful_deliveries: number
+          total_deliveries: number
+          webhook_id: string
+          webhook_name: string
+        }[]
+      }
+      get_webhooks_for_event: {
+        Args: { p_event_type: string }
+        Returns: {
+          retry_config: Json
+          webhook_headers: Json
+          webhook_id: string
+          webhook_secret: string
+          webhook_url: string
         }[]
       }
       has_org_role: {
@@ -14213,6 +14977,14 @@ export type Database = {
           p_processed_items: number
         }
         Returns: undefined
+      }
+      validate_campaign_consents: {
+        Args: { p_campaign_id: string }
+        Returns: {
+          can_contact: boolean
+          reason: string
+          user_id: string
+        }[]
       }
       validate_edn_item_data: { Args: { item_data: Json }; Returns: boolean }
       validate_music_lyrics: { Args: { lyrics_data: Json }; Returns: boolean }

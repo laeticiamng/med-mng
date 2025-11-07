@@ -162,4 +162,7 @@ verify_jwt = false
 [functions.generate-recommendations]
 verify_jwt = true
 
+[functions.check-performance-degradation]
+verify_jwt = false
+
 
