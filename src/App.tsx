@@ -75,6 +75,7 @@ const MedChat = lazy(() => import("./pages/MedChat").then(m => ({ default: m.Med
 // 📊 AUDIT PAGES - Lazy loaded
 const AuditComplete = lazy(() => import("./pages/AuditComplete"));
 const AuditCompleteness = lazy(() => import("./pages/AuditCompleteness"));
+const MigrationDashboardPage = lazy(() => import("./pages/MigrationDashboard"));
 
 // ⚙️ PLATFORM PAGES - Lazy loaded
 const Dashboard = lazy(() => import("./pages/Dashboard"));
@@ -176,6 +177,7 @@ const App = () => {
           {/* Unified audit page */}
           <Route path="/audit" element={<AuditComplete />} />
           <Route path="/audit-completeness" element={<AuditCompleteness />} />
+          <Route path="/migration-dashboard" element={<MigrationDashboardPage />} />
          
           {/* Redirect all old audit routes to new unified page */}
           <Route path="/audit-general" element={<Navigate to="/audit" replace />} />
