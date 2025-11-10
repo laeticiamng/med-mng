@@ -79,7 +79,7 @@ export const ParolesMusicales: React.FC<ParolesMusicalesProps> = ({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Music className="h-6 w-6 text-amber-600" />
+            <Music className="h-6 w-6 text-warning" />
             Génération Musicale Suno AI - {itemCode}
           </CardTitle>
           <CardDescription>

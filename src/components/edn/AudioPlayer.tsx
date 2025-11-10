@@ -80,9 +80,9 @@ export const AudioPlayer = ({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-6 border border-amber-200">
+    <div className="bg-card rounded-lg shadow-lg p-6 border border-warning/20">
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-lg font-semibold text-amber-900 truncate">
+        <h3 className="text-lg font-semibold text-warning truncate">
           {title}
         </h3>
         {onClose && (
@@ -90,7 +90,7 @@ export const AudioPlayer = ({
             onClick={onClose}
             variant="ghost"
             size="sm"
-            className="text-amber-600 hover:text-amber-800"
+            className="text-warning hover:text-warning/80"
           >
             ✕
           </Button>
@@ -123,7 +123,7 @@ export const AudioPlayer = ({
           onValueChange={handleSeek}
           className="w-full"
         />
-        <div className="flex justify-between text-xs text-amber-600 mt-1">
+        <div className="flex justify-between text-xs text-warning mt-1">
           <span>{formatTime(currentTime)}</span>
           <span>{formatTime(duration)}</span>
         </div>
@@ -135,14 +135,14 @@ export const AudioPlayer = ({
           onClick={skipBackward}
           variant="outline"
           size="sm"
-          className="border-amber-300 text-amber-600 hover:bg-amber-50"
+          className="border-warning/30 text-warning hover:bg-warning/10"
         >
           <SkipBack className="h-4 w-4" />
         </Button>
 
         <Button
           onClick={onPlayPause}
-          className="bg-amber-600 hover:bg-amber-700 text-white w-12 h-12 rounded-full"
+          className="bg-warning hover:bg-warning/90 text-warning-foreground w-12 h-12 rounded-full"
         >
           {isPlaying ? <Pause className="h-6 w-6" /> : <Play className="h-6 w-6" />}
         </Button>
@@ -151,7 +151,7 @@ export const AudioPlayer = ({
           onClick={onStop}
           variant="outline"
           size="sm"
-          className="border-amber-300 text-amber-600 hover:bg-amber-50"
+          className="border-warning/30 text-warning hover:bg-warning/10"
         >
           <Square className="h-4 w-4" />
         </Button>
@@ -160,7 +160,7 @@ export const AudioPlayer = ({
           onClick={skipForward}
           variant="outline"
           size="sm"
-          className="border-amber-300 text-amber-600 hover:bg-amber-50"
+          className="border-warning/30 text-warning hover:bg-warning/10"
         >
           <SkipForward className="h-4 w-4" />
         </Button>
@@ -173,7 +173,7 @@ export const AudioPlayer = ({
             onClick={toggleMute}
             variant="ghost"
             size="sm"
-            className="text-amber-600 hover:bg-amber-50"
+            className="text-warning hover:bg-warning/10"
           >
             {isMuted || volume === 0 ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
           </Button>
@@ -184,7 +184,7 @@ export const AudioPlayer = ({
             onValueChange={handleVolumeChange}
             className="w-32"
           />
-          <span className="text-xs text-amber-600 w-8">{Math.round(volume * 100)}%</span>
+          <span className="text-xs text-warning w-8">{Math.round(volume * 100)}%</span>
         </div>
       </div>
     </div>

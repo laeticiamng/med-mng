@@ -36,8 +36,8 @@ export const TableauRangA = ({ data, itemCode = "IC-X" }: TableauRangAProps) => 
   if (!data) {
     return (
       <div className="text-center space-y-6">
-        <h2 className="text-3xl font-serif text-blue-900">Tableau Rang A - Compétences Fondamentales</h2>
-        <p className="text-blue-700">Aucune donnée disponible</p>
+        <h2 className="text-3xl font-serif text-primary">Tableau Rang A - Compétences Fondamentales</h2>
+        <p className="text-primary/70">Aucune donnée disponible</p>
       </div>
     );
   }
@@ -47,8 +47,8 @@ export const TableauRangA = ({ data, itemCode = "IC-X" }: TableauRangAProps) => 
     return (
       <div className="space-y-6">
         <div className="mb-6">
-          <h2 className="text-2xl font-bold text-blue-700 mb-2 flex items-center gap-2">
-            <Badge className="bg-blue-600">Rang A</Badge>
+          <h2 className="text-2xl font-bold text-primary mb-2 flex items-center gap-2">
+            <Badge className="bg-primary">Rang A</Badge>
             {data.title || 'Compétences fondamentales'}
           </h2>
           {data.subtitle && (
@@ -73,7 +73,7 @@ export const TableauRangA = ({ data, itemCode = "IC-X" }: TableauRangAProps) => 
                  <div className="space-y-4 mb-4" role="region" aria-labelledby={`competences-${idx}`}>
                   <h4 
                     id={`competences-${idx}`} 
-                    className="font-semibold text-blue-700"
+                    className="font-semibold text-primary"
                   >
                     Compétences ({section.competences.length})
                   </h4>
@@ -82,7 +82,7 @@ export const TableauRangA = ({ data, itemCode = "IC-X" }: TableauRangAProps) => 
                     return (
                       <Card 
                         key={`${idx}-${competence.competence_id || compIdx}`}
-                        className="border-l-4 border-l-blue-500 bg-blue-50/50"
+                        className="border-l-4 border-l-primary bg-primary/5"
                         role="article"
                         aria-labelledby={competenceId}
                       >
@@ -98,7 +98,7 @@ export const TableauRangA = ({ data, itemCode = "IC-X" }: TableauRangAProps) => 
                               </Badge>
                               <h5 
                                 id={competenceId}
-                                className="font-medium text-blue-800"
+                                className="font-medium text-primary"
                               >
                                 {competence.concept || competence.title}
                               </h5>
@@ -112,21 +112,21 @@ export const TableauRangA = ({ data, itemCode = "IC-X" }: TableauRangAProps) => 
                             
                             {competence.exemple && (
                               <div 
-                                className="bg-green-50 p-2 rounded text-sm"
+                                className="bg-success/10 p-2 rounded text-sm"
                                 role="note"
                                 aria-label="Exemple pratique"
                               >
-                                <strong className="text-green-700">Exemple :</strong> {competence.exemple}
+                                <strong className="text-success">Exemple :</strong> {competence.exemple}
                               </div>
                             )}
                             
                             {competence.application && (
                               <div 
-                                className="bg-blue-50 p-2 rounded text-sm"
+                                className="bg-primary/10 p-2 rounded text-sm"
                                 role="note"
                                 aria-label="Application clinique"
                               >
-                                <strong className="text-blue-700">Application :</strong> {competence.application}
+                                <strong className="text-primary">Application :</strong> {competence.application}
                               </div>
                             )}
                           </div>
