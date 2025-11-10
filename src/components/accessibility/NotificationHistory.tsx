@@ -119,11 +119,11 @@ export function NotificationHistory() {
   const getStatusIcon = (status: string) => {
     switch (status) {
       case 'success':
-        return <CheckCircle2 className="h-4 w-4 text-green-500" />;
+        return <CheckCircle2 className="h-4 w-4 text-success" />;
       case 'failed':
         return <XCircle className="h-4 w-4 text-destructive" />;
       case 'pending':
-        return <Clock className="h-4 w-4 text-yellow-500" />;
+        return <Clock className="h-4 w-4 text-warning" />;
       default:
         return null;
     }
@@ -132,11 +132,11 @@ export function NotificationHistory() {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'success':
-        return <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">Succès</Badge>;
+        return <Badge variant="outline" className="bg-success/10 text-success border-success/20">Succès</Badge>;
       case 'failed':
-        return <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">Échec</Badge>;
+        return <Badge variant="outline" className="bg-destructive/10 text-destructive border-destructive/20">Échec</Badge>;
       case 'pending':
-        return <Badge variant="outline" className="bg-yellow-50 text-yellow-700 border-yellow-200">En attente</Badge>;
+        return <Badge variant="outline" className="bg-warning/10 text-warning-foreground border-warning/20">En attente</Badge>;
       default:
         return null;
     }
@@ -187,7 +187,7 @@ export function NotificationHistory() {
           <Card>
             <CardContent className="pt-6">
               <div className="text-center">
-                <p className="text-2xl font-bold text-green-600">{stats.success}</p>
+                <p className="text-2xl font-bold text-success">{stats.success}</p>
                 <p className="text-sm text-muted-foreground">Succès</p>
               </div>
             </CardContent>
@@ -195,7 +195,7 @@ export function NotificationHistory() {
           <Card>
             <CardContent className="pt-6">
               <div className="text-center">
-                <p className="text-2xl font-bold text-red-600">{stats.failed}</p>
+                <p className="text-2xl font-bold text-destructive">{stats.failed}</p>
                 <p className="text-sm text-muted-foreground">Échecs</p>
               </div>
             </CardContent>
@@ -203,7 +203,7 @@ export function NotificationHistory() {
           <Card>
             <CardContent className="pt-6">
               <div className="text-center">
-                <p className="text-2xl font-bold text-yellow-600">{stats.pending}</p>
+                <p className="text-2xl font-bold text-warning">{stats.pending}</p>
                 <p className="text-sm text-muted-foreground">En attente</p>
               </div>
             </CardContent>

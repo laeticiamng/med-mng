@@ -31,11 +31,11 @@ interface NotificationHistoryItem {
 }
 
 const COLORS = {
-  success: '#10b981',
-  failed: '#ef4444',
-  pending: '#f59e0b',
-  slack: '#4A154B',
-  discord: '#5865F2',
+  success: 'hsl(var(--success))',
+  failed: 'hsl(var(--destructive))',
+  pending: 'hsl(var(--warning))',
+  slack: 'hsl(var(--accent))',
+  discord: 'hsl(var(--primary))',
 };
 
 interface PeriodStats {
@@ -270,7 +270,7 @@ export function NotificationAnalytics() {
     return (
       <Badge 
         variant="outline" 
-        className={`gap-1 ${variation.isPositive ? 'bg-green-50 text-green-700 border-green-200' : 'bg-red-50 text-red-700 border-red-200'}`}
+        className={`gap-1 ${variation.isPositive ? 'bg-success/10 text-success border-success/20' : 'bg-destructive/10 text-destructive border-destructive/20'}`}
       >
         {variation.isPositive ? (
           <ArrowUpRight className="h-3 w-3" />
@@ -428,10 +428,10 @@ export function NotificationAnalytics() {
                           return (
                             <div className="bg-background border rounded-lg p-3 shadow-lg">
                               <p className="font-semibold mb-2">{data.platform}</p>
-                              <p className="text-sm text-green-600">Succès: {data.success}</p>
-                              <p className="text-sm text-red-600">Échecs: {data.failed}</p>
+                              <p className="text-sm text-success">Succès: {data.success}</p>
+                              <p className="text-sm text-destructive">Échecs: {data.failed}</p>
                               {data.pending > 0 && (
-                                <p className="text-sm text-yellow-600">En attente: {data.pending}</p>
+                                <p className="text-sm text-warning">En attente: {data.pending}</p>
                               )}
                               <p className="text-sm font-semibold mt-2">
                                 Taux: {data.successRate}%

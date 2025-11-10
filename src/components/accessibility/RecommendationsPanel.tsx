@@ -57,16 +57,16 @@ const categoryIcons = {
 };
 
 const categoryColors = {
-  timing: 'text-blue-600',
-  platform: 'text-purple-600',
-  volume: 'text-green-600',
-  quality: 'text-orange-600',
+  timing: 'text-primary',
+  platform: 'text-accent',
+  volume: 'text-success',
+  quality: 'text-warning',
 };
 
 const impactColors = {
-  high: 'bg-red-50 text-red-700 border-red-200',
-  medium: 'bg-yellow-50 text-yellow-700 border-yellow-200',
-  low: 'bg-green-50 text-green-700 border-green-200',
+  high: 'bg-destructive/10 text-destructive border-destructive/20',
+  medium: 'bg-warning/10 text-warning-foreground border-warning/20',
+  low: 'bg-success/10 text-success border-success/20',
 };
 
 const impactLabels = {
@@ -207,7 +207,7 @@ export function RecommendationsPanel() {
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="flex items-center gap-2">
-              <Lightbulb className="h-5 w-5 text-yellow-500" />
+              <Lightbulb className="h-5 w-5 text-warning" />
               Recommandations d'Optimisation
             </CardTitle>
             <CardDescription>
@@ -248,7 +248,7 @@ export function RecommendationsPanel() {
             <Card>
               <CardContent className="pt-6">
                 <div className="text-center">
-                  <TrendingUp className="h-6 w-6 mx-auto mb-2 text-green-600" />
+                  <TrendingUp className="h-6 w-6 mx-auto mb-2 text-success" />
                   <p className="text-2xl font-bold">{analysis.successRate.toFixed(1)}%</p>
                   <p className="text-xs text-muted-foreground">Taux de succès</p>
                 </div>
@@ -257,7 +257,7 @@ export function RecommendationsPanel() {
             <Card>
               <CardContent className="pt-6">
                 <div className="text-center">
-                  <Clock className="h-6 w-6 mx-auto mb-2 text-blue-600" />
+                  <Clock className="h-6 w-6 mx-auto mb-2 text-primary" />
                   <p className="text-lg font-bold">{analysis.bestHours.join(', ')}</p>
                   <p className="text-xs text-muted-foreground">Meilleurs horaires</p>
                 </div>
@@ -266,7 +266,7 @@ export function RecommendationsPanel() {
             <Card>
               <CardContent className="pt-6">
                 <div className="text-center">
-                  <CheckCircle2 className="h-6 w-6 mx-auto mb-2 text-purple-600" />
+                  <CheckCircle2 className="h-6 w-6 mx-auto mb-2 text-accent" />
                   <p className="text-lg font-bold">{analysis.bestDays.join(', ')}</p>
                   <p className="text-xs text-muted-foreground">Meilleurs jours</p>
                 </div>
@@ -310,12 +310,12 @@ export function RecommendationsPanel() {
                          </div>
                          
                          {rec.historicalScore && rec.historicalScore !== 50 && (
-                           <div className="flex items-center gap-2 p-2 bg-muted/50 rounded-lg">
-                             {rec.historicalScore > 60 ? (
-                               <Trophy className="h-4 w-4 text-yellow-600" />
-                             ) : (
-                               <TrendingDown className="h-4 w-4 text-muted-foreground" />
-                             )}
+                            <div className="flex items-center gap-2 p-2 bg-muted/50 rounded-lg">
+                              {rec.historicalScore > 60 ? (
+                                <Trophy className="h-4 w-4 text-warning" />
+                              ) : (
+                                <TrendingDown className="h-4 w-4 text-muted-foreground" />
+                              )}
                              <div className="flex-1">
                                <p className="text-xs font-medium">
                                  Efficacité historique: {rec.historicalScore.toFixed(0)}/100
@@ -338,12 +338,12 @@ export function RecommendationsPanel() {
                                {rec.category === 'volume' && '📈 Volume'}
                                {rec.category === 'quality' && '⚡ Qualité'}
                              </Badge>
-                             {rec.priority && rec.priority > 250 && (
-                               <Badge variant="default" className="text-xs bg-yellow-500 hover:bg-yellow-600">
-                                 <Trophy className="h-3 w-3 mr-1" />
-                                 Prioritaire
-                               </Badge>
-                             )}
+                              {rec.priority && rec.priority > 250 && (
+                                <Badge variant="default" className="text-xs bg-warning hover:bg-warning/90 text-warning-foreground">
+                                  <Trophy className="h-3 w-3 mr-1" />
+                                  Prioritaire
+                                </Badge>
+                              )}
                            </div>
                           
                           <Dialog>

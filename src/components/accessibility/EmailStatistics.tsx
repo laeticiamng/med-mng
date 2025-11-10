@@ -113,30 +113,30 @@ export const EmailStatistics: React.FC = () => {
   if (!summary) return null;
 
   const pieData = [
-    { name: 'Ouverts', value: summary.totalOpened, color: '#22c55e' },
-    { name: 'Non ouverts', value: summary.totalSent - summary.totalOpened, color: '#94a3b8' },
+    { name: 'Ouverts', value: summary.totalOpened, color: 'hsl(var(--success))' },
+    { name: 'Non ouverts', value: summary.totalSent - summary.totalOpened, color: 'hsl(var(--muted-foreground))' },
   ];
 
   const barData = [
     {
       name: 'Envoyés',
       value: summary.totalSent,
-      color: '#3b82f6'
+      color: 'hsl(var(--primary))'
     },
     {
       name: 'Ouverts',
       value: summary.totalOpened,
-      color: '#22c55e'
+      color: 'hsl(var(--success))'
     },
     {
       name: 'Cliqués',
       value: summary.totalClicked,
-      color: '#f59e0b'
+      color: 'hsl(var(--warning))'
     },
     {
       name: 'Bounces',
       value: summary.totalBounced,
-      color: '#ef4444'
+      color: 'hsl(var(--destructive))'
     }
   ];
 
@@ -150,7 +150,7 @@ export const EmailStatistics: React.FC = () => {
             <Eye className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-green-600">
+            <div className="text-3xl font-bold text-success">
               {summary.openRate.toFixed(1)}%
             </div>
             <p className="text-xs text-muted-foreground mt-1">
@@ -165,7 +165,7 @@ export const EmailStatistics: React.FC = () => {
             <MousePointer className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-orange-600">
+            <div className="text-3xl font-bold text-warning">
               {summary.clickRate.toFixed(1)}%
             </div>
             <p className="text-xs text-muted-foreground mt-1">
@@ -180,7 +180,7 @@ export const EmailStatistics: React.FC = () => {
             <AlertTriangle className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-red-600">
+            <div className="text-3xl font-bold text-destructive">
               {summary.bounceRate.toFixed(1)}%
             </div>
             <p className="text-xs text-muted-foreground mt-1">
@@ -195,7 +195,7 @@ export const EmailStatistics: React.FC = () => {
             <Mail className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-3xl font-bold text-blue-600">
+            <div className="text-3xl font-bold text-primary">
               {summary.totalSent}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
@@ -285,7 +285,7 @@ export const EmailStatistics: React.FC = () => {
                 </div>
                 <div className="flex items-center gap-2">
                   {stat.opened_at ? (
-                    <Badge variant="default" className="bg-green-600">
+                    <Badge variant="default" className="bg-success hover:bg-success/90">
                       <Eye className="h-3 w-3 mr-1" />
                       {stat.open_count}x
                     </Badge>
@@ -293,7 +293,7 @@ export const EmailStatistics: React.FC = () => {
                     <Badge variant="secondary">Non ouvert</Badge>
                   )}
                   {stat.clicked_at && (
-                    <Badge variant="default" className="bg-orange-600">
+                    <Badge variant="default" className="bg-warning hover:bg-warning/90 text-warning-foreground">
                       <MousePointer className="h-3 w-3 mr-1" />
                       {stat.click_count}x
                     </Badge>

@@ -193,11 +193,11 @@ export function NotificationPredictions() {
   const getTrendIcon = () => {
     switch (trend) {
       case 'increasing':
-        return <TrendingUp className="h-5 w-5 text-green-600" />;
+        return <TrendingUp className="h-5 w-5 text-success" />;
       case 'decreasing':
-        return <TrendingUp className="h-5 w-5 text-red-600 rotate-180" />;
+        return <TrendingUp className="h-5 w-5 text-destructive rotate-180" />;
       default:
-        return <TrendingUp className="h-5 w-5 text-yellow-600 rotate-90" />;
+        return <TrendingUp className="h-5 w-5 text-warning rotate-90" />;
     }
   };
 
@@ -295,7 +295,7 @@ export function NotificationPredictions() {
           <Card>
             <CardContent className="pt-6">
               <div className="text-center">
-                <TrendingUp className="h-8 w-8 mx-auto mb-2 text-green-600" />
+                <TrendingUp className="h-8 w-8 mx-auto mb-2 text-success" />
                 <p className="text-3xl font-bold">{getHighConfidencePredictions()}/7</p>
                 <p className="text-sm text-muted-foreground">Prédictions fiables</p>
               </div>
@@ -335,10 +335,10 @@ export function NotificationPredictions() {
                         <div className="bg-background border rounded-lg p-3 shadow-lg">
                           <p className="font-semibold mb-2">{data.date}</p>
                           {data.actual !== null && (
-                            <p className="text-sm text-blue-600">Réel: {data.actual}</p>
+                            <p className="text-sm text-primary">Réel: {data.actual}</p>
                           )}
                           {data.predicted !== null && (
-                            <p className="text-sm text-purple-600">Prévu: {data.predicted}</p>
+                            <p className="text-sm text-accent">Prévu: {data.predicted}</p>
                           )}
                         </div>
                       );
@@ -402,10 +402,10 @@ export function NotificationPredictions() {
                     variant="outline"
                     className={
                       prediction.confidence === 'high'
-                        ? 'bg-green-50 text-green-700 border-green-200'
+                        ? 'bg-success/10 text-success border-success/20'
                         : prediction.confidence === 'medium'
-                        ? 'bg-yellow-50 text-yellow-700 border-yellow-200'
-                        : 'bg-orange-50 text-orange-700 border-orange-200'
+                        ? 'bg-warning/10 text-warning-foreground border-warning/20'
+                        : 'bg-warning/20 text-warning-foreground border-warning/30'
                     }
                   >
                     {prediction.confidence === 'high'

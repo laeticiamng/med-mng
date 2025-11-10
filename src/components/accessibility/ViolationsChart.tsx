@@ -15,10 +15,10 @@ interface ViolationsChartProps {
 }
 
 const severityColors = {
-  critical: '#ef4444',
-  serious: '#f97316',
-  moderate: '#eab308',
-  minor: '#22c55e'
+  critical: 'hsl(var(--destructive))',
+  serious: 'hsl(var(--warning))',
+  moderate: 'hsl(var(--warning) / 0.7)',
+  minor: 'hsl(var(--success))'
 };
 
 const severityLabels = {
