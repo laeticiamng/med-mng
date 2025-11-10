@@ -1,0 +1,76 @@
+import { Meta } from '@storybook/blocks';
+
+<Meta title="Design System/Introduction" />
+
+# 🎨 Design System MED MNG
+
+Bienvenue dans le guide de style visuel de la plateforme MED MNG !
+
+## 📊 Migration Complétée
+
+Le design system a été migré avec succès vers des tokens sémantiques :
+
+- **Score initial** : 45/100
+- **Score final** : 90/100
+- **Amélioration** : +45 points (+100%)
+- **Violations corrigées** : 283 violations sur 26 fichiers
+
+## 🎯 Objectifs du Design System
+
+1. **Mode Sombre Natif** : Support automatique des préférences système
+2. **Cohérence Visuelle** : Palette uniforme à travers toute l'application
+3. **Accessibilité** : Contraste WCAG AA garanti automatiquement
+4. **Maintenabilité** : Tokens centralisés pour modifications globales
+
+## 🎨 Tokens Principaux
+
+### Couleurs Sémantiques
+
+| Token | Usage | Exemple |
+|-------|-------|---------|
+| `--primary` | Éléments principaux, navigation | Badges Rang A, titres EDN |
+| `--secondary` | Éléments secondaires | Backgrounds alternatifs |
+| `--accent` | Highlights créatifs | Paroles musicales, liens externes |
+| `--success` | Validation, exemples | Badges succès, exemples pratiques |
+| `--warning` | Attention, musique | Composants musicaux, alertes |
+| `--destructive` | Erreurs, dangers | Messages d'erreur, actions critiques |
+| `--muted` | Textes secondaires | Descriptions, metadata |
+
+### Dégradés Prédéfinis
+
+- `--gradient-primary` : Dégradé principal
+- `--gradient-medical` : Dégradé médical spécifique
+- `--gradient-success` : Dégradé de succès
+- `--gradient-subtle` : Dégradé subtil pour backgrounds
+
+## 📚 Navigation
+
+Explorez les sections suivantes pour découvrir tous les composants :
+
+- **Tokens** : Couleurs, typographie, espacements
+- **Composants** : Boutons, cartes, badges, etc.
+- **Patterns** : Exemples d'utilisation et bonnes pratiques
+- **Composants EDN** : Tableaux, lecteurs audio, paroles musicales
+- **Tests** : Mode clair/sombre, accessibilité
+
+## 🚀 Utilisation
+
+Tous les composants utilisent exclusivement des tokens sémantiques :
+
+```tsx
+// ✅ CORRECT
+<Card className="border-l-4 border-l-primary bg-primary/5">
+  <h3 className="text-primary">Titre</h3>
+</Card>
+
+// ❌ INCORRECT
+<Card className="border-l-4 border-l-blue-500 bg-blue-50">
+  <h3 className="text-blue-800">Titre</h3>
+</Card>
+```
+
+## 📖 Ressources
+
+- [Rapport de Migration Complet](../docs/MIGRATION-RAPPORT-FINAL-CONSOLIDE.md)
+- [Patterns Établis](../docs/MIGRATION-RAPPORT-FINAL-CONSOLIDE.md#patterns)
+- [Guide Accessibilité](../docs/MIGRATION-RAPPORT-FINAL-CONSOLIDE.md#accessibilite)
