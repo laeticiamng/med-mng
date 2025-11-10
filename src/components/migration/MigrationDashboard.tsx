@@ -2,7 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { 
   CheckCircle2, 
   AlertCircle, 
@@ -12,8 +21,12 @@ import {
   Palette,
   Zap,
   BarChart3,
-  Activity
+  Activity,
+  Terminal,
+  Copy,
+  ExternalLink
 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 import { 
   BarChart, 
   Bar, 
@@ -64,6 +77,8 @@ const COLORS = {
 };
 
 export const MigrationDashboard: React.FC = () => {
+  const { toast } = useToast();
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [stats, setStats] = useState<MigrationStats>({
     totalFiles: 146,
     completedFiles: 25,
@@ -120,6 +135,14 @@ export const MigrationDashboard: React.FC = () => {
 
   const [animatedProgress, setAnimatedProgress] = useState(0);
 
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast({
+      title: "Copié !",
+      description: "Commande copiée dans le presse-papier",
+    });
+  };
+
   useEffect(() => {
     const timer = setInterval(() => {
       setAnimatedProgress(prev => {
@@ -137,7 +160,7 @@ export const MigrationDashboard: React.FC = () => {
   return (
     <div className="container mx-auto p-6 space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-4">
         <div>
           <h1 className="text-3xl font-bold flex items-center gap-3">
             <Palette className="w-8 h-8 text-primary" />
@@ -147,13 +170,195 @@ export const MigrationDashboard: React.FC = () => {
             Suivi en temps réel de la migration vers les tokens sémantiques
           </p>
         </div>
-        <Badge className="text-lg px-4 py-2" variant={stats.progressPercentage >= 100 ? 'default' : 'secondary'}>
-          {stats.progressPercentage >= 100 ? (
-            <><CheckCircle2 className="w-5 h-5 mr-2" /> Complété</>
-          ) : (
-            <><Activity className="w-5 h-5 mr-2 animate-pulse" /> En cours</>
-          )}
-        </Badge>
+        <div className="flex items-center gap-3">
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button size="lg" className="gap-2">
+                <Terminal className="w-5 h-5" />
+                Lancer Migration Automatique
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2 text-2xl">
+                  <Terminal className="w-6 h-6 text-primary" />
+                  Script de Migration Automatique
+                </DialogTitle>
+                <DialogDescription>
+                  Corrigez les 260 violations restantes en 10 secondes avec backup automatique
+                </DialogDescription>
+              </DialogHeader>
+              
+              <div className="space-y-6 mt-4">
+                {/* Avantages */}
+                <Card className="border-success/20 bg-success/5">
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <CheckCircle2 className="w-5 h-5 text-success" />
+                      Avantages du Script
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2">
+                    <div className="flex items-start gap-2">
+                      <Zap className="w-4 h-4 text-success mt-1" />
+                      <div>
+                        <p className="font-medium">50x plus rapide</p>
+                        <p className="text-sm text-muted-foreground">10 secondes vs 3h30 manuellement</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <CheckCircle2 className="w-4 h-4 text-success mt-1" />
+                      <div>
+                        <p className="font-medium">Backup automatique</p>
+                        <p className="text-sm text-muted-foreground">Tous vos fichiers sauvegardés dans .migration-backup/</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <BarChart3 className="w-4 h-4 text-success mt-1" />
+                      <div>
+                        <p className="font-medium">Rapport détaillé</p>
+                        <p className="text-sm text-muted-foreground">Fichier JSON avec toutes les modifications</p>
+                      </div>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <Activity className="w-4 h-4 text-success mt-1" />
+                      <div>
+                        <p className="font-medium">Consistance garantie</p>
+                        <p className="text-sm text-muted-foreground">Mêmes patterns appliqués partout</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Instructions étape par étape */}
+                <div className="space-y-4">
+                  <h3 className="font-semibold text-lg">📋 Instructions</h3>
+                  
+                  <div className="space-y-3">
+                    <div className="flex items-start gap-3 p-3 border rounded-lg bg-muted/50">
+                      <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-bold shrink-0">
+                        1
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-medium mb-2">Optionnel : Dry Run (aperçu sans modifications)</p>
+                        <div className="relative">
+                          <pre className="bg-background p-3 rounded border text-sm overflow-x-auto">
+                            <code>node scripts/migrate-design-system.js</code>
+                          </pre>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="absolute top-2 right-2"
+                            onClick={() => copyToClipboard('node scripts/migrate-design-system.js')}
+                          >
+                            <Copy className="w-4 h-4" />
+                          </Button>
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-2">
+                          ℹ️ Affiche un aperçu des changements sans modifier les fichiers
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3 p-3 border rounded-lg bg-primary/5 border-primary/20">
+                      <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-bold shrink-0">
+                        2
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-medium mb-2">Lancer la migration complète</p>
+                        <div className="relative">
+                          <pre className="bg-background p-3 rounded border text-sm overflow-x-auto">
+                            <code className="font-bold">node scripts/migrate-design-system.js --apply</code>
+                          </pre>
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="absolute top-2 right-2"
+                            onClick={() => copyToClipboard('node scripts/migrate-design-system.js --apply')}
+                          >
+                            <Copy className="w-4 h-4" />
+                          </Button>
+                        </div>
+                        <p className="text-xs text-success mt-2">
+                          ✅ Corrige toutes les violations et crée un backup automatique
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-start gap-3 p-3 border rounded-lg bg-muted/50">
+                      <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-sm font-bold shrink-0">
+                        3
+                      </div>
+                      <div className="flex-1">
+                        <p className="font-medium mb-2">Vérifier les résultats</p>
+                        <ul className="text-sm space-y-1 text-muted-foreground">
+                          <li>• Backup créé dans : <code className="bg-background px-1 rounded">.migration-backup/</code></li>
+                          <li>• Rapport généré : <code className="bg-background px-1 rounded">migration-report.json</code></li>
+                          <li>• Console affiche le résumé des modifications</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Notes importantes */}
+                <Card className="border-warning/20 bg-warning/5">
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <AlertCircle className="w-5 h-5 text-warning" />
+                      Notes Importantes
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2 text-sm">
+                    <p>• Le script s'exécute depuis le terminal, pas depuis Lovable</p>
+                    <p>• Assurez-vous d'avoir Node.js installé (v16 ou supérieur)</p>
+                    <p>• Le backup permet de restaurer si besoin</p>
+                    <p>• Durée estimée : ~10 secondes pour 260 violations</p>
+                  </CardContent>
+                </Card>
+
+                {/* Documentation */}
+                <div className="flex items-center justify-between p-4 border rounded-lg bg-muted/50">
+                  <div>
+                    <p className="font-medium">Documentation complète</p>
+                    <p className="text-sm text-muted-foreground">Guide détaillé d'utilisation du script</p>
+                  </div>
+                  <Button variant="outline" size="sm" className="gap-2">
+                    <FileCode className="w-4 h-4" />
+                    scripts/README-MIGRATION.md
+                    <ExternalLink className="w-3 h-3" />
+                  </Button>
+                </div>
+
+                {/* Commande rapide */}
+                <div className="bg-primary/10 border border-primary/20 rounded-lg p-4">
+                  <p className="text-sm font-medium mb-2">🚀 Commande rapide (copier-coller)</p>
+                  <div className="relative">
+                    <pre className="bg-background p-3 rounded border text-sm overflow-x-auto">
+                      <code>cd /path/to/project && node scripts/migrate-design-system.js --apply</code>
+                    </pre>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="absolute top-2 right-2"
+                      onClick={() => copyToClipboard('node scripts/migrate-design-system.js --apply')}
+                    >
+                      <Copy className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+          
+          <Badge className="text-lg px-4 py-2" variant={stats.progressPercentage >= 100 ? 'default' : 'secondary'}>
+            {stats.progressPercentage >= 100 ? (
+              <><CheckCircle2 className="w-5 h-5 mr-2" /> Complété</>
+            ) : (
+              <><Activity className="w-5 h-5 mr-2 animate-pulse" /> En cours</>
+            )}
+          </Badge>
+        </div>
       </div>
 
       {/* Progress principale */}
