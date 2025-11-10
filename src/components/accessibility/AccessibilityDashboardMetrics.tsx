@@ -25,48 +25,48 @@ export const AccessibilityDashboardMetrics: React.FC<MetricsOverviewProps> = ({
       value: totalPRs,
       icon: GitPullRequest,
       description: 'Total des PRs analysées',
-      color: 'text-blue-600',
-      bgColor: 'bg-blue-50'
+      color: 'text-primary',
+      bgColor: 'bg-primary/10'
     },
     {
       title: 'PRs Conformes',
       value: passedPRs,
       icon: CheckCircle2,
       description: 'Tests d\'accessibilité réussis',
-      color: 'text-green-600',
-      bgColor: 'bg-green-50'
+      color: 'text-success',
+      bgColor: 'bg-success/10'
     },
     {
       title: 'PRs Bloquées',
       value: blockedPRsCount,
       icon: XCircle,
       description: 'PRs avec violations actives',
-      color: 'text-red-600',
-      bgColor: 'bg-red-50'
+      color: 'text-destructive',
+      bgColor: 'bg-destructive/10'
     },
     {
       title: 'Taux de Conformité',
       value: `${conformityRate.toFixed(1)}%`,
       icon: TrendingUp,
       description: 'Pourcentage de conformité global',
-      color: conformityRate >= 80 ? 'text-green-600' : conformityRate >= 60 ? 'text-yellow-600' : 'text-red-600',
-      bgColor: conformityRate >= 80 ? 'bg-green-50' : conformityRate >= 60 ? 'bg-yellow-50' : 'bg-red-50'
+      color: conformityRate >= 80 ? 'text-success' : conformityRate >= 60 ? 'text-warning' : 'text-destructive',
+      bgColor: conformityRate >= 80 ? 'bg-success/10' : conformityRate >= 60 ? 'bg-warning/10' : 'bg-destructive/10'
     },
     {
       title: 'Temps de Correction',
       value: avgFixTime > 0 ? `${avgFixTime.toFixed(1)}h` : 'N/A',
       icon: Clock,
       description: 'Temps moyen de résolution',
-      color: 'text-purple-600',
-      bgColor: 'bg-purple-50'
+      color: 'text-accent',
+      bgColor: 'bg-accent/10'
     },
     {
       title: 'PRs Échouées',
       value: failedPRs,
       icon: AlertTriangle,
       description: 'PRs avec violations détectées',
-      color: 'text-orange-600',
-      bgColor: 'bg-orange-50'
+      color: 'text-warning',
+      bgColor: 'bg-warning/10'
     }
   ];
 

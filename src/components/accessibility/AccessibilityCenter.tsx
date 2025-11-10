@@ -230,19 +230,19 @@ export const AccessibilityCenter: React.FC = () => {
 
         <div className="space-y-3">
           <div className="flex items-center space-x-2">
-            <Check className="w-4 h-4 text-green-500" />
+            <Check className="w-4 h-4 text-success" />
             <span className="text-sm">Contraste des couleurs conforme</span>
           </div>
           <div className="flex items-center space-x-2">
-            <Check className="w-4 h-4 text-green-500" />
+            <Check className="w-4 h-4 text-success" />
             <span className="text-sm">Navigation clavier fonctionnelle</span>
           </div>
           <div className="flex items-center space-x-2">
-            <AlertTriangle className="w-4 h-4 text-yellow-500" />
+            <AlertTriangle className="w-4 h-4 text-warning" />
             <span className="text-sm">Quelques labels ARIA manquants</span>
           </div>
           <div className="flex items-center space-x-2">
-            <Check className="w-4 h-4 text-green-500" />
+            <Check className="w-4 h-4 text-success" />
             <span className="text-sm">Structure des titres correcte</span>
           </div>
         </div>

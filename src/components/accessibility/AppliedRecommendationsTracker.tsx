@@ -36,10 +36,10 @@ const statusLabels = {
 };
 
 const statusColors = {
-  applied: 'bg-blue-100 text-blue-700',
-  measuring: 'bg-yellow-100 text-yellow-700',
-  completed: 'bg-green-100 text-green-700',
-  reverted: 'bg-gray-100 text-gray-700',
+  applied: 'bg-primary/10 text-primary',
+  measuring: 'bg-warning/10 text-warning-foreground',
+  completed: 'bg-success/10 text-success',
+  reverted: 'bg-muted text-muted-foreground',
 };
 
 const impactRatingLabels = {
@@ -51,11 +51,11 @@ const impactRatingLabels = {
 };
 
 const impactRatingColors = {
-  excellent: 'bg-green-500',
-  good: 'bg-blue-500',
-  moderate: 'bg-yellow-500',
-  slight: 'bg-orange-500',
-  no_improvement: 'bg-red-500',
+  excellent: 'bg-success',
+  good: 'bg-primary',
+  moderate: 'bg-warning',
+  slight: 'bg-warning/70',
+  no_improvement: 'bg-destructive',
 };
 
 export function AppliedRecommendationsTracker() {
@@ -115,7 +115,7 @@ export function AppliedRecommendationsTracker() {
         <Card>
           <CardContent className="pt-6">
             <div className="text-center">
-              <BarChart3 className="h-6 w-6 mx-auto mb-2 text-green-600" />
+              <BarChart3 className="h-6 w-6 mx-auto mb-2 text-success" />
               <p className="text-2xl font-bold">{completedRecommendations.length}</p>
               <p className="text-xs text-muted-foreground">Impact mesuré</p>
             </div>
@@ -124,7 +124,7 @@ export function AppliedRecommendationsTracker() {
         <Card>
           <CardContent className="pt-6">
             <div className="text-center">
-              <Clock className="h-6 w-6 mx-auto mb-2 text-yellow-600" />
+              <Clock className="h-6 w-6 mx-auto mb-2 text-warning" />
               <p className="text-2xl font-bold">{pendingRecommendations.length}</p>
               <p className="text-xs text-muted-foreground">En attente</p>
             </div>
@@ -133,7 +133,7 @@ export function AppliedRecommendationsTracker() {
         <Card>
           <CardContent className="pt-6">
             <div className="text-center">
-              <Target className="h-6 w-6 mx-auto mb-2 text-blue-600" />
+              <Target className="h-6 w-6 mx-auto mb-2 text-primary" />
               <p className="text-2xl font-bold">{averageImpact.toFixed(0)}</p>
               <p className="text-xs text-muted-foreground">Score moyen</p>
             </div>
@@ -146,7 +146,7 @@ export function AppliedRecommendationsTracker() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Clock className="h-5 w-5 text-yellow-600" />
+              <Clock className="h-5 w-5 text-warning" />
               En attente de mesure d'impact
             </CardTitle>
             <CardDescription>
@@ -217,10 +217,10 @@ export function AppliedRecommendationsTracker() {
       {/* Historique avec impact mesuré */}
       <Card>
         <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <BarChart3 className="h-5 w-5 text-green-600" />
-            Historique des impacts mesurés
-          </CardTitle>
+            <CardTitle className="flex items-center gap-2">
+              <BarChart3 className="h-5 w-5 text-success" />
+              Historique des impacts mesurés
+            </CardTitle>
           <CardDescription>
             Résultats des recommandations appliquées avec leur impact réel
           </CardDescription>
@@ -297,9 +297,9 @@ export function AppliedRecommendationsTracker() {
                                 <p className="text-sm font-semibold mb-1">Amélioration</p>
                                 <div className="flex items-center gap-2">
                                   {improvement > 0 ? (
-                                    <TrendingUp className="h-5 w-5 text-green-600" />
+                                    <TrendingUp className="h-5 w-5 text-success" />
                                   ) : (
-                                    <TrendingDown className="h-5 w-5 text-red-600" />
+                                    <TrendingDown className="h-5 w-5 text-destructive" />
                                   )}
                                   <span className="text-xl font-bold">
                                     {improvement > 0 ? '+' : ''}{improvement.toFixed(1)}%
@@ -332,12 +332,12 @@ export function AppliedRecommendationsTracker() {
                         </div>
                         <div className="p-3 bg-muted rounded-lg">
                           <p className="text-xs text-muted-foreground mb-1">Amélioration</p>
-                          <div className="flex items-center gap-1">
-                            {improvement > 0 ? (
-                              <TrendingUp className="h-4 w-4 text-green-600" />
-                            ) : (
-                              <TrendingDown className="h-4 w-4 text-red-600" />
-                            )}
+                            <div className="flex items-center gap-1">
+                              {improvement > 0 ? (
+                                <TrendingUp className="h-4 w-4 text-success" />
+                              ) : (
+                                <TrendingDown className="h-4 w-4 text-destructive" />
+                              )}
                             <p className="text-xl font-bold">
                               {improvement > 0 ? '+' : ''}{improvement.toFixed(1)}%
                             </p>

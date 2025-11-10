@@ -19,9 +19,9 @@ interface DeveloperMetricsTableProps {
 
 export const DeveloperMetricsTable: React.FC<DeveloperMetricsTableProps> = ({ developers }) => {
   const getConformityColor = (rate: number) => {
-    if (rate >= 90) return 'text-green-600';
-    if (rate >= 70) return 'text-yellow-600';
-    return 'text-red-600';
+    if (rate >= 90) return 'text-success';
+    if (rate >= 70) return 'text-warning';
+    return 'text-destructive';
   };
 
   const getConformityBadge = (rate: number) => {
@@ -78,19 +78,19 @@ export const DeveloperMetricsTable: React.FC<DeveloperMetricsTableProps> = ({ de
                 {/* Statistiques détaillées */}
                 <div className="grid grid-cols-3 gap-3 text-sm">
                   <div className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-green-600" />
+                    <CheckCircle2 className="h-4 w-4 text-success" />
                     <span className="text-muted-foreground">Passées:</span>
-                    <span className="font-semibold text-green-600">{dev.passedPRs}</span>
+                    <span className="font-semibold text-success">{dev.passedPRs}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <XCircle className="h-4 w-4 text-red-600" />
+                    <XCircle className="h-4 w-4 text-destructive" />
                     <span className="text-muted-foreground">Échouées:</span>
-                    <span className="font-semibold text-red-600">{dev.failedPRs}</span>
+                    <span className="font-semibold text-destructive">{dev.failedPRs}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Clock className="h-4 w-4 text-purple-600" />
+                    <Clock className="h-4 w-4 text-accent" />
                     <span className="text-muted-foreground">Temps:</span>
-                    <span className="font-semibold text-purple-600">
+                    <span className="font-semibold text-accent">
                       {dev.avgFixTime > 0 ? `${dev.avgFixTime.toFixed(1)}h` : 'N/A'}
                     </span>
                   </div>

@@ -46,7 +46,7 @@ export const BlockedPRsList: React.FC<BlockedPRsListProps> = ({ blockedPRs }) =>
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <AlertTriangle className="h-5 w-5 text-red-600" />
+          <AlertTriangle className="h-5 w-5 text-destructive" />
           PRs Bloquées
           <Badge variant="destructive">{blockedPRs.length}</Badge>
         </CardTitle>
@@ -69,7 +69,7 @@ export const BlockedPRsList: React.FC<BlockedPRsListProps> = ({ blockedPRs }) =>
               return (
                 <div 
                   key={pr.id}
-                  className="p-4 rounded-lg border border-red-200 bg-red-50/50 hover:bg-red-50 transition-colors"
+                  className="p-4 rounded-lg border border-destructive/20 bg-destructive/5 hover:bg-destructive/10 transition-colors"
                 >
                   <div className="flex items-start justify-between mb-3">
                     <div className="flex-1">
@@ -95,7 +95,7 @@ export const BlockedPRsList: React.FC<BlockedPRsListProps> = ({ blockedPRs }) =>
 
                       {/* Tests échoués */}
                       <div className="space-y-2">
-                        <p className="text-xs font-semibold text-red-700">
+                        <p className="text-xs font-semibold text-destructive">
                           Tests d'accessibilité échoués:
                         </p>
                         {failedChecks.map((check, index) => (
@@ -103,7 +103,7 @@ export const BlockedPRsList: React.FC<BlockedPRsListProps> = ({ blockedPRs }) =>
                             key={index}
                             className="flex items-start gap-2 text-xs p-2 rounded bg-background/50"
                           >
-                            <AlertTriangle className="h-3 w-3 text-red-600 mt-0.5 flex-shrink-0" />
+                            <AlertTriangle className="h-3 w-3 text-destructive mt-0.5 flex-shrink-0" />
                             <div>
                               <p className="font-medium text-foreground">{check.context}</p>
                               {check.description && (
