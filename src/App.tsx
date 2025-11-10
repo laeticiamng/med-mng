@@ -17,6 +17,7 @@ import { InternationalizationProvider } from '@/contexts/InternationalizationCon
 import { PerformanceProvider } from '@/contexts/PerformanceContext';
 import { AccessibilityCenter } from '@/components/accessibility/AccessibilityCenter';
 import { AccessibilityProvider } from '@/components/ui/AccessibilityProvider';
+import { usePWAMetrics } from '@/hooks/usePWAMetrics';
 
 // ⚡ LAZY LOADING - Composants non-critiques chargés à la demande
 const DynamicOnboarding = lazy(() => import("@/components/onboarding/DynamicOnboarding").then(module => ({
@@ -100,6 +101,7 @@ const ModernHomepage = lazy(() => import("./pages/ModernHomepage"));
 const Achievements = lazy(() => import("./pages/Achievements"));
 const Favorites = lazy(() => import("./pages/Favorites"));
 const UserSettings = lazy(() => import("./pages/UserSettings"));
+const PWAAnalytics = lazy(() => import("./pages/PWAAnalytics"));
 
 // 🛒 STORE PAGES - Lazy loaded
 const Store = lazy(() => import("./pages/Store"));
@@ -129,9 +131,13 @@ const queryClient = new QueryClient({
     }
   }
 });
+
 const App = () => {
   const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false);
   const [isHelpCenterOpen, setIsHelpCenterOpen] = useState(false);
+  
+  // Tracker les métriques PWA automatiquement
+  usePWAMetrics();
   
   return (
     <QueryClientProvider client={queryClient}>
@@ -232,7 +238,7 @@ const App = () => {
             <Route path="/settings" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><UserSettings /></Suspense>} />
             <Route path="/mes-donnees-rgpd" element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MesDonneesRGPD /></Suspense></ProtectedRoute>} />
             <Route path="/install" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><InstallPWA /></Suspense>} />
-           
+            <Route path="/pwa-analytics" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><PWAAnalytics /></Suspense>} />
                                 <Route path="*" element={<NotFound />} />
                               </Routes>
                             </main>
