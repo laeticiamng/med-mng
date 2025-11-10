@@ -142,8 +142,6 @@ serve(async (req) => {
       }
     }
 
-      }
-
       // Persister et calculer le scoring
       console.log(`[unified-alerts] Persisting ${alerts.length} alerts...`);
       const persistedAlerts = await persistence.upsertAlerts(alerts);
