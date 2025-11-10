@@ -267,7 +267,7 @@ export const AccessibilityCenter: React.FC = () => {
   }
   return <>
       {/* Overlay */}
-      <div className="fixed inset-0 bg-black/50 z-40" onClick={() => setIsOpen(false)} />
+      <div className="fixed inset-0 bg-background/80 backdrop-blur-sm z-40" onClick={() => setIsOpen(false)} />
       
       {/* Panel d'accessibilité */}
       <div className="fixed top-0 right-0 h-full w-96 bg-background border-l shadow-lg z-50 overflow-y-auto">

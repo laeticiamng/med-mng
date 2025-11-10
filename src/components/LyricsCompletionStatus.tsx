@@ -92,17 +92,17 @@ export const LyricsCompletionStatus: React.FC = () => {
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'complete': return <CheckCircle className="h-4 w-4 text-green-500" />;
-      case 'partial': return <Clock className="h-4 w-4 text-yellow-500" />;
-      default: return <XCircle className="h-4 w-4 text-red-500" />;
+      case 'complete': return <CheckCircle className="h-4 w-4 text-success" />;
+      case 'partial': return <Clock className="h-4 w-4 text-warning" />;
+      default: return <XCircle className="h-4 w-4 text-destructive" />;
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'complete': return 'bg-green-100 text-green-800 border-green-200';
-      case 'partial': return 'bg-yellow-100 text-yellow-800 border-yellow-200';
-      default: return 'bg-red-100 text-red-800 border-red-200';
+      case 'complete': return 'bg-success/10 text-success border-success/20';
+      case 'partial': return 'bg-warning/10 text-warning-foreground border-warning/20';
+      default: return 'bg-destructive/10 text-destructive border-destructive/20';
     }
   };
 

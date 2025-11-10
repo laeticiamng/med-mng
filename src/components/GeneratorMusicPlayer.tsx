@@ -163,11 +163,11 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
   };
 
   return (
-    <Card className={`mt-6 bg-gradient-to-br from-green-50 to-emerald-50 border-green-200 transition-all duration-500 ${
-      showSuccessAnimation ? 'animate-scale-in ring-4 ring-green-400/50' : ''
+    <Card className={`mt-6 bg-gradient-to-br from-success/10 to-success/5 border-success/20 transition-all duration-500 ${
+      showSuccessAnimation ? 'animate-scale-in ring-4 ring-success/50' : ''
     }`}>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-green-800">
+        <CardTitle className="flex items-center gap-2 text-success">
           {isGenerating && !audioUrl ? (
             <>
               <Loader2 className="h-6 w-6 animate-spin" />
@@ -198,23 +198,23 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
             <Music className="h-16 w-16 text-primary-foreground/80" />
           )}
           {showSuccessAnimation && (
-            <div className="absolute inset-0 bg-green-500/30 animate-pulse" />
+            <div className="absolute inset-0 bg-success/30 animate-pulse" />
           )}
         </div>
         
         <div className="text-center">
           <div className="flex items-center justify-center gap-2 mb-2">
-            <h3 className="text-xl font-semibold text-gray-900">
+            <h3 className="text-xl font-semibold text-foreground">
               {generatedSong.title}
             </h3>
             {status?.metadata?.duration && (
-              <span className="flex items-center gap-1 text-sm text-gray-500">
+              <span className="flex items-center gap-1 text-sm text-muted-foreground">
                 <Clock className="h-3 w-3" />
                 {formatDuration(status.metadata.duration)}
               </span>
             )}
           </div>
-          <p className="text-gray-600 mb-4">
+          <p className="text-muted-foreground mb-4">
             Style: {generatedSong.style || 'Personnalisé'}
           </p>
           
@@ -222,7 +222,7 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
           {isGenerating && !audioUrl && (
             <div className="space-y-2">
               <Progress value={progress} className="w-full" />
-              <p className="text-sm text-blue-600">
+              <p className="text-sm text-primary">
                 Génération en cours... {progress}% complété
               </p>
             </div>
@@ -231,7 +231,7 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
 
         {/* Lecteur audio natif avec contrôles */}
         {finalAudioUrl && finalAudioUrl.startsWith('http') && (
-          <div className="bg-white rounded-lg p-4 border border-green-200">
+          <div className="bg-card rounded-lg p-4 border border-success/20">
             <audio 
               controls 
               className="w-full"
@@ -308,12 +308,12 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
         {/* Debug Panel - Only in development */}
         {ENABLE_DEBUG && showDebug && (
           <div className="mt-4 space-y-2">
-            <h4 className="font-semibold text-sm text-gray-700">🐛 Debug Audio</h4>
+            <h4 className="font-semibold text-sm text-foreground">🐛 Debug Audio</h4>
             <DebugAudioButton 
               audioUrl={generatedSong.audioUrl} 
               title={generatedSong.title}
             />
-            <div className="text-xs text-gray-500 space-y-1">
+            <div className="text-xs text-muted-foreground space-y-1">
               <div>Object: {JSON.stringify(generatedSong, null, 2).substring(0, 200)}...</div>
               <div>Current Track: {currentTrack?.url}</div>
               <div>Is Playing: {isPlaying ? 'Yes' : 'No'}</div>
@@ -321,7 +321,7 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
           </div>
         )}
 
-        <div className="text-xs text-gray-500 text-center mt-4 space-y-1">
+        <div className="text-xs text-muted-foreground text-center mt-4 space-y-1">
           {isGenerating && !audioUrl ? (
             <p>⏳ Votre musique est en cours de génération. Le processus peut prendre 1-2 minutes...</p>
           ) : (

@@ -39,7 +39,7 @@ export const MusicGenerationDashboard: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <Card className="bg-gradient-to-r from-green-600 to-green-700 text-white">
+      <Card className="bg-gradient-to-r from-success to-success/90 text-success-foreground">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>

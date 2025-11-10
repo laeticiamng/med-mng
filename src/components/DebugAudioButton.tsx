@@ -92,18 +92,18 @@ export const DebugAudioButton: React.FC<DebugAudioButtonProps> = ({
   };
 
   return (
-    <div className="space-y-2 p-3 border rounded-lg bg-gray-50">
+    <div className="space-y-2 p-3 border rounded-lg bg-muted">
       <div className="flex items-center justify-between">
         <span className="text-sm font-medium">{title}</span>
         <div className="flex space-x-1">
-          {status === 'idle' && <AlertCircle className="h-4 w-4 text-gray-400" />}
-          {status === 'testing' && <div className="h-4 w-4 animate-spin border-2 border-blue-500 border-t-transparent rounded-full" />}
-          {status === 'success' && <CheckCircle className="h-4 w-4 text-green-500" />}
-          {status === 'error' && <AlertCircle className="h-4 w-4 text-red-500" />}
+          {status === 'idle' && <AlertCircle className="h-4 w-4 text-muted-foreground/60" />}
+          {status === 'testing' && <div className="h-4 w-4 animate-spin border-2 border-primary border-t-transparent rounded-full" />}
+          {status === 'success' && <CheckCircle className="h-4 w-4 text-success" />}
+          {status === 'error' && <AlertCircle className="h-4 w-4 text-destructive" />}
         </div>
       </div>
       
-      <div className="text-xs text-gray-600 break-all">
+      <div className="text-xs text-muted-foreground break-all">
         URL: {audioUrl?.substring(0, 60)}...
       </div>
       
@@ -128,13 +128,13 @@ export const DebugAudioButton: React.FC<DebugAudioButtonProps> = ({
       </div>
       
       {status === 'error' && (
-        <div className="text-xs text-red-600 bg-red-50 p-2 rounded">
+        <div className="text-xs text-destructive bg-destructive/10 p-2 rounded">
           ❌ {errorDetails}
         </div>
       )}
       
       {status === 'success' && (
-        <div className="text-xs text-green-600 bg-green-50 p-2 rounded">
+        <div className="text-xs text-success bg-success/10 p-2 rounded">
           ✅ Audio accessible et valide
         </div>
       )}

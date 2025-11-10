@@ -34,12 +34,12 @@ const getModeIcon = (iconName: string) => {
 
 const getModeColor = (color: string) => {
   const colorMap: Record<string, string> = {
-    blue: 'bg-blue-100 text-blue-800 border-blue-200',
-    orange: 'bg-orange-100 text-orange-800 border-orange-200',
-    purple: 'bg-purple-100 text-purple-800 border-purple-200',
-    green: 'bg-green-100 text-green-800 border-green-200',
-    red: 'bg-red-100 text-red-800 border-red-200',
-    pink: 'bg-pink-100 text-pink-800 border-pink-200'
+    blue: 'bg-primary/10 text-primary border-primary/20',
+    orange: 'bg-warning/10 text-warning-foreground border-warning/20',
+    purple: 'bg-accent/10 text-accent-foreground border-accent/20',
+    green: 'bg-success/10 text-success border-success/20',
+    red: 'bg-destructive/10 text-destructive border-destructive/20',
+    pink: 'bg-accent/10 text-accent border-accent/20'
   };
   
   return colorMap[color] || colorMap.blue;

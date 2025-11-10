@@ -7,12 +7,12 @@ export const HeroSection = () => {
   return (
     <div className="text-center space-y-6 mb-12">
       <div className="flex items-center justify-center space-x-2">
-        <Sparkles className="h-8 w-8 text-blue-600" />
-        <h1 className="text-4xl font-bold text-gray-800">
+        <Sparkles className="h-8 w-8 text-primary" />
+        <h1 className="text-4xl font-bold text-foreground">
           MED MNG
         </h1>
       </div>
-      <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+      <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
         Plateforme d'apprentissage immersive pour les étudiants en médecine avec contenus EDN et simulations ECOS
       </p>
       

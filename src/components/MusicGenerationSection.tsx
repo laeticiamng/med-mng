@@ -12,7 +12,7 @@ const MusicGenerationSection = () => {
   const remainingFree = getRemainingGenerations();
 
   return (
-    <section className="py-16 bg-gradient-to-br from-amber-50 via-orange-50 to-red-50">
+    <section className="py-16 bg-gradient-to-br from-warning/10 via-warning/5 to-destructive/10">
       <div className="container mx-auto px-4">
         <MusicGenerationHeader 
           remainingFree={remainingFree}
@@ -25,7 +25,7 @@ const MusicGenerationSection = () => {
           <MusicGenerationFeatures />
         </div>
 
-        <div className="mt-12 bg-white/90 backdrop-blur-sm rounded-2xl p-8 shadow-lg">
+        <div className="mt-12 bg-card/90 backdrop-blur-sm rounded-2xl p-8 shadow-lg">
           <div className="grid md:grid-cols-2 gap-8 items-center">
             <MusicGenerationHowItWorks />
             <MusicGenerationCTA remainingFree={remainingFree} />

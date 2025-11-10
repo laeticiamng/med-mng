@@ -113,8 +113,8 @@ const MainSections = () => {
           Votre compagnon d'apprentissage médical avec IA, contenus officiels EDN et génération musicale
         </p>
         <div className="flex items-center justify-center gap-2 mt-4">
-          <CheckCircle className="h-5 w-5 text-green-500" />
-          <span className="text-sm text-green-600 font-medium">
+          <CheckCircle className="h-5 w-5 text-success" />
+          <span className="text-sm text-success font-medium">
             Tous les contenus EDN ont été corrigés et mis à jour
           </span>
         </div>
@@ -153,7 +153,7 @@ const MainSections = () => {
                 <div className="space-y-2">
                   {section.features.map((feature, index) => (
                     <div key={index} className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" />
+                      <CheckCircle className="h-4 w-4 text-success flex-shrink-0" />
                       <span>{feature}</span>
                     </div>
                   ))}
@@ -179,7 +179,7 @@ const MainSections = () => {
             <Card key={index} className="group hover:shadow-lg transition-all duration-300 border-2 hover:border-primary/20">
               <CardContent className="p-6 text-center">
                 <div className={`w-12 h-12 ${link.color} rounded-lg mx-auto mb-4 flex items-center justify-center`}>
-                  <ExternalLink className="h-6 w-6 text-white" />
+                  <ExternalLink className="h-6 w-6 text-primary-foreground" />
                 </div>
                 <h3 className="text-lg font-bold mb-2">{link.title}</h3>
                 <p className="text-sm text-muted-foreground mb-4">{link.description}</p>
@@ -200,7 +200,7 @@ const MainSections = () => {
           <h2 className="text-2xl font-bold mb-4">Dernières mises à jour</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
             <div className="space-y-2">
-              <h3 className="font-semibold text-blue-600">Items EDN (IC-1 à IC-367)</h3>
+              <h3 className="font-semibold text-primary">Items EDN (IC-1 à IC-367)</h3>
               <p className="text-muted-foreground">
                 Correction complète des 367 items de connaissance. Chaque item dispose de son contenu spécifique et authentique selon les référentiels officiels.
               </p>
@@ -212,7 +212,7 @@ const MainSections = () => {
               </p>
             </div>
             <div className="space-y-2">
-              <h3 className="font-semibold text-green-600">Générateur Musical IA</h3>
+              <h3 className="font-semibold text-success">Générateur Musical IA</h3>
               <p className="text-muted-foreground">
                 Nouvel outil de génération musicale avec intelligence artificielle pour transformer les contenus EDN en chansons d'apprentissage.
               </p>
