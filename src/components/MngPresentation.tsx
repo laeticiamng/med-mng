@@ -70,7 +70,7 @@ export const MngPresentation = () => {
       <Card className="mb-8">
         <CardHeader>
           <div className="flex items-center space-x-2">
-            <Zap className="h-6 w-6 text-orange-600" />
+            <Zap className="h-6 w-6 text-warning" />
             <CardTitle className="text-xl">Principe de fonctionnement</CardTitle>
           </div>
           <CardDescription>
@@ -115,7 +115,7 @@ export const MngPresentation = () => {
       <Card className="mb-8">
         <CardHeader>
           <div className="flex items-center space-x-2">
-            <Shield className="h-6 w-6 text-emerald-600" />
+            <Shield className="h-6 w-6 text-success" />
             <CardTitle className="text-xl">Caractère unique de la méthode MNG</CardTitle>
           </div>
           <CardDescription>
@@ -155,10 +155,10 @@ export const MngPresentation = () => {
         <CardHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-2">
-              <Microscope className="h-6 w-6 text-indigo-600" />
+              <Microscope className="h-6 w-6 text-[hsl(var(--chart-4))]" />
               <CardTitle className="text-xl">Domaine d'application du brevet</CardTitle>
             </div>
-            <Badge className="bg-indigo-100 text-indigo-800">Propriété intellectuelle</Badge>
+            <Badge className="bg-[hsl(var(--chart-4))]/10 text-[hsl(var(--chart-4))]">Propriété intellectuelle</Badge>
           </div>
         </CardHeader>
         <CardContent>

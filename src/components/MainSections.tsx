@@ -12,7 +12,7 @@ const MainSections = () => {
       title: "Items EDN",
       description: "Items de Connaissance pour l'Examen National Dématérialisé (IC-1 à IC-367)",
       icon: BookOpen,
-      color: "bg-blue-500",
+      color: "bg-primary",
       count: "367 items complets",
       status: "Contenus officiels corrigés",
       features: [
@@ -29,7 +29,7 @@ const MainSections = () => {
       title: "Simulations ECOS",
       description: "Examens Cliniques Objectifs Structurés pour la pratique clinique",
       icon: Users,
-      color: "bg-green-500",
+      color: "bg-success",
       count: "Situations cliniques",
       status: "En cours de développement",
       features: [
@@ -46,7 +46,7 @@ const MainSections = () => {
       title: "MedChat",
       description: "Chat intelligent pour questions médicales",
       icon: MessageSquare,
-      color: "bg-orange-500",
+      color: "bg-warning",
       count: "Assistant IA disponible",
       status: "Réponses instantanées",
       features: [
@@ -63,7 +63,7 @@ const MainSections = () => {
       title: "Audit Complétude OIC",
       description: "Analyse automatique de la qualité des compétences OIC",
       icon: BarChart3,
-      color: "bg-indigo-500",
+      color: "bg-[hsl(var(--chart-4))]",
       count: "Analyse en temps réel",
       status: "Audit automatisé des données",
       features: [
@@ -80,7 +80,7 @@ const MainSections = () => {
       title: "Générateur Musical",
       description: "Génération musicale pour l'apprentissage médical",
       icon: Music,
-      color: "bg-pink-500",
+      color: "bg-[hsl(var(--chart-5))]",
       count: "Styles musicaux variés",
       status: "Création musicale personnalisée",
       features: [
@@ -99,14 +99,14 @@ const MainSections = () => {
       title: "EmotionsCare",
       description: "Plateforme de bien-être émotionnel et musicothérapie",
       url: "https://emotionscare.com",
-      color: "bg-purple-500"
+      color: "bg-accent"
     }
   ];
 
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="text-center mb-12">
-        <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+        <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-primary bg-clip-text text-transparent">
           MED MNG - Plateforme Médicale Intelligente
         </h1>
         <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
@@ -196,7 +196,7 @@ const MainSections = () => {
       </div>
 
       <div className="text-center">
-        <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-8 border">
+        <div className="bg-gradient-subtle rounded-2xl p-8 border">
           <h2 className="text-2xl font-bold mb-4">Dernières mises à jour</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 text-sm">
             <div className="space-y-2">
@@ -206,7 +206,7 @@ const MainSections = () => {
               </p>
             </div>
             <div className="space-y-2">
-              <h3 className="font-semibold text-purple-600">Paroles Musicales</h3>
+              <h3 className="font-semibold text-accent">Paroles Musicales</h3>
               <p className="text-muted-foreground">
                 Ajout de paroles musicales personnalisées pour chaque item EDN, facilitant la mémorisation et l'apprentissage ludique.
               </p>
