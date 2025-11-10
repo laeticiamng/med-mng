@@ -228,14 +228,14 @@ export const CustomModeCreator = () => {
                   size="sm"
                   onClick={() => setCustomMode(prev => ({ ...prev, color }))}
                   className={`w-8 h-8 p-0 ${
-                    color === 'blue' ? 'bg-blue-500 hover:bg-blue-600' :
-                    color === 'orange' ? 'bg-orange-500 hover:bg-orange-600' :
-                    color === 'purple' ? 'bg-purple-500 hover:bg-purple-600' :
-                    color === 'green' ? 'bg-green-500 hover:bg-green-600' :
-                    color === 'red' ? 'bg-red-500 hover:bg-red-600' :
-                    color === 'pink' ? 'bg-pink-500 hover:bg-pink-600' :
-                    color === 'yellow' ? 'bg-yellow-500 hover:bg-yellow-600' :
-                    'bg-indigo-500 hover:bg-indigo-600'
+                    color === 'blue' ? 'bg-primary hover:bg-primary/90' :
+                    color === 'orange' ? 'bg-warning hover:bg-warning/90' :
+                    color === 'purple' ? 'bg-accent hover:bg-accent/90' :
+                    color === 'green' ? 'bg-success hover:bg-success/90' :
+                    color === 'red' ? 'bg-destructive hover:bg-destructive/90' :
+                    color === 'pink' ? 'bg-[hsl(var(--chart-5))] hover:bg-[hsl(var(--chart-5))]/90' :
+                    color === 'yellow' ? 'bg-[hsl(var(--chart-3))] hover:bg-[hsl(var(--chart-3))]/90' :
+                    'bg-[hsl(var(--chart-4))] hover:bg-[hsl(var(--chart-4))]/90'
                   }`}
                 />
               ))}

@@ -92,7 +92,7 @@ export const AIRecommendations = () => {
                         {rec.specialty}
                       </Badge>
                       <div className="flex items-center gap-1">
-                        <Star className="h-3 w-3 fill-current text-yellow-500" />
+                        <Star className="h-3 w-3 fill-current text-warning" />
                         <span className="text-xs font-medium">
                           {Math.round(rec.confidence * 100)}%
                         </span>

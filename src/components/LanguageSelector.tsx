@@ -38,14 +38,14 @@ export const LanguageSelector: React.FC = () => {
             <DropdownMenuItem
               key={lang.code}
               onClick={() => handleLanguageChange(lang.code)}
-              className={`flex items-center gap-3 cursor-pointer hover:bg-blue-50 transition-colors ${
-                currentLanguage === lang.code ? 'bg-blue-100 text-blue-700 font-medium' : ''
+              className={`flex items-center gap-3 cursor-pointer hover:bg-primary/10 transition-colors ${
+                currentLanguage === lang.code ? 'bg-primary/20 text-primary font-medium' : ''
               }`}
             >
               <span className="text-lg">{lang.flag}</span>
               <span className="font-medium">{lang.nativeName}</span>
               {currentLanguage === lang.code && (
-                <div className="ml-auto w-2 h-2 bg-blue-600 rounded-full" />
+                <div className="ml-auto w-2 h-2 bg-primary rounded-full" />
               )}
             </DropdownMenuItem>
           ))}

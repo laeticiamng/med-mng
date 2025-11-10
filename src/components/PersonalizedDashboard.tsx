@@ -85,9 +85,9 @@ export const PersonalizedDashboard = () => {
   };
 
   const getProgressColor = (progress: number) => {
-    if (progress >= 80) return 'bg-green-500';
-    if (progress >= 60) return 'bg-yellow-500';
-    return 'bg-red-500';
+    if (progress >= 80) return 'bg-success';
+    if (progress >= 60) return 'bg-warning';
+    return 'bg-destructive';
   };
 
   const maxMinutes = Math.max(...weeklyData.map(d => d.minutes));

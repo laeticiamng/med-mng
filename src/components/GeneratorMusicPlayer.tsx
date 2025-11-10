@@ -183,7 +183,7 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Image de couverture dynamique */}
-        <div className={`relative aspect-square bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center mb-4 max-w-xs mx-auto overflow-hidden transition-all duration-500 ${
+        <div className={`relative aspect-square bg-gradient-success rounded-lg flex items-center justify-center mb-4 max-w-xs mx-auto overflow-hidden transition-all duration-500 ${
           showSuccessAnimation ? 'scale-105' : ''
         }`}>
           {imageUrl ? (
@@ -246,7 +246,7 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
         <div className="flex gap-2">
           <Button
             onClick={handlePlay}
-            className="flex-1 bg-green-600 hover:bg-green-700"
+            className="flex-1 bg-success hover:bg-success/90"
             size="lg"
             disabled={isGenerating && !audioUrl}
           >
@@ -271,7 +271,7 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
           <Button
             onClick={onAddToLibrary}
             variant="outline"
-            className="flex-1 border-green-300 text-green-700 hover:bg-green-50"
+            className="flex-1 border-success/30 text-success hover:bg-success/10"
             size="lg"
             disabled={isGenerating && !audioUrl}
           >
@@ -284,7 +284,7 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
             <Button
               onClick={handleShare}
               variant="outline"
-              className="border-green-300 text-green-700 hover:bg-green-50"
+              className="border-success/30 text-success hover:bg-success/10"
               size="lg"
               title="Partager"
             >
