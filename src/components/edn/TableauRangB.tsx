@@ -98,43 +98,43 @@ const ConceptCard: React.FC<ConceptCardProps> = ({ concept, index }) => {
       key: 'analyse', 
       title: 'Analyse experte', 
       content: concept.analyse, 
-      icon: <Brain className="w-4 h-4 text-purple-600" />,
-      colorClass: 'border-l-purple-500 bg-purple-50/30'
+      icon: <Brain className="w-4 h-4 text-accent" />,
+      colorClass: 'border-l-accent bg-accent/10'
     },
     { 
       key: 'cas', 
       title: 'Cas clinique complexe', 
       content: concept.cas, 
-      icon: <Stethoscope className="w-4 h-4 text-blue-600" />,
-      colorClass: 'border-l-blue-500 bg-blue-50/30'
+      icon: <Stethoscope className="w-4 h-4 text-primary" />,
+      colorClass: 'border-l-primary bg-primary/10'
     },
     { 
       key: 'ecueil', 
       title: 'Écueils et pièges', 
       content: concept.ecueil, 
-      icon: <AlertTriangle className="w-4 h-4 text-red-600" />,
-      colorClass: 'border-l-red-500 bg-red-50/30'
+      icon: <AlertTriangle className="w-4 h-4 text-destructive" />,
+      colorClass: 'border-l-destructive bg-destructive/10'
     },
     { 
       key: 'technique', 
       title: 'Technique spécialisée', 
       content: concept.technique, 
-      icon: <Settings className="w-4 h-4 text-green-600" />,
-      colorClass: 'border-l-green-500 bg-green-50/30'
+      icon: <Settings className="w-4 h-4 text-success" />,
+      colorClass: 'border-l-success bg-success/10'
     },
     { 
       key: 'maitrise', 
       title: 'Maîtrise clinique', 
       content: concept.maitrise, 
-      icon: <Eye className="w-4 h-4 text-indigo-600" />,
-      colorClass: 'border-l-indigo-500 bg-indigo-50/30'
+      icon: <Eye className="w-4 h-4 text-primary" />,
+      colorClass: 'border-l-primary bg-primary/10'
     },
     { 
       key: 'excellence', 
       title: 'Excellence thérapeutique', 
       content: concept.excellence, 
-      icon: <Crown className="w-4 h-4 text-amber-600" />,
-      colorClass: 'border-l-amber-500 bg-amber-50/30'
+      icon: <Crown className="w-4 h-4 text-warning" />,
+      colorClass: 'border-l-warning bg-warning/10'
     }
   ].filter(section => section.content && section.content.trim().length > 0);
 
@@ -143,21 +143,21 @@ const ConceptCard: React.FC<ConceptCardProps> = ({ concept, index }) => {
   return (
     <Card className="transition-all duration-300 border-0 shadow-sm hover:shadow-lg group relative overflow-hidden bg-card">
       {/* Indicateur de progression visuel */}
-      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-purple-500 to-indigo-600 opacity-80"></div>
+      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-medical opacity-80"></div>
       
       <CardHeader 
-        className="bg-gradient-to-r from-purple-50/50 to-indigo-50/50 cursor-pointer hover:bg-opacity-80 transition-all duration-200 pb-4"
+        className="bg-accent/5 cursor-pointer hover:bg-accent/10 transition-all duration-200 pb-4"
         onClick={() => setIsExpanded(!isExpanded)}
       >
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-start gap-4 flex-1">
             {/* Numéro et badge */}
             <div className="flex flex-col items-center gap-2">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 text-white flex items-center justify-center text-sm font-bold shadow-md group-hover:scale-105 transition-transform">
+              <div className="w-12 h-12 rounded-xl bg-gradient-medical text-primary-foreground flex items-center justify-center text-sm font-bold shadow-md group-hover:scale-105 transition-transform">
                 {index + 1}
               </div>
               {concept.competence_id && (
-                <Badge variant="outline" className="text-xs font-medium px-2 py-1 border-purple-200 text-purple-700">
+                <Badge variant="outline" className="text-xs font-medium px-2 py-1 border-accent text-accent">
                   {concept.competence_id}
                 </Badge>
               )}
@@ -165,7 +165,7 @@ const ConceptCard: React.FC<ConceptCardProps> = ({ concept, index }) => {
             
             {/* Contenu principal */}
             <div className="flex-1 space-y-3">
-              <h3 className="font-bold text-lg text-foreground leading-tight group-hover:text-purple-700 transition-colors">
+              <h3 className="font-bold text-lg text-foreground leading-tight group-hover:text-primary transition-colors">
                 {concept.concept}
               </h3>
               
@@ -173,7 +173,7 @@ const ConceptCard: React.FC<ConceptCardProps> = ({ concept, index }) => {
               <div className="flex items-center gap-3">
                 <div className="flex items-center gap-1">
                   {sections.slice(0, 4).map((section, idx) => (
-                    <div key={`${concept.competence_id}-indicator-${idx}`} className="w-2 h-2 rounded-full bg-purple-500/60"></div>
+                    <div key={`${concept.competence_id}-indicator-${idx}`} className="w-2 h-2 rounded-full bg-accent"></div>
                   ))}
                   {availableSectionsCount > 4 && (
                     <span className="text-xs text-muted-foreground">+{availableSectionsCount - 4}</span>
@@ -186,17 +186,17 @@ const ConceptCard: React.FC<ConceptCardProps> = ({ concept, index }) => {
 
               {/* Paroles chantables */}
               {concept.paroles_chantables && concept.paroles_chantables.length > 0 && (
-                <div className="bg-gradient-to-r from-purple-100/50 to-indigo-100/50 rounded-lg p-3 border border-purple-200/50">
+                <div className="bg-accent/10 rounded-lg p-3 border border-accent/20">
                   <div className="flex items-center gap-2 mb-2">
-                    <Lightbulb className="w-4 h-4 text-amber-600" />
-                    <span className="text-sm font-medium text-purple-800">Mémorisation musicale</span>
+                    <Lightbulb className="w-4 h-4 text-warning" />
+                    <span className="text-sm font-medium text-accent-foreground">Mémorisation musicale</span>
                   </div>
-                  <div className="text-xs text-purple-700 space-y-1">
+                  <div className="text-xs text-accent-foreground space-y-1">
                     {concept.paroles_chantables.slice(0, 2).map((parole, idx) => (
                       <div key={`${concept.competence_id}-parole-${idx}`} className="italic">"{parole}"</div>
                     ))}
                     {concept.paroles_chantables.length > 2 && (
-                      <div className="text-purple-600">+{concept.paroles_chantables.length - 2} autres...</div>
+                      <div className="text-accent">+{concept.paroles_chantables.length - 2} autres...</div>
                     )}
                   </div>
                 </div>
@@ -205,7 +205,7 @@ const ConceptCard: React.FC<ConceptCardProps> = ({ concept, index }) => {
           </div>
           
           {/* Contrôle d'expansion */}
-          <Button variant="ghost" size="sm" className="group-hover:bg-purple-100/50">
+          <Button variant="ghost" size="sm" className="group-hover:bg-accent/10">
             {isExpanded ? <ChevronDown className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
           </Button>
         </div>
@@ -249,8 +249,8 @@ export const TableauRangB: React.FC<TableauRangBProps> = ({ data, itemCode }) =>
   
   if (!data || !data.sections) {
     return (
-      <Card className="border-0 shadow-lg bg-gradient-to-br from-purple-50 to-indigo-50">
-        <CardHeader className="bg-gradient-to-r from-purple-600 to-indigo-600 text-white">
+      <Card className="border-0 shadow-lg bg-card">
+        <CardHeader className="bg-gradient-medical text-primary-foreground">
           <CardTitle className="flex items-center gap-3">
             <Brain className="h-6 w-6" />
             {itemCode} Rang B - Expertise Avancée
@@ -258,14 +258,14 @@ export const TableauRangB: React.FC<TableauRangBProps> = ({ data, itemCode }) =>
         </CardHeader>
         <CardContent className="p-6">
           <div className="text-center space-y-4">
-            <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto">
-              <Brain className="w-8 h-8 text-purple-600" />
+            <div className="w-16 h-16 bg-accent/20 rounded-full flex items-center justify-center mx-auto">
+              <Brain className="w-8 h-8 text-accent" />
             </div>
             <div>
-              <h4 className="font-semibold text-gray-900 mb-2">
+              <h4 className="font-semibold text-foreground mb-2">
                 Expertise de rang B non disponible
               </h4>
-              <p className="text-gray-600 text-sm">
+              <p className="text-muted-foreground text-sm">
                 Les compétences expertes pour cet item sont en cours de développement
               </p>
             </div>
@@ -307,11 +307,11 @@ export const TableauRangB: React.FC<TableauRangBProps> = ({ data, itemCode }) =>
   return (
     <div className="space-y-6">
       {/* En-tête amélioré */}
-      <Card className="border-0 shadow-lg bg-gradient-to-r from-background to-muted/30">
+      <Card className="border-0 shadow-lg bg-card">
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-indigo-600 text-white flex items-center justify-center shadow-lg">
+              <div className="w-12 h-12 rounded-xl bg-gradient-medical text-primary-foreground flex items-center justify-center shadow-lg">
                 <Brain className="w-6 h-6" />
               </div>
               <div>
@@ -324,7 +324,7 @@ export const TableauRangB: React.FC<TableauRangBProps> = ({ data, itemCode }) =>
               </div>
             </div>
             <div className="flex items-center gap-4">
-              <Badge variant="secondary" className="text-sm font-bold px-4 py-2 bg-purple-100/50 text-purple-700 border-purple-200">
+              <Badge variant="secondary" className="text-sm font-bold px-4 py-2 bg-accent/10 text-accent border-accent/20">
                 {concepts.length} concept{concepts.length > 1 ? 's' : ''} expert{concepts.length > 1 ? 's' : ''}
               </Badge>
               <Badge variant="outline" className="font-medium">
@@ -349,13 +349,13 @@ export const TableauRangB: React.FC<TableauRangBProps> = ({ data, itemCode }) =>
       ) : (
         <Card className="border border-border/50 bg-muted/20">
           <CardContent className="p-8 text-center">
-            <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Brain className="w-8 h-8 text-purple-600" />
+            <div className="w-16 h-16 bg-accent/20 rounded-full flex items-center justify-center mx-auto mb-4">
+              <Brain className="w-8 h-8 text-accent" />
             </div>
-            <h4 className="font-semibold text-gray-900 mb-2">
+            <h4 className="font-semibold text-foreground mb-2">
               Expertise en développement
             </h4>
-            <p className="text-gray-600 text-sm">
+            <p className="text-muted-foreground text-sm">
               Les concepts experts de rang B sont en cours d'élaboration
             </p>
           </CardContent>
@@ -363,14 +363,14 @@ export const TableauRangB: React.FC<TableauRangBProps> = ({ data, itemCode }) =>
       )}
 
       {/* Pied de page informatif */}
-      <Card className="border border-border/50 bg-gradient-to-r from-purple-50/30 to-indigo-50/30">
+      <Card className="border border-border/50 bg-accent/5">
         <CardContent className="p-4">
           <div className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-4 text-muted-foreground font-medium">
               <span>🧠 {concepts.length} concepts experts analysés</span>
               <span>🎯 Niveau maîtrise clinique avancée</span>
             </div>
-            <Badge variant="outline" className="font-medium bg-purple-100/50 text-purple-700">
+            <Badge variant="outline" className="font-medium bg-accent/10 text-accent">
               Expertise Rang B
             </Badge>
           </div>

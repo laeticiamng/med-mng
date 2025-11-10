@@ -20,7 +20,7 @@ const AppFooter = lazy(() => import("@/components/AppFooter").then(module => ({
 
 // Composant de loading léger
 const LazyLoadSpinner = () => <div className="flex justify-center items-center py-8">
-    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
   </div>;
 const Index = () => {
   const navigate = useNavigate();
@@ -28,7 +28,7 @@ const Index = () => {
   return <PremiumBackground>
       
       {/* Header premium avec effet glassmorphism */}
-      <div className="sticky top-0 z-50 bg-white/70 backdrop-blur-xl border-b border-white/20 shadow-lg shadow-black/5">
+      <div className="sticky top-0 z-50 bg-background/70 backdrop-blur-xl border-b border-border/20 shadow-lg">
         
       </div>
 
@@ -37,15 +37,15 @@ const Index = () => {
         {/* Section Hero premium */}
         <div className="pt-16 pb-20">
           <div className="text-center mb-16">
-            <div className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-100 to-purple-100 px-6 py-3 rounded-full mb-8 border border-blue-200/50">
-              <Star className="h-5 w-5 text-blue-600" />
-              <span className="text-blue-800 font-semibold">Plateforme Premium</span>
+            <div className="inline-flex items-center gap-2 bg-gradient-medical/10 px-6 py-3 rounded-full mb-8 border border-primary/20">
+              <Star className="h-5 w-5 text-primary" />
+              <span className="text-primary font-semibold">Plateforme Premium</span>
             </div>
             
-            <h1 className="text-6xl md:text-7xl font-bold mb-8 bg-gradient-to-r from-gray-900 via-blue-900 to-purple-900 bg-clip-text text-transparent leading-tight">
+            <h1 className="text-6xl md:text-7xl font-bold mb-8 bg-gradient-medical bg-clip-text text-transparent leading-tight">
               MED MNG
             </h1>
-            <p className="text-2xl md:text-3xl text-gray-600 mb-12 max-w-4xl mx-auto leading-relaxed">
+            <p className="text-2xl md:text-3xl text-muted-foreground mb-12 max-w-4xl mx-auto leading-relaxed">
               <TranslatedText text="Révisez l'EDN avec l'intelligence artificielle" />
             </p>
             
@@ -65,10 +65,10 @@ const Index = () => {
         {/* Section d'accès rapide premium avec grille 2x2 */}
         <div className="pb-20">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-bold text-gray-900 mb-6">
+            <h2 className="text-4xl font-bold text-foreground mb-6">
               <TranslatedText text="Accès Rapide" />
             </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
               <TranslatedText text="Choisissez votre outil et commencez à réviser immédiatement" />
             </p>
           </div>
@@ -76,26 +76,26 @@ const Index = () => {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
             {/* Items EDN Unifié */}
             <PremiumCard variant="gradient" className="p-8 text-center cursor-pointer" onClick={() => navigate('/edn-complete')}>
-              <div className="mx-auto w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-blue-500/25">
-                <BookOpen className="h-10 w-10 text-white" />
+              <div className="mx-auto w-20 h-20 bg-gradient-medical rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-primary/25">
+                <BookOpen className="h-10 w-10 text-primary-foreground" />
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">
+              <h3 className="text-2xl font-bold text-foreground mb-4">
                 <TranslatedText text="Items EDN" />
               </h3>
-              <p className="text-gray-600 mb-6 leading-relaxed">
+              <p className="text-muted-foreground mb-6 leading-relaxed">
                 <TranslatedText text="367 items EDN complets avec contenu immersif et 4,872 compétences OIC pour réviser efficacement" />
               </p>
-              <div className="space-y-3 text-sm text-gray-600 mb-8">
+              <div className="space-y-3 text-sm text-muted-foreground mb-8">
                 <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full"></div>
+                  <div className="w-3 h-3 bg-primary rounded-full"></div>
                   <span>367 items complets</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full"></div>
+                  <div className="w-3 h-3 bg-success rounded-full"></div>
                   <span>4,872 compétences OIC</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-gradient-to-r from-purple-500 to-violet-500 rounded-full"></div>
+                  <div className="w-3 h-3 bg-accent rounded-full"></div>
                   <span>Contenu immersif & BD</span>
                 </div>
               </div>
@@ -106,26 +106,26 @@ const Index = () => {
 
             {/* Générateur Musical */}
             <PremiumCard variant="gradient" className="p-8 text-center cursor-pointer" onClick={() => navigate('/generator')}>
-              <div className="mx-auto w-20 h-20 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-amber-500/25">
-                <Music className="h-10 w-10 text-white" />
+              <div className="mx-auto w-20 h-20 bg-warning rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-warning/25">
+                <Music className="h-10 w-10 text-warning-foreground" />
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">
+              <h3 className="text-2xl font-bold text-foreground mb-4">
                 <TranslatedText text="Générateur Musical IA" />
               </h3>
-              <p className="text-gray-600 mb-6 leading-relaxed">
+              <p className="text-muted-foreground mb-6 leading-relaxed">
                 <TranslatedText text="Génération rapide de musique éducative personnalisée avec intelligence artificielle" />
               </p>
-              <div className="space-y-3 text-sm text-gray-600 mb-8">
+              <div className="space-y-3 text-sm text-muted-foreground mb-8">
                 <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-gradient-to-r from-amber-500 to-orange-500 rounded-full"></div>
+                  <div className="w-3 h-3 bg-warning rounded-full"></div>
                   <span>Sélection rapide d'items</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-gradient-to-r from-pink-500 to-rose-500 rounded-full"></div>
+                  <div className="w-3 h-3 bg-destructive rounded-full"></div>
                   <span>Styles musicaux variés</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full"></div>
+                  <div className="w-3 h-3 bg-primary rounded-full"></div>
                   <span>Génération IA instantanée</span>
                 </div>
               </div>
@@ -136,26 +136,26 @@ const Index = () => {
 
             {/* ECOS */}
             <PremiumCard variant="gradient" className="p-8 text-center cursor-pointer" onClick={() => navigate('/ecos')}>
-              <div className="mx-auto w-20 h-20 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-green-500/25">
-                <Users className="h-10 w-10 text-white" />
+              <div className="mx-auto w-20 h-20 bg-success rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-success/25">
+                <Users className="h-10 w-10 text-success-foreground" />
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">
+              <h3 className="text-2xl font-bold text-foreground mb-4">
                 <TranslatedText text="Simulations ECOS" />
               </h3>
-              <p className="text-gray-600 mb-6 leading-relaxed">
+              <p className="text-muted-foreground mb-6 leading-relaxed">
                 <TranslatedText text="Examens Cliniques Objectifs Structurés pour la pratique clinique - 3 situations disponibles" />
               </p>
-              <div className="space-y-3 text-sm text-gray-600 mb-8">
+              <div className="space-y-3 text-sm text-muted-foreground mb-8">
                 <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full"></div>
+                  <div className="w-3 h-3 bg-success rounded-full"></div>
                   <span>3 scénarios cliniques complets</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-full"></div>
+                  <div className="w-3 h-3 bg-primary rounded-full"></div>
                   <span>Évaluation par compétences</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-gradient-to-r from-purple-500 to-violet-500 rounded-full"></div>
+                  <div className="w-3 h-3 bg-accent rounded-full"></div>
                   <span>Feedback détaillé</span>
                 </div>
               </div>
@@ -166,26 +166,26 @@ const Index = () => {
 
             {/* MedChat */}
             <PremiumCard variant="gradient" className="p-8 text-center cursor-pointer" onClick={() => navigate('/chat')}>
-              <div className="mx-auto w-20 h-20 bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-orange-500/25">
-                <MessageSquare className="h-10 w-10 text-white" />
+              <div className="mx-auto w-20 h-20 bg-destructive rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-destructive/25">
+                <MessageSquare className="h-10 w-10 text-destructive-foreground" />
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-4">
+              <h3 className="text-2xl font-bold text-foreground mb-4">
                 <TranslatedText text="Assistant IA" />
               </h3>
-              <p className="text-gray-600 mb-6 leading-relaxed">
+              <p className="text-muted-foreground mb-6 leading-relaxed">
                 <TranslatedText text="Assistant intelligent connecté à vos cours médicaux" />
               </p>
-              <div className="space-y-3 text-sm text-gray-600 mb-8">
+              <div className="space-y-3 text-sm text-muted-foreground mb-8">
                 <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-gradient-to-r from-orange-500 to-red-500 rounded-full"></div>
+                  <div className="w-3 h-3 bg-destructive rounded-full"></div>
                   <span>Chat en temps réel</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full"></div>
+                  <div className="w-3 h-3 bg-primary rounded-full"></div>
                   <span>Base de connaissances médicales</span>
                 </div>
                 <div className="flex items-center gap-3">
-                  <div className="w-3 h-3 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full"></div>
+                  <div className="w-3 h-3 bg-success rounded-full"></div>
                   <span>Réponses instantanées</span>
                 </div>
               </div>
@@ -200,34 +200,34 @@ const Index = () => {
         <div className="pb-20">
           <PremiumCard variant="glass" className="p-12">
             <div className="text-center mb-12">
-              <h2 className="text-4xl font-bold mb-6 bg-gradient-to-r from-gray-900 to-gray-700 bg-clip-text text-transparent">
+              <h2 className="text-4xl font-bold mb-6 bg-gradient-medical bg-clip-text text-transparent">
                 <TranslatedText text="Pourquoi Choisir MED MNG ?" />
               </h2>
-              <p className="text-xl text-gray-600">
+              <p className="text-xl text-muted-foreground">
                 <TranslatedText text="Une plateforme complète pour l'apprentissage médical moderne" />
               </p>
             </div>
             
             <div className="grid md:grid-cols-4 gap-6 text-center">
               <PremiumCard variant="elevated" className="p-8">
-                <Zap className="h-16 w-16 mx-auto mb-6 p-4 bg-gradient-to-br from-yellow-400 to-amber-500 text-white rounded-2xl shadow-lg shadow-yellow-500/25" />
-                <h3 className="text-2xl font-bold mb-4 text-gray-900">IA Avancée</h3>
-                <p className="text-gray-600">Génération musicale intelligente pour un apprentissage optimal</p>
+                <Zap className="h-16 w-16 mx-auto mb-6 p-4 bg-warning text-warning-foreground rounded-2xl shadow-lg shadow-warning/25" />
+                <h3 className="text-2xl font-bold mb-4 text-foreground">IA Avancée</h3>
+                <p className="text-muted-foreground">Génération musicale intelligente pour un apprentissage optimal</p>
               </PremiumCard>
               <PremiumCard variant="elevated" className="p-8">
-                <Target className="h-16 w-16 mx-auto mb-6 p-4 bg-gradient-to-br from-green-400 to-emerald-500 text-white rounded-2xl shadow-lg shadow-green-500/25" />
-                <h3 className="text-2xl font-bold mb-4 text-gray-900">Ciblé EDN</h3>
-                <p className="text-gray-600">Contenu adapté aux référentiels médicaux officiels IC-1 à IC-367</p>
+                <Target className="h-16 w-16 mx-auto mb-6 p-4 bg-success text-success-foreground rounded-2xl shadow-lg shadow-success/25" />
+                <h3 className="text-2xl font-bold mb-4 text-foreground">Ciblé EDN</h3>
+                <p className="text-muted-foreground">Contenu adapté aux référentiels médicaux officiels IC-1 à IC-367</p>
               </PremiumCard>
               <PremiumCard variant="elevated" className="p-8">
-                <Award className="h-16 w-16 mx-auto mb-6 p-4 bg-gradient-to-br from-orange-400 to-red-500 text-white rounded-2xl shadow-lg shadow-orange-500/25" />
-                <h3 className="text-2xl font-bold mb-4 text-gray-900">Qualité</h3>
-                <p className="text-gray-600">Méthode pédagogique innovante et éprouvée</p>
+                <Award className="h-16 w-16 mx-auto mb-6 p-4 bg-destructive text-destructive-foreground rounded-2xl shadow-lg shadow-destructive/25" />
+                <h3 className="text-2xl font-bold mb-4 text-foreground">Qualité</h3>
+                <p className="text-muted-foreground">Méthode pédagogique innovante et éprouvée</p>
               </PremiumCard>
               <PremiumCard variant="elevated" className="p-8">
-                <TrendingUp className="h-16 w-16 mx-auto mb-6 p-4 bg-gradient-to-br from-blue-400 to-indigo-500 text-white rounded-2xl shadow-lg shadow-blue-500/25" />
-                <h3 className="text-2xl font-bold mb-4 text-gray-900">Efficace</h3>
-                <p className="text-gray-600">Amélioration mesurable des performances d'apprentissage</p>
+                <TrendingUp className="h-16 w-16 mx-auto mb-6 p-4 bg-primary text-primary-foreground rounded-2xl shadow-lg shadow-primary/25" />
+                <h3 className="text-2xl font-bold mb-4 text-foreground">Efficace</h3>
+                <p className="text-muted-foreground">Amélioration mesurable des performances d'apprentissage</p>
               </PremiumCard>
             </div>
           </PremiumCard>
@@ -269,7 +269,7 @@ const Index = () => {
 
       {/* Admin Audit Button premium */}
       {isAdmin && <div className="fixed bottom-6 right-6 z-50">
-          <PremiumButton variant="glass" size="md" onClick={() => navigate('/audit-general')} className="shadow-2xl shadow-black/20">
+          <PremiumButton variant="glass" size="md" onClick={() => navigate('/audit-general')} className="shadow-2xl">
             <BarChart3 className="h-5 w-5 mr-2" />
             <span className="font-semibold">Audit EDN</span>
           </PremiumButton>
