@@ -33,8 +33,8 @@ export const MusicGenerationHowItWorks = () => {
       <div className="space-y-4">
         {steps.map((step, index) => (
           <div key={index} className="flex items-start gap-3">
-            <div className="w-8 h-8 bg-amber-100 rounded-full flex items-center justify-center flex-shrink-0">
-              <span className="text-amber-600 font-bold">{step.number}</span>
+            <div className="w-8 h-8 bg-warning/20 rounded-full flex items-center justify-center flex-shrink-0">
+              <span className="text-warning font-bold">{step.number}</span>
             </div>
             <div>
               <h4 className="font-semibold text-gray-900">

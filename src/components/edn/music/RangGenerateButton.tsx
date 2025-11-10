@@ -24,11 +24,14 @@ export const RangGenerateButton: React.FC<RangGenerateButtonProps> = ({
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
   };
 
+  const buttonVariant = rang === 'A' ? 'default' : 'secondary';
+  
   return (
     <Button 
-      className={`${buttonColor} text-white`}
+      variant={buttonVariant}
       onClick={onGenerate}
       disabled={isGenerating}
+      className="min-h-[44px]"
     >
       {isGenerating ? (
         <>

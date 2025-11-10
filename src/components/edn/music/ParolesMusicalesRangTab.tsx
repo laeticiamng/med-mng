@@ -34,20 +34,19 @@ export const ParolesMusicalesRangTab: React.FC<ParolesMusicalesRangTabProps> = (
 }) => {
   const styling = {
     A: {
-      textColor: 'text-amber-800',
-      bgColor: 'bg-amber-50',
-      borderColor: 'border-amber-200',
-      buttonColor: 'bg-amber-600 hover:bg-amber-700'
+      textColor: 'text-warning',
+      bgColor: 'bg-warning/10',
+      borderColor: 'border-warning/30'
     },
     B: {
-      textColor: 'text-blue-800',
-      bgColor: 'bg-blue-50',
-      borderColor: 'border-blue-200',
-      buttonColor: 'bg-blue-600 hover:bg-blue-700'
+      textColor: 'text-primary',
+      bgColor: 'bg-primary/10',
+      borderColor: 'border-primary/30'
     }
   };
 
   const colors = styling[rang];
+  const buttonVariant = rang === 'A' ? 'default' as const : 'secondary' as const;
 
   return (
     <Card>
@@ -72,13 +71,13 @@ export const ParolesMusicalesRangTab: React.FC<ParolesMusicalesRangTabProps> = (
           isGenerating={isGenerating}
           isDisabled={!selectedStyle || !tableauData}
           musicDuration={selectedDuration}
-          buttonColor={colors.buttonColor}
+          buttonVariant={buttonVariant}
           onGenerate={onGenerate}
         />
         
         {!tableauData && (
-          <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg">
-            <p className="text-gray-600 text-sm">
+          <div className="p-3 bg-muted border border-border rounded-lg">
+            <p className="text-muted-foreground text-sm">
               ⚠️ Tableau Rang {rang} non disponible pour cet item
             </p>
           </div>

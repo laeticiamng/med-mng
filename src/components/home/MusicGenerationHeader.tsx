@@ -20,7 +20,7 @@ export const MusicGenerationHeader = ({ remainingFree, maxFreeGenerations }: Mus
 
       {/* Free Trial Badge */}
       {remainingFree > 0 && (
-        <Badge variant="secondary" className="mb-6 px-4 py-2 text-lg bg-green-100 text-green-800">
+        <Badge variant="secondary" className="mb-6 px-4 py-2 text-lg bg-success/10 text-success border-success/20">
           <Gift className="h-4 w-4 mr-2" />
           <TranslatedText text={`${remainingFree}/${maxFreeGenerations} générations gratuites restantes`} />
         </Badge>

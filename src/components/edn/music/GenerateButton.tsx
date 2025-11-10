@@ -7,7 +7,7 @@ interface GenerateButtonProps {
   isGenerating: boolean;
   isDisabled: boolean;
   musicDuration: number;
-  buttonColor: string;
+  buttonVariant: 'default' | 'secondary';
   onGenerate: () => void;
 }
 
@@ -16,7 +16,7 @@ export const GenerateButton = ({
   isGenerating, 
   isDisabled, 
   musicDuration, 
-  buttonColor, 
+  buttonVariant, 
   onGenerate 
 }: GenerateButtonProps) => {
   const formatDuration = (seconds: number) => {
@@ -28,9 +28,10 @@ export const GenerateButton = ({
   return (
     <div className="flex justify-center">
       <Button
+        variant={buttonVariant}
         onClick={onGenerate}
         disabled={isDisabled}
-        className={`${buttonColor} text-white px-6 py-3 ${isDisabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+        className="px-6 py-3 min-h-[44px]"
       >
         {isGenerating ? (
           <>

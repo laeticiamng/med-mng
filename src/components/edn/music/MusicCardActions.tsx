@@ -34,7 +34,7 @@ export const MusicCardActions = ({
         isGenerating={isGenerating}
         isDisabled={isButtonDisabled}
         musicDuration={musicDuration}
-        buttonColor={styling.buttonColor}
+        buttonVariant={styling.buttonVariant}
         onGenerate={onGenerate}
       />
       

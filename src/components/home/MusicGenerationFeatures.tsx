@@ -37,10 +37,10 @@ export const MusicGenerationFeatures = () => {
       {features.map((feature, index) => {
         const Icon = feature.icon;
         return (
-          <Card key={index} className="bg-white/80 backdrop-blur-sm hover:shadow-lg transition-shadow">
+          <Card key={index} className="bg-card/80 backdrop-blur-sm hover:shadow-lg transition-shadow">
             <CardHeader className="text-center pb-4">
-              <div className="mx-auto w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mb-4">
-                <Icon className="h-8 w-8 text-amber-600" />
+              <div className="mx-auto w-16 h-16 bg-warning/20 rounded-full flex items-center justify-center mb-4">
+                <Icon className="h-8 w-8 text-warning" />
               </div>
               <CardTitle className="text-lg">
                 <TranslatedText text={feature.title} />
