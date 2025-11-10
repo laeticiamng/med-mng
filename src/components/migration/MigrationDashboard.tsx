@@ -44,6 +44,9 @@ import {
   Area,
   AreaChart
 } from 'recharts';
+import { MigrationHistory } from './MigrationHistory';
+import { LiveMigrationTracker } from './LiveMigrationTracker';
+import { BeforeAfterComparison } from './BeforeAfterComparison';
 
 interface FileStatus {
   name: string;
@@ -447,11 +450,13 @@ export const MigrationDashboard: React.FC = () => {
 
       {/* Tabs avec graphiques */}
       <Tabs defaultValue="overview" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
+          <TabsTrigger value="live">Suivi Live</TabsTrigger>
+          <TabsTrigger value="comparison">Avant/Après</TabsTrigger>
           <TabsTrigger value="patterns">Patterns</TabsTrigger>
           <TabsTrigger value="files">Fichiers</TabsTrigger>
-          <TabsTrigger value="timeline">Timeline</TabsTrigger>
+          <TabsTrigger value="history">Historique</TabsTrigger>
         </TabsList>
 
         {/* Overview */}
@@ -536,6 +541,16 @@ export const MigrationDashboard: React.FC = () => {
           </Card>
         </TabsContent>
 
+        {/* Live Tracker */}
+        <TabsContent value="live" className="space-y-4">
+          <LiveMigrationTracker />
+        </TabsContent>
+
+        {/* Comparison */}
+        <TabsContent value="comparison" className="space-y-4">
+          <BeforeAfterComparison />
+        </TabsContent>
+
         {/* Patterns */}
         <TabsContent value="patterns" className="space-y-4">
           <Card>
@@ -612,75 +627,9 @@ export const MigrationDashboard: React.FC = () => {
           </Card>
         </TabsContent>
 
-        {/* Timeline */}
-        <TabsContent value="timeline" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Évolution de la Migration</CardTitle>
-              <CardDescription>Progression des corrections au fil du temps</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={300}>
-                <AreaChart data={timelineData}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="phase" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Area 
-                    type="monotone" 
-                    dataKey="violations" 
-                    stackId="1"
-                    stroke={COLORS.inProgress} 
-                    fill={COLORS.inProgress}
-                    fillOpacity={0.6}
-                    name="Violations"
-                  />
-                  <Area 
-                    type="monotone" 
-                    dataKey="files" 
-                    stackId="2"
-                    stroke={COLORS.completed} 
-                    fill={COLORS.completed}
-                    fillOpacity={0.6}
-                    name="Fichiers"
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            </CardContent>
-          </Card>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Temps Total</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-3xl font-bold">2h30</p>
-                <p className="text-sm text-muted-foreground mt-1">Sur ~6h estimées</p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Vélocité</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-3xl font-bold">3.1/min</p>
-                <p className="text-sm text-muted-foreground mt-1">Violations corrigées</p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Estimation</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-3xl font-bold">~3h30</p>
-                <p className="text-sm text-muted-foreground mt-1">Temps restant</p>
-              </CardContent>
-            </Card>
-          </div>
+        {/* History */}
+        <TabsContent value="history" className="space-y-4">
+          <MigrationHistory />
         </TabsContent>
       </Tabs>
 
