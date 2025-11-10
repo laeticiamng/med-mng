@@ -26,14 +26,14 @@ export const LanguageSelector: React.FC = () => {
           <Button
             variant="outline"
             size="sm"
-            className="bg-white/95 backdrop-blur-sm border-gray-300 hover:bg-gray-50 shadow-lg hover:shadow-xl transition-all duration-200 font-medium"
+            className="bg-card/95 backdrop-blur-sm border-border hover:bg-muted shadow-lg hover:shadow-xl transition-all duration-200 font-medium"
           >
             <Globe className="h-4 w-4 mr-2" />
             <span className="text-lg mr-1">{languages.find(l => l.code === currentLanguage)?.flag}</span>
             <span className="hidden sm:inline text-sm font-medium">{languages.find(l => l.code === currentLanguage)?.nativeName}</span>
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="start" className="min-w-[200px] max-h-[400px] overflow-y-auto bg-white/95 backdrop-blur-sm">
+        <DropdownMenuContent align="start" className="min-w-[200px] max-h-[400px] overflow-y-auto bg-card/95 backdrop-blur-sm">
           {languages.map((lang) => (
             <DropdownMenuItem
               key={lang.code}

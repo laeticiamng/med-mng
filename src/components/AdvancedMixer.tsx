@@ -408,7 +408,7 @@ export const AdvancedMixer = () => {
                 <p className="text-sm">Ajoutez des couches visuelles pour voir le résultat</p>
               </div>
             ) : (
-              <div className="text-center text-white">
+              <div className="text-center text-primary-foreground">
                 <p className="font-medium">Composition active</p>
                 <p className="text-sm opacity-80">
                   {tracks.filter(t => !t.isMuted).length} pistes audio • 

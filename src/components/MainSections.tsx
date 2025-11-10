@@ -127,7 +127,7 @@ const MainSections = () => {
             <Card key={section.id} className="group hover:shadow-lg transition-all duration-300 border-2 hover:border-primary/20">
               <CardHeader className="space-y-4">
                 <div className="flex items-center justify-between">
-                  <div className={`p-3 rounded-lg ${section.color} text-white`}>
+                  <div className={`p-3 rounded-lg ${section.color} text-primary-foreground`}>
                     <IconComponent className="h-6 w-6" />
                   </div>
                   <Badge variant="secondary" className="text-xs">

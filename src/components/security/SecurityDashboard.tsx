@@ -58,9 +58,9 @@ export const SecurityDashboard = () => {
   };
 
   const getScoreColor = (score: number) => {
-    if (score >= 90) return 'text-green-600';
-    if (score >= 70) return 'text-yellow-600';
-    return 'text-red-600';
+    if (score >= 90) return 'text-success';
+    if (score >= 70) return 'text-warning';
+    return 'text-destructive';
   };
 
   const getScoreGrade = (score: number) => {
@@ -73,9 +73,9 @@ export const SecurityDashboard = () => {
 
   const getIssueIcon = (type: string) => {
     switch (type) {
-      case 'critical': return <AlertTriangle className="h-4 w-4 text-red-500" />;
-      case 'warning': return <AlertTriangle className="h-4 w-4 text-yellow-500" />;
-      default: return <Shield className="h-4 w-4 text-blue-500" />;
+      case 'critical': return <AlertTriangle className="h-4 w-4 text-destructive" />;
+      case 'warning': return <AlertTriangle className="h-4 w-4 text-warning" />;
+      default: return <Shield className="h-4 w-4 text-primary" />;
     }
   };
 
@@ -277,7 +277,7 @@ export const SecurityDashboard = () => {
             <ul className="space-y-2">
               {validation.recommendations.map((rec, index) => (
                 <li key={index} className="flex items-start gap-2">
-                  <Shield className="h-4 w-4 mt-0.5 text-blue-500 flex-shrink-0" />
+                  <Shield className="h-4 w-4 mt-0.5 text-primary flex-shrink-0" />
                   <span className="text-sm">{rec}</span>
                 </li>
               ))}

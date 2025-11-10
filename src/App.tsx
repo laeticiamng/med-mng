@@ -26,65 +26,72 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { GlobalAudioProvider } from "@/contexts/GlobalAudioContext";
-import PlatformSettings from "./pages/PlatformSettings";
-import Dashboard from "./pages/Dashboard";
-import SystemManagement from "./pages/SystemManagement";
-import OptimizedIndex from "./pages/OptimizedIndex";
-import ModularDashboard from "./pages/ModularDashboard";
-import Index from "./pages/Index";
-import Generator from "./pages/Generator";
-import LibraryPage from "./pages/LibraryPage";
-// Pages EDN fusionnées dans EdnComplete
-
-import EcosIndex from "./pages/EcosIndex";
-import EcosScenario from "./pages/EcosScenario";
-import AuditComplete from "./pages/AuditComplete";
-import MngMethod from "./pages/MngMethod";
-import NotFound from "./pages/NotFound";
-import MentionsLegales from "./pages/MentionsLegales";
-import PolitiqueConfidentialite from "./pages/PolitiqueConfidentialite";
-const CGU = lazy(() => import("./pages/CGU"));
-const DeclarationAccessibilite = lazy(() => import("./pages/DeclarationAccessibilite"));
-const MesDonneesRGPD = lazy(() => import("./pages/MesDonneesRGPD"));
-import { MedMngLogin } from "./pages/MedMngLogin";
-import { MedMngSignup } from "./pages/MedMngSignup";
-import RLSDocumentation from "./pages/RLSDocumentation";
-import SecurityMonitoring from "./pages/SecurityMonitoring";
-import { MedMngPricing } from "./pages/MedMngPricing";
-import { MedMngSubscribe } from "./pages/MedMngSubscribe";
-import { MedMngCreate } from "./pages/MedMngCreate";
-import { MedMngLibrary } from "./pages/MedMngLibrary";
-import { MedMngPlayer } from "./pages/MedMngPlayer";
 import { AuthProvider } from "./components/med-mng/AuthProvider";
 import { ProtectedRoute } from "./components/med-mng/withAuth";
-import { MedMngSuccess } from "./pages/MedMngSuccess";
-import { MedMngProfile } from "./pages/MedMngProfile";
-import { PlaylistManager } from "./components/playlists/PlaylistManager";
-import { PlaylistDetail } from "./components/playlists/PlaylistDetail";
-import { MusicAnalytics } from "./components/analytics/MusicAnalytics";
-import { MedChat } from "./pages/MedChat";
-import { EdnAuditDashboard } from "./pages/EdnAuditDashboard";
-import AdminImport from "./pages/AdminImport";
-import AdminAudit from "./pages/AdminAudit";
-import AdminExtractEdn from "./pages/AdminExtractEdn";
-import AdminCompleteProcess from "./pages/AdminCompleteProcess";
-import AdminExtractEcos from "./pages/AdminExtractEcos";
-import { AdminPanel } from "./pages/AdminPanel";
-import EdnObjectifsExtractionPage from "./pages/EdnObjectifsExtraction";
-import AccessibilityDashboard from "./pages/AccessibilityDashboard";
-import EffectivenessDashboard from "./pages/EffectivenessDashboard";
-import OicDataQualityManager from "./pages/OicDataQualityManager";
-import AuditCompleteness from "./pages/AuditCompleteness";
-import EdnImmersive from "./pages/EdnImmersive";
-import EdnComplete from "./pages/EdnComplete";
-import EdnMusicLibrary from "./pages/EdnMusicLibrary";
-import LearningDashboard from "./pages/LearningDashboard";
-import PlatformStatusPage from "./pages/PlatformStatusPage";
-import Monitoring from "./pages/Monitoring";
-import Store from "./pages/Store";
-import ProductDetail from "./pages/ProductDetail";
 
-// Nouvelles pages complètes avec lazy loading
+// ⚡ CRITICAL PAGES - Chargement immédiat
+import Index from "./pages/Index";
+import NotFound from "./pages/NotFound";
+
+// 🎵 EDN PAGES - Lazy loaded
+const EdnComplete = lazy(() => import("./pages/EdnComplete"));
+const EdnImmersive = lazy(() => import("./pages/EdnImmersive"));
+const EdnMusicLibrary = lazy(() => import("./pages/EdnMusicLibrary"));
+const EdnAuditDashboard = lazy(() => import("./pages/EdnAuditDashboard").then(m => ({ default: m.EdnAuditDashboard })));
+
+// 🎯 ECOS PAGES - Lazy loaded
+const EcosIndex = lazy(() => import("./pages/EcosIndex"));
+const EcosScenario = lazy(() => import("./pages/EcosScenario"));
+
+// 🔒 SECURITY PAGES - Lazy loaded
+const SecurityMonitoring = lazy(() => import("./pages/SecurityMonitoring"));
+const RLSDocumentation = lazy(() => import("./pages/RLSDocumentation"));
+
+// 👨‍💼 ADMIN PAGES - Lazy loaded
+const AdminPanel = lazy(() => import("./pages/AdminPanel").then(m => ({ default: m.AdminPanel })));
+const AdminImport = lazy(() => import("./pages/AdminImport"));
+const AdminAudit = lazy(() => import("./pages/AdminAudit"));
+const AdminExtractEdn = lazy(() => import("./pages/AdminExtractEdn"));
+const AdminExtractEcos = lazy(() => import("./pages/AdminExtractEcos"));
+const AdminCompleteProcess = lazy(() => import("./pages/AdminCompleteProcess"));
+const EdnObjectifsExtractionPage = lazy(() => import("./pages/EdnObjectifsExtraction"));
+const OicDataQualityManager = lazy(() => import("./pages/OicDataQualityManager"));
+
+// 🏥 MEDMNG PAGES - Lazy loaded
+const MedMngLogin = lazy(() => import("./pages/MedMngLogin").then(m => ({ default: m.MedMngLogin })));
+const MedMngSignup = lazy(() => import("./pages/MedMngSignup").then(m => ({ default: m.MedMngSignup })));
+const MedMngPricing = lazy(() => import("./pages/MedMngPricing").then(m => ({ default: m.MedMngPricing })));
+const MedMngSubscribe = lazy(() => import("./pages/MedMngSubscribe").then(m => ({ default: m.MedMngSubscribe })));
+const MedMngSuccess = lazy(() => import("./pages/MedMngSuccess").then(m => ({ default: m.MedMngSuccess })));
+const MedMngCreate = lazy(() => import("./pages/MedMngCreate").then(m => ({ default: m.MedMngCreate })));
+const MedMngLibrary = lazy(() => import("./pages/MedMngLibrary").then(m => ({ default: m.MedMngLibrary })));
+const MedMngProfile = lazy(() => import("./pages/MedMngProfile").then(m => ({ default: m.MedMngProfile })));
+const MedMngPlayer = lazy(() => import("./pages/MedMngPlayer").then(m => ({ default: m.MedMngPlayer })));
+const PlaylistManager = lazy(() => import("./components/playlists/PlaylistManager").then(m => ({ default: m.PlaylistManager })));
+const PlaylistDetail = lazy(() => import("./components/playlists/PlaylistDetail").then(m => ({ default: m.PlaylistDetail })));
+const MusicAnalytics = lazy(() => import("./components/analytics/MusicAnalytics").then(m => ({ default: m.MusicAnalytics })));
+const MedChat = lazy(() => import("./pages/MedChat").then(m => ({ default: m.MedChat })));
+
+// 📊 AUDIT PAGES - Lazy loaded
+const AuditComplete = lazy(() => import("./pages/AuditComplete"));
+const AuditCompleteness = lazy(() => import("./pages/AuditCompleteness"));
+
+// ⚙️ PLATFORM PAGES - Lazy loaded
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const ModularDashboard = lazy(() => import("./pages/ModularDashboard"));
+const LearningDashboard = lazy(() => import("./pages/LearningDashboard"));
+const PlatformStatusPage = lazy(() => import("./pages/PlatformStatusPage"));
+const Monitoring = lazy(() => import("./pages/Monitoring"));
+const SystemManagement = lazy(() => import("./pages/SystemManagement"));
+const PlatformSettings = lazy(() => import("./pages/PlatformSettings"));
+const OptimizedIndex = lazy(() => import("./pages/OptimizedIndex"));
+const AccessibilityDashboard = lazy(() => import("./pages/AccessibilityDashboard"));
+const EffectivenessDashboard = lazy(() => import("./pages/EffectivenessDashboard"));
+
+// 📚 CONTENT PAGES - Lazy loaded
+const Generator = lazy(() => import("./pages/Generator"));
+const LibraryPage = lazy(() => import("./pages/LibraryPage"));
+const MngMethod = lazy(() => import("./pages/MngMethod"));
 const Statistics = lazy(() => import("./pages/Statistics"));
 const StudyPlanner = lazy(() => import("./pages/StudyPlanner"));
 const CommunityHub = lazy(() => import("./pages/CommunityHub"));
@@ -92,6 +99,17 @@ const ModernHomepage = lazy(() => import("./pages/ModernHomepage"));
 const Achievements = lazy(() => import("./pages/Achievements"));
 const Favorites = lazy(() => import("./pages/Favorites"));
 const UserSettings = lazy(() => import("./pages/UserSettings"));
+
+// 🛒 STORE PAGES - Lazy loaded
+const Store = lazy(() => import("./pages/Store"));
+const ProductDetail = lazy(() => import("./pages/ProductDetail"));
+
+// 📄 LEGAL PAGES - Lazy loaded
+const MentionsLegales = lazy(() => import("./pages/MentionsLegales"));
+const PolitiqueConfidentialite = lazy(() => import("./pages/PolitiqueConfidentialite"));
+const CGU = lazy(() => import("./pages/CGU"));
+const DeclarationAccessibilite = lazy(() => import("./pages/DeclarationAccessibilite"));
+const MesDonneesRGPD = lazy(() => import("./pages/MesDonneesRGPD"));
 
 // ⚡ OPTIMISATION QueryClient - Configuration pour chargement rapide
 const queryClient = new QueryClient({

@@ -272,7 +272,7 @@ Comment puis-je vous aider plus spécifiquement ?`;
             <CardHeader className="border-b">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white">
+                  <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/70 rounded-full flex items-center justify-center text-primary-foreground">
                     <Brain className="h-5 w-5" />
                   </div>
                   <div>
@@ -301,7 +301,7 @@ Comment puis-je vous aider plus spécifiquement ?`;
                       className={`flex gap-3 ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}
                     >
                       {message.role === 'assistant' && (
-                        <div className="w-8 h-8 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center text-white flex-shrink-0">
+                        <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary/70 rounded-full flex items-center justify-center text-primary-foreground flex-shrink-0">
                           {getMessageIcon(message)}
                         </div>
                       )}

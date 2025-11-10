@@ -285,21 +285,21 @@ Concentre-toi sur les aspects spécifiques de cet item médicale. Utilise les co
                 <div
                   className={`max-w-[80%] rounded-lg p-4 ${
                     message.role === 'user'
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-white/80 text-gray-800 border border-emerald-200'
+                      ? 'bg-primary text-primary-foreground'
+                      : 'bg-card text-card-foreground border border-border'
                   }`}
                 >
                   <div className="flex items-start gap-2">
                     {message.role === 'assistant' ? (
-                      <Bot className="h-5 w-5 text-emerald-600 mt-0.5 flex-shrink-0" />
+                      <Bot className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
                     ) : (
-                      <User className="h-5 w-5 text-white mt-0.5 flex-shrink-0" />
+                      <User className="h-5 w-5 text-primary-foreground mt-0.5 flex-shrink-0" />
                     )}
                     <div className="flex-1">
                       <div className="whitespace-pre-wrap break-words text-sm leading-relaxed">
                         {message.content}
                       </div>
-                      <div className={`text-xs mt-2 ${message.role === 'user' ? 'text-blue-200' : 'text-gray-500'}`}>
+                      <div className={`text-xs mt-2 ${message.role === 'user' ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
                         {message.timestamp.toLocaleTimeString()}
                         {message.context && (
                           <span className="ml-2">• {message.context}</span>
@@ -313,11 +313,11 @@ Concentre-toi sur les aspects spécifiques de cet item médicale. Utilise les co
             
             {isLoading && (
               <div className="flex justify-start">
-                <div className="bg-white/80 rounded-lg p-4 border border-emerald-200">
+                <div className="bg-card rounded-lg p-4 border border-border">
                   <div className="flex items-center gap-2">
-                    <Bot className="h-5 w-5 text-emerald-600" />
-                    <Loader2 className="h-4 w-4 animate-spin text-emerald-600" />
-                    <span className="text-sm text-gray-600">Assistant en train de réfléchir...</span>
+                    <Bot className="h-5 w-5 text-primary" />
+                    <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                    <span className="text-sm text-muted-foreground">Assistant en train de réfléchir...</span>
                   </div>
                 </div>
               </div>

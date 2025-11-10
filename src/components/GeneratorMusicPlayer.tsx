@@ -193,9 +193,9 @@ export const GeneratorMusicPlayer: React.FC<GeneratorMusicPlayerProps> = ({
               className="w-full h-full object-cover"
             />
           ) : isGenerating && !audioUrl ? (
-            <Loader2 className="h-16 w-16 text-white/80 animate-spin" />
+            <Loader2 className="h-16 w-16 text-primary-foreground/80 animate-spin" />
           ) : (
-            <Music className="h-16 w-16 text-white/80" />
+            <Music className="h-16 w-16 text-primary-foreground/80" />
           )}
           {showSuccessAnimation && (
             <div className="absolute inset-0 bg-green-500/30 animate-pulse" />

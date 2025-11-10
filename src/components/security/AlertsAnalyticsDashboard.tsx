@@ -223,7 +223,7 @@ export const AlertsAnalyticsDashboard = () => {
   const renderComparisonBadge = (change: number) => {
     const isPositive = change > 0;
     const Icon = isPositive ? ArrowUp : ArrowDown;
-    const colorClass = isPositive ? 'text-destructive' : 'text-green-600';
+    const colorClass = isPositive ? 'text-destructive' : 'text-success';
     
     return (
       <span className={`flex items-center gap-1 text-sm font-medium ${colorClass}`}>

@@ -332,8 +332,8 @@ Comment souhaitez-vous que nous procédions ? Je peux créer un plan personnalis
       <div className="border-b bg-card/50 backdrop-blur-sm">
         <div className="flex items-center justify-between p-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
-              <Brain className="w-5 h-5 text-white" />
+            <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary/70 rounded-full flex items-center justify-center">
+              <Brain className="w-5 h-5 text-primary-foreground" />
             </div>
             <div>
               <h1 className="font-semibold">Assistant IA Médical</h1>
@@ -373,7 +373,7 @@ Comment souhaitez-vous que nous procédions ? Je peux créer un plan personnalis
                 <CardContent className="p-3">
                   <div className="flex items-start gap-3">
                     <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                      capability.enabled ? 'bg-primary text-white' : 'bg-muted text-muted-foreground'
+                      capability.enabled ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
                     }`}>
                       <capability.icon className="w-4 h-4" />
                     </div>
