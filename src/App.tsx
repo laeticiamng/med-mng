@@ -149,35 +149,35 @@ const App = () => {
                             <MainNavigation />
                             <main id="main-content" tabIndex={-1} className="pt-16">
                               <Routes>
-        <Route path="/modular-dashboard" element={<ModularDashboard />} />
-           <Route path="/dashboard" element={<Dashboard />} />
-           <Route path="/learning-dashboard" element={<LearningDashboard />} />
-           <Route path="/platform-status" element={<PlatformStatusPage />} />
-           <Route path="/monitoring" element={<Monitoring />} />
-           <Route path="/system-management" element={<SystemManagement />} />
-          <Route path="/platform-settings" element={<PlatformSettings />} />
-          <Route path="/optimized" element={<OptimizedIndex />} />
+        <Route path="/modular-dashboard" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><ModularDashboard /></Suspense>} />
+           <Route path="/dashboard" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Dashboard /></Suspense>} />
+           <Route path="/learning-dashboard" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><LearningDashboard /></Suspense>} />
+           <Route path="/platform-status" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><PlatformStatusPage /></Suspense>} />
+           <Route path="/monitoring" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Monitoring /></Suspense>} />
+           <Route path="/system-management" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><SystemManagement /></Suspense>} />
+          <Route path="/platform-settings" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><PlatformSettings /></Suspense>} />
+          <Route path="/optimized" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><OptimizedIndex /></Suspense>} />
           <Route path="/" element={<Index />} />
-          <Route path="/generator" element={<Generator />} />
+          <Route path="/generator" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Generator /></Suspense>} />
           {/* EDN Interface Unifiée - toutes les fonctionnalités fusionnées */}
-          <Route path="/edn-complete" element={<EdnComplete />} />
-          <Route path="/edn-complete/:slug" element={<EdnComplete />} />
+          <Route path="/edn-complete" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EdnComplete /></Suspense>} />
+          <Route path="/edn-complete/:slug" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EdnComplete /></Suspense>} />
           
           {/* Redirections vers l'interface unifiée */}
           <Route path="/edn" element={<Navigate to="/edn-complete" replace />} />
           <Route path="/edn/:slug" element={<Navigate to="/edn-complete/:slug" replace />} />
           <Route path="/items-edn" element={<Navigate to="/edn-complete" replace />} />
-          <Route path="/edn/:slug/immersive" element={<EdnImmersive />} />
-          <Route path="/edn/music-library" element={<EdnMusicLibrary />} />
-          <Route path="/ecos" element={<EcosIndex />} />
-          <Route path="/ecos/:scenarioId" element={<EcosScenario />} />
-          <Route path="/store" element={<Store />} />
-          <Route path="/product/:handle" element={<ProductDetail />} />
+          <Route path="/edn/:slug/immersive" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EdnImmersive /></Suspense>} />
+          <Route path="/edn/music-library" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EdnMusicLibrary /></Suspense>} />
+          <Route path="/ecos" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EcosIndex /></Suspense>} />
+          <Route path="/ecos/:scenarioId" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EcosScenario /></Suspense>} />
+          <Route path="/store" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Store /></Suspense>} />
+          <Route path="/product/:handle" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><ProductDetail /></Suspense>} />
           
           {/* Unified audit page */}
-          <Route path="/audit" element={<AuditComplete />} />
-          <Route path="/audit-completeness" element={<AuditCompleteness />} />
-          <Route path="/migration-dashboard" element={<MigrationDashboardPage />} />
+          <Route path="/audit" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AuditComplete /></Suspense>} />
+          <Route path="/audit-completeness" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AuditCompleteness /></Suspense>} />
+          <Route path="/migration-dashboard" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MigrationDashboardPage /></Suspense>} />
          
           {/* Redirect all old audit routes to new unified page */}
           <Route path="/audit-general" element={<Navigate to="/audit" replace />} />
@@ -188,38 +188,38 @@ const App = () => {
           <Route path="/audit-ic4" element={<Navigate to="/audit" replace />} />
           <Route path="/audit-complete" element={<Navigate to="/audit" replace />} />
           
-          <Route path="/mng-method" element={<MngMethod />} />
-          <Route path="/mentions-legales" element={<MentionsLegales />} />
-          <Route path="/politique-confidentialite" element={<PolitiqueConfidentialite />} />
+          <Route path="/mng-method" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MngMethod /></Suspense>} />
+          <Route path="/mentions-legales" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MentionsLegales /></Suspense>} />
+          <Route path="/politique-confidentialite" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><PolitiqueConfidentialite /></Suspense>} />
           <Route path="/cgu" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CGU /></Suspense>} />
           <Route path="/declaration-accessibilite" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><DeclarationAccessibilite /></Suspense>} />
-          <Route path="/med-mng/login" element={<MedMngLogin />} />
-          <Route path="/med-mng/signup" element={<MedMngSignup />} />
-          <Route path="/med-mng/pricing" element={<MedMngPricing />} />
-          <Route path="/med-mng/subscribe/:planId" element={<ProtectedRoute><MedMngSubscribe /></ProtectedRoute>} />
-          <Route path="/med-mng/success" element={<ProtectedRoute><MedMngSuccess /></ProtectedRoute>} />
-          <Route path="/med-mng/create" element={<ProtectedRoute><MedMngCreate /></ProtectedRoute>} />
-          <Route path="/med-mng/library" element={<ProtectedRoute><MedMngLibrary /></ProtectedRoute>} />
-          <Route path="/med-mng/profile" element={<ProtectedRoute><MedMngProfile /></ProtectedRoute>} />
-          <Route path="/med-mng/player/:songId" element={<ProtectedRoute><MedMngPlayer /></ProtectedRoute>} />
-          <Route path="/med-mng/playlists" element={<ProtectedRoute><PlaylistManager /></ProtectedRoute>} />
-          <Route path="/med-mng/playlists/:playlistId" element={<ProtectedRoute><PlaylistDetail /></ProtectedRoute>} />
-          <Route path="/med-mng/analytics" element={<ProtectedRoute><MusicAnalytics /></ProtectedRoute>} />
-          <Route path="/chat" element={<MedChat />} />
-          <Route path="/edn-audit" element={<EdnAuditDashboard />} />
-           <Route path="/admin/import" element={<AdminImport />} />
-           <Route path="/admin/audit" element={<AdminAudit />} />
-           <Route path="/admin/extract-edn" element={<AdminExtractEdn />} />
-           <Route path="/admin/extract-ecos" element={<AdminExtractEcos />} />
-           <Route path="/admin/extract-objectifs" element={<EdnObjectifsExtractionPage />} />
-           <Route path="/admin/oic-quality" element={<OicDataQualityManager />} />
-           <Route path="/admin/complete" element={<AdminCompleteProcess />} />
-           <Route path="/admin-panel" element={<AdminPanel />} /> {/* Panel admin unifié Point X */}
-            <Route path="/library" element={<LibraryPage />} />
-             <Route path="/accessibility-dashboard" element={<AccessibilityDashboard />} />
-             <Route path="/effectiveness-dashboard" element={<EffectivenessDashboard />} />
-             <Route path="/rls-documentation" element={<RLSDocumentation />} />
-             <Route path="/security-monitoring" element={<SecurityMonitoring />} />
+          <Route path="/med-mng/login" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MedMngLogin /></Suspense>} />
+          <Route path="/med-mng/signup" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MedMngSignup /></Suspense>} />
+          <Route path="/med-mng/pricing" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MedMngPricing /></Suspense>} />
+          <Route path="/med-mng/subscribe/:planId" element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MedMngSubscribe /></Suspense></ProtectedRoute>} />
+          <Route path="/med-mng/success" element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MedMngSuccess /></Suspense></ProtectedRoute>} />
+          <Route path="/med-mng/create" element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MedMngCreate /></Suspense></ProtectedRoute>} />
+          <Route path="/med-mng/library" element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MedMngLibrary /></Suspense></ProtectedRoute>} />
+          <Route path="/med-mng/profile" element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MedMngProfile /></Suspense></ProtectedRoute>} />
+          <Route path="/med-mng/player/:songId" element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MedMngPlayer /></Suspense></ProtectedRoute>} />
+          <Route path="/med-mng/playlists" element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><PlaylistManager /></Suspense></ProtectedRoute>} />
+          <Route path="/med-mng/playlists/:playlistId" element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><PlaylistDetail /></Suspense></ProtectedRoute>} />
+          <Route path="/med-mng/analytics" element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MusicAnalytics /></Suspense></ProtectedRoute>} />
+          <Route path="/chat" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MedChat /></Suspense>} />
+          <Route path="/edn-audit" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EdnAuditDashboard /></Suspense>} />
+           <Route path="/admin/import" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AdminImport /></Suspense>} />
+           <Route path="/admin/audit" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AdminAudit /></Suspense>} />
+           <Route path="/admin/extract-edn" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AdminExtractEdn /></Suspense>} />
+           <Route path="/admin/extract-ecos" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AdminExtractEcos /></Suspense>} />
+           <Route path="/admin/extract-objectifs" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EdnObjectifsExtractionPage /></Suspense>} />
+           <Route path="/admin/oic-quality" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><OicDataQualityManager /></Suspense>} />
+           <Route path="/admin/complete" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AdminCompleteProcess /></Suspense>} />
+           <Route path="/admin-panel" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AdminPanel /></Suspense>} /> {/* Panel admin unifié Point X */}
+            <Route path="/library" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><LibraryPage /></Suspense>} />
+             <Route path="/accessibility-dashboard" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AccessibilityDashboard /></Suspense>} />
+             <Route path="/effectiveness-dashboard" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EffectivenessDashboard /></Suspense>} />
+             <Route path="/rls-documentation" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><RLSDocumentation /></Suspense>} />
+             <Route path="/security-monitoring" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><SecurityMonitoring /></Suspense>} />
            
            {/* Nouvelles pages complètes avec lazy loading */}
            <Route path="/statistics" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Statistics /></Suspense>} />
