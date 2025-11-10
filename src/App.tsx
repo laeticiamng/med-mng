@@ -111,6 +111,7 @@ const PolitiqueConfidentialite = lazy(() => import("./pages/PolitiqueConfidentia
 const CGU = lazy(() => import("./pages/CGU"));
 const DeclarationAccessibilite = lazy(() => import("./pages/DeclarationAccessibilite"));
 const MesDonneesRGPD = lazy(() => import("./pages/MesDonneesRGPD"));
+const InstallPWA = lazy(() => import("./pages/InstallPWA"));
 
 // ⚡ OPTIMISATION QueryClient - Configuration pour chargement rapide
 const queryClient = new QueryClient({
@@ -230,6 +231,7 @@ const App = () => {
             <Route path="/favorites" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Favorites /></Suspense>} />
             <Route path="/settings" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><UserSettings /></Suspense>} />
             <Route path="/mes-donnees-rgpd" element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MesDonneesRGPD /></Suspense></ProtectedRoute>} />
+            <Route path="/install" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><InstallPWA /></Suspense>} />
            
                                 <Route path="*" element={<NotFound />} />
                               </Routes>

@@ -1,0 +1,9 @@
+# Placeholder pour les icônes PWA
+
+Placez ici les fichiers suivants :
+- pwa-192x192.png
+- pwa-512x512.png
+- apple-touch-icon.png
+- mask-icon.svg
+
+Utilisez le script : public/pwa-icons/generate-icons.sh
