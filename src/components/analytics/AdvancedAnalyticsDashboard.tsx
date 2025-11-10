@@ -141,9 +141,9 @@ export const AdvancedAnalyticsDashboard: React.FC = () => {
 
   const getTrendIcon = (trend: string) => {
     switch (trend) {
-      case 'up': return <TrendingUp className="w-4 h-4 text-green-500" />;
-      case 'down': return <TrendingUp className="w-4 h-4 text-red-500 rotate-180" />;
-      default: return <Activity className="w-4 h-4 text-gray-500" />;
+      case 'up': return <TrendingUp className="w-4 h-4 text-success" />;
+      case 'down': return <TrendingUp className="w-4 h-4 text-destructive rotate-180" />;
+      default: return <Activity className="w-4 h-4 text-muted-foreground" />;
     }
   };
 
@@ -212,54 +212,54 @@ export const AdvancedAnalyticsDashboard: React.FC = () => {
 
       {/* Métriques principales */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200">
+        <Card className="bg-gradient-to-br from-primary/10 to-primary/20 border-primary/20">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-blue-700">Temps d'étude total</p>
-                <p className="text-3xl font-bold text-blue-900">{analytics.totalStudyTime}h</p>
-                <p className="text-xs text-blue-600">+15% ce mois</p>
+                <p className="text-sm font-medium text-muted-foreground">Temps d'étude total</p>
+                <p className="text-3xl font-bold">{analytics.totalStudyTime}h</p>
+                <p className="text-xs text-muted-foreground">+15% ce mois</p>
               </div>
-              <Clock className="w-8 h-8 text-blue-600" />
+              <Clock className="w-8 h-8 text-primary" />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200">
+        <Card className="bg-gradient-to-br from-success/10 to-success/20 border-success/20">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-green-700">Musiques générées</p>
-                <p className="text-3xl font-bold text-green-900">{analytics.songsGenerated}</p>
-                <p className="text-xs text-green-600">+8 cette semaine</p>
+                <p className="text-sm font-medium text-muted-foreground">Musiques générées</p>
+                <p className="text-3xl font-bold">{analytics.songsGenerated}</p>
+                <p className="text-xs text-muted-foreground">+8 cette semaine</p>
               </div>
-              <Music className="w-8 h-8 text-green-600" />
+              <Music className="w-8 h-8 text-success" />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200">
+        <Card className="bg-gradient-to-br from-accent/10 to-accent/20 border-accent/20">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-purple-700">Score moyen</p>
-                <p className="text-3xl font-bold text-purple-900">{analytics.averageScore}%</p>
-                <p className="text-xs text-purple-600">Excellent niveau</p>
+                <p className="text-sm font-medium text-muted-foreground">Score moyen</p>
+                <p className="text-3xl font-bold">{analytics.averageScore}%</p>
+                <p className="text-xs text-muted-foreground">Excellent niveau</p>
               </div>
-              <Target className="w-8 h-8 text-purple-600" />
+              <Target className="w-8 h-8 text-accent" />
             </div>
           </CardContent>
         </Card>
 
-        <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200">
+        <Card className="bg-gradient-to-br from-warning/10 to-warning/20 border-warning/20">
           <CardContent className="p-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-orange-700">Série actuelle</p>
-                <p className="text-3xl font-bold text-orange-900">{analytics.streakDays} jours</p>
-                <p className="text-xs text-orange-600">Record personnel</p>
+                <p className="text-sm font-medium text-muted-foreground">Série actuelle</p>
+                <p className="text-3xl font-bold">{analytics.streakDays} jours</p>
+                <p className="text-xs text-muted-foreground">Record personnel</p>
               </div>
-              <Award className="w-8 h-8 text-orange-600" />
+              <Award className="w-8 h-8 text-warning" />
             </div>
           </CardContent>
         </Card>
@@ -447,7 +447,7 @@ export const AdvancedAnalyticsDashboard: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <Card>
               <CardContent className="p-6 text-center">
-                <Clock className="w-8 h-8 text-blue-500 mx-auto mb-2" />
+                <Clock className="w-8 h-8 text-primary mx-auto mb-2" />
                 <p className="text-2xl font-bold">09:00</p>
                 <p className="text-sm text-muted-foreground">Heure optimale</p>
               </CardContent>
@@ -455,7 +455,7 @@ export const AdvancedAnalyticsDashboard: React.FC = () => {
             
             <Card>
               <CardContent className="p-6 text-center">
-                <Zap className="w-8 h-8 text-yellow-500 mx-auto mb-2" />
+                <Zap className="w-8 h-8 text-warning mx-auto mb-2" />
                 <p className="text-2xl font-bold">2.3h</p>
                 <p className="text-sm text-muted-foreground">Session idéale</p>
               </CardContent>
@@ -463,7 +463,7 @@ export const AdvancedAnalyticsDashboard: React.FC = () => {
             
             <Card>
               <CardContent className="p-6 text-center">
-                <Brain className="w-8 h-8 text-purple-500 mx-auto mb-2" />
+                <Brain className="w-8 h-8 text-accent mx-auto mb-2" />
                 <p className="text-2xl font-bold">87%</p>
                 <p className="text-sm text-muted-foreground">Focus moyen</p>
               </CardContent>
@@ -507,7 +507,7 @@ export const AdvancedAnalyticsDashboard: React.FC = () => {
                 <div className="grid grid-cols-2 gap-2">
                   {userMetrics.badges.map((badge, index) => (
                     <div key={index} className="text-center p-2 border rounded-lg">
-                      <Award className="w-6 h-6 mx-auto mb-1 text-yellow-500" />
+                      <Award className="w-6 h-6 mx-auto mb-1 text-warning" />
                       <p className="text-xs font-medium">{badge}</p>
                     </div>
                   ))}
@@ -526,7 +526,7 @@ export const AdvancedAnalyticsDashboard: React.FC = () => {
                 <div className="space-y-2">
                   {userMetrics.achievements.map((achievement, index) => (
                     <div key={index} className="flex items-center gap-2 p-2 border rounded-lg">
-                      <Target className="w-4 h-4 text-green-500" />
+                      <Target className="w-4 h-4 text-success" />
                       <span className="text-sm font-medium">{achievement}</span>
                     </div>
                   ))}
