@@ -87,17 +87,17 @@
 
   .dark {
     /* Dark Mode - Medical Professional with Enhanced Contrast */
-    --background: 213 32% 16%;
+    --background: 213 32% 12%;
     --foreground: 0 0% 98%;
 
-    --card: 215 28% 14%;
+    --card: 215 28% 16%;
     --card-foreground: 0 0% 98%;
 
-    --popover: 215 28% 14%;
+    --popover: 215 28% 16%;
     --popover-foreground: 0 0% 98%;
 
     /* Medical Primary - Enhanced contrast for dark mode */
-    --primary: 213 94% 80%;
+    --primary: 213 94% 75%;
     --primary-foreground: 213 32% 12%;
     --primary-hover: 213 94% 88%;
     --primary-muted: 213 94% 25%;

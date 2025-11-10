@@ -11,6 +11,7 @@ import {
   TrendingUp, TrendingDown, Loader2, ArrowLeft, Search, Sparkles
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { SEOHead } from '@/components/seo/SEOHead';
 
 interface AuditResult {
   id: string;
@@ -249,7 +250,13 @@ export const EdnAuditDashboard: React.FC = () => {
   const incompleteItems = auditResults.filter(r => r.completeness_score < 80).length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-6">
+    <>
+      <SEOHead
+        title="Audit EDN - Analyse de complétude des items"
+        description="Dashboard d'audit pour analyser et compléter les items EDN avec l'intelligence artificielle"
+        noindex={true}
+      />
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-6">
       <div className="container mx-auto max-w-7xl">
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
@@ -258,6 +265,7 @@ export const EdnAuditDashboard: React.FC = () => {
               variant="outline" 
               size="icon"
               onClick={() => navigate('/edn-complete')}
+              aria-label="Retour aux items EDN"
             >
               <ArrowLeft className="h-4 w-4" />
             </Button>
@@ -465,5 +473,6 @@ export const EdnAuditDashboard: React.FC = () => {
         </Card>
       </div>
     </div>
+    </>
   );
 };

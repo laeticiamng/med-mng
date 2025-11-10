@@ -8,6 +8,7 @@ import { LogIn, CreditCard, BarChart3, Music, BookOpen, MessageSquare, Users, Za
 import { TranslatedText } from "@/components/TranslatedText";
 import { WelcomeDashboard } from "@/components/welcome/WelcomeDashboard";
 import MusicGenerationSection from "@/components/MusicGenerationSection";
+import { SEOHead } from "@/components/seo/SEOHead";
 
 // ⚡ LAZY LOADING - Charger les composants lourds seulement quand nécessaire
 const MngPresentationBrief = lazy(() => import("@/components/MngPresentationBrief").then(module => ({
@@ -25,7 +26,14 @@ const LazyLoadSpinner = () => <div className="flex justify-center items-center p
 const Index = () => {
   const navigate = useNavigate();
   const isAdmin = localStorage.getItem('isAdmin') === 'true';
-  return <PremiumBackground>
+  return <>
+      <SEOHead
+        title="MED MNG - Plateforme d'apprentissage médical avec IA"
+        description="Révolutionnez votre apprentissage médical avec MED-MNG : 367 items EDN complets, génération musicale IA, et outils d'étude avancés pour réussir vos examens."
+        keywords="médecine, EDN, apprentissage, IA, formation médicale, ECOS, révision"
+        canonical="/"
+      />
+      <PremiumBackground>
       
       {/* Header premium avec effet glassmorphism */}
       <div className="sticky top-0 z-50 bg-background/70 backdrop-blur-xl border-b border-border/20 shadow-lg">
@@ -274,6 +282,7 @@ const Index = () => {
             <span className="font-semibold">Audit EDN</span>
           </PremiumButton>
         </div>}
-    </PremiumBackground>;
+    </PremiumBackground>
+  </>;
 };
 export default Index;

@@ -98,7 +98,12 @@ export const MainNavigation: React.FC = () => {
             <ThemeToggle />
             
             {/* Notifications */}
-            <Button variant="ghost" size="sm" className="relative">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="relative"
+              aria-label="Notifications (3 non lues)"
+            >
               <Bell className="w-4 h-4" />
               <Badge className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center text-xs">
                 3
