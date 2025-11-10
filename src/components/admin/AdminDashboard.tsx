@@ -200,19 +200,19 @@ export const AdminDashboard: React.FC = () => {
 
   const getHealthIcon = (health: string) => {
     switch (health) {
-      case 'healthy': return <CheckCircle className="h-5 w-5 text-green-500" />;
-      case 'warning': return <AlertTriangle className="h-5 w-5 text-yellow-500" />;
-      case 'critical': return <XCircle className="h-5 w-5 text-red-500" />;
-      default: return <Activity className="h-5 w-5 text-gray-500" />;
+      case 'healthy': return <CheckCircle className="h-5 w-5 text-success" />;
+      case 'warning': return <AlertTriangle className="h-5 w-5 text-warning" />;
+      case 'critical': return <XCircle className="h-5 w-5 text-destructive" />;
+      default: return <Activity className="h-5 w-5 text-muted-foreground" />;
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'success': return 'text-green-600 bg-green-50';
-      case 'warning': return 'text-yellow-600 bg-yellow-50';
-      case 'error': return 'text-red-600 bg-red-50';
-      default: return 'text-gray-600 bg-gray-50';
+      case 'success': return 'text-success bg-success/10';
+      case 'warning': return 'text-warning-foreground bg-warning/10';
+      case 'error': return 'text-destructive bg-destructive/10';
+      default: return 'text-muted-foreground bg-muted';
     }
   };
 
@@ -229,8 +229,8 @@ export const AdminDashboard: React.FC = () => {
       {/* Header avec actions */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Administration Complète</h1>
-          <p className="text-gray-600 mt-1">
+          <h1 className="text-3xl font-bold text-foreground">Administration Complète</h1>
+          <p className="text-muted-foreground mt-1">
             Tableau de bord unifié - Tous les outils en un seul endroit
           </p>
         </div>

@@ -216,7 +216,7 @@ export const AdminAnalytics = () => {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-2 mb-2">
-              <Users className="h-4 w-4 text-blue-600" />
+              <Users className="h-4 w-4 text-primary" />
               <div className="text-sm font-medium text-muted-foreground">Utilisateurs totaux</div>
             </div>
             <div className="text-2xl font-bold">{analyticsData.userGrowth.total.toLocaleString()}</div>
@@ -229,10 +229,10 @@ export const AdminAnalytics = () => {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-2 mb-2">
-              <TrendingUp className="h-4 w-4 text-green-600" />
+              <TrendingUp className="h-4 w-4 text-success" />
               <div className="text-sm font-medium text-muted-foreground">Croissance</div>
             </div>
-            <div className="text-2xl font-bold text-green-600">
+            <div className="text-2xl font-bold text-success">
               {analyticsData.userGrowth.growthRate > 0 ? '+' : ''}{analyticsData.userGrowth.growthRate}%
             </div>
             <div className="text-sm text-muted-foreground">vs mois dernier</div>
@@ -242,7 +242,7 @@ export const AdminAnalytics = () => {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-2 mb-2">
-              <Activity className="h-4 w-4 text-purple-600" />
+              <Activity className="h-4 w-4 text-accent" />
               <div className="text-sm font-medium text-muted-foreground">Sessions actives</div>
             </div>
             <div className="text-2xl font-bold">{analyticsData.contentUsage.totalSessions.toLocaleString()}</div>
@@ -255,7 +255,7 @@ export const AdminAnalytics = () => {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-2 mb-2">
-              <BarChart3 className="h-4 w-4 text-orange-600" />
+              <BarChart3 className="h-4 w-4 text-warning" />
               <div className="text-sm font-medium text-muted-foreground">Uptime</div>
             </div>
             <div className="text-2xl font-bold">{analyticsData.performance.uptime}%</div>
@@ -306,20 +306,20 @@ export const AdminAnalytics = () => {
           <CardContent>
             <div className="space-y-4">
               <div className="grid grid-cols-3 gap-4 text-center">
-                <div className="p-3 bg-blue-50 rounded-lg">
-                  <div className="text-2xl font-bold text-blue-600">
+                <div className="p-3 bg-primary/10 rounded-lg">
+                  <div className="text-2xl font-bold text-primary">
                     {analyticsData.aiUsage.musicGenerated}
                   </div>
                   <div className="text-sm text-muted-foreground">Musiques générées</div>
                 </div>
-                <div className="p-3 bg-green-50 rounded-lg">
-                  <div className="text-2xl font-bold text-green-600">
+                <div className="p-3 bg-success/10 rounded-lg">
+                  <div className="text-2xl font-bold text-success">
                     {analyticsData.aiUsage.qcmGenerated}
                   </div>
                   <div className="text-sm text-muted-foreground">QCM créés</div>
                 </div>
-                <div className="p-3 bg-purple-50 rounded-lg">
-                  <div className="text-2xl font-bold text-purple-600">
+                <div className="p-3 bg-accent/10 rounded-lg">
+                  <div className="text-2xl font-bold text-accent">
                     {analyticsData.aiUsage.bdGenerated}
                   </div>
                   <div className="text-sm text-muted-foreground">BD générées</div>

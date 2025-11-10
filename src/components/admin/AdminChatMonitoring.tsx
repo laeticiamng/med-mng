@@ -151,11 +151,11 @@ export const AdminChatMonitoring: React.FC = () => {
 
   const getSourceBadge = (source: string, webFallback: boolean) => {
     if (source === 'edn_local') {
-      return <Badge className="bg-green-100 text-green-800">EDN</Badge>;
+      return <Badge variant="success">EDN</Badge>;
     } else if (webFallback || source === 'web_fallback') {
-      return <Badge className="bg-orange-100 text-orange-800">Web</Badge>;
+      return <Badge variant="warning">Web</Badge>;
     } else {
-      return <Badge className="bg-yellow-100 text-yellow-800">EDN Limité</Badge>;
+      return <Badge variant="secondary">EDN Limité</Badge>;
     }
   };
 
@@ -163,11 +163,11 @@ export const AdminChatMonitoring: React.FC = () => {
     if (score === undefined || score === null) return null;
     
     if (score >= 4) {
-      return <CheckCircle className="h-4 w-4 text-green-600" />;
+      return <CheckCircle className="h-4 w-4 text-success" />;
     } else if (score >= 3) {
-      return <CheckCircle className="h-4 w-4 text-yellow-600" />;
+      return <CheckCircle className="h-4 w-4 text-warning" />;
     } else {
-      return <AlertTriangle className="h-4 w-4 text-red-600" />;
+      return <AlertTriangle className="h-4 w-4 text-destructive" />;
     }
   };
 
@@ -175,7 +175,7 @@ export const AdminChatMonitoring: React.FC = () => {
     return (
       <Card>
         <CardContent className="p-8 text-center">
-          <div className="animate-spin h-8 w-8 border-2 border-blue-600 border-t-transparent rounded-full mx-auto mb-4" />
+          <div className="animate-spin h-8 w-8 border-2 border-primary border-t-transparent rounded-full mx-auto mb-4" />
           <p>Chargement du monitoring chat...</p>
         </CardContent>
       </Card>
@@ -191,10 +191,10 @@ export const AdminChatMonitoring: React.FC = () => {
             <CardContent className="p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="text-sm text-gray-600">Conversations</p>
+                  <p className="text-sm text-muted-foreground">Conversations</p>
                   <p className="text-2xl font-bold">{stats.total_conversations}</p>
                 </div>
-                <MessageSquare className="h-8 w-8 text-blue-600" />
+                <MessageSquare className="h-8 w-8 text-primary" />
               </div>
             </CardContent>
           </Card>

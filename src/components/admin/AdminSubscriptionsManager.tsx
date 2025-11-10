@@ -147,19 +147,19 @@ export const AdminSubscriptionsManager = () => {
 
   const getPlanColor = (plan: string) => {
     switch (plan) {
-      case 'premium': return 'bg-yellow-100 text-yellow-800';
-      case 'pro': return 'bg-purple-100 text-purple-800';
-      case 'standard': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'premium': return 'warning';
+      case 'pro': return 'default';
+      case 'standard': return 'success';
+      default: return 'secondary';
     }
   };
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'active': return 'bg-green-100 text-green-800';
-      case 'cancelled': return 'bg-red-100 text-red-800';
-      case 'expired': return 'bg-gray-100 text-gray-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'active': return 'success';
+      case 'cancelled': return 'destructive';
+      case 'expired': return 'secondary';
+      default: return 'secondary';
     }
   };
 
@@ -182,10 +182,10 @@ export const AdminSubscriptionsManager = () => {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-2">
-              <DollarSign className="h-4 w-4 text-green-600" />
+              <DollarSign className="h-4 w-4 text-success" />
               <div className="text-sm font-medium text-muted-foreground">Revenus mensuels</div>
             </div>
-            <div className="text-2xl font-bold text-green-600">
+            <div className="text-2xl font-bold text-success">
               {stats.totalRevenue.toLocaleString()}€
             </div>
           </CardContent>
@@ -194,7 +194,7 @@ export const AdminSubscriptionsManager = () => {
         <Card>
           <CardContent className="p-4">
             <div className="flex items-center gap-2">
-              <Users className="h-4 w-4 text-blue-600" />
+              <Users className="h-4 w-4 text-primary" />
               <div className="text-sm font-medium text-muted-foreground">Abonnements actifs</div>
             </div>
             <div className="text-2xl font-bold">{stats.activeSubscriptions}</div>
@@ -234,7 +234,7 @@ export const AdminSubscriptionsManager = () => {
               <div key={plan} className="text-center p-4 bg-muted rounded-lg">
                 <div className="text-2xl font-bold">{count}</div>
                 <div className="text-sm text-muted-foreground capitalize">{plan}</div>
-                <Badge className={getPlanColor(plan)}>{plan}</Badge>
+                <Badge variant={getPlanColor(plan) as any}>{plan}</Badge>
               </div>
             ))}
           </div>
@@ -280,12 +280,12 @@ export const AdminSubscriptionsManager = () => {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge className={getPlanColor(subscription.plan_type)}>
+                      <Badge variant={getPlanColor(subscription.plan_type) as any}>
                         {subscription.plan_type}
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <Badge className={getStatusColor(subscription.status)}>
+                      <Badge variant={getStatusColor(subscription.status) as any}>
                         {subscription.status}
                       </Badge>
                     </TableCell>

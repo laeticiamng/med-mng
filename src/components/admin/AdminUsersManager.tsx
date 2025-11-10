@@ -129,18 +129,18 @@ export const AdminUsersManager = () => {
 
   const getRoleColor = (role: string) => {
     switch (role) {
-      case 'admin': return 'bg-red-100 text-red-800';
-      case 'moderator': return 'bg-blue-100 text-blue-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'admin': return 'destructive';
+      case 'moderator': return 'default';
+      default: return 'secondary';
     }
   };
 
   const getSubscriptionColor = (subscription: string) => {
     switch (subscription) {
-      case 'premium': return 'bg-yellow-100 text-yellow-800';
-      case 'pro': return 'bg-purple-100 text-purple-800';
-      case 'standard': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'premium': return 'warning';
+      case 'pro': return 'default';
+      case 'standard': return 'success';
+      default: return 'secondary';
     }
   };
 
@@ -235,17 +235,17 @@ export const AdminUsersManager = () => {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge className={getRoleColor(user.role)}>
+                      <Badge variant={getRoleColor(user.role) as any}>
                         {user.role}
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <Badge className={getSubscriptionColor(user.subscription_type)}>
+                      <Badge variant={getSubscriptionColor(user.subscription_type) as any}>
                         {user.subscription_type}
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <span className={user.credits_left < 10 ? 'text-red-600 font-medium' : ''}>
+                      <span className={user.credits_left < 10 ? 'text-destructive font-medium' : ''}>
                         {user.credits_left}
                       </span>
                     </TableCell>

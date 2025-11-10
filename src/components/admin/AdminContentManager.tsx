@@ -154,17 +154,17 @@ export const AdminContentManager = () => {
   };
 
   const getCompletenessColor = (score: number) => {
-    if (score >= 80) return 'text-green-600';
-    if (score >= 50) return 'text-yellow-600';
-    return 'text-red-600';
+    if (score >= 80) return 'text-success';
+    if (score >= 50) return 'text-warning';
+    return 'text-destructive';
   };
 
   const getStatusBadge = (item: EdnItem) => {
     if (item.is_validated) {
-      return <Badge className="bg-green-100 text-green-800">Validé</Badge>;
+      return <Badge variant="success">Validé</Badge>;
     }
     if (item.completeness_score >= 100) {
-      return <Badge className="bg-blue-100 text-blue-800">Complet</Badge>;
+      return <Badge variant="default">Complet</Badge>;
     }
     return <Badge variant="outline">En cours</Badge>;
   };

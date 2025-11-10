@@ -175,10 +175,10 @@ export const AdminSystemSettings = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'healthy': return 'bg-green-100 text-green-800';
-      case 'warning': return 'bg-yellow-100 text-yellow-800';
-      case 'error': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'healthy': return 'success';
+      case 'warning': return 'warning';
+      case 'error': return 'destructive';
+      default: return 'secondary';
     }
   };
 
@@ -382,7 +382,7 @@ export const AdminSystemSettings = () => {
                 <div className="p-4 border rounded-lg">
                   <div className="flex items-center justify-between mb-2">
                     <span className="font-medium">Base de données</span>
-                    <Badge className={getStatusColor(systemHealth.database_status)}>
+                    <Badge variant={getStatusColor(systemHealth.database_status) as any}>
                       {getStatusIcon(systemHealth.database_status)}
                       <span className="ml-1 capitalize">{systemHealth.database_status}</span>
                     </Badge>
@@ -395,7 +395,7 @@ export const AdminSystemSettings = () => {
                 <div className="p-4 border rounded-lg">
                   <div className="flex items-center justify-between mb-2">
                     <span className="font-medium">Services IA</span>
-                    <Badge className={getStatusColor(systemHealth.ai_services_status)}>
+                    <Badge variant={getStatusColor(systemHealth.ai_services_status) as any}>
                       {getStatusIcon(systemHealth.ai_services_status)}
                       <span className="ml-1 capitalize">{systemHealth.ai_services_status}</span>
                     </Badge>
