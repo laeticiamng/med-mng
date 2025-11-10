@@ -1,0 +1,162 @@
+name: Chromatic Visual Tests
+
+# Déclencher sur push vers main/develop et sur toutes les pull requests
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+# Permissions pour commenter sur les PRs
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  chromatic:
+    name: Run Chromatic
+    runs-on: ubuntu-latest
+    
+    steps:
+      # 1. Checkout du code avec historique complet (nécessaire pour Chromatic)
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Récupère tout l'historique Git pour comparaisons
+
+      # 2. Setup Node.js avec cache npm pour accélérer les builds
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      # 3. Installation des dépendances
+      - name: Install dependencies
+        run: npm ci
+
+      # 4. Lancer Chromatic avec l'action officielle
+      - name: Run Chromatic
+        id: chromatic
+        uses: chromaui/action@latest
+        with:
+          # Token du projet (configuré dans GitHub Secrets)
+          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          
+          # Script de build Storybook (défini dans package.json)
+          buildScriptName: build-storybook
+          
+          # Optimisations pour économiser les crédits
+          onlyChanged: true           # Teste uniquement les stories modifiées
+          exitZeroOnChanges: true     # Ne fait pas échouer le build si changements détectés
+          exitOnceUploaded: true      # Ne pas attendre les résultats (plus rapide)
+          
+          # Auto-accept les changements sur la branche main
+          autoAcceptChanges: ${{ github.ref == 'refs/heads/main' }}
+          
+          # Skip les branches de Dependabot
+          skip: 'dependabot/**'
+
+      # 5. Publier le résumé des tests dans les annotations GitHub
+      - name: Publish Chromatic results
+        if: always()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const status = '${{ steps.chromatic.outputs.buildUrl }}' ? '✅ Chromatic build successful' : '❌ Chromatic build failed';
+            const buildUrl = '${{ steps.chromatic.outputs.buildUrl }}';
+            const storybookUrl = '${{ steps.chromatic.outputs.storybookUrl }}';
+            const changesCount = '${{ steps.chromatic.outputs.changeCount }}' || '0';
+            
+            let body = `## 🎨 Chromatic Visual Tests\n\n${status}\n\n`;
+            
+            if (buildUrl) {
+              body += `📊 **Build URL**: ${buildUrl}\n`;
+              body += `📚 **Storybook**: ${storybookUrl}\n`;
+              body += `🔄 **Changes detected**: ${changesCount}\n\n`;
+              
+              if (parseInt(changesCount) > 0) {
+                body += `⚠️ **Visual changes detected!** Please review the changes in Chromatic before merging.\n\n`;
+                body += `[Review changes in Chromatic](${buildUrl})`;
+              } else {
+                body += `✅ No visual changes detected. All components look good!`;
+              }
+            } else {
+              body += `❌ Build failed. Check the workflow logs for details.`;
+            }
+            
+            // Commenter sur la PR si c'est une pull request
+            if (context.payload.pull_request) {
+              github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.payload.pull_request.number,
+                body: body
+              });
+            }
+            
+            // Ajouter au summary du workflow
+            core.summary
+              .addHeading('Chromatic Visual Tests', 2)
+              .addRaw(body)
+              .write();
+
+      # 6. Upload des artifacts Storybook en cas d'échec (pour debugging)
+      - name: Upload Storybook build
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: storybook-static
+          path: storybook-static/
+          retention-days: 7
+
+  # Job séparé pour vérifier les stats de couverture
+  storybook-stats:
+    name: Storybook Statistics
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Storybook
+        run: npm run build-storybook
+
+      - name: Count stories
+        id: count
+        run: |
+          # Compter les fichiers stories
+          STORY_COUNT=$(find src/stories -name "*.stories.tsx" -o -name "*.stories.ts" | wc -l)
+          echo "story_count=$STORY_COUNT" >> $GITHUB_OUTPUT
+          echo "📚 Found $STORY_COUNT story files"
+
+      - name: Post statistics
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const storyCount = '${{ steps.count.outputs.story_count }}';
+            
+            const body = `## 📊 Storybook Statistics\n\n` +
+              `- **Story files**: ${storyCount}\n` +
+              `- **Build size**: See artifacts for details\n` +
+              `- **Components documented**: See Storybook build\n\n` +
+              `Run \`npm run storybook\` locally to view all components.`;
+            
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.payload.pull_request.number,
+              body: body
+            });
