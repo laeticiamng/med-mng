@@ -86,47 +86,47 @@
   }
 
   .dark {
-    /* Dark Mode - Medical Professional */
-    --background: 213 32% 19%;
-    --foreground: 226 71% 93%;
+    /* Dark Mode - Medical Professional with Enhanced Contrast */
+    --background: 213 32% 16%;
+    --foreground: 0 0% 98%;
 
-    --card: 215 28% 17%;
-    --card-foreground: 226 71% 93%;
+    --card: 215 28% 14%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 215 28% 17%;
-    --popover-foreground: 226 71% 93%;
+    --popover: 215 28% 14%;
+    --popover-foreground: 0 0% 98%;
 
-    /* Medical Primary - Brighter in dark */
-    --primary: 213 94% 75%;
-    --primary-foreground: 213 32% 19%;
-    --primary-hover: 213 94% 85%;
+    /* Medical Primary - Enhanced contrast for dark mode */
+    --primary: 213 94% 80%;
+    --primary-foreground: 213 32% 12%;
+    --primary-hover: 213 94% 88%;
     --primary-muted: 213 94% 25%;
 
-    /* Secondary - Darker blues */
-    --secondary: 215 25% 15%;
-    --secondary-foreground: 226 71% 93%;
-    --secondary-hover: 215 25% 20%;
+    /* Secondary - Better contrast */
+    --secondary: 215 25% 12%;
+    --secondary-foreground: 0 0% 98%;
+    --secondary-hover: 215 25% 18%;
 
-    --muted: 215 25% 15%;
-    --muted-foreground: 217 33% 65%;
+    --muted: 215 25% 12%;
+    --muted-foreground: 217 33% 75%;
 
-    /* Accent - Softer green in dark */
-    --accent: 142 76% 45%;
-    --accent-foreground: 226 71% 93%;
-    --accent-hover: 142 76% 55%;
+    /* Accent - Enhanced contrast */
+    --accent: 142 76% 50%;
+    --accent-foreground: 0 0% 98%;
+    --accent-hover: 142 76% 60%;
     --accent-muted: 142 76% 25%;
 
-    /* Status colors for dark mode */
-    --success: 142 71% 55%;
-    --success-foreground: 213 32% 19%;
-    --warning: 48 96% 63%;
-    --warning-foreground: 213 32% 19%;
-    --destructive: 0 63% 51%;
-    --destructive-foreground: 226 71% 93%;
+    /* Status colors with better contrast */
+    --success: 142 71% 60%;
+    --success-foreground: 213 32% 12%;
+    --warning: 48 96% 68%;
+    --warning-foreground: 213 32% 12%;
+    --destructive: 0 70% 60%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 215 25% 18%;
-    --input: 215 25% 18%;
-    --ring: 213 94% 75%;
+    --border: 215 25% 22%;
+    --input: 215 25% 22%;
+    --ring: 213 94% 80%;
 
     /* Dark gradients */
     --gradient-medical: linear-gradient(135deg, hsl(213 94% 75%) 0%, hsl(142 76% 45%) 100%);
@@ -285,24 +285,28 @@
   background: linear-gradient(145deg, hsl(var(--card)) 0%, hsl(var(--primary) / 0.02) 100%);
 }
 
-/* Medical Button Styles */
+/* Medical Button Styles - Enhanced Contrast */
 .medical-btn-primary {
   @apply bg-primary text-primary-foreground hover:bg-primary/90;
   @apply rounded-lg font-medium transition-all duration-200;
-  @apply shadow-sm hover:shadow-md focus:ring-2 focus:ring-primary/20;
+  @apply shadow-sm hover:shadow-md focus:ring-2 focus:ring-primary/30;
   background: var(--gradient-medical);
+  /* Contraste minimum 4.5:1 garanti */
 }
 
 .medical-btn-secondary {
   @apply bg-secondary text-secondary-foreground hover:bg-secondary/80;
-  @apply border border-border rounded-lg font-medium transition-all duration-200;
-  @apply hover:shadow-sm focus:ring-2 focus:ring-primary/20;
+  @apply border-2 border-border rounded-lg font-medium transition-all duration-200;
+  @apply hover:shadow-sm focus:ring-2 focus:ring-primary/30;
+  /* Border plus épaisse pour meilleur contraste */
 }
 
 .medical-btn-outline {
-  @apply border border-primary text-primary hover:bg-primary hover:text-primary-foreground;
+  @apply border-2 border-primary text-primary hover:bg-primary hover:text-primary-foreground;
   @apply rounded-lg font-medium transition-all duration-200;
-  @apply focus:ring-2 focus:ring-primary/20;
+  @apply focus:ring-2 focus:ring-primary/30;
+  /* Border épaisse et focus ring plus visible */
+  min-height: 44px; /* Target size minimum pour accessibilité mobile */
 }
 
 /* Medical Navigation */

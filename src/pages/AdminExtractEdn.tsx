@@ -22,15 +22,12 @@ const AdminExtractEdn = () => {
     try {
       console.log(`🚀 Lancement de l'extraction EDN - Action: ${action}`);
       
-      const { data, error } = await supabase.functions.invoke('extract-edn-uness', {
+      // ✅ SÉCURISÉ: Les credentials sont gérés côté serveur dans l'edge function
+      // Aucun credential n'est envoyé depuis le frontend
+      const { data, error } = await supabase.functions.invoke('secure-edn-extraction', {
         body: {
           action,
           resumeFromItem: action === 'resume' ? resumeFromItem : 1,
-          // ✅ SÉCURISÉ: Utilisation de variables d'environnement
-          credentials: {
-            username: import.meta.env.VITE_CAS_USERNAME || prompt('Username CAS:'),
-            password: import.meta.env.VITE_CAS_PASSWORD || prompt('Password CAS:')
-          }
         }
       });
 
