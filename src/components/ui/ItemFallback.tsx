@@ -97,14 +97,14 @@ export const ItemFallback: React.FC<ItemFallbackProps> = ({
         return (
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <Construction className="h-5 w-5 text-blue-500" />
+              <Construction className="h-5 w-5 text-primary" />
               <h3 className="font-semibold">Maintenance en cours</h3>
             </div>
             <p className="text-muted-foreground">
               L'item {itemCode} est temporairement indisponible pour maintenance. 
               Nous travaillons à restaurer l'accès dans les plus brefs délais.
             </p>
-            <p className="text-sm text-blue-600">
+            <p className="text-sm text-primary">
               💡 Vous pouvez consulter d'autres items en attendant
             </p>
           </div>

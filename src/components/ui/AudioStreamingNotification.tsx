@@ -48,10 +48,10 @@ export const AudioStreamingNotification: React.FC<AudioStreamingNotificationProp
   }
 
   const getIcon = () => {
-    if (hasError) return <AlertCircle className="h-4 w-4 text-red-600" />;
-    if (isLoading) return <RefreshCw className="h-4 w-4 text-amber-600 animate-spin" />;
-    if (isGenerating) return <Clock className="h-4 w-4 text-blue-600" />;
-    return <CheckCircle className="h-4 w-4 text-green-600" />;
+    if (hasError) return <AlertCircle className="h-4 w-4 text-destructive" />;
+    if (isLoading) return <RefreshCw className="h-4 w-4 text-warning animate-spin" />;
+    if (isGenerating) return <Clock className="h-4 w-4 text-primary" />;
+    return <CheckCircle className="h-4 w-4 text-success" />;
   };
 
   const getMessage = () => {
@@ -79,7 +79,7 @@ export const AudioStreamingNotification: React.FC<AudioStreamingNotificationProp
   };
 
   return (
-    <Alert variant={getAlertVariant()} className="border-l-4 border-l-amber-500">
+    <Alert variant={getAlertVariant()} className="border-l-4 border-l-warning">
       <div className="flex items-center gap-3">
         {getIcon()}
         
@@ -124,9 +124,9 @@ export const AudioStreamingNotification: React.FC<AudioStreamingNotificationProp
       {/* Barre de progression pour la génération */}
       {isGenerating && estimatedTime && countdown > 0 && (
         <div className="mt-3">
-          <div className="w-full bg-gray-200 rounded-full h-1.5">
+          <div className="w-full bg-muted rounded-full h-1.5">
             <div 
-              className="bg-amber-500 h-1.5 rounded-full transition-all duration-1000 ease-linear"
+              className="bg-warning h-1.5 rounded-full transition-all duration-1000 ease-linear"
               style={{ 
                 width: `${Math.max(0, ((estimatedTime - countdown) / estimatedTime) * 100)}%`
               }}

@@ -175,15 +175,15 @@ export const AdvancedAccessibility: React.FC = () => {
   };
 
   const getScoreColor = (score: number) => {
-    if (score >= 90) return 'text-green-600';
-    if (score >= 70) return 'text-yellow-600';
-    return 'text-red-600';
+    if (score >= 90) return 'text-success';
+    if (score >= 70) return 'text-warning';
+    return 'text-destructive';
   };
 
   const getScoreBadgeVariant = (score: number) => {
-    if (score >= 90) return 'default';
-    if (score >= 70) return 'secondary';
-    return 'destructive';
+    if (score >= 90) return 'success' as const;
+    if (score >= 70) return 'warning' as const;
+    return 'destructive' as const;
   };
 
   return (
@@ -260,9 +260,9 @@ export const AdvancedAccessibility: React.FC = () => {
                         className="flex items-start gap-2 p-3 rounded-lg border"
                       >
                         {issue.level === 'error' ? (
-                          <AlertTriangle className="w-4 h-4 text-red-500 mt-0.5" />
+                          <AlertTriangle className="w-4 h-4 text-destructive mt-0.5" />
                         ) : (
-                          <CheckCircle className="w-4 h-4 text-yellow-500 mt-0.5" />
+                          <CheckCircle className="w-4 h-4 text-warning mt-0.5" />
                         )}
                         <div className="flex-1">
                           <p className="text-sm">{issue.message}</p>

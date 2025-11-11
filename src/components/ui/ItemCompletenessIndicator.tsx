@@ -85,7 +85,7 @@ export const ItemCompletenessIndicator: React.FC<ItemCompletenessIndicatorProps>
     switch (completenessResult.status) {
       case 'complete':
         return (
-          <Badge variant="default" className="gap-1 bg-green-100 text-green-800 border-green-200">
+          <Badge variant="success" className="gap-1">
             <CheckCircle className="h-3 w-3" />
             Complet ({completenessResult.completenessScore}%)
           </Badge>
@@ -184,7 +184,7 @@ export const ItemCompletenessIndicator: React.FC<ItemCompletenessIndicatorProps>
 
       {/* Message pour items complets */}
       {showDetails && completenessResult.status === 'complete' && (
-        <Alert className="border-green-200 bg-green-50">
+        <Alert className="border-success/20 bg-success/10">
           <CheckCircle className="h-4 w-4" />
           <AlertDescription>
             <p className="text-sm">
