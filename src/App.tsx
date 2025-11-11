@@ -18,6 +18,7 @@ import { PerformanceProvider } from '@/contexts/PerformanceContext';
 import { AccessibilityCenter } from '@/components/accessibility/AccessibilityCenter';
 import { AccessibilityProvider } from '@/components/ui/AccessibilityProvider';
 import { usePWAMetrics } from '@/hooks/usePWAMetrics';
+import DesignSystemDevTools from '@/components/devtools/DesignSystemDevTools';
 
 // ⚡ LAZY LOADING - Composants non-critiques chargés à la demande
 const DynamicOnboarding = lazy(() => import("@/components/onboarding/DynamicOnboarding").then(module => ({
@@ -114,6 +115,7 @@ const CGU = lazy(() => import("./pages/CGU"));
 const DeclarationAccessibilite = lazy(() => import("./pages/DeclarationAccessibilite"));
 const MesDonneesRGPD = lazy(() => import("./pages/MesDonneesRGPD"));
 const InstallPWA = lazy(() => import("./pages/InstallPWA"));
+const DesignSystemPage = lazy(() => import("./pages/DesignSystem"));
 
 // ⚡ OPTIMISATION QueryClient - Configuration pour chargement rapide
 const queryClient = new QueryClient({
@@ -235,7 +237,8 @@ const App = () => {
             <Route path="/homepage" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><ModernHomepage /></Suspense>} />
             <Route path="/achievements" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Achievements /></Suspense>} />
             <Route path="/favorites" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Favorites /></Suspense>} />
-            <Route path="/settings" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><UserSettings /></Suspense>} />
+             <Route path="/settings" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><UserSettings /></Suspense>} />
+             <Route path="/design-system" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><DesignSystemPage /></Suspense>} />
             <Route path="/mes-donnees-rgpd" element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MesDonneesRGPD /></Suspense></ProtectedRoute>} />
             <Route path="/install" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><InstallPWA /></Suspense>} />
             <Route path="/pwa-analytics" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><PWAAnalytics /></Suspense>} />
@@ -269,6 +272,9 @@ const App = () => {
                             
                             {/* Bannière Cookies RGPD */}
                             <CookieBanner />
+                            
+                            {/* DevTools pour inspection du design system */}
+                            <DesignSystemDevTools />
                           </div>
                           <Toaster />
                           <Sonner />

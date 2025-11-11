@@ -1,5 +1,6 @@
 import type { Preview } from "@storybook/react";
 import React from "react";
+import { ThemeProvider } from '../src/components/ui/theme-provider';
 import "../src/index.css";
 
 const preview: Preview = {
@@ -16,13 +17,29 @@ const preview: Preview = {
       values: [
         {
           name: 'light',
-          value: '#ffffff',
+          value: '#f8fafc',
         },
         {
           name: 'dark',
-          value: '#0a0a0a',
+          value: '#1e293b',
         },
       ],
+    },
+    // Configuration Chromatic pour tests visuels
+    chromatic: {
+      // Désactiver les animations pour des screenshots stables
+      disableSnapshot: false,
+      // Capturer les viewports différents
+      viewports: [375, 768, 1280],
+      // Capturer en light ET dark mode
+      modes: {
+        light: {
+          theme: 'light',
+        },
+        dark: {
+          theme: 'dark',
+        },
+      },
     },
   },
   globalTypes: {
@@ -39,19 +56,15 @@ const preview: Preview = {
   },
   decorators: [
     (Story, context) => {
-      const theme = context.globals.theme || 'light';
+      // Appliquer le thème basé sur les paramètres Chromatic ou toolbar
+      const theme = context.parameters.chromatic?.modes?.[context.viewMode]?.theme || context.globals.theme || 'light';
       
-      // Apply theme to document
-      React.useEffect(() => {
-        const root = document.documentElement;
-        root.classList.remove('light', 'dark');
-        root.classList.add(theme);
-      }, [theme]);
-
       return (
-        <div className={`${theme} min-h-screen bg-background text-foreground p-4`}>
-          <Story />
-        </div>
+        <ThemeProvider defaultTheme={theme}>
+          <div className="min-h-screen bg-background text-foreground p-4">
+            <Story />
+          </div>
+        </ThemeProvider>
       );
     },
   ],
