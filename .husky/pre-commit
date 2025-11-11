@@ -1,8 +1,9 @@
 #!/usr/bin/env sh
 . "$(dirname -- "$0")/_/husky.sh"
 
-# 🔐 HOOK PRE-COMMIT - Ticket 1.3
-# Automatisation de la vérification des credentials
+# 🔐 HOOK PRE-COMMIT
+# 1. Vérification des credentials (Ticket 1.3)
+# 2. Vérification des couleurs hardcodées (Design System)
 
 echo "🔐 SÉCURITÉ - Vérification des credentials avant commit..."
 
@@ -17,3 +18,25 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "✅ Vérification sécurité réussie"
+echo ""
+
+# 🎨 Vérification des couleurs hardcodées
+echo "🎨 DESIGN SYSTEM - Vérification des couleurs hardcodées..."
+
+# Exécuter lint-staged (ESLint sur les fichiers staged)
+npx lint-staged
+
+# Si le linting échoue, le commit est bloqué
+if [ $? -ne 0 ]; then
+  echo ""
+  echo "🔴 COMMIT BLOQUÉ - Couleurs hardcodées détectées!"
+  echo ""
+  echo "💡 Solutions:"
+  echo "   1. Remplacer les couleurs par des tokens sémantiques"
+  echo "   2. Guide: docs/DESIGN_SYSTEM_GUIDE.md"
+  echo "   3. Migration auto: node scripts/migrate-colors.js --path <fichier>"
+  echo ""
+  exit 1
+fi
+
+echo "✅ Aucune couleur hardcodée détectée"
