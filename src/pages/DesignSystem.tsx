@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { useTheme } from '@/components/ui/theme-provider';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
+import ColorPicker from '@/components/devtools/ColorPicker';
 
 const DesignSystem: React.FC = () => {
   const { theme, setTheme } = useTheme();
@@ -77,8 +78,9 @@ const DesignSystem: React.FC = () => {
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
         <Tabs defaultValue="tokens" className="space-y-6">
-          <TabsList className="grid w-full max-w-md grid-cols-3">
+          <TabsList className="grid w-full max-w-2xl grid-cols-4">
             <TabsTrigger value="tokens">Tokens</TabsTrigger>
+            <TabsTrigger value="picker">Color Picker</TabsTrigger>
             <TabsTrigger value="components">Components</TabsTrigger>
             <TabsTrigger value="examples">Examples</TabsTrigger>
           </TabsList>
@@ -169,6 +171,11 @@ const DesignSystem: React.FC = () => {
                 </div>
               </Card>
             </section>
+          </TabsContent>
+
+          {/* Color Picker Tab */}
+          <TabsContent value="picker" className="space-y-6">
+            <ColorPicker />
           </TabsContent>
 
           {/* Components Tab */}

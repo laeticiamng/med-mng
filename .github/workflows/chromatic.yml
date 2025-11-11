@@ -1,162 +1,97 @@
-name: Chromatic Visual Tests
+name: 🎨 Chromatic Visual Tests
 
-# Déclencher sur push vers main/develop et sur toutes les pull requests
 on:
   push:
-    branches:
-      - main
-      - develop
+    branches: [main, develop]
   pull_request:
     types: [opened, synchronize, reopened]
 
-# Permissions pour commenter sur les PRs
+# Permissions nécessaires pour commenter sur les PRs
 permissions:
   contents: read
   pull-requests: write
 
 jobs:
   chromatic:
-    name: Run Chromatic
+    name: Run Visual Tests
     runs-on: ubuntu-latest
-    
+    timeout-minutes: 15
+
     steps:
-      # 1. Checkout du code avec historique complet (nécessaire pour Chromatic)
-      - name: Checkout repository
+      - name: 📥 Checkout code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0  # Récupère tout l'historique Git pour comparaisons
+          fetch-depth: 0 # Nécessaire pour Chromatic
 
-      # 2. Setup Node.js avec cache npm pour accélérer les builds
-      - name: Setup Node.js
+      - name: 📦 Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
 
-      # 3. Installation des dépendances
-      - name: Install dependencies
+      - name: 🔧 Install dependencies
         run: npm ci
 
-      # 4. Lancer Chromatic avec l'action officielle
-      - name: Run Chromatic
+      - name: 🏗️ Build Storybook
+        run: npm run build-storybook
+        env:
+          NODE_ENV: production
+
+      - name: 📸 Run Chromatic
         id: chromatic
         uses: chromaui/action@latest
         with:
-          # Token du projet (configuré dans GitHub Secrets)
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
-          
-          # Script de build Storybook (défini dans package.json)
           buildScriptName: build-storybook
-          
-          # Optimisations pour économiser les crédits
-          onlyChanged: true           # Teste uniquement les stories modifiées
-          exitZeroOnChanges: true     # Ne fait pas échouer le build si changements détectés
-          exitOnceUploaded: true      # Ne pas attendre les résultats (plus rapide)
-          
-          # Auto-accept les changements sur la branche main
-          autoAcceptChanges: ${{ github.ref == 'refs/heads/main' }}
-          
-          # Skip les branches de Dependabot
-          skip: 'dependabot/**'
+          onlyChanged: true # Teste uniquement les stories modifiées
+          exitZeroOnChanges: false # Fail si des changements visuels détectés
+          exitOnceUploaded: false # Attendre les résultats
+          autoAcceptChanges: main # Auto-accept sur main branch
+        env:
+          NODE_ENV: production
 
-      # 5. Publier le résumé des tests dans les annotations GitHub
-      - name: Publish Chromatic results
-        if: always()
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const status = '${{ steps.chromatic.outputs.buildUrl }}' ? '✅ Chromatic build successful' : '❌ Chromatic build failed';
-            const buildUrl = '${{ steps.chromatic.outputs.buildUrl }}';
-            const storybookUrl = '${{ steps.chromatic.outputs.storybookUrl }}';
-            const changesCount = '${{ steps.chromatic.outputs.changeCount }}' || '0';
-            
-            let body = `## 🎨 Chromatic Visual Tests\n\n${status}\n\n`;
-            
-            if (buildUrl) {
-              body += `📊 **Build URL**: ${buildUrl}\n`;
-              body += `📚 **Storybook**: ${storybookUrl}\n`;
-              body += `🔄 **Changes detected**: ${changesCount}\n\n`;
-              
-              if (parseInt(changesCount) > 0) {
-                body += `⚠️ **Visual changes detected!** Please review the changes in Chromatic before merging.\n\n`;
-                body += `[Review changes in Chromatic](${buildUrl})`;
-              } else {
-                body += `✅ No visual changes detected. All components look good!`;
-              }
-            } else {
-              body += `❌ Build failed. Check the workflow logs for details.`;
-            }
-            
-            // Commenter sur la PR si c'est une pull request
-            if (context.payload.pull_request) {
-              github.rest.issues.createComment({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                issue_number: context.payload.pull_request.number,
-                body: body
-              });
-            }
-            
-            // Ajouter au summary du workflow
-            core.summary
-              .addHeading('Chromatic Visual Tests', 2)
-              .addRaw(body)
-              .write();
-
-      # 6. Upload des artifacts Storybook en cas d'échec (pour debugging)
-      - name: Upload Storybook build
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: storybook-static
-          path: storybook-static/
-          retention-days: 7
-
-  # Job séparé pour vérifier les stats de couverture
-  storybook-stats:
-    name: Storybook Statistics
-    runs-on: ubuntu-latest
-    
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build Storybook
-        run: npm run build-storybook
-
-      - name: Count stories
-        id: count
-        run: |
-          # Compter les fichiers stories
-          STORY_COUNT=$(find src/stories -name "*.stories.tsx" -o -name "*.stories.ts" | wc -l)
-          echo "story_count=$STORY_COUNT" >> $GITHUB_OUTPUT
-          echo "📚 Found $STORY_COUNT story files"
-
-      - name: Post statistics
+      - name: 📊 Comment on PR
         if: github.event_name == 'pull_request'
         uses: actions/github-script@v7
         with:
           script: |
-            const storyCount = '${{ steps.count.outputs.story_count }}';
+            const chromaticUrl = '${{ steps.chromatic.outputs.url }}' || 'https://chromatic.com';
+            const buildUrl = '${{ steps.chromatic.outputs.buildUrl }}' || chromaticUrl;
+            const storybookUrl = '${{ steps.chromatic.outputs.storybookUrl }}' || '';
+            const changesCount = '${{ steps.chromatic.outputs.changeCount }}' || '0';
             
-            const body = `## 📊 Storybook Statistics\n\n` +
-              `- **Story files**: ${storyCount}\n` +
-              `- **Build size**: See artifacts for details\n` +
-              `- **Components documented**: See Storybook build\n\n` +
-              `Run \`npm run storybook\` locally to view all components.`;
+            let body = `## 🎨 Chromatic Visual Tests Results\n\n`;
+            
+            if (changesCount === '0') {
+              body += `✅ **No visual changes detected** - All components look good!\n\n`;
+            } else {
+              body += `⚠️ **${changesCount} visual change(s) detected**\n\n`;
+              body += `Please review the changes on Chromatic before merging.\n\n`;
+            }
+            
+            body += `### 📊 Reports\n\n`;
+            body += `- [View Chromatic Build](${buildUrl})\n`;
+            if (storybookUrl) {
+              body += `- [View Storybook Preview](${storybookUrl})\n`;
+            }
+            body += `\n---\n`;
+            body += `💡 **Tip**: Use the DevTools (\`Ctrl+Shift+D\`) to inspect component tokens while reviewing.\n`;
             
             github.rest.issues.createComment({
+              issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              issue_number: context.payload.pull_request.number,
               body: body
             });
+
+      - name: ❌ Fail on visual regressions
+        if: steps.chromatic.outputs.changeCount != '0' && github.event_name == 'pull_request'
+        run: |
+          echo "::error::Visual regressions detected! Review changes on Chromatic: ${{ steps.chromatic.outputs.buildUrl }}"
+          exit 1
+
+      - name: ✅ Success summary
+        if: success()
+        run: |
+          echo "✅ Visual tests passed successfully!"
+          echo "📊 View build: ${{ steps.chromatic.outputs.buildUrl }}"
