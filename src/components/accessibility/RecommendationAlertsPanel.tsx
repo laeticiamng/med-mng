@@ -85,10 +85,10 @@ export function RecommendationAlertsPanel() {
                         <Badge variant="outline" className="text-xs">
                           {alert.category}
                         </Badge>
-                        <Badge variant="outline" className={
-                          alert.impact === 'high' ? 'bg-red-50 text-red-700 border-red-200' :
-                          alert.impact === 'medium' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' :
-                          'bg-green-50 text-green-700 border-green-200'
+                        <Badge variant={
+                          alert.impact === 'high' ? 'destructive' :
+                          alert.impact === 'medium' ? 'warning' :
+                          'success'
                         }>
                           {alert.impact === 'high' ? 'Impact élevé' :
                            alert.impact === 'medium' ? 'Impact moyen' : 'Impact faible'}

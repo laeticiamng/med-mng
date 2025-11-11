@@ -4,6 +4,7 @@ import reactHooks from 'eslint-plugin-react-hooks';
 import reactRefresh from 'eslint-plugin-react-refresh';
 import prettier from 'eslint-plugin-prettier';
 import tseslint from 'typescript-eslint';
+import noHardcodedColors from './eslint-rules/no-hardcoded-colors.js';
 
 export default tseslint.config(
   { ignores: ['dist'] },
@@ -18,6 +19,11 @@ export default tseslint.config(
       'react-hooks': reactHooks,
       'react-refresh': reactRefresh,
       prettier,
+      'custom': {
+        rules: {
+          'no-hardcoded-colors': noHardcodedColors,
+        },
+      },
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
@@ -27,6 +33,7 @@ export default tseslint.config(
       ],
       '@typescript-eslint/no-unused-vars': 'off',
       'prettier/prettier': 'error',
+      'custom/no-hardcoded-colors': 'warn',
     },
   }
 );

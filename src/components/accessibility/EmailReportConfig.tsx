@@ -405,7 +405,7 @@ export const EmailReportConfig: React.FC = () => {
                       size="sm"
                       onClick={() => removeRecipient(email)}
                     >
-                      <Trash2 className="h-4 w-4 text-red-600" />
+                      <Trash2 className="h-4 w-4 text-destructive" />
                     </Button>
                   </div>
                 ))}
@@ -474,9 +474,9 @@ export const EmailReportConfig: React.FC = () => {
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
                       {item.status === 'success' ? (
-                        <CheckCircle2 className="h-4 w-4 text-green-600" />
+                        <CheckCircle2 className="h-4 w-4 text-success" />
                       ) : (
-                        <XCircle className="h-4 w-4 text-red-600" />
+                        <XCircle className="h-4 w-4 text-destructive" />
                       )}
                       <span className="text-sm font-medium">
                         {new Date(item.sent_at).toLocaleDateString('fr-FR', {

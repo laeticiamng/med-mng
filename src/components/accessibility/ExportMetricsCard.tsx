@@ -35,8 +35,8 @@ export const ExportMetricsCard: React.FC<ExportMetricsCardProps> = ({
           {/* Export CSV complet */}
           <div className="p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors">
             <div className="flex items-start gap-3 mb-3">
-              <div className="p-2 rounded-lg bg-green-100 dark:bg-green-900/20">
-                <FileSpreadsheet className="h-5 w-5 text-green-600 dark:text-green-400" />
+              <div className="p-2 rounded-lg bg-success/10">
+                <FileSpreadsheet className="h-5 w-5 text-success" />
               </div>
               <div className="flex-1">
                 <h4 className="font-semibold text-sm mb-1">CSV Complet</h4>
@@ -62,8 +62,8 @@ export const ExportMetricsCard: React.FC<ExportMetricsCardProps> = ({
           {/* Export JSON complet */}
           <div className="p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors">
             <div className="flex items-start gap-3 mb-3">
-              <div className="p-2 rounded-lg bg-blue-100 dark:bg-blue-900/20">
-                <FileJson className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+              <div className="p-2 rounded-lg bg-primary/10">
+                <FileJson className="h-5 w-5 text-primary" />
               </div>
               <div className="flex-1">
                 <h4 className="font-semibold text-sm mb-1">JSON Complet</h4>
@@ -90,8 +90,8 @@ export const ExportMetricsCard: React.FC<ExportMetricsCardProps> = ({
           {/* Résumé rapide */}
           <div className="p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors">
             <div className="flex items-start gap-3 mb-3">
-              <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900/20">
-                <FileText className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+              <div className="p-2 rounded-lg bg-accent/10">
+                <FileText className="h-5 w-5 text-accent" />
               </div>
               <div className="flex-1">
                 <h4 className="font-semibold text-sm mb-1">Résumé Rapide</h4>
@@ -116,24 +116,24 @@ export const ExportMetricsCard: React.FC<ExportMetricsCardProps> = ({
           </div>
 
           {/* Rapport mensuel */}
-          <div className="p-4 rounded-lg border bg-gradient-to-br from-orange-50 to-amber-50 dark:from-orange-900/20 dark:to-amber-900/20 hover:from-orange-100 hover:to-amber-100 dark:hover:from-orange-900/30 dark:hover:to-amber-900/30 transition-colors">
+          <div className="p-4 rounded-lg border bg-gradient-to-br from-warning/5 to-warning/10 hover:from-warning/10 hover:to-warning/20 transition-colors">
             <div className="flex items-start gap-3 mb-3">
-              <div className="p-2 rounded-lg bg-orange-100 dark:bg-orange-900/40">
-                <BarChart3 className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+              <div className="p-2 rounded-lg bg-warning/20">
+                <BarChart3 className="h-5 w-5 text-warning" />
               </div>
               <div className="flex-1">
                 <h4 className="font-semibold text-sm mb-1">Rapport Mensuel</h4>
                 <p className="text-xs text-muted-foreground mb-2">
                   Rapport exécutif complet avec recommandations
                 </p>
-                <Badge className="text-xs bg-orange-600 hover:bg-orange-700">
+                <Badge variant="warning" className="text-xs">
                   ⭐ Format Premium
                 </Badge>
               </div>
             </div>
             <Button 
               size="sm" 
-              className="w-full bg-orange-600 hover:bg-orange-700"
+              className="w-full bg-warning hover:bg-warning/90 text-warning-foreground"
               onClick={onExportMonthlyReport}
               disabled={!hasData}
             >

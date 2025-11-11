@@ -79,7 +79,7 @@ export const EmailPreview: React.FC<EmailPreviewProps> = ({
             </div>
 
             {/* Prévisualisation iframe */}
-            <div className="relative border rounded-lg overflow-hidden bg-gray-50">
+            <div className="relative border rounded-lg overflow-hidden bg-muted">
               <div
                 className="transition-all duration-300"
                 style={{
