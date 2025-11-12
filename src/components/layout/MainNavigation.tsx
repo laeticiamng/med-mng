@@ -2,7 +2,28 @@ import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import {
-  Settings, Bell, User, LogOut, Menu, X, Sparkles, Shield, Music
+  Settings,
+  Bell,
+  User,
+  LogOut,
+  Menu,
+  X,
+  Sparkles,
+  Shield,
+  Music,
+  BarChart3,
+  Palette,
+  Accessibility,
+  Target,
+  CalendarCheck,
+  Users,
+  Award,
+  Star,
+  SlidersHorizontal,
+  ShieldCheck,
+  DownloadCloud,
+  Activity,
+  ChevronDown,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -25,6 +46,41 @@ export const MainNavigation: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const mainNavItems = MAIN_NAV_ITEMS;
+
+  const toolNavItems = [
+    { path: ROUTE_PATHS.statistics, label: 'Statistiques', icon: BarChart3 },
+    { path: ROUTE_PATHS.designSystem, label: 'Design System', icon: Palette },
+    {
+      path: ROUTE_PATHS.accessibilityDashboard,
+      label: 'Accessibilité',
+      icon: Accessibility,
+    },
+    {
+      path: ROUTE_PATHS.effectivenessDashboard,
+      label: 'Efficacité',
+      icon: Target,
+    },
+    {
+      path: ROUTE_PATHS.studyPlanner,
+      label: "Planificateur d'études",
+      icon: CalendarCheck,
+    },
+    { path: ROUTE_PATHS.community, label: 'Communauté', icon: Users },
+    { path: ROUTE_PATHS.achievements, label: 'Succès', icon: Award },
+    { path: ROUTE_PATHS.favorites, label: 'Favoris', icon: Star },
+    { path: ROUTE_PATHS.settings, label: 'Réglages', icon: SlidersHorizontal },
+    {
+      path: ROUTE_PATHS.mesDonneesRgpd,
+      label: 'Mes données RGPD',
+      icon: ShieldCheck,
+    },
+    { path: ROUTE_PATHS.installPwa, label: "Installer l'app", icon: DownloadCloud },
+    {
+      path: ROUTE_PATHS.pwaAnalytics,
+      label: 'Analytics PWA',
+      icon: Activity,
+    },
+  ] as const;
 
   const isActive = (path: string) => {
     if (path === ROUTE_PATHS.home) return location.pathname === ROUTE_PATHS.home;
@@ -75,6 +131,35 @@ export const MainNavigation: React.FC = () => {
                 )}
               </Link>
             ))}
+
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  className={`flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                    toolNavItems.some((tool) => isActive(tool.path))
+                      ? 'bg-blue-100 text-blue-700'
+                      : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                  }`}
+                >
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  Outils
+                  <ChevronDown className="w-4 h-4 ml-2" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-64">
+                {toolNavItems.map((tool) => (
+                  <DropdownMenuItem
+                    key={tool.path}
+                    onClick={() => navigate(tool.path)}
+                    className="flex items-center"
+                  >
+                    <tool.icon className="w-4 h-4 mr-2" />
+                    {tool.label}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           {/* Actions utilisateur */}
@@ -179,6 +264,26 @@ export const MainNavigation: React.FC = () => {
                   )}
                 </Link>
               ))}
+              <div className="pt-3 border-t border-gray-200/60">
+                <p className="px-3 pb-1 text-xs font-semibold text-gray-500 uppercase tracking-wide">
+                  Outils
+                </p>
+                {toolNavItems.map((tool) => (
+                  <Link
+                    key={tool.path}
+                    to={tool.path}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={`flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
+                      isActive(tool.path)
+                        ? 'bg-blue-100 text-blue-700'
+                        : 'text-gray-600 hover:text-gray-900 hover:bg-gray-100'
+                    }`}
+                  >
+                    <tool.icon className="w-4 h-4 mr-3" />
+                    {tool.label}
+                  </Link>
+                ))}
+              </div>
             </div>
           </div>
         )}
