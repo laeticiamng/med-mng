@@ -13,6 +13,7 @@ import { KeyboardShortcuts } from "@/components/advanced/KeyboardShortcuts";
 import { CookieBanner } from "@/components/common/CookieBanner";
 import { Bell } from 'lucide-react';
 import { MainNavigation } from '@/components/layout/MainNavigation';
+import { Footer } from '@/components/layout/Footer';
 import { InternationalizationProvider } from '@/contexts/InternationalizationContext';
 import { PerformanceProvider } from '@/contexts/PerformanceContext';
 import { AccessibilityCenter } from '@/components/accessibility/AccessibilityCenter';
@@ -252,7 +253,8 @@ const App = () => {
                                 <Route path={ROUTE_PATHS.notFound} element={<NotFound />} />
                               </Routes>
                             </main>
-                            
+                            <Footer />
+
                             {/* Global UI Components */}
                             <HelpButton />
                             <NotificationSystem 
