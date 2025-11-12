@@ -115,11 +115,15 @@ vi.mock('@/integrations/supabase/client', () => ({
 }));
 
 // Mock des hooks React Router
-vi.mock('react-router-dom', () => ({
-  useParams: () => ({ slug: 'test-slug' }),
-  useNavigate: () => vi.fn(),
-  useLocation: () => ({ pathname: '/test' }),
-}));
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom');
+  return {
+    ...actual,
+    useParams: () => ({ slug: 'test-slug' }),
+    useNavigate: () => vi.fn(),
+    useLocation: () => ({ pathname: '/test' }),
+  };
+});
 
 // Mock des toasts
 vi.mock('@/hooks/use-toast', () => ({
