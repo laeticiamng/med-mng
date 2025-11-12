@@ -29,7 +29,7 @@ describe('MainNavigation coherence', () => {
     const routes = new Set(ROUTE_LIST);
 
     MAIN_NAV_ITEMS.forEach((item) => {
-      expect(routes.has(item.path)).toBe(true);
+      expect(routes.has(item.path as any)).toBe(true);
     });
   });
 
