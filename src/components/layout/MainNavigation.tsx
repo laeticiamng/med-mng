@@ -1,12 +1,11 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { 
-  Home, BookOpen, Music, Users, MessageSquare, BarChart3, 
-  Settings, Bell, User, LogOut, Menu, X, Sparkles, Library, ShoppingBag, Shield
+import {
+  Settings, Bell, User, LogOut, Menu, X, Sparkles, Shield, Music
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { 
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -16,13 +15,8 @@ import {
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { useState } from 'react';
-
-interface NavItem {
-  path: string;
-  label: string;
-  icon: React.ComponentType<{ className?: string }>;
-  badge?: number;
-}
+import { MAIN_NAV_ITEMS } from '@/config/navigation';
+import { ROUTE_PATHS } from '@/config/routes';
 
 export const MainNavigation: React.FC = () => {
   const location = useLocation();
@@ -30,26 +24,17 @@ export const MainNavigation: React.FC = () => {
   const { user, signOut } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const mainNavItems: NavItem[] = [
-    { path: '/', label: 'Accueil', icon: Home },
-    { path: '/dashboard', label: 'Dashboard', icon: BarChart3 },
-    { path: '/edn-complete', label: 'Items EDN', icon: BookOpen },
-    { path: '/generator', label: 'Générateur', icon: Music },
-    { path: '/store', label: 'Store', icon: ShoppingBag },
-    { path: '/med-mng/library', label: 'Bibliothèque', icon: Library },
-    { path: '/ecos', label: 'ECOS', icon: Users },
-    { path: '/chat', label: 'Assistant IA', icon: MessageSquare },
-  ];
+  const mainNavItems = MAIN_NAV_ITEMS;
 
   const isActive = (path: string) => {
-    if (path === '/') return location.pathname === '/';
+    if (path === ROUTE_PATHS.home) return location.pathname === ROUTE_PATHS.home;
     return location.pathname.startsWith(path);
   };
 
   const handleSignOut = async () => {
     try {
       await signOut();
-      navigate('/');
+      navigate(ROUTE_PATHS.home);
     } catch (error) {
       console.error('Erreur lors de la déconnexion:', error);
     }
@@ -60,7 +45,7 @@ export const MainNavigation: React.FC = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-3">
+          <Link to={ROUTE_PATHS.home} className="flex items-center space-x-3">
             <div className="w-8 h-8 bg-gradient-to-br from-blue-500 via-purple-600 to-indigo-700 rounded-lg flex items-center justify-center">
               <Sparkles className="w-5 h-5 text-white" />
             </div>
@@ -120,23 +105,23 @@ export const MainNavigation: React.FC = () => {
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuItem onClick={() => navigate('/med-mng/profile')}>
+                  <DropdownMenuItem onClick={() => navigate(ROUTE_PATHS.medMngProfile)}>
                     <User className="w-4 h-4 mr-2" />
                     Mon Profil
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate('/med-mng/library')}>
+                  <DropdownMenuItem onClick={() => navigate(ROUTE_PATHS.medMngLibrary)}>
                     <Music className="w-4 h-4 mr-2" />
                     Ma Bibliothèque
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate('/platform-settings')}>
+                  <DropdownMenuItem onClick={() => navigate(ROUTE_PATHS.platformSettings)}>
                     <Settings className="w-4 h-4 mr-2" />
                     Paramètres
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate('/rls-documentation')}>
+                  <DropdownMenuItem onClick={() => navigate(ROUTE_PATHS.rlsDocumentation)}>
                     <Shield className="w-4 h-4 mr-2" />
                     Documentation RLS
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate('/security-monitoring')}>
+                  <DropdownMenuItem onClick={() => navigate(ROUTE_PATHS.securityMonitoring)}>
                     <Shield className="w-4 h-4 mr-2" />
                     Monitoring Sécurité
                   </DropdownMenuItem>
@@ -149,10 +134,10 @@ export const MainNavigation: React.FC = () => {
               </DropdownMenu>
             ) : (
               <div className="flex items-center space-x-2">
-                <Button variant="ghost" size="sm" onClick={() => navigate('/med-mng/login')}>
+                <Button variant="ghost" size="sm" onClick={() => navigate(ROUTE_PATHS.medMngLogin)}>
                   Connexion
                 </Button>
-                <Button size="sm" onClick={() => navigate('/med-mng/signup')}>
+                <Button size="sm" onClick={() => navigate(ROUTE_PATHS.medMngSignup)}>
                   S'inscrire
                 </Button>
               </div>
