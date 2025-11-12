@@ -39,6 +39,7 @@ export const ROUTE_PATHS = {
   medMngAnalytics: '/med-mng/analytics',
   chat: '/chat',
   ednAudit: '/edn-audit',
+  adminIndex: '/admin',
   adminImport: '/admin/import',
   adminAudit: '/admin/audit',
   adminExtractEdn: '/admin/extract-edn',

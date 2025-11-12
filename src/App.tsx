@@ -53,6 +53,7 @@ const SecurityMonitoring = lazy(() => import("./pages/SecurityMonitoring"));
 const RLSDocumentation = lazy(() => import("./pages/RLSDocumentation"));
 
 // 👨‍💼 ADMIN PAGES - Lazy loaded
+const AdminIndex = lazy(() => import("./pages/AdminIndex").then(m => ({ default: m.AdminIndex })));
 const AdminPanel = lazy(() => import("./pages/AdminPanel").then(m => ({ default: m.AdminPanel })));
 const AdminImport = lazy(() => import("./pages/AdminImport"));
 const AdminAudit = lazy(() => import("./pages/AdminAudit"));
@@ -221,7 +222,8 @@ const App = () => {
            <Route path={ROUTE_PATHS.chat} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MedChat /></Suspense>} />
            <Route path={ROUTE_PATHS.ednAudit} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EdnAuditDashboard /></Suspense>} />
            
-           {/* Routes Admin - Protégées par AdminRoute */}
+          {/* Routes Admin - Protégées par AdminRoute */}
+            <Route path={ROUTE_PATHS.adminIndex} element={<AdminRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AdminIndex /></Suspense></AdminRoute>} />
             <Route path={ROUTE_PATHS.adminImport} element={<AdminRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AdminImport /></Suspense></AdminRoute>} />
             <Route path={ROUTE_PATHS.adminAudit} element={<AdminRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AdminAudit /></Suspense></AdminRoute>} />
             <Route path={ROUTE_PATHS.adminExtractEdn} element={<AdminRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AdminExtractEdn /></Suspense></AdminRoute>} />
