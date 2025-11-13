@@ -198,4 +198,7 @@ verify_jwt = false
 [functions.send-quality-alert]
 verify_jwt = false
 
+[functions.send-quality-digest]
+verify_jwt = false
+
 
