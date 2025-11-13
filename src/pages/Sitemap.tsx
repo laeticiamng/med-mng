@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import {
   Home,
   LayoutDashboard,
@@ -20,6 +21,7 @@ import {
   History,
   Search,
   LucideIcon,
+  ArrowUp,
 } from 'lucide-react';
 
 interface SitemapRoute {
@@ -508,6 +510,20 @@ const sitemapSections: SitemapSection[] = [
 
 export default function Sitemap() {
   const [searchQuery, setSearchQuery] = useState('');
+  const [showScrollTop, setShowScrollTop] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setShowScrollTop(window.scrollY > 400);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   const filteredSections = sitemapSections.map(section => ({
     ...section,
@@ -619,6 +635,18 @@ export default function Sitemap() {
           </div>
         )}
       </div>
+
+      {/* Bouton Scroll to Top */}
+      {showScrollTop && (
+        <Button
+          onClick={scrollToTop}
+          size="icon"
+          className="fixed bottom-8 right-8 rounded-full shadow-lg z-50"
+          aria-label="Retour en haut"
+        >
+          <ArrowUp className="h-5 w-5" />
+        </Button>
+      )}
     </div>
   );
 }
