@@ -30,7 +30,7 @@ export const useAuditLogs = (options: UseAuditLogsOptions = {}) => {
     queryKey: ['audit-logs', resourceId, resourceType, action, userId, limit, days],
     queryFn: async () => {
       let query = supabase
-        .from('share_audit_logs')
+        .from('share_audit_logs' as any)
         .select('*')
         .order('created_at', { ascending: false })
         .limit(limit);
@@ -57,7 +57,7 @@ export const useAuditLogs = (options: UseAuditLogsOptions = {}) => {
       const { data, error } = await query;
 
       if (error) throw error;
-      return data as AuditLog[];
+      return (data as unknown) as AuditLog[];
     },
   });
 };
@@ -70,12 +70,12 @@ export const useLogAuditEvent = () => {
     resourceId: string,
     details?: Record<string, any>
   ) => {
-    const { error } = await supabase.rpc('log_share_audit', {
+    const { error } = await supabase.rpc('log_share_audit' as any, {
       p_action: action,
       p_resource_type: resourceType,
       p_resource_id: resourceId,
       p_details: details || null,
-    });
+    } as any);
 
     if (error) {
       console.error('Failed to log audit event:', error);
