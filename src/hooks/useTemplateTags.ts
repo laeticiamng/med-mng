@@ -1,12 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import type { TemplateTag } from '@/types/database.types';
 
-export interface TemplateTag {
-  id: string;
-  tag_name: string;
-  usage_count: number;
-  created_at: string;
-}
+export type { TemplateTag };
 
 export const useTemplateTags = () => {
   // Fetch all tags sorted by usage
@@ -14,12 +10,12 @@ export const useTemplateTags = () => {
     queryKey: ['template-tags'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('template_tags' as any)
+        .from('template_tags')
         .select('*')
         .order('usage_count', { ascending: false });
 
       if (error) throw error;
-      return (data || []) as any as TemplateTag[];
+      return (data || []) as TemplateTag[];
     },
   });
 
