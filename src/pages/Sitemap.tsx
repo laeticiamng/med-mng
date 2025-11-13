@@ -1,8 +1,26 @@
+import { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import {
+  Home,
+  LayoutDashboard,
+  BookOpen,
+  Stethoscope,
+  ShieldCheck,
+  Music,
+  Library,
+  ShoppingCart,
+  Settings,
+  MessageCircle,
+  Shield,
+  History,
+  Search,
+  LucideIcon,
+} from 'lucide-react';
 
 interface SitemapRoute {
   label: string;
@@ -14,6 +32,7 @@ interface SitemapRoute {
 interface SitemapSection {
   title: string;
   description: string;
+  icon: LucideIcon;
   routes: SitemapRoute[];
 }
 
@@ -21,6 +40,7 @@ const sitemapSections: SitemapSection[] = [
   {
     title: 'Navigation & Accueil',
     description: 'Portails d\'entrée de la plateforme et plan du site.',
+    icon: Home,
     routes: [
       {
         label: 'Accueil principal',
@@ -47,6 +67,7 @@ const sitemapSections: SitemapSection[] = [
   {
     title: 'Dashboards & Pilotage',
     description: 'Tableaux de bord stratégiques pour suivre la performance et la conformité.',
+    icon: LayoutDashboard,
     routes: [
       {
         label: 'Dashboard modulable',
@@ -118,6 +139,7 @@ const sitemapSections: SitemapSection[] = [
   {
     title: 'Espace EDN',
     description: 'Outils dédiés à la diffusion et à la musique thérapeutique EDN.',
+    icon: BookOpen,
     routes: [
       {
         label: 'EDN complet',
@@ -162,6 +184,7 @@ const sitemapSections: SitemapSection[] = [
   {
     title: 'Espace ECOS',
     description: 'Simulations cliniques et scénarios interactifs ECOS.',
+    icon: Stethoscope,
     routes: [
       {
         label: 'Portail ECOS',
@@ -179,6 +202,7 @@ const sitemapSections: SitemapSection[] = [
   {
     title: 'Administration & OIC',
     description: 'Outils réservés aux administrateurs et à la gouvernance des données.',
+    icon: ShieldCheck,
     routes: [
       {
         label: 'Imports administrateur',
@@ -225,6 +249,7 @@ const sitemapSections: SitemapSection[] = [
   {
     title: 'Espace Med-MNG',
     description: 'Parcours d\'inscription, de gestion de playlists et d\'analyses musicales.',
+    icon: Music,
     routes: [
       {
         label: 'Connexion Med-MNG',
@@ -294,6 +319,7 @@ const sitemapSections: SitemapSection[] = [
   {
     title: 'Contenus & Ressources',
     description: 'Modules de formation, bibliothèques et ressources pédagogiques.',
+    icon: Library,
     routes: [
       {
         label: 'Générateur de contenus',
@@ -340,6 +366,7 @@ const sitemapSections: SitemapSection[] = [
   {
     title: 'Commerce & Monétisation',
     description: 'Pages orientées vente de contenus et produits additionnels.',
+    icon: ShoppingCart,
     routes: [
       {
         label: 'Boutique',
@@ -357,6 +384,7 @@ const sitemapSections: SitemapSection[] = [
   {
     title: 'Paramètres & Expérience',
     description: 'Configuration personnelle et outils pour améliorer l\'expérience.',
+    icon: Settings,
     routes: [
       {
         label: 'Paramètres utilisateur',
@@ -383,6 +411,7 @@ const sitemapSections: SitemapSection[] = [
   {
     title: 'Communication & Assistance',
     description: 'Interactions en direct et support utilisateur.',
+    icon: MessageCircle,
     routes: [
       {
         label: 'Med Chat',
@@ -394,6 +423,7 @@ const sitemapSections: SitemapSection[] = [
   {
     title: 'Conformité & Sécurité',
     description: 'Pages légales, RGPD et documentation de sécurité.',
+    icon: Shield,
     routes: [
       {
         label: 'Mentions légales',
@@ -435,6 +465,7 @@ const sitemapSections: SitemapSection[] = [
   {
     title: 'Audit & Redirections historiques',
     description: 'Routes d\'audit héritées conservées pour compatibilité.',
+    icon: History,
     routes: [
       {
         label: 'Audit général (legacy)',
@@ -475,9 +506,24 @@ const sitemapSections: SitemapSection[] = [
   },
 ];
 
-const totalRoutes = sitemapSections.reduce((count, section) => count + section.routes.length, 0);
-
 export default function Sitemap() {
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const filteredSections = sitemapSections.map(section => ({
+    ...section,
+    routes: section.routes.filter(route => {
+      const query = searchQuery.toLowerCase();
+      return (
+        route.label.toLowerCase().includes(query) ||
+        route.description.toLowerCase().includes(query) ||
+        route.path.toLowerCase().includes(query)
+      );
+    }),
+  })).filter(section => section.routes.length > 0);
+
+  const totalRoutes = sitemapSections.reduce((count, section) => count + section.routes.length, 0);
+  const filteredRoutesCount = filteredSections.reduce((count, section) => count + section.routes.length, 0);
+
   return (
     <div className="min-h-screen bg-muted/10 py-16">
       <Helmet>
@@ -488,7 +534,7 @@ export default function Sitemap() {
         />
       </Helmet>
 
-      <div className="container mx-auto flex max-w-6xl flex-col gap-12 px-4">
+      <div className="container mx-auto flex max-w-6xl flex-col gap-8 px-4">
         <header className="space-y-4 text-center md:text-left">
           <h1 className="text-3xl font-bold tracking-tight sm:text-4xl">Plan du site</h1>
           <p className="text-muted-foreground md:text-lg">
@@ -497,44 +543,81 @@ export default function Sitemap() {
           </p>
         </header>
 
-        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {sitemapSections.map(section => (
-            <Card key={section.title} className="flex h-full flex-col">
-              <CardHeader>
-                <div className="flex items-center justify-between gap-2">
-                  <CardTitle className="text-xl font-semibold">{section.title}</CardTitle>
-                  <Badge variant="secondary" className="rounded-full px-3 py-1 text-xs font-medium">
-                    {section.routes.length} routes
-                  </Badge>
-                </div>
-                <p className="text-sm text-muted-foreground">{section.description}</p>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <ul className="space-y-3">
-                  {section.routes.map(route => (
-                    <li
-                      key={`${section.title}-${route.path}`}
-                      className="rounded-lg border bg-card/60 p-3 text-left shadow-sm transition hover:border-primary/60 hover:shadow"
-                    >
-                      <div className="flex flex-wrap items-center justify-between gap-2">
-                        <Link
-                          to={route.examplePath ?? route.path}
-                          className="font-medium text-primary transition hover:text-primary/80 hover:underline"
-                        >
-                          {route.label}
-                        </Link>
-                        <code className="whitespace-nowrap rounded bg-muted px-2 py-1 text-xs text-muted-foreground">
-                          {route.path}
-                        </code>
-                      </div>
-                      <p className="mt-2 text-sm text-muted-foreground">{route.description}</p>
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-          ))}
+        <div className="relative w-full max-w-2xl mx-auto">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            type="text"
+            placeholder="Rechercher une page par nom, description ou chemin..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10 h-12"
+          />
         </div>
+
+        {searchQuery && (
+          <p className="text-sm text-muted-foreground text-center">
+            {filteredRoutesCount} {filteredRoutesCount === 1 ? 'résultat trouvé' : 'résultats trouvés'}
+          </p>
+        )}
+
+        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+          {filteredSections.map(section => {
+            const Icon = section.icon;
+            return (
+              <Card key={section.title} className="flex h-full flex-col">
+                <CardHeader>
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="p-2 rounded-lg bg-primary/10">
+                      <Icon className="h-5 w-5 text-primary" />
+                    </div>
+                    <CardTitle className="text-lg">{section.title}</CardTitle>
+                  </div>
+                  <Badge variant="secondary" className="w-fit">
+                    {section.routes.length} {section.routes.length === 1 ? 'route' : 'routes'}
+                  </Badge>
+                  <p className="text-xs text-muted-foreground mt-2">{section.description}</p>
+                </CardHeader>
+                <CardContent className="flex-1">
+                  <ul className="space-y-3">
+                    {section.routes.map(route => (
+                      <li key={route.path}>
+                        <Link
+                          to={route.examplePath || route.path}
+                          className="group block rounded-md border border-transparent p-2 transition-colors hover:border-border hover:bg-muted/50"
+                        >
+                          <div className="flex items-start justify-between gap-2">
+                            <span className="font-medium text-sm text-foreground group-hover:text-primary transition-colors">
+                              {route.label}
+                            </span>
+                            {route.examplePath && (
+                              <Badge variant="outline" className="text-xs shrink-0">
+                                Exemple
+                              </Badge>
+                            )}
+                          </div>
+                          <p className="mt-1 text-xs text-muted-foreground line-clamp-2">
+                            {route.description}
+                          </p>
+                          <code className="mt-1 block text-xs text-muted-foreground/70">
+                            {route.path}
+                          </code>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+              </Card>
+            );
+          })}
+        </div>
+
+        {filteredRoutesCount === 0 && (
+          <div className="text-center py-12">
+            <p className="text-muted-foreground">
+              Aucune route ne correspond à votre recherche. Essayez d'autres mots-clés.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );
