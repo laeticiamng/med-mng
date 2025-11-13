@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { useTheme } from '@/components/ui/theme-provider';
 import { VisitStatsChart } from '@/components/sitemap/VisitStatsChart';
 import { AIRecommendations } from '@/components/sitemap/AIRecommendations';
+import { TagManager, TagData } from '@/components/sitemap/TagManager';
 import {
   Home,
   LayoutDashboard,
@@ -36,6 +37,9 @@ import {
   Moon,
   Sun,
   Star,
+  Tag,
+  ChevronDown,
+  ChevronUp,
 } from 'lucide-react';
 import {
   Select,
@@ -553,9 +557,11 @@ export default function Sitemap() {
   const [showFavoritesSection, setShowFavoritesSection] = useState(false);
   const [favoriteCount, setFavoriteCount] = useState(0);
   const [animateFavorite, setAnimateFavorite] = useState(false);
+  const [tags, setTags] = useState<TagData[]>([]);
+  const [selectedTagFilter, setSelectedTagFilter] = useState<string | null>(null);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-  // Charger les favoris et statistiques depuis localStorage
+  // Charger les favoris, tags et statistiques depuis localStorage
   useEffect(() => {
     const savedFavorites = localStorage.getItem('sitemap-favorites');
     if (savedFavorites) {
@@ -565,6 +571,15 @@ export default function Sitemap() {
         setFavoriteCount(favs.size);
       } catch (e) {
         console.error('Error loading favorites:', e);
+      }
+    }
+
+    const savedTags = localStorage.getItem('sitemap-tags');
+    if (savedTags) {
+      try {
+        setTags(JSON.parse(savedTags));
+      } catch (e) {
+        console.error('Error loading tags:', e);
       }
     }
 
@@ -625,7 +640,47 @@ export default function Sitemap() {
   };
 
   // Obtenir les routes favorites
-  const getFavoriteRoutes = () => {
+  const handleTagsChange = (newTags: TagData[]) => {
+    setTags(newTags);
+    localStorage.setItem('sitemap-tags', JSON.stringify(newTags));
+  };
+
+  const handleRouteTagged = (routePath: string, tagId: string) => {
+    const newTags = tags.map(tag => {
+      if (tag.id === tagId && !tag.routes.includes(routePath)) {
+        return { ...tag, routes: [...tag.routes, routePath] };
+      }
+      return tag;
+    });
+    handleTagsChange(newTags);
+  };
+
+  const handleRouteUntagged = (routePath: string, tagId: string) => {
+    const newTags = tags.map(tag => {
+      if (tag.id === tagId) {
+        return { ...tag, routes: tag.routes.filter(r => r !== routePath) };
+      }
+      return tag;
+    });
+    handleTagsChange(newTags);
+  };
+
+  const getRouteTags = (routePath: string) => {
+    return tags.filter(tag => tag.routes.includes(routePath));
+  };
+
+  const toggleRouteTag = (routePath: string, tagId: string) => {
+    const tag = tags.find(t => t.id === tagId);
+    if (!tag) return;
+
+    if (tag.routes.includes(routePath)) {
+      handleRouteUntagged(routePath, tagId);
+    } else {
+      handleRouteTagged(routePath, tagId);
+    }
+  };
+
+  const getFavoriteRoutes = (tagFilter?: string | null) => {
     const favoriteRoutes: Array<SitemapRoute & { category: string; icon: LucideIcon }> = [];
     sitemapSections.forEach(section => {
       section.routes.forEach(route => {
@@ -638,7 +693,13 @@ export default function Sitemap() {
         }
       });
     });
-    return favoriteRoutes;
+    
+    if (!tagFilter) return favoriteRoutes;
+
+    return favoriteRoutes.filter(route => {
+      const routeTags = getRouteTags(route.path);
+      return routeTags.some(tag => tag.id === tagFilter);
+    });
   };
 
   // Obtenir les routes les plus visitées
@@ -819,6 +880,16 @@ export default function Sitemap() {
           </p>
         </header>
 
+        {/* Gestion des tags */}
+        {(tags.length > 0 || getFavoriteRoutes().length > 0) && (
+          <TagManager
+            tags={tags}
+            onTagsChange={handleTagsChange}
+            onRouteTagged={handleRouteTagged}
+            onRouteUntagged={handleRouteUntagged}
+          />
+        )}
+
         {/* Section Favoris */}
         {showFavoritesSection && getFavoriteRoutes().length > 0 && (
           <Card className="border-2 border-yellow-400/30 bg-gradient-to-br from-yellow-50/50 to-amber-50/50 dark:from-yellow-950/20 dark:to-amber-950/20">
@@ -831,44 +902,115 @@ export default function Sitemap() {
                   <div>
                     <CardTitle className="text-xl">Mes Favoris</CardTitle>
                     <p className="text-sm text-muted-foreground mt-1">
-                      {getFavoriteRoutes().length} {getFavoriteRoutes().length === 1 ? 'page favorite' : 'pages favorites'}
+                      {getFavoriteRoutes(selectedTagFilter).length} {getFavoriteRoutes(selectedTagFilter).length === 1 ? 'page favorite' : 'pages favorites'}
+                      {selectedTagFilter && ` (filtrés par tag)`}
                     </p>
                   </div>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setShowFavoritesSection(false)}
-                  aria-label="Fermer la section favoris"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
+                <div className="flex items-center gap-2">
+                  {tags.length > 0 && (
+                    <Select value={selectedTagFilter || 'all'} onValueChange={(value) => setSelectedTagFilter(value === 'all' ? null : value)}>
+                      <SelectTrigger className="w-[180px] h-8">
+                        <SelectValue placeholder="Filtrer par tag" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">Tous les favoris</SelectItem>
+                        {tags.map(tag => (
+                          <SelectItem key={tag.id} value={tag.id}>
+                            <div className="flex items-center gap-2">
+                              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: tag.color }} />
+                              {tag.name}
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => setShowFavoritesSection(false)}
+                    aria-label="Fermer la section favoris"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             </CardHeader>
             <CardContent>
               <div className="grid gap-3 md:grid-cols-2">
-                {getFavoriteRoutes().map((route) => {
+                {getFavoriteRoutes(selectedTagFilter).map((route) => {
                   const Icon = route.icon;
+                  const routeTags = getRouteTags(route.path);
                   return (
-                    <Link
-                      key={route.path}
-                      to={route.examplePath || route.path}
-                      onClick={() => trackVisit(route.path)}
-                      className="group flex items-center gap-3 p-3 rounded-lg border border-border bg-background hover:bg-muted/50 transition-all hover:scale-105"
-                    >
-                      <div className="p-2 rounded-lg bg-primary/10 shrink-0">
-                        <Icon className="h-4 w-4 text-primary" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-sm group-hover:text-primary transition-colors truncate">
-                          {route.label}
-                        </p>
-                        <p className="text-xs text-muted-foreground truncate">
-                          {route.category}
-                        </p>
-                      </div>
-                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400 shrink-0" />
-                    </Link>
+                    <div key={route.path} className="relative group">
+                      <Link
+                        to={route.examplePath || route.path}
+                        onClick={() => trackVisit(route.path)}
+                        className="flex items-center gap-3 p-3 rounded-lg border border-border bg-background hover:bg-muted/50 transition-all hover:scale-105"
+                      >
+                        <div className="p-2 rounded-lg bg-primary/10 shrink-0">
+                          <Icon className="h-4 w-4 text-primary" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-sm group-hover:text-primary transition-colors truncate">
+                            {route.label}
+                          </p>
+                          <p className="text-xs text-muted-foreground truncate">
+                            {route.category}
+                          </p>
+                          {routeTags.length > 0 && (
+                            <div className="flex gap-1 mt-1 flex-wrap">
+                              {routeTags.map(tag => (
+                                <span
+                                  key={tag.id}
+                                  className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium"
+                                  style={{
+                                    backgroundColor: tag.color,
+                                    color: '#fff',
+                                  }}
+                                >
+                                  {tag.name}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                        <Star className="h-4 w-4 fill-yellow-400 text-yellow-400 shrink-0" />
+                      </Link>
+                      {tags.length > 0 && (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="absolute top-1 right-1 h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity bg-background/80 backdrop-blur-sm"
+                              onClick={(e) => e.preventDefault()}
+                            >
+                              <Tag className="h-3 w-3" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            {tags.map(tag => {
+                              const isTagged = tag.routes.includes(route.path);
+                              return (
+                                <DropdownMenuItem
+                                  key={tag.id}
+                                  onClick={() => toggleRouteTag(route.path, tag.id)}
+                                  className="cursor-pointer"
+                                >
+                                  <div className="flex items-center gap-2 w-full">
+                                    <div className="w-3 h-3 rounded-full" style={{ backgroundColor: tag.color }} />
+                                    <span className="flex-1">{tag.name}</span>
+                                    {isTagged && <X className="h-3 w-3" />}
+                                  </div>
+                                </DropdownMenuItem>
+                              );
+                            })}
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      )}
+                    </div>
                   );
                 })}
               </div>
