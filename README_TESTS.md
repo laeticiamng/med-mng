@@ -78,9 +78,60 @@ pnpm test --coverage
 ## 🎭 Tests E2E (Playwright)
 
 ### Localisation
-`test/e2e/template-system.spec.ts`
+```
+test/e2e/
+├── global-setup.ts           # Setup global
+├── global-teardown.ts        # Cleanup global
+├── template-system.spec.ts   # Tests du système de templates
+├── fixtures/                 # Données de test
+│   ├── templates.fixture.ts  # Fixtures templates
+│   └── auth.fixture.ts       # Fixtures authentification
+└── mocks/
+    └── supabase.mock.ts      # Mocks API Supabase
+```
 
-### Scénarios testés
+### Fixtures de Test
+
+Les fixtures fournissent des données de test cohérentes et reproductibles :
+
+```typescript
+// Utiliser les fixtures dans les tests
+import { mockTemplates, mockTags } from './fixtures/templates.fixture';
+import { mockUser, mockSession } from './fixtures/auth.fixture';
+
+// Les données sont disponibles pour tous les tests
+expect(mockTemplates[0].name).toBe('Template Test 1');
+```
+
+### Mocks API
+
+Les tests E2E utilisent des mocks complets de l'API Supabase :
+
+```typescript
+import { mockSupabaseAPI, clearSupabaseMocks } from './mocks/supabase.mock';
+
+test.beforeEach(async ({ page }) => {
+  // Active les mocks automatiquement
+  await mockSupabaseAPI(page);
+  await page.goto('/');
+});
+
+test.afterEach(async ({ page }) => {
+  // Nettoie les mocks
+  await clearSupabaseMocks(page);
+});
+```
+
+**Endpoints mockés :**
+- ✅ Authentication (login, session, user)
+- ✅ Templates (CRUD operations)
+- ✅ Tags (search, popular tags)
+- ✅ Comments (CRUD operations)
+- ✅ Favorites (add, remove, list)
+- ✅ History (tracking, analytics)
+- ✅ Analytics (dashboard data)
+
+### Configuration Playwright
 
 #### 1. Création de Template avec Tags
 - ✅ Créer un nouveau template
@@ -133,17 +184,6 @@ pnpm playwright test --reporter=html
 pnpm playwright show-report
 ```
 
-### Configuration Playwright
-
-Les tests E2E sont configurés pour s'exécuter sur :
-- ✅ Chrome Desktop
-- ✅ Firefox Desktop
-- ✅ Safari (Webkit) Desktop
-- ✅ Chrome Mobile (Pixel 5)
-- ✅ Safari Mobile (iPhone 13)
-- ✅ iPad Pro
-- ✅ Desktop 1440p
-
 ## 📊 Coverage
 
 Les tests couvrent :
@@ -160,10 +200,63 @@ Les tests utilisent des mocks pour :
 - React Query (QueryClientProvider wrappé)
 
 ### Tests E2E
-Les tests E2E utilisent :
-- Données réelles (ou fixtures si configurées)
-- Environnement de test isolé
-- Authentification simulée (à configurer selon besoin)
+Les tests E2E utilisent des **fixtures et mocks complets** :
+
+#### Fixtures de données
+- `fixtures/templates.fixture.ts` : Templates, tags, commentaires, favoris, historique
+- `fixtures/auth.fixture.ts` : Utilisateurs, sessions, équipes
+
+#### Mocks API Supabase
+- `mocks/supabase.mock.ts` : Interception complète des appels API
+- ✅ Authentication (login, session, user)
+- ✅ Templates CRUD (GET, POST, PATCH, DELETE)
+- ✅ Tags (recherche, tags populaires)
+- ✅ Comments (CRUD operations)
+- ✅ Favorites (add, remove, list)
+- ✅ History (tracking, analytics)
+- ✅ Analytics (dashboard data)
+
+**Avantages :**
+- Tests isolés de la base de données
+- Données reproductibles
+- Exécution rapide et fiable
+- Pas d'effets de bord entre tests
+
+## ⚡ Tests de Performance (Lighthouse CI)
+
+### Métriques Core Web Vitals
+- **LCP** (Largest Contentful Paint) : < 2.5s
+- **FID** (First Input Delay) : < 100ms  
+- **CLS** (Cumulative Layout Shift) : < 0.1
+- **FCP** (First Contentful Paint) : < 1.8s
+- **TTI** (Time to Interactive) : < 3.8s
+
+### Scores Lighthouse Requis
+| Catégorie | Score Minimum |
+|-----------|---------------|
+| Performance | 90/100 |
+| Accessibility | 90/100 |
+| Best Practices | 90/100 |
+| SEO | 90/100 |
+
+### Exécution
+
+```bash
+# Installer Lighthouse CI
+npm install -g @lhci/cli
+
+# Build et test
+npm run build
+lhci autorun
+```
+
+### Workflow CI/CD
+- ✅ Exécution automatique sur chaque PR
+- ✅ Rapports dans GitHub Actions artifacts
+- ✅ Commentaires automatiques sur les PRs
+- ✅ Historique de performance conservé 90 jours
+
+Voir `docs/PERFORMANCE.md` pour plus de détails.
 
 ## 🚨 Notes Importantes
 

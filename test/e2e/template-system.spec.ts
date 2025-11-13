@@ -1,12 +1,22 @@
 import { test, expect } from '@playwright/test';
+import { mockSupabaseAPI, clearSupabaseMocks } from './mocks/supabase.mock';
 
 test.describe('Template System E2E', () => {
   test.beforeEach(async ({ page }) => {
+    // Setup Supabase API mocks
+    await mockSupabaseAPI(page);
+    
     // Navigate to the application
     await page.goto('/');
+    await page.waitForLoadState('networkidle');
     
     // Note: In a real scenario, you would handle authentication here
     // For now, we'll assume the user is already authenticated
+  });
+
+  test.afterEach(async ({ page }) => {
+    // Clear mocks after each test
+    await clearSupabaseMocks(page);
   });
 
   test.describe('Template Creation with Tags', () => {

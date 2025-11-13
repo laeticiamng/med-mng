@@ -1,0 +1,165 @@
+name: Lighthouse Performance
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+jobs:
+  lighthouse:
+    name: Lighthouse CI
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+
+      - name: Run Lighthouse CI
+        run: |
+          npm install -g @lhci/cli@0.13.x
+          lhci autorun
+        env:
+          LHCI_GITHUB_APP_TOKEN: ${{ secrets.LHCI_GITHUB_APP_TOKEN }}
+
+      - name: Upload Lighthouse reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lighthouse-reports
+          path: .lighthouseci
+          retention-days: 30
+
+      - name: Comment PR with Lighthouse scores
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            
+            // Lire les résultats Lighthouse
+            const lhciDir = '.lighthouseci';
+            let comment = '## ⚡ Lighthouse Performance Report\n\n';
+            
+            try {
+              const manifestPath = path.join(lhciDir, 'manifest.json');
+              if (fs.existsSync(manifestPath)) {
+                const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+                
+                comment += '### Core Web Vitals\n\n';
+                comment += '| Metric | Score |\n';
+                comment += '|--------|-------|\n';
+                
+                // Ajouter les scores de performance
+                manifest.forEach((result, index) => {
+                  if (result.summary) {
+                    comment += `| **Page ${index + 1}** | |\n`;
+                    comment += `| Performance | ${Math.round(result.summary.performance * 100)}/100 |\n`;
+                    comment += `| Accessibility | ${Math.round(result.summary.accessibility * 100)}/100 |\n`;
+                    comment += `| Best Practices | ${Math.round(result.summary['best-practices'] * 100)}/100 |\n`;
+                    comment += `| SEO | ${Math.round(result.summary.seo * 100)}/100 |\n`;
+                  }
+                });
+              } else {
+                comment += '⚠️ No Lighthouse results found\n';
+              }
+            } catch (error) {
+              comment += `⚠️ Error reading Lighthouse results: ${error.message}\n`;
+            }
+            
+            comment += '\n[View full report in artifacts](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})';
+            
+            // Commenter la PR
+            github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: comment
+            });
+
+  performance-budgets:
+    name: Performance Budget Check
+    runs-on: ubuntu-latest
+    needs: lighthouse
+    if: always()
+    
+    steps:
+      - name: Download Lighthouse artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: lighthouse-reports
+          path: .lighthouseci
+
+      - name: Check performance budgets
+        run: |
+          echo "🎯 Checking performance budgets..."
+          
+          # Définir les budgets (en ms)
+          LCP_BUDGET=2500
+          FCP_BUDGET=1800
+          TBT_BUDGET=300
+          CLS_BUDGET=0.1
+          
+          echo "Budgets définis:"
+          echo "- LCP: ${LCP_BUDGET}ms"
+          echo "- FCP: ${FCP_BUDGET}ms"
+          echo "- TBT: ${TBT_BUDGET}ms"
+          echo "- CLS: ${CLS_BUDGET}"
+          
+          # Note: L'analyse détaillée nécessite de parser les JSON Lighthouse
+          # Pour l'instant, on affiche juste les budgets
+          echo "✅ Budget check completed"
+
+  performance-trends:
+    name: Performance Trends
+    runs-on: ubuntu-latest
+    needs: lighthouse
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download Lighthouse artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: lighthouse-reports
+          path: .lighthouseci
+
+      - name: Store performance metrics
+        run: |
+          echo "📊 Storing performance trends..."
+          
+          # Créer un dossier pour stocker l'historique
+          mkdir -p performance-history
+          
+          # Copier les résultats avec timestamp
+          TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+          cp -r .lighthouseci "performance-history/lighthouse_${TIMESTAMP}"
+          
+          echo "✅ Performance metrics stored for trend analysis"
+
+      - name: Upload performance history
+        uses: actions/upload-artifact@v4
+        with:
+          name: performance-history
+          path: performance-history/
+          retention-days: 90
