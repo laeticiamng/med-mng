@@ -1,6 +1,10 @@
-import { vi } from 'vitest';
+import { vi, expect, afterEach } from 'vitest';
+import { cleanup } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { server } from './mocks/server';
+import * as matchers from '@testing-library/jest-dom/matchers';
+
+// Extend Vitest's expect with jest-dom matchers
+expect.extend(matchers);
 
 // 🎭 MOCK DATA
 export const mockAuth = {
@@ -31,18 +35,10 @@ export const mockLanguage = {
   t: vi.fn((key: string) => key)
 };
 
-// 🌐 MSW Server Setup
-beforeAll(() => {
-  server.listen({ onUnhandledRequest: 'error' });
-});
-
+// Cleanup after each test
 afterEach(() => {
-  server.resetHandlers();
+  cleanup();
   vi.clearAllMocks();
-});
-
-afterAll(() => {
-  server.close();
 });
 
 // 🎭 Global Mocks
@@ -126,8 +122,11 @@ vi.mock('react-router-dom', async () => {
 });
 
 // Mock des toasts
-vi.mock('@/hooks/use-toast', () => ({
-  useToast: () => ({
-    toast: vi.fn(),
-  }),
+vi.mock('sonner', () => ({
+  toast: {
+    success: vi.fn(),
+    error: vi.fn(),
+    info: vi.fn(),
+    warning: vi.fn(),
+  },
 }));
