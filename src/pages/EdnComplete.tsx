@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Search, BookOpen, Award, Users, TrendingUp, Filter, Grid, List, Eye,
   Music, Brain, Play, Headphones, CheckCircle, Sparkles, ArrowRight,
   Volume2, Gamepad2, Maximize2, Star, Target, Image, FileText, AlertTriangle,
-  BarChart3, HelpCircle
+  BarChart3, HelpCircle, RotateCcw
 } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -74,6 +75,23 @@ export default function EdnComplete() {
   const [quickFilter, setQuickFilter] = useState<'all' | 'complete' | 'incomplete' | 'validated'>('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState<'item_code' | 'completeness_score' | 'updated_at'>('item_code');
+  
+  // Fonction pour réinitialiser tous les filtres
+  const resetAllFilters = useCallback(() => {
+    setSearchTerm('');
+    setSelectedCategory('all');
+    setQuickFilter('all');
+    setSortBy('item_code');
+    setViewMode('grid');
+  }, []);
+  
+  // Vérifier si des filtres sont actifs
+  const hasActiveFilters = useMemo(() => {
+    return searchTerm !== '' || 
+           selectedCategory !== 'all' || 
+           quickFilter !== 'all' || 
+           sortBy !== 'item_code';
+  }, [searchTerm, selectedCategory, quickFilter, sortBy]);
   
   // Réinitialiser la page quand on change de filtre/recherche
   useEffect(() => {
@@ -449,35 +467,47 @@ export default function EdnComplete() {
         </div>
 
         {/* Filtres rapides */}
-        <div className="flex flex-wrap gap-2 mb-4">
+        <div className="flex flex-wrap gap-2 mb-4 items-center">
           <Badge 
             variant={quickFilter === 'all' ? 'default' : 'outline'}
-            className="cursor-pointer"
+            className="cursor-pointer transition-all hover:scale-105"
             onClick={() => setQuickFilter('all')}
           >
             Tous ({allItems.length})
           </Badge>
           <Badge 
             variant={quickFilter === 'complete' ? 'default' : 'outline'}
-            className="cursor-pointer"
+            className="cursor-pointer transition-all hover:scale-105"
             onClick={() => setQuickFilter('complete')}
           >
             ✅ Complets ({allItems.filter(i => (i.competences_count_rang_a || 0) > 0 && (i.competences_count_rang_b || 0) > 0).length})
           </Badge>
           <Badge 
             variant={quickFilter === 'incomplete' ? 'default' : 'outline'}
-            className="cursor-pointer"
+            className="cursor-pointer transition-all hover:scale-105"
             onClick={() => setQuickFilter('incomplete')}
           >
             ⏳ Incomplets ({allItems.filter(i => !((i.competences_count_rang_a || 0) > 0 && (i.competences_count_rang_b || 0) > 0)).length})
           </Badge>
           <Badge 
             variant={quickFilter === 'validated' ? 'default' : 'outline'}
-            className="cursor-pointer"
+            className="cursor-pointer transition-all hover:scale-105"
             onClick={() => setQuickFilter('validated')}
           >
             ⭐ Validés ({allItems.filter(i => i.is_validated).length})
           </Badge>
+          
+          {hasActiveFilters && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={resetAllFilters}
+              className="ml-auto gap-2 text-muted-foreground hover:text-foreground"
+            >
+              <RotateCcw className="h-4 w-4" />
+              Réinitialiser
+            </Button>
+          )}
         </div>
 
         {/* Contrôles */}
@@ -559,16 +589,31 @@ export default function EdnComplete() {
 
           <TabsContent value="immersive">
             <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredItems.map(item => (
-                  <EdnItemCard
-                    key={item.id}
-                    item={item}
-                    completionPercentage={getCompletionPercentage(item)}
-                    onOpen={(tab) => openItemModal(item, tab)}
-                  />
-                ))}
-              </div>
+              <AnimatePresence mode="popLayout">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {filteredItems.map((item, index) => (
+                    <motion.div
+                      key={item.id}
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.9 }}
+                      transition={{ 
+                        duration: 0.3,
+                        delay: Math.min(index * 0.03, 0.5),
+                        ease: "easeOut"
+                      }}
+                      layout
+                    >
+                      <EdnItemCard
+                        key={item.id}
+                        item={item}
+                        completionPercentage={getCompletionPercentage(item)}
+                        onOpen={(tab) => openItemModal(item, tab)}
+                      />
+                    </motion.div>
+                  ))}
+                </div>
+              </AnimatePresence>
               
               {/* Bouton Charger Plus */}
               {hasMore && !loading && (
