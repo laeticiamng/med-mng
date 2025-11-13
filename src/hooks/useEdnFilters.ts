@@ -1,6 +1,6 @@
 import { useState, useMemo, useCallback } from 'react';
 
-interface EdnItem {
+interface EdnItemBase {
   id: string;
   item_code: string;
   title: string;
@@ -10,7 +10,7 @@ interface EdnItem {
   is_validated?: boolean;
 }
 
-export const useEdnFilters = (allItems: EdnItem[]) => {
+export const useEdnFilters = <T extends EdnItemBase>(allItems: T[]) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [quickFilter, setQuickFilter] = useState<'all' | 'complete' | 'incomplete' | 'validated'>('all');

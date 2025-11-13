@@ -59,9 +59,6 @@ const SecurityMonitoring = lazy(() => import("./pages/SecurityMonitoring"));
 const RLSDocumentation = lazy(() => import("./pages/RLSDocumentation"));
 const SharedTemplatesPage = lazy(() => import("./pages/SharedTemplatesPage").then(m => ({ default: m.SharedTemplatesPage })));
 const TemplateAnalyticsDashboard = lazy(() => import("./pages/TemplateAnalyticsDashboard").then(m => ({ default: m.TemplateAnalyticsDashboard })));
-const QualityDashboard = lazy(() => import("./pages/QualityDashboard"));
-const QualityAdminPage = lazy(() => import("./pages/QualityAdminPage"));
-const AlertConfigPage = lazy(() => import("./pages/AlertConfigPage"));
 
 // 👨‍💼 ADMIN PAGES - Lazy loaded
 const AdminIndex = lazy(() => import("./pages/AdminIndex").then(m => ({ default: m.AdminIndex })));
@@ -204,9 +201,6 @@ const App = () => {
           <Route path={ROUTE_PATHS.ecosScenario} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EcosScenario /></Suspense>} />
           <Route path={ROUTE_PATHS.store} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Store /></Suspense>} />
           <Route path={ROUTE_PATHS.productDetail} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><ProductDetail /></Suspense>} />
-          <Route path="/quality-dashboard" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><QualityDashboard /></Suspense>} />
-          <Route path="/quality-admin" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><QualityAdminPage /></Suspense>} />
-          <Route path="/alert-config" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AlertConfigPage /></Suspense>} />
           
            {/* Unified audit page */}
           <Route path={ROUTE_PATHS.audit} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AuditComplete /></Suspense>} />
@@ -230,7 +224,6 @@ const App = () => {
           <Route path={ROUTE_PATHS.medMngLogin} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MedMngLogin /></Suspense>} />
           <Route path={ROUTE_PATHS.medMngSignup} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MedMngSignup /></Suspense>} />
           <Route path={ROUTE_PATHS.medMngPricing} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MedMngPricing /></Suspense>} />
-          <Route path="/quality-dashboard" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><QualityDashboard /></Suspense>} />
           <Route path={ROUTE_PATHS.medMngSubscribe} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MedMngSubscribe /></Suspense></ProtectedRoute>} />
           <Route path={ROUTE_PATHS.medMngSuccess} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MedMngSuccess /></Suspense></ProtectedRoute>} />
           <Route path={ROUTE_PATHS.medMngCreate} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MedMngCreate /></Suspense></ProtectedRoute>} />
