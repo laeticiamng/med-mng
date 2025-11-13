@@ -11,10 +11,14 @@ import {
   Download,
   Filter,
   Clock,
-  Copy
+  Copy,
+  Star,
+  StarOff,
+  MessageSquare
 } from 'lucide-react';
 import { useState } from 'react';
 import { useFilterTemplates } from '@/hooks/useFilterTemplates';
+import { useTemplateFavorites } from '@/hooks/useTemplateFavorites';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import {
@@ -24,11 +28,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { TemplateComments } from '@/components/security/TemplateComments';
+import { TemplateHistory } from '@/components/security/TemplateHistory';
 
 export const SharedTemplatesPage = () => {
   const { templates, isLoading, duplicateTemplate, isDuplicating } = useFilterTemplates();
+  const { isFavorite, toggleFavorite, isToggling } = useTemplateFavorites();
   const [searchTerm, setSearchTerm] = useState('');
   const [shareTypeFilter, setShareTypeFilter] = useState<'all' | 'global' | 'team' | 'personal'>('all');
+  const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
 
   // Filter templates to show only shared ones
   const sharedTemplates = templates.filter(
