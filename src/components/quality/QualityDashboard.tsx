@@ -4,7 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { CalendarIcon, TrendingDown, TrendingUp, AlertTriangle, Bug, Shield, Code } from "lucide-react";
+import { CalendarIcon, TrendingDown, TrendingUp, AlertTriangle, Bug, Shield, Code, Download } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Line, Bar } from "react-chartjs-2";
@@ -21,6 +21,9 @@ import {
   Filler,
 } from "chart.js";
 import { supabase } from "@/integrations/supabase/client";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
+import { useToast } from "@/hooks/use-toast";
 
 ChartJS.register(
   CategoryScale,
@@ -74,6 +77,7 @@ export function QualityDashboard() {
   const [projectFilter, setProjectFilter] = useState<string>("all");
   const [startDate, setStartDate] = useState<Date>();
   const [endDate, setEndDate] = useState<Date>();
+  const { toast } = useToast();
 
   const fetchQualityHistory = async () => {
     setLoading(true);
@@ -108,8 +112,118 @@ export function QualityDashboard() {
       }
     } catch (error) {
       console.error("Erreur récupération historique:", error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de charger les données",
+        variant: "destructive",
+      });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const exportToPDF = async () => {
+    try {
+      const doc = new jsPDF();
+      const pageWidth = doc.internal.pageSize.getWidth();
+      
+      // Titre
+      doc.setFontSize(20);
+      doc.text("Rapport de Qualité du Code", pageWidth / 2, 20, { align: "center" });
+      
+      doc.setFontSize(10);
+      doc.text(`Généré le ${format(new Date(), "PPP à HH:mm")}`, pageWidth / 2, 28, { align: "center" });
+
+      let yPos = 40;
+
+      // Statistiques globales
+      if (stats) {
+        doc.setFontSize(14);
+        doc.text("📊 Statistiques Globales", 14, yPos);
+        yPos += 10;
+
+        autoTable(doc, {
+          startY: yPos,
+          head: [["Métrique", "Valeur"]],
+          body: [
+            ["Total Rapports", stats.total_reports.toString()],
+            ["Total Bugs", stats.total_bugs.toString()],
+            ["Total Vulnérabilités", stats.total_vulnerabilities.toString()],
+            ["Total Code Smells", stats.total_code_smells.toString()],
+            ["Moyenne Bugs", stats.avg_bugs],
+            ["Moyenne Vulnérabilités", stats.avg_vulnerabilities],
+          ],
+          theme: "grid",
+        });
+
+        yPos = (doc as any).lastAutoTable.finalY + 15;
+      }
+
+      // Derniers rapports
+      if (reports.length > 0) {
+        doc.setFontSize(14);
+        doc.text("📄 Derniers Rapports", 14, yPos);
+        yPos += 10;
+
+        const reportData = reports.slice(0, 10).map((report) => [
+          report.project_name,
+          format(new Date(report.analyzed_at), "dd/MM/yyyy"),
+          report.metrics.bugs.toString(),
+          report.metrics.vulnerabilities.toString(),
+          report.metrics.code_smells.toString(),
+        ]);
+
+        autoTable(doc, {
+          startY: yPos,
+          head: [["Projet", "Date", "Bugs", "Vuln.", "Smells"]],
+          body: reportData,
+          theme: "striped",
+        });
+
+        yPos = (doc as any).lastAutoTable.finalY + 15;
+      }
+
+      // Recommandations des derniers rapports
+      if (reports.length > 0 && reports[0].recommendations) {
+        if (yPos > 250) {
+          doc.addPage();
+          yPos = 20;
+        }
+
+        doc.setFontSize(14);
+        doc.text("💡 Recommandations Récentes", 14, yPos);
+        yPos += 10;
+
+        const recommendations = reports
+          .slice(0, 3)
+          .flatMap((r) =>
+            r.recommendations.map((rec) => [r.project_name, rec])
+          );
+
+        autoTable(doc, {
+          startY: yPos,
+          head: [["Projet", "Recommandation"]],
+          body: recommendations,
+          theme: "grid",
+          columnStyles: {
+            1: { cellWidth: 120 },
+          },
+        });
+      }
+
+      doc.save(`quality-report-${format(new Date(), "yyyy-MM-dd")}.pdf`);
+      
+      toast({
+        title: "✅ Export réussi",
+        description: "Le rapport PDF a été téléchargé",
+      });
+    } catch (error) {
+      console.error("Erreur export PDF:", error);
+      toast({
+        title: "Erreur",
+        description: "Impossible d'exporter le rapport",
+        variant: "destructive",
+      });
     }
   };
 
@@ -197,7 +311,13 @@ export function QualityDashboard() {
             Visualisation et analyse de la qualité du code
           </p>
         </div>
-        <Button onClick={fetchQualityHistory}>Actualiser</Button>
+        <div className="flex gap-2">
+          <Button onClick={exportToPDF} variant="outline">
+            <Download className="mr-2 h-4 w-4" />
+            Export PDF
+          </Button>
+          <Button onClick={fetchQualityHistory}>Actualiser</Button>
+        </div>
       </div>
 
       {/* Filtres */}
