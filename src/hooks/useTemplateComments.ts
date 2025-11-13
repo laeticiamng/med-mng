@@ -1,9 +1,16 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import type { TemplateComment } from '@/types/database.types';
 
-export type { TemplateComment };
+export interface TemplateComment {
+  id: string;
+  template_id: string;
+  user_id: string;
+  comment: string | null;
+  rating: number | null;
+  created_at: string;
+  updated_at: string;
+}
 
 export const useTemplateComments = (templateId: string) => {
   const queryClient = useQueryClient();
@@ -12,14 +19,14 @@ export const useTemplateComments = (templateId: string) => {
   const { data: comments = [], isLoading } = useQuery({
     queryKey: ['template-comments', templateId],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('template_comments')
+      const { data, error} = await supabase
+        .from('template_comments' as any)
         .select('*')
         .eq('template_id', templateId)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return (data || []) as TemplateComment[];
+      return (data || []) as unknown as TemplateComment[];
     },
     enabled: !!templateId,
   });
@@ -36,7 +43,7 @@ export const useTemplateComments = (templateId: string) => {
       if (!user) throw new Error('Not authenticated');
 
       const { data, error } = await supabase
-        .from('template_comments')
+        .from('template_comments' as any)
         .insert({
           template_id: templateId,
           user_id: user.id,
@@ -71,7 +78,7 @@ export const useTemplateComments = (templateId: string) => {
       rating?: number 
     }) => {
       const { data, error } = await supabase
-        .from('template_comments')
+        .from('template_comments' as any)
         .update({
           comment: comment || null,
           rating: rating || null,
@@ -97,7 +104,7 @@ export const useTemplateComments = (templateId: string) => {
   const deleteComment = useMutation({
     mutationFn: async (commentId: string) => {
       const { error } = await supabase
-        .from('template_comments')
+        .from('template_comments' as any)
         .delete()
         .eq('id', commentId);
 

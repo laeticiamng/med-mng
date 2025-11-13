@@ -2,9 +2,15 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import type { NotificationFilters } from '@/components/security/SecurityNotificationsFilters';
-import type { TemplateApplicationHistory } from '@/types/database.types';
 
-export type { TemplateApplicationHistory };
+export interface TemplateApplicationHistory {
+  id: string;
+  template_id: string;
+  user_id: string;
+  filters_applied: NotificationFilters;
+  results_count: number | null;
+  applied_at: string;
+}
 
 export const useTemplateHistory = (templateId?: string) => {
   const queryClient = useQueryClient();
@@ -17,7 +23,7 @@ export const useTemplateHistory = (templateId?: string) => {
       if (!user) return [];
 
       let query = supabase
-        .from('template_application_history')
+        .from('template_application_history' as any)
         .select('*')
         .eq('user_id', user.id)
         .order('applied_at', { ascending: false });
@@ -48,7 +54,7 @@ export const useTemplateHistory = (templateId?: string) => {
       if (!user) throw new Error('Not authenticated');
 
       const { data, error } = await supabase
-        .from('template_application_history')
+        .from('template_application_history' as any)
         .insert({
           template_id: templateId,
           user_id: user.id,
@@ -74,7 +80,7 @@ export const useTemplateHistory = (templateId?: string) => {
   const deleteHistoryEntry = useMutation({
     mutationFn: async (historyId: string) => {
       const { error } = await supabase
-        .from('template_application_history')
+        .from('template_application_history' as any)
         .delete()
         .eq('id', historyId);
 
