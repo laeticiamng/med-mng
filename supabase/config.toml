@@ -189,4 +189,10 @@ verify_jwt = false
 [functions.send-scheduled-pdf-reports]
 verify_jwt = false
 
+[functions.ai-code-analysis]
+verify_jwt = false
+
+[functions.ai-visual-analysis]
+verify_jwt = false
+
 

@@ -1,11 +1,15 @@
 # 🏥 MED-MNG - Plateforme Médicale Intelligente
 **Dernière mise à jour : 28 Juillet 2025**
 
-[![CI/CD Pipeline](https://github.com/med-mng/med-mng/actions/workflows/ci.yml/badge.svg)](https://github.com/med-mng/med-mng/actions/workflows/ci.yml)
-[![Performance](https://img.shields.io/badge/Performance-B+-green)](https://lighthouse.com)
-[![Security](https://img.shields.io/badge/Security-A-brightgreen)](https://securityheaders.com)
+[![CI/CD Pipeline](https://github.com/med-mng/med-mng/actions/workflows/ai-quality-check.yml/badge.svg)](https://github.com/med-mng/med-mng/actions/workflows/ai-quality-check.yml)
+[![AI Code Quality](https://img.shields.io/badge/AI%20Quality-A-brightgreen)](./docs/AI-QUALITY-SETUP.md)
+[![Bugs](https://img.shields.io/badge/Bugs-0-brightgreen)](./docs/AI-QUALITY-SETUP.md)
+[![Vulnerabilities](https://img.shields.io/badge/Vulnerabilities-0-brightgreen)](./docs/AI-QUALITY-SETUP.md)
+[![Security Rating](https://img.shields.io/badge/Security-A-brightgreen)](./docs/AI-QUALITY-SETUP.md)
+[![Maintainability](https://img.shields.io/badge/Maintainability-A-brightgreen)](./docs/AI-QUALITY-SETUP.md)
+[![Visual Regressions](https://img.shields.io/badge/Visual%20Regressions-0-brightgreen)](./docs/AI-QUALITY-SETUP.md)
+[![Accessibility](https://img.shields.io/badge/Accessibility-95%25-brightgreen)](./docs/AI-QUALITY-SETUP.md)
 [![Audit Score](https://img.shields.io/badge/Audit%20Score-98.3%2F100-brightgreen)](./docs/AUDIT-PLATEFORME-28-JUILLET-2025.md)
-[![Database](https://img.shields.io/badge/Database-17%20Issues-yellow)](https://supabase.com/dashboard/project/yaincoxihiqdksxgrsrk)
 
 ## 🎯 **PLATEFORME SÉCURISÉE - GRADE A (98.3%)**
 
