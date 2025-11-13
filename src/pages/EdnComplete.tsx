@@ -30,6 +30,7 @@ import { useSubscription } from "@/hooks/useSubscription";
 import { transformTableauToSections } from "@/utils/tableauTransformations";
 import { TooltipInfo } from "@/components/ui/tooltip-info";
 import { FaqSection } from "@/components/help/FaqSection";
+import { useEdnFilters } from "@/hooks/useEdnFilters";
 
 interface EdnItem {
   id: string;
@@ -70,31 +71,7 @@ export default function EdnComplete() {
   const [hasMore, setHasMore] = useState(true);
   const [totalCount, setTotalCount] = useState<number>(0);
   const ITEMS_PER_PAGE = 50;
-  const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [quickFilter, setQuickFilter] = useState<'all' | 'complete' | 'incomplete' | 'validated'>('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [sortBy, setSortBy] = useState<'item_code' | 'completeness_score' | 'updated_at'>('item_code');
-  
-  // Fonction pour réinitialiser tous les filtres
-  const resetAllFilters = useCallback(() => {
-    setSearchTerm('');
-    setSelectedCategory('all');
-    setQuickFilter('all');
-    setSortBy('item_code');
-    setViewMode('grid');
-  }, []);
-  
-  // Vérifier si des filtres sont actifs
-  const hasActiveFilters = useMemo(() => {
-    return searchTerm !== '' || 
-           selectedCategory !== 'all' || 
-           quickFilter !== 'all' || 
-           sortBy !== 'item_code';
-  }, [searchTerm, selectedCategory, quickFilter, sortBy]);
-  
-  // Les filtres sont appliqués côté client via filteredItems
-  // Pas besoin de recharger les données depuis la DB
   const [selectedItem, setSelectedItem] = useState<EdnItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('immersive');
@@ -248,7 +225,7 @@ export default function EdnComplete() {
   };
 
   const allItems = useMemo(() => {
-    const mergedItems = immersiveItems.map(immersive => {
+    return immersiveItems.map(immersive => {
       const complete = completeItems.find(c => c.item_code === immersive.item_code);
       return {
         ...immersive,
@@ -261,8 +238,21 @@ export default function EdnComplete() {
         paroles_musicales: immersive.paroles_musicales
       };
     });
-    return mergedItems;
   }, [immersiveItems, completeItems]);
+
+  const {
+    searchTerm,
+    setSearchTerm,
+    selectedCategory,
+    setSelectedCategory,
+    quickFilter,
+    setQuickFilter,
+    sortBy,
+    setSortBy,
+    resetAllFilters,
+    hasActiveFilters,
+    filteredItems
+  } = useEdnFilters(allItems);
 
   const isItemComplete = (item: EdnItem) => {
     return getCompletionPercentage(item) === 100;
