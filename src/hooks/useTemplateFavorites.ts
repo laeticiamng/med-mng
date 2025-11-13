@@ -1,7 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import type { TemplateFavorite } from '@/types/database.types';
+
+export interface TemplateFavorite {
+  id: string;
+  template_id: string;
+  user_id: string;
+  created_at: string;
+}
 
 export const useTemplateFavorites = () => {
   const queryClient = useQueryClient();
@@ -14,12 +20,12 @@ export const useTemplateFavorites = () => {
       if (!user) return [];
 
       const { data, error } = await supabase
-        .from('template_favorites')
+        .from('template_favorites' as any)
         .select('*')
         .eq('user_id', user.id);
 
       if (error) throw error;
-      return (data || []) as TemplateFavorite[];
+      return (data || []) as unknown as TemplateFavorite[];
     },
   });
 
@@ -35,7 +41,7 @@ export const useTemplateFavorites = () => {
       if (!user) throw new Error('Not authenticated');
 
       const { data, error } = await supabase
-        .from('template_favorites')
+        .from('template_favorites' as any)
         .insert({
           template_id: templateId,
           user_id: user.id,
@@ -63,7 +69,7 @@ export const useTemplateFavorites = () => {
       if (!user) throw new Error('Not authenticated');
 
       const { error } = await supabase
-        .from('template_favorites')
+        .from('template_favorites' as any)
         .delete()
         .eq('template_id', templateId)
         .eq('user_id', user.id);
