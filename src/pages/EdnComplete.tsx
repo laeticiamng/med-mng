@@ -67,9 +67,11 @@ export default function EdnComplete() {
   const [loadingError, setLoadingError] = useState<string | null>(null);
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
+  const [totalCount, setTotalCount] = useState<number>(0);
   const ITEMS_PER_PAGE = 50;
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [quickFilter, setQuickFilter] = useState<'all' | 'complete' | 'incomplete' | 'validated'>('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [sortBy, setSortBy] = useState<'item_code' | 'completeness_score' | 'updated_at'>('item_code');
   
@@ -77,7 +79,7 @@ export default function EdnComplete() {
   useEffect(() => {
     setPage(0);
     setImmersiveItems([]);
-  }, [searchTerm, selectedCategory, sortBy]);
+  }, [searchTerm, selectedCategory, sortBy, quickFilter]);
   const [selectedItem, setSelectedItem] = useState<EdnItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('immersive');
@@ -151,6 +153,11 @@ export default function EdnComplete() {
         error: immersiveError,
         count
       });
+      
+      // Stocker le count total
+      if (count !== null && count !== undefined) {
+        setTotalCount(count);
+      }
       
       setHasMore((immersiveData?.length || 0) === ITEMS_PER_PAGE && (count || 0) > to + 1);
 
@@ -276,7 +283,21 @@ export default function EdnComplete() {
       const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            item.item_code.toLowerCase().includes(searchTerm.toLowerCase());
       
-      if (selectedCategory === 'all') return matchesSearch;
+      // Filtre rapide
+      const matchesQuickFilter = (() => {
+        switch (quickFilter) {
+          case 'complete':
+            return (item.competences_count_rang_a || 0) > 0 && (item.competences_count_rang_b || 0) > 0;
+          case 'incomplete':
+            return !((item.competences_count_rang_a || 0) > 0 && (item.competences_count_rang_b || 0) > 0);
+          case 'validated':
+            return item.is_validated === true;
+          default:
+            return true;
+        }
+      })();
+      
+      if (selectedCategory === 'all') return matchesSearch && matchesQuickFilter;
       
       const matchesCategory = (() => {
         switch (selectedCategory) {
@@ -292,7 +313,7 @@ export default function EdnComplete() {
         }
       })();
 
-      return matchesSearch && matchesCategory;
+      return matchesSearch && matchesCategory && matchesQuickFilter;
     }).sort((a, b) => {
       switch (sortBy) {
         case 'completeness_score':
@@ -407,6 +428,57 @@ export default function EdnComplete() {
             </div>
           </AlertDescription>
         </Alert>
+
+        {/* Indicateur de chargement */}
+        <div className="mb-4 flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="font-mono">
+              {immersiveItems.length} / {totalCount || '...'} items
+            </Badge>
+            <span className="text-sm text-muted-foreground">
+              {filteredItems.length !== immersiveItems.length && (
+                <span>({filteredItems.length} filtrés)</span>
+              )}
+            </span>
+          </div>
+          {hasMore && (
+            <Badge variant="secondary" className="text-xs">
+              Scroll pour charger plus
+            </Badge>
+          )}
+        </div>
+
+        {/* Filtres rapides */}
+        <div className="flex flex-wrap gap-2 mb-4">
+          <Badge 
+            variant={quickFilter === 'all' ? 'default' : 'outline'}
+            className="cursor-pointer"
+            onClick={() => setQuickFilter('all')}
+          >
+            Tous ({allItems.length})
+          </Badge>
+          <Badge 
+            variant={quickFilter === 'complete' ? 'default' : 'outline'}
+            className="cursor-pointer"
+            onClick={() => setQuickFilter('complete')}
+          >
+            ✅ Complets ({allItems.filter(i => (i.competences_count_rang_a || 0) > 0 && (i.competences_count_rang_b || 0) > 0).length})
+          </Badge>
+          <Badge 
+            variant={quickFilter === 'incomplete' ? 'default' : 'outline'}
+            className="cursor-pointer"
+            onClick={() => setQuickFilter('incomplete')}
+          >
+            ⏳ Incomplets ({allItems.filter(i => !((i.competences_count_rang_a || 0) > 0 && (i.competences_count_rang_b || 0) > 0)).length})
+          </Badge>
+          <Badge 
+            variant={quickFilter === 'validated' ? 'default' : 'outline'}
+            className="cursor-pointer"
+            onClick={() => setQuickFilter('validated')}
+          >
+            ⭐ Validés ({allItems.filter(i => i.is_validated).length})
+          </Badge>
+        </div>
 
         {/* Contrôles */}
         <div className="flex flex-col gap-3 mb-6">
