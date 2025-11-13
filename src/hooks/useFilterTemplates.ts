@@ -10,6 +10,9 @@ export interface FilterTemplate {
   description: string | null;
   filters: NotificationFilters;
   is_default: boolean;
+  is_shared: boolean;
+  shared_with_team: boolean;
+  shared_with_users: string[];
   created_at: string;
   updated_at: string;
 }
@@ -113,6 +116,50 @@ export const useFilterTemplates = () => {
     },
   });
 
+  // Share template
+  const shareTemplate = useMutation({
+    mutationFn: async ({ 
+      id, 
+      isShared, 
+      sharedWithTeam, 
+      userEmails 
+    }: { 
+      id: string; 
+      isShared: boolean; 
+      sharedWithTeam: boolean; 
+      userEmails?: string[] 
+    }) => {
+      // If sharing with specific users, call the RPC function
+      if (userEmails && userEmails.length > 0) {
+        const { error } = await supabase.rpc('share_filter_template' as any, {
+          template_id: id,
+          user_emails: userEmails,
+        } as any);
+
+        if (error) throw error;
+      } else {
+        // Otherwise, just update the sharing flags
+        const { error } = await supabase
+          .from('notification_filter_templates' as any)
+          .update({
+            is_shared: isShared,
+            shared_with_team: sharedWithTeam,
+          })
+          .eq('id', id);
+
+        if (error) throw error;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['filter-templates'] });
+      toast.success('Template partagé avec succès');
+    },
+    onError: (error: any) => {
+      console.error('Error sharing template:', error);
+      toast.error(error.message || 'Erreur lors du partage');
+    },
+  });
+
   return {
     templates,
     defaultTemplate,
@@ -120,8 +167,10 @@ export const useFilterTemplates = () => {
     createTemplate: createTemplate.mutate,
     updateTemplate: updateTemplate.mutate,
     deleteTemplate: deleteTemplate.mutate,
+    shareTemplate: shareTemplate.mutate,
     isCreating: createTemplate.isPending,
     isUpdating: updateTemplate.isPending,
     isDeleting: deleteTemplate.isPending,
+    isSharing: shareTemplate.isPending,
   };
 };
