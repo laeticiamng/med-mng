@@ -36,6 +36,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
+import { ShareNotificationsPanel } from '@/components/notifications/ShareNotificationsPanel';
 import { useState } from 'react';
 import { MAIN_NAV_ITEMS } from '@/config/navigation';
 import { ROUTE_PATHS } from '@/config/routes';
@@ -169,18 +170,8 @@ export const MainNavigation: React.FC = () => {
             {/* Toggle thème */}
             <ThemeToggle />
             
-            {/* Notifications */}
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="relative"
-              aria-label="Notifications (3 non lues)"
-            >
-              <Bell className="w-4 h-4" />
-              <Badge className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center text-xs">
-                3
-              </Badge>
-            </Button>
+            {/* Notifications de partage en temps réel */}
+            <ShareNotificationsPanel />
 
             {/* Profil utilisateur */}
             {user ? (
