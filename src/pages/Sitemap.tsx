@@ -547,24 +547,52 @@ export default function Sitemap() {
   const [selectedCategories, setSelectedCategories] = useState<Set<string>>(new Set());
   const [visibleCards, setVisibleCards] = useState<Set<number>>(new Set());
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
+  const [visitStats, setVisitStats] = useState<Record<string, number>>({});
+  const [showFavoritesSection, setShowFavoritesSection] = useState(false);
+  const [favoriteCount, setFavoriteCount] = useState(0);
+  const [animateFavorite, setAnimateFavorite] = useState(false);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
 
-  // Charger les favoris depuis localStorage
+  // Charger les favoris et statistiques depuis localStorage
   useEffect(() => {
     const savedFavorites = localStorage.getItem('sitemap-favorites');
     if (savedFavorites) {
       try {
-        setFavorites(new Set(JSON.parse(savedFavorites)));
+        const favs = new Set<string>(JSON.parse(savedFavorites));
+        setFavorites(favs);
+        setFavoriteCount(favs.size);
       } catch (e) {
         console.error('Error loading favorites:', e);
       }
     }
+
+    const savedStats = localStorage.getItem('sitemap-visit-stats');
+    if (savedStats) {
+      try {
+        setVisitStats(JSON.parse(savedStats));
+      } catch (e) {
+        console.error('Error loading visit stats:', e);
+      }
+    }
   }, []);
+
+  // Sauvegarder les statistiques de visite
+  const trackVisit = (path: string) => {
+    const newStats = { ...visitStats };
+    newStats[path] = (newStats[path] || 0) + 1;
+    setVisitStats(newStats);
+    localStorage.setItem('sitemap-visit-stats', JSON.stringify(newStats));
+  };
 
   // Sauvegarder les favoris dans localStorage
   const saveFavorites = (newFavorites: Set<string>) => {
     setFavorites(newFavorites);
     localStorage.setItem('sitemap-favorites', JSON.stringify(Array.from(newFavorites)));
+    
+    // Animation du compteur
+    setFavoriteCount(newFavorites.size);
+    setAnimateFavorite(true);
+    setTimeout(() => setAnimateFavorite(false), 300);
   };
 
   const toggleFavorite = (path: string) => {
@@ -579,6 +607,41 @@ export default function Sitemap() {
 
   const toggleTheme = () => {
     setTheme(theme === 'dark' ? 'light' : 'dark');
+  };
+
+  // Obtenir les routes favorites
+  const getFavoriteRoutes = () => {
+    const favoriteRoutes: Array<SitemapRoute & { category: string; icon: LucideIcon }> = [];
+    sitemapSections.forEach(section => {
+      section.routes.forEach(route => {
+        if (favorites.has(route.path)) {
+          favoriteRoutes.push({
+            ...route,
+            category: section.title,
+            icon: section.icon,
+          });
+        }
+      });
+    });
+    return favoriteRoutes;
+  };
+
+  // Obtenir les routes les plus visitées
+  const getMostVisitedRoutes = (limit = 5) => {
+    return Object.entries(visitStats)
+      .sort(([, a], [, b]) => b - a)
+      .slice(0, limit)
+      .map(([path, count]) => {
+        let routeInfo: (SitemapRoute & { category: string }) | null = null;
+        sitemapSections.forEach(section => {
+          const route = section.routes.find(r => r.path === path);
+          if (route) {
+            routeInfo = { ...route, category: section.title };
+          }
+        });
+        return { path, count, routeInfo };
+      })
+      .filter(item => item.routeInfo !== null);
   };
 
   // Liste de toutes les catégories
@@ -741,6 +804,112 @@ export default function Sitemap() {
           </p>
         </header>
 
+        {/* Section Favoris */}
+        {showFavoritesSection && getFavoriteRoutes().length > 0 && (
+          <Card className="border-2 border-yellow-400/30 bg-gradient-to-br from-yellow-50/50 to-amber-50/50 dark:from-yellow-950/20 dark:to-amber-950/20">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-yellow-400/20">
+                    <Star className="h-6 w-6 fill-yellow-400 text-yellow-400" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-xl">Mes Favoris</CardTitle>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {getFavoriteRoutes().length} {getFavoriteRoutes().length === 1 ? 'page favorite' : 'pages favorites'}
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setShowFavoritesSection(false)}
+                  aria-label="Fermer la section favoris"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-3 md:grid-cols-2">
+                {getFavoriteRoutes().map((route) => {
+                  const Icon = route.icon;
+                  return (
+                    <Link
+                      key={route.path}
+                      to={route.examplePath || route.path}
+                      onClick={() => trackVisit(route.path)}
+                      className="group flex items-center gap-3 p-3 rounded-lg border border-border bg-background hover:bg-muted/50 transition-all hover:scale-105"
+                    >
+                      <div className="p-2 rounded-lg bg-primary/10 shrink-0">
+                        <Icon className="h-4 w-4 text-primary" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-sm group-hover:text-primary transition-colors truncate">
+                          {route.label}
+                        </p>
+                        <p className="text-xs text-muted-foreground truncate">
+                          {route.category}
+                        </p>
+                      </div>
+                      <Star className="h-4 w-4 fill-yellow-400 text-yellow-400 shrink-0" />
+                    </Link>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Statistiques d'utilisation */}
+        {getMostVisitedRoutes().length > 0 && (
+          <Card className="border-primary/30 bg-gradient-to-br from-primary/5 to-accent/5">
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <History className="h-6 w-6 text-primary" />
+                </div>
+                <div>
+                  <CardTitle className="text-xl">Routes les plus visitées</CardTitle>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Vos pages les plus consultées
+                  </p>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {getMostVisitedRoutes(5).map(({ path, count, routeInfo }, index) => {
+                  if (!routeInfo) return null;
+                  return (
+                    <Link
+                      key={path}
+                      to={routeInfo.examplePath || path}
+                      onClick={() => trackVisit(path)}
+                      className="group flex items-center gap-3 p-3 rounded-lg border border-transparent hover:border-border hover:bg-muted/50 transition-all"
+                    >
+                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary font-bold text-sm shrink-0">
+                        {index + 1}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-sm group-hover:text-primary transition-colors truncate">
+                          {routeInfo.label}
+                        </p>
+                        <p className="text-xs text-muted-foreground truncate">
+                          {routeInfo.category}
+                        </p>
+                      </div>
+                      <Badge variant="secondary" className="shrink-0">
+                        {count} {count === 1 ? 'visite' : 'visites'}
+                      </Badge>
+                    </Link>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         <div className="flex flex-col gap-6">
           {/* Filtres par catégorie */}
           <div className="flex flex-wrap items-center gap-2">
@@ -782,6 +951,26 @@ export default function Sitemap() {
             </div>
 
             <div className="flex gap-2">
+              {/* Compteur de Favoris */}
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setShowFavoritesSection(!showFavoritesSection)}
+                className={`h-12 w-12 relative transition-all duration-300 hover:scale-110 ${
+                  animateFavorite ? 'scale-125' : ''
+                }`}
+                aria-label={`${favoriteCount} favoris`}
+              >
+                <Star className={`h-5 w-5 ${favoriteCount > 0 ? 'fill-yellow-400 text-yellow-400' : ''}`} />
+                {favoriteCount > 0 && (
+                  <span className={`absolute -top-1 -right-1 bg-primary text-primary-foreground text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center transition-all duration-300 ${
+                    animateFavorite ? 'scale-150' : ''
+                  }`}>
+                    {favoriteCount}
+                  </span>
+                )}
+              </Button>
+
               {/* Toggle Thème */}
               <Button
                 variant="outline"
@@ -906,6 +1095,7 @@ export default function Sitemap() {
                           <li key={route.path} className="relative group/item">
                             <Link
                               to={route.examplePath || route.path}
+                              onClick={() => trackVisit(route.path)}
                               className="group block rounded-md border border-transparent p-2 pr-10 transition-colors hover:border-border hover:bg-muted/50"
                             >
                               <div className="flex items-start justify-between gap-2">
@@ -991,6 +1181,7 @@ export default function Sitemap() {
                           <div key={route.path} className="relative group/list-item">
                             <Link
                               to={route.examplePath || route.path}
+                              onClick={() => trackVisit(route.path)}
                               className="group flex items-center justify-between p-3 pr-12 rounded-lg border border-transparent hover:border-border hover:bg-muted/50 transition-colors"
                             >
                               <div className="flex-1 min-w-0">
