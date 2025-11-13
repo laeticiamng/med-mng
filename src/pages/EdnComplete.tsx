@@ -31,40 +31,18 @@ import { transformTableauToSections } from "@/utils/tableauTransformations";
 import { TooltipInfo } from "@/components/ui/tooltip-info";
 import { FaqSection } from "@/components/help/FaqSection";
 import { useEdnFilters } from "@/hooks/useEdnFilters";
-
-interface EdnItem {
-  id: string;
-  item_code: string;
-  title: string;
-  subtitle?: string;
-  slug: string;
-  tableau_rang_a?: any;
-  tableau_rang_b?: any;
-  paroles_musicales?: string[];
-  paroles_rang_a?: string[];
-  paroles_rang_b?: string[];
-  paroles_rang_ab?: string[];
-  scene_immersive?: any;
-  quiz_questions?: any;
-  audio_ambiance?: any;
-  visual_ambiance?: any;
-  payload_v2?: any;
-  updated_at: string;
-  specialite?: string;
-  mots_cles?: string[];
-  competences_count_rang_a?: number;
-  competences_count_rang_b?: number;
-  competences_count_total?: number;
-  completeness_score?: number;
-  is_validated?: boolean;
-  competences_oic_rang_a?: any;
-  competences_oic_rang_b?: any;
-}
+import { 
+  EdnItem, 
+  EdnItemUnified, 
+  EdnModalState, 
+  INITIAL_MODAL_STATE 
+} from "@/types/edn";
 
 export default function EdnComplete() {
-  
-  const [immersiveItems, setImmersiveItems] = useState<EdnItem[]>([]);
-  const [completeItems, setCompleteItems] = useState<any[]>([]);
+  // ============================================
+  // État refactorisé (Quick Win #3)
+  // ============================================
+  const [unifiedItems, setUnifiedItems] = useState<EdnItemUnified[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingError, setLoadingError] = useState<string | null>(null);
   const [page, setPage] = useState(0);
@@ -72,10 +50,11 @@ export default function EdnComplete() {
   const [totalCount, setTotalCount] = useState<number>(0);
   const ITEMS_PER_PAGE = 50;
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [selectedItem, setSelectedItem] = useState<EdnItem | null>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('immersive');
   const [showPricing, setShowPricing] = useState(false);
+  
+  // État modal refactorisé en un seul objet (Quick Win #3)
+  const [modalState, setModalState] = useState<EdnModalState>(INITIAL_MODAL_STATE);
   
   const { quota } = useIAQuota();
   const { subscription, canGenerateMusic } = useSubscription();
@@ -106,18 +85,48 @@ export default function EdnComplete() {
 
   // Ouvrir automatiquement la modal si un slug est présent dans l'URL
   useEffect(() => {
-    if (slug && immersiveItems.length > 0) {
+    if (slug && unifiedItems.length > 0) {
       const normalizedSlug = slug.toLowerCase();
-      const item = immersiveItems.find(
+      const unifiedItem = unifiedItems.find(
         i => i.slug?.toLowerCase() === normalizedSlug || 
              i.item_code.toLowerCase() === normalizedSlug
       );
-      if (item) {
-        openItemModal(item);
+      if (unifiedItem) {
+        // Charger l'item complet depuis immersive
+        fetchFullItem(unifiedItem.item_code);
       }
     }
-  }, [slug, immersiveItems]);
+  }, [slug, unifiedItems]);
 
+  // ============================================
+  // Fonction pour charger un item complet (Quick Win #1 + #2)
+  // ============================================
+  const fetchFullItem = async (itemCode: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('edn_items_immersive')
+        .select('*')
+        .eq('item_code', itemCode)
+        .single();
+      
+      if (error) throw error;
+      if (data) {
+        // Cast prudent: les types DB peuvent ne pas correspondre exactement
+        openItemModal(data as unknown as EdnItem);
+      }
+    } catch (error) {
+      console.error('[EDN] Error loading full item:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de charger l'item complet.",
+        variant: "destructive"
+      });
+    }
+  };
+
+  // ============================================
+  // Fetch optimisé avec vue matérialisée (Quick Win #1)
+  // ============================================
   const fetchAllData = async () => {
     console.log('[EDN] Starting fetchAllData, page:', page);
     setLoading(true);
@@ -130,19 +139,15 @@ export default function EdnComplete() {
       
       console.log('[EDN] Fetching items from', from, 'to', to);
       
-      const { data: immersiveData, error: immersiveError, count } = await supabase
-        .from('edn_items_immersive')
-        .select(`
-          id, item_code, title, subtitle, slug, updated_at,
-          competences_count_rang_a, competences_count_rang_b, competences_count_total,
-          tableau_rang_a, tableau_rang_b,
-          paroles_musicales, scene_immersive, quiz_questions, audio_ambiance
-        `, { count: 'exact' })
+      // ✅ OPTIMISATION: UNE SEULE requête via la vue matérialisée
+      const { data: unifiedData, error: unifiedError, count } = await supabase
+        .from('edn_items_unified')
+        .select('*', { count: 'exact' })
         .range(from, to);
       
-      console.log('[EDN] Immersive data fetched:', {
-        dataLength: immersiveData?.length,
-        error: immersiveError,
+      console.log('[EDN] Unified data fetched:', {
+        dataLength: unifiedData?.length,
+        error: unifiedError,
         count
       });
       
@@ -151,11 +156,11 @@ export default function EdnComplete() {
         setTotalCount(count);
       }
       
-      setHasMore((immersiveData?.length || 0) === ITEMS_PER_PAGE && (count || 0) > to + 1);
+      setHasMore((unifiedData?.length || 0) === ITEMS_PER_PAGE && (count || 0) > to + 1);
 
-      if (immersiveError) {
-        console.error('[EDN] Immersive error:', immersiveError);
-        setLoadingError(`Erreur: ${immersiveError.message}`);
+      if (unifiedError) {
+        console.error('[EDN] Unified error:', unifiedError);
+        setLoadingError(`Erreur: ${unifiedError.message}`);
         toast({
           title: "Erreur",
           description: "Impossible de charger les données.",
@@ -164,42 +169,20 @@ export default function EdnComplete() {
         return;
       }
 
-      // OPTIMISATION CRITIQUE: Ne charger que les données complètes correspondant aux items paginés
-      let completeData: any[] = [];
-      if (immersiveData && immersiveData.length > 0) {
-        const itemCodes = immersiveData.map(item => item.item_code);
-        console.log('[EDN] Fetching complete data for codes:', itemCodes.slice(0, 5));
-        
-        const { data, error: completeError } = await supabase
-          .from('edn_items_complete')
-          .select('id, item_code, title, specialite, completeness_score, is_validated')
-          .in('item_code', itemCodes);
-          
-        console.log('[EDN] Complete data fetched:', {
-          dataLength: data?.length,
-          error: completeError
-        });
-        
-        completeData = data || [];
-      }
-
       // Ajouter les nouveaux items (append pour pagination)
-      const newImmersiveItems = page === 0 ? (immersiveData || []) : [...immersiveItems, ...(immersiveData || [])];
-      const newCompleteItems = page === 0 ? (completeData || []) : [...completeItems, ...(completeData || [])];
+      const newUnifiedItems = page === 0 ? (unifiedData || []) : [...unifiedItems, ...(unifiedData || [])];
       
       console.log('[EDN] Setting state:', {
-        immersiveLength: newImmersiveItems.length,
-        completeLength: newCompleteItems.length
+        unifiedLength: newUnifiedItems.length
       });
       
-      setImmersiveItems(newImmersiveItems);
-      setCompleteItems(newCompleteItems);
+      setUnifiedItems(newUnifiedItems as EdnItemUnified[]);
       
       // Ne pas afficher de toast à chaque pagination
       if (page === 0) {
         toast({
           title: "Interface EDN chargée",
-          description: `${immersiveData?.length || 0} premiers items chargés (${count} au total)`,
+          description: `${unifiedData?.length || 0} premiers items chargés (${count} au total)`,
         });
       }
     } catch (error) {
@@ -224,21 +207,8 @@ export default function EdnComplete() {
     }
   };
 
-  const allItems = useMemo(() => {
-    return immersiveItems.map(immersive => {
-      const complete = completeItems.find(c => c.item_code === immersive.item_code);
-      return {
-        ...immersive,
-        ...complete,
-        slug: immersive.slug,
-        tableau_rang_a: immersive.tableau_rang_a,
-        tableau_rang_b: immersive.tableau_rang_b,
-        scene_immersive: immersive.scene_immersive,
-        quiz_questions: immersive.quiz_questions,
-        paroles_musicales: immersive.paroles_musicales
-      };
-    });
-  }, [immersiveItems, completeItems]);
+  // Pas besoin de fusionner immersiveItems et completeItems, on utilise directement unifiedItems
+  const allItems = unifiedItems;
 
   const {
     searchTerm,
@@ -254,18 +224,17 @@ export default function EdnComplete() {
     filteredItems
   } = useEdnFilters(allItems);
 
-  const isItemComplete = (item: EdnItem) => {
+  const isItemComplete = (item: EdnItemUnified) => {
     return getCompletionPercentage(item) === 100;
   };
 
-  const getCompletionPercentage = (item: EdnItem) => {
+  const getCompletionPercentage = (item: EdnItemUnified) => {
     // OPTIMISATION: Utiliser le score pré-calculé de la DB si disponible
     if (item.completeness_score != null) {
       return item.completeness_score;
     }
     
     // Fallback: estimation basée sur les compteurs seulement (métadonnées légères)
-    // Impossible de vérifier les détails lourds qui ne sont pas chargés
     const hasRangA = (item.competences_count_rang_a || 0) > 0;
     const hasRangB = (item.competences_count_rang_b || 0) > 0;
     
@@ -278,34 +247,64 @@ export default function EdnComplete() {
     return score;
   };
 
-  const getOldCompletionPercentage = (item: EdnItem) => {
+  const getOldCompletionPercentage = (item: EdnItemUnified) => {
     // Version simplifiée basée sur les compteurs disponibles
     return getCompletionPercentage(item);
   };
 
   const calculateStats = () => {
     // Utiliser les items chargés pour les stats partielles
-    const total = immersiveItems.length;
-    const complete = immersiveItems.filter(item => 
+    const total = unifiedItems.length;
+    const complete = unifiedItems.filter(item => 
       (item.competences_count_rang_a || 0) > 0 && (item.competences_count_rang_b || 0) > 0
     ).length;
-    const validated = immersiveItems.filter(item => item.is_validated).length;
-    const withMusic = immersiveItems.filter(item => 
+    const validated = unifiedItems.filter(item => item.is_validated).length;
+    const withMusic = unifiedItems.filter(item => 
       item.completeness_score ? item.completeness_score > 60 : false
     ).length;
-    const avgScore = total > 0 ? Math.round(immersiveItems.reduce((sum, item) => 
+    const avgScore = total > 0 ? Math.round(unifiedItems.reduce((sum, item) => 
       sum + (item.completeness_score || getCompletionPercentage(item)), 0) / total) : 0;
     
     return { total, complete, validated, withMusic, avgScore };
   };
 
+  // ============================================
+  // Gestion modal refactorée (Quick Win #3)
+  // ============================================
   const openItemModal = useCallback((item: EdnItem, tab?: string) => {
-    setSelectedItem(item);
-    setIsModalOpen(true);
-    setSelectedItemTab(tab || 'overview');
+    setModalState({
+      isOpen: true,
+      item,
+      activeTab: tab || 'overview'
+    });
   }, []);
-  
-  const [selectedItemTab, setSelectedItemTab] = useState<string>('overview');
+
+  const closeItemModal = useCallback(() => {
+    setModalState(INITIAL_MODAL_STATE);
+  }, []);
+
+  // Callback pour les cartes: charger l'item complet puis ouvrir
+  const handleOpenItem = useCallback(async (unifiedItem: EdnItemUnified, tab?: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('edn_items_immersive')
+        .select('*')
+        .eq('item_code', unifiedItem.item_code)
+        .single();
+      
+      if (error) throw error;
+      if (data) {
+        openItemModal(data as unknown as EdnItem, tab);
+      }
+    } catch (error) {
+      console.error('[EDN] Error loading full item:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de charger l'item complet.",
+        variant: "destructive"
+      });
+    }
+  }, [openItemModal, toast]);
 
   const stats = calculateStats();
 
@@ -388,10 +387,10 @@ export default function EdnComplete() {
         <div className="mb-4 flex items-center justify-between p-3 bg-muted/50 rounded-lg">
           <div className="flex items-center gap-2">
             <Badge variant="outline" className="font-mono">
-              {immersiveItems.length} / {totalCount || '...'} items
+              {unifiedItems.length} / {totalCount || '...'} items
             </Badge>
             <span className="text-sm text-muted-foreground">
-              {filteredItems.length !== immersiveItems.length && (
+              {filteredItems.length !== unifiedItems.length && (
                 <span>({filteredItems.length} filtrés)</span>
               )}
             </span>
@@ -543,9 +542,9 @@ export default function EdnComplete() {
                     >
                       <EdnItemCard
                         key={item.id}
-                        item={item}
+                        item={item as any}
                         completionPercentage={getCompletionPercentage(item)}
-                        onOpen={(tab) => openItemModal(item, tab)}
+                        onOpen={(tab) => handleOpenItem(item, tab)}
                       />
                     </motion.div>
                   ))}
@@ -586,9 +585,9 @@ export default function EdnComplete() {
                   {filteredItems.map(item => (
                     <EdnItemCard
                       key={item.id}
-                      item={item}
+                      item={item as any}
                       completionPercentage={item.completeness_score || getCompletionPercentage(item)}
-                      onOpen={(tab) => openItemModal(item, tab)}
+                      onOpen={(tab) => handleOpenItem(item, tab)}
                     />
                   ))}
                 </div>
@@ -754,12 +753,12 @@ export default function EdnComplete() {
         )}
       </div>
 
-        {/* Modal */}
+        {/* Modal avec état refactorisé (Quick Win #3) */}
         <EdnItemModal
-          item={selectedItem}
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          initialTab={selectedItemTab}
+          item={modalState.item}
+          isOpen={modalState.isOpen}
+          onClose={closeItemModal}
+          initialTab={modalState.activeTab}
         />
       </Tabs>
     </div>
