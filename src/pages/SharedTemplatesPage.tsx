@@ -183,24 +183,6 @@ export const SharedTemplatesPage = () => {
             />
           </div>
         </CardContent>
-                <SelectItem value="personal">
-                  <div className="flex items-center gap-2">
-                    <Mail className="h-4 w-4" />
-                    Partagé avec moi
-                  </div>
-                </SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Results Count */}
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Filter className="h-4 w-4" />
-            <span>
-              {filteredTemplates.length} template{filteredTemplates.length !== 1 ? 's' : ''} trouvé{filteredTemplates.length !== 1 ? 's' : ''}
-            </span>
-          </div>
-        </CardContent>
       </Card>
 
       {/* Templates List */}

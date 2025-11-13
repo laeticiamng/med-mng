@@ -57,6 +57,7 @@ const EcosScenario = lazy(() => import("./pages/EcosScenario"));
 const SecurityMonitoring = lazy(() => import("./pages/SecurityMonitoring"));
 const RLSDocumentation = lazy(() => import("./pages/RLSDocumentation"));
 const SharedTemplatesPage = lazy(() => import("./pages/SharedTemplatesPage").then(m => ({ default: m.SharedTemplatesPage })));
+const TemplateAnalyticsDashboard = lazy(() => import("./pages/TemplateAnalyticsDashboard").then(m => ({ default: m.TemplateAnalyticsDashboard })));
 
 // 👨‍💼 ADMIN PAGES - Lazy loaded
 const AdminIndex = lazy(() => import("./pages/AdminIndex").then(m => ({ default: m.AdminIndex })));
@@ -181,6 +182,7 @@ const App = () => {
           <Route path={ROUTE_PATHS.shareTest} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><ShareTestPage /></Suspense>} />
           <Route path={ROUTE_PATHS.auditSecurity} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AuditPage /></Suspense>} />
           <Route path={ROUTE_PATHS.sharedTemplates} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><SharedTemplatesPage /></Suspense>} />
+          <Route path={ROUTE_PATHS.templateAnalytics} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><TemplateAnalyticsDashboard /></Suspense>} />
           <Route path={ROUTE_PATHS.home} element={<Index />} />
           <Route path={ROUTE_PATHS.generator} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Generator /></Suspense>} />
           {/* EDN Interface Unifiée - toutes les fonctionnalités fusionnées */}
