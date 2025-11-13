@@ -13,6 +13,7 @@ export interface FilterTemplate {
   is_shared: boolean;
   shared_with_team: boolean;
   shared_with_users: string[];
+  tags: string[];
   created_at: string;
   updated_at: string;
 }
@@ -51,6 +52,7 @@ export const useFilterTemplates = () => {
           description: template.description,
           filters: template.filters as any,
           is_default: template.is_default,
+          tags: template.tags || [],
         })
         .select()
         .single();
@@ -78,6 +80,7 @@ export const useFilterTemplates = () => {
           description: updates.description,
           filters: updates.filters as any,
           is_default: updates.is_default,
+          tags: updates.tags,
         })
         .eq('id', id)
         .select()
@@ -188,6 +191,7 @@ export const useFilterTemplates = () => {
           is_shared: false,
           shared_with_team: false,
           shared_with_users: [],
+          tags: (original as any).tags || [],
         })
         .select()
         .single();
