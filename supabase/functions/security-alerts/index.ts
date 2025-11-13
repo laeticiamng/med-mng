@@ -96,6 +96,11 @@ serve(async (req) => {
     // Send email alerts for each suspicious activity
     for (const activity of suspiciousActivities) {
       await sendAlertEmail(activity);
+      
+      // Create real-time notification for critical and high severity alerts
+      if (activity.severity === 'critical' || activity.severity === 'high') {
+        await createRealtimeNotification(supabase, activity);
+      }
     }
 
     return new Response(
@@ -182,3 +187,33 @@ async function sendAlertEmail(activity: SuspiciousActivity) {
 
   return res.json();
 }
+
+async function createRealtimeNotification(supabase: any, activity: SuspiciousActivity) {
+  const typeMapping: Record<string, string> = {
+    'mass_deletion': 'mass_deletion',
+    'unauthorized_access': 'unauthorized_access',
+    'unusual_pattern': 'suspicious_activity'
+  };
+
+  const notificationData = {
+    title: activity.severity === 'critical' 
+      ? '🚨 Alerte Critique de Sécurité' 
+      : '⚠️ Alerte de Sécurité',
+    message: activity.description,
+    severity: activity.severity === 'critical' ? 'critical' : 'warning',
+    type: typeMapping[activity.type] || 'system_alert',
+    details: activity.details,
+    related_user_id: activity.userId !== 'unknown' ? activity.userId : null,
+  };
+
+  const { error } = await supabase
+    .from('security_notifications')
+    .insert(notificationData);
+
+  if (error) {
+    console.error('Error creating real-time notification:', error);
+  } else {
+    console.log('✅ Real-time notification created for', activity.type);
+  }
+}
+

@@ -37,6 +37,8 @@ import {
 import { useAuth } from '@/components/med-mng/AuthProvider';
 import { ThemeToggle } from '@/components/ui/theme-toggle';
 import { ShareNotificationsPanel } from '@/components/notifications/ShareNotificationsPanel';
+import { RealtimeNotificationBell } from '@/components/security/RealtimeNotificationBell';
+import { useUserRoles } from '@/hooks/useUserRoles';
 import { useState } from 'react';
 import { MAIN_NAV_ITEMS } from '@/config/navigation';
 import { ROUTE_PATHS } from '@/config/routes';
@@ -45,6 +47,7 @@ export const MainNavigation: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { user, signOut } = useAuth();
+  const { isAdmin, isSecurityAnalyst } = useUserRoles();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const mainNavItems = MAIN_NAV_ITEMS;
@@ -172,6 +175,9 @@ export const MainNavigation: React.FC = () => {
             
             {/* Notifications de partage en temps réel */}
             <ShareNotificationsPanel />
+
+            {/* Alertes de sécurité en temps réel (admin et security_analyst seulement) */}
+            {(isAdmin || isSecurityAnalyst) && <RealtimeNotificationBell />}
 
             {/* Profil utilisateur */}
             {user ? (
