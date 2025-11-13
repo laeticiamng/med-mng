@@ -212,16 +212,47 @@ export const SharedTemplatesPage = () => {
               <Card key={template.id} className="hover:shadow-lg transition-shadow">
                 <CardHeader>
                   <div className="flex items-start justify-between gap-2">
-                    <CardTitle className="text-lg">{template.name}</CardTitle>
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      title="Créer une copie"
-                      onClick={() => duplicateTemplate(template.id)}
-                      disabled={isDuplicating}
-                    >
-                      <Copy className="h-4 w-4" />
-                    </Button>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <CardTitle className="text-lg">{template.name}</CardTitle>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-6 w-6 p-0"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleFavorite(template.id);
+                        }}
+                        disabled={isToggling}
+                      >
+                        {isFavorite(template.id) ? (
+                          <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                        ) : (
+                          <StarOff className="w-4 h-4" />
+                        )}
+                      </Button>
+                    </div>
+                    <div className="flex gap-1">
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        title="Voir détails"
+                        onClick={() => {
+                          setSelectedTemplate(template.id);
+                          setDetailsDialogOpen(true);
+                        }}
+                      >
+                        <MessageSquare className="h-4 w-4" />
+                      </Button>
+                      <Button 
+                        variant="ghost" 
+                        size="icon" 
+                        title="Créer une copie"
+                        onClick={() => duplicateTemplate(template.id)}
+                        disabled={isDuplicating}
+                      >
+                        <Copy className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                   {template.description && (
                     <CardDescription className="line-clamp-2">
@@ -256,6 +287,36 @@ export const SharedTemplatesPage = () => {
           )}
         </div>
       </ScrollArea>
+
+      {/* Template Details Dialog */}
+      <Dialog open={detailsDialogOpen} onOpenChange={setDetailsDialogOpen}>
+        <DialogContent className="max-w-3xl max-h-[80vh]">
+          <DialogHeader>
+            <DialogTitle>Détails du template</DialogTitle>
+            <DialogDescription>
+              Commentaires, notes et historique d'utilisation
+            </DialogDescription>
+          </DialogHeader>
+          {selectedTemplate && (
+            <Tabs defaultValue="comments" className="w-full">
+              <TabsList className="grid w-full grid-cols-2">
+                <TabsTrigger value="comments">Commentaires & Notes</TabsTrigger>
+                <TabsTrigger value="history">Historique</TabsTrigger>
+              </TabsList>
+              <TabsContent value="comments" className="mt-4">
+                <ScrollArea className="h-[400px] pr-4">
+                  <TemplateComments templateId={selectedTemplate} />
+                </ScrollArea>
+              </TabsContent>
+              <TabsContent value="history" className="mt-4">
+                <ScrollArea className="h-[400px] pr-4">
+                  <TemplateHistory templateId={selectedTemplate} />
+                </ScrollArea>
+              </TabsContent>
+            </Tabs>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
