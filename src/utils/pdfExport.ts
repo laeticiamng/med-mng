@@ -62,6 +62,12 @@ export const exportNotificationsToPDF = async (
   const criticalCount = notifications.filter(n => n.severity === 'critical').length;
   const warningCount = notifications.filter(n => n.severity === 'warning').length;
   const infoCount = notifications.filter(n => n.severity === 'info').length;
+
+  // Count by type
+  const massDeletionCount = notifications.filter(n => n.type === 'mass_deletion').length;
+  const unauthorizedCount = notifications.filter(n => n.type === 'unauthorized_access').length;
+  const suspiciousCount = notifications.filter(n => n.type === 'suspicious_activity').length;
+  const systemCount = notifications.filter(n => n.type === 'system_alert').length;
   
   doc.text(`Total de notifications: ${notifications.length}`, 14, yPosition);
   yPosition += 5;
@@ -78,6 +84,12 @@ export const exportNotificationsToPDF = async (
   
   // Reset color
   doc.setTextColor(0, 0, 0);
+
+  // Add note about charts
+  doc.setFontSize(9);
+  doc.setTextColor(100, 100, 100);
+  doc.text('📊 Graphiques interactifs disponibles dans le dashboard en ligne', 14, yPosition);
+  yPosition += 8;
   
   // Create table data
   const tableData = notifications.map((notification) => [

@@ -69,6 +69,7 @@
     "@types/react-window": "^1.8.8",
     "@vitest/ui": "^3.2.4",
     "axios": "^1.10.0",
+    "chart.js": "^4.5.1",
     "chromatic": "^13.3.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
