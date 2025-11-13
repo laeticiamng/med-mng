@@ -264,7 +264,7 @@ export const FilterTemplateManager = ({
                     className="flex items-start gap-3 p-3 rounded-lg border bg-card"
                   >
                     <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 mb-1">
+                      <div className="flex items-center gap-2 mb-1 flex-wrap">
                         <h4 className="font-medium">{template.name}</h4>
                         {template.is_default && (
                           <Badge variant="secondary" className="text-xs">
@@ -272,6 +272,29 @@ export const FilterTemplateManager = ({
                           </Badge>
                         )}
                       </div>
+                      
+                      {/* Share Status Badges */}
+                      <div className="flex flex-wrap gap-1 mb-2">
+                        {template.is_shared && (
+                          <Badge variant="outline" className="text-xs gap-1">
+                            <Globe className="h-3 w-3" />
+                            Global
+                          </Badge>
+                        )}
+                        {template.shared_with_team && (
+                          <Badge variant="outline" className="text-xs gap-1">
+                            <Users className="h-3 w-3" />
+                            Équipe
+                          </Badge>
+                        )}
+                        {template.shared_with_users && template.shared_with_users.length > 0 && (
+                          <Badge variant="outline" className="text-xs gap-1">
+                            <Mail className="h-3 w-3" />
+                            {template.shared_with_users.length} utilisateur{template.shared_with_users.length > 1 ? 's' : ''}
+                          </Badge>
+                        )}
+                      </div>
+                      
                       {template.description && (
                         <p className="text-sm text-muted-foreground mb-2">
                           {template.description}
