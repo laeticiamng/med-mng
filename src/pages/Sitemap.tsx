@@ -12,6 +12,9 @@ import { AIRecommendations } from '@/components/sitemap/AIRecommendations';
 import { TagManager, TagData } from '@/components/sitemap/TagManager';
 import { AnalyticsDashboard } from '@/components/sitemap/AnalyticsDashboard';
 import { ExportImportManager } from '@/components/sitemap/ExportImportManager';
+import { CloudSyncManager } from '@/components/sitemap/CloudSyncManager';
+import { MetricsAlerts } from '@/components/sitemap/MetricsAlerts';
+import { useCloudSync } from '@/hooks/useCloudSync';
 import {
   Home,
   LayoutDashboard,
@@ -570,7 +573,10 @@ export default function Sitemap() {
   const [tags, setTags] = useState<TagData[]>([]);
   const [selectedTagFilter, setSelectedTagFilter] = useState<string | null>(null);
   const [showAnalytics, setShowAnalytics] = useState(false);
+  const [alertThresholds, setAlertThresholds] = useState({ bounceRate: 70, avgTimeSeconds: 300 });
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  const { autoSyncEnabled, syncToCloud } = useCloudSync();
 
   // Charger les favoris, tags et statistiques depuis localStorage
   useEffect(() => {
@@ -609,6 +615,15 @@ export default function Sitemap() {
         setNavigationPaths(JSON.parse(savedPaths));
       } catch (e) {
         console.error('Error loading navigation paths:', e);
+      }
+    }
+
+    const savedThresholds = localStorage.getItem('sitemap-alert-thresholds');
+    if (savedThresholds) {
+      try {
+        setAlertThresholds(JSON.parse(savedThresholds));
+      } catch (e) {
+        console.error('Error loading alert thresholds:', e);
       }
     }
   }, []);
@@ -772,7 +787,9 @@ export default function Sitemap() {
   const handleImport = (data: { 
     favorites: Set<string>; 
     tags: TagData[]; 
-    visitStats?: Record<string, { count: number; timestamps: number[]; sessions: any[] }> 
+    visitStats?: Record<string, { count: number; timestamps: number[]; sessions: any[] }>;
+    navigationPaths?: { from: string; to: string; count: number }[];
+    alertThresholds?: { bounceRate: number; avgTimeSeconds: number };
   }) => {
     saveFavorites(data.favorites);
     handleTagsChange(data.tags);
@@ -792,7 +809,34 @@ export default function Sitemap() {
       setVisitStats(mergedStats);
       localStorage.setItem('sitemap-visit-stats', JSON.stringify(mergedStats));
     }
+
+    if (data.navigationPaths) {
+      setNavigationPaths(data.navigationPaths);
+      localStorage.setItem('sitemap-navigation-paths', JSON.stringify(data.navigationPaths));
+    }
+
+    if (data.alertThresholds) {
+      setAlertThresholds(data.alertThresholds);
+      localStorage.setItem('sitemap-alert-thresholds', JSON.stringify(data.alertThresholds));
+    }
   };
+
+  // Auto-sync quand les données changent
+  useEffect(() => {
+    if (!autoSyncEnabled) return;
+
+    const timer = setTimeout(() => {
+      syncToCloud({
+        favorites,
+        tags,
+        visitStats,
+        navigationPaths,
+        alertThresholds,
+      });
+    }, 5000); // Débounce de 5 secondes
+
+    return () => clearTimeout(timer);
+  }, [favorites, tags, visitStats, navigationPaths, alertThresholds, autoSyncEnabled, syncToCloud]);
 
   // Créer un mapping des routes pour le dashboard analytique
   const routeLabels = useMemo(() => {
@@ -1025,6 +1069,29 @@ export default function Sitemap() {
           visitStats={visitStats}
           onImport={handleImport}
         />
+
+        {/* Cloud Sync Manager */}
+        <CloudSyncManager
+          favorites={favorites}
+          tags={tags}
+          visitStats={visitStats}
+          navigationPaths={navigationPaths}
+          alertThresholds={alertThresholds}
+          onDataLoaded={handleImport}
+        />
+
+        {/* Metrics Alerts */}
+        {Object.keys(visitStats).length > 0 && (
+          <MetricsAlerts
+            visitStats={visitStats}
+            routeLabels={routeLabels}
+            alertThresholds={alertThresholds}
+            onThresholdsChange={(newThresholds) => {
+              setAlertThresholds(newThresholds);
+              localStorage.setItem('sitemap-alert-thresholds', JSON.stringify(newThresholds));
+            }}
+          />
+        )}
 
         {/* Dashboard Analytique */}
         {Object.keys(visitStats).length > 0 && (

@@ -1169,6 +1169,80 @@ export type Database = {
         }
         Relationships: []
       }
+      automix_feedback: {
+        Row: {
+          context_snapshot: Json
+          created_at: string
+          feedback_notes: string | null
+          id: string
+          playlist_id: string
+          rating: number
+          user_id: string
+        }
+        Insert: {
+          context_snapshot: Json
+          created_at?: string
+          feedback_notes?: string | null
+          id?: string
+          playlist_id: string
+          rating: number
+          user_id: string
+        }
+        Update: {
+          context_snapshot?: Json
+          created_at?: string
+          feedback_notes?: string | null
+          id?: string
+          playlist_id?: string
+          rating?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automix_feedback_playlist_id_fkey"
+            columns: ["playlist_id"]
+            isOneToOne: false
+            referencedRelation: "automix_playlists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      automix_playlists: {
+        Row: {
+          context_rules: Json
+          created_at: string
+          generated_tracks: Json | null
+          id: string
+          is_active: boolean | null
+          name: string
+          tempo_range: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          context_rules?: Json
+          created_at?: string
+          generated_tracks?: Json | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          tempo_range?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          context_rules?: Json
+          created_at?: string
+          generated_tracks?: Json | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          tempo_range?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       b2b_music_aggregates: {
         Row: {
           cohort_size: number
@@ -2986,6 +3060,60 @@ export type Database = {
         }
         Relationships: []
       }
+      custom_challenges: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          description: string | null
+          emotional_profile: string
+          end_date: string | null
+          id: string
+          is_active: boolean | null
+          objective: string
+          reward_type: string
+          reward_value: Json
+          start_date: string | null
+          target_value: number | null
+          title: string
+          type: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          emotional_profile: string
+          end_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          objective: string
+          reward_type: string
+          reward_value: Json
+          start_date?: string | null
+          target_value?: number | null
+          title: string
+          type: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          description?: string | null
+          emotional_profile?: string
+          end_date?: string | null
+          id?: string
+          is_active?: boolean | null
+          objective?: string
+          reward_type?: string
+          reward_value?: Json
+          start_date?: string | null
+          target_value?: number | null
+          title?: string
+          type?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       cvss_assessments: {
         Row: {
           assessed_at: string | null
@@ -3085,6 +3213,39 @@ export type Database = {
           user_interaction?: string
           vector_string?: string | null
           vulnerability_name?: string
+        }
+        Relationships: []
+      }
+      daily_challenges: {
+        Row: {
+          challenge_date: string
+          created_at: string | null
+          emotional_profile: string | null
+          id: string
+          objective: string
+          reward_type: string
+          reward_value: Json
+          type: string
+        }
+        Insert: {
+          challenge_date?: string
+          created_at?: string | null
+          emotional_profile?: string | null
+          id?: string
+          objective: string
+          reward_type: string
+          reward_value: Json
+          type: string
+        }
+        Update: {
+          challenge_date?: string
+          created_at?: string | null
+          emotional_profile?: string | null
+          id?: string
+          objective?: string
+          reward_type?: string
+          reward_value?: Json
+          type?: string
         }
         Relationships: []
       }
@@ -5350,6 +5511,199 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      focus_leaderboard: {
+        Row: {
+          id: string
+          last_session_at: string | null
+          streak_days: number | null
+          total_minutes: number | null
+          total_pomodoros: number | null
+          total_sessions: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          last_session_at?: string | null
+          streak_days?: number | null
+          total_minutes?: number | null
+          total_pomodoros?: number | null
+          total_sessions?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          last_session_at?: string | null
+          streak_days?: number | null
+          total_minutes?: number | null
+          total_pomodoros?: number | null
+          total_sessions?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      focus_session_tracks: {
+        Row: {
+          created_at: string | null
+          duration_seconds: number | null
+          emotion: string | null
+          generation_status: string | null
+          id: string
+          phase: string
+          pomodoro_index: number
+          sequence_order: number
+          session_id: string
+          suno_task_id: string | null
+          target_tempo: number
+          track_title: string | null
+          track_url: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          duration_seconds?: number | null
+          emotion?: string | null
+          generation_status?: string | null
+          id?: string
+          phase: string
+          pomodoro_index: number
+          sequence_order: number
+          session_id: string
+          suno_task_id?: string | null
+          target_tempo: number
+          track_title?: string | null
+          track_url?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          duration_seconds?: number | null
+          emotion?: string | null
+          generation_status?: string | null
+          id?: string
+          phase?: string
+          pomodoro_index?: number
+          sequence_order?: number
+          session_id?: string
+          suno_task_id?: string | null
+          target_tempo?: number
+          track_title?: string | null
+          track_url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "focus_session_tracks_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "focus_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      focus_sessions: {
+        Row: {
+          break_duration: number
+          completed_at: string | null
+          created_at: string | null
+          duration_minutes: number
+          end_tempo: number
+          id: string
+          mode: string
+          peak_tempo: number
+          pomodoro_duration: number
+          pomodoros_completed: number | null
+          start_tempo: number
+          started_at: string | null
+          tracks_generated: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          break_duration?: number
+          completed_at?: string | null
+          created_at?: string | null
+          duration_minutes?: number
+          end_tempo?: number
+          id?: string
+          mode: string
+          peak_tempo?: number
+          pomodoro_duration?: number
+          pomodoros_completed?: number | null
+          start_tempo?: number
+          started_at?: string | null
+          tracks_generated?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          break_duration?: number
+          completed_at?: string | null
+          created_at?: string | null
+          duration_minutes?: number
+          end_tempo?: number
+          id?: string
+          mode?: string
+          peak_tempo?: number
+          pomodoro_duration?: number
+          pomodoros_completed?: number | null
+          start_tempo?: number
+          started_at?: string | null
+          tracks_generated?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      focus_team_sessions: {
+        Row: {
+          created_at: string
+          creator_id: string
+          current_phase: string | null
+          duration_minutes: number
+          id: string
+          mode: string
+          participant_count: number | null
+          phase_started_at: string | null
+          playlist_id: string | null
+          team_name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          creator_id: string
+          current_phase?: string | null
+          duration_minutes: number
+          id?: string
+          mode: string
+          participant_count?: number | null
+          phase_started_at?: string | null
+          playlist_id?: string | null
+          team_name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          creator_id?: string
+          current_phase?: string | null
+          duration_minutes?: number
+          id?: string
+          mode?: string
+          participant_count?: number | null
+          phase_started_at?: string | null
+          playlist_id?: string | null
+          team_name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "focus_team_sessions_playlist_id_fkey"
+            columns: ["playlist_id"]
+            isOneToOne: false
+            referencedRelation: "automix_playlists"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       gamification_activities: {
         Row: {
@@ -8716,6 +9070,111 @@ export type Database = {
           },
         ]
       }
+      music_journey_tracks: {
+        Row: {
+          created_at: string
+          emotion_after: string | null
+          emotion_level: string
+          id: string
+          is_completed: boolean | null
+          journey_id: string
+          played_at: string | null
+          step_number: number
+          track_id: string | null
+          user_rating: number | null
+        }
+        Insert: {
+          created_at?: string
+          emotion_after?: string | null
+          emotion_level: string
+          id?: string
+          is_completed?: boolean | null
+          journey_id: string
+          played_at?: string | null
+          step_number: number
+          track_id?: string | null
+          user_rating?: number | null
+        }
+        Update: {
+          created_at?: string
+          emotion_after?: string | null
+          emotion_level?: string
+          id?: string
+          is_completed?: boolean | null
+          journey_id?: string
+          played_at?: string | null
+          step_number?: number
+          track_id?: string | null
+          user_rating?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "music_journey_tracks_journey_id_fkey"
+            columns: ["journey_id"]
+            isOneToOne: false
+            referencedRelation: "music_journeys"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "music_journey_tracks_track_id_fkey"
+            columns: ["track_id"]
+            isOneToOne: false
+            referencedRelation: "generated_music_tracks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      music_journeys: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          current_step: number
+          description: string | null
+          emotion_start: string
+          emotion_target: string
+          id: string
+          progress_percentage: number | null
+          started_at: string
+          status: string
+          title: string
+          total_steps: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          current_step?: number
+          description?: string | null
+          emotion_start: string
+          emotion_target: string
+          id?: string
+          progress_percentage?: number | null
+          started_at?: string
+          status?: string
+          title: string
+          total_steps?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          current_step?: number
+          description?: string | null
+          emotion_start?: string
+          emotion_target?: string
+          id?: string
+          progress_percentage?: number | null
+          started_at?: string
+          status?: string
+          title?: string
+          total_steps?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       music_play_logs: {
         Row: {
           emotion_context: string | null
@@ -10245,6 +10704,44 @@ export type Database = {
         }
         Relationships: []
       }
+      playlist_listen_stats: {
+        Row: {
+          completed: boolean | null
+          duration_seconds: number | null
+          id: string
+          listened_at: string
+          playlist_id: string
+          track_index: number | null
+          user_id: string | null
+        }
+        Insert: {
+          completed?: boolean | null
+          duration_seconds?: number | null
+          id?: string
+          listened_at?: string
+          playlist_id: string
+          track_index?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          completed?: boolean | null
+          duration_seconds?: number | null
+          id?: string
+          listened_at?: string
+          playlist_id?: string
+          track_index?: number | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "playlist_listen_stats_playlist_id_fkey"
+            columns: ["playlist_id"]
+            isOneToOne: false
+            referencedRelation: "automix_playlists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       points_history: {
         Row: {
           challenge_id: string | null
@@ -10276,6 +10773,79 @@ export type Database = {
             columns: ["challenge_id"]
             isOneToOne: false
             referencedRelation: "challenges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      policy_acceptances: {
+        Row: {
+          accepted_at: string
+          id: string
+          ip_address: string | null
+          policy_id: string
+          policy_version: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          accepted_at?: string
+          id?: string
+          ip_address?: string | null
+          policy_id: string
+          policy_version: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          accepted_at?: string
+          id?: string
+          ip_address?: string | null
+          policy_id?: string
+          policy_version?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "policy_acceptances_policy_id_fkey"
+            columns: ["policy_id"]
+            isOneToOne: false
+            referencedRelation: "privacy_policies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      policy_changes: {
+        Row: {
+          change_description: string | null
+          change_type: string
+          changed_at: string
+          changed_by: string | null
+          id: string
+          policy_id: string
+        }
+        Insert: {
+          change_description?: string | null
+          change_type: string
+          changed_at?: string
+          changed_by?: string | null
+          id?: string
+          policy_id: string
+        }
+        Update: {
+          change_description?: string | null
+          change_type?: string
+          changed_at?: string
+          changed_by?: string | null
+          id?: string
+          policy_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "policy_changes_policy_id_fkey"
+            columns: ["policy_id"]
+            isOneToOne: false
+            referencedRelation: "privacy_policies"
             referencedColumns: ["id"]
           },
         ]
@@ -10340,6 +10910,45 @@ export type Database = {
           revoked_at?: string | null
           source?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      privacy_policies: {
+        Row: {
+          content: string
+          created_at: string
+          created_by: string | null
+          effective_date: string
+          id: string
+          is_current: boolean
+          status: string
+          summary: string | null
+          updated_at: string
+          version: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          created_by?: string | null
+          effective_date: string
+          id?: string
+          is_current?: boolean
+          status?: string
+          summary?: string | null
+          updated_at?: string
+          version: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          created_by?: string | null
+          effective_date?: string
+          id?: string
+          is_current?: boolean
+          status?: string
+          summary?: string | null
+          updated_at?: string
+          version?: string
         }
         Relationships: []
       }
@@ -11694,6 +12303,50 @@ export type Database = {
         }
         Relationships: []
       }
+      shared_playlists: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          id: string
+          is_public: boolean | null
+          playlist_id: string
+          qr_code_url: string | null
+          share_token: string
+          user_id: string
+          view_count: number | null
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_public?: boolean | null
+          playlist_id: string
+          qr_code_url?: string | null
+          share_token: string
+          user_id: string
+          view_count?: number | null
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          is_public?: boolean | null
+          playlist_id?: string
+          qr_code_url?: string | null
+          share_token?: string
+          user_id?: string
+          view_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "shared_playlists_playlist_id_fkey"
+            columns: ["playlist_id"]
+            isOneToOne: false
+            referencedRelation: "automix_playlists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       shopify_purchases: {
         Row: {
           activated_at: string | null
@@ -12344,6 +12997,115 @@ export type Database = {
             columns: ["org_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      team_challenges: {
+        Row: {
+          created_at: string
+          created_by: string
+          current_value: number | null
+          description: string | null
+          ends_at: string
+          goal_type: string
+          goal_value: number
+          id: string
+          is_active: boolean | null
+          name: string
+          starts_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          current_value?: number | null
+          description?: string | null
+          ends_at: string
+          goal_type: string
+          goal_value: number
+          id?: string
+          is_active?: boolean | null
+          name: string
+          starts_at: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          current_value?: number | null
+          description?: string | null
+          ends_at?: string
+          goal_type?: string
+          goal_value?: number
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          starts_at?: string
+        }
+        Relationships: []
+      }
+      team_session_chat: {
+        Row: {
+          created_at: string
+          id: string
+          message: string
+          session_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message: string
+          session_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message?: string
+          session_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_session_chat_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "focus_team_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      team_session_participants: {
+        Row: {
+          id: string
+          is_active: boolean | null
+          joined_at: string
+          pomodoros_completed: number | null
+          session_id: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          is_active?: boolean | null
+          joined_at?: string
+          pomodoros_completed?: number | null
+          session_id: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          is_active?: boolean | null
+          joined_at?: string
+          pomodoros_completed?: number | null
+          session_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_session_participants_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "focus_team_sessions"
             referencedColumns: ["id"]
           },
         ]
@@ -13072,6 +13834,92 @@ export type Database = {
         }
         Relationships: []
       }
+      user_badges: {
+        Row: {
+          badge_category: string | null
+          badge_description: string | null
+          badge_icon: string | null
+          badge_id: string
+          badge_name: string
+          earned_at: string | null
+          id: string
+          progress: Json | null
+          shared_on_social: boolean | null
+          unlocked: boolean | null
+          user_id: string | null
+        }
+        Insert: {
+          badge_category?: string | null
+          badge_description?: string | null
+          badge_icon?: string | null
+          badge_id: string
+          badge_name: string
+          earned_at?: string | null
+          id?: string
+          progress?: Json | null
+          shared_on_social?: boolean | null
+          unlocked?: boolean | null
+          user_id?: string | null
+        }
+        Update: {
+          badge_category?: string | null
+          badge_description?: string | null
+          badge_icon?: string | null
+          badge_id?: string
+          badge_name?: string
+          earned_at?: string | null
+          id?: string
+          progress?: Json | null
+          shared_on_social?: boolean | null
+          unlocked?: boolean | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      user_challenges_progress: {
+        Row: {
+          challenge_id: string
+          completed: boolean | null
+          completed_at: string | null
+          created_at: string | null
+          id: string
+          progress: Json
+          streak_days: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          challenge_id: string
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          progress?: Json
+          streak_days?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          challenge_id?: string
+          completed?: boolean | null
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          progress?: Json
+          streak_days?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_challenges_progress_challenge_id_fkey"
+            columns: ["challenge_id"]
+            isOneToOne: false
+            referencedRelation: "daily_challenges"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_collections: {
         Row: {
           collection_id: string
@@ -13161,6 +14009,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_context_preferences: {
+        Row: {
+          afternoon_mood: string | null
+          created_at: string
+          evening_mood: string | null
+          feedback_summary: Json | null
+          id: string
+          morning_mood: string | null
+          updated_at: string
+          user_id: string
+          weather_sensitivity: boolean | null
+        }
+        Insert: {
+          afternoon_mood?: string | null
+          created_at?: string
+          evening_mood?: string | null
+          feedback_summary?: Json | null
+          id?: string
+          morning_mood?: string | null
+          updated_at?: string
+          user_id: string
+          weather_sensitivity?: boolean | null
+        }
+        Update: {
+          afternoon_mood?: string | null
+          created_at?: string
+          evening_mood?: string | null
+          feedback_summary?: Json | null
+          id?: string
+          morning_mood?: string | null
+          updated_at?: string
+          user_id?: string
+          weather_sensitivity?: boolean | null
+        }
+        Relationships: []
       }
       user_emotional_energy: {
         Row: {
@@ -13426,6 +14310,42 @@ export type Database = {
         }
         Relationships: []
       }
+      user_leaderboard: {
+        Row: {
+          created_at: string | null
+          id: string
+          last_updated: string | null
+          monthly_badge: boolean | null
+          pseudo_anonyme: string
+          rank: number | null
+          total_badges: number
+          user_id: string
+          zones_completed: Json
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          last_updated?: string | null
+          monthly_badge?: boolean | null
+          pseudo_anonyme: string
+          rank?: number | null
+          total_badges?: number
+          user_id: string
+          zones_completed?: Json
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          last_updated?: string | null
+          monthly_badge?: boolean | null
+          pseudo_anonyme?: string
+          rank?: number | null
+          total_badges?: number
+          user_id?: string
+          zones_completed?: Json
+        }
+        Relationships: []
+      }
       user_meditation_progress: {
         Row: {
           completed: boolean | null
@@ -13463,6 +14383,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_metric_alerts: {
+        Row: {
+          acknowledged: boolean | null
+          acknowledged_at: string | null
+          alert_type: string
+          created_at: string | null
+          current_value: number
+          id: string
+          metadata: Json | null
+          metric_name: string
+          threshold_value: number
+          triggered_at: string | null
+          user_id: string
+        }
+        Insert: {
+          acknowledged?: boolean | null
+          acknowledged_at?: string | null
+          alert_type: string
+          created_at?: string | null
+          current_value: number
+          id?: string
+          metadata?: Json | null
+          metric_name: string
+          threshold_value: number
+          triggered_at?: string | null
+          user_id: string
+        }
+        Update: {
+          acknowledged?: boolean | null
+          acknowledged_at?: string | null
+          alert_type?: string
+          created_at?: string | null
+          current_value?: number
+          id?: string
+          metadata?: Json | null
+          metric_name?: string
+          threshold_value?: number
+          triggered_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       user_modules: {
         Row: {
@@ -14233,6 +15195,45 @@ export type Database = {
           tts_enabled?: boolean | null
           updated_at?: string | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      user_sitemap_data: {
+        Row: {
+          alert_thresholds: Json | null
+          created_at: string | null
+          favorites: string[] | null
+          id: string
+          last_synced_at: string | null
+          navigation_paths: Json | null
+          tags: Json | null
+          updated_at: string | null
+          user_id: string
+          visit_stats: Json | null
+        }
+        Insert: {
+          alert_thresholds?: Json | null
+          created_at?: string | null
+          favorites?: string[] | null
+          id?: string
+          last_synced_at?: string | null
+          navigation_paths?: Json | null
+          tags?: Json | null
+          updated_at?: string | null
+          user_id: string
+          visit_stats?: Json | null
+        }
+        Update: {
+          alert_thresholds?: Json | null
+          created_at?: string | null
+          favorites?: string[] | null
+          id?: string
+          last_synced_at?: string | null
+          navigation_paths?: Json | null
+          tags?: Json | null
+          updated_at?: string | null
+          user_id?: string
+          visit_stats?: Json | null
         }
         Relationships: []
       }
@@ -15501,6 +16502,10 @@ export type Database = {
             Args: { p_ip_address?: unknown; p_user_agent?: string }
             Returns: string
           }
+      decrement_participant_count: {
+        Args: { session_id: string }
+        Returns: undefined
+      }
       decrypt_sensitive_data: {
         Args: { p_ciphertext: string; p_key_name?: string }
         Returns: string
@@ -15632,6 +16637,7 @@ export type Database = {
           items_traites: number
         }[]
       }
+      generate_anonymous_pseudo: { Args: never; Returns: string }
       generate_audit_report: {
         Args: { report_type_param?: string }
         Returns: string
@@ -15803,6 +16809,27 @@ export type Database = {
           started_at: string
           status: string
           total_items: number
+        }[]
+      }
+      get_gamification_cron_history: {
+        Args: never
+        Returns: {
+          end_time: string
+          job_name: string
+          jobid: number
+          return_message: string
+          start_time: string
+          status: string
+        }[]
+      }
+      get_gamification_cron_jobs: {
+        Args: never
+        Returns: {
+          active: boolean
+          database: string
+          jobid: number
+          jobname: string
+          schedule: string
         }[]
       }
       get_latest_compliance_audit: {
@@ -16156,6 +17183,10 @@ export type Database = {
         Returns: undefined
       }
       increment_music_usage: { Args: { user_uuid: string }; Returns: boolean }
+      increment_participant_count: {
+        Args: { session_id: string }
+        Returns: undefined
+      }
       increment_rate_limit_counter: {
         Args: {
           p_identifier: string
