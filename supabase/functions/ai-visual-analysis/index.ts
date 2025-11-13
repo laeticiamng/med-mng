@@ -121,9 +121,12 @@ ${previousScreenshotBase64 ? "Image précédente et nouvelle image fournies pour
     const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
+    const regressionCount = analysis.changes?.length || 0;
+    
     await supabase.from("visual_quality_reports").insert({
       component_name: componentName,
       has_regressions: analysis.hasRegressions,
+      regression_count: regressionCount,
       changes: analysis.changes,
       accessibility_issues: analysis.accessibilityIssues,
       design_consistency: analysis.designConsistency,
@@ -131,6 +134,42 @@ ${previousScreenshotBase64 ? "Image précédente et nouvelle image fournies pour
       screenshot: screenshotBase64,
       analyzed_at: new Date().toISOString(),
     });
+
+    // Envoyer une notification si régressions visuelles détectées
+    if (analysis.hasRegressions && regressionCount > 0) {
+      const severity = regressionCount > 5 ? "high" : regressionCount > 2 ? "medium" : "low";
+      
+      // Notification dans la base de données
+      await supabase.functions.invoke("ai-notifications", {
+        body: {
+          type: "visual_regression",
+          severity,
+          summary: `${regressionCount} régressions visuelles détectées sur ${componentName}`,
+          details: { component: componentName, analysis }
+        }
+      });
+
+      // Email d'alerte pour les cas high
+      if (severity === "high") {
+        const alertEmail = Deno.env.get("ALERT_EMAIL");
+        if (alertEmail) {
+          try {
+            await supabase.functions.invoke("send-quality-alert", {
+              body: {
+                type: "visual_regression",
+                severity,
+                summary: `${regressionCount} régressions visuelles détectées sur ${componentName}`,
+                details: { component: componentName, analysis },
+                recipientEmail: alertEmail
+              }
+            });
+            console.log(`Alert email sent to ${alertEmail}`);
+          } catch (emailError) {
+            console.error("Failed to send alert email:", emailError);
+          }
+        }
+      }
+    }
 
     return new Response(
       JSON.stringify(analysis),

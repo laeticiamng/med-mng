@@ -115,6 +115,8 @@ Sois strict et professionnel. Identifie les vrais problèmes de sécurité, bugs
     // Envoyer une notification si problèmes critiques détectés
     if (analysis.vulnerabilities > 0 || analysis.bugs > 5) {
       const severity = analysis.vulnerabilities > 2 ? "critical" : analysis.bugs > 10 ? "high" : "medium";
+      
+      // Notification dans la base de données
       await supabase.functions.invoke("ai-notifications", {
         body: {
           type: "code_quality",
@@ -123,6 +125,27 @@ Sois strict et professionnel. Identifie les vrais problèmes de sécurité, bugs
           details: { file: filePath, analysis }
         }
       });
+
+      // Email d'alerte pour les cas critiques/high
+      if (severity === "critical" || severity === "high") {
+        const alertEmail = Deno.env.get("ALERT_EMAIL");
+        if (alertEmail) {
+          try {
+            await supabase.functions.invoke("send-quality-alert", {
+              body: {
+                type: "code_quality",
+                severity,
+                summary: `${analysis.vulnerabilities} vulnérabilités et ${analysis.bugs} bugs détectés dans ${filePath}`,
+                details: { file: filePath, analysis },
+                recipientEmail: alertEmail
+              }
+            });
+            console.log(`Alert email sent to ${alertEmail}`);
+          } catch (emailError) {
+            console.error("Failed to send alert email:", emailError);
+          }
+        }
+      }
     }
 
     return new Response(
