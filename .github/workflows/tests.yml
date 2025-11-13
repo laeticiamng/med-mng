@@ -129,13 +129,27 @@ jobs:
     steps:
       - name: Check test results
         run: |
+          echo "📊 Test Results Summary"
+          echo "======================"
           echo "Unit Tests: ${{ needs.unit-tests.result }}"
           echo "E2E Tests: ${{ needs.e2e-tests.result }}"
           echo "Lint: ${{ needs.lint.result }}"
+          echo ""
           
           if [ "${{ needs.unit-tests.result }}" == "failure" ] || [ "${{ needs.e2e-tests.result }}" == "failure" ]; then
             echo "❌ Tests failed"
             exit 1
           else
             echo "✅ All tests passed"
+          fi
+      
+      - name: Generate test badge
+        if: github.ref == 'refs/heads/main'
+        run: |
+          if [ "${{ needs.unit-tests.result }}" == "success" ] && [ "${{ needs.e2e-tests.result }}" == "success" ]; then
+            echo "STATUS=passing" >> $GITHUB_ENV
+            echo "COLOR=brightgreen" >> $GITHUB_ENV
+          else
+            echo "STATUS=failing" >> $GITHUB_ENV
+            echo "COLOR=red" >> $GITHUB_ENV
           fi
