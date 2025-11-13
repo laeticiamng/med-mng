@@ -29,7 +29,8 @@ import {
   Share2,
   Users,
   Globe,
-  Mail
+  Mail,
+  Copy
 } from 'lucide-react';
 import { useFilterTemplates } from '@/hooks/useFilterTemplates';
 import type { NotificationFilters } from './SecurityNotificationsFilters';
@@ -52,9 +53,11 @@ export const FilterTemplateManager = ({
     updateTemplate,
     deleteTemplate,
     shareTemplate,
+    duplicateTemplate,
     isCreating,
     isDeleting,
     isSharing,
+    isDuplicating,
   } = useFilterTemplates();
 
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
@@ -319,6 +322,15 @@ export const FilterTemplateManager = ({
                         ) : (
                           <StarOff className="h-4 w-4" />
                         )}
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => duplicateTemplate(template.id)}
+                        disabled={isDuplicating}
+                        title="Dupliquer ce template"
+                      >
+                        <Copy className="h-4 w-4" />
                       </Button>
                       <Button
                         variant="ghost"
