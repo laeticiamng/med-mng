@@ -31,6 +31,9 @@ import { transformTableauToSections } from "@/utils/tableauTransformations";
 import { TooltipInfo } from "@/components/ui/tooltip-info";
 import { FaqSection } from "@/components/help/FaqSection";
 import { useEdnFilters } from "@/hooks/useEdnFilters";
+import { useEdnItems, useFullEdnItem, usePrefetchFullItem, useRefreshEdnView } from "@/hooks/useEdnItems";
+import { useEdnModal } from "@/hooks/useEdnModal";
+import { getCompletionPercentage, calculateItemsStats } from "@/utils/completionScore";
 import { 
   EdnItem, 
   EdnItemUnified, 
@@ -40,21 +43,15 @@ import {
 
 export default function EdnComplete() {
   // ============================================
-  // État refactorisé (Quick Win #3)
+  // État refactorisé (Quick Win #3 + Phase 2)
   // ============================================
-  const [unifiedItems, setUnifiedItems] = useState<EdnItemUnified[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [loadingError, setLoadingError] = useState<string | null>(null);
   const [page, setPage] = useState(0);
-  const [hasMore, setHasMore] = useState(true);
-  const [totalCount, setTotalCount] = useState<number>(0);
-  const ITEMS_PER_PAGE = 50;
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [activeTab, setActiveTab] = useState('immersive');
   const [showPricing, setShowPricing] = useState(false);
   
-  // État modal refactorisé en un seul objet (Quick Win #3)
-  const [modalState, setModalState] = useState<EdnModalState>(INITIAL_MODAL_STATE);
+  // Modal refactorisé avec hook dédié (Quick Win #3)
+  const { modalState, openModal, closeModal } = useEdnModal();
   
   const { quota } = useIAQuota();
   const { subscription, canGenerateMusic } = useSubscription();
@@ -64,24 +61,23 @@ export default function EdnComplete() {
   const navigate = useNavigate();
   const { slug } = useParams<{ slug: string }>();
 
-  useEffect(() => {
-    // Timeout de sécurité: 10 secondes max
-    const timeoutId = setTimeout(() => {
-      setLoadingError('Le chargement prend trop de temps. Réessayez.');
-      setLoading(false);
-    }, 10000);
-    
-    fetchAllData()
-      .then(() => clearTimeout(timeoutId))
-      .catch(err => {
-        clearTimeout(timeoutId);
-        console.error('Error loading data:', err);
-        setLoadingError('Erreur lors du chargement des données.');
-        setLoading(false);
-      });
-    
-    return () => clearTimeout(timeoutId);
-  }, [page]);
+  // ============================================
+  // React Query pour chargement optimisé (Phase 2)
+  // ============================================
+  const { data: pageData, isLoading: loading, error: queryError, refetch } = useEdnItems(page);
+  const { mutate: refreshView } = useRefreshEdnView();
+  const prefetchItem = usePrefetchFullItem();
+  
+  const unifiedItems = useMemo(() => {
+    if (!pageData) return [];
+    // Accumuler les pages précédentes si on pagine
+    // Pour l'instant on retourne juste la page actuelle
+    return pageData.items;
+  }, [pageData]);
+  
+  const totalCount = pageData?.count || 0;
+  const hasMore = unifiedItems.length < totalCount;
+  const loadingError = queryError ? String(queryError) : null;
 
   // Ouvrir automatiquement la modal si un slug est présent dans l'URL
   useEffect(() => {
@@ -92,7 +88,7 @@ export default function EdnComplete() {
              i.item_code.toLowerCase() === normalizedSlug
       );
       if (unifiedItem) {
-        // Charger l'item complet depuis immersive
+        // Charger l'item complet depuis immersive puis ouvrir modal
         fetchFullItem(unifiedItem.item_code);
       }
     }
@@ -112,7 +108,7 @@ export default function EdnComplete() {
       if (error) throw error;
       if (data) {
         // Cast prudent: les types DB peuvent ne pas correspondre exactement
-        openItemModal(data as unknown as EdnItem);
+        openModal(data as unknown as EdnItem);
       }
     } catch (error) {
       console.error('[EDN] Error loading full item:', error);
@@ -121,89 +117,6 @@ export default function EdnComplete() {
         description: "Impossible de charger l'item complet.",
         variant: "destructive"
       });
-    }
-  };
-
-  // ============================================
-  // Fetch optimisé avec vue matérialisée (Quick Win #1)
-  // ============================================
-  const fetchAllData = async () => {
-    console.log('[EDN] Starting fetchAllData, page:', page);
-    setLoading(true);
-    setLoadingError(null);
-    
-    try {
-      // PAGINATION: Charger seulement 50 items à la fois
-      const from = page * ITEMS_PER_PAGE;
-      const to = from + ITEMS_PER_PAGE - 1;
-      
-      console.log('[EDN] Fetching items from', from, 'to', to);
-      
-      // ✅ OPTIMISATION: UNE SEULE requête via la vue matérialisée
-      const { data: unifiedData, error: unifiedError, count } = await supabase
-        .from('edn_items_unified')
-        .select('*', { count: 'exact' })
-        .range(from, to);
-      
-      console.log('[EDN] Unified data fetched:', {
-        dataLength: unifiedData?.length,
-        error: unifiedError,
-        count
-      });
-      
-      // Stocker le count total
-      if (count !== null && count !== undefined) {
-        setTotalCount(count);
-      }
-      
-      setHasMore((unifiedData?.length || 0) === ITEMS_PER_PAGE && (count || 0) > to + 1);
-
-      if (unifiedError) {
-        console.error('[EDN] Unified error:', unifiedError);
-        setLoadingError(`Erreur: ${unifiedError.message}`);
-        toast({
-          title: "Erreur",
-          description: "Impossible de charger les données.",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      // Ajouter les nouveaux items (append pour pagination)
-      const newUnifiedItems = page === 0 ? (unifiedData || []) : [...unifiedItems, ...(unifiedData || [])];
-      
-      console.log('[EDN] Setting state:', {
-        unifiedLength: newUnifiedItems.length
-      });
-      
-      setUnifiedItems(newUnifiedItems as EdnItemUnified[]);
-      
-      // Ne pas afficher de toast à chaque pagination
-      if (page === 0) {
-        toast({
-          title: "Interface EDN chargée",
-          description: `${unifiedData?.length || 0} premiers items chargés (${count} au total)`,
-        });
-      }
-    } catch (error) {
-      console.error('[EDN] Error loading data:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
-      setLoadingError(errorMessage);
-      toast({
-        title: "❌ Erreur de chargement",
-        description: errorMessage,
-        variant: "destructive"
-      });
-      
-      // Afficher une alerte visible dans la console
-      console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-      console.error('❌ ERREUR CRITIQUE EDN');
-      console.error('Message:', errorMessage);
-      console.error('Détails:', error);
-      console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
-    } finally {
-      console.log('[EDN] fetchAllData complete');
-      setLoading(false);
     }
   };
 
@@ -228,60 +141,14 @@ export default function EdnComplete() {
     return getCompletionPercentage(item) === 100;
   };
 
-  const getCompletionPercentage = (item: EdnItemUnified) => {
-    // OPTIMISATION: Utiliser le score pré-calculé de la DB si disponible
-    if (item.completeness_score != null) {
-      return item.completeness_score;
-    }
-    
-    // Fallback: estimation basée sur les compteurs seulement (métadonnées légères)
-    const hasRangA = (item.competences_count_rang_a || 0) > 0;
-    const hasRangB = (item.competences_count_rang_b || 0) > 0;
-    
-    // Estimation grossière basée uniquement sur les compteurs
-    let score = 0;
-    if (hasRangA) score += 40; // Rang A = 40%
-    if (hasRangB) score += 40; // Rang B = 40%
-    // Les 20% restants (musique, scène, quiz) ne peuvent être vérifiés sans charger les détails
-    
-    return score;
-  };
-
   const getOldCompletionPercentage = (item: EdnItemUnified) => {
     // Version simplifiée basée sur les compteurs disponibles
     return getCompletionPercentage(item);
   };
 
   const calculateStats = () => {
-    // Utiliser les items chargés pour les stats partielles
-    const total = unifiedItems.length;
-    const complete = unifiedItems.filter(item => 
-      (item.competences_count_rang_a || 0) > 0 && (item.competences_count_rang_b || 0) > 0
-    ).length;
-    const validated = unifiedItems.filter(item => item.is_validated).length;
-    const withMusic = unifiedItems.filter(item => 
-      item.completeness_score ? item.completeness_score > 60 : false
-    ).length;
-    const avgScore = total > 0 ? Math.round(unifiedItems.reduce((sum, item) => 
-      sum + (item.completeness_score || getCompletionPercentage(item)), 0) / total) : 0;
-    
-    return { total, complete, validated, withMusic, avgScore };
+    return calculateItemsStats(unifiedItems);
   };
-
-  // ============================================
-  // Gestion modal refactorée (Quick Win #3)
-  // ============================================
-  const openItemModal = useCallback((item: EdnItem, tab?: string) => {
-    setModalState({
-      isOpen: true,
-      item,
-      activeTab: tab || 'overview'
-    });
-  }, []);
-
-  const closeItemModal = useCallback(() => {
-    setModalState(INITIAL_MODAL_STATE);
-  }, []);
 
   // Callback pour les cartes: charger l'item complet puis ouvrir
   const handleOpenItem = useCallback(async (unifiedItem: EdnItemUnified, tab?: string) => {
@@ -294,7 +161,7 @@ export default function EdnComplete() {
       
       if (error) throw error;
       if (data) {
-        openItemModal(data as unknown as EdnItem, tab);
+        openModal(data as unknown as EdnItem, tab);
       }
     } catch (error) {
       console.error('[EDN] Error loading full item:', error);
@@ -304,7 +171,7 @@ export default function EdnComplete() {
         variant: "destructive"
       });
     }
-  }, [openItemModal, toast]);
+  }, [openModal, toast]);
 
   const stats = calculateStats();
 
@@ -757,7 +624,7 @@ export default function EdnComplete() {
         <EdnItemModal
           item={modalState.item}
           isOpen={modalState.isOpen}
-          onClose={closeItemModal}
+          onClose={closeModal}
           initialTab={modalState.activeTab}
         />
       </Tabs>

@@ -27,13 +27,14 @@ import { ROUTE_PATHS } from '@/config/routes';
 const DynamicOnboarding = lazy(() => import("@/components/onboarding/DynamicOnboarding").then(module => ({
   default: module.DynamicOnboarding
 })));
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { GlobalAudioProvider } from "@/contexts/GlobalAudioContext";
 import { AuthProvider } from "./components/med-mng/AuthProvider";
 import { ProtectedRoute } from "./components/med-mng/withAuth";
 import { AdminRoute } from "./components/auth/AdminRoute";
+import { queryClient } from "@/lib/queryClient";
 
 // ⚡ CRITICAL PAGES - Chargement immédiat
 import Index from "./pages/Index";
@@ -128,23 +129,6 @@ const DeclarationAccessibilite = lazy(() => import("./pages/DeclarationAccessibi
 const MesDonneesRGPD = lazy(() => import("./pages/MesDonneesRGPD"));
 const InstallPWA = lazy(() => import("./pages/InstallPWA"));
 const DesignSystemPage = lazy(() => import("./pages/DesignSystem"));
-
-// ⚡ OPTIMISATION QueryClient - Configuration pour chargement rapide
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      retry: false,
-      // Pas de retry au chargement initial pour plus de rapidité
-      staleTime: 10 * 60 * 1000,
-      // 10 minutes - Garde les données plus longtemps
-      gcTime: 15 * 60 * 1000,
-      // 15 minutes - Garde en cache plus longtemps
-      refetchOnWindowFocus: false,
-      // Évite les requêtes inutiles
-      refetchOnMount: false // Ne pas refetch si les données sont récentes
-    }
-  }
-});
 
 const App = () => {
   const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false);
