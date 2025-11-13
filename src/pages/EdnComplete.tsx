@@ -410,7 +410,7 @@ export default function EdnComplete() {
             className="cursor-pointer transition-all hover:scale-105"
             onClick={() => setQuickFilter('all')}
           >
-            Tous ({allItems.length})
+            Tous ({filteredItems.length})
           </Badge>
           <Badge 
             variant={quickFilter === 'complete' ? 'default' : 'outline'}
