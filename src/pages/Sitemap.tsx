@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
@@ -10,6 +10,8 @@ import { useTheme } from '@/components/ui/theme-provider';
 import { VisitStatsChart } from '@/components/sitemap/VisitStatsChart';
 import { AIRecommendations } from '@/components/sitemap/AIRecommendations';
 import { TagManager, TagData } from '@/components/sitemap/TagManager';
+import { AnalyticsDashboard } from '@/components/sitemap/AnalyticsDashboard';
+import { ExportImportManager } from '@/components/sitemap/ExportImportManager';
 import {
   Home,
   LayoutDashboard,
@@ -40,6 +42,7 @@ import {
   Tag,
   ChevronDown,
   ChevronUp,
+  BarChart3,
 } from 'lucide-react';
 import {
   Select,
@@ -553,12 +556,20 @@ export default function Sitemap() {
   const [selectedCategories, setSelectedCategories] = useState<Set<string>>(new Set());
   const [visibleCards, setVisibleCards] = useState<Set<number>>(new Set());
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
-  const [visitStats, setVisitStats] = useState<Record<string, { count: number; timestamps: number[] }>>({});
+  const [visitStats, setVisitStats] = useState<Record<string, { 
+    count: number; 
+    timestamps: number[]; 
+    sessions: { path: string; startTime: number; endTime?: number; duration?: number }[] 
+  }>>({});
+  const [navigationPaths, setNavigationPaths] = useState<{ from: string; to: string; count: number }[]>([]);
+  const [currentSession, setCurrentSession] = useState<{ path: string; startTime: number } | null>(null);
+  const [lastVisitedPath, setLastVisitedPath] = useState<string | null>(null);
   const [showFavoritesSection, setShowFavoritesSection] = useState(false);
   const [favoriteCount, setFavoriteCount] = useState(0);
   const [animateFavorite, setAnimateFavorite] = useState(false);
   const [tags, setTags] = useState<TagData[]>([]);
   const [selectedTagFilter, setSelectedTagFilter] = useState<string | null>(null);
+  const [showAnalytics, setShowAnalytics] = useState(false);
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   // Charger les favoris, tags et statistiques depuis localStorage
@@ -591,23 +602,100 @@ export default function Sitemap() {
         console.error('Error loading visit stats:', e);
       }
     }
+
+    const savedPaths = localStorage.getItem('sitemap-navigation-paths');
+    if (savedPaths) {
+      try {
+        setNavigationPaths(JSON.parse(savedPaths));
+      } catch (e) {
+        console.error('Error loading navigation paths:', e);
+      }
+    }
   }, []);
 
-  // Sauvegarder les statistiques de visite avec timestamps
+  // Tracker la session de page en cours
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (currentSession) {
+        const endTime = Date.now();
+        const duration = endTime - currentSession.startTime;
+        
+        const newStats = { ...visitStats };
+        if (newStats[currentSession.path]) {
+          newStats[currentSession.path].sessions.push({
+            path: currentSession.path,
+            startTime: currentSession.startTime,
+            endTime,
+            duration,
+          });
+          localStorage.setItem('sitemap-visit-stats', JSON.stringify(newStats));
+        }
+      }
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [currentSession, visitStats]);
+
+  // Sauvegarder les statistiques de visite avec timestamps et sessions
   const trackVisit = (path: string) => {
     const now = Date.now();
+    
+    // Terminer la session précédente
+    if (currentSession && currentSession.path !== path) {
+      const duration = now - currentSession.startTime;
+      const newStats = { ...visitStats };
+      
+      if (newStats[currentSession.path]) {
+        newStats[currentSession.path].sessions.push({
+          path: currentSession.path,
+          startTime: currentSession.startTime,
+          endTime: now,
+          duration,
+        });
+      }
+      
+      setVisitStats(newStats);
+      localStorage.setItem('sitemap-visit-stats', JSON.stringify(newStats));
+    }
+
+    // Enregistrer le chemin de navigation
+    if (lastVisitedPath && lastVisitedPath !== path) {
+      const newPaths = [...navigationPaths];
+      const existingPath = newPaths.find(p => p.from === lastVisitedPath && p.to === path);
+      
+      if (existingPath) {
+        existingPath.count += 1;
+      } else {
+        newPaths.push({ from: lastVisitedPath, to: path, count: 1 });
+      }
+      
+      setNavigationPaths(newPaths);
+      localStorage.setItem('sitemap-navigation-paths', JSON.stringify(newPaths));
+    }
+
+    setLastVisitedPath(path);
+    
+    // Démarrer une nouvelle session
+    setCurrentSession({ path, startTime: now });
+    
     const newStats = { ...visitStats };
     
     if (!newStats[path]) {
-      newStats[path] = { count: 0, timestamps: [] };
+      newStats[path] = { count: 0, timestamps: [], sessions: [] };
     }
     
     newStats[path].count += 1;
     newStats[path].timestamps.push(now);
     
-    // Garder seulement les 100 derniers timestamps par route pour éviter trop de données
+    // Garder seulement les 100 derniers timestamps par route
     if (newStats[path].timestamps.length > 100) {
       newStats[path].timestamps = newStats[path].timestamps.slice(-100);
+    }
+    
+    // Garder seulement les 50 dernières sessions par route
+    if (newStats[path].sessions.length > 50) {
+      newStats[path].sessions = newStats[path].sessions.slice(-50);
     }
     
     setVisitStats(newStats);
@@ -679,6 +767,46 @@ export default function Sitemap() {
       handleRouteTagged(routePath, tagId);
     }
   };
+
+  // Fonction pour gérer l'import de données
+  const handleImport = (data: { 
+    favorites: Set<string>; 
+    tags: TagData[]; 
+    visitStats?: Record<string, { count: number; timestamps: number[]; sessions: any[] }> 
+  }) => {
+    saveFavorites(data.favorites);
+    handleTagsChange(data.tags);
+    
+    if (data.visitStats) {
+      // Fusionner les statistiques
+      const mergedStats = { ...visitStats };
+      Object.entries(data.visitStats).forEach(([path, stats]) => {
+        if (mergedStats[path]) {
+          mergedStats[path].count += stats.count;
+          mergedStats[path].timestamps = [...mergedStats[path].timestamps, ...stats.timestamps].sort();
+          mergedStats[path].sessions = [...mergedStats[path].sessions, ...stats.sessions];
+        } else {
+          mergedStats[path] = stats;
+        }
+      });
+      setVisitStats(mergedStats);
+      localStorage.setItem('sitemap-visit-stats', JSON.stringify(mergedStats));
+    }
+  };
+
+  // Créer un mapping des routes pour le dashboard analytique
+  const routeLabels = useMemo(() => {
+    const labels: Record<string, { label: string; category: string }> = {};
+    sitemapSections.forEach(section => {
+      section.routes.forEach(route => {
+        labels[route.path] = {
+          label: route.label,
+          category: section.title,
+        };
+      });
+    });
+    return labels;
+  }, []);
 
   const getFavoriteRoutes = (tagFilter?: string | null) => {
     const favoriteRoutes: Array<SitemapRoute & { category: string; icon: LucideIcon }> = [];
@@ -888,6 +1016,54 @@ export default function Sitemap() {
             onRouteTagged={handleRouteTagged}
             onRouteUntagged={handleRouteUntagged}
           />
+        )}
+
+        {/* Export/Import Manager */}
+        <ExportImportManager
+          favorites={favorites}
+          tags={tags}
+          visitStats={visitStats}
+          onImport={handleImport}
+        />
+
+        {/* Dashboard Analytique */}
+        {Object.keys(visitStats).length > 0 && (
+          <Card className="border-primary/30 bg-gradient-to-br from-primary/5 to-accent/5">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-primary/10">
+                    <BarChart3 className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-xl">Analytics</CardTitle>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      Analyse détaillée de votre navigation
+                    </p>
+                  </div>
+                </div>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowAnalytics(!showAnalytics)}
+                  className="gap-2"
+                >
+                  {showAnalytics ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                  {showAnalytics ? 'Masquer' : 'Afficher'}
+                </Button>
+              </div>
+            </CardHeader>
+            {showAnalytics && (
+              <CardContent>
+                <AnalyticsDashboard
+                  analyticsData={{
+                    visitStats,
+                    navigationPaths,
+                  }}
+                  routeLabels={routeLabels}
+                />
+              </CardContent>
+            )}
+          </Card>
         )}
 
         {/* Section Favoris */}
