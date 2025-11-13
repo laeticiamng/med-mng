@@ -195,4 +195,7 @@ verify_jwt = false
 [functions.ai-visual-analysis]
 verify_jwt = false
 
+[functions.ai-notifications]
+verify_jwt = false
+
 

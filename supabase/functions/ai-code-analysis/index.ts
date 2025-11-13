@@ -112,6 +112,19 @@ Sois strict et professionnel. Identifie les vrais problèmes de sécurité, bugs
       analyzed_at: new Date().toISOString(),
     });
 
+    // Envoyer une notification si problèmes critiques détectés
+    if (analysis.vulnerabilities > 0 || analysis.bugs > 5) {
+      const severity = analysis.vulnerabilities > 2 ? "critical" : analysis.bugs > 10 ? "high" : "medium";
+      await supabase.functions.invoke("ai-notifications", {
+        body: {
+          type: "code_quality",
+          severity,
+          summary: `${analysis.vulnerabilities} vulnérabilités et ${analysis.bugs} bugs détectés dans ${filePath}`,
+          details: { file: filePath, analysis }
+        }
+      });
+    }
+
     return new Response(
       JSON.stringify(analysis),
       { 
