@@ -172,6 +172,11 @@ export default function EdnComplete() {
       });
     }
   }, [openModal, toast]);
+  
+  // ⚡ PREFETCH: Précharge l'item au survol pour ouverture instantanée
+  const handlePrefetchItem = useCallback((itemCode: string) => {
+    prefetchItem(itemCode);
+  }, [prefetchItem]);
 
   const stats = calculateStats();
 
@@ -412,6 +417,7 @@ export default function EdnComplete() {
                         item={item as any}
                         completionPercentage={getCompletionPercentage(item)}
                         onOpen={(tab) => handleOpenItem(item, tab)}
+                        onPrefetch={handlePrefetchItem}
                       />
                     </motion.div>
                   ))}

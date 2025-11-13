@@ -28,17 +28,26 @@ interface EdnItemCardProps {
   };
   completionPercentage: number;
   onOpen: (tab?: string) => void;
+  onPrefetch?: (itemCode: string) => void;
 }
 
 export const EdnItemCard: React.FC<EdnItemCardProps> = ({
   item,
   completionPercentage,
-  onOpen
+  onOpen,
+  onPrefetch
 }) => {
   const isMobile = useIsMobile();
   // Traitement des données V2 si nécessaire
   const processedItem = useEdnItemV2Process(item);
   const finalItem = processedItem || item;
+  
+  // ⚡ PREFETCH: Précharge l'item complet au survol pour ouverture instantanée
+  const handleMouseEnter = () => {
+    if (onPrefetch && !isMobile) {
+      onPrefetch(finalItem.item_code);
+    }
+  };
 
   const getItemNumber = (itemCode: string) => {
     return parseInt(itemCode.replace('IC-', '') || '0');
@@ -85,7 +94,10 @@ export const EdnItemCard: React.FC<EdnItemCardProps> = ({
   const features = getFeatures();
 
   return (
-    <Card className="group hover:shadow-2xl transition-all duration-500 border-2 hover:border-purple-300/50 bg-white/80 backdrop-blur-sm overflow-hidden">
+    <Card 
+      className="group hover:shadow-2xl transition-all duration-500 border-2 hover:border-purple-300/50 bg-white/80 backdrop-blur-sm overflow-hidden"
+      onMouseEnter={handleMouseEnter}
+    >
       {/* Header avec gradient */}
       <div className={`bg-gradient-to-r from-purple-500 to-indigo-500 ${isMobile ? 'p-3' : 'p-4'} text-white`}>
         <div className={`flex items-start justify-between ${isMobile ? 'mb-2' : 'mb-3'}`}>
