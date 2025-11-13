@@ -144,8 +144,7 @@ export default function EdnComplete() {
           tableau_rang_a, tableau_rang_b,
           paroles_musicales, scene_immersive, quiz_questions, audio_ambiance
         `, { count: 'exact' })
-        .range(from, to)
-        .order('item_code');
+        .range(from, to);
       
       console.log('[EDN] Immersive data fetched:', {
         dataLength: immersiveData?.length,
@@ -175,8 +174,7 @@ export default function EdnComplete() {
         const { data, error: completeError } = await supabase
           .from('edn_items_complete')
           .select('id, item_code, title, specialite, completeness_score, is_validated')
-          .in('item_code', itemCodes)
-          .order('item_code');
+          .in('item_code', itemCodes);
           
         console.log('[EDN] Complete data fetched:', {
           dataLength: data?.length,
