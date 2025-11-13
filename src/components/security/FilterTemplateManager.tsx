@@ -35,6 +35,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TemplateComments } from './TemplateComments';
 import { TemplateHistory } from './TemplateHistory';
+import { TagInput } from './TagInput';
 
 interface FilterTemplateManagerProps {
   currentFilters: NotificationFilters;
@@ -76,7 +77,9 @@ export const FilterTemplateManager = ({
   const [templateName, setTemplateName] = useState('');
   const [templateDescription, setTemplateDescription] = useState('');
   const [isDefault, setIsDefault] = useState(false);
+  const [templateTags, setTemplateTags] = useState<string[]>([]);
   const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
   
   const [isSharedGlobally, setIsSharedGlobally] = useState(false);
   const [isSharedWithTeam, setIsSharedWithTeam] = useState(false);
@@ -93,11 +96,13 @@ export const FilterTemplateManager = ({
       is_shared: false,
       shared_with_team: false,
       shared_with_users: [],
+      tags: templateTags,
     });
 
     setTemplateName('');
     setTemplateDescription('');
     setIsDefault(false);
+    setTemplateTags([]);
     setSaveDialogOpen(false);
   };
 
@@ -157,9 +162,17 @@ export const FilterTemplateManager = ({
     return parts.length > 0 ? parts.join(' • ') : 'Aucun filtre actif';
   };
 
-  const filteredTemplates = showOnlyFavorites
+  // Filter templates by favorites and tags
+  let filteredTemplates = showOnlyFavorites
     ? templates.filter(t => isFavorite(t.id))
     : templates;
+
+  // Apply tag filters
+  if (selectedTags.length > 0) {
+    filteredTemplates = filteredTemplates.filter(template =>
+      selectedTags.every(tag => template.tags?.includes(tag))
+    );
+  }
 
   return (
     <div className="space-y-4">
@@ -197,6 +210,10 @@ export const FilterTemplateManager = ({
                 rows={3}
               />
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="tags">Tags</Label>
+              <TagInput value={templateTags} onChange={setTemplateTags} />
+            </div>
             <div className="flex items-center space-x-2">
               <input
                 type="checkbox"
@@ -225,14 +242,24 @@ export const FilterTemplateManager = ({
       <div className="space-y-2">
         <div className="flex items-center justify-between mb-2">
           <Label>Templates sauvegardés</Label>
-          <Button
-            variant={showOnlyFavorites ? "default" : "outline"}
-            size="sm"
-            onClick={() => setShowOnlyFavorites(!showOnlyFavorites)}
-          >
-            <Star className={`w-4 h-4 mr-1 ${showOnlyFavorites ? 'fill-current' : ''}`} />
-            Favoris
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              variant={showOnlyFavorites ? "default" : "outline"}
+              size="sm"
+              onClick={() => setShowOnlyFavorites(!showOnlyFavorites)}
+            >
+              <Star className={`w-4 h-4 mr-1 ${showOnlyFavorites ? 'fill-current' : ''}`} />
+              Favoris
+            </Button>
+          </div>
+        </div>
+        <div className="mb-2">
+          <Label className="text-sm mb-2 block">Filtrer par tags</Label>
+          <TagInput 
+            value={selectedTags} 
+            onChange={setSelectedTags}
+            placeholder="Filtrer par tags..."
+          />
         </div>
         <ScrollArea className="h-[300px] w-full rounded-md border p-4">
           {isLoading ? (
@@ -279,6 +306,13 @@ export const FilterTemplateManager = ({
                       </div>
                       {template.description && (
                         <p className="text-sm text-muted-foreground line-clamp-1">{template.description}</p>
+                      )}
+                      {template.tags && template.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-1 mt-1">
+                          {template.tags.map((tag: string) => (
+                            <Badge key={tag} variant="outline" className="text-xs">{tag}</Badge>
+                          ))}
+                        </div>
                       )}
                       <p className="text-xs text-muted-foreground">{getFilterSummary(template.filters)}</p>
                     </div>
