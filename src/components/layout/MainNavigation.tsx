@@ -24,6 +24,7 @@ import {
   DownloadCloud,
   Activity,
   ChevronDown,
+  Map,
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -48,6 +49,7 @@ export const MainNavigation: React.FC = () => {
   const mainNavItems = MAIN_NAV_ITEMS;
 
   const toolNavItems = [
+    { path: ROUTE_PATHS.sitemap, label: 'Plan du site', icon: Map },
     { path: ROUTE_PATHS.statistics, label: 'Statistiques', icon: BarChart3 },
     { path: ROUTE_PATHS.designSystem, label: 'Design System', icon: Palette },
     {
