@@ -283,56 +283,6 @@ export default function EdnComplete() {
     return getCompletionPercentage(item);
   };
 
-  const filteredItems = useMemo(() => {
-    return allItems.filter(item => {
-      const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           item.item_code.toLowerCase().includes(searchTerm.toLowerCase());
-      
-      // Filtre rapide
-      const matchesQuickFilter = (() => {
-        switch (quickFilter) {
-          case 'complete':
-            return (item.competences_count_rang_a || 0) > 0 && (item.competences_count_rang_b || 0) > 0;
-          case 'incomplete':
-            return !((item.competences_count_rang_a || 0) > 0 && (item.competences_count_rang_b || 0) > 0);
-          case 'validated':
-            return item.is_validated === true;
-          default:
-            return true;
-        }
-      })();
-      
-      if (selectedCategory === 'all') return matchesSearch && matchesQuickFilter;
-      
-      const matchesCategory = (() => {
-        switch (selectedCategory) {
-          case 'complete':
-            // Un item est "complet" s'il a à la fois Rang A et Rang B
-            return (item.competences_count_rang_a || 0) > 0 && (item.competences_count_rang_b || 0) > 0;
-          case 'withMusic':
-            // Impossible de vérifier sans charger les détails, on utilise un heuristique
-            // Si l'item a été mis à jour récemment, il a probablement de la musique
-            return item.completeness_score ? item.completeness_score > 60 : false;
-          default:
-            return true;
-        }
-      })();
-
-      return matchesSearch && matchesCategory && matchesQuickFilter;
-    }).sort((a, b) => {
-      switch (sortBy) {
-        case 'completeness_score':
-          return (b.completeness_score || getCompletionPercentage(b)) - (a.completeness_score || getCompletionPercentage(a));
-        case 'updated_at':
-          return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
-        default:
-          const numA = parseInt(a.item_code.replace('IC-', '') || '0');
-          const numB = parseInt(b.item_code.replace('IC-', '') || '0');
-          return numA - numB;
-      }
-    });
-  }, [allItems, searchTerm, selectedCategory, sortBy]);
-
   const calculateStats = () => {
     // Utiliser les items chargés pour les stats partielles
     const total = immersiveItems.length;
