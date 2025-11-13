@@ -198,18 +198,29 @@ export default function EdnComplete() {
       setImmersiveItems(newImmersiveItems);
       setCompleteItems(newCompleteItems);
       
-      toast({
-        title: "Interface EDN",
-        description: `${immersiveData?.length || 0} items chargés (total: ${newImmersiveItems.length})`,
-      });
+      // Ne pas afficher de toast à chaque pagination
+      if (page === 0) {
+        toast({
+          title: "Interface EDN chargée",
+          description: `${immersiveData?.length || 0} premiers items chargés (${count} au total)`,
+        });
+      }
     } catch (error) {
       console.error('[EDN] Error loading data:', error);
-      setLoadingError(error instanceof Error ? error.message : 'Erreur inconnue');
+      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+      setLoadingError(errorMessage);
       toast({
-        title: "Erreur",
-        description: "Erreur lors du chargement.",
+        title: "❌ Erreur de chargement",
+        description: errorMessage,
         variant: "destructive"
       });
+      
+      // Afficher une alerte visible dans la console
+      console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+      console.error('❌ ERREUR CRITIQUE EDN');
+      console.error('Message:', errorMessage);
+      console.error('Détails:', error);
+      console.error('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
     } finally {
       console.log('[EDN] fetchAllData complete');
       setLoading(false);
