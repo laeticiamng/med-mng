@@ -125,6 +125,7 @@ export default function EdnComplete() {
   }, [slug, immersiveItems]);
 
   const fetchAllData = async () => {
+    console.log('[EDN] Starting fetchAllData, page:', page);
     setLoading(true);
     setLoadingError(null);
     
@@ -132,6 +133,8 @@ export default function EdnComplete() {
       // PAGINATION: Charger seulement 50 items à la fois
       const from = page * ITEMS_PER_PAGE;
       const to = from + ITEMS_PER_PAGE - 1;
+      
+      console.log('[EDN] Fetching items from', from, 'to', to);
       
       const { data: immersiveData, error: immersiveError, count } = await supabase
         .from('edn_items_immersive')
@@ -144,9 +147,16 @@ export default function EdnComplete() {
         .range(from, to)
         .order('item_code');
       
+      console.log('[EDN] Immersive data fetched:', {
+        dataLength: immersiveData?.length,
+        error: immersiveError,
+        count
+      });
+      
       setHasMore((immersiveData?.length || 0) === ITEMS_PER_PAGE && (count || 0) > to + 1);
 
       if (immersiveError) {
+        console.error('[EDN] Immersive error:', immersiveError);
         setLoadingError(`Erreur: ${immersiveError.message}`);
         toast({
           title: "Erreur",
@@ -160,24 +170,40 @@ export default function EdnComplete() {
       let completeData: any[] = [];
       if (immersiveData && immersiveData.length > 0) {
         const itemCodes = immersiveData.map(item => item.item_code);
-        const { data } = await supabase
+        console.log('[EDN] Fetching complete data for codes:', itemCodes.slice(0, 5));
+        
+        const { data, error: completeError } = await supabase
           .from('edn_items_complete')
           .select('id, item_code, title, specialite, completeness_score, is_validated')
           .in('item_code', itemCodes)
           .order('item_code');
+          
+        console.log('[EDN] Complete data fetched:', {
+          dataLength: data?.length,
+          error: completeError
+        });
+        
         completeData = data || [];
       }
 
       // Ajouter les nouveaux items (append pour pagination)
-      setImmersiveItems(prev => page === 0 ? (immersiveData || []) : [...prev, ...(immersiveData || [])]);
-      setCompleteItems(prev => page === 0 ? (completeData || []) : [...prev, ...(completeData || [])]);
+      const newImmersiveItems = page === 0 ? (immersiveData || []) : [...immersiveItems, ...(immersiveData || [])];
+      const newCompleteItems = page === 0 ? (completeData || []) : [...completeItems, ...(completeData || [])];
+      
+      console.log('[EDN] Setting state:', {
+        immersiveLength: newImmersiveItems.length,
+        completeLength: newCompleteItems.length
+      });
+      
+      setImmersiveItems(newImmersiveItems);
+      setCompleteItems(newCompleteItems);
       
       toast({
         title: "Interface EDN",
-        description: `${immersiveData?.length || 0} items chargés`,
+        description: `${immersiveData?.length || 0} items chargés (total: ${newImmersiveItems.length})`,
       });
     } catch (error) {
-      console.error('Error loading data:', error);
+      console.error('[EDN] Error loading data:', error);
       setLoadingError(error instanceof Error ? error.message : 'Erreur inconnue');
       toast({
         title: "Erreur",
@@ -185,6 +211,7 @@ export default function EdnComplete() {
         variant: "destructive"
       });
     } finally {
+      console.log('[EDN] fetchAllData complete');
       setLoading(false);
     }
   };
