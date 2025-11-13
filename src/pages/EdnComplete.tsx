@@ -93,11 +93,8 @@ export default function EdnComplete() {
            sortBy !== 'item_code';
   }, [searchTerm, selectedCategory, quickFilter, sortBy]);
   
-  // Réinitialiser la page quand on change de filtre/recherche
-  useEffect(() => {
-    setPage(0);
-    setImmersiveItems([]);
-  }, [searchTerm, selectedCategory, sortBy, quickFilter]);
+  // Les filtres sont appliqués côté client via filteredItems
+  // Pas besoin de recharger les données depuis la DB
   const [selectedItem, setSelectedItem] = useState<EdnItem | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('immersive');
