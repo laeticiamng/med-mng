@@ -1,6 +1,7 @@
 export const ROUTE_PATHS = {
   home: '/',
   sitemap: '/sitemap',
+  shareTest: '/share-test',
   modularDashboard: '/modular-dashboard',
   dashboard: '/dashboard',
   learningDashboard: '/learning-dashboard',
