@@ -49,20 +49,20 @@ export function usePageNotes(pagePath?: string) {
       if (!user) return;
 
       let query = supabase
-        .from('page_notes')
+        .from('page_notes' as any)
         .select('*')
         .eq('user_id', user.id)
         .order('is_pinned', { ascending: false })
         .order('updated_at', { ascending: false });
 
       if (pagePath) {
-        query = query.eq('page_path', pagePath);
+        query = query.eq('page_path', pagePath) as any;
       }
 
       const { data, error } = await query;
 
       if (error) throw error;
-      setNotes(data || []);
+      setNotes(data as any || []);
     } catch (error) {
       console.error('Error loading notes:', error);
       toast({
@@ -125,7 +125,7 @@ export function usePageNotes(pagePath?: string) {
       if (!user) throw new Error('Non authentifié');
 
       const { data: note, error } = await supabase
-        .from('page_notes')
+        .from('page_notes' as any)
         .insert({
           user_id: user.id,
           page_path: data.page_path,
@@ -160,7 +160,7 @@ export function usePageNotes(pagePath?: string) {
   const updateNote = useCallback(async (id: string, updates: Partial<PageNote>) => {
     try {
       const { error } = await supabase
-        .from('page_notes')
+        .from('page_notes' as any)
         .update(updates)
         .eq('id', id);
 
@@ -187,7 +187,7 @@ export function usePageNotes(pagePath?: string) {
   const deleteNote = useCallback(async (id: string) => {
     try {
       const { error } = await supabase
-        .from('page_notes')
+        .from('page_notes' as any)
         .delete()
         .eq('id', id);
 

@@ -16,6 +16,7 @@ import { CloudSyncManager } from '@/components/sitemap/CloudSyncManager';
 import { MetricsAlerts } from '@/components/sitemap/MetricsAlerts';
 import { TimeComparison } from '@/components/sitemap/TimeComparison';
 import { PageNotesManager } from '@/components/sitemap/PageNotesManager';
+import { ShareManager } from '@/components/sitemap/ShareManager';
 import { useCloudSync } from '@/hooks/useCloudSync';
 import { usePageNotes } from '@/hooks/usePageNotes';
 import {
@@ -49,6 +50,7 @@ import {
   ChevronDown,
   ChevronUp,
   BarChart3,
+  Share2,
 } from 'lucide-react';
 import {
   Select,
@@ -1147,6 +1149,19 @@ export default function Sitemap() {
 
         {/* Page Notes Manager */}
         <PageNotesManager />
+
+        {/* Share Manager */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Share2 className="w-5 h-5" />
+              Collaboration d'équipe
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ShareManager />
+          </CardContent>
+        </Card>
 
         {/* Section Favoris */}
         {showFavoritesSection && getFavoriteRoutes().length > 0 && (
