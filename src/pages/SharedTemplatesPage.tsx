@@ -10,7 +10,8 @@ import {
   Mail, 
   Download,
   Filter,
-  Clock
+  Clock,
+  Copy
 } from 'lucide-react';
 import { useState } from 'react';
 import { useFilterTemplates } from '@/hooks/useFilterTemplates';
@@ -25,7 +26,7 @@ import {
 } from '@/components/ui/select';
 
 export const SharedTemplatesPage = () => {
-  const { templates, isLoading } = useFilterTemplates();
+  const { templates, isLoading, duplicateTemplate, isDuplicating } = useFilterTemplates();
   const [searchTerm, setSearchTerm] = useState('');
   const [shareTypeFilter, setShareTypeFilter] = useState<'all' | 'global' | 'team' | 'personal'>('all');
 
@@ -195,8 +196,14 @@ export const SharedTemplatesPage = () => {
                 <CardHeader>
                   <div className="flex items-start justify-between gap-2">
                     <CardTitle className="text-lg">{template.name}</CardTitle>
-                    <Button variant="ghost" size="icon" title="Charger ce template">
-                      <Download className="h-4 w-4" />
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      title="Créer une copie"
+                      onClick={() => duplicateTemplate(template.id)}
+                      disabled={isDuplicating}
+                    >
+                      <Copy className="h-4 w-4" />
                     </Button>
                   </div>
                   {template.description && (

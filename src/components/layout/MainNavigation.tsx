@@ -202,13 +202,27 @@ export const MainNavigation: React.FC = () => {
                     Paramètres
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate(ROUTE_PATHS.rlsDocumentation)}>
-                    <Shield className="w-4 h-4 mr-2" />
+                    <Shield className="w-4 w-4 mr-2" />
                     Documentation RLS
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => navigate(ROUTE_PATHS.securityMonitoring)}>
                     <Shield className="w-4 h-4 mr-2" />
                     Monitoring Sécurité
                   </DropdownMenuItem>
+                  
+                  {(isAdmin || isSecurityAnalyst) && (
+                    <>
+                      <DropdownMenuItem onClick={() => navigate(ROUTE_PATHS.auditSecurity)}>
+                        <Shield className="w-4 h-4 mr-2" />
+                        Audit Sécurité
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate(ROUTE_PATHS.sharedTemplates)}>
+                        <Star className="w-4 h-4 mr-2" />
+                        Templates Partagés
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                  
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleSignOut}>
                     <LogOut className="w-4 h-4 mr-2" />

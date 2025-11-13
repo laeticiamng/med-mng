@@ -87,8 +87,11 @@ serve(async (req) => {
       },
     };
 
-    // Generate HTML email with embedded data
-    const emailHtml = generateReportEmailHTML(reportType, stats, startDate, now, notifications);
+    // Generate Chart.js charts using QuickChart API
+    const chartUrls = await generateChartImages(stats, notifications, startDate, now);
+
+    // Generate HTML email with embedded data and charts
+    const emailHtml = generateReportEmailHTML(reportType, stats, startDate, now, notifications, chartUrls);
 
     // Send email
     const emailResult = await resend.emails.send({
@@ -138,12 +141,156 @@ function getReportTypeLabel(type: string): string {
   }
 }
 
+/**
+ * Generate chart images using QuickChart API (Chart.js as a service)
+ */
+async function generateChartImages(
+  stats: any,
+  notifications: any[],
+  startDate: Date,
+  endDate: Date
+): Promise<{ timeSeries: string; severity: string; type: string }> {
+  const quickChartBaseUrl = 'https://quickchart.io/chart';
+
+  // Prepare time series data (group by day)
+  const days = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+  const timeSeriesData = Array.from({ length: days }, (_, i) => {
+    const date = new Date(startDate.getTime() + i * 24 * 60 * 60 * 1000);
+    const dayNotifications = notifications.filter(n => {
+      const nDate = new Date(n.created_at);
+      return nDate.toDateString() === date.toDateString();
+    });
+
+    return {
+      date: date.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' }),
+      critical: dayNotifications.filter(n => n.severity === 'critical').length,
+      warning: dayNotifications.filter(n => n.severity === 'warning').length,
+      info: dayNotifications.filter(n => n.severity === 'info').length,
+    };
+  });
+
+  // Time Series Chart
+  const timeSeriesConfig = {
+    type: 'line',
+    data: {
+      labels: timeSeriesData.map(d => d.date),
+      datasets: [
+        {
+          label: 'Critiques',
+          data: timeSeriesData.map(d => d.critical),
+          borderColor: 'rgb(220, 38, 38)',
+          backgroundColor: 'rgba(220, 38, 38, 0.1)',
+          borderWidth: 2,
+        },
+        {
+          label: 'Warnings',
+          data: timeSeriesData.map(d => d.warning),
+          borderColor: 'rgb(234, 88, 12)',
+          backgroundColor: 'rgba(234, 88, 12, 0.1)',
+          borderWidth: 2,
+        },
+        {
+          label: 'Info',
+          data: timeSeriesData.map(d => d.info),
+          borderColor: 'rgb(59, 130, 246)',
+          backgroundColor: 'rgba(59, 130, 246, 0.1)',
+          borderWidth: 2,
+        },
+      ],
+    },
+    options: {
+      title: {
+        display: true,
+        text: 'Évolution temporelle',
+        fontSize: 16,
+      },
+      scales: {
+        yAxes: [{
+          ticks: {
+            beginAtZero: true,
+            precision: 0,
+          },
+        }],
+      },
+    },
+  };
+
+  // Severity Pie Chart
+  const severityConfig = {
+    type: 'pie',
+    data: {
+      labels: ['Critiques', 'Warnings', 'Info'],
+      datasets: [{
+        data: [stats.critical, stats.warning, stats.info],
+        backgroundColor: [
+          'rgba(220, 38, 38, 0.8)',
+          'rgba(234, 88, 12, 0.8)',
+          'rgba(59, 130, 246, 0.8)',
+        ],
+      }],
+    },
+    options: {
+      title: {
+        display: true,
+        text: 'Répartition par sévérité',
+        fontSize: 16,
+      },
+    },
+  };
+
+  // Type Bar Chart
+  const typeConfig = {
+    type: 'bar',
+    data: {
+      labels: ['Suppressions', 'Accès non autorisés', 'Activités suspectes', 'Alertes système'],
+      datasets: [{
+        label: 'Nombre',
+        data: [
+          stats.byType.mass_deletion,
+          stats.byType.unauthorized_access,
+          stats.byType.suspicious_activity,
+          stats.byType.system_alert,
+        ],
+        backgroundColor: [
+          'rgba(220, 38, 38, 0.8)',
+          'rgba(234, 88, 12, 0.8)',
+          'rgba(251, 191, 36, 0.8)',
+          'rgba(59, 130, 246, 0.8)',
+        ],
+      }],
+    },
+    options: {
+      title: {
+        display: true,
+        text: 'Répartition par type',
+        fontSize: 16,
+      },
+      scales: {
+        yAxes: [{
+          ticks: {
+            beginAtZero: true,
+            precision: 0,
+          },
+        }],
+      },
+    },
+  };
+
+  // Generate QuickChart URLs
+  return {
+    timeSeries: `${quickChartBaseUrl}?c=${encodeURIComponent(JSON.stringify(timeSeriesConfig))}&width=800&height=400&backgroundColor=white`,
+    severity: `${quickChartBaseUrl}?c=${encodeURIComponent(JSON.stringify(severityConfig))}&width=500&height=400&backgroundColor=white`,
+    type: `${quickChartBaseUrl}?c=${encodeURIComponent(JSON.stringify(typeConfig))}&width=600&height=400&backgroundColor=white`,
+  };
+}
+
 function generateReportEmailHTML(
   reportType: string,
   stats: any,
   startDate: Date,
   endDate: Date,
-  notifications: any[]
+  notifications: any[],
+  chartUrls?: { timeSeries: string; severity: string; type: string }
 ): string {
   const typeLabels: Record<string, string> = {
     mass_deletion: '🗑️ Suppression massive',
@@ -210,6 +357,26 @@ function generateReportEmailHTML(
               </tr>
             `).join('')}
           </table>
+
+          ${chartUrls ? `
+            <h2>📊 Graphiques interactifs</h2>
+            
+            <div style="margin: 30px 0;">
+              <h3>Évolution temporelle</h3>
+              <img src="${chartUrls.timeSeries}" alt="Graphique d'évolution temporelle" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);" />
+            </div>
+
+            <div style="margin: 30px 0; display: flex; gap: 20px; flex-wrap: wrap;">
+              <div style="flex: 1; min-width: 300px;">
+                <h3>Répartition par sévérité</h3>
+                <img src="${chartUrls.severity}" alt="Graphique de répartition par sévérité" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);" />
+              </div>
+              <div style="flex: 1; min-width: 300px;">
+                <h3>Répartition par type</h3>
+                <img src="${chartUrls.type}" alt="Graphique de répartition par type" style="max-width: 100%; height: auto; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);" />
+              </div>
+            </div>
+          ` : ''}
 
           ${stats.critical > 0 || stats.warning > 5 ? `
             <div style="background: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; border-radius: 4px;">

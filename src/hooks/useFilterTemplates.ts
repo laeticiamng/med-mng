@@ -160,6 +160,51 @@ export const useFilterTemplates = () => {
     },
   });
 
+  // Duplicate template
+  const duplicateTemplate = useMutation({
+    mutationFn: async (templateId: string) => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error('Not authenticated');
+
+      // Get the original template
+      const { data: original, error: fetchError } = await supabase
+        .from('notification_filter_templates' as any)
+        .select('*')
+        .eq('id', templateId)
+        .single();
+
+      if (fetchError) throw fetchError;
+      if (!original) throw new Error('Template not found');
+
+      // Create a copy
+      const { data, error } = await supabase
+        .from('notification_filter_templates' as any)
+        .insert({
+          user_id: user.id,
+          name: `${(original as any).name} (copie)`,
+          description: (original as any).description,
+          filters: (original as any).filters,
+          is_default: false,
+          is_shared: false,
+          shared_with_team: false,
+          shared_with_users: [],
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['filter-templates'] });
+      toast.success('Template dupliqué avec succès');
+    },
+    onError: (error: any) => {
+      console.error('Error duplicating template:', error);
+      toast.error(error.message || 'Erreur lors de la duplication');
+    },
+  });
+
   return {
     templates,
     defaultTemplate,
@@ -168,9 +213,11 @@ export const useFilterTemplates = () => {
     updateTemplate: updateTemplate.mutate,
     deleteTemplate: deleteTemplate.mutate,
     shareTemplate: shareTemplate.mutate,
+    duplicateTemplate: duplicateTemplate.mutate,
     isCreating: createTemplate.isPending,
     isUpdating: updateTemplate.isPending,
     isDeleting: deleteTemplate.isPending,
     isSharing: shareTemplate.isPending,
+    isDuplicating: duplicateTemplate.isPending,
   };
 };
