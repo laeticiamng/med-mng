@@ -25,6 +25,11 @@ import {
   ArrowUpDown,
   SortAsc,
   Hash,
+  Download,
+  FileText,
+  Grid3x3,
+  List,
+  X,
 } from 'lucide-react';
 import {
   Select,
@@ -33,6 +38,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
 
 interface SitemapRoute {
   label: string;
@@ -519,13 +532,91 @@ const sitemapSections: SitemapSection[] = [
 ];
 
 type SortOption = 'default' | 'alphabetical' | 'routeCount';
+type ViewMode = 'grid' | 'list';
 
 export default function Sitemap() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [sortBy, setSortBy] = useState<SortOption>('default');
+  const [viewMode, setViewMode] = useState<ViewMode>('grid');
+  const [selectedCategories, setSelectedCategories] = useState<Set<string>>(new Set());
   const [visibleCards, setVisibleCards] = useState<Set<number>>(new Set());
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  // Liste de toutes les catégories
+  const allCategories = sitemapSections.map(section => section.title);
+
+  const toggleCategory = (category: string) => {
+    const newCategories = new Set(selectedCategories);
+    if (newCategories.has(category)) {
+      newCategories.delete(category);
+    } else {
+      newCategories.add(category);
+    }
+    setSelectedCategories(newCategories);
+  };
+
+  const clearFilters = () => {
+    setSelectedCategories(new Set());
+  };
+
+  const exportToPDF = () => {
+    const doc = new jsPDF();
+    
+    doc.setFontSize(20);
+    doc.text('Plan du Site - Med-MNG', 14, 20);
+    
+    doc.setFontSize(10);
+    doc.text(`Généré le ${new Date().toLocaleDateString('fr-FR')}`, 14, 28);
+    
+    const tableData = filteredSections.flatMap(section =>
+      section.routes.map(route => [
+        section.title,
+        route.label,
+        route.path,
+        route.description
+      ])
+    );
+
+    autoTable(doc, {
+      head: [['Catégorie', 'Page', 'Chemin', 'Description']],
+      body: tableData,
+      startY: 35,
+      styles: { fontSize: 8 },
+      headStyles: { fillColor: [59, 130, 246] },
+      columnStyles: {
+        0: { cellWidth: 35 },
+        1: { cellWidth: 40 },
+        2: { cellWidth: 45 },
+        3: { cellWidth: 70 }
+      }
+    });
+
+    doc.save(`sitemap-med-mng-${new Date().toISOString().split('T')[0]}.pdf`);
+  };
+
+  const exportToCSV = () => {
+    const headers = ['Catégorie', 'Page', 'Chemin', 'Description'];
+    const rows = filteredSections.flatMap(section =>
+      section.routes.map(route => [
+        section.title,
+        route.label,
+        route.path,
+        route.description
+      ])
+    );
+
+    const csvContent = [
+      headers.join(','),
+      ...rows.map(row => row.map(cell => `"${cell}"`).join(','))
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `sitemap-med-mng-${new Date().toISOString().split('T')[0]}.csv`;
+    link.click();
+  };
 
   useEffect(() => {
     const handleScroll = () => {
@@ -557,13 +648,17 @@ export default function Sitemap() {
     });
 
     return () => observer.disconnect();
-  }, [sortBy, searchQuery]);
+  }, [sortBy, searchQuery, selectedCategories, viewMode]);
 
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  let filteredSections = sitemapSections.map(section => ({
+  let filteredSections = sitemapSections
+    .filter(section => 
+      selectedCategories.size === 0 || selectedCategories.has(section.title)
+    )
+    .map(section => ({
     ...section,
     routes: section.routes.filter(route => {
       const query = searchQuery.toLowerCase();
@@ -608,48 +703,114 @@ export default function Sitemap() {
           </p>
         </header>
 
-        <div className="flex flex-col gap-4 w-full max-w-2xl mx-auto">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              type="text"
-              placeholder="Rechercher une page par nom, description ou chemin..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 h-12"
-            />
+        <div className="flex flex-col gap-6">
+          {/* Filtres par catégorie */}
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-sm font-medium text-muted-foreground">Filtrer par catégorie :</span>
+            {allCategories.map(category => (
+              <Badge
+                key={category}
+                variant={selectedCategories.has(category) ? 'default' : 'outline'}
+                className="cursor-pointer transition-all hover:scale-105"
+                onClick={() => toggleCategory(category)}
+              >
+                {category}
+              </Badge>
+            ))}
+            {selectedCategories.size > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={clearFilters}
+                className="h-7"
+              >
+                <X className="h-3 w-3 mr-1" />
+                Réinitialiser
+              </Button>
+            )}
           </div>
 
-          <div className="flex items-center justify-between gap-4">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <ArrowUpDown className="h-4 w-4" />
-              <span>Trier par :</span>
+          {/* Barre de recherche et contrôles */}
+          <div className="flex flex-col lg:flex-row gap-4 w-full">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Rechercher une page par nom, description ou chemin..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 h-12"
+              />
             </div>
-            <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortOption)}>
-              <SelectTrigger className="w-[200px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="default">
-                  <div className="flex items-center gap-2">
-                    <LayoutDashboard className="h-4 w-4" />
-                    <span>Par défaut</span>
-                  </div>
-                </SelectItem>
-                <SelectItem value="alphabetical">
-                  <div className="flex items-center gap-2">
-                    <SortAsc className="h-4 w-4" />
-                    <span>Alphabétique</span>
-                  </div>
-                </SelectItem>
-                <SelectItem value="routeCount">
-                  <div className="flex items-center gap-2">
-                    <Hash className="h-4 w-4" />
-                    <span>Nombre de routes</span>
-                  </div>
-                </SelectItem>
-              </SelectContent>
-            </Select>
+
+            <div className="flex gap-2">
+              {/* Toggle Vue */}
+              <div className="flex border rounded-lg overflow-hidden">
+                <Button
+                  variant={viewMode === 'grid' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setViewMode('grid')}
+                  className="rounded-none"
+                >
+                  <Grid3x3 className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant={viewMode === 'list' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setViewMode('list')}
+                  className="rounded-none"
+                >
+                  <List className="h-4 w-4" />
+                </Button>
+              </div>
+
+              {/* Tri */}
+              <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortOption)}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="default">
+                    <div className="flex items-center gap-2">
+                      <LayoutDashboard className="h-4 w-4" />
+                      <span>Par défaut</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="alphabetical">
+                    <div className="flex items-center gap-2">
+                      <SortAsc className="h-4 w-4" />
+                      <span>Alphabétique</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="routeCount">
+                    <div className="flex items-center gap-2">
+                      <Hash className="h-4 w-4" />
+                      <span>Nombre de routes</span>
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+
+              {/* Export */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <Download className="h-4 w-4 mr-2" />
+                    Export
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={exportToPDF}>
+                    <FileText className="h-4 w-4 mr-2" />
+                    Exporter en PDF
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={exportToCSV}>
+                    <FileText className="h-4 w-4 mr-2" />
+                    Exporter en CSV
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
         </div>
 
@@ -659,69 +820,139 @@ export default function Sitemap() {
           </p>
         )}
 
-        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {filteredSections.map((section, index) => {
-            const Icon = section.icon;
-            const isVisible = visibleCards.has(index);
-            return (
-              <div
-                key={section.title}
-                ref={(el) => (cardRefs.current[index] = el)}
-                data-index={index}
-                className={`transition-all duration-700 ${
-                  isVisible 
-                    ? 'opacity-100 translate-y-0' 
-                    : 'opacity-0 translate-y-10'
-                }`}
-                style={{ transitionDelay: `${(index % 3) * 100}ms` }}
-              >
-                <Card className="flex h-full flex-col hover-scale">
-                  <CardHeader>
-                    <div className="flex items-center gap-3 mb-2">
-                      <div className="p-2 rounded-lg bg-primary/10">
-                        <Icon className="h-5 w-5 text-primary" />
+        {viewMode === 'grid' ? (
+          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+            {filteredSections.map((section, index) => {
+              const Icon = section.icon;
+              const isVisible = visibleCards.has(index);
+              return (
+                <div
+                  key={section.title}
+                  ref={(el) => (cardRefs.current[index] = el)}
+                  data-index={index}
+                  className={`transition-all duration-700 ${
+                    isVisible 
+                      ? 'opacity-100 translate-y-0' 
+                      : 'opacity-0 translate-y-10'
+                  }`}
+                  style={{ transitionDelay: `${(index % 3) * 100}ms` }}
+                >
+                  <Card className="flex h-full flex-col hover-scale">
+                    <CardHeader>
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="p-2 rounded-lg bg-primary/10">
+                          <Icon className="h-5 w-5 text-primary" />
+                        </div>
+                        <CardTitle className="text-lg">{section.title}</CardTitle>
                       </div>
-                      <CardTitle className="text-lg">{section.title}</CardTitle>
-                    </div>
-                    <Badge variant="secondary" className="w-fit">
-                      {section.routes.length} {section.routes.length === 1 ? 'route' : 'routes'}
-                    </Badge>
-                    <p className="text-xs text-muted-foreground mt-2">{section.description}</p>
-                  </CardHeader>
-                  <CardContent className="flex-1">
-                    <ul className="space-y-3">
-                      {section.routes.map(route => (
-                        <li key={route.path}>
+                      <Badge variant="secondary" className="w-fit">
+                        {section.routes.length} {section.routes.length === 1 ? 'route' : 'routes'}
+                      </Badge>
+                      <p className="text-xs text-muted-foreground mt-2">{section.description}</p>
+                    </CardHeader>
+                    <CardContent className="flex-1">
+                      <ul className="space-y-3">
+                        {section.routes.map(route => (
+                          <li key={route.path}>
+                            <Link
+                              to={route.examplePath || route.path}
+                              className="group block rounded-md border border-transparent p-2 transition-colors hover:border-border hover:bg-muted/50"
+                            >
+                              <div className="flex items-start justify-between gap-2">
+                                <span className="font-medium text-sm text-foreground group-hover:text-primary transition-colors">
+                                  {route.label}
+                                </span>
+                                {route.examplePath && (
+                                  <Badge variant="outline" className="text-xs shrink-0">
+                                    Exemple
+                                  </Badge>
+                                )}
+                              </div>
+                              <p className="mt-1 text-xs text-muted-foreground line-clamp-2">
+                                {route.description}
+                              </p>
+                              <code className="mt-1 block text-xs text-muted-foreground/70">
+                                {route.path}
+                              </code>
+                            </Link>
+                          </li>
+                        ))}
+                      </ul>
+                    </CardContent>
+                  </Card>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {filteredSections.map((section, sectionIndex) => {
+              const Icon = section.icon;
+              const isVisible = visibleCards.has(sectionIndex);
+              return (
+                <div
+                  key={section.title}
+                  ref={(el) => (cardRefs.current[sectionIndex] = el)}
+                  data-index={sectionIndex}
+                  className={`transition-all duration-700 ${
+                    isVisible 
+                      ? 'opacity-100 translate-y-0' 
+                      : 'opacity-0 translate-y-10'
+                  }`}
+                >
+                  <Card className="hover-scale">
+                    <CardHeader className="pb-4">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 rounded-lg bg-primary/10">
+                            <Icon className="h-5 w-5 text-primary" />
+                          </div>
+                          <div>
+                            <CardTitle className="text-lg">{section.title}</CardTitle>
+                            <p className="text-sm text-muted-foreground mt-1">{section.description}</p>
+                          </div>
+                        </div>
+                        <Badge variant="secondary">
+                          {section.routes.length} {section.routes.length === 1 ? 'route' : 'routes'}
+                        </Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        {section.routes.map(route => (
                           <Link
+                            key={route.path}
                             to={route.examplePath || route.path}
-                            className="group block rounded-md border border-transparent p-2 transition-colors hover:border-border hover:bg-muted/50"
+                            className="group flex items-center justify-between p-3 rounded-lg border border-transparent hover:border-border hover:bg-muted/50 transition-colors"
                           >
-                            <div className="flex items-start justify-between gap-2">
-                              <span className="font-medium text-sm text-foreground group-hover:text-primary transition-colors">
-                                {route.label}
-                              </span>
-                              {route.examplePath && (
-                                <Badge variant="outline" className="text-xs shrink-0">
-                                  Exemple
-                                </Badge>
-                              )}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="font-medium text-sm text-foreground group-hover:text-primary transition-colors">
+                                  {route.label}
+                                </span>
+                                {route.examplePath && (
+                                  <Badge variant="outline" className="text-xs">
+                                    Exemple
+                                  </Badge>
+                                )}
+                              </div>
+                              <p className="text-xs text-muted-foreground line-clamp-1">
+                                {route.description}
+                              </p>
+                              <code className="text-xs text-muted-foreground/70 mt-1 block">
+                                {route.path}
+                              </code>
                             </div>
-                            <p className="mt-1 text-xs text-muted-foreground line-clamp-2">
-                              {route.description}
-                            </p>
-                            <code className="mt-1 block text-xs text-muted-foreground/70">
-                              {route.path}
-                            </code>
                           </Link>
-                        </li>
-                      ))}
-                    </ul>
-                  </CardContent>
-                </Card>
-              </div>
-            );
-          })}
-        </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         {filteredRoutesCount === 0 && (
           <div className="text-center py-12">
