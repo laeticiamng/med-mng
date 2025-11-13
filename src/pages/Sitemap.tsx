@@ -7,6 +7,8 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useTheme } from '@/components/ui/theme-provider';
+import { VisitStatsChart } from '@/components/sitemap/VisitStatsChart';
+import { AIRecommendations } from '@/components/sitemap/AIRecommendations';
 import {
   Home,
   LayoutDashboard,
@@ -547,7 +549,7 @@ export default function Sitemap() {
   const [selectedCategories, setSelectedCategories] = useState<Set<string>>(new Set());
   const [visibleCards, setVisibleCards] = useState<Set<number>>(new Set());
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
-  const [visitStats, setVisitStats] = useState<Record<string, number>>({});
+  const [visitStats, setVisitStats] = useState<Record<string, { count: number; timestamps: number[] }>>({});
   const [showFavoritesSection, setShowFavoritesSection] = useState(false);
   const [favoriteCount, setFavoriteCount] = useState(0);
   const [animateFavorite, setAnimateFavorite] = useState(false);
@@ -576,10 +578,23 @@ export default function Sitemap() {
     }
   }, []);
 
-  // Sauvegarder les statistiques de visite
+  // Sauvegarder les statistiques de visite avec timestamps
   const trackVisit = (path: string) => {
+    const now = Date.now();
     const newStats = { ...visitStats };
-    newStats[path] = (newStats[path] || 0) + 1;
+    
+    if (!newStats[path]) {
+      newStats[path] = { count: 0, timestamps: [] };
+    }
+    
+    newStats[path].count += 1;
+    newStats[path].timestamps.push(now);
+    
+    // Garder seulement les 100 derniers timestamps par route pour éviter trop de données
+    if (newStats[path].timestamps.length > 100) {
+      newStats[path].timestamps = newStats[path].timestamps.slice(-100);
+    }
+    
     setVisitStats(newStats);
     localStorage.setItem('sitemap-visit-stats', JSON.stringify(newStats));
   };
@@ -629,9 +644,9 @@ export default function Sitemap() {
   // Obtenir les routes les plus visitées
   const getMostVisitedRoutes = (limit = 5) => {
     return Object.entries(visitStats)
-      .sort(([, a], [, b]) => b - a)
+      .sort(([, a], [, b]) => b.count - a.count)
       .slice(0, limit)
-      .map(([path, count]) => {
+      .map(([path, data]) => {
         let routeInfo: (SitemapRoute & { category: string }) | null = null;
         sitemapSections.forEach(section => {
           const route = section.routes.find(r => r.path === path);
@@ -639,7 +654,7 @@ export default function Sitemap() {
             routeInfo = { ...route, category: section.title };
           }
         });
-        return { path, count, routeInfo };
+        return { path, count: data.count, routeInfo };
       })
       .filter(item => item.routeInfo !== null);
   };
@@ -859,6 +874,16 @@ export default function Sitemap() {
               </div>
             </CardContent>
           </Card>
+        )}
+
+        {/* Graphique d'évolution des visites */}
+        {Object.keys(visitStats).length > 0 && (
+          <VisitStatsChart visitStats={visitStats} />
+        )}
+
+        {/* Recommandations IA */}
+        {Object.keys(visitStats).length > 0 && (
+          <AIRecommendations visitStats={visitStats} currentPath={window.location.pathname} />
         )}
 
         {/* Statistiques d'utilisation */}
