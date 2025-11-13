@@ -186,7 +186,7 @@ verify_jwt = false
 [functions.security-alerts]
 verify_jwt = false
 
-[functions.weekly-security-report]
+[functions.send-scheduled-pdf-reports]
 verify_jwt = false
 
 

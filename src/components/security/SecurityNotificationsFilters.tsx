@@ -19,6 +19,7 @@ import { Search, Calendar as CalendarIcon, X, Download } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
+import { FilterTemplateManager } from './FilterTemplateManager';
 
 export interface NotificationFilters {
   severity: 'all' | 'info' | 'warning' | 'critical';
@@ -192,6 +193,13 @@ export const SecurityNotificationsFilters = ({
               {resultsCount} notification{resultsCount > 1 ? 's' : ''} trouvée{resultsCount > 1 ? 's' : ''}
             </div>
             <div className="flex gap-2">
+              <FilterTemplateManager
+                currentFilters={localFilters}
+                onLoadTemplate={(newFilters) => {
+                  setLocalFilters(newFilters);
+                  onFiltersChange(newFilters);
+                }}
+              />
               {hasActiveFilters && (
                 <Button variant="ghost" size="sm" onClick={resetFilters}>
                   <X className="h-4 w-4 mr-2" />
