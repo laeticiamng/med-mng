@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { useTheme } from '@/components/ui/theme-provider';
 import {
   Home,
   LayoutDashboard,
@@ -30,6 +31,9 @@ import {
   Grid3x3,
   List,
   X,
+  Moon,
+  Sun,
+  Star,
 } from 'lucide-react';
 import {
   Select,
@@ -535,13 +539,47 @@ type SortOption = 'default' | 'alphabetical' | 'routeCount';
 type ViewMode = 'grid' | 'list';
 
 export default function Sitemap() {
+  const { theme, setTheme } = useTheme();
   const [searchQuery, setSearchQuery] = useState('');
   const [showScrollTop, setShowScrollTop] = useState(false);
   const [sortBy, setSortBy] = useState<SortOption>('default');
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [selectedCategories, setSelectedCategories] = useState<Set<string>>(new Set());
   const [visibleCards, setVisibleCards] = useState<Set<number>>(new Set());
+  const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  // Charger les favoris depuis localStorage
+  useEffect(() => {
+    const savedFavorites = localStorage.getItem('sitemap-favorites');
+    if (savedFavorites) {
+      try {
+        setFavorites(new Set(JSON.parse(savedFavorites)));
+      } catch (e) {
+        console.error('Error loading favorites:', e);
+      }
+    }
+  }, []);
+
+  // Sauvegarder les favoris dans localStorage
+  const saveFavorites = (newFavorites: Set<string>) => {
+    setFavorites(newFavorites);
+    localStorage.setItem('sitemap-favorites', JSON.stringify(Array.from(newFavorites)));
+  };
+
+  const toggleFavorite = (path: string) => {
+    const newFavorites = new Set(favorites);
+    if (newFavorites.has(path)) {
+      newFavorites.delete(path);
+    } else {
+      newFavorites.add(path);
+    }
+    saveFavorites(newFavorites);
+  };
+
+  const toggleTheme = () => {
+    setTheme(theme === 'dark' ? 'light' : 'dark');
+  };
 
   // Liste de toutes les catégories
   const allCategories = sitemapSections.map(section => section.title);
@@ -744,6 +782,18 @@ export default function Sitemap() {
             </div>
 
             <div className="flex gap-2">
+              {/* Toggle Thème */}
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={toggleTheme}
+                className="h-12 w-12 transition-all duration-300 hover:scale-110"
+                aria-label="Changer de thème"
+              >
+                <Sun className="h-5 w-5 rotate-0 scale-100 transition-all duration-300 dark:-rotate-90 dark:scale-0" />
+                <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all duration-300 dark:rotate-0 dark:scale-100" />
+              </Button>
+
               {/* Toggle Vue */}
               <div className="flex border rounded-lg overflow-hidden">
                 <Button
@@ -853,10 +903,10 @@ export default function Sitemap() {
                     <CardContent className="flex-1">
                       <ul className="space-y-3">
                         {section.routes.map(route => (
-                          <li key={route.path}>
+                          <li key={route.path} className="relative group/item">
                             <Link
                               to={route.examplePath || route.path}
-                              className="group block rounded-md border border-transparent p-2 transition-colors hover:border-border hover:bg-muted/50"
+                              className="group block rounded-md border border-transparent p-2 pr-10 transition-colors hover:border-border hover:bg-muted/50"
                             >
                               <div className="flex items-start justify-between gap-2">
                                 <span className="font-medium text-sm text-foreground group-hover:text-primary transition-colors">
@@ -875,6 +925,24 @@ export default function Sitemap() {
                                 {route.path}
                               </code>
                             </Link>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                toggleFavorite(route.path);
+                              }}
+                              className="absolute top-2 right-2 h-8 w-8 opacity-0 group-hover/item:opacity-100 transition-all duration-200"
+                              aria-label={favorites.has(route.path) ? "Retirer des favoris" : "Ajouter aux favoris"}
+                            >
+                              <Star 
+                                className={`h-4 w-4 transition-all duration-300 ${
+                                  favorites.has(route.path) 
+                                    ? 'fill-yellow-400 text-yellow-400 scale-110' 
+                                    : 'text-muted-foreground hover:text-yellow-400'
+                                }`}
+                              />
+                            </Button>
                           </li>
                         ))}
                       </ul>
@@ -920,30 +988,49 @@ export default function Sitemap() {
                     <CardContent>
                       <div className="space-y-2">
                         {section.routes.map(route => (
-                          <Link
-                            key={route.path}
-                            to={route.examplePath || route.path}
-                            className="group flex items-center justify-between p-3 rounded-lg border border-transparent hover:border-border hover:bg-muted/50 transition-colors"
-                          >
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2 mb-1">
-                                <span className="font-medium text-sm text-foreground group-hover:text-primary transition-colors">
-                                  {route.label}
-                                </span>
-                                {route.examplePath && (
-                                  <Badge variant="outline" className="text-xs">
-                                    Exemple
-                                  </Badge>
-                                )}
+                          <div key={route.path} className="relative group/list-item">
+                            <Link
+                              to={route.examplePath || route.path}
+                              className="group flex items-center justify-between p-3 pr-12 rounded-lg border border-transparent hover:border-border hover:bg-muted/50 transition-colors"
+                            >
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2 mb-1">
+                                  <span className="font-medium text-sm text-foreground group-hover:text-primary transition-colors">
+                                    {route.label}
+                                  </span>
+                                  {route.examplePath && (
+                                    <Badge variant="outline" className="text-xs">
+                                      Exemple
+                                    </Badge>
+                                  )}
+                                </div>
+                                <p className="text-xs text-muted-foreground line-clamp-1">
+                                  {route.description}
+                                </p>
+                                <code className="text-xs text-muted-foreground/70 mt-1 block">
+                                  {route.path}
+                                </code>
                               </div>
-                              <p className="text-xs text-muted-foreground line-clamp-1">
-                                {route.description}
-                              </p>
-                              <code className="text-xs text-muted-foreground/70 mt-1 block">
-                                {route.path}
-                              </code>
-                            </div>
-                          </Link>
+                            </Link>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                toggleFavorite(route.path);
+                              }}
+                              className="absolute top-1/2 -translate-y-1/2 right-2 h-8 w-8 opacity-0 group-hover/list-item:opacity-100 transition-all duration-200"
+                              aria-label={favorites.has(route.path) ? "Retirer des favoris" : "Ajouter aux favoris"}
+                            >
+                              <Star 
+                                className={`h-4 w-4 transition-all duration-300 ${
+                                  favorites.has(route.path) 
+                                    ? 'fill-yellow-400 text-yellow-400 scale-110' 
+                                    : 'text-muted-foreground hover:text-yellow-400'
+                                }`}
+                              />
+                            </Button>
+                          </div>
                         ))}
                       </div>
                     </CardContent>
