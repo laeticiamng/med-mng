@@ -201,4 +201,7 @@ verify_jwt = false
 [functions.send-quality-digest]
 verify_jwt = false
 
+[functions.github-quality-webhook]
+verify_jwt = false
+
 
