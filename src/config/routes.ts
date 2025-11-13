@@ -50,6 +50,8 @@ export const ROUTE_PATHS = {
   adminOicQuality: '/admin/oic-quality',
   adminComplete: '/admin/complete',
   adminPanel: '/admin-panel',
+  adminRoles: '/admin/roles',
+  auditSecurity: '/audit-security',
   library: '/library',
   accessibilityDashboard: '/accessibility-dashboard',
   effectivenessDashboard: '/effectiveness-dashboard',

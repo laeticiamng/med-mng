@@ -186,4 +186,7 @@ verify_jwt = false
 [functions.security-alerts]
 verify_jwt = false
 
+[functions.weekly-security-report]
+verify_jwt = false
+
 
