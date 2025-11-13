@@ -59,6 +59,7 @@ const RLSDocumentation = lazy(() => import("./pages/RLSDocumentation"));
 const SharedTemplatesPage = lazy(() => import("./pages/SharedTemplatesPage").then(m => ({ default: m.SharedTemplatesPage })));
 const TemplateAnalyticsDashboard = lazy(() => import("./pages/TemplateAnalyticsDashboard").then(m => ({ default: m.TemplateAnalyticsDashboard })));
 const QualityDashboard = lazy(() => import("./pages/QualityDashboard"));
+const AlertConfigPage = lazy(() => import("./pages/AlertConfigPage"));
 
 // 👨‍💼 ADMIN PAGES - Lazy loaded
 const AdminIndex = lazy(() => import("./pages/AdminIndex").then(m => ({ default: m.AdminIndex })));
@@ -200,8 +201,10 @@ const App = () => {
           <Route path={ROUTE_PATHS.ecosScenario} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EcosScenario /></Suspense>} />
           <Route path={ROUTE_PATHS.store} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Store /></Suspense>} />
           <Route path={ROUTE_PATHS.productDetail} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><ProductDetail /></Suspense>} />
+              <Route path="/quality-dashboard" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><QualityDashboard /></Suspense>} />
+              <Route path="/alert-config" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AlertConfigPage /></Suspense>} />
           
-          {/* Unified audit page */}
+           {/* Unified audit page */}
           <Route path={ROUTE_PATHS.audit} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AuditComplete /></Suspense>} />
           <Route path={ROUTE_PATHS.auditCompleteness} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AuditCompleteness /></Suspense>} />
           <Route path={ROUTE_PATHS.migrationDashboard} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MigrationDashboardPage /></Suspense>} />
