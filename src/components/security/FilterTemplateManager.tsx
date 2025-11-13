@@ -25,7 +25,11 @@ import {
   Trash2, 
   Star, 
   StarOff,
-  Loader2 
+  Loader2,
+  Share2,
+  Users,
+  Globe,
+  Mail
 } from 'lucide-react';
 import { useFilterTemplates } from '@/hooks/useFilterTemplates';
 import type { NotificationFilters } from './SecurityNotificationsFilters';
@@ -47,14 +51,23 @@ export const FilterTemplateManager = ({
     createTemplate,
     updateTemplate,
     deleteTemplate,
+    shareTemplate,
     isCreating,
     isDeleting,
+    isSharing,
   } = useFilterTemplates();
 
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const [templateName, setTemplateName] = useState('');
   const [templateDescription, setTemplateDescription] = useState('');
   const [isDefault, setIsDefault] = useState(false);
+  
+  // Share dialog state
+  const [isSharedGlobally, setIsSharedGlobally] = useState(false);
+  const [isSharedWithTeam, setIsSharedWithTeam] = useState(false);
+  const [userEmails, setUserEmails] = useState('');
 
   const handleSaveTemplate = () => {
     if (!templateName.trim()) return;
@@ -64,6 +77,9 @@ export const FilterTemplateManager = ({
       description: templateDescription || null,
       filters: currentFilters,
       is_default: isDefault,
+      is_shared: false,
+      shared_with_team: false,
+      shared_with_users: [],
     });
 
     // Reset form
@@ -78,6 +94,35 @@ export const FilterTemplateManager = ({
       id: templateId,
       is_default: !currentDefault,
     });
+  };
+
+  const handleOpenShareDialog = (template: any) => {
+    setSelectedTemplate(template.id);
+    setIsSharedGlobally(template.is_shared || false);
+    setIsSharedWithTeam(template.shared_with_team || false);
+    setUserEmails('');
+    setShareDialogOpen(true);
+  };
+
+  const handleShareTemplate = () => {
+    if (!selectedTemplate) return;
+
+    const emails = userEmails
+      .split(',')
+      .map(email => email.trim())
+      .filter(email => email.length > 0);
+
+    shareTemplate({
+      id: selectedTemplate,
+      isShared: isSharedGlobally,
+      sharedWithTeam: isSharedWithTeam,
+      userEmails: emails.length > 0 ? emails : undefined,
+    });
+
+    // Reset and close
+    setShareDialogOpen(false);
+    setSelectedTemplate(null);
+    setUserEmails('');
   };
 
   const getFilterSummary = (filters: NotificationFilters): string => {
@@ -255,6 +300,14 @@ export const FilterTemplateManager = ({
                       <Button
                         variant="ghost"
                         size="icon"
+                        onClick={() => handleOpenShareDialog(template)}
+                        title="Partager ce template"
+                      >
+                        <Share2 className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
                         onClick={() => deleteTemplate(template.id)}
                         disabled={isDeleting}
                       >
@@ -268,6 +321,104 @@ export const FilterTemplateManager = ({
           </DialogContent>
         </Dialog>
       )}
+
+      {/* Share template dialog */}
+      <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Partager le template</DialogTitle>
+            <DialogDescription>
+              Définissez qui peut accéder à ce template de filtres
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-6 py-4">
+            {/* Global sharing toggle */}
+            <div className="flex items-start justify-between space-x-4">
+              <div className="flex items-start gap-3">
+                <Globe className="h-5 w-5 mt-0.5 text-muted-foreground" />
+                <div className="space-y-0.5">
+                  <Label htmlFor="global-share" className="text-base">
+                    Partage global
+                  </Label>
+                  <p className="text-sm text-muted-foreground">
+                    Rendre ce template accessible à tous les utilisateurs
+                  </p>
+                </div>
+              </div>
+              <Switch
+                id="global-share"
+                checked={isSharedGlobally}
+                onCheckedChange={setIsSharedGlobally}
+              />
+            </div>
+
+            {/* Team sharing toggle */}
+            <div className="flex items-start justify-between space-x-4">
+              <div className="flex items-start gap-3">
+                <Users className="h-5 w-5 mt-0.5 text-muted-foreground" />
+                <div className="space-y-0.5">
+                  <Label htmlFor="team-share" className="text-base">
+                    Partage d'équipe
+                  </Label>
+                  <p className="text-sm text-muted-foreground">
+                    Partager avec tous les membres de votre équipe
+                  </p>
+                </div>
+              </div>
+              <Switch
+                id="team-share"
+                checked={isSharedWithTeam}
+                onCheckedChange={setIsSharedWithTeam}
+              />
+            </div>
+
+            {/* Specific users */}
+            <div className="space-y-3">
+              <div className="flex items-center gap-3">
+                <Mail className="h-5 w-5 text-muted-foreground" />
+                <Label htmlFor="user-emails" className="text-base">
+                  Utilisateurs spécifiques
+                </Label>
+              </div>
+              <Textarea
+                id="user-emails"
+                placeholder="email1@example.com, email2@example.com"
+                value={userEmails}
+                onChange={(e) => setUserEmails(e.target.value)}
+                rows={3}
+                className="resize-none"
+              />
+              <p className="text-xs text-muted-foreground">
+                Entrez les emails séparés par des virgules pour partager avec des utilisateurs spécifiques
+              </p>
+            </div>
+
+            {/* Info box */}
+            <div className="rounded-lg border p-3 bg-muted/50">
+              <p className="text-sm text-muted-foreground">
+                💡 <strong>Astuce:</strong> Vous pouvez combiner plusieurs options de partage. 
+                Les utilisateurs spécifiés auront accès même si le partage global n'est pas activé.
+              </p>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShareDialogOpen(false)}
+              disabled={isSharing}
+            >
+              Annuler
+            </Button>
+            <Button
+              onClick={handleShareTemplate}
+              disabled={isSharing}
+            >
+              {isSharing && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+              Partager
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
