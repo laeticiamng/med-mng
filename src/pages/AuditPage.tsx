@@ -2,8 +2,9 @@ import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AuditDashboard } from '@/components/audit/AuditDashboard';
 import { AuditLogsTable } from '@/components/audit/AuditLogsTable';
+import { SecurityNotificationsTable } from '@/components/security/SecurityNotificationsTable';
 import { useUserRoles } from '@/hooks/useUserRoles';
-import { Shield, BarChart3, List } from 'lucide-react';
+import { Shield, BarChart3, List, Bell } from 'lucide-react';
 import { Navigate } from 'react-router-dom';
 
 export default function AuditPage() {
@@ -35,10 +36,14 @@ export default function AuditPage() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-        <TabsList className="grid w-full max-w-md grid-cols-2">
+        <TabsList className="grid w-full max-w-2xl grid-cols-3">
           <TabsTrigger value="dashboard" className="gap-2">
             <BarChart3 className="h-4 w-4" />
             Tableau de bord
+          </TabsTrigger>
+          <TabsTrigger value="notifications" className="gap-2">
+            <Bell className="h-4 w-4" />
+            Notifications
           </TabsTrigger>
           <TabsTrigger value="logs" className="gap-2">
             <List className="h-4 w-4" />
@@ -48,6 +53,10 @@ export default function AuditPage() {
 
         <TabsContent value="dashboard" className="space-y-6">
           <AuditDashboard />
+        </TabsContent>
+
+        <TabsContent value="notifications" className="space-y-6">
+          <SecurityNotificationsTable />
         </TabsContent>
 
         <TabsContent value="logs" className="space-y-6">

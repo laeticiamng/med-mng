@@ -32,7 +32,7 @@ export const useRealtimeNotifications = () => {
       if (!user) return;
 
       const { data, error } = await supabase
-        .from('security_notifications')
+        .from('security_notifications' as any)
         .select('*')
         .order('created_at', { ascending: false })
         .limit(50);
@@ -42,10 +42,10 @@ export const useRealtimeNotifications = () => {
         return;
       }
 
-      setNotifications(data as SecurityNotification[]);
+      setNotifications((data || []) as any as SecurityNotification[]);
       
       // Count unread
-      const unread = (data as SecurityNotification[]).filter(
+      const unread = ((data || []) as any as SecurityNotification[]).filter(
         n => !n.read_by.includes(user.id)
       ).length;
       setUnreadCount(unread);
@@ -127,7 +127,7 @@ export const useRealtimeNotifications = () => {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
-    const { error } = await supabase.rpc('mark_notification_as_read', {
+    const { error } = await supabase.rpc('mark_notification_as_read' as any, {
       notification_id: notificationId,
       user_id: user.id,
     } as any);
