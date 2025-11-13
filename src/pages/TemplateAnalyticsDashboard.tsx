@@ -3,8 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { useFilterTemplates } from '@/hooks/useFilterTemplates';
 import { useTemplateTags } from '@/hooks/useTemplateTags';
 import { useTemplateHistory } from '@/hooks/useTemplateHistory';
-import { useTemplateComments } from '@/hooks/useTemplateComments';
-import { BarChart3, Star, TrendingUp, Users, Tag, Clock, MessageSquare } from 'lucide-react';
+import { BarChart3, Star, TrendingUp, Users, Tag, Clock } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
 
