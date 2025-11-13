@@ -261,6 +261,11 @@ const sitemapSections: SitemapSection[] = [
         description: 'Vue consolidée des audits et alertes réservées aux administrateurs.',
       },
       {
+        label: 'Tests de partage & permissions',
+        path: ROUTE_PATHS.shareTest,
+        description: 'Interface de test pour valider les permissions RLS (viewer, editor, admin) et le système de collaboration d\'équipe.',
+      },
+      {
         label: 'Extraction EDN',
         path: ROUTE_PATHS.adminExtractEdn,
         description: 'Outil d\'export des données EDN pour analyses externes.',
