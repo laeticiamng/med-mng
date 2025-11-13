@@ -1,22 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import type { NotificationFilters } from '@/components/security/SecurityNotificationsFilters';
+import type { NotificationFilterTemplate } from '@/types/database.types';
 
-export interface FilterTemplate {
-  id: string;
-  user_id: string;
-  name: string;
-  description: string | null;
-  filters: NotificationFilters;
-  is_default: boolean;
-  is_shared: boolean;
-  shared_with_team: boolean;
-  shared_with_users: string[];
-  tags: string[];
-  created_at: string;
-  updated_at: string;
-}
+export type FilterTemplate = NotificationFilterTemplate;
 
 export const useFilterTemplates = () => {
   const queryClient = useQueryClient();
@@ -26,12 +13,12 @@ export const useFilterTemplates = () => {
     queryKey: ['filter-templates'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('notification_filter_templates' as any)
+        .from('notification_filter_templates')
         .select('*')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      return (data || []) as any as FilterTemplate[];
+      return (data || []) as unknown as FilterTemplate[];
     },
   });
 
@@ -45,7 +32,7 @@ export const useFilterTemplates = () => {
       if (!user) throw new Error('Not authenticated');
 
       const { data, error } = await supabase
-        .from('notification_filter_templates' as any)
+        .from('notification_filter_templates')
         .insert({
           user_id: user.id,
           name: template.name,
@@ -74,7 +61,7 @@ export const useFilterTemplates = () => {
   const updateTemplate = useMutation({
     mutationFn: async ({ id, ...updates }: Partial<FilterTemplate> & { id: string }) => {
       const { data, error } = await supabase
-        .from('notification_filter_templates' as any)
+        .from('notification_filter_templates')
         .update({
           name: updates.name,
           description: updates.description,
@@ -103,7 +90,7 @@ export const useFilterTemplates = () => {
   const deleteTemplate = useMutation({
     mutationFn: async (id: string) => {
       const { error } = await supabase
-        .from('notification_filter_templates' as any)
+        .from('notification_filter_templates')
         .delete()
         .eq('id', id);
 
@@ -134,16 +121,16 @@ export const useFilterTemplates = () => {
     }) => {
       // If sharing with specific users, call the RPC function
       if (userEmails && userEmails.length > 0) {
-        const { error } = await supabase.rpc('share_filter_template' as any, {
+        const { error } = await supabase.rpc('share_filter_template', {
           template_id: id,
           user_emails: userEmails,
-        } as any);
+        });
 
         if (error) throw error;
       } else {
         // Otherwise, just update the sharing flags
         const { error } = await supabase
-          .from('notification_filter_templates' as any)
+          .from('notification_filter_templates')
           .update({
             is_shared: isShared,
             shared_with_team: sharedWithTeam,
