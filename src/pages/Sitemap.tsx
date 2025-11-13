@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { ROUTE_PATHS } from '@/config/routes';
@@ -22,7 +22,17 @@ import {
   Search,
   LucideIcon,
   ArrowUp,
+  ArrowUpDown,
+  SortAsc,
+  Hash,
 } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 interface SitemapRoute {
   label: string;
@@ -508,9 +518,14 @@ const sitemapSections: SitemapSection[] = [
   },
 ];
 
+type SortOption = 'default' | 'alphabetical' | 'routeCount';
+
 export default function Sitemap() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showScrollTop, setShowScrollTop] = useState(false);
+  const [sortBy, setSortBy] = useState<SortOption>('default');
+  const [visibleCards, setVisibleCards] = useState<Set<number>>(new Set());
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -521,11 +536,34 @@ export default function Sitemap() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const index = Number(entry.target.getAttribute('data-index'));
+            setVisibleCards((prev) => new Set(prev).add(index));
+          }
+        });
+      },
+      {
+        threshold: 0.1,
+        rootMargin: '50px',
+      }
+    );
+
+    cardRefs.current.forEach((ref) => {
+      if (ref) observer.observe(ref);
+    });
+
+    return () => observer.disconnect();
+  }, [sortBy, searchQuery]);
+
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const filteredSections = sitemapSections.map(section => ({
+  let filteredSections = sitemapSections.map(section => ({
     ...section,
     routes: section.routes.filter(route => {
       const query = searchQuery.toLowerCase();
@@ -536,6 +574,17 @@ export default function Sitemap() {
       );
     }),
   })).filter(section => section.routes.length > 0);
+
+  // Appliquer le tri
+  if (sortBy === 'alphabetical') {
+    filteredSections = [...filteredSections].sort((a, b) => 
+      a.title.localeCompare(b.title)
+    );
+  } else if (sortBy === 'routeCount') {
+    filteredSections = [...filteredSections].sort((a, b) => 
+      b.routes.length - a.routes.length
+    );
+  }
 
   const totalRoutes = sitemapSections.reduce((count, section) => count + section.routes.length, 0);
   const filteredRoutesCount = filteredSections.reduce((count, section) => count + section.routes.length, 0);
@@ -559,15 +608,49 @@ export default function Sitemap() {
           </p>
         </header>
 
-        <div className="relative w-full max-w-2xl mx-auto">
-          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            type="text"
-            placeholder="Rechercher une page par nom, description ou chemin..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 h-12"
-          />
+        <div className="flex flex-col gap-4 w-full max-w-2xl mx-auto">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              type="text"
+              placeholder="Rechercher une page par nom, description ou chemin..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 h-12"
+            />
+          </div>
+
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <ArrowUpDown className="h-4 w-4" />
+              <span>Trier par :</span>
+            </div>
+            <Select value={sortBy} onValueChange={(value) => setSortBy(value as SortOption)}>
+              <SelectTrigger className="w-[200px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="default">
+                  <div className="flex items-center gap-2">
+                    <LayoutDashboard className="h-4 w-4" />
+                    <span>Par défaut</span>
+                  </div>
+                </SelectItem>
+                <SelectItem value="alphabetical">
+                  <div className="flex items-center gap-2">
+                    <SortAsc className="h-4 w-4" />
+                    <span>Alphabétique</span>
+                  </div>
+                </SelectItem>
+                <SelectItem value="routeCount">
+                  <div className="flex items-center gap-2">
+                    <Hash className="h-4 w-4" />
+                    <span>Nombre de routes</span>
+                  </div>
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         {searchQuery && (
@@ -577,52 +660,65 @@ export default function Sitemap() {
         )}
 
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-          {filteredSections.map(section => {
+          {filteredSections.map((section, index) => {
             const Icon = section.icon;
+            const isVisible = visibleCards.has(index);
             return (
-              <Card key={section.title} className="flex h-full flex-col">
-                <CardHeader>
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="p-2 rounded-lg bg-primary/10">
-                      <Icon className="h-5 w-5 text-primary" />
+              <div
+                key={section.title}
+                ref={(el) => (cardRefs.current[index] = el)}
+                data-index={index}
+                className={`transition-all duration-700 ${
+                  isVisible 
+                    ? 'opacity-100 translate-y-0' 
+                    : 'opacity-0 translate-y-10'
+                }`}
+                style={{ transitionDelay: `${(index % 3) * 100}ms` }}
+              >
+                <Card className="flex h-full flex-col hover-scale">
+                  <CardHeader>
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="p-2 rounded-lg bg-primary/10">
+                        <Icon className="h-5 w-5 text-primary" />
+                      </div>
+                      <CardTitle className="text-lg">{section.title}</CardTitle>
                     </div>
-                    <CardTitle className="text-lg">{section.title}</CardTitle>
-                  </div>
-                  <Badge variant="secondary" className="w-fit">
-                    {section.routes.length} {section.routes.length === 1 ? 'route' : 'routes'}
-                  </Badge>
-                  <p className="text-xs text-muted-foreground mt-2">{section.description}</p>
-                </CardHeader>
-                <CardContent className="flex-1">
-                  <ul className="space-y-3">
-                    {section.routes.map(route => (
-                      <li key={route.path}>
-                        <Link
-                          to={route.examplePath || route.path}
-                          className="group block rounded-md border border-transparent p-2 transition-colors hover:border-border hover:bg-muted/50"
-                        >
-                          <div className="flex items-start justify-between gap-2">
-                            <span className="font-medium text-sm text-foreground group-hover:text-primary transition-colors">
-                              {route.label}
-                            </span>
-                            {route.examplePath && (
-                              <Badge variant="outline" className="text-xs shrink-0">
-                                Exemple
-                              </Badge>
-                            )}
-                          </div>
-                          <p className="mt-1 text-xs text-muted-foreground line-clamp-2">
-                            {route.description}
-                          </p>
-                          <code className="mt-1 block text-xs text-muted-foreground/70">
-                            {route.path}
-                          </code>
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
+                    <Badge variant="secondary" className="w-fit">
+                      {section.routes.length} {section.routes.length === 1 ? 'route' : 'routes'}
+                    </Badge>
+                    <p className="text-xs text-muted-foreground mt-2">{section.description}</p>
+                  </CardHeader>
+                  <CardContent className="flex-1">
+                    <ul className="space-y-3">
+                      {section.routes.map(route => (
+                        <li key={route.path}>
+                          <Link
+                            to={route.examplePath || route.path}
+                            className="group block rounded-md border border-transparent p-2 transition-colors hover:border-border hover:bg-muted/50"
+                          >
+                            <div className="flex items-start justify-between gap-2">
+                              <span className="font-medium text-sm text-foreground group-hover:text-primary transition-colors">
+                                {route.label}
+                              </span>
+                              {route.examplePath && (
+                                <Badge variant="outline" className="text-xs shrink-0">
+                                  Exemple
+                                </Badge>
+                              )}
+                            </div>
+                            <p className="mt-1 text-xs text-muted-foreground line-clamp-2">
+                              {route.description}
+                            </p>
+                            <code className="mt-1 block text-xs text-muted-foreground/70">
+                              {route.path}
+                            </code>
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+              </div>
             );
           })}
         </div>
