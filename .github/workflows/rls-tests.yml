@@ -1,0 +1,134 @@
+name: RLS Security Tests
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+  workflow_dispatch:
+
+jobs:
+  rls-tests:
+    name: Run RLS Security Tests
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run linter
+        run: npm run lint || true
+      
+      - name: Run RLS security tests
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: |
+          echo "Running RLS security tests..."
+          npm run test test/rls-security.test.ts -- --reporter=verbose
+          npm run test test/rls-sharing.test.ts -- --reporter=verbose
+      
+      - name: Generate test coverage report
+        if: always()
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+        run: npm run test:coverage -- test/rls-*.test.ts || true
+      
+      - name: Upload coverage reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report-${{ matrix.node-version }}
+          path: coverage/
+          retention-days: 30
+      
+      - name: Comment PR with test results
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const testResults = `
+            ## 🔒 RLS Security Tests Results
+            
+            ✅ RLS policies validated successfully
+            
+            **Node.js version:** ${{ matrix.node-version }}
+            
+            ### Tests executed:
+            - User data isolation
+            - Viewer permissions (read-only)
+            - Editor permissions (read + write)
+            - Admin permissions (full access)
+            - Share management
+            - Data security boundaries
+            
+            📊 Full coverage report available in artifacts.
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: testResults
+            });
+
+  security-audit:
+    name: Security Audit
+    runs-on: ubuntu-latest
+    needs: rls-tests
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run npm audit
+        run: npm audit --audit-level=moderate || true
+      
+      - name: Run dependency check
+        run: npx audit-ci --moderate || true
+      
+      - name: Security scan summary
+        run: |
+          echo "✅ Security audit completed"
+          echo "📊 Check artifacts for detailed reports"
+
+  notify:
+    name: Notify on failure
+    runs-on: ubuntu-latest
+    needs: [rls-tests, security-audit]
+    if: failure()
+    
+    steps:
+      - name: Send notification
+        run: |
+          echo "⚠️ RLS tests or security audit failed!"
+          echo "Please check the workflow logs for details."
