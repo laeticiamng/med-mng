@@ -38,6 +38,8 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TemplateComments } from '@/components/security/TemplateComments';
 import { TemplateHistory } from '@/components/security/TemplateHistory';
+import { TagInput } from '@/components/security/TagInput';
+import { Label } from '@/components/ui/label';
 
 export const SharedTemplatesPage = () => {
   const { templates, isLoading, duplicateTemplate, isDuplicating } = useFilterTemplates();
@@ -46,6 +48,7 @@ export const SharedTemplatesPage = () => {
   const [shareTypeFilter, setShareTypeFilter] = useState<'all' | 'global' | 'team' | 'personal'>('all');
   const [detailsDialogOpen, setDetailsDialogOpen] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
 
   // Filter templates to show only shared ones
   const sharedTemplates = templates.filter(
@@ -60,7 +63,8 @@ export const SharedTemplatesPage = () => {
     const matchesSearch =
       searchTerm === '' ||
       template.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      template.description?.toLowerCase().includes(searchTerm.toLowerCase());
+      template.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      template.tags?.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
 
     const matchesType =
       shareTypeFilter === 'all' ||
@@ -70,7 +74,11 @@ export const SharedTemplatesPage = () => {
         template.shared_with_users &&
         template.shared_with_users.length > 0);
 
-    return matchesSearch && matchesType;
+    const matchesTags =
+      selectedTags.length === 0 ||
+      selectedTags.every(tag => template.tags?.includes(tag));
+
+    return matchesSearch && matchesType && matchesTags;
   });
 
   const getShareBadges = (template: any) => {
@@ -158,18 +166,23 @@ export const SharedTemplatesPage = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Tous les types</SelectItem>
-                <SelectItem value="global">
-                  <div className="flex items-center gap-2">
-                    <Globe className="h-4 w-4" />
-                    Partage global
-                  </div>
-                </SelectItem>
-                <SelectItem value="team">
-                  <div className="flex items-center gap-2">
-                    <Users className="h-4 w-4" />
-                    Partage d'équipe
-                  </div>
-                </SelectItem>
+                <SelectItem value="global">Partage global</SelectItem>
+                <SelectItem value="team">Partage d'équipe</SelectItem>
+                <SelectItem value="personal">Partage personnel</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Tag Filter */}
+          <div className="space-y-2">
+            <Label>Filtrer par tags</Label>
+            <TagInput 
+              value={selectedTags} 
+              onChange={setSelectedTags}
+              placeholder="Sélectionner des tags..."
+            />
+          </div>
+        </CardContent>
                 <SelectItem value="personal">
                   <div className="flex items-center gap-2">
                     <Mail className="h-4 w-4" />
