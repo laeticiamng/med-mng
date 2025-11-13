@@ -14,7 +14,10 @@ import { AnalyticsDashboard } from '@/components/sitemap/AnalyticsDashboard';
 import { ExportImportManager } from '@/components/sitemap/ExportImportManager';
 import { CloudSyncManager } from '@/components/sitemap/CloudSyncManager';
 import { MetricsAlerts } from '@/components/sitemap/MetricsAlerts';
+import { TimeComparison } from '@/components/sitemap/TimeComparison';
+import { PageNotesManager } from '@/components/sitemap/PageNotesManager';
 import { useCloudSync } from '@/hooks/useCloudSync';
+import { usePageNotes } from '@/hooks/usePageNotes';
 import {
   Home,
   LayoutDashboard,
@@ -577,6 +580,7 @@ export default function Sitemap() {
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   const { autoSyncEnabled, syncToCloud } = useCloudSync();
+  const { getNoteCountForPage } = usePageNotes();
 
   // Charger les favoris, tags et statistiques depuis localStorage
   useEffect(() => {
@@ -1133,6 +1137,17 @@ export default function Sitemap() {
           </Card>
         )}
 
+        {/* Time Comparison */}
+        {Object.keys(visitStats).length > 0 && (
+          <TimeComparison
+            visitStats={visitStats}
+            routeLabels={routeLabels}
+          />
+        )}
+
+        {/* Page Notes Manager */}
+        <PageNotesManager />
+
         {/* Section Favoris */}
         {showFavoritesSection && getFavoriteRoutes().length > 0 && (
           <Card className="border-2 border-yellow-400/30 bg-gradient-to-br from-yellow-50/50 to-amber-50/50 dark:from-yellow-950/20 dark:to-amber-950/20">
@@ -1185,6 +1200,7 @@ export default function Sitemap() {
                 {getFavoriteRoutes(selectedTagFilter).map((route) => {
                   const Icon = route.icon;
                   const routeTags = getRouteTags(route.path);
+                  const noteCount = getNoteCountForPage(route.path);
                   return (
                     <div key={route.path} className="relative group">
                       <Link
@@ -1196,9 +1212,16 @@ export default function Sitemap() {
                           <Icon className="h-4 w-4 text-primary" />
                         </div>
                         <div className="flex-1 min-w-0">
-                          <p className="font-medium text-sm group-hover:text-primary transition-colors truncate">
-                            {route.label}
-                          </p>
+                          <div className="flex items-center gap-2">
+                            <p className="font-medium text-sm group-hover:text-primary transition-colors truncate">
+                              {route.label}
+                            </p>
+                            {noteCount > 0 && (
+                              <Badge variant="secondary" className="h-5 text-xs">
+                                {noteCount} 📝
+                              </Badge>
+                            )}
+                          </div>
                           <p className="text-xs text-muted-foreground truncate">
                             {route.category}
                           </p>
