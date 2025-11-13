@@ -53,6 +53,7 @@ export const ROUTE_PATHS = {
   adminRoles: '/admin/roles',
   auditSecurity: '/audit-security',
   sharedTemplates: '/shared-templates',
+  templateAnalytics: '/template-analytics',
   library: '/library',
   accessibilityDashboard: '/accessibility-dashboard',
   effectivenessDashboard: '/effectiveness-dashboard',

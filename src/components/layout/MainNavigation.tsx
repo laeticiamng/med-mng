@@ -56,6 +56,7 @@ export const MainNavigation: React.FC = () => {
   const toolNavItems = [
     { path: ROUTE_PATHS.sitemap, label: 'Plan du site', icon: Map },
     { path: ROUTE_PATHS.statistics, label: 'Statistiques', icon: BarChart3 },
+    { path: ROUTE_PATHS.templateAnalytics, label: 'Analytics Templates', icon: BarChart3 },
     { path: ROUTE_PATHS.designSystem, label: 'Design System', icon: Palette },
     {
       path: ROUTE_PATHS.accessibilityDashboard,
