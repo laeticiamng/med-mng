@@ -183,4 +183,7 @@ verify_jwt = false
 [functions.unified-alerts]
 verify_jwt = false
 
+[functions.security-alerts]
+verify_jwt = false
+
 
