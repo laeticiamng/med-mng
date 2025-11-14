@@ -10,14 +10,19 @@ import { TranslatedText } from "@/components/TranslatedText";
 import { WelcomeDashboard } from "@/components/welcome/WelcomeDashboard";
 import MusicGenerationSection from "@/components/MusicGenerationSection";
 import { SEOHead } from "@/components/seo/SEOHead";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { ErrorFallback } from "@/components/ErrorFallback";
 
 // ⚡ LAZY LOADING - Charger les composants lourds seulement quand nécessaire
 const MngPresentationBrief = lazy(() => import("@/components/MngPresentationBrief").then(module => ({
   default: module.MngPresentationBrief
 })));
 const MainSections = lazy(() => import("@/components/MainSections"));
-const AppFooter = lazy(() => import("@/components/AppFooter").then(module => ({
-  default: module.AppFooter
+const MusicLibrary = lazy(() => import("@/components/music/MusicLibrary").then(module => ({
+  default: module.MusicLibrary
+})));
+const Footer = lazy(() => import("@/components/layout/Footer").then(module => ({
+  default: module.Footer
 })));
 
 // Composant de loading léger
@@ -260,40 +265,44 @@ const Index = () => {
           </PremiumCard>
         </div>
 
-        {/* Section MNG premium - LAZY LOADED */}
-        <Suspense fallback={<LazyLoadSpinner />}>
-          <div className="pb-20">
-            <MngPresentationBrief />
-          </div>
-        </Suspense>
+        {/* Section MNG premium */}
+        <ErrorBoundary fallback={<ErrorFallback />}>
+          <Suspense fallback={<LazyLoadSpinner />}>
+            <div className="pb-20">
+              <MngPresentationBrief />
+            </div>
+          </Suspense>
+        </ErrorBoundary>
 
-        {/* Section Bibliothèque Musicale - Nouveau composant */}
-        <Suspense fallback={<LazyLoadSpinner />}>
-          <div className="pb-20">
-            {React.createElement(React.lazy(() => import('@/components/music/MusicLibrary').then(module => ({
-            default: module.MusicLibrary
-          }))))}
-          </div>
-        </Suspense>
+        {/* Section Bibliothèque Musicale */}
+        <ErrorBoundary fallback={<ErrorFallback />}>
+          <Suspense fallback={<LazyLoadSpinner />}>
+            <div className="pb-20">
+              <MusicLibrary />
+            </div>
+          </Suspense>
+        </ErrorBoundary>
         
-        {/* Section Génération Musicale premium - Static Import */}
+        {/* Section Génération Musicale premium */}
         <div className="pb-20">
           <MusicGenerationSection />
         </div>
         
-        {/* Sections principales premium - LAZY LOADED */}
-        <Suspense fallback={<LazyLoadSpinner />}>
-          <div className="pb-20">
-            <MainSections />
-          </div>
-        </Suspense>
+        {/* Sections principales premium */}
+        <ErrorBoundary fallback={<ErrorFallback />}>
+          <Suspense fallback={<LazyLoadSpinner />}>
+            <div className="pb-20">
+              <MainSections />
+            </div>
+          </Suspense>
+        </ErrorBoundary>
         
         {/* Footer - Enhanced with Newsletter & Social */}
-        <Suspense fallback={<LazyLoadSpinner />}>
-          {React.createElement(React.lazy(() => import('@/components/layout/Footer').then(module => ({
-            default: module.Footer
-          }))))}
-        </Suspense>
+        <ErrorBoundary fallback={<ErrorFallback />}>
+          <Suspense fallback={<LazyLoadSpinner />}>
+            <Footer />
+          </Suspense>
+        </ErrorBoundary>
       </div>
 
       {/* Admin Audit Button premium */}
