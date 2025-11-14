@@ -53,7 +53,7 @@ export const useEdnProgress = () => {
       }
 
       // Fetch user progress summary using the database function
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .rpc('get_user_edn_progress_summary', { target_user_id: user.id });
 
       if (error) {
@@ -118,7 +118,7 @@ export const useUpdateItemProgress = () => {
       if (params.score !== undefined) updateData.score = params.score;
       if (params.timeSpentMinutes !== undefined) {
         // Add to existing time
-        const { data: existing } = await supabase
+        const { data: existing } = await (supabase as any)
           .from('user_edn_progress')
           .select('time_spent_minutes')
           .eq('user_id', user.id)
@@ -133,7 +133,7 @@ export const useUpdateItemProgress = () => {
         updateData.completed_at = new Date().toISOString();
       }
 
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('user_edn_progress')
         .upsert(updateData, { onConflict: 'user_id,item_number' })
         .select()
