@@ -162,6 +162,31 @@ const DailyChallenges = lazy(() => import("./pages/DailyChallenges"));
 const ChallengeDetail = lazy(() => import("./pages/ChallengeDetail"));
 const ChallengesHistory = lazy(() => import("./pages/ChallengesHistory"));
 
+// Journal
+const JournalDashboard = lazy(() => import("./pages/JournalDashboard"));
+const JournalNewEntry = lazy(() => import("./pages/JournalNewEntry"));
+const JournalEntry = lazy(() => import("./pages/JournalEntry"));
+const JournalEdit = lazy(() => import("./pages/JournalEdit"));
+
+// Profils
+const UsersDirectory = lazy(() => import("./pages/UsersDirectory"));
+const UserPublicProfile = lazy(() => import("./pages/UserPublicProfile"));
+const ProfileEdit = lazy(() => import("./pages/ProfileEdit"));
+const ProfilePrivacySettings = lazy(() => import("./pages/ProfilePrivacySettings"));
+
+// Sessions
+const SessionsDashboard = lazy(() => import("./pages/SessionsDashboard"));
+const StudySessions = lazy(() => import("./pages/StudySessions"));
+const FocusSessions = lazy(() => import("./pages/FocusSessions"));
+const MeditationSessions = lazy(() => import("./pages/MeditationSessions"));
+const SessionDetail = lazy(() => import("./pages/SessionDetail"));
+
+// Quests
+const QuestsDashboard = lazy(() => import("./pages/QuestsDashboard"));
+const QuestDetail = lazy(() => import("./pages/QuestDetail"));
+const QuestStart = lazy(() => import("./pages/QuestStart"));
+const AmbitionsManager = lazy(() => import("./pages/AmbitionsManager"));
+
 const App = () => {
   const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false);
   const [isHelpCenterOpen, setIsHelpCenterOpen] = useState(false);
@@ -335,6 +360,32 @@ const App = () => {
              <Route path={ROUTE_PATHS.challengesDaily} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><DailyChallenges /></Suspense>} />
              <Route path={ROUTE_PATHS.challengeDetail} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><ChallengeDetail /></Suspense>} />
              <Route path={ROUTE_PATHS.challengesHistory} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><ChallengesHistory /></Suspense></ProtectedRoute>} />
+
+             {/* 🆕 PHASE 3 - NOUVELLES ROUTES */}
+             {/* Journal - PROTECTED */}
+             <Route path={ROUTE_PATHS.journal} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><JournalDashboard /></Suspense></ProtectedRoute>} />
+             <Route path={ROUTE_PATHS.journalNew} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><JournalNewEntry /></Suspense></ProtectedRoute>} />
+             <Route path={ROUTE_PATHS.journalEntry} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><JournalEntry /></Suspense></ProtectedRoute>} />
+             <Route path={ROUTE_PATHS.journalEdit} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><JournalEdit /></Suspense></ProtectedRoute>} />
+
+             {/* Profils - PUBLIC lecture, PROTECTED édition */}
+             <Route path={ROUTE_PATHS.users} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><UsersDirectory /></Suspense>} />
+             <Route path={ROUTE_PATHS.userProfile} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><UserPublicProfile /></Suspense>} />
+             <Route path={ROUTE_PATHS.profileEdit} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><ProfileEdit /></Suspense></ProtectedRoute>} />
+             <Route path={ROUTE_PATHS.profilePrivacy} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><ProfilePrivacySettings /></Suspense></ProtectedRoute>} />
+
+             {/* Sessions - PROTECTED */}
+             <Route path={ROUTE_PATHS.sessions} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><SessionsDashboard /></Suspense></ProtectedRoute>} />
+             <Route path={ROUTE_PATHS.sessionsStudy} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><StudySessions /></Suspense></ProtectedRoute>} />
+             <Route path={ROUTE_PATHS.sessionsFocus} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><FocusSessions /></Suspense></ProtectedRoute>} />
+             <Route path={ROUTE_PATHS.sessionsMeditation} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MeditationSessions /></Suspense></ProtectedRoute>} />
+             <Route path={ROUTE_PATHS.sessionDetail} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><SessionDetail /></Suspense></ProtectedRoute>} />
+
+             {/* Quests - PROTECTED */}
+             <Route path={ROUTE_PATHS.quests} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><QuestsDashboard /></Suspense></ProtectedRoute>} />
+             <Route path={ROUTE_PATHS.questDetail} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><QuestDetail /></Suspense></ProtectedRoute>} />
+             <Route path={ROUTE_PATHS.questStart} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><QuestStart /></Suspense></ProtectedRoute>} />
+             <Route path={ROUTE_PATHS.ambitions} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AmbitionsManager /></Suspense></ProtectedRoute>} />
 
              {/* Page RGPD - DOIT être publique selon la loi */}
              <Route path={ROUTE_PATHS.mesDonneesRgpd} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MesDonneesRGPD /></Suspense>} />
