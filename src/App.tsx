@@ -27,6 +27,7 @@ import { ROUTE_PATHS } from '@/config/routes';
 import { SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/layout/AppSidebar';
 import { useSidebarState } from '@/hooks/useSidebarState';
+import { Breadcrumb } from '@/components/layout/Breadcrumb';
 
 // ⚡ LAZY LOADING - Composants non-critiques chargés à la demande
 const DynamicOnboarding = lazy(() => import("@/components/onboarding/DynamicOnboarding").then(module => ({
@@ -181,7 +182,9 @@ const App = () => {
                               <div className="flex-1 flex flex-col min-w-0">
                                 {/* Show GlobalHeader on homepage only, MainNavigation on other pages */}
                                 <MainNavigation />
-                            <main id="main-content" tabIndex={-1} className="pt-16">
+                                {/* Breadcrumb Navigation - Displayed below main navigation */}
+                                <Breadcrumb />
+                            <main id="main-content" tabIndex={-1} className="pt-12">
                               <Routes>
         <Route path={ROUTE_PATHS.modularDashboard} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><ModularDashboard /></Suspense>} />
            <Route path={ROUTE_PATHS.dashboard} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Dashboard /></Suspense>} />
