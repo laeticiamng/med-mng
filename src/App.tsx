@@ -14,6 +14,7 @@ import { CookieBanner } from "@/components/common/CookieBanner";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { Bell } from 'lucide-react';
 import { MainNavigation } from '@/components/layout/MainNavigation';
+import { GlobalHeader } from '@/components/layout/GlobalHeader';
 import { Footer } from '@/components/layout/Footer';
 import { InternationalizationProvider } from '@/contexts/InternationalizationContext';
 import { PerformanceProvider } from '@/contexts/PerformanceContext';
@@ -167,6 +168,7 @@ const App = () => {
                         <PerformanceProvider>
                           <SkipLinks />
                           <div id="app-root" className="min-h-screen bg-background">
+                            {/* Show GlobalHeader on homepage only, MainNavigation on other pages */}
                             <MainNavigation />
                             <main id="main-content" tabIndex={-1} className="pt-16">
                               <Routes>
