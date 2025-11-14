@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { GlobalSearch } from './GlobalSearch';
 import {
   Settings,
   Bell,
@@ -117,6 +118,11 @@ export const MainNavigation: React.FC = () => {
               MED MNG
             </span>
           </Link>
+
+          {/* Global Search - Center */}
+          <div className="flex-1 max-w-md px-4">
+            <GlobalSearch />
+          </div>
 
           {/* Navigation desktop */}
           <div className="hidden md:flex items-center space-x-1">
