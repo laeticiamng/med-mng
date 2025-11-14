@@ -288,9 +288,11 @@ const Index = () => {
           </div>
         </Suspense>
         
-        {/* Footer - LAZY LOADED */}
+        {/* Footer - Enhanced with Newsletter & Social */}
         <Suspense fallback={<LazyLoadSpinner />}>
-          <AppFooter />
+          {React.createElement(React.lazy(() => import('@/components/layout/Footer').then(module => ({
+            default: module.Footer
+          }))))}
         </Suspense>
       </div>
 

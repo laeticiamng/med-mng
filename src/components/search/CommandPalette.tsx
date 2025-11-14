@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   CommandDialog,
@@ -20,12 +20,15 @@ import {
   ShoppingBag,
   Search,
   FileText,
-  Stethoscope
+  Stethoscope,
+  Hash,
+  TrendingUp,
 } from 'lucide-react';
 import { ROUTE_PATHS } from '@/config/routes';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { TranslatedText } from '@/components/TranslatedText';
+import { Badge } from '@/components/ui/badge';
 
 interface CommandPaletteProps {
   open: boolean;
@@ -36,8 +39,64 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ open, onOpenChan
   const navigate = useNavigate();
   const [search, setSearch] = useState('');
 
-  // Mock EDN items for search (to be implemented with real data)
-  const ednItems = search.length >= 2 ? [] : [];
+  // Fetch all EDN items for real-time search
+  const { data: allEdnItems = [], isLoading } = useQuery({
+    queryKey: ['all-edn-items'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('edn_items' as any)
+        .select('item_number, title, specialty')
+        .order('item_number', { ascending: true });
+
+      if (error) {
+        console.error('Error fetching EDN items:', error);
+        return [];
+      }
+      return data || [];
+    },
+    staleTime: 10 * 60 * 1000, // 10 minutes
+  });
+
+  // Real-time search in EDN items with highlighting
+  const filteredEdnItems = useMemo(() => {
+    if (!search || search.length < 2) return [];
+
+    const searchLower = search.toLowerCase();
+    const searchNum = parseInt(search);
+
+    return allEdnItems
+      .filter((item: any) => {
+        // Search by item number (exact or starts with)
+        if (!isNaN(searchNum) && item.item_number?.toString().startsWith(search)) {
+          return true;
+        }
+        // Search by title or specialty
+        return (
+          item.title?.toLowerCase().includes(searchLower) ||
+          item.specialty?.toLowerCase().includes(searchLower)
+        );
+      })
+      .slice(0, 10); // Limit to 10 results
+  }, [search, allEdnItems]);
+
+  // Highlight matching text
+  const highlightMatch = (text: string, search: string) => {
+    if (!search) return text;
+    const parts = text.split(new RegExp(`(${search})`, 'gi'));
+    return (
+      <span>
+        {parts.map((part, i) =>
+          part.toLowerCase() === search.toLowerCase() ? (
+            <mark key={i} className="bg-primary/20 text-primary font-medium rounded px-0.5">
+              {part}
+            </mark>
+          ) : (
+            part
+          )
+        )}
+      </span>
+    );
+  };
 
   const mainPages = [
     { icon: Home, label: 'Accueil', path: ROUTE_PATHS.home, keywords: ['home', 'accueil'] },
@@ -101,13 +160,51 @@ export const CommandPalette: React.FC<CommandPaletteProps> = ({ open, onOpenChan
           </CommandGroup>
         )}
 
-        {ednItems.length > 0 && (
+        {search.length >= 2 && (
           <>
             <CommandSeparator />
-            <CommandGroup heading="Items EDN">
-              <CommandItem disabled className="text-sm text-muted-foreground">
-                Recherche en cours de développement...
-              </CommandItem>
+            <CommandGroup heading={`Items EDN (${filteredEdnItems.length} résultats)`}>
+              {isLoading ? (
+                <CommandItem disabled className="text-sm text-muted-foreground">
+                  <Search className="h-4 w-4 mr-2 animate-pulse" />
+                  Recherche en cours...
+                </CommandItem>
+              ) : filteredEdnItems.length > 0 ? (
+                filteredEdnItems.map((item: any) => (
+                  <CommandItem
+                    key={item.item_number}
+                    onSelect={() => {
+                      handleSelect(`${ROUTE_PATHS.ednComplete}?item=${item.item_number}`);
+                    }}
+                    className="gap-2"
+                  >
+                    <div className="flex items-center gap-2 flex-1">
+                      <Stethoscope className="h-4 w-4 text-primary flex-shrink-0" />
+                      <div className="flex flex-col flex-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <Badge variant="outline" className="text-xs">
+                            <Hash className="h-3 w-3 mr-1" />
+                            {item.item_number}
+                          </Badge>
+                          <span className="font-medium text-sm truncate">
+                            {highlightMatch(item.title || '', search)}
+                          </span>
+                        </div>
+                        {item.specialty && (
+                          <span className="text-xs text-muted-foreground truncate">
+                            {highlightMatch(item.specialty, search)}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </CommandItem>
+                ))
+              ) : (
+                <CommandItem disabled className="text-sm text-muted-foreground">
+                  <Search className="h-4 w-4 mr-2" />
+                  Aucun item trouvé pour "{search}"
+                </CommandItem>
+              )}
             </CommandGroup>
           </>
         )}
