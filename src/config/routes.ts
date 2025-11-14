@@ -63,6 +63,7 @@ export const ROUTE_PATHS = {
   rlsDocumentation: '/rls-documentation',
   securityMonitoring: '/security-monitoring',
   statistics: '/statistics',
+  advancedAnalytics: '/advanced-analytics',
   studyPlanner: '/study-planner',
   community: '/community',
   homepage: '/homepage',
