@@ -1,271 +1,309 @@
-import { Helmet } from 'react-helmet-async';
-import { Link, useParams } from 'react-router-dom';
-import { ROUTE_PATHS } from '@/config/routes';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Heart, MessageCircle, Share2, Bookmark, MoreHorizontal, ArrowLeft, Send, Edit } from 'lucide-react';
-import { useState } from 'react';
-import { useAuth } from '@/hooks/useAuth';
+import { Helmet } from 'react-helmet-async'
+import { useParams, useNavigate, Link } from 'react-router-dom'
+import { ROUTE_PATHS } from '@/config/routes'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Textarea } from '@/components/ui/textarea'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import {
+  Heart,
+  MessageCircle,
+  Eye,
+  ArrowLeft,
+  Share2,
+  AlertCircle,
+  CheckCircle,
+  Loader,
+  Trash2,
+  Edit,
+} from 'lucide-react'
+import { useState } from 'react'
+import { usePosts } from '@/hooks/usePosts'
+import { usePostComments } from '@/hooks/usePostComments'
+import { useAuth } from '@/contexts/AuthContext'
 
 export default function PostDetail() {
-  const { postId } = useParams<{ postId: string }>();
-  const { user } = useAuth();
-  const [newComment, setNewComment] = useState('');
-  const [isLiked, setIsLiked] = useState(false);
-  const [isBookmarked, setIsBookmarked] = useState(false);
+  const { postId } = useParams<{ postId: string }>()
+  const navigate = useNavigate()
+  const { user } = useAuth()
+  const { useFetchPost, useToggleLikePost, useDeletePost } = usePosts()
+  const { useFetchPostComments, useCreateComment, useDeleteComment } = usePostComments()
 
-  // Mock data
-  const post = {
-    id: postId,
-    author: {
-      name: 'Sophie Martin',
-      username: 'sophie_m',
-      avatar: null,
-      isCurrentUser: false,
-    },
-    content: 'Incroyable! J\'ai réussi à maintenir ma série de 100 jours de méditation quotidienne. C\'est fou comme cette pratique a transformé ma vie. Je me sens plus calme, plus concentré et plus heureux. 🧘‍♀️✨\n\nPour ceux qui veulent commencer:\n1. Commencez petit (5 min/jour)\n2. Trouvez un endroit calme\n3. Utilisez une app guidée\n4. Soyez régulier\n\nN\'abandonnez pas, les résultats viennent avec le temps!',
-    tags: ['meditation', 'wellness', '100days'],
-    timestamp: '2 heures',
-    likes: 142,
-    comments: 28,
-    shares: 15,
-    createdAt: new Date(Date.now() - 2 * 60 * 60 * 1000),
-  };
+  const [newComment, setNewComment] = useState('')
+  const [commentError, setCommentError] = useState<string | null>(null)
+  const [commentSuccess, setCommentSuccess] = useState(false)
 
-  const comments = [
-    {
-      id: 1,
-      author: {
-        name: 'Marc Dubois',
-        username: 'marc_d',
-        avatar: null,
-      },
-      content: 'Bravo Sophie! C\'est super inspirant. Je viens de commencer moi aussi, j\'en suis à 15 jours 😊',
-      timestamp: '1h',
-      likes: 12,
-    },
-    {
-      id: 2,
-      author: {
-        name: 'Emma Laurent',
-        username: 'emma_l',
-        avatar: null,
-      },
-      content: 'Félicitations! 100 jours c\'est énorme. Quel changement as-tu remarqué le plus ?',
-      timestamp: '45 min',
-      likes: 8,
-    },
-    {
-      id: 3,
-      author: {
-        name: 'Thomas Bernard',
-        username: 'thomas_b',
-        avatar: null,
-      },
-      content: 'Merci pour les conseils! J\'avais du mal à être régulier mais ton post me motive à recommencer 💪',
-      timestamp: '30 min',
-      likes: 5,
-    },
-  ];
+  // Fetch post
+  const { data: post, isLoading, error } = useFetchPost(postId || '')
+  
+  // Fetch comments
+  const { data: comments = [], isLoading: commentsLoading } = useFetchPostComments(postId || '', { limit: 50 })
 
-  const handleSubmitComment = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (newComment.trim()) {
-      // TODO: Implement comment submission
-      setNewComment('');
+  const toggleLikeMutation = useToggleLikePost(postId || '')
+  const deletePostMutation = useDeletePost(postId || '')
+  const createCommentMutation = useCreateComment(postId || '')
+  const deleteCommentMutation = useDeleteComment(postId || '')
+
+  const handleAddComment = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setCommentError(null)
+    setCommentSuccess(false)
+
+    if (!newComment.trim()) {
+      setCommentError('Le commentaire ne peut pas être vide')
+      return
     }
-  };
+
+    if (!user) {
+      setCommentError('Vous devez être connecté pour commenter')
+      return
+    }
+
+    try {
+      await createCommentMutation.mutateAsync({
+        content: newComment.trim(),
+      })
+      setNewComment('')
+      setCommentSuccess(true)
+      setTimeout(() => setCommentSuccess(false), 2000)
+    } catch (err) {
+      setCommentError(err instanceof Error ? err.message : 'Erreur lors de l\'ajout du commentaire')
+    }
+  }
+
+  const handleDeletePost = async () => {
+    if (!window.confirm('Êtes-vous sûr de vouloir supprimer ce post?')) return
+    
+    try {
+      await deletePostMutation.mutateAsync()
+      navigate(ROUTE_PATHS.posts)
+    } catch (err) {
+      console.error('Error deleting post:', err)
+    }
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Loader className="w-8 h-8 animate-spin text-blue-600" />
+      </div>
+    )
+  }
+
+  if (error || !post) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="container mx-auto px-4 py-8">
+          <Link to={ROUTE_PATHS.posts}>
+            <Button variant="ghost" className="mb-4">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Retour
+            </Button>
+          </Link>
+          <Alert variant="destructive">
+            <AlertCircle className="h-4 w-4" />
+            <AlertDescription>
+              Erreur lors du chargement du post
+            </AlertDescription>
+          </Alert>
+        </div>
+      </div>
+    )
+  }
+
+  const isAuthor = user?.id === post.user_id
 
   return (
     <>
       <Helmet>
-        <title>{post.author.name} sur Med-Mng | Post</title>
-        <meta name="description" content={post.content.substring(0, 160)} />
+        <title>{post.title} | Med-Mng</title>
+        <meta name="description" content={post.excerpt || post.content.substring(0, 160)} />
       </Helmet>
 
       <div className="min-h-screen bg-gray-50">
-        <div className="container mx-auto px-4 py-8 max-w-4xl">
-          {/* Header */}
-          <div className="mb-8">
-            <Link to={ROUTE_PATHS.posts}>
-              <Button variant="ghost" className="mb-4">
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Retour aux Posts
-              </Button>
-            </Link>
-          </div>
+        <div className="container mx-auto px-4 py-8 max-w-3xl">
+          {/* Back Button */}
+          <Link to={ROUTE_PATHS.posts}>
+            <Button variant="ghost" className="mb-4">
+              <ArrowLeft className="w-4 h-4 mr-2" />
+              Retour aux Posts
+            </Button>
+          </Link>
 
-          {/* Post Card */}
-          <Card className="mb-6">
-            <CardHeader className="pb-3">
-              <div className="flex items-start justify-between">
-                <div className="flex items-center gap-3">
-                  <Link to={`/users/${post.author.username}`}>
-                    <Avatar className="w-12 h-12">
-                      <AvatarImage src={post.author.avatar || undefined} />
-                      <AvatarFallback>
-                        {post.author.name.split(' ').map(n => n[0]).join('')}
-                      </AvatarFallback>
-                    </Avatar>
-                  </Link>
-                  <div>
-                    <Link to={`/users/${post.author.username}`}>
-                      <span className="font-semibold text-gray-900 hover:underline">
-                        {post.author.name}
-                      </span>
-                    </Link>
-                    <div className="flex items-center gap-2 text-sm text-gray-500">
-                      <span>@{post.author.username}</span>
-                      <span>·</span>
-                      <span>{post.timestamp}</span>
+          {/* Post */}
+          <Card className="mb-8">
+            <CardHeader>
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1">
+                  <CardTitle className="text-3xl mb-4">{post.title}</CardTitle>
+                  
+                  {/* Tags */}
+                  {post.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {post.tags.map((tag) => (
+                        <Badge key={tag} variant="secondary">
+                          #{tag}
+                        </Badge>
+                      ))}
                     </div>
+                  )}
+
+                  {/* Meta */}
+                  <div className="text-sm text-gray-600">
+                    {new Date(post.published_at || post.created_at).toLocaleDateString('fr-FR')}
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  {user && post.author.isCurrentUser && (
-                    <Link to={ROUTE_PATHS.postEdit.replace(':postId', postId!)}>
+
+                {/* Actions */}
+                {isAuthor && (
+                  <div className="flex gap-2">
+                    <Link to={`${ROUTE_PATHS.posts}/${post.id}/edit`}>
                       <Button variant="outline" size="sm">
-                        <Edit className="w-4 h-4 mr-2" />
+                        <Edit className="w-4 h-4 mr-1" />
                         Éditer
                       </Button>
                     </Link>
-                  )}
-                  <Button variant="ghost" size="sm">
-                    <MoreHorizontal className="w-4 h-4" />
-                  </Button>
-                </div>
+                    <Button
+                      variant="destructive"
+                      size="sm"
+                      onClick={handleDeletePost}
+                      disabled={deletePostMutation.isPending}
+                    >
+                      <Trash2 className="w-4 h-4 mr-1" />
+                      Supprimer
+                    </Button>
+                  </div>
+                )}
               </div>
             </CardHeader>
-            <CardContent>
-              <p className="text-gray-900 text-lg mb-4 whitespace-pre-line">
-                {post.content}
-              </p>
 
-              {/* Tags */}
-              <div className="flex flex-wrap gap-2 mb-6">
-                {post.tags.map((tag) => (
-                  <Badge key={tag} variant="secondary">
-                    #{tag}
-                  </Badge>
-                ))}
+            <CardContent>
+              {/* Content */}
+              <div className="prose prose-sm max-w-none mb-6">
+                {post.content}
               </div>
 
               {/* Stats */}
-              <div className="flex items-center gap-6 text-sm text-gray-500 pb-4 border-b">
-                <span>{post.likes} likes</span>
-                <span>{post.comments} commentaires</span>
-                <span>{post.shares} partages</span>
-              </div>
-
-              {/* Actions */}
-              <div className="flex items-center gap-6 text-gray-500 pt-4">
+              <div className="flex items-center gap-8 text-sm text-gray-600 pt-6 border-t">
+                <div className="flex items-center gap-2">
+                  <Eye className="w-4 h-4" />
+                  <span>{post.view_count} vues</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <MessageCircle className="w-4 h-4" />
+                  <span>{post.comment_count} commentaires</span>
+                </div>
                 <button
-                  onClick={() => setIsLiked(!isLiked)}
-                  className={`flex items-center gap-2 transition-colors ${
-                    isLiked ? 'text-red-600' : 'hover:text-red-600'
-                  }`}
+                  onClick={() => toggleLikeMutation.mutate()}
+                  className="flex items-center gap-2 hover:text-red-600 transition-colors"
                 >
-                  <Heart className={`w-5 h-5 ${isLiked ? 'fill-current' : ''}`} />
-                  <span className="text-sm font-medium">J'aime</span>
-                </button>
-                <button className="flex items-center gap-2 hover:text-blue-600 transition-colors">
-                  <MessageCircle className="w-5 h-5" />
-                  <span className="text-sm font-medium">Commenter</span>
-                </button>
-                <button className="flex items-center gap-2 hover:text-green-600 transition-colors">
-                  <Share2 className="w-5 h-5" />
-                  <span className="text-sm font-medium">Partager</span>
-                </button>
-                <button
-                  onClick={() => setIsBookmarked(!isBookmarked)}
-                  className={`ml-auto transition-colors ${
-                    isBookmarked ? 'text-blue-600' : 'hover:text-blue-600'
-                  }`}
-                >
-                  <Bookmark className={`w-5 h-5 ${isBookmarked ? 'fill-current' : ''}`} />
+                  <Heart className="w-4 h-4" />
+                  <span>{post.like_count} likes</span>
                 </button>
               </div>
             </CardContent>
           </Card>
 
           {/* Comments Section */}
-          <Card>
-            <CardHeader>
-              <h2 className="text-xl font-semibold text-gray-900">
-                Commentaires ({comments.length})
-              </h2>
-            </CardHeader>
-            <CardContent>
-              {/* Add Comment */}
-              {user && (
-                <form onSubmit={handleSubmitComment} className="mb-6 pb-6 border-b">
-                  <div className="flex gap-3">
-                    <Avatar className="w-10 h-10">
-                      <AvatarImage src={user.avatar_url || undefined} />
-                      <AvatarFallback>
-                        {user.user_metadata?.display_name?.charAt(0) || user.email?.charAt(0) || '?'}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div className="flex-1">
-                      <Textarea
-                        value={newComment}
-                        onChange={(e) => setNewComment(e.target.value)}
-                        placeholder="Ajoutez un commentaire..."
-                        rows={3}
-                        className="mb-2"
-                      />
-                      <div className="flex justify-end">
-                        <Button type="submit" disabled={!newComment.trim()}>
-                          <Send className="w-4 h-4 mr-2" />
-                          Commenter
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </form>
-              )}
+          <div className="space-y-6">
+            <h3 className="text-2xl font-bold">Commentaires</h3>
 
-              {/* Comments List */}
-              <div className="space-y-6">
-                {comments.map((comment) => (
-                  <div key={comment.id} className="flex gap-3">
-                    <Link to={`/users/${comment.author.username}`}>
-                      <Avatar className="w-10 h-10">
-                        <AvatarImage src={comment.author.avatar || undefined} />
-                        <AvatarFallback>
-                          {comment.author.name.split(' ').map(n => n[0]).join('')}
-                        </AvatarFallback>
-                      </Avatar>
-                    </Link>
-                    <div className="flex-1">
-                      <div className="bg-gray-100 rounded-lg p-3 mb-2">
-                        <Link to={`/users/${comment.author.username}`}>
-                          <span className="font-semibold text-gray-900 hover:underline">
-                            {comment.author.name}
-                          </span>
-                        </Link>
-                        <p className="text-gray-700 mt-1">{comment.content}</p>
-                      </div>
-                      <div className="flex items-center gap-4 text-sm text-gray-500 px-3">
-                        <span>{comment.timestamp}</span>
-                        <button className="hover:text-red-600 transition-colors">
-                          J'aime ({comment.likes})
-                        </button>
-                        <button className="hover:text-blue-600 transition-colors">
-                          Répondre
-                        </button>
-                      </div>
+            {/* Add Comment */}
+            {user && (
+              <Card>
+                <CardContent className="pt-6">
+                  {commentError && (
+                    <Alert variant="destructive" className="mb-4">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription>{commentError}</AlertDescription>
+                    </Alert>
+                  )}
+
+                  {commentSuccess && (
+                    <Alert className="mb-4 border-green-200 bg-green-50">
+                      <CheckCircle className="h-4 w-4 text-green-600" />
+                      <AlertDescription className="text-green-800">
+                        Commentaire ajouté avec succès!
+                      </AlertDescription>
+                    </Alert>
+                  )}
+
+                  <form onSubmit={handleAddComment}>
+                    <Textarea
+                      placeholder="Ajouter un commentaire..."
+                      value={newComment}
+                      onChange={(e) => setNewComment(e.target.value)}
+                      rows={4}
+                      disabled={createCommentMutation.isPending}
+                    />
+                    <div className="mt-3">
+                      <Button
+                        type="submit"
+                        disabled={!newComment.trim() || createCommentMutation.isPending}
+                      >
+                        {createCommentMutation.isPending ? 'Envoi...' : 'Commenter'}
+                      </Button>
                     </div>
-                  </div>
+                  </form>
+                </CardContent>
+              </Card>
+            )}
+
+            {!user && (
+              <Alert>
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>
+                  <Link to={ROUTE_PATHS.login} className="text-blue-600 hover:underline">
+                    Connectez-vous
+                  </Link>
+                  {' '}pour commenter
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {/* Comments List */}
+            {commentsLoading ? (
+              <div className="flex justify-center py-8">
+                <Loader className="w-8 h-8 animate-spin text-blue-600" />
+              </div>
+            ) : comments.length === 0 ? (
+              <Card>
+                <CardContent className="pt-12 text-center pb-12">
+                  <p className="text-gray-600">Aucun commentaire pour le moment</p>
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-4">
+                {comments.map((comment) => (
+                  <Card key={comment.id}>
+                    <CardContent className="pt-6">
+                      <p className="text-sm text-gray-600 mb-2">
+                        {new Date(comment.created_at).toLocaleDateString('fr-FR')}
+                      </p>
+                      <p className="mb-3">{comment.content}</p>
+                      <div className="flex items-center gap-4">
+                        <button className="text-sm text-gray-600 hover:text-red-600">
+                          <Heart className="w-4 h-4 inline mr-1" />
+                          {comment.like_count}
+                        </button>
+                        {user?.id === comment.user_id && (
+                          <button
+                            onClick={() => deleteCommentMutation.mutate()}
+                            className="text-sm text-red-600 hover:text-red-800"
+                          >
+                            Supprimer
+                          </button>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
                 ))}
               </div>
-            </CardContent>
-          </Card>
+            )}
+          </div>
         </div>
       </div>
     </>
-  );
+  )
 }
