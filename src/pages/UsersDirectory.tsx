@@ -1,173 +1,235 @@
-import { Helmet } from 'react-helmet-async';
-import { Link } from 'react-router-dom';
-import { ROUTE_PATHS } from '@/config/routes';
-import { Users, Search, Trophy, Star, TrendingUp } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { useState } from 'react';
+import { useState, useMemo } from 'react'
+import { Link } from 'react-router-dom'
+import { ROUTE_PATHS } from '@/config/routes'
+import { Search, MapPin, Briefcase, Eye, Heart, MessageCircle, Loader } from 'lucide-react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { useAuth } from '@/contexts/AuthContext'
+import { useSearchProfiles, useFetchTrendingUsers } from '@/hooks/useUserProfile'
+import { toast } from 'sonner'
 
 export default function UsersDirectory() {
-  const [searchTerm, setSearchTerm] = useState('');
+  const { user: currentUser } = useAuth()
+  const [searchQuery, setSearchQuery] = useState('')
+  const [selectedCategory, setSelectedCategory] = useState<'all' | 'trending'>('trending')
 
-  const { data: users, isLoading } = useQuery({
-    queryKey: ['users-directory'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('profiles_public')
-        .select('*, user_achievements(count)')
-        .order('created_at', { ascending: false })
-        .limit(50);
+  // Queries
+  const { data: searchResults = [], isLoading: searchLoading } = useSearchProfiles(searchQuery, searchQuery.length > 2 ? true : false)
+  const { data: trendingUsers = [], isLoading: trendingLoading } = useFetchTrendingUsers(25)
 
-      if (error) throw error;
-      return data;
+  // Determine which data to display
+  const displayData = useMemo(() => {
+    if (searchQuery.length > 2) {
+      return searchResults
     }
-  });
+    if (selectedCategory === 'trending') {
+      return trendingUsers
+    }
+    return []
+  }, [searchQuery, selectedCategory, searchResults, trendingUsers])
 
-  const filteredUsers = users?.filter(user =>
-    user.username?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.display_name?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const isLoading = searchQuery.length > 2 ? searchLoading : trendingLoading
+
+  const handleSendMessage = (userId: string) => {
+    toast.info('Messages non disponibles pour le moment')
+  }
+
+  const handleVisitProfile = (userId: string) => {
+    // Navigation is handled by the Link component
+  }
 
   return (
-    <>
-      <Helmet>
-        <title>Annuaire Utilisateurs | Med-Mng</title>
-        <meta name="description" content="Découvrez la communauté Med-Mng" />
-      </Helmet>
-
-      <div className="container mx-auto px-4 py-8">
+    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20 py-8">
+      <div className="container max-w-4xl mx-auto px-4">
         {/* Header */}
-        <div className="mb-6">
-          <div className="flex items-center gap-3 mb-2">
-            <Users className="w-8 h-8 text-blue-600" />
-            <h1 className="text-3xl font-bold">Annuaire des Utilisateurs</h1>
-          </div>
-          <p className="text-muted-foreground">
-            Découvrez et connectez-vous avec la communauté
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold">Annuaire des utilisateurs</h1>
+          <p className="text-muted-foreground mt-2">
+            Découvrez les utilisateurs de la communauté et connectez-vous avec eux
           </p>
         </div>
 
-        {/* Search */}
-        <Card className="mb-6">
+        {/* Search Bar */}
+        <Card className="mb-8">
           <CardContent className="pt-6">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Search className="absolute left-3 top-3 h-5 w-5 text-muted-foreground" />
               <Input
-                placeholder="Rechercher un utilisateur..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Rechercher par nom, localisation ou profession..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10"
+                data-testid="users-search-input"
               />
             </div>
-          </CardContent>
-        </Card>
-
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardDescription>Membres Total</CardDescription>
-              <CardTitle className="text-2xl">{users?.length || 0}</CardTitle>
-            </CardHeader>
-          </Card>
-          <Card>
-            <CardHeader className="pb-3">
-              <CardDescription>Actifs Cette Semaine</CardDescription>
-              <CardTitle className="text-2xl text-green-600">
-                {Math.floor((users?.length || 0) * 0.7)}
-              </CardTitle>
-            </CardHeader>
-          </Card>
-          <Card>
-            <CardHeader className="pb-3">
-              <CardDescription>Nouveaux Ce Mois</CardDescription>
-              <CardTitle className="text-2xl text-blue-600">
-                {Math.floor((users?.length || 0) * 0.15)}
-              </CardTitle>
-            </CardHeader>
-          </Card>
-        </div>
-
-        {/* Users Grid */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Membres de la Communauté</CardTitle>
-            <CardDescription>
-              {filteredUsers?.length || 0} utilisateur{filteredUsers && filteredUsers.length > 1 ? 's' : ''}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {isLoading ? (
-              <div className="flex justify-center py-12">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-              </div>
-            ) : filteredUsers && filteredUsers.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {filteredUsers.map((user) => (
-                  <Link
-                    key={user.id}
-                    to={`${ROUTE_PATHS.users}/${user.id}`}
-                  >
-                    <Card className="hover:shadow-md transition-shadow h-full">
-                      <CardContent className="pt-6">
-                        <div className="flex flex-col items-center text-center">
-                          <Avatar className="w-16 h-16 mb-3">
-                            <AvatarImage src={user.avatar_url} />
-                            <AvatarFallback>
-                              {(user.display_name || user.username || 'U')[0].toUpperCase()}
-                            </AvatarFallback>
-                          </Avatar>
-
-                          <h3 className="font-semibold mb-1">
-                            {user.display_name || user.username || 'Utilisateur'}
-                          </h3>
-
-                          {user.bio && (
-                            <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
-                              {user.bio}
-                            </p>
-                          )}
-
-                          <div className="flex gap-4 text-sm text-muted-foreground mb-3">
-                            <div className="flex items-center gap-1">
-                              <Trophy className="w-4 h-4 text-yellow-500" />
-                              <span>{Math.floor(Math.random() * 20)} badges</span>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <Star className="w-4 h-4 text-blue-500" />
-                              <span>{Math.floor(Math.random() * 1000)} pts</span>
-                            </div>
-                          </div>
-
-                          {user.is_pro && (
-                            <Badge variant="secondary" className="mb-2">
-                              PRO
-                            </Badge>
-                          )}
-
-                          <Button variant="outline" size="sm" className="w-full">
-                            Voir le profil
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                ))}
-              </div>
-            ) : (
-              <div className="text-center py-12 text-muted-foreground">
-                <Users className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                <p>Aucun utilisateur trouvé</p>
-              </div>
+            {searchQuery.length > 0 && searchQuery.length <= 2 && (
+              <p className="text-xs text-muted-foreground mt-2">
+                Tapez au moins 3 caractères pour rechercher
+              </p>
             )}
           </CardContent>
         </Card>
+
+        {/* Tabs */}
+        {searchQuery.length <= 2 && (
+          <Tabs value={selectedCategory} onValueChange={(v) => setSelectedCategory(v as 'all' | 'trending')} className="mb-8">
+            <TabsList className="grid w-full max-w-md grid-cols-2">
+              <TabsTrigger value="trending">Tendances</TabsTrigger>
+              <TabsTrigger value="all">Tous les utilisateurs</TabsTrigger>
+            </TabsList>
+          </Tabs>
+        )}
+
+        {/* Users Grid */}
+        {isLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <Skeleton key={i} className="h-64 w-full rounded" />
+            ))}
+          </div>
+        ) : displayData.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {displayData.map((user) => (
+              <Card
+                key={user.id}
+                className="flex flex-col hover:shadow-lg transition-shadow"
+                data-testid={`user-card-${user.id}`}
+              >
+                <CardContent className="pt-6 flex-1 flex flex-col">
+                  {/* Avatar and Name */}
+                  <div className="flex flex-col items-center text-center mb-4">
+                    <Avatar className="w-16 h-16 mb-3">
+                      <AvatarImage src={user.avatar_url} />
+                      <AvatarFallback className="text-lg">
+                        {(user.display_name || 'U')[0].toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex items-center gap-2 flex-wrap justify-center mb-1">
+                      <h3 className="font-semibold text-lg">{user.display_name || 'Utilisateur'}</h3>
+                      {user.verified && (
+                        <Badge variant="secondary" className="bg-blue-100 text-xs">
+                          ✓
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Bio */}
+                  {user.bio && (
+                    <p className="text-sm text-muted-foreground text-center mb-4 line-clamp-2">
+                      {user.bio}
+                    </p>
+                  )}
+
+                  {/* Meta Information */}
+                  <div className="space-y-2 mb-4 text-sm text-muted-foreground">
+                    {user.location && (
+                      <div className="flex items-center gap-2 justify-center">
+                        <MapPin className="h-4 w-4 flex-shrink-0" />
+                        <span>{user.location}</span>
+                      </div>
+                    )}
+                    {user.occupation && (
+                      <div className="flex items-center gap-2 justify-center">
+                        <Briefcase className="h-4 w-4 flex-shrink-0" />
+                        <span>{user.occupation}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Stats */}
+                  <div className="grid grid-cols-3 gap-2 mb-4 pt-4 border-t">
+                    <div className="text-center">
+                      <div className="text-lg font-bold text-blue-600">
+                        {user.posts_count || 0}
+                      </div>
+                      <div className="text-xs text-muted-foreground">Posts</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-lg font-bold text-green-600">
+                        {user.followers_count || 0}
+                      </div>
+                      <div className="text-xs text-muted-foreground">Followers</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="text-lg font-bold text-purple-600">
+                        {Math.round((user.engagement_score || 0) * 100)}%
+                      </div>
+                      <div className="text-xs text-muted-foreground">Engagement</div>
+                    </div>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="flex gap-2 mt-auto pt-4 border-t">
+                    <Link
+                      to={ROUTE_PATHS.userProfile.replace(':userId', user.id)}
+                      className="flex-1"
+                    >
+                      <Button
+                        variant="outline"
+                        className="w-full"
+                        size="sm"
+                        data-testid={`view-profile-${user.id}`}
+                      >
+                        <Eye className="h-4 w-4 mr-1" />
+                        Voir le profil
+                      </Button>
+                    </Link>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleSendMessage(user.id)}
+                      disabled={!currentUser || currentUser.id === user.id}
+                      data-testid={`message-${user.id}`}
+                    >
+                      <MessageCircle className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center py-12">
+            <div className="text-center max-w-md">
+              <div className="mb-4 text-5xl">🔍</div>
+              <h3 className="text-lg font-semibold mb-2">
+                {searchQuery.length > 2 ? 'Aucun utilisateur trouvé' : 'Aucun utilisateur disponible'}
+              </h3>
+              <p className="text-muted-foreground">
+                {searchQuery.length > 2
+                  ? 'Essayez une autre recherche'
+                  : 'Sélectionnez une catégorie pour commencer'}
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Info Section */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-12">
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Découvrir</CardTitle>
+            </CardHeader>
+            <CardContent className="text-sm text-muted-foreground">
+              Recherchez par nom, localisation ou profession pour trouver les utilisateurs qui vous intéressent
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Connecter</CardTitle>
+            </CardHeader>
+            <CardContent className="text-sm text-muted-foreground">
+              Suivez les utilisateurs pour rester à jour avec leurs activités et contenus
+            </CardContent>
+          </Card>
+        </div>
       </div>
-    </>
-  );
+    </div>
+  )
 }
