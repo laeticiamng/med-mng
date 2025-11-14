@@ -1,339 +1,171 @@
-import { Helmet } from 'react-helmet-async'
-import { Link, useNavigate } from 'react-router-dom'
+import { useState } from 'react'
 import { ROUTE_PATHS } from '@/config/routes'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
+import { Card, CardContent } from '@/components/ui/card'
+import { Skeleton } from '@/components/ui/skeleton'
 import {
-  Heart,
-  MessageCircle,
-  Eye,
-  Plus,
-  Search,
-  Loader,
-  AlertCircle,
-  TrendingUp,
-} from 'lucide-react'
-import { useState, useMemo } from 'react'
-import { usePosts } from '@/hooks/usePosts'
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select'
+import { CreatePostForm } from '@/components/posts/CreatePostForm'
+import { PostCard } from '@/components/posts/PostCard'
+import { useFetchFeedPosts, useFetchPostsByCategory } from '@/hooks/usePosts'
 import { useAuth } from '@/contexts/AuthContext'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import { FavoritesButton } from '@/components/favorites/FavoritesButton'
+import { PostCategory } from '@/services/posts.service'
+import { Link } from 'react-router-dom'
 
-export default function PostsFeed() {
-  const navigate = useNavigate()
+export default function Posts() {
   const { user } = useAuth()
-  const { useFetchPublishedPosts, useFetchTrendingPosts } = usePosts()
+  const [selectedCategory, setSelectedCategory] = useState<PostCategory | 'all'>('all')
+  const [page, setPage] = useState(0)
+  const pageSize = 10
 
-  const [searchQuery, setSearchQuery] = useState('')
-  const [selectedTag, setSelectedTag] = useState<string | null>(null)
-  const [sortBy, setSortBy] = useState<'recent' | 'popular' | 'mostliked'>('recent')
+  const { data: feedPosts = [], isLoading: feedLoading } = useFetchFeedPosts(pageSize, page * pageSize)
+  const { data: categoryPosts = [], isLoading: categoryLoading } = useFetchPostsByCategory(
+    selectedCategory as PostCategory,
+    pageSize,
+    page * pageSize
+  )
 
-  // Fetch posts
-  const {
-    data: posts = [],
-    isLoading,
-    error,
-  } = useFetchPublishedPosts({
-    tags: selectedTag ? [selectedTag] : undefined,
-    sortBy,
-    limit: 20,
-  })
+  const posts = selectedCategory === 'all' ? feedPosts : categoryPosts
+  const isLoading = selectedCategory === 'all' ? feedLoading : categoryLoading
 
-  const { data: trendingPosts = [] } = useFetchTrendingPosts(5)
-
-  // Filter by search query
-  const filteredPosts = useMemo(() => {
-    if (!searchQuery) return posts
-    const query = searchQuery.toLowerCase()
-    return posts.filter(
-      (post) =>
-        post.title.toLowerCase().includes(query) ||
-        post.content.toLowerCase().includes(query)
-    )
-  }, [posts, searchQuery])
-
-  // Get all unique tags
-  const allTags = useMemo(() => {
-    const tags = new Set<string>()
-    posts.forEach((post) => {
-      post.tags.forEach((tag) => tags.add(tag))
-    })
-    return Array.from(tags).slice(0, 10)
-  }, [posts])
+  const categories: { value: PostCategory | 'all'; label: string }[] = [
+    { value: 'all', label: 'Tous les posts' },
+    { value: 'lifestyle', label: 'Mode de vie' },
+    { value: 'learning', label: 'Apprentissage' },
+    { value: 'wellness', label: 'Bien-être' },
+    { value: 'achievement', label: 'Réussite' },
+    { value: 'question', label: 'Questions' },
+  ]
 
   return (
-    <>
-      <Helmet>
-        <title>Feed Posts | Med-Mng</title>
-        <meta name="description" content="Découvrez les posts de la communauté" />
-      </Helmet>
+    <div className="min-h-screen bg-gradient-to-b from-background to-muted/20 py-8">
+      <div className="container max-w-2xl mx-auto px-4">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold">Communauté</h1>
+          <p className="text-muted-foreground mt-2">
+            Découvrez et partagez du contenu inspirant avec la communauté
+          </p>
+        </div>
 
-      <div className="min-h-screen bg-gray-50">
-        <div className="container mx-auto px-4 py-8">
-          {/* Header with Create Button */}
-          <div className="mb-8 flex items-center justify-between">
-            <div>
-              <h1 className="text-4xl font-bold text-gray-900 mb-2">
-                Posts Communauté
-              </h1>
-              <p className="text-lg text-gray-600">
-                Découvrez et partagez avec la communauté
-              </p>
-            </div>
-            {user && (
-              <Link to={ROUTE_PATHS.createPost}>
-                <Button size="lg">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Créer un Post
-                </Button>
-              </Link>
-            )}
+        {/* Create Post Section (only for authenticated users) */}
+        {user && (
+          <div className="mb-8">
+            <CreatePostForm onSuccess={() => setPage(0)} />
           </div>
+        )}
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Main Feed */}
-            <div className="lg:col-span-2 space-y-6">
-              {/* Search and Sort */}
-              <Card>
-                <CardContent className="pt-6 space-y-4">
-                  {/* Search */}
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
-                    <Input
-                      placeholder="Rechercher des posts..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      className="pl-9"
-                    />
-                  </div>
+        {/* Category Filter */}
+        <Card className="mb-8">
+          <CardContent className="pt-6">
+            <div className="flex items-center gap-3">
+              <label className="text-sm font-medium">Filtrer par catégorie:</label>
+              <Select
+                value={selectedCategory}
+                onValueChange={(value) => {
+                  setSelectedCategory(value as PostCategory | 'all')
+                  setPage(0)
+                }}
+              >
+                <SelectTrigger className="w-48">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {categories.map((cat) => (
+                    <SelectItem key={cat.value} value={cat.value}>
+                      {cat.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </CardContent>
+        </Card>
 
-                  {/* Sort */}
-                  <div className="flex gap-2">
-                    <Button
-                      variant={sortBy === 'recent' ? 'default' : 'outline'}
-                      onClick={() => setSortBy('recent')}
-                      size="sm"
-                    >
-                      Récents
-                    </Button>
-                    <Button
-                      variant={sortBy === 'popular' ? 'default' : 'outline'}
-                      onClick={() => setSortBy('popular')}
-                      size="sm"
-                    >
-                      <Eye className="w-4 h-4 mr-1" />
-                      Populaires
-                    </Button>
-                    <Button
-                      variant={sortBy === 'mostliked' ? 'default' : 'outline'}
-                      onClick={() => setSortBy('mostliked')}
-                      size="sm"
-                    >
-                      <Heart className="w-4 h-4 mr-1" />
-                      Plus aimés
-                    </Button>
-                  </div>
-
-                  {/* Tags */}
-                  {selectedTag && (
-                    <div className="flex items-center gap-2 text-sm">
-                      <span>Filtré par:</span>
-                      <Badge>
-                        #{selectedTag}
-                        <button
-                          onClick={() => setSelectedTag(null)}
-                          className="ml-2"
-                        >
-                          ×
-                        </button>
-                      </Badge>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* Error */}
-              {error && (
-                <Alert variant="destructive">
-                  <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>
-                    Erreur lors du chargement des posts
-                  </AlertDescription>
-                </Alert>
-              )}
-
-              {/* Loading */}
-              {isLoading && (
-                <div className="flex justify-center py-12">
-                  <Loader className="w-8 h-8 animate-spin text-blue-600" />
-                </div>
-              )}
-
-              {/* Posts List */}
-              {!isLoading && filteredPosts.length === 0 && (
-                <Card>
-                  <CardContent className="pt-12 text-center pb-12">
-                    <p className="text-gray-600 mb-4">Aucun post trouvé</p>
-                    {user && (
-                      <Link to={ROUTE_PATHS.createPost}>
-                        <Button>Créer le premier post</Button>
-                      </Link>
-                    )}
-                  </CardContent>
-                </Card>
-              )}
-
-              {filteredPosts.map((post) => (
-                <Card
-                  key={post.id}
-                  className="hover:shadow-lg transition-shadow"
-                >
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1 cursor-pointer min-w-0" onClick={() => navigate(`${ROUTE_PATHS.posts}/${post.id}`)}>
-                        <CardTitle className="text-2xl mb-2">
-                          {post.title}
-                        </CardTitle>
-                        <p className="text-gray-600 line-clamp-2">
-                          {post.excerpt || post.content.substring(0, 160)}...
-                        </p>
-                      </div>
-                      <div className="ml-4 flex-shrink-0">
-                        <FavoritesButton
-                          itemId={post.id}
-                          itemType="post"
-                          size="md"
-                          variant="ghost"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Tags */}
-                    {post.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-2 mt-4">
-                        {post.tags.slice(0, 3).map((tag) => (
-                          <Badge
-                            key={tag}
-                            variant="secondary"
-                            className="cursor-pointer hover:bg-gray-400"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              setSelectedTag(tag)
-                            }}
-                          >
-                            #{tag}
-                          </Badge>
-                        ))}
-                        {post.tags.length > 3 && (
-                          <Badge variant="outline">
-                            +{post.tags.length - 3}
-                          </Badge>
-                        )}
-                      </div>
-                    )}
-                  </CardHeader>
-
-                  <CardContent>
-                    {/* Stats */}
-                    <div className="flex items-center gap-6 text-sm text-gray-600">
-                      <div className="flex items-center gap-1">
-                        <Eye className="w-4 h-4" />
-                        <span>{post.view_count}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <MessageCircle className="w-4 h-4" />
-                        <span>{post.comment_count}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Heart className="w-4 h-4" />
-                        <span>{post.like_count}</span>
-                      </div>
-                      <div className="ml-auto text-xs">
-                        {new Date(post.published_at || post.created_at).toLocaleDateString('fr-FR')}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+        {/* Posts Feed */}
+        <div className="space-y-4">
+          {isLoading ? (
+            // Loading skeletons
+            <>
+              {[1, 2, 3].map((i) => (
+                <Skeleton key={i} className="h-96 w-full rounded-lg" />
               ))}
+            </>
+          ) : posts.length > 0 ? (
+            <>
+              {posts.map((post) => (
+                <PostCard key={post.id} post={post} showActions={true} />
+              ))}
+
+              {/* Pagination */}
+              <div className="flex items-center justify-center gap-3 pt-8">
+                <Button
+                  variant="outline"
+                  onClick={() => setPage((p) => Math.max(0, p - 1))}
+                  disabled={page === 0}
+                >
+                  Précédent
+                </Button>
+                <span className="text-sm text-muted-foreground">
+                  Page {page + 1}
+                </span>
+                <Button
+                  variant="outline"
+                  onClick={() => setPage((p) => p + 1)}
+                  disabled={posts.length < pageSize}
+                >
+                  Suivant
+                </Button>
+              </div>
+            </>
+          ) : (
+            // Empty state
+            <div className="flex flex-col items-center justify-center py-12">
+              <div className="text-center max-w-md">
+                <div className="mb-4 text-5xl">📝</div>
+                <h3 className="text-lg font-semibold mb-2">Aucun post pour le moment</h3>
+                <p className="text-muted-foreground mb-6">
+                  Soyez le premier à partager un post dans cette catégorie!
+                </p>
+                {user ? (
+                  <Button onClick={() => setSelectedCategory('all')}>
+                    Voir tous les posts
+                  </Button>
+                ) : (
+                  <Link to={ROUTE_PATHS.medMngLogin}>
+                    <Button>Se connecter pour partager</Button>
+                  </Link>
+                )}
+              </div>
             </div>
+          )}
+        </div>
 
-            {/* Sidebar */}
-            <div className="space-y-6">
-              {/* Trending Posts */}
-              {trendingPosts.length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="flex items-center gap-2">
-                      <TrendingUp className="w-5 h-5" />
-                      Tendances
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    {trendingPosts.map((post) => (
-                      <div
-                        key={post.id}
-                        className="p-3 bg-gray-50 rounded-lg hover:bg-gray-100 cursor-pointer transition-colors"
-                        onClick={() => navigate(`${ROUTE_PATHS.posts}/${post.id}`)}
-                      >
-                        <h4 className="font-semibold text-sm line-clamp-2 mb-1">
-                          {post.title}
-                        </h4>
-                        <div className="flex items-center gap-2 text-xs text-gray-600">
-                          <Heart className="w-3 h-3" />
-                          <span>{post.like_count} likes</span>
-                        </div>
-                      </div>
-                    ))}
-                  </CardContent>
-                </Card>
-              )}
-
-              {/* Top Tags */}
-              {allTags.length > 0 && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-lg">Tags populaires</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="flex flex-wrap gap-2">
-                      {allTags.map((tag) => (
-                        <Badge
-                          key={tag}
-                          variant={selectedTag === tag ? 'default' : 'secondary'}
-                          className="cursor-pointer"
-                          onClick={() =>
-                            setSelectedTag(selectedTag === tag ? null : tag)
-                          }
-                        >
-                          #{tag}
-                        </Badge>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              )}
-
-              {/* Info Card */}
-              <Card className="bg-blue-50 border-blue-200">
-                <CardHeader>
-                  <CardTitle className="text-lg">À propos</CardTitle>
-                </CardHeader>
-                <CardContent className="text-sm text-gray-700 space-y-2">
-                  <p>
-                    Bienvenue dans la communauté MED-MNG! Partagez vos
-                    expériences et apprenez des autres.
-                  </p>
-                  <p>
-                    Respectez la communauté et les règles de conduite.
-                  </p>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
+        {/* Info Section */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-12">
+          <Card>
+            <CardContent className="pt-6">
+              <h3 className="font-semibold mb-2">💡 Conseils de partage</h3>
+              <p className="text-sm text-muted-foreground">
+                Partagez des expériences authentiques, posez des questions et engagez la conversation
+              </p>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardContent className="pt-6">
+              <h3 className="font-semibold mb-2">🤝 Communauté respectueuse</h3>
+              <p className="text-sm text-muted-foreground">
+                Notre communauté valorise le respect, l'entraide et la bienveillance
+              </p>
+            </CardContent>
+          </Card>
         </div>
       </div>
-    </>
+    </div>
   )
 }
