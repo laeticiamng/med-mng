@@ -182,8 +182,20 @@ const App = () => {
           <Route path={ROUTE_PATHS.home} element={<Index />} />
           <Route path={ROUTE_PATHS.generator} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><Generator /></Suspense>} />
           {/* EDN Interface Unifiée - toutes les fonctionnalités fusionnées */}
-          <Route path={ROUTE_PATHS.ednComplete} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EdnComplete /></Suspense>} />
-          <Route path={ROUTE_PATHS.ednCompleteDetail} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EdnComplete /></Suspense>} />
+          <Route path={ROUTE_PATHS.ednComplete} element={
+            <ErrorBoundary>
+              <Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
+                <EdnComplete />
+              </Suspense>
+            </ErrorBoundary>
+          } />
+          <Route path={ROUTE_PATHS.ednCompleteDetail} element={
+            <ErrorBoundary>
+              <Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}>
+                <EdnComplete />
+              </Suspense>
+            </ErrorBoundary>
+          } />
           
           {/* Redirections vers l'interface unifiée */}
           <Route path={ROUTE_PATHS.ednLegacy} element={<Navigate to={ROUTE_PATHS.ednComplete} replace />} />
