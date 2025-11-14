@@ -219,6 +219,8 @@ const BadgesGallery = lazy(() => import("./pages/BadgesGallery"));
 const BadgeDetail = lazy(() => import("./pages/BadgeDetail"));
 const AurasCollection = lazy(() => import("./pages/AurasCollection"));
 const AuraDetail = lazy(() => import("./pages/AuraDetail"));
+const BadgeCollection = lazy(() => import("./pages/BadgeCollection"));
+const CommunityLeaderboard = lazy(() => import("./pages/Leaderboard"));
 
 // 🆕 NOUVELLES PAGES PRIORITÉ 3 - Lazy loaded
 // API Developer Portal
@@ -479,8 +481,10 @@ const App = () => {
              {/* Badges & Auras - PUBLIC read, progression tracking */}
              <Route path={ROUTE_PATHS.badges} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><BadgesGallery /></Suspense>} />
              <Route path={ROUTE_PATHS.badgeDetail} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><BadgeDetail /></Suspense>} />
+             <Route path={ROUTE_PATHS.badgeCollection} element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><BadgeCollection /></Suspense></ProtectedRoute>} />
              <Route path={ROUTE_PATHS.auras} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AurasCollection /></Suspense>} />
              <Route path={ROUTE_PATHS.auraDetail} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AuraDetail /></Suspense>} />
+             <Route path={ROUTE_PATHS.communityLeaderboard} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><CommunityLeaderboard /></Suspense>} />
 
              {/* 🆕 NOUVELLES ROUTES PRIORITÉ 3 */}
              {/* API Developer Portal - PROTECTED (developer accounts) */}
