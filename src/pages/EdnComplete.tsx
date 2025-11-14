@@ -10,10 +10,12 @@ import { EdnItemModal } from "@/components/edn/premium/EdnItemModal";
 import { EdnHeader } from "@/components/edn/EdnHeader";
 import { EdnFilters } from "@/components/edn/EdnFilters";
 import { EdnTabsContent } from "@/components/edn/EdnTabsContent";
+import { AdvancedSearchModal } from "@/components/edn/AdvancedSearchModal";
 import { useIAQuota } from "@/hooks/useIAQuota";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useEdnFilters } from "@/hooks/useEdnFilters";
-import { useEdnItems, usePrefetchFullItem } from "@/hooks/useEdnItems";
+import { useAdvancedFilters } from "@/hooks/useAdvancedFilters";
+import { useEdnItemsInfinite, usePrefetchFullItem } from "@/hooks/useEdnItems";
 import { useEdnModal } from "@/hooks/useEdnModal";
 import { calculateItemsStats } from "@/utils/completionScore";
 import { useTrackSearch, useTrackItemView } from "@/hooks/useEdnAnalytics";
@@ -25,9 +27,9 @@ export default function EdnComplete() {
   // ============================================
   // ÉTAT PRINCIPAL
   // ============================================
-  const [page, setPage] = useState(0);
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [activeTab, setActiveTab] = useState('immersive');
+  const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
   
   const { modalState, openModal, closeModal } = useEdnModal();
   const { quota } = useIAQuota();
@@ -37,9 +39,17 @@ export default function EdnComplete() {
   const { slug } = useParams<{ slug: string }>();
 
   // ============================================
-  // DATA FETCHING (React Query)
+  // DATA FETCHING avec INFINITE SCROLL
   // ============================================
-  const { data: pageData, isLoading: loading, error: queryError } = useEdnItems(page);
+  const { 
+    data, 
+    fetchNextPage, 
+    hasNextPage, 
+    isFetchingNextPage,
+    isLoading,
+    error: queryError 
+  } = useEdnItemsInfinite();
+  
   const prefetchItem = usePrefetchFullItem();
   
   // ============================================
@@ -59,17 +69,16 @@ export default function EdnComplete() {
   // DONNÉES ET ÉTATS DÉRIVÉS
   // ============================================
   const unifiedItems = useMemo(() => {
-    if (!pageData) return [];
-    return pageData.items;
-  }, [pageData]);
+    if (!data?.pages) return [];
+    return data.pages.flatMap(page => page.items);
+  }, [data]);
   
-  const totalCount = pageData?.count || 0;
-  const hasMore = unifiedItems.length < totalCount;
+  const totalCount = data?.pages[0]?.count || 0;
   const loadingError = queryError ? String(queryError) : null;
   const stats = calculateItemsStats(unifiedItems);
 
   // ============================================
-  // FILTRES
+  // FILTRES BASIQUES + AVANCÉS
   // ============================================
   const {
     searchTerm,
@@ -80,8 +89,16 @@ export default function EdnComplete() {
     setSortBy,
     resetAllFilters,
     hasActiveFilters,
-    filteredItems
+    filteredItems: basicFilteredItems
   } = useEdnFilters(unifiedItems);
+  
+  // Filtres avancés
+  const advancedFilters = useAdvancedFilters(basicFilteredItems);
+  
+  // Items finaux après tous les filtres
+  const filteredItems = advancedFilters.isActive 
+    ? advancedFilters.filteredItems 
+    : basicFilteredItems;
   
   // Tracker les recherches
   useEffect(() => {
@@ -141,7 +158,11 @@ export default function EdnComplete() {
     prefetchItem(itemCode);
   }, [prefetchItem]);
 
-  const handleLoadMore = () => setPage(prev => prev + 1);
+  const handleLoadMore = () => {
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  };
 
   // Ouvrir automatiquement la modal si slug présent dans URL
   useEffect(() => {
@@ -160,7 +181,7 @@ export default function EdnComplete() {
   // ============================================
   // RENDU - LOADING
   // ============================================
-  if (loading && page === 0) {
+  if (isLoading && !data) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center space-y-4">
@@ -223,8 +244,26 @@ export default function EdnComplete() {
             setSortBy={setSortBy}
             viewMode={viewMode}
             setViewMode={setViewMode}
-            hasActiveFilters={hasActiveFilters}
-            resetAllFilters={resetAllFilters}
+            hasActiveFilters={hasActiveFilters || advancedFilters.hasActiveFilters}
+            resetAllFilters={() => {
+              resetAllFilters();
+              advancedFilters.resetFilters();
+            }}
+          />
+          
+          {/* Modal recherche avancée */}
+          <AdvancedSearchModal
+            filters={advancedFilters.filters}
+            onFiltersChange={advancedFilters.updateFilters}
+            onReset={advancedFilters.resetFilters}
+            onSave={advancedFilters.saveFilter}
+            savedFilters={advancedFilters.savedFilters}
+            onLoadFilter={advancedFilters.loadFilter}
+            onDeleteFilter={advancedFilters.deleteFilter}
+            onToggleFavorite={advancedFilters.toggleFavorite}
+            availableSpecialites={advancedFilters.availableSpecialites}
+            availableDomaines={advancedFilters.availableDomaines}
+            resultsCount={filteredItems.length}
           />
 
           {/* Contenu des tabs */}
@@ -232,10 +271,10 @@ export default function EdnComplete() {
             filteredItems={filteredItems}
             onOpenItem={handleOpenItem}
             onPrefetch={handlePrefetchItem}
-            hasMore={hasMore}
-            loading={loading}
+            hasMore={hasNextPage || false}
+            loading={isFetchingNextPage}
             onLoadMore={handleLoadMore}
-            page={page}
+            page={0}
             quota={quota}
             subscription={subscription}
           />
