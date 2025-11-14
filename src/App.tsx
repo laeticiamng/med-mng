@@ -57,6 +57,9 @@ const RolesManagementPage = lazy(() => import("./pages/RolesManagementPage"));
 const EcosIndex = lazy(() => import("./pages/EcosIndex"));
 const EcosScenario = lazy(() => import("./pages/EcosScenario"));
 
+// 📊 ADMIN & ANALYTICS - Lazy loaded
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
+
 // 🔒 SECURITY PAGES - Lazy loaded
 const SecurityMonitoring = lazy(() => import("./pages/SecurityMonitoring"));
 const RLSDocumentation = lazy(() => import("./pages/RLSDocumentation"));
@@ -188,6 +191,9 @@ const App = () => {
           <Route path={ROUTE_PATHS.ednItemsLegacy} element={<Navigate to={ROUTE_PATHS.ednComplete} replace />} />
           <Route path={ROUTE_PATHS.ednImmersive} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EdnImmersive /></Suspense>} />
           <Route path={ROUTE_PATHS.ednMusicLibrary} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EdnMusicLibrary /></Suspense>} />
+          
+          {/* 📊 Admin Dashboard Analytics */}
+          <Route path="/admin/dashboard" element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><AdminDashboard /></Suspense>} />
           
           <Route path={ROUTE_PATHS.ecosIndex} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EcosIndex /></Suspense>} />
           <Route path={ROUTE_PATHS.ecosScenario} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><EcosScenario /></Suspense>} />

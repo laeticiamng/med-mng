@@ -36,6 +36,8 @@ import { useEdnModal } from "@/hooks/useEdnModal";
 import { getCompletionPercentage, calculateItemsStats } from "@/utils/completionScore";
 import { useTrackSearch, useTrackItemView } from "@/hooks/useEdnAnalytics";
 import { usePerformanceMetrics, usePageLoadTime } from "@/hooks/usePerformanceMetrics";
+import { useTrendingDetection } from "@/hooks/useTrendingDetection";
+import { NotificationBell } from "@/components/notifications/NotificationBell";
 import { AnalyticsDashboard } from "@/components/edn/AnalyticsDashboard";
 import { 
   EdnItem, 
@@ -78,6 +80,13 @@ export default function EdnComplete() {
   // 📊 PERFORMANCE: Mesurer le temps de chargement
   usePageLoadTime('EdnComplete');
   usePerformanceMetrics();
+  
+  // 🔔 TRENDING: Détecter les tendances et notifier
+  useTrendingDetection({
+    checkInterval: 5 * 60 * 1000, // Vérifier toutes les 5 minutes
+    viewThreshold: 10, // Item tendance si 10+ vues
+    searchThreshold: 5, // Recherche tendance si 5+ occurrences
+  });
   
   const unifiedItems = useMemo(() => {
     if (!pageData) return [];
@@ -243,6 +252,9 @@ export default function EdnComplete() {
               </div>
               
               <div className="flex items-center gap-4">
+                {/* 🔔 Cloche de notifications */}
+                <NotificationBell />
+                
                 <QuotaIndicator compact />
                 <TabsList className="bg-muted">
                   <TabsTrigger value="revision" className="text-xs">📊 Mon Suivi</TabsTrigger>
