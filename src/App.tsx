@@ -260,6 +260,8 @@ const CalendarView = lazy(() => import("./pages/CalendarView"));
 // 🛡️ MODERATION & SAFETY - Lazy loaded
 const ModerationWorkflow = lazy(() => import("./pages/ModerationWorkflow"));
 const UserManagement = lazy(() => import("./pages/UserManagement"));
+const ContentReporting = lazy(() => import("./pages/ContentReporting"));
+const ReportsAdminPanel = lazy(() => import("./pages/ReportsAdminPanel"));
 
 const App = () => {
   const [isNotificationCenterOpen, setIsNotificationCenterOpen] = useState(false);
@@ -531,6 +533,8 @@ const App = () => {
              {/* Moderation & Safety */}
              <Route path="/admin/moderation" element={<AdminRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><ModerationWorkflow /></Suspense></AdminRoute>} />
              <Route path="/admin/users" element={<AdminRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><UserManagement /></Suspense></AdminRoute>} />
+             <Route path="/reports" element={<ProtectedRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><ContentReporting /></Suspense></ProtectedRoute>} />
+             <Route path="/admin/reports" element={<AdminRoute><Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><ReportsAdminPanel /></Suspense></AdminRoute>} />
 
              {/* Page RGPD - DOIT être publique selon la loi */}
              <Route path={ROUTE_PATHS.mesDonneesRgpd} element={<Suspense fallback={<div className="flex items-center justify-center p-8"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div></div>}><MesDonneesRGPD /></Suspense>} />
